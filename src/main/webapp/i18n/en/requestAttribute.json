@@ -1,0 +1,25 @@
+{
+  "ca3SJhApp": {
+    "requestAttribute": {
+      "home": {
+        "title": "Request Attributes",
+        "createLabel": "Create a new Request Attribute",
+        "createOrEditLabel": "Create or edit a Request Attribute",
+        "notFound": "No Request Attributes found"
+      },
+      "created": "A new Request Attribute is created with identifier {{ param }}",
+      "updated": "A Request Attribute is updated with identifier {{ param }}",
+      "deleted": "A Request Attribute is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Request Attribute {{ id }}?"
+      },
+      "detail": {
+        "title": "Request Attribute"
+      },
+      "attributeType": "Attribute Type",
+      "requestAttributeValues": "Request Attribute Values",
+      "holdingRequestAttribute": "Holding Request Attribute",
+      "csr": "Csr"
+    }
+  }
+}

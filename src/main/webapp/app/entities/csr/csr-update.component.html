@@ -1,0 +1,102 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+            <h2 id="jhi-csr-heading" jhiTranslate="ca3SJhApp.cSR.home.createOrEditLabel">Create or edit a CSR</h2>
+            <div>
+                <jhi-alert-error></jhi-alert-error>
+                <div class="form-group" [hidden]="!editForm.get('id').value">
+                    <label for="id" jhiTranslate="global.field.id">ID</label>
+                    <input type="text" class="form-control" id="id" name="id" formControlName="id"
+                        readonly />
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.cSR.csrBase64" for="field_csrBase64">Csr Base 64</label>
+                    <textarea class="form-control" name="csrBase64" id="field_csrBase64"
+                              formControlName="csrBase64"></textarea>
+                    <div *ngIf="editForm.get('csrBase64').invalid && (editForm.get('csrBase64').dirty || editForm.get('csrBase64').touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('csrBase64').errors.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.cSR.requestedOn" for="field_requestedOn">Requested On</label>
+                    <div class="input-group">
+                        <input id="field_requestedOn" type="text" class="form-control" name="requestedOn" ngbDatepicker  #requestedOnDp="ngbDatepicker" formControlName="requestedOn"/>
+                        <span class="input-group-append">
+                            <button type="button" class="btn btn-secondary" (click)="requestedOnDp.toggle()"><fa-icon [icon]="'calendar-alt'"></fa-icon></button>
+                        </span>
+                    </div>
+                    <div *ngIf="editForm.get('requestedOn').invalid && (editForm.get('requestedOn').dirty || editForm.get('requestedOn').touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('requestedOn').errors.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.cSR.status" for="field_status">Status</label>
+                    <input type="text" class="form-control" name="status" id="field_status"
+                           formControlName="status"/>
+                    <div *ngIf="editForm.get('status').invalid && (editForm.get('status').dirty || editForm.get('status').touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('status').errors.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.cSR.processInstanceId" for="field_processInstanceId">Process Instance Id</label>
+                    <input type="text" class="form-control" name="processInstanceId" id="field_processInstanceId"
+                           formControlName="processInstanceId"/>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.cSR.signingAlgorithm" for="field_signingAlgorithm">Signing Algorithm</label>
+                    <input type="text" class="form-control" name="signingAlgorithm" id="field_signingAlgorithm"
+                           formControlName="signingAlgorithm"/>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.cSR.isCSRValid" for="field_isCSRValid">Is CSR Valid</label>
+                    <input type="checkbox" class="form-control" name="isCSRValid" id="field_isCSRValid"
+                           formControlName="isCSRValid"/>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.cSR.x509KeySpec" for="field_x509KeySpec">X 509 Key Spec</label>
+                    <input type="text" class="form-control" name="x509KeySpec" id="field_x509KeySpec"
+                           formControlName="x509KeySpec"/>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.cSR.publicKeyAlgorithm" for="field_publicKeyAlgorithm">Public Key Algorithm</label>
+                    <input type="text" class="form-control" name="publicKeyAlgorithm" id="field_publicKeyAlgorithm"
+                           formControlName="publicKeyAlgorithm"/>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.cSR.publicKeyHash" for="field_publicKeyHash">Public Key Hash</label>
+                    <input type="text" class="form-control" name="publicKeyHash" id="field_publicKeyHash"
+                           formControlName="publicKeyHash"/>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.cSR.subjectPublicKeyInfoBase64" for="field_subjectPublicKeyInfoBase64">Subject Public Key Info Base 64</label>
+                    <textarea class="form-control" name="subjectPublicKeyInfoBase64" id="field_subjectPublicKeyInfoBase64"
+                              formControlName="subjectPublicKeyInfoBase64"></textarea>
+                    <div *ngIf="editForm.get('subjectPublicKeyInfoBase64').invalid && (editForm.get('subjectPublicKeyInfoBase64').dirty || editForm.get('subjectPublicKeyInfoBase64').touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('subjectPublicKeyInfoBase64').errors.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                    </div>
+                </div>
+
+            </div>
+            <div>
+                <button type="button" id="cancel-save" class="btn btn-secondary"  (click)="previousState()">
+                    <fa-icon [icon]="'ban'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+                </button>
+                <button type="submit" id="save-entity" [disabled]="editForm.invalid || isSaving" class="btn btn-primary">
+                    <fa-icon [icon]="'save'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

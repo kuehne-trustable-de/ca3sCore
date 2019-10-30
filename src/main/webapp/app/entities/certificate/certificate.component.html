@@ -1,0 +1,91 @@
+<div>
+    <h2 id="page-heading">
+        <span jhiTranslate="ca3SJhApp.certificate.home.title">Certificates</span>
+        <button id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-certificate" [routerLink]="['/certificate/new']">
+            <fa-icon [icon]="'plus'"></fa-icon>
+            <span  jhiTranslate="ca3SJhApp.certificate.home.createLabel">
+            Create a new Certificate
+            </span>
+        </button>
+    </h2>
+    <jhi-alert></jhi-alert>
+    <br/>
+    <div class="alert alert-warning" *ngIf="certificates?.length === 0">
+        <span jhiTranslate="ca3SJhApp.certificate.home.notFound">No certificates found</span>
+    </div>
+    <div class="table-responsive" *ngIf="certificates?.length > 0">
+        <table class="table table-striped" aria-describedby="page-heading">
+            <thead>
+            <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="reset.bind(this)">
+            <th jhiSortBy="id"><span jhiTranslate="global.field.id">ID</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="tbsDigest"><span jhiTranslate="ca3SJhApp.certificate.tbsDigest">Tbs Digest</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="subject"><span jhiTranslate="ca3SJhApp.certificate.subject">Subject</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="issuer"><span jhiTranslate="ca3SJhApp.certificate.issuer">Issuer</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="type"><span jhiTranslate="ca3SJhApp.certificate.type">Type</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="description"><span jhiTranslate="ca3SJhApp.certificate.description">Description</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="subjectKeyIdentifier"><span jhiTranslate="ca3SJhApp.certificate.subjectKeyIdentifier">Subject Key Identifier</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="authorityKeyIdentifier"><span jhiTranslate="ca3SJhApp.certificate.authorityKeyIdentifier">Authority Key Identifier</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="fingerprint"><span jhiTranslate="ca3SJhApp.certificate.fingerprint">Fingerprint</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="serial"><span jhiTranslate="ca3SJhApp.certificate.serial">Serial</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="validFrom"><span jhiTranslate="ca3SJhApp.certificate.validFrom">Valid From</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="validTo"><span jhiTranslate="ca3SJhApp.certificate.validTo">Valid To</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="creationExecutionId"><span jhiTranslate="ca3SJhApp.certificate.creationExecutionId">Creation Execution Id</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="contentAddedAt"><span jhiTranslate="ca3SJhApp.certificate.contentAddedAt">Content Added At</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="revokedSince"><span jhiTranslate="ca3SJhApp.certificate.revokedSince">Revoked Since</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="revocationReason"><span jhiTranslate="ca3SJhApp.certificate.revocationReason">Revocation Reason</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="revoked"><span jhiTranslate="ca3SJhApp.certificate.revoked">Revoked</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="revocationExecutionId"><span jhiTranslate="ca3SJhApp.certificate.revocationExecutionId">Revocation Execution Id</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="content"><span jhiTranslate="ca3SJhApp.certificate.content">Content</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th></th>
+            </tr>
+            </thead>
+            <tbody infinite-scroll (scrolled)="loadPage(page + 1)" [infiniteScrollDisabled]="page >= links['last']" [infiniteScrollDistance]="0">
+            <tr *ngFor="let certificate of certificates ;trackBy: trackId">
+                <td><a [routerLink]="['/certificate', certificate.id, 'view' ]">{{certificate.id}}</a></td>
+                <td>{{certificate.tbsDigest}}</td>
+                <td>{{certificate.subject}}</td>
+                <td>{{certificate.issuer}}</td>
+                <td>{{certificate.type}}</td>
+                <td>{{certificate.description}}</td>
+                <td>{{certificate.subjectKeyIdentifier}}</td>
+                <td>{{certificate.authorityKeyIdentifier}}</td>
+                <td>{{certificate.fingerprint}}</td>
+                <td>{{certificate.serial}}</td>
+                <td>{{certificate.validFrom | date:'mediumDate'}}</td>
+                <td>{{certificate.validTo | date:'mediumDate'}}</td>
+                <td>{{certificate.creationExecutionId}}</td>
+                <td>{{certificate.contentAddedAt | date:'mediumDate'}}</td>
+                <td>{{certificate.revokedSince | date:'mediumDate'}}</td>
+                <td>{{certificate.revocationReason}}</td>
+                <td>{{certificate.revoked}}</td>
+                <td>{{certificate.revocationExecutionId}}</td>
+                <td>{{certificate.content}}</td>
+                <td class="text-right">
+                    <div class="btn-group">
+                        <button type="submit"
+                                [routerLink]="['/certificate', certificate.id, 'view' ]"
+                                class="btn btn-info btn-sm">
+                            <fa-icon [icon]="'eye'"></fa-icon>
+                            <span class="d-none d-md-inline" jhiTranslate="entity.action.view">View</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/certificate', certificate.id, 'edit']"
+                                class="btn btn-primary btn-sm">
+                            <fa-icon [icon]="'pencil-alt'"></fa-icon>
+                            <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/certificate', { outlets: { popup: certificate.id + '/delete'} }]"
+                                replaceUrl="true"
+                                queryParamsHandling="merge"
+                                class="btn btn-danger btn-sm">
+                            <fa-icon [icon]="'times'"></fa-icon>
+                            <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

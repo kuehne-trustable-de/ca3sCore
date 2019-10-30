@@ -1,0 +1,71 @@
+<div>
+    <h2 id="page-heading">
+        <span jhiTranslate="ca3SJhApp.cAConnectorConfig.home.title">CA Connector Configs</span>
+        <button id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-ca-connector-config" [routerLink]="['/ca-connector-config/new']">
+            <fa-icon [icon]="'plus'"></fa-icon>
+            <span  jhiTranslate="ca3SJhApp.cAConnectorConfig.home.createLabel">
+            Create a new CA Connector Config
+            </span>
+        </button>
+    </h2>
+    <jhi-alert></jhi-alert>
+    <br/>
+    <div class="alert alert-warning" *ngIf="cAConnectorConfigs?.length === 0">
+        <span jhiTranslate="ca3SJhApp.cAConnectorConfig.home.notFound">No cAConnectorConfigs found</span>
+    </div>
+    <div class="table-responsive" *ngIf="cAConnectorConfigs?.length > 0">
+        <table class="table table-striped" aria-describedby="page-heading">
+            <thead>
+            <tr>
+            <th><span jhiTranslate="global.field.id">ID</span></th>
+            <th><span jhiTranslate="ca3SJhApp.cAConnectorConfig.configId">Config Id</span></th>
+            <th><span jhiTranslate="ca3SJhApp.cAConnectorConfig.name">Name</span></th>
+            <th><span jhiTranslate="ca3SJhApp.cAConnectorConfig.caConnectorType">Ca Connector Type</span></th>
+            <th><span jhiTranslate="ca3SJhApp.cAConnectorConfig.caUrl">Ca Url</span></th>
+            <th><span jhiTranslate="ca3SJhApp.cAConnectorConfig.secret">Secret</span></th>
+            <th><span jhiTranslate="ca3SJhApp.cAConnectorConfig.pollingOffset">Polling Offset</span></th>
+            <th><span jhiTranslate="ca3SJhApp.cAConnectorConfig.defaultCA">Default CA</span></th>
+            <th><span jhiTranslate="ca3SJhApp.cAConnectorConfig.active">Active</span></th>
+            <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let cAConnectorConfig of cAConnectorConfigs ;trackBy: trackId">
+                <td><a [routerLink]="['/ca-connector-config', cAConnectorConfig.id, 'view' ]">{{cAConnectorConfig.id}}</a></td>
+                <td>{{cAConnectorConfig.configId}}</td>
+                <td>{{cAConnectorConfig.name}}</td>
+                <td jhiTranslate="{{'ca3SJhApp.CAConnectorType.' + cAConnectorConfig.caConnectorType}}">{{cAConnectorConfig.caConnectorType}}</td>
+                <td>{{cAConnectorConfig.caUrl}}</td>
+                <td>{{cAConnectorConfig.secret}}</td>
+                <td>{{cAConnectorConfig.pollingOffset}}</td>
+                <td>{{cAConnectorConfig.defaultCA}}</td>
+                <td>{{cAConnectorConfig.active}}</td>
+                <td class="text-right">
+                    <div class="btn-group">
+                        <button type="submit"
+                                [routerLink]="['/ca-connector-config', cAConnectorConfig.id, 'view' ]"
+                                class="btn btn-info btn-sm">
+                            <fa-icon [icon]="'eye'"></fa-icon>
+                            <span class="d-none d-md-inline" jhiTranslate="entity.action.view">View</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/ca-connector-config', cAConnectorConfig.id, 'edit']"
+                                class="btn btn-primary btn-sm">
+                            <fa-icon [icon]="'pencil-alt'"></fa-icon>
+                            <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/ca-connector-config', { outlets: { popup: cAConnectorConfig.id + '/delete'} }]"
+                                replaceUrl="true"
+                                queryParamsHandling="merge"
+                                class="btn btn-danger btn-sm">
+                            <fa-icon [icon]="'times'"></fa-icon>
+                            <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

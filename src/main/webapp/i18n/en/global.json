@@ -7,6 +7,22 @@
       "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
       "entities": {
         "main": "Entities",
+        "caConnectorConfig": "CA Connector Config",
+        "certificateAttribute": "Certificate Attribute",
+        "certificate": "Certificate",
+        "selectorToTemplate": "Selector To Template",
+        "csr": "CSR",
+        "csrAttribute": "Csr Attribute",
+        "requestAttribute": "Request Attribute",
+        "requestAttributeValue": "Request Attribute Value",
+        "rdn": "RDN",
+        "acmeAccount": "ACME Account",
+        "acmeOrder": "Acme Order",
+        "identifier": "Identifier",
+        "authorization": "Authorization",
+        "acmeContact": "Acme Contact",
+        "acmeChallenge": "Acme Challenge",
+        "rdnAttribute": "RDN Attribute",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {

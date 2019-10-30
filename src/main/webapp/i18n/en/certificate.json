@@ -1,0 +1,40 @@
+{
+  "ca3SJhApp": {
+    "certificate": {
+      "home": {
+        "title": "Certificates",
+        "createLabel": "Create a new Certificate",
+        "createOrEditLabel": "Create or edit a Certificate",
+        "notFound": "No Certificates found"
+      },
+      "created": "A new Certificate is created with identifier {{ param }}",
+      "updated": "A Certificate is updated with identifier {{ param }}",
+      "deleted": "A Certificate is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Certificate {{ id }}?"
+      },
+      "detail": {
+        "title": "Certificate"
+      },
+      "tbsDigest": "Tbs Digest",
+      "subject": "Subject",
+      "issuer": "Issuer",
+      "type": "Type",
+      "description": "Description",
+      "subjectKeyIdentifier": "Subject Key Identifier",
+      "authorityKeyIdentifier": "Authority Key Identifier",
+      "fingerprint": "Fingerprint",
+      "serial": "Serial",
+      "validFrom": "Valid From",
+      "validTo": "Valid To",
+      "creationExecutionId": "Creation Execution Id",
+      "contentAddedAt": "Content Added At",
+      "revokedSince": "Revoked Since",
+      "revocationReason": "Revocation Reason",
+      "revoked": "Revoked",
+      "revocationExecutionId": "Revocation Execution Id",
+      "content": "Content",
+      "certificateAttributes": "Certificate Attributes"
+    }
+  }
+}

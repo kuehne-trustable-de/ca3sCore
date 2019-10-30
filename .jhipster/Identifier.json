@@ -1,0 +1,44 @@
+{
+    "name": "Identifier",
+    "fields": [
+        {
+            "fieldName": "identifierId",
+            "fieldType": "Long",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "type",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "value",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "acmeOrder",
+            "otherEntityRelationshipName": "identifiers",
+            "relationshipName": "order",
+            "otherEntityField": "id"
+        }
+    ],
+    "changelogDate": "20191028230824",
+    "entityTableName": "identifier",
+    "dto": "no",
+    "pagination": "no",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "applications": "*"
+}

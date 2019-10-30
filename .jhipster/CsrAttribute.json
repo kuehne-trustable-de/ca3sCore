@@ -1,0 +1,44 @@
+{
+    "name": "CsrAttribute",
+    "fields": [
+        {
+            "fieldName": "attributeId",
+            "fieldType": "Long",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "name",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "value",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "cSR",
+            "otherEntityRelationshipName": "csrAttributes",
+            "relationshipName": "csr",
+            "otherEntityField": "id"
+        }
+    ],
+    "changelogDate": "20191028230816",
+    "entityTableName": "csr_attribute",
+    "dto": "no",
+    "pagination": "no",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "applications": "*"
+}

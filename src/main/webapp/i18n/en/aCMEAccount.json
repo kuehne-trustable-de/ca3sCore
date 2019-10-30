@@ -1,0 +1,29 @@
+{
+  "ca3SJhApp": {
+    "aCMEAccount": {
+      "home": {
+        "title": "ACME Accounts",
+        "createLabel": "Create a new ACME Account",
+        "createOrEditLabel": "Create or edit a ACME Account",
+        "notFound": "No ACME Accounts found"
+      },
+      "created": "A new ACME Account is created with identifier {{ param }}",
+      "updated": "A ACME Account is updated with identifier {{ param }}",
+      "deleted": "A ACME Account is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete ACME Account {{ id }}?"
+      },
+      "detail": {
+        "title": "ACME Account"
+      },
+      "accountId": "Account Id",
+      "realm": "Realm",
+      "status": "Status",
+      "termsOfServiceAgreed": "Terms Of Service Agreed",
+      "publicKeyHash": "Public Key Hash",
+      "publicKey": "Public Key",
+      "contacts": "Contacts",
+      "orders": "Orders"
+    }
+  }
+}

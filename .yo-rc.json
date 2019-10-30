@@ -15,7 +15,7 @@
     "enableHibernateCache": true,
     "websocket": "spring-websocket",
     "databaseType": "sql",
-    "devDatabaseType": "h2Disk",
+    "devDatabaseType": "mysql",
     "prodDatabaseType": "mysql",
     "searchEngine": false,
     "messageBroker": false,
@@ -27,7 +27,8 @@
     "useSass": true,
     "clientPackageManager": "npm",
     "clientFramework": "angularX",
-    "clientTheme": "minty",
+     
+    "clientTheme": "adminLTE",
     "clientThemeVariant": "primary",
     "testFrameworks": [
       "gatling"

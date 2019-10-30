@@ -42,6 +42,33 @@ public class CacheConfiguration {
             createCache(cm, de.trustable.ca3sjh.domain.User.class.getName());
             createCache(cm, de.trustable.ca3sjh.domain.Authority.class.getName());
             createCache(cm, de.trustable.ca3sjh.domain.User.class.getName() + ".authorities");
+            createCache(cm, de.trustable.ca3sjh.domain.CAConnectorConfig.class.getName());
+            createCache(cm, de.trustable.ca3sjh.domain.CertificateAttribute.class.getName());
+            createCache(cm, de.trustable.ca3sjh.domain.Certificate.class.getName());
+            createCache(cm, de.trustable.ca3sjh.domain.Certificate.class.getName() + ".certificateAttributes");
+            createCache(cm, de.trustable.ca3sjh.domain.SelectorToTemplate.class.getName());
+            createCache(cm, de.trustable.ca3sjh.domain.CSR.class.getName());
+            createCache(cm, de.trustable.ca3sjh.domain.CSR.class.getName() + ".rdns");
+            createCache(cm, de.trustable.ca3sjh.domain.CSR.class.getName() + ".ras");
+            createCache(cm, de.trustable.ca3sjh.domain.CSR.class.getName() + ".csrAttributes");
+            createCache(cm, de.trustable.ca3sjh.domain.CsrAttribute.class.getName());
+            createCache(cm, de.trustable.ca3sjh.domain.RequestAttribute.class.getName());
+            createCache(cm, de.trustable.ca3sjh.domain.RequestAttribute.class.getName() + ".requestAttributeValues");
+            createCache(cm, de.trustable.ca3sjh.domain.RequestAttributeValue.class.getName());
+            createCache(cm, de.trustable.ca3sjh.domain.RDN.class.getName());
+            createCache(cm, de.trustable.ca3sjh.domain.RDN.class.getName() + ".rdnAttributes");
+            createCache(cm, de.trustable.ca3sjh.domain.ACMEAccount.class.getName());
+            createCache(cm, de.trustable.ca3sjh.domain.ACMEAccount.class.getName() + ".contacts");
+            createCache(cm, de.trustable.ca3sjh.domain.ACMEAccount.class.getName() + ".orders");
+            createCache(cm, de.trustable.ca3sjh.domain.AcmeOrder.class.getName());
+            createCache(cm, de.trustable.ca3sjh.domain.AcmeOrder.class.getName() + ".authorizations");
+            createCache(cm, de.trustable.ca3sjh.domain.AcmeOrder.class.getName() + ".identifiers");
+            createCache(cm, de.trustable.ca3sjh.domain.Identifier.class.getName());
+            createCache(cm, de.trustable.ca3sjh.domain.Authorization.class.getName());
+            createCache(cm, de.trustable.ca3sjh.domain.Authorization.class.getName() + ".challenges");
+            createCache(cm, de.trustable.ca3sjh.domain.AcmeContact.class.getName());
+            createCache(cm, de.trustable.ca3sjh.domain.AcmeChallenge.class.getName());
+            createCache(cm, de.trustable.ca3sjh.domain.RDNAttribute.class.getName());
             // jhipster-needle-ehcache-add-entry
         };
     }

@@ -1,0 +1,63 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div *ngIf="cSR">
+            <h2><span jhiTranslate="ca3SJhApp.cSR.detail.title">CSR</span> {{cSR.id}}</h2>
+            <hr>
+            <jhi-alert-error></jhi-alert-error>
+            <dl class="row-md jh-entity-details">
+                <dt><span jhiTranslate="ca3SJhApp.cSR.csrBase64">Csr Base 64</span></dt>
+                <dd>
+                    <span>{{cSR.csrBase64}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.cSR.requestedOn">Requested On</span></dt>
+                <dd>
+                    <span>{{cSR.requestedOn}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.cSR.status">Status</span></dt>
+                <dd>
+                    <span>{{cSR.status}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.cSR.processInstanceId">Process Instance Id</span></dt>
+                <dd>
+                    <span>{{cSR.processInstanceId}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.cSR.signingAlgorithm">Signing Algorithm</span></dt>
+                <dd>
+                    <span>{{cSR.signingAlgorithm}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.cSR.isCSRValid">Is CSR Valid</span></dt>
+                <dd>
+                    <span>{{cSR.isCSRValid}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.cSR.x509KeySpec">X 509 Key Spec</span></dt>
+                <dd>
+                    <span>{{cSR.x509KeySpec}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.cSR.publicKeyAlgorithm">Public Key Algorithm</span></dt>
+                <dd>
+                    <span>{{cSR.publicKeyAlgorithm}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.cSR.publicKeyHash">Public Key Hash</span></dt>
+                <dd>
+                    <span>{{cSR.publicKeyHash}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.cSR.subjectPublicKeyInfoBase64">Subject Public Key Info Base 64</span></dt>
+                <dd>
+                    <span>{{cSR.subjectPublicKeyInfoBase64}}</span>
+                </dd>
+            </dl>
+
+            <button type="submit"
+                    (click)="previousState()"
+                    class="btn btn-info">
+                <fa-icon [icon]="'arrow-left'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+            </button>
+
+            <button type="button"
+                    [routerLink]="['/csr', cSR.id, 'edit']"
+                    class="btn btn-primary">
+                <fa-icon [icon]="'pencil-alt'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+            </button>
+        </div>
+    </div>
+</div>

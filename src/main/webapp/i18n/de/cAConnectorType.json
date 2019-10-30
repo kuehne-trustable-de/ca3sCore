@@ -1,0 +1,10 @@
+{
+  "ca3SJhApp": {
+    "CAConnectorType": {
+      "null": "",
+      "Internal": "Internal",
+      "Cmp": "Cmp",
+      "Adcs": "Adcs"
+    }
+  }
+}

@@ -1,0 +1,71 @@
+<div>
+    <h2 id="page-heading">
+        <span jhiTranslate="ca3SJhApp.acmeChallenge.home.title">Acme Challenges</span>
+        <button id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-acme-challenge" [routerLink]="['/acme-challenge/new']">
+            <fa-icon [icon]="'plus'"></fa-icon>
+            <span  jhiTranslate="ca3SJhApp.acmeChallenge.home.createLabel">
+            Create a new Acme Challenge
+            </span>
+        </button>
+    </h2>
+    <jhi-alert></jhi-alert>
+    <br/>
+    <div class="alert alert-warning" *ngIf="acmeChallenges?.length === 0">
+        <span jhiTranslate="ca3SJhApp.acmeChallenge.home.notFound">No acmeChallenges found</span>
+    </div>
+    <div class="table-responsive" *ngIf="acmeChallenges?.length > 0">
+        <table class="table table-striped" aria-describedby="page-heading">
+            <thead>
+            <tr>
+            <th><span jhiTranslate="global.field.id">ID</span></th>
+            <th><span jhiTranslate="ca3SJhApp.acmeChallenge.type">Type</span></th>
+            <th><span jhiTranslate="ca3SJhApp.acmeChallenge.value">Value</span></th>
+            <th><span jhiTranslate="ca3SJhApp.acmeChallenge.token">Token</span></th>
+            <th><span jhiTranslate="ca3SJhApp.acmeChallenge.validated">Validated</span></th>
+            <th><span jhiTranslate="ca3SJhApp.acmeChallenge.status">Status</span></th>
+            <th><span jhiTranslate="ca3SJhApp.acmeChallenge.authorization">Authorization</span></th>
+            <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let acmeChallenge of acmeChallenges ;trackBy: trackId">
+                <td><a [routerLink]="['/acme-challenge', acmeChallenge.id, 'view' ]">{{acmeChallenge.id}}</a></td>
+                <td>{{acmeChallenge.type}}</td>
+                <td>{{acmeChallenge.value}}</td>
+                <td>{{acmeChallenge.token}}</td>
+                <td>{{acmeChallenge.validated | date:'mediumDate'}}</td>
+                <td jhiTranslate="{{'ca3SJhApp.ChallengeStatus.' + acmeChallenge.status}}">{{acmeChallenge.status}}</td>
+                <td>
+                    <div *ngIf="acmeChallenge.authorization">
+                        <a [routerLink]="['/authorization', acmeChallenge.authorization?.id, 'view' ]" >{{acmeChallenge.authorization?.id}}</a>
+                    </div>
+                </td>
+                <td class="text-right">
+                    <div class="btn-group">
+                        <button type="submit"
+                                [routerLink]="['/acme-challenge', acmeChallenge.id, 'view' ]"
+                                class="btn btn-info btn-sm">
+                            <fa-icon [icon]="'eye'"></fa-icon>
+                            <span class="d-none d-md-inline" jhiTranslate="entity.action.view">View</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/acme-challenge', acmeChallenge.id, 'edit']"
+                                class="btn btn-primary btn-sm">
+                            <fa-icon [icon]="'pencil-alt'"></fa-icon>
+                            <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/acme-challenge', { outlets: { popup: acmeChallenge.id + '/delete'} }]"
+                                replaceUrl="true"
+                                queryParamsHandling="merge"
+                                class="btn btn-danger btn-sm">
+                            <fa-icon [icon]="'times'"></fa-icon>
+                            <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

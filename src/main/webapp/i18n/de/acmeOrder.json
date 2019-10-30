@@ -1,0 +1,33 @@
+{
+  "ca3SJhApp": {
+    "acmeOrder": {
+      "home": {
+        "title": "Acme Orders",
+        "createLabel": "Acme Order erstellen",
+        "createOrEditLabel": "Acme Order erstellen oder bearbeiten",
+        "notFound": "No Acme Orders found"
+      },
+      "created": "Acme Order erstellt mit ID {{ param }}",
+      "updated": "Acme Order aktualisiert mit ID {{ param }}",
+      "deleted": "Acme Order gelöscht mit ID {{ param }}",
+      "delete": {
+        "question": "Soll Acme Order {{ id }} wirklich dauerhaft gelöscht werden?"
+      },
+      "detail": {
+        "title": "Acme Order"
+      },
+      "status": "Status",
+      "expires": "Expires",
+      "notBefore": "Not Before",
+      "notAfter": "Not After",
+      "error": "Error",
+      "finalizeUrl": "Finalize Url",
+      "certificateUrl": "Certificate Url",
+      "authorizations": "Authorizations",
+      "identifiers": "Identifiers",
+      "csr": "Csr",
+      "certificate": "Certificate",
+      "account": "Account"
+    }
+  }
+}

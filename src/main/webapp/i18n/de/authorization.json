@@ -1,0 +1,25 @@
+{
+  "ca3SJhApp": {
+    "authorization": {
+      "home": {
+        "title": "Authorizations",
+        "createLabel": "Authorization erstellen",
+        "createOrEditLabel": "Authorization erstellen oder bearbeiten",
+        "notFound": "No Authorizations found"
+      },
+      "created": "Authorization erstellt mit ID {{ param }}",
+      "updated": "Authorization aktualisiert mit ID {{ param }}",
+      "deleted": "Authorization gelöscht mit ID {{ param }}",
+      "delete": {
+        "question": "Soll Authorization {{ id }} wirklich dauerhaft gelöscht werden?"
+      },
+      "detail": {
+        "title": "Authorization"
+      },
+      "type": "Type",
+      "value": "Value",
+      "challenges": "Challenges",
+      "order": "Order"
+    }
+  }
+}

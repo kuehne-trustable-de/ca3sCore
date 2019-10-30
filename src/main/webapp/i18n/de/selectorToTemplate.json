@@ -1,0 +1,24 @@
+{
+  "ca3SJhApp": {
+    "selectorToTemplate": {
+      "home": {
+        "title": "Selector To Templates",
+        "createLabel": "Selector To Template erstellen",
+        "createOrEditLabel": "Selector To Template erstellen oder bearbeiten",
+        "notFound": "No Selector To Templates found"
+      },
+      "created": "Selector To Template erstellt mit ID {{ param }}",
+      "updated": "Selector To Template aktualisiert mit ID {{ param }}",
+      "deleted": "Selector To Template gelöscht mit ID {{ param }}",
+      "delete": {
+        "question": "Soll Selector To Template {{ id }} wirklich dauerhaft gelöscht werden?"
+      },
+      "detail": {
+        "title": "Selector To Template"
+      },
+      "selector": "Selector",
+      "template": "Template",
+      "comment": "Comment"
+    }
+  }
+}

@@ -1,0 +1,325 @@
+entity CAConnectorConfig{
+	configId Long required
+	name String
+	caConnectorType CAConnectorType
+	caUrl String
+	pollingOffset Integer 
+	active Boolean
+}
+
+enum CAConnectorType {
+    Internal, Cmp, Adcs
+}
+
+entity CertificateAttribute {
+	attributeId Long required
+    name String required
+    value String
+    }
+
+entity Certificate {
+
+  certificateId Long required
+
+  tbsDigest String required
+  subject String required
+  issuer String required
+  type String required
+  description String
+  subjectKeyIdentifier String
+  authorityKeyIdentifier String
+  fingerprint String
+  serial String required
+  validFrom LocalDate required
+  validTo LocalDate required
+  creationExecutionId String
+  contentAddedAt LocalDate
+  revokedSince LocalDate
+  revocationReason String
+  revoked Boolean
+  revocationExecutionId String
+  content TextBlob required
+}
+
+entity CSR{
+
+//	@GeneratedValue
+  	id Long required
+   	csrBase64 TextBlob required
+  	requestedOn LocalDate required
+  	status String required
+  	processInstanceId String
+	signingAlgorithm String
+	isCSRValid Boolean
+	x509KeySpec String
+	publicKeyAlgorithm String
+	publicKeyHash String
+	subjectPublicKeyInfoBase64 TextBlob required
+}
+
+entity CsrAttribute{
+
+//	@GeneratedValue
+  	attributeId Long required
+
+  	name String required
+  	value String required
+}
+
+
+entity RDN{
+
+//	@GeneratedValue
+  	id Long required
+
+}
+
+entity RDNAttribute{
+
+//	@GeneratedValue
+  	id Long required
+
+  	attributeType String required
+  	attributeValue String required
+}
+
+entity RequestAttribute{
+
+//	@GeneratedValue
+  	id Long required
+
+  	attributeType String required
+
+}
+
+entity RequestAttributeValue{
+
+//	@GeneratedValue
+  	id Long required
+
+  	attributeValue String required
+
+}
+
+//  status (required, string):  The status of this account.  Possible
+//  values are: "valid", "deactivated", and "revoked".  The value
+//  "deactivated" should be used to indicate client-initiated
+//  deactivation whereas "revoked" should be used to indicate server-
+//  initiated deactivation.  (See Section 7.1.6)
+enum AccountStatus {
+    Valid, Deactivated, Revoked
+}
+
+
+entity ACMEAccount {
+
+//	@Id
+//	@GenericGenerator(name="RandomGenerator.generatorName", strategy="de.trustable.ca3s.acme.server.entity.RandomGenerator")
+//	@GeneratedValue(generator="RandomGenerator.generatorName")
+  	accountId Long required
+  	realm String required
+	status AccountStatus
+    
+//  termsOfServiceAgreed (optional, boolean):  Including this field in a
+//  new-account request, with a value of true, indicates the client's
+//  agreement with the terms of service.  This field is not updateable
+//  by the client.
+	termsOfServiceAgreed Boolean required
+
+	publicKeyHash String required
+
+  	publicKey TextBlob required
+
+}
+
+
+entity AcmeContact {
+
+// @GenericGenerator(name="RandomGenerator.generatorName", strategy="de.trustable.ca3s.acme.server.entity.RandomGenerator")
+// @GeneratedValue(generator="RandomGenerator.generatorName")
+	contactId Long required
+
+    contactUrl String required
+}
+
+// The status of this order. Possible values are:
+// "pending", "ready", "processing", "valid", and "invalid". (See Section 7.1.6)
+enum OrderStatus {
+    Pending, Ready, Processing, Valid, Invalid
+}
+
+entity AcmeOrder{
+
+//	@GenericGenerator(name = "RandomGenerator.generatorName", strategy = "de.trustable.ca3s.acme.server.entity.RandomGenerator")
+//	@GeneratedValue(generator = "RandomGenerator.generatorName")
+	id Long required
+
+	status OrderStatus required
+
+// expires (optional, string): The timestamp after which the server will
+// consider this order invalid, encoded in the format specified in RFC 3339
+// [RFC3339]. This field is REQUIRED for objects with "pending" or "valid" in
+// the status field.
+	expires LocalDate
+
+// notBefore (optional, string): The requested value of the notBefore field in
+// the certificate, in the date format defined in [RFC3339].
+	notBefore LocalDate
+
+// notAfter (optional, string): The requested value of the notAfter field in the
+// certificate, in the date format defined in [RFC3339].
+	notAfter LocalDate
+
+// error (optional, object): The error that occurred while processing the order,
+// if any. This field is structured as a problem document [RFC7807].
+//
+// mapped as a simple String for now ...
+	error String
+
+
+// finalize (required, string): A URL that a CSR must be POSTed to once all of
+// the order's authorizations are satisfied to finalize the order. The result of
+// a successful finalization will be the population of the certificate URL for
+// the order.
+	finalizeUrl String
+
+// certificate (optional, string): A URL for the certificate that has been
+// issued in response to this order.
+	certificateUrl String
+
+}
+
+entity Identifier {
+	
+//	@GenericGenerator(name="RandomGenerator.generatorName", strategy="de.trustable.ca3s.acme.server.entity.RandomGenerator")
+//	@GeneratedValue(generator="RandomGenerator.generatorName")
+	identifierId Long required
+
+// type (required, string): The type of identifier. This document defines the
+// "dns" identifier type. See the registry defined in Section 9.7.7 for any
+// others.
+	type String required
+
+	value String required
+    
+}
+
+entity Authorization {
+
+//	@GenericGenerator(name="RandomGenerator.generatorName", strategy="de.trustable.ca3s.acme.server.entity.RandomGenerator")
+//	@GeneratedValue(generator="RandomGenerator.generatorName")
+	id Long required
+	
+	type String required
+
+	value String required
+	
+}
+
+enum ChallengeStatus {
+
+	Pending, Valid, Invalid, Deactivated, Expired, Revoked
+}
+
+entity AcmeChallenge {
+
+// @GenericGenerator(name="RandomGenerator.generatorName", strategy="de.trustable.ca3s.acme.server.entity.RandomGenerator")
+// 	@GeneratedValue(generator="RandomGenerator.generatorName")
+	id Long required
+
+	type String required
+	value String required
+	token String required
+
+	validated LocalDate
+
+	status ChallengeStatus required
+	
+}
+
+entity Nonce {
+	nonceValue String
+	expiresAt LocalDate
+}
+
+// defining multiple OneToMany relationships with comments
+relationship OneToMany {
+
+	Certificate{certificateAttributes} to CertificateAttribute{certificate}
+
+	CSR{rdns} to RDN{csr}
+
+	CSR{ras} to RequestAttribute{csr}
+
+	CSR{csrAttributes} to CsrAttribute{csr}
+	
+	RDN{rdnAttributes} to RDNAttribute{rdn}
+
+	RequestAttribute{requestAttributeValues} to RequestAttributeValue{reqAttr}
+
+
+//  contact (optional, array of string):  An array of URLs that the
+//  server can use to contact the client for issues related to this
+//  account.  For example, the server may wish to notify the client
+//  about server-initiated revocation or certificate expiration.  For
+//  information on supported URL schemes, see Section 7.3
+	ACMEAccount{contacts} to AcmeContact{account}
+
+
+//  orders (required, string):  A URL from which a list of orders
+//  submitted by this account can be fetched via a POST-as-GET
+//  request, as described in Section 7.1.2.1.
+	ACMEAccount{orders} to AcmeOrder{account}
+
+// authorizations (required, array of string): For pending orders, the
+// authorizations that the client needs to complete before the requested
+// certificate can be issued (see Section 7.5), including unexpired
+// authorizations that the client has completed in the past for identifiers
+// specified in the order. The authorizations required are dictated by server
+// policy and there may not be a 1:1 relationship between the order identifiers
+// and the authorizations required. For final orders (in the "valid" or
+// "invalid" state), the authorizations that were completed. Each entry is a URL
+// from which an authorization can be fetched with a POST-as-GET request.
+	AcmeOrder{authorizations} to Authorization{order}
+
+	AcmeOrder{identifiers} to Identifier{order}
+
+	Authorization{challenges} to AcmeChallenge{authorization}
+
+}
+
+relationship ManyToOne {
+//    @ManyToOne  
+//    private AccountDao account;
+
+	AcmeOrder{csr} to CSR,
+
+	AcmeOrder{certificate} to Certificate
+
+#	AcmeOrder{account} to ACMEAccount
+
+#	AcmeChallenge{authorization} to Authorization 
+
+#	Authorization{order} to AcmeOrder
+
+    RequestAttribute{holdingRequestAttribute} to RequestAttributeValue
+
+#    RequestAttribute{csr} to CSR
+
+#    CsrAttribute{csr} to CSR
+
+}
+
+
+// Set pagination options
+paginate Certificate with infinite-scroll
+// paginate Job with pagination
+
+// Use Data Transfert Objects (DTO)
+// dto * with mapstruct
+
+// Set service options to all except few
+service all with serviceImpl except CertificateAttribute
+
+// Set an angular suffix
+// angularSuffix * with mySuffix

@@ -1,0 +1,41 @@
+{
+    "name": "CertificateAttribute",
+    "fields": [
+        {
+            "fieldName": "attributeId",
+            "fieldType": "Long",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "name",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "value",
+            "fieldType": "String"
+        }
+    ],
+    "relationships": [
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "certificate",
+            "otherEntityRelationshipName": "certificateAttributes",
+            "relationshipName": "certificate",
+            "otherEntityField": "id"
+        }
+    ],
+    "changelogDate": "20191009152934",
+    "entityTableName": "certificate_attribute",
+    "dto": "no",
+    "pagination": "no",
+    "service": "no",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "applications": "*"
+}

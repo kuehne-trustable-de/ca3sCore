@@ -37,9 +37,10 @@ spring:
       indent-output: true
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:h2:file:./target/h2db/db/ca3s_jh;DB_CLOSE_DELAY=-1
-    username: ca3s_jh
-    password:
+#    url: jdbc:h2:file:./target/h2db/db/ca3s_jh;DB_CLOSE_DELAY=-1
+    url: jdbc:mysql://localhost:3306/ca3s_jh_dev?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC
+    username: ca3s_jh_dev
+    password: nYbA4Jm4rnQJ
     hikari:
       poolName: Hikari
       auto-commit: false

@@ -1,0 +1,90 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+            <h2 id="jhi-acme-challenge-heading" jhiTranslate="ca3SJhApp.acmeChallenge.home.createOrEditLabel">Create or edit a Acme Challenge</h2>
+            <div>
+                <jhi-alert-error></jhi-alert-error>
+                <div class="form-group" [hidden]="!editForm.get('id').value">
+                    <label for="id" jhiTranslate="global.field.id">ID</label>
+                    <input type="text" class="form-control" id="id" name="id" formControlName="id"
+                        readonly />
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.acmeChallenge.type" for="field_type">Type</label>
+                    <input type="text" class="form-control" name="type" id="field_type"
+                           formControlName="type"/>
+                    <div *ngIf="editForm.get('type').invalid && (editForm.get('type').dirty || editForm.get('type').touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('type').errors.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.acmeChallenge.value" for="field_value">Value</label>
+                    <input type="text" class="form-control" name="value" id="field_value"
+                           formControlName="value"/>
+                    <div *ngIf="editForm.get('value').invalid && (editForm.get('value').dirty || editForm.get('value').touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('value').errors.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.acmeChallenge.token" for="field_token">Token</label>
+                    <input type="text" class="form-control" name="token" id="field_token"
+                           formControlName="token"/>
+                    <div *ngIf="editForm.get('token').invalid && (editForm.get('token').dirty || editForm.get('token').touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('token').errors.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.acmeChallenge.validated" for="field_validated">Validated</label>
+                    <div class="input-group">
+                        <input id="field_validated" type="text" class="form-control" name="validated" ngbDatepicker  #validatedDp="ngbDatepicker" formControlName="validated"/>
+                        <span class="input-group-append">
+                            <button type="button" class="btn btn-secondary" (click)="validatedDp.toggle()"><fa-icon [icon]="'calendar-alt'"></fa-icon></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.acmeChallenge.status" for="field_status">Status</label>
+                    <select class="form-control" name="status" formControlName="status" id="field_status">
+                        <option value="Pending">{{'ca3SJhApp.ChallengeStatus.Pending' | translate}}</option>
+                        <option value="Valid">{{'ca3SJhApp.ChallengeStatus.Valid' | translate}}</option>
+                        <option value="Invalid">{{'ca3SJhApp.ChallengeStatus.Invalid' | translate}}</option>
+                        <option value="Deactivated">{{'ca3SJhApp.ChallengeStatus.Deactivated' | translate}}</option>
+                        <option value="Expired">{{'ca3SJhApp.ChallengeStatus.Expired' | translate}}</option>
+                        <option value="Revoked">{{'ca3SJhApp.ChallengeStatus.Revoked' | translate}}</option>
+                    </select>
+                    <div *ngIf="editForm.get('status').invalid && (editForm.get('status').dirty || editForm.get('status').touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('status').errors.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.acmeChallenge.authorization" for="field_authorization">Authorization</label>
+                    <select class="form-control" id="field_authorization" name="authorization" formControlName="authorization">
+                        <option [ngValue]="null"></option>
+                        <option [ngValue]="authorizationOption.id === editForm.get('authorization').value?.id ? editForm.get('authorization').value : authorizationOption" *ngFor="let authorizationOption of authorizations; trackBy: trackAuthorizationById">{{authorizationOption.id}}</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <button type="button" id="cancel-save" class="btn btn-secondary"  (click)="previousState()">
+                    <fa-icon [icon]="'ban'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+                </button>
+                <button type="submit" id="save-entity" [disabled]="editForm.invalid || isSaving" class="btn btn-primary">
+                    <fa-icon [icon]="'save'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,37 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div *ngIf="authorization">
+            <h2><span jhiTranslate="ca3SJhApp.authorization.detail.title">Authorization</span> {{authorization.id}}</h2>
+            <hr>
+            <jhi-alert-error></jhi-alert-error>
+            <dl class="row-md jh-entity-details">
+                <dt><span jhiTranslate="ca3SJhApp.authorization.type">Type</span></dt>
+                <dd>
+                    <span>{{authorization.type}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.authorization.value">Value</span></dt>
+                <dd>
+                    <span>{{authorization.value}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.authorization.order">Order</span></dt>
+                <dd>
+                    <div *ngIf="authorization.order">
+                        <a [routerLink]="['/acme-order', authorization.order?.id, 'view']">{{authorization.order?.id}}</a>
+                    </div>
+                </dd>
+            </dl>
+
+            <button type="submit"
+                    (click)="previousState()"
+                    class="btn btn-info">
+                <fa-icon [icon]="'arrow-left'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+            </button>
+
+            <button type="button"
+                    [routerLink]="['/authorization', authorization.id, 'edit']"
+                    class="btn btn-primary">
+                <fa-icon [icon]="'pencil-alt'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+            </button>
+        </div>
+    </div>
+</div>

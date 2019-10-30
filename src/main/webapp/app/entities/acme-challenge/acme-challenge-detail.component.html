@@ -1,0 +1,49 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div *ngIf="acmeChallenge">
+            <h2><span jhiTranslate="ca3SJhApp.acmeChallenge.detail.title">Acme Challenge</span> {{acmeChallenge.id}}</h2>
+            <hr>
+            <jhi-alert-error></jhi-alert-error>
+            <dl class="row-md jh-entity-details">
+                <dt><span jhiTranslate="ca3SJhApp.acmeChallenge.type">Type</span></dt>
+                <dd>
+                    <span>{{acmeChallenge.type}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.acmeChallenge.value">Value</span></dt>
+                <dd>
+                    <span>{{acmeChallenge.value}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.acmeChallenge.token">Token</span></dt>
+                <dd>
+                    <span>{{acmeChallenge.token}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.acmeChallenge.validated">Validated</span></dt>
+                <dd>
+                    <span>{{acmeChallenge.validated}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.acmeChallenge.status">Status</span></dt>
+                <dd>
+                    <span jhiTranslate="{{'ca3SJhApp.ChallengeStatus.' + acmeChallenge.status}}">{{acmeChallenge.status}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.acmeChallenge.authorization">Authorization</span></dt>
+                <dd>
+                    <div *ngIf="acmeChallenge.authorization">
+                        <a [routerLink]="['/authorization', acmeChallenge.authorization?.id, 'view']">{{acmeChallenge.authorization?.id}}</a>
+                    </div>
+                </dd>
+            </dl>
+
+            <button type="submit"
+                    (click)="previousState()"
+                    class="btn btn-info">
+                <fa-icon [icon]="'arrow-left'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+            </button>
+
+            <button type="button"
+                    [routerLink]="['/acme-challenge', acmeChallenge.id, 'edit']"
+                    class="btn btn-primary">
+                <fa-icon [icon]="'pencil-alt'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+            </button>
+        </div>
+    </div>
+</div>

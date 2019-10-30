@@ -1,0 +1,24 @@
+{
+  "ca3SJhApp": {
+    "certificateAttribute": {
+      "home": {
+        "title": "Certificate Attributes",
+        "createLabel": "Certificate Attribute erstellen",
+        "createOrEditLabel": "Certificate Attribute erstellen oder bearbeiten",
+        "notFound": "No Certificate Attributes found"
+      },
+      "created": "Certificate Attribute erstellt mit ID {{ param }}",
+      "updated": "Certificate Attribute aktualisiert mit ID {{ param }}",
+      "deleted": "Certificate Attribute gelöscht mit ID {{ param }}",
+      "delete": {
+        "question": "Soll Certificate Attribute {{ id }} wirklich dauerhaft gelöscht werden?"
+      },
+      "detail": {
+        "title": "Certificate Attribute"
+      },
+      "name": "Name",
+      "value": "Value",
+      "certificate": "Certificate"
+    }
+  }
+}

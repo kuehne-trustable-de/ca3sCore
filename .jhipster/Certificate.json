@@ -1,0 +1,126 @@
+{
+    "name": "Certificate",
+    "fields": [
+        {
+            "fieldName": "certificateId",
+            "fieldType": "Long",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "tbsDigest",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "subject",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "issuer",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "type",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "description",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "subjectKeyIdentifier",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "authorityKeyIdentifier",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "fingerprint",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "serial",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "validFrom",
+            "fieldType": "LocalDate",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "validTo",
+            "fieldType": "LocalDate",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "creationExecutionId",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "contentAddedAt",
+            "fieldType": "LocalDate"
+        },
+        {
+            "fieldName": "revokedSince",
+            "fieldType": "LocalDate"
+        },
+        {
+            "fieldName": "revocationReason",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "revoked",
+            "fieldType": "Boolean"
+        },
+        {
+            "fieldName": "revocationExecutionId",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "content",
+            "fieldType": "byte[]",
+            "fieldTypeBlobContent": "text",
+            "fieldValidateRules": [
+                "required"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "relationshipType": "one-to-many",
+            "otherEntityName": "certificateAttribute",
+            "otherEntityRelationshipName": "certificate",
+            "relationshipName": "certificateAttributes"
+        }
+    ],
+    "changelogDate": "20191009152935",
+    "entityTableName": "certificate",
+    "dto": "no",
+    "pagination": "infinite-scroll",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "applications": "*"
+}

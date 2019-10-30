@@ -1,0 +1,25 @@
+{
+  "ca3SJhApp": {
+    "requestAttribute": {
+      "home": {
+        "title": "Request Attributes",
+        "createLabel": "Request Attribute erstellen",
+        "createOrEditLabel": "Request Attribute erstellen oder bearbeiten",
+        "notFound": "No Request Attributes found"
+      },
+      "created": "Request Attribute erstellt mit ID {{ param }}",
+      "updated": "Request Attribute aktualisiert mit ID {{ param }}",
+      "deleted": "Request Attribute gelöscht mit ID {{ param }}",
+      "delete": {
+        "question": "Soll Request Attribute {{ id }} wirklich dauerhaft gelöscht werden?"
+      },
+      "detail": {
+        "title": "Request Attribute"
+      },
+      "attributeType": "Attribute Type",
+      "requestAttributeValues": "Request Attribute Values",
+      "holdingRequestAttribute": "Holding Request Attribute",
+      "csr": "Csr"
+    }
+  }
+}

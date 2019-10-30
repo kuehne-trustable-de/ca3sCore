@@ -1,0 +1,24 @@
+{
+  "ca3SJhApp": {
+    "acmeContact": {
+      "home": {
+        "title": "Acme Contacts",
+        "createLabel": "Acme Contact erstellen",
+        "createOrEditLabel": "Acme Contact erstellen oder bearbeiten",
+        "notFound": "No Acme Contacts found"
+      },
+      "created": "Acme Contact erstellt mit ID {{ param }}",
+      "updated": "Acme Contact aktualisiert mit ID {{ param }}",
+      "deleted": "Acme Contact gelöscht mit ID {{ param }}",
+      "delete": {
+        "question": "Soll Acme Contact {{ id }} wirklich dauerhaft gelöscht werden?"
+      },
+      "detail": {
+        "title": "Acme Contact"
+      },
+      "contactId": "Contact Id",
+      "contactUrl": "Contact Url",
+      "account": "Account"
+    }
+  }
+}

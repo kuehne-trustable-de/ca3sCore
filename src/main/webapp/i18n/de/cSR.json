@@ -1,0 +1,34 @@
+{
+  "ca3SJhApp": {
+    "cSR": {
+      "home": {
+        "title": "CSRS",
+        "createLabel": "CSR erstellen",
+        "createOrEditLabel": "CSR erstellen oder bearbeiten",
+        "notFound": "No CSRS found"
+      },
+      "created": "CSR erstellt mit ID {{ param }}",
+      "updated": "CSR aktualisiert mit ID {{ param }}",
+      "deleted": "CSR gelöscht mit ID {{ param }}",
+      "delete": {
+        "question": "Soll CSR {{ id }} wirklich dauerhaft gelöscht werden?"
+      },
+      "detail": {
+        "title": "CSR"
+      },
+      "csrBase64": "Csr Base 64",
+      "requestedOn": "Requested On",
+      "status": "Status",
+      "processInstanceId": "Process Instance Id",
+      "signingAlgorithm": "Signing Algorithm",
+      "isCSRValid": "Is CSR Valid",
+      "x509KeySpec": "X 509 Key Spec",
+      "publicKeyAlgorithm": "Public Key Algorithm",
+      "publicKeyHash": "Public Key Hash",
+      "subjectPublicKeyInfoBase64": "Subject Public Key Info Base 64",
+      "rdns": "Rdns",
+      "ras": "Ras",
+      "csrAttributes": "Csr Attributes"
+    }
+  }
+}

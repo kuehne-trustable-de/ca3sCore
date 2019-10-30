@@ -1,0 +1,25 @@
+{
+  "ca3SJhApp": {
+    "csrAttribute": {
+      "home": {
+        "title": "Csr Attributes",
+        "createLabel": "Csr Attribute erstellen",
+        "createOrEditLabel": "Csr Attribute erstellen oder bearbeiten",
+        "notFound": "No Csr Attributes found"
+      },
+      "created": "Csr Attribute erstellt mit ID {{ param }}",
+      "updated": "Csr Attribute aktualisiert mit ID {{ param }}",
+      "deleted": "Csr Attribute gelöscht mit ID {{ param }}",
+      "delete": {
+        "question": "Soll Csr Attribute {{ id }} wirklich dauerhaft gelöscht werden?"
+      },
+      "detail": {
+        "title": "Csr Attribute"
+      },
+      "attributeId": "Attribute Id",
+      "name": "Name",
+      "value": "Value",
+      "csr": "Csr"
+    }
+  }
+}

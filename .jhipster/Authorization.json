@@ -1,0 +1,43 @@
+{
+    "name": "Authorization",
+    "fields": [
+        {
+            "fieldName": "type",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "value",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "relationshipType": "one-to-many",
+            "otherEntityName": "acmeChallenge",
+            "otherEntityRelationshipName": "authorization",
+            "relationshipName": "challenges"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "acmeOrder",
+            "otherEntityRelationshipName": "authorizations",
+            "relationshipName": "order",
+            "otherEntityField": "id"
+        }
+    ],
+    "changelogDate": "20191028230825",
+    "entityTableName": "authorization",
+    "dto": "no",
+    "pagination": "no",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "applications": "*"
+}

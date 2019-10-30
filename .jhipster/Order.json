@@ -1,0 +1,88 @@
+{
+    "name": "Order",
+    "fields": [
+        {
+            "fieldName": "status",
+            "fieldType": "OrderStatus",
+            "fieldValues": "Pending,Ready,Processing,Valid,Invalid",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "expires",
+            "fieldType": "LocalDate"
+        },
+        {
+            "fieldName": "notBefore",
+            "fieldType": "LocalDate"
+        },
+        {
+            "fieldName": "notAfter",
+            "fieldType": "LocalDate"
+        },
+        {
+            "fieldName": "error",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "finalizeUrl",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "certificateUrl",
+            "fieldType": "String"
+        }
+    ],
+    "relationships": [
+        {
+            "relationshipType": "one-to-many",
+            "otherEntityName": "authorization",
+            "otherEntityRelationshipName": "order",
+            "relationshipName": "authorizations"
+        },
+        {
+            "relationshipType": "one-to-many",
+            "otherEntityName": "identifier",
+            "otherEntityRelationshipName": "order",
+            "relationshipName": "identifiers"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "cSR",
+            "otherEntityRelationshipName": "order",
+            "relationshipName": "csr",
+            "otherEntityField": "id"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "certificate",
+            "otherEntityRelationshipName": "order",
+            "relationshipName": "certificate",
+            "otherEntityField": "id"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "aCMEAccount",
+            "otherEntityRelationshipName": "order",
+            "relationshipName": "account",
+            "otherEntityField": "id"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "aCMEAccount",
+            "otherEntityRelationshipName": "orders",
+            "relationshipName": "account",
+            "otherEntityField": "id"
+        }
+    ],
+    "changelogDate": "20191028230823",
+    "entityTableName": "order",
+    "dto": "no",
+    "pagination": "no",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "applications": "*"
+}

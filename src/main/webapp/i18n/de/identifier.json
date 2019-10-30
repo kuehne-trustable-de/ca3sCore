@@ -1,0 +1,25 @@
+{
+  "ca3SJhApp": {
+    "identifier": {
+      "home": {
+        "title": "Identifiers",
+        "createLabel": "Identifier erstellen",
+        "createOrEditLabel": "Identifier erstellen oder bearbeiten",
+        "notFound": "No Identifiers found"
+      },
+      "created": "Identifier erstellt mit ID {{ param }}",
+      "updated": "Identifier aktualisiert mit ID {{ param }}",
+      "deleted": "Identifier gelöscht mit ID {{ param }}",
+      "delete": {
+        "question": "Soll Identifier {{ id }} wirklich dauerhaft gelöscht werden?"
+      },
+      "detail": {
+        "title": "Identifier"
+      },
+      "identifierId": "Identifier Id",
+      "type": "Type",
+      "value": "Value",
+      "order": "Order"
+    }
+  }
+}

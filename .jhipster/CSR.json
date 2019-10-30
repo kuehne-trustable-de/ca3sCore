@@ -1,0 +1,88 @@
+{
+    "name": "CSR",
+    "fields": [
+        {
+            "fieldName": "csrBase64",
+            "fieldType": "byte[]",
+            "fieldTypeBlobContent": "text",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "requestedOn",
+            "fieldType": "LocalDate",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "status",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "processInstanceId",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "signingAlgorithm",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "isCSRValid",
+            "fieldType": "Boolean"
+        },
+        {
+            "fieldName": "x509KeySpec",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "publicKeyAlgorithm",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "publicKeyHash",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "subjectPublicKeyInfoBase64",
+            "fieldType": "byte[]",
+            "fieldTypeBlobContent": "text",
+            "fieldValidateRules": [
+                "required"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "relationshipType": "one-to-many",
+            "otherEntityName": "rDN",
+            "otherEntityRelationshipName": "csr",
+            "relationshipName": "rdns"
+        },
+        {
+            "relationshipType": "one-to-many",
+            "otherEntityName": "requestAttribute",
+            "otherEntityRelationshipName": "csr",
+            "relationshipName": "ras"
+        },
+        {
+            "relationshipType": "one-to-many",
+            "otherEntityName": "csrAttribute",
+            "otherEntityRelationshipName": "csr",
+            "relationshipName": "csrAttributes"
+        }
+    ],
+    "changelogDate": "20191028230815",
+    "entityTableName": "csr",
+    "dto": "no",
+    "pagination": "no",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "applications": "*"
+}

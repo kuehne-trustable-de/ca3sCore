@@ -1,0 +1,43 @@
+{
+    "name": "CAConnectorConfig",
+    "fields": [
+        {
+            "fieldName": "configId",
+            "fieldType": "Long",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "name",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "caConnectorType",
+            "fieldType": "CAConnectorType",
+            "fieldValues": "Internal,Cmp,Adcs"
+        },
+        {
+            "fieldName": "caUrl",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "pollingOffset",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "active",
+            "fieldType": "Boolean"
+        }
+    ],
+    "relationships": [],
+    "changelogDate": "20191009152933",
+    "entityTableName": "ca_connector_config",
+    "dto": "no",
+    "pagination": "no",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "applications": "*"
+}

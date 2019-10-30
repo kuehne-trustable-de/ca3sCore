@@ -1,0 +1,56 @@
+{
+    "name": "AcmeChallenge",
+    "fields": [
+        {
+            "fieldName": "type",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "value",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "token",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "validated",
+            "fieldType": "LocalDate"
+        },
+        {
+            "fieldName": "status",
+            "fieldType": "ChallengeStatus",
+            "fieldValues": "Pending,Valid,Invalid,Deactivated,Expired,Revoked",
+            "fieldValidateRules": [
+                "required"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "authorization",
+            "otherEntityRelationshipName": "challenges",
+            "relationshipName": "authorization",
+            "otherEntityField": "id"
+        }
+    ],
+    "changelogDate": "20191030195207",
+    "entityTableName": "acme_challenge",
+    "dto": "no",
+    "pagination": "no",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "applications": "*"
+}

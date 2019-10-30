@@ -1,0 +1,77 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+            <h2 id="jhi-ca-connector-config-heading" jhiTranslate="ca3SJhApp.cAConnectorConfig.home.createOrEditLabel">Create or edit a CA Connector Config</h2>
+            <div>
+                <jhi-alert-error></jhi-alert-error>
+                <div class="form-group" [hidden]="!editForm.get('id').value">
+                    <label for="id" jhiTranslate="global.field.id">ID</label>
+                    <input type="text" class="form-control" id="id" name="id" formControlName="id"
+                        readonly />
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.cAConnectorConfig.configId" for="field_configId">Config Id</label>
+                    <input type="number" class="form-control" name="configId" id="field_configId"
+                           formControlName="configId"/>
+                    <div *ngIf="editForm.get('configId').invalid && (editForm.get('configId').dirty || editForm.get('configId').touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('configId').errors.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                        <small class="form-text text-danger"
+                            [hidden]="!editForm.get('configId')?.errors?.number" jhiTranslate="entity.validation.number">
+                            This field should be a number.
+                        </small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.cAConnectorConfig.name" for="field_name">Name</label>
+                    <input type="text" class="form-control" name="name" id="field_name"
+                           formControlName="name"/>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.cAConnectorConfig.caConnectorType" for="field_caConnectorType">Ca Connector Type</label>
+                    <select class="form-control" name="caConnectorType" formControlName="caConnectorType" id="field_caConnectorType">
+                        <option value="Internal">{{'ca3SJhApp.CAConnectorType.Internal' | translate}}</option>
+                        <option value="Cmp">{{'ca3SJhApp.CAConnectorType.Cmp' | translate}}</option>
+                        <option value="Adcs">{{'ca3SJhApp.CAConnectorType.Adcs' | translate}}</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.cAConnectorConfig.caUrl" for="field_caUrl">Ca Url</label>
+                    <input type="text" class="form-control" name="caUrl" id="field_caUrl"
+                           formControlName="caUrl"/>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.cAConnectorConfig.secret" for="field_secret">Secret</label>
+                    <input type="text" class="form-control" name="secret" id="field_secret"
+                           formControlName="secret"/>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.cAConnectorConfig.pollingOffset" for="field_pollingOffset">Polling Offset</label>
+                    <input type="number" class="form-control" name="pollingOffset" id="field_pollingOffset"
+                           formControlName="pollingOffset"/>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.cAConnectorConfig.defaultCA" for="field_defaultCA">Default CA</label>
+                    <input type="checkbox" class="form-control" name="defaultCA" id="field_defaultCA"
+                           formControlName="defaultCA"/>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.cAConnectorConfig.active" for="field_active">Active</label>
+                    <input type="checkbox" class="form-control" name="active" id="field_active"
+                           formControlName="active"/>
+                </div>
+
+            </div>
+            <div>
+                <button type="button" id="cancel-save" class="btn btn-secondary"  (click)="previousState()">
+                    <fa-icon [icon]="'ban'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+                </button>
+                <button type="submit" id="save-entity" [disabled]="editForm.invalid || isSaving" class="btn btn-primary">
+                    <fa-icon [icon]="'save'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,69 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div *ngIf="acmeOrder">
+            <h2><span jhiTranslate="ca3SJhApp.acmeOrder.detail.title">Acme Order</span> {{acmeOrder.id}}</h2>
+            <hr>
+            <jhi-alert-error></jhi-alert-error>
+            <dl class="row-md jh-entity-details">
+                <dt><span jhiTranslate="ca3SJhApp.acmeOrder.status">Status</span></dt>
+                <dd>
+                    <span jhiTranslate="{{'ca3SJhApp.OrderStatus.' + acmeOrder.status}}">{{acmeOrder.status}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.acmeOrder.expires">Expires</span></dt>
+                <dd>
+                    <span>{{acmeOrder.expires}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.acmeOrder.notBefore">Not Before</span></dt>
+                <dd>
+                    <span>{{acmeOrder.notBefore}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.acmeOrder.notAfter">Not After</span></dt>
+                <dd>
+                    <span>{{acmeOrder.notAfter}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.acmeOrder.error">Error</span></dt>
+                <dd>
+                    <span>{{acmeOrder.error}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.acmeOrder.finalizeUrl">Finalize Url</span></dt>
+                <dd>
+                    <span>{{acmeOrder.finalizeUrl}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.acmeOrder.certificateUrl">Certificate Url</span></dt>
+                <dd>
+                    <span>{{acmeOrder.certificateUrl}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.acmeOrder.csr">Csr</span></dt>
+                <dd>
+                    <div *ngIf="acmeOrder.csr">
+                        <a [routerLink]="['/csr', acmeOrder.csr?.id, 'view']">{{acmeOrder.csr?.id}}</a>
+                    </div>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.acmeOrder.certificate">Certificate</span></dt>
+                <dd>
+                    <div *ngIf="acmeOrder.certificate">
+                        <a [routerLink]="['/certificate', acmeOrder.certificate?.id, 'view']">{{acmeOrder.certificate?.id}}</a>
+                    </div>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.acmeOrder.account">Account</span></dt>
+                <dd>
+                    <div *ngIf="acmeOrder.account">
+                        <a [routerLink]="['/acme-account', acmeOrder.account?.id, 'view']">{{acmeOrder.account?.id}}</a>
+                    </div>
+                </dd>
+            </dl>
+
+            <button type="submit"
+                    (click)="previousState()"
+                    class="btn btn-info">
+                <fa-icon [icon]="'arrow-left'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+            </button>
+
+            <button type="button"
+                    [routerLink]="['/acme-order', acmeOrder.id, 'edit']"
+                    class="btn btn-primary">
+                <fa-icon [icon]="'pencil-alt'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+            </button>
+        </div>
+    </div>
+</div>

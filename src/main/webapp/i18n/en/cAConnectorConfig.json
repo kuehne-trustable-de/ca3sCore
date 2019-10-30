@@ -1,0 +1,29 @@
+{
+  "ca3SJhApp": {
+    "cAConnectorConfig": {
+      "home": {
+        "title": "CA Connector Configs",
+        "createLabel": "Create a new CA Connector Config",
+        "createOrEditLabel": "Create or edit a CA Connector Config",
+        "notFound": "No CA Connector Configs found"
+      },
+      "created": "A new CA Connector Config is created with identifier {{ param }}",
+      "updated": "A CA Connector Config is updated with identifier {{ param }}",
+      "deleted": "A CA Connector Config is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete CA Connector Config {{ id }}?"
+      },
+      "detail": {
+        "title": "CA Connector Config"
+      },
+      "configId": "Config Id",
+      "name": "Name",
+      "caConnectorType": "Ca Connector Type",
+      "caUrl": "Ca Url",
+      "secret": "Secret",
+      "pollingOffset": "Polling Offset",
+      "defaultCA": "Default CA",
+      "active": "Active"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "ca3SJhApp": {
+    "rDN": {
+      "home": {
+        "title": "RDNS",
+        "createLabel": "Create a new RDN",
+        "createOrEditLabel": "Create or edit a RDN",
+        "notFound": "No RDNS found"
+      },
+      "created": "A new RDN is created with identifier {{ param }}",
+      "updated": "A RDN is updated with identifier {{ param }}",
+      "deleted": "A RDN is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete RDN {{ id }}?"
+      },
+      "detail": {
+        "title": "RDN"
+      },
+      "rdnAttributes": "Rdn Attributes",
+      "csr": "Csr"
+    }
+  }
+}

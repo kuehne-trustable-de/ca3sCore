@@ -1,0 +1,65 @@
+<div>
+    <h2 id="page-heading">
+        <span jhiTranslate="ca3SJhApp.rDNAttribute.home.title">RDN Attributes</span>
+        <button id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-rdn-attribute" [routerLink]="['/rdn-attribute/new']">
+            <fa-icon [icon]="'plus'"></fa-icon>
+            <span  jhiTranslate="ca3SJhApp.rDNAttribute.home.createLabel">
+            Create a new RDN Attribute
+            </span>
+        </button>
+    </h2>
+    <jhi-alert></jhi-alert>
+    <br/>
+    <div class="alert alert-warning" *ngIf="rDNAttributes?.length === 0">
+        <span jhiTranslate="ca3SJhApp.rDNAttribute.home.notFound">No rDNAttributes found</span>
+    </div>
+    <div class="table-responsive" *ngIf="rDNAttributes?.length > 0">
+        <table class="table table-striped" aria-describedby="page-heading">
+            <thead>
+            <tr>
+            <th><span jhiTranslate="global.field.id">ID</span></th>
+            <th><span jhiTranslate="ca3SJhApp.rDNAttribute.attributeType">Attribute Type</span></th>
+            <th><span jhiTranslate="ca3SJhApp.rDNAttribute.attributeValue">Attribute Value</span></th>
+            <th><span jhiTranslate="ca3SJhApp.rDNAttribute.rdn">Rdn</span></th>
+            <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let rDNAttribute of rDNAttributes ;trackBy: trackId">
+                <td><a [routerLink]="['/rdn-attribute', rDNAttribute.id, 'view' ]">{{rDNAttribute.id}}</a></td>
+                <td>{{rDNAttribute.attributeType}}</td>
+                <td>{{rDNAttribute.attributeValue}}</td>
+                <td>
+                    <div *ngIf="rDNAttribute.rdn">
+                        <a [routerLink]="['/rdn', rDNAttribute.rdn?.id, 'view' ]" >{{rDNAttribute.rdn?.id}}</a>
+                    </div>
+                </td>
+                <td class="text-right">
+                    <div class="btn-group">
+                        <button type="submit"
+                                [routerLink]="['/rdn-attribute', rDNAttribute.id, 'view' ]"
+                                class="btn btn-info btn-sm">
+                            <fa-icon [icon]="'eye'"></fa-icon>
+                            <span class="d-none d-md-inline" jhiTranslate="entity.action.view">View</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/rdn-attribute', rDNAttribute.id, 'edit']"
+                                class="btn btn-primary btn-sm">
+                            <fa-icon [icon]="'pencil-alt'"></fa-icon>
+                            <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/rdn-attribute', { outlets: { popup: rDNAttribute.id + '/delete'} }]"
+                                replaceUrl="true"
+                                queryParamsHandling="merge"
+                                class="btn btn-danger btn-sm">
+                            <fa-icon [icon]="'times'"></fa-icon>
+                            <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,23 @@
+{
+    "name": "Nonce",
+    "fields": [
+        {
+            "fieldName": "nonceValue",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "expiresAt",
+            "fieldType": "LocalDate"
+        }
+    ],
+    "relationships": [],
+    "changelogDate": "20191028230827",
+    "entityTableName": "nonce",
+    "dto": "no",
+    "pagination": "no",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "applications": "*"
+}

@@ -1,0 +1,69 @@
+{
+    "name": "ACMEAccount",
+    "fields": [
+        {
+            "fieldName": "accountId",
+            "fieldType": "Long",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "realm",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "status",
+            "fieldType": "AccountStatus",
+            "fieldValues": "Valid,Deactivated,Revoked"
+        },
+        {
+            "fieldName": "termsOfServiceAgreed",
+            "fieldType": "Boolean",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "publicKeyHash",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "publicKey",
+            "fieldType": "byte[]",
+            "fieldTypeBlobContent": "text",
+            "fieldValidateRules": [
+                "required"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "relationshipType": "one-to-many",
+            "otherEntityName": "acmeContact",
+            "otherEntityRelationshipName": "account",
+            "relationshipName": "contacts"
+        },
+        {
+            "relationshipType": "one-to-many",
+            "otherEntityName": "acmeOrder",
+            "otherEntityRelationshipName": "account",
+            "relationshipName": "orders"
+        }
+    ],
+    "changelogDate": "20191028230821",
+    "entityTableName": "acme_account",
+    "dto": "no",
+    "pagination": "no",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "applications": "*"
+}
