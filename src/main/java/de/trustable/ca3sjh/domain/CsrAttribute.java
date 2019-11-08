@@ -125,4 +125,11 @@ public class CsrAttribute implements Serializable {
             ", value='" + getValue() + "'" +
             "}";
     }
+    
+	public static final String ATTRIBUTE_PROCESSING_CA = "CA3S:PROCESSING_CA";
+	public static final String ATTRIBUTE_CA_PROCESSING_ID = "CA3S:CA_PROCESSING_ID";
+	public static final String ATTRIBUTE_CA_PROCESSING_STARTED_TIMESTAMP = "CA3S:CA_PROCESSING_STARTED_TIMESTAMP";
+	public static final String ATTRIBUTE_CA_PROCESSING_FINISHED_TIMESTAMP = "CA3S:CA_PROCESSING_FINISHED_TIMESTAMP";
+	
+
 }

@@ -5,10 +5,13 @@ import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 import * as moment from 'moment';
 import { JhiAlertService, JhiDataUtils } from 'ng-jhipster';
 import { ICertificate, Certificate } from 'app/shared/model/certificate.model';
 import { CertificateService } from './certificate.service';
+import { ICSR } from 'app/shared/model/csr.model';
+import { CSRService } from 'app/entities/csr/csr.service';
 
 @Component({
   selector: 'jhi-certificate-update',
@@ -16,6 +19,10 @@ import { CertificateService } from './certificate.service';
 })
 export class CertificateUpdateComponent implements OnInit {
   isSaving: boolean;
+
+  csrs: ICSR[];
+
+  certificates: ICertificate[];
   validFromDp: any;
   validToDp: any;
   contentAddedAtDp: any;
@@ -23,6 +30,7 @@ export class CertificateUpdateComponent implements OnInit {
 
   editForm = this.fb.group({
     id: [],
+    certificateId: [null, [Validators.required]],
     tbsDigest: [null, [Validators.required]],
     subject: [null, [Validators.required]],
     issuer: [null, [Validators.required]],
@@ -40,13 +48,16 @@ export class CertificateUpdateComponent implements OnInit {
     revocationReason: [],
     revoked: [],
     revocationExecutionId: [],
-    content: [null, [Validators.required]]
+    content: [null, [Validators.required]],
+    csr: [],
+    issuingCertificate: []
   });
 
   constructor(
     protected dataUtils: JhiDataUtils,
     protected jhiAlertService: JhiAlertService,
     protected certificateService: CertificateService,
+    protected cSRService: CSRService,
     protected activatedRoute: ActivatedRoute,
     private fb: FormBuilder
   ) {}
@@ -56,11 +67,41 @@ export class CertificateUpdateComponent implements OnInit {
     this.activatedRoute.data.subscribe(({ certificate }) => {
       this.updateForm(certificate);
     });
+    this.cSRService
+      .query({ filter: 'certificate-is-null' })
+      .pipe(
+        filter((mayBeOk: HttpResponse<ICSR[]>) => mayBeOk.ok),
+        map((response: HttpResponse<ICSR[]>) => response.body)
+      )
+      .subscribe(
+        (res: ICSR[]) => {
+          if (!this.editForm.get('csr').value || !this.editForm.get('csr').value.id) {
+            this.csrs = res;
+          } else {
+            this.cSRService
+              .find(this.editForm.get('csr').value.id)
+              .pipe(
+                filter((subResMayBeOk: HttpResponse<ICSR>) => subResMayBeOk.ok),
+                map((subResponse: HttpResponse<ICSR>) => subResponse.body)
+              )
+              .subscribe((subRes: ICSR) => (this.csrs = [subRes].concat(res)), (subRes: HttpErrorResponse) => this.onError(subRes.message));
+          }
+        },
+        (res: HttpErrorResponse) => this.onError(res.message)
+      );
+    this.certificateService
+      .query()
+      .pipe(
+        filter((mayBeOk: HttpResponse<ICertificate[]>) => mayBeOk.ok),
+        map((response: HttpResponse<ICertificate[]>) => response.body)
+      )
+      .subscribe((res: ICertificate[]) => (this.certificates = res), (res: HttpErrorResponse) => this.onError(res.message));
   }
 
   updateForm(certificate: ICertificate) {
     this.editForm.patchValue({
       id: certificate.id,
+      certificateId: certificate.certificateId,
       tbsDigest: certificate.tbsDigest,
       subject: certificate.subject,
       issuer: certificate.issuer,
@@ -78,7 +119,9 @@ export class CertificateUpdateComponent implements OnInit {
       revocationReason: certificate.revocationReason,
       revoked: certificate.revoked,
       revocationExecutionId: certificate.revocationExecutionId,
-      content: certificate.content
+      content: certificate.content,
+      csr: certificate.csr,
+      issuingCertificate: certificate.issuingCertificate
     });
   }
 
@@ -133,6 +176,7 @@ export class CertificateUpdateComponent implements OnInit {
     return {
       ...new Certificate(),
       id: this.editForm.get(['id']).value,
+      certificateId: this.editForm.get(['certificateId']).value,
       tbsDigest: this.editForm.get(['tbsDigest']).value,
       subject: this.editForm.get(['subject']).value,
       issuer: this.editForm.get(['issuer']).value,
@@ -150,7 +194,9 @@ export class CertificateUpdateComponent implements OnInit {
       revocationReason: this.editForm.get(['revocationReason']).value,
       revoked: this.editForm.get(['revoked']).value,
       revocationExecutionId: this.editForm.get(['revocationExecutionId']).value,
-      content: this.editForm.get(['content']).value
+      content: this.editForm.get(['content']).value,
+      csr: this.editForm.get(['csr']).value,
+      issuingCertificate: this.editForm.get(['issuingCertificate']).value
     };
   }
 
@@ -168,5 +214,13 @@ export class CertificateUpdateComponent implements OnInit {
   }
   protected onError(errorMessage: string) {
     this.jhiAlertService.error(errorMessage, null, null);
+  }
+
+  trackCSRById(index: number, item: ICSR) {
+    return item.id;
+  }
+
+  trackCertificateById(index: number, item: ICertificate) {
+    return item.id;
   }
 }

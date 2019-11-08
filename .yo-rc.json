@@ -27,8 +27,7 @@
     "useSass": true,
     "clientPackageManager": "npm",
     "clientFramework": "angularX",
-     
-    "clientTheme": "adminLTE",
+    "clientTheme": "materia",
     "clientThemeVariant": "primary",
     "testFrameworks": [
       "gatling"

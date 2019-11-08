@@ -108,10 +108,25 @@
     ],
     "relationships": [
         {
+            "relationshipType": "one-to-one",
+            "otherEntityName": "cSR",
+            "otherEntityRelationshipName": "certificate",
+            "relationshipName": "csr",
+            "otherEntityField": "id",
+            "ownerSide": true
+        },
+        {
             "relationshipType": "one-to-many",
             "otherEntityName": "certificateAttribute",
             "otherEntityRelationshipName": "certificate",
             "relationshipName": "certificateAttributes"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "certificate",
+            "otherEntityRelationshipName": "certificate",
+            "relationshipName": "issuingCertificate",
+            "otherEntityField": "id"
         }
     ],
     "changelogDate": "20191009152935",

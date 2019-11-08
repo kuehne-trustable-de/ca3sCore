@@ -16,18 +16,12 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface CertificateRepository extends JpaRepository<Certificate, Long> {
-
+/*
 	  @Query(name = "Certificate.findByIssuerSerial")
 	  List<Certificate> findByIssuerSerial(@Param("issuer") String issuer, 
 	      @Param("serial") String serial);
-
-	  /*
-	  @Query(name = "Certificate.findBySearchTermNamed")
-	  List<CertificateDao> findBySearchTermNamed(@Param("subject") String subject, 
-	      @Param("serial") String serial);
-
-	  */
-	  
+*/
+  
 	  @Query(name = "Certificate.findBySearchTermNamed1")
 	  Page<Certificate> findBySearchTermNamed1(Pageable pageable, @Param("name") String name, 
 		      @Param("value") String value);

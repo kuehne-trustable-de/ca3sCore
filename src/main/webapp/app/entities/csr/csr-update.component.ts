@@ -5,10 +5,13 @@ import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 import * as moment from 'moment';
 import { JhiAlertService, JhiDataUtils } from 'ng-jhipster';
 import { ICSR, CSR } from 'app/shared/model/csr.model';
 import { CSRService } from './csr.service';
+import { ICertificate } from 'app/shared/model/certificate.model';
+import { CertificateService } from 'app/entities/certificate/certificate.service';
 
 @Component({
   selector: 'jhi-csr-update',
@@ -16,6 +19,8 @@ import { CSRService } from './csr.service';
 })
 export class CSRUpdateComponent implements OnInit {
   isSaving: boolean;
+
+  certificates: ICertificate[];
   requestedOnDp: any;
 
   editForm = this.fb.group({
@@ -36,6 +41,7 @@ export class CSRUpdateComponent implements OnInit {
     protected dataUtils: JhiDataUtils,
     protected jhiAlertService: JhiAlertService,
     protected cSRService: CSRService,
+    protected certificateService: CertificateService,
     protected activatedRoute: ActivatedRoute,
     private fb: FormBuilder
   ) {}
@@ -45,6 +51,13 @@ export class CSRUpdateComponent implements OnInit {
     this.activatedRoute.data.subscribe(({ cSR }) => {
       this.updateForm(cSR);
     });
+    this.certificateService
+      .query()
+      .pipe(
+        filter((mayBeOk: HttpResponse<ICertificate[]>) => mayBeOk.ok),
+        map((response: HttpResponse<ICertificate[]>) => response.body)
+      )
+      .subscribe((res: ICertificate[]) => (this.certificates = res), (res: HttpErrorResponse) => this.onError(res.message));
   }
 
   updateForm(cSR: ICSR) {
@@ -141,5 +154,9 @@ export class CSRUpdateComponent implements OnInit {
   }
   protected onError(errorMessage: string) {
     this.jhiAlertService.error(errorMessage, null, null);
+  }
+
+  trackCertificateById(index: number, item: ICertificate) {
+    return item.id;
   }
 }

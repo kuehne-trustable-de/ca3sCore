@@ -1,4 +1,5 @@
 package de.trustable.ca3sjh.domain;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -10,56 +11,62 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
+/*
+ * ,
+	indexes = {@Index(name = "index_serial",  columnList="serial", unique = false),
+     @Index(name = "index_tbs_digest", columnList="tbs_digest", unique = false)})
+
+ */
+
+
 /**
  * A Certificate.
  */
 @Entity
-@Table(name = "certificate",
-indexes = {@Index(name = "index_serial",  columnList="serial", unique = false),
-        @Index(name = "index_tbs_digest", columnList="tbs_digest", unique = false)})
+@Table(name = "certificate")
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @NamedQueries({
 	@NamedQuery(name = "Certificate.findByTBSDigest",
 	query = "SELECT c FROM Certificate c WHERE " +
 			"c.tbsDigest = :tbsDigest"
- ),    
- @NamedQuery(name = "Certificate.findByIssuerSerial",
- query = "SELECT c FROM Certificate c WHERE " +
-         "LOWER(c.issuer) = LOWER( :issuer ) AND " +
-         " c.serial = :serial"
- ),
- @NamedQuery(name = "Certificate.findBySearchTermNamed",
- query = "SELECT c FROM Certificate c WHERE " +
-     "LOWER(c.subject) LIKE LOWER(CONCAT('%', :subject, '%')) OR " +
-     " c.serial = :serial"
- ),
- @NamedQuery(name = "Certificate.findByAttributeValue",
- query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes att1 WHERE " +
-     " att1.name = :name and att1.value = :value " 
- ),
- @NamedQuery(name = "Certificate.findByAttributeValue_",
- query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes att1 WHERE " +
-         "att1.name = :name and " +
-         "att1.value LIKE LOWER(CONCAT( :value, '%'))"
- ),
- @NamedQuery(name = "Certificate.findBySearchTermNamed1",
- query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes att1 WHERE " +
-     " att1.name = :name and att1.value like CONCAT( :value, '%')"
-     ),
- @NamedQuery(name = "Certificate.findBySearchTermNamed2",
- query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes att1 JOIN c.certificateAttributes att2  WHERE " +
-     " att1.name = :name1 and att1.value like CONCAT( :value1, '%') AND" +
-     " att2.name = :name2 and att2.value like CONCAT( :value2, '%') "
-     ),
+    ),    
+    @NamedQuery(name = "Certificate.findByIssuerSerial",
+    query = "SELECT c FROM Certificate c WHERE " +
+            "LOWER(c.issuer) = LOWER( :issuer ) AND " +
+            " c.serial = :serial"
+    ),
+    @NamedQuery(name = "Certificate.findBySearchTermNamed",
+    query = "SELECT c FROM Certificate c WHERE " +
+        "LOWER(c.subject) LIKE LOWER(CONCAT('%', :subject, '%')) OR " +
+        " c.serial = :serial"
+    ),
+    @NamedQuery(name = "Certificate.findByAttributeValue",
+    query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes att1 WHERE " +
+        " att1.name = :name and att1.value = :value " 
+    ),
+    @NamedQuery(name = "Certificate.findByAttributeValue_",
+    query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes att1 WHERE " +
+            "att1.name = :name and " +
+            "att1.value LIKE LOWER(CONCAT( :value, '%')" +
+        " )"
+    ),
+    @NamedQuery(name = "Certificate.findBySearchTermNamed1",
+    query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes att1 WHERE " +
+        " att1.name = :name and att1.value like CONCAT( :value, '%')"
+        ),
+    @NamedQuery(name = "Certificate.findBySearchTermNamed2",
+    query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes att1 JOIN c.certificateAttributes att2  WHERE " +
+        " att1.name = :name1 and att1.value like CONCAT( :value1, '%') AND" +
+        " att2.name = :name2 and att2.value like CONCAT( :value2, '%') "
+        ),
+            
+    @NamedQuery(name = "Certificate.findByTermNamed2",
+    query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes att1 JOIN c.certificateAttributes att2  WHERE " +
+        " att1.name = :name1 and att1.value = :value1 AND" +
+        " att2.name = :name2 and att2.value = :value2 "
+        ),
          
- @NamedQuery(name = "Certificate.findByTermNamed2",
- query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes att1 JOIN c.certificateAttributes att2  WHERE " +
-     " att1.name = :name1 and att1.value = :value1 AND" +
-     " att2.name = :name2 and att2.value = :value2 "
-     ),
-     
-     
 })
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Certificate implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -67,6 +74,10 @@ public class Certificate implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotNull
+    @Column(name = "certificate_id", nullable = false)
+    private Long certificateId;
 
     @NotNull
     @Column(name = "tbs_digest", nullable = false)
@@ -131,9 +142,17 @@ public class Certificate implements Serializable {
     @Column(name = "content", nullable = false)
     private String content;
 
+    @OneToOne
+    @JoinColumn(unique = true)
+    private CSR csr;
+
     @OneToMany(mappedBy = "certificate")
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<CertificateAttribute> certificateAttributes = new HashSet<>();
+
+    @ManyToOne
+    @JsonIgnoreProperties("certificates")
+    private Certificate issuingCertificate;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -142,6 +161,19 @@ public class Certificate implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getCertificateId() {
+        return certificateId;
+    }
+
+    public Certificate certificateId(Long certificateId) {
+        this.certificateId = certificateId;
+        return this;
+    }
+
+    public void setCertificateId(Long certificateId) {
+        this.certificateId = certificateId;
     }
 
     public String getTbsDigest() {
@@ -378,6 +410,19 @@ public class Certificate implements Serializable {
         this.content = content;
     }
 
+    public CSR getCsr() {
+        return csr;
+    }
+
+    public Certificate csr(CSR cSR) {
+        this.csr = cSR;
+        return this;
+    }
+
+    public void setCsr(CSR cSR) {
+        this.csr = cSR;
+    }
+
     public Set<CertificateAttribute> getCertificateAttributes() {
         return certificateAttributes;
     }
@@ -402,6 +447,19 @@ public class Certificate implements Serializable {
     public void setCertificateAttributes(Set<CertificateAttribute> certificateAttributes) {
         this.certificateAttributes = certificateAttributes;
     }
+
+    public Certificate getIssuingCertificate() {
+        return issuingCertificate;
+    }
+
+    public Certificate issuingCertificate(Certificate certificate) {
+        this.issuingCertificate = certificate;
+        return this;
+    }
+
+    public void setIssuingCertificate(Certificate certificate) {
+        this.issuingCertificate = certificate;
+    }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
@@ -424,6 +482,7 @@ public class Certificate implements Serializable {
     public String toString() {
         return "Certificate{" +
             "id=" + getId() +
+            ", certificateId=" + getCertificateId() +
             ", tbsDigest='" + getTbsDigest() + "'" +
             ", subject='" + getSubject() + "'" +
             ", issuer='" + getIssuer() + "'" +

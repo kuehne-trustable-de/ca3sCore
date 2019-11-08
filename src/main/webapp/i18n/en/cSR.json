@@ -28,7 +28,8 @@
       "subjectPublicKeyInfoBase64": "Subject Public Key Info Base 64",
       "rdns": "Rdns",
       "ras": "Ras",
-      "csrAttributes": "Csr Attributes"
+      "csrAttributes": "Csr Attributes",
+      "certificate": "Certificate"
     }
   }
 }

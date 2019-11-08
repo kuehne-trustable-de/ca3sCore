@@ -39,6 +39,11 @@ entity Certificate {
   revoked Boolean
   revocationExecutionId String
   content TextBlob required
+  
+}
+
+enum CsrStatus {
+    Processing, Issued, Rejected, Pending
 }
 
 entity CSR{
@@ -47,7 +52,7 @@ entity CSR{
   	id Long required
    	csrBase64 TextBlob required
   	requestedOn LocalDate required
-  	status String required
+  	status CsrStatus required
   	processInstanceId String
 	signingAlgorithm String
 	isCSRValid Boolean
@@ -308,8 +313,15 @@ relationship ManyToOne {
 
 #    CsrAttribute{csr} to CSR
 
+  	Certificate{issuingCertificate} to Certificate
+
 }
 
+relationship OneToOne{
+
+  Certificate{csr} to CSR{certificate}
+
+}
 
 // Set pagination options
 paginate Certificate with infinite-scroll

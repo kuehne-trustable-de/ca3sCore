@@ -1,4 +1,5 @@
 package de.trustable.ca3sjh.domain;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -9,6 +10,8 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
+
+import de.trustable.ca3sjh.domain.enumeration.CsrStatus;
 
 /**
  * A CSR.
@@ -34,8 +37,9 @@ public class CSR implements Serializable {
     private LocalDate requestedOn;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private String status;
+    private CsrStatus status;
 
     @Column(name = "process_instance_id")
     private String processInstanceId;
@@ -72,6 +76,10 @@ public class CSR implements Serializable {
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<CsrAttribute> csrAttributes = new HashSet<>();
 
+    @OneToOne(mappedBy = "csr")
+    @JsonIgnore
+    private Certificate certificate;
+
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
         return id;
@@ -107,16 +115,16 @@ public class CSR implements Serializable {
         this.requestedOn = requestedOn;
     }
 
-    public String getStatus() {
+    public CsrStatus getStatus() {
         return status;
     }
 
-    public CSR status(String status) {
+    public CSR status(CsrStatus status) {
         this.status = status;
         return this;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(CsrStatus status) {
         this.status = status;
     }
 
@@ -284,6 +292,19 @@ public class CSR implements Serializable {
 
     public void setCsrAttributes(Set<CsrAttribute> csrAttributes) {
         this.csrAttributes = csrAttributes;
+    }
+
+    public Certificate getCertificate() {
+        return certificate;
+    }
+
+    public CSR certificate(Certificate certificate) {
+        this.certificate = certificate;
+        return this;
+    }
+
+    public void setCertificate(Certificate certificate) {
+        this.certificate = certificate;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 

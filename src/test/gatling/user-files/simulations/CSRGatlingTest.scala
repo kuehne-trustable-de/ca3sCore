@@ -74,7 +74,7 @@ class CSRGatlingTest extends Simulation {
                 "id":null
                 , "csrBase64":null
                 , "requestedOn":"2020-01-01T00:00:00.000Z"
-                , "status":"SAMPLE_TEXT"
+                , "status":"Processing"
                 , "processInstanceId":"SAMPLE_TEXT"
                 , "signingAlgorithm":"SAMPLE_TEXT"
                 , "isCSRValid":null

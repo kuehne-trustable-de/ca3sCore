@@ -2,12 +2,14 @@ import { Moment } from 'moment';
 import { IRDN } from 'app/shared/model/rdn.model';
 import { IRequestAttribute } from 'app/shared/model/request-attribute.model';
 import { ICsrAttribute } from 'app/shared/model/csr-attribute.model';
+import { ICertificate } from 'app/shared/model/certificate.model';
+import { CsrStatus } from 'app/shared/model/enumerations/csr-status.model';
 
 export interface ICSR {
   id?: number;
   csrBase64?: any;
   requestedOn?: Moment;
-  status?: string;
+  status?: CsrStatus;
   processInstanceId?: string;
   signingAlgorithm?: string;
   isCSRValid?: boolean;
@@ -18,6 +20,7 @@ export interface ICSR {
   rdns?: IRDN[];
   ras?: IRequestAttribute[];
   csrAttributes?: ICsrAttribute[];
+  certificate?: ICertificate;
 }
 
 export class CSR implements ICSR {
@@ -25,7 +28,7 @@ export class CSR implements ICSR {
     public id?: number,
     public csrBase64?: any,
     public requestedOn?: Moment,
-    public status?: string,
+    public status?: CsrStatus,
     public processInstanceId?: string,
     public signingAlgorithm?: string,
     public isCSRValid?: boolean,
@@ -35,7 +38,8 @@ export class CSR implements ICSR {
     public subjectPublicKeyInfoBase64?: any,
     public rdns?: IRDN[],
     public ras?: IRequestAttribute[],
-    public csrAttributes?: ICsrAttribute[]
+    public csrAttributes?: ICsrAttribute[],
+    public certificate?: ICertificate
   ) {
     this.isCSRValid = this.isCSRValid || false;
   }

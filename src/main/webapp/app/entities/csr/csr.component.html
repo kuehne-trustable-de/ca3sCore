@@ -36,7 +36,7 @@
                 <td><a [routerLink]="['/csr', cSR.id, 'view' ]">{{cSR.id}}</a></td>
                 <td>{{cSR.csrBase64}}</td>
                 <td>{{cSR.requestedOn | date:'mediumDate'}}</td>
-                <td>{{cSR.status}}</td>
+                <td jhiTranslate="{{'ca3SJhApp.CsrStatus.' + cSR.status}}">{{cSR.status}}</td>
                 <td>{{cSR.processInstanceId}}</td>
                 <td>{{cSR.signingAlgorithm}}</td>
                 <td>{{cSR.isCSRValid}}</td>

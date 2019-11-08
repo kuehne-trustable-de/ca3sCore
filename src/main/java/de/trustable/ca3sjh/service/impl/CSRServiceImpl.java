@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Service Implementation for managing {@link CSR}.
@@ -51,6 +53,20 @@ public class CSRServiceImpl implements CSRService {
         return cSRRepository.findAll();
     }
 
+
+
+    /**
+    *  Get all the cSRS where Certificate is {@code null}.
+     *  @return the list of entities.
+     */
+    @Transactional(readOnly = true) 
+    public List<CSR> findAllWhereCertificateIsNull() {
+        log.debug("Request to get all cSRS where Certificate is null");
+        return StreamSupport
+            .stream(cSRRepository.findAll().spliterator(), false)
+            .filter(cSR -> cSR.getCertificate() == null)
+            .collect(Collectors.toList());
+    }
 
     /**
      * Get one cSR by id.

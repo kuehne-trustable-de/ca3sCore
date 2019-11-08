@@ -18,6 +18,7 @@
             <thead>
             <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="reset.bind(this)">
             <th jhiSortBy="id"><span jhiTranslate="global.field.id">ID</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="certificateId"><span jhiTranslate="ca3SJhApp.certificate.certificateId">Certificate Id</span> <fa-icon [icon]="'sort'"></fa-icon></th>
             <th jhiSortBy="tbsDigest"><span jhiTranslate="ca3SJhApp.certificate.tbsDigest">Tbs Digest</span> <fa-icon [icon]="'sort'"></fa-icon></th>
             <th jhiSortBy="subject"><span jhiTranslate="ca3SJhApp.certificate.subject">Subject</span> <fa-icon [icon]="'sort'"></fa-icon></th>
             <th jhiSortBy="issuer"><span jhiTranslate="ca3SJhApp.certificate.issuer">Issuer</span> <fa-icon [icon]="'sort'"></fa-icon></th>
@@ -36,12 +37,15 @@
             <th jhiSortBy="revoked"><span jhiTranslate="ca3SJhApp.certificate.revoked">Revoked</span> <fa-icon [icon]="'sort'"></fa-icon></th>
             <th jhiSortBy="revocationExecutionId"><span jhiTranslate="ca3SJhApp.certificate.revocationExecutionId">Revocation Execution Id</span> <fa-icon [icon]="'sort'"></fa-icon></th>
             <th jhiSortBy="content"><span jhiTranslate="ca3SJhApp.certificate.content">Content</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="csr.id"><span jhiTranslate="ca3SJhApp.certificate.csr">Csr</span> <fa-icon [icon]="'sort'"></fa-icon></th>
+            <th jhiSortBy="issuingCertificate.id"><span jhiTranslate="ca3SJhApp.certificate.issuingCertificate">Issuing Certificate</span> <fa-icon [icon]="'sort'"></fa-icon></th>
             <th></th>
             </tr>
             </thead>
             <tbody infinite-scroll (scrolled)="loadPage(page + 1)" [infiniteScrollDisabled]="page >= links['last']" [infiniteScrollDistance]="0">
             <tr *ngFor="let certificate of certificates ;trackBy: trackId">
                 <td><a [routerLink]="['/certificate', certificate.id, 'view' ]">{{certificate.id}}</a></td>
+                <td>{{certificate.certificateId}}</td>
                 <td>{{certificate.tbsDigest}}</td>
                 <td>{{certificate.subject}}</td>
                 <td>{{certificate.issuer}}</td>
@@ -60,6 +64,16 @@
                 <td>{{certificate.revoked}}</td>
                 <td>{{certificate.revocationExecutionId}}</td>
                 <td>{{certificate.content}}</td>
+                <td>
+                    <div *ngIf="certificate.csr">
+                        <a [routerLink]="['/csr', certificate.csr?.id, 'view' ]" >{{certificate.csr?.id}}</a>
+                    </div>
+                </td>
+                <td>
+                    <div *ngIf="certificate.issuingCertificate">
+                        <a [routerLink]="['/certificate', certificate.issuingCertificate?.id, 'view' ]" >{{certificate.issuingCertificate?.id}}</a>
+                    </div>
+                </td>
                 <td class="text-right">
                     <div class="btn-group">
                         <button type="submit"

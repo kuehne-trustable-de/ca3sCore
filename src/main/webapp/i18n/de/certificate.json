@@ -16,6 +16,7 @@
       "detail": {
         "title": "Certificate"
       },
+      "certificateId": "Certificate Id",
       "tbsDigest": "Tbs Digest",
       "subject": "Subject",
       "issuer": "Issuer",
@@ -34,7 +35,9 @@
       "revoked": "Revoked",
       "revocationExecutionId": "Revocation Execution Id",
       "content": "Content",
-      "certificateAttributes": "Certificate Attributes"
+      "csr": "Csr",
+      "certificateAttributes": "Certificate Attributes",
+      "issuingCertificate": "Issuing Certificate"
     }
   }
 }

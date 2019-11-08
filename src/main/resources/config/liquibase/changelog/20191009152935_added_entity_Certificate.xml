@@ -16,6 +16,9 @@
             <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
+            <column name="certificate_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
             <column name="tbs_digest" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
@@ -70,6 +73,12 @@
             <column name="content" type="${clobType}">
                 <constraints nullable="false" />
             </column>
+            <column name="csr_id" type="bigint">
+                <constraints unique="true" nullable="true" uniqueConstraintName="ux_certificate_csr_id" />
+            </column>
+            <column name="issuing_certificate_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
     </changeSet>
@@ -93,6 +102,7 @@
                   separator=";"
                   tableName="certificate">
             <column name="id" type="numeric"/>
+            <column name="certificate_id" type="numeric"/>
             <column name="tbs_digest" type="string"/>
             <column name="subject" type="string"/>
             <column name="issuer" type="string"/>

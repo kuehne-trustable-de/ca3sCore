@@ -5,6 +5,7 @@ import * as moment from 'moment';
 import { DATE_FORMAT } from 'app/shared/constants/input.constants';
 import { CSRService } from 'app/entities/csr/csr.service';
 import { ICSR, CSR } from 'app/shared/model/csr.model';
+import { CsrStatus } from 'app/shared/model/enumerations/csr-status.model';
 
 describe('Service Tests', () => {
   describe('CSR Service', () => {
@@ -24,7 +25,19 @@ describe('Service Tests', () => {
       httpMock = injector.get(HttpTestingController);
       currentDate = moment();
 
-      elemDefault = new CSR(0, 'AAAAAAA', currentDate, 'AAAAAAA', 'AAAAAAA', 'AAAAAAA', false, 'AAAAAAA', 'AAAAAAA', 'AAAAAAA', 'AAAAAAA');
+      elemDefault = new CSR(
+        0,
+        'AAAAAAA',
+        currentDate,
+        CsrStatus.Processing,
+        'AAAAAAA',
+        'AAAAAAA',
+        false,
+        'AAAAAAA',
+        'AAAAAAA',
+        'AAAAAAA',
+        'AAAAAAA'
+      );
     });
 
     describe('Service methods', () => {

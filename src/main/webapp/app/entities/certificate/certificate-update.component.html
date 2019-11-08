@@ -10,6 +10,21 @@
                         readonly />
                 </div>
                 <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.certificate.certificateId" for="field_certificateId">Certificate Id</label>
+                    <input type="number" class="form-control" name="certificateId" id="field_certificateId"
+                           formControlName="certificateId"/>
+                    <div *ngIf="editForm.get('certificateId').invalid && (editForm.get('certificateId').dirty || editForm.get('certificateId').touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('certificateId').errors.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                        <small class="form-text text-danger"
+                            [hidden]="!editForm.get('certificateId')?.errors?.number" jhiTranslate="entity.validation.number">
+                            This field should be a number.
+                        </small>
+                    </div>
+                </div>
+                <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ca3SJhApp.certificate.tbsDigest" for="field_tbsDigest">Tbs Digest</label>
                     <input type="text" class="form-control" name="tbsDigest" id="field_tbsDigest"
                            formControlName="tbsDigest"/>
@@ -164,6 +179,20 @@
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.certificate.csr" for="field_csr">Csr</label>
+                    <select class="form-control" id="field_csr" name="csr" formControlName="csr">
+                        <option [ngValue]="null"></option>
+                        <option [ngValue]="cSROption.id === editForm.get('csr').value?.id ? editForm.get('csr').value : cSROption" *ngFor="let cSROption of csrs; trackBy: trackCSRById">{{cSROption.id}}</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.certificate.issuingCertificate" for="field_issuingCertificate">Issuing Certificate</label>
+                    <select class="form-control" id="field_issuingCertificate" name="issuingCertificate" formControlName="issuingCertificate">
+                        <option [ngValue]="null"></option>
+                        <option [ngValue]="certificateOption.id === editForm.get('issuingCertificate').value?.id ? editForm.get('issuingCertificate').value : certificateOption" *ngFor="let certificateOption of certificates; trackBy: trackCertificateById">{{certificateOption.id}}</option>
+                    </select>
+                </div>
             </div>
             <div>
                 <button type="button" id="cancel-save" class="btn btn-secondary"  (click)="previousState()">

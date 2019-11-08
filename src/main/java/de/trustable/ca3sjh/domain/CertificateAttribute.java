@@ -1,5 +1,6 @@
 package de.trustable.ca3sjh.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -106,4 +107,40 @@ public class CertificateAttribute implements Serializable {
             ", value='" + getValue() + "'" +
             "}";
     }
+    
+	public static final String ATTRIBUTE_ACME_ACCOUNT_ID = "ACME:ACCOUNT_ID";
+	public static final String ATTRIBUTE_ACME_ORDER_ID = "ACME:ORDER_ID";
+	public static final String ATTRIBUTE_SCEP_RECIPIENT = "CA3S:SCEP_RECIPIENT";
+	public static final String ATTRIBUTE_SCEP_TRANS_ID = "CA3S:SCEP_TRANS_ID";
+	public static final String ATTRIBUTE_SELFSIGNED = "CA3S:SELFSIGNED";
+	public static final String ATTRIBUTE_CA = "CA3S:CA";
+	public static final String ATTRIBUTE_END_ENTITY = "CA3S:END_ENTITY";
+	public static final String ATTRIBUTE_CHAIN_LENGTH = "CA3S:CHAIN_LENGTH";
+	
+	public static final String ATTRIBUTE_SUBJECT = "SUBJECT";
+	public static final String ATTRIBUTE_SAN = "SAN";
+	public static final String ATTRIBUTE_SUBJECT_RDN_PART = "SUBJECT_RDN_PART";
+	public static final String ATTRIBUTE_ISSUER = "ISSUER";
+	public static final String ATTRIBUTE_TYPE = "TYPE";
+	public static final String ATTRIBUTE_USAGE = "USAGE";
+	public static final String ATTRIBUTE_KEY_LENGTH = "KEY_LENGTH";
+	public static final String ATTRIBUTE_SIGNATURE_ALGO = "SIGNATURE_ALGO";
+	public static final String ATTRIBUTE_KEY_ALGO = "KEY_ALGO";
+	public static final String ATTRIBUTE_HASH_ALGO = "HASH_ALGO";
+	public static final String ATTRIBUTE_PADDING_ALGO = "PADDING_ALGO";
+	public static final String ATTRIBUTE_CURVE_NAME = "CURVE_NAME";
+	public static final String ATTRIBUTE_SKI = "SKI";
+	public static final String ATTRIBUTE_AKI = "AKI";
+	public static final String ATTRIBUTE_FINGERPRINT = "FINGERPRINT";
+	public static final String ATTRIBUTE_SERIAL = "SERIAL";
+	public static final String ATTRIBUTE_SERIAL_PADDED = "SERIAL_PADDED";
+	public static final String ATTRIBUTE_VALID_FROM = "VALID_FROM";
+	public static final String ATTRIBUTE_VALID_FROM_TIMESTAMP = "VALID_FROM_TIMESTAMP";
+	public static final String ATTRIBUTE_VALID_TO = "VALID_TO";
+	public static final String ATTRIBUTE_VALID_TO_TIMESTAMP = "VALID_TO_TIMESTAMP";
+
+	public static final String ATTRIBUTE_CA_PROCESSING_ID = CsrAttribute.ATTRIBUTE_CA_PROCESSING_ID;
+	public static final String ATTRIBUTE_PROCESSING_CA = CsrAttribute.ATTRIBUTE_PROCESSING_CA;
+	
+
 }

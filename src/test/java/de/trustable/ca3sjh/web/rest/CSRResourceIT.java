@@ -31,6 +31,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import de.trustable.ca3sjh.domain.enumeration.CsrStatus;
 /**
  * Integration tests for the {@link CSRResource} REST controller.
  */
@@ -44,8 +45,8 @@ public class CSRResourceIT {
     private static final LocalDate UPDATED_REQUESTED_ON = LocalDate.now(ZoneId.systemDefault());
     private static final LocalDate SMALLER_REQUESTED_ON = LocalDate.ofEpochDay(-1L);
 
-    private static final String DEFAULT_STATUS = "AAAAAAAAAA";
-    private static final String UPDATED_STATUS = "BBBBBBBBBB";
+    private static final CsrStatus DEFAULT_STATUS = CsrStatus.Processing;
+    private static final CsrStatus UPDATED_STATUS = CsrStatus.Issued;
 
     private static final String DEFAULT_PROCESS_INSTANCE_ID = "AAAAAAAAAA";
     private static final String UPDATED_PROCESS_INSTANCE_ID = "BBBBBBBBBB";

@@ -24,6 +24,12 @@ public interface CSRService {
      * @return the list of entities.
      */
     List<CSR> findAll();
+    /**
+     * Get all the CSRDTO where Certificate is {@code null}.
+     *
+     * @return the list of entities.
+     */
+    List<CSR> findAllWhereCertificateIsNull();
 
 
     /**

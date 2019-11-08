@@ -72,6 +72,7 @@ class CertificateGatlingTest extends Simulation {
             .headers(headers_http_authenticated)
             .body(StringBody("""{
                 "id":null
+                , "certificateId":null
                 , "tbsDigest":"SAMPLE_TEXT"
                 , "subject":"SAMPLE_TEXT"
                 , "issuer":"SAMPLE_TEXT"

@@ -18,6 +18,7 @@ import java.net.URISyntaxException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 /**
  * REST controller for managing {@link de.trustable.ca3sjh.domain.CSR}.
@@ -83,10 +84,15 @@ public class CSRResource {
      * {@code GET  /csrs} : get all the cSRS.
      *
 
+     * @param filter the filter of the request.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of cSRS in body.
      */
     @GetMapping("/csrs")
-    public List<CSR> getAllCSRS() {
+    public List<CSR> getAllCSRS(@RequestParam(required = false) String filter) {
+        if ("certificate-is-null".equals(filter)) {
+            log.debug("REST request to get all CSRs where certificate is null");
+            return cSRService.findAllWhereCertificateIsNull();
+        }
         log.debug("REST request to get all CSRS");
         return cSRService.findAll();
     }

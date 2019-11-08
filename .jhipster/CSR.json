@@ -18,7 +18,8 @@
         },
         {
             "fieldName": "status",
-            "fieldType": "String",
+            "fieldType": "CsrStatus",
+            "fieldValues": "Processing,Issued,Rejected,Pending",
             "fieldValidateRules": [
                 "required"
             ]
@@ -74,6 +75,13 @@
             "otherEntityName": "csrAttribute",
             "otherEntityRelationshipName": "csr",
             "relationshipName": "csrAttributes"
+        },
+        {
+            "relationshipType": "one-to-one",
+            "otherEntityName": "certificate",
+            "otherEntityRelationshipName": "csr",
+            "relationshipName": "certificate",
+            "ownerSide": false
         }
     ],
     "changelogDate": "20191028230815",

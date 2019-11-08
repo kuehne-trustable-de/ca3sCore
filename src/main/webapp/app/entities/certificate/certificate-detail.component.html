@@ -5,6 +5,10 @@
             <hr>
             <jhi-alert-error></jhi-alert-error>
             <dl class="row-md jh-entity-details">
+                <dt><span jhiTranslate="ca3SJhApp.certificate.certificateId">Certificate Id</span></dt>
+                <dd>
+                    <span>{{certificate.certificateId}}</span>
+                </dd>
                 <dt><span jhiTranslate="ca3SJhApp.certificate.tbsDigest">Tbs Digest</span></dt>
                 <dd>
                     <span>{{certificate.tbsDigest}}</span>
@@ -76,6 +80,18 @@
                 <dt><span jhiTranslate="ca3SJhApp.certificate.content">Content</span></dt>
                 <dd>
                     <span>{{certificate.content}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.certificate.csr">Csr</span></dt>
+                <dd>
+                    <div *ngIf="certificate.csr">
+                        <a [routerLink]="['/csr', certificate.csr?.id, 'view']">{{certificate.csr?.id}}</a>
+                    </div>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.certificate.issuingCertificate">Issuing Certificate</span></dt>
+                <dd>
+                    <div *ngIf="certificate.issuingCertificate">
+                        <a [routerLink]="['/certificate', certificate.issuingCertificate?.id, 'view']">{{certificate.issuingCertificate?.id}}</a>
+                    </div>
                 </dd>
             </dl>
 
