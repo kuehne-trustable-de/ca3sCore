@@ -22,6 +22,10 @@
             "fieldType": "String"
         },
         {
+            "fieldName": "secret",
+            "fieldType": "String"
+        },
+        {
             "fieldName": "pollingOffset",
             "fieldType": "Integer"
         },

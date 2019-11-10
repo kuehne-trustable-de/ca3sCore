@@ -43,9 +43,6 @@ public class CAConnectorConfig implements Serializable {
     @Column(name = "polling_offset")
     private Integer pollingOffset;
 
-    @Column(name = "default_ca")
-    private Boolean defaultCA;
-
     @Column(name = "active")
     private Boolean active;
 
@@ -136,19 +133,6 @@ public class CAConnectorConfig implements Serializable {
         this.pollingOffset = pollingOffset;
     }
 
-    public Boolean isDefaultCA() {
-        return defaultCA;
-    }
-
-    public CAConnectorConfig defaultCA(Boolean defaultCA) {
-        this.defaultCA = defaultCA;
-        return this;
-    }
-
-    public void setDefaultCA(Boolean defaultCA) {
-        this.defaultCA = defaultCA;
-    }
-
     public Boolean isActive() {
         return active;
     }
@@ -189,7 +173,6 @@ public class CAConnectorConfig implements Serializable {
             ", caUrl='" + getCaUrl() + "'" +
             ", secret='" + getSecret() + "'" +
             ", pollingOffset=" + getPollingOffset() +
-            ", defaultCA='" + isDefaultCA() + "'" +
             ", active='" + isActive() + "'" +
             "}";
     }

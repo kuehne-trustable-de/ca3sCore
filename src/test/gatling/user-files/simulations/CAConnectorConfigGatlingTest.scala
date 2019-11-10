@@ -78,7 +78,6 @@ class CAConnectorConfigGatlingTest extends Simulation {
                 , "caUrl":"SAMPLE_TEXT"
                 , "secret":"SAMPLE_TEXT"
                 , "pollingOffset":"0"
-                , "defaultCA":null
                 , "active":null
                 }""")).asJson
             .check(status.is(201))

@@ -16,7 +16,32 @@
     <include file="config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20191009152935_added_entity_Certificate.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20191028230815_added_entity_CSR.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191009152933_added_entity_CAConnectorConfig.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191009152934_added_entity_CertificateAttribute.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191028230816_added_entity_CsrAttribute.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191028230817_added_entity_RDN.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191028230818_added_entity_RDNAttribute.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191028230819_added_entity_RequestAttribute.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191028230820_added_entity_RequestAttributeValue.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191028230821_added_entity_ACMEAccount.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191030194848_added_entity_AcmeContact.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191030193014_added_entity_AcmeOrder.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191028230824_added_entity_Identifier.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191028230825_added_entity_Authorization.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191030195207_added_entity_AcmeChallenge.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191028230827_added_entity_Nonce.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <include file="config/liquibase/changelog/20191009152935_added_entity_constraints_Certificate.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191009152934_added_entity_constraints_CertificateAttribute.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191028230816_added_entity_constraints_CsrAttribute.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191028230817_added_entity_constraints_RDN.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191028230818_added_entity_constraints_RDNAttribute.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191028230819_added_entity_constraints_RequestAttribute.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191028230820_added_entity_constraints_RequestAttributeValue.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191030194848_added_entity_constraints_AcmeContact.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191030193014_added_entity_constraints_AcmeOrder.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191028230824_added_entity_constraints_Identifier.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191028230825_added_entity_constraints_Authorization.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20191030195207_added_entity_constraints_AcmeChallenge.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
 </databaseChangeLog>

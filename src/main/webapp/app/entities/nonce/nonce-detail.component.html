@@ -1,0 +1,31 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div *ngIf="nonce">
+            <h2><span jhiTranslate="ca3SJhApp.nonce.detail.title">Nonce</span> {{nonce.id}}</h2>
+            <hr>
+            <jhi-alert-error></jhi-alert-error>
+            <dl class="row-md jh-entity-details">
+                <dt><span jhiTranslate="ca3SJhApp.nonce.nonceValue">Nonce Value</span></dt>
+                <dd>
+                    <span>{{nonce.nonceValue}}</span>
+                </dd>
+                <dt><span jhiTranslate="ca3SJhApp.nonce.expiresAt">Expires At</span></dt>
+                <dd>
+                    <span>{{nonce.expiresAt}}</span>
+                </dd>
+            </dl>
+
+            <button type="submit"
+                    (click)="previousState()"
+                    class="btn btn-info">
+                <fa-icon [icon]="'arrow-left'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+            </button>
+
+            <button type="button"
+                    [routerLink]="['/nonce', nonce.id, 'edit']"
+                    class="btn btn-primary">
+                <fa-icon [icon]="'pencil-alt'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+            </button>
+        </div>
+    </div>
+</div>

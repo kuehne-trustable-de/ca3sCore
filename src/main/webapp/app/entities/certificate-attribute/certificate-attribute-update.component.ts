@@ -23,6 +23,7 @@ export class CertificateAttributeUpdateComponent implements OnInit {
 
   editForm = this.fb.group({
     id: [],
+    attributeId: [null, [Validators.required]],
     name: [null, [Validators.required]],
     value: [],
     certificate: []
@@ -53,6 +54,7 @@ export class CertificateAttributeUpdateComponent implements OnInit {
   updateForm(certificateAttribute: ICertificateAttribute) {
     this.editForm.patchValue({
       id: certificateAttribute.id,
+      attributeId: certificateAttribute.attributeId,
       name: certificateAttribute.name,
       value: certificateAttribute.value,
       certificate: certificateAttribute.certificate
@@ -77,6 +79,7 @@ export class CertificateAttributeUpdateComponent implements OnInit {
     return {
       ...new CertificateAttribute(),
       id: this.editForm.get(['id']).value,
+      attributeId: this.editForm.get(['attributeId']).value,
       name: this.editForm.get(['name']).value,
       value: this.editForm.get(['value']).value,
       certificate: this.editForm.get(['certificate']).value

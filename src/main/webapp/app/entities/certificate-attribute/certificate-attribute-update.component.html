@@ -10,6 +10,21 @@
                         readonly />
                 </div>
                 <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.certificateAttribute.attributeId" for="field_attributeId">Attribute Id</label>
+                    <input type="number" class="form-control" name="attributeId" id="field_attributeId"
+                           formControlName="attributeId"/>
+                    <div *ngIf="editForm.get('attributeId').invalid && (editForm.get('attributeId').dirty || editForm.get('attributeId').touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('attributeId').errors.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                        <small class="form-text text-danger"
+                            [hidden]="!editForm.get('attributeId')?.errors?.number" jhiTranslate="entity.validation.number">
+                            This field should be a number.
+                        </small>
+                    </div>
+                </div>
+                <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ca3SJhApp.certificateAttribute.name" for="field_name">Name</label>
                     <input type="text" class="form-control" name="name" id="field_name"
                            formControlName="name"/>

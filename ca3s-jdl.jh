@@ -3,7 +3,9 @@ entity CAConnectorConfig{
 	name String
 	caConnectorType CAConnectorType
 	caUrl String
+	secret String
 	pollingOffset Integer 
+	defaultCA Boolean
 	active Boolean
 }
 

@@ -16,6 +16,9 @@
             <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
+            <column name="attribute_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
             <column name="name" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
@@ -48,6 +51,7 @@
                   separator=";"
                   tableName="certificate_attribute">
             <column name="id" type="numeric"/>
+            <column name="attribute_id" type="numeric"/>
             <column name="name" type="string"/>
             <column name="value" type="string"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->

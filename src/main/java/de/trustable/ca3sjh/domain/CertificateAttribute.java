@@ -1,6 +1,5 @@
 package de.trustable.ca3sjh.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -24,6 +23,10 @@ public class CertificateAttribute implements Serializable {
     private Long id;
 
     @NotNull
+    @Column(name = "attribute_id", nullable = false)
+    private Long attributeId;
+
+    @NotNull
     @Column(name = "name", nullable = false)
     private String name;
 
@@ -41,6 +44,19 @@ public class CertificateAttribute implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getAttributeId() {
+        return attributeId;
+    }
+
+    public CertificateAttribute attributeId(Long attributeId) {
+        this.attributeId = attributeId;
+        return this;
+    }
+
+    public void setAttributeId(Long attributeId) {
+        this.attributeId = attributeId;
     }
 
     public String getName() {
@@ -103,6 +119,7 @@ public class CertificateAttribute implements Serializable {
     public String toString() {
         return "CertificateAttribute{" +
             "id=" + getId() +
+            ", attributeId=" + getAttributeId() +
             ", name='" + getName() + "'" +
             ", value='" + getValue() + "'" +
             "}";

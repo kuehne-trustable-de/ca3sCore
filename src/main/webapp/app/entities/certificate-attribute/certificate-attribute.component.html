@@ -18,6 +18,7 @@
             <thead>
             <tr>
             <th><span jhiTranslate="global.field.id">ID</span></th>
+            <th><span jhiTranslate="ca3SJhApp.certificateAttribute.attributeId">Attribute Id</span></th>
             <th><span jhiTranslate="ca3SJhApp.certificateAttribute.name">Name</span></th>
             <th><span jhiTranslate="ca3SJhApp.certificateAttribute.value">Value</span></th>
             <th><span jhiTranslate="ca3SJhApp.certificateAttribute.certificate">Certificate</span></th>
@@ -27,6 +28,7 @@
             <tbody>
             <tr *ngFor="let certificateAttribute of certificateAttributes ;trackBy: trackId">
                 <td><a [routerLink]="['/certificate-attribute', certificateAttribute.id, 'view' ]">{{certificateAttribute.id}}</a></td>
+                <td>{{certificateAttribute.attributeId}}</td>
                 <td>{{certificateAttribute.name}}</td>
                 <td>{{certificateAttribute.value}}</td>
                 <td>

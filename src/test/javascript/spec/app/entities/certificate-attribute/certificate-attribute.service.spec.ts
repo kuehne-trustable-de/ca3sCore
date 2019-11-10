@@ -20,7 +20,7 @@ describe('Service Tests', () => {
       service = injector.get(CertificateAttributeService);
       httpMock = injector.get(HttpTestingController);
 
-      elemDefault = new CertificateAttribute(0, 'AAAAAAA', 'AAAAAAA');
+      elemDefault = new CertificateAttribute(0, 0, 'AAAAAAA', 'AAAAAAA');
     });
 
     describe('Service methods', () => {
@@ -56,6 +56,7 @@ describe('Service Tests', () => {
       it('should update a CertificateAttribute', () => {
         const returnedFromService = Object.assign(
           {
+            attributeId: 1,
             name: 'BBBBBB',
             value: 'BBBBBB'
           },
@@ -75,6 +76,7 @@ describe('Service Tests', () => {
       it('should return a list of CertificateAttribute', () => {
         const returnedFromService = Object.assign(
           {
+            attributeId: 1,
             name: 'BBBBBB',
             value: 'BBBBBB'
           },

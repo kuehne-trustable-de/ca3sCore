@@ -33,6 +33,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = Ca3SJhApp.class)
 public class CertificateAttributeResourceIT {
 
+    private static final Long DEFAULT_ATTRIBUTE_ID = 1L;
+    private static final Long UPDATED_ATTRIBUTE_ID = 2L;
+    private static final Long SMALLER_ATTRIBUTE_ID = 1L - 1L;
+
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
     private static final String UPDATED_NAME = "BBBBBBBBBB";
 
@@ -81,6 +85,7 @@ public class CertificateAttributeResourceIT {
      */
     public static CertificateAttribute createEntity(EntityManager em) {
         CertificateAttribute certificateAttribute = new CertificateAttribute()
+            .attributeId(DEFAULT_ATTRIBUTE_ID)
             .name(DEFAULT_NAME)
             .value(DEFAULT_VALUE);
         return certificateAttribute;
@@ -93,6 +98,7 @@ public class CertificateAttributeResourceIT {
      */
     public static CertificateAttribute createUpdatedEntity(EntityManager em) {
         CertificateAttribute certificateAttribute = new CertificateAttribute()
+            .attributeId(UPDATED_ATTRIBUTE_ID)
             .name(UPDATED_NAME)
             .value(UPDATED_VALUE);
         return certificateAttribute;
@@ -118,6 +124,7 @@ public class CertificateAttributeResourceIT {
         List<CertificateAttribute> certificateAttributeList = certificateAttributeRepository.findAll();
         assertThat(certificateAttributeList).hasSize(databaseSizeBeforeCreate + 1);
         CertificateAttribute testCertificateAttribute = certificateAttributeList.get(certificateAttributeList.size() - 1);
+        assertThat(testCertificateAttribute.getAttributeId()).isEqualTo(DEFAULT_ATTRIBUTE_ID);
         assertThat(testCertificateAttribute.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testCertificateAttribute.getValue()).isEqualTo(DEFAULT_VALUE);
     }
@@ -141,6 +148,24 @@ public class CertificateAttributeResourceIT {
         assertThat(certificateAttributeList).hasSize(databaseSizeBeforeCreate);
     }
 
+
+    @Test
+    @Transactional
+    public void checkAttributeIdIsRequired() throws Exception {
+        int databaseSizeBeforeTest = certificateAttributeRepository.findAll().size();
+        // set the field null
+        certificateAttribute.setAttributeId(null);
+
+        // Create the CertificateAttribute, which fails.
+
+        restCertificateAttributeMockMvc.perform(post("/api/certificate-attributes")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(certificateAttribute)))
+            .andExpect(status().isBadRequest());
+
+        List<CertificateAttribute> certificateAttributeList = certificateAttributeRepository.findAll();
+        assertThat(certificateAttributeList).hasSize(databaseSizeBeforeTest);
+    }
 
     @Test
     @Transactional
@@ -171,6 +196,7 @@ public class CertificateAttributeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(certificateAttribute.getId().intValue())))
+            .andExpect(jsonPath("$.[*].attributeId").value(hasItem(DEFAULT_ATTRIBUTE_ID.intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
             .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE.toString())));
     }
@@ -186,6 +212,7 @@ public class CertificateAttributeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(certificateAttribute.getId().intValue()))
+            .andExpect(jsonPath("$.attributeId").value(DEFAULT_ATTRIBUTE_ID.intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME.toString()))
             .andExpect(jsonPath("$.value").value(DEFAULT_VALUE.toString()));
     }
@@ -211,6 +238,7 @@ public class CertificateAttributeResourceIT {
         // Disconnect from session so that the updates on updatedCertificateAttribute are not directly saved in db
         em.detach(updatedCertificateAttribute);
         updatedCertificateAttribute
+            .attributeId(UPDATED_ATTRIBUTE_ID)
             .name(UPDATED_NAME)
             .value(UPDATED_VALUE);
 
@@ -223,6 +251,7 @@ public class CertificateAttributeResourceIT {
         List<CertificateAttribute> certificateAttributeList = certificateAttributeRepository.findAll();
         assertThat(certificateAttributeList).hasSize(databaseSizeBeforeUpdate);
         CertificateAttribute testCertificateAttribute = certificateAttributeList.get(certificateAttributeList.size() - 1);
+        assertThat(testCertificateAttribute.getAttributeId()).isEqualTo(UPDATED_ATTRIBUTE_ID);
         assertThat(testCertificateAttribute.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testCertificateAttribute.getValue()).isEqualTo(UPDATED_VALUE);
     }

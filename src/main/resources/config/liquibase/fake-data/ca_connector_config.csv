@@ -1,11 +1,11 @@
-id;config_id;name;ca_connector_type;ca_url;secret;polling_offset;default_ca;active
-1;37454;Directives application Home Loan Account;Cmp;Practical Fresh Pants;Metal deposit;5641;true;true
-2;83244;red Chips Soap;Internal;web-readiness;Namibia;39986;false;false
-3;29214;24/7 Common bluetooth;Adcs;Mississippi Refined Rubber Chicken Table;Automotive;94220;true;true
-4;80839;access Intelligent;Internal;Games Regional Digitized;copy convergence;20794;true;true
-5;18485;Facilitator;Internal;National Awesome sky blue;Tactics;84453;false;true
-6;27134;generating compelling;Adcs;Plastic;Car Industrial deliverables;39488;false;false
-7;552;overriding;Adcs;world-class Frozen IB;Highway Ergonomic;37081;false;true
-8;32518;pixel withdrawal;Internal;synthesize Idaho compress;Sleek Metal Table Small;43933;false;false
-9;3142;withdrawal knowledge base Buckinghamshire;Internal;User-centric;Money Market Account;69478;false;true
-10;92969;virtual deposit;Adcs;Ghana back-end National;Direct;27213;false;true
+id;config_id;name;ca_connector_type;ca_url;secret;polling_offset;active
+1;37454;Directives application Home Loan Account;Adcs;Practical Fresh Pants;Metal deposit;5641;true
+2;72199;Implementation Electronics Officer;Adcs;Home Namibia;Steel zero administration;36636;false
+3;45606;bluetooth;Cmp;Mississippi Refined Rubber Chicken Table;Automotive;94220;true
+4;56328;envisioneer Music Public-key;Adcs;Investment Account;Games Regional Digitized;66252;true
+5;31171;Costa Rica Mayotte;Internal;connect Markets Chief;capacitor archive;57044;false
+6;52083;Tactics;Cmp;Specialist Home Loan Account;Plastic;80219;false
+7;7455;Administrator;Adcs;monitor;1080p Checking Account Identity;65107;false
+8;91495;generating Highway Ergonomic;Adcs;New York tangible Mississippi;Frozen bus;76078;true
+9;56127;compress;Cmp;Intelligent Outdoors;Harbor Montana;69551;true
+10;13933;Investment Account;Internal;Money Market Account;Salad Web virtual;63340;false

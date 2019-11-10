@@ -11,14 +11,6 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-/*
- * ,
-	indexes = {@Index(name = "index_serial",  columnList="serial", unique = false),
-     @Index(name = "index_tbs_digest", columnList="tbs_digest", unique = false)})
-
- */
-
-
 /**
  * A Certificate.
  */

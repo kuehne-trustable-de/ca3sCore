@@ -55,9 +55,6 @@ public class CAConnectorConfigResourceIT {
     private static final Integer UPDATED_POLLING_OFFSET = 2;
     private static final Integer SMALLER_POLLING_OFFSET = 1 - 1;
 
-    private static final Boolean DEFAULT_DEFAULT_CA = false;
-    private static final Boolean UPDATED_DEFAULT_CA = true;
-
     private static final Boolean DEFAULT_ACTIVE = false;
     private static final Boolean UPDATED_ACTIVE = true;
 
@@ -112,7 +109,6 @@ public class CAConnectorConfigResourceIT {
             .caUrl(DEFAULT_CA_URL)
             .secret(DEFAULT_SECRET)
             .pollingOffset(DEFAULT_POLLING_OFFSET)
-            .defaultCA(DEFAULT_DEFAULT_CA)
             .active(DEFAULT_ACTIVE);
         return cAConnectorConfig;
     }
@@ -130,7 +126,6 @@ public class CAConnectorConfigResourceIT {
             .caUrl(UPDATED_CA_URL)
             .secret(UPDATED_SECRET)
             .pollingOffset(UPDATED_POLLING_OFFSET)
-            .defaultCA(UPDATED_DEFAULT_CA)
             .active(UPDATED_ACTIVE);
         return cAConnectorConfig;
     }
@@ -161,7 +156,6 @@ public class CAConnectorConfigResourceIT {
         assertThat(testCAConnectorConfig.getCaUrl()).isEqualTo(DEFAULT_CA_URL);
         assertThat(testCAConnectorConfig.getSecret()).isEqualTo(DEFAULT_SECRET);
         assertThat(testCAConnectorConfig.getPollingOffset()).isEqualTo(DEFAULT_POLLING_OFFSET);
-        assertThat(testCAConnectorConfig.isDefaultCA()).isEqualTo(DEFAULT_DEFAULT_CA);
         assertThat(testCAConnectorConfig.isActive()).isEqualTo(DEFAULT_ACTIVE);
     }
 
@@ -220,7 +214,6 @@ public class CAConnectorConfigResourceIT {
             .andExpect(jsonPath("$.[*].caUrl").value(hasItem(DEFAULT_CA_URL.toString())))
             .andExpect(jsonPath("$.[*].secret").value(hasItem(DEFAULT_SECRET.toString())))
             .andExpect(jsonPath("$.[*].pollingOffset").value(hasItem(DEFAULT_POLLING_OFFSET)))
-            .andExpect(jsonPath("$.[*].defaultCA").value(hasItem(DEFAULT_DEFAULT_CA.booleanValue())))
             .andExpect(jsonPath("$.[*].active").value(hasItem(DEFAULT_ACTIVE.booleanValue())));
     }
     
@@ -241,7 +234,6 @@ public class CAConnectorConfigResourceIT {
             .andExpect(jsonPath("$.caUrl").value(DEFAULT_CA_URL.toString()))
             .andExpect(jsonPath("$.secret").value(DEFAULT_SECRET.toString()))
             .andExpect(jsonPath("$.pollingOffset").value(DEFAULT_POLLING_OFFSET))
-            .andExpect(jsonPath("$.defaultCA").value(DEFAULT_DEFAULT_CA.booleanValue()))
             .andExpect(jsonPath("$.active").value(DEFAULT_ACTIVE.booleanValue()));
     }
 
@@ -272,7 +264,6 @@ public class CAConnectorConfigResourceIT {
             .caUrl(UPDATED_CA_URL)
             .secret(UPDATED_SECRET)
             .pollingOffset(UPDATED_POLLING_OFFSET)
-            .defaultCA(UPDATED_DEFAULT_CA)
             .active(UPDATED_ACTIVE);
 
         restCAConnectorConfigMockMvc.perform(put("/api/ca-connector-configs")
@@ -290,7 +281,6 @@ public class CAConnectorConfigResourceIT {
         assertThat(testCAConnectorConfig.getCaUrl()).isEqualTo(UPDATED_CA_URL);
         assertThat(testCAConnectorConfig.getSecret()).isEqualTo(UPDATED_SECRET);
         assertThat(testCAConnectorConfig.getPollingOffset()).isEqualTo(UPDATED_POLLING_OFFSET);
-        assertThat(testCAConnectorConfig.isDefaultCA()).isEqualTo(UPDATED_DEFAULT_CA);
         assertThat(testCAConnectorConfig.isActive()).isEqualTo(UPDATED_ACTIVE);
     }
 
