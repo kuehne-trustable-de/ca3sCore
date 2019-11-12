@@ -68,10 +68,6 @@ public class Certificate implements Serializable {
     private Long id;
 
     @NotNull
-    @Column(name = "certificate_id", nullable = false)
-    private Long certificateId;
-
-    @NotNull
     @Column(name = "tbs_digest", nullable = false)
     private String tbsDigest;
 
@@ -153,19 +149,6 @@ public class Certificate implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getCertificateId() {
-        return certificateId;
-    }
-
-    public Certificate certificateId(Long certificateId) {
-        this.certificateId = certificateId;
-        return this;
-    }
-
-    public void setCertificateId(Long certificateId) {
-        this.certificateId = certificateId;
     }
 
     public String getTbsDigest() {
@@ -474,7 +457,6 @@ public class Certificate implements Serializable {
     public String toString() {
         return "Certificate{" +
             "id=" + getId() +
-            ", certificateId=" + getCertificateId() +
             ", tbsDigest='" + getTbsDigest() + "'" +
             ", subject='" + getSubject() + "'" +
             ", issuer='" + getIssuer() + "'" +

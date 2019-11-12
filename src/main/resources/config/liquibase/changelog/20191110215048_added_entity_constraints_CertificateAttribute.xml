@@ -4,15 +4,15 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
     <!--
-        Added the constraints for entity RDNAttribute.
+        Added the constraints for entity CertificateAttribute.
     -->
-    <changeSet id="20191028230818-2" author="jhipster">
+    <changeSet id="20191110215048-2" author="jhipster">
         
-        <addForeignKeyConstraint baseColumnNames="rdn_id"
-                                 baseTableName="rdn_attribute"
-                                 constraintName="fk_rdn_attribute_rdn_id"
+        <addForeignKeyConstraint baseColumnNames="certificate_id"
+                                 baseTableName="certificate_attribute"
+                                 constraintName="fk_certificate_attribute_certificate_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="rdn"/>
+                                 referencedTableName="certificate"/>
 
     </changeSet>
 </databaseChangeLog>

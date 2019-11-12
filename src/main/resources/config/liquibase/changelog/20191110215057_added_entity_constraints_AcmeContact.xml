@@ -6,7 +6,7 @@
     <!--
         Added the constraints for entity AcmeContact.
     -->
-    <changeSet id="20191030194848-2" author="jhipster">
+    <changeSet id="20191110215057-2" author="jhipster">
         
         <addForeignKeyConstraint baseColumnNames="account_id"
                                  baseTableName="acme_contact"

@@ -4,15 +4,15 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
     <!--
-        Added the constraints for entity RequestAttributeValue.
+        Added the constraints for entity RDNAttribute.
     -->
-    <changeSet id="20191028230820-2" author="jhipster">
+    <changeSet id="20191110215053-2" author="jhipster">
         
-        <addForeignKeyConstraint baseColumnNames="req_attr_id"
-                                 baseTableName="request_attribute_value"
-                                 constraintName="fk_request_attribute_value_req_attr_id"
+        <addForeignKeyConstraint baseColumnNames="rdn_id"
+                                 baseTableName="rdn_attribute"
+                                 constraintName="fk_rdn_attribute_rdn_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="request_attribute"/>
+                                 referencedTableName="rdn"/>
 
     </changeSet>
 </databaseChangeLog>

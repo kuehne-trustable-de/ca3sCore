@@ -22,6 +22,7 @@
       "caUrl": "Ca Url",
       "secret": "Secret",
       "pollingOffset": "Polling Offset",
+      "defaultCA": "Default CA",
       "active": "Active"
     }
   }

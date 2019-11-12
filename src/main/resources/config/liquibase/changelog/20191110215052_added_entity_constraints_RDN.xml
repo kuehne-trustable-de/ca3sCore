@@ -4,15 +4,15 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
     <!--
-        Added the constraints for entity Authorization.
+        Added the constraints for entity RDN.
     -->
-    <changeSet id="20191028230825-2" author="jhipster">
+    <changeSet id="20191110215052-2" author="jhipster">
         
-        <addForeignKeyConstraint baseColumnNames="order_id"
-                                 baseTableName="authorization"
-                                 constraintName="fk_authorization_order_id"
+        <addForeignKeyConstraint baseColumnNames="csr_id"
+                                 baseTableName="rdn"
+                                 constraintName="fk_rdn_csr_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="acme_order"/>
+                                 referencedTableName="csr"/>
 
     </changeSet>
 </databaseChangeLog>

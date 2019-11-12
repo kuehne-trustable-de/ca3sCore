@@ -30,6 +30,10 @@
             "fieldType": "Integer"
         },
         {
+            "fieldName": "defaultCA",
+            "fieldType": "Boolean"
+        },
+        {
             "fieldName": "active",
             "fieldType": "Boolean"
         }

@@ -6,7 +6,7 @@
     <!--
         Added the constraints for entity CsrAttribute.
     -->
-    <changeSet id="20191028230816-2" author="jhipster">
+    <changeSet id="20191110215051-2" author="jhipster">
         
         <addForeignKeyConstraint baseColumnNames="csr_id"
                                  baseTableName="csr_attribute"

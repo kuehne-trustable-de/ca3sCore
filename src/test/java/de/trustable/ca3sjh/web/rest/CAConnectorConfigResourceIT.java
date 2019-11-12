@@ -35,10 +35,6 @@ import de.trustable.ca3sjh.domain.enumeration.CAConnectorType;
 @SpringBootTest(classes = Ca3SJhApp.class)
 public class CAConnectorConfigResourceIT {
 
-    private static final Long DEFAULT_CONFIG_ID = 1L;
-    private static final Long UPDATED_CONFIG_ID = 2L;
-    private static final Long SMALLER_CONFIG_ID = 1L - 1L;
-
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
     private static final String UPDATED_NAME = "BBBBBBBBBB";
 
@@ -54,6 +50,9 @@ public class CAConnectorConfigResourceIT {
     private static final Integer DEFAULT_POLLING_OFFSET = 1;
     private static final Integer UPDATED_POLLING_OFFSET = 2;
     private static final Integer SMALLER_POLLING_OFFSET = 1 - 1;
+
+    private static final Boolean DEFAULT_DEFAULT_CA = false;
+    private static final Boolean UPDATED_DEFAULT_CA = true;
 
     private static final Boolean DEFAULT_ACTIVE = false;
     private static final Boolean UPDATED_ACTIVE = true;
@@ -103,12 +102,12 @@ public class CAConnectorConfigResourceIT {
      */
     public static CAConnectorConfig createEntity(EntityManager em) {
         CAConnectorConfig cAConnectorConfig = new CAConnectorConfig()
-            .configId(DEFAULT_CONFIG_ID)
             .name(DEFAULT_NAME)
             .caConnectorType(DEFAULT_CA_CONNECTOR_TYPE)
             .caUrl(DEFAULT_CA_URL)
             .secret(DEFAULT_SECRET)
             .pollingOffset(DEFAULT_POLLING_OFFSET)
+            .defaultCA(DEFAULT_DEFAULT_CA)
             .active(DEFAULT_ACTIVE);
         return cAConnectorConfig;
     }
@@ -120,12 +119,12 @@ public class CAConnectorConfigResourceIT {
      */
     public static CAConnectorConfig createUpdatedEntity(EntityManager em) {
         CAConnectorConfig cAConnectorConfig = new CAConnectorConfig()
-            .configId(UPDATED_CONFIG_ID)
             .name(UPDATED_NAME)
             .caConnectorType(UPDATED_CA_CONNECTOR_TYPE)
             .caUrl(UPDATED_CA_URL)
             .secret(UPDATED_SECRET)
             .pollingOffset(UPDATED_POLLING_OFFSET)
+            .defaultCA(UPDATED_DEFAULT_CA)
             .active(UPDATED_ACTIVE);
         return cAConnectorConfig;
     }
@@ -150,12 +149,12 @@ public class CAConnectorConfigResourceIT {
         List<CAConnectorConfig> cAConnectorConfigList = cAConnectorConfigRepository.findAll();
         assertThat(cAConnectorConfigList).hasSize(databaseSizeBeforeCreate + 1);
         CAConnectorConfig testCAConnectorConfig = cAConnectorConfigList.get(cAConnectorConfigList.size() - 1);
-        assertThat(testCAConnectorConfig.getConfigId()).isEqualTo(DEFAULT_CONFIG_ID);
         assertThat(testCAConnectorConfig.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testCAConnectorConfig.getCaConnectorType()).isEqualTo(DEFAULT_CA_CONNECTOR_TYPE);
         assertThat(testCAConnectorConfig.getCaUrl()).isEqualTo(DEFAULT_CA_URL);
         assertThat(testCAConnectorConfig.getSecret()).isEqualTo(DEFAULT_SECRET);
         assertThat(testCAConnectorConfig.getPollingOffset()).isEqualTo(DEFAULT_POLLING_OFFSET);
+        assertThat(testCAConnectorConfig.isDefaultCA()).isEqualTo(DEFAULT_DEFAULT_CA);
         assertThat(testCAConnectorConfig.isActive()).isEqualTo(DEFAULT_ACTIVE);
     }
 
@@ -181,24 +180,6 @@ public class CAConnectorConfigResourceIT {
 
     @Test
     @Transactional
-    public void checkConfigIdIsRequired() throws Exception {
-        int databaseSizeBeforeTest = cAConnectorConfigRepository.findAll().size();
-        // set the field null
-        cAConnectorConfig.setConfigId(null);
-
-        // Create the CAConnectorConfig, which fails.
-
-        restCAConnectorConfigMockMvc.perform(post("/api/ca-connector-configs")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(cAConnectorConfig)))
-            .andExpect(status().isBadRequest());
-
-        List<CAConnectorConfig> cAConnectorConfigList = cAConnectorConfigRepository.findAll();
-        assertThat(cAConnectorConfigList).hasSize(databaseSizeBeforeTest);
-    }
-
-    @Test
-    @Transactional
     public void getAllCAConnectorConfigs() throws Exception {
         // Initialize the database
         cAConnectorConfigRepository.saveAndFlush(cAConnectorConfig);
@@ -208,12 +189,12 @@ public class CAConnectorConfigResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(cAConnectorConfig.getId().intValue())))
-            .andExpect(jsonPath("$.[*].configId").value(hasItem(DEFAULT_CONFIG_ID.intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
             .andExpect(jsonPath("$.[*].caConnectorType").value(hasItem(DEFAULT_CA_CONNECTOR_TYPE.toString())))
             .andExpect(jsonPath("$.[*].caUrl").value(hasItem(DEFAULT_CA_URL.toString())))
             .andExpect(jsonPath("$.[*].secret").value(hasItem(DEFAULT_SECRET.toString())))
             .andExpect(jsonPath("$.[*].pollingOffset").value(hasItem(DEFAULT_POLLING_OFFSET)))
+            .andExpect(jsonPath("$.[*].defaultCA").value(hasItem(DEFAULT_DEFAULT_CA.booleanValue())))
             .andExpect(jsonPath("$.[*].active").value(hasItem(DEFAULT_ACTIVE.booleanValue())));
     }
     
@@ -228,12 +209,12 @@ public class CAConnectorConfigResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(cAConnectorConfig.getId().intValue()))
-            .andExpect(jsonPath("$.configId").value(DEFAULT_CONFIG_ID.intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME.toString()))
             .andExpect(jsonPath("$.caConnectorType").value(DEFAULT_CA_CONNECTOR_TYPE.toString()))
             .andExpect(jsonPath("$.caUrl").value(DEFAULT_CA_URL.toString()))
             .andExpect(jsonPath("$.secret").value(DEFAULT_SECRET.toString()))
             .andExpect(jsonPath("$.pollingOffset").value(DEFAULT_POLLING_OFFSET))
+            .andExpect(jsonPath("$.defaultCA").value(DEFAULT_DEFAULT_CA.booleanValue()))
             .andExpect(jsonPath("$.active").value(DEFAULT_ACTIVE.booleanValue()));
     }
 
@@ -258,12 +239,12 @@ public class CAConnectorConfigResourceIT {
         // Disconnect from session so that the updates on updatedCAConnectorConfig are not directly saved in db
         em.detach(updatedCAConnectorConfig);
         updatedCAConnectorConfig
-            .configId(UPDATED_CONFIG_ID)
             .name(UPDATED_NAME)
             .caConnectorType(UPDATED_CA_CONNECTOR_TYPE)
             .caUrl(UPDATED_CA_URL)
             .secret(UPDATED_SECRET)
             .pollingOffset(UPDATED_POLLING_OFFSET)
+            .defaultCA(UPDATED_DEFAULT_CA)
             .active(UPDATED_ACTIVE);
 
         restCAConnectorConfigMockMvc.perform(put("/api/ca-connector-configs")
@@ -275,12 +256,12 @@ public class CAConnectorConfigResourceIT {
         List<CAConnectorConfig> cAConnectorConfigList = cAConnectorConfigRepository.findAll();
         assertThat(cAConnectorConfigList).hasSize(databaseSizeBeforeUpdate);
         CAConnectorConfig testCAConnectorConfig = cAConnectorConfigList.get(cAConnectorConfigList.size() - 1);
-        assertThat(testCAConnectorConfig.getConfigId()).isEqualTo(UPDATED_CONFIG_ID);
         assertThat(testCAConnectorConfig.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testCAConnectorConfig.getCaConnectorType()).isEqualTo(UPDATED_CA_CONNECTOR_TYPE);
         assertThat(testCAConnectorConfig.getCaUrl()).isEqualTo(UPDATED_CA_URL);
         assertThat(testCAConnectorConfig.getSecret()).isEqualTo(UPDATED_SECRET);
         assertThat(testCAConnectorConfig.getPollingOffset()).isEqualTo(UPDATED_POLLING_OFFSET);
+        assertThat(testCAConnectorConfig.isDefaultCA()).isEqualTo(UPDATED_DEFAULT_CA);
         assertThat(testCAConnectorConfig.isActive()).isEqualTo(UPDATED_ACTIVE);
     }
 

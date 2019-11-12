@@ -6,7 +6,7 @@
     <!--
         Added the constraints for entity RequestAttribute.
     -->
-    <changeSet id="20191028230819-2" author="jhipster">
+    <changeSet id="20191110215054-2" author="jhipster">
         
         <addForeignKeyConstraint baseColumnNames="holding_request_attribute_id"
                                  baseTableName="request_attribute"

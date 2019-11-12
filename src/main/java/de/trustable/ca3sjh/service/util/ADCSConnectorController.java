@@ -236,7 +236,7 @@ public class ADCSConnectorController {
 		csr.setCsrAttributes(csrAttrs);
 		csrRepository.save(csr);
 
-		LOGGER.debug("returning certDao : " + certDao.getCertificateId());
+		LOGGER.debug("returning certDao : " + certDao.getId());
 
 		return (certDao);
 
@@ -260,7 +260,7 @@ public class ADCSConnectorController {
 		try {
 			BigInteger serial = new BigInteger(certDao.getSerial(), 10);
 			String serialAsHex = serial.toString(16);
-			LOGGER.debug("revoking certificate {} with serial '{}' with reason {}", certDao.getCertificateId(),
+			LOGGER.debug("revoking certificate {} with serial '{}' with reason {}", certDao.getId(),
 					serialAsHex, crlReason.getValue());
 
 			

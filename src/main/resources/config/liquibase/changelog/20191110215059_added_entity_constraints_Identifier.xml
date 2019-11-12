@@ -6,7 +6,7 @@
     <!--
         Added the constraints for entity Identifier.
     -->
-    <changeSet id="20191028230824-2" author="jhipster">
+    <changeSet id="20191110215059-2" author="jhipster">
         
         <addForeignKeyConstraint baseColumnNames="order_id"
                                  baseTableName="identifier"

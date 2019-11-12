@@ -4,15 +4,15 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
     <!--
-        Added the constraints for entity CertificateAttribute.
+        Added the constraints for entity Authorization.
     -->
-    <changeSet id="20191009152934-2" author="jhipster">
+    <changeSet id="20191110215100-2" author="jhipster">
         
-        <addForeignKeyConstraint baseColumnNames="certificate_id"
-                                 baseTableName="certificate_attribute"
-                                 constraintName="fk_certificate_attribute_certificate_id"
+        <addForeignKeyConstraint baseColumnNames="order_id"
+                                 baseTableName="authorization"
+                                 constraintName="fk_authorization_order_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="certificate"/>
+                                 referencedTableName="acme_order"/>
 
     </changeSet>
 </databaseChangeLog>

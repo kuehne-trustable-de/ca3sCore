@@ -21,7 +21,7 @@ describe('Service Tests', () => {
       service = injector.get(CAConnectorConfigService);
       httpMock = injector.get(HttpTestingController);
 
-      elemDefault = new CAConnectorConfig(0, 0, 'AAAAAAA', CAConnectorType.Internal, 'AAAAAAA', 'AAAAAAA', 0, false);
+      elemDefault = new CAConnectorConfig(0, 0, 'AAAAAAA', CAConnectorType.Internal, 'AAAAAAA', 'AAAAAAA', 0, false, false);
     });
 
     describe('Service methods', () => {
@@ -63,6 +63,7 @@ describe('Service Tests', () => {
             caUrl: 'BBBBBB',
             secret: 'BBBBBB',
             pollingOffset: 1,
+            defaultCA: true,
             active: true
           },
           elemDefault
@@ -87,6 +88,7 @@ describe('Service Tests', () => {
             caUrl: 'BBBBBB',
             secret: 'BBBBBB',
             pollingOffset: 1,
+            defaultCA: true,
             active: true
           },
           elemDefault

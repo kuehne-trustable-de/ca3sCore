@@ -2,7 +2,7 @@ package de.trustable.ca3sjh;
 
 import de.trustable.ca3sjh.config.ApplicationProperties;
 import de.trustable.ca3sjh.config.DefaultProfileUtil;
-
+import de.trustable.util.JCAManager;
 import io.github.jhipster.config.JHipsterConstants;
 
 import org.apache.commons.lang3.StringUtils;
@@ -58,6 +58,9 @@ public class Ca3SJhApp implements InitializingBean {
      * @param args the command line arguments.
      */
     public static void main(String[] args) {
+    	
+		JCAManager.getInstance();
+
         SpringApplication app = new SpringApplication(Ca3SJhApp.class);
         DefaultProfileUtil.addDefaultProfile(app);
         Environment env = app.run(args).getEnvironment();

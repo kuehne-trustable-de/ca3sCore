@@ -34,10 +34,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = Ca3SJhApp.class)
 public class CsrAttributeResourceIT {
 
-    private static final Long DEFAULT_ATTRIBUTE_ID = 1L;
-    private static final Long UPDATED_ATTRIBUTE_ID = 2L;
-    private static final Long SMALLER_ATTRIBUTE_ID = 1L - 1L;
-
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
     private static final String UPDATED_NAME = "BBBBBBBBBB";
 
@@ -89,7 +85,6 @@ public class CsrAttributeResourceIT {
      */
     public static CsrAttribute createEntity(EntityManager em) {
         CsrAttribute csrAttribute = new CsrAttribute()
-            .attributeId(DEFAULT_ATTRIBUTE_ID)
             .name(DEFAULT_NAME)
             .value(DEFAULT_VALUE);
         return csrAttribute;
@@ -102,7 +97,6 @@ public class CsrAttributeResourceIT {
      */
     public static CsrAttribute createUpdatedEntity(EntityManager em) {
         CsrAttribute csrAttribute = new CsrAttribute()
-            .attributeId(UPDATED_ATTRIBUTE_ID)
             .name(UPDATED_NAME)
             .value(UPDATED_VALUE);
         return csrAttribute;
@@ -128,7 +122,6 @@ public class CsrAttributeResourceIT {
         List<CsrAttribute> csrAttributeList = csrAttributeRepository.findAll();
         assertThat(csrAttributeList).hasSize(databaseSizeBeforeCreate + 1);
         CsrAttribute testCsrAttribute = csrAttributeList.get(csrAttributeList.size() - 1);
-        assertThat(testCsrAttribute.getAttributeId()).isEqualTo(DEFAULT_ATTRIBUTE_ID);
         assertThat(testCsrAttribute.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testCsrAttribute.getValue()).isEqualTo(DEFAULT_VALUE);
     }
@@ -152,24 +145,6 @@ public class CsrAttributeResourceIT {
         assertThat(csrAttributeList).hasSize(databaseSizeBeforeCreate);
     }
 
-
-    @Test
-    @Transactional
-    public void checkAttributeIdIsRequired() throws Exception {
-        int databaseSizeBeforeTest = csrAttributeRepository.findAll().size();
-        // set the field null
-        csrAttribute.setAttributeId(null);
-
-        // Create the CsrAttribute, which fails.
-
-        restCsrAttributeMockMvc.perform(post("/api/csr-attributes")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(csrAttribute)))
-            .andExpect(status().isBadRequest());
-
-        List<CsrAttribute> csrAttributeList = csrAttributeRepository.findAll();
-        assertThat(csrAttributeList).hasSize(databaseSizeBeforeTest);
-    }
 
     @Test
     @Transactional
@@ -218,7 +193,6 @@ public class CsrAttributeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(csrAttribute.getId().intValue())))
-            .andExpect(jsonPath("$.[*].attributeId").value(hasItem(DEFAULT_ATTRIBUTE_ID.intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
             .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE.toString())));
     }
@@ -234,7 +208,6 @@ public class CsrAttributeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(csrAttribute.getId().intValue()))
-            .andExpect(jsonPath("$.attributeId").value(DEFAULT_ATTRIBUTE_ID.intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME.toString()))
             .andExpect(jsonPath("$.value").value(DEFAULT_VALUE.toString()));
     }
@@ -260,7 +233,6 @@ public class CsrAttributeResourceIT {
         // Disconnect from session so that the updates on updatedCsrAttribute are not directly saved in db
         em.detach(updatedCsrAttribute);
         updatedCsrAttribute
-            .attributeId(UPDATED_ATTRIBUTE_ID)
             .name(UPDATED_NAME)
             .value(UPDATED_VALUE);
 
@@ -273,7 +245,6 @@ public class CsrAttributeResourceIT {
         List<CsrAttribute> csrAttributeList = csrAttributeRepository.findAll();
         assertThat(csrAttributeList).hasSize(databaseSizeBeforeUpdate);
         CsrAttribute testCsrAttribute = csrAttributeList.get(csrAttributeList.size() - 1);
-        assertThat(testCsrAttribute.getAttributeId()).isEqualTo(UPDATED_ATTRIBUTE_ID);
         assertThat(testCsrAttribute.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testCsrAttribute.getValue()).isEqualTo(UPDATED_VALUE);
     }

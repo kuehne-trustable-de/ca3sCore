@@ -23,6 +23,7 @@ export class CAConnectorConfigUpdateComponent implements OnInit {
     caUrl: [],
     secret: [],
     pollingOffset: [],
+    defaultCA: [],
     active: []
   });
 
@@ -48,6 +49,7 @@ export class CAConnectorConfigUpdateComponent implements OnInit {
       caUrl: cAConnectorConfig.caUrl,
       secret: cAConnectorConfig.secret,
       pollingOffset: cAConnectorConfig.pollingOffset,
+      defaultCA: cAConnectorConfig.defaultCA,
       active: cAConnectorConfig.active
     });
   }
@@ -76,6 +78,7 @@ export class CAConnectorConfigUpdateComponent implements OnInit {
       caUrl: this.editForm.get(['caUrl']).value,
       secret: this.editForm.get(['secret']).value,
       pollingOffset: this.editForm.get(['pollingOffset']).value,
+      defaultCA: this.editForm.get(['defaultCA']).value,
       active: this.editForm.get(['active']).value
     };
   }

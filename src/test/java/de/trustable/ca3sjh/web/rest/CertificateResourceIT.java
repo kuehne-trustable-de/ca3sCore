@@ -37,10 +37,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = Ca3SJhApp.class)
 public class CertificateResourceIT {
 
-    private static final Long DEFAULT_CERTIFICATE_ID = 1L;
-    private static final Long UPDATED_CERTIFICATE_ID = 2L;
-    private static final Long SMALLER_CERTIFICATE_ID = 1L - 1L;
-
     private static final String DEFAULT_TBS_DIGEST = "AAAAAAAAAA";
     private static final String UPDATED_TBS_DIGEST = "BBBBBBBBBB";
 
@@ -144,7 +140,6 @@ public class CertificateResourceIT {
      */
     public static Certificate createEntity(EntityManager em) {
         Certificate certificate = new Certificate()
-            .certificateId(DEFAULT_CERTIFICATE_ID)
             .tbsDigest(DEFAULT_TBS_DIGEST)
             .subject(DEFAULT_SUBJECT)
             .issuer(DEFAULT_ISSUER)
@@ -173,7 +168,6 @@ public class CertificateResourceIT {
      */
     public static Certificate createUpdatedEntity(EntityManager em) {
         Certificate certificate = new Certificate()
-            .certificateId(UPDATED_CERTIFICATE_ID)
             .tbsDigest(UPDATED_TBS_DIGEST)
             .subject(UPDATED_SUBJECT)
             .issuer(UPDATED_ISSUER)
@@ -215,7 +209,6 @@ public class CertificateResourceIT {
         List<Certificate> certificateList = certificateRepository.findAll();
         assertThat(certificateList).hasSize(databaseSizeBeforeCreate + 1);
         Certificate testCertificate = certificateList.get(certificateList.size() - 1);
-        assertThat(testCertificate.getCertificateId()).isEqualTo(DEFAULT_CERTIFICATE_ID);
         assertThat(testCertificate.getTbsDigest()).isEqualTo(DEFAULT_TBS_DIGEST);
         assertThat(testCertificate.getSubject()).isEqualTo(DEFAULT_SUBJECT);
         assertThat(testCertificate.getIssuer()).isEqualTo(DEFAULT_ISSUER);
@@ -255,24 +248,6 @@ public class CertificateResourceIT {
         assertThat(certificateList).hasSize(databaseSizeBeforeCreate);
     }
 
-
-    @Test
-    @Transactional
-    public void checkCertificateIdIsRequired() throws Exception {
-        int databaseSizeBeforeTest = certificateRepository.findAll().size();
-        // set the field null
-        certificate.setCertificateId(null);
-
-        // Create the Certificate, which fails.
-
-        restCertificateMockMvc.perform(post("/api/certificates")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(certificate)))
-            .andExpect(status().isBadRequest());
-
-        List<Certificate> certificateList = certificateRepository.findAll();
-        assertThat(certificateList).hasSize(databaseSizeBeforeTest);
-    }
 
     @Test
     @Transactional
@@ -411,7 +386,6 @@ public class CertificateResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(certificate.getId().intValue())))
-            .andExpect(jsonPath("$.[*].certificateId").value(hasItem(DEFAULT_CERTIFICATE_ID.intValue())))
             .andExpect(jsonPath("$.[*].tbsDigest").value(hasItem(DEFAULT_TBS_DIGEST.toString())))
             .andExpect(jsonPath("$.[*].subject").value(hasItem(DEFAULT_SUBJECT.toString())))
             .andExpect(jsonPath("$.[*].issuer").value(hasItem(DEFAULT_ISSUER.toString())))
@@ -443,7 +417,6 @@ public class CertificateResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(certificate.getId().intValue()))
-            .andExpect(jsonPath("$.certificateId").value(DEFAULT_CERTIFICATE_ID.intValue()))
             .andExpect(jsonPath("$.tbsDigest").value(DEFAULT_TBS_DIGEST.toString()))
             .andExpect(jsonPath("$.subject").value(DEFAULT_SUBJECT.toString()))
             .andExpect(jsonPath("$.issuer").value(DEFAULT_ISSUER.toString()))
@@ -485,7 +458,6 @@ public class CertificateResourceIT {
         // Disconnect from session so that the updates on updatedCertificate are not directly saved in db
         em.detach(updatedCertificate);
         updatedCertificate
-            .certificateId(UPDATED_CERTIFICATE_ID)
             .tbsDigest(UPDATED_TBS_DIGEST)
             .subject(UPDATED_SUBJECT)
             .issuer(UPDATED_ISSUER)
@@ -514,7 +486,6 @@ public class CertificateResourceIT {
         List<Certificate> certificateList = certificateRepository.findAll();
         assertThat(certificateList).hasSize(databaseSizeBeforeUpdate);
         Certificate testCertificate = certificateList.get(certificateList.size() - 1);
-        assertThat(testCertificate.getCertificateId()).isEqualTo(UPDATED_CERTIFICATE_ID);
         assertThat(testCertificate.getTbsDigest()).isEqualTo(UPDATED_TBS_DIGEST);
         assertThat(testCertificate.getSubject()).isEqualTo(UPDATED_SUBJECT);
         assertThat(testCertificate.getIssuer()).isEqualTo(UPDATED_ISSUER);

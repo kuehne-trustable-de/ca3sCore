@@ -1,5 +1,7 @@
 entity CAConnectorConfig{
-	configId Long required
+
+//	configId Long required
+
 	name String
 	caConnectorType CAConnectorType
 	caUrl String
@@ -14,14 +16,14 @@ enum CAConnectorType {
 }
 
 entity CertificateAttribute {
-	attributeId Long required
+//	attributeId Long required
     name String required
     value String
     }
 
 entity Certificate {
 
-  certificateId Long required
+//  certificateId Long required
 
   tbsDigest String required
   subject String required
@@ -50,8 +52,8 @@ enum CsrStatus {
 
 entity CSR{
 
-//	@GeneratedValue
-  	id Long required
+//  	id Long required
+
    	csrBase64 TextBlob required
   	requestedOn LocalDate required
   	status CsrStatus required
@@ -67,7 +69,7 @@ entity CSR{
 entity CsrAttribute{
 
 //	@GeneratedValue
-  	attributeId Long required
+//  	attributeId Long required
 
   	name String required
   	value String required
@@ -77,14 +79,14 @@ entity CsrAttribute{
 entity RDN{
 
 //	@GeneratedValue
-  	id Long required
+//  	id Long required
 
 }
 
 entity RDNAttribute{
 
 //	@GeneratedValue
-  	id Long required
+//  	id Long required
 
   	attributeType String required
   	attributeValue String required
@@ -93,7 +95,7 @@ entity RDNAttribute{
 entity RequestAttribute{
 
 //	@GeneratedValue
-  	id Long required
+//  	id Long required
 
   	attributeType String required
 
@@ -102,7 +104,7 @@ entity RequestAttribute{
 entity RequestAttributeValue{
 
 //	@GeneratedValue
-  	id Long required
+//  	id Long required
 
   	attributeValue String required
 
@@ -123,6 +125,7 @@ entity ACMEAccount {
 //	@Id
 //	@GenericGenerator(name="RandomGenerator.generatorName", strategy="de.trustable.ca3s.acme.server.entity.RandomGenerator")
 //	@GeneratedValue(generator="RandomGenerator.generatorName")
+
   	accountId Long required
   	realm String required
 	status AccountStatus

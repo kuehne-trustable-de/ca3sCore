@@ -67,7 +67,7 @@ public class Ca3sTrustManager implements X509TrustManager {
 					null,
 					false);
 
-			LOGGER.debug("checkServerTrusted : server certificate found in database  '" + serverCertDao.getSubject() + "' with id  '" + serverCertDao.getCertificateId() + "'" );
+			LOGGER.debug("checkServerTrusted : server certificate found in database  '" + serverCertDao.getSubject() + "' with id  '" + serverCertDao.getId() + "'" );
 
 			if( serverCertDao.isRevoked()) {
 				LOGGER.debug("checkServerTrusted : certificate for subject '" + serverCert.getSubjectDN().getName() + "', revoked '" + serverCertDao.getRevocationReason() + "' on " + serverCertDao.getRevokedSince());
@@ -116,8 +116,8 @@ public class Ca3sTrustManager implements X509TrustManager {
 				}
 				certList.add(CryptoService.convertPemToCertificate( issuingCACertDao.getContent()));
 				
-				if( issuingCACertDao.getCertificateId() == issuingCACertDao.getIssuingCertificate().getCertificateId()) {
-					LOGGER.debug("certificate chain complete, cert id '{}' is selfsigned", issuingCACertDao.getCertificateId());
+				if( issuingCACertDao.getId() == issuingCACertDao.getIssuingCertificate().getId()) {
+					LOGGER.debug("certificate chain complete, cert id '{}' is selfsigned", issuingCACertDao.getId());
 					break;
 				}
 			}
@@ -150,7 +150,7 @@ public class Ca3sTrustManager implements X509TrustManager {
 			try {
 				certArray[i] = CryptoService.convertPemToCertificate( acceptedIssuerList.get(i).getContent());
 			} catch (GeneralSecurityException e) {
-				LOGGER.debug("getAcceptedIssuers exception processing certificate dao with id  '" + acceptedIssuerList.get(i).getCertificateId() + "'", e);
+				LOGGER.debug("getAcceptedIssuers exception processing certificate dao with id  '" + acceptedIssuerList.get(i).getId() + "'", e);
 			}
 		}
 		

@@ -3,7 +3,6 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
-import javax.validation.constraints.*;
 
 import java.io.Serializable;
 
@@ -23,10 +22,6 @@ public class CAConnectorConfig implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @Column(name = "config_id", nullable = false)
-    private Long configId;
-
     @Column(name = "name")
     private String name;
 
@@ -43,6 +38,9 @@ public class CAConnectorConfig implements Serializable {
     @Column(name = "polling_offset")
     private Integer pollingOffset;
 
+    @Column(name = "default_ca")
+    private Boolean defaultCA;
+
     @Column(name = "active")
     private Boolean active;
 
@@ -53,19 +51,6 @@ public class CAConnectorConfig implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getConfigId() {
-        return configId;
-    }
-
-    public CAConnectorConfig configId(Long configId) {
-        this.configId = configId;
-        return this;
-    }
-
-    public void setConfigId(Long configId) {
-        this.configId = configId;
     }
 
     public String getName() {
@@ -133,6 +118,19 @@ public class CAConnectorConfig implements Serializable {
         this.pollingOffset = pollingOffset;
     }
 
+    public Boolean isDefaultCA() {
+        return defaultCA;
+    }
+
+    public CAConnectorConfig defaultCA(Boolean defaultCA) {
+        this.defaultCA = defaultCA;
+        return this;
+    }
+
+    public void setDefaultCA(Boolean defaultCA) {
+        this.defaultCA = defaultCA;
+    }
+
     public Boolean isActive() {
         return active;
     }
@@ -167,12 +165,12 @@ public class CAConnectorConfig implements Serializable {
     public String toString() {
         return "CAConnectorConfig{" +
             "id=" + getId() +
-            ", configId=" + getConfigId() +
             ", name='" + getName() + "'" +
             ", caConnectorType='" + getCaConnectorType() + "'" +
             ", caUrl='" + getCaUrl() + "'" +
             ", secret='" + getSecret() + "'" +
             ", pollingOffset=" + getPollingOffset() +
+            ", defaultCA='" + isDefaultCA() + "'" +
             ", active='" + isActive() + "'" +
             "}";
     }
