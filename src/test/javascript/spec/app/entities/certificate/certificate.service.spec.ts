@@ -26,7 +26,6 @@ describe('Service Tests', () => {
 
       elemDefault = new Certificate(
         0,
-        0,
         'AAAAAAA',
         'AAAAAAA',
         'AAAAAAA',
@@ -101,7 +100,6 @@ describe('Service Tests', () => {
       it('should update a Certificate', () => {
         const returnedFromService = Object.assign(
           {
-            certificateId: 1,
             tbsDigest: 'BBBBBB',
             subject: 'BBBBBB',
             issuer: 'BBBBBB',
@@ -145,7 +143,6 @@ describe('Service Tests', () => {
       it('should return a list of Certificate', () => {
         const returnedFromService = Object.assign(
           {
-            certificateId: 1,
             tbsDigest: 'BBBBBB',
             subject: 'BBBBBB',
             issuer: 'BBBBBB',

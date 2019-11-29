@@ -30,7 +30,6 @@ export class CertificateUpdateComponent implements OnInit {
 
   editForm = this.fb.group({
     id: [],
-    certificateId: [null, [Validators.required]],
     tbsDigest: [null, [Validators.required]],
     subject: [null, [Validators.required]],
     issuer: [null, [Validators.required]],
@@ -101,7 +100,6 @@ export class CertificateUpdateComponent implements OnInit {
   updateForm(certificate: ICertificate) {
     this.editForm.patchValue({
       id: certificate.id,
-      certificateId: certificate.certificateId,
       tbsDigest: certificate.tbsDigest,
       subject: certificate.subject,
       issuer: certificate.issuer,
@@ -176,7 +174,6 @@ export class CertificateUpdateComponent implements OnInit {
     return {
       ...new Certificate(),
       id: this.editForm.get(['id']).value,
-      certificateId: this.editForm.get(['certificateId']).value,
       tbsDigest: this.editForm.get(['tbsDigest']).value,
       subject: this.editForm.get(['subject']).value,
       issuer: this.editForm.get(['issuer']).value,

@@ -21,7 +21,7 @@ describe('Service Tests', () => {
       service = injector.get(CAConnectorConfigService);
       httpMock = injector.get(HttpTestingController);
 
-      elemDefault = new CAConnectorConfig(0, 0, 'AAAAAAA', CAConnectorType.Internal, 'AAAAAAA', 'AAAAAAA', 0, false, false);
+      elemDefault = new CAConnectorConfig(0, 'AAAAAAA', CAConnectorType.Internal, 'AAAAAAA', 'AAAAAAA', 0, false, false);
     });
 
     describe('Service methods', () => {
@@ -57,7 +57,6 @@ describe('Service Tests', () => {
       it('should update a CAConnectorConfig', () => {
         const returnedFromService = Object.assign(
           {
-            configId: 1,
             name: 'BBBBBB',
             caConnectorType: 'BBBBBB',
             caUrl: 'BBBBBB',
@@ -82,7 +81,6 @@ describe('Service Tests', () => {
       it('should return a list of CAConnectorConfig', () => {
         const returnedFromService = Object.assign(
           {
-            configId: 1,
             name: 'BBBBBB',
             caConnectorType: 'BBBBBB',
             caUrl: 'BBBBBB',

@@ -16,7 +16,6 @@
       "detail": {
         "title": "Certificate"
       },
-      "certificateId": "Certificate Id",
       "tbsDigest": "Tbs Digest",
       "subject": "Subject",
       "issuer": "Issuer",

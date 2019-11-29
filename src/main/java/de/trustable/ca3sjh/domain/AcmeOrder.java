@@ -18,6 +18,12 @@ import de.trustable.ca3sjh.domain.enumeration.OrderStatus;
  */
 @Entity
 @Table(name = "acme_order")
+@NamedQueries({
+	@NamedQuery(name = "AcmeOrder.findByOrderId",
+	query = "SELECT a FROM AcmeOrder a WHERE " +
+			"a.orderId = :orderId"
+    ),    
+})
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class AcmeOrder implements Serializable {
 
@@ -26,6 +32,10 @@ public class AcmeOrder implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotNull
+    @Column(name = "order_id", nullable = false)
+    private Long orderId;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -77,6 +87,19 @@ public class AcmeOrder implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getOrderId() {
+        return orderId;
+    }
+
+    public AcmeOrder orderId(Long orderId) {
+        this.orderId = orderId;
+        return this;
+    }
+
+    public void setOrderId(Long orderId) {
+        this.orderId = orderId;
     }
 
     public OrderStatus getStatus() {
@@ -280,6 +303,7 @@ public class AcmeOrder implements Serializable {
     public String toString() {
         return "AcmeOrder{" +
             "id=" + getId() +
+            ", orderId=" + getOrderId() +
             ", status='" + getStatus() + "'" +
             ", expires='" + getExpires() + "'" +
             ", notBefore='" + getNotBefore() + "'" +

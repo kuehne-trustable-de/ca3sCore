@@ -2,7 +2,6 @@ import { CAConnectorType } from 'app/shared/model/enumerations/ca-connector-type
 
 export interface ICAConnectorConfig {
   id?: number;
-  configId?: number;
   name?: string;
   caConnectorType?: CAConnectorType;
   caUrl?: string;
@@ -15,7 +14,6 @@ export interface ICAConnectorConfig {
 export class CAConnectorConfig implements ICAConnectorConfig {
   constructor(
     public id?: number,
-    public configId?: number,
     public name?: string,
     public caConnectorType?: CAConnectorType,
     public caUrl?: string,

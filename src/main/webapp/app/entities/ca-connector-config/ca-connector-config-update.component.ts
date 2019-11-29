@@ -17,7 +17,6 @@ export class CAConnectorConfigUpdateComponent implements OnInit {
 
   editForm = this.fb.group({
     id: [],
-    configId: [null, [Validators.required]],
     name: [],
     caConnectorType: [],
     caUrl: [],
@@ -43,7 +42,6 @@ export class CAConnectorConfigUpdateComponent implements OnInit {
   updateForm(cAConnectorConfig: ICAConnectorConfig) {
     this.editForm.patchValue({
       id: cAConnectorConfig.id,
-      configId: cAConnectorConfig.configId,
       name: cAConnectorConfig.name,
       caConnectorType: cAConnectorConfig.caConnectorType,
       caUrl: cAConnectorConfig.caUrl,
@@ -72,7 +70,6 @@ export class CAConnectorConfigUpdateComponent implements OnInit {
     return {
       ...new CAConnectorConfig(),
       id: this.editForm.get(['id']).value,
-      configId: this.editForm.get(['configId']).value,
       name: this.editForm.get(['name']).value,
       caConnectorType: this.editForm.get(['caConnectorType']).value,
       caUrl: this.editForm.get(['caUrl']).value,

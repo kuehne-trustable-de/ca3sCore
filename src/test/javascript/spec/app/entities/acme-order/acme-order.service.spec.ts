@@ -25,7 +25,7 @@ describe('Service Tests', () => {
       httpMock = injector.get(HttpTestingController);
       currentDate = moment();
 
-      elemDefault = new AcmeOrder(0, OrderStatus.Pending, currentDate, currentDate, currentDate, 'AAAAAAA', 'AAAAAAA', 'AAAAAAA');
+      elemDefault = new AcmeOrder(0, 0, OrderStatus.Pending, currentDate, currentDate, currentDate, 'AAAAAAA', 'AAAAAAA', 'AAAAAAA');
     });
 
     describe('Service methods', () => {
@@ -78,6 +78,7 @@ describe('Service Tests', () => {
       it('should update a AcmeOrder', () => {
         const returnedFromService = Object.assign(
           {
+            orderId: 1,
             status: 'BBBBBB',
             expires: currentDate.format(DATE_FORMAT),
             notBefore: currentDate.format(DATE_FORMAT),
@@ -109,6 +110,7 @@ describe('Service Tests', () => {
       it('should return a list of AcmeOrder', () => {
         const returnedFromService = Object.assign(
           {
+            orderId: 1,
             status: 'BBBBBB',
             expires: currentDate.format(DATE_FORMAT),
             notBefore: currentDate.format(DATE_FORMAT),

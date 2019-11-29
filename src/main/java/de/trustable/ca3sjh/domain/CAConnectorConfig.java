@@ -13,6 +13,12 @@ import de.trustable.ca3sjh.domain.enumeration.CAConnectorType;
  */
 @Entity
 @Table(name = "ca_connector_config")
+@NamedQueries({
+	@NamedQuery(name = "CAConnectorConfig.findDefaultCA",
+	query = "SELECT a FROM CAConnectorConfig a WHERE " +
+			"a.defaultCA = TRUE"
+    ),
+})
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class CAConnectorConfig implements Serializable {
 

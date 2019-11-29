@@ -72,6 +72,7 @@ class AuthorizationGatlingTest extends Simulation {
             .headers(headers_http_authenticated)
             .body(StringBody("""{
                 "id":null
+                , "authorizationId":null
                 , "type":"SAMPLE_TEXT"
                 , "value":"SAMPLE_TEXT"
                 }""")).asJson

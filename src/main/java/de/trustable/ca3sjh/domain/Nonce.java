@@ -12,6 +12,16 @@ import java.time.LocalDate;
  */
 @Entity
 @Table(name = "nonce")
+@NamedQueries({
+	@NamedQuery(name = "Nonce.findByNonceValue",
+	query = "SELECT n FROM Nonce n WHERE " +
+			"n.nonceValue = :nonceValue"
+    ),
+	@NamedQuery(name = "Nonce.findByNonceExpiredBefore",
+	query = "SELECT n FROM Nonce n WHERE " +
+			"n.expiresAt < :expiredBefore"
+    ),	
+})
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Nonce implements Serializable {
 

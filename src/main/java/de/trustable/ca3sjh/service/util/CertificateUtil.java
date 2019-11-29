@@ -22,18 +22,34 @@ import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.ECParameterSpec;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.codec.binary.Base64;
+import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.ASN1Set;
+import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.oiw.OIWObjectIdentifiers;
+import org.bouncycastle.asn1.pkcs.Attribute;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.AuthorityKeyIdentifier;
+import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
+import org.bouncycastle.asn1.x509.X509ObjectIdentifiers;
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -52,13 +68,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
 import de.trustable.ca3sjh.domain.CSR;
 import de.trustable.ca3sjh.domain.Certificate;
 import de.trustable.ca3sjh.domain.CertificateAttribute;
+import de.trustable.ca3sjh.domain.RDNAttribute;
+import de.trustable.ca3sjh.domain.RequestAttribute;
+import de.trustable.ca3sjh.domain.RequestAttributeValue;
+import de.trustable.ca3sjh.domain.enumeration.CsrStatus;
 import de.trustable.ca3sjh.repository.CertificateAttributeRepository;
 import de.trustable.ca3sjh.repository.CertificateRepository;
 import de.trustable.util.OidNameMapper;
+import de.trustable.util.Pkcs10RequestHolder;
 
 
 @Service
@@ -173,7 +193,10 @@ public class CertificateUtil {
 
 		cert.setContent(pemCert);
 
-		cert.setCsr(csr);
+		if( csr != null) {
+			// do not overwrite an existing CSR
+			cert.setCsr(csr);
+		}
 		
 		// indexed key for searching
 		cert.setTbsDigest(tbsDigestBase64);
@@ -278,6 +301,11 @@ public class CertificateUtil {
 			// check whether is really selfsigned 
 			x509Cert.verify(x509Cert.getPublicKey());
 			cert.setIssuingCertificate(cert);
+			
+			// mark it as self signed
+			addCertAttribute(cert,
+					CertificateAttribute.ATTRIBUTE_SELFSIGNED, "true");
+
 			LOG.debug("certificate '" + x509Cert.getSubjectDN().getName() +"' is selfsigned");
 			
 		}else{
@@ -293,7 +321,13 @@ public class CertificateUtil {
 			}
 		}
 
+		LOG.debug("certificate id '" + cert.getId() +"' pre-save");
+
 		certificateRepository.save(cert);
+		LOG.debug("certificate id '" + cert.getId() +"' post-save");
+		certificateAttributeRepository.saveAll(cert.getCertificateAttributes());
+		LOG.debug("certificate id '" + cert.getId() +"' post attr-save");
+		
 		return cert;
 	}
 
@@ -524,6 +558,63 @@ public class CertificateUtil {
 	}
 
 	
+	public List<Certificate> getCertificateChain(final Certificate startCertDao) throws GeneralSecurityException {
+		
+		int MAX_CHAIN_LENGTH = 10;
+		ArrayList<Certificate> certChain = new ArrayList<Certificate>();
+		
+		Certificate certDao = startCertDao;
+		LOG.debug("added end entity cert id {} to the chain", certDao.getId());
+		certChain.add(certDao);
+		
+		for( int i = 0; i <= MAX_CHAIN_LENGTH; i++ ) {
+			
+			if( i == MAX_CHAIN_LENGTH) {
+				String msg = "maximum chain length ecxeeded for  cert id : " + startCertDao.getId();
+				LOG.info(msg);
+				throw new GeneralSecurityException(msg);
+			}
+			
+			// walk up the certificate chain
+			Certificate issuingCertDao;
+			try {
+				issuingCertDao = findIssuingCertificate(certDao);
+
+				if( issuingCertDao == null) {
+					String msg = "no issuing certificate available / retrievable for for cert id : " + certDao.getId();
+					LOG.info(msg);
+					throw new GeneralSecurityException(msg);
+				}else {
+					LOG.debug("added issuing cert id {} to the chain", issuingCertDao.getId());
+					certChain.add(issuingCertDao);
+				}
+			} catch (GeneralSecurityException e) {
+				String msg = "Error retrieving issuing certificate for cert id : " + certDao.getId();
+				LOG.info(msg);
+				throw new GeneralSecurityException(msg);
+			}
+
+			if( issuingCertDao.getIssuingCertificate() == null) {
+				String msg = "no issuing certificate available / retrievable for for cert id : " + issuingCertDao.getId();
+				LOG.info(msg);
+				break;
+//				throw new GeneralSecurityException(msg);
+			}else {
+
+				// root reached? No need to move further ..
+				if( issuingCertDao.getId() == issuingCertDao.getIssuingCertificate().getId()) {
+					LOG.debug("certificate chain complete, cert id '{}' is selfsigned", issuingCertDao.getId());
+					break;
+				}
+			}
+			
+			certDao = issuingCertDao;
+		}
+
+		return certChain;
+	}
+	
+
 	/**
 	 * 
 	 * @param serial
@@ -696,7 +787,7 @@ public class CertificateUtil {
 							"Parsing of certificate failed! Not PEM encoded?");
 				}
 
-//				LOGGER.debug("PemParser returned: " + parsedObj);
+//				LOG.debug("PemParser returned: " + parsedObj);
 
 				if (parsedObj instanceof X509CertificateHolder) {
 					cert = new JcaX509CertificateConverter().setProvider("BC")
@@ -753,7 +844,7 @@ public class CertificateUtil {
 							"Parsing of certificate failed! Not PEM encoded?");
 				}
 
-//				LOGGER.debug("PemParser returned: " + parsedObj);
+//				LOG.debug("PemParser returned: " + parsedObj);
 
 				if (parsedObj instanceof PrivateKeyInfo) {
 					privKey = new JcaPEMKeyConverter().setProvider("BC")
@@ -860,6 +951,161 @@ public class CertificateUtil {
 		}
 		X509ExtensionUtils x509ExtensionUtils = new X509ExtensionUtils(digCalc);
 		return x509ExtensionUtils;
+	}
+
+	
+	public CSR createCSR(final String csrBase64, final Pkcs10RequestHolder p10ReqHolder, final String processInstanceId) {
+
+		CSR csr = new CSR();
+		
+		csr.setStatus(CsrStatus.Pending);
+		
+		csr.setCsrBase64(csrBase64);
+
+		csr.setSigningAlgorithm(p10ReqHolder.getSigningAlgorithm());
+
+		csr.setIsCSRValid(p10ReqHolder.isCSRValid());
+
+		csr.setx509KeySpec(p10ReqHolder.getX509KeySpec());
+
+		csr.setPublicKeyAlgorithm(p10ReqHolder.getPublicKeyAlgorithm());
+
+		csr.setPublicKeyHash(p10ReqHolder.getPublicKeyHash());
+		
+		csr.setSubjectPublicKeyInfoBase64(p10ReqHolder.getSubjectPublicKeyInfoBase64());
+
+		/*
+		 * if( p10ReqHolder.publicSigningKey != null ){ try {
+		 * this.setPublicKeyPEM(cryptoUtil.publicKeyToPem(
+		 * p10ReqHolder.publicSigningKey)); } catch (IOException e) {
+		 * LOG.warn("wrapping of public key into PEM failed."); } }
+		 */
+		 csr.setProcessInstanceId(processInstanceId);
+		 csr.setRequestedOn(LocalDate.now());
+
+		LOG.debug("RDN arr #" + p10ReqHolder.getSubjectRDNs().length);
+
+		Set<de.trustable.ca3sjh.domain.RDN> newRdns = new HashSet<de.trustable.ca3sjh.domain.RDN>();
+
+		for (RDN currentRdn : p10ReqHolder.getSubjectRDNs()) {
+
+			de.trustable.ca3sjh.domain.RDN rdnDao = new de.trustable.ca3sjh.domain.RDN();
+			rdnDao.setCsr(csr);
+
+			LOG.debug("AttributeTypeAndValue arr #" + currentRdn.size());
+			Set<RDNAttribute> rdnAttributes = new HashSet<RDNAttribute>();
+
+			AttributeTypeAndValue[] attrTVArr = currentRdn.getTypesAndValues();
+			for (AttributeTypeAndValue attrTV : attrTVArr) {
+				
+				RDNAttribute rdnAtt = new RDNAttribute();
+				rdnAtt.setRdn(rdnDao);
+				rdnAtt.setAttributeType(attrTV.getType().toString());
+				rdnAtt.setAttributeValue(attrTV.getValue().toString());
+			}
+
+			rdnDao.setRdnAttributes(rdnAttributes);
+			newRdns.add(rdnDao);
+		}
+		
+		if(p10ReqHolder.getSubjectRDNs().length == 0) {
+
+			LOG.info("Subject empty, using SANs" );
+			Set<GeneralName> gNameSet = getSANList(p10ReqHolder);
+			for( GeneralName gName : gNameSet) {
+				if( GeneralName.dNSName == gName.getTagNo()) {
+					
+					de.trustable.ca3sjh.domain.RDN rdnDao = new de.trustable.ca3sjh.domain.RDN();
+					rdnDao.setCsr(csr);
+					
+					Set<RDNAttribute> rdnAttributes = new HashSet<RDNAttribute>();
+					RDNAttribute rdnAtt = new RDNAttribute();
+					rdnAtt.setRdn(rdnDao);
+					rdnAtt.setAttributeType(X509ObjectIdentifiers.commonName.toString());
+					rdnAtt.setAttributeValue(gName.getName().toString());
+					
+					rdnDao.setRdnAttributes(rdnAttributes);
+					newRdns.add(rdnDao);
+					LOG.info("First DNS SAN inserted as CN: " + gName.getName().toString() );
+					break; // just one CN !
+				}
+			}
+			
+		}
+		
+		
+		csr.setRdns(newRdns);
+
+		Set<RequestAttribute> newRas = new HashSet<RequestAttribute>();
+
+		for (Attribute attr : p10ReqHolder.getReqAttributes()) {
+
+			RequestAttribute reqAttrs = new RequestAttribute();
+			reqAttrs.setCsr(csr);
+			reqAttrs.setAttributeType( attr.getAttrType().toString());
+
+			Set<RequestAttributeValue> requestAttributes = new HashSet<RequestAttributeValue>();
+			String type = attr.getAttrType().toString();
+			ASN1Set valueSet = attr.getAttrValues();
+			LOG.debug("AttributeSet type " + type + " #" + valueSet.size());
+
+			for (ASN1Encodable asn1Enc : valueSet.toArray()) {
+				String value = asn1Enc.toString();
+				LOG.debug("Attribute value " + value);
+
+				RequestAttributeValue reqAttr = new RequestAttributeValue();
+				reqAttr.setReqAttr(reqAttrs);
+				reqAttr.setAttributeValue(asn1Enc.toString());
+				requestAttributes.add(reqAttr);
+			}
+			reqAttrs.setRequestAttributeValues(requestAttributes);
+			newRas.add(reqAttrs);
+		}
+		csr.setRas(newRas);
+		
+		return csr;
+	}
+
+	Set<GeneralName> getSANList(Pkcs10RequestHolder p10ReqHolder){
+		
+		Set<GeneralName> generalNameSet = new HashSet<GeneralName>();
+		
+		for( Attribute attr : p10ReqHolder.getReqAttributes()) {
+			if( PKCSObjectIdentifiers.pkcs_9_at_extensionRequest.equals(attr.getAttrType())){
+
+				ASN1Set valueSet = attr.getAttrValues();
+				LOG.debug("ExtensionRequest / AttrValues has {} elements", valueSet.size());
+				for (ASN1Encodable asn1Enc : valueSet) {
+					DERSequence derSeq = (DERSequence)asn1Enc;
+
+					LOG.debug("ExtensionRequest / DERSequence has {} elements", derSeq.size());
+					LOG.debug("ExtensionRequest / DERSequence[0] is a  {}", derSeq.getObjectAt(0).getClass().getName());
+
+					DERSequence derSeq2 = (DERSequence)derSeq.getObjectAt(0);
+					LOG.debug("ExtensionRequest / DERSequence2 has {} elements", derSeq2.size());
+					LOG.debug("ExtensionRequest / DERSequence2[0] is a  {}", derSeq2.getObjectAt(0).getClass().getName());
+
+
+					ASN1ObjectIdentifier objId = (ASN1ObjectIdentifier)(derSeq2.getObjectAt(0));
+					if( Extension.subjectAlternativeName.equals(objId)) {
+						DEROctetString derStr = (DEROctetString)derSeq2.getObjectAt(1);
+						GeneralNames names = GeneralNames.getInstance(derStr.getOctets());
+						LOG.debug("Attribute value SAN" + names);
+						LOG.debug("SAN values #" + names.getNames().length);
+						
+						for (GeneralName gnSAN : names.getNames()) {
+							LOG.debug("GN " + gnSAN.toString());
+							generalNameSet.add(gnSAN);
+							
+						}
+					} else {
+						LOG.info("Unexpected Extensions Attribute value " + objId.getId());
+					}
+				}
+				
+			}
+		}
+		return generalNameSet;
 	}
 
 }

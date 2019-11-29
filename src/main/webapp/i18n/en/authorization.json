@@ -16,6 +16,7 @@
       "detail": {
         "title": "Authorization"
       },
+      "authorizationId": "Authorization Id",
       "type": "Type",
       "value": "Value",
       "challenges": "Challenges",

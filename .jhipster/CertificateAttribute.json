@@ -2,13 +2,6 @@
     "name": "CertificateAttribute",
     "fields": [
         {
-            "fieldName": "attributeId",
-            "fieldType": "Long",
-            "fieldValidateRules": [
-                "required"
-            ]
-        },
-        {
             "fieldName": "name",
             "fieldType": "String",
             "fieldValidateRules": [

@@ -125,8 +125,8 @@ entity ACMEAccount {
 //	@Id
 //	@GenericGenerator(name="RandomGenerator.generatorName", strategy="de.trustable.ca3s.acme.server.entity.RandomGenerator")
 //	@GeneratedValue(generator="RandomGenerator.generatorName")
-
   	accountId Long required
+  	
   	realm String required
 	status AccountStatus
     
@@ -162,7 +162,7 @@ entity AcmeOrder{
 
 //	@GenericGenerator(name = "RandomGenerator.generatorName", strategy = "de.trustable.ca3s.acme.server.entity.RandomGenerator")
 //	@GeneratedValue(generator = "RandomGenerator.generatorName")
-	id Long required
+	orderId Long required
 
 	status OrderStatus required
 
@@ -218,7 +218,7 @@ entity Authorization {
 
 //	@GenericGenerator(name="RandomGenerator.generatorName", strategy="de.trustable.ca3s.acme.server.entity.RandomGenerator")
 //	@GeneratedValue(generator="RandomGenerator.generatorName")
-	id Long required
+	authorizationId Long required
 	
 	type String required
 
@@ -235,7 +235,7 @@ entity AcmeChallenge {
 
 // @GenericGenerator(name="RandomGenerator.generatorName", strategy="de.trustable.ca3s.acme.server.entity.RandomGenerator")
 // 	@GeneratedValue(generator="RandomGenerator.generatorName")
-	id Long required
+	challengeId Long required
 
 	type String required
 	value String required

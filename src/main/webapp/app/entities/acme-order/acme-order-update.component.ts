@@ -35,6 +35,7 @@ export class AcmeOrderUpdateComponent implements OnInit {
 
   editForm = this.fb.group({
     id: [],
+    orderId: [null, [Validators.required]],
     status: [null, [Validators.required]],
     expires: [],
     notBefore: [],
@@ -88,6 +89,7 @@ export class AcmeOrderUpdateComponent implements OnInit {
   updateForm(acmeOrder: IAcmeOrder) {
     this.editForm.patchValue({
       id: acmeOrder.id,
+      orderId: acmeOrder.orderId,
       status: acmeOrder.status,
       expires: acmeOrder.expires,
       notBefore: acmeOrder.notBefore,
@@ -119,6 +121,7 @@ export class AcmeOrderUpdateComponent implements OnInit {
     return {
       ...new AcmeOrder(),
       id: this.editForm.get(['id']).value,
+      orderId: this.editForm.get(['orderId']).value,
       status: this.editForm.get(['status']).value,
       expires: this.editForm.get(['expires']).value,
       notBefore: this.editForm.get(['notBefore']).value,

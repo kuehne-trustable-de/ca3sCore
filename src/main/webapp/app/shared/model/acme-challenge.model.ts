@@ -4,6 +4,7 @@ import { ChallengeStatus } from 'app/shared/model/enumerations/challenge-status.
 
 export interface IAcmeChallenge {
   id?: number;
+  challengeId?: number;
   type?: string;
   value?: string;
   token?: string;
@@ -15,6 +16,7 @@ export interface IAcmeChallenge {
 export class AcmeChallenge implements IAcmeChallenge {
   constructor(
     public id?: number,
+    public challengeId?: number,
     public type?: string,
     public value?: string,
     public token?: string,

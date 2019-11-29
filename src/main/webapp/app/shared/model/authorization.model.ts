@@ -3,6 +3,7 @@ import { IAcmeOrder } from 'app/shared/model/acme-order.model';
 
 export interface IAuthorization {
   id?: number;
+  authorizationId?: number;
   type?: string;
   value?: string;
   challenges?: IAcmeChallenge[];
@@ -12,6 +13,7 @@ export interface IAuthorization {
 export class Authorization implements IAuthorization {
   constructor(
     public id?: number,
+    public authorizationId?: number,
     public type?: string,
     public value?: string,
     public challenges?: IAcmeChallenge[],

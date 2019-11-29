@@ -72,7 +72,6 @@ class CsrAttributeGatlingTest extends Simulation {
             .headers(headers_http_authenticated)
             .body(StringBody("""{
                 "id":null
-                , "attributeId":null
                 , "name":"SAMPLE_TEXT"
                 , "value":"SAMPLE_TEXT"
                 }""")).asJson

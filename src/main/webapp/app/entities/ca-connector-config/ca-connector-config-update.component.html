@@ -10,21 +10,6 @@
                         readonly />
                 </div>
                 <div class="form-group">
-                    <label class="form-control-label" jhiTranslate="ca3SJhApp.cAConnectorConfig.configId" for="field_configId">Config Id</label>
-                    <input type="number" class="form-control" name="configId" id="field_configId"
-                           formControlName="configId"/>
-                    <div *ngIf="editForm.get('configId').invalid && (editForm.get('configId').dirty || editForm.get('configId').touched)">
-                        <small class="form-text text-danger"
-                               *ngIf="editForm.get('configId').errors.required" jhiTranslate="entity.validation.required">
-                        This field is required.
-                        </small>
-                        <small class="form-text text-danger"
-                            [hidden]="!editForm.get('configId')?.errors?.number" jhiTranslate="entity.validation.number">
-                            This field should be a number.
-                        </small>
-                    </div>
-                </div>
-                <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ca3SJhApp.cAConnectorConfig.name" for="field_name">Name</label>
                     <input type="text" class="form-control" name="name" id="field_name"
                            formControlName="name"/>

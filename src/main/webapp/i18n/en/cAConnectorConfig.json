@@ -16,7 +16,6 @@
       "detail": {
         "title": "CA Connector Config"
       },
-      "configId": "Config Id",
       "name": "Name",
       "caConnectorType": "Ca Connector Type",
       "caUrl": "Ca Url",

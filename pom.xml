@@ -93,7 +93,11 @@
     	<nimbus-jose-jwt-version>6.0</nimbus-jose-jwt-version>
         <adcsUtilVersion>1.0.1</adcsUtilVersion>
 		<adcsProxyClientVersion>1.0.0-SNAPSHOT</adcsProxyClientVersion>
-        
+        <nimbus-jose-jwt-version>6.0</nimbus-jose-jwt-version>
+       	<jose4jVersion>0.6.5</jose4jVersion>
+       	<acme4jVersion>2.6</acme4jVersion>
+       	<takesVersion>1.16</takesVersion>
+       
         
     </properties>
 
@@ -268,12 +272,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>junit</groupId>
-					<artifactId>junit</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -369,6 +367,32 @@
 			<version>${nimbus-jose-jwt-version}</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.bitbucket.b_c/jose4j -->
+		<dependency>
+			<groupId>org.bitbucket.b_c</groupId>
+			<artifactId>jose4j</artifactId>
+			<version>${jose4jVersion}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.shredzone.acme4j</groupId>
+			<artifactId>acme4j-client</artifactId>
+			<version>${acme4jVersion}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.shredzone.acme4j</groupId>
+			<artifactId>acme4j-utils</artifactId>
+			<version>${acme4jVersion}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+		      <groupId>org.takes</groupId>
+		      <artifactId>takes</artifactId>
+			<version>${takesVersion}</version>
+			<scope>test</scope>
+    	</dependency>
 
 	</dependencies>
 

@@ -10,6 +10,21 @@
                         readonly />
                 </div>
                 <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="ca3SJhApp.acmeChallenge.challengeId" for="field_challengeId">Challenge Id</label>
+                    <input type="number" class="form-control" name="challengeId" id="field_challengeId"
+                           formControlName="challengeId"/>
+                    <div *ngIf="editForm.get('challengeId').invalid && (editForm.get('challengeId').dirty || editForm.get('challengeId').touched)">
+                        <small class="form-text text-danger"
+                               *ngIf="editForm.get('challengeId').errors.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                        <small class="form-text text-danger"
+                            [hidden]="!editForm.get('challengeId')?.errors?.number" jhiTranslate="entity.validation.number">
+                            This field should be a number.
+                        </small>
+                    </div>
+                </div>
+                <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ca3SJhApp.acmeChallenge.type" for="field_type">Type</label>
                     <input type="text" class="form-control" name="type" id="field_type"
                            formControlName="type"/>

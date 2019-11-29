@@ -2,13 +2,6 @@
     "name": "CAConnectorConfig",
     "fields": [
         {
-            "fieldName": "configId",
-            "fieldType": "Long",
-            "fieldValidateRules": [
-                "required"
-            ]
-        },
-        {
             "fieldName": "name",
             "fieldType": "String"
         },

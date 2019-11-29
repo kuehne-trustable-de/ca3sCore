@@ -72,6 +72,7 @@ class AcmeOrderGatlingTest extends Simulation {
             .headers(headers_http_authenticated)
             .body(StringBody("""{
                 "id":null
+                , "orderId":null
                 , "status":"Pending"
                 , "expires":"2020-01-01T00:00:00.000Z"
                 , "notBefore":"2020-01-01T00:00:00.000Z"

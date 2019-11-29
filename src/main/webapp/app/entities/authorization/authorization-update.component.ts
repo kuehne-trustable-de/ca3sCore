@@ -23,6 +23,7 @@ export class AuthorizationUpdateComponent implements OnInit {
 
   editForm = this.fb.group({
     id: [],
+    authorizationId: [null, [Validators.required]],
     type: [null, [Validators.required]],
     value: [null, [Validators.required]],
     order: []
@@ -53,6 +54,7 @@ export class AuthorizationUpdateComponent implements OnInit {
   updateForm(authorization: IAuthorization) {
     this.editForm.patchValue({
       id: authorization.id,
+      authorizationId: authorization.authorizationId,
       type: authorization.type,
       value: authorization.value,
       order: authorization.order
@@ -77,6 +79,7 @@ export class AuthorizationUpdateComponent implements OnInit {
     return {
       ...new Authorization(),
       id: this.editForm.get(['id']).value,
+      authorizationId: this.editForm.get(['authorizationId']).value,
       type: this.editForm.get(['type']).value,
       value: this.editForm.get(['value']).value,
       order: this.editForm.get(['order']).value

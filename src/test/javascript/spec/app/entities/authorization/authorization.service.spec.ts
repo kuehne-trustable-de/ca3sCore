@@ -20,7 +20,7 @@ describe('Service Tests', () => {
       service = injector.get(AuthorizationService);
       httpMock = injector.get(HttpTestingController);
 
-      elemDefault = new Authorization(0, 'AAAAAAA', 'AAAAAAA');
+      elemDefault = new Authorization(0, 0, 'AAAAAAA', 'AAAAAAA');
     });
 
     describe('Service methods', () => {
@@ -56,6 +56,7 @@ describe('Service Tests', () => {
       it('should update a Authorization', () => {
         const returnedFromService = Object.assign(
           {
+            authorizationId: 1,
             type: 'BBBBBB',
             value: 'BBBBBB'
           },
@@ -75,6 +76,7 @@ describe('Service Tests', () => {
       it('should return a list of Authorization', () => {
         const returnedFromService = Object.assign(
           {
+            authorizationId: 1,
             type: 'BBBBBB',
             value: 'BBBBBB'
           },

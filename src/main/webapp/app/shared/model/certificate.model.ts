@@ -5,7 +5,6 @@ import { ICertificate } from 'app/shared/model/certificate.model';
 
 export interface ICertificate {
   id?: number;
-  certificateId?: number;
   tbsDigest?: string;
   subject?: string;
   issuer?: string;
@@ -32,7 +31,6 @@ export interface ICertificate {
 export class Certificate implements ICertificate {
   constructor(
     public id?: number,
-    public certificateId?: number,
     public tbsDigest?: string,
     public subject?: string,
     public issuer?: string,

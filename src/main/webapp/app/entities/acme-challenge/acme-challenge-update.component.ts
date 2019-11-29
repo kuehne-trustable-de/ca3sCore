@@ -25,6 +25,7 @@ export class AcmeChallengeUpdateComponent implements OnInit {
 
   editForm = this.fb.group({
     id: [],
+    challengeId: [null, [Validators.required]],
     type: [null, [Validators.required]],
     value: [null, [Validators.required]],
     token: [null, [Validators.required]],
@@ -58,6 +59,7 @@ export class AcmeChallengeUpdateComponent implements OnInit {
   updateForm(acmeChallenge: IAcmeChallenge) {
     this.editForm.patchValue({
       id: acmeChallenge.id,
+      challengeId: acmeChallenge.challengeId,
       type: acmeChallenge.type,
       value: acmeChallenge.value,
       token: acmeChallenge.token,
@@ -85,6 +87,7 @@ export class AcmeChallengeUpdateComponent implements OnInit {
     return {
       ...new AcmeChallenge(),
       id: this.editForm.get(['id']).value,
+      challengeId: this.editForm.get(['challengeId']).value,
       type: this.editForm.get(['type']).value,
       value: this.editForm.get(['value']).value,
       token: this.editForm.get(['token']).value,

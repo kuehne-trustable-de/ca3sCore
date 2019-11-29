@@ -2,13 +2,6 @@
     "name": "Certificate",
     "fields": [
         {
-            "fieldName": "certificateId",
-            "fieldType": "Long",
-            "fieldValidateRules": [
-                "required"
-            ]
-        },
-        {
             "fieldName": "tbsDigest",
             "fieldType": "String",
             "fieldValidateRules": [

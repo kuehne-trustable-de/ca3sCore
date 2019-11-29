@@ -34,6 +34,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = Ca3SJhApp.class)
 public class AuthorizationResourceIT {
 
+    private static final Long DEFAULT_AUTHORIZATION_ID = 1L;
+    private static final Long UPDATED_AUTHORIZATION_ID = 2L;
+    private static final Long SMALLER_AUTHORIZATION_ID = 1L - 1L;
+
     private static final String DEFAULT_TYPE = "AAAAAAAAAA";
     private static final String UPDATED_TYPE = "BBBBBBBBBB";
 
@@ -85,6 +89,7 @@ public class AuthorizationResourceIT {
      */
     public static Authorization createEntity(EntityManager em) {
         Authorization authorization = new Authorization()
+            .authorizationId(DEFAULT_AUTHORIZATION_ID)
             .type(DEFAULT_TYPE)
             .value(DEFAULT_VALUE);
         return authorization;
@@ -97,6 +102,7 @@ public class AuthorizationResourceIT {
      */
     public static Authorization createUpdatedEntity(EntityManager em) {
         Authorization authorization = new Authorization()
+            .authorizationId(UPDATED_AUTHORIZATION_ID)
             .type(UPDATED_TYPE)
             .value(UPDATED_VALUE);
         return authorization;
@@ -122,6 +128,7 @@ public class AuthorizationResourceIT {
         List<Authorization> authorizationList = authorizationRepository.findAll();
         assertThat(authorizationList).hasSize(databaseSizeBeforeCreate + 1);
         Authorization testAuthorization = authorizationList.get(authorizationList.size() - 1);
+        assertThat(testAuthorization.getAuthorizationId()).isEqualTo(DEFAULT_AUTHORIZATION_ID);
         assertThat(testAuthorization.getType()).isEqualTo(DEFAULT_TYPE);
         assertThat(testAuthorization.getValue()).isEqualTo(DEFAULT_VALUE);
     }
@@ -145,6 +152,24 @@ public class AuthorizationResourceIT {
         assertThat(authorizationList).hasSize(databaseSizeBeforeCreate);
     }
 
+
+    @Test
+    @Transactional
+    public void checkAuthorizationIdIsRequired() throws Exception {
+        int databaseSizeBeforeTest = authorizationRepository.findAll().size();
+        // set the field null
+        authorization.setAuthorizationId(null);
+
+        // Create the Authorization, which fails.
+
+        restAuthorizationMockMvc.perform(post("/api/authorizations")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(authorization)))
+            .andExpect(status().isBadRequest());
+
+        List<Authorization> authorizationList = authorizationRepository.findAll();
+        assertThat(authorizationList).hasSize(databaseSizeBeforeTest);
+    }
 
     @Test
     @Transactional
@@ -193,6 +218,7 @@ public class AuthorizationResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(authorization.getId().intValue())))
+            .andExpect(jsonPath("$.[*].authorizationId").value(hasItem(DEFAULT_AUTHORIZATION_ID.intValue())))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
             .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE.toString())));
     }
@@ -208,6 +234,7 @@ public class AuthorizationResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(authorization.getId().intValue()))
+            .andExpect(jsonPath("$.authorizationId").value(DEFAULT_AUTHORIZATION_ID.intValue()))
             .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))
             .andExpect(jsonPath("$.value").value(DEFAULT_VALUE.toString()));
     }
@@ -233,6 +260,7 @@ public class AuthorizationResourceIT {
         // Disconnect from session so that the updates on updatedAuthorization are not directly saved in db
         em.detach(updatedAuthorization);
         updatedAuthorization
+            .authorizationId(UPDATED_AUTHORIZATION_ID)
             .type(UPDATED_TYPE)
             .value(UPDATED_VALUE);
 
@@ -245,6 +273,7 @@ public class AuthorizationResourceIT {
         List<Authorization> authorizationList = authorizationRepository.findAll();
         assertThat(authorizationList).hasSize(databaseSizeBeforeUpdate);
         Authorization testAuthorization = authorizationList.get(authorizationList.size() - 1);
+        assertThat(testAuthorization.getAuthorizationId()).isEqualTo(UPDATED_AUTHORIZATION_ID);
         assertThat(testAuthorization.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testAuthorization.getValue()).isEqualTo(UPDATED_VALUE);
     }

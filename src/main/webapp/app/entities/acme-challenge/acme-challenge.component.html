@@ -18,6 +18,7 @@
             <thead>
             <tr>
             <th><span jhiTranslate="global.field.id">ID</span></th>
+            <th><span jhiTranslate="ca3SJhApp.acmeChallenge.challengeId">Challenge Id</span></th>
             <th><span jhiTranslate="ca3SJhApp.acmeChallenge.type">Type</span></th>
             <th><span jhiTranslate="ca3SJhApp.acmeChallenge.value">Value</span></th>
             <th><span jhiTranslate="ca3SJhApp.acmeChallenge.token">Token</span></th>
@@ -30,6 +31,7 @@
             <tbody>
             <tr *ngFor="let acmeChallenge of acmeChallenges ;trackBy: trackId">
                 <td><a [routerLink]="['/acme-challenge', acmeChallenge.id, 'view' ]">{{acmeChallenge.id}}</a></td>
+                <td>{{acmeChallenge.challengeId}}</td>
                 <td>{{acmeChallenge.type}}</td>
                 <td>{{acmeChallenge.value}}</td>
                 <td>{{acmeChallenge.token}}</td>

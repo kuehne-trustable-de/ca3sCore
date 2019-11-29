@@ -16,6 +16,7 @@
       "detail": {
         "title": "Acme Challenge"
       },
+      "challengeId": "Challenge Id",
       "type": "Type",
       "value": "Value",
       "token": "Token",

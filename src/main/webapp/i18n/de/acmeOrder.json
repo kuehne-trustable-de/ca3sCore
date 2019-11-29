@@ -16,6 +16,7 @@
       "detail": {
         "title": "Acme Order"
       },
+      "orderId": "Order Id",
       "status": "Status",
       "expires": "Expires",
       "notBefore": "Not Before",

@@ -18,7 +18,6 @@
             <thead>
             <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="reset.bind(this)">
             <th jhiSortBy="id"><span jhiTranslate="global.field.id">ID</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="certificateId"><span jhiTranslate="ca3SJhApp.certificate.certificateId">Certificate Id</span> <fa-icon [icon]="'sort'"></fa-icon></th>
             <th jhiSortBy="tbsDigest"><span jhiTranslate="ca3SJhApp.certificate.tbsDigest">Tbs Digest</span> <fa-icon [icon]="'sort'"></fa-icon></th>
             <th jhiSortBy="subject"><span jhiTranslate="ca3SJhApp.certificate.subject">Subject</span> <fa-icon [icon]="'sort'"></fa-icon></th>
             <th jhiSortBy="issuer"><span jhiTranslate="ca3SJhApp.certificate.issuer">Issuer</span> <fa-icon [icon]="'sort'"></fa-icon></th>
@@ -45,7 +44,6 @@
             <tbody infinite-scroll (scrolled)="loadPage(page + 1)" [infiniteScrollDisabled]="page >= links['last']" [infiniteScrollDistance]="0">
             <tr *ngFor="let certificate of certificates ;trackBy: trackId">
                 <td><a [routerLink]="['/certificate', certificate.id, 'view' ]">{{certificate.id}}</a></td>
-                <td>{{certificate.certificateId}}</td>
                 <td>{{certificate.tbsDigest}}</td>
                 <td>{{certificate.subject}}</td>
                 <td>{{certificate.issuer}}</td>

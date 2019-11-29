@@ -15,6 +15,12 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "authorization")
+@NamedQueries({
+	@NamedQuery(name = "Authorization.findByAuthorizationId",
+	query = "SELECT a FROM Authorization a WHERE " +
+			"a.authorizationId = :authorizationId"
+    ),    
+})
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Authorization implements Serializable {
 
@@ -23,6 +29,10 @@ public class Authorization implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotNull
+    @Column(name = "authorization_id", nullable = false)
+    private Long authorizationId;
 
     @NotNull
     @Column(name = "type", nullable = false)
@@ -47,6 +57,19 @@ public class Authorization implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getAuthorizationId() {
+        return authorizationId;
+    }
+
+    public Authorization authorizationId(Long authorizationId) {
+        this.authorizationId = authorizationId;
+        return this;
+    }
+
+    public void setAuthorizationId(Long authorizationId) {
+        this.authorizationId = authorizationId;
     }
 
     public String getType() {
@@ -134,6 +157,7 @@ public class Authorization implements Serializable {
     public String toString() {
         return "Authorization{" +
             "id=" + getId() +
+            ", authorizationId=" + getAuthorizationId() +
             ", type='" + getType() + "'" +
             ", value='" + getValue() + "'" +
             "}";

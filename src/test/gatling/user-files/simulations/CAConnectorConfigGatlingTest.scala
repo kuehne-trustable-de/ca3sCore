@@ -72,7 +72,6 @@ class CAConnectorConfigGatlingTest extends Simulation {
             .headers(headers_http_authenticated)
             .body(StringBody("""{
                 "id":null
-                , "configId":null
                 , "name":"SAMPLE_TEXT"
                 , "caConnectorType":"Internal"
                 , "caUrl":"SAMPLE_TEXT"

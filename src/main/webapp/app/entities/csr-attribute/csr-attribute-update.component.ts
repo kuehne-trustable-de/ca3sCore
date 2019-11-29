@@ -23,7 +23,6 @@ export class CsrAttributeUpdateComponent implements OnInit {
 
   editForm = this.fb.group({
     id: [],
-    attributeId: [null, [Validators.required]],
     name: [null, [Validators.required]],
     value: [null, [Validators.required]],
     csr: []
@@ -54,7 +53,6 @@ export class CsrAttributeUpdateComponent implements OnInit {
   updateForm(csrAttribute: ICsrAttribute) {
     this.editForm.patchValue({
       id: csrAttribute.id,
-      attributeId: csrAttribute.attributeId,
       name: csrAttribute.name,
       value: csrAttribute.value,
       csr: csrAttribute.csr
@@ -79,7 +77,6 @@ export class CsrAttributeUpdateComponent implements OnInit {
     return {
       ...new CsrAttribute(),
       id: this.editForm.get(['id']).value,
-      attributeId: this.editForm.get(['attributeId']).value,
       name: this.editForm.get(['name']).value,
       value: this.editForm.get(['value']).value,
       csr: this.editForm.get(['csr']).value

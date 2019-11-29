@@ -25,7 +25,7 @@ describe('Service Tests', () => {
       httpMock = injector.get(HttpTestingController);
       currentDate = moment();
 
-      elemDefault = new AcmeChallenge(0, 'AAAAAAA', 'AAAAAAA', 'AAAAAAA', currentDate, ChallengeStatus.Pending);
+      elemDefault = new AcmeChallenge(0, 0, 'AAAAAAA', 'AAAAAAA', 'AAAAAAA', currentDate, ChallengeStatus.Pending);
     });
 
     describe('Service methods', () => {
@@ -72,6 +72,7 @@ describe('Service Tests', () => {
       it('should update a AcmeChallenge', () => {
         const returnedFromService = Object.assign(
           {
+            challengeId: 1,
             type: 'BBBBBB',
             value: 'BBBBBB',
             token: 'BBBBBB',
@@ -99,6 +100,7 @@ describe('Service Tests', () => {
       it('should return a list of AcmeChallenge', () => {
         const returnedFromService = Object.assign(
           {
+            challengeId: 1,
             type: 'BBBBBB',
             value: 'BBBBBB',
             token: 'BBBBBB',

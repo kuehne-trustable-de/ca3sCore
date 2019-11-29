@@ -16,7 +16,6 @@
       "detail": {
         "title": "Csr Attribute"
       },
-      "attributeId": "Attribute Id",
       "name": "Name",
       "value": "Value",
       "csr": "Csr"

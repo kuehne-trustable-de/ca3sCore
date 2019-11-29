@@ -2,6 +2,13 @@
     "name": "Authorization",
     "fields": [
         {
+            "fieldName": "authorizationId",
+            "fieldType": "Long",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
             "fieldName": "type",
             "fieldType": "String",
             "fieldValidateRules": [

@@ -18,6 +18,7 @@
             <thead>
             <tr>
             <th><span jhiTranslate="global.field.id">ID</span></th>
+            <th><span jhiTranslate="ca3SJhApp.authorization.authorizationId">Authorization Id</span></th>
             <th><span jhiTranslate="ca3SJhApp.authorization.type">Type</span></th>
             <th><span jhiTranslate="ca3SJhApp.authorization.value">Value</span></th>
             <th><span jhiTranslate="ca3SJhApp.authorization.order">Order</span></th>
@@ -27,6 +28,7 @@
             <tbody>
             <tr *ngFor="let authorization of authorizations ;trackBy: trackId">
                 <td><a [routerLink]="['/authorization', authorization.id, 'view' ]">{{authorization.id}}</a></td>
+                <td>{{authorization.authorizationId}}</td>
                 <td>{{authorization.type}}</td>
                 <td>{{authorization.value}}</td>
                 <td>

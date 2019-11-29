@@ -3,6 +3,7 @@ package de.trustable.ca3sjh.service.util;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -543,6 +544,8 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 			if( e.getCode() == 503) {
 				throw new OODBConnectionsACDSException(e.getLocalizedMessage());
 			}else if( e.getCause() instanceof SocketTimeoutException){
+				throw new ACDSProxyUnavailableException(e.getCause().getMessage());
+			}else if( e.getCause() instanceof ConnectException){
 				throw new ACDSProxyUnavailableException(e.getCause().getMessage());
 			}else if( e.getCause() instanceof SSLHandshakeException){
 				LOGGER.warn("TLS problem : configure trust anchor for ADCS proxy at " + remoteClient.getApiClient().getBasePath() );

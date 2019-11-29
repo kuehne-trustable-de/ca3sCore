@@ -2,6 +2,13 @@
     "name": "AcmeOrder",
     "fields": [
         {
+            "fieldName": "orderId",
+            "fieldType": "Long",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
             "fieldName": "status",
             "fieldType": "OrderStatus",
             "fieldValues": "Pending,Ready,Processing,Valid,Invalid",

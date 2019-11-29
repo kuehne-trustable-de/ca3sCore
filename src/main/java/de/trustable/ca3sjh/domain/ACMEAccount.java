@@ -16,6 +16,16 @@ import de.trustable.ca3sjh.domain.enumeration.AccountStatus;
  */
 @Entity
 @Table(name = "acme_account")
+@NamedQueries({
+	@NamedQuery(name = "Account.findByPublicKeyHash",
+	query = "SELECT a FROM ACMEAccount a WHERE " +
+			"a.publicKeyHash = :publicKeyHashBase64"
+    ),    
+	@NamedQuery(name = "Account.findByAccountId",
+	query = "SELECT a FROM ACMEAccount a WHERE " +
+			"a.accountId = :accountId"
+    ),    
+})
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class ACMEAccount implements Serializable {
 

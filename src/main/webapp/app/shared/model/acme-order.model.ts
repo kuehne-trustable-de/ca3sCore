@@ -8,6 +8,7 @@ import { OrderStatus } from 'app/shared/model/enumerations/order-status.model';
 
 export interface IAcmeOrder {
   id?: number;
+  orderId?: number;
   status?: OrderStatus;
   expires?: Moment;
   notBefore?: Moment;
@@ -25,6 +26,7 @@ export interface IAcmeOrder {
 export class AcmeOrder implements IAcmeOrder {
   constructor(
     public id?: number,
+    public orderId?: number,
     public status?: OrderStatus,
     public expires?: Moment,
     public notBefore?: Moment,

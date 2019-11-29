@@ -37,6 +37,10 @@ import de.trustable.ca3sjh.domain.enumeration.ChallengeStatus;
 @SpringBootTest(classes = Ca3SJhApp.class)
 public class AcmeChallengeResourceIT {
 
+    private static final Long DEFAULT_CHALLENGE_ID = 1L;
+    private static final Long UPDATED_CHALLENGE_ID = 2L;
+    private static final Long SMALLER_CHALLENGE_ID = 1L - 1L;
+
     private static final String DEFAULT_TYPE = "AAAAAAAAAA";
     private static final String UPDATED_TYPE = "BBBBBBBBBB";
 
@@ -98,6 +102,7 @@ public class AcmeChallengeResourceIT {
      */
     public static AcmeChallenge createEntity(EntityManager em) {
         AcmeChallenge acmeChallenge = new AcmeChallenge()
+            .challengeId(DEFAULT_CHALLENGE_ID)
             .type(DEFAULT_TYPE)
             .value(DEFAULT_VALUE)
             .token(DEFAULT_TOKEN)
@@ -113,6 +118,7 @@ public class AcmeChallengeResourceIT {
      */
     public static AcmeChallenge createUpdatedEntity(EntityManager em) {
         AcmeChallenge acmeChallenge = new AcmeChallenge()
+            .challengeId(UPDATED_CHALLENGE_ID)
             .type(UPDATED_TYPE)
             .value(UPDATED_VALUE)
             .token(UPDATED_TOKEN)
@@ -141,6 +147,7 @@ public class AcmeChallengeResourceIT {
         List<AcmeChallenge> acmeChallengeList = acmeChallengeRepository.findAll();
         assertThat(acmeChallengeList).hasSize(databaseSizeBeforeCreate + 1);
         AcmeChallenge testAcmeChallenge = acmeChallengeList.get(acmeChallengeList.size() - 1);
+        assertThat(testAcmeChallenge.getChallengeId()).isEqualTo(DEFAULT_CHALLENGE_ID);
         assertThat(testAcmeChallenge.getType()).isEqualTo(DEFAULT_TYPE);
         assertThat(testAcmeChallenge.getValue()).isEqualTo(DEFAULT_VALUE);
         assertThat(testAcmeChallenge.getToken()).isEqualTo(DEFAULT_TOKEN);
@@ -167,6 +174,24 @@ public class AcmeChallengeResourceIT {
         assertThat(acmeChallengeList).hasSize(databaseSizeBeforeCreate);
     }
 
+
+    @Test
+    @Transactional
+    public void checkChallengeIdIsRequired() throws Exception {
+        int databaseSizeBeforeTest = acmeChallengeRepository.findAll().size();
+        // set the field null
+        acmeChallenge.setChallengeId(null);
+
+        // Create the AcmeChallenge, which fails.
+
+        restAcmeChallengeMockMvc.perform(post("/api/acme-challenges")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(acmeChallenge)))
+            .andExpect(status().isBadRequest());
+
+        List<AcmeChallenge> acmeChallengeList = acmeChallengeRepository.findAll();
+        assertThat(acmeChallengeList).hasSize(databaseSizeBeforeTest);
+    }
 
     @Test
     @Transactional
@@ -251,6 +276,7 @@ public class AcmeChallengeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(acmeChallenge.getId().intValue())))
+            .andExpect(jsonPath("$.[*].challengeId").value(hasItem(DEFAULT_CHALLENGE_ID.intValue())))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
             .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE.toString())))
             .andExpect(jsonPath("$.[*].token").value(hasItem(DEFAULT_TOKEN.toString())))
@@ -269,6 +295,7 @@ public class AcmeChallengeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(acmeChallenge.getId().intValue()))
+            .andExpect(jsonPath("$.challengeId").value(DEFAULT_CHALLENGE_ID.intValue()))
             .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))
             .andExpect(jsonPath("$.value").value(DEFAULT_VALUE.toString()))
             .andExpect(jsonPath("$.token").value(DEFAULT_TOKEN.toString()))
@@ -297,6 +324,7 @@ public class AcmeChallengeResourceIT {
         // Disconnect from session so that the updates on updatedAcmeChallenge are not directly saved in db
         em.detach(updatedAcmeChallenge);
         updatedAcmeChallenge
+            .challengeId(UPDATED_CHALLENGE_ID)
             .type(UPDATED_TYPE)
             .value(UPDATED_VALUE)
             .token(UPDATED_TOKEN)
@@ -312,6 +340,7 @@ public class AcmeChallengeResourceIT {
         List<AcmeChallenge> acmeChallengeList = acmeChallengeRepository.findAll();
         assertThat(acmeChallengeList).hasSize(databaseSizeBeforeUpdate);
         AcmeChallenge testAcmeChallenge = acmeChallengeList.get(acmeChallengeList.size() - 1);
+        assertThat(testAcmeChallenge.getChallengeId()).isEqualTo(UPDATED_CHALLENGE_ID);
         assertThat(testAcmeChallenge.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testAcmeChallenge.getValue()).isEqualTo(UPDATED_VALUE);
         assertThat(testAcmeChallenge.getToken()).isEqualTo(UPDATED_TOKEN);

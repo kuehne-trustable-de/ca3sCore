@@ -16,7 +16,6 @@
       "detail": {
         "title": "Certificate Attribute"
       },
-      "attributeId": "Attribute Id",
       "name": "Name",
       "value": "Value",
       "certificate": "Certificate"

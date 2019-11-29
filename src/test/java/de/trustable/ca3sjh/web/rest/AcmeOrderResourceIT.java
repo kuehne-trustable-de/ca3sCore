@@ -37,6 +37,10 @@ import de.trustable.ca3sjh.domain.enumeration.OrderStatus;
 @SpringBootTest(classes = Ca3SJhApp.class)
 public class AcmeOrderResourceIT {
 
+    private static final Long DEFAULT_ORDER_ID = 1L;
+    private static final Long UPDATED_ORDER_ID = 2L;
+    private static final Long SMALLER_ORDER_ID = 1L - 1L;
+
     private static final OrderStatus DEFAULT_STATUS = OrderStatus.Pending;
     private static final OrderStatus UPDATED_STATUS = OrderStatus.Ready;
 
@@ -106,6 +110,7 @@ public class AcmeOrderResourceIT {
      */
     public static AcmeOrder createEntity(EntityManager em) {
         AcmeOrder acmeOrder = new AcmeOrder()
+            .orderId(DEFAULT_ORDER_ID)
             .status(DEFAULT_STATUS)
             .expires(DEFAULT_EXPIRES)
             .notBefore(DEFAULT_NOT_BEFORE)
@@ -123,6 +128,7 @@ public class AcmeOrderResourceIT {
      */
     public static AcmeOrder createUpdatedEntity(EntityManager em) {
         AcmeOrder acmeOrder = new AcmeOrder()
+            .orderId(UPDATED_ORDER_ID)
             .status(UPDATED_STATUS)
             .expires(UPDATED_EXPIRES)
             .notBefore(UPDATED_NOT_BEFORE)
@@ -153,6 +159,7 @@ public class AcmeOrderResourceIT {
         List<AcmeOrder> acmeOrderList = acmeOrderRepository.findAll();
         assertThat(acmeOrderList).hasSize(databaseSizeBeforeCreate + 1);
         AcmeOrder testAcmeOrder = acmeOrderList.get(acmeOrderList.size() - 1);
+        assertThat(testAcmeOrder.getOrderId()).isEqualTo(DEFAULT_ORDER_ID);
         assertThat(testAcmeOrder.getStatus()).isEqualTo(DEFAULT_STATUS);
         assertThat(testAcmeOrder.getExpires()).isEqualTo(DEFAULT_EXPIRES);
         assertThat(testAcmeOrder.getNotBefore()).isEqualTo(DEFAULT_NOT_BEFORE);
@@ -184,6 +191,24 @@ public class AcmeOrderResourceIT {
 
     @Test
     @Transactional
+    public void checkOrderIdIsRequired() throws Exception {
+        int databaseSizeBeforeTest = acmeOrderRepository.findAll().size();
+        // set the field null
+        acmeOrder.setOrderId(null);
+
+        // Create the AcmeOrder, which fails.
+
+        restAcmeOrderMockMvc.perform(post("/api/acme-orders")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(acmeOrder)))
+            .andExpect(status().isBadRequest());
+
+        List<AcmeOrder> acmeOrderList = acmeOrderRepository.findAll();
+        assertThat(acmeOrderList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     public void checkStatusIsRequired() throws Exception {
         int databaseSizeBeforeTest = acmeOrderRepository.findAll().size();
         // set the field null
@@ -211,6 +236,7 @@ public class AcmeOrderResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(acmeOrder.getId().intValue())))
+            .andExpect(jsonPath("$.[*].orderId").value(hasItem(DEFAULT_ORDER_ID.intValue())))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())))
             .andExpect(jsonPath("$.[*].expires").value(hasItem(DEFAULT_EXPIRES.toString())))
             .andExpect(jsonPath("$.[*].notBefore").value(hasItem(DEFAULT_NOT_BEFORE.toString())))
@@ -231,6 +257,7 @@ public class AcmeOrderResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(acmeOrder.getId().intValue()))
+            .andExpect(jsonPath("$.orderId").value(DEFAULT_ORDER_ID.intValue()))
             .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()))
             .andExpect(jsonPath("$.expires").value(DEFAULT_EXPIRES.toString()))
             .andExpect(jsonPath("$.notBefore").value(DEFAULT_NOT_BEFORE.toString()))
@@ -261,6 +288,7 @@ public class AcmeOrderResourceIT {
         // Disconnect from session so that the updates on updatedAcmeOrder are not directly saved in db
         em.detach(updatedAcmeOrder);
         updatedAcmeOrder
+            .orderId(UPDATED_ORDER_ID)
             .status(UPDATED_STATUS)
             .expires(UPDATED_EXPIRES)
             .notBefore(UPDATED_NOT_BEFORE)
@@ -278,6 +306,7 @@ public class AcmeOrderResourceIT {
         List<AcmeOrder> acmeOrderList = acmeOrderRepository.findAll();
         assertThat(acmeOrderList).hasSize(databaseSizeBeforeUpdate);
         AcmeOrder testAcmeOrder = acmeOrderList.get(acmeOrderList.size() - 1);
+        assertThat(testAcmeOrder.getOrderId()).isEqualTo(UPDATED_ORDER_ID);
         assertThat(testAcmeOrder.getStatus()).isEqualTo(UPDATED_STATUS);
         assertThat(testAcmeOrder.getExpires()).isEqualTo(UPDATED_EXPIRES);
         assertThat(testAcmeOrder.getNotBefore()).isEqualTo(UPDATED_NOT_BEFORE);

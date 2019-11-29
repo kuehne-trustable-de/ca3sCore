@@ -26,6 +26,10 @@ public class AcmeChallenge implements Serializable {
     private Long id;
 
     @NotNull
+    @Column(name = "challenge_id", nullable = false)
+    private Long challengeId;
+
+    @NotNull
     @Column(name = "type", nullable = false)
     private String type;
 
@@ -56,6 +60,19 @@ public class AcmeChallenge implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getChallengeId() {
+        return challengeId;
+    }
+
+    public AcmeChallenge challengeId(Long challengeId) {
+        this.challengeId = challengeId;
+        return this;
+    }
+
+    public void setChallengeId(Long challengeId) {
+        this.challengeId = challengeId;
     }
 
     public String getType() {
@@ -157,6 +174,7 @@ public class AcmeChallenge implements Serializable {
     public String toString() {
         return "AcmeChallenge{" +
             "id=" + getId() +
+            ", challengeId=" + getChallengeId() +
             ", type='" + getType() + "'" +
             ", value='" + getValue() + "'" +
             ", token='" + getToken() + "'" +
