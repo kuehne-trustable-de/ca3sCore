@@ -90,8 +90,10 @@
         <!-- jhipster-needle-maven-property -->
         
         <cryptoUtilVersion>1.0.3</cryptoUtilVersion>
+        <certBundleVersion>0.0.1-SNAPSHOT</certBundleVersion>
     	<nimbus-jose-jwt-version>6.0</nimbus-jose-jwt-version>
-        <adcsUtilVersion>1.0.1</adcsUtilVersion>
+    	<jasyptVersion>1.9.3</jasyptVersion>
+    	<adcsUtilVersion>1.0.1</adcsUtilVersion>
 		<adcsProxyClientVersion>1.0.0-SNAPSHOT</adcsProxyClientVersion>
         <nimbus-jose-jwt-version>6.0</nimbus-jose-jwt-version>
        	<jose4jVersion>0.6.5</jose4jVersion>
@@ -344,6 +346,12 @@
 		<!-- jhipster-needle-maven-add-dependency -->
 
 		<dependency>
+  			<groupId>de.trustable.ca3s</groupId>
+			<artifactId>CertificateBundle</artifactId>
+			<version>${certBundleVersion}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>de.trustable</groupId>
 			<artifactId>cryptoUtil</artifactId>
 			<version>${cryptoUtilVersion}</version>
@@ -359,6 +367,12 @@
 			<groupId>de.trustable.ca3s</groupId>
 			<artifactId>adcsProxyClient</artifactId>
 			<version>${adcsProxyClientVersion}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jasypt</groupId>
+			<artifactId>jasypt</artifactId>
+			<version>${jasyptVersion}</version>
 		</dependency>
 
 		<dependency>
