@@ -2,6 +2,7 @@ package de.trustable.ca3s.core;
 
 import de.trustable.ca3s.core.config.ApplicationProperties;
 import de.trustable.ca3s.core.config.DefaultProfileUtil;
+import de.trustable.ca3s.core.security.provider.Ca3sProvider;
 import de.trustable.util.JCAManager;
 import io.github.jhipster.config.JHipsterConstants;
 
@@ -17,6 +18,7 @@ import org.springframework.core.env.Environment;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.security.Security;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -60,6 +62,7 @@ public class Ca3SJhApp implements InitializingBean {
     public static void main(String[] args) {
     	
 		JCAManager.getInstance();
+    	Security.addProvider( new Ca3sProvider());
 
         SpringApplication app = new SpringApplication(Ca3SJhApp.class);
         DefaultProfileUtil.addDefaultProfile(app);

@@ -23,10 +23,10 @@ public class Ca3sProvider extends Provider {
 	public Ca3sProvider() {
 		super("Ca3sProvider", 1.0, "Certificate provider implemented by ca3s");
 		
-		super.put("Keystore.ca3s", KeyStoreImpl.class.getName());
-		super.put("Keystore.ca3s storetype", "ca3s");
+//		super.put("Keystore.ca3s", KeyStoreImpl.class.getName());
+//		super.put("Keystore.ca3s storetype", SERVICE_NAME);
 
-//		putService( new ProviderService(this, STORE_TYPE_KEYSTORE, SERVICE_NAME, AcmeKeyStoreImpl.class.getName()));
+		putService( new ProviderService(this, STORE_TYPE_KEYSTORE, SERVICE_NAME, KeyStoreImpl.class.getName()));
 		
 		LOG.debug("registered KeyStoreImpl in Ca3sProvider");
 		
@@ -50,7 +50,10 @@ public class Ca3sProvider extends Provider {
 			try {
 				if( STORE_TYPE_KEYSTORE.equalsIgnoreCase(type)) {
 					if( SERVICE_NAME.equalsIgnoreCase(algo)) {
-						return new KeyStoreImpl(new Ca3sBundleFactory());
+						LOG.debug("creating KeyStoreImpl with a Ca3sBundleFactory instance for type '{}' / algo '{}'", type, algo);
+						KeyStoreImpl keystore =  new KeyStoreImpl(new Ca3sBundleFactory());
+						keystore.engineGetCertificate("ca3s_https");
+						return keystore;
 					}
 				}
 			}catch(Exception ex ) {

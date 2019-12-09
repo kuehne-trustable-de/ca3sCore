@@ -195,6 +195,9 @@ public class ChallengeController extends ACMEController {
 	
 				HttpURLConnection con = (HttpURLConnection) url.openConnection();
 		
+				// Just wait for two seconds
+				con.setConnectTimeout(2 * 1000);
+				
 				// optional default is GET
 				con.setRequestMethod("GET");
 		

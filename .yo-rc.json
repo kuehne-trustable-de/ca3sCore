@@ -1,14 +1,14 @@
 {
   "generator-jhipster": {
     "promptValues": {
-      "packageName": "de.trustable.ca3sjh",
+      "packageName": "de.trustable.ca3s.core",
       "nativeLanguage": "en"
     },
     "jhipsterVersion": "6.3.1",
     "applicationType": "monolith",
     "baseName": "ca3s_jh",
-    "packageName": "de.trustable.ca3sjh",
-    "packageFolder": "de/trustable/ca3sjh",
+    "packageName": "de.trustable.ca3s.core",
+    "packageFolder": "de/trustable/ca3s/core",
     "serverPort": "8080",
     "authenticationType": "jwt",
     "cacheProvider": "ehcache",
