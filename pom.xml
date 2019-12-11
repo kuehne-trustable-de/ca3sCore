@@ -95,7 +95,7 @@
     	<jasyptVersion>1.9.3</jasyptVersion>
     	<adcsUtilVersion>1.0.1</adcsUtilVersion>
 		<adcsProxyClientVersion>1.0.0-SNAPSHOT</adcsProxyClientVersion>
-        <nimbus-jose-jwt-version>6.0</nimbus-jose-jwt-version>
+        <nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
        	<jose4jVersion>0.6.5</jose4jVersion>
        	<acme4jVersion>2.6</acme4jVersion>
        	<takesVersion>1.16</takesVersion>
