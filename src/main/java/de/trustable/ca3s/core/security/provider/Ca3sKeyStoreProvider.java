@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import de.trustable.ca3s.cert.bundle.KeyStoreImpl;
 
-public class Ca3sProvider extends Provider {
+public class Ca3sKeyStoreProvider extends Provider {
 
 	public static final String SERVICE_NAME = "ca3s";
 	private static final String STORE_TYPE_KEYSTORE = "Keystore";
@@ -18,23 +18,30 @@ public class Ca3sProvider extends Provider {
 	 */
 	private static final long serialVersionUID = -2476288508778039686L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(Ca3sProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Ca3sKeyStoreProvider.class);
 
-	public Ca3sProvider() {
-		super("Ca3sProvider", 1.0, "Certificate provider implemented by ca3s");
+    private static final KeyStoreImpl keystoreImpl = new KeyStoreImpl(new Ca3sBundleFactory());
+
+	public Ca3sKeyStoreProvider() {
+		super("Ca3sKeyStoreProvider", 1.0, "Certificate provider implemented by ca3s");
 		
 //		super.put("Keystore.ca3s", KeyStoreImpl.class.getName());
 //		super.put("Keystore.ca3s storetype", SERVICE_NAME);
 
 		putService( new ProviderService(this, STORE_TYPE_KEYSTORE, SERVICE_NAME, KeyStoreImpl.class.getName()));
 		
-		LOG.debug("registered KeyStoreImpl in Ca3sProvider");
+		LOG.debug("registered KeyStoreImpl in Ca3sKeyStoreProvider");
 		
 		for( String prop: super.stringPropertyNames()){
 			LOG.debug("provider attribute {} : '{}'", prop, this.getProperty(prop));
 		}
 
 	}
+
+	
+    public static KeyStoreImpl getKeystoreImpl() { 
+    	return keystoreImpl; 
+    }
 
 	private static final class ProviderService extends Provider.Service{
 		ProviderService( Provider p, String type, String algo, String cn){
@@ -51,13 +58,15 @@ public class Ca3sProvider extends Provider {
 				if( STORE_TYPE_KEYSTORE.equalsIgnoreCase(type)) {
 					if( SERVICE_NAME.equalsIgnoreCase(algo)) {
 						LOG.debug("creating KeyStoreImpl with a Ca3sBundleFactory instance for type '{}' / algo '{}'", type, algo);
-						KeyStoreImpl keystore =  new KeyStoreImpl(new Ca3sBundleFactory());
-						keystore.engineGetCertificate("ca3s_https");
-						return keystore;
+
+						keystoreImpl.engineGetCertificate("ca3s_https");
+						return keystoreImpl;
 					}
 				}
 			}catch(Exception ex ) {
-				throw new NoSuchAlgorithmException("Error constructing " + type + " for " + algo + "using Ca3sProvider ");
+				LOG.error("exception while provider instantiation", ex );
+				throw new NoSuchAlgorithmException("Error constructing provider type '" + type + "' for algo '" + algo + "' using Ca3sKeyStoreProvider ");
+
 			}
 			throw new NoSuchAlgorithmException("No impl for " + type + " / " + algo );
 		}

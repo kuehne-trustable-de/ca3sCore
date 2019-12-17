@@ -37,7 +37,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.GeneralSecurityException;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +57,8 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
+import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
 import org.jose4j.base64url.Base64Url;
 import org.jose4j.jwt.consumer.JwtContext;
 import org.slf4j.Logger;
@@ -384,6 +386,10 @@ public class OrderController extends ACMEController {
 	}
 
     
+    // The Camunda Engine
+    private RuntimeService runtimeService;
+
+
     /**
      * 
      * @param orderDao
@@ -417,25 +423,33 @@ public class OrderController extends ACMEController {
 
 		CAConnectorConfig caConfig = caccRepo.findDefaultCA().get(0);
 		
-		// @todo BPNM-fake
+		// BPNM call
 		try {
 			Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(csrAsPem);
 
 			CSR csr = certUtil.createCSR(csrAsPem, p10ReqHolder, "1");
 			csrRepository.save(csr);
 
-			Certificate cert = createCertificate(csr, caConfig);
-			certUtil.addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CA_CONNECTOR_ID, caConfig.getId());
+			Map<String, Object> variables = new HashMap<String,Object>();
+			variables.put("csrId", csr.getId());
+			variables.put("caConfigId", caConfig.getId());
+			variables.put("status", "Failed");
+			variables.put("certificateId", certificateId);
+			variables.put("failureReason", failureReason);
 			
-			certificateId = "" + cert.getId();
-			status = "Created";
-			
+            ProcessInstanceWithVariables processInstance = runtimeService.createProcessInstanceByKey("ImmediateCSRProcessing").setVariables(variables).executeWithVariablesInReturn();
+            LOG.info("ProcessInstance: {}", processInstance.getId());
+
+            certificateId = processInstance.getVariables().get("certificateId").toString();
+            status = processInstance.getVariables().get("status").toString();
+            failureReason = processInstance.getVariables().get("failureReason").toString();
+
 		} catch (GeneralSecurityException | IOException e) {
 			failureReason = e.getLocalizedMessage();
 			LOG.warn("execution of CSRProcessingTask failed ", e);
 		}
 
-		// end of BPMN fake
+		// end of BPMN call
 		
 		if ("Created".equals(status)) {
 
@@ -453,6 +467,7 @@ public class OrderController extends ACMEController {
 				certUtil.addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ACME_ACCOUNT_ID, orderDao.getAccount().getAccountId());
 				certUtil.addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ACME_ORDER_ID, orderDao.getOrderId());
 			} else {
+				orderDao.setStatus(OrderStatus.Invalid);
 				LOG.warn("creation of certificate by ACME order {} failed with reason '{}' ", orderDao.getOrderId(), failureReason);
 			}
 
@@ -461,6 +476,7 @@ public class OrderController extends ACMEController {
 		}
 		return null;
 	}
+
 
 	private Certificate createCertificate(CSR csr ,
 			CAConnectorConfig caConfig ) throws GeneralSecurityException  {
@@ -516,7 +532,6 @@ public class OrderController extends ACMEController {
             	LOG.debug( "ExtensionRequest / asn1Enc2 is a " + asn1Enc2.getClass().getName());
 
                 DERSequence derSeq2 = (DERSequence) asn1Enc2;
-                int seq2Size = derSeq2.size();
                 LOG.debug( "ExtensionRequest / DERSequence2 has " + derSeq2.size() + " elements");
                 LOG.debug( "ExtensionRequest / DERSequence2[0] is a " + derSeq2.getObjectAt(0).getClass().getName());
 

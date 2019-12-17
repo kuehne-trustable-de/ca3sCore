@@ -1,10 +1,17 @@
 package de.trustable.ca3s.core;
 
-import de.trustable.ca3s.core.config.ApplicationProperties;
-import de.trustable.ca3s.core.config.DefaultProfileUtil;
-import de.trustable.ca3s.core.security.provider.Ca3sProvider;
-import de.trustable.util.JCAManager;
-import io.github.jhipster.config.JHipsterConstants;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
+import java.security.Security;
+import java.util.Arrays;
+import java.util.Collection;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -14,13 +21,18 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.embedded.undertow.UndertowBuilderCustomizer;
+import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.security.Security;
-import java.util.Arrays;
-import java.util.Collection;
+import de.trustable.ca3s.core.config.ApplicationProperties;
+import de.trustable.ca3s.core.config.DefaultProfileUtil;
+import de.trustable.ca3s.core.security.provider.Ca3sKeyManagerProvider;
+import de.trustable.ca3s.core.security.provider.Ca3sKeyStoreProvider;
+import de.trustable.util.JCAManager;
+import io.github.jhipster.config.JHipsterConstants;
+import io.undertow.Undertow;
 
 @SpringBootApplication
 @EnableConfigurationProperties({LiquibaseProperties.class, ApplicationProperties.class})
@@ -28,6 +40,8 @@ public class Ca3SJhApp implements InitializingBean {
 
     private static final Logger log = LoggerFactory.getLogger(Ca3SJhApp.class);
 
+    static final Ca3sKeyStoreProvider ca3sKeyStoreProvider = new Ca3sKeyStoreProvider();
+    
     private final Environment env;
 
     public Ca3SJhApp(Environment env) {
@@ -62,7 +76,9 @@ public class Ca3SJhApp implements InitializingBean {
     public static void main(String[] args) {
     	
 		JCAManager.getInstance();
-    	Security.addProvider( new Ca3sProvider());
+    	Security.addProvider(ca3sKeyStoreProvider);
+    	Security.addProvider( new Ca3sKeyManagerProvider());
+ //   	Security.setProperty("ssl.KeyManagerFactory.algorithm", Ca3sKeyManagerProvider.SERVICE_NAME);
 
         SpringApplication app = new SpringApplication(Ca3SJhApp.class);
         DefaultProfileUtil.addDefaultProfile(app);
@@ -100,5 +116,43 @@ public class Ca3SJhApp implements InitializingBean {
             serverPort,
             contextPath,
             env.getActiveProfiles());
+    }
+    
+    
+    @Bean
+    public UndertowServletWebServerFactory embeddedServletContainerFactory() {
+        UndertowServletWebServerFactory factory = new UndertowServletWebServerFactory();
+        
+        factory.addBuilderCustomizers(new UndertowBuilderCustomizer() {
+        	
+            @Override
+            public void customize(Undertow.Builder builder) {
+
+        		int port = 8443;
+        		
+            	try {
+	                KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(Ca3sKeyManagerProvider.SERVICE_NAME);
+	                
+	                KeyStore ks = KeyStore.getInstance("ca3s");
+	                ks.load(null, null);
+	                
+	                keyManagerFactory.init(ks, "password".toCharArray());
+	                KeyManager[] keyManagers = keyManagerFactory.getKeyManagers();
+	
+	                SSLContext sslContext;
+	                sslContext = SSLContext.getInstance("TLS");
+	                sslContext.init(keyManagers, null, null);
+	
+	                builder.addHttpsListener(port, null, sslContext);
+	//                builder.setSocketOption(Options.SSL_CLIENT_AUTH_MODE, SslClientAuthMode.REQUESTED);
+	                
+	            	log.debug("adding listen port {} programmatically", port);
+	                
+            	} catch(GeneralSecurityException | IOException gse) {
+                	log.error("problem configuring HTTPS port " + port, gse);
+            	}
+            }
+        });
+        return factory;
     }
 }

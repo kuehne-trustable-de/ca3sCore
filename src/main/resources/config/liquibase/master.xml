@@ -11,9 +11,12 @@
     <property name="floatType" value="float" dbms="mysql, oracle, mssql, mariadb"/>
     <property name="clobType" value="clob" dbms="h2"/>
     <property name="clobType" value="clob" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
+    <property name="blobType" value="blob" dbms="h2"/>
+    <property name="blobType" value="blob" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
     <property name="uuidType" value="varchar(36)" dbms="h2, mysql, mariadb"/>
 
     <include file="config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
+    
     <include file="config/liquibase/changelog/20191125000325_added_entity_CAConnectorConfig.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20191125000326_added_entity_CertificateAttribute.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20191125000327_added_entity_Certificate.xml" relativeToChangelogFile="false"/>
@@ -44,4 +47,7 @@
     <include file="config/liquibase/changelog/20191125000338_added_entity_constraints_Authorization.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20191125000339_added_entity_constraints_AcmeChallenge.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
+    
+    <include file="config/liquibase/changelog/setupCamundaTables.xml" relativeToChangelogFile="false"/>
+    
 </databaseChangeLog>
