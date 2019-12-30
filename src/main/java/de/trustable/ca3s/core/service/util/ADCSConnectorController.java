@@ -66,6 +66,7 @@ import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
+import de.trustable.ca3s.core.security.provider.Ca3sTrustManager;
 import io.swagger.client.ApiException;
 
 @Service
@@ -96,7 +97,7 @@ public class ADCSConnectorController {
 
 	}
 
-	ADCSWinNativeConnector getConnector(CAConnectorConfig adcsDao) {
+	ADCSWinNativeConnector getConnector(CAConnectorConfig adcsDao) throws ACDSProxyUnavailableException {
 		
 		LOGGER.info("connector '"+adcsDao.getName()+"', Url configured as '" + adcsDao.getCaUrl() + "'");
 		if( "inProcess".equalsIgnoreCase(adcsDao.getCaUrl()) ) {
@@ -128,6 +129,7 @@ public class ADCSConnectorController {
 				return adcsConnector;
 			} catch (ACDSProxyUnavailableException pue) {
 				LOGGER.info("info call for ADCS proxy did not succeeded! Trying later ...");
+				throw pue;
 			} catch (ACDSException | GeneralSecurityException e) {
 				LOGGER.warn("info call failed", e);
 			}

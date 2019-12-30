@@ -1,4 +1,4 @@
-package de.trustable.ca3s.core.service.util;
+package de.trustable.ca3s.core.security.provider;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.repository.CertificateRepository;
+import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.ca3s.core.service.util.CryptoService;
 
 
 

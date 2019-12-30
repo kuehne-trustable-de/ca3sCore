@@ -235,6 +235,7 @@ entity AcmeChallenge {
 
 // @GenericGenerator(name="RandomGenerator.generatorName", strategy="de.trustable.ca3s.acme.server.entity.RandomGenerator")
 // 	@GeneratedValue(generator="RandomGenerator.generatorName")
+
 	challengeId Long required
 
 	type String required
@@ -305,18 +306,17 @@ relationship ManyToOne {
 	AcmeOrder{csr} to CSR,
 
 	AcmeOrder{certificate} to Certificate
+//	AcmeOrder{account} to ACMEAccount
 
-#	AcmeOrder{account} to ACMEAccount
+//	AcmeChallenge{authorization} to Authorization 
 
-#	AcmeChallenge{authorization} to Authorization 
-
-#	Authorization{order} to AcmeOrder
+//	Authorization{order} to AcmeOrder
 
     RequestAttribute{holdingRequestAttribute} to RequestAttributeValue
 
-#    RequestAttribute{csr} to CSR
+//    RequestAttribute{csr} to CSR
 
-#    CsrAttribute{csr} to CSR
+//    CsrAttribute{csr} to CSR
 
   	Certificate{issuingCertificate} to Certificate
 

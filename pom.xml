@@ -89,8 +89,8 @@
         <junit.itReportFolder>${project.testresult.directory}/integrationTest</junit.itReportFolder>
         <!-- jhipster-needle-maven-property -->
         
-        <cryptoUtilVersion>1.0.3</cryptoUtilVersion>
-        <certBundleVersion>0.0.3-SNAPSHOT</certBundleVersion>
+        <cryptoUtilVersion>1.0.5</cryptoUtilVersion>
+        <certBundleVersion>0.0.4-SNAPSHOT</certBundleVersion>
     	<nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
     	<jasyptVersion>1.9.3</jasyptVersion>
     	<adcsUtilVersion>1.0.1</adcsUtilVersion>

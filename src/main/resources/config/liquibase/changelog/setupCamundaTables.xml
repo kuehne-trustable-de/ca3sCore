@@ -2077,8 +2077,8 @@
     </changeSet>
     <changeSet author="kuehn (generated)" id="1576103603001-255">
         <createIndex indexName="ACT_IDX_JOB_HANDLER" tableName="ACT_RU_JOB">
-            <column name="HANDLER_TYPE_(100)"/>
-            <column name="HANDLER_CFG_(155)"/>
+            <column name="HANDLER_TYPE_${limitedIndexLength}"/>
+            <column name="HANDLER_CFG_${limitedIndexLength}"/>
         </createIndex>
     </changeSet>
     <changeSet author="kuehn (generated)" id="1576103603001-256">

@@ -25,7 +25,7 @@ import de.trustable.ca3s.core.service.util.ADCSConnectorController;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public class CertificateImportScheduler {
 
-	transient Logger LOG = LoggerFactory.getLogger(CertificateImportScheduler.class);
+	transient Logger LOG = LoggerFactory.getLogger(CertBundleScheduler.class);
 
 	@Autowired
 	CAConnectorConfigRepository caConfigRepo;
@@ -45,6 +45,7 @@ public class CertificateImportScheduler {
 				CAConnectorType conType = caConfigDao.getCaConnectorType();
 				if (CAConnectorType.Adcs.equals(conType)) {
 					if (caConfigDao.isActive()) {
+						
 						try {
 
 							int nNewCerts = adcsController.retrieveCertificates(caConfigDao);

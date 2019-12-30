@@ -26,8 +26,10 @@ import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFa
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 
+import de.trustable.ca3s.cert.bundle.TimedRenewalCertMap;
 import de.trustable.ca3s.core.config.ApplicationProperties;
 import de.trustable.ca3s.core.config.DefaultProfileUtil;
+import de.trustable.ca3s.core.security.provider.Ca3sFallbackBundleFactory;
 import de.trustable.ca3s.core.security.provider.Ca3sKeyManagerProvider;
 import de.trustable.ca3s.core.security.provider.Ca3sKeyStoreProvider;
 import de.trustable.util.JCAManager;
@@ -40,8 +42,8 @@ public class Ca3SJhApp implements InitializingBean {
 
     private static final Logger log = LoggerFactory.getLogger(Ca3SJhApp.class);
 
-    static final Ca3sKeyStoreProvider ca3sKeyStoreProvider = new Ca3sKeyStoreProvider();
-    
+	static TimedRenewalCertMap certMap;
+
     private final Environment env;
 
     public Ca3SJhApp(Environment env) {
@@ -76,10 +78,13 @@ public class Ca3SJhApp implements InitializingBean {
     public static void main(String[] args) {
     	
 		JCAManager.getInstance();
-    	Security.addProvider(ca3sKeyStoreProvider);
-    	Security.addProvider( new Ca3sKeyManagerProvider());
- //   	Security.setProperty("ssl.KeyManagerFactory.algorithm", Ca3sKeyManagerProvider.SERVICE_NAME);
 
+		certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory());
+
+		Security.addProvider(new Ca3sKeyStoreProvider(certMap, "ca3s"));
+    	Security.addProvider(new Ca3sKeyManagerProvider(certMap));
+
+		
         SpringApplication app = new SpringApplication(Ca3SJhApp.class);
         DefaultProfileUtil.addDefaultProfile(app);
         Environment env = app.run(args).getEnvironment();
@@ -128,11 +133,13 @@ public class Ca3SJhApp implements InitializingBean {
             @Override
             public void customize(Undertow.Builder builder) {
 
-        		int port = 8443;
+        		int port = 8442;
         		
             	try {
 	                KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(Ca3sKeyManagerProvider.SERVICE_NAME);
 	                
+	                
+//                  KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
 	                KeyStore ks = KeyStore.getInstance("ca3s");
 	                ks.load(null, null);
 	                
@@ -153,6 +160,12 @@ public class Ca3SJhApp implements InitializingBean {
             	}
             }
         });
+        
         return factory;
+    }
+
+    @Bean
+    public TimedRenewalCertMap timedRenewalCertMap() {
+    	return certMap;
     }
 }

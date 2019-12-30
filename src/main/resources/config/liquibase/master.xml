@@ -13,6 +13,8 @@
     <property name="clobType" value="clob" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
     <property name="blobType" value="blob" dbms="h2"/>
     <property name="blobType" value="blob" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
+    <property name="limitedIndexLength" value="" dbms="h2"/>
+    <property name="limitedIndexLength" value="(100)" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
     <property name="uuidType" value="varchar(36)" dbms="h2, mysql, mariadb"/>
 
     <include file="config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>

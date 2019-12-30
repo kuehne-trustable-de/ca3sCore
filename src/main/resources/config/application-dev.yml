@@ -25,7 +25,7 @@ spring:
     include:
       - swagger
       # (Un)comment to activate TLS for the dev profile
-      - tls
+      # - tls
   devtools:
     restart:
       enabled: true
@@ -37,7 +37,6 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:h2:file:./target/h2db/db/ca3s_jh;DB_CLOSE_DELAY=-1
-#    url: jdbc:mysql://localhost:3306/ca3s_jh_dev?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC
     username: root
     password:
     hikari:
@@ -49,8 +48,8 @@ spring:
         prepStmtCacheSqlLimit: 2048
         useServerPrepStmts: true
   jpa:
-    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
-    database: MYSQL
+    database-platform: io.github.jhipster.domain.util.FixedH2Dialect
+    database: H2
     show-sql: true
     properties:
       hibernate.id.new_generator_mappings: true
@@ -72,7 +71,8 @@ spring:
     cache: false
 
 server:
-  port: 8090
+  port: 8080
+
 
 # ===================================================================
 # JHipster specific properties

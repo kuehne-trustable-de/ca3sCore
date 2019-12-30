@@ -46,7 +46,6 @@ import de.trustable.ca3s.core.service.dto.acme.OrderResponse;
 import de.trustable.ca3s.core.service.dto.acme.RevokeRequest;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
-import de.trustable.ca3s.core.web.rest.acme.ACMEController;
 
 
 @Service

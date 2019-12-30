@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.trustable.ca3s.cert.bundle.KeyStoreImpl;
+import de.trustable.ca3s.cert.bundle.TimedRenewalCertMap;
 
 public class Ca3sKeyStoreProvider extends Provider {
 
@@ -20,11 +21,14 @@ public class Ca3sKeyStoreProvider extends Provider {
 
     private static final Logger LOG = LoggerFactory.getLogger(Ca3sKeyStoreProvider.class);
 
-    private static final KeyStoreImpl keystoreImpl = new KeyStoreImpl(new Ca3sBundleFactory());
+    private static KeyStoreImpl keystoreImpl;
 
-	public Ca3sKeyStoreProvider() {
+	public Ca3sKeyStoreProvider(final TimedRenewalCertMap certMap, final String alias) {
 		super("Ca3sKeyStoreProvider", 1.0, "Certificate provider implemented by ca3s");
 		
+		keystoreImpl = new KeyStoreImpl(certMap, alias);
+		keystoreImpl.engineGetCertificate(alias);
+
 //		super.put("Keystore.ca3s", KeyStoreImpl.class.getName());
 //		super.put("Keystore.ca3s storetype", SERVICE_NAME);
 
@@ -59,7 +63,7 @@ public class Ca3sKeyStoreProvider extends Provider {
 					if( SERVICE_NAME.equalsIgnoreCase(algo)) {
 						LOG.debug("creating KeyStoreImpl with a Ca3sBundleFactory instance for type '{}' / algo '{}'", type, algo);
 
-						keystoreImpl.engineGetCertificate("ca3s_https");
+//						keystoreImpl.engineGetCertificate("ca3s_https");
 						return keystoreImpl;
 					}
 				}

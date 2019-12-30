@@ -6,6 +6,7 @@ import java.security.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.trustable.ca3s.cert.bundle.TimedRenewalCertMap;
 import de.trustable.ca3s.cert.bundle.TimedRenewalKeyManagerFactorySpi;
 
 public class Ca3sKeyManagerProvider extends Provider {
@@ -20,8 +21,13 @@ public class Ca3sKeyManagerProvider extends Provider {
 
     private static final Logger LOG = LoggerFactory.getLogger(Ca3sKeyManagerProvider.class);
 
-	public Ca3sKeyManagerProvider() {
+    
+	private static TimedRenewalCertMap certMap;
+
+	public Ca3sKeyManagerProvider(final TimedRenewalCertMap certMap) {
 		super("Ca3sKeyManagerProvider", 1.0, "Key management provider implemented by ca3s");
+		
+		Ca3sKeyManagerProvider.certMap = certMap;
 		
 //		super.put("Keystore.ca3s", KeyStoreImpl.class.getName());
 //		super.put("Keystore.ca3s storetype", SERVICE_NAME);
@@ -51,7 +57,7 @@ public class Ca3sKeyManagerProvider extends Provider {
 				if( PROVIDER_TYPE_KEYMANAGER.equalsIgnoreCase(type)) {
 					if( SERVICE_NAME.equalsIgnoreCase(algo)) {
 						LOG.debug("creating KeyStoreImpl with a Ca3sBundleFactory instance for type '{}' / algo '{}'", type, algo);
-						TimedRenewalKeyManagerFactorySpi keyManfac =  new TimedRenewalKeyManagerFactorySpi(SERVICE_NAME, new Ca3sBundleFactory());
+						TimedRenewalKeyManagerFactorySpi keyManfac = new TimedRenewalKeyManagerFactorySpi(SERVICE_NAME, certMap);
 						return keyManfac;
 					}
 				}
