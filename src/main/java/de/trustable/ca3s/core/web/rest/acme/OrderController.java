@@ -37,11 +37,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.GeneralSecurityException;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import org.bouncycastle.asn1.ASN1Encodable;
@@ -57,8 +54,6 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
-import org.camunda.bpm.engine.RuntimeService;
-import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
 import org.jose4j.base64url.Base64Url;
 import org.jose4j.jwt.consumer.JwtContext;
 import org.slf4j.Logger;
@@ -77,23 +72,19 @@ import de.trustable.ca3s.core.domain.ACMEAccount;
 import de.trustable.ca3s.core.domain.AcmeChallenge;
 import de.trustable.ca3s.core.domain.AcmeOrder;
 import de.trustable.ca3s.core.domain.Authorization;
-import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
-import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
 import de.trustable.ca3s.core.domain.enumeration.OrderStatus;
 import de.trustable.ca3s.core.repository.AcmeOrderRepository;
-import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.CSRRepository;
-import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.service.dto.acme.FinalizeRequest;
 import de.trustable.ca3s.core.service.dto.acme.OrderResponse;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.ACMEUtil;
-import de.trustable.ca3s.core.service.util.ADCSConnectorController;
+import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.JwtUtil;
 import de.trustable.util.CryptoUtil;
@@ -111,21 +102,12 @@ public class OrderController extends ACMEController {
     @Autowired
     private AcmeOrderRepository orderRepository;
 
-  	@Autowired
-  	private CertificateRepository certificateRepository;
-
     @Autowired
     private CSRRepository csrRepository;
 
-//    @Autowired
-//    ProcessHandler processHandler;
-    
 	@Autowired
-	private CAConnectorConfigRepository caccRepo;
-
-	@Autowired
-	private ADCSConnectorController adcsController;
-
+	private BPMNUtil bpmnUtil;
+	
     @Autowired
     private JwtUtil jwtUtil;
 
@@ -253,10 +235,10 @@ public class OrderController extends ACMEController {
   			 * check the order status:
   			 * only 'pending' and 'processing' status of not-yet-expired orders need to be considered
   			 */
-  			if( (orderDao.getStatus() == OrderStatus.Pending) || (orderDao.getStatus() == OrderStatus.Processing )) {
+  			if( (orderDao.getStatus() == OrderStatus.PENDING) || (orderDao.getStatus() == OrderStatus.PROCESSING )) {
   				if( orderDao.getExpires().isBefore(LocalDate.now()) ) {
 					LOG.debug("pending order {} expired on ", orderDao.getOrderId(), orderDao.getExpires().toString());
-  			  	  	orderDao.setStatus(OrderStatus.Invalid);
+  			  	  	orderDao.setStatus(OrderStatus.INVALID);
 				} else {
 					
 					for(String san: snSet) {
@@ -282,7 +264,7 @@ public class OrderController extends ACMEController {
 
 						boolean authReady = false;
 						for (AcmeChallenge challDao : authDao.getChallenges()) {
-							if (challDao.getStatus() == ChallengeStatus.Valid) {
+							if (challDao.getStatus() == ChallengeStatus.VALID) {
 								LOG.debug("challenge {} of type {} is valid ", challDao.getChallengeId(), challDao.getType());
 								authReady = true;
 								break;
@@ -300,7 +282,7 @@ public class OrderController extends ACMEController {
 
 					if (orderReady) {
 						LOG.debug("order status {} changes to ready for order {}", orderDao.getStatus(), orderDao.getOrderId());
-						orderDao.setStatus(OrderStatus.Ready);
+						orderDao.setStatus(OrderStatus.READY);
 						
 					  	LOG.debug("order {} status 'ready', producing certificate", orderDao.getOrderId());
 				  	  	startCertificateCreationProcess(orderDao, CryptoUtil.pkcs10RequestToPem( p10Holder.getP10Req()));
@@ -315,7 +297,7 @@ public class OrderController extends ACMEController {
 			}
 
 			// certificate creation only on status 'Ready' and no certificate created, yet
-  	  		if((orderDao.getStatus() == OrderStatus.Ready) && (orderDao.getCertificate() == null)){
+  	  		if((orderDao.getStatus() == OrderStatus.READY) && (orderDao.getCertificate() == null)){
 			  	LOG.debug("order {} status 'ready', producing certificate", orderDao.getOrderId());
 
 /*			  	
@@ -386,10 +368,6 @@ public class OrderController extends ACMEController {
 	}
 
     
-    // The Camunda Engine
-    private RuntimeService runtimeService;
-
-
     /**
      * 
      * @param orderDao
@@ -398,30 +376,7 @@ public class OrderController extends ACMEController {
      */
 	private Certificate startCertificateCreationProcess(AcmeOrder orderDao, final String csrAsPem)  {
 		
-		orderDao.setStatus(OrderStatus.Processing);
-
-/*		
-		ProcessDefinitionData pdd = processHandler.getProcessDefinitionDataByKey("ImmediateCertificateRequest");
-		StartFormDataVO sfdVO = processHandler.getFormData(pdd.getId());
-		for (FormPropertyVO formPropertyVO : sfdVO.getListFormProperty()) {
-			if ("csr".equalsIgnoreCase(formPropertyVO.getName())) {
-				formPropertyVO.setValue(csrAsPem);
-			}
-		}
-		
-		ProcessInstance pi = processHandler.startProcessInstance(sfdVO);
-
-		java.util.Map<String, Object> procVars = pi.getProcessVariables();
-*/
-
-//		String status = (String) procVars.get("status");
-//		String certificateId = "" + procVars.get("certificateId");
-//		String failureReason = (String) procVars.get("failureReason");
-		String status = "Failed";
-		String certificateId = "";
-		String failureReason = "";
-
-		CAConnectorConfig caConfig = caccRepo.findDefaultCA().get(0);
+		orderDao.setStatus(OrderStatus.PROCESSING);
 		
 		// BPNM call
 		try {
@@ -430,54 +385,33 @@ public class OrderController extends ACMEController {
 			CSR csr = certUtil.createCSR(csrAsPem, p10ReqHolder, "1");
 			csrRepository.save(csr);
 
-			Map<String, Object> variables = new HashMap<String,Object>();
-			variables.put("csrId", csr.getId());
-			variables.put("caConfigId", caConfig.getId());
-			variables.put("status", "Failed");
-			variables.put("certificateId", certificateId);
-			variables.put("failureReason", failureReason);
-			
-            ProcessInstanceWithVariables processInstance = runtimeService.createProcessInstanceByKey("ImmediateCSRProcessing").setVariables(variables).executeWithVariablesInReturn();
-            LOG.info("ProcessInstance: {}", processInstance.getId());
-
-            certificateId = processInstance.getVariables().get("certificateId").toString();
-            status = processInstance.getVariables().get("status").toString();
-            failureReason = processInstance.getVariables().get("failureReason").toString();
-
-		} catch (GeneralSecurityException | IOException e) {
-			failureReason = e.getLocalizedMessage();
-			LOG.warn("execution of CSRProcessingTask failed ", e);
-		}
-
-		// end of BPMN call
-		
-		if ("Created".equals(status)) {
-
-			LOG.debug("new certificate id {} created by ACME order {}", certificateId, orderDao.getOrderId());
-
-			Optional<Certificate> certOpt = certificateRepository.findById(Long.parseLong(certificateId));
-			if (certOpt.isPresent()) {
-				Certificate cert = certOpt.get();
-				
+			Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
+			if(cert != null) {
 				LOG.debug("updating order id {} with new certificate id {}", orderDao.getOrderId(), cert.getId());
 				orderDao.setCertificate(cert);
-				orderDao.setStatus(OrderStatus.Ready);
+				orderDao.setStatus(OrderStatus.READY);
 				
 				LOG.debug("adding certificate attribute 'ACME_ACCOUNT_ID' {} for certificate id {}", orderDao.getAccount().getAccountId(), cert.getId());
 				certUtil.addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ACME_ACCOUNT_ID, orderDao.getAccount().getAccountId());
 				certUtil.addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ACME_ORDER_ID, orderDao.getOrderId());
+				
+				return cert;
+				
 			} else {
-				orderDao.setStatus(OrderStatus.Invalid);
-				LOG.warn("creation of certificate by ACME order {} failed with reason '{}' ", orderDao.getOrderId(), failureReason);
+				orderDao.setStatus(OrderStatus.INVALID);
+				LOG.warn("creation of certificate by ACME order {} failed ", orderDao.getOrderId());
 			}
 
-		} else {
-			LOG.warn("creation of certificate by ACME order {} failed with reason '{}' ", orderDao.getOrderId(), failureReason);
+			// end of BPMN call
+
+		} catch (GeneralSecurityException | IOException e) {
+			LOG.warn("execution of CSRProcessingTask failed ", e);
 		}
+
 		return null;
 	}
 
-
+/*
 	private Certificate createCertificate(CSR csr ,
 			CAConnectorConfig caConfig ) throws GeneralSecurityException  {
 
@@ -502,7 +436,8 @@ public class OrderController extends ACMEController {
 			throw new GeneralSecurityException("unexpected ca connector type '" + caConfig.getCaConnectorType() + "' !");
 		}
 	}
-
+*/
+	
     private String getASN1ValueAsString(Attribute attr) {
         return  getASN1ValueAsString(attr.getAttrValues().toArray());
     }

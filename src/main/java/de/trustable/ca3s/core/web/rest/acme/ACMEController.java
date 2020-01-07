@@ -209,7 +209,7 @@ public class ACMEController {
 		}
 		
 		// don't allow to activate the account by a remote call
-		if( AccountStatus.Deactivated.equals( updatedAcct.getStatus() ) || AccountStatus.Revoked.equals( updatedAcct.getStatus() ) ) {
+		if( AccountStatus.DEACTIVATED.equals( updatedAcct.getStatus() ) || AccountStatus.REVOKED.equals( updatedAcct.getStatus() ) ) {
 			acctDao.setStatus(updatedAcct.getStatus());
 		}else {
 			LOG.info("Unexpected transition of AccountStatus to '{}' requested", updatedAcct.getStatus());
@@ -265,7 +265,7 @@ public class ACMEController {
 				throw new AcmeProblemException(problem);
 			}
 			
-			if( AccountStatus.Deactivated.equals( acctDao.getStatus())){
+			if( AccountStatus.DEACTIVATED.equals( acctDao.getStatus())){
 				LOG.warn("Account {} is deactivated", acctDao.getAccountId());
 				final ProblemDetail problem = new ProblemDetail(ACMEUtil.ACCOUNT_DEACTIVATED, "Account deactivated",
 						BAD_REQUEST, "", ACMEController.NO_INSTANCE);
@@ -295,6 +295,7 @@ public class ACMEController {
 		String reqNonce = jwtUtil.getNonce(webStruct);
 	    List<Nonce> nonceList = nonceRepository.findByNonceValue(reqNonce);
 	    if( nonceList.isEmpty()) {
+			LOG.debug("Nonce {} not found in database", reqNonce);
 	        final ProblemDetail problem = new ProblemDetail(ACMEUtil.BAD_NONCE, "Nonce not known.",
 	                BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
 	    	throw new AcmeProblemException(problem);

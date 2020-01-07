@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
  * The CsrStatus enumeration.
  */
 public enum CsrStatus {
-    Processing, Issued, Rejected, Pending;
+    PROCESSING, ISSUED, REJECTED, PENDING;
 	
 	private static final Logger LOG = LoggerFactory.getLogger(CsrStatus.class);
 

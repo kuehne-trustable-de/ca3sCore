@@ -41,8 +41,8 @@ public class AcmeOrderResourceIT {
     private static final Long UPDATED_ORDER_ID = 2L;
     private static final Long SMALLER_ORDER_ID = 1L - 1L;
 
-    private static final OrderStatus DEFAULT_STATUS = OrderStatus.Pending;
-    private static final OrderStatus UPDATED_STATUS = OrderStatus.Ready;
+    private static final OrderStatus DEFAULT_STATUS = OrderStatus.PENDING;
+    private static final OrderStatus UPDATED_STATUS = OrderStatus.READY;
 
     private static final LocalDate DEFAULT_EXPIRES = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_EXPIRES = LocalDate.now(ZoneId.systemDefault());

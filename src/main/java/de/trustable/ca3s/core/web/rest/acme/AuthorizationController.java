@@ -166,10 +166,10 @@ private AuthorizationResponse buildAuthResponse(final Authorization authDao) thr
 	AcmeOrder order = authDao.getOrder();
 	authResp.setExpires(DateUtil.asDate( order.getExpires()));
 	
-	OrderStatus authStatus = OrderStatus.Pending;
+	OrderStatus authStatus = OrderStatus.PENDING;
 	for( AcmeChallenge challDao: authDao.getChallenges()) {
-		if( challDao.getStatus() == ChallengeStatus.Valid) {
-			authStatus = OrderStatus.Valid;
+		if( challDao.getStatus() == ChallengeStatus.VALID) {
+			authStatus = OrderStatus.VALID;
 		}
 	}
 	authResp.setStatus(authStatus);

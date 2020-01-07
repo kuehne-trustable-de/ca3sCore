@@ -12,7 +12,7 @@ entity CAConnectorConfig{
 }
 
 enum CAConnectorType {
-    Internal, Cmp, Adcs
+    INTERNAL, CMP, ADCS
 }
 
 entity CertificateAttribute {
@@ -47,7 +47,7 @@ entity Certificate {
 }
 
 enum CsrStatus {
-    Processing, Issued, Rejected, Pending
+    PROCESSING, ISSUED, REJECTED, PENDING
 }
 
 entity CSR{
@@ -110,13 +110,32 @@ entity RequestAttributeValue{
 
 }
 
+enum PipelineType {
+    ACME, SCEP, WEB
+}
+
+entity Pipeline{
+
+  	name String required
+  	type PipelineType required
+  	urlPart String required
+}
+
+entity PipelineAttribute{
+	
+  	name String required
+  	value String required
+}
+
+
+
 //  status (required, string):  The status of this account.  Possible
 //  values are: "valid", "deactivated", and "revoked".  The value
 //  "deactivated" should be used to indicate client-initiated
 //  deactivation whereas "revoked" should be used to indicate server-
 //  initiated deactivation.  (See Section 7.1.6)
 enum AccountStatus {
-    Valid, Deactivated, Revoked
+    VALID, DEACTIVATED, REVOKED
 }
 
 
@@ -126,7 +145,6 @@ entity ACMEAccount {
 //	@GenericGenerator(name="RandomGenerator.generatorName", strategy="de.trustable.ca3s.acme.server.entity.RandomGenerator")
 //	@GeneratedValue(generator="RandomGenerator.generatorName")
   	accountId Long required
-  	
   	realm String required
 	status AccountStatus
     
@@ -135,11 +153,8 @@ entity ACMEAccount {
 //  agreement with the terms of service.  This field is not updateable
 //  by the client.
 	termsOfServiceAgreed Boolean required
-
 	publicKeyHash String required
-
   	publicKey TextBlob required
-
 }
 
 
@@ -155,7 +170,7 @@ entity AcmeContact {
 // The status of this order. Possible values are:
 // "pending", "ready", "processing", "valid", and "invalid". (See Section 7.1.6)
 enum OrderStatus {
-    Pending, Ready, Processing, Valid, Invalid
+    PENDING, READY, PROCESSING, VALID, INVALID
 }
 
 entity AcmeOrder{
@@ -228,7 +243,7 @@ entity Authorization {
 
 enum ChallengeStatus {
 
-	Pending, Valid, Invalid, Deactivated, Expired, Revoked
+	PENDING, VALID, INVALID, DEACTIVATED, EXPIRED, REVOKED
 }
 
 entity AcmeChallenge {
@@ -268,6 +283,9 @@ relationship OneToMany {
 
 	RequestAttribute{requestAttributeValues} to RequestAttributeValue{reqAttr}
 
+	CSR{pipeline} to Pipeline{csr}
+
+	Pipeline{pipelineAttributes} to PipelineAttribute
 
 //  contact (optional, array of string):  An array of URLs that the
 //  server can use to contact the client for issues related to this

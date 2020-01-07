@@ -336,7 +336,7 @@ public class NewOrderController extends ACMEController {
 		
 		orderDao.setAccount(acctDao);
 		
-		orderDao.setStatus(OrderStatus.Pending);
+		orderDao.setStatus(OrderStatus.PENDING);
 
 		LocalDate now = LocalDate.now();
 		orderDao.setExpires(now.plusDays(DEFAULT_ORDER_VALID_DAYS));
@@ -379,7 +379,7 @@ public class NewOrderController extends ACMEController {
 			challengeDao.setType( "http-01");
 			challengeDao.setValue(identDao.getValue());
 			challengeDao.setToken( getNewChallenge());
-			challengeDao.setStatus(ChallengeStatus.Pending);
+			challengeDao.setStatus(ChallengeStatus.PENDING);
 			challengeRepository.save(challengeDao);
 			
 			authorizationDao.setChallenges(challenges);

@@ -10,6 +10,7 @@ import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyStore;
+import java.security.Security;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.time.Instant;
@@ -43,8 +44,13 @@ import org.takes.facets.fork.TkFork;
 import org.takes.http.Exit;
 import org.takes.http.FtBasic;
 
+import de.trustable.ca3s.cert.bundle.TimedRenewalCertMap;
 import de.trustable.ca3s.core.Ca3SJhApp;
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
+import de.trustable.ca3s.core.security.provider.Ca3sFallbackBundleFactory;
+import de.trustable.ca3s.core.security.provider.Ca3sKeyManagerProvider;
+import de.trustable.ca3s.core.security.provider.Ca3sKeyStoreProvider;
+import de.trustable.ca3s.core.security.provider.TimedRenewalCertMapHolder;
 import de.trustable.util.JCAManager;
 
 
@@ -62,7 +68,13 @@ public class ACMEHappyPathTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		
 		JCAManager.getInstance();
+		
+		TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory());
+		Security.addProvider(new Ca3sKeyStoreProvider(certMap, "ca3s"));
+    	Security.addProvider(new Ca3sKeyManagerProvider(certMap));
+    	new TimedRenewalCertMapHolder().setCertMap(certMap);
 	}
 
 	
@@ -123,7 +135,7 @@ public class ACMEHappyPathTest {
 
 		account.deactivate();
 		
-		assertEquals("account status 'deactivated' expected", AccountStatus.Deactivated.toString().toLowerCase(), account.getStatus().toString().toLowerCase() );
+		assertEquals("account status 'deactivated' expected", AccountStatus.DEACTIVATED.toString().toLowerCase(), account.getStatus().toString().toLowerCase() );
 	}
 
 	@Test

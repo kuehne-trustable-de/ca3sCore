@@ -38,8 +38,8 @@ public class CAConnectorConfigResourceIT {
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
     private static final String UPDATED_NAME = "BBBBBBBBBB";
 
-    private static final CAConnectorType DEFAULT_CA_CONNECTOR_TYPE = CAConnectorType.Internal;
-    private static final CAConnectorType UPDATED_CA_CONNECTOR_TYPE = CAConnectorType.Cmp;
+    private static final CAConnectorType DEFAULT_CA_CONNECTOR_TYPE = CAConnectorType.INTERNAL;
+    private static final CAConnectorType UPDATED_CA_CONNECTOR_TYPE = CAConnectorType.CMP;
 
     private static final String DEFAULT_CA_URL = "AAAAAAAAAA";
     private static final String UPDATED_CA_URL = "BBBBBBBBBB";

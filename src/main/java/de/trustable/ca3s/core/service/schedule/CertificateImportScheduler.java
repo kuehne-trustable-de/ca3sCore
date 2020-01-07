@@ -14,7 +14,7 @@ import de.trustable.ca3s.adcsCertUtil.OODBConnectionsACDSException;
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
-import de.trustable.ca3s.core.service.util.ADCSConnectorController;
+import de.trustable.ca3s.core.service.adcs.ADCSConnector;
 
 /**
  * 
@@ -31,7 +31,7 @@ public class CertificateImportScheduler {
 	CAConnectorConfigRepository caConfigRepo;
 
 	@Autowired
-	private ADCSConnectorController adcsController;
+	private ADCSConnector adcsController;
 
 	@Value("${certificate.import.active:true}")
 	private String certificateImportActive;
@@ -43,7 +43,7 @@ public class CertificateImportScheduler {
 			for (CAConnectorConfig caConfigDao : caConfigRepo.findAll()) {
 
 				CAConnectorType conType = caConfigDao.getCaConnectorType();
-				if (CAConnectorType.Adcs.equals(conType)) {
+				if (CAConnectorType.ADCS.equals(conType)) {
 					if (caConfigDao.isActive()) {
 						
 						try {

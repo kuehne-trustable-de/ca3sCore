@@ -54,8 +54,8 @@ public class AcmeChallengeResourceIT {
     private static final LocalDate UPDATED_VALIDATED = LocalDate.now(ZoneId.systemDefault());
     private static final LocalDate SMALLER_VALIDATED = LocalDate.ofEpochDay(-1L);
 
-    private static final ChallengeStatus DEFAULT_STATUS = ChallengeStatus.Pending;
-    private static final ChallengeStatus UPDATED_STATUS = ChallengeStatus.Valid;
+    private static final ChallengeStatus DEFAULT_STATUS = ChallengeStatus.PENDING;
+    private static final ChallengeStatus UPDATED_STATUS = ChallengeStatus.VALID;
 
     @Autowired
     private AcmeChallengeRepository acmeChallengeRepository;

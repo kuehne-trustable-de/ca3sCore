@@ -1,4 +1,3 @@
-
 package de.trustable.ca3s.core.bpmn.task;
 
 import java.util.Date;
@@ -20,7 +19,7 @@ import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.service.util.ADCSConnectorController;
+import de.trustable.ca3s.core.service.adcs.ADCSConnector;
 import de.trustable.ca3s.core.service.util.DateUtil;
 import de.trustable.util.CryptoUtil;
 
@@ -40,7 +39,7 @@ public class CaBackendTask implements JavaDelegate {
 	private CAConnectorConfigRepository caccRepo;
 
 	@Autowired
-	private ADCSConnectorController adcsController;
+	private ADCSConnector adcsController;
 
 //	@Autowired
 //	private CaCmpConnector caCmpConnector;
@@ -74,7 +73,7 @@ public class CaBackendTask implements JavaDelegate {
 			LOGGER.debug("CAConnectorConfig is empty");
 		}
 
-		String caConfigIdStr = (String) execution.getVariable("caConfigId");
+		String caConfigIdStr = execution.getVariable("caConfigId").toString();
 		long caConfigId = Long.parseLong(caConfigIdStr);
 		
 		Optional<CAConnectorConfig> caConnOpt = caccRepo.findById(caConfigId);
@@ -121,7 +120,7 @@ public class CaBackendTask implements JavaDelegate {
 
 			if ("Revoke".equals(action)) {
 
-				String revokeCertIdStr = (String) execution.getVariable("CertificateId");
+				String revokeCertIdStr = execution.getVariable("CertificateId").toString();
 				long certificateId = Long.parseLong(revokeCertIdStr);
 				LOGGER.debug("execution.getVariable('CertificateId') : " + certificateId);
 
@@ -167,7 +166,7 @@ public class CaBackendTask implements JavaDelegate {
 //				String csrBase64 = (String) execution.getVariable("csrId");
 //				LOGGER.debug("execution.getVariable('csr') : {} ", csrBase64);
 
-				String csrIdString = (String) execution.getVariable("csrId");
+				String csrIdString = execution.getVariable("csrId").toString();
 				long csrId = Long.parseLong(csrIdString);
 
 
@@ -203,11 +202,11 @@ public class CaBackendTask implements JavaDelegate {
 			throw new Exception("CA connector not selected !");
 		}
 
-		if (CAConnectorType.Adcs.equals(caConfig.getCaConnectorType())) {
+		if (CAConnectorType.ADCS.equals(caConfig.getCaConnectorType())) {
 			LOGGER.debug("CAConnectorType ADCS at " + caConfig.getCaUrl());
 			return adcsController.signCertificateRequest(csr, caConfig);
 
-		} else if (CAConnectorType.Cmp.equals(caConfig.getCaConnectorType())) {
+		} else if (CAConnectorType.CMP.equals(caConfig.getCaConnectorType())) {
 			LOGGER.debug("CAConnectorType CMP at " + caConfig.getCaUrl());
 			throw new Exception("ca connector type '" + caConfig.getCaConnectorType() + "' not implemented, yet!");
 /*
@@ -227,11 +226,11 @@ public class CaBackendTask implements JavaDelegate {
 			throw new Exception("CA connector not selected !");
 		}
 
-		if (CAConnectorType.Adcs.equals(caConfig.getCaConnectorType())) {
+		if (CAConnectorType.ADCS.equals(caConfig.getCaConnectorType())) {
 			LOGGER.debug("CAConnectorType ADCS at " + caConfig.getCaUrl());
 			adcsController.revokeCertificate(certificateDao, crlReason, revocationDate, caConfig);
 
-		} else if (CAConnectorType.Cmp.equals(caConfig.getCaConnectorType())) {
+		} else if (CAConnectorType.CMP.equals(caConfig.getCaConnectorType())) {
 			LOGGER.debug("CAConnectorType CMP at " + caConfig.getCaUrl());
 
 			throw new Exception("ca connector type '" + caConfig.getCaConnectorType() + "' not implemented, yet!");

@@ -67,11 +67,12 @@ import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
+import de.trustable.ca3s.core.service.adcs.ADCSConnector;
+
 import de.trustable.ca3s.core.service.dto.acme.RevokeRequest;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.ACMEUtil;
-import de.trustable.ca3s.core.service.util.ADCSConnectorController;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 
 @Controller
@@ -89,7 +90,7 @@ public class ACMECertificateController extends ACMEController {
 	private CAConnectorConfigRepository caccRepo;
 
 	@Autowired
-	private ADCSConnectorController adcsController;
+	private ADCSConnector adcsController;
 
 
   	@Autowired
@@ -385,7 +386,7 @@ public class ACMECertificateController extends ACMEController {
 			throw new Exception("CA connector not selected !");
 		}
 
-		if (CAConnectorType.Adcs.equals(caConfig.getCaConnectorType())) {
+		if (CAConnectorType.ADCS.equals(caConfig.getCaConnectorType())) {
 			LOG.debug("CAConnectorType ADCS at " + caConfig.getCaUrl());
 			adcsController.revokeCertificate(certificateDao, crlReason, revocationDate, caConfig);
 

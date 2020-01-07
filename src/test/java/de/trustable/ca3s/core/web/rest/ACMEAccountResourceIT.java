@@ -47,8 +47,8 @@ public class ACMEAccountResourceIT {
     private static final String DEFAULT_REALM = "AAAAAAAAAA";
     private static final String UPDATED_REALM = "BBBBBBBBBB";
 
-    private static final AccountStatus DEFAULT_STATUS = AccountStatus.Valid;
-    private static final AccountStatus UPDATED_STATUS = AccountStatus.Deactivated;
+    private static final AccountStatus DEFAULT_STATUS = AccountStatus.VALID;
+    private static final AccountStatus UPDATED_STATUS = AccountStatus.DEACTIVATED;
 
     private static final Boolean DEFAULT_TERMS_OF_SERVICE_AGREED = false;
     private static final Boolean UPDATED_TERMS_OF_SERVICE_AGREED = true;

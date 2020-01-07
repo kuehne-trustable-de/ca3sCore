@@ -94,7 +94,7 @@ public class ChallengeController extends ACMEController {
 	
 			ChallengeResponse challenge = buildChallengeResponse(challengeDao);
 	
-			if(challengeDao.getStatus() == ChallengeStatus.Valid ) {
+			if(challengeDao.getStatus() == ChallengeStatus.VALID ) {
 				URI authUri = locationUriOfAuthorization(challengeDao.getAuthorization().getAuthorizationId(), fromCurrentRequestUri());
 			    additionalHeaders.set("Link", "<" + authUri.toASCIIString() + ">;rel=\"up\"");
 			    return ok().headers(additionalHeaders).body(challenge);
@@ -139,9 +139,9 @@ public class ChallengeController extends ACMEController {
 				solved = checkChallengeHttp(challengeDao);
 
 				if( solved) {
-					challengeDao.setStatus(ChallengeStatus.Valid);
+					challengeDao.setStatus(ChallengeStatus.VALID);
 				}else {
-					challengeDao.setStatus(ChallengeStatus.Invalid);
+					challengeDao.setStatus(ChallengeStatus.INVALID);
 				}
 				
 //				solved = true;

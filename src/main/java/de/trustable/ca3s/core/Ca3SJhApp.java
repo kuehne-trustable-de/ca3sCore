@@ -32,6 +32,7 @@ import de.trustable.ca3s.core.config.DefaultProfileUtil;
 import de.trustable.ca3s.core.security.provider.Ca3sFallbackBundleFactory;
 import de.trustable.ca3s.core.security.provider.Ca3sKeyManagerProvider;
 import de.trustable.ca3s.core.security.provider.Ca3sKeyStoreProvider;
+import de.trustable.ca3s.core.security.provider.TimedRenewalCertMapHolder;
 import de.trustable.util.JCAManager;
 import io.github.jhipster.config.JHipsterConstants;
 import io.undertow.Undertow;
@@ -42,7 +43,7 @@ public class Ca3SJhApp implements InitializingBean {
 
     private static final Logger log = LoggerFactory.getLogger(Ca3SJhApp.class);
 
-	static TimedRenewalCertMap certMap;
+	public static TimedRenewalCertMap certMap;
 
     private final Environment env;
 
@@ -77,14 +78,15 @@ public class Ca3SJhApp implements InitializingBean {
      */
     public static void main(String[] args) {
     	
+    	System.out.println("####### Starting Ca3SJhApp #######");
+    	
 		JCAManager.getInstance();
 
-		certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory());
-
+		TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory());
 		Security.addProvider(new Ca3sKeyStoreProvider(certMap, "ca3s"));
     	Security.addProvider(new Ca3sKeyManagerProvider(certMap));
-
-		
+    	new TimedRenewalCertMapHolder().setCertMap(certMap);
+    	
         SpringApplication app = new SpringApplication(Ca3SJhApp.class);
         DefaultProfileUtil.addDefaultProfile(app);
         Environment env = app.run(args).getEnvironment();
@@ -139,7 +141,6 @@ public class Ca3SJhApp implements InitializingBean {
 	                KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(Ca3sKeyManagerProvider.SERVICE_NAME);
 	                
 	                
-//                  KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
 	                KeyStore ks = KeyStore.getInstance("ca3s");
 	                ks.load(null, null);
 	                
@@ -153,10 +154,10 @@ public class Ca3SJhApp implements InitializingBean {
 	                builder.addHttpsListener(port, null, sslContext);
 	//                builder.setSocketOption(Options.SSL_CLIENT_AUTH_MODE, SslClientAuthMode.REQUESTED);
 	                
-	            	log.debug("adding listen port {} programmatically", port);
+	            	log.debug("added TLS listen port {} programmatically", port);
 	                
             	} catch(GeneralSecurityException | IOException gse) {
-                	log.error("problem configuring HTTPS port " + port, gse);
+                	log.error("problem configuring TLS port " + port, gse);
             	}
             }
         });
@@ -164,8 +165,4 @@ public class Ca3SJhApp implements InitializingBean {
         return factory;
     }
 
-    @Bean
-    public TimedRenewalCertMap timedRenewalCertMap() {
-    	return certMap;
-    }
 }

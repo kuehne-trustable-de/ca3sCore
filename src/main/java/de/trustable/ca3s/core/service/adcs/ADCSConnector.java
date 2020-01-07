@@ -1,4 +1,4 @@
-package de.trustable.ca3s.core.service.util;
+package de.trustable.ca3s.core.service.adcs;
 
 
 import java.io.IOException;
@@ -67,13 +67,16 @@ import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.security.provider.Ca3sTrustManager;
+import de.trustable.ca3s.core.service.util.CAStatus;
+import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.ca3s.core.service.util.CryptoService;
 import io.swagger.client.ApiException;
 
 @Service
-public class ADCSConnectorController {
+public class ADCSConnector {
 
 
-	transient Logger LOGGER = LoggerFactory.getLogger(ADCSConnectorController.class);
+	Logger LOGGER = LoggerFactory.getLogger(ADCSConnector.class);
 
 	@Autowired
 	private CryptoService cryptoUtil;
@@ -93,7 +96,7 @@ public class ADCSConnectorController {
 	/**
 	 * 
 	 */
-	public ADCSConnectorController() {
+	public ADCSConnector() {
 
 	}
 
@@ -138,9 +141,24 @@ public class ADCSConnectorController {
 		return new EmptyADCSWinNativeConnectorAdapter();
 	}
 	
-	public String getStatus(final CAConnectorConfig adcsDao) throws ACDSException {
+	/**
+	 * 
+	 * @param caConfig
+	 * @return
+	 */
+	public CAStatus getStatus(final CAConnectorConfig caConfig) {
 	
-		return getConnector(adcsDao).getInfo();
+		try {
+			String adcsStatus = getConnector(caConfig).getInfo();
+			if((adcsStatus != null) && (adcsStatus.trim().length() > 0)) {
+				return CAStatus.Active;
+			}
+		} catch (ACDSException adcsEx) {
+			LOGGER.debug("CAConnectorType ADCS at " + caConfig.getCaUrl() + " throws Exception: {} ", adcsEx.getLocalizedMessage());
+		}
+
+		return CAStatus.Deactivated;
+
 	}
 	
 	/**
@@ -157,7 +175,7 @@ public class ADCSConnectorController {
 		
 		csrAttrs.add(createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_STARTED_TIMESTAMP,"" + System.currentTimeMillis()));
 
-		csr.setStatus(CsrStatus.Processing);
+		csr.setStatus(CsrStatus.PROCESSING);
 
 		String csrString = csr.getCsrBase64();
 
@@ -193,7 +211,7 @@ public class ADCSConnectorController {
 						certResponse.getReqId());
 				certificateRepository.save(certDao);
 
-				csr.setStatus(CsrStatus.Issued);
+				csr.setStatus(CsrStatus.ISSUED);
 
 				csrAttrs.add(createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_FINISHED_TIMESTAMP,"" + System.currentTimeMillis()));
 				csrAttrs.add(createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_ID,"" + certResponse.getReqId()));
@@ -202,7 +220,7 @@ public class ADCSConnectorController {
 					|| (SubmitStatus.INCOMPLETE.equals(certResponse.getStatus()))
 					|| (SubmitStatus.ERROR.equals(certResponse.getStatus()))) {
 
-				csr.setStatus(CsrStatus.Rejected);
+				csr.setStatus(CsrStatus.REJECTED);
 				
 				csrAttrs.add(createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_FINISHED_TIMESTAMP,"" + System.currentTimeMillis()));
 				csrAttrs.add(createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_ID,"" + certResponse.getReqId()));
@@ -214,7 +232,7 @@ public class ADCSConnectorController {
 
 			} else if ((SubmitStatus.UNDER_SUBMISSION.equals(certResponse.getStatus()))
 					|| (SubmitStatus.ISSUED_OUT_OF_BAND.equals(certResponse.getStatus()))) {
-				csr.setStatus(CsrStatus.Pending);
+				csr.setStatus(CsrStatus.PENDING);
 				
 				csrAttrs.add(createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_ID,"" + certResponse.getReqId()));
 

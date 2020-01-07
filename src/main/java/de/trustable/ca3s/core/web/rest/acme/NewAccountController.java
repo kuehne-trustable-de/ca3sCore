@@ -183,7 +183,7 @@ public class NewAccountController extends ACMEController {
 			    acctRepository.save(newAcctDao);			    
 			    contactsFromRequest(newAcctDao, newAcct);
 
-			    newAcctDao.setStatus(AccountStatus.Valid);
+			    newAcctDao.setStatus(AccountStatus.VALID);
 			    
 			    acctRepository.save(newAcctDao);
 			    LOG.debug("New Account {} created", newAcctDao.getAccountId());

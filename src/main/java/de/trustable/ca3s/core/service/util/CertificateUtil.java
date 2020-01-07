@@ -572,6 +572,12 @@ public class CertificateUtil {
 	}
 
 	
+	/**
+	 * 
+	 * @param startCertDao
+	 * @return
+	 * @throws GeneralSecurityException
+	 */
 	public List<Certificate> getCertificateChain(final Certificate startCertDao) throws GeneralSecurityException {
 		
 		int MAX_CHAIN_LENGTH = 10;
@@ -627,7 +633,26 @@ public class CertificateUtil {
 
 		return certChain;
 	}
-	
+
+	/**
+	 * 
+	 * @param startCertDao
+	 * @return
+	 * @throws GeneralSecurityException
+	 */
+	public X509Certificate[] getX509CertificateChain(final Certificate startCert) throws GeneralSecurityException {
+		
+		List<Certificate> certList = getCertificateChain(startCert);
+		
+		X509Certificate[] chainArr = new X509Certificate[certList.size()];
+		for( int i = 0; i < certList.size(); i++) {
+
+			X509Certificate x509Cert = CryptoService.convertPemToCertificate(certList.get(i).getContent());
+			chainArr[i] = x509Cert;
+		}
+
+		return chainArr;
+	}
 
 	/**
 	 * 
@@ -972,7 +997,7 @@ public class CertificateUtil {
 
 		CSR csr = new CSR();
 		
-		csr.setStatus(CsrStatus.Pending);
+		csr.setStatus(CsrStatus.PENDING);
 		
 		csr.setCsrBase64(csrBase64);
 

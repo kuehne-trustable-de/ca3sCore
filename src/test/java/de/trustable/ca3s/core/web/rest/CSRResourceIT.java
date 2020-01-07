@@ -49,8 +49,8 @@ public class CSRResourceIT {
     private static final LocalDate UPDATED_REQUESTED_ON = LocalDate.now(ZoneId.systemDefault());
     private static final LocalDate SMALLER_REQUESTED_ON = LocalDate.ofEpochDay(-1L);
 
-    private static final CsrStatus DEFAULT_STATUS = CsrStatus.Processing;
-    private static final CsrStatus UPDATED_STATUS = CsrStatus.Issued;
+    private static final CsrStatus DEFAULT_STATUS = CsrStatus.PROCESSING;
+    private static final CsrStatus UPDATED_STATUS = CsrStatus.ISSUED;
 
     private static final String DEFAULT_PROCESS_INSTANCE_ID = "AAAAAAAAAA";
     private static final String UPDATED_PROCESS_INSTANCE_ID = "BBBBBBBBBB";
