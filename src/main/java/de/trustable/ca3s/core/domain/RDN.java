@@ -23,7 +23,7 @@ public class RDN implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "rdn")
+    @OneToMany(mappedBy = "rdn", cascade = CascadeType.ALL, orphanRemoval = true)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<RDNAttribute> rdnAttributes = new HashSet<>();
 

@@ -11,7 +11,7 @@
         {
             "fieldName": "status",
             "fieldType": "OrderStatus",
-            "fieldValues": "Pending,Ready,Processing,Valid,Invalid",
+            "fieldValues": "PENDING,READY,PROCESSING,VALID,INVALID",
             "fieldValidateRules": [
                 "required"
             ]

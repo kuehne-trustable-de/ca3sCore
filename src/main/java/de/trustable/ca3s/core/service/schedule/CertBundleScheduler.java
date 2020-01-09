@@ -1,5 +1,8 @@
 package de.trustable.ca3s.core.service.schedule;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +23,7 @@ import de.trustable.ca3s.core.service.util.CertificateUtil;
  *
  */
 @Component
+@Transactional(propagation = Propagation.REQUIRES_NEW)
 public class CertBundleScheduler {
 
 	transient Logger LOG = LoggerFactory.getLogger(CertificateImportScheduler.class);

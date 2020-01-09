@@ -211,7 +211,9 @@ public class ACMEController {
 		// don't allow to activate the account by a remote call
 		if( AccountStatus.DEACTIVATED.equals( updatedAcct.getStatus() ) || AccountStatus.REVOKED.equals( updatedAcct.getStatus() ) ) {
 			acctDao.setStatus(updatedAcct.getStatus());
-		}else {
+		} else if(updatedAcct.getStatus() == null){
+			LOG.debug("No status transition of AccountStatus requested externally", updatedAcct.getStatus());
+		} else {
 			LOG.info("Unexpected transition of AccountStatus to '{}' requested", updatedAcct.getStatus());
 		}
 		
@@ -255,7 +257,7 @@ public class ACMEController {
 			}
 
 			ACMEAccount acctDao = accListExisting.get(0);
-			LOG.info("request signature identifies account id {} ", acctDao.getAccountId());
+			LOG.debug("request signature identifies account id {} ", acctDao.getAccountId());
 
 			
 			if( ( realm != null ) && !realm.equals( acctDao.getRealm())){
@@ -341,7 +343,7 @@ public class ACMEController {
 		nonce.setExpiresAt(DateUtil.asLocalDate(new Date(cal.getTimeInMillis())));
 		nonceRepository.save(nonce);
 
-		LOG.info("New Nonce {} created", nonce.getNonceValue());
+		LOG.debug("New Nonce {} created", nonce.getNonceValue());
 
 		return nonce;
 	}

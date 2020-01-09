@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 
 @Service
@@ -24,11 +23,12 @@ public class BPMNUtil{
 	private static final Logger LOG = LoggerFactory.getLogger(BPMNUtil.class);
 
 	@Autowired
-	private CAConnectorConfigRepository caccRepo;
+	private ConfigUtil configUtil;
 
   	@Autowired
   	private CertificateRepository certificateRepository;
 
+  	
 	@Autowired
     private RuntimeService runtimeService;
 
@@ -40,52 +40,44 @@ public class BPMNUtil{
      */
 	public Certificate startCertificateCreationProcess(CSR csr)  {
 		
-/*		
-		ProcessDefinitionData pdd = processHandler.getProcessDefinitionDataByKey("ImmediateCertificateRequest");
-		StartFormDataVO sfdVO = processHandler.getFormData(pdd.getId());
-		for (FormPropertyVO formPropertyVO : sfdVO.getListFormProperty()) {
-			if ("csr".equalsIgnoreCase(formPropertyVO.getName())) {
-				formPropertyVO.setValue(csrAsPem);
-			}
-		}
-		
-		ProcessInstance pi = processHandler.startProcessInstance(sfdVO);
-
-		java.util.Map<String, Object> procVars = pi.getProcessVariables();
-*/
-
-//		String status = (String) procVars.get("status");
-//		String certificateId = "" + procVars.get("certificateId");
-//		String failureReason = (String) procVars.get("failureReason");
 		String status = "Failed";
 		String certificateId = "";
 		String failureReason = "";
 		String processInstanceId = "";
 
-		CAConnectorConfig caConfig = caccRepo.findDefaultCA().get(0);
+		CAConnectorConfig caConfigDefault = configUtil.getDefaultConfig();
+		if(caConfigDefault != null ){
+				
+			// BPNM call
+			try {
+				Map<String, Object> variables = new HashMap<String,Object>();
+				variables.put("csrId", csr.getId());
+				variables.put("caConfigId", caConfigDefault.getId());
+				variables.put("status", "Failed");
+				variables.put("certificateId", certificateId);
+				variables.put("failureReason", failureReason);
+				
+	            ProcessInstanceWithVariables processInstance = runtimeService.createProcessInstanceByKey("CAInvocationProcess").setVariables(variables).executeWithVariablesInReturn();
+	            processInstanceId = processInstance.getId();
+	            LOG.info("ProcessInstance: {}", processInstanceId);
+	
+	            certificateId = processInstance.getVariables().get("certificateId").toString();
+	            status = processInstance.getVariables().get("status").toString();
+	
+	            if( processInstance.getVariables().get("failureReason") != null) {
+	            	failureReason = processInstance.getVariables().get("failureReason").toString();
+	            }
+	
+				// catch all (runtime) Exception
+			} catch (Exception e) {
+				failureReason = e.getLocalizedMessage();
+				LOG.warn("execution of CAInvocationProcess failed ", e);
+			}
+		} else {
+			failureReason = "no default and active CA configured";
+			LOG.error(failureReason);
+		} 
 		
-		// BPNM call
-		try {
-			Map<String, Object> variables = new HashMap<String,Object>();
-			variables.put("csrId", csr.getId());
-			variables.put("caConfigId", caConfig.getId());
-			variables.put("status", "Failed");
-			variables.put("certificateId", certificateId);
-			variables.put("failureReason", failureReason);
-			
-            ProcessInstanceWithVariables processInstance = runtimeService.createProcessInstanceByKey("CAInvocationProcess").setVariables(variables).executeWithVariablesInReturn();
-            processInstanceId = processInstance.getId();
-            LOG.info("ProcessInstance: {}", processInstanceId);
-
-            certificateId = processInstance.getVariables().get("certificateId").toString();
-            status = processInstance.getVariables().get("status").toString();
-            failureReason = processInstance.getVariables().get("failureReason").toString();
-
-			// catch all (runtime) Exception
-		} catch (Exception e) {
-			failureReason = e.getLocalizedMessage();
-			LOG.warn("execution of CAInvocationProcess failed ", e);
-		}
 
 		// end of BPMN call
 		

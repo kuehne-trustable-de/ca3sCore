@@ -285,7 +285,7 @@ relationship OneToMany {
 
 	CSR{pipeline} to Pipeline{csr}
 
-	Pipeline{pipelineAttributes} to PipelineAttribute
+	Pipeline{pipelineAttributes} to PipelineAttribute{pipeline}
 
 //  contact (optional, array of string):  An array of URLs that the
 //  server can use to contact the client for issues related to this

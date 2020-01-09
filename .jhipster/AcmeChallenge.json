@@ -36,7 +36,7 @@
         {
             "fieldName": "status",
             "fieldType": "ChallengeStatus",
-            "fieldValues": "Pending,Valid,Invalid,Deactivated,Expired,Revoked",
+            "fieldValues": "PENDING,VALID,INVALID,DEACTIVATED,EXPIRED,REVOKED",
             "fieldValidateRules": [
                 "required"
             ]

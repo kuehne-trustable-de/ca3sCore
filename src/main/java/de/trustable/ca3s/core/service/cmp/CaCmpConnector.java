@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
+import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -304,6 +305,10 @@ public class CaCmpConnector {
 			}
 			return CAStatus.Active;
 			
+		} catch( UnrecoverableEntryException ree ) {
+			// the CA responded with a proper CMP message but does not support the 'Status' request
+			return CAStatus.Active;
+			
 		} catch( GeneralSecurityException gse) {
 			LOGGER.error("status call to CMP instance '" + caConnConfig.getName() + "' failed", gse);
 		}
@@ -322,10 +327,10 @@ public class CaCmpConnector {
 			PKIMessage pkiMessage = cryptoUtil.buildGeneralMessageRequest(hmacSecret);
 
 			// send and receive ..
-			LOGGER.info("general info requestBytes : "
+			LOGGER.debug("general info requestBytes : "
 					+ java.util.Base64.getEncoder().encodeToString(pkiMessage.getEncoded()));
 			byte[] responseBytes = remoteConnector.sendHttpReq(cmpEndpoint + "/" + alias, pkiMessage.getEncoded());
-			LOGGER.info("general info responseBytes : " + java.util.Base64.getEncoder().encodeToString(responseBytes));
+			LOGGER.debug("general info responseBytes : " + java.util.Base64.getEncoder().encodeToString(responseBytes));
 
 			// handle the response
 			GenMsgContent genMsgContent = cryptoUtil.readGenMsgResponse(responseBytes);

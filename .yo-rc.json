@@ -35,13 +35,23 @@
     "jhiPrefix": "jhi",
     "entitySuffix": "",
     "dtoSuffix": "DTO",
-    "otherModules": [],
+    "otherModules": [
+      {
+        "name": "generator-jhipster-vuejs",
+        "version": "latest"
+      }
+    ],
     "enableTranslation": true,
     "nativeLanguage": "en",
     "languages": [
       "en",
       "de"
     ],
-    "blueprints": []
+    "blueprints": [
+      {
+        "name": "generator-jhipster-vuejs",
+        "version": "latest"
+      }
+    ]
   }
 }

@@ -1,0 +1,37 @@
+{
+    "name": "PipelineAttribute",
+    "fields": [
+        {
+            "fieldName": "name",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "value",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "pipeline",
+            "otherEntityRelationshipName": "pipelineAttributes",
+            "relationshipName": "pipeline",
+            "otherEntityField": "id"
+        }
+    ],
+    "changelogDate": "20200108162342",
+    "entityTableName": "pipeline_attribute",
+    "dto": "no",
+    "pagination": "no",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "applications": "*"
+}

@@ -35,8 +35,6 @@ import java.security.PublicKey;
 import java.util.List;
 import java.util.Optional;
 
-import javax.annotation.concurrent.Immutable;
-
 import org.apache.commons.codec.binary.Base64;
 import org.jose4j.jwk.JsonWebKey;
 import org.jose4j.jwk.PublicJsonWebKey;
@@ -68,7 +66,6 @@ import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.ACMEUtil;
 import de.trustable.ca3s.core.service.util.JwtUtil;
-import de.trustable.ca3s.core.web.rest.acme.AccountDoesNotExistException;
 
 
 /*

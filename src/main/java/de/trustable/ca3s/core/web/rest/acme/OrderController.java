@@ -131,6 +131,7 @@ public class OrderController extends ACMEController {
       	    
       		List<AcmeOrder> orderList = orderRepository.findByOrderId(orderId);
       		if(orderList.isEmpty()) {
+      			LOG.debug("reading attempt for non-existing orderId {}", orderId);
       		    return ResponseEntity.notFound().headers(additionalHeaders).build();
       		}else {
       			AcmeOrder orderDao = orderList.get(0);

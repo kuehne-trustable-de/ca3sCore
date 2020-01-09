@@ -17,7 +17,7 @@ logging:
   level:
     ROOT: INFO
     io.github.jhipster: INFO
-    de.trustable.ca3sjh: INFO
+    de.trustable.ca3s.core: DEBUG
 
 management:
   metrics:

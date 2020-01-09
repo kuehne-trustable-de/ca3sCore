@@ -1,0 +1,51 @@
+{
+    "name": "Pipeline",
+    "fields": [
+        {
+            "fieldName": "name",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "type",
+            "fieldType": "PipelineType",
+            "fieldValues": "ACME,SCEP,WEB",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "urlPart",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "relationshipType": "one-to-many",
+            "otherEntityName": "pipelineAttribute",
+            "otherEntityRelationshipName": "pipeline",
+            "relationshipName": "pipelineAttributes"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "cSR",
+            "otherEntityRelationshipName": "pipeline",
+            "relationshipName": "csr",
+            "otherEntityField": "id"
+        }
+    ],
+    "changelogDate": "20200108162341",
+    "entityTableName": "pipeline",
+    "dto": "no",
+    "pagination": "no",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "applications": "*"
+}

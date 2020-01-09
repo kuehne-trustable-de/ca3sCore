@@ -15,11 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.service.adcs.ADCSConnector;
+import de.trustable.ca3s.core.service.util.CaConnectorAdapter;
+import de.trustable.ca3s.core.service.util.ConfigUtil;
 import de.trustable.ca3s.core.service.util.DateUtil;
 import de.trustable.util.CryptoUtil;
 
@@ -39,10 +39,10 @@ public class CaBackendTask implements JavaDelegate {
 	private CAConnectorConfigRepository caccRepo;
 
 	@Autowired
-	private ADCSConnector adcsController;
-
-//	@Autowired
-//	private CaCmpConnector caCmpConnector;
+	private ConfigUtil configUtil;
+	
+	@Autowired
+	private CaConnectorAdapter caConnAdapter;
 
 	@Autowired
 	private CryptoUtil cryptoUtil;
@@ -54,14 +54,6 @@ public class CaBackendTask implements JavaDelegate {
 	@Override
 	public void execute(DelegateExecution execution) throws Exception{
 
-/*		
-		variables.put("csrId", csr.getId());
-		variables.put("caConfigId", caConfig.getId());
-		variables.put("status", "Failed");
-		variables.put("certificateId", certificateId);
-		variables.put("failureReason", failureReason);
-*/
-		
 		execution.setVariable("status", "Failed");
 		execution.setVariable("certificateId", "");
 		execution.setVariable("failureReason", "");
@@ -84,34 +76,15 @@ public class CaBackendTask implements JavaDelegate {
 		
 		CAConnectorConfig caConfig = caConnOpt.get();
 		
-/*		
-		if( caName != null ) {
-			LOGGER.debug("caName set by calling BPNM process to '{}'", caName);
-			List<CAConnectorConfig> caConfigList = caccRepo. .findByName(caName);
-			if( !caConfigList.isEmpty()) {
-				caConfig = caConfigList.get(0);
-				LOGGER.debug("workflow selected ca : " + caConfig.getName());
-			}
-			
-			if(caConfig == null) {
-				LOGGER.warn("unable to find CA identified by name '{}'", caName);
-			}
-		}
-*/
 		if(caConfig == null) {
 			LOGGER.debug("caName NOT set by calling BPNM process");
-			Iterable<CAConnectorConfig> configList = caccRepo.findAll();
-			for( CAConnectorConfig cfg : configList ) {
-				LOGGER.debug("checking '{}': isDefaultCA {}, isActive {}", cfg.getName(), cfg.isDefaultCA(), cfg.isActive());
-				if( cfg.isDefaultCA() && cfg.isActive()) {
-					caConfig = cfg;
-					LOGGER.debug("using '{}' as the default CA ", cfg.getName());
-					break;
-				}
-			}
+			
+			caConfig = configUtil.getDefaultConfig();
 			if(caConfig == null) {
 				LOGGER.error("no default CA available");
 				return;
+			}else {
+				LOGGER.debug("using '{}' as the default CA ", caConfig.getName());
 			}
 		}
 		
@@ -151,7 +124,7 @@ public class CaBackendTask implements JavaDelegate {
 
 				Date revocationDate = new Date();
 
-				revokeCertificate(certificateDao, crlReason, revocationDate, caConfig);
+				caConnAdapter.revokeCertificate(certificateDao, crlReason, revocationDate, caConfig);
 
 				certificateDao.setRevoked(true);
 				certificateDao.setRevokedSince( DateUtil.asLocalDate(revocationDate));
@@ -178,7 +151,7 @@ public class CaBackendTask implements JavaDelegate {
 
 				CSR csr = csrOpt.get();
 				
-				Certificate cert = signCertificateRequest(csr, caConfig);
+				Certificate cert = caConnAdapter.signCertificateRequest(csr, caConfig);
 				
 				cert.setCreationExecutionId(execution.getProcessInstanceId());
 
@@ -194,55 +167,6 @@ public class CaBackendTask implements JavaDelegate {
 			LOGGER.info("signCertificateRequest failed", e);
 		}
 
-	}
-
-	private Certificate signCertificateRequest(CSR csr, CAConnectorConfig caConfig ) throws Exception {
-
-		if (caConfig == null) {
-			throw new Exception("CA connector not selected !");
-		}
-
-		if (CAConnectorType.ADCS.equals(caConfig.getCaConnectorType())) {
-			LOGGER.debug("CAConnectorType ADCS at " + caConfig.getCaUrl());
-			return adcsController.signCertificateRequest(csr, caConfig);
-
-		} else if (CAConnectorType.CMP.equals(caConfig.getCaConnectorType())) {
-			LOGGER.debug("CAConnectorType CMP at " + caConfig.getCaUrl());
-			throw new Exception("ca connector type '" + caConfig.getCaConnectorType() + "' not implemented, yet!");
-/*
-			String pemCert = caCmpConnector.signCertificateRequest(csr, caConfig.getSecret(), caConfig.getCaUrl(),
-					caConfig.getName());
-			return cryptoUtil.createCertificateDao(pemCert, csr, null);
-*/			
-		} else {
-			throw new Exception("unexpected ca connector type '" + caConfig.getCaConnectorType() + "' !");
-		}
-	}
-
-	private void revokeCertificate(Certificate certificateDao, CRLReason crlReason, Date revocationDate,
-			CAConnectorConfig caConfig ) throws Exception {
-
-		if (caConfig == null) {
-			throw new Exception("CA connector not selected !");
-		}
-
-		if (CAConnectorType.ADCS.equals(caConfig.getCaConnectorType())) {
-			LOGGER.debug("CAConnectorType ADCS at " + caConfig.getCaUrl());
-			adcsController.revokeCertificate(certificateDao, crlReason, revocationDate, caConfig);
-
-		} else if (CAConnectorType.CMP.equals(caConfig.getCaConnectorType())) {
-			LOGGER.debug("CAConnectorType CMP at " + caConfig.getCaUrl());
-
-			throw new Exception("ca connector type '" + caConfig.getCaConnectorType() + "' not implemented, yet!");
-/*
-			X509Certificate x509Cert = cryptoUtil.convertPemToCertificate(certificateDao.getContent());
-
-			caCmpConnector.revokeCertificate(x509Cert, crlReason, caConfig.getSecret(), caConfig.getCaUrl(),
-					caConfig.getName());
-*/					
-		} else {
-			throw new Exception("unexpected ca connector type '" + caConfig.getCaConnectorType() + "' !");
-		}
 	}
 
 }

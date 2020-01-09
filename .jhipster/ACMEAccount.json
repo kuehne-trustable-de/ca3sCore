@@ -18,7 +18,7 @@
         {
             "fieldName": "status",
             "fieldType": "AccountStatus",
-            "fieldValues": "Valid,Deactivated,Revoked"
+            "fieldValues": "VALID,DEACTIVATED,REVOKED"
         },
         {
             "fieldName": "termsOfServiceAgreed",

@@ -102,9 +102,9 @@ public class ADCSConnector {
 
 	ADCSWinNativeConnector getConnector(CAConnectorConfig adcsDao) throws ACDSProxyUnavailableException {
 		
-		LOGGER.info("connector '"+adcsDao.getName()+"', Url configured as '" + adcsDao.getCaUrl() + "'");
+		LOGGER.debug("connector '"+adcsDao.getName()+"', Url configured as '" + adcsDao.getCaUrl() + "'");
 		if( "inProcess".equalsIgnoreCase(adcsDao.getCaUrl()) ) {
-			LOGGER.info("ADCSConnector trying to load Windows connection classes...");
+			LOGGER.debug("ADCSConnector trying to load Windows connection classes...");
 			try {
 				return new ADCSNativeImpl();
 			} catch (UnsatisfiedLinkError ule) {
@@ -124,8 +124,7 @@ public class ADCSConnector {
 			
 			try {
 				ADCSWinNativeConnector adcsConnector = new ADCSWinNativeConnectorAdapter(rc, adcsDao.getSecret());
-				LOGGER.info("ADCSConnector trying to connect to remote ADCS proxy ...");
-
+				LOGGER.debug("ADCSConnector trying to connect to remote ADCS proxy ...");
 				String info = adcsConnector.getInfo();
 				LOGGER.debug("info call returns '{}'", info);
 				

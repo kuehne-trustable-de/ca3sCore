@@ -28,7 +28,7 @@ public class RequestAttribute implements Serializable {
     @Column(name = "attribute_type", nullable = false)
     private String attributeType;
 
-    @OneToMany(mappedBy = "reqAttr")
+    @OneToMany(mappedBy = "reqAttr", cascade = CascadeType.ALL, orphanRemoval = true)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<RequestAttributeValue> requestAttributeValues = new HashSet<>();
 

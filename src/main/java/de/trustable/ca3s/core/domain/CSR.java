@@ -65,15 +65,15 @@ public class CSR implements Serializable {
     @Column(name = "subject_public_key_info_base_64", nullable = false)
     private String subjectPublicKeyInfoBase64;
 
-    @OneToMany(mappedBy = "csr")
+    @OneToMany(mappedBy = "csr", cascade = CascadeType.ALL, orphanRemoval = true)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<RDN> rdns = new HashSet<>();
 
-    @OneToMany(mappedBy = "csr")
+    @OneToMany(mappedBy = "csr", cascade = CascadeType.ALL, orphanRemoval = true)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<RequestAttribute> ras = new HashSet<>();
 
-    @OneToMany(mappedBy = "csr")
+    @OneToMany(mappedBy = "csr", cascade = CascadeType.ALL, orphanRemoval = true)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<CsrAttribute> csrAttributes = new HashSet<>();
 

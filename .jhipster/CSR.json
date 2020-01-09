@@ -19,7 +19,7 @@
         {
             "fieldName": "status",
             "fieldType": "CsrStatus",
-            "fieldValues": "Processing,Issued,Rejected,Pending",
+            "fieldValues": "PROCESSING,ISSUED,REJECTED,PENDING",
             "fieldValidateRules": [
                 "required"
             ]
@@ -75,6 +75,12 @@
             "otherEntityName": "csrAttribute",
             "otherEntityRelationshipName": "csr",
             "relationshipName": "csrAttributes"
+        },
+        {
+            "relationshipType": "one-to-many",
+            "otherEntityName": "pipeline",
+            "otherEntityRelationshipName": "csr",
+            "relationshipName": "pipeline"
         },
         {
             "relationshipType": "one-to-one",

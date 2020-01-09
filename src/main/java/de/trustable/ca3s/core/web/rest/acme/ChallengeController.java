@@ -78,19 +78,18 @@ public class ChallengeController extends ACMEController {
     @RequestMapping(value = "/{challengeId}", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getChallenge(@PathVariable final long challengeId) {
   	  
-	  	LOG.info("Received Challenge request ");
+	  	LOG.debug("Received Challenge request ");
 
 	    final HttpHeaders additionalHeaders = buildNonceHeader();
 		
 
 		Optional<AcmeChallenge> challengeOpt = challengeRepository.findById(challengeId);
 		if(!challengeOpt.isPresent()) {
-		    return ResponseEntity.notFound().headers(additionalHeaders).build();
-		    
+		    return ResponseEntity.notFound().headers(additionalHeaders).build();   
 		}else {
 			AcmeChallenge challengeDao = challengeOpt.get();
 	
-			LOG.info( "returning challenge {}", challengeDao.getId());
+			LOG.debug( "returning challenge {}", challengeDao.getId());
 	
 			ChallengeResponse challenge = buildChallengeResponse(challengeDao);
 	
@@ -109,7 +108,7 @@ public class ChallengeController extends ACMEController {
   public ResponseEntity<?> postChallenge(@RequestBody final String requestBody,
 		  @PathVariable final long challengeId) {
 	  
-	LOG.info("Received Challenge request ");
+	LOG.debug("Received Challenge request ");
 	
 	try {
 		JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
@@ -132,7 +131,7 @@ public class ChallengeController extends ACMEController {
 				throw new AcmeProblemException(problem);
 			}
 			
-			LOG.info( "checking challenge {}", challengeDao.getId());
+			LOG.debug( "checking challenge {}", challengeDao.getId());
 
 			boolean solved = false;
 			if( "http-01".equals(challengeDao.getType())){
@@ -150,7 +149,7 @@ public class ChallengeController extends ACMEController {
 				challengeDao.setValidated(LocalDate.now());
 				challengeRepository.save(challengeDao);
 
-				LOG.warn("challengeDao set to '{}' at {}", challengeDao.getStatus().toString(), challengeDao.getValidated());
+				LOG.debug("challengeDao set to '{}' at {}", challengeDao.getStatus().toString(), challengeDao.getValidated());
 
 			}else{
 				LOG.warn("Unexpected type '{}' of challenge{}", challengeDao.getType(), challengeId);
