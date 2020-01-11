@@ -1,10 +1,10 @@
 package de.trustable.ca3s.core.service.mapper;
 
-import org.springframework.stereotype.Service;
-
 import de.trustable.ca3s.core.domain.Authority;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.service.dto.UserDTO;
+
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;

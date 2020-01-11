@@ -1,7 +1,5 @@
 package de.trustable.ca3s.core.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -15,7 +13,6 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "request_attribute")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class RequestAttribute implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -28,8 +25,7 @@ public class RequestAttribute implements Serializable {
     @Column(name = "attribute_type", nullable = false)
     private String attributeType;
 
-    @OneToMany(mappedBy = "reqAttr", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    @OneToMany(mappedBy = "reqAttr")
     private Set<RequestAttributeValue> requestAttributeValues = new HashSet<>();
 
     @ManyToOne

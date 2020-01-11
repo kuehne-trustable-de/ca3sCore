@@ -1,5 +1,9 @@
 package de.trustable.ca3s.core.security;
 
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.repository.UserRepository;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,12 +14,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
-import de.trustable.ca3s.core.Ca3SJhApp;
-import de.trustable.ca3s.core.domain.User;
-import de.trustable.ca3s.core.repository.UserRepository;
-import de.trustable.ca3s.core.security.DomainUserDetailsService;
-import de.trustable.ca3s.core.security.UserNotActivatedException;
-
 import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 /**
  * Integrations tests for {@link DomainUserDetailsService}.
  */
-@SpringBootTest(classes = Ca3SJhApp.class)
+@SpringBootTest(classes = Ca3SApp.class)
 @Transactional
 public class DomainUserDetailsServiceIT {
 

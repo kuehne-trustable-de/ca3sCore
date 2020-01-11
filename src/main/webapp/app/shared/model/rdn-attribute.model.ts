@@ -1,4 +1,4 @@
-import { IRDN } from 'app/shared/model/rdn.model';
+import { IRDN } from '@/shared/model/rdn.model';
 
 export interface IRDNAttribute {
   id?: number;

@@ -1,42 +1,39 @@
-import { TestBed, getTestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { take, map } from 'rxjs/operators';
-import { CsrAttributeService } from 'app/entities/csr-attribute/csr-attribute.service';
-import { ICsrAttribute, CsrAttribute } from 'app/shared/model/csr-attribute.model';
+/* tslint:disable max-line-length */
+import axios from 'axios';
+
+import * as config from '@/shared/config/config';
+import {} from '@/shared/date/filters';
+import CsrAttributeService from '@/entities/csr-attribute/csr-attribute.service';
+import { CsrAttribute } from '@/shared/model/csr-attribute.model';
+
+const mockedAxios: any = axios;
+jest.mock('axios', () => ({
+  get: jest.fn(),
+  post: jest.fn(),
+  put: jest.fn(),
+  delete: jest.fn()
+}));
 
 describe('Service Tests', () => {
   describe('CsrAttribute Service', () => {
-    let injector: TestBed;
     let service: CsrAttributeService;
-    let httpMock: HttpTestingController;
-    let elemDefault: ICsrAttribute;
-    let expectedResult;
+    let elemDefault;
     beforeEach(() => {
-      TestBed.configureTestingModule({
-        imports: [HttpClientTestingModule]
-      });
-      expectedResult = {};
-      injector = getTestBed();
-      service = injector.get(CsrAttributeService);
-      httpMock = injector.get(HttpTestingController);
+      service = new CsrAttributeService();
 
       elemDefault = new CsrAttribute(0, 'AAAAAAA', 'AAAAAAA');
     });
 
     describe('Service methods', () => {
-      it('should find an element', () => {
+      it('should find an element', async () => {
         const returnedFromService = Object.assign({}, elemDefault);
-        service
-          .find(123)
-          .pipe(take(1))
-          .subscribe(resp => (expectedResult = resp));
+        mockedAxios.get.mockReturnValue(Promise.resolve({ data: returnedFromService }));
 
-        const req = httpMock.expectOne({ method: 'GET' });
-        req.flush(returnedFromService);
-        expect(expectedResult).toMatchObject({ body: elemDefault });
+        return service.find(123).then(res => {
+          expect(res).toMatchObject(elemDefault);
+        });
       });
-
-      it('should create a CsrAttribute', () => {
+      it('should create a CsrAttribute', async () => {
         const returnedFromService = Object.assign(
           {
             id: 0
@@ -44,16 +41,14 @@ describe('Service Tests', () => {
           elemDefault
         );
         const expected = Object.assign({}, returnedFromService);
-        service
-          .create(new CsrAttribute(null))
-          .pipe(take(1))
-          .subscribe(resp => (expectedResult = resp));
-        const req = httpMock.expectOne({ method: 'POST' });
-        req.flush(returnedFromService);
-        expect(expectedResult).toMatchObject({ body: expected });
+
+        mockedAxios.post.mockReturnValue(Promise.resolve({ data: returnedFromService }));
+        return service.create({}).then(res => {
+          expect(res).toMatchObject(expected);
+        });
       });
 
-      it('should update a CsrAttribute', () => {
+      it('should update a CsrAttribute', async () => {
         const returnedFromService = Object.assign(
           {
             name: 'BBBBBB',
@@ -63,16 +58,13 @@ describe('Service Tests', () => {
         );
 
         const expected = Object.assign({}, returnedFromService);
-        service
-          .update(expected)
-          .pipe(take(1))
-          .subscribe(resp => (expectedResult = resp));
-        const req = httpMock.expectOne({ method: 'PUT' });
-        req.flush(returnedFromService);
-        expect(expectedResult).toMatchObject({ body: expected });
-      });
+        mockedAxios.put.mockReturnValue(Promise.resolve({ data: returnedFromService }));
 
-      it('should return a list of CsrAttribute', () => {
+        return service.update(expected).then(res => {
+          expect(res).toMatchObject(expected);
+        });
+      });
+      it('should return a list of CsrAttribute', async () => {
         const returnedFromService = Object.assign(
           {
             name: 'BBBBBB',
@@ -81,30 +73,17 @@ describe('Service Tests', () => {
           elemDefault
         );
         const expected = Object.assign({}, returnedFromService);
-        service
-          .query(expected)
-          .pipe(
-            take(1),
-            map(resp => resp.body)
-          )
-          .subscribe(body => (expectedResult = body));
-        const req = httpMock.expectOne({ method: 'GET' });
-        req.flush([returnedFromService]);
-        httpMock.verify();
-        expect(expectedResult).toContainEqual(expected);
+        mockedAxios.get.mockReturnValue(Promise.resolve([returnedFromService]));
+        return service.retrieve().then(res => {
+          expect(res).toContainEqual(expected);
+        });
       });
-
-      it('should delete a CsrAttribute', () => {
-        service.delete(123).subscribe(resp => (expectedResult = resp.ok));
-
-        const req = httpMock.expectOne({ method: 'DELETE' });
-        req.flush({ status: 200 });
-        expect(expectedResult);
+      it('should delete a CsrAttribute', async () => {
+        mockedAxios.delete.mockReturnValue(Promise.resolve({ ok: true }));
+        return service.delete(123).then(res => {
+          expect(res.ok).toBeTruthy();
+        });
       });
-    });
-
-    afterEach(() => {
-      httpMock.verify();
     });
   });
 });

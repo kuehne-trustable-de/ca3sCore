@@ -45,7 +45,7 @@ import org.takes.http.Exit;
 import org.takes.http.FtBasic;
 
 import de.trustable.ca3s.cert.bundle.TimedRenewalCertMap;
-import de.trustable.ca3s.core.Ca3SJhApp;
+import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 import de.trustable.ca3s.core.security.provider.Ca3sFallbackBundleFactory;
 import de.trustable.ca3s.core.security.provider.Ca3sKeyManagerProvider;
@@ -55,7 +55,7 @@ import de.trustable.util.JCAManager;
 
 
 
-@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT, classes = Ca3SJhApp.class)
+@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT, classes = Ca3SApp.class)
 @RunWith(SpringRunner.class)
 @ActiveProfiles("int")
 @TestPropertySource(locations = "classpath:config/application_test.yml")

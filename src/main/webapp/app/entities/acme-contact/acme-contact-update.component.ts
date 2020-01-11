@@ -1,105 +1,88 @@
-import { Component, OnInit } from '@angular/core';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { JhiAlertService } from 'ng-jhipster';
-import { IAcmeContact, AcmeContact } from 'app/shared/model/acme-contact.model';
-import { AcmeContactService } from './acme-contact.service';
-import { IACMEAccount } from 'app/shared/model/acme-account.model';
-import { ACMEAccountService } from 'app/entities/acme-account/acme-account.service';
+import { Component, Vue, Inject } from 'vue-property-decorator';
+
+import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
+
+import ACMEAccountService from '../acme-account/acme-account.service';
+import { IACMEAccount } from '@/shared/model/acme-account.model';
+
+import AlertService from '@/shared/alert/alert.service';
+import { IAcmeContact, AcmeContact } from '@/shared/model/acme-contact.model';
+import AcmeContactService from './acme-contact.service';
+
+const validations: any = {
+  acmeContact: {
+    contactId: {
+      required,
+      numeric
+    },
+    contactUrl: {
+      required
+    }
+  }
+};
 
 @Component({
-  selector: 'jhi-acme-contact-update',
-  templateUrl: './acme-contact-update.component.html'
+  validations
 })
-export class AcmeContactUpdateComponent implements OnInit {
-  isSaving: boolean;
+export default class AcmeContactUpdate extends Vue {
+  @Inject('alertService') private alertService: () => AlertService;
+  @Inject('acmeContactService') private acmeContactService: () => AcmeContactService;
+  public acmeContact: IAcmeContact = new AcmeContact();
 
-  acmeaccounts: IACMEAccount[];
+  @Inject('aCMEAccountService') private aCMEAccountService: () => ACMEAccountService;
 
-  editForm = this.fb.group({
-    id: [],
-    contactId: [null, [Validators.required]],
-    contactUrl: [null, [Validators.required]],
-    account: []
-  });
+  public aCMEAccounts: IACMEAccount[] = [];
+  public isSaving = false;
 
-  constructor(
-    protected jhiAlertService: JhiAlertService,
-    protected acmeContactService: AcmeContactService,
-    protected aCMEAccountService: ACMEAccountService,
-    protected activatedRoute: ActivatedRoute,
-    private fb: FormBuilder
-  ) {}
-
-  ngOnInit() {
-    this.isSaving = false;
-    this.activatedRoute.data.subscribe(({ acmeContact }) => {
-      this.updateForm(acmeContact);
-    });
-    this.aCMEAccountService
-      .query()
-      .pipe(
-        filter((mayBeOk: HttpResponse<IACMEAccount[]>) => mayBeOk.ok),
-        map((response: HttpResponse<IACMEAccount[]>) => response.body)
-      )
-      .subscribe((res: IACMEAccount[]) => (this.acmeaccounts = res), (res: HttpErrorResponse) => this.onError(res.message));
-  }
-
-  updateForm(acmeContact: IAcmeContact) {
-    this.editForm.patchValue({
-      id: acmeContact.id,
-      contactId: acmeContact.contactId,
-      contactUrl: acmeContact.contactUrl,
-      account: acmeContact.account
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      if (to.params.acmeContactId) {
+        vm.retrieveAcmeContact(to.params.acmeContactId);
+      }
+      vm.initRelationships();
     });
   }
 
-  previousState() {
-    window.history.back();
-  }
-
-  save() {
+  public save(): void {
     this.isSaving = true;
-    const acmeContact = this.createFromForm();
-    if (acmeContact.id !== undefined) {
-      this.subscribeToSaveResponse(this.acmeContactService.update(acmeContact));
+    if (this.acmeContact.id) {
+      this.acmeContactService()
+        .update(this.acmeContact)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.acmeContact.updated', { param: param.id });
+          this.alertService().showAlert(message, 'info');
+        });
     } else {
-      this.subscribeToSaveResponse(this.acmeContactService.create(acmeContact));
+      this.acmeContactService()
+        .create(this.acmeContact)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.acmeContact.created', { param: param.id });
+          this.alertService().showAlert(message, 'success');
+        });
     }
   }
 
-  private createFromForm(): IAcmeContact {
-    return {
-      ...new AcmeContact(),
-      id: this.editForm.get(['id']).value,
-      contactId: this.editForm.get(['contactId']).value,
-      contactUrl: this.editForm.get(['contactUrl']).value,
-      account: this.editForm.get(['account']).value
-    };
+  public retrieveAcmeContact(acmeContactId): void {
+    this.acmeContactService()
+      .find(acmeContactId)
+      .then(res => {
+        this.acmeContact = res;
+      });
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IAcmeContact>>) {
-    result.subscribe(() => this.onSaveSuccess(), () => this.onSaveError());
+  public previousState(): void {
+    this.$router.go(-1);
   }
 
-  protected onSaveSuccess() {
-    this.isSaving = false;
-    this.previousState();
-  }
-
-  protected onSaveError() {
-    this.isSaving = false;
-  }
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
-  }
-
-  trackACMEAccountById(index: number, item: IACMEAccount) {
-    return item.id;
+  public initRelationships(): void {
+    this.aCMEAccountService()
+      .retrieve()
+      .then(res => {
+        this.aCMEAccounts = res.data;
+      });
   }
 }

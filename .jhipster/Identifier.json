@@ -32,13 +32,14 @@
             "otherEntityField": "id"
         }
     ],
-    "changelogDate": "20191028230824",
+    "changelogDate": "20200110170124",
     "entityTableName": "identifier",
     "dto": "no",
     "pagination": "no",
     "service": "serviceImpl",
     "jpaMetamodelFiltering": false,
     "fluentMethods": true,
+    "readOnly": false,
     "clientRootFolder": "",
     "applications": "*"
 }

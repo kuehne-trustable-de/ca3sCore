@@ -1,5 +1,11 @@
 package de.trustable.ca3s.core.web.rest;
 
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.domain.RequestAttribute;
+import de.trustable.ca3s.core.repository.RequestAttributeRepository;
+import de.trustable.ca3s.core.service.RequestAttributeService;
+import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -13,13 +19,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
-import de.trustable.ca3s.core.Ca3SJhApp;
-import de.trustable.ca3s.core.domain.RequestAttribute;
-import de.trustable.ca3s.core.repository.RequestAttributeRepository;
-import de.trustable.ca3s.core.service.RequestAttributeService;
-import de.trustable.ca3s.core.web.rest.RequestAttributeResource;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
-
 import javax.persistence.EntityManager;
 import java.util.List;
 
@@ -32,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Integration tests for the {@link RequestAttributeResource} REST controller.
  */
-@SpringBootTest(classes = Ca3SJhApp.class)
+@SpringBootTest(classes = Ca3SApp.class)
 public class RequestAttributeResourceIT {
 
     private static final String DEFAULT_ATTRIBUTE_TYPE = "AAAAAAAAAA";
@@ -170,7 +169,7 @@ public class RequestAttributeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(requestAttribute.getId().intValue())))
-            .andExpect(jsonPath("$.[*].attributeType").value(hasItem(DEFAULT_ATTRIBUTE_TYPE.toString())));
+            .andExpect(jsonPath("$.[*].attributeType").value(hasItem(DEFAULT_ATTRIBUTE_TYPE)));
     }
     
     @Test
@@ -184,7 +183,7 @@ public class RequestAttributeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(requestAttribute.getId().intValue()))
-            .andExpect(jsonPath("$.attributeType").value(DEFAULT_ATTRIBUTE_TYPE.toString()));
+            .andExpect(jsonPath("$.attributeType").value(DEFAULT_ATTRIBUTE_TYPE));
     }
 
     @Test
@@ -256,20 +255,5 @@ public class RequestAttributeResourceIT {
         // Validate the database contains one less item
         List<RequestAttribute> requestAttributeList = requestAttributeRepository.findAll();
         assertThat(requestAttributeList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(RequestAttribute.class);
-        RequestAttribute requestAttribute1 = new RequestAttribute();
-        requestAttribute1.setId(1L);
-        RequestAttribute requestAttribute2 = new RequestAttribute();
-        requestAttribute2.setId(requestAttribute1.getId());
-        assertThat(requestAttribute1).isEqualTo(requestAttribute2);
-        requestAttribute2.setId(2L);
-        assertThat(requestAttribute1).isNotEqualTo(requestAttribute2);
-        requestAttribute1.setId(null);
-        assertThat(requestAttribute1).isNotEqualTo(requestAttribute2);
     }
 }

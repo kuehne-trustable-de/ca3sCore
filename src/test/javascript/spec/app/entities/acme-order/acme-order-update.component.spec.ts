@@ -1,61 +1,95 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { HttpResponse } from '@angular/common/http';
-import { FormBuilder } from '@angular/forms';
-import { of } from 'rxjs';
+/* tslint:disable max-line-length */
+import { shallowMount, createLocalVue, Wrapper } from '@vue/test-utils';
+import sinon, { SinonStubbedInstance } from 'sinon';
+import Router from 'vue-router';
 
-import { Ca3SJhTestModule } from '../../../test.module';
-import { AcmeOrderUpdateComponent } from 'app/entities/acme-order/acme-order-update.component';
-import { AcmeOrderService } from 'app/entities/acme-order/acme-order.service';
-import { AcmeOrder } from 'app/shared/model/acme-order.model';
+import AlertService from '@/shared/alert/alert.service';
+import * as config from '@/shared/config/config';
+import AcmeOrderUpdateComponent from '@/entities/acme-order/acme-order-update.vue';
+import AcmeOrderClass from '@/entities/acme-order/acme-order-update.component';
+import AcmeOrderService from '@/entities/acme-order/acme-order.service';
+
+import AuthorizationService from '@/entities/authorization/authorization.service';
+
+import IdentifierService from '@/entities/identifier/identifier.service';
+
+import CSRService from '@/entities/csr/csr.service';
+
+import CertificateService from '@/entities/certificate/certificate.service';
+
+import ACMEAccountService from '@/entities/acme-account/acme-account.service';
+
+const localVue = createLocalVue();
+
+config.initVueApp(localVue);
+const i18n = config.initI18N(localVue);
+const store = config.initVueXStore(localVue);
+const router = new Router();
+localVue.use(Router);
+localVue.component('font-awesome-icon', {});
 
 describe('Component Tests', () => {
   describe('AcmeOrder Management Update Component', () => {
-    let comp: AcmeOrderUpdateComponent;
-    let fixture: ComponentFixture<AcmeOrderUpdateComponent>;
-    let service: AcmeOrderService;
+    let wrapper: Wrapper<AcmeOrderClass>;
+    let comp: AcmeOrderClass;
+    let acmeOrderServiceStub: SinonStubbedInstance<AcmeOrderService>;
 
     beforeEach(() => {
-      TestBed.configureTestingModule({
-        imports: [Ca3SJhTestModule],
-        declarations: [AcmeOrderUpdateComponent],
-        providers: [FormBuilder]
-      })
-        .overrideTemplate(AcmeOrderUpdateComponent, '')
-        .compileComponents();
+      acmeOrderServiceStub = sinon.createStubInstance<AcmeOrderService>(AcmeOrderService);
 
-      fixture = TestBed.createComponent(AcmeOrderUpdateComponent);
-      comp = fixture.componentInstance;
-      service = fixture.debugElement.injector.get(AcmeOrderService);
+      wrapper = shallowMount<AcmeOrderClass>(AcmeOrderUpdateComponent, {
+        store,
+        i18n,
+        localVue,
+        router,
+        provide: {
+          alertService: () => new AlertService(store),
+          acmeOrderService: () => acmeOrderServiceStub,
+
+          authorizationService: () => new AuthorizationService(),
+
+          identifierService: () => new IdentifierService(),
+
+          cSRService: () => new CSRService(),
+
+          certificateService: () => new CertificateService(),
+
+          aCMEAccountService: () => new ACMEAccountService()
+        }
+      });
+      comp = wrapper.vm;
     });
 
     describe('save', () => {
-      it('Should call update service on save for existing entity', fakeAsync(() => {
+      it('Should call update service on save for existing entity', async () => {
         // GIVEN
-        const entity = new AcmeOrder(123);
-        spyOn(service, 'update').and.returnValue(of(new HttpResponse({ body: entity })));
-        comp.updateForm(entity);
+        const entity = { id: 123 };
+        comp.acmeOrder = entity;
+        acmeOrderServiceStub.update.resolves(entity);
+
         // WHEN
         comp.save();
-        tick(); // simulate async
+        await comp.$nextTick();
 
         // THEN
-        expect(service.update).toHaveBeenCalledWith(entity);
+        expect(acmeOrderServiceStub.update.calledWith(entity)).toBeTruthy();
         expect(comp.isSaving).toEqual(false);
-      }));
+      });
 
-      it('Should call create service on save for new entity', fakeAsync(() => {
+      it('Should call create service on save for new entity', async () => {
         // GIVEN
-        const entity = new AcmeOrder();
-        spyOn(service, 'create').and.returnValue(of(new HttpResponse({ body: entity })));
-        comp.updateForm(entity);
+        const entity = {};
+        comp.acmeOrder = entity;
+        acmeOrderServiceStub.create.resolves(entity);
+
         // WHEN
         comp.save();
-        tick(); // simulate async
+        await comp.$nextTick();
 
         // THEN
-        expect(service.create).toHaveBeenCalledWith(entity);
+        expect(acmeOrderServiceStub.create.calledWith(entity)).toBeTruthy();
         expect(comp.isSaving).toEqual(false);
-      }));
+      });
     });
   });
 });

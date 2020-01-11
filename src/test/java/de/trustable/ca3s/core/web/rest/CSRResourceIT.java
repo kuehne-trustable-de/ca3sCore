@@ -1,21 +1,10 @@
 package de.trustable.ca3s.core.web.rest;
 
-import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.List;
-
-import javax.persistence.EntityManager;
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.domain.CSR;
+import de.trustable.ca3s.core.repository.CSRRepository;
+import de.trustable.ca3s.core.service.CSRService;
+import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,18 +17,25 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Base64Utils;
 import org.springframework.validation.Validator;
 
-import de.trustable.ca3s.core.Ca3SJhApp;
-import de.trustable.ca3s.core.domain.CSR;
+import javax.persistence.EntityManager;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.List;
+
+import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
-import de.trustable.ca3s.core.repository.CSRRepository;
-import de.trustable.ca3s.core.service.CSRService;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 /**
  * Integration tests for the {@link CSRResource} REST controller.
  */
-@SpringBootTest(classes = Ca3SJhApp.class)
+@SpringBootTest(classes = Ca3SApp.class)
 public class CSRResourceIT {
 
     private static final String DEFAULT_CSR_BASE_64 = "AAAAAAAAAA";
@@ -47,7 +43,6 @@ public class CSRResourceIT {
 
     private static final LocalDate DEFAULT_REQUESTED_ON = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_REQUESTED_ON = LocalDate.now(ZoneId.systemDefault());
-    private static final LocalDate SMALLER_REQUESTED_ON = LocalDate.ofEpochDay(-1L);
 
     private static final CsrStatus DEFAULT_STATUS = CsrStatus.PROCESSING;
     private static final CsrStatus UPDATED_STATUS = CsrStatus.ISSUED;
@@ -253,12 +248,12 @@ public class CSRResourceIT {
             .andExpect(jsonPath("$.[*].csrBase64").value(hasItem(DEFAULT_CSR_BASE_64.toString())))
             .andExpect(jsonPath("$.[*].requestedOn").value(hasItem(DEFAULT_REQUESTED_ON.toString())))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())))
-            .andExpect(jsonPath("$.[*].processInstanceId").value(hasItem(DEFAULT_PROCESS_INSTANCE_ID.toString())))
-            .andExpect(jsonPath("$.[*].signingAlgorithm").value(hasItem(DEFAULT_SIGNING_ALGORITHM.toString())))
+            .andExpect(jsonPath("$.[*].processInstanceId").value(hasItem(DEFAULT_PROCESS_INSTANCE_ID)))
+            .andExpect(jsonPath("$.[*].signingAlgorithm").value(hasItem(DEFAULT_SIGNING_ALGORITHM)))
             .andExpect(jsonPath("$.[*].isCSRValid").value(hasItem(DEFAULT_IS_CSR_VALID.booleanValue())))
-            .andExpect(jsonPath("$.[*].x509KeySpec").value(hasItem(DEFAULT_X_509_KEY_SPEC.toString())))
-            .andExpect(jsonPath("$.[*].publicKeyAlgorithm").value(hasItem(DEFAULT_PUBLIC_KEY_ALGORITHM.toString())))
-            .andExpect(jsonPath("$.[*].publicKeyHash").value(hasItem(DEFAULT_PUBLIC_KEY_HASH.toString())))
+            .andExpect(jsonPath("$.[*].x509KeySpec").value(hasItem(DEFAULT_X_509_KEY_SPEC)))
+            .andExpect(jsonPath("$.[*].publicKeyAlgorithm").value(hasItem(DEFAULT_PUBLIC_KEY_ALGORITHM)))
+            .andExpect(jsonPath("$.[*].publicKeyHash").value(hasItem(DEFAULT_PUBLIC_KEY_HASH)))
             .andExpect(jsonPath("$.[*].subjectPublicKeyInfoBase64").value(hasItem(DEFAULT_SUBJECT_PUBLIC_KEY_INFO_BASE_64.toString())));
     }
     
@@ -276,12 +271,12 @@ public class CSRResourceIT {
             .andExpect(jsonPath("$.csrBase64").value(DEFAULT_CSR_BASE_64.toString()))
             .andExpect(jsonPath("$.requestedOn").value(DEFAULT_REQUESTED_ON.toString()))
             .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()))
-            .andExpect(jsonPath("$.processInstanceId").value(DEFAULT_PROCESS_INSTANCE_ID.toString()))
-            .andExpect(jsonPath("$.signingAlgorithm").value(DEFAULT_SIGNING_ALGORITHM.toString()))
+            .andExpect(jsonPath("$.processInstanceId").value(DEFAULT_PROCESS_INSTANCE_ID))
+            .andExpect(jsonPath("$.signingAlgorithm").value(DEFAULT_SIGNING_ALGORITHM))
             .andExpect(jsonPath("$.isCSRValid").value(DEFAULT_IS_CSR_VALID.booleanValue()))
-            .andExpect(jsonPath("$.x509KeySpec").value(DEFAULT_X_509_KEY_SPEC.toString()))
-            .andExpect(jsonPath("$.publicKeyAlgorithm").value(DEFAULT_PUBLIC_KEY_ALGORITHM.toString()))
-            .andExpect(jsonPath("$.publicKeyHash").value(DEFAULT_PUBLIC_KEY_HASH.toString()))
+            .andExpect(jsonPath("$.x509KeySpec").value(DEFAULT_X_509_KEY_SPEC))
+            .andExpect(jsonPath("$.publicKeyAlgorithm").value(DEFAULT_PUBLIC_KEY_ALGORITHM))
+            .andExpect(jsonPath("$.publicKeyHash").value(DEFAULT_PUBLIC_KEY_HASH))
             .andExpect(jsonPath("$.subjectPublicKeyInfoBase64").value(DEFAULT_SUBJECT_PUBLIC_KEY_INFO_BASE_64.toString()));
     }
 
@@ -372,20 +367,5 @@ public class CSRResourceIT {
         // Validate the database contains one less item
         List<CSR> cSRList = cSRRepository.findAll();
         assertThat(cSRList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(CSR.class);
-        CSR cSR1 = new CSR();
-        cSR1.setId(1L);
-        CSR cSR2 = new CSR();
-        cSR2.setId(cSR1.getId());
-        assertThat(cSR1).isEqualTo(cSR2);
-        cSR2.setId(2L);
-        assertThat(cSR1).isNotEqualTo(cSR2);
-        cSR1.setId(null);
-        assertThat(cSR1).isNotEqualTo(cSR2);
     }
 }

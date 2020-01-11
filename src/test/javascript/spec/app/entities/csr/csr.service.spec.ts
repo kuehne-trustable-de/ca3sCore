@@ -1,35 +1,34 @@
-import { TestBed, getTestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { take, map } from 'rxjs/operators';
-import * as moment from 'moment';
-import { DATE_FORMAT } from 'app/shared/constants/input.constants';
-import { CSRService } from 'app/entities/csr/csr.service';
-import { ICSR, CSR } from 'app/shared/model/csr.model';
-import { CsrStatus } from 'app/shared/model/enumerations/csr-status.model';
+/* tslint:disable max-line-length */
+import axios from 'axios';
+import { format } from 'date-fns';
+
+import * as config from '@/shared/config/config';
+import { DATE_FORMAT } from '@/shared/date/filters';
+import CSRService from '@/entities/csr/csr.service';
+import { CSR, CsrStatus } from '@/shared/model/csr.model';
+
+const mockedAxios: any = axios;
+jest.mock('axios', () => ({
+  get: jest.fn(),
+  post: jest.fn(),
+  put: jest.fn(),
+  delete: jest.fn()
+}));
 
 describe('Service Tests', () => {
   describe('CSR Service', () => {
-    let injector: TestBed;
     let service: CSRService;
-    let httpMock: HttpTestingController;
-    let elemDefault: ICSR;
-    let expectedResult;
-    let currentDate: moment.Moment;
+    let elemDefault;
+    let currentDate: Date;
     beforeEach(() => {
-      TestBed.configureTestingModule({
-        imports: [HttpClientTestingModule]
-      });
-      expectedResult = {};
-      injector = getTestBed();
-      service = injector.get(CSRService);
-      httpMock = injector.get(HttpTestingController);
-      currentDate = moment();
+      service = new CSRService();
+      currentDate = new Date();
 
       elemDefault = new CSR(
         0,
         'AAAAAAA',
         currentDate,
-        CsrStatus.Processing,
+        CsrStatus.PROCESSING,
         'AAAAAAA',
         'AAAAAAA',
         false,
@@ -41,28 +40,24 @@ describe('Service Tests', () => {
     });
 
     describe('Service methods', () => {
-      it('should find an element', () => {
+      it('should find an element', async () => {
         const returnedFromService = Object.assign(
           {
-            requestedOn: currentDate.format(DATE_FORMAT)
+            requestedOn: format(currentDate, DATE_FORMAT)
           },
           elemDefault
         );
-        service
-          .find(123)
-          .pipe(take(1))
-          .subscribe(resp => (expectedResult = resp));
+        mockedAxios.get.mockReturnValue(Promise.resolve({ data: returnedFromService }));
 
-        const req = httpMock.expectOne({ method: 'GET' });
-        req.flush(returnedFromService);
-        expect(expectedResult).toMatchObject({ body: elemDefault });
+        return service.find(123).then(res => {
+          expect(res).toMatchObject(elemDefault);
+        });
       });
-
-      it('should create a CSR', () => {
+      it('should create a CSR', async () => {
         const returnedFromService = Object.assign(
           {
             id: 0,
-            requestedOn: currentDate.format(DATE_FORMAT)
+            requestedOn: format(currentDate, DATE_FORMAT)
           },
           elemDefault
         );
@@ -72,20 +67,18 @@ describe('Service Tests', () => {
           },
           returnedFromService
         );
-        service
-          .create(new CSR(null))
-          .pipe(take(1))
-          .subscribe(resp => (expectedResult = resp));
-        const req = httpMock.expectOne({ method: 'POST' });
-        req.flush(returnedFromService);
-        expect(expectedResult).toMatchObject({ body: expected });
+
+        mockedAxios.post.mockReturnValue(Promise.resolve({ data: returnedFromService }));
+        return service.create({}).then(res => {
+          expect(res).toMatchObject(expected);
+        });
       });
 
-      it('should update a CSR', () => {
+      it('should update a CSR', async () => {
         const returnedFromService = Object.assign(
           {
             csrBase64: 'BBBBBB',
-            requestedOn: currentDate.format(DATE_FORMAT),
+            requestedOn: format(currentDate, DATE_FORMAT),
             status: 'BBBBBB',
             processInstanceId: 'BBBBBB',
             signingAlgorithm: 'BBBBBB',
@@ -104,20 +97,17 @@ describe('Service Tests', () => {
           },
           returnedFromService
         );
-        service
-          .update(expected)
-          .pipe(take(1))
-          .subscribe(resp => (expectedResult = resp));
-        const req = httpMock.expectOne({ method: 'PUT' });
-        req.flush(returnedFromService);
-        expect(expectedResult).toMatchObject({ body: expected });
-      });
+        mockedAxios.put.mockReturnValue(Promise.resolve({ data: returnedFromService }));
 
-      it('should return a list of CSR', () => {
+        return service.update(expected).then(res => {
+          expect(res).toMatchObject(expected);
+        });
+      });
+      it('should return a list of CSR', async () => {
         const returnedFromService = Object.assign(
           {
             csrBase64: 'BBBBBB',
-            requestedOn: currentDate.format(DATE_FORMAT),
+            requestedOn: format(currentDate, DATE_FORMAT),
             status: 'BBBBBB',
             processInstanceId: 'BBBBBB',
             signingAlgorithm: 'BBBBBB',
@@ -135,30 +125,17 @@ describe('Service Tests', () => {
           },
           returnedFromService
         );
-        service
-          .query(expected)
-          .pipe(
-            take(1),
-            map(resp => resp.body)
-          )
-          .subscribe(body => (expectedResult = body));
-        const req = httpMock.expectOne({ method: 'GET' });
-        req.flush([returnedFromService]);
-        httpMock.verify();
-        expect(expectedResult).toContainEqual(expected);
+        mockedAxios.get.mockReturnValue(Promise.resolve([returnedFromService]));
+        return service.retrieve().then(res => {
+          expect(res).toContainEqual(expected);
+        });
       });
-
-      it('should delete a CSR', () => {
-        service.delete(123).subscribe(resp => (expectedResult = resp.ok));
-
-        const req = httpMock.expectOne({ method: 'DELETE' });
-        req.flush({ status: 200 });
-        expect(expectedResult);
+      it('should delete a CSR', async () => {
+        mockedAxios.delete.mockReturnValue(Promise.resolve({ ok: true }));
+        return service.delete(123).then(res => {
+          expect(res.ok).toBeTruthy();
+        });
       });
-    });
-
-    afterEach(() => {
-      httpMock.verify();
     });
   });
 });

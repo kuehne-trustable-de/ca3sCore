@@ -1,50 +1,83 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
+/* tslint:disable max-line-length */
+import { shallowMount, createLocalVue, Wrapper } from '@vue/test-utils';
+import sinon, { SinonStubbedInstance } from 'sinon';
 
-import { Ca3SJhTestModule } from '../../../test.module';
-import { AuthorizationComponent } from 'app/entities/authorization/authorization.component';
-import { AuthorizationService } from 'app/entities/authorization/authorization.service';
-import { Authorization } from 'app/shared/model/authorization.model';
+import AlertService from '@/shared/alert/alert.service';
+import * as config from '@/shared/config/config';
+import AuthorizationComponent from '@/entities/authorization/authorization.vue';
+import AuthorizationClass from '@/entities/authorization/authorization.component';
+import AuthorizationService from '@/entities/authorization/authorization.service';
+
+const localVue = createLocalVue();
+
+config.initVueApp(localVue);
+const i18n = config.initI18N(localVue);
+const store = config.initVueXStore(localVue);
+localVue.component('font-awesome-icon', {});
+localVue.component('b-alert', {});
+localVue.component('b-badge', {});
+localVue.directive('b-modal', {});
+localVue.component('b-button', {});
+localVue.component('router-link', {});
+
+const bModalStub = {
+  render: () => {},
+  methods: {
+    hide: () => {}
+  }
+};
 
 describe('Component Tests', () => {
   describe('Authorization Management Component', () => {
-    let comp: AuthorizationComponent;
-    let fixture: ComponentFixture<AuthorizationComponent>;
-    let service: AuthorizationService;
+    let wrapper: Wrapper<AuthorizationClass>;
+    let comp: AuthorizationClass;
+    let authorizationServiceStub: SinonStubbedInstance<AuthorizationService>;
 
     beforeEach(() => {
-      TestBed.configureTestingModule({
-        imports: [Ca3SJhTestModule],
-        declarations: [AuthorizationComponent],
-        providers: []
-      })
-        .overrideTemplate(AuthorizationComponent, '')
-        .compileComponents();
+      authorizationServiceStub = sinon.createStubInstance<AuthorizationService>(AuthorizationService);
+      authorizationServiceStub.retrieve.resolves({ headers: {} });
 
-      fixture = TestBed.createComponent(AuthorizationComponent);
-      comp = fixture.componentInstance;
-      service = fixture.debugElement.injector.get(AuthorizationService);
+      wrapper = shallowMount<AuthorizationClass>(AuthorizationComponent, {
+        store,
+        i18n,
+        localVue,
+        stubs: { bModal: bModalStub as any },
+        provide: {
+          alertService: () => new AlertService(store),
+          authorizationService: () => authorizationServiceStub
+        }
+      });
+      comp = wrapper.vm;
     });
 
-    it('Should call load all on init', () => {
+    it('should be a Vue instance', () => {
+      expect(wrapper.isVueInstance()).toBeTruthy();
+    });
+
+    it('Should call load all on init', async () => {
       // GIVEN
-      const headers = new HttpHeaders().append('link', 'link;link');
-      spyOn(service, 'query').and.returnValue(
-        of(
-          new HttpResponse({
-            body: [new Authorization(123)],
-            headers
-          })
-        )
-      );
+      authorizationServiceStub.retrieve.resolves({ headers: {}, data: [{ id: 123 }] });
 
       // WHEN
-      comp.ngOnInit();
+      comp.retrieveAllAuthorizations();
+      await comp.$nextTick();
 
       // THEN
-      expect(service.query).toHaveBeenCalled();
+      expect(authorizationServiceStub.retrieve.called).toBeTruthy();
       expect(comp.authorizations[0]).toEqual(jasmine.objectContaining({ id: 123 }));
+    });
+    it('Should call delete service on confirmDelete', async () => {
+      // GIVEN
+      authorizationServiceStub.delete.resolves({});
+
+      // WHEN
+      comp.prepareRemove({ id: 123 });
+      comp.removeAuthorization();
+      await comp.$nextTick();
+
+      // THEN
+      expect(authorizationServiceStub.delete.called).toBeTruthy();
+      expect(authorizationServiceStub.retrieve.callCount).toEqual(2);
     });
   });
 });

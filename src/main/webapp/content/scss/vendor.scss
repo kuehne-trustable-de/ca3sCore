@@ -4,11 +4,10 @@
 put Sass variables here:
 eg $input-color: red;
 ****************************/
-@import '~bootswatch/dist/materia/variables';
-// Override Bootstrap variables
+// Override Boostrap variables
 @import 'bootstrap-variables';
 // Import Bootstrap source files from node_modules
 @import '~bootstrap/scss/bootstrap';
-@import '~bootswatch/dist/materia/bootswatch';
+@import '~bootstrap-vue/src/index.scss';
 
 /* jhipster-needle-scss-add-vendor JHipster will add new css style */

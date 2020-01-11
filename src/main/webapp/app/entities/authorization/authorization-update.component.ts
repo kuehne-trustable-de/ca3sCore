@@ -1,108 +1,103 @@
-import { Component, OnInit } from '@angular/core';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { JhiAlertService } from 'ng-jhipster';
-import { IAuthorization, Authorization } from 'app/shared/model/authorization.model';
-import { AuthorizationService } from './authorization.service';
-import { IAcmeOrder } from 'app/shared/model/acme-order.model';
-import { AcmeOrderService } from 'app/entities/acme-order/acme-order.service';
+import { Component, Vue, Inject } from 'vue-property-decorator';
+
+import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
+
+import AcmeChallengeService from '../acme-challenge/acme-challenge.service';
+import { IAcmeChallenge } from '@/shared/model/acme-challenge.model';
+
+import AcmeOrderService from '../acme-order/acme-order.service';
+import { IAcmeOrder } from '@/shared/model/acme-order.model';
+
+import AlertService from '@/shared/alert/alert.service';
+import { IAuthorization, Authorization } from '@/shared/model/authorization.model';
+import AuthorizationService from './authorization.service';
+
+const validations: any = {
+  authorization: {
+    authorizationId: {
+      required,
+      numeric
+    },
+    type: {
+      required
+    },
+    value: {
+      required
+    }
+  }
+};
 
 @Component({
-  selector: 'jhi-authorization-update',
-  templateUrl: './authorization-update.component.html'
+  validations
 })
-export class AuthorizationUpdateComponent implements OnInit {
-  isSaving: boolean;
+export default class AuthorizationUpdate extends Vue {
+  @Inject('alertService') private alertService: () => AlertService;
+  @Inject('authorizationService') private authorizationService: () => AuthorizationService;
+  public authorization: IAuthorization = new Authorization();
 
-  acmeorders: IAcmeOrder[];
+  @Inject('acmeChallengeService') private acmeChallengeService: () => AcmeChallengeService;
 
-  editForm = this.fb.group({
-    id: [],
-    authorizationId: [null, [Validators.required]],
-    type: [null, [Validators.required]],
-    value: [null, [Validators.required]],
-    order: []
-  });
+  public acmeChallenges: IAcmeChallenge[] = [];
 
-  constructor(
-    protected jhiAlertService: JhiAlertService,
-    protected authorizationService: AuthorizationService,
-    protected acmeOrderService: AcmeOrderService,
-    protected activatedRoute: ActivatedRoute,
-    private fb: FormBuilder
-  ) {}
+  @Inject('acmeOrderService') private acmeOrderService: () => AcmeOrderService;
 
-  ngOnInit() {
-    this.isSaving = false;
-    this.activatedRoute.data.subscribe(({ authorization }) => {
-      this.updateForm(authorization);
-    });
-    this.acmeOrderService
-      .query()
-      .pipe(
-        filter((mayBeOk: HttpResponse<IAcmeOrder[]>) => mayBeOk.ok),
-        map((response: HttpResponse<IAcmeOrder[]>) => response.body)
-      )
-      .subscribe((res: IAcmeOrder[]) => (this.acmeorders = res), (res: HttpErrorResponse) => this.onError(res.message));
-  }
+  public acmeOrders: IAcmeOrder[] = [];
+  public isSaving = false;
 
-  updateForm(authorization: IAuthorization) {
-    this.editForm.patchValue({
-      id: authorization.id,
-      authorizationId: authorization.authorizationId,
-      type: authorization.type,
-      value: authorization.value,
-      order: authorization.order
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      if (to.params.authorizationId) {
+        vm.retrieveAuthorization(to.params.authorizationId);
+      }
+      vm.initRelationships();
     });
   }
 
-  previousState() {
-    window.history.back();
-  }
-
-  save() {
+  public save(): void {
     this.isSaving = true;
-    const authorization = this.createFromForm();
-    if (authorization.id !== undefined) {
-      this.subscribeToSaveResponse(this.authorizationService.update(authorization));
+    if (this.authorization.id) {
+      this.authorizationService()
+        .update(this.authorization)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.authorization.updated', { param: param.id });
+          this.alertService().showAlert(message, 'info');
+        });
     } else {
-      this.subscribeToSaveResponse(this.authorizationService.create(authorization));
+      this.authorizationService()
+        .create(this.authorization)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.authorization.created', { param: param.id });
+          this.alertService().showAlert(message, 'success');
+        });
     }
   }
 
-  private createFromForm(): IAuthorization {
-    return {
-      ...new Authorization(),
-      id: this.editForm.get(['id']).value,
-      authorizationId: this.editForm.get(['authorizationId']).value,
-      type: this.editForm.get(['type']).value,
-      value: this.editForm.get(['value']).value,
-      order: this.editForm.get(['order']).value
-    };
+  public retrieveAuthorization(authorizationId): void {
+    this.authorizationService()
+      .find(authorizationId)
+      .then(res => {
+        this.authorization = res;
+      });
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IAuthorization>>) {
-    result.subscribe(() => this.onSaveSuccess(), () => this.onSaveError());
+  public previousState(): void {
+    this.$router.go(-1);
   }
 
-  protected onSaveSuccess() {
-    this.isSaving = false;
-    this.previousState();
-  }
-
-  protected onSaveError() {
-    this.isSaving = false;
-  }
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
-  }
-
-  trackAcmeOrderById(index: number, item: IAcmeOrder) {
-    return item.id;
+  public initRelationships(): void {
+    this.acmeChallengeService()
+      .retrieve()
+      .then(res => {
+        this.acmeChallenges = res.data;
+      });
+    this.acmeOrderService()
+      .retrieve()
+      .then(res => {
+        this.acmeOrders = res.data;
+      });
   }
 }

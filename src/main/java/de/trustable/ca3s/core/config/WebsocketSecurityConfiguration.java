@@ -1,11 +1,10 @@
 package de.trustable.ca3s.core.config;
 
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
 import org.springframework.security.config.annotation.web.socket.AbstractSecurityWebSocketMessageBrokerConfigurer;
-
-import de.trustable.ca3s.core.security.AuthoritiesConstants;
 
 @Configuration
 public class WebsocketSecurityConfiguration extends AbstractSecurityWebSocketMessageBrokerConfigurer {

@@ -1,9 +1,9 @@
 package de.trustable.ca3s.core.service;
 
+import de.trustable.ca3s.core.domain.Authorization;
+
 import java.util.List;
 import java.util.Optional;
-
-import de.trustable.ca3s.core.domain.Authorization;
 
 /**
  * Service Interface for managing {@link Authorization}.

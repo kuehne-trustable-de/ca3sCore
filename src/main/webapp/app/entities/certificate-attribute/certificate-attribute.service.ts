@@ -1,38 +1,47 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import axios from 'axios';
 
-import { SERVER_API_URL } from 'app/app.constants';
-import { createRequestOption } from 'app/shared/util/request-util';
-import { ICertificateAttribute } from 'app/shared/model/certificate-attribute.model';
+import { ICertificateAttribute } from '@/shared/model/certificate-attribute.model';
 
-type EntityResponseType = HttpResponse<ICertificateAttribute>;
-type EntityArrayResponseType = HttpResponse<ICertificateAttribute[]>;
+const baseApiUrl = 'api/certificate-attributes';
 
-@Injectable({ providedIn: 'root' })
-export class CertificateAttributeService {
-  public resourceUrl = SERVER_API_URL + 'api/certificate-attributes';
-
-  constructor(protected http: HttpClient) {}
-
-  create(certificateAttribute: ICertificateAttribute): Observable<EntityResponseType> {
-    return this.http.post<ICertificateAttribute>(this.resourceUrl, certificateAttribute, { observe: 'response' });
+export default class CertificateAttributeService {
+  public find(id: number): Promise<ICertificateAttribute> {
+    return new Promise<ICertificateAttribute>(resolve => {
+      axios.get(`${baseApiUrl}/${id}`).then(function(res) {
+        resolve(res.data);
+      });
+    });
   }
 
-  update(certificateAttribute: ICertificateAttribute): Observable<EntityResponseType> {
-    return this.http.put<ICertificateAttribute>(this.resourceUrl, certificateAttribute, { observe: 'response' });
+  public retrieve(): Promise<any> {
+    return new Promise<any>(resolve => {
+      axios.get(baseApiUrl).then(function(res) {
+        resolve(res);
+      });
+    });
   }
 
-  find(id: number): Observable<EntityResponseType> {
-    return this.http.get<ICertificateAttribute>(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  public delete(id: number): Promise<any> {
+    return new Promise<any>(resolve => {
+      axios.delete(`${baseApiUrl}/${id}`).then(function(res) {
+        resolve(res);
+      });
+    });
   }
 
-  query(req?: any): Observable<EntityArrayResponseType> {
-    const options = createRequestOption(req);
-    return this.http.get<ICertificateAttribute[]>(this.resourceUrl, { params: options, observe: 'response' });
+  public create(entity: ICertificateAttribute): Promise<ICertificateAttribute> {
+    return new Promise<ICertificateAttribute>(resolve => {
+      axios.post(`${baseApiUrl}`, entity).then(function(res) {
+        resolve(res.data);
+      });
+    });
   }
 
-  delete(id: number): Observable<HttpResponse<any>> {
-    return this.http.delete<any>(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  public update(entity: ICertificateAttribute): Promise<ICertificateAttribute> {
+    return new Promise<ICertificateAttribute>(resolve => {
+      axios.put(`${baseApiUrl}`, entity).then(function(res) {
+        resolve(res.data);
+      });
+    });
   }
 }

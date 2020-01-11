@@ -1,108 +1,91 @@
-import { Component, OnInit } from '@angular/core';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { JhiAlertService } from 'ng-jhipster';
-import { IIdentifier, Identifier } from 'app/shared/model/identifier.model';
-import { IdentifierService } from './identifier.service';
-import { IAcmeOrder } from 'app/shared/model/acme-order.model';
-import { AcmeOrderService } from 'app/entities/acme-order/acme-order.service';
+import { Component, Vue, Inject } from 'vue-property-decorator';
+
+import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
+
+import AcmeOrderService from '../acme-order/acme-order.service';
+import { IAcmeOrder } from '@/shared/model/acme-order.model';
+
+import AlertService from '@/shared/alert/alert.service';
+import { IIdentifier, Identifier } from '@/shared/model/identifier.model';
+import IdentifierService from './identifier.service';
+
+const validations: any = {
+  identifier: {
+    identifierId: {
+      required,
+      numeric
+    },
+    type: {
+      required
+    },
+    value: {
+      required
+    }
+  }
+};
 
 @Component({
-  selector: 'jhi-identifier-update',
-  templateUrl: './identifier-update.component.html'
+  validations
 })
-export class IdentifierUpdateComponent implements OnInit {
-  isSaving: boolean;
+export default class IdentifierUpdate extends Vue {
+  @Inject('alertService') private alertService: () => AlertService;
+  @Inject('identifierService') private identifierService: () => IdentifierService;
+  public identifier: IIdentifier = new Identifier();
 
-  acmeorders: IAcmeOrder[];
+  @Inject('acmeOrderService') private acmeOrderService: () => AcmeOrderService;
 
-  editForm = this.fb.group({
-    id: [],
-    identifierId: [null, [Validators.required]],
-    type: [null, [Validators.required]],
-    value: [null, [Validators.required]],
-    order: []
-  });
+  public acmeOrders: IAcmeOrder[] = [];
+  public isSaving = false;
 
-  constructor(
-    protected jhiAlertService: JhiAlertService,
-    protected identifierService: IdentifierService,
-    protected acmeOrderService: AcmeOrderService,
-    protected activatedRoute: ActivatedRoute,
-    private fb: FormBuilder
-  ) {}
-
-  ngOnInit() {
-    this.isSaving = false;
-    this.activatedRoute.data.subscribe(({ identifier }) => {
-      this.updateForm(identifier);
-    });
-    this.acmeOrderService
-      .query()
-      .pipe(
-        filter((mayBeOk: HttpResponse<IAcmeOrder[]>) => mayBeOk.ok),
-        map((response: HttpResponse<IAcmeOrder[]>) => response.body)
-      )
-      .subscribe((res: IAcmeOrder[]) => (this.acmeorders = res), (res: HttpErrorResponse) => this.onError(res.message));
-  }
-
-  updateForm(identifier: IIdentifier) {
-    this.editForm.patchValue({
-      id: identifier.id,
-      identifierId: identifier.identifierId,
-      type: identifier.type,
-      value: identifier.value,
-      order: identifier.order
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      if (to.params.identifierId) {
+        vm.retrieveIdentifier(to.params.identifierId);
+      }
+      vm.initRelationships();
     });
   }
 
-  previousState() {
-    window.history.back();
-  }
-
-  save() {
+  public save(): void {
     this.isSaving = true;
-    const identifier = this.createFromForm();
-    if (identifier.id !== undefined) {
-      this.subscribeToSaveResponse(this.identifierService.update(identifier));
+    if (this.identifier.id) {
+      this.identifierService()
+        .update(this.identifier)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.identifier.updated', { param: param.id });
+          this.alertService().showAlert(message, 'info');
+        });
     } else {
-      this.subscribeToSaveResponse(this.identifierService.create(identifier));
+      this.identifierService()
+        .create(this.identifier)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.identifier.created', { param: param.id });
+          this.alertService().showAlert(message, 'success');
+        });
     }
   }
 
-  private createFromForm(): IIdentifier {
-    return {
-      ...new Identifier(),
-      id: this.editForm.get(['id']).value,
-      identifierId: this.editForm.get(['identifierId']).value,
-      type: this.editForm.get(['type']).value,
-      value: this.editForm.get(['value']).value,
-      order: this.editForm.get(['order']).value
-    };
+  public retrieveIdentifier(identifierId): void {
+    this.identifierService()
+      .find(identifierId)
+      .then(res => {
+        this.identifier = res;
+      });
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IIdentifier>>) {
-    result.subscribe(() => this.onSaveSuccess(), () => this.onSaveError());
+  public previousState(): void {
+    this.$router.go(-1);
   }
 
-  protected onSaveSuccess() {
-    this.isSaving = false;
-    this.previousState();
-  }
-
-  protected onSaveError() {
-    this.isSaving = false;
-  }
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
-  }
-
-  trackAcmeOrderById(index: number, item: IAcmeOrder) {
-    return item.id;
+  public initRelationships(): void {
+    this.acmeOrderService()
+      .retrieve()
+      .then(res => {
+        this.acmeOrders = res.data;
+      });
   }
 }

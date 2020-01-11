@@ -1,50 +1,83 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
+/* tslint:disable max-line-length */
+import { shallowMount, createLocalVue, Wrapper } from '@vue/test-utils';
+import sinon, { SinonStubbedInstance } from 'sinon';
 
-import { Ca3SJhTestModule } from '../../../test.module';
-import { RDNComponent } from 'app/entities/rdn/rdn.component';
-import { RDNService } from 'app/entities/rdn/rdn.service';
-import { RDN } from 'app/shared/model/rdn.model';
+import AlertService from '@/shared/alert/alert.service';
+import * as config from '@/shared/config/config';
+import RDNComponent from '@/entities/rdn/rdn.vue';
+import RDNClass from '@/entities/rdn/rdn.component';
+import RDNService from '@/entities/rdn/rdn.service';
+
+const localVue = createLocalVue();
+
+config.initVueApp(localVue);
+const i18n = config.initI18N(localVue);
+const store = config.initVueXStore(localVue);
+localVue.component('font-awesome-icon', {});
+localVue.component('b-alert', {});
+localVue.component('b-badge', {});
+localVue.directive('b-modal', {});
+localVue.component('b-button', {});
+localVue.component('router-link', {});
+
+const bModalStub = {
+  render: () => {},
+  methods: {
+    hide: () => {}
+  }
+};
 
 describe('Component Tests', () => {
   describe('RDN Management Component', () => {
-    let comp: RDNComponent;
-    let fixture: ComponentFixture<RDNComponent>;
-    let service: RDNService;
+    let wrapper: Wrapper<RDNClass>;
+    let comp: RDNClass;
+    let rDNServiceStub: SinonStubbedInstance<RDNService>;
 
     beforeEach(() => {
-      TestBed.configureTestingModule({
-        imports: [Ca3SJhTestModule],
-        declarations: [RDNComponent],
-        providers: []
-      })
-        .overrideTemplate(RDNComponent, '')
-        .compileComponents();
+      rDNServiceStub = sinon.createStubInstance<RDNService>(RDNService);
+      rDNServiceStub.retrieve.resolves({ headers: {} });
 
-      fixture = TestBed.createComponent(RDNComponent);
-      comp = fixture.componentInstance;
-      service = fixture.debugElement.injector.get(RDNService);
+      wrapper = shallowMount<RDNClass>(RDNComponent, {
+        store,
+        i18n,
+        localVue,
+        stubs: { bModal: bModalStub as any },
+        provide: {
+          alertService: () => new AlertService(store),
+          rDNService: () => rDNServiceStub
+        }
+      });
+      comp = wrapper.vm;
     });
 
-    it('Should call load all on init', () => {
+    it('should be a Vue instance', () => {
+      expect(wrapper.isVueInstance()).toBeTruthy();
+    });
+
+    it('Should call load all on init', async () => {
       // GIVEN
-      const headers = new HttpHeaders().append('link', 'link;link');
-      spyOn(service, 'query').and.returnValue(
-        of(
-          new HttpResponse({
-            body: [new RDN(123)],
-            headers
-          })
-        )
-      );
+      rDNServiceStub.retrieve.resolves({ headers: {}, data: [{ id: 123 }] });
 
       // WHEN
-      comp.ngOnInit();
+      comp.retrieveAllRDNs();
+      await comp.$nextTick();
 
       // THEN
-      expect(service.query).toHaveBeenCalled();
+      expect(rDNServiceStub.retrieve.called).toBeTruthy();
       expect(comp.rDNS[0]).toEqual(jasmine.objectContaining({ id: 123 }));
+    });
+    it('Should call delete service on confirmDelete', async () => {
+      // GIVEN
+      rDNServiceStub.delete.resolves({});
+
+      // WHEN
+      comp.prepareRemove({ id: 123 });
+      comp.removeRDN();
+      await comp.$nextTick();
+
+      // THEN
+      expect(rDNServiceStub.delete.called).toBeTruthy();
+      expect(rDNServiceStub.retrieve.callCount).toEqual(2);
     });
   });
 });

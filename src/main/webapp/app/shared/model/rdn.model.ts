@@ -1,5 +1,5 @@
-import { IRDNAttribute } from 'app/shared/model/rdn-attribute.model';
-import { ICSR } from 'app/shared/model/csr.model';
+import { IRDNAttribute } from '@/shared/model/rdn-attribute.model';
+import { ICSR } from '@/shared/model/csr.model';
 
 export interface IRDN {
   id?: number;

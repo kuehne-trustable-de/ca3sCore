@@ -1,5 +1,19 @@
 package de.trustable.ca3s.core.web.rest;
 
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.config.Constants;
+import de.trustable.ca3s.core.domain.Authority;
+import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.repository.AuthorityRepository;
+import de.trustable.ca3s.core.repository.UserRepository;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
+import de.trustable.ca3s.core.service.MailService;
+import de.trustable.ca3s.core.service.UserService;
+import de.trustable.ca3s.core.service.dto.PasswordChangeDTO;
+import de.trustable.ca3s.core.service.dto.UserDTO;
+import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
+import de.trustable.ca3s.core.web.rest.vm.KeyAndPasswordVM;
+import de.trustable.ca3s.core.web.rest.vm.ManagedUserVM;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -16,22 +30,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import de.trustable.ca3s.core.Ca3SJhApp;
-import de.trustable.ca3s.core.config.Constants;
-import de.trustable.ca3s.core.domain.Authority;
-import de.trustable.ca3s.core.domain.User;
-import de.trustable.ca3s.core.repository.AuthorityRepository;
-import de.trustable.ca3s.core.repository.UserRepository;
-import de.trustable.ca3s.core.security.AuthoritiesConstants;
-import de.trustable.ca3s.core.service.MailService;
-import de.trustable.ca3s.core.service.UserService;
-import de.trustable.ca3s.core.service.dto.PasswordChangeDTO;
-import de.trustable.ca3s.core.service.dto.UserDTO;
-import de.trustable.ca3s.core.web.rest.AccountResource;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
-import de.trustable.ca3s.core.web.rest.vm.KeyAndPasswordVM;
-import de.trustable.ca3s.core.web.rest.vm.ManagedUserVM;
-
 import java.time.Instant;
 import java.util.*;
 
@@ -45,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Integration tests for the {@link AccountResource} REST controller.
  */
-@SpringBootTest(classes = Ca3SJhApp.class)
+@SpringBootTest(classes = Ca3SApp.class)
 public class AccountResourceIT {
 
     @Autowired

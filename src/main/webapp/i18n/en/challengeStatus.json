@@ -1,13 +1,13 @@
 {
-  "ca3SJhApp": {
+  "ca3SApp": {
     "ChallengeStatus": {
       "null": "",
-      "Pending": "Pending",
-      "Valid": "Valid",
-      "Invalid": "Invalid",
-      "Deactivated": "Deactivated",
-      "Expired": "Expired",
-      "Revoked": "Revoked"
+      "PENDING": "PENDING",
+      "VALID": "VALID",
+      "INVALID": "INVALID",
+      "DEACTIVATED": "DEACTIVATED",
+      "EXPIRED": "EXPIRED",
+      "REVOKED": "REVOKED"
     }
   }
 }

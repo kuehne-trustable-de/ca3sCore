@@ -1,5 +1,9 @@
 package de.trustable.ca3s.core.service;
 
+import de.trustable.ca3s.core.config.Constants;
+
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.domain.User;
 import io.github.jhipster.config.JHipsterProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,11 +18,6 @@ import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
-import de.trustable.ca3s.core.Ca3SJhApp;
-import de.trustable.ca3s.core.config.Constants;
-import de.trustable.ca3s.core.domain.User;
-import de.trustable.ca3s.core.service.MailService;
-
 import javax.mail.Multipart;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
@@ -30,8 +29,6 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,12 +40,10 @@ import static org.mockito.Mockito.*;
 /**
  * Integration tests for {@link MailService}.
  */
-@SpringBootTest(classes = Ca3SJhApp.class)
+@SpringBootTest(classes = Ca3SApp.class)
 public class MailServiceIT {
 
-    private static String languages[] = {
-        "en",
-        "de"
+    private static String[] languages = {
         // jhipster-needle-i18n-language-constant - JHipster will add/remove languages in this array
     };
     private static final Pattern PATTERN_LOCALE_3 = Pattern.compile("([a-z]{2})-([a-zA-Z]{4})-([a-z]{2})");
@@ -202,7 +197,11 @@ public class MailServiceIT {
     @Test
     public void testSendEmailWithException() throws Exception {
         doThrow(MailSendException.class).when(javaMailSender).send(any(MimeMessage.class));
-        mailService.sendEmail("john.doe@example.com", "testSubject", "testContent", false, false);
+        try {
+            mailService.sendEmail("john.doe@example.com", "testSubject", "testContent", false, false);
+        } catch (Exception e) {
+            fail("Exception shouldn't have been thrown");
+        }
     }
 
     @Test

@@ -1,23 +1,19 @@
 package de.trustable.ca3s.core.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
 
+import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
+
 /**
  * A AcmeChallenge.
  */
 @Entity
 @Table(name = "acme_challenge")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class AcmeChallenge implements Serializable {
 
     private static final long serialVersionUID = 1L;

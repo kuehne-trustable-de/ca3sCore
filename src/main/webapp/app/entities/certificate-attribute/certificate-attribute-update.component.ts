@@ -1,105 +1,85 @@
-import { Component, OnInit } from '@angular/core';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { JhiAlertService } from 'ng-jhipster';
-import { ICertificateAttribute, CertificateAttribute } from 'app/shared/model/certificate-attribute.model';
-import { CertificateAttributeService } from './certificate-attribute.service';
-import { ICertificate } from 'app/shared/model/certificate.model';
-import { CertificateService } from 'app/entities/certificate/certificate.service';
+import { Component, Vue, Inject } from 'vue-property-decorator';
+
+import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
+
+import CertificateService from '../certificate/certificate.service';
+import { ICertificate } from '@/shared/model/certificate.model';
+
+import AlertService from '@/shared/alert/alert.service';
+import { ICertificateAttribute, CertificateAttribute } from '@/shared/model/certificate-attribute.model';
+import CertificateAttributeService from './certificate-attribute.service';
+
+const validations: any = {
+  certificateAttribute: {
+    name: {
+      required
+    },
+    value: {}
+  }
+};
 
 @Component({
-  selector: 'jhi-certificate-attribute-update',
-  templateUrl: './certificate-attribute-update.component.html'
+  validations
 })
-export class CertificateAttributeUpdateComponent implements OnInit {
-  isSaving: boolean;
+export default class CertificateAttributeUpdate extends Vue {
+  @Inject('alertService') private alertService: () => AlertService;
+  @Inject('certificateAttributeService') private certificateAttributeService: () => CertificateAttributeService;
+  public certificateAttribute: ICertificateAttribute = new CertificateAttribute();
 
-  certificates: ICertificate[];
+  @Inject('certificateService') private certificateService: () => CertificateService;
 
-  editForm = this.fb.group({
-    id: [],
-    name: [null, [Validators.required]],
-    value: [],
-    certificate: []
-  });
+  public certificates: ICertificate[] = [];
+  public isSaving = false;
 
-  constructor(
-    protected jhiAlertService: JhiAlertService,
-    protected certificateAttributeService: CertificateAttributeService,
-    protected certificateService: CertificateService,
-    protected activatedRoute: ActivatedRoute,
-    private fb: FormBuilder
-  ) {}
-
-  ngOnInit() {
-    this.isSaving = false;
-    this.activatedRoute.data.subscribe(({ certificateAttribute }) => {
-      this.updateForm(certificateAttribute);
-    });
-    this.certificateService
-      .query()
-      .pipe(
-        filter((mayBeOk: HttpResponse<ICertificate[]>) => mayBeOk.ok),
-        map((response: HttpResponse<ICertificate[]>) => response.body)
-      )
-      .subscribe((res: ICertificate[]) => (this.certificates = res), (res: HttpErrorResponse) => this.onError(res.message));
-  }
-
-  updateForm(certificateAttribute: ICertificateAttribute) {
-    this.editForm.patchValue({
-      id: certificateAttribute.id,
-      name: certificateAttribute.name,
-      value: certificateAttribute.value,
-      certificate: certificateAttribute.certificate
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      if (to.params.certificateAttributeId) {
+        vm.retrieveCertificateAttribute(to.params.certificateAttributeId);
+      }
+      vm.initRelationships();
     });
   }
 
-  previousState() {
-    window.history.back();
-  }
-
-  save() {
+  public save(): void {
     this.isSaving = true;
-    const certificateAttribute = this.createFromForm();
-    if (certificateAttribute.id !== undefined) {
-      this.subscribeToSaveResponse(this.certificateAttributeService.update(certificateAttribute));
+    if (this.certificateAttribute.id) {
+      this.certificateAttributeService()
+        .update(this.certificateAttribute)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.certificateAttribute.updated', { param: param.id });
+          this.alertService().showAlert(message, 'info');
+        });
     } else {
-      this.subscribeToSaveResponse(this.certificateAttributeService.create(certificateAttribute));
+      this.certificateAttributeService()
+        .create(this.certificateAttribute)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.certificateAttribute.created', { param: param.id });
+          this.alertService().showAlert(message, 'success');
+        });
     }
   }
 
-  private createFromForm(): ICertificateAttribute {
-    return {
-      ...new CertificateAttribute(),
-      id: this.editForm.get(['id']).value,
-      name: this.editForm.get(['name']).value,
-      value: this.editForm.get(['value']).value,
-      certificate: this.editForm.get(['certificate']).value
-    };
+  public retrieveCertificateAttribute(certificateAttributeId): void {
+    this.certificateAttributeService()
+      .find(certificateAttributeId)
+      .then(res => {
+        this.certificateAttribute = res;
+      });
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<ICertificateAttribute>>) {
-    result.subscribe(() => this.onSaveSuccess(), () => this.onSaveError());
+  public previousState(): void {
+    this.$router.go(-1);
   }
 
-  protected onSaveSuccess() {
-    this.isSaving = false;
-    this.previousState();
-  }
-
-  protected onSaveError() {
-    this.isSaving = false;
-  }
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
-  }
-
-  trackCertificateById(index: number, item: ICertificate) {
-    return item.id;
+  public initRelationships(): void {
+    this.certificateService()
+      .retrieve()
+      .then(res => {
+        this.certificates = res.data;
+      });
   }
 }

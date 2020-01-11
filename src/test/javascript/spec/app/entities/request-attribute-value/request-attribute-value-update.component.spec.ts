@@ -1,61 +1,79 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { HttpResponse } from '@angular/common/http';
-import { FormBuilder } from '@angular/forms';
-import { of } from 'rxjs';
+/* tslint:disable max-line-length */
+import { shallowMount, createLocalVue, Wrapper } from '@vue/test-utils';
+import sinon, { SinonStubbedInstance } from 'sinon';
+import Router from 'vue-router';
 
-import { Ca3SJhTestModule } from '../../../test.module';
-import { RequestAttributeValueUpdateComponent } from 'app/entities/request-attribute-value/request-attribute-value-update.component';
-import { RequestAttributeValueService } from 'app/entities/request-attribute-value/request-attribute-value.service';
-import { RequestAttributeValue } from 'app/shared/model/request-attribute-value.model';
+import AlertService from '@/shared/alert/alert.service';
+import * as config from '@/shared/config/config';
+import RequestAttributeValueUpdateComponent from '@/entities/request-attribute-value/request-attribute-value-update.vue';
+import RequestAttributeValueClass from '@/entities/request-attribute-value/request-attribute-value-update.component';
+import RequestAttributeValueService from '@/entities/request-attribute-value/request-attribute-value.service';
+
+import RequestAttributeService from '@/entities/request-attribute/request-attribute.service';
+
+const localVue = createLocalVue();
+
+config.initVueApp(localVue);
+const i18n = config.initI18N(localVue);
+const store = config.initVueXStore(localVue);
+const router = new Router();
+localVue.use(Router);
+localVue.component('font-awesome-icon', {});
 
 describe('Component Tests', () => {
   describe('RequestAttributeValue Management Update Component', () => {
-    let comp: RequestAttributeValueUpdateComponent;
-    let fixture: ComponentFixture<RequestAttributeValueUpdateComponent>;
-    let service: RequestAttributeValueService;
+    let wrapper: Wrapper<RequestAttributeValueClass>;
+    let comp: RequestAttributeValueClass;
+    let requestAttributeValueServiceStub: SinonStubbedInstance<RequestAttributeValueService>;
 
     beforeEach(() => {
-      TestBed.configureTestingModule({
-        imports: [Ca3SJhTestModule],
-        declarations: [RequestAttributeValueUpdateComponent],
-        providers: [FormBuilder]
-      })
-        .overrideTemplate(RequestAttributeValueUpdateComponent, '')
-        .compileComponents();
+      requestAttributeValueServiceStub = sinon.createStubInstance<RequestAttributeValueService>(RequestAttributeValueService);
 
-      fixture = TestBed.createComponent(RequestAttributeValueUpdateComponent);
-      comp = fixture.componentInstance;
-      service = fixture.debugElement.injector.get(RequestAttributeValueService);
+      wrapper = shallowMount<RequestAttributeValueClass>(RequestAttributeValueUpdateComponent, {
+        store,
+        i18n,
+        localVue,
+        router,
+        provide: {
+          alertService: () => new AlertService(store),
+          requestAttributeValueService: () => requestAttributeValueServiceStub,
+
+          requestAttributeService: () => new RequestAttributeService()
+        }
+      });
+      comp = wrapper.vm;
     });
 
     describe('save', () => {
-      it('Should call update service on save for existing entity', fakeAsync(() => {
+      it('Should call update service on save for existing entity', async () => {
         // GIVEN
-        const entity = new RequestAttributeValue(123);
-        spyOn(service, 'update').and.returnValue(of(new HttpResponse({ body: entity })));
-        comp.updateForm(entity);
+        const entity = { id: 123 };
+        comp.requestAttributeValue = entity;
+        requestAttributeValueServiceStub.update.resolves(entity);
+
         // WHEN
         comp.save();
-        tick(); // simulate async
+        await comp.$nextTick();
 
         // THEN
-        expect(service.update).toHaveBeenCalledWith(entity);
+        expect(requestAttributeValueServiceStub.update.calledWith(entity)).toBeTruthy();
         expect(comp.isSaving).toEqual(false);
-      }));
+      });
 
-      it('Should call create service on save for new entity', fakeAsync(() => {
+      it('Should call create service on save for new entity', async () => {
         // GIVEN
-        const entity = new RequestAttributeValue();
-        spyOn(service, 'create').and.returnValue(of(new HttpResponse({ body: entity })));
-        comp.updateForm(entity);
+        const entity = {};
+        comp.requestAttributeValue = entity;
+        requestAttributeValueServiceStub.create.resolves(entity);
+
         // WHEN
         comp.save();
-        tick(); // simulate async
+        await comp.$nextTick();
 
         // THEN
-        expect(service.create).toHaveBeenCalledWith(entity);
+        expect(requestAttributeValueServiceStub.create.calledWith(entity)).toBeTruthy();
         expect(comp.isSaving).toEqual(false);
-      }));
+      });
     });
   });
 });

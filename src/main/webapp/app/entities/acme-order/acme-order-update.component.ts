@@ -1,165 +1,142 @@
-import { Component, OnInit } from '@angular/core';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import * as moment from 'moment';
-import { JhiAlertService } from 'ng-jhipster';
-import { IAcmeOrder, AcmeOrder } from 'app/shared/model/acme-order.model';
-import { AcmeOrderService } from './acme-order.service';
-import { ICSR } from 'app/shared/model/csr.model';
-import { CSRService } from 'app/entities/csr/csr.service';
-import { ICertificate } from 'app/shared/model/certificate.model';
-import { CertificateService } from 'app/entities/certificate/certificate.service';
-import { IACMEAccount } from 'app/shared/model/acme-account.model';
-import { ACMEAccountService } from 'app/entities/acme-account/acme-account.service';
+import { Component, Vue, Inject } from 'vue-property-decorator';
+
+import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
+
+import AuthorizationService from '../authorization/authorization.service';
+import { IAuthorization } from '@/shared/model/authorization.model';
+
+import IdentifierService from '../identifier/identifier.service';
+import { IIdentifier } from '@/shared/model/identifier.model';
+
+import CSRService from '../csr/csr.service';
+import { ICSR } from '@/shared/model/csr.model';
+
+import CertificateService from '../certificate/certificate.service';
+import { ICertificate } from '@/shared/model/certificate.model';
+
+import ACMEAccountService from '../acme-account/acme-account.service';
+import { IACMEAccount } from '@/shared/model/acme-account.model';
+
+import AlertService from '@/shared/alert/alert.service';
+import { IAcmeOrder, AcmeOrder } from '@/shared/model/acme-order.model';
+import AcmeOrderService from './acme-order.service';
+
+const validations: any = {
+  acmeOrder: {
+    orderId: {
+      required,
+      numeric
+    },
+    status: {
+      required
+    },
+    expires: {},
+    notBefore: {},
+    notAfter: {},
+    error: {},
+    finalizeUrl: {},
+    certificateUrl: {}
+  }
+};
 
 @Component({
-  selector: 'jhi-acme-order-update',
-  templateUrl: './acme-order-update.component.html'
+  validations
 })
-export class AcmeOrderUpdateComponent implements OnInit {
-  isSaving: boolean;
+export default class AcmeOrderUpdate extends Vue {
+  @Inject('alertService') private alertService: () => AlertService;
+  @Inject('acmeOrderService') private acmeOrderService: () => AcmeOrderService;
+  public acmeOrder: IAcmeOrder = new AcmeOrder();
 
-  csrs: ICSR[];
+  @Inject('authorizationService') private authorizationService: () => AuthorizationService;
 
-  certificates: ICertificate[];
+  public authorizations: IAuthorization[] = [];
 
-  acmeaccounts: IACMEAccount[];
-  expiresDp: any;
-  notBeforeDp: any;
-  notAfterDp: any;
+  @Inject('identifierService') private identifierService: () => IdentifierService;
 
-  editForm = this.fb.group({
-    id: [],
-    orderId: [null, [Validators.required]],
-    status: [null, [Validators.required]],
-    expires: [],
-    notBefore: [],
-    notAfter: [],
-    error: [],
-    finalizeUrl: [],
-    certificateUrl: [],
-    csr: [],
-    certificate: [],
-    account: []
-  });
+  public identifiers: IIdentifier[] = [];
 
-  constructor(
-    protected jhiAlertService: JhiAlertService,
-    protected acmeOrderService: AcmeOrderService,
-    protected cSRService: CSRService,
-    protected certificateService: CertificateService,
-    protected aCMEAccountService: ACMEAccountService,
-    protected activatedRoute: ActivatedRoute,
-    private fb: FormBuilder
-  ) {}
+  @Inject('cSRService') private cSRService: () => CSRService;
 
-  ngOnInit() {
-    this.isSaving = false;
-    this.activatedRoute.data.subscribe(({ acmeOrder }) => {
-      this.updateForm(acmeOrder);
-    });
-    this.cSRService
-      .query()
-      .pipe(
-        filter((mayBeOk: HttpResponse<ICSR[]>) => mayBeOk.ok),
-        map((response: HttpResponse<ICSR[]>) => response.body)
-      )
-      .subscribe((res: ICSR[]) => (this.csrs = res), (res: HttpErrorResponse) => this.onError(res.message));
-    this.certificateService
-      .query()
-      .pipe(
-        filter((mayBeOk: HttpResponse<ICertificate[]>) => mayBeOk.ok),
-        map((response: HttpResponse<ICertificate[]>) => response.body)
-      )
-      .subscribe((res: ICertificate[]) => (this.certificates = res), (res: HttpErrorResponse) => this.onError(res.message));
-    this.aCMEAccountService
-      .query()
-      .pipe(
-        filter((mayBeOk: HttpResponse<IACMEAccount[]>) => mayBeOk.ok),
-        map((response: HttpResponse<IACMEAccount[]>) => response.body)
-      )
-      .subscribe((res: IACMEAccount[]) => (this.acmeaccounts = res), (res: HttpErrorResponse) => this.onError(res.message));
-  }
+  public cSRS: ICSR[] = [];
 
-  updateForm(acmeOrder: IAcmeOrder) {
-    this.editForm.patchValue({
-      id: acmeOrder.id,
-      orderId: acmeOrder.orderId,
-      status: acmeOrder.status,
-      expires: acmeOrder.expires,
-      notBefore: acmeOrder.notBefore,
-      notAfter: acmeOrder.notAfter,
-      error: acmeOrder.error,
-      finalizeUrl: acmeOrder.finalizeUrl,
-      certificateUrl: acmeOrder.certificateUrl,
-      csr: acmeOrder.csr,
-      certificate: acmeOrder.certificate,
-      account: acmeOrder.account
+  @Inject('certificateService') private certificateService: () => CertificateService;
+
+  public certificates: ICertificate[] = [];
+
+  @Inject('aCMEAccountService') private aCMEAccountService: () => ACMEAccountService;
+
+  public aCMEAccounts: IACMEAccount[] = [];
+  public isSaving = false;
+
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      if (to.params.acmeOrderId) {
+        vm.retrieveAcmeOrder(to.params.acmeOrderId);
+      }
+      vm.initRelationships();
     });
   }
 
-  previousState() {
-    window.history.back();
-  }
-
-  save() {
+  public save(): void {
     this.isSaving = true;
-    const acmeOrder = this.createFromForm();
-    if (acmeOrder.id !== undefined) {
-      this.subscribeToSaveResponse(this.acmeOrderService.update(acmeOrder));
+    if (this.acmeOrder.id) {
+      this.acmeOrderService()
+        .update(this.acmeOrder)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.acmeOrder.updated', { param: param.id });
+          this.alertService().showAlert(message, 'info');
+        });
     } else {
-      this.subscribeToSaveResponse(this.acmeOrderService.create(acmeOrder));
+      this.acmeOrderService()
+        .create(this.acmeOrder)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.acmeOrder.created', { param: param.id });
+          this.alertService().showAlert(message, 'success');
+        });
     }
   }
 
-  private createFromForm(): IAcmeOrder {
-    return {
-      ...new AcmeOrder(),
-      id: this.editForm.get(['id']).value,
-      orderId: this.editForm.get(['orderId']).value,
-      status: this.editForm.get(['status']).value,
-      expires: this.editForm.get(['expires']).value,
-      notBefore: this.editForm.get(['notBefore']).value,
-      notAfter: this.editForm.get(['notAfter']).value,
-      error: this.editForm.get(['error']).value,
-      finalizeUrl: this.editForm.get(['finalizeUrl']).value,
-      certificateUrl: this.editForm.get(['certificateUrl']).value,
-      csr: this.editForm.get(['csr']).value,
-      certificate: this.editForm.get(['certificate']).value,
-      account: this.editForm.get(['account']).value
-    };
+  public retrieveAcmeOrder(acmeOrderId): void {
+    this.acmeOrderService()
+      .find(acmeOrderId)
+      .then(res => {
+        this.acmeOrder = res;
+      });
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IAcmeOrder>>) {
-    result.subscribe(() => this.onSaveSuccess(), () => this.onSaveError());
+  public previousState(): void {
+    this.$router.go(-1);
   }
 
-  protected onSaveSuccess() {
-    this.isSaving = false;
-    this.previousState();
-  }
-
-  protected onSaveError() {
-    this.isSaving = false;
-  }
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
-  }
-
-  trackCSRById(index: number, item: ICSR) {
-    return item.id;
-  }
-
-  trackCertificateById(index: number, item: ICertificate) {
-    return item.id;
-  }
-
-  trackACMEAccountById(index: number, item: IACMEAccount) {
-    return item.id;
+  public initRelationships(): void {
+    this.authorizationService()
+      .retrieve()
+      .then(res => {
+        this.authorizations = res.data;
+      });
+    this.identifierService()
+      .retrieve()
+      .then(res => {
+        this.identifiers = res.data;
+      });
+    this.cSRService()
+      .retrieve()
+      .then(res => {
+        this.cSRS = res.data;
+      });
+    this.certificateService()
+      .retrieve()
+      .then(res => {
+        this.certificates = res.data;
+      });
+    this.aCMEAccountService()
+      .retrieve()
+      .then(res => {
+        this.aCMEAccounts = res.data;
+      });
   }
 }

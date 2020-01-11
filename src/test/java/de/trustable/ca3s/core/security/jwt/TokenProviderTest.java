@@ -1,5 +1,7 @@
 package de.trustable.ca3s.core.security.jwt;
 
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
+
 import java.security.Key;
 import java.util.*;
 
@@ -11,8 +13,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import de.trustable.ca3s.core.security.AuthoritiesConstants;
-import de.trustable.ca3s.core.security.jwt.TokenProvider;
 import io.github.jhipster.config.JHipsterProperties;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

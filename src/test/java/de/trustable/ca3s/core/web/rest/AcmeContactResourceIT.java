@@ -1,5 +1,11 @@
 package de.trustable.ca3s.core.web.rest;
 
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.domain.AcmeContact;
+import de.trustable.ca3s.core.repository.AcmeContactRepository;
+import de.trustable.ca3s.core.service.AcmeContactService;
+import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -13,13 +19,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
-import de.trustable.ca3s.core.Ca3SJhApp;
-import de.trustable.ca3s.core.domain.AcmeContact;
-import de.trustable.ca3s.core.repository.AcmeContactRepository;
-import de.trustable.ca3s.core.service.AcmeContactService;
-import de.trustable.ca3s.core.web.rest.AcmeContactResource;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
-
 import javax.persistence.EntityManager;
 import java.util.List;
 
@@ -32,12 +31,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Integration tests for the {@link AcmeContactResource} REST controller.
  */
-@SpringBootTest(classes = Ca3SJhApp.class)
+@SpringBootTest(classes = Ca3SApp.class)
 public class AcmeContactResourceIT {
 
     private static final Long DEFAULT_CONTACT_ID = 1L;
     private static final Long UPDATED_CONTACT_ID = 2L;
-    private static final Long SMALLER_CONTACT_ID = 1L - 1L;
 
     private static final String DEFAULT_CONTACT_URL = "AAAAAAAAAA";
     private static final String UPDATED_CONTACT_URL = "BBBBBBBBBB";
@@ -196,7 +194,7 @@ public class AcmeContactResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(acmeContact.getId().intValue())))
             .andExpect(jsonPath("$.[*].contactId").value(hasItem(DEFAULT_CONTACT_ID.intValue())))
-            .andExpect(jsonPath("$.[*].contactUrl").value(hasItem(DEFAULT_CONTACT_URL.toString())));
+            .andExpect(jsonPath("$.[*].contactUrl").value(hasItem(DEFAULT_CONTACT_URL)));
     }
     
     @Test
@@ -211,7 +209,7 @@ public class AcmeContactResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(acmeContact.getId().intValue()))
             .andExpect(jsonPath("$.contactId").value(DEFAULT_CONTACT_ID.intValue()))
-            .andExpect(jsonPath("$.contactUrl").value(DEFAULT_CONTACT_URL.toString()));
+            .andExpect(jsonPath("$.contactUrl").value(DEFAULT_CONTACT_URL));
     }
 
     @Test
@@ -285,20 +283,5 @@ public class AcmeContactResourceIT {
         // Validate the database contains one less item
         List<AcmeContact> acmeContactList = acmeContactRepository.findAll();
         assertThat(acmeContactList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(AcmeContact.class);
-        AcmeContact acmeContact1 = new AcmeContact();
-        acmeContact1.setId(1L);
-        AcmeContact acmeContact2 = new AcmeContact();
-        acmeContact2.setId(acmeContact1.getId());
-        assertThat(acmeContact1).isEqualTo(acmeContact2);
-        acmeContact2.setId(2L);
-        assertThat(acmeContact1).isNotEqualTo(acmeContact2);
-        acmeContact1.setId(null);
-        assertThat(acmeContact1).isNotEqualTo(acmeContact2);
     }
 }

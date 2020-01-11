@@ -1,8 +1,5 @@
 package de.trustable.ca3s.core.domain;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -17,7 +14,6 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "certificate")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @NamedQueries({
 	@NamedQuery(name = "Certificate.findByTBSDigest",
 	query = "SELECT c FROM Certificate c WHERE " +
@@ -59,8 +55,7 @@ import java.util.Set;
         " att2.name = :name2 and att2.value = :value2 "
         ),
          
-})
-public class Certificate implements Serializable {
+})public class Certificate implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -136,12 +131,10 @@ public class Certificate implements Serializable {
     private CSR csr;
 
     @OneToMany(mappedBy = "certificate")
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<CertificateAttribute> certificateAttributes = new HashSet<>();
 
     @ManyToOne
     @JsonIgnoreProperties("certificates")
-    @JsonIgnore
     private Certificate issuingCertificate;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove

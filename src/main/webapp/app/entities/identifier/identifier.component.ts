@@ -1,66 +1,63 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Subscription } from 'rxjs';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { filter, map } from 'rxjs/operators';
-import { JhiEventManager, JhiAlertService } from 'ng-jhipster';
+import { mixins } from 'vue-class-component';
 
-import { IIdentifier } from 'app/shared/model/identifier.model';
-import { AccountService } from 'app/core/auth/account.service';
-import { IdentifierService } from './identifier.service';
+import { Component, Inject } from 'vue-property-decorator';
+import Vue2Filters from 'vue2-filters';
+import { IIdentifier } from '@/shared/model/identifier.model';
+import AlertMixin from '@/shared/alert/alert.mixin';
 
-@Component({
-  selector: 'jhi-identifier',
-  templateUrl: './identifier.component.html'
-})
-export class IdentifierComponent implements OnInit, OnDestroy {
-  identifiers: IIdentifier[];
-  currentAccount: any;
-  eventSubscriber: Subscription;
+import IdentifierService from './identifier.service';
 
-  constructor(
-    protected identifierService: IdentifierService,
-    protected jhiAlertService: JhiAlertService,
-    protected eventManager: JhiEventManager,
-    protected accountService: AccountService
-  ) {}
+@Component
+export default class Identifier extends mixins(Vue2Filters.mixin, AlertMixin) {
+  @Inject('identifierService') private identifierService: () => IdentifierService;
+  private removeId: number = null;
+  public identifiers: IIdentifier[] = [];
 
-  loadAll() {
-    this.identifierService
-      .query()
-      .pipe(
-        filter((res: HttpResponse<IIdentifier[]>) => res.ok),
-        map((res: HttpResponse<IIdentifier[]>) => res.body)
-      )
-      .subscribe(
-        (res: IIdentifier[]) => {
-          this.identifiers = res;
+  public isFetching = false;
+
+  public mounted(): void {
+    this.retrieveAllIdentifiers();
+  }
+
+  public clear(): void {
+    this.retrieveAllIdentifiers();
+  }
+
+  public retrieveAllIdentifiers(): void {
+    this.isFetching = true;
+
+    this.identifierService()
+      .retrieve()
+      .then(
+        res => {
+          this.identifiers = res.data;
+          this.isFetching = false;
         },
-        (res: HttpErrorResponse) => this.onError(res.message)
+        err => {
+          this.isFetching = false;
+        }
       );
   }
 
-  ngOnInit() {
-    this.loadAll();
-    this.accountService.identity().then(account => {
-      this.currentAccount = account;
-    });
-    this.registerChangeInIdentifiers();
+  public prepareRemove(instance: IIdentifier): void {
+    this.removeId = instance.id;
   }
 
-  ngOnDestroy() {
-    this.eventManager.destroy(this.eventSubscriber);
+  public removeIdentifier(): void {
+    this.identifierService()
+      .delete(this.removeId)
+      .then(() => {
+        const message = this.$t('ca3SApp.identifier.deleted', { param: this.removeId });
+        this.alertService().showAlert(message, 'danger');
+        this.getAlertFromStore();
+
+        this.removeId = null;
+        this.retrieveAllIdentifiers();
+        this.closeDialog();
+      });
   }
 
-  trackId(index: number, item: IIdentifier) {
-    return item.id;
-  }
-
-  registerChangeInIdentifiers() {
-    this.eventSubscriber = this.eventManager.subscribe('identifierListModification', response => this.loadAll());
-  }
-
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
+  public closeDialog(): void {
+    (<any>this.$refs.removeEntity).hide();
   }
 }

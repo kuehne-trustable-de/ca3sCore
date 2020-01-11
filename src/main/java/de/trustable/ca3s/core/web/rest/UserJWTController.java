@@ -1,10 +1,10 @@
 package de.trustable.ca3s.core.web.rest;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import de.trustable.ca3s.core.security.jwt.JWTFilter;
 import de.trustable.ca3s.core.security.jwt.TokenProvider;
 import de.trustable.ca3s.core.web.rest.vm.LoginVM;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

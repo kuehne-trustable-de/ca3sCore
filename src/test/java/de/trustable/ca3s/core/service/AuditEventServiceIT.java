@@ -1,17 +1,14 @@
 package de.trustable.ca3s.core.service;
 
+import de.trustable.ca3s.core.domain.PersistentAuditEvent;
+import de.trustable.ca3s.core.repository.PersistenceAuditEventRepository;
+import de.trustable.ca3s.core.Ca3SApp;
 import io.github.jhipster.config.JHipsterProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-
-import de.trustable.ca3s.core.Ca3SJhApp;
-import de.trustable.ca3s.core.domain.PersistentAuditEvent;
-import de.trustable.ca3s.core.repository.PersistenceAuditEventRepository;
-import de.trustable.ca3s.core.service.AuditEventService;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
@@ -20,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Integration tests for {@link AuditEventService}.
  */
-@SpringBootTest(classes = Ca3SJhApp.class)
+@SpringBootTest(classes = Ca3SApp.class)
 @Transactional
 public class AuditEventServiceIT {
     @Autowired

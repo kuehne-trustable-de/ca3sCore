@@ -1,7 +1,5 @@
 package de.trustable.ca3s.core.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 
@@ -14,7 +12,6 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "rdn")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class RDN implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -23,8 +20,7 @@ public class RDN implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "rdn", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    @OneToMany(mappedBy = "rdn")
     private Set<RDNAttribute> rdnAttributes = new HashSet<>();
 
     @ManyToOne

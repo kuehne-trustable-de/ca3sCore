@@ -1,9 +1,9 @@
 package de.trustable.ca3s.core.service;
 
+import de.trustable.ca3s.core.domain.Certificate;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import de.trustable.ca3s.core.domain.Certificate;
 
 import java.util.Optional;
 

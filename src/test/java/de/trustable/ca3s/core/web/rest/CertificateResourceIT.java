@@ -1,21 +1,10 @@
 package de.trustable.ca3s.core.web.rest;
 
-import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.List;
-
-import javax.persistence.EntityManager;
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.repository.CertificateRepository;
+import de.trustable.ca3s.core.service.CertificateService;
+import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,18 +17,24 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Base64Utils;
 import org.springframework.validation.Validator;
 
-import de.trustable.ca3s.core.Ca3SJhApp;
-import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.service.CertificateService;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
+import javax.persistence.EntityManager;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.List;
+
+import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * Integration tests for the {@link CertificateResource} REST controller.
  */
-@SpringBootTest(classes = Ca3SJhApp.class)
+@SpringBootTest(classes = Ca3SApp.class)
 public class CertificateResourceIT {
 
     private static final String DEFAULT_TBS_DIGEST = "AAAAAAAAAA";
@@ -71,22 +66,18 @@ public class CertificateResourceIT {
 
     private static final LocalDate DEFAULT_VALID_FROM = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_VALID_FROM = LocalDate.now(ZoneId.systemDefault());
-    private static final LocalDate SMALLER_VALID_FROM = LocalDate.ofEpochDay(-1L);
 
     private static final LocalDate DEFAULT_VALID_TO = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_VALID_TO = LocalDate.now(ZoneId.systemDefault());
-    private static final LocalDate SMALLER_VALID_TO = LocalDate.ofEpochDay(-1L);
 
     private static final String DEFAULT_CREATION_EXECUTION_ID = "AAAAAAAAAA";
     private static final String UPDATED_CREATION_EXECUTION_ID = "BBBBBBBBBB";
 
     private static final LocalDate DEFAULT_CONTENT_ADDED_AT = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_CONTENT_ADDED_AT = LocalDate.now(ZoneId.systemDefault());
-    private static final LocalDate SMALLER_CONTENT_ADDED_AT = LocalDate.ofEpochDay(-1L);
 
     private static final LocalDate DEFAULT_REVOKED_SINCE = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_REVOKED_SINCE = LocalDate.now(ZoneId.systemDefault());
-    private static final LocalDate SMALLER_REVOKED_SINCE = LocalDate.ofEpochDay(-1L);
 
     private static final String DEFAULT_REVOCATION_REASON = "AAAAAAAAAA";
     private static final String UPDATED_REVOCATION_REASON = "BBBBBBBBBB";
@@ -391,23 +382,23 @@ public class CertificateResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(certificate.getId().intValue())))
-            .andExpect(jsonPath("$.[*].tbsDigest").value(hasItem(DEFAULT_TBS_DIGEST.toString())))
-            .andExpect(jsonPath("$.[*].subject").value(hasItem(DEFAULT_SUBJECT.toString())))
-            .andExpect(jsonPath("$.[*].issuer").value(hasItem(DEFAULT_ISSUER.toString())))
-            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
-            .andExpect(jsonPath("$.[*].subjectKeyIdentifier").value(hasItem(DEFAULT_SUBJECT_KEY_IDENTIFIER.toString())))
-            .andExpect(jsonPath("$.[*].authorityKeyIdentifier").value(hasItem(DEFAULT_AUTHORITY_KEY_IDENTIFIER.toString())))
-            .andExpect(jsonPath("$.[*].fingerprint").value(hasItem(DEFAULT_FINGERPRINT.toString())))
-            .andExpect(jsonPath("$.[*].serial").value(hasItem(DEFAULT_SERIAL.toString())))
+            .andExpect(jsonPath("$.[*].tbsDigest").value(hasItem(DEFAULT_TBS_DIGEST)))
+            .andExpect(jsonPath("$.[*].subject").value(hasItem(DEFAULT_SUBJECT)))
+            .andExpect(jsonPath("$.[*].issuer").value(hasItem(DEFAULT_ISSUER)))
+            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
+            .andExpect(jsonPath("$.[*].subjectKeyIdentifier").value(hasItem(DEFAULT_SUBJECT_KEY_IDENTIFIER)))
+            .andExpect(jsonPath("$.[*].authorityKeyIdentifier").value(hasItem(DEFAULT_AUTHORITY_KEY_IDENTIFIER)))
+            .andExpect(jsonPath("$.[*].fingerprint").value(hasItem(DEFAULT_FINGERPRINT)))
+            .andExpect(jsonPath("$.[*].serial").value(hasItem(DEFAULT_SERIAL)))
             .andExpect(jsonPath("$.[*].validFrom").value(hasItem(DEFAULT_VALID_FROM.toString())))
             .andExpect(jsonPath("$.[*].validTo").value(hasItem(DEFAULT_VALID_TO.toString())))
-            .andExpect(jsonPath("$.[*].creationExecutionId").value(hasItem(DEFAULT_CREATION_EXECUTION_ID.toString())))
+            .andExpect(jsonPath("$.[*].creationExecutionId").value(hasItem(DEFAULT_CREATION_EXECUTION_ID)))
             .andExpect(jsonPath("$.[*].contentAddedAt").value(hasItem(DEFAULT_CONTENT_ADDED_AT.toString())))
             .andExpect(jsonPath("$.[*].revokedSince").value(hasItem(DEFAULT_REVOKED_SINCE.toString())))
-            .andExpect(jsonPath("$.[*].revocationReason").value(hasItem(DEFAULT_REVOCATION_REASON.toString())))
+            .andExpect(jsonPath("$.[*].revocationReason").value(hasItem(DEFAULT_REVOCATION_REASON)))
             .andExpect(jsonPath("$.[*].revoked").value(hasItem(DEFAULT_REVOKED.booleanValue())))
-            .andExpect(jsonPath("$.[*].revocationExecutionId").value(hasItem(DEFAULT_REVOCATION_EXECUTION_ID.toString())))
+            .andExpect(jsonPath("$.[*].revocationExecutionId").value(hasItem(DEFAULT_REVOCATION_EXECUTION_ID)))
             .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT.toString())));
     }
     
@@ -422,23 +413,23 @@ public class CertificateResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(certificate.getId().intValue()))
-            .andExpect(jsonPath("$.tbsDigest").value(DEFAULT_TBS_DIGEST.toString()))
-            .andExpect(jsonPath("$.subject").value(DEFAULT_SUBJECT.toString()))
-            .andExpect(jsonPath("$.issuer").value(DEFAULT_ISSUER.toString()))
-            .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))
-            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()))
-            .andExpect(jsonPath("$.subjectKeyIdentifier").value(DEFAULT_SUBJECT_KEY_IDENTIFIER.toString()))
-            .andExpect(jsonPath("$.authorityKeyIdentifier").value(DEFAULT_AUTHORITY_KEY_IDENTIFIER.toString()))
-            .andExpect(jsonPath("$.fingerprint").value(DEFAULT_FINGERPRINT.toString()))
-            .andExpect(jsonPath("$.serial").value(DEFAULT_SERIAL.toString()))
+            .andExpect(jsonPath("$.tbsDigest").value(DEFAULT_TBS_DIGEST))
+            .andExpect(jsonPath("$.subject").value(DEFAULT_SUBJECT))
+            .andExpect(jsonPath("$.issuer").value(DEFAULT_ISSUER))
+            .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))
+            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
+            .andExpect(jsonPath("$.subjectKeyIdentifier").value(DEFAULT_SUBJECT_KEY_IDENTIFIER))
+            .andExpect(jsonPath("$.authorityKeyIdentifier").value(DEFAULT_AUTHORITY_KEY_IDENTIFIER))
+            .andExpect(jsonPath("$.fingerprint").value(DEFAULT_FINGERPRINT))
+            .andExpect(jsonPath("$.serial").value(DEFAULT_SERIAL))
             .andExpect(jsonPath("$.validFrom").value(DEFAULT_VALID_FROM.toString()))
             .andExpect(jsonPath("$.validTo").value(DEFAULT_VALID_TO.toString()))
-            .andExpect(jsonPath("$.creationExecutionId").value(DEFAULT_CREATION_EXECUTION_ID.toString()))
+            .andExpect(jsonPath("$.creationExecutionId").value(DEFAULT_CREATION_EXECUTION_ID))
             .andExpect(jsonPath("$.contentAddedAt").value(DEFAULT_CONTENT_ADDED_AT.toString()))
             .andExpect(jsonPath("$.revokedSince").value(DEFAULT_REVOKED_SINCE.toString()))
-            .andExpect(jsonPath("$.revocationReason").value(DEFAULT_REVOCATION_REASON.toString()))
+            .andExpect(jsonPath("$.revocationReason").value(DEFAULT_REVOCATION_REASON))
             .andExpect(jsonPath("$.revoked").value(DEFAULT_REVOKED.booleanValue()))
-            .andExpect(jsonPath("$.revocationExecutionId").value(DEFAULT_REVOCATION_EXECUTION_ID.toString()))
+            .andExpect(jsonPath("$.revocationExecutionId").value(DEFAULT_REVOCATION_EXECUTION_ID))
             .andExpect(jsonPath("$.content").value(DEFAULT_CONTENT.toString()));
     }
 
@@ -545,20 +536,5 @@ public class CertificateResourceIT {
         // Validate the database contains one less item
         List<Certificate> certificateList = certificateRepository.findAll();
         assertThat(certificateList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(Certificate.class);
-        Certificate certificate1 = new Certificate();
-        certificate1.setId(1L);
-        Certificate certificate2 = new Certificate();
-        certificate2.setId(certificate1.getId());
-        assertThat(certificate1).isEqualTo(certificate2);
-        certificate2.setId(2L);
-        assertThat(certificate1).isNotEqualTo(certificate2);
-        certificate1.setId(null);
-        assertThat(certificate1).isNotEqualTo(certificate2);
     }
 }

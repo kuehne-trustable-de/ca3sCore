@@ -1,43 +1,39 @@
-import { TestBed, getTestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { take, map } from 'rxjs/operators';
-import { CAConnectorConfigService } from 'app/entities/ca-connector-config/ca-connector-config.service';
-import { ICAConnectorConfig, CAConnectorConfig } from 'app/shared/model/ca-connector-config.model';
-import { CAConnectorType } from 'app/shared/model/enumerations/ca-connector-type.model';
+/* tslint:disable max-line-length */
+import axios from 'axios';
+
+import * as config from '@/shared/config/config';
+import {} from '@/shared/date/filters';
+import CAConnectorConfigService from '@/entities/ca-connector-config/ca-connector-config.service';
+import { CAConnectorConfig, CAConnectorType } from '@/shared/model/ca-connector-config.model';
+
+const mockedAxios: any = axios;
+jest.mock('axios', () => ({
+  get: jest.fn(),
+  post: jest.fn(),
+  put: jest.fn(),
+  delete: jest.fn()
+}));
 
 describe('Service Tests', () => {
   describe('CAConnectorConfig Service', () => {
-    let injector: TestBed;
     let service: CAConnectorConfigService;
-    let httpMock: HttpTestingController;
-    let elemDefault: ICAConnectorConfig;
-    let expectedResult;
+    let elemDefault;
     beforeEach(() => {
-      TestBed.configureTestingModule({
-        imports: [HttpClientTestingModule]
-      });
-      expectedResult = {};
-      injector = getTestBed();
-      service = injector.get(CAConnectorConfigService);
-      httpMock = injector.get(HttpTestingController);
+      service = new CAConnectorConfigService();
 
-      elemDefault = new CAConnectorConfig(0, 'AAAAAAA', CAConnectorType.Internal, 'AAAAAAA', 'AAAAAAA', 0, false, false);
+      elemDefault = new CAConnectorConfig(0, 'AAAAAAA', CAConnectorType.INTERNAL, 'AAAAAAA', 'AAAAAAA', 0, false, false);
     });
 
     describe('Service methods', () => {
-      it('should find an element', () => {
+      it('should find an element', async () => {
         const returnedFromService = Object.assign({}, elemDefault);
-        service
-          .find(123)
-          .pipe(take(1))
-          .subscribe(resp => (expectedResult = resp));
+        mockedAxios.get.mockReturnValue(Promise.resolve({ data: returnedFromService }));
 
-        const req = httpMock.expectOne({ method: 'GET' });
-        req.flush(returnedFromService);
-        expect(expectedResult).toMatchObject({ body: elemDefault });
+        return service.find(123).then(res => {
+          expect(res).toMatchObject(elemDefault);
+        });
       });
-
-      it('should create a CAConnectorConfig', () => {
+      it('should create a CAConnectorConfig', async () => {
         const returnedFromService = Object.assign(
           {
             id: 0
@@ -45,16 +41,14 @@ describe('Service Tests', () => {
           elemDefault
         );
         const expected = Object.assign({}, returnedFromService);
-        service
-          .create(new CAConnectorConfig(null))
-          .pipe(take(1))
-          .subscribe(resp => (expectedResult = resp));
-        const req = httpMock.expectOne({ method: 'POST' });
-        req.flush(returnedFromService);
-        expect(expectedResult).toMatchObject({ body: expected });
+
+        mockedAxios.post.mockReturnValue(Promise.resolve({ data: returnedFromService }));
+        return service.create({}).then(res => {
+          expect(res).toMatchObject(expected);
+        });
       });
 
-      it('should update a CAConnectorConfig', () => {
+      it('should update a CAConnectorConfig', async () => {
         const returnedFromService = Object.assign(
           {
             name: 'BBBBBB',
@@ -69,16 +63,13 @@ describe('Service Tests', () => {
         );
 
         const expected = Object.assign({}, returnedFromService);
-        service
-          .update(expected)
-          .pipe(take(1))
-          .subscribe(resp => (expectedResult = resp));
-        const req = httpMock.expectOne({ method: 'PUT' });
-        req.flush(returnedFromService);
-        expect(expectedResult).toMatchObject({ body: expected });
-      });
+        mockedAxios.put.mockReturnValue(Promise.resolve({ data: returnedFromService }));
 
-      it('should return a list of CAConnectorConfig', () => {
+        return service.update(expected).then(res => {
+          expect(res).toMatchObject(expected);
+        });
+      });
+      it('should return a list of CAConnectorConfig', async () => {
         const returnedFromService = Object.assign(
           {
             name: 'BBBBBB',
@@ -92,30 +83,17 @@ describe('Service Tests', () => {
           elemDefault
         );
         const expected = Object.assign({}, returnedFromService);
-        service
-          .query(expected)
-          .pipe(
-            take(1),
-            map(resp => resp.body)
-          )
-          .subscribe(body => (expectedResult = body));
-        const req = httpMock.expectOne({ method: 'GET' });
-        req.flush([returnedFromService]);
-        httpMock.verify();
-        expect(expectedResult).toContainEqual(expected);
+        mockedAxios.get.mockReturnValue(Promise.resolve([returnedFromService]));
+        return service.retrieve().then(res => {
+          expect(res).toContainEqual(expected);
+        });
       });
-
-      it('should delete a CAConnectorConfig', () => {
-        service.delete(123).subscribe(resp => (expectedResult = resp.ok));
-
-        const req = httpMock.expectOne({ method: 'DELETE' });
-        req.flush({ status: 200 });
-        expect(expectedResult);
+      it('should delete a CAConnectorConfig', async () => {
+        mockedAxios.delete.mockReturnValue(Promise.resolve({ ok: true }));
+        return service.delete(123).then(res => {
+          expect(res.ok).toBeTruthy();
+        });
       });
-    });
-
-    afterEach(() => {
-      httpMock.verify();
     });
   });
 });

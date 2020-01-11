@@ -1,0 +1,26 @@
+{
+  "ca3SApp": {
+    "authorization": {
+      "home": {
+        "title": "Authorization",
+        "createLabel": "Dodaj Authorization",
+        "createOrEditLabel": "Dodaj lub edytuj: Authorization",
+        "notFound": "No Authorizations found"
+      },
+      "created": "Utworzono nowy obiekt typu Authorization z identyfikatorem {{ param }}",
+      "updated": "Uaktualniono obiekt typu Authorization z identyfikatorem {{ param }}",
+      "deleted": "Usunięto obiekt typu Authorization z identyfikatorem {{ param }}",
+      "delete": {
+        "question": "Czy na pewno chcesz usunąć Authorization {{ id }}?"
+      },
+      "detail": {
+        "title": "Authorization"
+      },
+      "authorizationId": "Authorization Id",
+      "type": "Type",
+      "value": "Value",
+      "challenges": "Challenges",
+      "order": "Order"
+    }
+  }
+}

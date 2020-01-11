@@ -1,105 +1,87 @@
-import { Component, OnInit } from '@angular/core';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { JhiAlertService } from 'ng-jhipster';
-import { ICsrAttribute, CsrAttribute } from 'app/shared/model/csr-attribute.model';
-import { CsrAttributeService } from './csr-attribute.service';
-import { ICSR } from 'app/shared/model/csr.model';
-import { CSRService } from 'app/entities/csr/csr.service';
+import { Component, Vue, Inject } from 'vue-property-decorator';
+
+import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
+
+import CSRService from '../csr/csr.service';
+import { ICSR } from '@/shared/model/csr.model';
+
+import AlertService from '@/shared/alert/alert.service';
+import { ICsrAttribute, CsrAttribute } from '@/shared/model/csr-attribute.model';
+import CsrAttributeService from './csr-attribute.service';
+
+const validations: any = {
+  csrAttribute: {
+    name: {
+      required
+    },
+    value: {
+      required
+    }
+  }
+};
 
 @Component({
-  selector: 'jhi-csr-attribute-update',
-  templateUrl: './csr-attribute-update.component.html'
+  validations
 })
-export class CsrAttributeUpdateComponent implements OnInit {
-  isSaving: boolean;
+export default class CsrAttributeUpdate extends Vue {
+  @Inject('alertService') private alertService: () => AlertService;
+  @Inject('csrAttributeService') private csrAttributeService: () => CsrAttributeService;
+  public csrAttribute: ICsrAttribute = new CsrAttribute();
 
-  csrs: ICSR[];
+  @Inject('cSRService') private cSRService: () => CSRService;
 
-  editForm = this.fb.group({
-    id: [],
-    name: [null, [Validators.required]],
-    value: [null, [Validators.required]],
-    csr: []
-  });
+  public cSRS: ICSR[] = [];
+  public isSaving = false;
 
-  constructor(
-    protected jhiAlertService: JhiAlertService,
-    protected csrAttributeService: CsrAttributeService,
-    protected cSRService: CSRService,
-    protected activatedRoute: ActivatedRoute,
-    private fb: FormBuilder
-  ) {}
-
-  ngOnInit() {
-    this.isSaving = false;
-    this.activatedRoute.data.subscribe(({ csrAttribute }) => {
-      this.updateForm(csrAttribute);
-    });
-    this.cSRService
-      .query()
-      .pipe(
-        filter((mayBeOk: HttpResponse<ICSR[]>) => mayBeOk.ok),
-        map((response: HttpResponse<ICSR[]>) => response.body)
-      )
-      .subscribe((res: ICSR[]) => (this.csrs = res), (res: HttpErrorResponse) => this.onError(res.message));
-  }
-
-  updateForm(csrAttribute: ICsrAttribute) {
-    this.editForm.patchValue({
-      id: csrAttribute.id,
-      name: csrAttribute.name,
-      value: csrAttribute.value,
-      csr: csrAttribute.csr
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      if (to.params.csrAttributeId) {
+        vm.retrieveCsrAttribute(to.params.csrAttributeId);
+      }
+      vm.initRelationships();
     });
   }
 
-  previousState() {
-    window.history.back();
-  }
-
-  save() {
+  public save(): void {
     this.isSaving = true;
-    const csrAttribute = this.createFromForm();
-    if (csrAttribute.id !== undefined) {
-      this.subscribeToSaveResponse(this.csrAttributeService.update(csrAttribute));
+    if (this.csrAttribute.id) {
+      this.csrAttributeService()
+        .update(this.csrAttribute)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.csrAttribute.updated', { param: param.id });
+          this.alertService().showAlert(message, 'info');
+        });
     } else {
-      this.subscribeToSaveResponse(this.csrAttributeService.create(csrAttribute));
+      this.csrAttributeService()
+        .create(this.csrAttribute)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.csrAttribute.created', { param: param.id });
+          this.alertService().showAlert(message, 'success');
+        });
     }
   }
 
-  private createFromForm(): ICsrAttribute {
-    return {
-      ...new CsrAttribute(),
-      id: this.editForm.get(['id']).value,
-      name: this.editForm.get(['name']).value,
-      value: this.editForm.get(['value']).value,
-      csr: this.editForm.get(['csr']).value
-    };
+  public retrieveCsrAttribute(csrAttributeId): void {
+    this.csrAttributeService()
+      .find(csrAttributeId)
+      .then(res => {
+        this.csrAttribute = res;
+      });
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<ICsrAttribute>>) {
-    result.subscribe(() => this.onSaveSuccess(), () => this.onSaveError());
+  public previousState(): void {
+    this.$router.go(-1);
   }
 
-  protected onSaveSuccess() {
-    this.isSaving = false;
-    this.previousState();
-  }
-
-  protected onSaveError() {
-    this.isSaving = false;
-  }
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
-  }
-
-  trackCSRById(index: number, item: ICSR) {
-    return item.id;
+  public initRelationships(): void {
+    this.cSRService()
+      .retrieve()
+      .then(res => {
+        this.cSRS = res.data;
+      });
   }
 }

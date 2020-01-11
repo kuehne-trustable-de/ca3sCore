@@ -1,8 +1,4 @@
 package de.trustable.ca3s.core.domain;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -10,6 +6,8 @@ import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+
+import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 
 /**
  * A ACMEAccount.
@@ -26,7 +24,6 @@ import java.util.Set;
 			"a.accountId = :accountId"
     ),    
 })
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class ACMEAccount implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -61,11 +58,9 @@ public class ACMEAccount implements Serializable {
     private String publicKey;
 
     @OneToMany(mappedBy = "account")
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<AcmeContact> contacts = new HashSet<>();
 
     @OneToMany(mappedBy = "account")
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<AcmeOrder> orders = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove

@@ -1,0 +1,29 @@
+{
+  "ca3SApp": {
+    "aCMEAccount": {
+      "home": {
+        "title": "ACME Account",
+        "createLabel": "Dodaj ACME Account",
+        "createOrEditLabel": "Dodaj lub edytuj: ACME Account",
+        "notFound": "No ACME Accounts found"
+      },
+      "created": "Utworzono nowy obiekt typu ACME Account z identyfikatorem {{ param }}",
+      "updated": "Uaktualniono obiekt typu ACME Account z identyfikatorem {{ param }}",
+      "deleted": "Usunięto obiekt typu ACME Account z identyfikatorem {{ param }}",
+      "delete": {
+        "question": "Czy na pewno chcesz usunąć ACME Account {{ id }}?"
+      },
+      "detail": {
+        "title": "ACME Account"
+      },
+      "accountId": "Account Id",
+      "realm": "Realm",
+      "status": "Status",
+      "termsOfServiceAgreed": "Terms Of Service Agreed",
+      "publicKeyHash": "Public Key Hash",
+      "publicKey": "Public Key",
+      "contacts": "Contacts",
+      "orders": "Orders"
+    }
+  }
+}

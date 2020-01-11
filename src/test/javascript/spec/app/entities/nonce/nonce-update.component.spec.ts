@@ -1,61 +1,75 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { HttpResponse } from '@angular/common/http';
-import { FormBuilder } from '@angular/forms';
-import { of } from 'rxjs';
+/* tslint:disable max-line-length */
+import { shallowMount, createLocalVue, Wrapper } from '@vue/test-utils';
+import sinon, { SinonStubbedInstance } from 'sinon';
+import Router from 'vue-router';
 
-import { Ca3SJhTestModule } from '../../../test.module';
-import { NonceUpdateComponent } from 'app/entities/nonce/nonce-update.component';
-import { NonceService } from 'app/entities/nonce/nonce.service';
-import { Nonce } from 'app/shared/model/nonce.model';
+import AlertService from '@/shared/alert/alert.service';
+import * as config from '@/shared/config/config';
+import NonceUpdateComponent from '@/entities/nonce/nonce-update.vue';
+import NonceClass from '@/entities/nonce/nonce-update.component';
+import NonceService from '@/entities/nonce/nonce.service';
+
+const localVue = createLocalVue();
+
+config.initVueApp(localVue);
+const i18n = config.initI18N(localVue);
+const store = config.initVueXStore(localVue);
+const router = new Router();
+localVue.use(Router);
+localVue.component('font-awesome-icon', {});
 
 describe('Component Tests', () => {
   describe('Nonce Management Update Component', () => {
-    let comp: NonceUpdateComponent;
-    let fixture: ComponentFixture<NonceUpdateComponent>;
-    let service: NonceService;
+    let wrapper: Wrapper<NonceClass>;
+    let comp: NonceClass;
+    let nonceServiceStub: SinonStubbedInstance<NonceService>;
 
     beforeEach(() => {
-      TestBed.configureTestingModule({
-        imports: [Ca3SJhTestModule],
-        declarations: [NonceUpdateComponent],
-        providers: [FormBuilder]
-      })
-        .overrideTemplate(NonceUpdateComponent, '')
-        .compileComponents();
+      nonceServiceStub = sinon.createStubInstance<NonceService>(NonceService);
 
-      fixture = TestBed.createComponent(NonceUpdateComponent);
-      comp = fixture.componentInstance;
-      service = fixture.debugElement.injector.get(NonceService);
+      wrapper = shallowMount<NonceClass>(NonceUpdateComponent, {
+        store,
+        i18n,
+        localVue,
+        router,
+        provide: {
+          alertService: () => new AlertService(store),
+          nonceService: () => nonceServiceStub
+        }
+      });
+      comp = wrapper.vm;
     });
 
     describe('save', () => {
-      it('Should call update service on save for existing entity', fakeAsync(() => {
+      it('Should call update service on save for existing entity', async () => {
         // GIVEN
-        const entity = new Nonce(123);
-        spyOn(service, 'update').and.returnValue(of(new HttpResponse({ body: entity })));
-        comp.updateForm(entity);
+        const entity = { id: 123 };
+        comp.nonce = entity;
+        nonceServiceStub.update.resolves(entity);
+
         // WHEN
         comp.save();
-        tick(); // simulate async
+        await comp.$nextTick();
 
         // THEN
-        expect(service.update).toHaveBeenCalledWith(entity);
+        expect(nonceServiceStub.update.calledWith(entity)).toBeTruthy();
         expect(comp.isSaving).toEqual(false);
-      }));
+      });
 
-      it('Should call create service on save for new entity', fakeAsync(() => {
+      it('Should call create service on save for new entity', async () => {
         // GIVEN
-        const entity = new Nonce();
-        spyOn(service, 'create').and.returnValue(of(new HttpResponse({ body: entity })));
-        comp.updateForm(entity);
+        const entity = {};
+        comp.nonce = entity;
+        nonceServiceStub.create.resolves(entity);
+
         // WHEN
         comp.save();
-        tick(); // simulate async
+        await comp.$nextTick();
 
         // THEN
-        expect(service.create).toHaveBeenCalledWith(entity);
+        expect(nonceServiceStub.create.calledWith(entity)).toBeTruthy();
         expect(comp.isSaving).toEqual(false);
-      }));
+      });
     });
   });
 });

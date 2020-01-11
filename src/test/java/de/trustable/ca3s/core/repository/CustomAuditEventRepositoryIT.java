@@ -1,5 +1,9 @@
 package de.trustable.ca3s.core.repository;
 
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.config.Constants;
+import de.trustable.ca3s.core.config.audit.AuditEventConverter;
+import de.trustable.ca3s.core.domain.PersistentAuditEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,13 +14,6 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.transaction.annotation.Transactional;
 
-import de.trustable.ca3s.core.Ca3SJhApp;
-import de.trustable.ca3s.core.config.Constants;
-import de.trustable.ca3s.core.config.audit.AuditEventConverter;
-import de.trustable.ca3s.core.domain.PersistentAuditEvent;
-import de.trustable.ca3s.core.repository.CustomAuditEventRepository;
-import de.trustable.ca3s.core.repository.PersistenceAuditEventRepository;
-
 import javax.servlet.http.HttpSession;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -24,13 +21,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static de.trustable.ca3s.core.repository.CustomAuditEventRepository.EVENT_DATA_COLUMN_MAX_LENGTH;
 import static org.assertj.core.api.Assertions.assertThat;
+import static de.trustable.ca3s.core.repository.CustomAuditEventRepository.EVENT_DATA_COLUMN_MAX_LENGTH;
 
 /**
  * Integration tests for {@link CustomAuditEventRepository}.
  */
-@SpringBootTest(classes = Ca3SJhApp.class)
+@SpringBootTest(classes = Ca3SApp.class)
 @Transactional
 public class CustomAuditEventRepositoryIT {
 

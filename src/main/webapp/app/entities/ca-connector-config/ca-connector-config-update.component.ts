@@ -1,95 +1,74 @@
-import { Component, OnInit } from '@angular/core';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
-import { ICAConnectorConfig, CAConnectorConfig } from 'app/shared/model/ca-connector-config.model';
-import { CAConnectorConfigService } from './ca-connector-config.service';
+import { Component, Vue, Inject } from 'vue-property-decorator';
+
+import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
+
+import AlertService from '@/shared/alert/alert.service';
+import { ICAConnectorConfig, CAConnectorConfig } from '@/shared/model/ca-connector-config.model';
+import CAConnectorConfigService from './ca-connector-config.service';
+
+const validations: any = {
+  cAConnectorConfig: {
+    name: {},
+    caConnectorType: {},
+    caUrl: {},
+    secret: {},
+    pollingOffset: {},
+    defaultCA: {},
+    active: {}
+  }
+};
 
 @Component({
-  selector: 'jhi-ca-connector-config-update',
-  templateUrl: './ca-connector-config-update.component.html'
+  validations
 })
-export class CAConnectorConfigUpdateComponent implements OnInit {
-  isSaving: boolean;
+export default class CAConnectorConfigUpdate extends Vue {
+  @Inject('alertService') private alertService: () => AlertService;
+  @Inject('cAConnectorConfigService') private cAConnectorConfigService: () => CAConnectorConfigService;
+  public cAConnectorConfig: ICAConnectorConfig = new CAConnectorConfig();
+  public isSaving = false;
 
-  editForm = this.fb.group({
-    id: [],
-    name: [],
-    caConnectorType: [],
-    caUrl: [],
-    secret: [],
-    pollingOffset: [],
-    defaultCA: [],
-    active: []
-  });
-
-  constructor(
-    protected cAConnectorConfigService: CAConnectorConfigService,
-    protected activatedRoute: ActivatedRoute,
-    private fb: FormBuilder
-  ) {}
-
-  ngOnInit() {
-    this.isSaving = false;
-    this.activatedRoute.data.subscribe(({ cAConnectorConfig }) => {
-      this.updateForm(cAConnectorConfig);
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      if (to.params.cAConnectorConfigId) {
+        vm.retrieveCAConnectorConfig(to.params.cAConnectorConfigId);
+      }
     });
   }
 
-  updateForm(cAConnectorConfig: ICAConnectorConfig) {
-    this.editForm.patchValue({
-      id: cAConnectorConfig.id,
-      name: cAConnectorConfig.name,
-      caConnectorType: cAConnectorConfig.caConnectorType,
-      caUrl: cAConnectorConfig.caUrl,
-      secret: cAConnectorConfig.secret,
-      pollingOffset: cAConnectorConfig.pollingOffset,
-      defaultCA: cAConnectorConfig.defaultCA,
-      active: cAConnectorConfig.active
-    });
-  }
-
-  previousState() {
-    window.history.back();
-  }
-
-  save() {
+  public save(): void {
     this.isSaving = true;
-    const cAConnectorConfig = this.createFromForm();
-    if (cAConnectorConfig.id !== undefined) {
-      this.subscribeToSaveResponse(this.cAConnectorConfigService.update(cAConnectorConfig));
+    if (this.cAConnectorConfig.id) {
+      this.cAConnectorConfigService()
+        .update(this.cAConnectorConfig)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.cAConnectorConfig.updated', { param: param.id });
+          this.alertService().showAlert(message, 'info');
+        });
     } else {
-      this.subscribeToSaveResponse(this.cAConnectorConfigService.create(cAConnectorConfig));
+      this.cAConnectorConfigService()
+        .create(this.cAConnectorConfig)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.cAConnectorConfig.created', { param: param.id });
+          this.alertService().showAlert(message, 'success');
+        });
     }
   }
 
-  private createFromForm(): ICAConnectorConfig {
-    return {
-      ...new CAConnectorConfig(),
-      id: this.editForm.get(['id']).value,
-      name: this.editForm.get(['name']).value,
-      caConnectorType: this.editForm.get(['caConnectorType']).value,
-      caUrl: this.editForm.get(['caUrl']).value,
-      secret: this.editForm.get(['secret']).value,
-      pollingOffset: this.editForm.get(['pollingOffset']).value,
-      defaultCA: this.editForm.get(['defaultCA']).value,
-      active: this.editForm.get(['active']).value
-    };
+  public retrieveCAConnectorConfig(cAConnectorConfigId): void {
+    this.cAConnectorConfigService()
+      .find(cAConnectorConfigId)
+      .then(res => {
+        this.cAConnectorConfig = res;
+      });
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<ICAConnectorConfig>>) {
-    result.subscribe(() => this.onSaveSuccess(), () => this.onSaveError());
+  public previousState(): void {
+    this.$router.go(-1);
   }
 
-  protected onSaveSuccess() {
-    this.isSaving = false;
-    this.previousState();
-  }
-
-  protected onSaveError() {
-    this.isSaving = false;
-  }
+  public initRelationships(): void {}
 }

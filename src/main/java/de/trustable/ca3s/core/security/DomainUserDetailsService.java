@@ -1,5 +1,7 @@
 package de.trustable.ca3s.core.security;
 
+import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.repository.UserRepository;
 import org.hibernate.validator.internal.constraintvalidators.hv.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,9 +12,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import de.trustable.ca3s.core.domain.User;
-import de.trustable.ca3s.core.repository.UserRepository;
 
 import java.util.*;
 import java.util.stream.Collectors;

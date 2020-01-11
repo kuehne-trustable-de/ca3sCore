@@ -1,5 +1,13 @@
 package de.trustable.ca3s.core.service;
 
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.config.Constants;
+import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.repository.UserRepository;
+import de.trustable.ca3s.core.service.dto.UserDTO;
+
+import io.github.jhipster.security.RandomUtil;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,14 +19,6 @@ import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
-
-import de.trustable.ca3s.core.Ca3SJhApp;
-import de.trustable.ca3s.core.config.Constants;
-import de.trustable.ca3s.core.domain.User;
-import de.trustable.ca3s.core.repository.UserRepository;
-import de.trustable.ca3s.core.service.UserService;
-import de.trustable.ca3s.core.service.dto.UserDTO;
-import de.trustable.ca3s.core.service.util.RandomUtil;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 /**
  * Integration tests for {@link UserService}.
  */
-@SpringBootTest(classes = Ca3SJhApp.class)
+@SpringBootTest(classes = Ca3SApp.class)
 @Transactional
 public class UserServiceIT {
 

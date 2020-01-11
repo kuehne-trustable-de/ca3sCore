@@ -1,14 +1,13 @@
 package de.trustable.ca3s.core.service.impl;
 
+import de.trustable.ca3s.core.service.RequestAttributeService;
+import de.trustable.ca3s.core.domain.RequestAttribute;
+import de.trustable.ca3s.core.repository.RequestAttributeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import de.trustable.ca3s.core.domain.RequestAttribute;
-import de.trustable.ca3s.core.repository.RequestAttributeRepository;
-import de.trustable.ca3s.core.service.RequestAttributeService;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,5 +1,16 @@
 package de.trustable.ca3s.core.service;
 
+import de.trustable.ca3s.core.config.Constants;
+import de.trustable.ca3s.core.domain.Authority;
+import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.repository.AuthorityRepository;
+import de.trustable.ca3s.core.repository.UserRepository;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
+import de.trustable.ca3s.core.security.SecurityUtils;
+import de.trustable.ca3s.core.service.dto.UserDTO;
+
+import io.github.jhipster.security.RandomUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
@@ -9,16 +20,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import de.trustable.ca3s.core.config.Constants;
-import de.trustable.ca3s.core.domain.Authority;
-import de.trustable.ca3s.core.domain.User;
-import de.trustable.ca3s.core.repository.AuthorityRepository;
-import de.trustable.ca3s.core.repository.UserRepository;
-import de.trustable.ca3s.core.security.AuthoritiesConstants;
-import de.trustable.ca3s.core.security.SecurityUtils;
-import de.trustable.ca3s.core.service.dto.UserDTO;
-import de.trustable.ca3s.core.service.util.RandomUtil;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -106,7 +107,9 @@ public class UserService {
         newUser.setPassword(encryptedPassword);
         newUser.setFirstName(userDTO.getFirstName());
         newUser.setLastName(userDTO.getLastName());
-        newUser.setEmail(userDTO.getEmail().toLowerCase());
+        if (userDTO.getEmail() != null) {
+            newUser.setEmail(userDTO.getEmail().toLowerCase());
+        }
         newUser.setImageUrl(userDTO.getImageUrl());
         newUser.setLangKey(userDTO.getLangKey());
         // new user is not active
@@ -137,7 +140,9 @@ public class UserService {
         user.setLogin(userDTO.getLogin().toLowerCase());
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
-        user.setEmail(userDTO.getEmail().toLowerCase());
+        if (userDTO.getEmail() != null) {
+            user.setEmail(userDTO.getEmail().toLowerCase());
+        }
         user.setImageUrl(userDTO.getImageUrl());
         if (userDTO.getLangKey() == null) {
             user.setLangKey(Constants.DEFAULT_LANGUAGE); // default language
@@ -178,7 +183,9 @@ public class UserService {
             .ifPresent(user -> {
                 user.setFirstName(firstName);
                 user.setLastName(lastName);
-                user.setEmail(email.toLowerCase());
+                if (email != null) {
+	                user.setEmail(email.toLowerCase());
+                }
                 user.setLangKey(langKey);
                 user.setImageUrl(imageUrl);
                 this.clearUserCaches(user);
@@ -202,7 +209,9 @@ public class UserService {
                 user.setLogin(userDTO.getLogin().toLowerCase());
                 user.setFirstName(userDTO.getFirstName());
                 user.setLastName(userDTO.getLastName());
-                user.setEmail(userDTO.getEmail().toLowerCase());
+                if (userDTO.getEmail() != null) {
+                    user.setEmail(userDTO.getEmail().toLowerCase());
+                }
                 user.setImageUrl(userDTO.getImageUrl());
                 user.setActivated(userDTO.isActivated());
                 user.setLangKey(userDTO.getLangKey());
@@ -290,6 +299,8 @@ public class UserService {
 
     private void clearUserCaches(User user) {
         Objects.requireNonNull(cacheManager.getCache(UserRepository.USERS_BY_LOGIN_CACHE)).evict(user.getLogin());
-        Objects.requireNonNull(cacheManager.getCache(UserRepository.USERS_BY_EMAIL_CACHE)).evict(user.getEmail());
+        if (user.getEmail() != null) {
+            Objects.requireNonNull(cacheManager.getCache(UserRepository.USERS_BY_EMAIL_CACHE)).evict(user.getEmail());
+        }
     }
 }

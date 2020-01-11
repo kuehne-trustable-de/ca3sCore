@@ -1,5 +1,9 @@
 package de.trustable.ca3s.core.repository;
 
+import de.trustable.ca3s.core.config.Constants;
+import de.trustable.ca3s.core.config.audit.AuditEventConverter;
+import de.trustable.ca3s.core.domain.PersistentAuditEvent;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.audit.AuditEvent;
@@ -7,10 +11,6 @@ import org.springframework.boot.actuate.audit.AuditEventRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import de.trustable.ca3s.core.config.Constants;
-import de.trustable.ca3s.core.config.audit.AuditEventConverter;
-import de.trustable.ca3s.core.domain.PersistentAuditEvent;
 
 import java.time.Instant;
 import java.util.*;

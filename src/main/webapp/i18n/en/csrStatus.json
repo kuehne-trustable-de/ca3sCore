@@ -1,11 +1,11 @@
 {
-  "ca3SJhApp": {
+  "ca3SApp": {
     "CsrStatus": {
       "null": "",
-      "Processing": "Processing",
-      "Issued": "Issued",
-      "Rejected": "Rejected",
-      "Pending": "Pending"
+      "PROCESSING": "PROCESSING",
+      "ISSUED": "ISSUED",
+      "REJECTED": "REJECTED",
+      "PENDING": "PENDING"
     }
   }
 }

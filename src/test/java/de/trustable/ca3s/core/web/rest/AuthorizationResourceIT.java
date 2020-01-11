@@ -1,5 +1,11 @@
 package de.trustable.ca3s.core.web.rest;
 
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.domain.Authorization;
+import de.trustable.ca3s.core.repository.AuthorizationRepository;
+import de.trustable.ca3s.core.service.AuthorizationService;
+import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -13,13 +19,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
-import de.trustable.ca3s.core.Ca3SJhApp;
-import de.trustable.ca3s.core.domain.Authorization;
-import de.trustable.ca3s.core.repository.AuthorizationRepository;
-import de.trustable.ca3s.core.service.AuthorizationService;
-import de.trustable.ca3s.core.web.rest.AuthorizationResource;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
-
 import javax.persistence.EntityManager;
 import java.util.List;
 
@@ -32,12 +31,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Integration tests for the {@link AuthorizationResource} REST controller.
  */
-@SpringBootTest(classes = Ca3SJhApp.class)
+@SpringBootTest(classes = Ca3SApp.class)
 public class AuthorizationResourceIT {
 
     private static final Long DEFAULT_AUTHORIZATION_ID = 1L;
     private static final Long UPDATED_AUTHORIZATION_ID = 2L;
-    private static final Long SMALLER_AUTHORIZATION_ID = 1L - 1L;
 
     private static final String DEFAULT_TYPE = "AAAAAAAAAA";
     private static final String UPDATED_TYPE = "BBBBBBBBBB";
@@ -220,8 +218,8 @@ public class AuthorizationResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(authorization.getId().intValue())))
             .andExpect(jsonPath("$.[*].authorizationId").value(hasItem(DEFAULT_AUTHORIZATION_ID.intValue())))
-            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
-            .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE.toString())));
+            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
+            .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE)));
     }
     
     @Test
@@ -236,8 +234,8 @@ public class AuthorizationResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(authorization.getId().intValue()))
             .andExpect(jsonPath("$.authorizationId").value(DEFAULT_AUTHORIZATION_ID.intValue()))
-            .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))
-            .andExpect(jsonPath("$.value").value(DEFAULT_VALUE.toString()));
+            .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))
+            .andExpect(jsonPath("$.value").value(DEFAULT_VALUE));
     }
 
     @Test
@@ -313,20 +311,5 @@ public class AuthorizationResourceIT {
         // Validate the database contains one less item
         List<Authorization> authorizationList = authorizationRepository.findAll();
         assertThat(authorizationList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(Authorization.class);
-        Authorization authorization1 = new Authorization();
-        authorization1.setId(1L);
-        Authorization authorization2 = new Authorization();
-        authorization2.setId(authorization1.getId());
-        assertThat(authorization1).isEqualTo(authorization2);
-        authorization2.setId(2L);
-        assertThat(authorization1).isNotEqualTo(authorization2);
-        authorization1.setId(null);
-        assertThat(authorization1).isNotEqualTo(authorization2);
     }
 }

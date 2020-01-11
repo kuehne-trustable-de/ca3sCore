@@ -1,4 +1,4 @@
-import { IACMEAccount } from 'app/shared/model/acme-account.model';
+import { IACMEAccount } from '@/shared/model/acme-account.model';
 
 export interface IAcmeContact {
   id?: number;

@@ -1,5 +1,10 @@
 package de.trustable.ca3s.core.web.rest;
 
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.domain.CertificateAttribute;
+import de.trustable.ca3s.core.repository.CertificateAttributeRepository;
+import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -13,12 +18,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
-import de.trustable.ca3s.core.Ca3SJhApp;
-import de.trustable.ca3s.core.domain.CertificateAttribute;
-import de.trustable.ca3s.core.repository.CertificateAttributeRepository;
-import de.trustable.ca3s.core.web.rest.CertificateAttributeResource;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
-
 import javax.persistence.EntityManager;
 import java.util.List;
 
@@ -31,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Integration tests for the {@link CertificateAttributeResource} REST controller.
  */
-@SpringBootTest(classes = Ca3SJhApp.class)
+@SpringBootTest(classes = Ca3SApp.class)
 public class CertificateAttributeResourceIT {
 
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
@@ -172,8 +171,8 @@ public class CertificateAttributeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(certificateAttribute.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
-            .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE.toString())));
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+            .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE)));
     }
     
     @Test
@@ -187,8 +186,8 @@ public class CertificateAttributeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(certificateAttribute.getId().intValue()))
-            .andExpect(jsonPath("$.name").value(DEFAULT_NAME.toString()))
-            .andExpect(jsonPath("$.value").value(DEFAULT_VALUE.toString()));
+            .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
+            .andExpect(jsonPath("$.value").value(DEFAULT_VALUE));
     }
 
     @Test
@@ -262,20 +261,5 @@ public class CertificateAttributeResourceIT {
         // Validate the database contains one less item
         List<CertificateAttribute> certificateAttributeList = certificateAttributeRepository.findAll();
         assertThat(certificateAttributeList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(CertificateAttribute.class);
-        CertificateAttribute certificateAttribute1 = new CertificateAttribute();
-        certificateAttribute1.setId(1L);
-        CertificateAttribute certificateAttribute2 = new CertificateAttribute();
-        certificateAttribute2.setId(certificateAttribute1.getId());
-        assertThat(certificateAttribute1).isEqualTo(certificateAttribute2);
-        certificateAttribute2.setId(2L);
-        assertThat(certificateAttribute1).isNotEqualTo(certificateAttribute2);
-        certificateAttribute1.setId(null);
-        assertThat(certificateAttribute1).isNotEqualTo(certificateAttribute2);
     }
 }

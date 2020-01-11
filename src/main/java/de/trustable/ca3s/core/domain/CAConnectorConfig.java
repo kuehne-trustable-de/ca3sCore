@@ -1,12 +1,10 @@
 package de.trustable.ca3s.core.domain;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 
 import javax.persistence.*;
 
 import java.io.Serializable;
+
+import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 
 /**
  * A CAConnectorConfig.
@@ -19,7 +17,6 @@ import java.io.Serializable;
 			"a.defaultCA = TRUE"
     ),
 })
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class CAConnectorConfig implements Serializable {
 
     private static final long serialVersionUID = 1L;

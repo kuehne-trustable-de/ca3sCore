@@ -1,55 +1,51 @@
-import { TestBed, getTestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { take, map } from 'rxjs/operators';
-import * as moment from 'moment';
-import { DATE_FORMAT } from 'app/shared/constants/input.constants';
-import { NonceService } from 'app/entities/nonce/nonce.service';
-import { INonce, Nonce } from 'app/shared/model/nonce.model';
+/* tslint:disable max-line-length */
+import axios from 'axios';
+import { format } from 'date-fns';
+
+import * as config from '@/shared/config/config';
+import { DATE_FORMAT } from '@/shared/date/filters';
+import NonceService from '@/entities/nonce/nonce.service';
+import { Nonce } from '@/shared/model/nonce.model';
+
+const mockedAxios: any = axios;
+jest.mock('axios', () => ({
+  get: jest.fn(),
+  post: jest.fn(),
+  put: jest.fn(),
+  delete: jest.fn()
+}));
 
 describe('Service Tests', () => {
   describe('Nonce Service', () => {
-    let injector: TestBed;
     let service: NonceService;
-    let httpMock: HttpTestingController;
-    let elemDefault: INonce;
-    let expectedResult;
-    let currentDate: moment.Moment;
+    let elemDefault;
+    let currentDate: Date;
     beforeEach(() => {
-      TestBed.configureTestingModule({
-        imports: [HttpClientTestingModule]
-      });
-      expectedResult = {};
-      injector = getTestBed();
-      service = injector.get(NonceService);
-      httpMock = injector.get(HttpTestingController);
-      currentDate = moment();
+      service = new NonceService();
+      currentDate = new Date();
 
       elemDefault = new Nonce(0, 'AAAAAAA', currentDate);
     });
 
     describe('Service methods', () => {
-      it('should find an element', () => {
+      it('should find an element', async () => {
         const returnedFromService = Object.assign(
           {
-            expiresAt: currentDate.format(DATE_FORMAT)
+            expiresAt: format(currentDate, DATE_FORMAT)
           },
           elemDefault
         );
-        service
-          .find(123)
-          .pipe(take(1))
-          .subscribe(resp => (expectedResult = resp));
+        mockedAxios.get.mockReturnValue(Promise.resolve({ data: returnedFromService }));
 
-        const req = httpMock.expectOne({ method: 'GET' });
-        req.flush(returnedFromService);
-        expect(expectedResult).toMatchObject({ body: elemDefault });
+        return service.find(123).then(res => {
+          expect(res).toMatchObject(elemDefault);
+        });
       });
-
-      it('should create a Nonce', () => {
+      it('should create a Nonce', async () => {
         const returnedFromService = Object.assign(
           {
             id: 0,
-            expiresAt: currentDate.format(DATE_FORMAT)
+            expiresAt: format(currentDate, DATE_FORMAT)
           },
           elemDefault
         );
@@ -59,20 +55,18 @@ describe('Service Tests', () => {
           },
           returnedFromService
         );
-        service
-          .create(new Nonce(null))
-          .pipe(take(1))
-          .subscribe(resp => (expectedResult = resp));
-        const req = httpMock.expectOne({ method: 'POST' });
-        req.flush(returnedFromService);
-        expect(expectedResult).toMatchObject({ body: expected });
+
+        mockedAxios.post.mockReturnValue(Promise.resolve({ data: returnedFromService }));
+        return service.create({}).then(res => {
+          expect(res).toMatchObject(expected);
+        });
       });
 
-      it('should update a Nonce', () => {
+      it('should update a Nonce', async () => {
         const returnedFromService = Object.assign(
           {
             nonceValue: 'BBBBBB',
-            expiresAt: currentDate.format(DATE_FORMAT)
+            expiresAt: format(currentDate, DATE_FORMAT)
           },
           elemDefault
         );
@@ -83,20 +77,17 @@ describe('Service Tests', () => {
           },
           returnedFromService
         );
-        service
-          .update(expected)
-          .pipe(take(1))
-          .subscribe(resp => (expectedResult = resp));
-        const req = httpMock.expectOne({ method: 'PUT' });
-        req.flush(returnedFromService);
-        expect(expectedResult).toMatchObject({ body: expected });
-      });
+        mockedAxios.put.mockReturnValue(Promise.resolve({ data: returnedFromService }));
 
-      it('should return a list of Nonce', () => {
+        return service.update(expected).then(res => {
+          expect(res).toMatchObject(expected);
+        });
+      });
+      it('should return a list of Nonce', async () => {
         const returnedFromService = Object.assign(
           {
             nonceValue: 'BBBBBB',
-            expiresAt: currentDate.format(DATE_FORMAT)
+            expiresAt: format(currentDate, DATE_FORMAT)
           },
           elemDefault
         );
@@ -106,30 +97,17 @@ describe('Service Tests', () => {
           },
           returnedFromService
         );
-        service
-          .query(expected)
-          .pipe(
-            take(1),
-            map(resp => resp.body)
-          )
-          .subscribe(body => (expectedResult = body));
-        const req = httpMock.expectOne({ method: 'GET' });
-        req.flush([returnedFromService]);
-        httpMock.verify();
-        expect(expectedResult).toContainEqual(expected);
+        mockedAxios.get.mockReturnValue(Promise.resolve([returnedFromService]));
+        return service.retrieve().then(res => {
+          expect(res).toContainEqual(expected);
+        });
       });
-
-      it('should delete a Nonce', () => {
-        service.delete(123).subscribe(resp => (expectedResult = resp.ok));
-
-        const req = httpMock.expectOne({ method: 'DELETE' });
-        req.flush({ status: 200 });
-        expect(expectedResult);
+      it('should delete a Nonce', async () => {
+        mockedAxios.delete.mockReturnValue(Promise.resolve({ ok: true }));
+        return service.delete(123).then(res => {
+          expect(res.ok).toBeTruthy();
+        });
       });
-    });
-
-    afterEach(() => {
-      httpMock.verify();
     });
   });
 });

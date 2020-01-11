@@ -39,13 +39,14 @@
             "otherEntityField": "id"
         }
     ],
-    "changelogDate": "20200108162341",
+    "changelogDate": "20200110170119",
     "entityTableName": "pipeline",
     "dto": "no",
     "pagination": "no",
     "service": "serviceImpl",
     "jpaMetamodelFiltering": false,
     "fluentMethods": true,
+    "readOnly": false,
     "clientRootFolder": "",
     "applications": "*"
 }

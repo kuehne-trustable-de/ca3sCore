@@ -1,7 +1,6 @@
-import { Moment } from 'moment';
-import { ICSR } from 'app/shared/model/csr.model';
-import { ICertificateAttribute } from 'app/shared/model/certificate-attribute.model';
-import { ICertificate } from 'app/shared/model/certificate.model';
+import { ICSR } from '@/shared/model/csr.model';
+import { ICertificateAttribute } from '@/shared/model/certificate-attribute.model';
+import { ICertificate } from '@/shared/model/certificate.model';
 
 export interface ICertificate {
   id?: number;
@@ -14,11 +13,11 @@ export interface ICertificate {
   authorityKeyIdentifier?: string;
   fingerprint?: string;
   serial?: string;
-  validFrom?: Moment;
-  validTo?: Moment;
+  validFrom?: Date;
+  validTo?: Date;
   creationExecutionId?: string;
-  contentAddedAt?: Moment;
-  revokedSince?: Moment;
+  contentAddedAt?: Date;
+  revokedSince?: Date;
   revocationReason?: string;
   revoked?: boolean;
   revocationExecutionId?: string;
@@ -40,11 +39,11 @@ export class Certificate implements ICertificate {
     public authorityKeyIdentifier?: string,
     public fingerprint?: string,
     public serial?: string,
-    public validFrom?: Moment,
-    public validTo?: Moment,
+    public validFrom?: Date,
+    public validTo?: Date,
     public creationExecutionId?: string,
-    public contentAddedAt?: Moment,
-    public revokedSince?: Moment,
+    public contentAddedAt?: Date,
+    public revokedSince?: Date,
     public revocationReason?: string,
     public revoked?: boolean,
     public revocationExecutionId?: string,

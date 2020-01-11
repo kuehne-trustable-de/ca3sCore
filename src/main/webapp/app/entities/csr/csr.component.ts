@@ -1,75 +1,65 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Subscription } from 'rxjs';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { filter, map } from 'rxjs/operators';
-import { JhiEventManager, JhiAlertService, JhiDataUtils } from 'ng-jhipster';
+import { mixins } from 'vue-class-component';
 
-import { ICSR } from 'app/shared/model/csr.model';
-import { AccountService } from 'app/core/auth/account.service';
-import { CSRService } from './csr.service';
+import { Component, Inject } from 'vue-property-decorator';
+import Vue2Filters from 'vue2-filters';
+import { ICSR } from '@/shared/model/csr.model';
+import AlertMixin from '@/shared/alert/alert.mixin';
 
-@Component({
-  selector: 'jhi-csr',
-  templateUrl: './csr.component.html'
-})
-export class CSRComponent implements OnInit, OnDestroy {
-  cSRS: ICSR[];
-  currentAccount: any;
-  eventSubscriber: Subscription;
+import JhiDataUtils from '@/shared/data/data-utils.service';
 
-  constructor(
-    protected cSRService: CSRService,
-    protected jhiAlertService: JhiAlertService,
-    protected dataUtils: JhiDataUtils,
-    protected eventManager: JhiEventManager,
-    protected accountService: AccountService
-  ) {}
+import CSRService from './csr.service';
 
-  loadAll() {
-    this.cSRService
-      .query()
-      .pipe(
-        filter((res: HttpResponse<ICSR[]>) => res.ok),
-        map((res: HttpResponse<ICSR[]>) => res.body)
-      )
-      .subscribe(
-        (res: ICSR[]) => {
-          this.cSRS = res;
+@Component
+export default class CSR extends mixins(JhiDataUtils, Vue2Filters.mixin, AlertMixin) {
+  @Inject('cSRService') private cSRService: () => CSRService;
+  private removeId: number = null;
+  public cSRS: ICSR[] = [];
+
+  public isFetching = false;
+
+  public mounted(): void {
+    this.retrieveAllCSRs();
+  }
+
+  public clear(): void {
+    this.retrieveAllCSRs();
+  }
+
+  public retrieveAllCSRs(): void {
+    this.isFetching = true;
+
+    this.cSRService()
+      .retrieve()
+      .then(
+        res => {
+          this.cSRS = res.data;
+          this.isFetching = false;
         },
-        (res: HttpErrorResponse) => this.onError(res.message)
+        err => {
+          this.isFetching = false;
+        }
       );
   }
 
-  ngOnInit() {
-    this.loadAll();
-    this.accountService.identity().then(account => {
-      this.currentAccount = account;
-    });
-    this.registerChangeInCSRS();
+  public prepareRemove(instance: ICSR): void {
+    this.removeId = instance.id;
   }
 
-  ngOnDestroy() {
-    this.eventManager.destroy(this.eventSubscriber);
+  public removeCSR(): void {
+    this.cSRService()
+      .delete(this.removeId)
+      .then(() => {
+        const message = this.$t('ca3SApp.cSR.deleted', { param: this.removeId });
+        this.alertService().showAlert(message, 'danger');
+        this.getAlertFromStore();
+
+        this.removeId = null;
+        this.retrieveAllCSRs();
+        this.closeDialog();
+      });
   }
 
-  trackId(index: number, item: ICSR) {
-    return item.id;
-  }
-
-  byteSize(field) {
-    return this.dataUtils.byteSize(field);
-  }
-
-  openFile(contentType, field) {
-    return this.dataUtils.openFile(contentType, field);
-  }
-
-  registerChangeInCSRS() {
-    this.eventSubscriber = this.eventManager.subscribe('cSRListModification', response => this.loadAll());
-  }
-
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
+  public closeDialog(): void {
+    (<any>this.$refs.removeEntity).hide();
   }
 }

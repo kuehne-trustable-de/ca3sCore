@@ -1,9 +1,9 @@
 package de.trustable.ca3s.core.service;
 
+import de.trustable.ca3s.core.domain.AcmeChallenge;
+
 import java.util.List;
 import java.util.Optional;
-
-import de.trustable.ca3s.core.domain.AcmeChallenge;
 
 /**
  * Service Interface for managing {@link AcmeChallenge}.

@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.security.jwt;
 
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import io.github.jhipster.config.JHipsterProperties;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -14,10 +15,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import de.trustable.ca3s.core.security.AuthoritiesConstants;
-import de.trustable.ca3s.core.security.jwt.JWTFilter;
-import de.trustable.ca3s.core.security.jwt.TokenProvider;
 
 import java.util.Collections;
 

@@ -1,5 +1,11 @@
 package de.trustable.ca3s.core.web.rest;
 
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.domain.CAConnectorConfig;
+import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
+import de.trustable.ca3s.core.service.CAConnectorConfigService;
+import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -13,14 +19,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
-import de.trustable.ca3s.core.Ca3SJhApp;
-import de.trustable.ca3s.core.domain.CAConnectorConfig;
-import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
-import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
-import de.trustable.ca3s.core.service.CAConnectorConfigService;
-import de.trustable.ca3s.core.web.rest.CAConnectorConfigResource;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
-
 import javax.persistence.EntityManager;
 import java.util.List;
 
@@ -29,10 +27,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 /**
  * Integration tests for the {@link CAConnectorConfigResource} REST controller.
  */
-@SpringBootTest(classes = Ca3SJhApp.class)
+@SpringBootTest(classes = Ca3SApp.class)
 public class CAConnectorConfigResourceIT {
 
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
@@ -49,7 +49,6 @@ public class CAConnectorConfigResourceIT {
 
     private static final Integer DEFAULT_POLLING_OFFSET = 1;
     private static final Integer UPDATED_POLLING_OFFSET = 2;
-    private static final Integer SMALLER_POLLING_OFFSET = 1 - 1;
 
     private static final Boolean DEFAULT_DEFAULT_CA = false;
     private static final Boolean UPDATED_DEFAULT_CA = true;
@@ -189,10 +188,10 @@ public class CAConnectorConfigResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(cAConnectorConfig.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].caConnectorType").value(hasItem(DEFAULT_CA_CONNECTOR_TYPE.toString())))
-            .andExpect(jsonPath("$.[*].caUrl").value(hasItem(DEFAULT_CA_URL.toString())))
-            .andExpect(jsonPath("$.[*].secret").value(hasItem(DEFAULT_SECRET.toString())))
+            .andExpect(jsonPath("$.[*].caUrl").value(hasItem(DEFAULT_CA_URL)))
+            .andExpect(jsonPath("$.[*].secret").value(hasItem(DEFAULT_SECRET)))
             .andExpect(jsonPath("$.[*].pollingOffset").value(hasItem(DEFAULT_POLLING_OFFSET)))
             .andExpect(jsonPath("$.[*].defaultCA").value(hasItem(DEFAULT_DEFAULT_CA.booleanValue())))
             .andExpect(jsonPath("$.[*].active").value(hasItem(DEFAULT_ACTIVE.booleanValue())));
@@ -209,10 +208,10 @@ public class CAConnectorConfigResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(cAConnectorConfig.getId().intValue()))
-            .andExpect(jsonPath("$.name").value(DEFAULT_NAME.toString()))
+            .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.caConnectorType").value(DEFAULT_CA_CONNECTOR_TYPE.toString()))
-            .andExpect(jsonPath("$.caUrl").value(DEFAULT_CA_URL.toString()))
-            .andExpect(jsonPath("$.secret").value(DEFAULT_SECRET.toString()))
+            .andExpect(jsonPath("$.caUrl").value(DEFAULT_CA_URL))
+            .andExpect(jsonPath("$.secret").value(DEFAULT_SECRET))
             .andExpect(jsonPath("$.pollingOffset").value(DEFAULT_POLLING_OFFSET))
             .andExpect(jsonPath("$.defaultCA").value(DEFAULT_DEFAULT_CA.booleanValue()))
             .andExpect(jsonPath("$.active").value(DEFAULT_ACTIVE.booleanValue()));
@@ -299,20 +298,5 @@ public class CAConnectorConfigResourceIT {
         // Validate the database contains one less item
         List<CAConnectorConfig> cAConnectorConfigList = cAConnectorConfigRepository.findAll();
         assertThat(cAConnectorConfigList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(CAConnectorConfig.class);
-        CAConnectorConfig cAConnectorConfig1 = new CAConnectorConfig();
-        cAConnectorConfig1.setId(1L);
-        CAConnectorConfig cAConnectorConfig2 = new CAConnectorConfig();
-        cAConnectorConfig2.setId(cAConnectorConfig1.getId());
-        assertThat(cAConnectorConfig1).isEqualTo(cAConnectorConfig2);
-        cAConnectorConfig2.setId(2L);
-        assertThat(cAConnectorConfig1).isNotEqualTo(cAConnectorConfig2);
-        cAConnectorConfig1.setId(null);
-        assertThat(cAConnectorConfig1).isNotEqualTo(cAConnectorConfig2);
     }
 }

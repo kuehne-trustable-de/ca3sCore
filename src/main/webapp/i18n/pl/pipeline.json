@@ -1,0 +1,26 @@
+{
+  "ca3SApp": {
+    "pipeline": {
+      "home": {
+        "title": "Pipeline",
+        "createLabel": "Dodaj Pipeline",
+        "createOrEditLabel": "Dodaj lub edytuj: Pipeline",
+        "notFound": "No Pipelines found"
+      },
+      "created": "Utworzono nowy obiekt typu Pipeline z identyfikatorem {{ param }}",
+      "updated": "Uaktualniono obiekt typu Pipeline z identyfikatorem {{ param }}",
+      "deleted": "Usunięto obiekt typu Pipeline z identyfikatorem {{ param }}",
+      "delete": {
+        "question": "Czy na pewno chcesz usunąć Pipeline {{ id }}?"
+      },
+      "detail": {
+        "title": "Pipeline"
+      },
+      "name": "Name",
+      "type": "Type",
+      "urlPart": "Url Part",
+      "pipelineAttributes": "Pipeline Attributes",
+      "csr": "Csr"
+    }
+  }
+}

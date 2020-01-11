@@ -76,13 +76,14 @@
             "otherEntityField": "id"
         }
     ],
-    "changelogDate": "20191030193014",
+    "changelogDate": "20200110170123",
     "entityTableName": "acme_order",
     "dto": "no",
     "pagination": "no",
     "service": "serviceImpl",
     "jpaMetamodelFiltering": false,
     "fluentMethods": true,
+    "readOnly": false,
     "clientRootFolder": "",
     "applications": "*"
 }

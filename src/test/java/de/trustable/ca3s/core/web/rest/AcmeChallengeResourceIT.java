@@ -1,5 +1,11 @@
 package de.trustable.ca3s.core.web.rest;
 
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.domain.AcmeChallenge;
+import de.trustable.ca3s.core.repository.AcmeChallengeRepository;
+import de.trustable.ca3s.core.service.AcmeChallengeService;
+import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -13,14 +19,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
-import de.trustable.ca3s.core.Ca3SJhApp;
-import de.trustable.ca3s.core.domain.AcmeChallenge;
-import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
-import de.trustable.ca3s.core.repository.AcmeChallengeRepository;
-import de.trustable.ca3s.core.service.AcmeChallengeService;
-import de.trustable.ca3s.core.web.rest.AcmeChallengeResource;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
-
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -31,15 +29,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
 /**
  * Integration tests for the {@link AcmeChallengeResource} REST controller.
  */
-@SpringBootTest(classes = Ca3SJhApp.class)
+@SpringBootTest(classes = Ca3SApp.class)
 public class AcmeChallengeResourceIT {
 
     private static final Long DEFAULT_CHALLENGE_ID = 1L;
     private static final Long UPDATED_CHALLENGE_ID = 2L;
-    private static final Long SMALLER_CHALLENGE_ID = 1L - 1L;
 
     private static final String DEFAULT_TYPE = "AAAAAAAAAA";
     private static final String UPDATED_TYPE = "BBBBBBBBBB";
@@ -52,7 +51,6 @@ public class AcmeChallengeResourceIT {
 
     private static final LocalDate DEFAULT_VALIDATED = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_VALIDATED = LocalDate.now(ZoneId.systemDefault());
-    private static final LocalDate SMALLER_VALIDATED = LocalDate.ofEpochDay(-1L);
 
     private static final ChallengeStatus DEFAULT_STATUS = ChallengeStatus.PENDING;
     private static final ChallengeStatus UPDATED_STATUS = ChallengeStatus.VALID;
@@ -277,9 +275,9 @@ public class AcmeChallengeResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(acmeChallenge.getId().intValue())))
             .andExpect(jsonPath("$.[*].challengeId").value(hasItem(DEFAULT_CHALLENGE_ID.intValue())))
-            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
-            .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE.toString())))
-            .andExpect(jsonPath("$.[*].token").value(hasItem(DEFAULT_TOKEN.toString())))
+            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
+            .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE)))
+            .andExpect(jsonPath("$.[*].token").value(hasItem(DEFAULT_TOKEN)))
             .andExpect(jsonPath("$.[*].validated").value(hasItem(DEFAULT_VALIDATED.toString())))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())));
     }
@@ -296,9 +294,9 @@ public class AcmeChallengeResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(acmeChallenge.getId().intValue()))
             .andExpect(jsonPath("$.challengeId").value(DEFAULT_CHALLENGE_ID.intValue()))
-            .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))
-            .andExpect(jsonPath("$.value").value(DEFAULT_VALUE.toString()))
-            .andExpect(jsonPath("$.token").value(DEFAULT_TOKEN.toString()))
+            .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))
+            .andExpect(jsonPath("$.value").value(DEFAULT_VALUE))
+            .andExpect(jsonPath("$.token").value(DEFAULT_TOKEN))
             .andExpect(jsonPath("$.validated").value(DEFAULT_VALIDATED.toString()))
             .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()));
     }
@@ -382,20 +380,5 @@ public class AcmeChallengeResourceIT {
         // Validate the database contains one less item
         List<AcmeChallenge> acmeChallengeList = acmeChallengeRepository.findAll();
         assertThat(acmeChallengeList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(AcmeChallenge.class);
-        AcmeChallenge acmeChallenge1 = new AcmeChallenge();
-        acmeChallenge1.setId(1L);
-        AcmeChallenge acmeChallenge2 = new AcmeChallenge();
-        acmeChallenge2.setId(acmeChallenge1.getId());
-        assertThat(acmeChallenge1).isEqualTo(acmeChallenge2);
-        acmeChallenge2.setId(2L);
-        assertThat(acmeChallenge1).isNotEqualTo(acmeChallenge2);
-        acmeChallenge1.setId(null);
-        assertThat(acmeChallenge1).isNotEqualTo(acmeChallenge2);
     }
 }

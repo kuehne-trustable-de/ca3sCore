@@ -1,0 +1,25 @@
+{
+  "ca3SApp": {
+    "requestAttribute": {
+      "home": {
+        "title": "Request Attribute",
+        "createLabel": "Dodaj Request Attribute",
+        "createOrEditLabel": "Dodaj lub edytuj: Request Attribute",
+        "notFound": "No Request Attributes found"
+      },
+      "created": "Utworzono nowy obiekt typu Request Attribute z identyfikatorem {{ param }}",
+      "updated": "Uaktualniono obiekt typu Request Attribute z identyfikatorem {{ param }}",
+      "deleted": "Usunięto obiekt typu Request Attribute z identyfikatorem {{ param }}",
+      "delete": {
+        "question": "Czy na pewno chcesz usunąć Request Attribute {{ id }}?"
+      },
+      "detail": {
+        "title": "Request Attribute"
+      },
+      "attributeType": "Attribute Type",
+      "requestAttributeValues": "Request Attribute Values",
+      "holdingRequestAttribute": "Holding Request Attribute",
+      "csr": "Csr"
+    }
+  }
+}

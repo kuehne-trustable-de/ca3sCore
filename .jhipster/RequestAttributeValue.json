@@ -18,13 +18,14 @@
             "otherEntityField": "id"
         }
     ],
-    "changelogDate": "20191028230820",
+    "changelogDate": "20200110170118",
     "entityTableName": "request_attribute_value",
     "dto": "no",
     "pagination": "no",
     "service": "serviceImpl",
     "jpaMetamodelFiltering": false,
     "fluentMethods": true,
+    "readOnly": false,
     "clientRootFolder": "",
     "applications": "*"
 }

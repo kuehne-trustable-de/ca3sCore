@@ -1,4 +1,4 @@
-import { ICSR } from 'app/shared/model/csr.model';
+import { ICSR } from '@/shared/model/csr.model';
 
 export interface ICsrAttribute {
   id?: number;

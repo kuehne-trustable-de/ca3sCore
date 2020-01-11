@@ -1,61 +1,95 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { HttpResponse } from '@angular/common/http';
-import { FormBuilder } from '@angular/forms';
-import { of } from 'rxjs';
+/* tslint:disable max-line-length */
+import { shallowMount, createLocalVue, Wrapper } from '@vue/test-utils';
+import sinon, { SinonStubbedInstance } from 'sinon';
+import Router from 'vue-router';
 
-import { Ca3SJhTestModule } from '../../../test.module';
-import { CSRUpdateComponent } from 'app/entities/csr/csr-update.component';
-import { CSRService } from 'app/entities/csr/csr.service';
-import { CSR } from 'app/shared/model/csr.model';
+import AlertService from '@/shared/alert/alert.service';
+import * as config from '@/shared/config/config';
+import CSRUpdateComponent from '@/entities/csr/csr-update.vue';
+import CSRClass from '@/entities/csr/csr-update.component';
+import CSRService from '@/entities/csr/csr.service';
+
+import RDNService from '@/entities/rdn/rdn.service';
+
+import RequestAttributeService from '@/entities/request-attribute/request-attribute.service';
+
+import CsrAttributeService from '@/entities/csr-attribute/csr-attribute.service';
+
+import PipelineService from '@/entities/pipeline/pipeline.service';
+
+import CertificateService from '@/entities/certificate/certificate.service';
+
+const localVue = createLocalVue();
+
+config.initVueApp(localVue);
+const i18n = config.initI18N(localVue);
+const store = config.initVueXStore(localVue);
+const router = new Router();
+localVue.use(Router);
+localVue.component('font-awesome-icon', {});
 
 describe('Component Tests', () => {
   describe('CSR Management Update Component', () => {
-    let comp: CSRUpdateComponent;
-    let fixture: ComponentFixture<CSRUpdateComponent>;
-    let service: CSRService;
+    let wrapper: Wrapper<CSRClass>;
+    let comp: CSRClass;
+    let cSRServiceStub: SinonStubbedInstance<CSRService>;
 
     beforeEach(() => {
-      TestBed.configureTestingModule({
-        imports: [Ca3SJhTestModule],
-        declarations: [CSRUpdateComponent],
-        providers: [FormBuilder]
-      })
-        .overrideTemplate(CSRUpdateComponent, '')
-        .compileComponents();
+      cSRServiceStub = sinon.createStubInstance<CSRService>(CSRService);
 
-      fixture = TestBed.createComponent(CSRUpdateComponent);
-      comp = fixture.componentInstance;
-      service = fixture.debugElement.injector.get(CSRService);
+      wrapper = shallowMount<CSRClass>(CSRUpdateComponent, {
+        store,
+        i18n,
+        localVue,
+        router,
+        provide: {
+          alertService: () => new AlertService(store),
+          cSRService: () => cSRServiceStub,
+
+          rDNService: () => new RDNService(),
+
+          requestAttributeService: () => new RequestAttributeService(),
+
+          csrAttributeService: () => new CsrAttributeService(),
+
+          pipelineService: () => new PipelineService(),
+
+          certificateService: () => new CertificateService()
+        }
+      });
+      comp = wrapper.vm;
     });
 
     describe('save', () => {
-      it('Should call update service on save for existing entity', fakeAsync(() => {
+      it('Should call update service on save for existing entity', async () => {
         // GIVEN
-        const entity = new CSR(123);
-        spyOn(service, 'update').and.returnValue(of(new HttpResponse({ body: entity })));
-        comp.updateForm(entity);
+        const entity = { id: 123 };
+        comp.cSR = entity;
+        cSRServiceStub.update.resolves(entity);
+
         // WHEN
         comp.save();
-        tick(); // simulate async
+        await comp.$nextTick();
 
         // THEN
-        expect(service.update).toHaveBeenCalledWith(entity);
+        expect(cSRServiceStub.update.calledWith(entity)).toBeTruthy();
         expect(comp.isSaving).toEqual(false);
-      }));
+      });
 
-      it('Should call create service on save for new entity', fakeAsync(() => {
+      it('Should call create service on save for new entity', async () => {
         // GIVEN
-        const entity = new CSR();
-        spyOn(service, 'create').and.returnValue(of(new HttpResponse({ body: entity })));
-        comp.updateForm(entity);
+        const entity = {};
+        comp.cSR = entity;
+        cSRServiceStub.create.resolves(entity);
+
         // WHEN
         comp.save();
-        tick(); // simulate async
+        await comp.$nextTick();
 
         // THEN
-        expect(service.create).toHaveBeenCalledWith(entity);
+        expect(cSRServiceStub.create.calledWith(entity)).toBeTruthy();
         expect(comp.isSaving).toEqual(false);
-      }));
+      });
     });
   });
 });

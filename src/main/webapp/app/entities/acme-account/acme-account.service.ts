@@ -1,38 +1,47 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import axios from 'axios';
 
-import { SERVER_API_URL } from 'app/app.constants';
-import { createRequestOption } from 'app/shared/util/request-util';
-import { IACMEAccount } from 'app/shared/model/acme-account.model';
+import { IACMEAccount } from '@/shared/model/acme-account.model';
 
-type EntityResponseType = HttpResponse<IACMEAccount>;
-type EntityArrayResponseType = HttpResponse<IACMEAccount[]>;
+const baseApiUrl = 'api/acme-accounts';
 
-@Injectable({ providedIn: 'root' })
-export class ACMEAccountService {
-  public resourceUrl = SERVER_API_URL + 'api/acme-accounts';
-
-  constructor(protected http: HttpClient) {}
-
-  create(aCMEAccount: IACMEAccount): Observable<EntityResponseType> {
-    return this.http.post<IACMEAccount>(this.resourceUrl, aCMEAccount, { observe: 'response' });
+export default class ACMEAccountService {
+  public find(id: number): Promise<IACMEAccount> {
+    return new Promise<IACMEAccount>(resolve => {
+      axios.get(`${baseApiUrl}/${id}`).then(function(res) {
+        resolve(res.data);
+      });
+    });
   }
 
-  update(aCMEAccount: IACMEAccount): Observable<EntityResponseType> {
-    return this.http.put<IACMEAccount>(this.resourceUrl, aCMEAccount, { observe: 'response' });
+  public retrieve(): Promise<any> {
+    return new Promise<any>(resolve => {
+      axios.get(baseApiUrl).then(function(res) {
+        resolve(res);
+      });
+    });
   }
 
-  find(id: number): Observable<EntityResponseType> {
-    return this.http.get<IACMEAccount>(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  public delete(id: number): Promise<any> {
+    return new Promise<any>(resolve => {
+      axios.delete(`${baseApiUrl}/${id}`).then(function(res) {
+        resolve(res);
+      });
+    });
   }
 
-  query(req?: any): Observable<EntityArrayResponseType> {
-    const options = createRequestOption(req);
-    return this.http.get<IACMEAccount[]>(this.resourceUrl, { params: options, observe: 'response' });
+  public create(entity: IACMEAccount): Promise<IACMEAccount> {
+    return new Promise<IACMEAccount>(resolve => {
+      axios.post(`${baseApiUrl}`, entity).then(function(res) {
+        resolve(res.data);
+      });
+    });
   }
 
-  delete(id: number): Observable<HttpResponse<any>> {
-    return this.http.delete<any>(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  public update(entity: IACMEAccount): Promise<IACMEAccount> {
+    return new Promise<IACMEAccount>(resolve => {
+      axios.put(`${baseApiUrl}`, entity).then(function(res) {
+        resolve(res.data);
+      });
+    });
   }
 }

@@ -1,0 +1,24 @@
+{
+  "ca3SApp": {
+    "csrAttribute": {
+      "home": {
+        "title": "Csr Attribute",
+        "createLabel": "Dodaj Csr Attribute",
+        "createOrEditLabel": "Dodaj lub edytuj: Csr Attribute",
+        "notFound": "No Csr Attributes found"
+      },
+      "created": "Utworzono nowy obiekt typu Csr Attribute z identyfikatorem {{ param }}",
+      "updated": "Uaktualniono obiekt typu Csr Attribute z identyfikatorem {{ param }}",
+      "deleted": "Usunięto obiekt typu Csr Attribute z identyfikatorem {{ param }}",
+      "delete": {
+        "question": "Czy na pewno chcesz usunąć Csr Attribute {{ id }}?"
+      },
+      "detail": {
+        "title": "Csr Attribute"
+      },
+      "name": "Name",
+      "value": "Value",
+      "csr": "Csr"
+    }
+  }
+}

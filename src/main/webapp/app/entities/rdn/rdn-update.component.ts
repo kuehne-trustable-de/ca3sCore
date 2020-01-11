@@ -1,99 +1,92 @@
-import { Component, OnInit } from '@angular/core';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { JhiAlertService } from 'ng-jhipster';
-import { IRDN, RDN } from 'app/shared/model/rdn.model';
-import { RDNService } from './rdn.service';
-import { ICSR } from 'app/shared/model/csr.model';
-import { CSRService } from 'app/entities/csr/csr.service';
+import { Component, Vue, Inject } from 'vue-property-decorator';
+
+import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
+
+import RDNAttributeService from '../rdn-attribute/rdn-attribute.service';
+import { IRDNAttribute } from '@/shared/model/rdn-attribute.model';
+
+import CSRService from '../csr/csr.service';
+import { ICSR } from '@/shared/model/csr.model';
+
+import AlertService from '@/shared/alert/alert.service';
+import { IRDN, RDN } from '@/shared/model/rdn.model';
+import RDNService from './rdn.service';
+
+const validations: any = {
+  rDN: {}
+};
 
 @Component({
-  selector: 'jhi-rdn-update',
-  templateUrl: './rdn-update.component.html'
+  validations
 })
-export class RDNUpdateComponent implements OnInit {
-  isSaving: boolean;
+export default class RDNUpdate extends Vue {
+  @Inject('alertService') private alertService: () => AlertService;
+  @Inject('rDNService') private rDNService: () => RDNService;
+  public rDN: IRDN = new RDN();
 
-  csrs: ICSR[];
+  @Inject('rDNAttributeService') private rDNAttributeService: () => RDNAttributeService;
 
-  editForm = this.fb.group({
-    id: [],
-    csr: []
-  });
+  public rDNAttributes: IRDNAttribute[] = [];
 
-  constructor(
-    protected jhiAlertService: JhiAlertService,
-    protected rDNService: RDNService,
-    protected cSRService: CSRService,
-    protected activatedRoute: ActivatedRoute,
-    private fb: FormBuilder
-  ) {}
+  @Inject('cSRService') private cSRService: () => CSRService;
 
-  ngOnInit() {
-    this.isSaving = false;
-    this.activatedRoute.data.subscribe(({ rDN }) => {
-      this.updateForm(rDN);
-    });
-    this.cSRService
-      .query()
-      .pipe(
-        filter((mayBeOk: HttpResponse<ICSR[]>) => mayBeOk.ok),
-        map((response: HttpResponse<ICSR[]>) => response.body)
-      )
-      .subscribe((res: ICSR[]) => (this.csrs = res), (res: HttpErrorResponse) => this.onError(res.message));
-  }
+  public cSRS: ICSR[] = [];
+  public isSaving = false;
 
-  updateForm(rDN: IRDN) {
-    this.editForm.patchValue({
-      id: rDN.id,
-      csr: rDN.csr
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      if (to.params.rDNId) {
+        vm.retrieveRDN(to.params.rDNId);
+      }
+      vm.initRelationships();
     });
   }
 
-  previousState() {
-    window.history.back();
-  }
-
-  save() {
+  public save(): void {
     this.isSaving = true;
-    const rDN = this.createFromForm();
-    if (rDN.id !== undefined) {
-      this.subscribeToSaveResponse(this.rDNService.update(rDN));
+    if (this.rDN.id) {
+      this.rDNService()
+        .update(this.rDN)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.rDN.updated', { param: param.id });
+          this.alertService().showAlert(message, 'info');
+        });
     } else {
-      this.subscribeToSaveResponse(this.rDNService.create(rDN));
+      this.rDNService()
+        .create(this.rDN)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.rDN.created', { param: param.id });
+          this.alertService().showAlert(message, 'success');
+        });
     }
   }
 
-  private createFromForm(): IRDN {
-    return {
-      ...new RDN(),
-      id: this.editForm.get(['id']).value,
-      csr: this.editForm.get(['csr']).value
-    };
+  public retrieveRDN(rDNId): void {
+    this.rDNService()
+      .find(rDNId)
+      .then(res => {
+        this.rDN = res;
+      });
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IRDN>>) {
-    result.subscribe(() => this.onSaveSuccess(), () => this.onSaveError());
+  public previousState(): void {
+    this.$router.go(-1);
   }
 
-  protected onSaveSuccess() {
-    this.isSaving = false;
-    this.previousState();
-  }
-
-  protected onSaveError() {
-    this.isSaving = false;
-  }
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
-  }
-
-  trackCSRById(index: number, item: ICSR) {
-    return item.id;
+  public initRelationships(): void {
+    this.rDNAttributeService()
+      .retrieve()
+      .then(res => {
+        this.rDNAttributes = res.data;
+      });
+    this.cSRService()
+      .retrieve()
+      .then(res => {
+        this.cSRS = res.data;
+      });
   }
 }

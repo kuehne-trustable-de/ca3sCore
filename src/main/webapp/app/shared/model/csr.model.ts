@@ -1,14 +1,20 @@
-import { Moment } from 'moment';
-import { IRDN } from 'app/shared/model/rdn.model';
-import { IRequestAttribute } from 'app/shared/model/request-attribute.model';
-import { ICsrAttribute } from 'app/shared/model/csr-attribute.model';
-import { ICertificate } from 'app/shared/model/certificate.model';
-import { CsrStatus } from 'app/shared/model/enumerations/csr-status.model';
+import { IRDN } from '@/shared/model/rdn.model';
+import { IRequestAttribute } from '@/shared/model/request-attribute.model';
+import { ICsrAttribute } from '@/shared/model/csr-attribute.model';
+import { IPipeline } from '@/shared/model/pipeline.model';
+import { ICertificate } from '@/shared/model/certificate.model';
+
+export const enum CsrStatus {
+  PROCESSING = 'PROCESSING',
+  ISSUED = 'ISSUED',
+  REJECTED = 'REJECTED',
+  PENDING = 'PENDING'
+}
 
 export interface ICSR {
   id?: number;
   csrBase64?: any;
-  requestedOn?: Moment;
+  requestedOn?: Date;
   status?: CsrStatus;
   processInstanceId?: string;
   signingAlgorithm?: string;
@@ -20,6 +26,7 @@ export interface ICSR {
   rdns?: IRDN[];
   ras?: IRequestAttribute[];
   csrAttributes?: ICsrAttribute[];
+  pipelines?: IPipeline[];
   certificate?: ICertificate;
 }
 
@@ -27,7 +34,7 @@ export class CSR implements ICSR {
   constructor(
     public id?: number,
     public csrBase64?: any,
-    public requestedOn?: Moment,
+    public requestedOn?: Date,
     public status?: CsrStatus,
     public processInstanceId?: string,
     public signingAlgorithm?: string,
@@ -39,6 +46,7 @@ export class CSR implements ICSR {
     public rdns?: IRDN[],
     public ras?: IRequestAttribute[],
     public csrAttributes?: ICsrAttribute[],
+    public pipelines?: IPipeline[],
     public certificate?: ICertificate
   ) {
     this.isCSRValid = this.isCSRValid || false;

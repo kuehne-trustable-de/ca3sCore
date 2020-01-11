@@ -1,7 +1,5 @@
 package de.trustable.ca3s.core.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -13,7 +11,6 @@ import java.io.Serializable;
  */
 @Entity
 @Table(name = "certificate_attribute")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class CertificateAttribute implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -143,5 +140,6 @@ public class CertificateAttribute implements Serializable {
 	public static final String ATTRIBUTE_CA_PROCESSING_ID = CsrAttribute.ATTRIBUTE_CA_PROCESSING_ID;
 	public static final String ATTRIBUTE_PROCESSING_CA = CsrAttribute.ATTRIBUTE_PROCESSING_CA;
 	
+
 
 }

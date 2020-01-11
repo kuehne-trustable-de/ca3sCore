@@ -1,66 +1,63 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Subscription } from 'rxjs';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { filter, map } from 'rxjs/operators';
-import { JhiEventManager, JhiAlertService } from 'ng-jhipster';
+import { mixins } from 'vue-class-component';
 
-import { ICAConnectorConfig } from 'app/shared/model/ca-connector-config.model';
-import { AccountService } from 'app/core/auth/account.service';
-import { CAConnectorConfigService } from './ca-connector-config.service';
+import { Component, Inject } from 'vue-property-decorator';
+import Vue2Filters from 'vue2-filters';
+import { ICAConnectorConfig } from '@/shared/model/ca-connector-config.model';
+import AlertMixin from '@/shared/alert/alert.mixin';
 
-@Component({
-  selector: 'jhi-ca-connector-config',
-  templateUrl: './ca-connector-config.component.html'
-})
-export class CAConnectorConfigComponent implements OnInit, OnDestroy {
-  cAConnectorConfigs: ICAConnectorConfig[];
-  currentAccount: any;
-  eventSubscriber: Subscription;
+import CAConnectorConfigService from './ca-connector-config.service';
 
-  constructor(
-    protected cAConnectorConfigService: CAConnectorConfigService,
-    protected jhiAlertService: JhiAlertService,
-    protected eventManager: JhiEventManager,
-    protected accountService: AccountService
-  ) {}
+@Component
+export default class CAConnectorConfig extends mixins(Vue2Filters.mixin, AlertMixin) {
+  @Inject('cAConnectorConfigService') private cAConnectorConfigService: () => CAConnectorConfigService;
+  private removeId: number = null;
+  public cAConnectorConfigs: ICAConnectorConfig[] = [];
 
-  loadAll() {
-    this.cAConnectorConfigService
-      .query()
-      .pipe(
-        filter((res: HttpResponse<ICAConnectorConfig[]>) => res.ok),
-        map((res: HttpResponse<ICAConnectorConfig[]>) => res.body)
-      )
-      .subscribe(
-        (res: ICAConnectorConfig[]) => {
-          this.cAConnectorConfigs = res;
+  public isFetching = false;
+
+  public mounted(): void {
+    this.retrieveAllCAConnectorConfigs();
+  }
+
+  public clear(): void {
+    this.retrieveAllCAConnectorConfigs();
+  }
+
+  public retrieveAllCAConnectorConfigs(): void {
+    this.isFetching = true;
+
+    this.cAConnectorConfigService()
+      .retrieve()
+      .then(
+        res => {
+          this.cAConnectorConfigs = res.data;
+          this.isFetching = false;
         },
-        (res: HttpErrorResponse) => this.onError(res.message)
+        err => {
+          this.isFetching = false;
+        }
       );
   }
 
-  ngOnInit() {
-    this.loadAll();
-    this.accountService.identity().then(account => {
-      this.currentAccount = account;
-    });
-    this.registerChangeInCAConnectorConfigs();
+  public prepareRemove(instance: ICAConnectorConfig): void {
+    this.removeId = instance.id;
   }
 
-  ngOnDestroy() {
-    this.eventManager.destroy(this.eventSubscriber);
+  public removeCAConnectorConfig(): void {
+    this.cAConnectorConfigService()
+      .delete(this.removeId)
+      .then(() => {
+        const message = this.$t('ca3SApp.cAConnectorConfig.deleted', { param: this.removeId });
+        this.alertService().showAlert(message, 'danger');
+        this.getAlertFromStore();
+
+        this.removeId = null;
+        this.retrieveAllCAConnectorConfigs();
+        this.closeDialog();
+      });
   }
 
-  trackId(index: number, item: ICAConnectorConfig) {
-    return item.id;
-  }
-
-  registerChangeInCAConnectorConfigs() {
-    this.eventSubscriber = this.eventManager.subscribe('cAConnectorConfigListModification', response => this.loadAll());
-  }
-
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
+  public closeDialog(): void {
+    (<any>this.$refs.removeEntity).hide();
   }
 }

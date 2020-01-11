@@ -1,14 +1,13 @@
 package de.trustable.ca3s.core.service.impl;
 
+import de.trustable.ca3s.core.service.RDNAttributeService;
+import de.trustable.ca3s.core.domain.RDNAttribute;
+import de.trustable.ca3s.core.repository.RDNAttributeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import de.trustable.ca3s.core.domain.RDNAttribute;
-import de.trustable.ca3s.core.repository.RDNAttributeRepository;
-import de.trustable.ca3s.core.service.RDNAttributeService;
 
 import java.util.List;
 import java.util.Optional;

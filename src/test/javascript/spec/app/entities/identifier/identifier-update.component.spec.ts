@@ -1,61 +1,79 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { HttpResponse } from '@angular/common/http';
-import { FormBuilder } from '@angular/forms';
-import { of } from 'rxjs';
+/* tslint:disable max-line-length */
+import { shallowMount, createLocalVue, Wrapper } from '@vue/test-utils';
+import sinon, { SinonStubbedInstance } from 'sinon';
+import Router from 'vue-router';
 
-import { Ca3SJhTestModule } from '../../../test.module';
-import { IdentifierUpdateComponent } from 'app/entities/identifier/identifier-update.component';
-import { IdentifierService } from 'app/entities/identifier/identifier.service';
-import { Identifier } from 'app/shared/model/identifier.model';
+import AlertService from '@/shared/alert/alert.service';
+import * as config from '@/shared/config/config';
+import IdentifierUpdateComponent from '@/entities/identifier/identifier-update.vue';
+import IdentifierClass from '@/entities/identifier/identifier-update.component';
+import IdentifierService from '@/entities/identifier/identifier.service';
+
+import AcmeOrderService from '@/entities/acme-order/acme-order.service';
+
+const localVue = createLocalVue();
+
+config.initVueApp(localVue);
+const i18n = config.initI18N(localVue);
+const store = config.initVueXStore(localVue);
+const router = new Router();
+localVue.use(Router);
+localVue.component('font-awesome-icon', {});
 
 describe('Component Tests', () => {
   describe('Identifier Management Update Component', () => {
-    let comp: IdentifierUpdateComponent;
-    let fixture: ComponentFixture<IdentifierUpdateComponent>;
-    let service: IdentifierService;
+    let wrapper: Wrapper<IdentifierClass>;
+    let comp: IdentifierClass;
+    let identifierServiceStub: SinonStubbedInstance<IdentifierService>;
 
     beforeEach(() => {
-      TestBed.configureTestingModule({
-        imports: [Ca3SJhTestModule],
-        declarations: [IdentifierUpdateComponent],
-        providers: [FormBuilder]
-      })
-        .overrideTemplate(IdentifierUpdateComponent, '')
-        .compileComponents();
+      identifierServiceStub = sinon.createStubInstance<IdentifierService>(IdentifierService);
 
-      fixture = TestBed.createComponent(IdentifierUpdateComponent);
-      comp = fixture.componentInstance;
-      service = fixture.debugElement.injector.get(IdentifierService);
+      wrapper = shallowMount<IdentifierClass>(IdentifierUpdateComponent, {
+        store,
+        i18n,
+        localVue,
+        router,
+        provide: {
+          alertService: () => new AlertService(store),
+          identifierService: () => identifierServiceStub,
+
+          acmeOrderService: () => new AcmeOrderService()
+        }
+      });
+      comp = wrapper.vm;
     });
 
     describe('save', () => {
-      it('Should call update service on save for existing entity', fakeAsync(() => {
+      it('Should call update service on save for existing entity', async () => {
         // GIVEN
-        const entity = new Identifier(123);
-        spyOn(service, 'update').and.returnValue(of(new HttpResponse({ body: entity })));
-        comp.updateForm(entity);
+        const entity = { id: 123 };
+        comp.identifier = entity;
+        identifierServiceStub.update.resolves(entity);
+
         // WHEN
         comp.save();
-        tick(); // simulate async
+        await comp.$nextTick();
 
         // THEN
-        expect(service.update).toHaveBeenCalledWith(entity);
+        expect(identifierServiceStub.update.calledWith(entity)).toBeTruthy();
         expect(comp.isSaving).toEqual(false);
-      }));
+      });
 
-      it('Should call create service on save for new entity', fakeAsync(() => {
+      it('Should call create service on save for new entity', async () => {
         // GIVEN
-        const entity = new Identifier();
-        spyOn(service, 'create').and.returnValue(of(new HttpResponse({ body: entity })));
-        comp.updateForm(entity);
+        const entity = {};
+        comp.identifier = entity;
+        identifierServiceStub.create.resolves(entity);
+
         // WHEN
         comp.save();
-        tick(); // simulate async
+        await comp.$nextTick();
 
         // THEN
-        expect(service.create).toHaveBeenCalledWith(entity);
+        expect(identifierServiceStub.create.calledWith(entity)).toBeTruthy();
         expect(comp.isSaving).toEqual(false);
-      }));
+      });
     });
   });
 });

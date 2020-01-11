@@ -1,0 +1,28 @@
+{
+  "health": {
+    "title": "Stan usług",
+    "refresh.button": "Odśwież",
+    "stacktrace": "Stos wywołań",
+    "details": {
+      "details": "Szczegóły",
+      "properties": "Właściwości",
+      "name": "Nazwa",
+      "value": "Wartość",
+      "error": "Błąd"
+    },
+    "indicator": {
+      "diskSpace": "Przestrzeń dyskowa",
+      "mail": "Email",
+      "db": "Baza danych"
+    },
+    "table": {
+      "service": "Nazwa usługi",
+      "status": "Status"
+    },
+    "status": {
+      "UNKNOWN": "NIEZNANY",
+      "UP": "DOSTĘPNA",
+      "DOWN": "NIEDOSTĘPNA"
+    }
+  }
+}

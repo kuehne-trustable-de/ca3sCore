@@ -1,66 +1,63 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Subscription } from 'rxjs';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { filter, map } from 'rxjs/operators';
-import { JhiEventManager, JhiAlertService } from 'ng-jhipster';
+import { mixins } from 'vue-class-component';
 
-import { IAcmeOrder } from 'app/shared/model/acme-order.model';
-import { AccountService } from 'app/core/auth/account.service';
-import { AcmeOrderService } from './acme-order.service';
+import { Component, Inject } from 'vue-property-decorator';
+import Vue2Filters from 'vue2-filters';
+import { IAcmeOrder } from '@/shared/model/acme-order.model';
+import AlertMixin from '@/shared/alert/alert.mixin';
 
-@Component({
-  selector: 'jhi-acme-order',
-  templateUrl: './acme-order.component.html'
-})
-export class AcmeOrderComponent implements OnInit, OnDestroy {
-  acmeOrders: IAcmeOrder[];
-  currentAccount: any;
-  eventSubscriber: Subscription;
+import AcmeOrderService from './acme-order.service';
 
-  constructor(
-    protected acmeOrderService: AcmeOrderService,
-    protected jhiAlertService: JhiAlertService,
-    protected eventManager: JhiEventManager,
-    protected accountService: AccountService
-  ) {}
+@Component
+export default class AcmeOrder extends mixins(Vue2Filters.mixin, AlertMixin) {
+  @Inject('acmeOrderService') private acmeOrderService: () => AcmeOrderService;
+  private removeId: number = null;
+  public acmeOrders: IAcmeOrder[] = [];
 
-  loadAll() {
-    this.acmeOrderService
-      .query()
-      .pipe(
-        filter((res: HttpResponse<IAcmeOrder[]>) => res.ok),
-        map((res: HttpResponse<IAcmeOrder[]>) => res.body)
-      )
-      .subscribe(
-        (res: IAcmeOrder[]) => {
-          this.acmeOrders = res;
+  public isFetching = false;
+
+  public mounted(): void {
+    this.retrieveAllAcmeOrders();
+  }
+
+  public clear(): void {
+    this.retrieveAllAcmeOrders();
+  }
+
+  public retrieveAllAcmeOrders(): void {
+    this.isFetching = true;
+
+    this.acmeOrderService()
+      .retrieve()
+      .then(
+        res => {
+          this.acmeOrders = res.data;
+          this.isFetching = false;
         },
-        (res: HttpErrorResponse) => this.onError(res.message)
+        err => {
+          this.isFetching = false;
+        }
       );
   }
 
-  ngOnInit() {
-    this.loadAll();
-    this.accountService.identity().then(account => {
-      this.currentAccount = account;
-    });
-    this.registerChangeInAcmeOrders();
+  public prepareRemove(instance: IAcmeOrder): void {
+    this.removeId = instance.id;
   }
 
-  ngOnDestroy() {
-    this.eventManager.destroy(this.eventSubscriber);
+  public removeAcmeOrder(): void {
+    this.acmeOrderService()
+      .delete(this.removeId)
+      .then(() => {
+        const message = this.$t('ca3SApp.acmeOrder.deleted', { param: this.removeId });
+        this.alertService().showAlert(message, 'danger');
+        this.getAlertFromStore();
+
+        this.removeId = null;
+        this.retrieveAllAcmeOrders();
+        this.closeDialog();
+      });
   }
 
-  trackId(index: number, item: IAcmeOrder) {
-    return item.id;
-  }
-
-  registerChangeInAcmeOrders() {
-    this.eventSubscriber = this.eventManager.subscribe('acmeOrderListModification', response => this.loadAll());
-  }
-
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
+  public closeDialog(): void {
+    (<any>this.$refs.removeEntity).hide();
   }
 }

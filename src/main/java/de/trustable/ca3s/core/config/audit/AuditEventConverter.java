@@ -1,10 +1,10 @@
 package de.trustable.ca3s.core.config.audit;
 
+import de.trustable.ca3s.core.domain.PersistentAuditEvent;
+
 import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Component;
-
-import de.trustable.ca3s.core.domain.PersistentAuditEvent;
 
 import java.util.*;
 

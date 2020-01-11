@@ -1,66 +1,63 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Subscription } from 'rxjs';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { filter, map } from 'rxjs/operators';
-import { JhiEventManager, JhiAlertService } from 'ng-jhipster';
+import { mixins } from 'vue-class-component';
 
-import { IRequestAttributeValue } from 'app/shared/model/request-attribute-value.model';
-import { AccountService } from 'app/core/auth/account.service';
-import { RequestAttributeValueService } from './request-attribute-value.service';
+import { Component, Inject } from 'vue-property-decorator';
+import Vue2Filters from 'vue2-filters';
+import { IRequestAttributeValue } from '@/shared/model/request-attribute-value.model';
+import AlertMixin from '@/shared/alert/alert.mixin';
 
-@Component({
-  selector: 'jhi-request-attribute-value',
-  templateUrl: './request-attribute-value.component.html'
-})
-export class RequestAttributeValueComponent implements OnInit, OnDestroy {
-  requestAttributeValues: IRequestAttributeValue[];
-  currentAccount: any;
-  eventSubscriber: Subscription;
+import RequestAttributeValueService from './request-attribute-value.service';
 
-  constructor(
-    protected requestAttributeValueService: RequestAttributeValueService,
-    protected jhiAlertService: JhiAlertService,
-    protected eventManager: JhiEventManager,
-    protected accountService: AccountService
-  ) {}
+@Component
+export default class RequestAttributeValue extends mixins(Vue2Filters.mixin, AlertMixin) {
+  @Inject('requestAttributeValueService') private requestAttributeValueService: () => RequestAttributeValueService;
+  private removeId: number = null;
+  public requestAttributeValues: IRequestAttributeValue[] = [];
 
-  loadAll() {
-    this.requestAttributeValueService
-      .query()
-      .pipe(
-        filter((res: HttpResponse<IRequestAttributeValue[]>) => res.ok),
-        map((res: HttpResponse<IRequestAttributeValue[]>) => res.body)
-      )
-      .subscribe(
-        (res: IRequestAttributeValue[]) => {
-          this.requestAttributeValues = res;
+  public isFetching = false;
+
+  public mounted(): void {
+    this.retrieveAllRequestAttributeValues();
+  }
+
+  public clear(): void {
+    this.retrieveAllRequestAttributeValues();
+  }
+
+  public retrieveAllRequestAttributeValues(): void {
+    this.isFetching = true;
+
+    this.requestAttributeValueService()
+      .retrieve()
+      .then(
+        res => {
+          this.requestAttributeValues = res.data;
+          this.isFetching = false;
         },
-        (res: HttpErrorResponse) => this.onError(res.message)
+        err => {
+          this.isFetching = false;
+        }
       );
   }
 
-  ngOnInit() {
-    this.loadAll();
-    this.accountService.identity().then(account => {
-      this.currentAccount = account;
-    });
-    this.registerChangeInRequestAttributeValues();
+  public prepareRemove(instance: IRequestAttributeValue): void {
+    this.removeId = instance.id;
   }
 
-  ngOnDestroy() {
-    this.eventManager.destroy(this.eventSubscriber);
+  public removeRequestAttributeValue(): void {
+    this.requestAttributeValueService()
+      .delete(this.removeId)
+      .then(() => {
+        const message = this.$t('ca3SApp.requestAttributeValue.deleted', { param: this.removeId });
+        this.alertService().showAlert(message, 'danger');
+        this.getAlertFromStore();
+
+        this.removeId = null;
+        this.retrieveAllRequestAttributeValues();
+        this.closeDialog();
+      });
   }
 
-  trackId(index: number, item: IRequestAttributeValue) {
-    return item.id;
-  }
-
-  registerChangeInRequestAttributeValues() {
-    this.eventSubscriber = this.eventManager.subscribe('requestAttributeValueListModification', response => this.loadAll());
-  }
-
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
+  public closeDialog(): void {
+    (<any>this.$refs.removeEntity).hide();
   }
 }

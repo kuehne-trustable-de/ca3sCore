@@ -1,66 +1,63 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Subscription } from 'rxjs';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { filter, map } from 'rxjs/operators';
-import { JhiEventManager, JhiAlertService } from 'ng-jhipster';
+import { mixins } from 'vue-class-component';
 
-import { IAcmeContact } from 'app/shared/model/acme-contact.model';
-import { AccountService } from 'app/core/auth/account.service';
-import { AcmeContactService } from './acme-contact.service';
+import { Component, Inject } from 'vue-property-decorator';
+import Vue2Filters from 'vue2-filters';
+import { IAcmeContact } from '@/shared/model/acme-contact.model';
+import AlertMixin from '@/shared/alert/alert.mixin';
 
-@Component({
-  selector: 'jhi-acme-contact',
-  templateUrl: './acme-contact.component.html'
-})
-export class AcmeContactComponent implements OnInit, OnDestroy {
-  acmeContacts: IAcmeContact[];
-  currentAccount: any;
-  eventSubscriber: Subscription;
+import AcmeContactService from './acme-contact.service';
 
-  constructor(
-    protected acmeContactService: AcmeContactService,
-    protected jhiAlertService: JhiAlertService,
-    protected eventManager: JhiEventManager,
-    protected accountService: AccountService
-  ) {}
+@Component
+export default class AcmeContact extends mixins(Vue2Filters.mixin, AlertMixin) {
+  @Inject('acmeContactService') private acmeContactService: () => AcmeContactService;
+  private removeId: number = null;
+  public acmeContacts: IAcmeContact[] = [];
 
-  loadAll() {
-    this.acmeContactService
-      .query()
-      .pipe(
-        filter((res: HttpResponse<IAcmeContact[]>) => res.ok),
-        map((res: HttpResponse<IAcmeContact[]>) => res.body)
-      )
-      .subscribe(
-        (res: IAcmeContact[]) => {
-          this.acmeContacts = res;
+  public isFetching = false;
+
+  public mounted(): void {
+    this.retrieveAllAcmeContacts();
+  }
+
+  public clear(): void {
+    this.retrieveAllAcmeContacts();
+  }
+
+  public retrieveAllAcmeContacts(): void {
+    this.isFetching = true;
+
+    this.acmeContactService()
+      .retrieve()
+      .then(
+        res => {
+          this.acmeContacts = res.data;
+          this.isFetching = false;
         },
-        (res: HttpErrorResponse) => this.onError(res.message)
+        err => {
+          this.isFetching = false;
+        }
       );
   }
 
-  ngOnInit() {
-    this.loadAll();
-    this.accountService.identity().then(account => {
-      this.currentAccount = account;
-    });
-    this.registerChangeInAcmeContacts();
+  public prepareRemove(instance: IAcmeContact): void {
+    this.removeId = instance.id;
   }
 
-  ngOnDestroy() {
-    this.eventManager.destroy(this.eventSubscriber);
+  public removeAcmeContact(): void {
+    this.acmeContactService()
+      .delete(this.removeId)
+      .then(() => {
+        const message = this.$t('ca3SApp.acmeContact.deleted', { param: this.removeId });
+        this.alertService().showAlert(message, 'danger');
+        this.getAlertFromStore();
+
+        this.removeId = null;
+        this.retrieveAllAcmeContacts();
+        this.closeDialog();
+      });
   }
 
-  trackId(index: number, item: IAcmeContact) {
-    return item.id;
-  }
-
-  registerChangeInAcmeContacts() {
-    this.eventSubscriber = this.eventManager.subscribe('acmeContactListModification', response => this.loadAll());
-  }
-
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
+  public closeDialog(): void {
+    (<any>this.$refs.removeEntity).hide();
   }
 }

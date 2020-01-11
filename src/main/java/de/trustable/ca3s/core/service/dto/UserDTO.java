@@ -1,9 +1,7 @@
 package de.trustable.ca3s.core.service.dto;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-
 import de.trustable.ca3s.core.config.Constants;
+
 import de.trustable.ca3s.core.domain.Authority;
 import de.trustable.ca3s.core.domain.User;
 

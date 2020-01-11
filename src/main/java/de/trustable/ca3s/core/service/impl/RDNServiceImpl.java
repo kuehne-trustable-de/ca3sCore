@@ -1,14 +1,13 @@
 package de.trustable.ca3s.core.service.impl;
 
+import de.trustable.ca3s.core.service.RDNService;
+import de.trustable.ca3s.core.domain.RDN;
+import de.trustable.ca3s.core.repository.RDNRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import de.trustable.ca3s.core.domain.RDN;
-import de.trustable.ca3s.core.repository.RDNRepository;
-import de.trustable.ca3s.core.service.RDNService;
 
 import java.util.List;
 import java.util.Optional;

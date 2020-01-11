@@ -1,5 +1,5 @@
-import { IRequestAttributeValue } from 'app/shared/model/request-attribute-value.model';
-import { ICSR } from 'app/shared/model/csr.model';
+import { IRequestAttributeValue } from '@/shared/model/request-attribute-value.model';
+import { ICSR } from '@/shared/model/csr.model';
 
 export interface IRequestAttribute {
   id?: number;

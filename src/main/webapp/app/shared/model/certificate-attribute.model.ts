@@ -1,4 +1,4 @@
-import { ICertificate } from 'app/shared/model/certificate.model';
+import { ICertificate } from '@/shared/model/certificate.model';
 
 export interface ICertificateAttribute {
   id?: number;

@@ -1,118 +1,105 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
-import { Subscription } from 'rxjs';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { filter, map } from 'rxjs/operators';
-import { JhiEventManager, JhiParseLinks, JhiAlertService, JhiDataUtils } from 'ng-jhipster';
+import { mixins } from 'vue-class-component';
 
-import { ICertificate } from 'app/shared/model/certificate.model';
-import { AccountService } from 'app/core/auth/account.service';
+import { Component, Inject } from 'vue-property-decorator';
+import Vue2Filters from 'vue2-filters';
+import { ICertificate } from '@/shared/model/certificate.model';
+import AlertMixin from '@/shared/alert/alert.mixin';
 
-import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
-import { CertificateService } from './certificate.service';
+import JhiDataUtils from '@/shared/data/data-utils.service';
 
-@Component({
-  selector: 'jhi-certificate',
-  templateUrl: './certificate.component.html'
-})
-export class CertificateComponent implements OnInit, OnDestroy {
-  certificates: ICertificate[];
-  currentAccount: any;
-  eventSubscriber: Subscription;
-  itemsPerPage: number;
-  links: any;
-  page: any;
-  predicate: any;
-  reverse: any;
-  totalItems: number;
+import CertificateService from './certificate.service';
 
-  constructor(
-    protected certificateService: CertificateService,
-    protected jhiAlertService: JhiAlertService,
-    protected dataUtils: JhiDataUtils,
-    protected eventManager: JhiEventManager,
-    protected parseLinks: JhiParseLinks,
-    protected accountService: AccountService
-  ) {
-    this.certificates = [];
-    this.itemsPerPage = ITEMS_PER_PAGE;
-    this.page = 0;
-    this.links = {
-      last: 0
-    };
-    this.predicate = 'id';
-    this.reverse = true;
+@Component
+export default class Certificate extends mixins(JhiDataUtils, Vue2Filters.mixin, AlertMixin) {
+  @Inject('certificateService') private certificateService: () => CertificateService;
+  private removeId: number = null;
+  public itemsPerPage = 20;
+  public queryCount: number = null;
+  public page = 1;
+  public previousPage = 1;
+  public propOrder = 'id';
+  public reverse = true;
+  public totalItems = 0;
+  public certificates: ICertificate[] = [];
+
+  public isFetching = false;
+
+  public mounted(): void {
+    this.retrieveAllCertificates();
   }
 
-  loadAll() {
-    this.certificateService
-      .query({
-        page: this.page,
-        size: this.itemsPerPage,
-        sort: this.sort()
-      })
-      .subscribe(
-        (res: HttpResponse<ICertificate[]>) => this.paginateCertificates(res.body, res.headers),
-        (res: HttpErrorResponse) => this.onError(res.message)
+  public clear(): void {
+    this.page = 1;
+    this.retrieveAllCertificates();
+  }
+
+  public retrieveAllCertificates(): void {
+    this.isFetching = true;
+
+    const paginationQuery = {
+      page: this.page - 1,
+      size: this.itemsPerPage,
+      sort: this.sort()
+    };
+    this.certificateService()
+      .retrieve(paginationQuery)
+      .then(
+        res => {
+          this.certificates = res.data;
+          this.totalItems = Number(res.headers['x-total-count']);
+          this.queryCount = this.totalItems;
+          this.isFetching = false;
+        },
+        err => {
+          this.isFetching = false;
+        }
       );
   }
 
-  reset() {
-    this.page = 0;
-    this.certificates = [];
-    this.loadAll();
+  public prepareRemove(instance: ICertificate): void {
+    this.removeId = instance.id;
   }
 
-  loadPage(page) {
-    this.page = page;
-    this.loadAll();
+  public removeCertificate(): void {
+    this.certificateService()
+      .delete(this.removeId)
+      .then(() => {
+        const message = this.$t('ca3SApp.certificate.deleted', { param: this.removeId });
+        this.alertService().showAlert(message, 'danger');
+        this.getAlertFromStore();
+
+        this.removeId = null;
+        this.retrieveAllCertificates();
+        this.closeDialog();
+      });
   }
 
-  ngOnInit() {
-    this.loadAll();
-    this.accountService.identity().then(account => {
-      this.currentAccount = account;
-    });
-    this.registerChangeInCertificates();
-  }
-
-  ngOnDestroy() {
-    this.eventManager.destroy(this.eventSubscriber);
-  }
-
-  trackId(index: number, item: ICertificate) {
-    return item.id;
-  }
-
-  byteSize(field) {
-    return this.dataUtils.byteSize(field);
-  }
-
-  openFile(contentType, field) {
-    return this.dataUtils.openFile(contentType, field);
-  }
-
-  registerChangeInCertificates() {
-    this.eventSubscriber = this.eventManager.subscribe('certificateListModification', response => this.reset());
-  }
-
-  sort() {
-    const result = [this.predicate + ',' + (this.reverse ? 'asc' : 'desc')];
-    if (this.predicate !== 'id') {
+  public sort(): Array<any> {
+    const result = [this.propOrder + ',' + (this.reverse ? 'asc' : 'desc')];
+    if (this.propOrder !== 'id') {
       result.push('id');
     }
     return result;
   }
 
-  protected paginateCertificates(data: ICertificate[], headers: HttpHeaders) {
-    this.links = this.parseLinks.parse(headers.get('link'));
-    this.totalItems = parseInt(headers.get('X-Total-Count'), 10);
-    for (let i = 0; i < data.length; i++) {
-      this.certificates.push(data[i]);
+  public loadPage(page: number): void {
+    if (page !== this.previousPage) {
+      this.previousPage = page;
+      this.transition();
     }
   }
 
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
+  public transition(): void {
+    this.retrieveAllCertificates();
+  }
+
+  public changeOrder(propOrder): void {
+    this.propOrder = propOrder;
+    this.reverse = !this.reverse;
+    this.transition();
+  }
+
+  public closeDialog(): void {
+    (<any>this.$refs.removeEntity).hide();
   }
 }

@@ -22,13 +22,14 @@
             "otherEntityField": "id"
         }
     ],
-    "changelogDate": "20191009152934",
+    "changelogDate": "20200110170111",
     "entityTableName": "certificate_attribute",
     "dto": "no",
     "pagination": "no",
     "service": "no",
     "jpaMetamodelFiltering": false,
     "fluentMethods": true,
+    "readOnly": false,
     "clientRootFolder": "",
     "applications": "*"
 }

@@ -1,14 +1,13 @@
 package de.trustable.ca3s.core.service.impl;
 
+import de.trustable.ca3s.core.service.CAConnectorConfigService;
+import de.trustable.ca3s.core.domain.CAConnectorConfig;
+import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import de.trustable.ca3s.core.domain.CAConnectorConfig;
-import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
-import de.trustable.ca3s.core.service.CAConnectorConfigService;
 
 import java.util.List;
 import java.util.Optional;

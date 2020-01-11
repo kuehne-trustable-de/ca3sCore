@@ -1,5 +1,16 @@
 package de.trustable.ca3s.core.web.rest;
 
+import de.trustable.ca3s.core.config.Constants;
+import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.repository.UserRepository;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
+import de.trustable.ca3s.core.service.MailService;
+import de.trustable.ca3s.core.service.UserService;
+import de.trustable.ca3s.core.service.dto.UserDTO;
+import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
+import de.trustable.ca3s.core.web.rest.errors.EmailAlreadyUsedException;
+import de.trustable.ca3s.core.web.rest.errors.LoginAlreadyUsedException;
+
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.PaginationUtil;
 import io.github.jhipster.web.util.ResponseUtil;
@@ -15,17 +26,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import de.trustable.ca3s.core.config.Constants;
-import de.trustable.ca3s.core.domain.User;
-import de.trustable.ca3s.core.repository.UserRepository;
-import de.trustable.ca3s.core.security.AuthoritiesConstants;
-import de.trustable.ca3s.core.service.MailService;
-import de.trustable.ca3s.core.service.UserService;
-import de.trustable.ca3s.core.service.dto.UserDTO;
-import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
-import de.trustable.ca3s.core.web.rest.errors.EmailAlreadyUsedException;
-import de.trustable.ca3s.core.web.rest.errors.LoginAlreadyUsedException;
 
 import javax.validation.Valid;
 import java.net.URI;

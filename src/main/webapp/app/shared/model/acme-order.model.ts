@@ -1,18 +1,24 @@
-import { Moment } from 'moment';
-import { IAuthorization } from 'app/shared/model/authorization.model';
-import { IIdentifier } from 'app/shared/model/identifier.model';
-import { ICSR } from 'app/shared/model/csr.model';
-import { ICertificate } from 'app/shared/model/certificate.model';
-import { IACMEAccount } from 'app/shared/model/acme-account.model';
-import { OrderStatus } from 'app/shared/model/enumerations/order-status.model';
+import { IAuthorization } from '@/shared/model/authorization.model';
+import { IIdentifier } from '@/shared/model/identifier.model';
+import { ICSR } from '@/shared/model/csr.model';
+import { ICertificate } from '@/shared/model/certificate.model';
+import { IACMEAccount } from '@/shared/model/acme-account.model';
+
+export const enum OrderStatus {
+  PENDING = 'PENDING',
+  READY = 'READY',
+  PROCESSING = 'PROCESSING',
+  VALID = 'VALID',
+  INVALID = 'INVALID'
+}
 
 export interface IAcmeOrder {
   id?: number;
   orderId?: number;
   status?: OrderStatus;
-  expires?: Moment;
-  notBefore?: Moment;
-  notAfter?: Moment;
+  expires?: Date;
+  notBefore?: Date;
+  notAfter?: Date;
   error?: string;
   finalizeUrl?: string;
   certificateUrl?: string;
@@ -28,9 +34,9 @@ export class AcmeOrder implements IAcmeOrder {
     public id?: number,
     public orderId?: number,
     public status?: OrderStatus,
-    public expires?: Moment,
-    public notBefore?: Moment,
-    public notAfter?: Moment,
+    public expires?: Date,
+    public notBefore?: Date,
+    public notAfter?: Date,
     public error?: string,
     public finalizeUrl?: string,
     public certificateUrl?: string,

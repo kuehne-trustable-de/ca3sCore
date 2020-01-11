@@ -1,66 +1,63 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Subscription } from 'rxjs';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { filter, map } from 'rxjs/operators';
-import { JhiEventManager, JhiAlertService } from 'ng-jhipster';
+import { mixins } from 'vue-class-component';
 
-import { IRDN } from 'app/shared/model/rdn.model';
-import { AccountService } from 'app/core/auth/account.service';
-import { RDNService } from './rdn.service';
+import { Component, Inject } from 'vue-property-decorator';
+import Vue2Filters from 'vue2-filters';
+import { IRDN } from '@/shared/model/rdn.model';
+import AlertMixin from '@/shared/alert/alert.mixin';
 
-@Component({
-  selector: 'jhi-rdn',
-  templateUrl: './rdn.component.html'
-})
-export class RDNComponent implements OnInit, OnDestroy {
-  rDNS: IRDN[];
-  currentAccount: any;
-  eventSubscriber: Subscription;
+import RDNService from './rdn.service';
 
-  constructor(
-    protected rDNService: RDNService,
-    protected jhiAlertService: JhiAlertService,
-    protected eventManager: JhiEventManager,
-    protected accountService: AccountService
-  ) {}
+@Component
+export default class RDN extends mixins(Vue2Filters.mixin, AlertMixin) {
+  @Inject('rDNService') private rDNService: () => RDNService;
+  private removeId: number = null;
+  public rDNS: IRDN[] = [];
 
-  loadAll() {
-    this.rDNService
-      .query()
-      .pipe(
-        filter((res: HttpResponse<IRDN[]>) => res.ok),
-        map((res: HttpResponse<IRDN[]>) => res.body)
-      )
-      .subscribe(
-        (res: IRDN[]) => {
-          this.rDNS = res;
+  public isFetching = false;
+
+  public mounted(): void {
+    this.retrieveAllRDNs();
+  }
+
+  public clear(): void {
+    this.retrieveAllRDNs();
+  }
+
+  public retrieveAllRDNs(): void {
+    this.isFetching = true;
+
+    this.rDNService()
+      .retrieve()
+      .then(
+        res => {
+          this.rDNS = res.data;
+          this.isFetching = false;
         },
-        (res: HttpErrorResponse) => this.onError(res.message)
+        err => {
+          this.isFetching = false;
+        }
       );
   }
 
-  ngOnInit() {
-    this.loadAll();
-    this.accountService.identity().then(account => {
-      this.currentAccount = account;
-    });
-    this.registerChangeInRDNS();
+  public prepareRemove(instance: IRDN): void {
+    this.removeId = instance.id;
   }
 
-  ngOnDestroy() {
-    this.eventManager.destroy(this.eventSubscriber);
+  public removeRDN(): void {
+    this.rDNService()
+      .delete(this.removeId)
+      .then(() => {
+        const message = this.$t('ca3SApp.rDN.deleted', { param: this.removeId });
+        this.alertService().showAlert(message, 'danger');
+        this.getAlertFromStore();
+
+        this.removeId = null;
+        this.retrieveAllRDNs();
+        this.closeDialog();
+      });
   }
 
-  trackId(index: number, item: IRDN) {
-    return item.id;
-  }
-
-  registerChangeInRDNS() {
-    this.eventSubscriber = this.eventManager.subscribe('rDNListModification', response => this.loadAll());
-  }
-
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
+  public closeDialog(): void {
+    (<any>this.$refs.removeEntity).hide();
   }
 }

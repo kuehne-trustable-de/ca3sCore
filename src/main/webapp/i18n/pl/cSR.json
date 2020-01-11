@@ -1,0 +1,36 @@
+{
+  "ca3SApp": {
+    "cSR": {
+      "home": {
+        "title": "CSR",
+        "createLabel": "Dodaj CSR",
+        "createOrEditLabel": "Dodaj lub edytuj: CSR",
+        "notFound": "No CSRS found"
+      },
+      "created": "Utworzono nowy obiekt typu CSR z identyfikatorem {{ param }}",
+      "updated": "Uaktualniono obiekt typu CSR z identyfikatorem {{ param }}",
+      "deleted": "Usunięto obiekt typu CSR z identyfikatorem {{ param }}",
+      "delete": {
+        "question": "Czy na pewno chcesz usunąć CSR {{ id }}?"
+      },
+      "detail": {
+        "title": "CSR"
+      },
+      "csrBase64": "Csr Base 64",
+      "requestedOn": "Requested On",
+      "status": "Status",
+      "processInstanceId": "Process Instance Id",
+      "signingAlgorithm": "Signing Algorithm",
+      "isCSRValid": "Is CSR Valid",
+      "x509KeySpec": "X 509 Key Spec",
+      "publicKeyAlgorithm": "Public Key Algorithm",
+      "publicKeyHash": "Public Key Hash",
+      "subjectPublicKeyInfoBase64": "Subject Public Key Info Base 64",
+      "rdns": "Rdns",
+      "ras": "Ras",
+      "csrAttributes": "Csr Attributes",
+      "pipeline": "Pipeline",
+      "certificate": "Certificate"
+    }
+  }
+}

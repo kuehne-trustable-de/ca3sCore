@@ -1,19 +1,10 @@
 package de.trustable.ca3s.core.web.rest;
 
-import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.List;
-
-import javax.persistence.EntityManager;
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.domain.ACMEAccount;
+import de.trustable.ca3s.core.repository.ACMEAccountRepository;
+import de.trustable.ca3s.core.service.ACMEAccountService;
+import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,23 +17,27 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Base64Utils;
 import org.springframework.validation.Validator;
 
-import de.trustable.ca3s.core.Ca3SJhApp;
-import de.trustable.ca3s.core.domain.ACMEAccount;
+import javax.persistence.EntityManager;
+import java.util.List;
+
+import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
-import de.trustable.ca3s.core.repository.ACMEAccountRepository;
-import de.trustable.ca3s.core.service.ACMEAccountService;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 /**
  * Integration tests for the {@link ACMEAccountResource} REST controller.
  */
-@SpringBootTest(classes = Ca3SJhApp.class)
+@SpringBootTest(classes = Ca3SApp.class)
 public class ACMEAccountResourceIT {
 
     private static final Long DEFAULT_ACCOUNT_ID = 1L;
     private static final Long UPDATED_ACCOUNT_ID = 2L;
-    private static final Long SMALLER_ACCOUNT_ID = 1L - 1L;
 
     private static final String DEFAULT_REALM = "AAAAAAAAAA";
     private static final String UPDATED_REALM = "BBBBBBBBBB";
@@ -261,10 +256,10 @@ public class ACMEAccountResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(aCMEAccount.getId().intValue())))
             .andExpect(jsonPath("$.[*].accountId").value(hasItem(DEFAULT_ACCOUNT_ID.intValue())))
-            .andExpect(jsonPath("$.[*].realm").value(hasItem(DEFAULT_REALM.toString())))
+            .andExpect(jsonPath("$.[*].realm").value(hasItem(DEFAULT_REALM)))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())))
             .andExpect(jsonPath("$.[*].termsOfServiceAgreed").value(hasItem(DEFAULT_TERMS_OF_SERVICE_AGREED.booleanValue())))
-            .andExpect(jsonPath("$.[*].publicKeyHash").value(hasItem(DEFAULT_PUBLIC_KEY_HASH.toString())))
+            .andExpect(jsonPath("$.[*].publicKeyHash").value(hasItem(DEFAULT_PUBLIC_KEY_HASH)))
             .andExpect(jsonPath("$.[*].publicKey").value(hasItem(DEFAULT_PUBLIC_KEY.toString())));
     }
     
@@ -280,10 +275,10 @@ public class ACMEAccountResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(aCMEAccount.getId().intValue()))
             .andExpect(jsonPath("$.accountId").value(DEFAULT_ACCOUNT_ID.intValue()))
-            .andExpect(jsonPath("$.realm").value(DEFAULT_REALM.toString()))
+            .andExpect(jsonPath("$.realm").value(DEFAULT_REALM))
             .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()))
             .andExpect(jsonPath("$.termsOfServiceAgreed").value(DEFAULT_TERMS_OF_SERVICE_AGREED.booleanValue()))
-            .andExpect(jsonPath("$.publicKeyHash").value(DEFAULT_PUBLIC_KEY_HASH.toString()))
+            .andExpect(jsonPath("$.publicKeyHash").value(DEFAULT_PUBLIC_KEY_HASH))
             .andExpect(jsonPath("$.publicKey").value(DEFAULT_PUBLIC_KEY.toString()));
     }
 
@@ -366,20 +361,5 @@ public class ACMEAccountResourceIT {
         // Validate the database contains one less item
         List<ACMEAccount> aCMEAccountList = aCMEAccountRepository.findAll();
         assertThat(aCMEAccountList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(ACMEAccount.class);
-        ACMEAccount aCMEAccount1 = new ACMEAccount();
-        aCMEAccount1.setId(1L);
-        ACMEAccount aCMEAccount2 = new ACMEAccount();
-        aCMEAccount2.setId(aCMEAccount1.getId());
-        assertThat(aCMEAccount1).isEqualTo(aCMEAccount2);
-        aCMEAccount2.setId(2L);
-        assertThat(aCMEAccount1).isNotEqualTo(aCMEAccount2);
-        aCMEAccount1.setId(null);
-        assertThat(aCMEAccount1).isNotEqualTo(aCMEAccount2);
     }
 }

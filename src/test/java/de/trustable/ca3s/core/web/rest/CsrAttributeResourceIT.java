@@ -1,5 +1,11 @@
 package de.trustable.ca3s.core.web.rest;
 
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.domain.CsrAttribute;
+import de.trustable.ca3s.core.repository.CsrAttributeRepository;
+import de.trustable.ca3s.core.service.CsrAttributeService;
+import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -13,13 +19,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
-import de.trustable.ca3s.core.Ca3SJhApp;
-import de.trustable.ca3s.core.domain.CsrAttribute;
-import de.trustable.ca3s.core.repository.CsrAttributeRepository;
-import de.trustable.ca3s.core.service.CsrAttributeService;
-import de.trustable.ca3s.core.web.rest.CsrAttributeResource;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
-
 import javax.persistence.EntityManager;
 import java.util.List;
 
@@ -32,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Integration tests for the {@link CsrAttributeResource} REST controller.
  */
-@SpringBootTest(classes = Ca3SJhApp.class)
+@SpringBootTest(classes = Ca3SApp.class)
 public class CsrAttributeResourceIT {
 
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
@@ -194,8 +193,8 @@ public class CsrAttributeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(csrAttribute.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
-            .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE.toString())));
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+            .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE)));
     }
     
     @Test
@@ -209,8 +208,8 @@ public class CsrAttributeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(csrAttribute.getId().intValue()))
-            .andExpect(jsonPath("$.name").value(DEFAULT_NAME.toString()))
-            .andExpect(jsonPath("$.value").value(DEFAULT_VALUE.toString()));
+            .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
+            .andExpect(jsonPath("$.value").value(DEFAULT_VALUE));
     }
 
     @Test
@@ -284,20 +283,5 @@ public class CsrAttributeResourceIT {
         // Validate the database contains one less item
         List<CsrAttribute> csrAttributeList = csrAttributeRepository.findAll();
         assertThat(csrAttributeList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(CsrAttribute.class);
-        CsrAttribute csrAttribute1 = new CsrAttribute();
-        csrAttribute1.setId(1L);
-        CsrAttribute csrAttribute2 = new CsrAttribute();
-        csrAttribute2.setId(csrAttribute1.getId());
-        assertThat(csrAttribute1).isEqualTo(csrAttribute2);
-        csrAttribute2.setId(2L);
-        assertThat(csrAttribute1).isNotEqualTo(csrAttribute2);
-        csrAttribute1.setId(null);
-        assertThat(csrAttribute1).isNotEqualTo(csrAttribute2);
     }
 }

@@ -1,61 +1,79 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { HttpResponse } from '@angular/common/http';
-import { FormBuilder } from '@angular/forms';
-import { of } from 'rxjs';
+/* tslint:disable max-line-length */
+import { shallowMount, createLocalVue, Wrapper } from '@vue/test-utils';
+import sinon, { SinonStubbedInstance } from 'sinon';
+import Router from 'vue-router';
 
-import { Ca3SJhTestModule } from '../../../test.module';
-import { RDNAttributeUpdateComponent } from 'app/entities/rdn-attribute/rdn-attribute-update.component';
-import { RDNAttributeService } from 'app/entities/rdn-attribute/rdn-attribute.service';
-import { RDNAttribute } from 'app/shared/model/rdn-attribute.model';
+import AlertService from '@/shared/alert/alert.service';
+import * as config from '@/shared/config/config';
+import RDNAttributeUpdateComponent from '@/entities/rdn-attribute/rdn-attribute-update.vue';
+import RDNAttributeClass from '@/entities/rdn-attribute/rdn-attribute-update.component';
+import RDNAttributeService from '@/entities/rdn-attribute/rdn-attribute.service';
+
+import RDNService from '@/entities/rdn/rdn.service';
+
+const localVue = createLocalVue();
+
+config.initVueApp(localVue);
+const i18n = config.initI18N(localVue);
+const store = config.initVueXStore(localVue);
+const router = new Router();
+localVue.use(Router);
+localVue.component('font-awesome-icon', {});
 
 describe('Component Tests', () => {
   describe('RDNAttribute Management Update Component', () => {
-    let comp: RDNAttributeUpdateComponent;
-    let fixture: ComponentFixture<RDNAttributeUpdateComponent>;
-    let service: RDNAttributeService;
+    let wrapper: Wrapper<RDNAttributeClass>;
+    let comp: RDNAttributeClass;
+    let rDNAttributeServiceStub: SinonStubbedInstance<RDNAttributeService>;
 
     beforeEach(() => {
-      TestBed.configureTestingModule({
-        imports: [Ca3SJhTestModule],
-        declarations: [RDNAttributeUpdateComponent],
-        providers: [FormBuilder]
-      })
-        .overrideTemplate(RDNAttributeUpdateComponent, '')
-        .compileComponents();
+      rDNAttributeServiceStub = sinon.createStubInstance<RDNAttributeService>(RDNAttributeService);
 
-      fixture = TestBed.createComponent(RDNAttributeUpdateComponent);
-      comp = fixture.componentInstance;
-      service = fixture.debugElement.injector.get(RDNAttributeService);
+      wrapper = shallowMount<RDNAttributeClass>(RDNAttributeUpdateComponent, {
+        store,
+        i18n,
+        localVue,
+        router,
+        provide: {
+          alertService: () => new AlertService(store),
+          rDNAttributeService: () => rDNAttributeServiceStub,
+
+          rDNService: () => new RDNService()
+        }
+      });
+      comp = wrapper.vm;
     });
 
     describe('save', () => {
-      it('Should call update service on save for existing entity', fakeAsync(() => {
+      it('Should call update service on save for existing entity', async () => {
         // GIVEN
-        const entity = new RDNAttribute(123);
-        spyOn(service, 'update').and.returnValue(of(new HttpResponse({ body: entity })));
-        comp.updateForm(entity);
+        const entity = { id: 123 };
+        comp.rDNAttribute = entity;
+        rDNAttributeServiceStub.update.resolves(entity);
+
         // WHEN
         comp.save();
-        tick(); // simulate async
+        await comp.$nextTick();
 
         // THEN
-        expect(service.update).toHaveBeenCalledWith(entity);
+        expect(rDNAttributeServiceStub.update.calledWith(entity)).toBeTruthy();
         expect(comp.isSaving).toEqual(false);
-      }));
+      });
 
-      it('Should call create service on save for new entity', fakeAsync(() => {
+      it('Should call create service on save for new entity', async () => {
         // GIVEN
-        const entity = new RDNAttribute();
-        spyOn(service, 'create').and.returnValue(of(new HttpResponse({ body: entity })));
-        comp.updateForm(entity);
+        const entity = {};
+        comp.rDNAttribute = entity;
+        rDNAttributeServiceStub.create.resolves(entity);
+
         // WHEN
         comp.save();
-        tick(); // simulate async
+        await comp.$nextTick();
 
         // THEN
-        expect(service.create).toHaveBeenCalledWith(entity);
+        expect(rDNAttributeServiceStub.create.calledWith(entity)).toBeTruthy();
         expect(comp.isSaving).toEqual(false);
-      }));
+      });
     });
   });
 });

@@ -1,6 +1,13 @@
-import { Moment } from 'moment';
-import { IAuthorization } from 'app/shared/model/authorization.model';
-import { ChallengeStatus } from 'app/shared/model/enumerations/challenge-status.model';
+import { IAuthorization } from '@/shared/model/authorization.model';
+
+export const enum ChallengeStatus {
+  PENDING = 'PENDING',
+  VALID = 'VALID',
+  INVALID = 'INVALID',
+  DEACTIVATED = 'DEACTIVATED',
+  EXPIRED = 'EXPIRED',
+  REVOKED = 'REVOKED'
+}
 
 export interface IAcmeChallenge {
   id?: number;
@@ -8,7 +15,7 @@ export interface IAcmeChallenge {
   type?: string;
   value?: string;
   token?: string;
-  validated?: Moment;
+  validated?: Date;
   status?: ChallengeStatus;
   authorization?: IAuthorization;
 }
@@ -20,7 +27,7 @@ export class AcmeChallenge implements IAcmeChallenge {
     public type?: string,
     public value?: string,
     public token?: string,
-    public validated?: Moment,
+    public validated?: Date,
     public status?: ChallengeStatus,
     public authorization?: IAuthorization
   ) {}

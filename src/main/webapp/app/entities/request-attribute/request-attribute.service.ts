@@ -1,38 +1,47 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import axios from 'axios';
 
-import { SERVER_API_URL } from 'app/app.constants';
-import { createRequestOption } from 'app/shared/util/request-util';
-import { IRequestAttribute } from 'app/shared/model/request-attribute.model';
+import { IRequestAttribute } from '@/shared/model/request-attribute.model';
 
-type EntityResponseType = HttpResponse<IRequestAttribute>;
-type EntityArrayResponseType = HttpResponse<IRequestAttribute[]>;
+const baseApiUrl = 'api/request-attributes';
 
-@Injectable({ providedIn: 'root' })
-export class RequestAttributeService {
-  public resourceUrl = SERVER_API_URL + 'api/request-attributes';
-
-  constructor(protected http: HttpClient) {}
-
-  create(requestAttribute: IRequestAttribute): Observable<EntityResponseType> {
-    return this.http.post<IRequestAttribute>(this.resourceUrl, requestAttribute, { observe: 'response' });
+export default class RequestAttributeService {
+  public find(id: number): Promise<IRequestAttribute> {
+    return new Promise<IRequestAttribute>(resolve => {
+      axios.get(`${baseApiUrl}/${id}`).then(function(res) {
+        resolve(res.data);
+      });
+    });
   }
 
-  update(requestAttribute: IRequestAttribute): Observable<EntityResponseType> {
-    return this.http.put<IRequestAttribute>(this.resourceUrl, requestAttribute, { observe: 'response' });
+  public retrieve(): Promise<any> {
+    return new Promise<any>(resolve => {
+      axios.get(baseApiUrl).then(function(res) {
+        resolve(res);
+      });
+    });
   }
 
-  find(id: number): Observable<EntityResponseType> {
-    return this.http.get<IRequestAttribute>(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  public delete(id: number): Promise<any> {
+    return new Promise<any>(resolve => {
+      axios.delete(`${baseApiUrl}/${id}`).then(function(res) {
+        resolve(res);
+      });
+    });
   }
 
-  query(req?: any): Observable<EntityArrayResponseType> {
-    const options = createRequestOption(req);
-    return this.http.get<IRequestAttribute[]>(this.resourceUrl, { params: options, observe: 'response' });
+  public create(entity: IRequestAttribute): Promise<IRequestAttribute> {
+    return new Promise<IRequestAttribute>(resolve => {
+      axios.post(`${baseApiUrl}`, entity).then(function(res) {
+        resolve(res.data);
+      });
+    });
   }
 
-  delete(id: number): Observable<HttpResponse<any>> {
-    return this.http.delete<any>(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  public update(entity: IRequestAttribute): Promise<IRequestAttribute> {
+    return new Promise<IRequestAttribute>(resolve => {
+      axios.put(`${baseApiUrl}`, entity).then(function(res) {
+        resolve(res.data);
+      });
+    });
   }
 }

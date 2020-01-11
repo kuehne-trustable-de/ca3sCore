@@ -1,0 +1,42 @@
+{
+  "ca3SApp": {
+    "certificate": {
+      "home": {
+        "title": "Certificate",
+        "createLabel": "Dodaj Certificate",
+        "createOrEditLabel": "Dodaj lub edytuj: Certificate",
+        "notFound": "No Certificates found"
+      },
+      "created": "Utworzono nowy obiekt typu Certificate z identyfikatorem {{ param }}",
+      "updated": "Uaktualniono obiekt typu Certificate z identyfikatorem {{ param }}",
+      "deleted": "Usunięto obiekt typu Certificate z identyfikatorem {{ param }}",
+      "delete": {
+        "question": "Czy na pewno chcesz usunąć Certificate {{ id }}?"
+      },
+      "detail": {
+        "title": "Certificate"
+      },
+      "tbsDigest": "Tbs Digest",
+      "subject": "Subject",
+      "issuer": "Issuer",
+      "type": "Type",
+      "description": "Description",
+      "subjectKeyIdentifier": "Subject Key Identifier",
+      "authorityKeyIdentifier": "Authority Key Identifier",
+      "fingerprint": "Fingerprint",
+      "serial": "Serial",
+      "validFrom": "Valid From",
+      "validTo": "Valid To",
+      "creationExecutionId": "Creation Execution Id",
+      "contentAddedAt": "Content Added At",
+      "revokedSince": "Revoked Since",
+      "revocationReason": "Revocation Reason",
+      "revoked": "Revoked",
+      "revocationExecutionId": "Revocation Execution Id",
+      "content": "Content",
+      "csr": "Csr",
+      "certificateAttributes": "Certificate Attributes",
+      "issuingCertificate": "Issuing Certificate"
+    }
+  }
+}

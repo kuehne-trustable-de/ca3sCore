@@ -1,119 +1,98 @@
-import { Component, OnInit } from '@angular/core';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import * as moment from 'moment';
-import { JhiAlertService } from 'ng-jhipster';
-import { IAcmeChallenge, AcmeChallenge } from 'app/shared/model/acme-challenge.model';
-import { AcmeChallengeService } from './acme-challenge.service';
-import { IAuthorization } from 'app/shared/model/authorization.model';
-import { AuthorizationService } from 'app/entities/authorization/authorization.service';
+import { Component, Vue, Inject } from 'vue-property-decorator';
+
+import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
+
+import AuthorizationService from '../authorization/authorization.service';
+import { IAuthorization } from '@/shared/model/authorization.model';
+
+import AlertService from '@/shared/alert/alert.service';
+import { IAcmeChallenge, AcmeChallenge } from '@/shared/model/acme-challenge.model';
+import AcmeChallengeService from './acme-challenge.service';
+
+const validations: any = {
+  acmeChallenge: {
+    challengeId: {
+      required,
+      numeric
+    },
+    type: {
+      required
+    },
+    value: {
+      required
+    },
+    token: {
+      required
+    },
+    validated: {},
+    status: {
+      required
+    }
+  }
+};
 
 @Component({
-  selector: 'jhi-acme-challenge-update',
-  templateUrl: './acme-challenge-update.component.html'
+  validations
 })
-export class AcmeChallengeUpdateComponent implements OnInit {
-  isSaving: boolean;
+export default class AcmeChallengeUpdate extends Vue {
+  @Inject('alertService') private alertService: () => AlertService;
+  @Inject('acmeChallengeService') private acmeChallengeService: () => AcmeChallengeService;
+  public acmeChallenge: IAcmeChallenge = new AcmeChallenge();
 
-  authorizations: IAuthorization[];
-  validatedDp: any;
+  @Inject('authorizationService') private authorizationService: () => AuthorizationService;
 
-  editForm = this.fb.group({
-    id: [],
-    challengeId: [null, [Validators.required]],
-    type: [null, [Validators.required]],
-    value: [null, [Validators.required]],
-    token: [null, [Validators.required]],
-    validated: [],
-    status: [null, [Validators.required]],
-    authorization: []
-  });
+  public authorizations: IAuthorization[] = [];
+  public isSaving = false;
 
-  constructor(
-    protected jhiAlertService: JhiAlertService,
-    protected acmeChallengeService: AcmeChallengeService,
-    protected authorizationService: AuthorizationService,
-    protected activatedRoute: ActivatedRoute,
-    private fb: FormBuilder
-  ) {}
-
-  ngOnInit() {
-    this.isSaving = false;
-    this.activatedRoute.data.subscribe(({ acmeChallenge }) => {
-      this.updateForm(acmeChallenge);
-    });
-    this.authorizationService
-      .query()
-      .pipe(
-        filter((mayBeOk: HttpResponse<IAuthorization[]>) => mayBeOk.ok),
-        map((response: HttpResponse<IAuthorization[]>) => response.body)
-      )
-      .subscribe((res: IAuthorization[]) => (this.authorizations = res), (res: HttpErrorResponse) => this.onError(res.message));
-  }
-
-  updateForm(acmeChallenge: IAcmeChallenge) {
-    this.editForm.patchValue({
-      id: acmeChallenge.id,
-      challengeId: acmeChallenge.challengeId,
-      type: acmeChallenge.type,
-      value: acmeChallenge.value,
-      token: acmeChallenge.token,
-      validated: acmeChallenge.validated,
-      status: acmeChallenge.status,
-      authorization: acmeChallenge.authorization
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      if (to.params.acmeChallengeId) {
+        vm.retrieveAcmeChallenge(to.params.acmeChallengeId);
+      }
+      vm.initRelationships();
     });
   }
 
-  previousState() {
-    window.history.back();
-  }
-
-  save() {
+  public save(): void {
     this.isSaving = true;
-    const acmeChallenge = this.createFromForm();
-    if (acmeChallenge.id !== undefined) {
-      this.subscribeToSaveResponse(this.acmeChallengeService.update(acmeChallenge));
+    if (this.acmeChallenge.id) {
+      this.acmeChallengeService()
+        .update(this.acmeChallenge)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.acmeChallenge.updated', { param: param.id });
+          this.alertService().showAlert(message, 'info');
+        });
     } else {
-      this.subscribeToSaveResponse(this.acmeChallengeService.create(acmeChallenge));
+      this.acmeChallengeService()
+        .create(this.acmeChallenge)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.acmeChallenge.created', { param: param.id });
+          this.alertService().showAlert(message, 'success');
+        });
     }
   }
 
-  private createFromForm(): IAcmeChallenge {
-    return {
-      ...new AcmeChallenge(),
-      id: this.editForm.get(['id']).value,
-      challengeId: this.editForm.get(['challengeId']).value,
-      type: this.editForm.get(['type']).value,
-      value: this.editForm.get(['value']).value,
-      token: this.editForm.get(['token']).value,
-      validated: this.editForm.get(['validated']).value,
-      status: this.editForm.get(['status']).value,
-      authorization: this.editForm.get(['authorization']).value
-    };
+  public retrieveAcmeChallenge(acmeChallengeId): void {
+    this.acmeChallengeService()
+      .find(acmeChallengeId)
+      .then(res => {
+        this.acmeChallenge = res;
+      });
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IAcmeChallenge>>) {
-    result.subscribe(() => this.onSaveSuccess(), () => this.onSaveError());
+  public previousState(): void {
+    this.$router.go(-1);
   }
 
-  protected onSaveSuccess() {
-    this.isSaving = false;
-    this.previousState();
-  }
-
-  protected onSaveError() {
-    this.isSaving = false;
-  }
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
-  }
-
-  trackAuthorizationById(index: number, item: IAuthorization) {
-    return item.id;
+  public initRelationships(): void {
+    this.authorizationService()
+      .retrieve()
+      .then(res => {
+        this.authorizations = res.data;
+      });
   }
 }

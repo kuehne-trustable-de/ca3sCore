@@ -1,5 +1,11 @@
 package de.trustable.ca3s.core.web.rest;
 
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.domain.Nonce;
+import de.trustable.ca3s.core.repository.NonceRepository;
+import de.trustable.ca3s.core.service.NonceService;
+import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -12,13 +18,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
-
-import de.trustable.ca3s.core.Ca3SJhApp;
-import de.trustable.ca3s.core.domain.Nonce;
-import de.trustable.ca3s.core.repository.NonceRepository;
-import de.trustable.ca3s.core.service.NonceService;
-import de.trustable.ca3s.core.web.rest.NonceResource;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
@@ -34,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Integration tests for the {@link NonceResource} REST controller.
  */
-@SpringBootTest(classes = Ca3SJhApp.class)
+@SpringBootTest(classes = Ca3SApp.class)
 public class NonceResourceIT {
 
     private static final String DEFAULT_NONCE_VALUE = "AAAAAAAAAA";
@@ -42,7 +41,6 @@ public class NonceResourceIT {
 
     private static final LocalDate DEFAULT_EXPIRES_AT = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_EXPIRES_AT = LocalDate.now(ZoneId.systemDefault());
-    private static final LocalDate SMALLER_EXPIRES_AT = LocalDate.ofEpochDay(-1L);
 
     @Autowired
     private NonceRepository nonceRepository;
@@ -161,7 +159,7 @@ public class NonceResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(nonce.getId().intValue())))
-            .andExpect(jsonPath("$.[*].nonceValue").value(hasItem(DEFAULT_NONCE_VALUE.toString())))
+            .andExpect(jsonPath("$.[*].nonceValue").value(hasItem(DEFAULT_NONCE_VALUE)))
             .andExpect(jsonPath("$.[*].expiresAt").value(hasItem(DEFAULT_EXPIRES_AT.toString())));
     }
     
@@ -176,7 +174,7 @@ public class NonceResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(nonce.getId().intValue()))
-            .andExpect(jsonPath("$.nonceValue").value(DEFAULT_NONCE_VALUE.toString()))
+            .andExpect(jsonPath("$.nonceValue").value(DEFAULT_NONCE_VALUE))
             .andExpect(jsonPath("$.expiresAt").value(DEFAULT_EXPIRES_AT.toString()));
     }
 
@@ -251,20 +249,5 @@ public class NonceResourceIT {
         // Validate the database contains one less item
         List<Nonce> nonceList = nonceRepository.findAll();
         assertThat(nonceList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(Nonce.class);
-        Nonce nonce1 = new Nonce();
-        nonce1.setId(1L);
-        Nonce nonce2 = new Nonce();
-        nonce2.setId(nonce1.getId());
-        assertThat(nonce1).isEqualTo(nonce2);
-        nonce2.setId(2L);
-        assertThat(nonce1).isNotEqualTo(nonce2);
-        nonce1.setId(null);
-        assertThat(nonce1).isNotEqualTo(nonce2);
     }
 }

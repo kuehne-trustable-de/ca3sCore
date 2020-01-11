@@ -1,6 +1,4 @@
 package de.trustable.ca3s.core.domain;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 
@@ -22,7 +20,6 @@ import java.time.LocalDate;
 			"n.expiresAt < :expiredBefore"
     ),	
 })
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Nonce implements Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -1,11 +1,6 @@
 package de.trustable.ca3s.core.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import de.trustable.ca3s.core.domain.enumeration.OrderStatus;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
@@ -13,6 +8,8 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
+
+import de.trustable.ca3s.core.domain.enumeration.OrderStatus;
 
 /**
  * A AcmeOrder.
@@ -25,7 +22,6 @@ import java.util.Set;
 			"a.orderId = :orderId"
     ),    
 })
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class AcmeOrder implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -62,11 +58,9 @@ public class AcmeOrder implements Serializable {
     private String certificateUrl;
 
     @OneToMany(mappedBy = "order")
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<Authorization> authorizations = new HashSet<>();
 
     @OneToMany(mappedBy = "order")
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<Identifier> identifiers = new HashSet<>();
 
     @ManyToOne

@@ -1,78 +1,69 @@
-import { Component, OnInit } from '@angular/core';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
-import * as moment from 'moment';
-import { INonce, Nonce } from 'app/shared/model/nonce.model';
-import { NonceService } from './nonce.service';
+import { Component, Vue, Inject } from 'vue-property-decorator';
+
+import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
+
+import AlertService from '@/shared/alert/alert.service';
+import { INonce, Nonce } from '@/shared/model/nonce.model';
+import NonceService from './nonce.service';
+
+const validations: any = {
+  nonce: {
+    nonceValue: {},
+    expiresAt: {}
+  }
+};
 
 @Component({
-  selector: 'jhi-nonce-update',
-  templateUrl: './nonce-update.component.html'
+  validations
 })
-export class NonceUpdateComponent implements OnInit {
-  isSaving: boolean;
-  expiresAtDp: any;
+export default class NonceUpdate extends Vue {
+  @Inject('alertService') private alertService: () => AlertService;
+  @Inject('nonceService') private nonceService: () => NonceService;
+  public nonce: INonce = new Nonce();
+  public isSaving = false;
 
-  editForm = this.fb.group({
-    id: [],
-    nonceValue: [],
-    expiresAt: []
-  });
-
-  constructor(protected nonceService: NonceService, protected activatedRoute: ActivatedRoute, private fb: FormBuilder) {}
-
-  ngOnInit() {
-    this.isSaving = false;
-    this.activatedRoute.data.subscribe(({ nonce }) => {
-      this.updateForm(nonce);
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      if (to.params.nonceId) {
+        vm.retrieveNonce(to.params.nonceId);
+      }
     });
   }
 
-  updateForm(nonce: INonce) {
-    this.editForm.patchValue({
-      id: nonce.id,
-      nonceValue: nonce.nonceValue,
-      expiresAt: nonce.expiresAt
-    });
-  }
-
-  previousState() {
-    window.history.back();
-  }
-
-  save() {
+  public save(): void {
     this.isSaving = true;
-    const nonce = this.createFromForm();
-    if (nonce.id !== undefined) {
-      this.subscribeToSaveResponse(this.nonceService.update(nonce));
+    if (this.nonce.id) {
+      this.nonceService()
+        .update(this.nonce)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.nonce.updated', { param: param.id });
+          this.alertService().showAlert(message, 'info');
+        });
     } else {
-      this.subscribeToSaveResponse(this.nonceService.create(nonce));
+      this.nonceService()
+        .create(this.nonce)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.nonce.created', { param: param.id });
+          this.alertService().showAlert(message, 'success');
+        });
     }
   }
 
-  private createFromForm(): INonce {
-    return {
-      ...new Nonce(),
-      id: this.editForm.get(['id']).value,
-      nonceValue: this.editForm.get(['nonceValue']).value,
-      expiresAt: this.editForm.get(['expiresAt']).value
-    };
+  public retrieveNonce(nonceId): void {
+    this.nonceService()
+      .find(nonceId)
+      .then(res => {
+        this.nonce = res;
+      });
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<INonce>>) {
-    result.subscribe(() => this.onSaveSuccess(), () => this.onSaveError());
+  public previousState(): void {
+    this.$router.go(-1);
   }
 
-  protected onSaveSuccess() {
-    this.isSaving = false;
-    this.previousState();
-  }
-
-  protected onSaveError() {
-    this.isSaving = false;
-  }
+  public initRelationships(): void {}
 }

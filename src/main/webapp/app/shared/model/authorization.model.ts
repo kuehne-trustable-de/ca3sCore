@@ -1,5 +1,5 @@
-import { IAcmeChallenge } from 'app/shared/model/acme-challenge.model';
-import { IAcmeOrder } from 'app/shared/model/acme-order.model';
+import { IAcmeChallenge } from '@/shared/model/acme-challenge.model';
+import { IAcmeOrder } from '@/shared/model/acme-order.model';
 
 export interface IAuthorization {
   id?: number;

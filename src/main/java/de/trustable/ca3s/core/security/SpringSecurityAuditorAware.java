@@ -1,11 +1,11 @@
 package de.trustable.ca3s.core.security;
 
+import de.trustable.ca3s.core.config.Constants;
+
 import java.util.Optional;
 
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Component;
-
-import de.trustable.ca3s.core.config.Constants;
 
 /**
  * Implementation of {@link AuditorAware} based on Spring Security.

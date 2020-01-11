@@ -1,5 +1,11 @@
 package de.trustable.ca3s.core.web.rest;
 
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.domain.AcmeOrder;
+import de.trustable.ca3s.core.repository.AcmeOrderRepository;
+import de.trustable.ca3s.core.service.AcmeOrderService;
+import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -13,14 +19,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
-import de.trustable.ca3s.core.Ca3SJhApp;
-import de.trustable.ca3s.core.domain.AcmeOrder;
-import de.trustable.ca3s.core.domain.enumeration.OrderStatus;
-import de.trustable.ca3s.core.repository.AcmeOrderRepository;
-import de.trustable.ca3s.core.service.AcmeOrderService;
-import de.trustable.ca3s.core.web.rest.AcmeOrderResource;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
-
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -31,30 +29,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import de.trustable.ca3s.core.domain.enumeration.OrderStatus;
 /**
  * Integration tests for the {@link AcmeOrderResource} REST controller.
  */
-@SpringBootTest(classes = Ca3SJhApp.class)
+@SpringBootTest(classes = Ca3SApp.class)
 public class AcmeOrderResourceIT {
 
     private static final Long DEFAULT_ORDER_ID = 1L;
     private static final Long UPDATED_ORDER_ID = 2L;
-    private static final Long SMALLER_ORDER_ID = 1L - 1L;
 
     private static final OrderStatus DEFAULT_STATUS = OrderStatus.PENDING;
     private static final OrderStatus UPDATED_STATUS = OrderStatus.READY;
 
     private static final LocalDate DEFAULT_EXPIRES = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_EXPIRES = LocalDate.now(ZoneId.systemDefault());
-    private static final LocalDate SMALLER_EXPIRES = LocalDate.ofEpochDay(-1L);
 
     private static final LocalDate DEFAULT_NOT_BEFORE = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_NOT_BEFORE = LocalDate.now(ZoneId.systemDefault());
-    private static final LocalDate SMALLER_NOT_BEFORE = LocalDate.ofEpochDay(-1L);
 
     private static final LocalDate DEFAULT_NOT_AFTER = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_NOT_AFTER = LocalDate.now(ZoneId.systemDefault());
-    private static final LocalDate SMALLER_NOT_AFTER = LocalDate.ofEpochDay(-1L);
 
     private static final String DEFAULT_ERROR = "AAAAAAAAAA";
     private static final String UPDATED_ERROR = "BBBBBBBBBB";
@@ -241,9 +237,9 @@ public class AcmeOrderResourceIT {
             .andExpect(jsonPath("$.[*].expires").value(hasItem(DEFAULT_EXPIRES.toString())))
             .andExpect(jsonPath("$.[*].notBefore").value(hasItem(DEFAULT_NOT_BEFORE.toString())))
             .andExpect(jsonPath("$.[*].notAfter").value(hasItem(DEFAULT_NOT_AFTER.toString())))
-            .andExpect(jsonPath("$.[*].error").value(hasItem(DEFAULT_ERROR.toString())))
-            .andExpect(jsonPath("$.[*].finalizeUrl").value(hasItem(DEFAULT_FINALIZE_URL.toString())))
-            .andExpect(jsonPath("$.[*].certificateUrl").value(hasItem(DEFAULT_CERTIFICATE_URL.toString())));
+            .andExpect(jsonPath("$.[*].error").value(hasItem(DEFAULT_ERROR)))
+            .andExpect(jsonPath("$.[*].finalizeUrl").value(hasItem(DEFAULT_FINALIZE_URL)))
+            .andExpect(jsonPath("$.[*].certificateUrl").value(hasItem(DEFAULT_CERTIFICATE_URL)));
     }
     
     @Test
@@ -262,9 +258,9 @@ public class AcmeOrderResourceIT {
             .andExpect(jsonPath("$.expires").value(DEFAULT_EXPIRES.toString()))
             .andExpect(jsonPath("$.notBefore").value(DEFAULT_NOT_BEFORE.toString()))
             .andExpect(jsonPath("$.notAfter").value(DEFAULT_NOT_AFTER.toString()))
-            .andExpect(jsonPath("$.error").value(DEFAULT_ERROR.toString()))
-            .andExpect(jsonPath("$.finalizeUrl").value(DEFAULT_FINALIZE_URL.toString()))
-            .andExpect(jsonPath("$.certificateUrl").value(DEFAULT_CERTIFICATE_URL.toString()));
+            .andExpect(jsonPath("$.error").value(DEFAULT_ERROR))
+            .andExpect(jsonPath("$.finalizeUrl").value(DEFAULT_FINALIZE_URL))
+            .andExpect(jsonPath("$.certificateUrl").value(DEFAULT_CERTIFICATE_URL));
     }
 
     @Test
@@ -350,20 +346,5 @@ public class AcmeOrderResourceIT {
         // Validate the database contains one less item
         List<AcmeOrder> acmeOrderList = acmeOrderRepository.findAll();
         assertThat(acmeOrderList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(AcmeOrder.class);
-        AcmeOrder acmeOrder1 = new AcmeOrder();
-        acmeOrder1.setId(1L);
-        AcmeOrder acmeOrder2 = new AcmeOrder();
-        acmeOrder2.setId(acmeOrder1.getId());
-        assertThat(acmeOrder1).isEqualTo(acmeOrder2);
-        acmeOrder2.setId(2L);
-        assertThat(acmeOrder1).isNotEqualTo(acmeOrder2);
-        acmeOrder1.setId(null);
-        assertThat(acmeOrder1).isNotEqualTo(acmeOrder2);
     }
 }

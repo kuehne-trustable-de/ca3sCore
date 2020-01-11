@@ -90,13 +90,14 @@
             "ownerSide": false
         }
     ],
-    "changelogDate": "20191028230815",
+    "changelogDate": "20200110170113",
     "entityTableName": "csr",
     "dto": "no",
     "pagination": "no",
     "service": "serviceImpl",
     "jpaMetamodelFiltering": false,
     "fluentMethods": true,
+    "readOnly": false,
     "clientRootFolder": "",
     "applications": "*"
 }

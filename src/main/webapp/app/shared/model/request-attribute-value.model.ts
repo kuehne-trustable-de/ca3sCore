@@ -1,4 +1,4 @@
-import { IRequestAttribute } from 'app/shared/model/request-attribute.model';
+import { IRequestAttribute } from '@/shared/model/request-attribute.model';
 
 export interface IRequestAttributeValue {
   id?: number;

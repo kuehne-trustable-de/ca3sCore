@@ -1,5 +1,5 @@
 {
-  "ca3SJhApp": {
+  "ca3SApp": {
     "cSR": {
       "home": {
         "title": "CSRS",
@@ -29,6 +29,7 @@
       "rdns": "Rdns",
       "ras": "Ras",
       "csrAttributes": "Csr Attributes",
+      "pipeline": "Pipeline",
       "certificate": "Certificate"
     }
   }

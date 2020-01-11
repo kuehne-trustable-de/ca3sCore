@@ -1,12 +1,12 @@
 {
-  "ca3SJhApp": {
+  "ca3SApp": {
     "OrderStatus": {
       "null": "",
-      "Pending": "Pending",
-      "Ready": "Ready",
-      "Processing": "Processing",
-      "Valid": "Valid",
-      "Invalid": "Invalid"
+      "PENDING": "PENDING",
+      "READY": "READY",
+      "PROCESSING": "PROCESSING",
+      "VALID": "VALID",
+      "INVALID": "INVALID"
     }
   }
 }

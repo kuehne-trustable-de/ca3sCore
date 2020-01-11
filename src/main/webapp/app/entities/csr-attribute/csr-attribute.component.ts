@@ -1,66 +1,63 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Subscription } from 'rxjs';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { filter, map } from 'rxjs/operators';
-import { JhiEventManager, JhiAlertService } from 'ng-jhipster';
+import { mixins } from 'vue-class-component';
 
-import { ICsrAttribute } from 'app/shared/model/csr-attribute.model';
-import { AccountService } from 'app/core/auth/account.service';
-import { CsrAttributeService } from './csr-attribute.service';
+import { Component, Inject } from 'vue-property-decorator';
+import Vue2Filters from 'vue2-filters';
+import { ICsrAttribute } from '@/shared/model/csr-attribute.model';
+import AlertMixin from '@/shared/alert/alert.mixin';
 
-@Component({
-  selector: 'jhi-csr-attribute',
-  templateUrl: './csr-attribute.component.html'
-})
-export class CsrAttributeComponent implements OnInit, OnDestroy {
-  csrAttributes: ICsrAttribute[];
-  currentAccount: any;
-  eventSubscriber: Subscription;
+import CsrAttributeService from './csr-attribute.service';
 
-  constructor(
-    protected csrAttributeService: CsrAttributeService,
-    protected jhiAlertService: JhiAlertService,
-    protected eventManager: JhiEventManager,
-    protected accountService: AccountService
-  ) {}
+@Component
+export default class CsrAttribute extends mixins(Vue2Filters.mixin, AlertMixin) {
+  @Inject('csrAttributeService') private csrAttributeService: () => CsrAttributeService;
+  private removeId: number = null;
+  public csrAttributes: ICsrAttribute[] = [];
 
-  loadAll() {
-    this.csrAttributeService
-      .query()
-      .pipe(
-        filter((res: HttpResponse<ICsrAttribute[]>) => res.ok),
-        map((res: HttpResponse<ICsrAttribute[]>) => res.body)
-      )
-      .subscribe(
-        (res: ICsrAttribute[]) => {
-          this.csrAttributes = res;
+  public isFetching = false;
+
+  public mounted(): void {
+    this.retrieveAllCsrAttributes();
+  }
+
+  public clear(): void {
+    this.retrieveAllCsrAttributes();
+  }
+
+  public retrieveAllCsrAttributes(): void {
+    this.isFetching = true;
+
+    this.csrAttributeService()
+      .retrieve()
+      .then(
+        res => {
+          this.csrAttributes = res.data;
+          this.isFetching = false;
         },
-        (res: HttpErrorResponse) => this.onError(res.message)
+        err => {
+          this.isFetching = false;
+        }
       );
   }
 
-  ngOnInit() {
-    this.loadAll();
-    this.accountService.identity().then(account => {
-      this.currentAccount = account;
-    });
-    this.registerChangeInCsrAttributes();
+  public prepareRemove(instance: ICsrAttribute): void {
+    this.removeId = instance.id;
   }
 
-  ngOnDestroy() {
-    this.eventManager.destroy(this.eventSubscriber);
+  public removeCsrAttribute(): void {
+    this.csrAttributeService()
+      .delete(this.removeId)
+      .then(() => {
+        const message = this.$t('ca3SApp.csrAttribute.deleted', { param: this.removeId });
+        this.alertService().showAlert(message, 'danger');
+        this.getAlertFromStore();
+
+        this.removeId = null;
+        this.retrieveAllCsrAttributes();
+        this.closeDialog();
+      });
   }
 
-  trackId(index: number, item: ICsrAttribute) {
-    return item.id;
-  }
-
-  registerChangeInCsrAttributes() {
-    this.eventSubscriber = this.eventManager.subscribe('csrAttributeListModification', response => this.loadAll());
-  }
-
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
+  public closeDialog(): void {
+    (<any>this.$refs.removeEntity).hide();
   }
 }

@@ -1,61 +1,79 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { HttpResponse } from '@angular/common/http';
-import { FormBuilder } from '@angular/forms';
-import { of } from 'rxjs';
+/* tslint:disable max-line-length */
+import { shallowMount, createLocalVue, Wrapper } from '@vue/test-utils';
+import sinon, { SinonStubbedInstance } from 'sinon';
+import Router from 'vue-router';
 
-import { Ca3SJhTestModule } from '../../../test.module';
-import { CertificateAttributeUpdateComponent } from 'app/entities/certificate-attribute/certificate-attribute-update.component';
-import { CertificateAttributeService } from 'app/entities/certificate-attribute/certificate-attribute.service';
-import { CertificateAttribute } from 'app/shared/model/certificate-attribute.model';
+import AlertService from '@/shared/alert/alert.service';
+import * as config from '@/shared/config/config';
+import CertificateAttributeUpdateComponent from '@/entities/certificate-attribute/certificate-attribute-update.vue';
+import CertificateAttributeClass from '@/entities/certificate-attribute/certificate-attribute-update.component';
+import CertificateAttributeService from '@/entities/certificate-attribute/certificate-attribute.service';
+
+import CertificateService from '@/entities/certificate/certificate.service';
+
+const localVue = createLocalVue();
+
+config.initVueApp(localVue);
+const i18n = config.initI18N(localVue);
+const store = config.initVueXStore(localVue);
+const router = new Router();
+localVue.use(Router);
+localVue.component('font-awesome-icon', {});
 
 describe('Component Tests', () => {
   describe('CertificateAttribute Management Update Component', () => {
-    let comp: CertificateAttributeUpdateComponent;
-    let fixture: ComponentFixture<CertificateAttributeUpdateComponent>;
-    let service: CertificateAttributeService;
+    let wrapper: Wrapper<CertificateAttributeClass>;
+    let comp: CertificateAttributeClass;
+    let certificateAttributeServiceStub: SinonStubbedInstance<CertificateAttributeService>;
 
     beforeEach(() => {
-      TestBed.configureTestingModule({
-        imports: [Ca3SJhTestModule],
-        declarations: [CertificateAttributeUpdateComponent],
-        providers: [FormBuilder]
-      })
-        .overrideTemplate(CertificateAttributeUpdateComponent, '')
-        .compileComponents();
+      certificateAttributeServiceStub = sinon.createStubInstance<CertificateAttributeService>(CertificateAttributeService);
 
-      fixture = TestBed.createComponent(CertificateAttributeUpdateComponent);
-      comp = fixture.componentInstance;
-      service = fixture.debugElement.injector.get(CertificateAttributeService);
+      wrapper = shallowMount<CertificateAttributeClass>(CertificateAttributeUpdateComponent, {
+        store,
+        i18n,
+        localVue,
+        router,
+        provide: {
+          alertService: () => new AlertService(store),
+          certificateAttributeService: () => certificateAttributeServiceStub,
+
+          certificateService: () => new CertificateService()
+        }
+      });
+      comp = wrapper.vm;
     });
 
     describe('save', () => {
-      it('Should call update service on save for existing entity', fakeAsync(() => {
+      it('Should call update service on save for existing entity', async () => {
         // GIVEN
-        const entity = new CertificateAttribute(123);
-        spyOn(service, 'update').and.returnValue(of(new HttpResponse({ body: entity })));
-        comp.updateForm(entity);
+        const entity = { id: 123 };
+        comp.certificateAttribute = entity;
+        certificateAttributeServiceStub.update.resolves(entity);
+
         // WHEN
         comp.save();
-        tick(); // simulate async
+        await comp.$nextTick();
 
         // THEN
-        expect(service.update).toHaveBeenCalledWith(entity);
+        expect(certificateAttributeServiceStub.update.calledWith(entity)).toBeTruthy();
         expect(comp.isSaving).toEqual(false);
-      }));
+      });
 
-      it('Should call create service on save for new entity', fakeAsync(() => {
+      it('Should call create service on save for new entity', async () => {
         // GIVEN
-        const entity = new CertificateAttribute();
-        spyOn(service, 'create').and.returnValue(of(new HttpResponse({ body: entity })));
-        comp.updateForm(entity);
+        const entity = {};
+        comp.certificateAttribute = entity;
+        certificateAttributeServiceStub.create.resolves(entity);
+
         // WHEN
         comp.save();
-        tick(); // simulate async
+        await comp.$nextTick();
 
         // THEN
-        expect(service.create).toHaveBeenCalledWith(entity);
+        expect(certificateAttributeServiceStub.create.calledWith(entity)).toBeTruthy();
         expect(comp.isSaving).toEqual(false);
-      }));
+      });
     });
   });
 });

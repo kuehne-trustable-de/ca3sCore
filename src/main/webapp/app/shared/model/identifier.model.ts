@@ -1,4 +1,4 @@
-import { IAcmeOrder } from 'app/shared/model/acme-order.model';
+import { IAcmeOrder } from '@/shared/model/acme-order.model';
 
 export interface IIdentifier {
   id?: number;

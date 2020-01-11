@@ -1,6 +1,11 @@
-import { IAcmeContact } from 'app/shared/model/acme-contact.model';
-import { IAcmeOrder } from 'app/shared/model/acme-order.model';
-import { AccountStatus } from 'app/shared/model/enumerations/account-status.model';
+import { IAcmeContact } from '@/shared/model/acme-contact.model';
+import { IAcmeOrder } from '@/shared/model/acme-order.model';
+
+export const enum AccountStatus {
+  VALID = 'VALID',
+  DEACTIVATED = 'DEACTIVATED',
+  REVOKED = 'REVOKED'
+}
 
 export interface IACMEAccount {
   id?: number;

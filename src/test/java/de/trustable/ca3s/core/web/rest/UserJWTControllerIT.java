@@ -1,5 +1,11 @@
 package de.trustable.ca3s.core.web.rest;
 
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.repository.UserRepository;
+import de.trustable.ca3s.core.security.jwt.TokenProvider;
+import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
+import de.trustable.ca3s.core.web.rest.vm.LoginVM;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,14 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-
-import de.trustable.ca3s.core.Ca3SJhApp;
-import de.trustable.ca3s.core.domain.User;
-import de.trustable.ca3s.core.repository.UserRepository;
-import de.trustable.ca3s.core.security.jwt.TokenProvider;
-import de.trustable.ca3s.core.web.rest.UserJWTController;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
-import de.trustable.ca3s.core.web.rest.vm.LoginVM;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -29,7 +27,7 @@ import static org.hamcrest.Matchers.not;
 /**
  * Integration tests for the {@link UserJWTController} REST controller.
  */
-@SpringBootTest(classes = Ca3SJhApp.class)
+@SpringBootTest(classes = Ca3SApp.class)
 public class UserJWTControllerIT {
 
     @Autowired

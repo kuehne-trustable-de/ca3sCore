@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.web.rest.errors;
 
+import de.trustable.ca3s.core.Ca3SApp;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,10 +9,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import de.trustable.ca3s.core.Ca3SJhApp;
-import de.trustable.ca3s.core.web.rest.errors.ErrorConstants;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -22,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Integration tests {@link ExceptionTranslator} controller advice.
  */
-@SpringBootTest(classes = Ca3SJhApp.class)
+@SpringBootTest(classes = Ca3SApp.class)
 public class ExceptionTranslatorIT {
 
     @Autowired

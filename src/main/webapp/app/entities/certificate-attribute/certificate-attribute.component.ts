@@ -1,66 +1,63 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Subscription } from 'rxjs';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { filter, map } from 'rxjs/operators';
-import { JhiEventManager, JhiAlertService } from 'ng-jhipster';
+import { mixins } from 'vue-class-component';
 
-import { ICertificateAttribute } from 'app/shared/model/certificate-attribute.model';
-import { AccountService } from 'app/core/auth/account.service';
-import { CertificateAttributeService } from './certificate-attribute.service';
+import { Component, Inject } from 'vue-property-decorator';
+import Vue2Filters from 'vue2-filters';
+import { ICertificateAttribute } from '@/shared/model/certificate-attribute.model';
+import AlertMixin from '@/shared/alert/alert.mixin';
 
-@Component({
-  selector: 'jhi-certificate-attribute',
-  templateUrl: './certificate-attribute.component.html'
-})
-export class CertificateAttributeComponent implements OnInit, OnDestroy {
-  certificateAttributes: ICertificateAttribute[];
-  currentAccount: any;
-  eventSubscriber: Subscription;
+import CertificateAttributeService from './certificate-attribute.service';
 
-  constructor(
-    protected certificateAttributeService: CertificateAttributeService,
-    protected jhiAlertService: JhiAlertService,
-    protected eventManager: JhiEventManager,
-    protected accountService: AccountService
-  ) {}
+@Component
+export default class CertificateAttribute extends mixins(Vue2Filters.mixin, AlertMixin) {
+  @Inject('certificateAttributeService') private certificateAttributeService: () => CertificateAttributeService;
+  private removeId: number = null;
+  public certificateAttributes: ICertificateAttribute[] = [];
 
-  loadAll() {
-    this.certificateAttributeService
-      .query()
-      .pipe(
-        filter((res: HttpResponse<ICertificateAttribute[]>) => res.ok),
-        map((res: HttpResponse<ICertificateAttribute[]>) => res.body)
-      )
-      .subscribe(
-        (res: ICertificateAttribute[]) => {
-          this.certificateAttributes = res;
+  public isFetching = false;
+
+  public mounted(): void {
+    this.retrieveAllCertificateAttributes();
+  }
+
+  public clear(): void {
+    this.retrieveAllCertificateAttributes();
+  }
+
+  public retrieveAllCertificateAttributes(): void {
+    this.isFetching = true;
+
+    this.certificateAttributeService()
+      .retrieve()
+      .then(
+        res => {
+          this.certificateAttributes = res.data;
+          this.isFetching = false;
         },
-        (res: HttpErrorResponse) => this.onError(res.message)
+        err => {
+          this.isFetching = false;
+        }
       );
   }
 
-  ngOnInit() {
-    this.loadAll();
-    this.accountService.identity().then(account => {
-      this.currentAccount = account;
-    });
-    this.registerChangeInCertificateAttributes();
+  public prepareRemove(instance: ICertificateAttribute): void {
+    this.removeId = instance.id;
   }
 
-  ngOnDestroy() {
-    this.eventManager.destroy(this.eventSubscriber);
+  public removeCertificateAttribute(): void {
+    this.certificateAttributeService()
+      .delete(this.removeId)
+      .then(() => {
+        const message = this.$t('ca3SApp.certificateAttribute.deleted', { param: this.removeId });
+        this.alertService().showAlert(message, 'danger');
+        this.getAlertFromStore();
+
+        this.removeId = null;
+        this.retrieveAllCertificateAttributes();
+        this.closeDialog();
+      });
   }
 
-  trackId(index: number, item: ICertificateAttribute) {
-    return item.id;
-  }
-
-  registerChangeInCertificateAttributes() {
-    this.eventSubscriber = this.eventManager.subscribe('certificateAttributeListModification', response => this.loadAll());
-  }
-
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
+  public closeDialog(): void {
+    (<any>this.$refs.removeEntity).hide();
   }
 }

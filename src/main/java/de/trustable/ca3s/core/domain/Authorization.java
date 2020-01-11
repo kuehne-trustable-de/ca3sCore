@@ -1,7 +1,5 @@
 package de.trustable.ca3s.core.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -21,7 +19,6 @@ import java.util.Set;
 			"a.authorizationId = :authorizationId"
     ),    
 })
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Authorization implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -43,7 +40,6 @@ public class Authorization implements Serializable {
     private String value;
 
     @OneToMany(mappedBy = "authorization")
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<AcmeChallenge> challenges = new HashSet<>();
 
     @ManyToOne

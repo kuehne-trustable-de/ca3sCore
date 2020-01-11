@@ -1,66 +1,63 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Subscription } from 'rxjs';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { filter, map } from 'rxjs/operators';
-import { JhiEventManager, JhiAlertService } from 'ng-jhipster';
+import { mixins } from 'vue-class-component';
 
-import { IRDNAttribute } from 'app/shared/model/rdn-attribute.model';
-import { AccountService } from 'app/core/auth/account.service';
-import { RDNAttributeService } from './rdn-attribute.service';
+import { Component, Inject } from 'vue-property-decorator';
+import Vue2Filters from 'vue2-filters';
+import { IRDNAttribute } from '@/shared/model/rdn-attribute.model';
+import AlertMixin from '@/shared/alert/alert.mixin';
 
-@Component({
-  selector: 'jhi-rdn-attribute',
-  templateUrl: './rdn-attribute.component.html'
-})
-export class RDNAttributeComponent implements OnInit, OnDestroy {
-  rDNAttributes: IRDNAttribute[];
-  currentAccount: any;
-  eventSubscriber: Subscription;
+import RDNAttributeService from './rdn-attribute.service';
 
-  constructor(
-    protected rDNAttributeService: RDNAttributeService,
-    protected jhiAlertService: JhiAlertService,
-    protected eventManager: JhiEventManager,
-    protected accountService: AccountService
-  ) {}
+@Component
+export default class RDNAttribute extends mixins(Vue2Filters.mixin, AlertMixin) {
+  @Inject('rDNAttributeService') private rDNAttributeService: () => RDNAttributeService;
+  private removeId: number = null;
+  public rDNAttributes: IRDNAttribute[] = [];
 
-  loadAll() {
-    this.rDNAttributeService
-      .query()
-      .pipe(
-        filter((res: HttpResponse<IRDNAttribute[]>) => res.ok),
-        map((res: HttpResponse<IRDNAttribute[]>) => res.body)
-      )
-      .subscribe(
-        (res: IRDNAttribute[]) => {
-          this.rDNAttributes = res;
+  public isFetching = false;
+
+  public mounted(): void {
+    this.retrieveAllRDNAttributes();
+  }
+
+  public clear(): void {
+    this.retrieveAllRDNAttributes();
+  }
+
+  public retrieveAllRDNAttributes(): void {
+    this.isFetching = true;
+
+    this.rDNAttributeService()
+      .retrieve()
+      .then(
+        res => {
+          this.rDNAttributes = res.data;
+          this.isFetching = false;
         },
-        (res: HttpErrorResponse) => this.onError(res.message)
+        err => {
+          this.isFetching = false;
+        }
       );
   }
 
-  ngOnInit() {
-    this.loadAll();
-    this.accountService.identity().then(account => {
-      this.currentAccount = account;
-    });
-    this.registerChangeInRDNAttributes();
+  public prepareRemove(instance: IRDNAttribute): void {
+    this.removeId = instance.id;
   }
 
-  ngOnDestroy() {
-    this.eventManager.destroy(this.eventSubscriber);
+  public removeRDNAttribute(): void {
+    this.rDNAttributeService()
+      .delete(this.removeId)
+      .then(() => {
+        const message = this.$t('ca3SApp.rDNAttribute.deleted', { param: this.removeId });
+        this.alertService().showAlert(message, 'danger');
+        this.getAlertFromStore();
+
+        this.removeId = null;
+        this.retrieveAllRDNAttributes();
+        this.closeDialog();
+      });
   }
 
-  trackId(index: number, item: IRDNAttribute) {
-    return item.id;
-  }
-
-  registerChangeInRDNAttributes() {
-    this.eventSubscriber = this.eventManager.subscribe('rDNAttributeListModification', response => this.loadAll());
-  }
-
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
+  public closeDialog(): void {
+    (<any>this.$refs.removeEntity).hide();
   }
 }

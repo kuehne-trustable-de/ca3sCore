@@ -1,5 +1,7 @@
 package de.trustable.ca3s.core.web.rest;
 
+import de.trustable.ca3s.core.service.AuditEventService;
+
 import io.github.jhipster.web.util.PaginationUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.springframework.boot.actuate.audit.AuditEvent;
@@ -10,8 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import de.trustable.ca3s.core.service.AuditEventService;
 
 import java.time.Instant;
 import java.time.LocalDate;

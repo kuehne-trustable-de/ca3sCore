@@ -57,13 +57,14 @@
             "relationshipName": "orders"
         }
     ],
-    "changelogDate": "20191028230821",
+    "changelogDate": "20200110170121",
     "entityTableName": "acme_account",
     "dto": "no",
     "pagination": "no",
     "service": "serviceImpl",
     "jpaMetamodelFiltering": false,
     "fluentMethods": true,
+    "readOnly": false,
     "clientRootFolder": "",
     "applications": "*"
 }

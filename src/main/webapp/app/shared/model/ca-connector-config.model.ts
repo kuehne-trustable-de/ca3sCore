@@ -1,4 +1,8 @@
-import { CAConnectorType } from 'app/shared/model/enumerations/ca-connector-type.model';
+export const enum CAConnectorType {
+  INTERNAL = 'INTERNAL',
+  CMP = 'CMP',
+  ADCS = 'ADCS'
+}
 
 export interface ICAConnectorConfig {
   id?: number;

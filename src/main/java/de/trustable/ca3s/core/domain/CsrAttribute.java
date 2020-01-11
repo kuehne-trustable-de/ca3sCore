@@ -1,7 +1,5 @@
 package de.trustable.ca3s.core.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -13,7 +11,6 @@ import java.io.Serializable;
  */
 @Entity
 @Table(name = "csr_attribute")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class CsrAttribute implements Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -1,75 +1,47 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import * as moment from 'moment';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { DATE_FORMAT } from 'app/shared/constants/input.constants';
-import { map } from 'rxjs/operators';
+import axios from 'axios';
 
-import { SERVER_API_URL } from 'app/app.constants';
-import { createRequestOption } from 'app/shared/util/request-util';
-import { INonce } from 'app/shared/model/nonce.model';
+import { INonce } from '@/shared/model/nonce.model';
 
-type EntityResponseType = HttpResponse<INonce>;
-type EntityArrayResponseType = HttpResponse<INonce[]>;
+const baseApiUrl = 'api/nonces';
 
-@Injectable({ providedIn: 'root' })
-export class NonceService {
-  public resourceUrl = SERVER_API_URL + 'api/nonces';
-
-  constructor(protected http: HttpClient) {}
-
-  create(nonce: INonce): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(nonce);
-    return this.http
-      .post<INonce>(this.resourceUrl, copy, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
-  }
-
-  update(nonce: INonce): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(nonce);
-    return this.http
-      .put<INonce>(this.resourceUrl, copy, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
-  }
-
-  find(id: number): Observable<EntityResponseType> {
-    return this.http
-      .get<INonce>(`${this.resourceUrl}/${id}`, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
-  }
-
-  query(req?: any): Observable<EntityArrayResponseType> {
-    const options = createRequestOption(req);
-    return this.http
-      .get<INonce[]>(this.resourceUrl, { params: options, observe: 'response' })
-      .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
-  }
-
-  delete(id: number): Observable<HttpResponse<any>> {
-    return this.http.delete<any>(`${this.resourceUrl}/${id}`, { observe: 'response' });
-  }
-
-  protected convertDateFromClient(nonce: INonce): INonce {
-    const copy: INonce = Object.assign({}, nonce, {
-      expiresAt: nonce.expiresAt != null && nonce.expiresAt.isValid() ? nonce.expiresAt.format(DATE_FORMAT) : null
-    });
-    return copy;
-  }
-
-  protected convertDateFromServer(res: EntityResponseType): EntityResponseType {
-    if (res.body) {
-      res.body.expiresAt = res.body.expiresAt != null ? moment(res.body.expiresAt) : null;
-    }
-    return res;
-  }
-
-  protected convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
-    if (res.body) {
-      res.body.forEach((nonce: INonce) => {
-        nonce.expiresAt = nonce.expiresAt != null ? moment(nonce.expiresAt) : null;
+export default class NonceService {
+  public find(id: number): Promise<INonce> {
+    return new Promise<INonce>(resolve => {
+      axios.get(`${baseApiUrl}/${id}`).then(function(res) {
+        resolve(res.data);
       });
-    }
-    return res;
+    });
+  }
+
+  public retrieve(): Promise<any> {
+    return new Promise<any>(resolve => {
+      axios.get(baseApiUrl).then(function(res) {
+        resolve(res);
+      });
+    });
+  }
+
+  public delete(id: number): Promise<any> {
+    return new Promise<any>(resolve => {
+      axios.delete(`${baseApiUrl}/${id}`).then(function(res) {
+        resolve(res);
+      });
+    });
+  }
+
+  public create(entity: INonce): Promise<INonce> {
+    return new Promise<INonce>(resolve => {
+      axios.post(`${baseApiUrl}`, entity).then(function(res) {
+        resolve(res.data);
+      });
+    });
+  }
+
+  public update(entity: INonce): Promise<INonce> {
+    return new Promise<INonce>(resolve => {
+      axios.put(`${baseApiUrl}`, entity).then(function(res) {
+        resolve(res.data);
+      });
+    });
   }
 }

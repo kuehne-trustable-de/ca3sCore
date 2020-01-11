@@ -1,162 +1,150 @@
-import { Component, OnInit } from '@angular/core';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import * as moment from 'moment';
-import { JhiAlertService, JhiDataUtils } from 'ng-jhipster';
-import { ICSR, CSR } from 'app/shared/model/csr.model';
-import { CSRService } from './csr.service';
-import { ICertificate } from 'app/shared/model/certificate.model';
-import { CertificateService } from 'app/entities/certificate/certificate.service';
+import { Component, Inject } from 'vue-property-decorator';
+
+import { mixins } from 'vue-class-component';
+import JhiDataUtils from '@/shared/data/data-utils.service';
+
+import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
+
+import RDNService from '../rdn/rdn.service';
+import { IRDN } from '@/shared/model/rdn.model';
+
+import RequestAttributeService from '../request-attribute/request-attribute.service';
+import { IRequestAttribute } from '@/shared/model/request-attribute.model';
+
+import CsrAttributeService from '../csr-attribute/csr-attribute.service';
+import { ICsrAttribute } from '@/shared/model/csr-attribute.model';
+
+import PipelineService from '../pipeline/pipeline.service';
+import { IPipeline } from '@/shared/model/pipeline.model';
+
+import CertificateService from '../certificate/certificate.service';
+import { ICertificate } from '@/shared/model/certificate.model';
+
+import AlertService from '@/shared/alert/alert.service';
+import { ICSR, CSR } from '@/shared/model/csr.model';
+import CSRService from './csr.service';
+
+const validations: any = {
+  cSR: {
+    csrBase64: {
+      required
+    },
+    requestedOn: {
+      required
+    },
+    status: {
+      required
+    },
+    processInstanceId: {},
+    signingAlgorithm: {},
+    isCSRValid: {},
+    x509KeySpec: {},
+    publicKeyAlgorithm: {},
+    publicKeyHash: {},
+    subjectPublicKeyInfoBase64: {
+      required
+    }
+  }
+};
 
 @Component({
-  selector: 'jhi-csr-update',
-  templateUrl: './csr-update.component.html'
+  validations
 })
-export class CSRUpdateComponent implements OnInit {
-  isSaving: boolean;
+export default class CSRUpdate extends mixins(JhiDataUtils) {
+  @Inject('alertService') private alertService: () => AlertService;
+  @Inject('cSRService') private cSRService: () => CSRService;
+  public cSR: ICSR = new CSR();
 
-  certificates: ICertificate[];
-  requestedOnDp: any;
+  @Inject('rDNService') private rDNService: () => RDNService;
 
-  editForm = this.fb.group({
-    id: [],
-    csrBase64: [null, [Validators.required]],
-    requestedOn: [null, [Validators.required]],
-    status: [null, [Validators.required]],
-    processInstanceId: [],
-    signingAlgorithm: [],
-    isCSRValid: [],
-    x509KeySpec: [],
-    publicKeyAlgorithm: [],
-    publicKeyHash: [],
-    subjectPublicKeyInfoBase64: [null, [Validators.required]]
-  });
+  public rDNS: IRDN[] = [];
 
-  constructor(
-    protected dataUtils: JhiDataUtils,
-    protected jhiAlertService: JhiAlertService,
-    protected cSRService: CSRService,
-    protected certificateService: CertificateService,
-    protected activatedRoute: ActivatedRoute,
-    private fb: FormBuilder
-  ) {}
+  @Inject('requestAttributeService') private requestAttributeService: () => RequestAttributeService;
 
-  ngOnInit() {
-    this.isSaving = false;
-    this.activatedRoute.data.subscribe(({ cSR }) => {
-      this.updateForm(cSR);
-    });
-    this.certificateService
-      .query()
-      .pipe(
-        filter((mayBeOk: HttpResponse<ICertificate[]>) => mayBeOk.ok),
-        map((response: HttpResponse<ICertificate[]>) => response.body)
-      )
-      .subscribe((res: ICertificate[]) => (this.certificates = res), (res: HttpErrorResponse) => this.onError(res.message));
-  }
+  public requestAttributes: IRequestAttribute[] = [];
 
-  updateForm(cSR: ICSR) {
-    this.editForm.patchValue({
-      id: cSR.id,
-      csrBase64: cSR.csrBase64,
-      requestedOn: cSR.requestedOn,
-      status: cSR.status,
-      processInstanceId: cSR.processInstanceId,
-      signingAlgorithm: cSR.signingAlgorithm,
-      isCSRValid: cSR.isCSRValid,
-      x509KeySpec: cSR.x509KeySpec,
-      publicKeyAlgorithm: cSR.publicKeyAlgorithm,
-      publicKeyHash: cSR.publicKeyHash,
-      subjectPublicKeyInfoBase64: cSR.subjectPublicKeyInfoBase64
-    });
-  }
+  @Inject('csrAttributeService') private csrAttributeService: () => CsrAttributeService;
 
-  byteSize(field) {
-    return this.dataUtils.byteSize(field);
-  }
+  public csrAttributes: ICsrAttribute[] = [];
 
-  openFile(contentType, field) {
-    return this.dataUtils.openFile(contentType, field);
-  }
+  @Inject('pipelineService') private pipelineService: () => PipelineService;
 
-  setFileData(event, field: string, isImage) {
-    return new Promise((resolve, reject) => {
-      if (event && event.target && event.target.files && event.target.files[0]) {
-        const file: File = event.target.files[0];
-        if (isImage && !file.type.startsWith('image/')) {
-          reject(`File was expected to be an image but was found to be ${file.type}`);
-        } else {
-          const filedContentType: string = field + 'ContentType';
-          this.dataUtils.toBase64(file, base64Data => {
-            this.editForm.patchValue({
-              [field]: base64Data,
-              [filedContentType]: file.type
-            });
-          });
-        }
-      } else {
-        reject(`Base64 data was not set as file could not be extracted from passed parameter: ${event}`);
+  public pipelines: IPipeline[] = [];
+
+  @Inject('certificateService') private certificateService: () => CertificateService;
+
+  public certificates: ICertificate[] = [];
+  public isSaving = false;
+
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      if (to.params.cSRId) {
+        vm.retrieveCSR(to.params.cSRId);
       }
-    }).then(
-      // eslint-disable-next-line no-console
-      () => console.log('blob added'), // success
-      this.onError
-    );
+      vm.initRelationships();
+    });
   }
 
-  previousState() {
-    window.history.back();
-  }
-
-  save() {
+  public save(): void {
     this.isSaving = true;
-    const cSR = this.createFromForm();
-    if (cSR.id !== undefined) {
-      this.subscribeToSaveResponse(this.cSRService.update(cSR));
+    if (this.cSR.id) {
+      this.cSRService()
+        .update(this.cSR)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.cSR.updated', { param: param.id });
+          this.alertService().showAlert(message, 'info');
+        });
     } else {
-      this.subscribeToSaveResponse(this.cSRService.create(cSR));
+      this.cSRService()
+        .create(this.cSR)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.cSR.created', { param: param.id });
+          this.alertService().showAlert(message, 'success');
+        });
     }
   }
 
-  private createFromForm(): ICSR {
-    return {
-      ...new CSR(),
-      id: this.editForm.get(['id']).value,
-      csrBase64: this.editForm.get(['csrBase64']).value,
-      requestedOn: this.editForm.get(['requestedOn']).value,
-      status: this.editForm.get(['status']).value,
-      processInstanceId: this.editForm.get(['processInstanceId']).value,
-      signingAlgorithm: this.editForm.get(['signingAlgorithm']).value,
-      isCSRValid: this.editForm.get(['isCSRValid']).value,
-      x509KeySpec: this.editForm.get(['x509KeySpec']).value,
-      publicKeyAlgorithm: this.editForm.get(['publicKeyAlgorithm']).value,
-      publicKeyHash: this.editForm.get(['publicKeyHash']).value,
-      subjectPublicKeyInfoBase64: this.editForm.get(['subjectPublicKeyInfoBase64']).value
-    };
+  public retrieveCSR(cSRId): void {
+    this.cSRService()
+      .find(cSRId)
+      .then(res => {
+        this.cSR = res;
+      });
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<ICSR>>) {
-    result.subscribe(() => this.onSaveSuccess(), () => this.onSaveError());
+  public previousState(): void {
+    this.$router.go(-1);
   }
 
-  protected onSaveSuccess() {
-    this.isSaving = false;
-    this.previousState();
-  }
-
-  protected onSaveError() {
-    this.isSaving = false;
-  }
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
-  }
-
-  trackCertificateById(index: number, item: ICertificate) {
-    return item.id;
+  public initRelationships(): void {
+    this.rDNService()
+      .retrieve()
+      .then(res => {
+        this.rDNS = res.data;
+      });
+    this.requestAttributeService()
+      .retrieve()
+      .then(res => {
+        this.requestAttributes = res.data;
+      });
+    this.csrAttributeService()
+      .retrieve()
+      .then(res => {
+        this.csrAttributes = res.data;
+      });
+    this.pipelineService()
+      .retrieve()
+      .then(res => {
+        this.pipelines = res.data;
+      });
+    this.certificateService()
+      .retrieve()
+      .then(res => {
+        this.certificates = res.data;
+      });
   }
 }

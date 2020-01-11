@@ -1,10 +1,10 @@
 {
-  "ca3SJhApp": {
+  "ca3SApp": {
     "CAConnectorType": {
       "null": "",
-      "Internal": "Internal",
-      "Cmp": "Cmp",
-      "Adcs": "Adcs"
+      "INTERNAL": "INTERNAL",
+      "CMP": "CMP",
+      "ADCS": "ADCS"
     }
   }
 }

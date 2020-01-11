@@ -1,21 +1,9 @@
 package de.trustable.ca3s.core.config.timezone;
 
-import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.Month;
-import java.time.OffsetDateTime;
-import java.time.OffsetTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.repository.timezone.DateTimeWrapper;
+import de.trustable.ca3s.core.repository.timezone.DateTimeWrapperRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,15 +11,16 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.transaction.annotation.Transactional;
 
-import de.trustable.ca3s.core.Ca3SJhApp;
-import de.trustable.ca3s.core.repository.timezone.DateTimeWrapper;
-import de.trustable.ca3s.core.repository.timezone.DateTimeWrapperRepository;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+
+import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests for the UTC Hibernate configuration.
  */
-@Disabled
-@SpringBootTest(classes = Ca3SJhApp.class)
+@SpringBootTest(classes = Ca3SApp.class)
 public class HibernateTimeZoneIT {
 
     @Autowired

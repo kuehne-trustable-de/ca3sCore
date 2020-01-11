@@ -1,102 +1,84 @@
-import { Component, OnInit } from '@angular/core';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { JhiAlertService } from 'ng-jhipster';
-import { IRequestAttributeValue, RequestAttributeValue } from 'app/shared/model/request-attribute-value.model';
-import { RequestAttributeValueService } from './request-attribute-value.service';
-import { IRequestAttribute } from 'app/shared/model/request-attribute.model';
-import { RequestAttributeService } from 'app/entities/request-attribute/request-attribute.service';
+import { Component, Vue, Inject } from 'vue-property-decorator';
+
+import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
+
+import RequestAttributeService from '../request-attribute/request-attribute.service';
+import { IRequestAttribute } from '@/shared/model/request-attribute.model';
+
+import AlertService from '@/shared/alert/alert.service';
+import { IRequestAttributeValue, RequestAttributeValue } from '@/shared/model/request-attribute-value.model';
+import RequestAttributeValueService from './request-attribute-value.service';
+
+const validations: any = {
+  requestAttributeValue: {
+    attributeValue: {
+      required
+    }
+  }
+};
 
 @Component({
-  selector: 'jhi-request-attribute-value-update',
-  templateUrl: './request-attribute-value-update.component.html'
+  validations
 })
-export class RequestAttributeValueUpdateComponent implements OnInit {
-  isSaving: boolean;
+export default class RequestAttributeValueUpdate extends Vue {
+  @Inject('alertService') private alertService: () => AlertService;
+  @Inject('requestAttributeValueService') private requestAttributeValueService: () => RequestAttributeValueService;
+  public requestAttributeValue: IRequestAttributeValue = new RequestAttributeValue();
 
-  requestattributes: IRequestAttribute[];
+  @Inject('requestAttributeService') private requestAttributeService: () => RequestAttributeService;
 
-  editForm = this.fb.group({
-    id: [],
-    attributeValue: [null, [Validators.required]],
-    reqAttr: []
-  });
+  public requestAttributes: IRequestAttribute[] = [];
+  public isSaving = false;
 
-  constructor(
-    protected jhiAlertService: JhiAlertService,
-    protected requestAttributeValueService: RequestAttributeValueService,
-    protected requestAttributeService: RequestAttributeService,
-    protected activatedRoute: ActivatedRoute,
-    private fb: FormBuilder
-  ) {}
-
-  ngOnInit() {
-    this.isSaving = false;
-    this.activatedRoute.data.subscribe(({ requestAttributeValue }) => {
-      this.updateForm(requestAttributeValue);
-    });
-    this.requestAttributeService
-      .query()
-      .pipe(
-        filter((mayBeOk: HttpResponse<IRequestAttribute[]>) => mayBeOk.ok),
-        map((response: HttpResponse<IRequestAttribute[]>) => response.body)
-      )
-      .subscribe((res: IRequestAttribute[]) => (this.requestattributes = res), (res: HttpErrorResponse) => this.onError(res.message));
-  }
-
-  updateForm(requestAttributeValue: IRequestAttributeValue) {
-    this.editForm.patchValue({
-      id: requestAttributeValue.id,
-      attributeValue: requestAttributeValue.attributeValue,
-      reqAttr: requestAttributeValue.reqAttr
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      if (to.params.requestAttributeValueId) {
+        vm.retrieveRequestAttributeValue(to.params.requestAttributeValueId);
+      }
+      vm.initRelationships();
     });
   }
 
-  previousState() {
-    window.history.back();
-  }
-
-  save() {
+  public save(): void {
     this.isSaving = true;
-    const requestAttributeValue = this.createFromForm();
-    if (requestAttributeValue.id !== undefined) {
-      this.subscribeToSaveResponse(this.requestAttributeValueService.update(requestAttributeValue));
+    if (this.requestAttributeValue.id) {
+      this.requestAttributeValueService()
+        .update(this.requestAttributeValue)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.requestAttributeValue.updated', { param: param.id });
+          this.alertService().showAlert(message, 'info');
+        });
     } else {
-      this.subscribeToSaveResponse(this.requestAttributeValueService.create(requestAttributeValue));
+      this.requestAttributeValueService()
+        .create(this.requestAttributeValue)
+        .then(param => {
+          this.isSaving = false;
+          this.$router.go(-1);
+          const message = this.$t('ca3SApp.requestAttributeValue.created', { param: param.id });
+          this.alertService().showAlert(message, 'success');
+        });
     }
   }
 
-  private createFromForm(): IRequestAttributeValue {
-    return {
-      ...new RequestAttributeValue(),
-      id: this.editForm.get(['id']).value,
-      attributeValue: this.editForm.get(['attributeValue']).value,
-      reqAttr: this.editForm.get(['reqAttr']).value
-    };
+  public retrieveRequestAttributeValue(requestAttributeValueId): void {
+    this.requestAttributeValueService()
+      .find(requestAttributeValueId)
+      .then(res => {
+        this.requestAttributeValue = res;
+      });
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IRequestAttributeValue>>) {
-    result.subscribe(() => this.onSaveSuccess(), () => this.onSaveError());
+  public previousState(): void {
+    this.$router.go(-1);
   }
 
-  protected onSaveSuccess() {
-    this.isSaving = false;
-    this.previousState();
-  }
-
-  protected onSaveError() {
-    this.isSaving = false;
-  }
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
-  }
-
-  trackRequestAttributeById(index: number, item: IRequestAttribute) {
-    return item.id;
+  public initRelationships(): void {
+    this.requestAttributeService()
+      .retrieve()
+      .then(res => {
+        this.requestAttributes = res.data;
+      });
   }
 }

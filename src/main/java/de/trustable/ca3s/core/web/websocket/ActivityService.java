@@ -2,6 +2,8 @@ package de.trustable.ca3s.core.web.websocket;
 
 import static de.trustable.ca3s.core.config.WebsocketConfiguration.IP_ADDRESS;
 
+import de.trustable.ca3s.core.web.websocket.dto.ActivityDTO;
+
 import java.security.Principal;
 import java.time.Instant;
 
@@ -13,8 +15,6 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
-
-import de.trustable.ca3s.core.web.websocket.dto.ActivityDTO;
 
 @Controller
 public class ActivityService implements ApplicationListener<SessionDisconnectEvent> {

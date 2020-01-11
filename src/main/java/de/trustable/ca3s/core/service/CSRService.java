@@ -1,9 +1,9 @@
 package de.trustable.ca3s.core.service;
 
+import de.trustable.ca3s.core.domain.CSR;
+
 import java.util.List;
 import java.util.Optional;
-
-import de.trustable.ca3s.core.domain.CSR;
 
 /**
  * Service Interface for managing {@link CSR}.

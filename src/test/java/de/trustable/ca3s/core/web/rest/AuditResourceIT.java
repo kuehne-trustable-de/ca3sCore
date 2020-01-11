@@ -1,7 +1,12 @@
 package de.trustable.ca3s.core.web.rest;
 
+import de.trustable.ca3s.core.Ca3SApp;
 import io.github.jhipster.config.JHipsterProperties;
+import de.trustable.ca3s.core.config.audit.AuditEventConverter;
+import de.trustable.ca3s.core.domain.PersistentAuditEvent;
+import de.trustable.ca3s.core.repository.PersistenceAuditEventRepository;
 
+import de.trustable.ca3s.core.service.AuditEventService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -16,13 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import de.trustable.ca3s.core.Ca3SJhApp;
-import de.trustable.ca3s.core.config.audit.AuditEventConverter;
-import de.trustable.ca3s.core.domain.PersistentAuditEvent;
-import de.trustable.ca3s.core.repository.PersistenceAuditEventRepository;
-import de.trustable.ca3s.core.service.AuditEventService;
-import de.trustable.ca3s.core.web.rest.AuditResource;
-
 import java.time.Instant;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -33,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Integration tests for the {@link AuditResource} REST controller.
  */
-@SpringBootTest(classes = Ca3SJhApp.class)
+@SpringBootTest(classes = Ca3SApp.class)
 @Transactional
 public class AuditResourceIT {
 

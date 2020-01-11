@@ -1,28 +1,28 @@
-import { TestBed, getTestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { take, map } from 'rxjs/operators';
-import * as moment from 'moment';
-import { DATE_FORMAT } from 'app/shared/constants/input.constants';
-import { CertificateService } from 'app/entities/certificate/certificate.service';
-import { ICertificate, Certificate } from 'app/shared/model/certificate.model';
+/* tslint:disable max-line-length */
+import axios from 'axios';
+import { format } from 'date-fns';
+
+import * as config from '@/shared/config/config';
+import { DATE_FORMAT } from '@/shared/date/filters';
+import CertificateService from '@/entities/certificate/certificate.service';
+import { Certificate } from '@/shared/model/certificate.model';
+
+const mockedAxios: any = axios;
+jest.mock('axios', () => ({
+  get: jest.fn(),
+  post: jest.fn(),
+  put: jest.fn(),
+  delete: jest.fn()
+}));
 
 describe('Service Tests', () => {
   describe('Certificate Service', () => {
-    let injector: TestBed;
     let service: CertificateService;
-    let httpMock: HttpTestingController;
-    let elemDefault: ICertificate;
-    let expectedResult;
-    let currentDate: moment.Moment;
+    let elemDefault;
+    let currentDate: Date;
     beforeEach(() => {
-      TestBed.configureTestingModule({
-        imports: [HttpClientTestingModule]
-      });
-      expectedResult = {};
-      injector = getTestBed();
-      service = injector.get(CertificateService);
-      httpMock = injector.get(HttpTestingController);
-      currentDate = moment();
+      service = new CertificateService();
+      currentDate = new Date();
 
       elemDefault = new Certificate(
         0,
@@ -48,34 +48,30 @@ describe('Service Tests', () => {
     });
 
     describe('Service methods', () => {
-      it('should find an element', () => {
+      it('should find an element', async () => {
         const returnedFromService = Object.assign(
           {
-            validFrom: currentDate.format(DATE_FORMAT),
-            validTo: currentDate.format(DATE_FORMAT),
-            contentAddedAt: currentDate.format(DATE_FORMAT),
-            revokedSince: currentDate.format(DATE_FORMAT)
+            validFrom: format(currentDate, DATE_FORMAT),
+            validTo: format(currentDate, DATE_FORMAT),
+            contentAddedAt: format(currentDate, DATE_FORMAT),
+            revokedSince: format(currentDate, DATE_FORMAT)
           },
           elemDefault
         );
-        service
-          .find(123)
-          .pipe(take(1))
-          .subscribe(resp => (expectedResult = resp));
+        mockedAxios.get.mockReturnValue(Promise.resolve({ data: returnedFromService }));
 
-        const req = httpMock.expectOne({ method: 'GET' });
-        req.flush(returnedFromService);
-        expect(expectedResult).toMatchObject({ body: elemDefault });
+        return service.find(123).then(res => {
+          expect(res).toMatchObject(elemDefault);
+        });
       });
-
-      it('should create a Certificate', () => {
+      it('should create a Certificate', async () => {
         const returnedFromService = Object.assign(
           {
             id: 0,
-            validFrom: currentDate.format(DATE_FORMAT),
-            validTo: currentDate.format(DATE_FORMAT),
-            contentAddedAt: currentDate.format(DATE_FORMAT),
-            revokedSince: currentDate.format(DATE_FORMAT)
+            validFrom: format(currentDate, DATE_FORMAT),
+            validTo: format(currentDate, DATE_FORMAT),
+            contentAddedAt: format(currentDate, DATE_FORMAT),
+            revokedSince: format(currentDate, DATE_FORMAT)
           },
           elemDefault
         );
@@ -88,16 +84,14 @@ describe('Service Tests', () => {
           },
           returnedFromService
         );
-        service
-          .create(new Certificate(null))
-          .pipe(take(1))
-          .subscribe(resp => (expectedResult = resp));
-        const req = httpMock.expectOne({ method: 'POST' });
-        req.flush(returnedFromService);
-        expect(expectedResult).toMatchObject({ body: expected });
+
+        mockedAxios.post.mockReturnValue(Promise.resolve({ data: returnedFromService }));
+        return service.create({}).then(res => {
+          expect(res).toMatchObject(expected);
+        });
       });
 
-      it('should update a Certificate', () => {
+      it('should update a Certificate', async () => {
         const returnedFromService = Object.assign(
           {
             tbsDigest: 'BBBBBB',
@@ -109,11 +103,11 @@ describe('Service Tests', () => {
             authorityKeyIdentifier: 'BBBBBB',
             fingerprint: 'BBBBBB',
             serial: 'BBBBBB',
-            validFrom: currentDate.format(DATE_FORMAT),
-            validTo: currentDate.format(DATE_FORMAT),
+            validFrom: format(currentDate, DATE_FORMAT),
+            validTo: format(currentDate, DATE_FORMAT),
             creationExecutionId: 'BBBBBB',
-            contentAddedAt: currentDate.format(DATE_FORMAT),
-            revokedSince: currentDate.format(DATE_FORMAT),
+            contentAddedAt: format(currentDate, DATE_FORMAT),
+            revokedSince: format(currentDate, DATE_FORMAT),
             revocationReason: 'BBBBBB',
             revoked: true,
             revocationExecutionId: 'BBBBBB',
@@ -131,16 +125,13 @@ describe('Service Tests', () => {
           },
           returnedFromService
         );
-        service
-          .update(expected)
-          .pipe(take(1))
-          .subscribe(resp => (expectedResult = resp));
-        const req = httpMock.expectOne({ method: 'PUT' });
-        req.flush(returnedFromService);
-        expect(expectedResult).toMatchObject({ body: expected });
-      });
+        mockedAxios.put.mockReturnValue(Promise.resolve({ data: returnedFromService }));
 
-      it('should return a list of Certificate', () => {
+        return service.update(expected).then(res => {
+          expect(res).toMatchObject(expected);
+        });
+      });
+      it('should return a list of Certificate', async () => {
         const returnedFromService = Object.assign(
           {
             tbsDigest: 'BBBBBB',
@@ -152,11 +143,11 @@ describe('Service Tests', () => {
             authorityKeyIdentifier: 'BBBBBB',
             fingerprint: 'BBBBBB',
             serial: 'BBBBBB',
-            validFrom: currentDate.format(DATE_FORMAT),
-            validTo: currentDate.format(DATE_FORMAT),
+            validFrom: format(currentDate, DATE_FORMAT),
+            validTo: format(currentDate, DATE_FORMAT),
             creationExecutionId: 'BBBBBB',
-            contentAddedAt: currentDate.format(DATE_FORMAT),
-            revokedSince: currentDate.format(DATE_FORMAT),
+            contentAddedAt: format(currentDate, DATE_FORMAT),
+            revokedSince: format(currentDate, DATE_FORMAT),
             revocationReason: 'BBBBBB',
             revoked: true,
             revocationExecutionId: 'BBBBBB',
@@ -173,30 +164,17 @@ describe('Service Tests', () => {
           },
           returnedFromService
         );
-        service
-          .query(expected)
-          .pipe(
-            take(1),
-            map(resp => resp.body)
-          )
-          .subscribe(body => (expectedResult = body));
-        const req = httpMock.expectOne({ method: 'GET' });
-        req.flush([returnedFromService]);
-        httpMock.verify();
-        expect(expectedResult).toContainEqual(expected);
+        mockedAxios.get.mockReturnValue(Promise.resolve([returnedFromService]));
+        return service.retrieve({ sort: {}, page: 0, size: 10 }).then(res => {
+          expect(res).toContainEqual(expected);
+        });
       });
-
-      it('should delete a Certificate', () => {
-        service.delete(123).subscribe(resp => (expectedResult = resp.ok));
-
-        const req = httpMock.expectOne({ method: 'DELETE' });
-        req.flush({ status: 200 });
-        expect(expectedResult);
+      it('should delete a Certificate', async () => {
+        mockedAxios.delete.mockReturnValue(Promise.resolve({ ok: true }));
+        return service.delete(123).then(res => {
+          expect(res.ok).toBeTruthy();
+        });
       });
-    });
-
-    afterEach(() => {
-      httpMock.verify();
     });
   });
 });

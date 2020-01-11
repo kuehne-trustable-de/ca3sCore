@@ -1,0 +1,24 @@
+{
+  "ca3SApp": {
+    "certificateAttribute": {
+      "home": {
+        "title": "Certificate Attribute",
+        "createLabel": "Dodaj Certificate Attribute",
+        "createOrEditLabel": "Dodaj lub edytuj: Certificate Attribute",
+        "notFound": "No Certificate Attributes found"
+      },
+      "created": "Utworzono nowy obiekt typu Certificate Attribute z identyfikatorem {{ param }}",
+      "updated": "Uaktualniono obiekt typu Certificate Attribute z identyfikatorem {{ param }}",
+      "deleted": "Usunięto obiekt typu Certificate Attribute z identyfikatorem {{ param }}",
+      "delete": {
+        "question": "Czy na pewno chcesz usunąć Certificate Attribute {{ id }}?"
+      },
+      "detail": {
+        "title": "Certificate Attribute"
+      },
+      "name": "Name",
+      "value": "Value",
+      "certificate": "Certificate"
+    }
+  }
+}

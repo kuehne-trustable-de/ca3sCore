@@ -3,6 +3,7 @@ package de.trustable.ca3s.core.config;
 import io.github.jhipster.config.JHipsterConstants;
 import io.github.jhipster.config.JHipsterProperties;
 import io.github.jhipster.web.filter.CachingHttpHeadersFilter;
+import org.h2.server.web.WebServlet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFactory;
@@ -12,8 +13,6 @@ import org.springframework.mock.web.MockServletContext;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import de.trustable.ca3s.core.config.WebConfigurer;
 
 import javax.servlet.*;
 import java.io.File;
@@ -61,6 +60,7 @@ public class WebConfigurerTest {
         webConfigurer.onStartup(servletContext);
 
         verify(servletContext).addFilter(eq("cachingHttpHeadersFilter"), any(CachingHttpHeadersFilter.class));
+        verify(servletContext, never()).addServlet(eq("H2Console"), any(WebServlet.class));
     }
 
     @Test
@@ -69,6 +69,7 @@ public class WebConfigurerTest {
         webConfigurer.onStartup(servletContext);
 
         verify(servletContext, never()).addFilter(eq("cachingHttpHeadersFilter"), any(CachingHttpHeadersFilter.class));
+        verify(servletContext).addServlet(eq("H2Console"), any(WebServlet.class));
     }
 
     @Test

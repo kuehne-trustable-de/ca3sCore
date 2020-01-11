@@ -1,5 +1,11 @@
 package de.trustable.ca3s.core.web.rest;
 
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.domain.RDNAttribute;
+import de.trustable.ca3s.core.repository.RDNAttributeRepository;
+import de.trustable.ca3s.core.service.RDNAttributeService;
+import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -13,13 +19,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
-import de.trustable.ca3s.core.Ca3SJhApp;
-import de.trustable.ca3s.core.domain.RDNAttribute;
-import de.trustable.ca3s.core.repository.RDNAttributeRepository;
-import de.trustable.ca3s.core.service.RDNAttributeService;
-import de.trustable.ca3s.core.web.rest.RDNAttributeResource;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
-
 import javax.persistence.EntityManager;
 import java.util.List;
 
@@ -32,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Integration tests for the {@link RDNAttributeResource} REST controller.
  */
-@SpringBootTest(classes = Ca3SJhApp.class)
+@SpringBootTest(classes = Ca3SApp.class)
 public class RDNAttributeResourceIT {
 
     private static final String DEFAULT_ATTRIBUTE_TYPE = "AAAAAAAAAA";
@@ -194,8 +193,8 @@ public class RDNAttributeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(rDNAttribute.getId().intValue())))
-            .andExpect(jsonPath("$.[*].attributeType").value(hasItem(DEFAULT_ATTRIBUTE_TYPE.toString())))
-            .andExpect(jsonPath("$.[*].attributeValue").value(hasItem(DEFAULT_ATTRIBUTE_VALUE.toString())));
+            .andExpect(jsonPath("$.[*].attributeType").value(hasItem(DEFAULT_ATTRIBUTE_TYPE)))
+            .andExpect(jsonPath("$.[*].attributeValue").value(hasItem(DEFAULT_ATTRIBUTE_VALUE)));
     }
     
     @Test
@@ -209,8 +208,8 @@ public class RDNAttributeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(rDNAttribute.getId().intValue()))
-            .andExpect(jsonPath("$.attributeType").value(DEFAULT_ATTRIBUTE_TYPE.toString()))
-            .andExpect(jsonPath("$.attributeValue").value(DEFAULT_ATTRIBUTE_VALUE.toString()));
+            .andExpect(jsonPath("$.attributeType").value(DEFAULT_ATTRIBUTE_TYPE))
+            .andExpect(jsonPath("$.attributeValue").value(DEFAULT_ATTRIBUTE_VALUE));
     }
 
     @Test
@@ -284,20 +283,5 @@ public class RDNAttributeResourceIT {
         // Validate the database contains one less item
         List<RDNAttribute> rDNAttributeList = rDNAttributeRepository.findAll();
         assertThat(rDNAttributeList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(RDNAttribute.class);
-        RDNAttribute rDNAttribute1 = new RDNAttribute();
-        rDNAttribute1.setId(1L);
-        RDNAttribute rDNAttribute2 = new RDNAttribute();
-        rDNAttribute2.setId(rDNAttribute1.getId());
-        assertThat(rDNAttribute1).isEqualTo(rDNAttribute2);
-        rDNAttribute2.setId(2L);
-        assertThat(rDNAttribute1).isNotEqualTo(rDNAttribute2);
-        rDNAttribute1.setId(null);
-        assertThat(rDNAttribute1).isNotEqualTo(rDNAttribute2);
     }
 }

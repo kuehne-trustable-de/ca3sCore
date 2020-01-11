@@ -1,66 +1,63 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Subscription } from 'rxjs';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { filter, map } from 'rxjs/operators';
-import { JhiEventManager, JhiAlertService } from 'ng-jhipster';
+import { mixins } from 'vue-class-component';
 
-import { IAcmeChallenge } from 'app/shared/model/acme-challenge.model';
-import { AccountService } from 'app/core/auth/account.service';
-import { AcmeChallengeService } from './acme-challenge.service';
+import { Component, Inject } from 'vue-property-decorator';
+import Vue2Filters from 'vue2-filters';
+import { IAcmeChallenge } from '@/shared/model/acme-challenge.model';
+import AlertMixin from '@/shared/alert/alert.mixin';
 
-@Component({
-  selector: 'jhi-acme-challenge',
-  templateUrl: './acme-challenge.component.html'
-})
-export class AcmeChallengeComponent implements OnInit, OnDestroy {
-  acmeChallenges: IAcmeChallenge[];
-  currentAccount: any;
-  eventSubscriber: Subscription;
+import AcmeChallengeService from './acme-challenge.service';
 
-  constructor(
-    protected acmeChallengeService: AcmeChallengeService,
-    protected jhiAlertService: JhiAlertService,
-    protected eventManager: JhiEventManager,
-    protected accountService: AccountService
-  ) {}
+@Component
+export default class AcmeChallenge extends mixins(Vue2Filters.mixin, AlertMixin) {
+  @Inject('acmeChallengeService') private acmeChallengeService: () => AcmeChallengeService;
+  private removeId: number = null;
+  public acmeChallenges: IAcmeChallenge[] = [];
 
-  loadAll() {
-    this.acmeChallengeService
-      .query()
-      .pipe(
-        filter((res: HttpResponse<IAcmeChallenge[]>) => res.ok),
-        map((res: HttpResponse<IAcmeChallenge[]>) => res.body)
-      )
-      .subscribe(
-        (res: IAcmeChallenge[]) => {
-          this.acmeChallenges = res;
+  public isFetching = false;
+
+  public mounted(): void {
+    this.retrieveAllAcmeChallenges();
+  }
+
+  public clear(): void {
+    this.retrieveAllAcmeChallenges();
+  }
+
+  public retrieveAllAcmeChallenges(): void {
+    this.isFetching = true;
+
+    this.acmeChallengeService()
+      .retrieve()
+      .then(
+        res => {
+          this.acmeChallenges = res.data;
+          this.isFetching = false;
         },
-        (res: HttpErrorResponse) => this.onError(res.message)
+        err => {
+          this.isFetching = false;
+        }
       );
   }
 
-  ngOnInit() {
-    this.loadAll();
-    this.accountService.identity().then(account => {
-      this.currentAccount = account;
-    });
-    this.registerChangeInAcmeChallenges();
+  public prepareRemove(instance: IAcmeChallenge): void {
+    this.removeId = instance.id;
   }
 
-  ngOnDestroy() {
-    this.eventManager.destroy(this.eventSubscriber);
+  public removeAcmeChallenge(): void {
+    this.acmeChallengeService()
+      .delete(this.removeId)
+      .then(() => {
+        const message = this.$t('ca3SApp.acmeChallenge.deleted', { param: this.removeId });
+        this.alertService().showAlert(message, 'danger');
+        this.getAlertFromStore();
+
+        this.removeId = null;
+        this.retrieveAllAcmeChallenges();
+        this.closeDialog();
+      });
   }
 
-  trackId(index: number, item: IAcmeChallenge) {
-    return item.id;
-  }
-
-  registerChangeInAcmeChallenges() {
-    this.eventSubscriber = this.eventManager.subscribe('acmeChallengeListModification', response => this.loadAll());
-  }
-
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
+  public closeDialog(): void {
+    (<any>this.$refs.removeEntity).hide();
   }
 }

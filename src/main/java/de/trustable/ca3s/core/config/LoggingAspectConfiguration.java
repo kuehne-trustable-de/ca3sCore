@@ -1,11 +1,11 @@
 package de.trustable.ca3s.core.config;
 
+import de.trustable.ca3s.core.aop.logging.LoggingAspect;
+
 import io.github.jhipster.config.JHipsterConstants;
 
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
-
-import de.trustable.ca3s.core.aop.logging.LoggingAspect;
 
 @Configuration
 @EnableAspectJAutoProxy

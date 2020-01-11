@@ -1,17 +1,31 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, Inject, Vue } from 'vue-property-decorator';
 
-import { JhiTrackerService } from 'app/core/tracker/tracker.service';
+import TrackerService from './tracker.service';
 
-@Component({
-  selector: 'jhi-tracker',
-  templateUrl: './tracker.component.html'
-})
-export class JhiTrackerComponent implements OnInit, OnDestroy {
-  activities: any[] = [];
+@Component
+export default class JhiTrackerComponent extends Vue {
+  public activities: any[] = [];
 
-  constructor(private trackerService: JhiTrackerService) {}
+  @Inject('trackerService') private trackerService: () => TrackerService;
 
-  showActivity(activity: any) {
+  public mounted(): void {
+    this.init();
+  }
+
+  public destroyed(): void {
+    this.trackerService().unsubscribe();
+  }
+
+  public init(): void {
+    this.trackerService().subscribe();
+    this.trackerService()
+      .receive()
+      .subscribe(activity => {
+        this.showActivity(activity);
+      });
+  }
+
+  public showActivity(activity: any): void {
     let existingActivity = false;
     for (let index = 0; index < this.activities.length; index++) {
       if (this.activities[index].sessionId === activity.sessionId) {
@@ -19,23 +33,13 @@ export class JhiTrackerComponent implements OnInit, OnDestroy {
         if (activity.page === 'logout') {
           this.activities.splice(index, 1);
         } else {
-          this.activities[index] = activity;
+          this.activities.splice(index, 1);
+          this.activities.push(activity);
         }
       }
     }
     if (!existingActivity && activity.page !== 'logout') {
       this.activities.push(activity);
     }
-  }
-
-  ngOnInit() {
-    this.trackerService.subscribe();
-    this.trackerService.receive().subscribe(activity => {
-      this.showActivity(activity);
-    });
-  }
-
-  ngOnDestroy() {
-    this.trackerService.unsubscribe();
   }
 }

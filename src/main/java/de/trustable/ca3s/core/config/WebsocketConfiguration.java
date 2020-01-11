@@ -1,5 +1,7 @@
 package de.trustable.ca3s.core.config;
 
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
+
 import java.security.Principal;
 import java.util.*;
 
@@ -14,7 +16,6 @@ import org.springframework.web.socket.config.annotation.*;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
 
-import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import io.github.jhipster.config.JHipsterProperties;
 
 @Configuration

@@ -51,13 +51,14 @@
             "otherEntityField": "id"
         }
     ],
-    "changelogDate": "20191030195207",
+    "changelogDate": "20200110170126",
     "entityTableName": "acme_challenge",
     "dto": "no",
     "pagination": "no",
     "service": "serviceImpl",
     "jpaMetamodelFiltering": false,
     "fluentMethods": true,
+    "readOnly": false,
     "clientRootFolder": "",
     "applications": "*"
 }

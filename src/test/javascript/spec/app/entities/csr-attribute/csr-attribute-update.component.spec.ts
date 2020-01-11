@@ -1,61 +1,79 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { HttpResponse } from '@angular/common/http';
-import { FormBuilder } from '@angular/forms';
-import { of } from 'rxjs';
+/* tslint:disable max-line-length */
+import { shallowMount, createLocalVue, Wrapper } from '@vue/test-utils';
+import sinon, { SinonStubbedInstance } from 'sinon';
+import Router from 'vue-router';
 
-import { Ca3SJhTestModule } from '../../../test.module';
-import { CsrAttributeUpdateComponent } from 'app/entities/csr-attribute/csr-attribute-update.component';
-import { CsrAttributeService } from 'app/entities/csr-attribute/csr-attribute.service';
-import { CsrAttribute } from 'app/shared/model/csr-attribute.model';
+import AlertService from '@/shared/alert/alert.service';
+import * as config from '@/shared/config/config';
+import CsrAttributeUpdateComponent from '@/entities/csr-attribute/csr-attribute-update.vue';
+import CsrAttributeClass from '@/entities/csr-attribute/csr-attribute-update.component';
+import CsrAttributeService from '@/entities/csr-attribute/csr-attribute.service';
+
+import CSRService from '@/entities/csr/csr.service';
+
+const localVue = createLocalVue();
+
+config.initVueApp(localVue);
+const i18n = config.initI18N(localVue);
+const store = config.initVueXStore(localVue);
+const router = new Router();
+localVue.use(Router);
+localVue.component('font-awesome-icon', {});
 
 describe('Component Tests', () => {
   describe('CsrAttribute Management Update Component', () => {
-    let comp: CsrAttributeUpdateComponent;
-    let fixture: ComponentFixture<CsrAttributeUpdateComponent>;
-    let service: CsrAttributeService;
+    let wrapper: Wrapper<CsrAttributeClass>;
+    let comp: CsrAttributeClass;
+    let csrAttributeServiceStub: SinonStubbedInstance<CsrAttributeService>;
 
     beforeEach(() => {
-      TestBed.configureTestingModule({
-        imports: [Ca3SJhTestModule],
-        declarations: [CsrAttributeUpdateComponent],
-        providers: [FormBuilder]
-      })
-        .overrideTemplate(CsrAttributeUpdateComponent, '')
-        .compileComponents();
+      csrAttributeServiceStub = sinon.createStubInstance<CsrAttributeService>(CsrAttributeService);
 
-      fixture = TestBed.createComponent(CsrAttributeUpdateComponent);
-      comp = fixture.componentInstance;
-      service = fixture.debugElement.injector.get(CsrAttributeService);
+      wrapper = shallowMount<CsrAttributeClass>(CsrAttributeUpdateComponent, {
+        store,
+        i18n,
+        localVue,
+        router,
+        provide: {
+          alertService: () => new AlertService(store),
+          csrAttributeService: () => csrAttributeServiceStub,
+
+          cSRService: () => new CSRService()
+        }
+      });
+      comp = wrapper.vm;
     });
 
     describe('save', () => {
-      it('Should call update service on save for existing entity', fakeAsync(() => {
+      it('Should call update service on save for existing entity', async () => {
         // GIVEN
-        const entity = new CsrAttribute(123);
-        spyOn(service, 'update').and.returnValue(of(new HttpResponse({ body: entity })));
-        comp.updateForm(entity);
+        const entity = { id: 123 };
+        comp.csrAttribute = entity;
+        csrAttributeServiceStub.update.resolves(entity);
+
         // WHEN
         comp.save();
-        tick(); // simulate async
+        await comp.$nextTick();
 
         // THEN
-        expect(service.update).toHaveBeenCalledWith(entity);
+        expect(csrAttributeServiceStub.update.calledWith(entity)).toBeTruthy();
         expect(comp.isSaving).toEqual(false);
-      }));
+      });
 
-      it('Should call create service on save for new entity', fakeAsync(() => {
+      it('Should call create service on save for new entity', async () => {
         // GIVEN
-        const entity = new CsrAttribute();
-        spyOn(service, 'create').and.returnValue(of(new HttpResponse({ body: entity })));
-        comp.updateForm(entity);
+        const entity = {};
+        comp.csrAttribute = entity;
+        csrAttributeServiceStub.create.resolves(entity);
+
         // WHEN
         comp.save();
-        tick(); // simulate async
+        await comp.$nextTick();
 
         // THEN
-        expect(service.create).toHaveBeenCalledWith(entity);
+        expect(csrAttributeServiceStub.create.calledWith(entity)).toBeTruthy();
         expect(comp.isSaving).toEqual(false);
-      }));
+      });
     });
   });
 });

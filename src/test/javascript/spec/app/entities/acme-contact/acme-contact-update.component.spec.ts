@@ -1,61 +1,79 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { HttpResponse } from '@angular/common/http';
-import { FormBuilder } from '@angular/forms';
-import { of } from 'rxjs';
+/* tslint:disable max-line-length */
+import { shallowMount, createLocalVue, Wrapper } from '@vue/test-utils';
+import sinon, { SinonStubbedInstance } from 'sinon';
+import Router from 'vue-router';
 
-import { Ca3SJhTestModule } from '../../../test.module';
-import { AcmeContactUpdateComponent } from 'app/entities/acme-contact/acme-contact-update.component';
-import { AcmeContactService } from 'app/entities/acme-contact/acme-contact.service';
-import { AcmeContact } from 'app/shared/model/acme-contact.model';
+import AlertService from '@/shared/alert/alert.service';
+import * as config from '@/shared/config/config';
+import AcmeContactUpdateComponent from '@/entities/acme-contact/acme-contact-update.vue';
+import AcmeContactClass from '@/entities/acme-contact/acme-contact-update.component';
+import AcmeContactService from '@/entities/acme-contact/acme-contact.service';
+
+import ACMEAccountService from '@/entities/acme-account/acme-account.service';
+
+const localVue = createLocalVue();
+
+config.initVueApp(localVue);
+const i18n = config.initI18N(localVue);
+const store = config.initVueXStore(localVue);
+const router = new Router();
+localVue.use(Router);
+localVue.component('font-awesome-icon', {});
 
 describe('Component Tests', () => {
   describe('AcmeContact Management Update Component', () => {
-    let comp: AcmeContactUpdateComponent;
-    let fixture: ComponentFixture<AcmeContactUpdateComponent>;
-    let service: AcmeContactService;
+    let wrapper: Wrapper<AcmeContactClass>;
+    let comp: AcmeContactClass;
+    let acmeContactServiceStub: SinonStubbedInstance<AcmeContactService>;
 
     beforeEach(() => {
-      TestBed.configureTestingModule({
-        imports: [Ca3SJhTestModule],
-        declarations: [AcmeContactUpdateComponent],
-        providers: [FormBuilder]
-      })
-        .overrideTemplate(AcmeContactUpdateComponent, '')
-        .compileComponents();
+      acmeContactServiceStub = sinon.createStubInstance<AcmeContactService>(AcmeContactService);
 
-      fixture = TestBed.createComponent(AcmeContactUpdateComponent);
-      comp = fixture.componentInstance;
-      service = fixture.debugElement.injector.get(AcmeContactService);
+      wrapper = shallowMount<AcmeContactClass>(AcmeContactUpdateComponent, {
+        store,
+        i18n,
+        localVue,
+        router,
+        provide: {
+          alertService: () => new AlertService(store),
+          acmeContactService: () => acmeContactServiceStub,
+
+          aCMEAccountService: () => new ACMEAccountService()
+        }
+      });
+      comp = wrapper.vm;
     });
 
     describe('save', () => {
-      it('Should call update service on save for existing entity', fakeAsync(() => {
+      it('Should call update service on save for existing entity', async () => {
         // GIVEN
-        const entity = new AcmeContact(123);
-        spyOn(service, 'update').and.returnValue(of(new HttpResponse({ body: entity })));
-        comp.updateForm(entity);
+        const entity = { id: 123 };
+        comp.acmeContact = entity;
+        acmeContactServiceStub.update.resolves(entity);
+
         // WHEN
         comp.save();
-        tick(); // simulate async
+        await comp.$nextTick();
 
         // THEN
-        expect(service.update).toHaveBeenCalledWith(entity);
+        expect(acmeContactServiceStub.update.calledWith(entity)).toBeTruthy();
         expect(comp.isSaving).toEqual(false);
-      }));
+      });
 
-      it('Should call create service on save for new entity', fakeAsync(() => {
+      it('Should call create service on save for new entity', async () => {
         // GIVEN
-        const entity = new AcmeContact();
-        spyOn(service, 'create').and.returnValue(of(new HttpResponse({ body: entity })));
-        comp.updateForm(entity);
+        const entity = {};
+        comp.acmeContact = entity;
+        acmeContactServiceStub.create.resolves(entity);
+
         // WHEN
         comp.save();
-        tick(); // simulate async
+        await comp.$nextTick();
 
         // THEN
-        expect(service.create).toHaveBeenCalledWith(entity);
+        expect(acmeContactServiceStub.create.calledWith(entity)).toBeTruthy();
         expect(comp.isSaving).toEqual(false);
-      }));
+      });
     });
   });
 });

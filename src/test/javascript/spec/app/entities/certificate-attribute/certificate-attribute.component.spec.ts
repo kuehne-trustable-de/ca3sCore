@@ -1,50 +1,83 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
+/* tslint:disable max-line-length */
+import { shallowMount, createLocalVue, Wrapper } from '@vue/test-utils';
+import sinon, { SinonStubbedInstance } from 'sinon';
 
-import { Ca3SJhTestModule } from '../../../test.module';
-import { CertificateAttributeComponent } from 'app/entities/certificate-attribute/certificate-attribute.component';
-import { CertificateAttributeService } from 'app/entities/certificate-attribute/certificate-attribute.service';
-import { CertificateAttribute } from 'app/shared/model/certificate-attribute.model';
+import AlertService from '@/shared/alert/alert.service';
+import * as config from '@/shared/config/config';
+import CertificateAttributeComponent from '@/entities/certificate-attribute/certificate-attribute.vue';
+import CertificateAttributeClass from '@/entities/certificate-attribute/certificate-attribute.component';
+import CertificateAttributeService from '@/entities/certificate-attribute/certificate-attribute.service';
+
+const localVue = createLocalVue();
+
+config.initVueApp(localVue);
+const i18n = config.initI18N(localVue);
+const store = config.initVueXStore(localVue);
+localVue.component('font-awesome-icon', {});
+localVue.component('b-alert', {});
+localVue.component('b-badge', {});
+localVue.directive('b-modal', {});
+localVue.component('b-button', {});
+localVue.component('router-link', {});
+
+const bModalStub = {
+  render: () => {},
+  methods: {
+    hide: () => {}
+  }
+};
 
 describe('Component Tests', () => {
   describe('CertificateAttribute Management Component', () => {
-    let comp: CertificateAttributeComponent;
-    let fixture: ComponentFixture<CertificateAttributeComponent>;
-    let service: CertificateAttributeService;
+    let wrapper: Wrapper<CertificateAttributeClass>;
+    let comp: CertificateAttributeClass;
+    let certificateAttributeServiceStub: SinonStubbedInstance<CertificateAttributeService>;
 
     beforeEach(() => {
-      TestBed.configureTestingModule({
-        imports: [Ca3SJhTestModule],
-        declarations: [CertificateAttributeComponent],
-        providers: []
-      })
-        .overrideTemplate(CertificateAttributeComponent, '')
-        .compileComponents();
+      certificateAttributeServiceStub = sinon.createStubInstance<CertificateAttributeService>(CertificateAttributeService);
+      certificateAttributeServiceStub.retrieve.resolves({ headers: {} });
 
-      fixture = TestBed.createComponent(CertificateAttributeComponent);
-      comp = fixture.componentInstance;
-      service = fixture.debugElement.injector.get(CertificateAttributeService);
+      wrapper = shallowMount<CertificateAttributeClass>(CertificateAttributeComponent, {
+        store,
+        i18n,
+        localVue,
+        stubs: { bModal: bModalStub as any },
+        provide: {
+          alertService: () => new AlertService(store),
+          certificateAttributeService: () => certificateAttributeServiceStub
+        }
+      });
+      comp = wrapper.vm;
     });
 
-    it('Should call load all on init', () => {
+    it('should be a Vue instance', () => {
+      expect(wrapper.isVueInstance()).toBeTruthy();
+    });
+
+    it('Should call load all on init', async () => {
       // GIVEN
-      const headers = new HttpHeaders().append('link', 'link;link');
-      spyOn(service, 'query').and.returnValue(
-        of(
-          new HttpResponse({
-            body: [new CertificateAttribute(123)],
-            headers
-          })
-        )
-      );
+      certificateAttributeServiceStub.retrieve.resolves({ headers: {}, data: [{ id: 123 }] });
 
       // WHEN
-      comp.ngOnInit();
+      comp.retrieveAllCertificateAttributes();
+      await comp.$nextTick();
 
       // THEN
-      expect(service.query).toHaveBeenCalled();
+      expect(certificateAttributeServiceStub.retrieve.called).toBeTruthy();
       expect(comp.certificateAttributes[0]).toEqual(jasmine.objectContaining({ id: 123 }));
+    });
+    it('Should call delete service on confirmDelete', async () => {
+      // GIVEN
+      certificateAttributeServiceStub.delete.resolves({});
+
+      // WHEN
+      comp.prepareRemove({ id: 123 });
+      comp.removeCertificateAttribute();
+      await comp.$nextTick();
+
+      // THEN
+      expect(certificateAttributeServiceStub.delete.called).toBeTruthy();
+      expect(certificateAttributeServiceStub.retrieve.callCount).toEqual(2);
     });
   });
 });
