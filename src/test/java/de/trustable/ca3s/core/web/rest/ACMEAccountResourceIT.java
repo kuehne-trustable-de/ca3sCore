@@ -257,7 +257,7 @@ public class ACMEAccountResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(aCMEAccount.getId().intValue())))
             .andExpect(jsonPath("$.[*].accountId").value(hasItem(DEFAULT_ACCOUNT_ID.intValue())))
             .andExpect(jsonPath("$.[*].realm").value(hasItem(DEFAULT_REALM)))
-            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())))
+            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.getValue())))
             .andExpect(jsonPath("$.[*].termsOfServiceAgreed").value(hasItem(DEFAULT_TERMS_OF_SERVICE_AGREED.booleanValue())))
             .andExpect(jsonPath("$.[*].publicKeyHash").value(hasItem(DEFAULT_PUBLIC_KEY_HASH)))
             .andExpect(jsonPath("$.[*].publicKey").value(hasItem(DEFAULT_PUBLIC_KEY.toString())));
@@ -276,7 +276,7 @@ public class ACMEAccountResourceIT {
             .andExpect(jsonPath("$.id").value(aCMEAccount.getId().intValue()))
             .andExpect(jsonPath("$.accountId").value(DEFAULT_ACCOUNT_ID.intValue()))
             .andExpect(jsonPath("$.realm").value(DEFAULT_REALM))
-            .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()))
+            .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.getValue()))
             .andExpect(jsonPath("$.termsOfServiceAgreed").value(DEFAULT_TERMS_OF_SERVICE_AGREED.booleanValue()))
             .andExpect(jsonPath("$.publicKeyHash").value(DEFAULT_PUBLIC_KEY_HASH))
             .andExpect(jsonPath("$.publicKey").value(DEFAULT_PUBLIC_KEY.toString()));
