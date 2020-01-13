@@ -42,13 +42,6 @@
                             </small>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-control-label" v-bind:value="$t('ca3SApp.pipeline.csr')" for="pipeline-csr">Csr</label>
-                        <select class="form-control" id="pipeline-csr" name="csr" v-model="pipeline.csr">
-                            <option v-bind:value="null"></option>
-                            <option v-bind:value="pipeline.csr && cSROption.id === pipeline.csr.id ? pipeline.csr : cSROption" v-for="cSROption in cSRS" :key="cSROption.id">{{cSROption.id}}</option>
-                        </select>
-                    </div>
                 </div>
                 <div>
                     <button type="button" id="cancel-save" class="btn btn-secondary" v-on:click="previousState()">

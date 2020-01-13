@@ -1,5 +1,8 @@
 package de.trustable.ca3s.core.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -16,6 +19,7 @@ import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
  */
 @Entity
 @Table(name = "csr")
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class CSR implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -61,17 +65,21 @@ public class CSR implements Serializable {
     @Column(name = "subject_public_key_info_base_64", nullable = false)
     private String subjectPublicKeyInfoBase64;
 
-    @OneToMany(mappedBy = "csr", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "csr")
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<RDN> rdns = new HashSet<>();
 
-    @OneToMany(mappedBy = "csr", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "csr")
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<RequestAttribute> ras = new HashSet<>();
 
-    @OneToMany(mappedBy = "csr", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "csr")
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<CsrAttribute> csrAttributes = new HashSet<>();
 
-    @OneToMany(mappedBy = "csr")
-    private Set<Pipeline> pipelines = new HashSet<>();
+    @ManyToOne
+    @JsonIgnoreProperties("cSRS")
+    private Pipeline pipeline;
 
     @OneToOne(mappedBy = "csr")
     @JsonIgnore
@@ -291,29 +299,17 @@ public class CSR implements Serializable {
         this.csrAttributes = csrAttributes;
     }
 
-    public Set<Pipeline> getPipelines() {
-        return pipelines;
+    public Pipeline getPipeline() {
+        return pipeline;
     }
 
-    public CSR pipelines(Set<Pipeline> pipelines) {
-        this.pipelines = pipelines;
+    public CSR pipeline(Pipeline pipeline) {
+        this.pipeline = pipeline;
         return this;
     }
 
-    public CSR addPipeline(Pipeline pipeline) {
-        this.pipelines.add(pipeline);
-        pipeline.setCsr(this);
-        return this;
-    }
-
-    public CSR removePipeline(Pipeline pipeline) {
-        this.pipelines.remove(pipeline);
-        pipeline.setCsr(null);
-        return this;
-    }
-
-    public void setPipelines(Set<Pipeline> pipelines) {
-        this.pipelines = pipelines;
+    public void setPipeline(Pipeline pipeline) {
+        this.pipeline = pipeline;
     }
 
     public Certificate getCertificate() {

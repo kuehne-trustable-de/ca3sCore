@@ -3,7 +3,10 @@
     "fields": [
         {
             "fieldName": "name",
-            "fieldType": "String"
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
         },
         {
             "fieldName": "caConnectorType",
@@ -29,6 +32,10 @@
         {
             "fieldName": "active",
             "fieldType": "Boolean"
+        },
+        {
+            "fieldName": "selector",
+            "fieldType": "String"
         }
     ],
     "relationships": [],

@@ -26,7 +26,7 @@ export interface ICSR {
   rdns?: IRDN[];
   ras?: IRequestAttribute[];
   csrAttributes?: ICsrAttribute[];
-  pipelines?: IPipeline[];
+  pipeline?: IPipeline;
   certificate?: ICertificate;
 }
 
@@ -46,7 +46,7 @@ export class CSR implements ICSR {
     public rdns?: IRDN[],
     public ras?: IRequestAttribute[],
     public csrAttributes?: ICsrAttribute[],
-    public pipelines?: IPipeline[],
+    public pipeline?: IPipeline,
     public certificate?: ICertificate
   ) {
     this.isCSRValid = this.isCSRValid || false;

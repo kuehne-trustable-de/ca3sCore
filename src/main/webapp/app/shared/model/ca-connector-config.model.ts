@@ -13,6 +13,7 @@ export interface ICAConnectorConfig {
   pollingOffset?: number;
   defaultCA?: boolean;
   active?: boolean;
+  selector?: string;
 }
 
 export class CAConnectorConfig implements ICAConnectorConfig {
@@ -24,7 +25,8 @@ export class CAConnectorConfig implements ICAConnectorConfig {
     public secret?: string,
     public pollingOffset?: number,
     public defaultCA?: boolean,
-    public active?: boolean
+    public active?: boolean,
+    public selector?: string
   ) {
     this.defaultCA = this.defaultCA || false;
     this.active = this.active || false;

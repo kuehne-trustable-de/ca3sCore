@@ -77,10 +77,11 @@
             "relationshipName": "csrAttributes"
         },
         {
-            "relationshipType": "one-to-many",
+            "relationshipType": "many-to-one",
             "otherEntityName": "pipeline",
-            "otherEntityRelationshipName": "csr",
-            "relationshipName": "pipeline"
+            "otherEntityRelationshipName": "cSR",
+            "relationshipName": "pipeline",
+            "otherEntityField": "id"
         },
         {
             "relationshipType": "one-to-one",

@@ -11,8 +11,6 @@ import PipelineService from '@/entities/pipeline/pipeline.service';
 
 import PipelineAttributeService from '@/entities/pipeline-attribute/pipeline-attribute.service';
 
-import CSRService from '@/entities/csr/csr.service';
-
 const localVue = createLocalVue();
 
 config.initVueApp(localVue);
@@ -40,9 +38,7 @@ describe('Component Tests', () => {
           alertService: () => new AlertService(store),
           pipelineService: () => pipelineServiceStub,
 
-          pipelineAttributeService: () => new PipelineAttributeService(),
-
-          cSRService: () => new CSRService()
+          pipelineAttributeService: () => new PipelineAttributeService()
         }
       });
       comp = wrapper.vm;

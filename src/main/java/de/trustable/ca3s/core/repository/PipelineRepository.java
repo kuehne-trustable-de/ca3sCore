@@ -1,4 +1,5 @@
 package de.trustable.ca3s.core.repository;
+
 import de.trustable.ca3s.core.domain.Pipeline;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;

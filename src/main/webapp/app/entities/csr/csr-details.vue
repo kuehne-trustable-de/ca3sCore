@@ -64,12 +64,21 @@
                     <dd>
                         <span>{{cSR.subjectPublicKeyInfoBase64}}</span>
                     </dd>
+                    <dt>
+                        <span v-text="$t('ca3SApp.cSR.pipeline')">Pipeline</span>
+                    </dt>
+                    <dd>
+                        <div v-if="cSR.pipeline">
+                            <router-link :to="{name: 'PipelineView', params: {pipelineId: cSR.pipeline.id}}">{{cSR.pipeline.id}}</router-link>
+                        </div>
+                    </dd>
                 </dl>
                 <button type="submit"
                         v-on:click.prevent="previousState()"
                         class="btn btn-info">
                     <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.back')"> Back</span>
                 </button>
+                
                 <router-link v-if="cSR.id" :to="{name: 'CSREdit', params: {cSRId: cSR.id}}" tag="button" class="btn btn-primary">
                     <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.edit')"> Edit</span>
                 </router-link>

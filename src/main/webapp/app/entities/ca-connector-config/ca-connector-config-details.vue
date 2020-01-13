@@ -46,12 +46,19 @@
                     <dd>
                         <span>{{cAConnectorConfig.active}}</span>
                     </dd>
+                    <dt>
+                        <span v-text="$t('ca3SApp.cAConnectorConfig.selector')">Selector</span>
+                    </dt>
+                    <dd>
+                        <span>{{cAConnectorConfig.selector}}</span>
+                    </dd>
                 </dl>
                 <button type="submit"
                         v-on:click.prevent="previousState()"
                         class="btn btn-info">
                     <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.back')"> Back</span>
                 </button>
+                
                 <router-link v-if="cAConnectorConfig.id" :to="{name: 'CAConnectorConfigEdit', params: {cAConnectorConfigId: cAConnectorConfig.id}}" tag="button" class="btn btn-primary">
                     <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.edit')"> Edit</span>
                 </router-link>

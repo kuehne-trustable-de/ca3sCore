@@ -44,13 +44,13 @@
     <include file="config/liquibase/changelog/20200110170116_added_entity_constraints_RDNAttribute.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170117_added_entity_constraints_RequestAttribute.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170118_added_entity_constraints_RequestAttributeValue.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20200110170119_added_entity_constraints_Pipeline.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170120_added_entity_constraints_PipelineAttribute.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170122_added_entity_constraints_AcmeContact.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170123_added_entity_constraints_AcmeOrder.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170124_added_entity_constraints_Identifier.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170125_added_entity_constraints_Authorization.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170126_added_entity_constraints_AcmeChallenge.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200110170113_added_entity_constraints_CSR.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     
     <include file="config/liquibase/changelog/setupCamundaTables.xml" relativeToChangelogFile="false"/>

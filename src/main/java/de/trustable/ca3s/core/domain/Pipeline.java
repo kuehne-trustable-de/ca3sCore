@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.domain;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -15,6 +16,7 @@ import de.trustable.ca3s.core.domain.enumeration.PipelineType;
  */
 @Entity
 @Table(name = "pipeline")
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Pipeline implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -37,11 +39,8 @@ public class Pipeline implements Serializable {
     private String urlPart;
 
     @OneToMany(mappedBy = "pipeline")
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<PipelineAttribute> pipelineAttributes = new HashSet<>();
-
-    @ManyToOne
-    @JsonIgnoreProperties("pipelines")
-    private CSR csr;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -114,19 +113,6 @@ public class Pipeline implements Serializable {
 
     public void setPipelineAttributes(Set<PipelineAttribute> pipelineAttributes) {
         this.pipelineAttributes = pipelineAttributes;
-    }
-
-    public CSR getCsr() {
-        return csr;
-    }
-
-    public Pipeline csr(CSR cSR) {
-        this.csr = cSR;
-        return this;
-    }
-
-    public void setCsr(CSR cSR) {
-        this.csr = cSR;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 

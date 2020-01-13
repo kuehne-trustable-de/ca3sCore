@@ -28,7 +28,6 @@
                     <th><span v-text="$t('ca3SApp.pipeline.name')">Name</span></th>
                     <th><span v-text="$t('ca3SApp.pipeline.type')">Type</span></th>
                     <th><span v-text="$t('ca3SApp.pipeline.urlPart')">Url Part</span></th>
-                    <th><span v-text="$t('ca3SApp.pipeline.csr')">Csr</span></th>
                     <th></th>
                 </tr>
                 </thead>
@@ -41,11 +40,6 @@
                     <td>{{pipeline.name}}</td>
                     <td v-text="$t('ca3SApp.PipelineType.' + pipeline.type)">{{pipeline.type}}</td>
                     <td>{{pipeline.urlPart}}</td>
-                    <td>
-                        <div v-if="pipeline.csr">
-                            <router-link :to="{name: 'CSRView', params: {cSRId: pipeline.csr.id}}">{{pipeline.csr.id}}</router-link>
-                        </div>
-                    </td>
                     <td class="text-right">
                         <div class="btn-group">
                             <router-link :to="{name: 'PipelineView', params: {pipelineId: pipeline.id}}" tag="button" class="btn btn-info btn-sm details">

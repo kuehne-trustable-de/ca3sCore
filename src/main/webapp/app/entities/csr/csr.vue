@@ -35,6 +35,7 @@
                     <th><span v-text="$t('ca3SApp.cSR.publicKeyAlgorithm')">Public Key Algorithm</span></th>
                     <th><span v-text="$t('ca3SApp.cSR.publicKeyHash')">Public Key Hash</span></th>
                     <th><span v-text="$t('ca3SApp.cSR.subjectPublicKeyInfoBase64')">Subject Public Key Info Base 64</span></th>
+                    <th><span v-text="$t('ca3SApp.cSR.pipeline')">Pipeline</span></th>
                     <th></th>
                 </tr>
                 </thead>
@@ -54,6 +55,11 @@
                     <td>{{cSR.publicKeyAlgorithm}}</td>
                     <td>{{cSR.publicKeyHash}}</td>
                     <td>{{cSR.subjectPublicKeyInfoBase64}}</td>
+                    <td>
+                        <div v-if="cSR.pipeline">
+                            <router-link :to="{name: 'PipelineView', params: {pipelineId: cSR.pipeline.id}}">{{cSR.pipeline.id}}</router-link>
+                        </div>
+                    </td>
                     <td class="text-right">
                         <div class="btn-group">
                             <router-link :to="{name: 'CSRView', params: {cSRId: cSR.id}}" tag="button" class="btn btn-info btn-sm details">

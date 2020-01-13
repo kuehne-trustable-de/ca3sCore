@@ -30,13 +30,6 @@
             "otherEntityName": "pipelineAttribute",
             "otherEntityRelationshipName": "pipeline",
             "relationshipName": "pipelineAttributes"
-        },
-        {
-            "relationshipType": "many-to-one",
-            "otherEntityName": "cSR",
-            "otherEntityRelationshipName": "pipeline",
-            "relationshipName": "csr",
-            "otherEntityField": "id"
         }
     ],
     "changelogDate": "20200110170119",

@@ -100,10 +100,10 @@ public class ADCSConnector {
 
 	}
 
-	ADCSWinNativeConnector getConnector(CAConnectorConfig adcsDao) throws ACDSProxyUnavailableException {
+	ADCSWinNativeConnector getConnector(CAConnectorConfig config) throws ACDSProxyUnavailableException {
 		
-		LOGGER.debug("connector '"+adcsDao.getName()+"', Url configured as '" + adcsDao.getCaUrl() + "'");
-		if( "inProcess".equalsIgnoreCase(adcsDao.getCaUrl()) ) {
+		LOGGER.debug("connector '"+config.getName()+"', Url configured as '" + config.getCaUrl() + "'");
+		if( "inProcess".equalsIgnoreCase(config.getCaUrl()) ) {
 			LOGGER.debug("ADCSConnector trying to load Windows connection classes...");
 			try {
 				return new ADCSNativeImpl();
@@ -114,7 +114,7 @@ public class ADCSConnector {
 			}
 		}else {
 
-			RemoteADCSClient rc = new RemoteADCSClient(adcsDao.getCaUrl(), adcsDao.getSecret());
+			RemoteADCSClient rc = new RemoteADCSClient(config.getCaUrl(), config.getSecret());
 
 			rc.getApiClient().setConnectTimeout(30 * 1000);
 			rc.getApiClient().setReadTimeout(60 * 1000);
@@ -123,7 +123,7 @@ public class ADCSConnector {
 			rc.getApiClient().setTrustManagers(managers);
 			
 			try {
-				ADCSWinNativeConnector adcsConnector = new ADCSWinNativeConnectorAdapter(rc, adcsDao.getSecret());
+				ADCSWinNativeConnector adcsConnector = new ADCSWinNativeConnectorAdapter(rc, config.getSecret());
 				LOGGER.debug("ADCSConnector trying to connect to remote ADCS proxy ...");
 				String info = adcsConnector.getInfo();
 				LOGGER.debug("info call returns '{}'", info);
@@ -166,7 +166,7 @@ public class ADCSConnector {
 	 * @return
 	 * @throws GeneralSecurityException
 	 */
-	public Certificate signCertificateRequest(CSR csr, CAConnectorConfig adcsDao) throws GeneralSecurityException {
+	public Certificate signCertificateRequest(CSR csr, CAConnectorConfig config) throws GeneralSecurityException {
 
 		LOGGER.debug("incoming csr for ADCS");
 
@@ -191,8 +191,16 @@ public class ADCSConnector {
 			}
 
 			Map<String, String> attrMap = new HashMap<String, String>();
-
-			CertificateEnrollmentResponse certResponse = getConnector(adcsDao).submitRequest(normalizedCsrString, attrMap);
+			
+			String template = config.getSelector();
+			if( (template != null) && (template.trim().length() > 0) ) {
+				LOGGER.debug("requesting certificate using template : " + template );
+				attrMap.put("Certificate Template", template);
+			}else {
+				LOGGER.debug("requesting certificate without template ");
+			}
+			
+			CertificateEnrollmentResponse certResponse = getConnector(config).submitRequest(normalizedCsrString, attrMap);
 
 			if (SubmitStatus.ISSUED.equals(certResponse.getStatus())) {
 

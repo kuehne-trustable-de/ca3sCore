@@ -5,9 +5,6 @@ import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validator
 import PipelineAttributeService from '../pipeline-attribute/pipeline-attribute.service';
 import { IPipelineAttribute } from '@/shared/model/pipeline-attribute.model';
 
-import CSRService from '../csr/csr.service';
-import { ICSR } from '@/shared/model/csr.model';
-
 import AlertService from '@/shared/alert/alert.service';
 import { IPipeline, Pipeline } from '@/shared/model/pipeline.model';
 import PipelineService from './pipeline.service';
@@ -37,10 +34,6 @@ export default class PipelineUpdate extends Vue {
   @Inject('pipelineAttributeService') private pipelineAttributeService: () => PipelineAttributeService;
 
   public pipelineAttributes: IPipelineAttribute[] = [];
-
-  @Inject('cSRService') private cSRService: () => CSRService;
-
-  public cSRS: ICSR[] = [];
   public isSaving = false;
 
   beforeRouteEnter(to, from, next) {
@@ -92,11 +85,6 @@ export default class PipelineUpdate extends Vue {
       .retrieve()
       .then(res => {
         this.pipelineAttributes = res.data;
-      });
-    this.cSRService()
-      .retrieve()
-      .then(res => {
-        this.cSRS = res.data;
       });
   }
 }

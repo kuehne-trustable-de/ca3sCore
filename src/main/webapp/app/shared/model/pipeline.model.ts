@@ -1,5 +1,4 @@
 import { IPipelineAttribute } from '@/shared/model/pipeline-attribute.model';
-import { ICSR } from '@/shared/model/csr.model';
 
 export const enum PipelineType {
   ACME = 'ACME',
@@ -13,7 +12,6 @@ export interface IPipeline {
   type?: PipelineType;
   urlPart?: string;
   pipelineAttributes?: IPipelineAttribute[];
-  csr?: ICSR;
 }
 
 export class Pipeline implements IPipeline {
@@ -22,7 +20,6 @@ export class Pipeline implements IPipeline {
     public name?: string,
     public type?: PipelineType,
     public urlPart?: string,
-    public pipelineAttributes?: IPipelineAttribute[],
-    public csr?: ICSR
+    public pipelineAttributes?: IPipelineAttribute[]
   ) {}
 }

@@ -1,6 +1,9 @@
 package de.trustable.ca3s.core.domain;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 
 import java.io.Serializable;
 
@@ -11,12 +14,7 @@ import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
  */
 @Entity
 @Table(name = "ca_connector_config")
-@NamedQueries({
-	@NamedQuery(name = "CAConnectorConfig.findDefaultCA",
-	query = "SELECT a FROM CAConnectorConfig a WHERE " +
-			"a.defaultCA = TRUE"
-    ),
-})
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class CAConnectorConfig implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -25,7 +23,8 @@ public class CAConnectorConfig implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
+    @NotNull
+    @Column(name = "name", nullable = false)
     private String name;
 
     @Enumerated(EnumType.STRING)
@@ -46,6 +45,9 @@ public class CAConnectorConfig implements Serializable {
 
     @Column(name = "active")
     private Boolean active;
+
+    @Column(name = "selector")
+    private String selector;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -146,6 +148,19 @@ public class CAConnectorConfig implements Serializable {
     public void setActive(Boolean active) {
         this.active = active;
     }
+
+    public String getSelector() {
+        return selector;
+    }
+
+    public CAConnectorConfig selector(String selector) {
+        this.selector = selector;
+        return this;
+    }
+
+    public void setSelector(String selector) {
+        this.selector = selector;
+    }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
@@ -175,6 +190,7 @@ public class CAConnectorConfig implements Serializable {
             ", pollingOffset=" + getPollingOffset() +
             ", defaultCA='" + isDefaultCA() + "'" +
             ", active='" + isActive() + "'" +
+            ", selector='" + getSelector() + "'" +
             "}";
     }
 }

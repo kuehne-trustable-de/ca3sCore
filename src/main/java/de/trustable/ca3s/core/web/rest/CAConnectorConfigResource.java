@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -46,7 +47,7 @@ public class CAConnectorConfigResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/ca-connector-configs")
-    public ResponseEntity<CAConnectorConfig> createCAConnectorConfig(@RequestBody CAConnectorConfig cAConnectorConfig) throws URISyntaxException {
+    public ResponseEntity<CAConnectorConfig> createCAConnectorConfig(@Valid @RequestBody CAConnectorConfig cAConnectorConfig) throws URISyntaxException {
         log.debug("REST request to save CAConnectorConfig : {}", cAConnectorConfig);
         if (cAConnectorConfig.getId() != null) {
             throw new BadRequestAlertException("A new cAConnectorConfig cannot already have an ID", ENTITY_NAME, "idexists");
@@ -67,7 +68,7 @@ public class CAConnectorConfigResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/ca-connector-configs")
-    public ResponseEntity<CAConnectorConfig> updateCAConnectorConfig(@RequestBody CAConnectorConfig cAConnectorConfig) throws URISyntaxException {
+    public ResponseEntity<CAConnectorConfig> updateCAConnectorConfig(@Valid @RequestBody CAConnectorConfig cAConnectorConfig) throws URISyntaxException {
         log.debug("REST request to update CAConnectorConfig : {}", cAConnectorConfig);
         if (cAConnectorConfig.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");

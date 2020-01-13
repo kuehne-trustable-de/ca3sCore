@@ -19,8 +19,7 @@
       "name": "Name",
       "type": "Type",
       "urlPart": "Url Part",
-      "pipelineAttributes": "Pipeline Attributes",
-      "csr": "Csr"
+      "pipelineAttributes": "Pipeline Attributes"
     }
   }
 }

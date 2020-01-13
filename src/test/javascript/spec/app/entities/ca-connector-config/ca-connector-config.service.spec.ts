@@ -21,7 +21,7 @@ describe('Service Tests', () => {
     beforeEach(() => {
       service = new CAConnectorConfigService();
 
-      elemDefault = new CAConnectorConfig(0, 'AAAAAAA', CAConnectorType.INTERNAL, 'AAAAAAA', 'AAAAAAA', 0, false, false);
+      elemDefault = new CAConnectorConfig(0, 'AAAAAAA', CAConnectorType.INTERNAL, 'AAAAAAA', 'AAAAAAA', 0, false, false, 'AAAAAAA');
     });
 
     describe('Service methods', () => {
@@ -57,7 +57,8 @@ describe('Service Tests', () => {
             secret: 'BBBBBB',
             pollingOffset: 1,
             defaultCA: true,
-            active: true
+            active: true,
+            selector: 'BBBBBB'
           },
           elemDefault
         );
@@ -78,7 +79,8 @@ describe('Service Tests', () => {
             secret: 'BBBBBB',
             pollingOffset: 1,
             defaultCA: true,
-            active: true
+            active: true,
+            selector: 'BBBBBB'
           },
           elemDefault
         );

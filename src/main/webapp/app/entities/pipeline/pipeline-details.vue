@@ -22,20 +22,13 @@
                     <dd>
                         <span>{{pipeline.urlPart}}</span>
                     </dd>
-                    <dt>
-                        <span v-text="$t('ca3SApp.pipeline.csr')">Csr</span>
-                    </dt>
-                    <dd>
-                        <div v-if="pipeline.csr">
-                            <router-link :to="{name: 'CSRView', params: {cSRId: pipeline.csr.id}}">{{pipeline.csr.id}}</router-link>
-                        </div>
-                    </dd>
                 </dl>
                 <button type="submit"
                         v-on:click.prevent="previousState()"
                         class="btn btn-info">
                     <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.back')"> Back</span>
                 </button>
+                
                 <router-link v-if="pipeline.id" :to="{name: 'PipelineEdit', params: {pipelineId: pipeline.id}}" tag="button" class="btn btn-primary">
                     <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.edit')"> Edit</span>
                 </router-link>

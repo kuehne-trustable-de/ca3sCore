@@ -33,6 +33,13 @@ public class CacheConfiguration {
         return cm -> {
             createCache(cm, de.trustable.ca3s.core.repository.UserRepository.USERS_BY_LOGIN_CACHE);
             createCache(cm, de.trustable.ca3s.core.repository.UserRepository.USERS_BY_EMAIL_CACHE);
+            createCache(cm, de.trustable.ca3s.core.domain.CAConnectorConfig.class.getName());
+            createCache(cm, de.trustable.ca3s.core.domain.CSR.class.getName());
+            createCache(cm, de.trustable.ca3s.core.domain.CSR.class.getName() + ".rdns");
+            createCache(cm, de.trustable.ca3s.core.domain.CSR.class.getName() + ".ras");
+            createCache(cm, de.trustable.ca3s.core.domain.CSR.class.getName() + ".csrAttributes");
+            createCache(cm, de.trustable.ca3s.core.domain.Pipeline.class.getName());
+            createCache(cm, de.trustable.ca3s.core.domain.Pipeline.class.getName() + ".pipelineAttributes");
             // jhipster-needle-ehcache-add-entry
         };
     }

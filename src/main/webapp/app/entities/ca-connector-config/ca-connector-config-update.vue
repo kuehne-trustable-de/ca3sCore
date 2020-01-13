@@ -12,7 +12,12 @@
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.name')" for="ca-connector-config-name">Name</label>
                         <input type="text" class="form-control" name="name" id="ca-connector-config-name"
-                            :class="{'valid': !$v.cAConnectorConfig.name.$invalid, 'invalid': $v.cAConnectorConfig.name.$invalid }" v-model="$v.cAConnectorConfig.name.$model" />
+                            :class="{'valid': !$v.cAConnectorConfig.name.$invalid, 'invalid': $v.cAConnectorConfig.name.$invalid }" v-model="$v.cAConnectorConfig.name.$model"  required/>
+                        <div v-if="$v.cAConnectorConfig.name.$anyDirty && $v.cAConnectorConfig.name.$invalid">
+                            <small class="form-text text-danger" v-if="!$v.cAConnectorConfig.name.required" v-text="$t('entity.validation.required')">
+                                This field is required.
+                            </small>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.caConnectorType')" for="ca-connector-config-caConnectorType">Ca Connector Type</label>
@@ -46,6 +51,11 @@
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.active')" for="ca-connector-config-active">Active</label>
                         <input type="checkbox" class="form-check" name="active" id="ca-connector-config-active"
                             :class="{'valid': !$v.cAConnectorConfig.active.$invalid, 'invalid': $v.cAConnectorConfig.active.$invalid }" v-model="$v.cAConnectorConfig.active.$model" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.selector')" for="ca-connector-config-selector">Selector</label>
+                        <input type="text" class="form-control" name="selector" id="ca-connector-config-selector"
+                            :class="{'valid': !$v.cAConnectorConfig.selector.$invalid, 'invalid': $v.cAConnectorConfig.selector.$invalid }" v-model="$v.cAConnectorConfig.selector.$model" />
                     </div>
                 </div>
                 <div>

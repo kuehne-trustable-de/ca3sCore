@@ -2,13 +2,14 @@ entity CAConnectorConfig{
 
 //	configId Long required
 
-	name String
+	name String required
 	caConnectorType CAConnectorType
 	caUrl String
 	secret String
 	pollingOffset Integer 
 	defaultCA Boolean
 	active Boolean
+	selector String
 }
 
 enum CAConnectorType {
@@ -252,13 +253,10 @@ entity AcmeChallenge {
 // 	@GeneratedValue(generator="RandomGenerator.generatorName")
 
 	challengeId Long required
-
 	type String required
 	value String required
 	token String required
-
 	validated LocalDate
-
 	status ChallengeStatus required
 	
 }
@@ -282,8 +280,6 @@ relationship OneToMany {
 	RDN{rdnAttributes} to RDNAttribute{rdn}
 
 	RequestAttribute{requestAttributeValues} to RequestAttributeValue{reqAttr}
-
-	CSR{pipeline} to Pipeline{csr}
 
 	Pipeline{pipelineAttributes} to PipelineAttribute{pipeline}
 
@@ -318,25 +314,17 @@ relationship OneToMany {
 }
 
 relationship ManyToOne {
-//    @ManyToOne  
-//    private AccountDao account;
 
 	AcmeOrder{csr} to CSR,
 
 	AcmeOrder{certificate} to Certificate
-//	AcmeOrder{account} to ACMEAccount
-
-//	AcmeChallenge{authorization} to Authorization 
-
-//	Authorization{order} to AcmeOrder
 
     RequestAttribute{holdingRequestAttribute} to RequestAttributeValue
 
-//    RequestAttribute{csr} to CSR
-
-//    CsrAttribute{csr} to CSR
-
   	Certificate{issuingCertificate} to Certificate
+
+	CSR{pipeline} to Pipeline
+
 
 }
 

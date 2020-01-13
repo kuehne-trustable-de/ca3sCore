@@ -8,13 +8,16 @@ import CAConnectorConfigService from './ca-connector-config.service';
 
 const validations: any = {
   cAConnectorConfig: {
-    name: {},
+    name: {
+      required
+    },
     caConnectorType: {},
     caUrl: {},
     secret: {},
     pollingOffset: {},
     defaultCA: {},
-    active: {}
+    active: {},
+    selector: {}
   }
 };
 

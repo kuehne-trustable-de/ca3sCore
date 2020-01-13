@@ -15,7 +15,4 @@ import de.trustable.ca3s.core.domain.CAConnectorConfig;
 @Repository
 public interface CAConnectorConfigRepository extends JpaRepository<CAConnectorConfig, Long> {
 
-	@Query(name = "CAConnectorConfig.findDefaultCA")
-	List<CAConnectorConfig> findDefaultCA();
-
 }

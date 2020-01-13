@@ -108,9 +108,11 @@ public class CaCmpConnector {
 			byte[] requestBytes = pkiRequest.getEncoded();
 
 			LOGGER.debug("requestBytes : " + java.util.Base64.getEncoder().encodeToString(requestBytes));
+			
+			LOGGER.debug("cmp connector '{}' has url '{}' with alias '{}' ", caConnConfig.getName(), caConnConfig.getCaUrl(), caConnConfig.getSelector());
 
 			// send and receive ..
-			byte[] responseBytes = remoteConnector.sendHttpReq(caConnConfig.getCaUrl() + "/" + caConnConfig.getName(),
+			byte[] responseBytes = remoteConnector.sendHttpReq(caConnConfig.getCaUrl() + "/" + caConnConfig.getSelector(),
 					requestBytes);
 
 			if (responseBytes == null) {
@@ -159,7 +161,7 @@ public class CaCmpConnector {
 
 		revokeCertificate(new X500Name(certDao.getIssuer()), new X500Name(certDao.getSubject()),
 				new BigInteger(certDao.getSerial()), crlReason, caConnConfig.getSecret(), caConnConfig.getCaUrl(),
-				caConnConfig.getName());
+				caConnConfig.getSelector());
 	}
 
 	/**
@@ -298,7 +300,7 @@ public class CaCmpConnector {
 	public CAStatus getStatus(final CAConnectorConfig caConnConfig) {
 		
 		try {
-			GenMsgContent infoContent = getGeneralInfo(caConnConfig.getSecret(), caConnConfig.getCaUrl(), caConnConfig.getName());
+			GenMsgContent infoContent = getGeneralInfo(caConnConfig.getSecret(), caConnConfig.getCaUrl(), caConnConfig.getSelector());
 			
 			InfoTypeAndValue[] infoTypeAndValueArr = infoContent.toInfoTypeAndValueArray();
 	
