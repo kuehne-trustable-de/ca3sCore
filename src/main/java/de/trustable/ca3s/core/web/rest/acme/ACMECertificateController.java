@@ -61,18 +61,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.HttpClientErrorException;
 
 import de.trustable.ca3s.core.domain.ACMEAccount;
-import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
-import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
-import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.service.adcs.ADCSConnector;
-
 import de.trustable.ca3s.core.service.dto.acme.RevokeRequest;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.ACMEUtil;
+import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 
 @Controller
@@ -87,17 +83,12 @@ public class ACMECertificateController extends ACMEController {
   	private CertificateRepository certificateRepository;
   	
 	@Autowired
-	private CAConnectorConfigRepository caccRepo;
-
-	@Autowired
-	private ADCSConnector adcsController;
-
+	private BPMNUtil bpmnUtil;
+	
 
   	@Autowired
   	private CertificateUtil certUtil;
 
-//    @Autowired
-//    ProcessHandler processHandler;
     
     @RequestMapping(value = "/{certId}", method = GET)
     public ResponseEntity<?> getCertificatePKIX(@PathVariable final long certId, 
@@ -367,39 +358,14 @@ public class ACMECertificateController extends ACMEController {
 		LOG.debug("crlReason : " + crlReasonStr);
 
 		Date revocationDate = new Date();
-
 		
-		
-		revokeCertificate(certDao, crlReason, revocationDate, caccRepo.findDefaultCA().get(0));
+		bpmnUtil.startCertificateRevoctionProcess(certDao, crlReason, revocationDate);
 
 		certDao.setRevoked(true);
 		certDao.setRevokedSince(LocalDate.now());
 		certDao.setRevocationReason(crlReasonStr);
 		certDao.setRevocationExecutionId("39");
 
-	}
-
-	private void revokeCertificate(Certificate certificateDao, CRLReason crlReason, Date revocationDate,
-			CAConnectorConfig caConfig ) throws Exception {
-
-		if (caConfig == null) {
-			throw new Exception("CA connector not selected !");
-		}
-
-		if (CAConnectorType.ADCS.equals(caConfig.getCaConnectorType())) {
-			LOG.debug("CAConnectorType ADCS at " + caConfig.getCaUrl());
-			adcsController.revokeCertificate(certificateDao, crlReason, revocationDate, caConfig);
-
-//		} else if (CAConnectorType.Cmp.equals(caConfig.getCaConnectorType())) {
-//			LOG.debug("CAConnectorType CMP at " + caConfig.getCaUrl());
-//
-//			X509Certificate x509Cert = cryptoUtil.convertPemToCertificate(certificateDao.getContent());
-//
-//			caCmpConnector.revokeCertificate(x509Cert, crlReason, caConfig.getSecret(), caConfig.getCaUrl(),
-//					caConfig.getName());
-		} else {
-			throw new Exception("unexpected ca connector type '" + caConfig.getCaConnectorType() + "' !");
-		}
 	}
 
 }

@@ -79,6 +79,7 @@ import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
 import de.trustable.ca3s.core.domain.enumeration.OrderStatus;
 import de.trustable.ca3s.core.repository.AcmeOrderRepository;
 import de.trustable.ca3s.core.repository.CSRRepository;
+import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.service.dto.acme.FinalizeRequest;
 import de.trustable.ca3s.core.service.dto.acme.OrderResponse;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
@@ -104,6 +105,9 @@ public class OrderController extends ACMEController {
 
     @Autowired
     private CSRRepository csrRepository;
+
+    @Autowired
+    private CertificateRepository certificateRepository;
 
 	@Autowired
 	private BPMNUtil bpmnUtil;
@@ -386,6 +390,11 @@ public class OrderController extends ACMEController {
 			CSR csr = certUtil.createCSR(csrAsPem, p10ReqHolder, "1");
 			csrRepository.save(csr);
 
+			LOG.debug("csr contains #{} CsrAttributes, #{} RequestAttributes and #{} RDN", csr.getCsrAttributes().size(), csr.getRas().size(), csr.getRdns().size());
+			for(de.trustable.ca3s.core.domain.RDN rdn:csr.getRdns()) {
+				LOG.debug("RDN contains #{}", rdn.getRdnAttributes().size());
+			}
+			
 			Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
 			if(cert != null) {
 				LOG.debug("updating order id {} with new certificate id {}", orderDao.getOrderId(), cert.getId());
@@ -395,6 +404,8 @@ public class OrderController extends ACMEController {
 				LOG.debug("adding certificate attribute 'ACME_ACCOUNT_ID' {} for certificate id {}", orderDao.getAccount().getAccountId(), cert.getId());
 				certUtil.addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ACME_ACCOUNT_ID, orderDao.getAccount().getAccountId());
 				certUtil.addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ACME_ORDER_ID, orderDao.getOrderId());
+				
+				certificateRepository.save(cert);
 				
 				return cert;
 				
@@ -412,32 +423,6 @@ public class OrderController extends ACMEController {
 		return null;
 	}
 
-/*
-	private Certificate createCertificate(CSR csr ,
-			CAConnectorConfig caConfig ) throws GeneralSecurityException  {
-
-		if (caConfig == null) {
-			throw new GeneralSecurityException("CA connector not selected !");
-		}
-
-		if (CAConnectorType.Adcs.equals(caConfig.getCaConnectorType())) {
-			LOG.debug("CAConnectorType ADCS at " + caConfig.getCaUrl());
-			
-			Certificate  cert = adcsController.signCertificateRequest(csr, caConfig);
-			return cert;
-
-//		} else if (CAConnectorType.Cmp.equals(caConfig.getCaConnectorType())) {
-//			LOG.debug("CAConnectorType CMP at " + caConfig.getCaUrl());
-//
-//			X509Certificate x509Cert = cryptoUtil.convertPemToCertificate(certificateDao.getContent());
-//
-//			caCmpConnector.revokeCertificate(x509Cert, crlReason, caConfig.getSecret(), caConfig.getCaUrl(),
-//					caConfig.getName());
-		} else {
-			throw new GeneralSecurityException("unexpected ca connector type '" + caConfig.getCaConnectorType() + "' !");
-		}
-	}
-*/
 	
     private String getASN1ValueAsString(Attribute attr) {
         return  getASN1ValueAsString(attr.getAttrValues().toArray());

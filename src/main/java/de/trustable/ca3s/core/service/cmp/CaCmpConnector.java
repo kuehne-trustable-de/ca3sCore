@@ -100,6 +100,8 @@ public class CaCmpConnector {
 
 		try {
 
+			LOGGER.debug("csr contains #{} CsrAttributes, #{} RequestAttributes and #{} RDN", csr.getCsrAttributes().size(), csr.getRas().size(), csr.getRdns().size());
+
 			// build a CMP request from the CSR
 			PKIMessage pkiRequest = buildCertRequest(certReqId, csr, caConnConfig.getSecret());
 

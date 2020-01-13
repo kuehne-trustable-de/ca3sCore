@@ -55,7 +55,6 @@ public class CaBackendTask implements JavaDelegate {
 	public void execute(DelegateExecution execution) throws Exception{
 
 		execution.setVariable("status", "Failed");
-		execution.setVariable("certificateId", "");
 		execution.setVariable("failureReason", "");
 
 		String action = (String) execution.getVariable("action");
@@ -93,28 +92,43 @@ public class CaBackendTask implements JavaDelegate {
 
 			if ("Revoke".equals(action)) {
 
-				String revokeCertIdStr = execution.getVariable("CertificateId").toString();
-				long certificateId = Long.parseLong(revokeCertIdStr);
-				LOGGER.debug("execution.getVariable('CertificateId') : " + certificateId);
+				Certificate revokeCert = (Certificate)execution.getVariable("certificate");
+				
+				if( revokeCert == null ) {
+					String revokeCertIdStr = execution.getVariable("certificateId").toString();
+					
+					long certificateId = -1;
+					try {
+						certificateId = Long.parseLong(revokeCertIdStr);
+						LOGGER.debug("execution.getVariable('certificateId') : " + certificateId);
+						
+						Optional<Certificate> certificateOpt = certificateRepository.findById(certificateId);
 
-				String revocationReasonStr = (String) execution.getVariable("RevocationReason");
+						if (!certificateOpt.isPresent()) {
+							execution.setVariable("failureReason", "certificate Id '" + revokeCertIdStr + "' not found.");
+							return;
+						}
+
+						revokeCert = certificateOpt.get();
+
+					}catch( NumberFormatException nfe) {
+						String msg = "unparsable cert id '"+revokeCertIdStr+"'";
+						LOGGER.warn(msg);
+						execution.setVariable("failureReason", msg);
+						return;
+					}
+				}
+				
+				String revocationReasonStr = (String) execution.getVariable("revocationReason");
 				if (revocationReasonStr != null) {
 					revocationReasonStr = revocationReasonStr.trim();
 				}
-				LOGGER.debug("execution.getVariable('RevocationReason') : " + revocationReasonStr);
+				LOGGER.debug("execution.getVariable('revocationReason') : " + revocationReasonStr);
 
-				Optional<Certificate> certificateOpt = certificateRepository.findById(certificateId);
 
-				if (!certificateOpt.isPresent()) {
-					execution.setVariable("failureReason", "certificate Id '" + revokeCertIdStr + "' not found.");
-					return;
-				}
-
-				Certificate certificateDao = certificateOpt.get();
-
-				if (certificateDao.isRevoked()) {
+				if (revokeCert.isRevoked()) {
 					execution.setVariable("failureReason",
-							"certificate with id '" + revokeCertIdStr + "' already revoked.");
+							"certificate with id '" + revokeCert.getId() + "' already revoked.");
 				}
 
 				CRLReason crlReason = cryptoUtil.crlReasonFromString(revocationReasonStr);
@@ -124,14 +138,13 @@ public class CaBackendTask implements JavaDelegate {
 
 				Date revocationDate = new Date();
 
-				caConnAdapter.revokeCertificate(certificateDao, crlReason, revocationDate, caConfig);
+				caConnAdapter.revokeCertificate(revokeCert, crlReason, revocationDate, caConfig);
 
-				certificateDao.setRevoked(true);
-				certificateDao.setRevokedSince( DateUtil.asLocalDate(revocationDate));
-				certificateDao.setRevocationReason(crlReasonStr);
-				certificateDao.setRevocationExecutionId(execution.getProcessInstanceId());
+				revokeCert.setRevoked(true);
+				revokeCert.setRevokedSince( DateUtil.asLocalDate(revocationDate));
+				revokeCert.setRevocationReason(crlReasonStr);
+				revokeCert.setRevocationExecutionId(execution.getProcessInstanceId());
 
-				execution.setVariable("certificateId", certificateDao.getId());
 				execution.setVariable("status", "Revoked");
 
 			} else {
@@ -139,17 +152,22 @@ public class CaBackendTask implements JavaDelegate {
 //				String csrBase64 = (String) execution.getVariable("csrId");
 //				LOGGER.debug("execution.getVariable('csr') : {} ", csrBase64);
 
-				String csrIdString = execution.getVariable("csrId").toString();
-				long csrId = Long.parseLong(csrIdString);
+				execution.setVariable("certificateId", "");
 
-
-				Optional<CSR> csrOpt = csrRepository.findById(csrId);
-				if (!csrOpt.isPresent()) {
-					execution.setVariable("failureReason", "csr Id '" + csrId + "' not found.");
-					return;
+				CSR csr = (CSR)execution.getVariable("csr");
+				if( csr == null) {
+					String csrIdString = execution.getVariable("csrId").toString();
+					long csrId = Long.parseLong(csrIdString);
+	
+	
+					Optional<CSR> csrOpt = csrRepository.findById(csrId);
+					if (!csrOpt.isPresent()) {
+						execution.setVariable("failureReason", "csr Id '" + csrId + "' not found.");
+						return;
+					}
+	
+					csr = csrOpt.get();
 				}
-
-				CSR csr = csrOpt.get();
 				
 				Certificate cert = caConnAdapter.signCertificateRequest(csr, caConfig);
 				
@@ -158,7 +176,7 @@ public class CaBackendTask implements JavaDelegate {
 				LOGGER.debug("certificateId " + cert.getId());
 
 				execution.setVariable("certificateId", cert.getId());
-				execution.setVariable("certificate", cert.getContent());
+				execution.setVariable("certificate", cert);
 				execution.setVariable("status", "Created");
 			}
 

@@ -296,6 +296,9 @@ public class CertificateUtil {
 			cert.setCreationExecutionId(executionId);
 		}
 
+		certificateRepository.save(cert);
+		certificateAttributeRepository.saveAll(cert.getCertificateAttributes());
+
 		if( x500NameIssuer.equals(x500NameSubject) ){
 			
 			// check whether is really selfsigned 
@@ -569,6 +572,9 @@ public class CertificateUtil {
 		cAtt.setValue(value);
 		
 		cert.getCertificateAttributes().add(cAtt);
+		
+		certificateAttributeRepository.save(cAtt);
+
 	}
 
 	
@@ -1062,7 +1068,7 @@ public class CertificateUtil {
 					rdnAtt.setRdn(rdnDao);
 					rdnAtt.setAttributeType(X509ObjectIdentifiers.commonName.toString());
 					rdnAtt.setAttributeValue(gName.getName().toString());
-					
+					rdnAttributes.add(rdnAtt);
 					rdnDao.setRdnAttributes(rdnAttributes);
 					newRdns.add(rdnDao);
 					LOG.info("First DNS SAN inserted as CN: " + gName.getName().toString() );
