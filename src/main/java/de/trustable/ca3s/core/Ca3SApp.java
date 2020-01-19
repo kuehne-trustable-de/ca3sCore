@@ -78,8 +78,6 @@ public class Ca3SApp implements InitializingBean {
      */
     public static void main(String[] args) {
     	
-    	System.out.println("####### Starting Ca3SJhApp #######");
-    	
 		JCAManager.getInstance();
 
 		TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory());

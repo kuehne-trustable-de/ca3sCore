@@ -3,31 +3,48 @@ package de.trustable.ca3s.core.web.rest.data;
 import java.util.ArrayList;
 import java.util.Base64;
 
+import javax.annotation.concurrent.Immutable;
+
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.RDN;
+import org.bouncycastle.cert.X509CertificateHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
 
-public class Pkcs10RequestData {
+@Immutable
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class PkcsXXData {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(Pkcs10RequestData.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(PkcsXXData.class);
 
+	@JsonProperty("signingAlgorithm")
 	private String signingAlgorithm;
 
+	@JsonProperty("signingAlgorithmName")
 	private String signingAlgorithmName;
 
-	private boolean isCSRValid;
+	@JsonProperty("isCSRValid")
+	private boolean isCSRValid = false;
 
+	@JsonProperty("x509KeySpec")
 	private String x509KeySpec;
 
+	@JsonProperty("subject")
 	private String subject;
+
+	@JsonProperty("issuer")
+	private String issuer;
 
 	private String[] subjectRDNs;
 
@@ -43,10 +60,21 @@ public class Pkcs10RequestData {
 
 	private String subjectPublicKeyInfoBase64;
 
-	public Pkcs10RequestData() {
+	@JsonProperty("presentInDB")
+	private boolean presentInDB = false;
+	
+	public PkcsXXData() {
 	}
 
-	public Pkcs10RequestData(final Pkcs10RequestHolder p10Holder) {
+	public PkcsXXData(final X509CertificateHolder certHolder, Certificate cert) {
+
+		setSubject(certHolder.getSubject().toString());
+		this.setIssuer(certHolder.getIssuer().toString());
+		
+		this.setPresentInDB( cert!= null);
+	}
+	
+	public PkcsXXData(final Pkcs10RequestHolder p10Holder) {
 
 		setSubject(p10Holder.getSubject());
 
@@ -211,4 +239,21 @@ public class Pkcs10RequestData {
 		this.signingAlgorithmName = signingAlgorithmName;
 	}
 
+	public String getIssuer() {
+		return issuer;
+	}
+
+	public void setIssuer(String issuer) {
+		this.issuer = issuer;
+	}
+
+	public boolean isPresentInDB() {
+		return presentInDB;
+	}
+
+	public void setPresentInDB(boolean presentInDB) {
+		this.presentInDB = presentInDB;
+	}
+
+	
 }

@@ -21,6 +21,8 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
 	  List<Certificate> findByIssuerSerial(@Param("issuer") String issuer, 
 	      @Param("serial") String serial);
 
+	  @Query(name = "Certificate.findCACertByIssuer")
+	  List<Certificate> findCACertByIssuer(@Param("issuer") String issuer);
   
 	  @Query(name = "Certificate.findBySearchTermNamed1")
 	  Page<Certificate> findBySearchTermNamed1(Pageable pageable, @Param("name") String name, 

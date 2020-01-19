@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.commons.codec.binary.Base64;
@@ -128,6 +129,38 @@ public class CertificateUtil {
 	/**
 	 * 
 	 * @param pemCert
+	 * @return
+	 * @throws GeneralSecurityException
+	 * @throws IOException
+	 */
+	public Certificate getCertificateByPEM(final String pemCert) throws GeneralSecurityException, IOException {
+		X509Certificate x509Cert = CryptoService.convertPemToCertificate(pemCert);
+		return getCertificateByX509(x509Cert);
+		
+	}
+	
+	/**
+	 * 
+	 * @param x509Cert
+	 * @return
+	 * @throws GeneralSecurityException
+	 * @throws IOException
+	 */
+	public Certificate getCertificateByX509(final X509Certificate x509Cert) throws GeneralSecurityException, IOException {
+
+		String tbsDigestBase64 = Base64.encodeBase64String(cryptoUtil.getSHA256Digest(x509Cert.getTBSCertificate())).toLowerCase();
+		List<Certificate> certList = certificateRepository.findByTBSDigest(tbsDigestBase64);
+
+		if (certList.isEmpty()) {
+			return null;
+		} else {
+			return certList.get(0);
+		}
+	}
+	
+	/**
+	 * 
+	 * @param pemCert
 	 * @param csr
 	 * @param executionId
 	 * @param reimport
@@ -139,23 +172,18 @@ public class CertificateUtil {
 			final String executionId,
 			final boolean reimport) throws GeneralSecurityException, IOException {
 
-		Certificate cert = null;
+
 		X509Certificate x509Cert = CryptoService.convertPemToCertificate(pemCert);
+		Certificate cert = getCertificateByX509(x509Cert);
 
-		// check for existing instance
-		String tbsDigestBase64 = Base64.encodeBase64String(cryptoUtil.getSHA256Digest(x509Cert.getTBSCertificate())).toLowerCase();
-		List<Certificate> certList = certificateRepository.findByTBSDigest(tbsDigestBase64);
-
-		if (certList.isEmpty()) {
+		if (cert  == null) {
+			String tbsDigestBase64 = Base64.encodeBase64String(cryptoUtil.getSHA256Digest(x509Cert.getTBSCertificate())).toLowerCase();
 			cert = createCertificate(pemCert, csr, executionId, x509Cert, tbsDigestBase64);
 		} else {
-			LOG.info("certificate '" + x509Cert.getSubjectDN().getName() +"' already exists");
-
-			cert = certList.get(0);
+			LOG.info("certificate '" + cert .getSubject() +"' already exists");
 
 			if( reimport ) {
-				LOG.debug("existing certificate '" + x509Cert.getSubjectDN().getName() +"' overwriting some attributes, only");
-				
+				LOG.debug("existing certificate '" + cert .getSubject() +"' overwriting some attributes, only");
 				addAdditionalCertificateAttributes(x509Cert, cert);
 			}
 		}
@@ -190,7 +218,8 @@ public class CertificateUtil {
 		X509CertificateHolder x509CertHolder = new X509CertificateHolder(certBytes);
 		
 		cert = new Certificate();
-
+		cert.setCertificateAttributes(new HashSet<CertificateAttribute>());
+		
 		cert.setContent(pemCert);
 
 		if( csr != null) {
@@ -231,8 +260,10 @@ public class CertificateUtil {
 		
 		// build two SKI variants for cert identification
 		SubjectKeyIdentifier ski = util.createSubjectKeyIdentifier(x509Cert.getPublicKey());
-		addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SKI,
-				Base64.encodeBase64String(ski.getKeyIdentifier()));
+		String b46Ski = Base64.encodeBase64String(ski.getKeyIdentifier());
+		
+		addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SKI,b46Ski);
+		cert.setSubjectKeyIdentifier(b46Ski);
 		
 		SubjectKeyIdentifier skiTruncated = util.createTruncatedSubjectKeyIdentifier(x509Cert.getPublicKey());
 		if( !ski.equals(skiTruncated)){
@@ -240,7 +271,7 @@ public class CertificateUtil {
 					Base64.encodeBase64String(skiTruncated.getKeyIdentifier()));
 		}
 
-		// good old SHA1 finerprint
+		// good old SHA1 fingerprint
 		String fingerprint = Base64.encodeBase64String(generateSHA1Fingerprint(certBytes));
 		addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_FINGERPRINT, fingerprint);
 		
@@ -303,11 +334,13 @@ public class CertificateUtil {
 			
 			// check whether is really selfsigned 
 			x509Cert.verify(x509Cert.getPublicKey());
-			cert.setIssuingCertificate(cert);
+
+			// don't insert the self-reference. This leads to no good when JSON-serializing the object 
+			// The selfsigned-attribute will mark the fact!
+			// cert.setIssuingCertificate(cert);
 			
 			// mark it as self signed
-			addCertAttribute(cert,
-					CertificateAttribute.ATTRIBUTE_SELFSIGNED, "true");
+			addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SELFSIGNED, "true");
 
 			LOG.debug("certificate '" + x509Cert.getSubjectDN().getName() +"' is selfsigned");
 			
@@ -315,22 +348,31 @@ public class CertificateUtil {
 			// try to build cert chain
 			try{
 				Certificate issuingCert = findIssuingCertificate(x509CertHolder);
-				cert.setIssuingCertificate(issuingCert);
-				if( LOG.isDebugEnabled()){
-					LOG.debug("certificate '" + x509Cert.getSubjectDN().getName() +"' issued by " + issuingCert.getSubject());
+				
+				if( issuingCert == null ) {
+					LOG.info("unable to find issuer for non-self-signed certificate '" + x509Cert.getSubjectDN().getName() +"' right now ...");
+				}else {
+					cert.setIssuingCertificate(issuingCert);
+					if( LOG.isDebugEnabled()){
+						LOG.debug("certificate '" + x509Cert.getSubjectDN().getName() +"' issued by " + issuingCert.getSubject());
+					}
 				}
 			} catch( GeneralSecurityException gse){
-				LOG.info("unable to find issuer for certificate '" + x509Cert.getSubjectDN().getName() +"' right now ...");
+				LOG.debug("exception while retrieving issuer", gse);
+				LOG.info("problem retrieving issuer for certificate '" + x509Cert.getSubjectDN().getName() +"' right now ...");
 			}
 		}
 
-		LOG.debug("certificate id '" + cert.getId() +"' pre-save");
-
-		certificateRepository.save(cert);
-		LOG.debug("certificate id '" + cert.getId() +"' post-save");
-		certificateAttributeRepository.saveAll(cert.getCertificateAttributes());
-		LOG.debug("certificate id '" + cert.getId() +"' post attr-save");
+		cert.setContentAddedAt(LocalDate.now());
 		
+		certificateRepository.save(cert);
+//		LOG.debug("certificate id '" + cert.getId() +"' post-save");
+		certificateAttributeRepository.saveAll(cert.getCertificateAttributes());
+		LOG.debug("certificate id '{}' saved containing #{} attributes", cert.getId(), cert.getCertificateAttributes().size());
+		for( CertificateAttribute cad: cert.getCertificateAttributes()){
+			LOG.debug("Name '" + cad.getName() +"' got value '" + cad.getValue() + "'");
+		}
+
 		return cert;
 	}
 
@@ -393,15 +435,18 @@ public class CertificateUtil {
 			}
 		}
 
-
 		// list all SANs
 		if (x509Cert.getSubjectAlternativeNames() != null) {
 			dropCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SAN);
-			for (List<?> names : x509Cert.getSubjectAlternativeNames()) {
-
-				for (Object name : names) {
-					LOG.debug("SAN from cerificate {}", name.toString());
-					addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SAN, name.toString().toLowerCase());
+			Collection<List<?>> altNames = x509Cert.getSubjectAlternativeNames();
+			
+			if( altNames != null) {
+				for (List<?> altName : altNames) {
+	                Integer altNameType = (Integer) altName.get(0);
+	                if (altNameType != 2 && altNameType != 7) { // dns or ip
+	                    continue;
+	                }
+					addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SAN, ((String)altName.get(1)).toLowerCase());
 				}
 			}
 		}
@@ -771,10 +816,20 @@ public class CertificateUtil {
 	
 	
 	public Certificate findIssuingCertificate(Certificate cert) throws GeneralSecurityException {
+		
+		if( "true".equalsIgnoreCase( getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SELFSIGNED))) {
+			// no need for lengthy calculations, we do know the issuer, yet
+			return cert;
+		}
+		
 		Certificate issuingCert = cert.getIssuingCertificate();
 		if( issuingCert == null){
 			issuingCert = findIssuingCertificate(convertPemToCertificateHolder(cert.getContent()));
-			if( issuingCert != null){
+			if( issuingCert != null ){
+				if( issuingCert.equals(cert)) {
+					LOG.warn("found untagged self-signed certificate id '{}', '{}'", cert.getId(), cert.getDescription());
+					return cert;
+				}
 				cert.setIssuingCertificate(issuingCert);
 				certificateRepository.save(cert);
 			}else {
@@ -923,24 +978,32 @@ public class CertificateUtil {
 	 * @throws GeneralSecurityException
 	 */
 	public Certificate findIssuingCertificate(X509CertificateHolder x509CertHolder) throws GeneralSecurityException {
-		
-		X509ExtensionUtils x509ExtensionUtils = getX509UtilInstance();
-		
-		AuthorityKeyIdentifier akiCalculated = x509ExtensionUtils.createAuthorityKeyIdentifier( x509CertHolder.getSubjectPublicKeyInfo());
-		List<Certificate> issuingCertList = findCertsByAKI(x509CertHolder, akiCalculated);
 
-		if( issuingCertList.isEmpty()){			
-			LOG.debug("calculated AKI not found, trying AKI from crt extension");
-		
-			if( (x509CertHolder != null) && (x509CertHolder.getExtensions() != null)) {
-				AuthorityKeyIdentifier aki = AuthorityKeyIdentifier.fromExtensions(x509CertHolder.getExtensions());
-				if( aki != null) {
-					issuingCertList = findCertsByAKI(x509CertHolder, aki);
-				}
+		Objects.requireNonNull(x509CertHolder, "x509CertHolder can't be null");
+
+		List<Certificate> issuingCertList = new ArrayList<Certificate>();
+
+		// lokk for the AKI extension in the given certificate
+		if( (x509CertHolder != null) && (x509CertHolder.getExtensions() != null)) {
+			AuthorityKeyIdentifier aki = AuthorityKeyIdentifier.fromExtensions(x509CertHolder.getExtensions());
+			if( aki != null) {
+				issuingCertList = findCertsByAKI(x509CertHolder, aki);
 			}
-
 		}
 
+		if( issuingCertList.isEmpty()){			
+			LOG.debug("AKI from crt extension failed, trying to find issuer name");
+			issuingCertList = certificateRepository.findCACertByIssuer(x509CertHolder.getIssuer().toString());
+			if( issuingCertList.size() > 1){
+				LOG.debug("more than one issuer found for ertificate id '{}' by matching issuer name '{}'");
+			}
+		}
+/*
+		if( issuingCertList.isEmpty()){			
+			LOG.debug("AKI from issuer name, trying RDN matching");
+			// @todo
+		}
+*/
 		// no issuing certificate found 
 		//  @todo
 		// may not be a reason for a GeneralSecurityException
@@ -950,6 +1013,12 @@ public class CertificateUtil {
 
 		// that's wierd!!
 		if( issuingCertList.size() > 1){
+			if( LOG.isDebugEnabled()) {
+				LOG.debug("more than one issuer found ");
+				for( Certificate issuer: issuingCertList) {
+					LOG.debug("possible issuer id '{}' subject '{}'", issuer.getId(), issuer.getSubject());
+				}
+			}
 			throw new GeneralSecurityException("more than one ("+issuingCertList.size()+") issuing certificate for '" + x509CertHolder.getSubject().toString() +"' in certificate store.");
 		}
 
@@ -957,10 +1026,11 @@ public class CertificateUtil {
 
 		if( LOG.isDebugEnabled()) {
 			LOG.debug("issuerDao has attributes: ");
-			
+			/*
 			for( CertificateAttribute cad: issuerDao.getCertificateAttributes()){
 				LOG.debug("Name '" + cad.getName() +"' got value '" + cad.getValue() + "'");
 			}
+			*/
 		}
 
 		return issuerDao;
@@ -972,8 +1042,9 @@ public class CertificateUtil {
 	 * @return
 	 */
 	private List<Certificate> findCertsByAKI(X509CertificateHolder x509CertHolder, AuthorityKeyIdentifier aki) {
+		
 		String aKIBase64 = Base64.encodeBase64String(aki.getKeyIdentifier());
-		LOG.debug("looking for certificate '" + x509CertHolder.getSubject().toString() +"' having AKI '" + aKIBase64 + "'");
+		LOG.debug("looking for issuer of certificate '" + x509CertHolder.getSubject().toString() +"', issuer selected by its SKI '" + aKIBase64 + "'");
 		List<Certificate> issuingCertList = certificateRepository.findByAttributeValue(CertificateAttribute.ATTRIBUTE_SKI, aKIBase64);
 		if( issuingCertList.isEmpty()) {
 			LOG.debug("no certificate found for AKI {}", aKIBase64);

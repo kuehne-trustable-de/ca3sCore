@@ -24,6 +24,11 @@ import java.util.Set;
             "LOWER(c.issuer) = LOWER( :issuer ) AND " +
             " c.serial = :serial"
     ),
+    @NamedQuery(name = "Certificate.findCACertByIssuer",
+    query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes att1 WHERE " +
+    	"c.subject = :issuer AND " +
+        " att1.name = 'CA3S:CA' and LOWER(att1.value) = 'true' " 
+    ),
     @NamedQuery(name = "Certificate.findBySearchTermNamed",
     query = "SELECT c FROM Certificate c WHERE " +
         "LOWER(c.subject) LIKE LOWER(CONCAT('%', :subject, '%')) OR " +

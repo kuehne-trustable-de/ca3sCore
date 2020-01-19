@@ -5,7 +5,6 @@
                 <font-awesome-icon icon="bars" />
             </b-navbar-toggle>
             <b-navbar-brand class="logo float-left" b-link to="/">
-                <span class="logo-img"></span>
                 <span v-text="$t('global.title')" class="navbar-title">ca3s</span> <span class="navbar-version">{{version}}</span>
             </b-navbar-brand>
         </div>

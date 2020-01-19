@@ -1,11 +1,11 @@
 package de.trustable.ca3s.core.web.rest.support;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 
 import javax.validation.Valid;
 
+import org.bouncycastle.cert.X509CertificateHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,15 +16,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import de.trustable.ca3s.core.web.rest.data.Pkcs10RequestData;
+import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.ca3s.core.web.rest.data.PkcsXXData;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.Pkcs10RequestHolder;
 
 /**
- * REST controller for managing {@link de.trustable.ca3s.core.domain.CSR}.
+ * REST controller for processing PKCS10 requests and Certificates.
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/publicapi")
 public class CSRContentProcessor {
 
     private final Logger LOG = LoggerFactory.getLogger(CSRContentProcessor.class);
@@ -32,30 +34,44 @@ public class CSRContentProcessor {
 	  @Autowired
 	  CryptoUtil cryptoUtil;
 
-
+	  @Autowired
+	  CertificateUtil certUtil;
+	  
+	  
     /**
-     * {@code POST  /csrContent} : Process a cSR.
+     * {@code POST  /csrContent} : Process a PKCSXX-object encoded as PEM.
      *
      * @param cSR the cSR to process.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new cSR, or with status {@code 400 (Bad Request)} if the cSR has already an ID.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     * @return the {@link ResponseEntity} .
      */
     @PostMapping("/csrContent")
-    public ResponseEntity<Pkcs10RequestData> describeCSR(@Valid @RequestBody String csrBase64) {
+    public ResponseEntity<PkcsXXData> describeCSR(@Valid @RequestBody String csrBase64) {
     	
-    	LOG.debug("REST request to describe a CSR : {}", csrBase64);
+    	LOG.debug("REST request to describe a PEM clob : {}", csrBase64);
         
-		Pkcs10RequestData p10ReqData = new Pkcs10RequestData();
-		p10ReqData.setCSRValid(false);
+		PkcsXXData p10ReqData = new PkcsXXData();
+    	
 		try {
-			Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(csrBase64);
-			p10ReqData = new Pkcs10RequestData(p10ReqHolder);
-		} catch (IOException |  GeneralSecurityException e) {
-			LOG.debug("describeCSR ", e);
-			return new ResponseEntity<Pkcs10RequestData>(HttpStatus.BAD_REQUEST);
+			X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(csrBase64);
+			Certificate cert = certUtil.getCertificateByPEM(csrBase64);
+			p10ReqData = new PkcsXXData(certHolder, cert );
+			
+		} catch (GeneralSecurityException | IOException e) {
+			
+			LOG.debug("not a certificate, trying to parse it as CSR ");
+			p10ReqData.setCSRValid(false);
+			
+			try {
+				Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(csrBase64);
+				p10ReqData = new PkcsXXData(p10ReqHolder);
+			} catch (IOException |  GeneralSecurityException e2) {
+				LOG.debug("describeCSR ", e2);
+				return new ResponseEntity<PkcsXXData>(HttpStatus.BAD_REQUEST);
+			}
 		}
 
-		return new ResponseEntity<Pkcs10RequestData>(p10ReqData, HttpStatus.OK);
+
+		return new ResponseEntity<PkcsXXData>(p10ReqData, HttpStatus.OK);
 	}
 
 }
