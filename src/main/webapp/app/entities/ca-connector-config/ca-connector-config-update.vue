@@ -25,6 +25,7 @@
                             <option value="INTERNAL" v-bind:label="$t('ca3SApp.CAConnectorType.INTERNAL')">INTERNAL</option>
                             <option value="CMP" v-bind:label="$t('ca3SApp.CAConnectorType.CMP')">CMP</option>
                             <option value="ADCS" v-bind:label="$t('ca3SApp.CAConnectorType.ADCS')">ADCS</option>
+                            <option value="DIRECTORY" v-bind:label="$t('ca3SJhApp.CAConnectorType.DIRECTORY')">DIRECTORY</option>
                         </select>
                     </div>
                     <div class="form-group">

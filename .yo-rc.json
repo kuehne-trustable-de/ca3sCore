@@ -2,56 +2,60 @@
   "generator-jhipster": {
     "promptValues": {
       "packageName": "de.trustable.ca3s.core",
-      "nativeLanguage": "en"
+      "nativeLanguage": "de"
     },
-    "jhipsterVersion": "6.3.1",
+    "jhipsterVersion": "6.6.0",
     "applicationType": "monolith",
-    "baseName": "ca3s_jh",
+    "baseName": "ca3s",
     "packageName": "de.trustable.ca3s.core",
     "packageFolder": "de/trustable/ca3s/core",
     "serverPort": "8080",
     "authenticationType": "jwt",
     "cacheProvider": "ehcache",
-    "enableHibernateCache": true,
+    "enableHibernateCache": false,
     "websocket": "spring-websocket",
     "databaseType": "sql",
-    "devDatabaseType": "mysql",
+    "devDatabaseType": "h2Disk",
     "prodDatabaseType": "mysql",
     "searchEngine": false,
     "messageBroker": false,
     "serviceDiscoveryType": false,
     "buildTool": "maven",
     "enableSwaggerCodegen": false,
-    "jwtSecretKey": "Mjk3NjM4OWI4NWU3ZjE3NjQ3OWRiZjI3OWYwYmZiNWY1NzA2YjAzZTY2ODJhNWM5MjFjYzZmZTZlMDE4YWRhNDg0MjJlNDYzNThhODBjNmU0ZGFjMGY3MTc5OTVlNmEyZWFiZmIwMDIxYTExYzkxNGM3YmM2YmVmMmNlZWE2YmQ=",
+    "jwtSecretKey": "NDkyZWMyYTljNmZiOGQwMWFlMDUyM2ViYmIyNGFlNDEyMzE4NTM0MTA0NjhjMTFkNWViMmYzODRkNzEwNWZmMzQwN2MyNDA4N2UzNzZmZDEzYjVkZjIzYmY3Njg2NDVjZThkZGQyMzA4NTYyYjk0YzRmZGU4NmQwMWM2MDM3MWE=",
     "embeddableLaunchScript": false,
-    "useSass": true,
-    "clientPackageManager": "npm",
-    "clientFramework": "angularX",
-    "clientTheme": "materia",
-    "clientThemeVariant": "primary",
-    "testFrameworks": [
-      "gatling"
-    ],
+    "testFrameworks": [],
     "jhiPrefix": "jhi",
     "entitySuffix": "",
     "dtoSuffix": "DTO",
     "otherModules": [
       {
         "name": "generator-jhipster-vuejs",
-        "version": "latest"
+        "version": "1.3.0"
       }
     ],
     "enableTranslation": true,
+    "clientPackageManager": "npm",
     "nativeLanguage": "en",
-    "languages": [
-      "en",
-      "de"
-    ],
+    "languages": ["de", "en", "pl"],
     "blueprints": [
       {
         "name": "generator-jhipster-vuejs",
-        "version": "latest"
+        "version": "1.3.0"
       }
-    ]
+    ],
+    "creationTimestamp": 1578670205962
+  },
+  "generator-jhipster-vuejs": {
+    "jhipsterVersion": "6.5.1",
+    "applicationType": "monolith",
+    "baseName": "ca3s",
+    "useSass": true,
+    "clientPackageManager": "npm",
+    "clientFramework": "vue",
+    "clientTheme": "none",
+    "clientThemeVariant": "",
+    "enableTranslation": true,
+    "languages": ["de", "en", "pl"]
   }
 }

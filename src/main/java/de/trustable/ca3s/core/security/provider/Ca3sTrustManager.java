@@ -118,7 +118,7 @@ public class Ca3sTrustManager implements X509TrustManager {
 				}
 				certList.add(CryptoService.convertPemToCertificate( issuingCACertDao.getContent()));
 				
-				if( issuingCACertDao.getId() == issuingCACertDao.getIssuingCertificate().getId()) {
+				if( "true".equalsIgnoreCase(certUtil.getCertAttribute(issuingCACertDao, CertificateAttribute.ATTRIBUTE_SELFSIGNED))) {
 					LOGGER.debug("certificate chain complete, cert id '{}' is selfsigned", issuingCACertDao.getId());
 					break;
 				}

@@ -1,7 +1,8 @@
 export const enum CAConnectorType {
   INTERNAL = 'INTERNAL',
   CMP = 'CMP',
-  ADCS = 'ADCS'
+  ADCS = 'ADCS',
+  DIRECTORY = 'DIRECTORY'
 }
 
 export interface ICAConnectorConfig {

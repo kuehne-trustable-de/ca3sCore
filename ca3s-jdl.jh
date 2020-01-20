@@ -13,14 +13,14 @@ entity CAConnectorConfig{
 }
 
 enum CAConnectorType {
-    INTERNAL, CMP, ADCS
+    INTERNAL, CMP, ADCS, DIRECTORY
 }
 
 entity CertificateAttribute {
 //	attributeId Long required
     name String required
     value String
-    }
+}
 
 entity Certificate {
 

@@ -11,7 +11,7 @@
         {
             "fieldName": "caConnectorType",
             "fieldType": "CAConnectorType",
-            "fieldValues": "INTERNAL,CMP,ADCS"
+            "fieldValues": "INTERNAL,CMP,ADCS,DIRECTORY"
         },
         {
             "fieldName": "caUrl",

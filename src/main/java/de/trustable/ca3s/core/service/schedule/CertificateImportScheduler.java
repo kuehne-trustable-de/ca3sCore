@@ -15,6 +15,7 @@ import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.service.adcs.ADCSConnector;
+import de.trustable.ca3s.core.service.dir.DirectoryConnector;
 
 /**
  * 
@@ -22,7 +23,6 @@ import de.trustable.ca3s.core.service.adcs.ADCSConnector;
  *
  */
 @Component
-@Transactional(propagation = Propagation.REQUIRES_NEW)
 public class CertificateImportScheduler {
 
 	transient Logger LOG = LoggerFactory.getLogger(CertBundleScheduler.class);
@@ -33,6 +33,10 @@ public class CertificateImportScheduler {
 	@Autowired
 	private ADCSConnector adcsController;
 
+	@Autowired
+	private DirectoryConnector dirConnector;
+	
+
 	@Value("${certificate.import.active:true}")
 	private String certificateImportActive;
 
@@ -40,37 +44,59 @@ public class CertificateImportScheduler {
 	public void retrieveCertificates() {
 
 		if ("true".equalsIgnoreCase(certificateImportActive)) {
-			for (CAConnectorConfig caConfigDao : caConfigRepo.findAll()) {
+			for (CAConnectorConfig caConfig : caConfigRepo.findAll()) {
 
-				CAConnectorType conType = caConfigDao.getCaConnectorType();
+				CAConnectorType conType = caConfig.getCaConnectorType();
 				if (CAConnectorType.ADCS.equals(conType)) {
-					if (caConfigDao.isActive()) {
+					if (caConfig.isActive()) {
 						
 						try {
 
-							int nNewCerts = adcsController.retrieveCertificates(caConfigDao);
+							int nNewCerts = adcsController.retrieveCertificates(caConfig);
 
 							if (nNewCerts > 0) {
 								LOG.info("ADCS certificate retrieval for '{}' (url '{}') processed {} certificates",
-										caConfigDao.getName(), caConfigDao.getCaUrl(), nNewCerts);
-								caConfigRepo.save(caConfigDao);
+										caConfig.getName(), caConfig.getCaUrl(), nNewCerts);
+								caConfigRepo.save(caConfig);
 							} else {
 								LOG.debug("ADCS certificate retrieval for '{}' (url '{}') found no new certificates",
-										caConfigDao.getName(), caConfigDao.getCaUrl());
+										caConfig.getName(), caConfig.getCaUrl());
 							}
 
 						} catch (OODBConnectionsACDSException e) {
-							LOG.warn("defering ADCS querying for '{}'", caConfigDao.getName());
+							LOG.warn("defering ADCS querying for '{}'", caConfig.getName());
 						} catch (ACDSProxyUnavailableException e) {
-							LOG.warn("ADCS proxy '{}' unavailable, trying later ...", caConfigDao.getName());
+							LOG.warn("ADCS proxy '{}' unavailable, trying later ...", caConfig.getName());
 						} catch (Throwable th) {
 							LOG.info("ADCS certificate retrieval for '{}' (url '{}') failed with msg '{}'",
-									caConfigDao.getName(), caConfigDao.getCaUrl(), th.getMessage());
+									caConfig.getName(), caConfig.getCaUrl(), th.getMessage());
 							LOG.debug("ADCS certificate retrieval", th);
 						}
 					} else {
-						LOG.info("ADCS proxy '{}' disabled", caConfigDao.getName());
+						LOG.info("ADCS proxy '{}' disabled", caConfig.getName());
 					}
+					
+				} else if (CAConnectorType.DIRECTORY.equals(caConfig.getCaConnectorType())) {
+					LOG.debug("CAConnectorType DIRECTORY for " + caConfig.getCaUrl());
+
+					try {
+
+						int nNewCerts = dirConnector.retrieveCertificates(caConfig);
+
+						if (nNewCerts > 0) {
+							LOG.info("Directory certificate retrieval for '{}' (url '{}') processed {} certificates",
+									caConfig.getName(), caConfig.getCaUrl(), nNewCerts);
+							caConfigRepo.save(caConfig);
+						} else {
+							LOG.debug("Directory certificate retrieval for '{}' (url '{}') found no new certificates",
+									caConfig.getName(), caConfig.getCaUrl());
+						}
+					} catch (Throwable th) {
+						LOG.info("Directory certificate retrieval for '{}' (url '{}') failed with msg '{}'",
+								caConfig.getName(), caConfig.getCaUrl(), th.getMessage());
+						LOG.debug("Directory certificate retrieval", th);
+					}
+
 				} else {
 					LOG.debug("CAConnectorType '{}' not suitable for certificate retrieval", conType);
 				}

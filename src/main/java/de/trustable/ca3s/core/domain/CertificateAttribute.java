@@ -135,11 +135,12 @@ public class CertificateAttribute implements Serializable {
 	public static final String ATTRIBUTE_VALID_TO = "VALID_TO";
 	public static final String ATTRIBUTE_VALID_TO_TIMESTAMP = "VALID_TO_TIMESTAMP";
 	
-	public static final String ATTRIBUTE_CA_CONNECTOR_ID = "ATTRIBUTE_CA_CONNECTOR_ID";
+	public static final String ATTRIBUTE_CA_CONNECTOR_ID = "CA_CONNECTOR_ID";
 
 	public static final String ATTRIBUTE_CA_PROCESSING_ID = CsrAttribute.ATTRIBUTE_CA_PROCESSING_ID;
 	public static final String ATTRIBUTE_PROCESSING_CA = CsrAttribute.ATTRIBUTE_PROCESSING_CA;
 	
+	public static final String ATTRIBUTE_FILE_SOURCE = "FILE_SOURCE";
 
 
 }

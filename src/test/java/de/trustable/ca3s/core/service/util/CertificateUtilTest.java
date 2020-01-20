@@ -2,6 +2,9 @@ package de.trustable.ca3s.core.service.util;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
 
@@ -71,4 +74,12 @@ public class CertificateUtilTest {
 		assertEquals(b46Ski, b46Aki);
 	}
 
+	@Test
+	public void testFileUrl() throws MalformedURLException {
+		
+		File dir = new File("c:/tmp");
+		assertTrue( dir.exists() && dir.canRead());
+
+
+	}
 }

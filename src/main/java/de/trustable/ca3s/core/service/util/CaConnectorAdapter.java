@@ -17,6 +17,7 @@ import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 import de.trustable.ca3s.core.service.adcs.ADCSConnector;
 import de.trustable.ca3s.core.service.cmp.CaCmpConnector;
+import de.trustable.ca3s.core.service.dir.DirectoryConnector;
 
 @Service
 public class CaConnectorAdapter {
@@ -28,6 +29,9 @@ public class CaConnectorAdapter {
 
 	@Autowired
 	private CaCmpConnector cmpConnector;
+	
+	@Autowired
+	private DirectoryConnector dirConnector;
 	
 	@Autowired
 	private CSRUtil csrUtil;
@@ -52,6 +56,11 @@ public class CaConnectorAdapter {
 			LOGGER.debug("CAConnectorType CMP at " + caConfig.getCaUrl());
 			
 			return cmpConnector.getStatus(caConfig);
+			
+		} else if (CAConnectorType.DIRECTORY.equals(caConfig.getCaConnectorType())) {
+			LOGGER.debug("CAConnectorType DIRECTORY for " + caConfig.getCaUrl());
+			
+			return dirConnector.getStatus(caConfig);
 		} else {
 			LOGGER.warn("unexpected ca connector type '" + caConfig.getCaConnectorType() + "' !");
 		}
