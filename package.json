@@ -16,7 +16,7 @@
     "bootstrap-vue": "2.1.0",
     "date-fns": "2.0.0-beta.2",
     "sockjs-client": "1.1.4",
-    "swagger-ui": "^3.23.11",
+    "swagger-ui": "^3.25.0",
     "vue": "2.6.10",
     "vue-axios": "^2.1.5",
     "vue-class-component": "7.0.2",

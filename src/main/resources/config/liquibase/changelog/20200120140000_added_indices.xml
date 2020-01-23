@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+        <property name="autoIncrement" value="true"/>
+
+    <changeSet author="kuehn (generated)" id="1579528622029-44">
+        <addUniqueConstraint columnNames="certificate_id, name, value" constraintName="index_cert_id_name_value" tableName="certificate_attribute"/>
+    </changeSet>
+    
+    <changeSet author="kuehn (generated)" id="1579528622029-45">
+        <addUniqueConstraint columnNames="csr_id, name, value" constraintName="index_csr_id_name_value" tableName="csr_attribute"/>
+    </changeSet>
+
+    <changeSet author="kuehn (generated)" id="1579528622029-94">
+        <createIndex indexName="FK4qp8b801dv6g6680w0k46da7e" tableName="acme_order">
+            <column name="csr_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1579528622029-95">
+        <createIndex indexName="FK7el4e657rufmwncbnft5rdkh6" tableName="acme_order">
+            <column name="account_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="kuehn (generated)" id="1579528622029-106">
+        <createIndex indexName="index_cert_name_value" tableName="certificate_attribute">
+            <column name="name"/>
+            <column name="value"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1579528622029-107">
+        <createIndex indexName="index_csr_name_value" tableName="csr_attribute">
+            <column name="name"/>
+            <column name="value"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1579528622029-108">
+        <createIndex indexName="index_serial" tableName="certificate">
+            <column name="serial"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1579528622029-109">
+        <createIndex indexName="index_tbs_digest" tableName="certificate">
+            <column name="tbs_digest"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="kuehn (generated)" id="1579528622029-110">
+        <createIndex indexName="index_name" tableName="imported_url">
+            <column name="name"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

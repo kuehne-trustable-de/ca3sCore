@@ -25,6 +25,8 @@
         "authorization": "Authorization",
         "acmeChallenge": "Acme Challenge",
         "nonce": "Nonce",
+        "importedUrl": "Imported URL",
+        "protectedContent": "Protected Content",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {

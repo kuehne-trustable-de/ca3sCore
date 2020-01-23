@@ -76,6 +76,22 @@ entity CsrAttribute{
   	value String required
 }
 
+enum ProtectedContentType {
+    KEY, SECRET, PASSWORD
+}
+
+enum ContentRelationType {
+    CERTIFICATE, CONNECTION
+}
+
+entity ProtectedContent{
+
+   	contentBase64 TextBlob required
+  	type ProtectedContentType required
+  	relationType ContentRelationType 
+  	relatedId Long
+}
+
 
 entity RDN{
 
@@ -110,6 +126,14 @@ entity RequestAttributeValue{
   	attributeValue String required
 
 }
+
+entity ImportedURL{
+
+  	name String required
+  	importDate LocalDate required
+}
+
+
 
 enum PipelineType {
     ACME, SCEP, WEB

@@ -96,13 +96,14 @@
         <cryptoUtilVersion>1.0.7-SNAPSHOT</cryptoUtilVersion>
         <certBundleVersion>0.0.4-SNAPSHOT</certBundleVersion>
     	<nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
-    	<jasyptVersion>1.9.3</jasyptVersion>
     	<adcsUtilVersion>1.0.1</adcsUtilVersion>
 		<adcsProxyClientVersion>1.0.0-SNAPSHOT</adcsProxyClientVersion>
         <nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
        	<jose4jVersion>0.6.5</jose4jVersion>
        	<acme4jVersion>2.6</acme4jVersion>
        	<takesVersion>1.16</takesVersion>
+   		<jscepVersion>2.5.4</jscepVersion>
+   		<jasyptVersion>1.9.3</jasyptVersion>
    
         <!-- start-class>camunda.transformation.pipeline.CamundaTransformationPipelineApp</start-class-->
         <camunda.version>7.12.0</camunda.version>
@@ -385,12 +386,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.jasypt</groupId>
-			<artifactId>jasypt</artifactId>
-			<version>${jasyptVersion}</version>
-		</dependency>
-
-		<dependency>
 			<groupId>com.nimbusds</groupId>
 			<artifactId>nimbus-jose-jwt</artifactId>
 			<version>${nimbus-jose-jwt-version}</version>
@@ -402,14 +397,21 @@
 			<artifactId>jose4j</artifactId>
 			<version>${jose4jVersion}</version>
 		</dependency>
-		
-		<!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
+
+        <!-- https://mvnrepository.com/artifact/com.google.code.jscep/jscep -->
 		<dependency>
-		    <groupId>com.h2database</groupId>
-		    <artifactId>h2</artifactId>
-		    <version>1.4.200</version>
+		    <groupId>com.google.code.jscep</groupId>
+		    <artifactId>jscep</artifactId>
+		    <version>${jscepVersion}</version>
 		</dependency>
 
+	   <!-- https://mvnrepository.com/artifact/org.jasypt/jasypt -->
+		<dependency>
+		    <groupId>org.jasypt</groupId>
+		    <artifactId>jasypt</artifactId>
+		    <version>${jasyptVersion}</version>
+		</dependency>
+   
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -435,7 +437,7 @@
 			<version>${takesVersion}</version>
 			<scope>test</scope>
     	</dependency>
-        
+
     </dependencies>
 
     <build>

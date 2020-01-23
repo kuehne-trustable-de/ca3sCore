@@ -102,13 +102,18 @@ public class CertificateUtil {
 	
     public Certificate createCertificate(final byte[] encodedCert, final CSR csr, final String executionId, final boolean reimport) throws GeneralSecurityException, IOException {
 
-    	CertificateFactory factory = CertificateFactory.getInstance("X.509");
-    	X509Certificate cert = (X509Certificate) factory.generateCertificate(new ByteArrayInputStream(encodedCert));
-    	
-    	String pemCert = cryptoUtil.x509CertToPem(cert);
-
-        return createCertificate(pemCert, csr, executionId, reimport);
-
+    	try {
+	    	CertificateFactory factory = CertificateFactory.getInstance("X.509");
+	    	X509Certificate cert = (X509Certificate) factory.generateCertificate(new ByteArrayInputStream(encodedCert));
+	    	
+	    	String pemCert = cryptoUtil.x509CertToPem(cert);
+	
+	        return createCertificate(pemCert, csr, executionId, reimport);
+    	} catch (GeneralSecurityException | IOException e) {
+    		throw e;
+    	} catch (Throwable th) {
+    		throw new GeneralSecurityException("problem importing certificate: " + th.getMessage());
+    	}
     }
 
 	/**
@@ -358,7 +363,7 @@ public class CertificateUtil {
 					}
 				}
 			} catch( GeneralSecurityException gse){
-				LOG.debug("exception while retrieving issuer", gse);
+//				LOG.debug("exception while retrieving issuer", gse);
 				LOG.info("problem retrieving issuer for certificate '" + x509Cert.getSubjectDN().getName() +"' right now ...");
 			}
 		}
@@ -703,6 +708,26 @@ public class CertificateUtil {
 		}
 
 		return chainArr;
+	}
+	
+	/**
+	 * 
+	 * @param startCertDao
+	 * @return
+	 * @throws GeneralSecurityException
+	 */
+	public List<X509Certificate> getX509CertificateChainAsList(final Certificate startCert) throws GeneralSecurityException {
+		
+		List<Certificate> certList = getCertificateChain(startCert);
+		
+		List<X509Certificate> x509chainList = new ArrayList<X509Certificate>();
+		for( int i = 0; i < certList.size(); i++) {
+
+			X509Certificate x509Cert = CryptoService.convertPemToCertificate(certList.get(i).getContent());
+			x509chainList.add(x509Cert);
+		}
+
+		return x509chainList;
 	}
 
 	/**

@@ -134,6 +134,18 @@ const Nonce = () => import('../entities/nonce/nonce.vue');
 const NonceUpdate = () => import('../entities/nonce/nonce-update.vue');
 // prettier-ignore
 const NonceDetails = () => import('../entities/nonce/nonce-details.vue');
+// prettier-ignore
+const ImportedURL = () => import('../entities/imported-url/imported-url.vue');
+// prettier-ignore
+const ImportedURLUpdate = () => import('../entities/imported-url/imported-url-update.vue');
+// prettier-ignore
+const ImportedURLDetails = () => import('../entities/imported-url/imported-url-details.vue');
+// prettier-ignore
+const ProtectedContent = () => import('../entities/protected-content/protected-content.vue');
+// prettier-ignore
+const ProtectedContentUpdate = () => import('../entities/protected-content/protected-content-update.vue');
+// prettier-ignore
+const ProtectedContentDetails = () => import('../entities/protected-content/protected-content-details.vue');
 // jhipster-needle-add-entity-to-router-import - JHipster will import entities to the router here
 
 Vue.use(Router);
@@ -711,6 +723,56 @@ export default new Router({
       path: '/nonce/:nonceId/view',
       name: 'NonceView',
       component: NonceDetails,
+      meta: { authorities: ['ROLE_USER'] }
+    }
+    ,
+    {
+      path: '/imported-url',
+      name: 'ImportedURL',
+      component: ImportedURL,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/imported-url/new',
+      name: 'ImportedURLCreate',
+      component: ImportedURLUpdate,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/imported-url/:importedURLId/edit',
+      name: 'ImportedURLEdit',
+      component: ImportedURLUpdate,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/imported-url/:importedURLId/view',
+      name: 'ImportedURLView',
+      component: ImportedURLDetails,
+      meta: { authorities: ['ROLE_USER'] }
+    }
+    ,
+    {
+      path: '/protected-content',
+      name: 'ProtectedContent',
+      component: ProtectedContent,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/protected-content/new',
+      name: 'ProtectedContentCreate',
+      component: ProtectedContentUpdate,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/protected-content/:protectedContentId/edit',
+      name: 'ProtectedContentEdit',
+      component: ProtectedContentUpdate,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/protected-content/:protectedContentId/view',
+      name: 'ProtectedContentView',
+      component: ProtectedContentDetails,
       meta: { authorities: ['ROLE_USER'] }
     }
     // jhipster-needle-add-entity-to-router - JHipster will add entities to the router here

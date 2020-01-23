@@ -1,0 +1,10 @@
+{
+  "ca3SApp": {
+    "ProtectedContentType": {
+      "null": "",
+      "KEY": "KEY",
+      "SECRET": "SECRET",
+      "PASSWORD": "PASSWORD"
+    }
+  }
+}

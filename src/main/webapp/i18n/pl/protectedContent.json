@@ -1,0 +1,25 @@
+{
+  "ca3SApp": {
+    "protectedContent": {
+      "home": {
+        "title": "Protected Content",
+        "createLabel": "Dodaj Protected Content",
+        "createOrEditLabel": "Dodaj lub edytuj: Protected Content",
+        "notFound": "No Protected Contents found"
+      },
+      "created": "Utworzono nowy obiekt typu Protected Content z identyfikatorem {{ param }}",
+      "updated": "Uaktualniono obiekt typu Protected Content z identyfikatorem {{ param }}",
+      "deleted": "Usunięto obiekt typu Protected Content z identyfikatorem {{ param }}",
+      "delete": {
+        "question": "Czy na pewno chcesz usunąć Protected Content {{ id }}?"
+      },
+      "detail": {
+        "title": "Protected Content"
+      },
+      "contentBase64": "Content Base 64",
+      "type": "Type",
+      "relationType": "Relation Type",
+      "relatedId": "Related Id"
+    }
+  }
+}

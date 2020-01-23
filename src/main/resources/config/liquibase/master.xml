@@ -36,6 +36,8 @@
     <include file="config/liquibase/changelog/20200110170125_added_entity_Authorization.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170126_added_entity_AcmeChallenge.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170127_added_entity_Nonce.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200120120707_added_entity_ImportedURL.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200123182225_added_entity_ProtectedContent.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <include file="config/liquibase/changelog/20200110170111_added_entity_constraints_CertificateAttribute.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170112_added_entity_constraints_Certificate.xml" relativeToChangelogFile="false"/>
@@ -53,6 +55,8 @@
     <include file="config/liquibase/changelog/20200110170113_added_entity_constraints_CSR.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     
+    <include file="config/liquibase/changelog/20200120140000_added_indices.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/setupCamundaTables.xml" relativeToChangelogFile="false"/>
+    
             
 </databaseChangeLog>

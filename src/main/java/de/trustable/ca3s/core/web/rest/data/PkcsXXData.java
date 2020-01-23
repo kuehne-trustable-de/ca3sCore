@@ -28,6 +28,9 @@ public class PkcsXXData {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PkcsXXData.class);
 
+	@JsonProperty("dataType")
+	private PKCSDataType dataType;
+	
 	@JsonProperty("signingAlgorithm")
 	private String signingAlgorithm;
 
@@ -60,6 +63,10 @@ public class PkcsXXData {
 
 	private String subjectPublicKeyInfoBase64;
 
+	@JsonProperty("certificate")
+	private X509CertificateHolder certHolder;
+	
+	
 	@JsonProperty("presentInDB")
 	private boolean presentInDB = false;
 	
@@ -68,13 +75,19 @@ public class PkcsXXData {
 
 	public PkcsXXData(final X509CertificateHolder certHolder, Certificate cert) {
 
+		setDataType(PKCSDataType.X509_CERTIFICATE);
+		
 		setSubject(certHolder.getSubject().toString());
 		this.setIssuer(certHolder.getIssuer().toString());
+		
+		setCertHolder(certHolder);
 		
 		this.setPresentInDB( cert!= null);
 	}
 	
 	public PkcsXXData(final Pkcs10RequestHolder p10Holder) {
+
+		setDataType(PKCSDataType.CSR);
 
 		setSubject(p10Holder.getSubject());
 
@@ -141,6 +154,15 @@ public class PkcsXXData {
 
 		setSubjectPublicKeyInfoBase64(p10Holder.getSubjectPublicKeyInfoBase64());
 
+	}
+
+	
+	public PKCSDataType getDataType() {
+		return dataType;
+	}
+
+	public void setDataType(PKCSDataType dataType) {
+		this.dataType = dataType;
 	}
 
 	public String getSigningAlgorithm() {
@@ -253,6 +275,14 @@ public class PkcsXXData {
 
 	public void setPresentInDB(boolean presentInDB) {
 		this.presentInDB = presentInDB;
+	}
+
+	public X509CertificateHolder getCertHolder() {
+		return certHolder;
+	}
+
+	public void setCertHolder(X509CertificateHolder certHolder) {
+		this.certHolder = certHolder;
 	}
 
 	
