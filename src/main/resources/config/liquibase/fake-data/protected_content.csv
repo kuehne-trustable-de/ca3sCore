@@ -1,11 +1,1 @@
 id;content_base_64;type;relation_type;related_id
-1;../fake-data/blob/hipster.txt;SECRET;CONNECTION;97586
-2;../fake-data/blob/hipster.txt;PASSWORD;CERTIFICATE;54840
-3;../fake-data/blob/hipster.txt;PASSWORD;CONNECTION;80266
-4;../fake-data/blob/hipster.txt;PASSWORD;CERTIFICATE;57792
-5;../fake-data/blob/hipster.txt;KEY;CERTIFICATE;96178
-6;../fake-data/blob/hipster.txt;KEY;CONNECTION;95974
-7;../fake-data/blob/hipster.txt;PASSWORD;CONNECTION;36549
-8;../fake-data/blob/hipster.txt;KEY;CERTIFICATE;60533
-9;../fake-data/blob/hipster.txt;SECRET;CONNECTION;19244
-10;../fake-data/blob/hipster.txt;KEY;CONNECTION;30220

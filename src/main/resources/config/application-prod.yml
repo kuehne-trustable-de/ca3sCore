@@ -150,3 +150,5 @@ jhipster:
 # ===================================================================
 
 # application:
+protectionSecret: bnJvbGwvV1MtMjAxOS1DQS5jcmyGK2h0dHA6Ly90cnVzdGFibGUuZXUvYWRjc1Rl
+

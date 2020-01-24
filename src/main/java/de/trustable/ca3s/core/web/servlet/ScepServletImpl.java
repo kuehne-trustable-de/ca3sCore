@@ -11,7 +11,6 @@ import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -98,12 +97,6 @@ public class ScepServletImpl extends ScepServlet {
 
     @Autowired
 	ApplicationContext context;
-
-    /*
-    public void init(ServletContext context) {
-        LOGGER.debug("INIT");
-    }
-*/
     
     @Override
     public void init() throws ServletException {   	
@@ -249,11 +242,13 @@ public class ScepServletImpl extends ScepServlet {
     	
         LOGGER.debug("doEnrol(" + csr.toString() + ", " + transId.toString() +")");
         try {
+        	
             X500Name subject = X500Name.getInstance(csr.getSubject());
             LOGGER.debug(subject.toString());
             if (subject.equals(pollName)) {
                 return Collections.emptyList();
             }
+            
             String password = CertificationRequestUtils.getChallengePassword(csr);
             if (!password.equals("password")) {
                 LOGGER.debug("Invalid password");
@@ -267,7 +262,6 @@ public class ScepServletImpl extends ScepServlet {
                 throw new OperationFailureException(FailInfo.badRequest);
         	}
         	
-    		Collection<CertificateAttribute> attrList = newCertDao.getCertificateAttributes();
     		certUtil.addCertAttribute(newCertDao, CertificateAttribute.ATTRIBUTE_SCEP_TRANS_ID, transId.toString());
 
 			certRepository.save(newCertDao);

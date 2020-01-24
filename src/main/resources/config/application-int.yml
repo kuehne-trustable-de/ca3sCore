@@ -132,3 +132,4 @@ jhipster:
 # ===================================================================
 
 # application:
+protectionSecret: f8wHwYDVR0jBBgwFoA

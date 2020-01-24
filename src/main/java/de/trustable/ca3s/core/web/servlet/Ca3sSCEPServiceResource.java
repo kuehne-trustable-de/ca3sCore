@@ -29,8 +29,8 @@ public class Ca3sSCEPServiceResource {
 		LOGGER.info("in Ca3sSCEPServiceResource()");
 	}
 
-	@RequestMapping(value = "/ca3sScep/{unit}", method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody void handleSCEPRequest(@PathVariable("unit") String unit, HttpServletRequest request,
+	@RequestMapping(value = "/ca3sScep/{realm}", method = { RequestMethod.GET, RequestMethod.POST })
+	public @ResponseBody void handleSCEPRequest(@PathVariable("realm") String realm, HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 
 		long startTime = System.currentTimeMillis();
