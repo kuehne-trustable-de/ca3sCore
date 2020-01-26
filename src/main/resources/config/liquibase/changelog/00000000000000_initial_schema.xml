@@ -6,7 +6,7 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-        <property name="autoIncrement" value="true"/>
+	 <property name="autoIncrement" value="true"/>
 
     <!--
         JHipster core tables.
@@ -76,22 +76,25 @@
         <addNotNullConstraint   columnName="password_hash"
                                 columnDataType="varchar(60)"
                                 tableName="jhi_user"/>
-        <loadData
+        <ext:loadData
                   file="config/liquibase/data/user.csv"
                   separator=";"
+                  identityInsertEnabled="true"
                   tableName="jhi_user">
             <column name="activated" type="boolean"/>
             <column name="created_date" type="timestamp"/>
-        </loadData>
+        </ext:loadData>
         <dropDefaultValue tableName="jhi_user" columnName="created_date" columnDataType="datetime"/>
-        <loadData
+        <ext:loadData
                   file="config/liquibase/data/authority.csv"
                   separator=";"
+                  identityInsertEnabled="true"
                   tableName="jhi_authority"/>
 
-        <loadData
+        <ext:loadData
                   file="config/liquibase/data/user_authority.csv"
                   separator=";"
+                  identityInsertEnabled="true"
                   tableName="jhi_user_authority"/>
         <createTable tableName="jhi_persistent_audit_event">
             <column name="event_id" type="bigint" autoIncrement="${autoIncrement}">

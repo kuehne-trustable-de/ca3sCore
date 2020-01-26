@@ -2075,12 +2075,6 @@
             <column name="EXECUTION_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-255">
-        <createIndex indexName="ACT_IDX_JOB_HANDLER" tableName="ACT_RU_JOB">
-            <column name="HANDLER_TYPE_${limitedIndexLength}"/>
-            <column name="HANDLER_CFG_${limitedIndexLength}"/>
-        </createIndex>
-    </changeSet>
     <changeSet author="kuehn (generated)" id="1576103603001-256">
         <createIndex indexName="ACT_IDX_JOB_HANDLER_TYPE" tableName="ACT_RU_JOB">
             <column name="HANDLER_TYPE_"/>

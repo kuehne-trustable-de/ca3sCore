@@ -39,8 +39,8 @@ spring:
       enabled: false
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://localhost:3306/ca3s_jh_dev?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC
-    username: ca3s_jh_dev
+    url: jdbc:sqlserver://mssql.ca3s.org:1433;database=ca3s_jh_dev
+    username: SA
     password: nYbA4Jm4rnQJ
     hikari:
       poolName: Hikari
@@ -51,8 +51,8 @@ spring:
         prepStmtCacheSqlLimit: 2048
         useServerPrepStmts: true
   jpa:
-    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
-    database: MYSQL
+    database-platform: org.hibernate.dialect.SQLServer2012Dialect
+    database: SQL_SERVER
     show-sql: false
     properties:
       hibernate.id.new_generator_mappings: true

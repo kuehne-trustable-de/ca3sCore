@@ -6,6 +6,7 @@
 
     <property name="now" value="now()" dbms="h2"/>
     <property name="now" value="now()" dbms="mysql"/>
+	<property name="now" value="GETDATE()" dbms="mssql"/>
 
     <property name="floatType" value="float4" dbms="postgresql, h2"/>
     <property name="floatType" value="float" dbms="mysql, oracle, mssql, mariadb"/>
@@ -15,7 +16,7 @@
     <property name="blobType" value="blob" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
     <property name="limitedIndexLength" value="" dbms="h2"/>
     <property name="limitedIndexLength" value="(100)" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
-    <property name="uuidType" value="varchar(36)" dbms="h2, mysql, mariadb"/>
+    <property name="uuidType" value="varchar(36)" dbms="h2, mssql, mysql, mariadb"/>
 
     <include file="config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170110_added_entity_CAConnectorConfig.xml" relativeToChangelogFile="false"/>
