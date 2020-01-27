@@ -71,7 +71,7 @@
                 <constraints nullable="false" />
             </column>
             <column name="csr_id" type="bigint">
-                <constraints unique="true" nullable="true" uniqueConstraintName="ux_certificate_csr_id" />
+                <constraints unique="false" nullable="true" uniqueConstraintName="ux_certificate_csr_id" />
             </column>
             <column name="issuing_certificate_id" type="bigint">
                 <constraints nullable="true" />

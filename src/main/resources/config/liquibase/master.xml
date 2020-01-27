@@ -5,18 +5,17 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
 
     <property name="now" value="now()" dbms="h2"/>
-    <property name="now" value="now()" dbms="mysql"/>
 	<property name="now" value="GETDATE()" dbms="mssql"/>
 
-    <property name="floatType" value="float4" dbms="postgresql, h2"/>
-    <property name="floatType" value="float" dbms="mysql, oracle, mssql, mariadb"/>
-    <property name="clobType" value="clob" dbms="h2"/>
-    <property name="clobType" value="clob" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
     <property name="blobType" value="blob" dbms="h2"/>
     <property name="blobType" value="blob" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
     <property name="limitedIndexLength" value="" dbms="h2"/>
     <property name="limitedIndexLength" value="(100)" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
     <property name="uuidType" value="varchar(36)" dbms="h2, mssql, mysql, mariadb"/>
+     <property name="floatType" value="float4" dbms="postgresql, h2"/>
+     <property name="floatType" value="float" dbms="mysql, oracle, mssql, mariadb"/>
+     <property name="clobType" value="clob" dbms="h2"/>
+     <property name="clobType" value="clob" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
 
     <include file="config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170110_added_entity_CAConnectorConfig.xml" relativeToChangelogFile="false"/>
@@ -59,5 +58,4 @@
     <include file="config/liquibase/changelog/20200120140000_added_indices.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/setupCamundaTables.xml" relativeToChangelogFile="false"/>
     
-            
 </databaseChangeLog>
