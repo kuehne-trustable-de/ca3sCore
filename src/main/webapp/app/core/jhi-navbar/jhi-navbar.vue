@@ -7,7 +7,11 @@
             <b-navbar-brand class="logo float-left" b-link to="/">
                 <span v-text="$t('global.title')" class="navbar-title">ca3s</span> <span class="navbar-version">{{version}}</span>
             </b-navbar-brand>
+             <b-navbar-brand class="logo float-left" b-link to="/" v-if="authenticated">
+                <span v-if="username" v-text="$t('home.logged.message', { 'username': username})" class="navbar-version">You are logged in as user "{{username}}"</span> 
+            </b-navbar-brand>
         </div>
+        
         <b-collapse is-nav id="header-tabs">
             <b-navbar-nav class="ml-auto">
                 <b-nav-item to="/" exact>

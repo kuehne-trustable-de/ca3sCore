@@ -302,8 +302,8 @@ public class ScepServletImpl extends ScepServlet {
     protected Set<Capability> doCapabilities(String identifier) {
         LOGGER.debug("doCapabilities(" + identifier +")");
         return EnumSet.of(Capability.RENEWAL,
-        		Capability.TRIPLE_DES, 
-        		Capability.SHA_1, Capability.SHA_256, Capability.SHA_512, 
+        		Capability.SCEP_STANDARD, 
+        		Capability.SHA_256, Capability.SHA_512, 
         		Capability.POST_PKI_OPERATION);
     }
 

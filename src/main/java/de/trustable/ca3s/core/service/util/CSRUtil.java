@@ -181,17 +181,26 @@ public class CSRUtil {
 
 		return csr;
 	}
-	
+
 	/**
 	 * 
 	 * @param p10ReqHolder
 	 * @return
 	 */
 	Set<GeneralName> getSANList(Pkcs10RequestHolder p10ReqHolder){
+		return(getSANList(p10ReqHolder.getReqAttributes() ) );
+	}
+	
+	/**
+	 * 
+	 * @param reqAttributes
+	 * @return
+	 */
+	public static Set<GeneralName> getSANList(Attribute[] reqAttributes) {
 		
 		Set<GeneralName> generalNameSet = new HashSet<GeneralName>();
 		
-		for( Attribute attr : p10ReqHolder.getReqAttributes()) {
+		for( Attribute attr : reqAttributes) {
 			if( PKCSObjectIdentifiers.pkcs_9_at_extensionRequest.equals(attr.getAttrType())){
 
 				ASN1Set valueSet = attr.getAttrValues();
@@ -229,5 +238,35 @@ public class CSRUtil {
 		return generalNameSet;
 
 	}
-
+	
+/**
+ * 
+ * @param gName
+ * @return
+ */
+	public static String getGeneralNameType(GeneralName gName) {
+		if (GeneralName.dNSName == gName.getTagNo()) {
+			return "DNS name";
+		} else if (GeneralName.directoryName == gName.getTagNo()) {
+			return "directory name";
+		} else if (GeneralName.ediPartyName == gName.getTagNo()) {
+			return "edi party name";
+		} else if (GeneralName.iPAddress == gName.getTagNo()) {
+			return "ip address";
+		} else if (GeneralName.otherName == gName.getTagNo()) {
+			return "other name";
+		} else if (GeneralName.rfc822Name == gName.getTagNo()) {
+			return "rfc822 name";
+		} else if (GeneralName.uniformResourceIdentifier == gName.getTagNo()) {
+			return "URI";
+		} else if (GeneralName.x400Address == gName.getTagNo()) {
+			return "x400 address";
+		} else {
+			return "unexpected identifier '" + gName.getTagNo() + "'";
+		}
+	}
+	
+	public static String getGeneralNameDescription(GeneralName gName) {
+		return getGeneralNameType(gName) + " : " + gName.getName().toString();
+	}
 }

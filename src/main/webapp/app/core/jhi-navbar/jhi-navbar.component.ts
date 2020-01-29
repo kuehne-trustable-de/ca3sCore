@@ -49,6 +49,10 @@ export default class JhiNavbar extends Vue {
     return this.$store.getters.authenticated;
   }
 
+    public get username(): string {
+    return this.$store.getters.account ? this.$store.getters.account.login : '';
+  }
+
   public hasAnyAuthority(authorities: any): boolean {
     return this.accountService().hasAnyAuthority(authorities);
   }

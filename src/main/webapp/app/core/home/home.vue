@@ -1,6 +1,7 @@
 <template>
     <div class="home row">
-		<div>
+			
+		<!--div>
 			<div class="alert alert-success" v-if="authenticated">
 				<span v-if="username" v-text="$t('home.logged.message', { 'username': username})">You are logged in as user "{{username}}"</span>
 			</div>
@@ -13,7 +14,7 @@
 				<span v-text="$t('global.messages.info.register.noaccount')">You don't have an account yet?</span>&nbsp;
 				<router-link class="alert-link" to="/register" v-text="$t('global.messages.info.register.link')">Register a new account</router-link>
 			</div>
-		</div>
+		</div-->
 
 		<div id="vue-certificates">
 		

@@ -20,6 +20,12 @@ import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 @Entity
 @Table(name = "csr")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@NamedQueries({
+	@NamedQuery(name = "CSR.findByPublicKeyHash",
+	query = "SELECT c FROM CSR c WHERE " +
+			"c.publicKeyHash = :hash"
+    )
+})
 public class CSR implements Serializable {
 
     private static final long serialVersionUID = 1L;
