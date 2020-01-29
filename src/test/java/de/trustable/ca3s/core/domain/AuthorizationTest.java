@@ -8,10 +8,10 @@ public class AuthorizationTest {
 
     @Test
     public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(Authorization.class);
-        Authorization authorization1 = new Authorization();
+        TestUtil.equalsVerifier(AcmeAuthorization.class);
+        AcmeAuthorization authorization1 = new AcmeAuthorization();
         authorization1.setId(1L);
-        Authorization authorization2 = new Authorization();
+        AcmeAuthorization authorization2 = new AcmeAuthorization();
         authorization2.setId(authorization1.getId());
         assertThat(authorization1).isEqualTo(authorization2);
         authorization2.setId(2L);

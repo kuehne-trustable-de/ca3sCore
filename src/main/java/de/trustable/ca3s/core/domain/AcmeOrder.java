@@ -58,7 +58,7 @@ public class AcmeOrder implements Serializable {
     private String certificateUrl;
 
     @OneToMany(mappedBy = "order")
-    private Set<Authorization> authorizations = new HashSet<>();
+    private Set<AcmeAuthorization> authorizations = new HashSet<>();
 
     @OneToMany(mappedBy = "order")
     private Set<Identifier> identifiers = new HashSet<>();
@@ -188,28 +188,28 @@ public class AcmeOrder implements Serializable {
         this.certificateUrl = certificateUrl;
     }
 
-    public Set<Authorization> getAuthorizations() {
+    public Set<AcmeAuthorization> getAuthorizations() {
         return authorizations;
     }
 
-    public AcmeOrder authorizations(Set<Authorization> authorizations) {
+    public AcmeOrder authorizations(Set<AcmeAuthorization> authorizations) {
         this.authorizations = authorizations;
         return this;
     }
 
-    public AcmeOrder addAuthorizations(Authorization authorization) {
+    public AcmeOrder addAuthorizations(AcmeAuthorization authorization) {
         this.authorizations.add(authorization);
         authorization.setOrder(this);
         return this;
     }
 
-    public AcmeOrder removeAuthorizations(Authorization authorization) {
+    public AcmeOrder removeAuthorizations(AcmeAuthorization authorization) {
         this.authorizations.remove(authorization);
         authorization.setOrder(null);
         return this;
     }
 
-    public void setAuthorizations(Set<Authorization> authorizations) {
+    public void setAuthorizations(Set<AcmeAuthorization> authorizations) {
         this.authorizations = authorizations;
     }
 

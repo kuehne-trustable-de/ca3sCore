@@ -12,7 +12,7 @@
         Added the entity Authorization.
     -->
     <changeSet id="20200110170125-1" author="jhipster">
-        <createTable tableName="authorization">
+        <createTable tableName="acmeauthorization">
             <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -49,7 +49,7 @@
         <loadData
                   file="config/liquibase/fake-data/authorization.csv"
                   separator=";"
-                  tableName="authorization">
+                  tableName="acmeauthorization">
             <column name="id" type="numeric"/>
             <column name="authorization_id" type="numeric"/>
             <column name="type" type="string"/>

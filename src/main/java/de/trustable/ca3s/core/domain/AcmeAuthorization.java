@@ -9,17 +9,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * A Authorization.
+ * A AcmeAuthorization.
  */
 @Entity
-@Table(name = "authorization")
+@Table(name = "acmeauthorization")
 @NamedQueries({
-	@NamedQuery(name = "Authorization.findByAuthorizationId",
-	query = "SELECT a FROM Authorization a WHERE " +
+	@NamedQuery(name = "AcmeAuthorization.findByAuthorizationId",
+	query = "SELECT a FROM AcmeAuthorization a WHERE " +
 			"a.authorizationId = :authorizationId"
     ),    
 })
-public class Authorization implements Serializable {
+public class AcmeAuthorization implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -59,7 +59,7 @@ public class Authorization implements Serializable {
         return authorizationId;
     }
 
-    public Authorization authorizationId(Long authorizationId) {
+    public AcmeAuthorization authorizationId(Long authorizationId) {
         this.authorizationId = authorizationId;
         return this;
     }
@@ -72,7 +72,7 @@ public class Authorization implements Serializable {
         return type;
     }
 
-    public Authorization type(String type) {
+    public AcmeAuthorization type(String type) {
         this.type = type;
         return this;
     }
@@ -85,7 +85,7 @@ public class Authorization implements Serializable {
         return value;
     }
 
-    public Authorization value(String value) {
+    public AcmeAuthorization value(String value) {
         this.value = value;
         return this;
     }
@@ -98,18 +98,18 @@ public class Authorization implements Serializable {
         return challenges;
     }
 
-    public Authorization challenges(Set<AcmeChallenge> acmeChallenges) {
+    public AcmeAuthorization challenges(Set<AcmeChallenge> acmeChallenges) {
         this.challenges = acmeChallenges;
         return this;
     }
 
-    public Authorization addChallenges(AcmeChallenge acmeChallenge) {
+    public AcmeAuthorization addChallenges(AcmeChallenge acmeChallenge) {
         this.challenges.add(acmeChallenge);
         acmeChallenge.setAuthorization(this);
         return this;
     }
 
-    public Authorization removeChallenges(AcmeChallenge acmeChallenge) {
+    public AcmeAuthorization removeChallenges(AcmeChallenge acmeChallenge) {
         this.challenges.remove(acmeChallenge);
         acmeChallenge.setAuthorization(null);
         return this;
@@ -123,7 +123,7 @@ public class Authorization implements Serializable {
         return order;
     }
 
-    public Authorization order(AcmeOrder acmeOrder) {
+    public AcmeAuthorization order(AcmeOrder acmeOrder) {
         this.order = acmeOrder;
         return this;
     }
@@ -138,10 +138,10 @@ public class Authorization implements Serializable {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Authorization)) {
+        if (!(o instanceof AcmeAuthorization)) {
             return false;
         }
-        return id != null && id.equals(((Authorization) o).id);
+        return id != null && id.equals(((AcmeAuthorization) o).id);
     }
 
     @Override
@@ -151,7 +151,7 @@ public class Authorization implements Serializable {
 
     @Override
     public String toString() {
-        return "Authorization{" +
+        return "AcmeAuthorization{" +
             "id=" + getId() +
             ", authorizationId=" + getAuthorizationId() +
             ", type='" + getType() + "'" +

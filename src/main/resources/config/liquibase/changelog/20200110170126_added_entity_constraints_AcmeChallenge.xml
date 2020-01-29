@@ -12,7 +12,7 @@
                                  baseTableName="acme_challenge"
                                  constraintName="fk_acme_challenge_authorization_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="authorization"/>
+                                 referencedTableName="acmeauthorization"/>
 
     </changeSet>
 </databaseChangeLog>

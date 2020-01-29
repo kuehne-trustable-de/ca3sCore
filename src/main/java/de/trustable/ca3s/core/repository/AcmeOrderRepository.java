@@ -6,7 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import de.trustable.ca3s.core.domain.AcmeOrder;
-import de.trustable.ca3s.core.domain.Authorization;
+import de.trustable.ca3s.core.domain.AcmeAuthorization;
 
 
 /**

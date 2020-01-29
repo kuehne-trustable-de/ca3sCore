@@ -1,6 +1,6 @@
 package de.trustable.ca3s.core.service;
 
-import de.trustable.ca3s.core.domain.Authorization;
+import de.trustable.ca3s.core.domain.AcmeAuthorization;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,14 +16,14 @@ public interface AuthorizationService {
      * @param authorization the entity to save.
      * @return the persisted entity.
      */
-    Authorization save(Authorization authorization);
+	AcmeAuthorization save(AcmeAuthorization authorization);
 
     /**
      * Get all the authorizations.
      *
      * @return the list of entities.
      */
-    List<Authorization> findAll();
+    List<AcmeAuthorization> findAll();
 
 
     /**
@@ -32,7 +32,7 @@ public interface AuthorizationService {
      * @param id the id of the entity.
      * @return the entity.
      */
-    Optional<Authorization> findOne(Long id);
+    Optional<AcmeAuthorization> findOne(Long id);
 
     /**
      * Delete the "id" authorization.

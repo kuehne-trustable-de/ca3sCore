@@ -51,7 +51,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import de.trustable.ca3s.core.domain.ACMEAccount;
 import de.trustable.ca3s.core.domain.AcmeChallenge;
 import de.trustable.ca3s.core.domain.AcmeOrder;
-import de.trustable.ca3s.core.domain.Authorization;
+import de.trustable.ca3s.core.domain.AcmeAuthorization;
 import de.trustable.ca3s.core.domain.Identifier;
 import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
 import de.trustable.ca3s.core.domain.enumeration.OrderStatus;
@@ -359,11 +359,11 @@ public class NewOrderController extends ACMEController {
 		
 		orderRepository.save(orderDao);
 		
-		Set<Authorization> authorizations = new HashSet<Authorization>();
+		Set<AcmeAuthorization> authorizations = new HashSet<AcmeAuthorization>();
 		Set<String> authorizationsResp = new HashSet<String>();;
 
 		for( Identifier identDao: identifiers) {
-			Authorization authorizationDao = new Authorization();
+			AcmeAuthorization authorizationDao = new AcmeAuthorization();
 			authorizationDao.setAuthorizationId(generateId());
 			authorizationDao.setOrder(orderDao);
 			authorizationDao.setType(identDao.getType());

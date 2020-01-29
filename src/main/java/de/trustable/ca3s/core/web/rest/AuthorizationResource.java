@@ -1,6 +1,6 @@
 package de.trustable.ca3s.core.web.rest;
 
-import de.trustable.ca3s.core.domain.Authorization;
+import de.trustable.ca3s.core.domain.AcmeAuthorization;
 import de.trustable.ca3s.core.service.AuthorizationService;
 import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
 
@@ -47,12 +47,12 @@ public class AuthorizationResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/authorizations")
-    public ResponseEntity<Authorization> createAuthorization(@Valid @RequestBody Authorization authorization) throws URISyntaxException {
+    public ResponseEntity<AcmeAuthorization> createAuthorization(@Valid @RequestBody AcmeAuthorization authorization) throws URISyntaxException {
         log.debug("REST request to save Authorization : {}", authorization);
         if (authorization.getId() != null) {
             throw new BadRequestAlertException("A new authorization cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Authorization result = authorizationService.save(authorization);
+        AcmeAuthorization result = authorizationService.save(authorization);
         return ResponseEntity.created(new URI("/api/authorizations/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -68,12 +68,12 @@ public class AuthorizationResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/authorizations")
-    public ResponseEntity<Authorization> updateAuthorization(@Valid @RequestBody Authorization authorization) throws URISyntaxException {
+    public ResponseEntity<AcmeAuthorization> updateAuthorization(@Valid @RequestBody AcmeAuthorization authorization) throws URISyntaxException {
         log.debug("REST request to update Authorization : {}", authorization);
         if (authorization.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        Authorization result = authorizationService.save(authorization);
+        AcmeAuthorization result = authorizationService.save(authorization);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, authorization.getId().toString()))
             .body(result);
@@ -86,7 +86,7 @@ public class AuthorizationResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of authorizations in body.
      */
     @GetMapping("/authorizations")
-    public List<Authorization> getAllAuthorizations() {
+    public List<AcmeAuthorization> getAllAuthorizations() {
         log.debug("REST request to get all Authorizations");
         return authorizationService.findAll();
     }
@@ -98,9 +98,9 @@ public class AuthorizationResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the authorization, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/authorizations/{id}")
-    public ResponseEntity<Authorization> getAuthorization(@PathVariable Long id) {
+    public ResponseEntity<AcmeAuthorization> getAuthorization(@PathVariable Long id) {
         log.debug("REST request to get Authorization : {}", id);
-        Optional<Authorization> authorization = authorizationService.findOne(id);
+        Optional<AcmeAuthorization> authorization = authorizationService.findOne(id);
         return ResponseUtil.wrapOrNotFound(authorization);
     }
 

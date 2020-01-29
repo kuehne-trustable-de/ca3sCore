@@ -254,7 +254,7 @@ entity Identifier {
     
 }
 
-entity Authorization {
+entity AcmeAuthorization {
 
 //	@GenericGenerator(name="RandomGenerator.generatorName", strategy="de.trustable.ca3s.acme.server.entity.RandomGenerator")
 //	@GeneratedValue(generator="RandomGenerator.generatorName")
@@ -329,11 +329,11 @@ relationship OneToMany {
 // and the authorizations required. For final orders (in the "valid" or
 // "invalid" state), the authorizations that were completed. Each entry is a URL
 // from which an authorization can be fetched with a POST-as-GET request.
-	AcmeOrder{authorizations} to Authorization{order}
+	AcmeOrder{authorizations} to AcmeAuthorization{order}
 
 	AcmeOrder{identifiers} to Identifier{order}
 
-	Authorization{challenges} to AcmeChallenge{authorization}
+	AcmeAuthorization{challenges} to AcmeChallenge{authorization}
 
 }
 

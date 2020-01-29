@@ -1,7 +1,7 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.Ca3SApp;
-import de.trustable.ca3s.core.domain.Authorization;
+import de.trustable.ca3s.core.domain.AcmeAuthorization;
 import de.trustable.ca3s.core.repository.AuthorizationRepository;
 import de.trustable.ca3s.core.service.AuthorizationService;
 import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
@@ -66,7 +66,7 @@ public class AuthorizationResourceIT {
 
     private MockMvc restAuthorizationMockMvc;
 
-    private Authorization authorization;
+    private AcmeAuthorization authorization;
 
     @BeforeEach
     public void setup() {
@@ -86,8 +86,8 @@ public class AuthorizationResourceIT {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static Authorization createEntity(EntityManager em) {
-        Authorization authorization = new Authorization()
+    public static AcmeAuthorization createEntity(EntityManager em) {
+    	AcmeAuthorization authorization = new AcmeAuthorization()
             .authorizationId(DEFAULT_AUTHORIZATION_ID)
             .type(DEFAULT_TYPE)
             .value(DEFAULT_VALUE);
@@ -99,8 +99,8 @@ public class AuthorizationResourceIT {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static Authorization createUpdatedEntity(EntityManager em) {
-        Authorization authorization = new Authorization()
+    public static AcmeAuthorization createUpdatedEntity(EntityManager em) {
+    	AcmeAuthorization authorization = new AcmeAuthorization()
             .authorizationId(UPDATED_AUTHORIZATION_ID)
             .type(UPDATED_TYPE)
             .value(UPDATED_VALUE);
@@ -124,9 +124,9 @@ public class AuthorizationResourceIT {
             .andExpect(status().isCreated());
 
         // Validate the Authorization in the database
-        List<Authorization> authorizationList = authorizationRepository.findAll();
+        List<AcmeAuthorization> authorizationList = authorizationRepository.findAll();
         assertThat(authorizationList).hasSize(databaseSizeBeforeCreate + 1);
-        Authorization testAuthorization = authorizationList.get(authorizationList.size() - 1);
+        AcmeAuthorization testAuthorization = authorizationList.get(authorizationList.size() - 1);
         assertThat(testAuthorization.getAuthorizationId()).isEqualTo(DEFAULT_AUTHORIZATION_ID);
         assertThat(testAuthorization.getType()).isEqualTo(DEFAULT_TYPE);
         assertThat(testAuthorization.getValue()).isEqualTo(DEFAULT_VALUE);
@@ -147,7 +147,7 @@ public class AuthorizationResourceIT {
             .andExpect(status().isBadRequest());
 
         // Validate the Authorization in the database
-        List<Authorization> authorizationList = authorizationRepository.findAll();
+        List<AcmeAuthorization> authorizationList = authorizationRepository.findAll();
         assertThat(authorizationList).hasSize(databaseSizeBeforeCreate);
     }
 
@@ -166,7 +166,7 @@ public class AuthorizationResourceIT {
             .content(TestUtil.convertObjectToJsonBytes(authorization)))
             .andExpect(status().isBadRequest());
 
-        List<Authorization> authorizationList = authorizationRepository.findAll();
+        List<AcmeAuthorization> authorizationList = authorizationRepository.findAll();
         assertThat(authorizationList).hasSize(databaseSizeBeforeTest);
     }
 
@@ -184,7 +184,7 @@ public class AuthorizationResourceIT {
             .content(TestUtil.convertObjectToJsonBytes(authorization)))
             .andExpect(status().isBadRequest());
 
-        List<Authorization> authorizationList = authorizationRepository.findAll();
+        List<AcmeAuthorization> authorizationList = authorizationRepository.findAll();
         assertThat(authorizationList).hasSize(databaseSizeBeforeTest);
     }
 
@@ -202,7 +202,7 @@ public class AuthorizationResourceIT {
             .content(TestUtil.convertObjectToJsonBytes(authorization)))
             .andExpect(status().isBadRequest());
 
-        List<Authorization> authorizationList = authorizationRepository.findAll();
+        List<AcmeAuthorization> authorizationList = authorizationRepository.findAll();
         assertThat(authorizationList).hasSize(databaseSizeBeforeTest);
     }
 
@@ -255,7 +255,7 @@ public class AuthorizationResourceIT {
         int databaseSizeBeforeUpdate = authorizationRepository.findAll().size();
 
         // Update the authorization
-        Authorization updatedAuthorization = authorizationRepository.findById(authorization.getId()).get();
+        AcmeAuthorization updatedAuthorization = authorizationRepository.findById(authorization.getId()).get();
         // Disconnect from session so that the updates on updatedAuthorization are not directly saved in db
         em.detach(updatedAuthorization);
         updatedAuthorization
@@ -269,9 +269,9 @@ public class AuthorizationResourceIT {
             .andExpect(status().isOk());
 
         // Validate the Authorization in the database
-        List<Authorization> authorizationList = authorizationRepository.findAll();
+        List<AcmeAuthorization> authorizationList = authorizationRepository.findAll();
         assertThat(authorizationList).hasSize(databaseSizeBeforeUpdate);
-        Authorization testAuthorization = authorizationList.get(authorizationList.size() - 1);
+        AcmeAuthorization testAuthorization = authorizationList.get(authorizationList.size() - 1);
         assertThat(testAuthorization.getAuthorizationId()).isEqualTo(UPDATED_AUTHORIZATION_ID);
         assertThat(testAuthorization.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testAuthorization.getValue()).isEqualTo(UPDATED_VALUE);
@@ -291,7 +291,7 @@ public class AuthorizationResourceIT {
             .andExpect(status().isBadRequest());
 
         // Validate the Authorization in the database
-        List<Authorization> authorizationList = authorizationRepository.findAll();
+        List<AcmeAuthorization> authorizationList = authorizationRepository.findAll();
         assertThat(authorizationList).hasSize(databaseSizeBeforeUpdate);
     }
 
@@ -309,7 +309,7 @@ public class AuthorizationResourceIT {
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item
-        List<Authorization> authorizationList = authorizationRepository.findAll();
+        List<AcmeAuthorization> authorizationList = authorizationRepository.findAll();
         assertThat(authorizationList).hasSize(databaseSizeBeforeDelete - 1);
     }
 }

@@ -71,7 +71,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import de.trustable.ca3s.core.domain.ACMEAccount;
 import de.trustable.ca3s.core.domain.AcmeChallenge;
 import de.trustable.ca3s.core.domain.AcmeOrder;
-import de.trustable.ca3s.core.domain.Authorization;
+import de.trustable.ca3s.core.domain.AcmeAuthorization;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
@@ -248,7 +248,7 @@ public class OrderController extends ACMEController {
 					
 					for(String san: snSet) {
 						boolean bSanFound = false;
-						for (Authorization authDao : orderDao.getAuthorizations()) {
+						for (AcmeAuthorization authDao : orderDao.getAuthorizations()) {
 							if( san.equalsIgnoreCase(authDao.getValue())) {
 								LOG.debug("san '{}' part of order {} in authorization {}", san, orderDao.getOrderId(), authDao.toString());
 								bSanFound = true;
@@ -265,7 +265,7 @@ public class OrderController extends ACMEController {
 					 */
 					boolean orderReady = true;
 					
-					for (Authorization authDao : orderDao.getAuthorizations()) {
+					for (AcmeAuthorization authDao : orderDao.getAuthorizations()) {
 
 						boolean authReady = false;
 						for (AcmeChallenge challDao : authDao.getChallenges()) {
@@ -339,7 +339,7 @@ public class OrderController extends ACMEController {
 
 		
 		Set<String> authorizationsResp = new HashSet<String>();
-		for( Authorization authDao: orderDao.getAuthorizations()) {
+		for( AcmeAuthorization authDao: orderDao.getAuthorizations()) {
 			UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(baseUriBuilder.build().normalize().toUri());
 			authorizationsResp.add(locationUriOfAuth(authDao.getAuthorizationId(), uriBuilder).toString());
 		}

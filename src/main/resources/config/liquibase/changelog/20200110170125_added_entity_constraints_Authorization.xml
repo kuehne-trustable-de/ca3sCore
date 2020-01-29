@@ -9,7 +9,7 @@
     <changeSet id="20200110170125-2" author="jhipster">
         
         <addForeignKeyConstraint baseColumnNames="order_id"
-                                 baseTableName="authorization"
+                                 baseTableName="acmeauthorization"
                                  constraintName="fk_authorization_order_id"
                                  referencedColumnNames="id"
                                  referencedTableName="acme_order"/>

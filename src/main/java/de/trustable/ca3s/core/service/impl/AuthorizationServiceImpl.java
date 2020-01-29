@@ -1,7 +1,7 @@
 package de.trustable.ca3s.core.service.impl;
 
 import de.trustable.ca3s.core.service.AuthorizationService;
-import de.trustable.ca3s.core.domain.Authorization;
+import de.trustable.ca3s.core.domain.AcmeAuthorization;
 import de.trustable.ca3s.core.repository.AuthorizationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +34,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
      * @return the persisted entity.
      */
     @Override
-    public Authorization save(Authorization authorization) {
+    public AcmeAuthorization save(AcmeAuthorization authorization) {
         log.debug("Request to save Authorization : {}", authorization);
         return authorizationRepository.save(authorization);
     }
@@ -46,7 +46,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
      */
     @Override
     @Transactional(readOnly = true)
-    public List<Authorization> findAll() {
+    public List<AcmeAuthorization> findAll() {
         log.debug("Request to get all Authorizations");
         return authorizationRepository.findAll();
     }
@@ -60,7 +60,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Optional<Authorization> findOne(Long id) {
+    public Optional<AcmeAuthorization> findOne(Long id) {
         log.debug("Request to get Authorization : {}", id);
         return authorizationRepository.findById(id);
     }
