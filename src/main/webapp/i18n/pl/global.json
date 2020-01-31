@@ -27,6 +27,9 @@
         "nonce": "Nonce",
         "importedUrl": "Imported URL",
         "protectedContent": "Protected Content",
+        "acmeIdentifier": "Acme Identifier",
+        "acmeAuthorization": "Acme Authorization",
+        "acmeNonce": "Acme Nonce",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {

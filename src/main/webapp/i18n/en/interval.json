@@ -1,0 +1,12 @@
+{
+  "ca3SApp": {
+    "Interval": {
+      "null": "",
+      "MINUTE": "MINUTE",
+      "HOUR": "HOUR",
+      "DAY": "DAY",
+      "WEEK": "WEEK",
+      "MONTH": "MONTH"
+    }
+  }
+}

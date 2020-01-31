@@ -22,7 +22,7 @@
       "token": "Token",
       "validated": "Validated",
       "status": "Status",
-      "authorization": "Authorization"
+      "acmeAuthorization": "Acme Authorization"
     }
   }
 }

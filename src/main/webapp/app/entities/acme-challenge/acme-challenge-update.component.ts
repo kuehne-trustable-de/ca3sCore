@@ -2,8 +2,8 @@ import { Component, Vue, Inject } from 'vue-property-decorator';
 
 import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
 
-import AuthorizationService from '../authorization/authorization.service';
-import { IAuthorization } from '@/shared/model/authorization.model';
+import AcmeAuthorizationService from '../acme-authorization/acme-authorization.service';
+import { IAcmeAuthorization } from '@/shared/model/acme-authorization.model';
 
 import AlertService from '@/shared/alert/alert.service';
 import { IAcmeChallenge, AcmeChallenge } from '@/shared/model/acme-challenge.model';
@@ -39,9 +39,9 @@ export default class AcmeChallengeUpdate extends Vue {
   @Inject('acmeChallengeService') private acmeChallengeService: () => AcmeChallengeService;
   public acmeChallenge: IAcmeChallenge = new AcmeChallenge();
 
-  @Inject('authorizationService') private authorizationService: () => AuthorizationService;
+  @Inject('acmeAuthorizationService') private acmeAuthorizationService: () => AcmeAuthorizationService;
 
-  public authorizations: IAuthorization[] = [];
+  public acmeAuthorizations: IAcmeAuthorization[] = [];
   public isSaving = false;
 
   beforeRouteEnter(to, from, next) {
@@ -89,10 +89,10 @@ export default class AcmeChallengeUpdate extends Vue {
   }
 
   public initRelationships(): void {
-    this.authorizationService()
+    this.acmeAuthorizationService()
       .retrieve()
       .then(res => {
-        this.authorizations = res.data;
+        this.acmeAuthorizations = res.data;
       });
   }
 }

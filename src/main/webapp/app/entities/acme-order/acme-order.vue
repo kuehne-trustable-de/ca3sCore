@@ -46,7 +46,7 @@
                         <router-link :to="{name: 'AcmeOrderView', params: {acmeOrderId: acmeOrder.id}}">{{acmeOrder.id}}</router-link>
                     </td>
                     <td>{{acmeOrder.orderId}}</td>
-                    <td v-text="$t('ca3SApp.OrderStatus.' + acmeOrder.status)">{{acmeOrder.status}}</td>
+                    <td v-text="$t('ca3SApp.AcmeOrderStatus.' + acmeOrder.status)">{{acmeOrder.status}}</td>
                     <td>{{acmeOrder.expires}}</td>
                     <td>{{acmeOrder.notBefore}}</td>
                     <td>{{acmeOrder.notAfter}}</td>

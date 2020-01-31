@@ -45,9 +45,9 @@
     "relationships": [
         {
             "relationshipType": "many-to-one",
-            "otherEntityName": "authorization",
+            "otherEntityName": "acmeAuthorization",
             "otherEntityRelationshipName": "challenges",
-            "relationshipName": "authorization",
+            "relationshipName": "acmeAuthorization",
             "otherEntityField": "id"
         }
     ],

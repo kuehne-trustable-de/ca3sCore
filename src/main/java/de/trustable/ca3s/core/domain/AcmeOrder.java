@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-import de.trustable.ca3s.core.domain.enumeration.OrderStatus;
+import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 
 /**
  * A AcmeOrder.
@@ -37,7 +37,7 @@ public class AcmeOrder implements Serializable {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private OrderStatus status;
+    private AcmeOrderStatus status;
 
     @Column(name = "expires")
     private LocalDate expires;
@@ -58,10 +58,10 @@ public class AcmeOrder implements Serializable {
     private String certificateUrl;
 
     @OneToMany(mappedBy = "order")
-    private Set<Authorization> authorizations = new HashSet<>();
+    private Set<AcmeAuthorization> acmeAuthorizations = new HashSet<>();
 
     @OneToMany(mappedBy = "order")
-    private Set<Identifier> identifiers = new HashSet<>();
+    private Set<AcmeIdentifier> acmeIdentifiers = new HashSet<>();
 
     @ManyToOne
     @JsonIgnoreProperties("acmeOrders")
@@ -97,16 +97,16 @@ public class AcmeOrder implements Serializable {
         this.orderId = orderId;
     }
 
-    public OrderStatus getStatus() {
+    public AcmeOrderStatus getStatus() {
         return status;
     }
 
-    public AcmeOrder status(OrderStatus status) {
+    public AcmeOrder status(AcmeOrderStatus status) {
         this.status = status;
         return this;
     }
 
-    public void setStatus(OrderStatus status) {
+    public void setStatus(AcmeOrderStatus status) {
         this.status = status;
     }
 
@@ -188,54 +188,54 @@ public class AcmeOrder implements Serializable {
         this.certificateUrl = certificateUrl;
     }
 
-    public Set<Authorization> getAuthorizations() {
-        return authorizations;
+    public Set<AcmeAuthorization> getAcmeAuthorizations() {
+        return acmeAuthorizations;
     }
 
-    public AcmeOrder authorizations(Set<Authorization> authorizations) {
-        this.authorizations = authorizations;
+    public AcmeOrder acmeAuthorizations(Set<AcmeAuthorization> acmeAuthorizations) {
+        this.acmeAuthorizations = acmeAuthorizations;
         return this;
     }
 
-    public AcmeOrder addAuthorizations(Authorization authorization) {
-        this.authorizations.add(authorization);
-        authorization.setOrder(this);
+    public AcmeOrder addAcmeAuthorizations(AcmeAuthorization acmeAuthorization) {
+        this.acmeAuthorizations.add(acmeAuthorization);
+        acmeAuthorization.setOrder(this);
         return this;
     }
 
-    public AcmeOrder removeAuthorizations(Authorization authorization) {
-        this.authorizations.remove(authorization);
-        authorization.setOrder(null);
+    public AcmeOrder removeAcmeAuthorizations(AcmeAuthorization acmeAuthorization) {
+        this.acmeAuthorizations.remove(acmeAuthorization);
+        acmeAuthorization.setOrder(null);
         return this;
     }
 
-    public void setAuthorizations(Set<Authorization> authorizations) {
-        this.authorizations = authorizations;
+    public void setAcmeAuthorizations(Set<AcmeAuthorization> acmeAuthorizations) {
+        this.acmeAuthorizations = acmeAuthorizations;
     }
 
-    public Set<Identifier> getIdentifiers() {
-        return identifiers;
+    public Set<AcmeIdentifier> getAcmeIdentifiers() {
+        return acmeIdentifiers;
     }
 
-    public AcmeOrder identifiers(Set<Identifier> identifiers) {
-        this.identifiers = identifiers;
+    public AcmeOrder acmeIdentifiers(Set<AcmeIdentifier> acmeIdentifiers) {
+        this.acmeIdentifiers = acmeIdentifiers;
         return this;
     }
 
-    public AcmeOrder addIdentifiers(Identifier identifier) {
-        this.identifiers.add(identifier);
-        identifier.setOrder(this);
+    public AcmeOrder addAcmeIdentifiers(AcmeIdentifier acmeIdentifier) {
+        this.acmeIdentifiers.add(acmeIdentifier);
+        acmeIdentifier.setOrder(this);
         return this;
     }
 
-    public AcmeOrder removeIdentifiers(Identifier identifier) {
-        this.identifiers.remove(identifier);
-        identifier.setOrder(null);
+    public AcmeOrder removeAcmeIdentifiers(AcmeIdentifier acmeIdentifier) {
+        this.acmeIdentifiers.remove(acmeIdentifier);
+        acmeIdentifier.setOrder(null);
         return this;
     }
 
-    public void setIdentifiers(Set<Identifier> identifiers) {
-        this.identifiers = identifiers;
+    public void setAcmeIdentifiers(Set<AcmeIdentifier> acmeIdentifiers) {
+        this.acmeIdentifiers = acmeIdentifiers;
     }
 
     public CSR getCsr() {

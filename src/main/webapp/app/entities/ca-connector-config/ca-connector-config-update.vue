@@ -21,12 +21,18 @@
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.caConnectorType')" for="ca-connector-config-caConnectorType">Ca Connector Type</label>
-                        <select class="form-control" name="caConnectorType" :class="{'valid': !$v.cAConnectorConfig.caConnectorType.$invalid, 'invalid': $v.cAConnectorConfig.caConnectorType.$invalid }" v-model="$v.cAConnectorConfig.caConnectorType.$model" id="ca-connector-config-caConnectorType" >
+                        <select class="form-control" name="caConnectorType" :class="{'valid': !$v.cAConnectorConfig.caConnectorType.$invalid, 'invalid': $v.cAConnectorConfig.caConnectorType.$invalid }" v-model="$v.cAConnectorConfig.caConnectorType.$model" id="ca-connector-config-caConnectorType"  required>
                             <option value="INTERNAL" v-bind:label="$t('ca3SApp.CAConnectorType.INTERNAL')">INTERNAL</option>
                             <option value="CMP" v-bind:label="$t('ca3SApp.CAConnectorType.CMP')">CMP</option>
                             <option value="ADCS" v-bind:label="$t('ca3SApp.CAConnectorType.ADCS')">ADCS</option>
-                            <option value="DIRECTORY" v-bind:label="$t('ca3SJhApp.CAConnectorType.DIRECTORY')">DIRECTORY</option>
+                            <option value="ADCS_CERTIFICATE_INVENTORY" v-bind:label="$t('ca3SApp.CAConnectorType.ADCS_CERTIFICATE_INVENTORY')">ADCS_CERTIFICATE_INVENTORY</option>
+                            <option value="DIRECTORY" v-bind:label="$t('ca3SApp.CAConnectorType.DIRECTORY')">DIRECTORY</option>
                         </select>
+                        <div v-if="$v.cAConnectorConfig.caConnectorType.$anyDirty && $v.cAConnectorConfig.caConnectorType.$invalid">
+                            <small class="form-text text-danger" v-if="!$v.cAConnectorConfig.caConnectorType.required" v-text="$t('entity.validation.required')">
+                                This field is required.
+                            </small>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.caUrl')" for="ca-connector-config-caUrl">Ca Url</label>
@@ -57,6 +63,16 @@
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.selector')" for="ca-connector-config-selector">Selector</label>
                         <input type="text" class="form-control" name="selector" id="ca-connector-config-selector"
                             :class="{'valid': !$v.cAConnectorConfig.selector.$invalid, 'invalid': $v.cAConnectorConfig.selector.$invalid }" v-model="$v.cAConnectorConfig.selector.$model" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.interval')" for="ca-connector-config-interval">Interval</label>
+                        <select class="form-control" name="interval" :class="{'valid': !$v.cAConnectorConfig.interval.$invalid, 'invalid': $v.cAConnectorConfig.interval.$invalid }" v-model="$v.cAConnectorConfig.interval.$model" id="ca-connector-config-interval" >
+                            <option value="MINUTE" v-bind:label="$t('ca3SApp.Interval.MINUTE')">MINUTE</option>
+                            <option value="HOUR" v-bind:label="$t('ca3SApp.Interval.HOUR')">HOUR</option>
+                            <option value="DAY" v-bind:label="$t('ca3SApp.Interval.DAY')">DAY</option>
+                            <option value="WEEK" v-bind:label="$t('ca3SApp.Interval.WEEK')">WEEK</option>
+                            <option value="MONTH" v-bind:label="$t('ca3SApp.Interval.MONTH')">MONTH</option>
+                        </select>
                     </div>
                 </div>
                 <div>

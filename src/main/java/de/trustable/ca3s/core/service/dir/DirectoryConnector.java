@@ -131,7 +131,7 @@ public class DirectoryConnector {
 				Certificate certDao = certUtil.createCertificate(content, null, null, false);
 
 				// save the source of the certificate
-				certUtil.addCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_FILE_SOURCE, filename);
+				certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_FILE_SOURCE, filename);
 
 				certificateRepository.save(certDao);
 
@@ -160,8 +160,7 @@ public class DirectoryConnector {
 					Certificate certDao = certUtil.createCertificate(content, null, null, true);
 
 					// save the source of the certificate
-					certUtil.dropCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_FILE_SOURCE);
-					certUtil.addCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_FILE_SOURCE, filename);
+					certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_FILE_SOURCE, filename);
 					certificateRepository.save(certDao);
 
 					impUrl.setImportDate(lastChangeDate);

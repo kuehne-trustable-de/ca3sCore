@@ -4,7 +4,7 @@ import axios from 'axios';
 import * as config from '@/shared/config/config';
 import {} from '@/shared/date/filters';
 import CAConnectorConfigService from '@/entities/ca-connector-config/ca-connector-config.service';
-import { CAConnectorConfig, CAConnectorType } from '@/shared/model/ca-connector-config.model';
+import { CAConnectorConfig, CAConnectorType, Interval } from '@/shared/model/ca-connector-config.model';
 
 const mockedAxios: any = axios;
 jest.mock('axios', () => ({
@@ -21,7 +21,18 @@ describe('Service Tests', () => {
     beforeEach(() => {
       service = new CAConnectorConfigService();
 
-      elemDefault = new CAConnectorConfig(0, 'AAAAAAA', CAConnectorType.INTERNAL, 'AAAAAAA', 'AAAAAAA', 0, false, false, 'AAAAAAA');
+      elemDefault = new CAConnectorConfig(
+        0,
+        'AAAAAAA',
+        CAConnectorType.INTERNAL,
+        'AAAAAAA',
+        'AAAAAAA',
+        0,
+        false,
+        false,
+        'AAAAAAA',
+        Interval.MINUTE
+      );
     });
 
     describe('Service methods', () => {
@@ -58,7 +69,8 @@ describe('Service Tests', () => {
             pollingOffset: 1,
             defaultCA: true,
             active: true,
-            selector: 'BBBBBB'
+            selector: 'BBBBBB',
+            interval: 'BBBBBB'
           },
           elemDefault
         );
@@ -80,7 +92,8 @@ describe('Service Tests', () => {
             pollingOffset: 1,
             defaultCA: true,
             active: true,
-            selector: 'BBBBBB'
+            selector: 'BBBBBB',
+            interval: 'BBBBBB'
           },
           elemDefault
         );

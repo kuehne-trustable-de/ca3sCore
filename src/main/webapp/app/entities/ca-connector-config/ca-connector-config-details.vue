@@ -52,6 +52,12 @@
                     <dd>
                         <span>{{cAConnectorConfig.selector}}</span>
                     </dd>
+                    <dt>
+                        <span v-text="$t('ca3SApp.cAConnectorConfig.interval')">Interval</span>
+                    </dt>
+                    <dd>
+                        <span v-text="$t('ca3SApp.Interval.' + cAConnectorConfig.interval)">{{cAConnectorConfig.interval}}</span>
+                    </dd>
                 </dl>
                 <button type="submit"
                         v-on:click.prevent="previousState()"

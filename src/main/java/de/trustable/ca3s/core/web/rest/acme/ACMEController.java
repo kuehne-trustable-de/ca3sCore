@@ -22,17 +22,18 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import de.trustable.ca3s.core.domain.ACMEAccount;
 import de.trustable.ca3s.core.domain.AcmeContact;
-import de.trustable.ca3s.core.domain.Nonce;
+import de.trustable.ca3s.core.domain.AcmeNonce;
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 import de.trustable.ca3s.core.repository.ACMEAccountRepository;
 import de.trustable.ca3s.core.repository.AcmeContactRepository;
-import de.trustable.ca3s.core.repository.NonceRepository;
+import de.trustable.ca3s.core.repository.AcmeNonceRepository;
 import de.trustable.ca3s.core.service.dto.acme.AccountRequest;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
@@ -40,7 +41,6 @@ import de.trustable.ca3s.core.service.util.ACMEUtil;
 import de.trustable.ca3s.core.service.util.DateUtil;
 import de.trustable.ca3s.core.service.util.JwtUtil;
 import de.trustable.util.CryptoUtil;
-import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @Controller
@@ -100,7 +100,7 @@ public class ACMEController {
 	  CryptoUtil cryptoUtil;
 	 
 	  @Autowired 
-	  NonceRepository nonceRepository;
+	  AcmeNonceRepository nonceRepository;
 
 	  @Autowired
       ACMEAccountRepository acctRepository;
@@ -295,7 +295,7 @@ public class ACMEController {
 	 */
 	protected void checkNonce(JsonWebStructure webStruct) throws JoseException, AcmeProblemException {
 		String reqNonce = jwtUtil.getNonce(webStruct);
-	    List<Nonce> nonceList = nonceRepository.findByNonceValue(reqNonce);
+	    List<AcmeNonce> nonceList = nonceRepository.findByNonceValue(reqNonce);
 	    if( nonceList.isEmpty()) {
 			LOG.debug("Nonce {} not found in database", reqNonce);
 	        final ProblemDetail problem = new ProblemDetail(ACMEUtil.BAD_NONCE, "Nonce not known.",
@@ -309,7 +309,7 @@ public class ACMEController {
 
 	protected HttpHeaders buildNonceHeader() {
 		final HttpHeaders additionalHeaders = new HttpHeaders();
-		Nonce nonce = getNewNonce();
+		AcmeNonce nonce = getNewNonce();
 	    additionalHeaders.set(REPLAY_NONCE_HEADER, nonce.getNonceValue());
 		return additionalHeaders;
 	}
@@ -330,9 +330,9 @@ public class ACMEController {
 	
 	 
 
-	protected Nonce getNewNonce() {
+	protected AcmeNonce getNewNonce() {
 		
-		Nonce nonce = new Nonce();
+		AcmeNonce nonce = new AcmeNonce();
 		
 		String nonceRaw = getBase64UrlEncodedRandom(16);
 		nonce.setNonceValue( nonceRaw.split("=")[0]);

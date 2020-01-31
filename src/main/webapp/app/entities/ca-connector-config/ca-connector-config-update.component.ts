@@ -11,13 +11,16 @@ const validations: any = {
     name: {
       required
     },
-    caConnectorType: {},
+    caConnectorType: {
+      required
+    },
     caUrl: {},
     secret: {},
     pollingOffset: {},
     defaultCA: {},
     active: {},
-    selector: {}
+    selector: {},
+    interval: {}
   }
 };
 

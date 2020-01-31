@@ -35,7 +35,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import de.trustable.ca3s.core.domain.enumeration.OrderStatus;
+import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 
 
 
@@ -70,7 +70,7 @@ import de.trustable.ca3s.core.domain.enumeration.OrderStatus;
 public class AuthorizationResponse {
 
 	@JsonProperty("status")
-	private OrderStatus status;
+	private AcmeOrderStatus status;
 
 	@JsonProperty("expires")
 	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")	
@@ -88,14 +88,14 @@ public class AuthorizationResponse {
 	/**
 	 * @return the status
 	 */
-	public OrderStatus getStatus() {
+	public AcmeOrderStatus getStatus() {
 		return status;
 	}
 
 	/**
 	 * @param status the status to set
 	 */
-	public void setStatus(OrderStatus status) {
+	public void setStatus(AcmeOrderStatus status) {
 		this.status = status;
 	}
 

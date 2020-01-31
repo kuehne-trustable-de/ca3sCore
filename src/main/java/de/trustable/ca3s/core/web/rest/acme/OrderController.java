@@ -69,14 +69,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import de.trustable.ca3s.core.domain.ACMEAccount;
+import de.trustable.ca3s.core.domain.AcmeAuthorization;
 import de.trustable.ca3s.core.domain.AcmeChallenge;
 import de.trustable.ca3s.core.domain.AcmeOrder;
-import de.trustable.ca3s.core.domain.Authorization;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
+import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
-import de.trustable.ca3s.core.domain.enumeration.OrderStatus;
 import de.trustable.ca3s.core.repository.AcmeOrderRepository;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
@@ -240,15 +240,15 @@ public class OrderController extends ACMEController {
   			 * check the order status:
   			 * only 'pending' and 'processing' status of not-yet-expired orders need to be considered
   			 */
-  			if( (orderDao.getStatus() == OrderStatus.PENDING) || (orderDao.getStatus() == OrderStatus.PROCESSING )) {
+  			if( (orderDao.getStatus() == AcmeOrderStatus.PENDING) || (orderDao.getStatus() == AcmeOrderStatus.PROCESSING )) {
   				if( orderDao.getExpires().isBefore(LocalDate.now()) ) {
 					LOG.debug("pending order {} expired on ", orderDao.getOrderId(), orderDao.getExpires().toString());
-  			  	  	orderDao.setStatus(OrderStatus.INVALID);
+  			  	  	orderDao.setStatus(AcmeOrderStatus.INVALID);
 				} else {
 					
 					for(String san: snSet) {
 						boolean bSanFound = false;
-						for (Authorization authDao : orderDao.getAuthorizations()) {
+						for (AcmeAuthorization authDao : orderDao.getAcmeAuthorizations()) {
 							if( san.equalsIgnoreCase(authDao.getValue())) {
 								LOG.debug("san '{}' part of order {} in authorization {}", san, orderDao.getOrderId(), authDao.toString());
 								bSanFound = true;
@@ -265,7 +265,7 @@ public class OrderController extends ACMEController {
 					 */
 					boolean orderReady = true;
 					
-					for (Authorization authDao : orderDao.getAuthorizations()) {
+					for (AcmeAuthorization authDao : orderDao.getAcmeAuthorizations()) {
 
 						boolean authReady = false;
 						for (AcmeChallenge challDao : authDao.getChallenges()) {
@@ -276,10 +276,10 @@ public class OrderController extends ACMEController {
 							}
 						}
 						if (authReady) {
-							LOG.debug("found valid challenge, authorization id {} is valid ", authDao.getAuthorizationId());
+							LOG.debug("found valid challenge, authorization id {} is valid ", authDao.getAcmeAuthorizationId());
 						} else {
 							LOG.debug("no valid challange, authorization id {} and order {} fails ",
-									authDao.getAuthorizationId(), orderDao.getOrderId());
+									authDao.getAcmeAuthorizationId(), orderDao.getOrderId());
 							orderReady = false;
 							break;
 						}
@@ -287,7 +287,7 @@ public class OrderController extends ACMEController {
 
 					if (orderReady) {
 						LOG.debug("order status {} changes to ready for order {}", orderDao.getStatus(), orderDao.getOrderId());
-						orderDao.setStatus(OrderStatus.READY);
+						orderDao.setStatus(AcmeOrderStatus.READY);
 						
 					  	LOG.debug("order {} status 'ready', producing certificate", orderDao.getOrderId());
 				  	  	startCertificateCreationProcess(orderDao, CryptoUtil.pkcs10RequestToPem( p10Holder.getP10Req()));
@@ -302,7 +302,7 @@ public class OrderController extends ACMEController {
 			}
 
 			// certificate creation only on status 'Ready' and no certificate created, yet
-  	  		if((orderDao.getStatus() == OrderStatus.READY) && (orderDao.getCertificate() == null)){
+  	  		if((orderDao.getStatus() == AcmeOrderStatus.READY) && (orderDao.getCertificate() == null)){
 			  	LOG.debug("order {} status 'ready', producing certificate", orderDao.getOrderId());
 
 /*			  	
@@ -339,9 +339,9 @@ public class OrderController extends ACMEController {
 
 		
 		Set<String> authorizationsResp = new HashSet<String>();
-		for( Authorization authDao: orderDao.getAuthorizations()) {
+		for( AcmeAuthorization authDao: orderDao.getAcmeAuthorizations()) {
 			UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(baseUriBuilder.build().normalize().toUri());
-			authorizationsResp.add(locationUriOfAuth(authDao.getAuthorizationId(), uriBuilder).toString());
+			authorizationsResp.add(locationUriOfAuth(authDao.getAcmeAuthorizationId(), uriBuilder).toString());
 		}
 		
 		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(baseUriBuilder.build().normalize().toUri());
@@ -381,7 +381,7 @@ public class OrderController extends ACMEController {
      */
 	private Certificate startCertificateCreationProcess(AcmeOrder orderDao, final String csrAsPem)  {
 		
-		orderDao.setStatus(OrderStatus.PROCESSING);
+		orderDao.setStatus(AcmeOrderStatus.PROCESSING);
 		
 		// BPNM call
 		try {
@@ -399,18 +399,18 @@ public class OrderController extends ACMEController {
 			if(cert != null) {
 				LOG.debug("updating order id {} with new certificate id {}", orderDao.getOrderId(), cert.getId());
 				orderDao.setCertificate(cert);
-				orderDao.setStatus(OrderStatus.READY);
+				orderDao.setStatus(AcmeOrderStatus.READY);
 				
 				LOG.debug("adding certificate attribute 'ACME_ACCOUNT_ID' {} for certificate id {}", orderDao.getAccount().getAccountId(), cert.getId());
-				certUtil.addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ACME_ACCOUNT_ID, orderDao.getAccount().getAccountId());
-				certUtil.addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ACME_ORDER_ID, orderDao.getOrderId());
+				certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ACME_ACCOUNT_ID, orderDao.getAccount().getAccountId());
+				certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ACME_ORDER_ID, orderDao.getOrderId());
 				
 				certificateRepository.save(cert);
 				
 				return cert;
 				
 			} else {
-				orderDao.setStatus(OrderStatus.INVALID);
+				orderDao.setStatus(AcmeOrderStatus.INVALID);
 				LOG.warn("creation of certificate by ACME order {} failed ", orderDao.getOrderId());
 			}
 

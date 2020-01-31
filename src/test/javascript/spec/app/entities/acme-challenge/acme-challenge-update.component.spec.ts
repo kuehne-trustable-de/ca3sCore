@@ -9,7 +9,7 @@ import AcmeChallengeUpdateComponent from '@/entities/acme-challenge/acme-challen
 import AcmeChallengeClass from '@/entities/acme-challenge/acme-challenge-update.component';
 import AcmeChallengeService from '@/entities/acme-challenge/acme-challenge.service';
 
-import AuthorizationService from '@/entities/authorization/authorization.service';
+import AcmeAuthorizationService from '@/entities/acme-authorization/acme-authorization.service';
 
 const localVue = createLocalVue();
 
@@ -38,7 +38,7 @@ describe('Component Tests', () => {
           alertService: () => new AlertService(store),
           acmeChallengeService: () => acmeChallengeServiceStub,
 
-          authorizationService: () => new AuthorizationService()
+          acmeAuthorizationService: () => new AcmeAuthorizationService()
         }
       });
       comp = wrapper.vm;

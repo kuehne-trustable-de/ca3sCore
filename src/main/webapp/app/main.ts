@@ -46,6 +46,9 @@ import AcmeChallengeService from '@/entities/acme-challenge/acme-challenge.servi
 import NonceService from '@/entities/nonce/nonce.service';
 import ImportedURLService from '@/entities/imported-url/imported-url.service';
 import ProtectedContentService from '@/entities/protected-content/protected-content.service';
+import AcmeIdentifierService from '@/entities/acme-identifier/acme-identifier.service';
+import AcmeAuthorizationService from '@/entities/acme-authorization/acme-authorization.service';
+import AcmeNonceService from '@/entities/acme-nonce/acme-nonce.service';
 // jhipster-needle-add-entity-service-to-main-import - JHipster will import entities services here
 
 Vue.config.productionTip = false;
@@ -125,6 +128,9 @@ new Vue({
     nonceService: () => new NonceService(),
     importedURLService: () => new ImportedURLService(),
     protectedContentService: () => new ProtectedContentService(),
+    acmeIdentifierService: () => new AcmeIdentifierService(),
+    acmeAuthorizationService: () => new AcmeAuthorizationService(),
+    acmeNonceService: () => new AcmeNonceService(),
     // jhipster-needle-add-entity-service-to-main - JHipster will import entities services here
     accountService: () => accountService
   },

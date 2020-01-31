@@ -94,7 +94,7 @@ public class ChallengeController extends ACMEController {
 			ChallengeResponse challenge = buildChallengeResponse(challengeDao);
 	
 			if(challengeDao.getStatus() == ChallengeStatus.VALID ) {
-				URI authUri = locationUriOfAuthorization(challengeDao.getAuthorization().getAuthorizationId(), fromCurrentRequestUri());
+				URI authUri = locationUriOfAuthorization(challengeDao.getAcmeAuthorization().getAcmeAuthorizationId(), fromCurrentRequestUri());
 			    additionalHeaders.set("Link", "<" + authUri.toASCIIString() + ">;rel=\"up\"");
 			    return ok().headers(additionalHeaders).body(challenge);
 			}else {
@@ -124,8 +124,8 @@ public class ChallengeController extends ACMEController {
 		}else {
 			AcmeChallenge challengeDao = challengeOpt.get();
 
-			if( challengeDao.getAuthorization().getOrder().getAccount().getAccountId() != acctDao.getAccountId() ) {
-				LOG.warn("Account of signing key {} does not match account id {} associated to given challenge{}", acctDao.getAccountId(), challengeDao.getAuthorization().getOrder().getAccount().getAccountId(), challengeId);
+			if( challengeDao.getAcmeAuthorization().getOrder().getAccount().getAccountId() != acctDao.getAccountId() ) {
+				LOG.warn("Account of signing key {} does not match account id {} associated to given challenge{}", acctDao.getAccountId(), challengeDao.getAcmeAuthorization().getOrder().getAccount().getAccountId(), challengeId);
 				final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "Account / Auth mismatch",
 						BAD_REQUEST, "", ACMEController.NO_INSTANCE);
 				throw new AcmeProblemException(problem);
@@ -160,7 +160,7 @@ public class ChallengeController extends ACMEController {
 
 
 			if( solved) {
-				URI authUri = locationUriOfAuthorization(challengeDao.getAuthorization().getAuthorizationId(), fromCurrentRequestUri());
+				URI authUri = locationUriOfAuthorization(challengeDao.getAcmeAuthorization().getAcmeAuthorizationId(), fromCurrentRequestUri());
 			    additionalHeaders.set("Link", "<" + authUri.toASCIIString() + ">;rel=\"up\"");
 			    return ok().headers(additionalHeaders).body(challenge);
 			}else {
@@ -180,11 +180,11 @@ public class ChallengeController extends ACMEController {
 		int[] ports = {80, 5544, 8800};
 		
 	    String token = challengeDao.getToken();
-	    String pkThumbprint = challengeDao.getAuthorization().getOrder().getAccount().getPublicKeyHash();
+	    String pkThumbprint = challengeDao.getAcmeAuthorization().getOrder().getAccount().getPublicKeyHash();
         String expectedContent = token + '.' + pkThumbprint;
 
 	    String fileNamePath = "/.well-known/acme-challenge/" + token;
-	    String host = challengeDao.getAuthorization().getValue();
+	    String host = challengeDao.getAcmeAuthorization().getValue();
 	    
 	    for( int port: ports) {
 

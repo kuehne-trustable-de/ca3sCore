@@ -63,7 +63,7 @@ public class ACMEHappyPathTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(ACMEHappyPathTest.class);
 
-	@Value("${local.server.port}")
+	@Value("${local.server.port:8080}")
 	int serverPort; // random port chosen by spring test
 
 	@BeforeClass

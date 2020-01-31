@@ -1,10 +1,10 @@
-import { IAuthorization } from '@/shared/model/authorization.model';
-import { IIdentifier } from '@/shared/model/identifier.model';
+import { IAcmeAuthorization } from '@/shared/model/acme-authorization.model';
+import { IAcmeIdentifier } from '@/shared/model/acme-identifier.model';
 import { ICSR } from '@/shared/model/csr.model';
 import { ICertificate } from '@/shared/model/certificate.model';
 import { IACMEAccount } from '@/shared/model/acme-account.model';
 
-export const enum OrderStatus {
+export const enum AcmeOrderStatus {
   PENDING = 'PENDING',
   READY = 'READY',
   PROCESSING = 'PROCESSING',
@@ -15,15 +15,15 @@ export const enum OrderStatus {
 export interface IAcmeOrder {
   id?: number;
   orderId?: number;
-  status?: OrderStatus;
+  status?: AcmeOrderStatus;
   expires?: Date;
   notBefore?: Date;
   notAfter?: Date;
   error?: string;
   finalizeUrl?: string;
   certificateUrl?: string;
-  authorizations?: IAuthorization[];
-  identifiers?: IIdentifier[];
+  acmeAuthorizations?: IAcmeAuthorization[];
+  acmeIdentifiers?: IAcmeIdentifier[];
   csr?: ICSR;
   certificate?: ICertificate;
   account?: IACMEAccount;
@@ -33,15 +33,15 @@ export class AcmeOrder implements IAcmeOrder {
   constructor(
     public id?: number,
     public orderId?: number,
-    public status?: OrderStatus,
+    public status?: AcmeOrderStatus,
     public expires?: Date,
     public notBefore?: Date,
     public notAfter?: Date,
     public error?: string,
     public finalizeUrl?: string,
     public certificateUrl?: string,
-    public authorizations?: IAuthorization[],
-    public identifiers?: IIdentifier[],
+    public acmeAuthorizations?: IAcmeAuthorization[],
+    public acmeIdentifiers?: IAcmeIdentifier[],
     public csr?: ICSR,
     public certificate?: ICertificate,
     public account?: IACMEAccount

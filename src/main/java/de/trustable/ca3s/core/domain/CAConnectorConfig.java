@@ -1,6 +1,4 @@
 package de.trustable.ca3s.core.domain;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -9,12 +7,13 @@ import java.io.Serializable;
 
 import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 
+import de.trustable.ca3s.core.domain.enumeration.Interval;
+
 /**
  * A CAConnectorConfig.
  */
 @Entity
 @Table(name = "ca_connector_config")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class CAConnectorConfig implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -27,8 +26,9 @@ public class CAConnectorConfig implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "ca_connector_type")
+    @Column(name = "ca_connector_type", nullable = false)
     private CAConnectorType caConnectorType;
 
     @Column(name = "ca_url")
@@ -48,6 +48,10 @@ public class CAConnectorConfig implements Serializable {
 
     @Column(name = "selector")
     private String selector;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "jhi_interval")
+    private Interval interval;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -161,6 +165,19 @@ public class CAConnectorConfig implements Serializable {
     public void setSelector(String selector) {
         this.selector = selector;
     }
+
+    public Interval getInterval() {
+        return interval;
+    }
+
+    public CAConnectorConfig interval(Interval interval) {
+        this.interval = interval;
+        return this;
+    }
+
+    public void setInterval(Interval interval) {
+        this.interval = interval;
+    }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
@@ -191,6 +208,7 @@ public class CAConnectorConfig implements Serializable {
             ", defaultCA='" + isDefaultCA() + "'" +
             ", active='" + isActive() + "'" +
             ", selector='" + getSelector() + "'" +
+            ", interval='" + getInterval() + "'" +
             "}";
     }
 }

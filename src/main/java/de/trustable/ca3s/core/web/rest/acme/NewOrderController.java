@@ -34,8 +34,6 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.annotation.concurrent.Immutable;
-
 import org.jose4j.jwt.consumer.JwtContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,16 +47,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import de.trustable.ca3s.core.domain.ACMEAccount;
+import de.trustable.ca3s.core.domain.AcmeAuthorization;
 import de.trustable.ca3s.core.domain.AcmeChallenge;
+import de.trustable.ca3s.core.domain.AcmeIdentifier;
 import de.trustable.ca3s.core.domain.AcmeOrder;
-import de.trustable.ca3s.core.domain.Authorization;
-import de.trustable.ca3s.core.domain.Identifier;
+import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
-import de.trustable.ca3s.core.domain.enumeration.OrderStatus;
+import de.trustable.ca3s.core.repository.AcmeAuthorizationRepository;
 import de.trustable.ca3s.core.repository.AcmeChallengeRepository;
+import de.trustable.ca3s.core.repository.AcmeIdentifierRepository;
 import de.trustable.ca3s.core.repository.AcmeOrderRepository;
-import de.trustable.ca3s.core.repository.AuthorizationRepository;
-import de.trustable.ca3s.core.repository.IdentifierRepository;
 import de.trustable.ca3s.core.service.dto.acme.IdentifierResponse;
 import de.trustable.ca3s.core.service.dto.acme.IdentifiersResponse;
 import de.trustable.ca3s.core.service.dto.acme.NewOrderResponse;
@@ -278,13 +276,13 @@ public class NewOrderController extends ACMEController {
   private AcmeOrderRepository orderRepository;
 
   @Autowired
-  private AuthorizationRepository authorizationRepository;
+  private AcmeAuthorizationRepository authorizationRepository;
 
   @Autowired
   private AcmeChallengeRepository challengeRepository;
   
   @Autowired
-  private IdentifierRepository identRepository;
+  private AcmeIdentifierRepository identRepository;
 
 
   /**
@@ -336,7 +334,7 @@ public class NewOrderController extends ACMEController {
 		
 		orderDao.setAccount(acctDao);
 		
-		orderDao.setStatus(OrderStatus.PENDING);
+		orderDao.setStatus(AcmeOrderStatus.PENDING);
 
 		LocalDate now = LocalDate.now();
 		orderDao.setExpires(now.plusDays(DEFAULT_ORDER_VALID_DAYS));
@@ -345,26 +343,26 @@ public class NewOrderController extends ACMEController {
 
 		orderRepository.save(orderDao);
 
-		Set<Identifier> identifiers = new HashSet<Identifier>();
+		Set<AcmeIdentifier> identifiers = new HashSet<AcmeIdentifier>();
 		for( IdentifierResponse ident: newIdentifiers.getIdentifiers()) {
-			Identifier identDao = new Identifier();
-			identDao.setIdentifierId(generateId());
+			AcmeIdentifier identDao = new AcmeIdentifier();
+			identDao.setAcmeIdentifierId(generateId());
 			identDao.setOrder(orderDao);
 			identDao.setType(ident.getType());
 			identDao.setValue( ident.getValue());
 			identifiers.add(identDao);
 		}
 		identRepository.saveAll(identifiers);
-		orderDao.setIdentifiers(identifiers);
+		orderDao.setAcmeIdentifiers(identifiers);
 		
 		orderRepository.save(orderDao);
 		
-		Set<Authorization> authorizations = new HashSet<Authorization>();
+		Set<AcmeAuthorization> authorizations = new HashSet<AcmeAuthorization>();
 		Set<String> authorizationsResp = new HashSet<String>();;
 
-		for( Identifier identDao: identifiers) {
-			Authorization authorizationDao = new Authorization();
-			authorizationDao.setAuthorizationId(generateId());
+		for( AcmeIdentifier identDao: identifiers) {
+			AcmeAuthorization authorizationDao = new AcmeAuthorization();
+			authorizationDao.setAcmeAuthorizationId(generateId());
 			authorizationDao.setOrder(orderDao);
 			authorizationDao.setType(identDao.getType());
 			authorizationDao.setValue( identDao.getValue());
@@ -373,7 +371,7 @@ public class NewOrderController extends ACMEController {
 			Set<AcmeChallenge> challenges = new HashSet<AcmeChallenge>();
 			AcmeChallenge challengeDao = new AcmeChallenge();
 			challengeDao.setChallengeId(generateId());
-			challengeDao.setAuthorization(authorizationDao);
+			challengeDao.setAcmeAuthorization(authorizationDao);
 			
 			// @todo expand to arbitrary types
 			challengeDao.setType( "http-01");
@@ -387,10 +385,10 @@ public class NewOrderController extends ACMEController {
 			
 			authorizations.add(authorizationDao);
 			
-			authorizationsResp.add(locationUriOfAuth(authorizationDao.getAuthorizationId(), fromCurrentRequestUri()).toString());
+			authorizationsResp.add(locationUriOfAuth(authorizationDao.getAcmeAuthorizationId(), fromCurrentRequestUri()).toString());
 		}
 
-		orderDao.setAuthorizations(authorizations);
+		orderDao.setAcmeAuthorizations(authorizations);
 		orderRepository.save(orderDao);
 		
 		String finalizeUrl = locationUriOfOrderFinalize(orderDao.getOrderId(), fromCurrentRequestUri()).toString();

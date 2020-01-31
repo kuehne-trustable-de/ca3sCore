@@ -24,8 +24,8 @@
       "error": "Error",
       "finalizeUrl": "Finalize Url",
       "certificateUrl": "Certificate Url",
-      "authorizations": "Authorizations",
-      "identifiers": "Identifiers",
+      "acmeAuthorizations": "Acme Authorizations",
+      "acmeIdentifiers": "Acme Identifiers",
       "csr": "Csr",
       "certificate": "Certificate",
       "account": "Account"

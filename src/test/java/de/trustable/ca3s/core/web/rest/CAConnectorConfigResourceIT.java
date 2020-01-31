@@ -29,6 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
+import de.trustable.ca3s.core.domain.enumeration.Interval;
 /**
  * Integration tests for the {@link CAConnectorConfigResource} REST controller.
  */
@@ -58,6 +59,9 @@ public class CAConnectorConfigResourceIT {
 
     private static final String DEFAULT_SELECTOR = "AAAAAAAAAA";
     private static final String UPDATED_SELECTOR = "BBBBBBBBBB";
+
+    private static final Interval DEFAULT_INTERVAL = Interval.MINUTE;
+    private static final Interval UPDATED_INTERVAL = Interval.HOUR;
 
     @Autowired
     private CAConnectorConfigRepository cAConnectorConfigRepository;
@@ -111,7 +115,8 @@ public class CAConnectorConfigResourceIT {
             .pollingOffset(DEFAULT_POLLING_OFFSET)
             .defaultCA(DEFAULT_DEFAULT_CA)
             .active(DEFAULT_ACTIVE)
-            .selector(DEFAULT_SELECTOR);
+            .selector(DEFAULT_SELECTOR)
+            .interval(DEFAULT_INTERVAL);
         return cAConnectorConfig;
     }
     /**
@@ -129,7 +134,8 @@ public class CAConnectorConfigResourceIT {
             .pollingOffset(UPDATED_POLLING_OFFSET)
             .defaultCA(UPDATED_DEFAULT_CA)
             .active(UPDATED_ACTIVE)
-            .selector(UPDATED_SELECTOR);
+            .selector(UPDATED_SELECTOR)
+            .interval(UPDATED_INTERVAL);
         return cAConnectorConfig;
     }
 
@@ -161,6 +167,7 @@ public class CAConnectorConfigResourceIT {
         assertThat(testCAConnectorConfig.isDefaultCA()).isEqualTo(DEFAULT_DEFAULT_CA);
         assertThat(testCAConnectorConfig.isActive()).isEqualTo(DEFAULT_ACTIVE);
         assertThat(testCAConnectorConfig.getSelector()).isEqualTo(DEFAULT_SELECTOR);
+        assertThat(testCAConnectorConfig.getInterval()).isEqualTo(DEFAULT_INTERVAL);
     }
 
     @Test
@@ -203,6 +210,24 @@ public class CAConnectorConfigResourceIT {
 
     @Test
     @Transactional
+    public void checkCaConnectorTypeIsRequired() throws Exception {
+        int databaseSizeBeforeTest = cAConnectorConfigRepository.findAll().size();
+        // set the field null
+        cAConnectorConfig.setCaConnectorType(null);
+
+        // Create the CAConnectorConfig, which fails.
+
+        restCAConnectorConfigMockMvc.perform(post("/api/ca-connector-configs")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(cAConnectorConfig)))
+            .andExpect(status().isBadRequest());
+
+        List<CAConnectorConfig> cAConnectorConfigList = cAConnectorConfigRepository.findAll();
+        assertThat(cAConnectorConfigList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     public void getAllCAConnectorConfigs() throws Exception {
         // Initialize the database
         cAConnectorConfigRepository.saveAndFlush(cAConnectorConfig);
@@ -219,7 +244,8 @@ public class CAConnectorConfigResourceIT {
             .andExpect(jsonPath("$.[*].pollingOffset").value(hasItem(DEFAULT_POLLING_OFFSET)))
             .andExpect(jsonPath("$.[*].defaultCA").value(hasItem(DEFAULT_DEFAULT_CA.booleanValue())))
             .andExpect(jsonPath("$.[*].active").value(hasItem(DEFAULT_ACTIVE.booleanValue())))
-            .andExpect(jsonPath("$.[*].selector").value(hasItem(DEFAULT_SELECTOR)));
+            .andExpect(jsonPath("$.[*].selector").value(hasItem(DEFAULT_SELECTOR)))
+            .andExpect(jsonPath("$.[*].interval").value(hasItem(DEFAULT_INTERVAL.toString())));
     }
     
     @Test
@@ -240,7 +266,8 @@ public class CAConnectorConfigResourceIT {
             .andExpect(jsonPath("$.pollingOffset").value(DEFAULT_POLLING_OFFSET))
             .andExpect(jsonPath("$.defaultCA").value(DEFAULT_DEFAULT_CA.booleanValue()))
             .andExpect(jsonPath("$.active").value(DEFAULT_ACTIVE.booleanValue()))
-            .andExpect(jsonPath("$.selector").value(DEFAULT_SELECTOR));
+            .andExpect(jsonPath("$.selector").value(DEFAULT_SELECTOR))
+            .andExpect(jsonPath("$.interval").value(DEFAULT_INTERVAL.toString()));
     }
 
     @Test
@@ -271,7 +298,8 @@ public class CAConnectorConfigResourceIT {
             .pollingOffset(UPDATED_POLLING_OFFSET)
             .defaultCA(UPDATED_DEFAULT_CA)
             .active(UPDATED_ACTIVE)
-            .selector(UPDATED_SELECTOR);
+            .selector(UPDATED_SELECTOR)
+            .interval(UPDATED_INTERVAL);
 
         restCAConnectorConfigMockMvc.perform(put("/api/ca-connector-configs")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -290,6 +318,7 @@ public class CAConnectorConfigResourceIT {
         assertThat(testCAConnectorConfig.isDefaultCA()).isEqualTo(UPDATED_DEFAULT_CA);
         assertThat(testCAConnectorConfig.isActive()).isEqualTo(UPDATED_ACTIVE);
         assertThat(testCAConnectorConfig.getSelector()).isEqualTo(UPDATED_SELECTOR);
+        assertThat(testCAConnectorConfig.getInterval()).isEqualTo(UPDATED_INTERVAL);
     }
 
     @Test

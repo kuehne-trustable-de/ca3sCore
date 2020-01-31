@@ -33,6 +33,7 @@
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.defaultCA')">Default CA</span></th>
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.active')">Active</span></th>
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.selector')">Selector</span></th>
+                    <th><span v-text="$t('ca3SApp.cAConnectorConfig.interval')">Interval</span></th>
                     <th></th>
                 </tr>
                 </thead>
@@ -50,6 +51,7 @@
                     <td>{{cAConnectorConfig.defaultCA}}</td>
                     <td>{{cAConnectorConfig.active}}</td>
                     <td>{{cAConnectorConfig.selector}}</td>
+                    <td v-text="$t('ca3SApp.Interval.' + cAConnectorConfig.interval)">{{cAConnectorConfig.interval}}</td>
                     <td class="text-right">
                         <div class="btn-group">
                             <router-link :to="{name: 'CAConnectorConfigView', params: {cAConnectorConfigId: cAConnectorConfig.id}}" tag="button" class="btn btn-info btn-sm details">

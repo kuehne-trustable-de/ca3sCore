@@ -41,11 +41,11 @@
                         <span v-text="$t('ca3SApp.ChallengeStatus.' + acmeChallenge.status)">{{acmeChallenge.status}}</span>
                     </dd>
                     <dt>
-                        <span v-text="$t('ca3SApp.acmeChallenge.authorization')">Authorization</span>
+                        <span v-text="$t('ca3SApp.acmeChallenge.acmeAuthorization')">Acme Authorization</span>
                     </dt>
                     <dd>
-                        <div v-if="acmeChallenge.authorization">
-                            <router-link :to="{name: 'AuthorizationView', params: {authorizationId: acmeChallenge.authorization.id}}">{{acmeChallenge.authorization.id}}</router-link>
+                        <div v-if="acmeChallenge.acmeAuthorization">
+                            <router-link :to="{name: 'AcmeAuthorizationView', params: {acmeAuthorizationId: acmeChallenge.acmeAuthorization.id}}">{{acmeChallenge.acmeAuthorization.id}}</router-link>
                         </div>
                     </dd>
                 </dl>
@@ -54,6 +54,7 @@
                         class="btn btn-info">
                     <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.back')"> Back</span>
                 </button>
+                
                 <router-link v-if="acmeChallenge.id" :to="{name: 'AcmeChallengeEdit', params: {acmeChallengeId: acmeChallenge.id}}" tag="button" class="btn btn-primary">
                     <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.edit')"> Edit</span>
                 </router-link>

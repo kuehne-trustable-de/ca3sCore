@@ -25,11 +25,11 @@
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.acmeOrder.status')" for="acme-order-status">Status</label>
                         <select class="form-control" name="status" :class="{'valid': !$v.acmeOrder.status.$invalid, 'invalid': $v.acmeOrder.status.$invalid }" v-model="$v.acmeOrder.status.$model" id="acme-order-status"  required>
-                            <option value="PENDING" v-bind:label="$t('ca3SApp.OrderStatus.PENDING')">PENDING</option>
-                            <option value="READY" v-bind:label="$t('ca3SApp.OrderStatus.READY')">READY</option>
-                            <option value="PROCESSING" v-bind:label="$t('ca3SApp.OrderStatus.PROCESSING')">PROCESSING</option>
-                            <option value="VALID" v-bind:label="$t('ca3SApp.OrderStatus.VALID')">VALID</option>
-                            <option value="INVALID" v-bind:label="$t('ca3SApp.OrderStatus.INVALID')">INVALID</option>
+                            <option value="PENDING" v-bind:label="$t('ca3SApp.AcmeOrderStatus.PENDING')">PENDING</option>
+                            <option value="READY" v-bind:label="$t('ca3SApp.AcmeOrderStatus.READY')">READY</option>
+                            <option value="PROCESSING" v-bind:label="$t('ca3SApp.AcmeOrderStatus.PROCESSING')">PROCESSING</option>
+                            <option value="VALID" v-bind:label="$t('ca3SApp.AcmeOrderStatus.VALID')">VALID</option>
+                            <option value="INVALID" v-bind:label="$t('ca3SApp.AcmeOrderStatus.INVALID')">INVALID</option>
                         </select>
                         <div v-if="$v.acmeOrder.status.$anyDirty && $v.acmeOrder.status.$invalid">
                             <small class="form-text text-danger" v-if="!$v.acmeOrder.status.required" v-text="$t('entity.validation.required')">

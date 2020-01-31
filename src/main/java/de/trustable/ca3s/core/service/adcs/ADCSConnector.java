@@ -214,7 +214,7 @@ public class ADCSConnector {
 				certDao = certUtil.createCertificate(certResponse.getB64Cert(), csr, null);
 
 				// the Request ID is specific to ADCS
-				certUtil.addCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_CA_PROCESSING_ID,
+				certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_CA_PROCESSING_ID,
 						certResponse.getReqId());
 				certificateRepository.save(certDao);
 
@@ -342,8 +342,8 @@ public class ADCSConnector {
 								null, false);
 
 						// the Request ID is specific to ADCS instance
-						certUtil.addCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_PROCESSING_CA, info);
-						certUtil.addCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_CA_PROCESSING_ID,
+						certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_PROCESSING_CA, info);
+						certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_CA_PROCESSING_ID,
 								certResponse.getReqId());
 						certificateRepository.save(certDao);
 

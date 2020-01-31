@@ -1,0 +1,12 @@
+{
+  "ca3SApp": {
+    "AcmeOrderStatus": {
+      "null": "",
+      "PENDING": "PENDING",
+      "READY": "READY",
+      "PROCESSING": "PROCESSING",
+      "VALID": "VALID",
+      "INVALID": "INVALID"
+    }
+  }
+}

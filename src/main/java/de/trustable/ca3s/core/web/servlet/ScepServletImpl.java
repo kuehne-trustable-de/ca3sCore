@@ -140,13 +140,15 @@ public class ScepServletImpl extends ScepServlet {
 						keyPair.getPrivate(),
 						"password".toCharArray());
 
+				LOGGER.debug("created csr SCEPRecepient '{}'", p10ReqPem );
+
 				TransactionId tid = new TransactionId(new byte[] {1});
 			
 				currentRecepientCert = startCertificateCreationProcess(p10ReqPem, tid);
 				
 				storePrivateKey(currentRecepientCert, keyPair);			
 
-				certUtil.addCertAttribute(currentRecepientCert, CertificateAttribute.ATTRIBUTE_SCEP_RECIPIENT, "true");
+				certUtil.setCertAttribute(currentRecepientCert, CertificateAttribute.ATTRIBUTE_SCEP_RECIPIENT, "true");
 
 				certRepository.save(currentRecepientCert);
 
@@ -182,7 +184,7 @@ public class ScepServletImpl extends ScepServlet {
 			if(cert != null) {
 				LOGGER.debug("new certificate id '{}' for SCEP transaction id '{}'", cert.getId(), transId.toString() );
 				
-				certUtil.addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SCEP_TRANS_ID, transId.toString());
+				certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SCEP_TRANS_ID, transId.toString());
 				
 				certRepository.save(cert);
 				
@@ -262,10 +264,10 @@ public class ScepServletImpl extends ScepServlet {
                 throw new OperationFailureException(FailInfo.badRequest);
         	}
         	
-    		certUtil.addCertAttribute(newCertDao, CertificateAttribute.ATTRIBUTE_SCEP_TRANS_ID, transId.toString());
+    		certUtil.setCertAttribute(newCertDao, CertificateAttribute.ATTRIBUTE_SCEP_TRANS_ID, transId.toString());
 
 			certRepository.save(newCertDao);
-            X509Certificate issued = cryptoUtil.convertPemToCertificate(newCertDao.getContent()); 
+            X509Certificate issued = CryptoUtil.convertPemToCertificate(newCertDao.getContent()); 
             
             LOGGER.debug("Issuing {}", issued);
 
@@ -344,7 +346,7 @@ public class ScepServletImpl extends ScepServlet {
 
         for(Certificate certDao: certDaoList ){
         	try {
-        		X509Certificate x509Cert = cryptoUtil.convertPemToCertificate(certDao.getContent());
+        		X509Certificate x509Cert = CryptoUtil.convertPemToCertificate(certDao.getContent());
         		if( x509Cert.getIssuerX500Principal().getName().equals(issuer.toString())){
                     LOGGER.debug("issuer match for doGetCert(" + issuer.toString() +", "+ serial.toString() +")");
         		}
@@ -423,7 +425,7 @@ public class ScepServletImpl extends ScepServlet {
     protected X509Certificate getRecipient() {
         
         try {
-        	X509Certificate ca = cryptoUtil.convertPemToCertificate(getCurrentRecepientCert().getContent());
+        	X509Certificate ca = CryptoUtil.convertPemToCertificate(getCurrentRecepientCert().getContent());
 	        LOGGER.debug("getRecipient() returns " + ca.toString());
 	        return ca;
 		} catch (GeneralSecurityException | ServletException e) {

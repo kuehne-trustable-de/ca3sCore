@@ -11,7 +11,10 @@
         {
             "fieldName": "caConnectorType",
             "fieldType": "CAConnectorType",
-            "fieldValues": "INTERNAL,CMP,ADCS,DIRECTORY"
+            "fieldValues": "INTERNAL,CMP,ADCS,ADCS_CERTIFICATE_INVENTORY,DIRECTORY",
+            "fieldValidateRules": [
+                "required"
+            ]
         },
         {
             "fieldName": "caUrl",
@@ -36,6 +39,11 @@
         {
             "fieldName": "selector",
             "fieldType": "String"
+        },
+        {
+            "fieldName": "interval",
+            "fieldType": "Interval",
+            "fieldValues": "MINUTE,HOUR,DAY,WEEK,MONTH"
         }
     ],
     "relationships": [],

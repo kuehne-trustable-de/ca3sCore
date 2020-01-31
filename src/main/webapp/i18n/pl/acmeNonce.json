@@ -1,0 +1,23 @@
+{
+  "ca3SApp": {
+    "acmeNonce": {
+      "home": {
+        "title": "Acme Nonce",
+        "createLabel": "Dodaj Acme Nonce",
+        "createOrEditLabel": "Dodaj lub edytuj: Acme Nonce",
+        "notFound": "No Acme Nonces found"
+      },
+      "created": "Utworzono nowy obiekt typu Acme Nonce z identyfikatorem {{ param }}",
+      "updated": "Uaktualniono obiekt typu Acme Nonce z identyfikatorem {{ param }}",
+      "deleted": "Usunięto obiekt typu Acme Nonce z identyfikatorem {{ param }}",
+      "delete": {
+        "question": "Czy na pewno chcesz usunąć Acme Nonce {{ id }}?"
+      },
+      "detail": {
+        "title": "Acme Nonce"
+      },
+      "nonceValue": "Nonce Value",
+      "expiresAt": "Expires At"
+    }
+  }
+}

@@ -1,19 +1,25 @@
+enum Interval {
+    MINUTE, HOUR, DAY, WEEK, MONTH
+}
+
+
 entity CAConnectorConfig{
 
 //	configId Long required
 
 	name String required
-	caConnectorType CAConnectorType
+	caConnectorType CAConnectorType required
 	caUrl String
 	secret String
 	pollingOffset Integer 
 	defaultCA Boolean
 	active Boolean
 	selector String
+	interval Interval
 }
 
 enum CAConnectorType {
-    INTERNAL, CMP, ADCS, DIRECTORY
+    INTERNAL, CMP, ADCS, ADCS_CERTIFICATE_INVENTORY, DIRECTORY
 }
 
 entity CertificateAttribute {
@@ -53,8 +59,6 @@ enum CsrStatus {
 
 entity CSR{
 
-//  	id Long required
-
    	csrBase64 TextBlob required
   	requestedOn LocalDate required
   	status CsrStatus required
@@ -68,9 +72,6 @@ entity CSR{
 }
 
 entity CsrAttribute{
-
-//	@GeneratedValue
-//  	attributeId Long required
 
   	name String required
   	value String required
@@ -102,26 +103,17 @@ entity RDN{
 
 entity RDNAttribute{
 
-//	@GeneratedValue
-//  	id Long required
-
   	attributeType String required
   	attributeValue String required
 }
 
 entity RequestAttribute{
 
-//	@GeneratedValue
-//  	id Long required
-
   	attributeType String required
 
 }
 
 entity RequestAttributeValue{
-
-//	@GeneratedValue
-//  	id Long required
 
   	attributeValue String required
 
@@ -194,7 +186,7 @@ entity AcmeContact {
 
 // The status of this order. Possible values are:
 // "pending", "ready", "processing", "valid", and "invalid". (See Section 7.1.6)
-enum OrderStatus {
+enum AcmeOrderStatus {
     PENDING, READY, PROCESSING, VALID, INVALID
 }
 
@@ -204,7 +196,7 @@ entity AcmeOrder{
 //	@GeneratedValue(generator = "RandomGenerator.generatorName")
 	orderId Long required
 
-	status OrderStatus required
+	status AcmeOrderStatus required
 
 // expires (optional, string): The timestamp after which the server will
 // consider this order invalid, encoded in the format specified in RFC 3339
@@ -228,7 +220,7 @@ entity AcmeOrder{
 
 
 // finalize (required, string): A URL that a CSR must be POSTed to once all of
-// the order's authorizations are satisfied to finalize the order. The result of
+// the order's AcmeAuthorizations are satisfied to finalize the order. The result of
 // a successful finalization will be the population of the certificate URL for
 // the order.
 	finalizeUrl String
@@ -239,14 +231,12 @@ entity AcmeOrder{
 
 }
 
-entity Identifier {
+entity AcmeIdentifier {
 	
-//	@GenericGenerator(name="RandomGenerator.generatorName", strategy="de.trustable.ca3s.acme.server.entity.RandomGenerator")
-//	@GeneratedValue(generator="RandomGenerator.generatorName")
-	identifierId Long required
+	acmeIdentifierId Long required
 
-// type (required, string): The type of identifier. This document defines the
-// "dns" identifier type. See the registry defined in Section 9.7.7 for any
+// type (required, string): The type of AcmeIdentifier. This document defines the
+// "dns" AcmeIdentifier type. See the registry defined in Section 9.7.7 for any
 // others.
 	type String required
 
@@ -254,11 +244,11 @@ entity Identifier {
     
 }
 
-entity Authorization {
+entity AcmeAuthorization {
 
 //	@GenericGenerator(name="RandomGenerator.generatorName", strategy="de.trustable.ca3s.acme.server.entity.RandomGenerator")
 //	@GeneratedValue(generator="RandomGenerator.generatorName")
-	authorizationId Long required
+	AcmeAuthorizationId Long required
 	
 	type String required
 
@@ -273,9 +263,6 @@ enum ChallengeStatus {
 
 entity AcmeChallenge {
 
-// @GenericGenerator(name="RandomGenerator.generatorName", strategy="de.trustable.ca3s.acme.server.entity.RandomGenerator")
-// 	@GeneratedValue(generator="RandomGenerator.generatorName")
-
 	challengeId Long required
 	type String required
 	value String required
@@ -285,7 +272,7 @@ entity AcmeChallenge {
 	
 }
 
-entity Nonce {
+entity AcmeNonce {
 	nonceValue String
 	expiresAt LocalDate
 }
@@ -320,20 +307,20 @@ relationship OneToMany {
 //  request, as described in Section 7.1.2.1.
 	ACMEAccount{orders} to AcmeOrder{account}
 
-// authorizations (required, array of string): For pending orders, the
-// authorizations that the client needs to complete before the requested
+// AcmeAuthorizations (required, array of string): For pending orders, the
+// AcmeAuthorizations that the client needs to complete before the requested
 // certificate can be issued (see Section 7.5), including unexpired
-// authorizations that the client has completed in the past for identifiers
-// specified in the order. The authorizations required are dictated by server
-// policy and there may not be a 1:1 relationship between the order identifiers
-// and the authorizations required. For final orders (in the "valid" or
-// "invalid" state), the authorizations that were completed. Each entry is a URL
-// from which an authorization can be fetched with a POST-as-GET request.
-	AcmeOrder{authorizations} to Authorization{order}
+// AcmeAuthorizations that the client has completed in the past for AcmeIdentifiers
+// specified in the order. The AcmeAuthorizations required are dictated by server
+// policy and there may not be a 1:1 relationship between the order AcmeIdentifiers
+// and the AcmeAuthorizations required. For final orders (in the "valid" or
+// "invalid" state), the AcmeAuthorizations that were completed. Each entry is a URL
+// from which an AcmeAuthorization can be fetched with a POST-as-GET request.
+	AcmeOrder{AcmeAuthorizations} to AcmeAuthorization{order}
 
-	AcmeOrder{identifiers} to Identifier{order}
+	AcmeOrder{AcmeIdentifiers} to AcmeIdentifier{order}
 
-	Authorization{challenges} to AcmeChallenge{authorization}
+	AcmeAuthorization{challenges} to AcmeChallenge{AcmeAuthorization}
 
 }
 

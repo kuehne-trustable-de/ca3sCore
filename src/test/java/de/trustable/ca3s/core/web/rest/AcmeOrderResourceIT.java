@@ -30,7 +30,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import de.trustable.ca3s.core.domain.enumeration.OrderStatus;
+import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 /**
  * Integration tests for the {@link AcmeOrderResource} REST controller.
  */
@@ -40,8 +40,8 @@ public class AcmeOrderResourceIT {
     private static final Long DEFAULT_ORDER_ID = 1L;
     private static final Long UPDATED_ORDER_ID = 2L;
 
-    private static final OrderStatus DEFAULT_STATUS = OrderStatus.PENDING;
-    private static final OrderStatus UPDATED_STATUS = OrderStatus.READY;
+    private static final AcmeOrderStatus DEFAULT_STATUS = AcmeOrderStatus.PENDING;
+    private static final AcmeOrderStatus UPDATED_STATUS = AcmeOrderStatus.READY;
 
     private static final LocalDate DEFAULT_EXPIRES = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_EXPIRES = LocalDate.now(ZoneId.systemDefault());
@@ -233,7 +233,7 @@ public class AcmeOrderResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(acmeOrder.getId().intValue())))
             .andExpect(jsonPath("$.[*].orderId").value(hasItem(DEFAULT_ORDER_ID.intValue())))
-            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.getValue())))
+            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString().toLowerCase())))
             .andExpect(jsonPath("$.[*].expires").value(hasItem(DEFAULT_EXPIRES.toString())))
             .andExpect(jsonPath("$.[*].notBefore").value(hasItem(DEFAULT_NOT_BEFORE.toString())))
             .andExpect(jsonPath("$.[*].notAfter").value(hasItem(DEFAULT_NOT_AFTER.toString())))
@@ -254,7 +254,7 @@ public class AcmeOrderResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(acmeOrder.getId().intValue()))
             .andExpect(jsonPath("$.orderId").value(DEFAULT_ORDER_ID.intValue()))
-            .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.getValue()))
+            .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString().toLowerCase()))
             .andExpect(jsonPath("$.expires").value(DEFAULT_EXPIRES.toString()))
             .andExpect(jsonPath("$.notBefore").value(DEFAULT_NOT_BEFORE.toString()))
             .andExpect(jsonPath("$.notAfter").value(DEFAULT_NOT_AFTER.toString()))

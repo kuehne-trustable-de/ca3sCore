@@ -76,10 +76,10 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-control-label" v-bind:value="$t('ca3SApp.acmeChallenge.authorization')" for="acme-challenge-authorization">Authorization</label>
-                        <select class="form-control" id="acme-challenge-authorization" name="authorization" v-model="acmeChallenge.authorization">
+                        <label class="form-control-label" v-bind:value="$t('ca3SApp.acmeChallenge.acmeAuthorization')" for="acme-challenge-acmeAuthorization">Acme Authorization</label>
+                        <select class="form-control" id="acme-challenge-acmeAuthorization" name="acmeAuthorization" v-model="acmeChallenge.acmeAuthorization">
                             <option v-bind:value="null"></option>
-                            <option v-bind:value="acmeChallenge.authorization && authorizationOption.id === acmeChallenge.authorization.id ? acmeChallenge.authorization : authorizationOption" v-for="authorizationOption in authorizations" :key="authorizationOption.id">{{authorizationOption.id}}</option>
+                            <option v-bind:value="acmeChallenge.acmeAuthorization && acmeAuthorizationOption.id === acmeChallenge.acmeAuthorization.id ? acmeChallenge.acmeAuthorization : acmeAuthorizationOption" v-for="acmeAuthorizationOption in acmeAuthorizations" :key="acmeAuthorizationOption.id">{{acmeAuthorizationOption.id}}</option>
                         </select>
                     </div>
                 </div>

@@ -9,9 +9,9 @@ import AcmeOrderUpdateComponent from '@/entities/acme-order/acme-order-update.vu
 import AcmeOrderClass from '@/entities/acme-order/acme-order-update.component';
 import AcmeOrderService from '@/entities/acme-order/acme-order.service';
 
-import AuthorizationService from '@/entities/authorization/authorization.service';
+import AcmeAuthorizationService from '@/entities/acme-authorization/acme-authorization.service';
 
-import IdentifierService from '@/entities/identifier/identifier.service';
+import AcmeIdentifierService from '@/entities/acme-identifier/acme-identifier.service';
 
 import CSRService from '@/entities/csr/csr.service';
 
@@ -46,9 +46,9 @@ describe('Component Tests', () => {
           alertService: () => new AlertService(store),
           acmeOrderService: () => acmeOrderServiceStub,
 
-          authorizationService: () => new AuthorizationService(),
+          acmeAuthorizationService: () => new AcmeAuthorizationService(),
 
-          identifierService: () => new IdentifierService(),
+          acmeIdentifierService: () => new AcmeIdentifierService(),
 
           cSRService: () => new CSRService(),
 

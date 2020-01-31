@@ -37,14 +37,12 @@ import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1Set;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.DERSequence;
-import org.bouncycastle.asn1.oiw.OIWObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.AuthorityKeyIdentifier;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.GeneralName;
@@ -54,16 +52,12 @@ import org.bouncycastle.asn1.x509.X509ObjectIdentifiers;
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cert.X509ExtensionUtils;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.jcajce.provider.asymmetric.util.EC5Util;
 import org.bouncycastle.jce.provider.JCEECPublicKey;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
-import org.bouncycastle.operator.DigestCalculator;
-import org.bouncycastle.operator.OperatorCreationException;
-import org.bouncycastle.operator.bc.BcDigestCalculatorProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -237,7 +231,7 @@ public class CertificateUtil {
 
 		String type = "X509V3|" + x509Cert.getVersion();
 		cert.setType(type);
-		addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_TYPE, type);
+		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_TYPE, type);
 
 		// derive a readable description
 		String desc = cryptoUtil.getDescription(x509Cert);
@@ -245,7 +239,7 @@ public class CertificateUtil {
 
 		String issuer = CryptoService.limitLength(x509Cert.getIssuerDN().getName(), 250);
 		cert.setIssuer(issuer);
-		addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ISSUER, issuer.toLowerCase());
+		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ISSUER, issuer.toLowerCase());
 
 		X500Name x500NameIssuer = x509CertHolder.getIssuer();
 		insertNameAttributes(cert, CertificateAttribute.ATTRIBUTE_ISSUER, x500NameIssuer);
@@ -256,7 +250,7 @@ public class CertificateUtil {
 */			
 		String subject = CryptoService.limitLength(x509Cert.getSubjectDN().getName(), 250);
 		cert.setSubject(subject);
-		addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SUBJECT, subject.toLowerCase());
+		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SUBJECT, subject.toLowerCase());
 
 		X500Name x500NameSubject = x509CertHolder.getSubject();
 		insertNameAttributes(cert, CertificateAttribute.ATTRIBUTE_SUBJECT, x500NameSubject);
@@ -267,29 +261,29 @@ public class CertificateUtil {
 		SubjectKeyIdentifier ski = util.createSubjectKeyIdentifier(x509Cert.getPublicKey());
 		String b46Ski = Base64.encodeBase64String(ski.getKeyIdentifier());
 		
-		addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SKI,b46Ski);
+		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SKI,b46Ski);
 		cert.setSubjectKeyIdentifier(b46Ski);
 		
 		SubjectKeyIdentifier skiTruncated = util.createTruncatedSubjectKeyIdentifier(x509Cert.getPublicKey());
 		if( !ski.equals(skiTruncated)){
-			addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SKI,
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SKI,
 					Base64.encodeBase64String(skiTruncated.getKeyIdentifier()));
 		}
 
 		// good old SHA1 fingerprint
 		String fingerprint = Base64.encodeBase64String(generateSHA1Fingerprint(certBytes));
-		addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_FINGERPRINT, fingerprint);
+		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_FINGERPRINT, fingerprint);
 		
 		// guess some details from basic constraint
 		int basicConstraint = x509Cert.getBasicConstraints();
 		if (Integer.MAX_VALUE == basicConstraint) {
-			addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CA, "true");
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CA, "true");
 		} else if (-1 == basicConstraint) {
-			addCertAttribute(cert,
+			setCertAttribute(cert,
 					CertificateAttribute.ATTRIBUTE_END_ENTITY, "true");
 		} else {
-			addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CA, "true");
-			addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CHAIN_LENGTH, "" + basicConstraint);
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CA, "true");
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CHAIN_LENGTH, "" + basicConstraint);
 		}
 
 		// add the basic key usages a attributes
@@ -299,7 +293,7 @@ public class CertificateUtil {
 		List<String> extKeyUsageList = x509Cert.getExtendedKeyUsage();
 		if (extKeyUsageList != null) {
 			for (String extUsage : extKeyUsageList) {
-				addCertAttribute(cert, OidNameMapper.lookupOid(extUsage), extUsage);
+				setCertMultiValueAttribute(cert, OidNameMapper.lookupOid(extUsage), extUsage);
 			}
 		}
 
@@ -307,17 +301,17 @@ public class CertificateUtil {
 		// add two serial variants
 		String serial = x509Cert.getSerialNumber().toString();
 		cert.setSerial(serial);
-		addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SERIAL, serial);
-		addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SERIAL_PADDED, getPaddedSerial(serial));
+		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SERIAL, serial);
+		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SERIAL_PADDED, getPaddedSerial(serial));
 
 		// add validity period
 		cert.setValidFrom( DateUtil.asLocalDate(x509Cert.getNotBefore()));
-		addCertAttribute(cert,
+		setCertAttribute(cert,
 				CertificateAttribute.ATTRIBUTE_VALID_FROM_TIMESTAMP, ""
 						+ x509Cert.getNotBefore().getTime());
 
 		cert.setValidTo(DateUtil.asLocalDate(x509Cert.getNotAfter()));
-		addCertAttribute(cert,
+		setCertAttribute(cert,
 				CertificateAttribute.ATTRIBUTE_VALID_TO_TIMESTAMP, ""
 						+ x509Cert.getNotAfter().getTime());
 
@@ -345,7 +339,7 @@ public class CertificateUtil {
 			// cert.setIssuingCertificate(cert);
 			
 			// mark it as self signed
-			addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SELFSIGNED, "true");
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SELFSIGNED, "true");
 
 			LOG.debug("certificate '" + x509Cert.getSubjectDN().getName() +"' is selfsigned");
 			
@@ -393,8 +387,7 @@ public class CertificateUtil {
 		// extract signature algo
 		String sigAlgName = x509Cert.getSigAlgName().toLowerCase();
 		
-		dropCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SIGNATURE_ALGO);
-		addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SIGNATURE_ALGO, sigAlgName);
+		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SIGNATURE_ALGO, sigAlgName);
 
 		String keyAlgName = sigAlgName;
 		String hashAlgName = null;
@@ -416,23 +409,19 @@ public class CertificateUtil {
 			}
 		}
 
-		dropCertAttribute(cert, CertificateAttribute.ATTRIBUTE_KEY_ALGO);
-		addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_KEY_ALGO, keyAlgName);
+		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_KEY_ALGO, keyAlgName);
 		if(hashAlgName != null) {
-			dropCertAttribute(cert, CertificateAttribute.ATTRIBUTE_HASH_ALGO);
-			addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_HASH_ALGO, hashAlgName);
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_HASH_ALGO, hashAlgName);
 		}
 		if(paddingAlgName != null) {
-			dropCertAttribute(cert, CertificateAttribute.ATTRIBUTE_PADDING_ALGO);
-			addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_PADDING_ALGO, paddingAlgName);
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_PADDING_ALGO, paddingAlgName);
 		}
 
 		try {
 			String curveName = deriveCurveName(x509Cert.getPublicKey());
 			LOG.info("found curve name "+ curveName +" for certificate '" + x509Cert.getSubjectDN().getName() +"' with key algo " + keyAlgName);
 			
-			dropCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CURVE_NAME);
-			addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CURVE_NAME, curveName);
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CURVE_NAME, curveName);
 			
 		} catch (GeneralSecurityException e) {
 			if( keyAlgName.contains("ec")) {
@@ -442,7 +431,6 @@ public class CertificateUtil {
 
 		// list all SANs
 		if (x509Cert.getSubjectAlternativeNames() != null) {
-			dropCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SAN);
 			Collection<List<?>> altNames = x509Cert.getSubjectAlternativeNames();
 			
 			if( altNames != null) {
@@ -451,15 +439,14 @@ public class CertificateUtil {
 	                if (altNameType != 2 && altNameType != 7) { // dns or ip
 	                    continue;
 	                }
-					addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SAN, ((String)altName.get(1)).toLowerCase());
+	                setCertMultiValueAttribute(cert, CertificateAttribute.ATTRIBUTE_SAN, ((String)altName.get(1)).toLowerCase());
 				}
 			}
 		}
 
 		int keyLength = getKeyLength(x509Cert.getPublicKey());
 		if(keyLength > 0) {
-			dropCertAttribute(cert, CertificateAttribute.ATTRIBUTE_KEY_LENGTH);
-			addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_KEY_LENGTH, keyLength);
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_KEY_LENGTH, keyLength);
 		}
 		
 	}
@@ -558,8 +545,8 @@ public class CertificateUtil {
 		for( RDN rdn: x500NameSubject.getRDNs() ){
 			for( org.bouncycastle.asn1.x500.AttributeTypeAndValue atv: rdn.getTypesAndValues()){
 				String value = atv.getValue().toString().toLowerCase();
-				addCertAttribute(cert, attributeName, value);
-				addCertAttribute(cert, attributeName, atv.getType().getId().toLowerCase() +"="+ value);
+				setCertMultiValueAttribute(cert, attributeName, value);
+				setCertMultiValueAttribute(cert, attributeName, atv.getType().getId().toLowerCase() +"="+ value);
 			}
 		}
 	}
@@ -573,27 +560,20 @@ public class CertificateUtil {
 		return null;
 	}
 
-	public void addCertAttribute(Certificate certDao, String name, long value) {
-		addCertAttribute(certDao, name, Long.toString(value));
+	public void setCertAttribute(Certificate certDao, String name, long value) {
+		setCertAttribute(certDao, name, Long.toString(value));
 	}
 
-
-	public void dropCertAttribute(Certificate cert, String name) {
-
+	public void setCertMultiValueAttribute(Certificate cert, String name, String value) {
+		setCertAttribute(cert, name, value, true);
+	}
+	
+	public void setCertAttribute(Certificate cert, String name, String value) {
+		setCertAttribute(cert, name, value, true);
+	}
+	
+	public void setCertAttribute(Certificate cert, String name, String value, boolean multiValue) {
 		
-		Collection<CertificateAttribute> certAttrList = cert.getCertificateAttributes();
-		for( CertificateAttribute certAttr : certAttrList) {
-			if( certAttr.getName().equals(name)) {
-				certificateAttributeRepository.delete(certAttr);
-			}
-		}
-
-        LOG.debug("attribute " + name + " dropped" );
-
-	}
-	
-	public void addCertAttribute(Certificate cert, String name, String value) {
-	
 		if( name == null) {
 			LOG.warn("no use to insert attribute with name 'null'", new Exception());
 			return;
@@ -607,12 +587,18 @@ public class CertificateUtil {
 		Collection<CertificateAttribute> certAttrList = cert.getCertificateAttributes();
 		for( CertificateAttribute certAttr : certAttrList) {
 
-//	        LOG.debug("checking certificate attribute '{}' containg value '{}'", certAttr.getName(), certAttr.getValue());
+//	        LOG.debug("checking certificate attribute '{}' containng value '{}'", certAttr.getName(), certAttr.getValue());
 
-			if( name.equals(certAttr.getName()) &&
-					value.equals(certAttr.getValue())) {
-				// attribute already present, no use in duplication here
-				return;
+			if( name.equals(certAttr.getName())) {
+				if( value.equals(certAttr.getValue())) {
+					// attribute already present, no use in duplication here
+					return;
+				}else {
+					if( !multiValue ) {
+						certAttr.setValue(value);
+						return;
+					}
+				}
 			}
 		}
 		
@@ -794,36 +780,36 @@ public class CertificateUtil {
 	public void usageAsCertAttributes( boolean[] usage, Certificate cert ){
 
 		if( ( usage == null ) || ( usage.length == 0 ) ){
-			addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "unspecified" );
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "unspecified" );
 			return;
 		}
 
 		if ( (usage.length > 0) && usage[0]){
-			addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "digitalSignature ");
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "digitalSignature ");
 		}
 		if ( (usage.length > 1) && usage[1]){
-			addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "nonRepudiation ");
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "nonRepudiation ");
 		}
 		if ( (usage.length > 2) && usage[2]){
-			addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "keyEncipherment ");
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "keyEncipherment ");
 		}
 		if ( (usage.length > 3) && usage[3]){
-			addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "dataEncipherment ");
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "dataEncipherment ");
 		}
 		if ( (usage.length > 4) && usage[4]){
-			addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "keyAgreement ");
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "keyAgreement ");
 		}
 		if ( (usage.length > 5) && usage[5]){
-			addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "keyCertSign ");
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "keyCertSign ");
 		}
 		if ( (usage.length > 6) && usage[6]){
-			addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "cRLSign ");
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "cRLSign ");
 		}
 		if ( (usage.length > 7) && usage[7]) {
-			addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "encipherOnly ");
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "encipherOnly ");
 		}
 		if ( (usage.length > 8) && usage[8]) {
-			addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "decipherOnly ");
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "decipherOnly ");
 		}
 
 	}
@@ -1081,7 +1067,7 @@ public class CertificateUtil {
 	/**
 	 * @return
 	 * @throws GeneralSecurityException
-	 */
+	 *
 	private X509ExtensionUtils getX509UtilInstance() throws GeneralSecurityException {
 		DigestCalculator digCalc;
 		try {
@@ -1093,7 +1079,7 @@ public class CertificateUtil {
 		X509ExtensionUtils x509ExtensionUtils = new X509ExtensionUtils(digCalc);
 		return x509ExtensionUtils;
 	}
-
+*/
 	
 	public CSR createCSR(final String csrBase64, final Pkcs10RequestHolder p10ReqHolder, final String processInstanceId) {
 
@@ -1143,6 +1129,9 @@ public class CertificateUtil {
 				rdnAtt.setRdn(rdnDao);
 				rdnAtt.setAttributeType(attrTV.getType().toString());
 				rdnAtt.setAttributeValue(attrTV.getValue().toString());
+				LOG.debug("Adding RDNAttribute: '{}' = '{}'", attrTV.getType().toString(), attrTV.getValue().toString());
+				
+				rdnAttributes.add(rdnAtt);
 			}
 
 			rdnDao.setRdnAttributes(rdnAttributes);

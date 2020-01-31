@@ -2,11 +2,11 @@ import { Component, Vue, Inject } from 'vue-property-decorator';
 
 import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
 
-import AuthorizationService from '../authorization/authorization.service';
-import { IAuthorization } from '@/shared/model/authorization.model';
+import AcmeAuthorizationService from '../acme-authorization/acme-authorization.service';
+import { IAcmeAuthorization } from '@/shared/model/acme-authorization.model';
 
-import IdentifierService from '../identifier/identifier.service';
-import { IIdentifier } from '@/shared/model/identifier.model';
+import AcmeIdentifierService from '../acme-identifier/acme-identifier.service';
+import { IAcmeIdentifier } from '@/shared/model/acme-identifier.model';
 
 import CSRService from '../csr/csr.service';
 import { ICSR } from '@/shared/model/csr.model';
@@ -47,13 +47,13 @@ export default class AcmeOrderUpdate extends Vue {
   @Inject('acmeOrderService') private acmeOrderService: () => AcmeOrderService;
   public acmeOrder: IAcmeOrder = new AcmeOrder();
 
-  @Inject('authorizationService') private authorizationService: () => AuthorizationService;
+  @Inject('acmeAuthorizationService') private acmeAuthorizationService: () => AcmeAuthorizationService;
 
-  public authorizations: IAuthorization[] = [];
+  public acmeAuthorizations: IAcmeAuthorization[] = [];
 
-  @Inject('identifierService') private identifierService: () => IdentifierService;
+  @Inject('acmeIdentifierService') private acmeIdentifierService: () => AcmeIdentifierService;
 
-  public identifiers: IIdentifier[] = [];
+  public acmeIdentifiers: IAcmeIdentifier[] = [];
 
   @Inject('cSRService') private cSRService: () => CSRService;
 
@@ -113,15 +113,15 @@ export default class AcmeOrderUpdate extends Vue {
   }
 
   public initRelationships(): void {
-    this.authorizationService()
+    this.acmeAuthorizationService()
       .retrieve()
       .then(res => {
-        this.authorizations = res.data;
+        this.acmeAuthorizations = res.data;
       });
-    this.identifierService()
+    this.acmeIdentifierService()
       .retrieve()
       .then(res => {
-        this.identifiers = res.data;
+        this.acmeIdentifiers = res.data;
       });
     this.cSRService()
       .retrieve()

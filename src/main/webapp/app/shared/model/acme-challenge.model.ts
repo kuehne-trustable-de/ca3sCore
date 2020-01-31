@@ -1,4 +1,4 @@
-import { IAuthorization } from '@/shared/model/authorization.model';
+import { IAcmeAuthorization } from '@/shared/model/acme-authorization.model';
 
 export const enum ChallengeStatus {
   PENDING = 'PENDING',
@@ -17,7 +17,7 @@ export interface IAcmeChallenge {
   token?: string;
   validated?: Date;
   status?: ChallengeStatus;
-  authorization?: IAuthorization;
+  acmeAuthorization?: IAcmeAuthorization;
 }
 
 export class AcmeChallenge implements IAcmeChallenge {
@@ -29,6 +29,6 @@ export class AcmeChallenge implements IAcmeChallenge {
     public token?: string,
     public validated?: Date,
     public status?: ChallengeStatus,
-    public authorization?: IAuthorization
+    public acmeAuthorization?: IAcmeAuthorization
   ) {}
 }

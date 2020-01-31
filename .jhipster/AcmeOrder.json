@@ -10,7 +10,7 @@
         },
         {
             "fieldName": "status",
-            "fieldType": "OrderStatus",
+            "fieldType": "AcmeOrderStatus",
             "fieldValues": "PENDING,READY,PROCESSING,VALID,INVALID",
             "fieldValidateRules": [
                 "required"
@@ -44,15 +44,15 @@
     "relationships": [
         {
             "relationshipType": "one-to-many",
-            "otherEntityName": "authorization",
+            "otherEntityName": "acmeAuthorization",
             "otherEntityRelationshipName": "order",
-            "relationshipName": "authorizations"
+            "relationshipName": "acmeAuthorizations"
         },
         {
             "relationshipType": "one-to-many",
-            "otherEntityName": "identifier",
+            "otherEntityName": "acmeIdentifier",
             "otherEntityRelationshipName": "order",
-            "relationshipName": "identifiers"
+            "relationshipName": "acmeIdentifiers"
         },
         {
             "relationshipType": "many-to-one",

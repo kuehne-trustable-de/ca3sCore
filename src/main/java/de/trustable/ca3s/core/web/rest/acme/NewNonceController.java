@@ -42,8 +42,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import de.trustable.ca3s.core.domain.Nonce;
-
+import de.trustable.ca3s.core.domain.AcmeNonce;
 
 
 @Controller
@@ -62,7 +61,7 @@ public class NewNonceController extends ACMEController {
 	public ResponseEntity<String> viaGet() {
 		LOG.info("New NONCE requested");
 
-		Nonce nonce = getNewNonce();
+		AcmeNonce nonce = getNewNonce();
 
 		return ResponseEntity.noContent().header(REPLAY_NONCE_HEADER, nonce.getNonceValue())
 				.cacheControl(noStore()).build();
@@ -72,13 +71,13 @@ public class NewNonceController extends ACMEController {
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void cleanupNonces() {
 		long startTime = System.currentTimeMillis();
-		List<Nonce> expiredNonceList = nonceRepository.findByNonceExpiryDate(new java.util.Date());
+		List<AcmeNonce> expiredNonceList = nonceRepository.findByNonceExpiryDate(new java.util.Date());
 		if(expiredNonceList.isEmpty()) {
 			return;
 		}
 		
 		LOG.debug("CleanupScheduler.cleanupNonce called ...");
-		for (Nonce nonce : expiredNonceList) {
+		for (AcmeNonce nonce : expiredNonceList) {
 			LOG.debug("cleanupNonce {} deleting", nonce.getNonceValue());
 			
 			nonceRepository.delete(nonce);

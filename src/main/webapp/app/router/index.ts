@@ -146,6 +146,24 @@ const ProtectedContent = () => import('../entities/protected-content/protected-c
 const ProtectedContentUpdate = () => import('../entities/protected-content/protected-content-update.vue');
 // prettier-ignore
 const ProtectedContentDetails = () => import('../entities/protected-content/protected-content-details.vue');
+// prettier-ignore
+const AcmeIdentifier = () => import('../entities/acme-identifier/acme-identifier.vue');
+// prettier-ignore
+const AcmeIdentifierUpdate = () => import('../entities/acme-identifier/acme-identifier-update.vue');
+// prettier-ignore
+const AcmeIdentifierDetails = () => import('../entities/acme-identifier/acme-identifier-details.vue');
+// prettier-ignore
+const AcmeAuthorization = () => import('../entities/acme-authorization/acme-authorization.vue');
+// prettier-ignore
+const AcmeAuthorizationUpdate = () => import('../entities/acme-authorization/acme-authorization-update.vue');
+// prettier-ignore
+const AcmeAuthorizationDetails = () => import('../entities/acme-authorization/acme-authorization-details.vue');
+// prettier-ignore
+const AcmeNonce = () => import('../entities/acme-nonce/acme-nonce.vue');
+// prettier-ignore
+const AcmeNonceUpdate = () => import('../entities/acme-nonce/acme-nonce-update.vue');
+// prettier-ignore
+const AcmeNonceDetails = () => import('../entities/acme-nonce/acme-nonce-details.vue');
 // jhipster-needle-add-entity-to-router-import - JHipster will import entities to the router here
 
 Vue.use(Router);
@@ -773,6 +791,81 @@ export default new Router({
       path: '/protected-content/:protectedContentId/view',
       name: 'ProtectedContentView',
       component: ProtectedContentDetails,
+      meta: { authorities: ['ROLE_USER'] }
+    }
+    ,
+    {
+      path: '/acme-identifier',
+      name: 'AcmeIdentifier',
+      component: AcmeIdentifier,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/acme-identifier/new',
+      name: 'AcmeIdentifierCreate',
+      component: AcmeIdentifierUpdate,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/acme-identifier/:acmeIdentifierId/edit',
+      name: 'AcmeIdentifierEdit',
+      component: AcmeIdentifierUpdate,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/acme-identifier/:acmeIdentifierId/view',
+      name: 'AcmeIdentifierView',
+      component: AcmeIdentifierDetails,
+      meta: { authorities: ['ROLE_USER'] }
+    }
+    ,
+    {
+      path: '/acme-authorization',
+      name: 'AcmeAuthorization',
+      component: AcmeAuthorization,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/acme-authorization/new',
+      name: 'AcmeAuthorizationCreate',
+      component: AcmeAuthorizationUpdate,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/acme-authorization/:acmeAuthorizationId/edit',
+      name: 'AcmeAuthorizationEdit',
+      component: AcmeAuthorizationUpdate,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/acme-authorization/:acmeAuthorizationId/view',
+      name: 'AcmeAuthorizationView',
+      component: AcmeAuthorizationDetails,
+      meta: { authorities: ['ROLE_USER'] }
+    }
+    ,
+    {
+      path: '/acme-nonce',
+      name: 'AcmeNonce',
+      component: AcmeNonce,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/acme-nonce/new',
+      name: 'AcmeNonceCreate',
+      component: AcmeNonceUpdate,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/acme-nonce/:acmeNonceId/edit',
+      name: 'AcmeNonceEdit',
+      component: AcmeNonceUpdate,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/acme-nonce/:acmeNonceId/view',
+      name: 'AcmeNonceView',
+      component: AcmeNonceDetails,
       meta: { authorities: ['ROLE_USER'] }
     }
     // jhipster-needle-add-entity-to-router - JHipster will add entities to the router here

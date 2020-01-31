@@ -36,7 +36,6 @@ import java.net.URI;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -55,12 +54,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import de.trustable.ca3s.core.domain.ACMEAccount;
+import de.trustable.ca3s.core.domain.AcmeAuthorization;
 import de.trustable.ca3s.core.domain.AcmeChallenge;
 import de.trustable.ca3s.core.domain.AcmeOrder;
-import de.trustable.ca3s.core.domain.Authorization;
 import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
-import de.trustable.ca3s.core.domain.enumeration.OrderStatus;
-import de.trustable.ca3s.core.repository.AuthorizationRepository;
+import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
+import de.trustable.ca3s.core.repository.AcmeAuthorizationRepository;
 import de.trustable.ca3s.core.service.dto.acme.AuthorizationResponse;
 import de.trustable.ca3s.core.service.dto.acme.ChallengeResponse;
 import de.trustable.ca3s.core.service.dto.acme.IdentifierResponse;
@@ -78,7 +77,7 @@ public class AuthorizationController extends ACMEController {
     private static final Logger LOG = LoggerFactory.getLogger(AuthorizationController.class);
 
    @Autowired
-    private AuthorizationRepository authorizationRepository;
+    private AcmeAuthorizationRepository authorizationRepository;
 
    @Autowired
 	private HttpServletRequest request;
@@ -97,12 +96,12 @@ public class AuthorizationController extends ACMEController {
 
 	    final HttpHeaders additionalHeaders = buildNonceHeader();
 	    
-		List<Authorization> authList = authorizationRepository.findByAuthorizationId(authorizationId);
+		List<AcmeAuthorization> authList = authorizationRepository.findByAcmeAuthorizationId(authorizationId);
 		if(authList.isEmpty()) {
 		    return ResponseEntity.notFound().headers(additionalHeaders).build();
 		}else {
 			
-			Authorization authDao = authList.get(0);
+			AcmeAuthorization authDao = authList.get(0);
 			
 			// No authentication and check against an account!!! 
 			AuthorizationResponse authResp = buildAuthResponse(authDao);
@@ -126,14 +125,14 @@ public class AuthorizationController extends ACMEController {
 	    final HttpHeaders additionalHeaders = buildNonceHeader();
 
 		LOG.debug("Looking for Authorization id '{}'", authorizationId);
-		List<Authorization> authList = authorizationRepository.findByAuthorizationId(authorizationId);
+		List<AcmeAuthorization> authList = authorizationRepository.findByAcmeAuthorizationId(authorizationId);
 		if(authList.isEmpty()) {
 			LOG.debug("Authorization id '{}' unknown", authorizationId);
 		    return ResponseEntity.notFound().headers(additionalHeaders).build();
 		    
 		}else {
 			
-			Authorization authDao = authList.get(0);
+			AcmeAuthorization authDao = authList.get(0);
 
 			LOG.debug("Authorization id '{}' found", authorizationId);
 
@@ -159,17 +158,17 @@ public class AuthorizationController extends ACMEController {
 	
   }
 
-private AuthorizationResponse buildAuthResponse(final Authorization authDao) throws AcmeProblemException {
+private AuthorizationResponse buildAuthResponse(final AcmeAuthorization authDao) throws AcmeProblemException {
 	
 	AuthorizationResponse authResp = new AuthorizationResponse();
 	
 	AcmeOrder order = authDao.getOrder();
 	authResp.setExpires(DateUtil.asDate( order.getExpires()));
 	
-	OrderStatus authStatus = OrderStatus.PENDING;
+	AcmeOrderStatus authStatus = AcmeOrderStatus.PENDING;
 	for( AcmeChallenge challDao: authDao.getChallenges()) {
 		if( challDao.getStatus() == ChallengeStatus.VALID) {
-			authStatus = OrderStatus.VALID;
+			authStatus = AcmeOrderStatus.VALID;
 		}
 	}
 	authResp.setStatus(authStatus);

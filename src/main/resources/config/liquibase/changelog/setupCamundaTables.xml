@@ -1,45 +1,44 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
- 
-    <changeSet author="kuehn (generated)" id="1576103603001-1">
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="kuehn (generated)" id="1580410283605-1">
         <createTable tableName="ACT_GE_BYTEARRAY">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_8"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT"/>
+            <column name="REV_" type="INT(10)"/>
             <column name="NAME_" type="VARCHAR(255)"/>
             <column name="DEPLOYMENT_ID_" type="VARCHAR(64)"/>
             <column name="BYTES_" type="${blobType}"/>
-            <column name="GENERATED_" type="BOOLEAN"/>
+            <column name="GENERATED_" type="BOOLEAN(1)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
-            <column name="TYPE_" type="INT"/>
+            <column name="TYPE_" type="INT(10)"/>
             <column name="CREATE_TIME_" type="TIMESTAMP"/>
             <column name="ROOT_PROC_INST_ID_" type="VARCHAR(64)"/>
             <column name="REMOVAL_TIME_" type="TIMESTAMP"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-2">
+    <changeSet author="kuehn (generated)" id="1580410283605-2">
         <createTable tableName="ACT_GE_PROPERTY">
             <column name="NAME_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_2"/>
+                <constraints nullable="false"/>
             </column>
             <column name="VALUE_" type="VARCHAR(300)"/>
-            <column name="REV_" type="INT"/>
+            <column name="REV_" type="INT(10)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-3">
+    <changeSet author="kuehn (generated)" id="1580410283605-3">
         <createTable tableName="ACT_GE_SCHEMA_LOG">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_4"/>
+                <constraints nullable="false"/>
             </column>
             <column name="TIMESTAMP_" type="TIMESTAMP"/>
             <column name="VERSION_" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-4">
+    <changeSet author="kuehn (generated)" id="1580410283605-4">
         <createTable tableName="ACT_HI_ACTINST">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_FB"/>
+                <constraints nullable="false"/>
             </column>
             <column name="PARENT_ACT_INST_ID_" type="VARCHAR(64)"/>
             <column name="PROC_DEF_KEY_" type="VARCHAR(255)"/>
@@ -68,19 +67,19 @@
                 <constraints nullable="false"/>
             </column>
             <column name="END_TIME_" type="TIMESTAMP"/>
-            <column name="DURATION_" type="BIGINT"/>
-            <column name="ACT_INST_STATE_" type="INT"/>
-            <column name="SEQUENCE_COUNTER_" type="INT"/>
+            <column name="DURATION_" type="BIGINT(19)"/>
+            <column name="ACT_INST_STATE_" type="INT(10)"/>
+            <column name="SEQUENCE_COUNTER_" type="INT(10)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
             <column name="REMOVAL_TIME_" type="TIMESTAMP"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-5">
+    <changeSet author="kuehn (generated)" id="1580410283605-5">
         <createTable tableName="ACT_HI_ATTACHMENT">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_D"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT"/>
+            <column name="REV_" type="INT(10)"/>
             <column name="USER_ID_" type="VARCHAR(255)"/>
             <column name="NAME_" type="VARCHAR(255)"/>
             <column name="DESCRIPTION_" type="VARCHAR(4000)"/>
@@ -95,15 +94,15 @@
             <column name="REMOVAL_TIME_" type="TIMESTAMP"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-6">
+    <changeSet author="kuehn (generated)" id="1580410283605-6">
         <createTable tableName="ACT_HI_BATCH">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_C4"/>
+                <constraints nullable="false"/>
             </column>
             <column name="TYPE_" type="VARCHAR(255)"/>
-            <column name="TOTAL_JOBS_" type="INT"/>
-            <column name="JOBS_PER_SEED_" type="INT"/>
-            <column name="INVOCATIONS_PER_JOB_" type="INT"/>
+            <column name="TOTAL_JOBS_" type="INT(10)"/>
+            <column name="JOBS_PER_SEED_" type="INT(10)"/>
+            <column name="INVOCATIONS_PER_JOB_" type="INT(10)"/>
             <column name="SEED_JOB_DEF_ID_" type="VARCHAR(64)"/>
             <column name="MONITOR_JOB_DEF_ID_" type="VARCHAR(64)"/>
             <column name="BATCH_JOB_DEF_ID_" type="VARCHAR(64)"/>
@@ -116,10 +115,10 @@
             <column name="REMOVAL_TIME_" type="TIMESTAMP"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-7">
+    <changeSet author="kuehn (generated)" id="1580410283605-7">
         <createTable tableName="ACT_HI_CASEACTINST">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_BC"/>
+                <constraints nullable="false"/>
             </column>
             <column name="PARENT_ACT_INST_ID_" type="VARCHAR(64)"/>
             <column name="CASE_DEF_ID_" type="VARCHAR(64)">
@@ -140,16 +139,16 @@
                 <constraints nullable="false"/>
             </column>
             <column name="END_TIME_" type="TIMESTAMP"/>
-            <column name="DURATION_" type="BIGINT"/>
-            <column name="STATE_" type="INT"/>
-            <column name="REQUIRED_" type="BOOLEAN"/>
+            <column name="DURATION_" type="BIGINT(19)"/>
+            <column name="STATE_" type="INT(10)"/>
+            <column name="REQUIRED_" type="BOOLEAN(1)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-8">
+    <changeSet author="kuehn (generated)" id="1580410283605-8">
         <createTable tableName="ACT_HI_CASEINST">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_CA4"/>
+                <constraints nullable="false"/>
             </column>
             <column name="CASE_INST_ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
@@ -162,18 +161,18 @@
                 <constraints nullable="false"/>
             </column>
             <column name="CLOSE_TIME_" type="TIMESTAMP"/>
-            <column name="DURATION_" type="BIGINT"/>
-            <column name="STATE_" type="INT"/>
+            <column name="DURATION_" type="BIGINT(19)"/>
+            <column name="STATE_" type="INT(10)"/>
             <column name="CREATE_USER_ID_" type="VARCHAR(255)"/>
             <column name="SUPER_CASE_INSTANCE_ID_" type="VARCHAR(64)"/>
             <column name="SUPER_PROCESS_INSTANCE_ID_" type="VARCHAR(64)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-9">
+    <changeSet author="kuehn (generated)" id="1580410283605-9">
         <createTable tableName="ACT_HI_COMMENT">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_78"/>
+                <constraints nullable="false"/>
             </column>
             <column name="TYPE_" type="VARCHAR(255)"/>
             <column name="TIME_" type="TIMESTAMP">
@@ -190,10 +189,10 @@
             <column name="REMOVAL_TIME_" type="TIMESTAMP"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-10">
+    <changeSet author="kuehn (generated)" id="1580410283605-10">
         <createTable tableName="ACT_HI_DECINST">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_9C"/>
+                <constraints nullable="false"/>
             </column>
             <column name="DEC_DEF_ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
@@ -223,10 +222,10 @@
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-11">
+    <changeSet author="kuehn (generated)" id="1580410283605-11">
         <createTable tableName="ACT_HI_DEC_IN">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_80E"/>
+                <constraints nullable="false"/>
             </column>
             <column name="DEC_INST_ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
@@ -236,7 +235,7 @@
             <column name="VAR_TYPE_" type="VARCHAR(100)"/>
             <column name="BYTEARRAY_ID_" type="VARCHAR(64)"/>
             <column name="DOUBLE_" type="DOUBLE(17)"/>
-            <column name="LONG_" type="BIGINT"/>
+            <column name="LONG_" type="BIGINT(19)"/>
             <column name="TEXT_" type="VARCHAR(4000)"/>
             <column name="TEXT2_" type="VARCHAR(4000)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
@@ -245,10 +244,10 @@
             <column name="REMOVAL_TIME_" type="TIMESTAMP"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-12">
+    <changeSet author="kuehn (generated)" id="1580410283605-12">
         <createTable tableName="ACT_HI_DEC_OUT">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_9C4"/>
+                <constraints nullable="false"/>
             </column>
             <column name="DEC_INST_ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
@@ -256,12 +255,12 @@
             <column name="CLAUSE_ID_" type="VARCHAR(64)"/>
             <column name="CLAUSE_NAME_" type="VARCHAR(255)"/>
             <column name="RULE_ID_" type="VARCHAR(64)"/>
-            <column name="RULE_ORDER_" type="INT"/>
+            <column name="RULE_ORDER_" type="INT(10)"/>
             <column name="VAR_NAME_" type="VARCHAR(255)"/>
             <column name="VAR_TYPE_" type="VARCHAR(100)"/>
             <column name="BYTEARRAY_ID_" type="VARCHAR(64)"/>
             <column name="DOUBLE_" type="DOUBLE(17)"/>
-            <column name="LONG_" type="BIGINT"/>
+            <column name="LONG_" type="BIGINT(19)"/>
             <column name="TEXT_" type="VARCHAR(4000)"/>
             <column name="TEXT2_" type="VARCHAR(4000)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
@@ -270,10 +269,10 @@
             <column name="REMOVAL_TIME_" type="TIMESTAMP"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-13">
+    <changeSet author="kuehn (generated)" id="1580410283605-13">
         <createTable tableName="ACT_HI_DETAIL">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_80"/>
+                <constraints nullable="false"/>
             </column>
             <column name="TYPE_" type="VARCHAR(255)">
                 <constraints nullable="false"/>
@@ -297,22 +296,22 @@
             <column name="ACT_INST_ID_" type="VARCHAR(64)"/>
             <column name="VAR_INST_ID_" type="VARCHAR(64)"/>
             <column name="VAR_TYPE_" type="VARCHAR(255)"/>
-            <column name="REV_" type="INT"/>
+            <column name="REV_" type="INT(10)"/>
             <column name="BYTEARRAY_ID_" type="VARCHAR(64)"/>
             <column name="DOUBLE_" type="DOUBLE(17)"/>
-            <column name="LONG_" type="BIGINT"/>
+            <column name="LONG_" type="BIGINT(19)"/>
             <column name="TEXT_" type="VARCHAR(4000)"/>
             <column name="TEXT2_" type="VARCHAR(4000)"/>
-            <column name="SEQUENCE_COUNTER_" type="INT"/>
+            <column name="SEQUENCE_COUNTER_" type="INT(10)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
             <column name="OPERATION_ID_" type="VARCHAR(64)"/>
             <column name="REMOVAL_TIME_" type="TIMESTAMP"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-14">
+    <changeSet author="kuehn (generated)" id="1580410283605-14">
         <createTable tableName="ACT_HI_EXT_TASK_LOG">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_8D2"/>
+                <constraints nullable="false"/>
             </column>
             <column name="TIMESTAMP_" type="TIMESTAMP">
                 <constraints nullable="false"/>
@@ -320,10 +319,10 @@
             <column name="EXT_TASK_ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="RETRIES_" type="INT"/>
+            <column name="RETRIES_" type="INT(10)"/>
             <column name="TOPIC_NAME_" type="VARCHAR(255)"/>
             <column name="WORKER_ID_" type="VARCHAR(255)"/>
-            <column defaultValueNumeric="0" name="PRIORITY_" type="BIGINT">
+            <column defaultValueNumeric="0" name="PRIORITY_" type="BIGINT(19)">
                 <constraints nullable="false"/>
             </column>
             <column name="ERROR_MSG_" type="VARCHAR(4000)"/>
@@ -336,14 +335,14 @@
             <column name="PROC_DEF_ID_" type="VARCHAR(64)"/>
             <column name="PROC_DEF_KEY_" type="VARCHAR(255)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
-            <column name="STATE_" type="INT"/>
+            <column name="STATE_" type="INT(10)"/>
             <column name="REMOVAL_TIME_" type="TIMESTAMP"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-15">
+    <changeSet author="kuehn (generated)" id="1580410283605-15">
         <createTable tableName="ACT_HI_IDENTITYLINK">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_8A"/>
+                <constraints nullable="false"/>
             </column>
             <column name="TIMESTAMP_" type="TIMESTAMP">
                 <constraints nullable="false"/>
@@ -361,10 +360,10 @@
             <column name="REMOVAL_TIME_" type="TIMESTAMP"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-16">
+    <changeSet author="kuehn (generated)" id="1580410283605-16">
         <createTable tableName="ACT_HI_INCIDENT">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_CE"/>
+                <constraints nullable="false"/>
             </column>
             <column name="PROC_DEF_KEY_" type="VARCHAR(255)"/>
             <column name="PROC_DEF_ID_" type="VARCHAR(64)"/>
@@ -384,16 +383,16 @@
             <column name="ROOT_CAUSE_INCIDENT_ID_" type="VARCHAR(64)"/>
             <column name="CONFIGURATION_" type="VARCHAR(255)"/>
             <column name="HISTORY_CONFIGURATION_" type="VARCHAR(255)"/>
-            <column name="INCIDENT_STATE_" type="INT"/>
+            <column name="INCIDENT_STATE_" type="INT(10)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
             <column name="JOB_DEF_ID_" type="VARCHAR(64)"/>
             <column name="REMOVAL_TIME_" type="TIMESTAMP"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-17">
+    <changeSet author="kuehn (generated)" id="1580410283605-17">
         <createTable tableName="ACT_HI_JOB_LOG">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_EA"/>
+                <constraints nullable="false"/>
             </column>
             <column name="TIMESTAMP_" type="TIMESTAMP">
                 <constraints nullable="false"/>
@@ -402,13 +401,13 @@
                 <constraints nullable="false"/>
             </column>
             <column name="JOB_DUEDATE_" type="TIMESTAMP"/>
-            <column name="JOB_RETRIES_" type="INT"/>
-            <column defaultValueNumeric="0" name="JOB_PRIORITY_" type="BIGINT">
+            <column name="JOB_RETRIES_" type="INT(10)"/>
+            <column defaultValueNumeric="0" name="JOB_PRIORITY_" type="BIGINT(19)">
                 <constraints nullable="false"/>
             </column>
             <column name="JOB_EXCEPTION_MSG_" type="VARCHAR(4000)"/>
             <column name="JOB_EXCEPTION_STACK_ID_" type="VARCHAR(64)"/>
-            <column name="JOB_STATE_" type="INT"/>
+            <column name="JOB_STATE_" type="INT(10)"/>
             <column name="JOB_DEF_ID_" type="VARCHAR(64)"/>
             <column name="JOB_DEF_TYPE_" type="VARCHAR(255)"/>
             <column name="JOB_DEF_CONFIGURATION_" type="VARCHAR(255)"/>
@@ -419,15 +418,15 @@
             <column name="PROCESS_DEF_ID_" type="VARCHAR(64)"/>
             <column name="PROCESS_DEF_KEY_" type="VARCHAR(255)"/>
             <column name="DEPLOYMENT_ID_" type="VARCHAR(64)"/>
-            <column name="SEQUENCE_COUNTER_" type="INT"/>
+            <column name="SEQUENCE_COUNTER_" type="INT(10)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
             <column name="REMOVAL_TIME_" type="TIMESTAMP"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-18">
+    <changeSet author="kuehn (generated)" id="1580410283605-18">
         <createTable tableName="ACT_HI_OP_LOG">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_94"/>
+                <constraints nullable="false"/>
             </column>
             <column name="DEPLOYMENT_ID_" type="VARCHAR(64)"/>
             <column name="PROC_DEF_ID_" type="VARCHAR(64)"/>
@@ -459,10 +458,10 @@
             <column name="ANNOTATION_" type="VARCHAR(4000)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-19">
+    <changeSet author="kuehn (generated)" id="1580410283605-19">
         <createTable tableName="ACT_HI_PROCINST">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_8D"/>
+                <constraints nullable="false"/>
             </column>
             <column name="PROC_INST_ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
@@ -477,7 +476,7 @@
             </column>
             <column name="END_TIME_" type="TIMESTAMP"/>
             <column name="REMOVAL_TIME_" type="TIMESTAMP"/>
-            <column name="DURATION_" type="BIGINT"/>
+            <column name="DURATION_" type="BIGINT(19)"/>
             <column name="START_USER_ID_" type="VARCHAR(255)"/>
             <column name="START_ACT_ID_" type="VARCHAR(255)"/>
             <column name="END_ACT_ID_" type="VARCHAR(255)"/>
@@ -490,10 +489,10 @@
             <column name="STATE_" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-20">
+    <changeSet author="kuehn (generated)" id="1580410283605-20">
         <createTable tableName="ACT_HI_TASKINST">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_B"/>
+                <constraints nullable="false"/>
             </column>
             <column name="TASK_DEF_KEY_" type="VARCHAR(255)"/>
             <column name="PROC_DEF_KEY_" type="VARCHAR(255)"/>
@@ -515,19 +514,19 @@
                 <constraints nullable="false"/>
             </column>
             <column name="END_TIME_" type="TIMESTAMP"/>
-            <column name="DURATION_" type="BIGINT"/>
+            <column name="DURATION_" type="BIGINT(19)"/>
             <column name="DELETE_REASON_" type="VARCHAR(4000)"/>
-            <column name="PRIORITY_" type="INT"/>
+            <column name="PRIORITY_" type="INT(10)"/>
             <column name="DUE_DATE_" type="TIMESTAMP"/>
             <column name="FOLLOW_UP_DATE_" type="TIMESTAMP"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
             <column name="REMOVAL_TIME_" type="TIMESTAMP"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-21">
+    <changeSet author="kuehn (generated)" id="1580410283605-21">
         <createTable tableName="ACT_HI_VARINST">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_4E"/>
+                <constraints nullable="false"/>
             </column>
             <column name="PROC_DEF_KEY_" type="VARCHAR(255)"/>
             <column name="PROC_DEF_ID_" type="VARCHAR(64)"/>
@@ -545,10 +544,10 @@
             </column>
             <column name="VAR_TYPE_" type="VARCHAR(100)"/>
             <column name="CREATE_TIME_" type="TIMESTAMP"/>
-            <column name="REV_" type="INT"/>
+            <column name="REV_" type="INT(10)"/>
             <column name="BYTEARRAY_ID_" type="VARCHAR(64)"/>
             <column name="DOUBLE_" type="DOUBLE(17)"/>
-            <column name="LONG_" type="BIGINT"/>
+            <column name="LONG_" type="BIGINT(19)"/>
             <column name="TEXT_" type="VARCHAR(4000)"/>
             <column name="TEXT2_" type="VARCHAR(4000)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
@@ -556,22 +555,22 @@
             <column name="REMOVAL_TIME_" type="TIMESTAMP"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-22">
+    <changeSet author="kuehn (generated)" id="1580410283605-22">
         <createTable tableName="ACT_ID_GROUP">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_6B"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT"/>
+            <column name="REV_" type="INT(10)"/>
             <column name="NAME_" type="VARCHAR(255)"/>
             <column name="TYPE_" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-23">
+    <changeSet author="kuehn (generated)" id="1580410283605-23">
         <createTable tableName="ACT_ID_INFO">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_7F5"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT"/>
+            <column name="REV_" type="INT(10)"/>
             <column name="USER_ID_" type="VARCHAR(64)"/>
             <column name="TYPE_" type="VARCHAR(64)"/>
             <column name="KEY_" type="VARCHAR(255)"/>
@@ -580,29 +579,29 @@
             <column name="PARENT_ID_" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-24">
+    <changeSet author="kuehn (generated)" id="1580410283605-24">
         <createTable tableName="ACT_ID_MEMBERSHIP">
             <column name="USER_ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_EE"/>
+                <constraints nullable="false"/>
             </column>
             <column name="GROUP_ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_EE"/>
+                <constraints nullable="false"/>
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-25">
+    <changeSet author="kuehn (generated)" id="1580410283605-25">
         <createTable tableName="ACT_ID_TENANT">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_29"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT"/>
+            <column name="REV_" type="INT(10)"/>
             <column name="NAME_" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-26">
+    <changeSet author="kuehn (generated)" id="1580410283605-26">
         <createTable tableName="ACT_ID_TENANT_MEMBER">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_3A"/>
+                <constraints nullable="false"/>
             </column>
             <column name="TENANT_ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
@@ -611,55 +610,55 @@
             <column name="GROUP_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-27">
+    <changeSet author="kuehn (generated)" id="1580410283605-27">
         <createTable tableName="ACT_ID_USER">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_7F"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT"/>
+            <column name="REV_" type="INT(10)"/>
             <column name="FIRST_" type="VARCHAR(255)"/>
             <column name="LAST_" type="VARCHAR(255)"/>
             <column name="EMAIL_" type="VARCHAR(255)"/>
             <column name="PWD_" type="VARCHAR(255)"/>
             <column name="SALT_" type="VARCHAR(255)"/>
             <column name="LOCK_EXP_TIME_" type="TIMESTAMP"/>
-            <column name="ATTEMPTS_" type="INT"/>
+            <column name="ATTEMPTS_" type="INT(10)"/>
             <column name="PICTURE_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-28">
+    <changeSet author="kuehn (generated)" id="1580410283605-28">
         <createTable tableName="ACT_RE_CASE_DEF">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_CA"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT"/>
+            <column name="REV_" type="INT(10)"/>
             <column name="CATEGORY_" type="VARCHAR(255)"/>
             <column name="NAME_" type="VARCHAR(255)"/>
             <column name="KEY_" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="VERSION_" type="INT">
+            <column name="VERSION_" type="INT(10)">
                 <constraints nullable="false"/>
             </column>
             <column name="DEPLOYMENT_ID_" type="VARCHAR(64)"/>
             <column name="RESOURCE_NAME_" type="VARCHAR(4000)"/>
             <column name="DGRM_RESOURCE_NAME_" type="VARCHAR(4000)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
-            <column name="HISTORY_TTL_" type="INT"/>
+            <column name="HISTORY_TTL_" type="INT(10)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-29">
+    <changeSet author="kuehn (generated)" id="1580410283605-29">
         <createTable tableName="ACT_RE_DECISION_DEF">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_B5"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT"/>
+            <column name="REV_" type="INT(10)"/>
             <column name="CATEGORY_" type="VARCHAR(255)"/>
             <column name="NAME_" type="VARCHAR(255)"/>
             <column name="KEY_" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="VERSION_" type="INT">
+            <column name="VERSION_" type="INT(10)">
                 <constraints nullable="false"/>
             </column>
             <column name="DEPLOYMENT_ID_" type="VARCHAR(64)"/>
@@ -668,22 +667,22 @@
             <column name="DEC_REQ_ID_" type="VARCHAR(64)"/>
             <column name="DEC_REQ_KEY_" type="VARCHAR(255)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
-            <column name="HISTORY_TTL_" type="INT"/>
+            <column name="HISTORY_TTL_" type="INT(10)"/>
             <column name="VERSION_TAG_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-30">
+    <changeSet author="kuehn (generated)" id="1580410283605-30">
         <createTable tableName="ACT_RE_DECISION_REQ_DEF">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_AD1"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT"/>
+            <column name="REV_" type="INT(10)"/>
             <column name="CATEGORY_" type="VARCHAR(255)"/>
             <column name="NAME_" type="VARCHAR(255)"/>
             <column name="KEY_" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="VERSION_" type="INT">
+            <column name="VERSION_" type="INT(10)">
                 <constraints nullable="false"/>
             </column>
             <column name="DEPLOYMENT_ID_" type="VARCHAR(64)"/>
@@ -692,10 +691,10 @@
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-31">
+    <changeSet author="kuehn (generated)" id="1580410283605-31">
         <createTable tableName="ACT_RE_DEPLOYMENT">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_1"/>
+                <constraints nullable="false"/>
             </column>
             <column name="NAME_" type="VARCHAR(255)"/>
             <column name="DEPLOY_TIME_" type="TIMESTAMP"/>
@@ -703,81 +702,81 @@
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-32">
+    <changeSet author="kuehn (generated)" id="1580410283605-32">
         <createTable tableName="ACT_RE_PROCDEF">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_6"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT"/>
+            <column name="REV_" type="INT(10)"/>
             <column name="CATEGORY_" type="VARCHAR(255)"/>
             <column name="NAME_" type="VARCHAR(255)"/>
             <column name="KEY_" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="VERSION_" type="INT">
+            <column name="VERSION_" type="INT(10)">
                 <constraints nullable="false"/>
             </column>
             <column name="DEPLOYMENT_ID_" type="VARCHAR(64)"/>
             <column name="RESOURCE_NAME_" type="VARCHAR(4000)"/>
             <column name="DGRM_RESOURCE_NAME_" type="VARCHAR(4000)"/>
-            <column name="HAS_START_FORM_KEY_" type="BOOLEAN"/>
-            <column name="SUSPENSION_STATE_" type="INT"/>
+            <column name="HAS_START_FORM_KEY_" type="BOOLEAN(1)"/>
+            <column name="SUSPENSION_STATE_" type="INT(10)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
             <column name="VERSION_TAG_" type="VARCHAR(64)"/>
-            <column name="HISTORY_TTL_" type="INT"/>
-            <column defaultValueBoolean="true" name="STARTABLE_" type="BOOLEAN">
+            <column name="HISTORY_TTL_" type="INT(10)"/>
+            <column defaultValueBoolean="true" name="STARTABLE_" type="BOOLEAN(1)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-33">
+    <changeSet author="kuehn (generated)" id="1580410283605-33">
         <createTable tableName="ACT_RU_AUTHORIZATION">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_61"/>
-            </column>
-            <column name="REV_" type="INT">
                 <constraints nullable="false"/>
             </column>
-            <column name="TYPE_" type="INT">
+            <column name="REV_" type="INT(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TYPE_" type="INT(10)">
                 <constraints nullable="false"/>
             </column>
             <column name="GROUP_ID_" type="VARCHAR(255)"/>
             <column name="USER_ID_" type="VARCHAR(255)"/>
-            <column name="RESOURCE_TYPE_" type="INT">
+            <column name="RESOURCE_TYPE_" type="INT(10)">
                 <constraints nullable="false"/>
             </column>
             <column name="RESOURCE_ID_" type="VARCHAR(255)"/>
-            <column name="PERMS_" type="INT"/>
+            <column name="PERMS_" type="INT(10)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-34">
+    <changeSet author="kuehn (generated)" id="1580410283605-34">
         <createTable tableName="ACT_RU_BATCH">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_9"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT">
+            <column name="REV_" type="INT(10)">
                 <constraints nullable="false"/>
             </column>
             <column name="TYPE_" type="VARCHAR(255)"/>
-            <column name="TOTAL_JOBS_" type="INT"/>
-            <column name="JOBS_CREATED_" type="INT"/>
-            <column name="JOBS_PER_SEED_" type="INT"/>
-            <column name="INVOCATIONS_PER_JOB_" type="INT"/>
+            <column name="TOTAL_JOBS_" type="INT(10)"/>
+            <column name="JOBS_CREATED_" type="INT(10)"/>
+            <column name="JOBS_PER_SEED_" type="INT(10)"/>
+            <column name="INVOCATIONS_PER_JOB_" type="INT(10)"/>
             <column name="SEED_JOB_DEF_ID_" type="VARCHAR(64)"/>
             <column name="BATCH_JOB_DEF_ID_" type="VARCHAR(64)"/>
             <column name="MONITOR_JOB_DEF_ID_" type="VARCHAR(64)"/>
-            <column name="SUSPENSION_STATE_" type="INT"/>
+            <column name="SUSPENSION_STATE_" type="INT(10)"/>
             <column name="CONFIGURATION_" type="VARCHAR(255)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
             <column name="CREATE_USER_ID_" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-35">
+    <changeSet author="kuehn (generated)" id="1580410283605-35">
         <createTable tableName="ACT_RU_CASE_EXECUTION">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_AD"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT"/>
+            <column name="REV_" type="INT(10)"/>
             <column name="CASE_INST_ID_" type="VARCHAR(64)"/>
             <column name="SUPER_CASE_EXEC_" type="VARCHAR(64)"/>
             <column name="SUPER_EXEC_" type="VARCHAR(64)"/>
@@ -785,18 +784,18 @@
             <column name="PARENT_ID_" type="VARCHAR(64)"/>
             <column name="CASE_DEF_ID_" type="VARCHAR(64)"/>
             <column name="ACT_ID_" type="VARCHAR(255)"/>
-            <column name="PREV_STATE_" type="INT"/>
-            <column name="CURRENT_STATE_" type="INT"/>
-            <column name="REQUIRED_" type="BOOLEAN"/>
+            <column name="PREV_STATE_" type="INT(10)"/>
+            <column name="CURRENT_STATE_" type="INT(10)"/>
+            <column name="REQUIRED_" type="BOOLEAN(1)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-36">
+    <changeSet author="kuehn (generated)" id="1580410283605-36">
         <createTable tableName="ACT_RU_CASE_SENTRY_PART">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_5F"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT"/>
+            <column name="REV_" type="INT(10)"/>
             <column name="CASE_INST_ID_" type="VARCHAR(64)"/>
             <column name="CASE_EXEC_ID_" type="VARCHAR(64)"/>
             <column name="SENTRY_ID_" type="VARCHAR(255)"/>
@@ -806,16 +805,16 @@
             <column name="SOURCE_" type="VARCHAR(255)"/>
             <column name="VARIABLE_EVENT_" type="VARCHAR(255)"/>
             <column name="VARIABLE_NAME_" type="VARCHAR(255)"/>
-            <column name="SATISFIED_" type="BOOLEAN"/>
+            <column name="SATISFIED_" type="BOOLEAN(1)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-37">
+    <changeSet author="kuehn (generated)" id="1580410283605-37">
         <createTable tableName="ACT_RU_EVENT_SUBSCR">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_86"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT"/>
+            <column name="REV_" type="INT(10)"/>
             <column name="EVENT_TYPE_" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
@@ -830,12 +829,12 @@
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-38">
+    <changeSet author="kuehn (generated)" id="1580410283605-38">
         <createTable tableName="ACT_RU_EXECUTION">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_5"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT"/>
+            <column name="REV_" type="INT(10)"/>
             <column name="ROOT_PROC_INST_ID_" type="VARCHAR(64)"/>
             <column name="PROC_INST_ID_" type="VARCHAR(64)"/>
             <column name="BUSINESS_KEY_" type="VARCHAR(255)"/>
@@ -846,31 +845,31 @@
             <column name="CASE_INST_ID_" type="VARCHAR(64)"/>
             <column name="ACT_INST_ID_" type="VARCHAR(64)"/>
             <column name="ACT_ID_" type="VARCHAR(255)"/>
-            <column name="IS_ACTIVE_" type="BOOLEAN"/>
-            <column name="IS_CONCURRENT_" type="BOOLEAN"/>
-            <column name="IS_SCOPE_" type="BOOLEAN"/>
-            <column name="IS_EVENT_SCOPE_" type="BOOLEAN"/>
-            <column name="SUSPENSION_STATE_" type="INT"/>
-            <column name="CACHED_ENT_STATE_" type="INT"/>
-            <column name="SEQUENCE_COUNTER_" type="INT"/>
+            <column name="IS_ACTIVE_" type="BOOLEAN(1)"/>
+            <column name="IS_CONCURRENT_" type="BOOLEAN(1)"/>
+            <column name="IS_SCOPE_" type="BOOLEAN(1)"/>
+            <column name="IS_EVENT_SCOPE_" type="BOOLEAN(1)"/>
+            <column name="SUSPENSION_STATE_" type="INT(10)"/>
+            <column name="CACHED_ENT_STATE_" type="INT(10)"/>
+            <column name="SEQUENCE_COUNTER_" type="INT(10)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-39">
+    <changeSet author="kuehn (generated)" id="1580410283605-39">
         <createTable tableName="ACT_RU_EXT_TASK">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_A2"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT">
+            <column name="REV_" type="INT(10)">
                 <constraints nullable="false"/>
             </column>
             <column name="WORKER_ID_" type="VARCHAR(255)"/>
             <column name="TOPIC_NAME_" type="VARCHAR(255)"/>
-            <column name="RETRIES_" type="INT"/>
+            <column name="RETRIES_" type="INT(10)"/>
             <column name="ERROR_MSG_" type="VARCHAR(4000)"/>
             <column name="ERROR_DETAILS_ID_" type="VARCHAR(64)"/>
             <column name="LOCK_EXP_TIME_" type="TIMESTAMP"/>
-            <column name="SUSPENSION_STATE_" type="INT"/>
+            <column name="SUSPENSION_STATE_" type="INT(10)"/>
             <column name="EXECUTION_ID_" type="VARCHAR(64)"/>
             <column name="PROC_INST_ID_" type="VARCHAR(64)"/>
             <column name="PROC_DEF_ID_" type="VARCHAR(64)"/>
@@ -878,17 +877,17 @@
             <column name="ACT_ID_" type="VARCHAR(255)"/>
             <column name="ACT_INST_ID_" type="VARCHAR(64)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
-            <column defaultValueNumeric="0" name="PRIORITY_" type="BIGINT">
+            <column defaultValueNumeric="0" name="PRIORITY_" type="BIGINT(19)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-40">
+    <changeSet author="kuehn (generated)" id="1580410283605-40">
         <createTable tableName="ACT_RU_FILTER">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_2D"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT">
+            <column name="REV_" type="INT(10)">
                 <constraints nullable="false"/>
             </column>
             <column name="RESOURCE_TYPE_" type="VARCHAR(255)">
@@ -904,12 +903,12 @@
             <column name="PROPERTIES_" type="CLOB"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-41">
+    <changeSet author="kuehn (generated)" id="1580410283605-41">
         <createTable tableName="ACT_RU_IDENTITYLINK">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_A"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT"/>
+            <column name="REV_" type="INT(10)"/>
             <column name="GROUP_ID_" type="VARCHAR(255)"/>
             <column name="TYPE_" type="VARCHAR(255)"/>
             <column name="USER_ID_" type="VARCHAR(255)"/>
@@ -918,12 +917,12 @@
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-42">
+    <changeSet author="kuehn (generated)" id="1580410283605-42">
         <createTable tableName="ACT_RU_INCIDENT">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_12"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT">
+            <column name="REV_" type="INT(10)">
                 <constraints nullable="false"/>
             </column>
             <column name="INCIDENT_TIMESTAMP_" type="TIMESTAMP">
@@ -944,49 +943,49 @@
             <column name="JOB_DEF_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-43">
+    <changeSet author="kuehn (generated)" id="1580410283605-43">
         <createTable tableName="ACT_RU_JOB">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_1C"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT"/>
+            <column name="REV_" type="INT(10)"/>
             <column name="TYPE_" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="LOCK_EXP_TIME_" type="TIMESTAMP"/>
             <column name="LOCK_OWNER_" type="VARCHAR(255)"/>
-            <column name="EXCLUSIVE_" type="BOOLEAN"/>
+            <column name="EXCLUSIVE_" type="BOOLEAN(1)"/>
             <column name="EXECUTION_ID_" type="VARCHAR(64)"/>
             <column name="PROCESS_INSTANCE_ID_" type="VARCHAR(64)"/>
             <column name="PROCESS_DEF_ID_" type="VARCHAR(64)"/>
             <column name="PROCESS_DEF_KEY_" type="VARCHAR(255)"/>
-            <column name="RETRIES_" type="INT"/>
+            <column name="RETRIES_" type="INT(10)"/>
             <column name="EXCEPTION_STACK_ID_" type="VARCHAR(64)"/>
             <column name="EXCEPTION_MSG_" type="VARCHAR(4000)"/>
             <column name="DUEDATE_" type="TIMESTAMP"/>
             <column name="REPEAT_" type="VARCHAR(255)"/>
-            <column defaultValueNumeric="0" name="REPEAT_OFFSET_" type="BIGINT"/>
+            <column defaultValueNumeric="0" name="REPEAT_OFFSET_" type="BIGINT(19)"/>
             <column name="HANDLER_TYPE_" type="VARCHAR(255)"/>
             <column name="HANDLER_CFG_" type="VARCHAR(4000)"/>
             <column name="DEPLOYMENT_ID_" type="VARCHAR(64)"/>
-            <column defaultValueNumeric="1" name="SUSPENSION_STATE_" type="INT">
+            <column defaultValueNumeric="1" name="SUSPENSION_STATE_" type="INT(10)">
                 <constraints nullable="false"/>
             </column>
             <column name="JOB_DEF_ID_" type="VARCHAR(64)"/>
-            <column defaultValueNumeric="0" name="PRIORITY_" type="BIGINT">
+            <column defaultValueNumeric="0" name="PRIORITY_" type="BIGINT(19)">
                 <constraints nullable="false"/>
             </column>
-            <column name="SEQUENCE_COUNTER_" type="INT"/>
+            <column name="SEQUENCE_COUNTER_" type="INT(10)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
             <column name="CREATE_TIME_" type="TIMESTAMP"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-44">
+    <changeSet author="kuehn (generated)" id="1580410283605-44">
         <createTable tableName="ACT_RU_JOBDEF">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_3"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT"/>
+            <column name="REV_" type="INT(10)"/>
             <column name="PROC_DEF_ID_" type="VARCHAR(64)"/>
             <column name="PROC_DEF_KEY_" type="VARCHAR(255)"/>
             <column name="ACT_ID_" type="VARCHAR(255)"/>
@@ -994,31 +993,31 @@
                 <constraints nullable="false"/>
             </column>
             <column name="JOB_CONFIGURATION_" type="VARCHAR(255)"/>
-            <column name="SUSPENSION_STATE_" type="INT"/>
-            <column name="JOB_PRIORITY_" type="BIGINT"/>
+            <column name="SUSPENSION_STATE_" type="INT(10)"/>
+            <column name="JOB_PRIORITY_" type="BIGINT(19)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-45">
+    <changeSet author="kuehn (generated)" id="1580410283605-45">
         <createTable tableName="ACT_RU_METER_LOG">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_66"/>
+                <constraints nullable="false"/>
             </column>
             <column name="NAME_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
             <column name="REPORTER_" type="VARCHAR(255)"/>
-            <column name="VALUE_" type="BIGINT"/>
+            <column name="VALUE_" type="BIGINT(19)"/>
             <column name="TIMESTAMP_" type="TIMESTAMP"/>
-            <column defaultValueNumeric="0" name="MILLISECONDS_" type="BIGINT"/>
+            <column defaultValueNumeric="0" name="MILLISECONDS_" type="BIGINT(19)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-46">
+    <changeSet author="kuehn (generated)" id="1580410283605-46">
         <createTable tableName="ACT_RU_TASK">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_7"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT"/>
+            <column name="REV_" type="INT(10)"/>
             <column name="EXECUTION_ID_" type="VARCHAR(64)"/>
             <column name="PROC_INST_ID_" type="VARCHAR(64)"/>
             <column name="PROC_DEF_ID_" type="VARCHAR(64)"/>
@@ -1032,20 +1031,20 @@
             <column name="OWNER_" type="VARCHAR(255)"/>
             <column name="ASSIGNEE_" type="VARCHAR(255)"/>
             <column name="DELEGATION_" type="VARCHAR(64)"/>
-            <column name="PRIORITY_" type="INT"/>
+            <column name="PRIORITY_" type="INT(10)"/>
             <column name="CREATE_TIME_" type="TIMESTAMP"/>
             <column name="DUE_DATE_" type="TIMESTAMP"/>
             <column name="FOLLOW_UP_DATE_" type="TIMESTAMP"/>
-            <column name="SUSPENSION_STATE_" type="INT"/>
+            <column name="SUSPENSION_STATE_" type="INT(10)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-47">
+    <changeSet author="kuehn (generated)" id="1580410283605-47">
         <createTable tableName="ACT_RU_VARIABLE">
             <column name="ID_" type="VARCHAR(64)">
-                <constraints primaryKey="true" primaryKeyName="CONSTRAINT_C"/>
+                <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT"/>
+            <column name="REV_" type="INT(10)"/>
             <column name="TYPE_" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
@@ -1059,360 +1058,500 @@
             <column name="TASK_ID_" type="VARCHAR(64)"/>
             <column name="BYTEARRAY_ID_" type="VARCHAR(64)"/>
             <column name="DOUBLE_" type="DOUBLE(17)"/>
-            <column name="LONG_" type="BIGINT"/>
+            <column name="LONG_" type="BIGINT(19)"/>
             <column name="TEXT_" type="VARCHAR(4000)"/>
             <column name="TEXT2_" type="VARCHAR(4000)"/>
             <column name="VAR_SCOPE_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="SEQUENCE_COUNTER_" type="INT"/>
-            <column name="IS_CONCURRENT_LOCAL_" type="BOOLEAN"/>
+            <column name="SEQUENCE_COUNTER_" type="INT(10)"/>
+            <column name="IS_CONCURRENT_LOCAL_" type="BOOLEAN(1)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
-    
-    <changeSet author="kuehn (generated)" id="1576103603001-53">
+    <changeSet author="kuehn (generated)" id="1580410283605-53">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_1" tableName="ACT_RE_DEPLOYMENT"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-54">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_12" tableName="ACT_RU_INCIDENT"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-55">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_1C" tableName="ACT_RU_JOB"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-56">
+        <addPrimaryKey columnNames="NAME_" constraintName="CONSTRAINT_2" tableName="ACT_GE_PROPERTY"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-57">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_29" tableName="ACT_ID_TENANT"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-58">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_2D" tableName="ACT_RU_FILTER"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-59">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_3" tableName="ACT_RU_JOBDEF"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-60">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_3A" tableName="ACT_ID_TENANT_MEMBER"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-61">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_4" tableName="ACT_GE_SCHEMA_LOG"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-62">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_4E" tableName="ACT_HI_VARINST"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-63">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_5" tableName="ACT_RU_EXECUTION"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-64">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_5F" tableName="ACT_RU_CASE_SENTRY_PART"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-65">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_6" tableName="ACT_RE_PROCDEF"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-66">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_61" tableName="ACT_RU_AUTHORIZATION"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-67">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_66" tableName="ACT_RU_METER_LOG"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-68">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_6B" tableName="ACT_ID_GROUP"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-69">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_7" tableName="ACT_RU_TASK"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-70">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_78" tableName="ACT_HI_COMMENT"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-71">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_7F" tableName="ACT_ID_USER"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-72">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_7F5" tableName="ACT_ID_INFO"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-73">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_8" tableName="ACT_GE_BYTEARRAY"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-74">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_80" tableName="ACT_HI_DETAIL"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-75">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_80E" tableName="ACT_HI_DEC_IN"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-76">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_86" tableName="ACT_RU_EVENT_SUBSCR"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-77">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_8A" tableName="ACT_HI_IDENTITYLINK"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-78">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_8D" tableName="ACT_HI_PROCINST"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-79">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_8D2" tableName="ACT_HI_EXT_TASK_LOG"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-80">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_9" tableName="ACT_RU_BATCH"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-81">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_94" tableName="ACT_HI_OP_LOG"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-82">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_9C" tableName="ACT_HI_DECINST"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-83">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_9C4" tableName="ACT_HI_DEC_OUT"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-84">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_A" tableName="ACT_RU_IDENTITYLINK"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-85">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_A2" tableName="ACT_RU_EXT_TASK"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-86">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_AD" tableName="ACT_RU_CASE_EXECUTION"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-87">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_AD1" tableName="ACT_RE_DECISION_REQ_DEF"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-88">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_B" tableName="ACT_HI_TASKINST"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-89">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_B5" tableName="ACT_RE_DECISION_DEF"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-90">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_BC" tableName="ACT_HI_CASEACTINST"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-91">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_C" tableName="ACT_RU_VARIABLE"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-92">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_C4" tableName="ACT_HI_BATCH"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-93">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_CA" tableName="ACT_RE_CASE_DEF"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-94">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_CA4" tableName="ACT_HI_CASEINST"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-95">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_CE" tableName="ACT_HI_INCIDENT"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-96">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_D" tableName="ACT_HI_ATTACHMENT"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-98">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_EA" tableName="ACT_HI_JOB_LOG"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-99">
+        <addPrimaryKey columnNames="USER_ID_, GROUP_ID_" constraintName="CONSTRAINT_EE" tableName="ACT_ID_MEMBERSHIP"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-101">
+        <addPrimaryKey columnNames="ID_" constraintName="CONSTRAINT_FB" tableName="ACT_HI_ACTINST"/>
+    </changeSet>
+    <changeSet author="kuehn (generated)" id="1580410283605-103">
         <addUniqueConstraint columnNames="TYPE_, GROUP_ID_, RESOURCE_TYPE_, RESOURCE_ID_" constraintName="ACT_UNIQ_AUTH_GROUP" tableName="ACT_RU_AUTHORIZATION"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-54">
+    <changeSet author="kuehn (generated)" id="1580410283605-104">
         <addUniqueConstraint columnNames="TYPE_, USER_ID_, RESOURCE_TYPE_, RESOURCE_ID_" constraintName="ACT_UNIQ_AUTH_USER" tableName="ACT_RU_AUTHORIZATION"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-55">
+    <changeSet author="kuehn (generated)" id="1580410283605-105">
         <addUniqueConstraint columnNames="TENANT_ID_, GROUP_ID_" constraintName="ACT_UNIQ_TENANT_MEMB_GROUP" tableName="ACT_ID_TENANT_MEMBER"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-56">
+    <changeSet author="kuehn (generated)" id="1580410283605-106">
         <addUniqueConstraint columnNames="TENANT_ID_, USER_ID_" constraintName="ACT_UNIQ_TENANT_MEMB_USER" tableName="ACT_ID_TENANT_MEMBER"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-57">
+    <changeSet author="kuehn (generated)" id="1580410283605-107">
         <addUniqueConstraint columnNames="VAR_SCOPE_, NAME_" constraintName="ACT_UNIQ_VARIABLE" tableName="ACT_RU_VARIABLE"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-58">
+    <changeSet author="kuehn (generated)" id="1580410283605-108">
         <addUniqueConstraint columnNames="PROC_INST_ID_" constraintName="CONSTRAINT_8D1" tableName="ACT_HI_PROCINST"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-59">
+    <changeSet author="kuehn (generated)" id="1580410283605-109">
         <addUniqueConstraint columnNames="CASE_INST_ID_" constraintName="CONSTRAINT_CA49" tableName="ACT_HI_CASEINST"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-62">
+    <changeSet author="kuehn (generated)" id="1580410283605-112">
         <createIndex indexName="ACT_FK_BYTEARR_DEPL_INDEX_8" tableName="ACT_GE_BYTEARRAY">
             <column name="DEPLOYMENT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-63">
+    <changeSet author="kuehn (generated)" id="1580410283605-113">
         <createIndex indexName="ACT_FK_CASE_EXE_CASE_DEF_INDEX_A" tableName="ACT_RU_CASE_EXECUTION">
             <column name="CASE_DEF_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-64">
+    <changeSet author="kuehn (generated)" id="1580410283605-114">
         <createIndex indexName="ACT_FK_CASE_EXE_CASE_INST_INDEX_A" tableName="ACT_RU_CASE_EXECUTION">
             <column name="CASE_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-65">
+    <changeSet author="kuehn (generated)" id="1580410283605-115">
         <createIndex indexName="ACT_FK_CASE_EXE_PARENT_INDEX_A" tableName="ACT_RU_CASE_EXECUTION">
             <column name="PARENT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-66">
+    <changeSet author="kuehn (generated)" id="1580410283605-116">
         <createIndex indexName="ACT_FK_CASE_SENTRY_CASE_EXEC_INDEX_5" tableName="ACT_RU_CASE_SENTRY_PART">
             <column name="CASE_EXEC_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-67">
+    <changeSet author="kuehn (generated)" id="1580410283605-117">
         <createIndex indexName="ACT_FK_CASE_SENTRY_CASE_INST_INDEX_5" tableName="ACT_RU_CASE_SENTRY_PART">
             <column name="CASE_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-68">
+    <changeSet author="kuehn (generated)" id="1580410283605-118">
         <createIndex indexName="ACT_FK_EVENT_EXEC_INDEX_8" tableName="ACT_RU_EVENT_SUBSCR">
             <column name="EXECUTION_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-69">
+    <changeSet author="kuehn (generated)" id="1580410283605-119">
         <createIndex indexName="ACT_FK_EXE_PARENT_INDEX_5" tableName="ACT_RU_EXECUTION">
             <column name="PARENT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-70">
+    <changeSet author="kuehn (generated)" id="1580410283605-120">
         <createIndex indexName="ACT_FK_EXE_PROCDEF_INDEX_5" tableName="ACT_RU_EXECUTION">
             <column name="PROC_DEF_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-71">
+    <changeSet author="kuehn (generated)" id="1580410283605-121">
         <createIndex indexName="ACT_FK_EXE_PROCINST_INDEX_5" tableName="ACT_RU_EXECUTION">
             <column name="PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-72">
+    <changeSet author="kuehn (generated)" id="1580410283605-122">
         <createIndex indexName="ACT_FK_EXE_SUPER_INDEX_5" tableName="ACT_RU_EXECUTION">
             <column name="SUPER_EXEC_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-73">
+    <changeSet author="kuehn (generated)" id="1580410283605-123">
         <createIndex indexName="ACT_FK_JOB_EXCEPTION_INDEX_1" tableName="ACT_RU_JOB">
             <column name="EXCEPTION_STACK_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-74">
+    <changeSet author="kuehn (generated)" id="1580410283605-124">
         <createIndex indexName="ACT_FK_MEMB_GROUP_INDEX_E" tableName="ACT_ID_MEMBERSHIP">
             <column name="GROUP_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-75">
+    <changeSet author="kuehn (generated)" id="1580410283605-125">
         <createIndex indexName="ACT_FK_MEMB_USER_INDEX_E" tableName="ACT_ID_MEMBERSHIP">
             <column name="USER_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-76">
+    <changeSet author="kuehn (generated)" id="1580410283605-126">
         <createIndex indexName="ACT_FK_TASK_CASE_DEF_INDEX_7" tableName="ACT_RU_TASK">
             <column name="CASE_DEF_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-77">
+    <changeSet author="kuehn (generated)" id="1580410283605-127">
         <createIndex indexName="ACT_FK_TASK_CASE_EXE_INDEX_7" tableName="ACT_RU_TASK">
             <column name="CASE_EXECUTION_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-78">
+    <changeSet author="kuehn (generated)" id="1580410283605-128">
         <createIndex indexName="ACT_FK_TASK_EXE_INDEX_7" tableName="ACT_RU_TASK">
             <column name="EXECUTION_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-79">
+    <changeSet author="kuehn (generated)" id="1580410283605-129">
         <createIndex indexName="ACT_FK_TASK_PROCDEF_INDEX_7" tableName="ACT_RU_TASK">
             <column name="PROC_DEF_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-80">
+    <changeSet author="kuehn (generated)" id="1580410283605-130">
         <createIndex indexName="ACT_FK_TASK_PROCINST_INDEX_7" tableName="ACT_RU_TASK">
             <column name="PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-81">
+    <changeSet author="kuehn (generated)" id="1580410283605-131">
         <createIndex indexName="ACT_FK_TENANT_MEMB_GROUP_INDEX_3" tableName="ACT_ID_TENANT_MEMBER">
             <column name="GROUP_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-82">
+    <changeSet author="kuehn (generated)" id="1580410283605-132">
         <createIndex indexName="ACT_FK_TENANT_MEMB_INDEX_3" tableName="ACT_ID_TENANT_MEMBER">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-83">
+    <changeSet author="kuehn (generated)" id="1580410283605-133">
         <createIndex indexName="ACT_FK_TENANT_MEMB_USER_INDEX_3" tableName="ACT_ID_TENANT_MEMBER">
             <column name="USER_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-84">
+    <changeSet author="kuehn (generated)" id="1580410283605-134">
         <createIndex indexName="ACT_FK_TSKASS_TASK_INDEX_A" tableName="ACT_RU_IDENTITYLINK">
             <column name="TASK_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-85">
+    <changeSet author="kuehn (generated)" id="1580410283605-135">
         <createIndex indexName="ACT_FK_VAR_BYTEARRAY_INDEX_C" tableName="ACT_RU_VARIABLE">
             <column name="BYTEARRAY_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-86">
+    <changeSet author="kuehn (generated)" id="1580410283605-136">
         <createIndex indexName="ACT_FK_VAR_CASE_EXE_INDEX_C" tableName="ACT_RU_VARIABLE">
             <column name="CASE_EXECUTION_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-87">
+    <changeSet author="kuehn (generated)" id="1580410283605-137">
         <createIndex indexName="ACT_FK_VAR_CASE_INST_INDEX_C" tableName="ACT_RU_VARIABLE">
             <column name="CASE_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-88">
+    <changeSet author="kuehn (generated)" id="1580410283605-138">
         <createIndex indexName="ACT_FK_VAR_EXE_INDEX_C" tableName="ACT_RU_VARIABLE">
             <column name="EXECUTION_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-89">
+    <changeSet author="kuehn (generated)" id="1580410283605-139">
         <createIndex indexName="ACT_FK_VAR_PROCINST_INDEX_C" tableName="ACT_RU_VARIABLE">
             <column name="PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-90">
+    <changeSet author="kuehn (generated)" id="1580410283605-140">
         <createIndex indexName="ACT_HI_BAT_RM_TIME" tableName="ACT_HI_BATCH">
             <column name="REMOVAL_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-91">
+    <changeSet author="kuehn (generated)" id="1580410283605-141">
         <createIndex indexName="ACT_HI_EXT_TASK_LOG_PROCDEF" tableName="ACT_HI_EXT_TASK_LOG">
             <column name="PROC_DEF_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-92">
+    <changeSet author="kuehn (generated)" id="1580410283605-142">
         <createIndex indexName="ACT_HI_EXT_TASK_LOG_PROCINST" tableName="ACT_HI_EXT_TASK_LOG">
             <column name="PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-93">
+    <changeSet author="kuehn (generated)" id="1580410283605-143">
         <createIndex indexName="ACT_HI_EXT_TASK_LOG_PROC_DEF_KEY" tableName="ACT_HI_EXT_TASK_LOG">
             <column name="PROC_DEF_KEY_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-94">
+    <changeSet author="kuehn (generated)" id="1580410283605-144">
         <createIndex indexName="ACT_HI_EXT_TASK_LOG_RM_TIME" tableName="ACT_HI_EXT_TASK_LOG">
             <column name="REMOVAL_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-95">
+    <changeSet author="kuehn (generated)" id="1580410283605-145">
         <createIndex indexName="ACT_HI_EXT_TASK_LOG_ROOT_PI" tableName="ACT_HI_EXT_TASK_LOG">
             <column name="ROOT_PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-96">
+    <changeSet author="kuehn (generated)" id="1580410283605-146">
         <createIndex indexName="ACT_HI_EXT_TASK_LOG_TENANT_ID" tableName="ACT_HI_EXT_TASK_LOG">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-97">
+    <changeSet author="kuehn (generated)" id="1580410283605-147">
         <createIndex indexName="ACT_IDX_ATHRZ_PROCEDEF" tableName="ACT_RU_IDENTITYLINK">
             <column name="PROC_DEF_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-98">
+    <changeSet author="kuehn (generated)" id="1580410283605-148">
         <createIndex indexName="ACT_IDX_AUTH_GROUP_ID" tableName="ACT_RU_AUTHORIZATION">
             <column name="GROUP_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-99">
+    <changeSet author="kuehn (generated)" id="1580410283605-149">
         <createIndex indexName="ACT_IDX_AUTH_RESOURCE_ID" tableName="ACT_RU_AUTHORIZATION">
             <column name="RESOURCE_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-100">
+    <changeSet author="kuehn (generated)" id="1580410283605-150">
         <createIndex indexName="ACT_IDX_BATCH_JOB_DEF" tableName="ACT_RU_BATCH">
             <column name="BATCH_JOB_DEF_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-101">
+    <changeSet author="kuehn (generated)" id="1580410283605-151">
         <createIndex indexName="ACT_IDX_BATCH_MONITOR_JOB_DEF" tableName="ACT_RU_BATCH">
             <column name="MONITOR_JOB_DEF_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-102">
+    <changeSet author="kuehn (generated)" id="1580410283605-152">
         <createIndex indexName="ACT_IDX_BATCH_SEED_JOB_DEF" tableName="ACT_RU_BATCH">
             <column name="SEED_JOB_DEF_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-103">
+    <changeSet author="kuehn (generated)" id="1580410283605-153">
         <createIndex indexName="ACT_IDX_BYTEARRAY_NAME" tableName="ACT_GE_BYTEARRAY">
             <column name="NAME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-104">
+    <changeSet author="kuehn (generated)" id="1580410283605-154">
         <createIndex indexName="ACT_IDX_BYTEARRAY_RM_TIME" tableName="ACT_GE_BYTEARRAY">
             <column name="REMOVAL_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-105">
+    <changeSet author="kuehn (generated)" id="1580410283605-155">
         <createIndex indexName="ACT_IDX_BYTEARRAY_ROOT_PI" tableName="ACT_GE_BYTEARRAY">
             <column name="ROOT_PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-106">
+    <changeSet author="kuehn (generated)" id="1580410283605-156">
         <createIndex indexName="ACT_IDX_CASE_DEF_TENANT_ID" tableName="ACT_RE_CASE_DEF">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-107">
+    <changeSet author="kuehn (generated)" id="1580410283605-157">
         <createIndex indexName="ACT_IDX_CASE_EXEC_BUSKEY" tableName="ACT_RU_CASE_EXECUTION">
             <column name="BUSINESS_KEY_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-108">
+    <changeSet author="kuehn (generated)" id="1580410283605-158">
         <createIndex indexName="ACT_IDX_CASE_EXEC_TENANT_ID" tableName="ACT_RU_CASE_EXECUTION">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-109">
+    <changeSet author="kuehn (generated)" id="1580410283605-159">
         <createIndex indexName="ACT_IDX_DEC_DEF_REQ_ID" tableName="ACT_RE_DECISION_DEF">
             <column name="DEC_REQ_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-110">
+    <changeSet author="kuehn (generated)" id="1580410283605-160">
         <createIndex indexName="ACT_IDX_DEC_DEF_TENANT_ID" tableName="ACT_RE_DECISION_DEF">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-111">
+    <changeSet author="kuehn (generated)" id="1580410283605-161">
         <createIndex indexName="ACT_IDX_DEC_REQ_DEF_TENANT_ID" tableName="ACT_RE_DECISION_REQ_DEF">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-112">
+    <changeSet author="kuehn (generated)" id="1580410283605-162">
         <createIndex indexName="ACT_IDX_DEPLOYMENT_NAME" tableName="ACT_RE_DEPLOYMENT">
             <column name="NAME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-113">
+    <changeSet author="kuehn (generated)" id="1580410283605-163">
         <createIndex indexName="ACT_IDX_DEPLOYMENT_TENANT_ID" tableName="ACT_RE_DEPLOYMENT">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-114">
+    <changeSet author="kuehn (generated)" id="1580410283605-164">
         <createIndex indexName="ACT_IDX_EVENT_SUBSCR_CONFIG_" tableName="ACT_RU_EVENT_SUBSCR">
             <column name="CONFIGURATION_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-115">
+    <changeSet author="kuehn (generated)" id="1580410283605-165">
         <createIndex indexName="ACT_IDX_EVENT_SUBSCR_EVT_NAME" tableName="ACT_RU_EVENT_SUBSCR">
             <column name="EVENT_NAME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-116">
+    <changeSet author="kuehn (generated)" id="1580410283605-166">
         <createIndex indexName="ACT_IDX_EVENT_SUBSCR_TENANT_ID" tableName="ACT_RU_EVENT_SUBSCR">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-117">
+    <changeSet author="kuehn (generated)" id="1580410283605-167">
         <createIndex indexName="ACT_IDX_EXEC_BUSKEY" tableName="ACT_RU_EXECUTION">
             <column name="BUSINESS_KEY_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-118">
+    <changeSet author="kuehn (generated)" id="1580410283605-168">
         <createIndex indexName="ACT_IDX_EXEC_ROOT_PI" tableName="ACT_RU_EXECUTION">
             <column name="ROOT_PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-119">
+    <changeSet author="kuehn (generated)" id="1580410283605-169">
         <createIndex indexName="ACT_IDX_EXEC_TENANT_ID" tableName="ACT_RU_EXECUTION">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-120">
+    <changeSet author="kuehn (generated)" id="1580410283605-170">
         <createIndex indexName="ACT_IDX_EXT_TASK_ERR_DETAILS" tableName="ACT_RU_EXT_TASK">
             <column name="ERROR_DETAILS_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-121">
+    <changeSet author="kuehn (generated)" id="1580410283605-171">
         <createIndex indexName="ACT_IDX_EXT_TASK_EXEC" tableName="ACT_RU_EXT_TASK">
             <column name="EXECUTION_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-122">
+    <changeSet author="kuehn (generated)" id="1580410283605-172">
         <createIndex indexName="ACT_IDX_EXT_TASK_PRIORITY" tableName="ACT_RU_EXT_TASK">
-            <column defaultValueNumeric="0" name="PRIORITY_"/>
+            <column name="PRIORITY_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-123">
+    <changeSet author="kuehn (generated)" id="1580410283605-173">
         <createIndex indexName="ACT_IDX_EXT_TASK_TENANT_ID" tableName="ACT_RU_EXT_TASK">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-124">
+    <changeSet author="kuehn (generated)" id="1580410283605-174">
         <createIndex indexName="ACT_IDX_EXT_TASK_TOPIC" tableName="ACT_RU_EXT_TASK">
             <column name="TOPIC_NAME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-125">
+    <changeSet author="kuehn (generated)" id="1580410283605-175">
         <createIndex indexName="ACT_IDX_HI_ACTINST_ROOT_PI" tableName="ACT_HI_ACTINST">
             <column name="ROOT_PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-126">
+    <changeSet author="kuehn (generated)" id="1580410283605-176">
         <createIndex indexName="ACT_IDX_HI_ACT_INST_COMP" tableName="ACT_HI_ACTINST">
             <column name="EXECUTION_ID_"/>
             <column name="ACT_ID_"/>
@@ -1420,33 +1559,33 @@
             <column name="ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-127">
+    <changeSet author="kuehn (generated)" id="1580410283605-177">
         <createIndex indexName="ACT_IDX_HI_ACT_INST_END" tableName="ACT_HI_ACTINST">
             <column name="END_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-128">
+    <changeSet author="kuehn (generated)" id="1580410283605-178">
         <createIndex indexName="ACT_IDX_HI_ACT_INST_PROCINST" tableName="ACT_HI_ACTINST">
             <column name="PROC_INST_ID_"/>
             <column name="ACT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-129">
+    <changeSet author="kuehn (generated)" id="1580410283605-179">
         <createIndex indexName="ACT_IDX_HI_ACT_INST_PROC_DEF_KEY" tableName="ACT_HI_ACTINST">
             <column name="PROC_DEF_KEY_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-130">
+    <changeSet author="kuehn (generated)" id="1580410283605-180">
         <createIndex indexName="ACT_IDX_HI_ACT_INST_RM_TIME" tableName="ACT_HI_ACTINST">
             <column name="REMOVAL_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-131">
+    <changeSet author="kuehn (generated)" id="1580410283605-181">
         <createIndex indexName="ACT_IDX_HI_ACT_INST_START" tableName="ACT_HI_ACTINST">
             <column name="START_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-132">
+    <changeSet author="kuehn (generated)" id="1580410283605-182">
         <createIndex indexName="ACT_IDX_HI_ACT_INST_STATS" tableName="ACT_HI_ACTINST">
             <column name="PROC_DEF_ID_"/>
             <column name="PROC_INST_ID_"/>
@@ -1455,842 +1594,842 @@
             <column name="ACT_INST_STATE_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-133">
+    <changeSet author="kuehn (generated)" id="1580410283605-183">
         <createIndex indexName="ACT_IDX_HI_ACT_INST_TENANT_ID" tableName="ACT_HI_ACTINST">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-134">
+    <changeSet author="kuehn (generated)" id="1580410283605-184">
         <createIndex indexName="ACT_IDX_HI_AI_PDEFID_END_TIME" tableName="ACT_HI_ACTINST">
             <column name="PROC_DEF_ID_"/>
             <column name="END_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-135">
+    <changeSet author="kuehn (generated)" id="1580410283605-185">
         <createIndex indexName="ACT_IDX_HI_ATTACHMENT_CONTENT" tableName="ACT_HI_ATTACHMENT">
             <column name="CONTENT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-136">
+    <changeSet author="kuehn (generated)" id="1580410283605-186">
         <createIndex indexName="ACT_IDX_HI_ATTACHMENT_PROCINST" tableName="ACT_HI_ATTACHMENT">
             <column name="PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-137">
+    <changeSet author="kuehn (generated)" id="1580410283605-187">
         <createIndex indexName="ACT_IDX_HI_ATTACHMENT_RM_TIME" tableName="ACT_HI_ATTACHMENT">
             <column name="REMOVAL_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-138">
+    <changeSet author="kuehn (generated)" id="1580410283605-188">
         <createIndex indexName="ACT_IDX_HI_ATTACHMENT_ROOT_PI" tableName="ACT_HI_ATTACHMENT">
             <column name="ROOT_PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-139">
+    <changeSet author="kuehn (generated)" id="1580410283605-189">
         <createIndex indexName="ACT_IDX_HI_ATTACHMENT_TASK" tableName="ACT_HI_ATTACHMENT">
             <column name="TASK_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-140">
+    <changeSet author="kuehn (generated)" id="1580410283605-190">
         <createIndex indexName="ACT_IDX_HI_CASEVAR_CASE_INST" tableName="ACT_HI_VARINST">
             <column name="CASE_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-141">
+    <changeSet author="kuehn (generated)" id="1580410283605-191">
         <createIndex indexName="ACT_IDX_HI_CAS_A_I_COMP" tableName="ACT_HI_CASEACTINST">
             <column name="CASE_ACT_ID_"/>
             <column name="END_TIME_"/>
             <column name="ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-142">
+    <changeSet author="kuehn (generated)" id="1580410283605-192">
         <createIndex indexName="ACT_IDX_HI_CAS_A_I_CREATE" tableName="ACT_HI_CASEACTINST">
             <column name="CREATE_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-143">
+    <changeSet author="kuehn (generated)" id="1580410283605-193">
         <createIndex indexName="ACT_IDX_HI_CAS_A_I_END" tableName="ACT_HI_CASEACTINST">
             <column name="END_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-144">
+    <changeSet author="kuehn (generated)" id="1580410283605-194">
         <createIndex indexName="ACT_IDX_HI_CAS_A_I_TENANT_ID" tableName="ACT_HI_CASEACTINST">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-145">
+    <changeSet author="kuehn (generated)" id="1580410283605-195">
         <createIndex indexName="ACT_IDX_HI_CAS_I_BUSKEY" tableName="ACT_HI_CASEINST">
             <column name="BUSINESS_KEY_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-146">
+    <changeSet author="kuehn (generated)" id="1580410283605-196">
         <createIndex indexName="ACT_IDX_HI_CAS_I_CLOSE" tableName="ACT_HI_CASEINST">
             <column name="CLOSE_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-147">
+    <changeSet author="kuehn (generated)" id="1580410283605-197">
         <createIndex indexName="ACT_IDX_HI_CAS_I_TENANT_ID" tableName="ACT_HI_CASEINST">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-148">
+    <changeSet author="kuehn (generated)" id="1580410283605-198">
         <createIndex indexName="ACT_IDX_HI_COMMENT_PROCINST" tableName="ACT_HI_COMMENT">
             <column name="PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-149">
+    <changeSet author="kuehn (generated)" id="1580410283605-199">
         <createIndex indexName="ACT_IDX_HI_COMMENT_RM_TIME" tableName="ACT_HI_COMMENT">
             <column name="REMOVAL_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-150">
+    <changeSet author="kuehn (generated)" id="1580410283605-200">
         <createIndex indexName="ACT_IDX_HI_COMMENT_ROOT_PI" tableName="ACT_HI_COMMENT">
             <column name="ROOT_PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-151">
+    <changeSet author="kuehn (generated)" id="1580410283605-201">
         <createIndex indexName="ACT_IDX_HI_COMMENT_TASK" tableName="ACT_HI_COMMENT">
             <column name="TASK_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-152">
+    <changeSet author="kuehn (generated)" id="1580410283605-202">
         <createIndex indexName="ACT_IDX_HI_DEC_INST_ACT" tableName="ACT_HI_DECINST">
             <column name="ACT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-153">
+    <changeSet author="kuehn (generated)" id="1580410283605-203">
         <createIndex indexName="ACT_IDX_HI_DEC_INST_ACT_INST" tableName="ACT_HI_DECINST">
             <column name="ACT_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-154">
+    <changeSet author="kuehn (generated)" id="1580410283605-204">
         <createIndex indexName="ACT_IDX_HI_DEC_INST_CI" tableName="ACT_HI_DECINST">
             <column name="CASE_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-155">
+    <changeSet author="kuehn (generated)" id="1580410283605-205">
         <createIndex indexName="ACT_IDX_HI_DEC_INST_ID" tableName="ACT_HI_DECINST">
             <column name="DEC_DEF_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-156">
+    <changeSet author="kuehn (generated)" id="1580410283605-206">
         <createIndex indexName="ACT_IDX_HI_DEC_INST_KEY" tableName="ACT_HI_DECINST">
             <column name="DEC_DEF_KEY_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-157">
+    <changeSet author="kuehn (generated)" id="1580410283605-207">
         <createIndex indexName="ACT_IDX_HI_DEC_INST_PI" tableName="ACT_HI_DECINST">
             <column name="PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-158">
+    <changeSet author="kuehn (generated)" id="1580410283605-208">
         <createIndex indexName="ACT_IDX_HI_DEC_INST_REQ_ID" tableName="ACT_HI_DECINST">
             <column name="DEC_REQ_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-159">
+    <changeSet author="kuehn (generated)" id="1580410283605-209">
         <createIndex indexName="ACT_IDX_HI_DEC_INST_REQ_KEY" tableName="ACT_HI_DECINST">
             <column name="DEC_REQ_KEY_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-160">
+    <changeSet author="kuehn (generated)" id="1580410283605-210">
         <createIndex indexName="ACT_IDX_HI_DEC_INST_RM_TIME" tableName="ACT_HI_DECINST">
             <column name="REMOVAL_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-161">
+    <changeSet author="kuehn (generated)" id="1580410283605-211">
         <createIndex indexName="ACT_IDX_HI_DEC_INST_ROOT_ID" tableName="ACT_HI_DECINST">
             <column name="ROOT_DEC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-162">
+    <changeSet author="kuehn (generated)" id="1580410283605-212">
         <createIndex indexName="ACT_IDX_HI_DEC_INST_ROOT_PI" tableName="ACT_HI_DECINST">
             <column name="ROOT_PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-163">
+    <changeSet author="kuehn (generated)" id="1580410283605-213">
         <createIndex indexName="ACT_IDX_HI_DEC_INST_TENANT_ID" tableName="ACT_HI_DECINST">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-164">
+    <changeSet author="kuehn (generated)" id="1580410283605-214">
         <createIndex indexName="ACT_IDX_HI_DEC_INST_TIME" tableName="ACT_HI_DECINST">
             <column name="EVAL_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-165">
+    <changeSet author="kuehn (generated)" id="1580410283605-215">
         <createIndex indexName="ACT_IDX_HI_DEC_IN_CLAUSE" tableName="ACT_HI_DEC_IN">
             <column name="DEC_INST_ID_"/>
             <column name="CLAUSE_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-166">
+    <changeSet author="kuehn (generated)" id="1580410283605-216">
         <createIndex indexName="ACT_IDX_HI_DEC_IN_INST" tableName="ACT_HI_DEC_IN">
             <column name="DEC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-167">
+    <changeSet author="kuehn (generated)" id="1580410283605-217">
         <createIndex indexName="ACT_IDX_HI_DEC_IN_RM_TIME" tableName="ACT_HI_DEC_IN">
             <column name="REMOVAL_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-168">
+    <changeSet author="kuehn (generated)" id="1580410283605-218">
         <createIndex indexName="ACT_IDX_HI_DEC_IN_ROOT_PI" tableName="ACT_HI_DEC_IN">
             <column name="ROOT_PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-169">
+    <changeSet author="kuehn (generated)" id="1580410283605-219">
         <createIndex indexName="ACT_IDX_HI_DEC_OUT_INST" tableName="ACT_HI_DEC_OUT">
             <column name="DEC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-170">
+    <changeSet author="kuehn (generated)" id="1580410283605-220">
         <createIndex indexName="ACT_IDX_HI_DEC_OUT_RM_TIME" tableName="ACT_HI_DEC_OUT">
             <column name="REMOVAL_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-171">
+    <changeSet author="kuehn (generated)" id="1580410283605-221">
         <createIndex indexName="ACT_IDX_HI_DEC_OUT_ROOT_PI" tableName="ACT_HI_DEC_OUT">
             <column name="ROOT_PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-172">
+    <changeSet author="kuehn (generated)" id="1580410283605-222">
         <createIndex indexName="ACT_IDX_HI_DEC_OUT_RULE" tableName="ACT_HI_DEC_OUT">
             <column name="RULE_ORDER_"/>
             <column name="CLAUSE_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-173">
+    <changeSet author="kuehn (generated)" id="1580410283605-223">
         <createIndex indexName="ACT_IDX_HI_DETAIL_ACT_INST" tableName="ACT_HI_DETAIL">
             <column name="ACT_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-174">
+    <changeSet author="kuehn (generated)" id="1580410283605-224">
         <createIndex indexName="ACT_IDX_HI_DETAIL_BYTEAR" tableName="ACT_HI_DETAIL">
             <column name="BYTEARRAY_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-175">
+    <changeSet author="kuehn (generated)" id="1580410283605-225">
         <createIndex indexName="ACT_IDX_HI_DETAIL_CASE_EXEC" tableName="ACT_HI_DETAIL">
             <column name="CASE_EXECUTION_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-176">
+    <changeSet author="kuehn (generated)" id="1580410283605-226">
         <createIndex indexName="ACT_IDX_HI_DETAIL_CASE_INST" tableName="ACT_HI_DETAIL">
             <column name="CASE_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-177">
+    <changeSet author="kuehn (generated)" id="1580410283605-227">
         <createIndex indexName="ACT_IDX_HI_DETAIL_NAME" tableName="ACT_HI_DETAIL">
             <column name="NAME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-178">
+    <changeSet author="kuehn (generated)" id="1580410283605-228">
         <createIndex indexName="ACT_IDX_HI_DETAIL_PROC_DEF_KEY" tableName="ACT_HI_DETAIL">
             <column name="PROC_DEF_KEY_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-179">
+    <changeSet author="kuehn (generated)" id="1580410283605-229">
         <createIndex indexName="ACT_IDX_HI_DETAIL_PROC_INST" tableName="ACT_HI_DETAIL">
             <column name="PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-180">
+    <changeSet author="kuehn (generated)" id="1580410283605-230">
         <createIndex indexName="ACT_IDX_HI_DETAIL_RM_TIME" tableName="ACT_HI_DETAIL">
             <column name="REMOVAL_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-181">
+    <changeSet author="kuehn (generated)" id="1580410283605-231">
         <createIndex indexName="ACT_IDX_HI_DETAIL_ROOT_PI" tableName="ACT_HI_DETAIL">
             <column name="ROOT_PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-182">
+    <changeSet author="kuehn (generated)" id="1580410283605-232">
         <createIndex indexName="ACT_IDX_HI_DETAIL_TASK_BYTEAR" tableName="ACT_HI_DETAIL">
             <column name="BYTEARRAY_ID_"/>
             <column name="TASK_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-183">
+    <changeSet author="kuehn (generated)" id="1580410283605-233">
         <createIndex indexName="ACT_IDX_HI_DETAIL_TASK_ID" tableName="ACT_HI_DETAIL">
             <column name="TASK_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-184">
+    <changeSet author="kuehn (generated)" id="1580410283605-234">
         <createIndex indexName="ACT_IDX_HI_DETAIL_TENANT_ID" tableName="ACT_HI_DETAIL">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-185">
+    <changeSet author="kuehn (generated)" id="1580410283605-235">
         <createIndex indexName="ACT_IDX_HI_DETAIL_TIME" tableName="ACT_HI_DETAIL">
             <column name="TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-186">
+    <changeSet author="kuehn (generated)" id="1580410283605-236">
         <createIndex indexName="ACT_IDX_HI_DETAIL_VAR_INST_ID" tableName="ACT_HI_DETAIL">
             <column name="VAR_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-187">
+    <changeSet author="kuehn (generated)" id="1580410283605-237">
         <createIndex indexName="ACT_IDX_HI_EXTTASKLOG_ERRORDET" tableName="ACT_HI_EXT_TASK_LOG">
             <column name="ERROR_DETAILS_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-188">
+    <changeSet author="kuehn (generated)" id="1580410283605-238">
         <createIndex indexName="ACT_IDX_HI_IDENT_LINK_RM_TIME" tableName="ACT_HI_IDENTITYLINK">
             <column name="REMOVAL_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-189">
+    <changeSet author="kuehn (generated)" id="1580410283605-239">
         <createIndex indexName="ACT_IDX_HI_IDENT_LINK_TASK" tableName="ACT_HI_IDENTITYLINK">
             <column name="TASK_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-190">
+    <changeSet author="kuehn (generated)" id="1580410283605-240">
         <createIndex indexName="ACT_IDX_HI_IDENT_LNK_GROUP" tableName="ACT_HI_IDENTITYLINK">
             <column name="GROUP_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-191">
+    <changeSet author="kuehn (generated)" id="1580410283605-241">
         <createIndex indexName="ACT_IDX_HI_IDENT_LNK_PROC_DEF_KEY" tableName="ACT_HI_IDENTITYLINK">
             <column name="PROC_DEF_KEY_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-192">
+    <changeSet author="kuehn (generated)" id="1580410283605-242">
         <createIndex indexName="ACT_IDX_HI_IDENT_LNK_ROOT_PI" tableName="ACT_HI_IDENTITYLINK">
             <column name="ROOT_PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-193">
+    <changeSet author="kuehn (generated)" id="1580410283605-243">
         <createIndex indexName="ACT_IDX_HI_IDENT_LNK_TENANT_ID" tableName="ACT_HI_IDENTITYLINK">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-194">
+    <changeSet author="kuehn (generated)" id="1580410283605-244">
         <createIndex indexName="ACT_IDX_HI_IDENT_LNK_TIMESTAMP" tableName="ACT_HI_IDENTITYLINK">
             <column name="TIMESTAMP_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-195">
+    <changeSet author="kuehn (generated)" id="1580410283605-245">
         <createIndex indexName="ACT_IDX_HI_IDENT_LNK_USER" tableName="ACT_HI_IDENTITYLINK">
             <column name="USER_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-196">
+    <changeSet author="kuehn (generated)" id="1580410283605-246">
         <createIndex indexName="ACT_IDX_HI_INCIDENT_PROCINST" tableName="ACT_HI_INCIDENT">
             <column name="PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-197">
+    <changeSet author="kuehn (generated)" id="1580410283605-247">
         <createIndex indexName="ACT_IDX_HI_INCIDENT_PROC_DEF_KEY" tableName="ACT_HI_INCIDENT">
             <column name="PROC_DEF_KEY_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-198">
+    <changeSet author="kuehn (generated)" id="1580410283605-248">
         <createIndex indexName="ACT_IDX_HI_INCIDENT_RM_TIME" tableName="ACT_HI_INCIDENT">
             <column name="REMOVAL_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-199">
+    <changeSet author="kuehn (generated)" id="1580410283605-249">
         <createIndex indexName="ACT_IDX_HI_INCIDENT_ROOT_PI" tableName="ACT_HI_INCIDENT">
             <column name="ROOT_PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-200">
+    <changeSet author="kuehn (generated)" id="1580410283605-250">
         <createIndex indexName="ACT_IDX_HI_INCIDENT_TENANT_ID" tableName="ACT_HI_INCIDENT">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-201">
+    <changeSet author="kuehn (generated)" id="1580410283605-251">
         <createIndex indexName="ACT_IDX_HI_JOB_LOG_EX_STACK" tableName="ACT_HI_JOB_LOG">
             <column name="JOB_EXCEPTION_STACK_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-202">
+    <changeSet author="kuehn (generated)" id="1580410283605-252">
         <createIndex indexName="ACT_IDX_HI_JOB_LOG_JOB_CONF" tableName="ACT_HI_JOB_LOG">
             <column name="JOB_DEF_CONFIGURATION_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-203">
+    <changeSet author="kuehn (generated)" id="1580410283605-253">
         <createIndex indexName="ACT_IDX_HI_JOB_LOG_JOB_DEF_ID" tableName="ACT_HI_JOB_LOG">
             <column name="JOB_DEF_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-204">
+    <changeSet author="kuehn (generated)" id="1580410283605-254">
         <createIndex indexName="ACT_IDX_HI_JOB_LOG_PROCDEF" tableName="ACT_HI_JOB_LOG">
             <column name="PROCESS_DEF_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-205">
+    <changeSet author="kuehn (generated)" id="1580410283605-255">
         <createIndex indexName="ACT_IDX_HI_JOB_LOG_PROCINST" tableName="ACT_HI_JOB_LOG">
             <column name="PROCESS_INSTANCE_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-206">
+    <changeSet author="kuehn (generated)" id="1580410283605-256">
         <createIndex indexName="ACT_IDX_HI_JOB_LOG_PROC_DEF_KEY" tableName="ACT_HI_JOB_LOG">
             <column name="PROCESS_DEF_KEY_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-207">
+    <changeSet author="kuehn (generated)" id="1580410283605-257">
         <createIndex indexName="ACT_IDX_HI_JOB_LOG_RM_TIME" tableName="ACT_HI_JOB_LOG">
             <column name="REMOVAL_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-208">
+    <changeSet author="kuehn (generated)" id="1580410283605-258">
         <createIndex indexName="ACT_IDX_HI_JOB_LOG_ROOT_PI" tableName="ACT_HI_JOB_LOG">
             <column name="ROOT_PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-209">
+    <changeSet author="kuehn (generated)" id="1580410283605-259">
         <createIndex indexName="ACT_IDX_HI_JOB_LOG_TENANT_ID" tableName="ACT_HI_JOB_LOG">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-210">
+    <changeSet author="kuehn (generated)" id="1580410283605-260">
         <createIndex indexName="ACT_IDX_HI_OP_LOG_ENTITY_TYPE" tableName="ACT_HI_OP_LOG">
             <column name="ENTITY_TYPE_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-211">
+    <changeSet author="kuehn (generated)" id="1580410283605-261">
         <createIndex indexName="ACT_IDX_HI_OP_LOG_OP_TYPE" tableName="ACT_HI_OP_LOG">
             <column name="OPERATION_TYPE_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-212">
+    <changeSet author="kuehn (generated)" id="1580410283605-262">
         <createIndex indexName="ACT_IDX_HI_OP_LOG_PROCDEF" tableName="ACT_HI_OP_LOG">
             <column name="PROC_DEF_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-213">
+    <changeSet author="kuehn (generated)" id="1580410283605-263">
         <createIndex indexName="ACT_IDX_HI_OP_LOG_PROCINST" tableName="ACT_HI_OP_LOG">
             <column name="PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-214">
+    <changeSet author="kuehn (generated)" id="1580410283605-264">
         <createIndex indexName="ACT_IDX_HI_OP_LOG_RM_TIME" tableName="ACT_HI_OP_LOG">
             <column name="REMOVAL_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-215">
+    <changeSet author="kuehn (generated)" id="1580410283605-265">
         <createIndex indexName="ACT_IDX_HI_OP_LOG_ROOT_PI" tableName="ACT_HI_OP_LOG">
             <column name="ROOT_PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-216">
+    <changeSet author="kuehn (generated)" id="1580410283605-266">
         <createIndex indexName="ACT_IDX_HI_OP_LOG_TASK" tableName="ACT_HI_OP_LOG">
             <column name="TASK_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-217">
+    <changeSet author="kuehn (generated)" id="1580410283605-267">
         <createIndex indexName="ACT_IDX_HI_OP_LOG_TIMESTAMP" tableName="ACT_HI_OP_LOG">
             <column name="TIMESTAMP_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-218">
+    <changeSet author="kuehn (generated)" id="1580410283605-268">
         <createIndex indexName="ACT_IDX_HI_OP_LOG_USER_ID" tableName="ACT_HI_OP_LOG">
             <column name="USER_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-219">
+    <changeSet author="kuehn (generated)" id="1580410283605-269">
         <createIndex indexName="ACT_IDX_HI_PI_PDEFID_END_TIME" tableName="ACT_HI_PROCINST">
             <column name="PROC_DEF_ID_"/>
             <column name="END_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-220">
+    <changeSet author="kuehn (generated)" id="1580410283605-270">
         <createIndex indexName="ACT_IDX_HI_PROCVAR_NAME_TYPE" tableName="ACT_HI_VARINST">
             <column name="NAME_"/>
             <column name="VAR_TYPE_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-221">
+    <changeSet author="kuehn (generated)" id="1580410283605-271">
         <createIndex indexName="ACT_IDX_HI_PROCVAR_PROC_INST" tableName="ACT_HI_VARINST">
             <column name="PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-222">
+    <changeSet author="kuehn (generated)" id="1580410283605-272">
         <createIndex indexName="ACT_IDX_HI_PRO_INST_END" tableName="ACT_HI_PROCINST">
             <column name="END_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-223">
+    <changeSet author="kuehn (generated)" id="1580410283605-273">
         <createIndex indexName="ACT_IDX_HI_PRO_INST_PROC_DEF_KEY" tableName="ACT_HI_PROCINST">
             <column name="PROC_DEF_KEY_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-224">
+    <changeSet author="kuehn (generated)" id="1580410283605-274">
         <createIndex indexName="ACT_IDX_HI_PRO_INST_PROC_TIME" tableName="ACT_HI_PROCINST">
             <column name="START_TIME_"/>
             <column name="END_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-225">
+    <changeSet author="kuehn (generated)" id="1580410283605-275">
         <createIndex indexName="ACT_IDX_HI_PRO_INST_RM_TIME" tableName="ACT_HI_PROCINST">
             <column name="REMOVAL_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-226">
+    <changeSet author="kuehn (generated)" id="1580410283605-276">
         <createIndex indexName="ACT_IDX_HI_PRO_INST_ROOT_PI" tableName="ACT_HI_PROCINST">
             <column name="ROOT_PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-227">
+    <changeSet author="kuehn (generated)" id="1580410283605-277">
         <createIndex indexName="ACT_IDX_HI_PRO_INST_TENANT_ID" tableName="ACT_HI_PROCINST">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-228">
+    <changeSet author="kuehn (generated)" id="1580410283605-278">
         <createIndex indexName="ACT_IDX_HI_PRO_I_BUSKEY" tableName="ACT_HI_PROCINST">
             <column name="BUSINESS_KEY_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-229">
+    <changeSet author="kuehn (generated)" id="1580410283605-279">
         <createIndex indexName="ACT_IDX_HI_TASKINSTID_PROCINST" tableName="ACT_HI_TASKINST">
             <column name="ID_"/>
             <column name="PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-230">
+    <changeSet author="kuehn (generated)" id="1580410283605-280">
         <createIndex indexName="ACT_IDX_HI_TASKINST_PROCINST" tableName="ACT_HI_TASKINST">
             <column name="PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-231">
+    <changeSet author="kuehn (generated)" id="1580410283605-281">
         <createIndex indexName="ACT_IDX_HI_TASKINST_ROOT_PI" tableName="ACT_HI_TASKINST">
             <column name="ROOT_PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-232">
+    <changeSet author="kuehn (generated)" id="1580410283605-282">
         <createIndex indexName="ACT_IDX_HI_TASK_INST_END" tableName="ACT_HI_TASKINST">
             <column name="END_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-233">
+    <changeSet author="kuehn (generated)" id="1580410283605-283">
         <createIndex indexName="ACT_IDX_HI_TASK_INST_PROC_DEF_KEY" tableName="ACT_HI_TASKINST">
             <column name="PROC_DEF_KEY_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-234">
+    <changeSet author="kuehn (generated)" id="1580410283605-284">
         <createIndex indexName="ACT_IDX_HI_TASK_INST_RM_TIME" tableName="ACT_HI_TASKINST">
             <column name="REMOVAL_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-235">
+    <changeSet author="kuehn (generated)" id="1580410283605-285">
         <createIndex indexName="ACT_IDX_HI_TASK_INST_START" tableName="ACT_HI_TASKINST">
             <column name="START_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-236">
+    <changeSet author="kuehn (generated)" id="1580410283605-286">
         <createIndex indexName="ACT_IDX_HI_TASK_INST_TENANT_ID" tableName="ACT_HI_TASKINST">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-237">
+    <changeSet author="kuehn (generated)" id="1580410283605-287">
         <createIndex indexName="ACT_IDX_HI_VARINST_BYTEAR" tableName="ACT_HI_VARINST">
             <column name="BYTEARRAY_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-238">
+    <changeSet author="kuehn (generated)" id="1580410283605-288">
         <createIndex indexName="ACT_IDX_HI_VARINST_RM_TIME" tableName="ACT_HI_VARINST">
             <column name="REMOVAL_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-239">
+    <changeSet author="kuehn (generated)" id="1580410283605-289">
         <createIndex indexName="ACT_IDX_HI_VARINST_ROOT_PI" tableName="ACT_HI_VARINST">
             <column name="ROOT_PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-240">
+    <changeSet author="kuehn (generated)" id="1580410283605-290">
         <createIndex indexName="ACT_IDX_HI_VAR_INST_PROC_DEF_KEY" tableName="ACT_HI_VARINST">
             <column name="PROC_DEF_KEY_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-241">
+    <changeSet author="kuehn (generated)" id="1580410283605-291">
         <createIndex indexName="ACT_IDX_HI_VAR_INST_TENANT_ID" tableName="ACT_HI_VARINST">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-242">
+    <changeSet author="kuehn (generated)" id="1580410283605-292">
         <createIndex indexName="ACT_IDX_IDENT_LNK_GROUP" tableName="ACT_RU_IDENTITYLINK">
             <column name="GROUP_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-243">
+    <changeSet author="kuehn (generated)" id="1580410283605-293">
         <createIndex indexName="ACT_IDX_IDENT_LNK_USER" tableName="ACT_RU_IDENTITYLINK">
             <column name="USER_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-244">
+    <changeSet author="kuehn (generated)" id="1580410283605-294">
         <createIndex indexName="ACT_IDX_INC_CAUSEINCID" tableName="ACT_RU_INCIDENT">
             <column name="CAUSE_INCIDENT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-245">
+    <changeSet author="kuehn (generated)" id="1580410283605-295">
         <createIndex indexName="ACT_IDX_INC_CONFIGURATION" tableName="ACT_RU_INCIDENT">
             <column name="CONFIGURATION_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-246">
+    <changeSet author="kuehn (generated)" id="1580410283605-296">
         <createIndex indexName="ACT_IDX_INC_EXID" tableName="ACT_RU_INCIDENT">
             <column name="EXECUTION_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-247">
+    <changeSet author="kuehn (generated)" id="1580410283605-297">
         <createIndex indexName="ACT_IDX_INC_JOB_DEF" tableName="ACT_RU_INCIDENT">
             <column name="JOB_DEF_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-248">
+    <changeSet author="kuehn (generated)" id="1580410283605-298">
         <createIndex indexName="ACT_IDX_INC_PROCDEFID" tableName="ACT_RU_INCIDENT">
             <column name="PROC_DEF_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-249">
+    <changeSet author="kuehn (generated)" id="1580410283605-299">
         <createIndex indexName="ACT_IDX_INC_PROCINSTID" tableName="ACT_RU_INCIDENT">
             <column name="PROC_INST_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-250">
+    <changeSet author="kuehn (generated)" id="1580410283605-300">
         <createIndex indexName="ACT_IDX_INC_ROOTCAUSEINCID" tableName="ACT_RU_INCIDENT">
             <column name="ROOT_CAUSE_INCIDENT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-251">
+    <changeSet author="kuehn (generated)" id="1580410283605-301">
         <createIndex indexName="ACT_IDX_INC_TENANT_ID" tableName="ACT_RU_INCIDENT">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-252">
+    <changeSet author="kuehn (generated)" id="1580410283605-302">
         <createIndex indexName="ACT_IDX_JOBDEF_PROC_DEF_ID" tableName="ACT_RU_JOBDEF">
             <column name="PROC_DEF_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-253">
+    <changeSet author="kuehn (generated)" id="1580410283605-303">
         <createIndex indexName="ACT_IDX_JOBDEF_TENANT_ID" tableName="ACT_RU_JOBDEF">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-254">
+    <changeSet author="kuehn (generated)" id="1580410283605-304">
         <createIndex indexName="ACT_IDX_JOB_EXECUTION_ID" tableName="ACT_RU_JOB">
             <column name="EXECUTION_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-255">
+    <changeSet author="kuehn (generated)" id="1580410283605-305">
         <createIndex indexName="ACT_IDX_JOB_HANDLER" tableName="ACT_RU_JOB">
             <column name="HANDLER_TYPE_${limitedIndexLength}"/>
             <column name="HANDLER_CFG_${limitedIndexLength}"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-256">
+    <changeSet author="kuehn (generated)" id="1580410283605-306">
         <createIndex indexName="ACT_IDX_JOB_HANDLER_TYPE" tableName="ACT_RU_JOB">
             <column name="HANDLER_TYPE_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-257">
+    <changeSet author="kuehn (generated)" id="1580410283605-307">
         <createIndex indexName="ACT_IDX_JOB_JOB_DEF_ID" tableName="ACT_RU_JOB">
             <column name="JOB_DEF_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-258">
+    <changeSet author="kuehn (generated)" id="1580410283605-308">
         <createIndex indexName="ACT_IDX_JOB_PROCINST" tableName="ACT_RU_JOB">
             <column name="PROCESS_INSTANCE_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-259">
+    <changeSet author="kuehn (generated)" id="1580410283605-309">
         <createIndex indexName="ACT_IDX_JOB_TENANT_ID" tableName="ACT_RU_JOB">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-260">
+    <changeSet author="kuehn (generated)" id="1580410283605-310">
         <createIndex indexName="ACT_IDX_METER_LOG" tableName="ACT_RU_METER_LOG">
             <column name="NAME_"/>
             <column name="TIMESTAMP_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-261">
+    <changeSet author="kuehn (generated)" id="1580410283605-311">
         <createIndex indexName="ACT_IDX_METER_LOG_MS" tableName="ACT_RU_METER_LOG">
-            <column defaultValueNumeric="0" name="MILLISECONDS_"/>
+            <column name="MILLISECONDS_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-262">
+    <changeSet author="kuehn (generated)" id="1580410283605-312">
         <createIndex indexName="ACT_IDX_METER_LOG_NAME_MS" tableName="ACT_RU_METER_LOG">
             <column name="NAME_"/>
-            <column defaultValueNumeric="0" name="MILLISECONDS_"/>
+            <column name="MILLISECONDS_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-263">
+    <changeSet author="kuehn (generated)" id="1580410283605-313">
         <createIndex indexName="ACT_IDX_METER_LOG_REPORT" tableName="ACT_RU_METER_LOG">
             <column name="NAME_"/>
             <column name="REPORTER_"/>
-            <column defaultValueNumeric="0" name="MILLISECONDS_"/>
+            <column name="MILLISECONDS_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-264">
+    <changeSet author="kuehn (generated)" id="1580410283605-314">
         <createIndex indexName="ACT_IDX_METER_LOG_TIME" tableName="ACT_RU_METER_LOG">
             <column name="TIMESTAMP_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-265">
+    <changeSet author="kuehn (generated)" id="1580410283605-315">
         <createIndex indexName="ACT_IDX_PROCDEF_DEPLOYMENT_ID" tableName="ACT_RE_PROCDEF">
             <column name="DEPLOYMENT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-266">
+    <changeSet author="kuehn (generated)" id="1580410283605-316">
         <createIndex indexName="ACT_IDX_PROCDEF_TENANT_ID" tableName="ACT_RE_PROCDEF">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-267">
+    <changeSet author="kuehn (generated)" id="1580410283605-317">
         <createIndex indexName="ACT_IDX_PROCDEF_VER_TAG" tableName="ACT_RE_PROCDEF">
             <column name="VERSION_TAG_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-268">
+    <changeSet author="kuehn (generated)" id="1580410283605-318">
         <createIndex indexName="ACT_IDX_TASK_ASSIGNEE" tableName="ACT_RU_TASK">
             <column name="ASSIGNEE_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-269">
+    <changeSet author="kuehn (generated)" id="1580410283605-319">
         <createIndex indexName="ACT_IDX_TASK_CREATE" tableName="ACT_RU_TASK">
             <column name="CREATE_TIME_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-270">
+    <changeSet author="kuehn (generated)" id="1580410283605-320">
         <createIndex indexName="ACT_IDX_TASK_TENANT_ID" tableName="ACT_RU_TASK">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-271">
+    <changeSet author="kuehn (generated)" id="1580410283605-321">
         <createIndex indexName="ACT_IDX_VARIABLE_TASK_ID" tableName="ACT_RU_VARIABLE">
             <column name="TASK_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-272">
+    <changeSet author="kuehn (generated)" id="1580410283605-322">
         <createIndex indexName="ACT_IDX_VARIABLE_TENANT_ID" tableName="ACT_RU_VARIABLE">
             <column name="TENANT_ID_"/>
         </createIndex>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-277">
-        <addForeignKeyConstraint baseColumnNames="PROC_DEF_ID_" baseTableName="ACT_RU_IDENTITYLINK" constraintName="ACT_FK_ATHRZ_PROCEDEF" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RE_PROCDEF" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-327">
+        <addForeignKeyConstraint baseColumnNames="PROC_DEF_ID_" baseTableName="ACT_RU_IDENTITYLINK" constraintName="ACT_FK_ATHRZ_PROCEDEF" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RE_PROCDEF"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-278">
-        <addForeignKeyConstraint baseColumnNames="BATCH_JOB_DEF_ID_" baseTableName="ACT_RU_BATCH" constraintName="ACT_FK_BATCH_JOB_DEF" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_JOBDEF" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-328">
+        <addForeignKeyConstraint baseColumnNames="BATCH_JOB_DEF_ID_" baseTableName="ACT_RU_BATCH" constraintName="ACT_FK_BATCH_JOB_DEF" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_JOBDEF"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-279">
-        <addForeignKeyConstraint baseColumnNames="MONITOR_JOB_DEF_ID_" baseTableName="ACT_RU_BATCH" constraintName="ACT_FK_BATCH_MONITOR_JOB_DEF" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_JOBDEF" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-329">
+        <addForeignKeyConstraint baseColumnNames="MONITOR_JOB_DEF_ID_" baseTableName="ACT_RU_BATCH" constraintName="ACT_FK_BATCH_MONITOR_JOB_DEF" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_JOBDEF"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-280">
-        <addForeignKeyConstraint baseColumnNames="SEED_JOB_DEF_ID_" baseTableName="ACT_RU_BATCH" constraintName="ACT_FK_BATCH_SEED_JOB_DEF" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_JOBDEF" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-330">
+        <addForeignKeyConstraint baseColumnNames="SEED_JOB_DEF_ID_" baseTableName="ACT_RU_BATCH" constraintName="ACT_FK_BATCH_SEED_JOB_DEF" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_JOBDEF"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-281">
-        <addForeignKeyConstraint baseColumnNames="DEPLOYMENT_ID_" baseTableName="ACT_GE_BYTEARRAY" constraintName="ACT_FK_BYTEARR_DEPL" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RE_DEPLOYMENT" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-331">
+        <addForeignKeyConstraint baseColumnNames="DEPLOYMENT_ID_" baseTableName="ACT_GE_BYTEARRAY" constraintName="ACT_FK_BYTEARR_DEPL" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RE_DEPLOYMENT"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-282">
-        <addForeignKeyConstraint baseColumnNames="CASE_DEF_ID_" baseTableName="ACT_RU_CASE_EXECUTION" constraintName="ACT_FK_CASE_EXE_CASE_DEF" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RE_CASE_DEF" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-332">
+        <addForeignKeyConstraint baseColumnNames="CASE_DEF_ID_" baseTableName="ACT_RU_CASE_EXECUTION" constraintName="ACT_FK_CASE_EXE_CASE_DEF" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RE_CASE_DEF"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-283">
-        <addForeignKeyConstraint baseColumnNames="CASE_INST_ID_" baseTableName="ACT_RU_CASE_EXECUTION" constraintName="ACT_FK_CASE_EXE_CASE_INST" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_CASE_EXECUTION" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-333">
+        <addForeignKeyConstraint baseColumnNames="CASE_INST_ID_" baseTableName="ACT_RU_CASE_EXECUTION" constraintName="ACT_FK_CASE_EXE_CASE_INST" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_CASE_EXECUTION"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-284">
-        <addForeignKeyConstraint baseColumnNames="PARENT_ID_" baseTableName="ACT_RU_CASE_EXECUTION" constraintName="ACT_FK_CASE_EXE_PARENT" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_CASE_EXECUTION" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-334">
+        <addForeignKeyConstraint baseColumnNames="PARENT_ID_" baseTableName="ACT_RU_CASE_EXECUTION" constraintName="ACT_FK_CASE_EXE_PARENT" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_CASE_EXECUTION"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-285">
-        <addForeignKeyConstraint baseColumnNames="CASE_EXEC_ID_" baseTableName="ACT_RU_CASE_SENTRY_PART" constraintName="ACT_FK_CASE_SENTRY_CASE_EXEC" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_CASE_EXECUTION" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-335">
+        <addForeignKeyConstraint baseColumnNames="CASE_EXEC_ID_" baseTableName="ACT_RU_CASE_SENTRY_PART" constraintName="ACT_FK_CASE_SENTRY_CASE_EXEC" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_CASE_EXECUTION"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-286">
-        <addForeignKeyConstraint baseColumnNames="CASE_INST_ID_" baseTableName="ACT_RU_CASE_SENTRY_PART" constraintName="ACT_FK_CASE_SENTRY_CASE_INST" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_CASE_EXECUTION" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-336">
+        <addForeignKeyConstraint baseColumnNames="CASE_INST_ID_" baseTableName="ACT_RU_CASE_SENTRY_PART" constraintName="ACT_FK_CASE_SENTRY_CASE_INST" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_CASE_EXECUTION"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-287">
-        <addForeignKeyConstraint baseColumnNames="DEC_REQ_ID_" baseTableName="ACT_RE_DECISION_DEF" constraintName="ACT_FK_DEC_REQ" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RE_DECISION_REQ_DEF" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-337">
+        <addForeignKeyConstraint baseColumnNames="DEC_REQ_ID_" baseTableName="ACT_RE_DECISION_DEF" constraintName="ACT_FK_DEC_REQ" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RE_DECISION_REQ_DEF"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-288">
-        <addForeignKeyConstraint baseColumnNames="EXECUTION_ID_" baseTableName="ACT_RU_EVENT_SUBSCR" constraintName="ACT_FK_EVENT_EXEC" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_EXECUTION" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-338">
+        <addForeignKeyConstraint baseColumnNames="EXECUTION_ID_" baseTableName="ACT_RU_EVENT_SUBSCR" constraintName="ACT_FK_EVENT_EXEC" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_EXECUTION"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-289">
-        <addForeignKeyConstraint baseColumnNames="PARENT_ID_" baseTableName="ACT_RU_EXECUTION" constraintName="ACT_FK_EXE_PARENT" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_EXECUTION" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-339">
+        <addForeignKeyConstraint baseColumnNames="PARENT_ID_" baseTableName="ACT_RU_EXECUTION" constraintName="ACT_FK_EXE_PARENT" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_EXECUTION"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-290">
-        <addForeignKeyConstraint baseColumnNames="PROC_DEF_ID_" baseTableName="ACT_RU_EXECUTION" constraintName="ACT_FK_EXE_PROCDEF" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RE_PROCDEF" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-340">
+        <addForeignKeyConstraint baseColumnNames="PROC_DEF_ID_" baseTableName="ACT_RU_EXECUTION" constraintName="ACT_FK_EXE_PROCDEF" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RE_PROCDEF"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-291">
-        <addForeignKeyConstraint baseColumnNames="PROC_INST_ID_" baseTableName="ACT_RU_EXECUTION" constraintName="ACT_FK_EXE_PROCINST" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_EXECUTION" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-341">
+        <addForeignKeyConstraint baseColumnNames="PROC_INST_ID_" baseTableName="ACT_RU_EXECUTION" constraintName="ACT_FK_EXE_PROCINST" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_EXECUTION"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-292">
-        <addForeignKeyConstraint baseColumnNames="SUPER_EXEC_" baseTableName="ACT_RU_EXECUTION" constraintName="ACT_FK_EXE_SUPER" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_EXECUTION" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-342">
+        <addForeignKeyConstraint baseColumnNames="SUPER_EXEC_" baseTableName="ACT_RU_EXECUTION" constraintName="ACT_FK_EXE_SUPER" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_EXECUTION"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-293">
-        <addForeignKeyConstraint baseColumnNames="ERROR_DETAILS_ID_" baseTableName="ACT_RU_EXT_TASK" constraintName="ACT_FK_EXT_TASK_ERROR_DETAILS" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_GE_BYTEARRAY" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-343">
+        <addForeignKeyConstraint baseColumnNames="ERROR_DETAILS_ID_" baseTableName="ACT_RU_EXT_TASK" constraintName="ACT_FK_EXT_TASK_ERROR_DETAILS" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_GE_BYTEARRAY"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-294">
-        <addForeignKeyConstraint baseColumnNames="EXECUTION_ID_" baseTableName="ACT_RU_EXT_TASK" constraintName="ACT_FK_EXT_TASK_EXE" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_EXECUTION" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-344">
+        <addForeignKeyConstraint baseColumnNames="EXECUTION_ID_" baseTableName="ACT_RU_EXT_TASK" constraintName="ACT_FK_EXT_TASK_EXE" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_EXECUTION"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-295">
-        <addForeignKeyConstraint baseColumnNames="CAUSE_INCIDENT_ID_" baseTableName="ACT_RU_INCIDENT" constraintName="ACT_FK_INC_CAUSE" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_INCIDENT" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-345">
+        <addForeignKeyConstraint baseColumnNames="CAUSE_INCIDENT_ID_" baseTableName="ACT_RU_INCIDENT" constraintName="ACT_FK_INC_CAUSE" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_INCIDENT"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-296">
-        <addForeignKeyConstraint baseColumnNames="EXECUTION_ID_" baseTableName="ACT_RU_INCIDENT" constraintName="ACT_FK_INC_EXE" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_EXECUTION" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-346">
+        <addForeignKeyConstraint baseColumnNames="EXECUTION_ID_" baseTableName="ACT_RU_INCIDENT" constraintName="ACT_FK_INC_EXE" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_EXECUTION"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-297">
-        <addForeignKeyConstraint baseColumnNames="JOB_DEF_ID_" baseTableName="ACT_RU_INCIDENT" constraintName="ACT_FK_INC_JOB_DEF" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_JOBDEF" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-347">
+        <addForeignKeyConstraint baseColumnNames="JOB_DEF_ID_" baseTableName="ACT_RU_INCIDENT" constraintName="ACT_FK_INC_JOB_DEF" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_JOBDEF"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-298">
-        <addForeignKeyConstraint baseColumnNames="PROC_DEF_ID_" baseTableName="ACT_RU_INCIDENT" constraintName="ACT_FK_INC_PROCDEF" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RE_PROCDEF" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-348">
+        <addForeignKeyConstraint baseColumnNames="PROC_DEF_ID_" baseTableName="ACT_RU_INCIDENT" constraintName="ACT_FK_INC_PROCDEF" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RE_PROCDEF"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-299">
-        <addForeignKeyConstraint baseColumnNames="PROC_INST_ID_" baseTableName="ACT_RU_INCIDENT" constraintName="ACT_FK_INC_PROCINST" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_EXECUTION" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-349">
+        <addForeignKeyConstraint baseColumnNames="PROC_INST_ID_" baseTableName="ACT_RU_INCIDENT" constraintName="ACT_FK_INC_PROCINST" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_EXECUTION"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-300">
-        <addForeignKeyConstraint baseColumnNames="ROOT_CAUSE_INCIDENT_ID_" baseTableName="ACT_RU_INCIDENT" constraintName="ACT_FK_INC_RCAUSE" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_INCIDENT" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-350">
+        <addForeignKeyConstraint baseColumnNames="ROOT_CAUSE_INCIDENT_ID_" baseTableName="ACT_RU_INCIDENT" constraintName="ACT_FK_INC_RCAUSE" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_INCIDENT"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-301">
-        <addForeignKeyConstraint baseColumnNames="EXCEPTION_STACK_ID_" baseTableName="ACT_RU_JOB" constraintName="ACT_FK_JOB_EXCEPTION" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_GE_BYTEARRAY" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-351">
+        <addForeignKeyConstraint baseColumnNames="EXCEPTION_STACK_ID_" baseTableName="ACT_RU_JOB" constraintName="ACT_FK_JOB_EXCEPTION" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_GE_BYTEARRAY"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-302">
-        <addForeignKeyConstraint baseColumnNames="GROUP_ID_" baseTableName="ACT_ID_MEMBERSHIP" constraintName="ACT_FK_MEMB_GROUP" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_ID_GROUP" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-352">
+        <addForeignKeyConstraint baseColumnNames="GROUP_ID_" baseTableName="ACT_ID_MEMBERSHIP" constraintName="ACT_FK_MEMB_GROUP" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_ID_GROUP"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-303">
-        <addForeignKeyConstraint baseColumnNames="USER_ID_" baseTableName="ACT_ID_MEMBERSHIP" constraintName="ACT_FK_MEMB_USER" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_ID_USER" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-353">
+        <addForeignKeyConstraint baseColumnNames="USER_ID_" baseTableName="ACT_ID_MEMBERSHIP" constraintName="ACT_FK_MEMB_USER" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_ID_USER"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-304">
-        <addForeignKeyConstraint baseColumnNames="CASE_DEF_ID_" baseTableName="ACT_RU_TASK" constraintName="ACT_FK_TASK_CASE_DEF" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RE_CASE_DEF" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-354">
+        <addForeignKeyConstraint baseColumnNames="CASE_DEF_ID_" baseTableName="ACT_RU_TASK" constraintName="ACT_FK_TASK_CASE_DEF" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RE_CASE_DEF"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-305">
-        <addForeignKeyConstraint baseColumnNames="CASE_EXECUTION_ID_" baseTableName="ACT_RU_TASK" constraintName="ACT_FK_TASK_CASE_EXE" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_CASE_EXECUTION" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-355">
+        <addForeignKeyConstraint baseColumnNames="CASE_EXECUTION_ID_" baseTableName="ACT_RU_TASK" constraintName="ACT_FK_TASK_CASE_EXE" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_CASE_EXECUTION"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-306">
-        <addForeignKeyConstraint baseColumnNames="EXECUTION_ID_" baseTableName="ACT_RU_TASK" constraintName="ACT_FK_TASK_EXE" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_EXECUTION" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-356">
+        <addForeignKeyConstraint baseColumnNames="EXECUTION_ID_" baseTableName="ACT_RU_TASK" constraintName="ACT_FK_TASK_EXE" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_EXECUTION"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-307">
-        <addForeignKeyConstraint baseColumnNames="PROC_DEF_ID_" baseTableName="ACT_RU_TASK" constraintName="ACT_FK_TASK_PROCDEF" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RE_PROCDEF" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-357">
+        <addForeignKeyConstraint baseColumnNames="PROC_DEF_ID_" baseTableName="ACT_RU_TASK" constraintName="ACT_FK_TASK_PROCDEF" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RE_PROCDEF"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-308">
-        <addForeignKeyConstraint baseColumnNames="PROC_INST_ID_" baseTableName="ACT_RU_TASK" constraintName="ACT_FK_TASK_PROCINST" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_EXECUTION" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-358">
+        <addForeignKeyConstraint baseColumnNames="PROC_INST_ID_" baseTableName="ACT_RU_TASK" constraintName="ACT_FK_TASK_PROCINST" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_EXECUTION"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-309">
-        <addForeignKeyConstraint baseColumnNames="TENANT_ID_" baseTableName="ACT_ID_TENANT_MEMBER" constraintName="ACT_FK_TENANT_MEMB" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_ID_TENANT" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-359">
+        <addForeignKeyConstraint baseColumnNames="TENANT_ID_" baseTableName="ACT_ID_TENANT_MEMBER" constraintName="ACT_FK_TENANT_MEMB" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_ID_TENANT"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-310">
-        <addForeignKeyConstraint baseColumnNames="GROUP_ID_" baseTableName="ACT_ID_TENANT_MEMBER" constraintName="ACT_FK_TENANT_MEMB_GROUP" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_ID_GROUP" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-360">
+        <addForeignKeyConstraint baseColumnNames="GROUP_ID_" baseTableName="ACT_ID_TENANT_MEMBER" constraintName="ACT_FK_TENANT_MEMB_GROUP" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_ID_GROUP"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-311">
-        <addForeignKeyConstraint baseColumnNames="USER_ID_" baseTableName="ACT_ID_TENANT_MEMBER" constraintName="ACT_FK_TENANT_MEMB_USER" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_ID_USER" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-361">
+        <addForeignKeyConstraint baseColumnNames="USER_ID_" baseTableName="ACT_ID_TENANT_MEMBER" constraintName="ACT_FK_TENANT_MEMB_USER" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_ID_USER"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-312">
-        <addForeignKeyConstraint baseColumnNames="TASK_ID_" baseTableName="ACT_RU_IDENTITYLINK" constraintName="ACT_FK_TSKASS_TASK" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_TASK" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-362">
+        <addForeignKeyConstraint baseColumnNames="TASK_ID_" baseTableName="ACT_RU_IDENTITYLINK" constraintName="ACT_FK_TSKASS_TASK" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_TASK"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-313">
-        <addForeignKeyConstraint baseColumnNames="BYTEARRAY_ID_" baseTableName="ACT_RU_VARIABLE" constraintName="ACT_FK_VAR_BYTEARRAY" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_GE_BYTEARRAY" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-363">
+        <addForeignKeyConstraint baseColumnNames="BYTEARRAY_ID_" baseTableName="ACT_RU_VARIABLE" constraintName="ACT_FK_VAR_BYTEARRAY" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_GE_BYTEARRAY"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-314">
-        <addForeignKeyConstraint baseColumnNames="CASE_EXECUTION_ID_" baseTableName="ACT_RU_VARIABLE" constraintName="ACT_FK_VAR_CASE_EXE" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_CASE_EXECUTION" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-364">
+        <addForeignKeyConstraint baseColumnNames="CASE_EXECUTION_ID_" baseTableName="ACT_RU_VARIABLE" constraintName="ACT_FK_VAR_CASE_EXE" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_CASE_EXECUTION"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-315">
-        <addForeignKeyConstraint baseColumnNames="CASE_INST_ID_" baseTableName="ACT_RU_VARIABLE" constraintName="ACT_FK_VAR_CASE_INST" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_CASE_EXECUTION" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-365">
+        <addForeignKeyConstraint baseColumnNames="CASE_INST_ID_" baseTableName="ACT_RU_VARIABLE" constraintName="ACT_FK_VAR_CASE_INST" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_CASE_EXECUTION"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-316">
-        <addForeignKeyConstraint baseColumnNames="EXECUTION_ID_" baseTableName="ACT_RU_VARIABLE" constraintName="ACT_FK_VAR_EXE" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_EXECUTION" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-366">
+        <addForeignKeyConstraint baseColumnNames="EXECUTION_ID_" baseTableName="ACT_RU_VARIABLE" constraintName="ACT_FK_VAR_EXE" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_EXECUTION"/>
     </changeSet>
-    <changeSet author="kuehn (generated)" id="1576103603001-317">
-        <addForeignKeyConstraint baseColumnNames="PROC_INST_ID_" baseTableName="ACT_RU_VARIABLE" constraintName="ACT_FK_VAR_PROCINST" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_EXECUTION" validate="true"/>
+    <changeSet author="kuehn (generated)" id="1580410283605-367">
+        <addForeignKeyConstraint baseColumnNames="PROC_INST_ID_" baseTableName="ACT_RU_VARIABLE" constraintName="ACT_FK_VAR_PROCINST" deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_" referencedTableName="ACT_RU_EXECUTION"/>
     </changeSet>
 </databaseChangeLog>

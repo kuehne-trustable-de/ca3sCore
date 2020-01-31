@@ -31,7 +31,7 @@
                     <th><span v-text="$t('ca3SApp.acmeChallenge.token')">Token</span></th>
                     <th><span v-text="$t('ca3SApp.acmeChallenge.validated')">Validated</span></th>
                     <th><span v-text="$t('ca3SApp.acmeChallenge.status')">Status</span></th>
-                    <th><span v-text="$t('ca3SApp.acmeChallenge.authorization')">Authorization</span></th>
+                    <th><span v-text="$t('ca3SApp.acmeChallenge.acmeAuthorization')">Acme Authorization</span></th>
                     <th></th>
                 </tr>
                 </thead>
@@ -48,8 +48,8 @@
                     <td>{{acmeChallenge.validated}}</td>
                     <td v-text="$t('ca3SApp.ChallengeStatus.' + acmeChallenge.status)">{{acmeChallenge.status}}</td>
                     <td>
-                        <div v-if="acmeChallenge.authorization">
-                            <router-link :to="{name: 'AuthorizationView', params: {authorizationId: acmeChallenge.authorization.id}}">{{acmeChallenge.authorization.id}}</router-link>
+                        <div v-if="acmeChallenge.acmeAuthorization">
+                            <router-link :to="{name: 'AcmeAuthorizationView', params: {acmeAuthorizationId: acmeChallenge.acmeAuthorization.id}}">{{acmeChallenge.acmeAuthorization.id}}</router-link>
                         </div>
                     </td>
                     <td class="text-right">

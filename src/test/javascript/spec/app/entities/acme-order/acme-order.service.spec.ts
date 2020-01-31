@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import * as config from '@/shared/config/config';
 import { DATE_FORMAT } from '@/shared/date/filters';
 import AcmeOrderService from '@/entities/acme-order/acme-order.service';
-import { AcmeOrder, OrderStatus } from '@/shared/model/acme-order.model';
+import { AcmeOrder, AcmeOrderStatus } from '@/shared/model/acme-order.model';
 
 const mockedAxios: any = axios;
 jest.mock('axios', () => ({
@@ -24,7 +24,7 @@ describe('Service Tests', () => {
       service = new AcmeOrderService();
       currentDate = new Date();
 
-      elemDefault = new AcmeOrder(0, 0, OrderStatus.PENDING, currentDate, currentDate, currentDate, 'AAAAAAA', 'AAAAAAA', 'AAAAAAA');
+      elemDefault = new AcmeOrder(0, 0, AcmeOrderStatus.PENDING, currentDate, currentDate, currentDate, 'AAAAAAA', 'AAAAAAA', 'AAAAAAA');
     });
 
     describe('Service methods', () => {

@@ -14,7 +14,7 @@
                         <span v-text="$t('ca3SApp.acmeOrder.status')">Status</span>
                     </dt>
                     <dd>
-                        <span v-text="$t('ca3SApp.OrderStatus.' + acmeOrder.status)">{{acmeOrder.status}}</span>
+                        <span v-text="$t('ca3SApp.AcmeOrderStatus.' + acmeOrder.status)">{{acmeOrder.status}}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.acmeOrder.expires')">Expires</span>
@@ -82,6 +82,7 @@
                         class="btn btn-info">
                     <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.back')"> Back</span>
                 </button>
+                
                 <router-link v-if="acmeOrder.id" :to="{name: 'AcmeOrderEdit', params: {acmeOrderId: acmeOrder.id}}" tag="button" class="btn btn-primary">
                     <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.edit')"> Edit</span>
                 </router-link>

@@ -22,7 +22,9 @@
       "secret": "Secret",
       "pollingOffset": "Polling Offset",
       "defaultCA": "Default CA",
-      "active": "Active"
+      "active": "Active",
+      "selector": "Selector",
+      "interval": "Interval"
     }
   }
 }

@@ -37,9 +37,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import de.trustable.ca3s.core.domain.AcmeIdentifier;
 import de.trustable.ca3s.core.domain.AcmeOrder;
-import de.trustable.ca3s.core.domain.Identifier;
-import de.trustable.ca3s.core.domain.enumeration.OrderStatus;
+import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 import de.trustable.ca3s.core.service.util.DateUtil;
 
 
@@ -73,7 +73,7 @@ import de.trustable.ca3s.core.service.util.DateUtil;
 public class NewOrderResponse {
 
 	@JsonProperty("status")
-	private OrderStatus status;
+	private AcmeOrderStatus status;
 
 	@JsonProperty("expires")
 	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")	
@@ -95,7 +95,7 @@ public class NewOrderResponse {
 		this.setExpires(DateUtil.asDate( orderDao.getExpires()));
 	
 		Set<IdentifierResponse> identifiersResp = new HashSet<IdentifierResponse>();
-		for( Identifier ident: orderDao.getIdentifiers()) {
+		for( AcmeIdentifier ident: orderDao.getAcmeIdentifiers()) {
 			identifiersResp.add(new IdentifierResponse(ident.getType(), ident.getValue()));
 		}
 		this.setIdentifiers(identifiersResp );
@@ -106,15 +106,15 @@ public class NewOrderResponse {
 	/**
 	 * @return the status
 	 */
-	public OrderStatus getStatus() {
+	public AcmeOrderStatus getStatus() {
 		return status;
 	}
 
 	/**
-	 * @param status the status to set
+	 * @param acmeOrderStatus the status to set
 	 */
-	public void setStatus(OrderStatus status) {
-		this.status = status;
+	public void setStatus(AcmeOrderStatus acmeOrderStatus) {
+		this.status = acmeOrderStatus;
 	}
 
 	/**

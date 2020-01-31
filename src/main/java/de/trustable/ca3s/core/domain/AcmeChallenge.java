@@ -48,7 +48,7 @@ public class AcmeChallenge implements Serializable {
 
     @ManyToOne
     @JsonIgnoreProperties("challenges")
-    private Authorization authorization;
+    private AcmeAuthorization acmeAuthorization;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -137,17 +137,17 @@ public class AcmeChallenge implements Serializable {
         this.status = status;
     }
 
-    public Authorization getAuthorization() {
-        return authorization;
+    public AcmeAuthorization getAcmeAuthorization() {
+        return acmeAuthorization;
     }
 
-    public AcmeChallenge authorization(Authorization authorization) {
-        this.authorization = authorization;
+    public AcmeChallenge acmeAuthorization(AcmeAuthorization acmeAuthorization) {
+        this.acmeAuthorization = acmeAuthorization;
         return this;
     }
 
-    public void setAuthorization(Authorization authorization) {
-        this.authorization = authorization;
+    public void setAcmeAuthorization(AcmeAuthorization acmeAuthorization) {
+        this.acmeAuthorization = acmeAuthorization;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
