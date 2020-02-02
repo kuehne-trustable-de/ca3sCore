@@ -32,10 +32,10 @@
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.caConnectorConfig')">CAConnectorConfig</span>
                     </b-dropdown-item>
-                    <b-dropdown-item to="/certificate-attribute">
+                    <!--b-dropdown-item to="/certificate-attribute">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.certificateAttribute')">CertificateAttribute</span>
-                    </b-dropdown-item>
+                    </b-dropdown-item-->
                     <b-dropdown-item to="/certificate">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.certificate')">Certificate</span>
@@ -44,7 +44,7 @@
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.csr')">CSR</span>
                     </b-dropdown-item>
-                    <b-dropdown-item to="/csr-attribute">
+                    <!--b-dropdown-item to="/csr-attribute">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.csrAttribute')">CsrAttribute</span>
                     </b-dropdown-item>
@@ -63,7 +63,7 @@
                     <b-dropdown-item to="/request-attribute-value">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.requestAttributeValue')">RequestAttributeValue</span>
-                    </b-dropdown-item>
+                    </b-dropdown-item-->
                     <b-dropdown-item to="/pipeline">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.pipeline')">Pipeline</span>
@@ -84,21 +84,9 @@
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.acmeOrder')">AcmeOrder</span>
                     </b-dropdown-item>
-                    <b-dropdown-item to="/identifier">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.identifier')">Identifier</span>
-                    </b-dropdown-item>
-                    <b-dropdown-item to="/authorization">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.authorization')">Authorization</span>
-                    </b-dropdown-item>
                     <b-dropdown-item to="/acme-challenge">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.acmeChallenge')">AcmeChallenge</span>
-                    </b-dropdown-item>
-                    <b-dropdown-item to="/nonce">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.nonce')">Nonce</span>
                     </b-dropdown-item>
                     <b-dropdown-item to="/imported-url">
                         <font-awesome-icon icon="asterisk" />

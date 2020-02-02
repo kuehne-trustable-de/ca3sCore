@@ -1,7 +1,6 @@
 package de.trustable.ca3s.core.web.servlet;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
@@ -24,8 +23,6 @@ import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
-import org.bouncycastle.util.io.pem.PemObject;
-import org.bouncycastle.util.io.pem.PemWriter;
 import org.jscep.server.ScepServlet;
 import org.jscep.transaction.FailInfo;
 import org.jscep.transaction.OperationFailureException;
@@ -42,16 +39,11 @@ import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.domain.CsrAttribute;
-import de.trustable.ca3s.core.domain.ProtectedContent;
-import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
-import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.CryptoService;
-import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.Pkcs10RequestHolder;
 
@@ -82,12 +74,6 @@ public class ScepServletImpl extends ScepServlet {
     
 	@Autowired
 	private BPMNUtil bpmnUtil;
-	
-	@Autowired
-	private ProtectedContentRepository protContentRepository;
-	
-	@Autowired
-	private ProtectedContentUtil protUtil;
 	
     @Autowired
     CryptoUtil cryptoUtil;
@@ -146,7 +132,7 @@ public class ScepServletImpl extends ScepServlet {
 			
 				currentRecepientCert = startCertificateCreationProcess(p10ReqPem, tid);
 				
-				storePrivateKey(currentRecepientCert, keyPair);			
+				certUtil.storePrivateKey(currentRecepientCert, keyPair);			
 
 				certUtil.setCertAttribute(currentRecepientCert, CertificateAttribute.ATTRIBUTE_SCEP_RECIPIENT, "true");
 
@@ -206,37 +192,6 @@ public class ScepServletImpl extends ScepServlet {
 
 	
 	
-	/**
-	 * 
-	 * @param keyPair
-	 * @return
-	 * @throws IOException
-*/	 
-	private void storePrivateKey(Certificate cert, KeyPair keyPair) throws IOException {
-		
-		StringWriter sw = new StringWriter();
-		PemObject pemObject = new PemObject( "PRIVATE KEY", keyPair.getPrivate() .getEncoded());
-		PemWriter pemWriter = new PemWriter(sw);
-		try {
-			pemWriter.writeObject(pemObject);
-		} finally {
-			pemWriter.close();
-		}
-
-		LOGGER.debug("new private key as PEM : " + sw.toString());
-
-		String protContent = protUtil.protectString(sw.toString());
-		ProtectedContent pt = new ProtectedContent();
-		pt.setType(ProtectedContentType.KEY);
-		pt.setContentBase64(protContent);
-		pt.setRelationType(ContentRelationType.CERTIFICATE);
-		pt.setRelatedId(cert.getId());
-		
-		protContentRepository.save(pt);
-		
-	}
-
-
     @Override
     protected List<X509Certificate> doEnrol(PKCS10CertificationRequest csr,
     		X509Certificate sender,
@@ -395,30 +350,14 @@ public class ScepServletImpl extends ScepServlet {
     }
 
     @Override
-    protected PrivateKey getRecipientKey() {
-        
-        PrivateKey priKey = null;
-        
-		try {
-			List<ProtectedContent> pcList = protContentRepository.findByCertificateId(getCurrentRecepientCert().getId());
-			
-			if( pcList.isEmpty()) {
-	            LOGGER.error("retrieval of RecipientKey for certificate '{}' returns not key!", getCurrentRecepientCert().getId());
-			} else {
-				if( pcList.size() > 1) {
-		            LOGGER.warn("retrieval of RecipientKey for certificate '{}' returns more than one key ({}) !", getCurrentRecepientCert().getId(), pcList.size());
-				}
-				
-				String content = protUtil.unprotectString( pcList.get(0).getContentBase64());
-				priKey = cryptoUtil.convertPemToPrivateKey (content);
-		        LOGGER.debug("getRecipientKey() returns " + priKey.toString());
-			}
-			
-		} catch (GeneralSecurityException | ServletException e) {
-            LOGGER.warn("getRecipientKey", e);
-		}
+    protected PrivateKey getRecipientKey(){
 
-        return priKey;
+        try {
+			return certUtil.getPrivateKey(getCurrentRecepientCert());
+		} catch (ServletException e) {
+			LOGGER.warn("problem retrieving recipient's private key", e);
+			return null;
+		}
     }
 
     @Override

@@ -31,6 +31,9 @@ public class CaConnectorAdapter {
 	private CaCmpConnector cmpConnector;
 	
 	@Autowired
+	private CaInternalConnector internalConnector;
+	
+	@Autowired
 	private DirectoryConnector dirConnector;
 	
 	@Autowired
@@ -56,6 +59,10 @@ public class CaConnectorAdapter {
 			LOGGER.debug("CAConnectorType CMP at " + caConfig.getCaUrl());
 			
 			return cmpConnector.getStatus(caConfig);
+			
+		} else if (CAConnectorType.INTERNAL.equals(caConfig.getCaConnectorType())) {
+			LOGGER.debug("CAConnectorType INTERNAL is Active" );
+			return CAStatus.Active;
 			
 		} else if (CAConnectorType.DIRECTORY.equals(caConfig.getCaConnectorType())) {
 			LOGGER.debug("CAConnectorType DIRECTORY for " + caConfig.getCaUrl());
@@ -105,6 +112,11 @@ public class CaConnectorAdapter {
 		} else if (CAConnectorType.CMP.equals(caConfig.getCaConnectorType())) {
 			LOGGER.debug("CAConnectorType CMP at " + caConfig.getCaUrl());
 			return cmpConnector.signCertificateRequest(csr, caConfig);
+			
+		} else if (CAConnectorType.INTERNAL.equals(caConfig.getCaConnectorType())) {
+			LOGGER.debug("CAConnectorType INTERNAL ");
+			return internalConnector.signCertificateRequest(csr, caConfig);
+						
 		} else {
 			throw new GeneralSecurityException("unexpected ca connector type '" + caConfig.getCaConnectorType() + "' !");
 		}
@@ -133,6 +145,10 @@ public class CaConnectorAdapter {
 		} else if (CAConnectorType.CMP.equals(caConfig.getCaConnectorType())) {
 			LOGGER.debug("CAConnectorType CMP at " + caConfig.getCaUrl());
 			cmpConnector.revokeCertificate(certificateDao, crlReason, revocationDate, caConfig);
+			
+		} else if (CAConnectorType.INTERNAL.equals(caConfig.getCaConnectorType())) {
+			LOGGER.debug("CAConnectorType INTERNAL ");
+			internalConnector.revokeCertificate(certificateDao, crlReason, revocationDate, caConfig);		
 
 		} else {
 			throw new GeneralSecurityException("unexpected ca connector type '" + caConfig.getCaConnectorType() + "' !");

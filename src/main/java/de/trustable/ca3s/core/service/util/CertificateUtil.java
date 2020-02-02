@@ -4,9 +4,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
+import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -30,6 +32,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
+import javax.servlet.ServletException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.ASN1Encodable;
@@ -58,6 +62,8 @@ import org.bouncycastle.jcajce.provider.asymmetric.util.EC5Util;
 import org.bouncycastle.jce.provider.JCEECPublicKey;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,12 +72,16 @@ import org.springframework.stereotype.Service;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
+import de.trustable.ca3s.core.domain.ProtectedContent;
 import de.trustable.ca3s.core.domain.RDNAttribute;
 import de.trustable.ca3s.core.domain.RequestAttribute;
 import de.trustable.ca3s.core.domain.RequestAttributeValue;
+import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
+import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.CertificateAttributeRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
+import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
 
@@ -90,6 +100,12 @@ public class CertificateUtil {
 	@Autowired
 	private CertificateAttributeRepository certificateAttributeRepository;
 
+	@Autowired
+	private ProtectedContentRepository protContentRepository;
+	
+	@Autowired
+	private ProtectedContentUtil protUtil;
+	
 	@Autowired
 	private CryptoService cryptoUtil;
 
@@ -1237,5 +1253,67 @@ public class CertificateUtil {
 		}
 		return generalNameSet;
 	}
+
+	/**
+	 * 
+	 * @param keyPair
+	 * @return
+	 * @throws IOException
+*/	 
+	public void storePrivateKey(Certificate cert, KeyPair keyPair) throws IOException {
+		
+		StringWriter sw = new StringWriter();
+		PemObject pemObject = new PemObject( "PRIVATE KEY", keyPair.getPrivate() .getEncoded());
+		PemWriter pemWriter = new PemWriter(sw);
+		try {
+			pemWriter.writeObject(pemObject);
+		} finally {
+			pemWriter.close();
+		}
+
+		LOG.debug("new private key as PEM : " + sw.toString());
+
+		String protContent = protUtil.protectString(sw.toString());
+		ProtectedContent pt = new ProtectedContent();
+		pt.setType(ProtectedContentType.KEY);
+		pt.setContentBase64(protContent);
+		pt.setRelationType(ContentRelationType.CERTIFICATE);
+		pt.setRelatedId(cert.getId());
+		
+		protContentRepository.save(pt);
+		
+	}
+
+	/**
+	 * 
+	 * @param cert
+	 * @return
+	 */
+    public PrivateKey getPrivateKey(Certificate cert) {
+        
+        PrivateKey priKey = null;
+        
+		try {
+			List<ProtectedContent> pcList = protContentRepository.findByCertificateId(cert.getId());
+			
+			if( pcList.isEmpty()) {
+	            LOG.error("retrieval of private key for certificate '{}' returns not key!", cert.getId());
+			} else {
+				if( pcList.size() > 1) {
+		            LOG.warn("retrieval of private key for certificate '{}' returns more than one key ({}) !", cert.getId(), pcList.size());
+				}
+				
+				String content = protUtil.unprotectString( pcList.get(0).getContentBase64());
+				priKey = cryptoUtil.convertPemToPrivateKey (content);
+		        LOG.debug("getPrivateKey() returns " + priKey.toString());
+			}
+			
+		} catch (GeneralSecurityException e) {
+            LOG.warn("getPrivateKey", e);
+		}
+
+        return priKey;
+    }
+
 
 }

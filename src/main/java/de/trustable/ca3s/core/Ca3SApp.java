@@ -43,8 +43,6 @@ public class Ca3SApp implements InitializingBean {
 
     private static final Logger log = LoggerFactory.getLogger(Ca3SApp.class);
 
-	public static TimedRenewalCertMap certMap;
-
     private final Environment env;
 
     public Ca3SApp(Environment env) {
@@ -77,14 +75,7 @@ public class Ca3SApp implements InitializingBean {
      * @param args the command line arguments.
      */
     public static void main(String[] args) {
-    	
-		JCAManager.getInstance();
-
-		TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory());
-		Security.addProvider(new Ca3sKeyStoreProvider(certMap, "ca3s"));
-    	Security.addProvider(new Ca3sKeyManagerProvider(certMap));
-    	new TimedRenewalCertMapHolder().setCertMap(certMap);
-    	
+    	    	
         SpringApplication app = new SpringApplication(Ca3SApp.class);
         DefaultProfileUtil.addDefaultProfile(app);
         Environment env = app.run(args).getEnvironment();
@@ -123,9 +114,27 @@ public class Ca3SApp implements InitializingBean {
             env.getActiveProfiles());
     }
     
-    
+   
+    @Bean
+    public TimedRenewalCertMapHolder registerJCEProvider() {
+		JCAManager.getInstance();
+
+		TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory());
+		Security.addProvider(new Ca3sKeyStoreProvider(certMap, "ca3s"));
+    	Security.addProvider(new Ca3sKeyManagerProvider(certMap));
+    	
+    	TimedRenewalCertMapHolder trcmh = new TimedRenewalCertMapHolder();
+    	trcmh.setCertMap(certMap);
+    	
+    	log.info("JCAManager and Provider initialized ..." );
+        return trcmh;
+
+    }
     @Bean
     public UndertowServletWebServerFactory embeddedServletContainerFactory() {
+    	
+    	registerJCEProvider();
+    	
         UndertowServletWebServerFactory factory = new UndertowServletWebServerFactory();
         
         factory.addBuilderCustomizers(new UndertowBuilderCustomizer() {
