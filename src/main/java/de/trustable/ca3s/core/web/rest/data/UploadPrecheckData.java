@@ -9,38 +9,26 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UploadPrecheckData {
 
-	@JsonProperty("user")
-	private String user;
+	@JsonProperty("passphrase")
+	private String passphrase;
 	
-	@JsonProperty("password")
-	private String password;
-	
-	@JsonProperty("csr")
-	private String csr;
+	@JsonProperty("content")
+	private String content;
 
-	public String getUser() {
-		return user;
+	public String getPassphrase() {
+		return passphrase;
 	}
 
-	public void setUser(String user) {
-		this.user = user;
+	public String getContent() {
+		return content;
 	}
 
-	public String getPassword() {
-		return password;
+	public void setPassphrase(String passphrase) {
+		this.passphrase = passphrase;
 	}
 
-	public void setPassword(String password) {
-		this.password = password;
+	public void setContent(String content) {
+		this.content = content;
 	}
 
-	public String getCsr() {
-		return csr;
-	}
-
-	public void setCsr(String csr) {
-		this.csr = csr;
-	}
-	
-	
 }

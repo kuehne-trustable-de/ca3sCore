@@ -659,7 +659,7 @@ public class CertificateUtil {
 				issuingCertDao = findIssuingCertificate(certDao);
 
 				if( issuingCertDao == null) {
-					String msg = "no issuing certificate available / retrievable for for cert id : " + certDao.getId();
+					String msg = "no issuing certificate available / retrievable for cert id : " + certDao.getId();
 					LOG.info(msg);
 					throw new GeneralSecurityException(msg);
 				}else {
@@ -673,7 +673,7 @@ public class CertificateUtil {
 			}
 
 			if( issuingCertDao.getIssuingCertificate() == null) {
-				String msg = "no issuing certificate available / retrievable for for cert id : " + issuingCertDao.getId();
+				String msg = "no issuing certificate available / retrievable for cert id : " + issuingCertDao.getId();
 				LOG.info(msg);
 				break;
 //				throw new GeneralSecurityException(msg);
@@ -1096,7 +1096,14 @@ public class CertificateUtil {
 		return x509ExtensionUtils;
 	}
 */
-	
+	/**
+	 * @deprecated
+	 * 
+	 * @param csrBase64
+	 * @param p10ReqHolder
+	 * @param processInstanceId
+	 * @return
+	 */
 	public CSR createCSR(final String csrBase64, final Pkcs10RequestHolder p10ReqHolder, final String processInstanceId) {
 
 		CSR csr = new CSR();

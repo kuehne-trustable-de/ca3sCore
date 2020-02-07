@@ -93,7 +93,7 @@ public class RemoteConnector {
 		// We are done, disconnect
 		con.disconnect();
 
-		LOGGER.info("duration of remote CMP call " + (System.currentTimeMillis() - startTime));
+		LOGGER.debug("duration of remote CMP call " + (System.currentTimeMillis() - startTime));
 
 		return baos.toByteArray();
 	}

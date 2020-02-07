@@ -22,16 +22,19 @@ public class PkcsXXData {
 	private PKCSDataType dataType;
 	
 	@JsonProperty("p10Holder")
-	private Pkcs10RequestHolder p10Holder;
+	private Pkcs10RequestHolderShallow p10Holder;
 
-	@JsonProperty("certificate")
-	private X509CertificateHolderShallow certHolder;
+	@JsonProperty("certificates")
+	private X509CertificateHolderShallow[] certsHolder;
 	
 	@JsonProperty("certificatePresentInDB")
 	private boolean certificatePresentInDB = false;
 	
 	@JsonProperty("publicKeyPresentInDB")
 	private boolean publicKeyPresentInDB = false;
+	
+	@JsonProperty("certificateId")
+	private long certificateId;
 	
 	public PkcsXXData() {
 	}
@@ -40,13 +43,15 @@ public class PkcsXXData {
 
 		setDataType(PKCSDataType.X509_CERTIFICATE);
 		
-		
-		setCertHolder( new X509CertificateHolderShallow(certHolder));
+		X509CertificateHolderShallow[] x509HolderArr = new X509CertificateHolderShallow[1];
+		x509HolderArr[0] =	new X509CertificateHolderShallow(certHolder);
+		setCertsHolder( x509HolderArr);
 		
 		this.setCertificatePresentInDB( cert!= null);
 	}
 	
-	public PkcsXXData(final Pkcs10RequestHolder p10Holder) {
+
+	public PkcsXXData(final Pkcs10RequestHolderShallow p10Holder) {
 
 		setDataType(PKCSDataType.CSR);
 
@@ -80,20 +85,28 @@ public class PkcsXXData {
 		this.publicKeyPresentInDB = publicKeyPresentInDB;
 	}
 
-	public X509CertificateHolderShallow getCertHolder() {
-		return certHolder;
+	public X509CertificateHolderShallow[] getCertsHolder() {
+		return certsHolder;
 	}
 
-	public void setCertHolder(X509CertificateHolderShallow certHolder) {
-		this.certHolder = certHolder;
+	public void setCertsHolder(X509CertificateHolderShallow[] certsHolder) {
+		this.certsHolder = certsHolder;
 	}
 
-	public Pkcs10RequestHolder getP10Holder() {
+	public Pkcs10RequestHolderShallow getP10Holder() {
 		return p10Holder;
 	}
 
-	public void setP10Holder(Pkcs10RequestHolder p10Holder) {
+	public void setP10Holder(Pkcs10RequestHolderShallow p10Holder) {
 		this.p10Holder = p10Holder;
+	}
+
+	public long getCertificateId() {
+		return certificateId;
+	}
+
+	public void setCertificateId(long certificateId) {
+		this.certificateId = certificateId;
 	}
 
 	

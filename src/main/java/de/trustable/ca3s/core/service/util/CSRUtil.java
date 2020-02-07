@@ -30,6 +30,9 @@ import de.trustable.ca3s.core.domain.RequestAttribute;
 import de.trustable.ca3s.core.domain.RequestAttributeValue;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.CSRRepository;
+import de.trustable.ca3s.core.repository.CsrAttributeRepository;
+import de.trustable.ca3s.core.repository.RDNAttributeRepository;
+import de.trustable.ca3s.core.repository.RDNRepository;
 import de.trustable.util.Pkcs10RequestHolder;
 
 @Service
@@ -39,6 +42,17 @@ public class CSRUtil {
 
 	@Autowired
 	private CSRRepository csrRepository;
+	
+	@Autowired
+	private RDNRepository rdnRepository;
+	
+	@Autowired
+	private RDNAttributeRepository rdnAttRepository;
+	
+	@Autowired
+	private CsrAttributeRepository csrAttRepository;
+	
+	
 
 	@Autowired
 	private CryptoService cryptoUtil;
@@ -69,6 +83,8 @@ public class CSRUtil {
 
 		CSR csr = new CSR();
 
+		csr.setStatus(CsrStatus.PENDING);
+		
 		csr.setCsrBase64(csrBase64);
 
 		csr.setSigningAlgorithm(p10ReqHolder.getSigningAlgorithm());
@@ -93,7 +109,6 @@ public class CSRUtil {
 		// not yet ...
 //				setProcessInstanceId(processInstanceId);
 		csr.setRequestedOn(DateUtil.asLocalDate(new Date()));
-		csr.setStatus(CsrStatus.PENDING);
 		
 		LOG.debug("RDN arr #" + p10ReqHolder.getSubjectRDNs().length);
 
@@ -178,6 +193,16 @@ public class CSRUtil {
 		csr.setRas(newRas);
 
 		csrRepository.save(csr);
+
+		rdnRepository.saveAll(csr.getRdns());
+		
+		for( RDN rdn: csr.getRdns()) {
+			rdnAttRepository.saveAll(rdn.getRdnAttributes());
+		}
+		
+		csrAttRepository.saveAll(csr.getCsrAttributes());
+
+		LOG.debug("saved #{} csr attributes,  ",newRas.size());
 
 		return csr;
 	}

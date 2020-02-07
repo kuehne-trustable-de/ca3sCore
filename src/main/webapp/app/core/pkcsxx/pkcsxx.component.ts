@@ -5,21 +5,19 @@ import axios from 'axios';
 
 import { required} from 'vuelidate/lib/validators';
 
-import { IUpload, Upload } from '@/shared/model/upload.model';
-import { IUploadPrecheckResponse, UploadPrecheckResponse } from '@/shared/model/upload-precheck-response.model';
+//import { IUploadPrecheckData, UploadPrecheckData } from '@/shared/model/upload-precheck-data.model';
 
-const baseApiUrl = 'publicapi/acme-orders';
+import { IUploadPrecheckData, IPkcsXXData, PkcsXXData } from '@/shared/model/transfer-object.model';
+
+const precheckUrl = 'publicapi/describeContent';
+const uploadUrl = 'api/uploadContent';
 
 const validations: any = {
   upload: {
-    user: {
+    passphrase: {
     },
-    password: {
-    },
-    csr: {
+    content: {
       required
-    },
-    checkResult: {
     }
   }
 };
@@ -29,27 +27,39 @@ const validations: any = {
 })
 export default class PKCSXX extends Vue {
 
-  public upload: IUpload = new Upload();
-  public precheckResponse: IUploadPrecheckResponse = new UploadPrecheckResponse();
+  public upload: IUploadPrecheckData = <IUploadPrecheckData>{};
+  public precheckResponse: IPkcsXXData = new PkcsXXData();
 
+  public isChecked = false;
   public isChecking = false;
   public isSaving = false;
+
+  public get authenticated(): boolean {
+    return this.$store.getters.authenticated;
+  }
 
   public get username(): string {
     return this.$store.getters.account ? this.$store.getters.account.login : '';
   }
 
   public notifyChange(_evt: Event): void {
-      alert('CSR changed');
-      this.precheck();
+//      alert('CSR changed');
+      this.contentCall(precheckUrl);
   }
 
-  async precheck() {
+  public uploadContent(_evt: Event): void {
+      this.contentCall(uploadUrl);
+  }
+
+  async contentCall(url: string) {
     try {
-      this.precheckResponse =  await axios.post(`${baseApiUrl}`, this.upload);
-      console.log(this.precheckResponse.checkResult);
+      let response =  await axios.post(`${url}`, this.upload);
+      this.precheckResponse = response.data; 
+      console.log(this.precheckResponse.dataType);
+      this.isChecked = true;
     } catch (error) {
       console.error(error);
+      this.isChecked = false;
     }
   }
 

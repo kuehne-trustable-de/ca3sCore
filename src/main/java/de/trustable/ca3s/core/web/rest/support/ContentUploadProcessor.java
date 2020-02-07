@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +27,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.repository.CSRRepository;
+import de.trustable.ca3s.core.repository.CertificateRepository;
+import de.trustable.ca3s.core.repository.CsrAttributeRepository;
+import de.trustable.ca3s.core.service.util.BPMNUtil;
+import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.web.rest.data.PKCSDataType;
 import de.trustable.ca3s.core.web.rest.data.Pkcs10RequestHolderShallow;
@@ -38,10 +45,10 @@ import de.trustable.util.Pkcs10RequestHolder;
  * REST controller for processing PKCS10 requests and Certificates.
  */
 @RestController
-@RequestMapping("/publicapi")
-public class CSRContentProcessor {
+@RequestMapping("/api")
+public class ContentUploadProcessor {
 
-	private final Logger LOG = LoggerFactory.getLogger(CSRContentProcessor.class);
+	private final Logger LOG = LoggerFactory.getLogger(ContentUploadProcessor.class);
 
 	@Autowired
 	private CryptoUtil cryptoUtil;
@@ -49,8 +56,20 @@ public class CSRContentProcessor {
 	@Autowired
 	private CertificateUtil certUtil;
 
+    @Autowired
+    private CSRUtil csrUtil;
+
 	@Autowired
 	private CSRRepository csrRepository;
+
+	@Autowired
+	private CsrAttributeRepository csrAttributeRepository;
+
+    @Autowired
+    private CertificateRepository certificateRepository;
+
+	@Autowired
+	private BPMNUtil bpmnUtil;
 
 
     /**
@@ -59,11 +78,14 @@ public class CSRContentProcessor {
      * @param a structure holding some crypto-related content, e.g. CSR, certificate, P12 container
      * @return the {@link ResponseEntity} .
      */
-    @PostMapping("/describeContent")
-    public ResponseEntity<PkcsXXData> describeContent(@Valid @RequestBody UploadPrecheckData uploaded) {
+    @PostMapping("/uploadContent")
+    public ResponseEntity<PkcsXXData> uploadContent(@Valid @RequestBody UploadPrecheckData uploaded) {
+    	
+    	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    	String requestorName = auth.getName();
     	
     	String content = uploaded.getContent();
-    	LOG.debug("REST request to describe a PEM clob : {}", content);
+    	LOG.debug("Request to upload a PEM clob : {} by user {}", content, auth.getName());
         
 		PkcsXXData p10ReqData = new PkcsXXData();
     	
@@ -87,9 +109,21 @@ public class CSRContentProcessor {
 				
 				List<CSR> csrList = csrRepository.findByPublicKeyHash(p10ReqHolder.getPublicKeyHash());
 				LOG.debug("public key with hash '{}' used in #{} csrs, yet", p10ReqHolder.getPublicKeyHash(), csrList.size());
-				
-				p10ReqData.setPublicKeyPresentInDB( !csrList.isEmpty());
+
 				p10ReqData = new PkcsXXData(p10ReqHolderShallow);
+
+				p10ReqData.setPublicKeyPresentInDB( !csrList.isEmpty());
+				if(csrList.isEmpty()) {
+					Certificate cert = startCertificateCreationProcess(content, requestorName );
+					if( cert != null) {
+						p10ReqData.setCertificateId(cert.getId());
+						p10ReqData.setCertificatePresentInDB(true);
+						
+						X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(cert.getContent());
+						p10ReqData = new PkcsXXData(certHolder, cert );
+					}
+				}
+				
 			} catch (IOException | GeneralSecurityException e2) {
 				LOG.debug("describeCSR ", e2);
 				LOG.debug("not a csr, trying to parse it as PKCS12 ");
@@ -136,6 +170,55 @@ public class CSRContentProcessor {
 		}
 
 		return new ResponseEntity<PkcsXXData>(p10ReqData, HttpStatus.OK);
+	}
+
+    
+    /**
+     * 
+     * @param orderDao
+     * @return
+     * @throws IOException
+     */
+	private Certificate startCertificateCreationProcess(final String csrAsPem, final String requestorName )  {
+		
+		
+		// BPNM call
+		try {
+			Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(csrAsPem);
+
+			CSR csr = csrUtil.buildCSR(csrAsPem, p10ReqHolder);
+			
+			CsrAttribute csrAttRequestorName = new CsrAttribute();
+			csrAttRequestorName.setName(CsrAttribute.ATTRIBUTE_REQUSTOR_NAME);
+			csrAttRequestorName.setValue(requestorName);
+			csr.getCsrAttributes().add(csrAttRequestorName);
+			
+			csrRepository.save(csr);
+
+			csrAttributeRepository.save(csrAttRequestorName);
+			
+			LOG.debug("csr contains #{} CsrAttributes, #{} RequestAttributes and #{} RDN", csr.getCsrAttributes().size(), csr.getRas().size(), csr.getRdns().size());
+			for(de.trustable.ca3s.core.domain.RDN rdn:csr.getRdns()) {
+				LOG.debug("RDN contains #{}", rdn.getRdnAttributes().size());
+			}
+			
+			Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
+			if(cert != null) {
+				
+				certificateRepository.save(cert);
+				return cert;
+				
+			} else {
+				LOG.warn("creation of certificate requested by {} failed ", requestorName);
+			}
+
+			// end of BPMN call
+
+		} catch (GeneralSecurityException | IOException e) {
+			LOG.warn("execution of CSRProcessingTask failed ", e);
+		}
+
+		return null;
 	}
 
 

@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import de.trustable.ca3s.cert.bundle.BundleFactory;
 import de.trustable.ca3s.cert.bundle.KeyCertBundle;
 import de.trustable.util.CryptoUtil;
+import de.trustable.util.PKILevel;
 
 public class Ca3sFallbackBundleFactory implements BundleFactory {
 
@@ -54,7 +55,9 @@ public class Ca3sFallbackBundleFactory implements BundleFactory {
 	private synchronized X509Certificate getRootCertificate() throws GeneralSecurityException, IOException{
 
 		if( issuingCertificate == null) {
-		    issuingCertificate = cryptoUtil.buildSelfsignedCertificate(x500Issuer,getRootKeyPair());
+			
+			KeyPair kp = getRootKeyPair();
+			issuingCertificate = cryptoUtil.issueCertificate(x500Issuer, kp, x500Issuer, kp.getPublic().getEncoded(), Calendar.MONTH, 1, PKILevel.ROOT);
 			LOG.debug("created temp. root certificate with subject : {}", issuingCertificate.getSubjectDN().getName());
 			
 			File rootCertFile = File.createTempFile("ca3sTempRoot", ".cer");

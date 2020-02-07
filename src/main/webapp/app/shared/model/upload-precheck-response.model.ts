@@ -1,12 +1,12 @@
 
 export interface IUploadPrecheckResponse {
-  type?: string;
+  dataType?: string;
   checkResult?: string;
 }
 
 export class UploadPrecheckResponse implements IUploadPrecheckResponse {
   constructor(
-    public type?: string,
+    public dataType?: string,
     public checkResult?: string
   ) {}
 }

@@ -28,7 +28,7 @@ import de.trustable.ca3s.core.service.dir.DirectoryConnector;
 @Component
 public class CertificateImportScheduler {
 
-	transient Logger LOG = LoggerFactory.getLogger(CertBundleScheduler.class);
+	transient Logger LOG = LoggerFactory.getLogger(CertificateImportScheduler.class);
 
 	@Autowired
 	CAConnectorConfigRepository caConfigRepo;
@@ -55,7 +55,7 @@ public class CertificateImportScheduler {
 			}
 			LOG.debug("retrieveCertificates 'Minute' finished");
 		} else {
-			LOG.debug("retrieveCertificates disableed");
+			LOG.debug("retrieveCertificates disabled");
 		}
 	}
 
@@ -71,7 +71,7 @@ public class CertificateImportScheduler {
 			}
 			LOG.debug("retrieveCertificates 'Hour' finished");
 		} else {
-			LOG.debug("retrieveCertificates disableed");
+			LOG.debug("retrieveCertificates disabled");
 		}
 	}
 
@@ -87,7 +87,7 @@ public class CertificateImportScheduler {
 			}
 			LOG.debug("retrieveCertificates 'Day' finished");
 		} else {
-			LOG.debug("retrieveCertificates disableed");
+			LOG.debug("retrieveCertificates disabled");
 		}
 	}
 
@@ -103,7 +103,7 @@ public class CertificateImportScheduler {
 			}
 			LOG.debug("retrieveCertificates 'Month' finished");
 		} else {
-			LOG.debug("retrieveCertificates disableed");
+			LOG.debug("retrieveCertificates disabled");
 		}
 	}
 

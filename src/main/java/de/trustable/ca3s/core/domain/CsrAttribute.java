@@ -105,6 +105,7 @@ public class CsrAttribute implements Serializable {
             "}";
     }
     
+	public static final String ATTRIBUTE_REQUSTOR_NAME = "CA3S:REQUESTOR_NAME";
 	public static final String ATTRIBUTE_PROCESSING_CA = "CA3S:PROCESSING_CA";
 	public static final String ATTRIBUTE_CA_PROCESSING_ID = "CA3S:CA_PROCESSING_ID";
 	public static final String ATTRIBUTE_CA_PROCESSING_STARTED_TIMESTAMP = "CA3S:CA_PROCESSING_STARTED_TIMESTAMP";

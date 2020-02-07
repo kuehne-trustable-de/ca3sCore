@@ -27,6 +27,7 @@ import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.web.servlet.ScepServletImpl;
 import de.trustable.util.CryptoUtil;
+import de.trustable.util.PKILevel;
 
 @Service
 public class CaInternalConnector {
@@ -106,7 +107,7 @@ public class CaInternalConnector {
 		PrivateKey privKeyRoot = certUtil.getPrivateKey(root);
 		KeyPair kpRoot = new KeyPair(certUtil.convertPemToCertificate(root.getContent()).getPublicKey(), privKeyRoot);
 		
-		X509Certificate x509Cert = cryptoUtil.issueCertificate(new X500Name(root.getSubject()), kpRoot, subject, keyPair.getPublic().getEncoded(), Calendar.YEAR, 1);
+		X509Certificate x509Cert = cryptoUtil.issueCertificate(new X500Name(root.getSubject()), kpRoot, subject, keyPair.getPublic().getEncoded(), Calendar.YEAR, 1, PKILevel.INTERMEDIATE);
 
 		Certificate intermediateCert = certUtil.createCertificate(x509Cert.getEncoded(), null, "", false);
 
@@ -133,8 +134,8 @@ public class CaInternalConnector {
 				+ System.currentTimeMillis()
 				+ ", OU=Internal Only, OU=Dev/Test Only, O=trustable Ltd, C=DE");
 		
-		X509Certificate x509Cert = cryptoUtil.buildSelfsignedCertificate(subject, keyPair);
-		
+		X509Certificate x509Cert = cryptoUtil.issueCertificate(subject, keyPair, subject, keyPair.getPublic().getEncoded(), Calendar.YEAR, 1, PKILevel.ROOT);
+
 		Certificate rootCert = certUtil.createCertificate(x509Cert.getEncoded(), null, "", false);
 		
 		certUtil.storePrivateKey(rootCert, keyPair);			
@@ -180,7 +181,7 @@ public class CaInternalConnector {
 			PKCS10CertificationRequest p10 = cryptoUtil.convertPemToPKCS10CertificationRequest(csr.getCsrBase64());
 			
 			
-			X509Certificate x509Cert = cryptoUtil.issueCertificate(new X500Name(intermediate.getSubject()), kpIntermediate, p10.getSubject(), p10.getSubjectPublicKeyInfo(), Calendar.YEAR, 1);
+			X509Certificate x509Cert = cryptoUtil.issueCertificate(new X500Name(intermediate.getSubject()), kpIntermediate, p10.getSubject(), p10.getSubjectPublicKeyInfo(), Calendar.YEAR, 1, PKILevel.END_ENTITY);
 	
 			Certificate cert = certUtil.createCertificate(x509Cert.getEncoded(), null, "", false);
 			

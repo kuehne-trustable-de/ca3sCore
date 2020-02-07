@@ -7,6 +7,7 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Calendar;
 
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.cert.cmp.CMPException;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.trustable.util.CryptoUtil;
+import de.trustable.util.PKILevel;
 
 @RestController
 public class CMPTestEndpoint {
@@ -46,8 +48,7 @@ public class CMPTestEndpoint {
 		keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
 
 		issuer = new X500Name("CN=test root " + System.currentTimeMillis() + ", O=trustable Ltd, C=DE");
-
-		issuingCertificate = cryptoUtil.buildSelfsignedCertificate(issuer, keyPair);
+		issuingCertificate = cryptoUtil.issueCertificate(issuer, keyPair, issuer, keyPair.getPublic().getEncoded(), Calendar.MONTH, 1, PKILevel.ROOT);
 
 	}
 

@@ -86,6 +86,7 @@ import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.ACMEUtil;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
+import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.JwtUtil;
 import de.trustable.util.CryptoUtil;
@@ -120,6 +121,9 @@ public class OrderController extends ACMEController {
 
     @Autowired
     private CertificateUtil certUtil;
+
+    @Autowired
+    private CSRUtil csrUtil;
 
     @RequestMapping(value = "/{orderId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
     public ResponseEntity<?> postAsGetOrder(@RequestBody final String requestBody,
@@ -387,7 +391,8 @@ public class OrderController extends ACMEController {
 		try {
 			Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(csrAsPem);
 
-			CSR csr = certUtil.createCSR(csrAsPem, p10ReqHolder, "1");
+			CSR csr = csrUtil.buildCSR(csrAsPem, p10ReqHolder);
+			
 			csrRepository.save(csr);
 
 			LOG.debug("csr contains #{} CsrAttributes, #{} RequestAttributes and #{} RDN", csr.getCsrAttributes().size(), csr.getRas().size(), csr.getRdns().size());

@@ -42,6 +42,7 @@ import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
+import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.CryptoService;
 import de.trustable.util.CryptoUtil;
@@ -71,6 +72,9 @@ public class ScepServletImpl extends ScepServlet {
     
     @Autowired
     CSRRepository csrRepository;
+
+    @Autowired
+    private CSRUtil csrUtil;
     
 	@Autowired
 	private BPMNUtil bpmnUtil;
@@ -153,8 +157,8 @@ public class ScepServletImpl extends ScepServlet {
 		try {
 			Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(csrAsPem);
 
-			CSR csr = certUtil.createCSR(csrAsPem, p10ReqHolder, "1");
-			
+			CSR csr = csrUtil.buildCSR(csrAsPem, p10ReqHolder);
+
 			CsrAttribute csrAttributeTransId = new CsrAttribute();
 			csrAttributeTransId.setName(CertificateAttribute.ATTRIBUTE_SCEP_TRANS_ID);
 			csrAttributeTransId.setValue(transId.toString());

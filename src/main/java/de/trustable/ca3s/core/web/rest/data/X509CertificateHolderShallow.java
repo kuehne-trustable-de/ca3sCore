@@ -26,8 +26,12 @@ public class X509CertificateHolderShallow {
     private String validTo;
     
     private String[] extensions;
-    
+
+    private boolean keyPresent;
+
     public X509CertificateHolderShallow(X509CertificateHolder holder) {
+    	this.keyPresent = false;
+    	
     	this.subject = holder.getSubject().toString();
     	this.issuer = holder.getIssuer().toString();
     	this.type = "V" + holder.getVersionNumber();
@@ -43,10 +47,17 @@ public class X509CertificateHolderShallow {
     	this.validFrom = holder.getNotBefore().toString();
     	this.validTo = holder.getNotAfter().toString();
     	
-    	extensions = new String[holder.getExtensions().getExtensionOIDs().length];
-    	int i = 0;
-    	for(ASN1ObjectIdentifier oid: holder.getExtensions().getExtensionOIDs() ) {
-    		extensions[i++] = OidNameMapper.lookupOid(oid.getId());
+    	// holder.getExtensions() does not return an empty list but 'null'
+    	int nExtensions = 0;
+    	if( holder.getExtensions() != null && holder.getExtensions().getExtensionOIDs() != null) {
+    		nExtensions = holder.getExtensions().getExtensionOIDs().length;
+    	}
+    	extensions = new String[nExtensions];
+    	if( nExtensions > 0) {
+	    	int i = 0;
+	    	for(ASN1ObjectIdentifier oid: holder.getExtensions().getExtensionOIDs() ) {
+	    		extensions[i++] = OidNameMapper.lookupOid(oid.getId());
+	    	}
     	}
     }
 
@@ -112,6 +123,14 @@ public class X509CertificateHolderShallow {
 
 	public void setExtensions(String[] extensions) {
 		this.extensions = extensions;
+	}
+
+	public boolean isKeyPresent() {
+		return keyPresent;
+	}
+
+	public void setKeyPresent(boolean keyPresent) {
+		this.keyPresent = keyPresent;
 	}
 
     

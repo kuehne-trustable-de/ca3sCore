@@ -16,9 +16,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Iterator;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.shredzone.acme4j.Account;
 import org.shredzone.acme4j.AccountBuilder;
 import org.shredzone.acme4j.Authorization;
@@ -33,11 +33,9 @@ import org.shredzone.acme4j.util.CSRBuilder;
 import org.shredzone.acme4j.util.KeyPairUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
 import org.takes.Take;
 import org.takes.facets.fork.FkRegex;
 import org.takes.facets.fork.TkFork;
@@ -45,7 +43,7 @@ import org.takes.http.Exit;
 import org.takes.http.FtBasic;
 
 import de.trustable.ca3s.cert.bundle.TimedRenewalCertMap;
-import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.CaConfigTestConfiguration;
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 import de.trustable.ca3s.core.security.provider.Ca3sFallbackBundleFactory;
 import de.trustable.ca3s.core.security.provider.Ca3sKeyManagerProvider;
@@ -55,18 +53,16 @@ import de.trustable.util.JCAManager;
 
 
 
-@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT, classes = Ca3SApp.class)
-@RunWith(SpringRunner.class)
-@ActiveProfiles("int")
-@TestPropertySource(locations = "classpath:config/application_test.yml")
-public class ACMEHappyPathTest {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Import(CaConfigTestConfiguration.class)
+public class ACMEHappyPathIT {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ACMEHappyPathTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ACMEHappyPathIT.class);
 
-	@Value("${local.server.port:8080}")
+	@LocalServerPort
 	int serverPort; // random port chosen by spring test
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() throws Exception {
 		
 		JCAManager.getInstance();
@@ -220,65 +216,68 @@ public class ACMEHappyPathTest {
 	@Test
 	public void testWinStore() throws AcmeException, IOException, GeneralSecurityException, InterruptedException {
 
-		String dirUrl = "http://localhost:" + serverPort + "/acme/foo/directory";
-		System.out.println("connecting to " + dirUrl );
-		Session session = new Session(dirUrl);
-		Metadata meta = session.getMetadata();
-		
-		URI tos = meta.getTermsOfService();
-		URL website = meta.getWebsite();
-		LOG.debug("TermsOfService {}, website {}", tos, website);
-		
-		KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
-				
-		Account account = new AccountBuilder()
-		        .addContact("mailto:acmeOrderWinStoreTest@ca3s.org")
-		        .agreeToTermsOfService()
-		        .useKeyPair(accountKeyPair)
-		        .create(session);
-		
-		Order order = account.newOrder()
-		        .domains("localhost")
-//		        .domains("WinStore.example.org")
-//		        .identifier(Identifier.ip(InetAddress.getByName("192.168.56.20")))
-		        .notAfter(Instant.now().plus(Duration.ofDays(20L)))
-		        .create();
-		
-		for (Authorization auth : order.getAuthorizations()) {
-			if (auth.getStatus() == Status.PENDING) {
-				LOG.debug("auth {}", auth);
-				Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
+		boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
 
-				provideAuthEndpoint(challenge, order);
-
-				challenge.trigger();
+		if( isWindows ) {
+			String dirUrl = "http://localhost:" + serverPort + "/acme/foo/directory";
+			System.out.println("connecting to " + dirUrl );
+			Session session = new Session(dirUrl);
+			Metadata meta = session.getMetadata();
+			
+			URI tos = meta.getTermsOfService();
+			URL website = meta.getWebsite();
+			LOG.debug("TermsOfService {}, website {}", tos, website);
+			
+			KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
+					
+			Account account = new AccountBuilder()
+			        .addContact("mailto:acmeOrderWinStoreTest@ca3s.org")
+			        .agreeToTermsOfService()
+			        .useKeyPair(accountKeyPair)
+			        .create(session);
+			
+			Order order = account.newOrder()
+			        .domains("localhost")
+	//		        .domains("WinStore.example.org")
+	//		        .identifier(Identifier.ip(InetAddress.getByName("192.168.56.20")))
+			        .notAfter(Instant.now().plus(Duration.ofDays(20L)))
+			        .create();
+			
+			for (Authorization auth : order.getAuthorizations()) {
+				if (auth.getStatus() == Status.PENDING) {
+					LOG.debug("auth {}", auth);
+					Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
+	
+					provideAuthEndpoint(challenge, order);
+	
+					challenge.trigger();
+				}
 			}
+	
+		    KeyStore keyStore = KeyStore.getInstance("Windows-MY");
+		    keyStore.load(null, null);  // Load keystore
+			
+			KeyPair domainKeyPair = KeyPairUtils.createKeyPair(2048);
+	
+			CSRBuilder csrb = new CSRBuilder();
+			csrb.addDomain("WinStore.example.org");
+			csrb.setOrganization("The Example Organization' windows client");
+			csrb.sign(domainKeyPair);
+			byte[] csr = csrb.getEncoded();
+			
+			order.execute(csr);
+			Certificate acmeCert = order.getCertificate();
+			assertNotNull("Expected to receive a certificate", acmeCert);
+			
+			java.security.cert.X509Certificate x509Cert = acmeCert.getCertificate();
+			assertNotNull("Expected to receive a x509Cert", x509Cert);
+	
+			X509Certificate[] chain = new X509Certificate[acmeCert.getCertificateChain().size()];
+			acmeCert.getCertificateChain().toArray(chain);
+		    keyStore.setKeyEntry("acmeKey", domainKeyPair.getPrivate(), null, chain);
+		     
+		    keyStore.store(null, null);
 		}
-
-	    KeyStore keyStore = KeyStore.getInstance("Windows-MY");
-	    keyStore.load(null, null);  // Load keystore
-		
-		KeyPair domainKeyPair = KeyPairUtils.createKeyPair(2048);
-
-		CSRBuilder csrb = new CSRBuilder();
-		csrb.addDomain("WinStore.example.org");
-		csrb.setOrganization("The Example Organization' windows client");
-		csrb.sign(domainKeyPair);
-		byte[] csr = csrb.getEncoded();
-		
-		order.execute(csr);
-		Certificate acmeCert = order.getCertificate();
-		assertNotNull("Expected to receive a certificate", acmeCert);
-		
-		java.security.cert.X509Certificate x509Cert = acmeCert.getCertificate();
-		assertNotNull("Expected to receive a x509Cert", x509Cert);
-
-		X509Certificate[] chain = new X509Certificate[acmeCert.getCertificateChain().size()];
-		acmeCert.getCertificateChain().toArray(chain);
-	    keyStore.setKeyEntry("acmeKey", domainKeyPair.getPrivate(), null, chain);
-	     
-	    keyStore.store(null, null);
-
 	}
 	
 
@@ -312,7 +311,7 @@ public class ACMEHappyPathTest {
 			@Override
 			public boolean ready() {
 				boolean bTerminate = !(order.getStatus().equals( Status.PENDING));
-				LOG.debug("exitOnValid {}", order.getStatus().toString());
+				LOG.info("exitOnValid {}", order.getStatus().toString());
 				return (bTerminate);
 			}
 		};

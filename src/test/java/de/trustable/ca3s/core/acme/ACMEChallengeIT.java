@@ -12,9 +12,8 @@ import java.security.KeyPair;
 import java.time.Duration;
 import java.time.Instant;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.shredzone.acme4j.Account;
 import org.shredzone.acme4j.AccountBuilder;
 import org.shredzone.acme4j.Authorization;
@@ -27,37 +26,34 @@ import org.shredzone.acme4j.exception.AcmeException;
 import org.shredzone.acme4j.util.KeyPairUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
 import org.takes.Take;
 import org.takes.facets.fork.FkRegex;
 import org.takes.facets.fork.TkFork;
 import org.takes.http.Exit;
 import org.takes.http.FtBasic;
 
-import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.CaConfigTestConfiguration;
 import de.trustable.util.JCAManager;
 
-@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT, classes = Ca3SApp.class)
-@RunWith(SpringRunner.class)
-@ActiveProfiles("int")
-@TestPropertySource(locations = "classpath:config/application_test.yml")
-public class ACMEChallengeTest {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Import(CaConfigTestConfiguration.class)
+public class ACMEChallengeIT {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ACMEChallengeTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ACMEChallengeIT.class);
 
-	@Value("${local.server.port}")
+	@LocalServerPort
 	int serverPort; // random port chosen by spring test
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() throws Exception {
 		JCAManager.getInstance();
 	}
 
 	
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testAccountHandling() throws AcmeException, IOException, InterruptedException {
 
@@ -136,16 +132,21 @@ public class ACMEChallengeTest {
 
 				Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
 
-				LOG.debug("correct response would be {}, but we are prepending 'xxx' ...", challenge.getAuthorization());
+				LOG.debug("correct response would be {}, but it's prepended with 'xxx' ...", challenge.getAuthorization());
 				
-				provideAuthEndpoint(challenge.getToken(), "xxx" + challenge.getAuthorization(), order);
+				Boolean terminate = Boolean.FALSE;
+				Thread webThread = provideAuthEndpoint(challenge.getToken(), "xxx" + challenge.getAuthorization(), terminate);
 
 				try {
 					challenge.trigger();
 					fail("Challenge expected to fail");
 				} catch(AcmeException ae) {
 					// as expected
+				}finally {
+					terminate = Boolean.TRUE;
 				}
+				
+				webThread.stop();
 			}
 
 		}
@@ -162,7 +163,7 @@ public class ACMEChallengeTest {
 	        .create();
 	}
 
-	void provideAuthEndpoint(String fileName, String fileContent, Order order) throws IOException, InterruptedException {
+	Thread provideAuthEndpoint(String fileName, String fileContent, Boolean terminate) throws IOException, InterruptedException {
 
 		int callbackPort = 8800;
 		final String fileNameRegEx = "/\\.well-known/acme-challenge/" + fileName;
@@ -183,13 +184,12 @@ public class ACMEChallengeTest {
 		final Exit exitOnValid = new Exit() {
 			@Override
 			public boolean ready() {
-				boolean bTerminate = !(order.getStatus().equals( Status.PENDING));
-				LOG.debug("exitOnValid {}", order.getStatus().toString());
-				return (bTerminate);
+				LOG.info("exitOnValid by Boolean {}", terminate.booleanValue());
+				return (terminate.booleanValue());
 			}
 		};
 
-		new Thread(new Runnable() {
+		Thread webThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -200,9 +200,12 @@ public class ACMEChallengeTest {
 					LOG.warn("exception occur running webserver in extra thread", ioe);
 				}
 			}
-		}).start();
+		});
+		
+		webThread.start();
 
 		LOG.debug("started ACME callback webserver for {} on port {}", fileNameRegEx, callbackPort);
 
+		return webThread;
 	}
 }

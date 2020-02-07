@@ -1,11 +1,11 @@
 
-export interface IUpload {
+export interface IUploadPrecheckData {
   user?: string;
   password?: string;
   csr?: string;
 }
 
-export class Upload implements IUpload {
+export class UploadPrecheckData implements IUploadPrecheckData {
   constructor(
     public user?: string,
     public password?: string,
