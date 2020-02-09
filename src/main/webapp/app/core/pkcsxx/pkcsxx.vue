@@ -26,6 +26,15 @@
                             v-model="$v.upload.passphrase.$model" required/>
                     </div>
 
+					<dl class="row jh-entity-details" v-if="isChecked === true && precheckResponse.dataType === 'UNKNOWN'">
+						<dt>
+							<span v-text="$t('ca3SApp.upload.result')">Result</span>
+						</dt>
+						<dd>
+							<span v-text="$t('ca3SApp.upload.result.unknown')">Unknwon content</span>
+						</dd>
+					</dl>
+
 					<dl class="row jh-entity-details" v-if="isChecked === true && precheckResponse.dataType === 'CSR'">
 						<dt>
 							<span v-text="$t('ca3SApp.upload.type')">Result</span>
@@ -94,6 +103,17 @@
 						<dd>
 							<span>{{precheckResponse.certificates[0].validTo}}</span>
 						</dd>
+
+						<dt>
+							<span v-text="$t('ca3SApp.upload.certificate.sans')">Subject alternative names</span>
+						</dt>
+						<dd>
+							<ul>
+								<li v-for="san in precheckResponse.certificates[0].sans">{{san}}</li>
+							</ul>
+						</dd>
+
+						
 					</dl>
 
 				</div>
@@ -112,7 +132,7 @@
 <style scoped>
 textarea.pem-upload {
   font-family: monospace; 
-  height: 12em;
+  height: 10em;
   
 }
 

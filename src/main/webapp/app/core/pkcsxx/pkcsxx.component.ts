@@ -5,9 +5,7 @@ import axios from 'axios';
 
 import { required} from 'vuelidate/lib/validators';
 
-//import { IUploadPrecheckData, UploadPrecheckData } from '@/shared/model/upload-precheck-data.model';
-
-import { IUploadPrecheckData, IPkcsXXData, PkcsXXData } from '@/shared/model/transfer-object.model';
+import { IUploadPrecheckData, IPkcsXXData } from '@/shared/model/transfer-object.model';
 
 const precheckUrl = 'publicapi/describeContent';
 const uploadUrl = 'api/uploadContent';
@@ -28,7 +26,7 @@ const validations: any = {
 export default class PKCSXX extends Vue {
 
   public upload: IUploadPrecheckData = <IUploadPrecheckData>{};
-  public precheckResponse: IPkcsXXData = new PkcsXXData();
+  public precheckResponse: IPkcsXXData = <IPkcsXXData>{};
 
   public isChecked = false;
   public isChecking = false;
@@ -53,8 +51,8 @@ export default class PKCSXX extends Vue {
 
   async contentCall(url: string) {
     try {
-      let response =  await axios.post(`${url}`, this.upload);
-      this.precheckResponse = response.data; 
+      const response = await axios.post(`${url}`, this.upload);
+      this.precheckResponse = response.data;
       console.log(this.precheckResponse.dataType);
       this.isChecked = true;
     } catch (error) {

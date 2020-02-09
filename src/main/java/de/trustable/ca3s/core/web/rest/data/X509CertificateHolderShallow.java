@@ -3,14 +3,25 @@ package de.trustable.ca3s.core.web.rest.data;
 import java.io.IOException;
 
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.Extensions;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.util.encoders.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
 
 public class X509CertificateHolderShallow {
 	
+	private static final Logger LOG = LoggerFactory.getLogger(X509CertificateHolderShallow.class);
+
     private String subject;
 
     private String issuer;
@@ -25,10 +36,14 @@ public class X509CertificateHolderShallow {
 
     private String validTo;
     
+	@JsonProperty("sans")
+	private String[] sans;
+
     private String[] extensions;
 
     private boolean keyPresent;
 
+    
     public X509CertificateHolderShallow(X509CertificateHolder holder) {
     	this.keyPresent = false;
     	
@@ -49,15 +64,26 @@ public class X509CertificateHolderShallow {
     	
     	// holder.getExtensions() does not return an empty list but 'null'
     	int nExtensions = 0;
-    	if( holder.getExtensions() != null && holder.getExtensions().getExtensionOIDs() != null) {
-    		nExtensions = holder.getExtensions().getExtensionOIDs().length;
+		Extensions exts = holder.getExtensions();
+    	if( exts != null && exts.getExtensionOIDs() != null) {
+    		nExtensions = exts.getExtensionOIDs().length;
     	}
     	extensions = new String[nExtensions];
+    	
+		this.sans = new String[0];
     	if( nExtensions > 0) {
-	    	int i = 0;
-	    	for(ASN1ObjectIdentifier oid: holder.getExtensions().getExtensionOIDs() ) {
-	    		extensions[i++] = OidNameMapper.lookupOid(oid.getId());
+			int i = 0;
+			for( ASN1ObjectIdentifier objId : exts.getExtensionOIDs()) {
+	    		extensions[i++] = OidNameMapper.lookupOid(objId.getId());
 	    	}
+			
+			GeneralNames namesSAN = GeneralNames.fromExtensions(exts, Extension.subjectAlternativeName);
+			
+			int j = 0;
+			this.sans = new String[namesSAN.getNames().length];
+			for( GeneralName gn : namesSAN.getNames()) {
+				this.sans[j++] = CSRUtil.getGeneralNameDescription(gn);
+			}
     	}
     }
 
@@ -115,6 +141,15 @@ public class X509CertificateHolderShallow {
 
 	public void setValidTo(String validTo) {
 		this.validTo = validTo;
+	}
+
+	
+	public String[] getSans() {
+		return sans;
+	}
+
+	public void setSans(String[] sans) {
+		this.sans = sans;
 	}
 
 	public String[] getExtensions() {

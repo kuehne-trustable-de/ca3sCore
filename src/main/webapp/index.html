@@ -102,6 +102,32 @@
             }
         }
     </script>
+
+    <style>
+        .table-responsive tr {
+            border-bottom: 1px solid #000;
+        }
+        .table-responsive tr:nth-child(odd) {
+            background: #dfdfdf;
+        }
+        .table-striped tbody tr:nth-of-type(2n+1) {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        .table-responsive td {
+            border-right: 1px solid #aaa;
+        }
+        .table-responsive thead, .table-responsive  thead tr {
+            background: CadetBlue;
+
+        }
+        div.table-responsive>table{
+            border-collapse: none !important;
+        }
+        div.table-responsive table thead tr th{
+            border: 1px solid #aaa;
+        }
+    </style>
+
     <!-- uncomment this for adding service worker
         <script>
             if ('serviceWorker' in navigator) {

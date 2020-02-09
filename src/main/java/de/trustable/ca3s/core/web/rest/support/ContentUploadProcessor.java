@@ -188,13 +188,14 @@ public class ContentUploadProcessor {
 
 			CSR csr = csrUtil.buildCSR(csrAsPem, p10ReqHolder);
 			
+			csrRepository.save(csr);
+
 			CsrAttribute csrAttRequestorName = new CsrAttribute();
+			csrAttRequestorName.setCsr(csr);
 			csrAttRequestorName.setName(CsrAttribute.ATTRIBUTE_REQUSTOR_NAME);
 			csrAttRequestorName.setValue(requestorName);
 			csr.getCsrAttributes().add(csrAttRequestorName);
 			
-			csrRepository.save(csr);
-
 			csrAttributeRepository.save(csrAttRequestorName);
 			
 			LOG.debug("csr contains #{} CsrAttributes, #{} RequestAttributes and #{} RDN", csr.getCsrAttributes().size(), csr.getRas().size(), csr.getRdns().size());

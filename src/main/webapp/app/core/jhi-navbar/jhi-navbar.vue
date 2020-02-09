@@ -14,12 +14,28 @@
         
         <b-collapse is-nav id="header-tabs">
             <b-navbar-nav class="ml-auto">
+
                 <b-nav-item to="/" exact>
                     <span>
                         <font-awesome-icon icon="home" />
                         <span v-text="$t('global.menu.home')">Home</span>
                     </span>
                 </b-nav-item>
+                
+                <b-nav-item v-if="!authenticated" to="/pkcsxx" exact>
+                    <span>
+                        <font-awesome-icon icon="fa-stethoscope" />
+                        <span v-text="$t('global.menu.check')">Check</span>
+                    </span>
+                </b-nav-item>
+                
+                <b-nav-item v-if="authenticated" to="/pkcsxx" exact>
+                    <span>
+                        <font-awesome-icon icon="fa-upload " />
+                        <span v-text="$t('global.menu.request')">Request</span>
+                    </span>
+                </b-nav-item>
+                
                 <b-nav-item-dropdown
                     id="entity-menu"
                     v-if="authenticated"

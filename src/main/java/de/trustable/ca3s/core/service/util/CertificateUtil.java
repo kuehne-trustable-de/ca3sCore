@@ -38,6 +38,7 @@ import javax.servlet.ServletException;
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.ASN1Set;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.DERSequence;
@@ -49,6 +50,7 @@ import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.AuthorityKeyIdentifier;
 import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.Extensions;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
@@ -1219,7 +1221,30 @@ public class CertificateUtil {
 		return csr;
 	}
 
-	Set<GeneralName> getSANList(Pkcs10RequestHolder p10ReqHolder){
+	public Set<GeneralName> getSANList(X509CertificateHolder x509CertHolder){
+		
+		Set<GeneralName> generalNameSet = new HashSet<GeneralName>();
+		
+		Extensions exts = x509CertHolder.getExtensions();
+		for( ASN1ObjectIdentifier objId : exts.getExtensionOIDs()) {
+			if( Extension.subjectAlternativeName.equals(objId)) {
+				
+				ASN1OctetString octString = exts.getExtension(objId).getExtnValue();
+				GeneralNames names = GeneralNames.getInstance(octString);
+				LOG.debug("Attribute value SAN" + names);
+				LOG.debug("SAN values #" + names.getNames().length);
+				
+				for (GeneralName gnSAN : names.getNames()) {
+					LOG.debug("GN " + gnSAN.toString());
+					generalNameSet.add(gnSAN);
+					
+				}
+			}
+		}
+		return generalNameSet;
+	}
+
+	public Set<GeneralName> getSANList(Pkcs10RequestHolder p10ReqHolder){
 		
 		Set<GeneralName> generalNameSet = new HashSet<GeneralName>();
 		
