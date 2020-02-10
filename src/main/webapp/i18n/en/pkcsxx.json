@@ -1,0 +1,30 @@
+{
+  "pkcsxx": {
+    "title": "Welcome, Java Hipster!",
+    "subtitle": "Upload a security object",
+    "upload": {
+      "upload": "Upload",
+      "content": "Content",
+      "passphrase": "Passphrase",
+      "subject": "Subject",
+      "issuer": "Issuer",
+      "algoname": "Build with",
+      "sans": "Subject alternative names",
+      "submit": "Upload",
+      "certificate": {
+        "validfrom": "Valid from",
+        "validto": "Valid to"
+      },
+      "warning": {
+        "label": "Warning",
+        "publicKeyPresent": "Public key already in use"
+      },
+
+      "result": {
+        "label": "Result",
+        "unknown": "Unknwon content",
+        "type": "Content type"
+      }
+    }
+  }
+}

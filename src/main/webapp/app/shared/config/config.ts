@@ -36,6 +36,8 @@ import { faRoad } from '@fortawesome/free-solid-svg-icons/faRoad';
 import { faCloud } from '@fortawesome/free-solid-svg-icons/faCloud';
 import { faBars } from '@fortawesome/free-solid-svg-icons/faBars';
 import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes';
+import { faStethoscope } from '@fortawesome/free-solid-svg-icons/faStethoscope';
+import { faUpload } from '@fortawesome/free-solid-svg-icons/faUpload';
 
 import VueCookie from 'vue-cookie';
 import Vuelidate from 'vuelidate';
@@ -166,7 +168,9 @@ export function initFortAwesome(vue) {
     faTimesCircle,
     faSearch,
     faBars,
-    faTimes
+    faTimes,
+    faUpload,
+    faStethoscope
   );
 }
 

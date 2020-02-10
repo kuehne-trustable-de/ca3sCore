@@ -24,14 +24,14 @@
                 
                 <b-nav-item v-if="!authenticated" to="/pkcsxx" exact>
                     <span>
-                        <font-awesome-icon icon="fa-stethoscope" />
+                        <font-awesome-icon icon="stethoscope" />
                         <span v-text="$t('global.menu.check')">Check</span>
                     </span>
                 </b-nav-item>
                 
                 <b-nav-item v-if="authenticated" to="/pkcsxx" exact>
                     <span>
-                        <font-awesome-icon icon="fa-upload " />
+                        <font-awesome-icon icon="upload" />
                         <span v-text="$t('global.menu.request')">Request</span>
                     </span>
                 </b-nav-item>
