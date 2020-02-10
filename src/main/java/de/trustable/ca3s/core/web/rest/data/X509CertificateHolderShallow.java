@@ -61,8 +61,8 @@ public class X509CertificateHolderShallow {
 		}
 
     	this.serial = holder.getSerialNumber().toString();
-    	this.validFrom = DateUtil.asLocalDateTime(holder.getNotBefore());
-    	this.validTo = DateUtil.asLocalDateTime(holder.getNotAfter());
+    	this.validFrom = DateUtil.asLocalDateTimeUTC(holder.getNotBefore());
+    	this.validTo = DateUtil.asLocalDateTimeUTC(holder.getNotAfter());
     	   	
     	// holder.getExtensions() does not return an empty list but 'null'
     	int nExtensions = 0;
