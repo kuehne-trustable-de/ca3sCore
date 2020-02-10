@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2020-02-09 18:42:49.
+// Generated using typescript-generator version 2.19.577 on 2020-02-10 12:30:38.
 
 export interface IUploadPrecheckData {
     passphrase?: string;
@@ -13,10 +13,11 @@ export interface IX509CertificateHolderShallow {
     type?: string;
     fingerprint?: string;
     serial?: string;
-    validFrom?: string;
-    validTo?: string;
+    validFrom?: Date;
+    validTo?: Date;
     extensions?: string[];
     keyPresent?: boolean;
+    sans?: string[];
 }
 
 export interface IPkcsXXData {

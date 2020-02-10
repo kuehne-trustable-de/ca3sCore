@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.web.rest.data;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x509.Extension;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import de.trustable.ca3s.core.service.util.CSRUtil;
+import de.trustable.ca3s.core.service.util.DateUtil;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
 
@@ -32,9 +34,9 @@ public class X509CertificateHolderShallow {
 
     private String serial;
 
-    private String validFrom;
+    private LocalDateTime validFrom;
 
-    private String validTo;
+    private LocalDateTime validTo;
     
 	@JsonProperty("sans")
 	private String[] sans;
@@ -59,9 +61,9 @@ public class X509CertificateHolderShallow {
 		}
 
     	this.serial = holder.getSerialNumber().toString();
-    	this.validFrom = holder.getNotBefore().toString();
-    	this.validTo = holder.getNotAfter().toString();
-    	
+    	this.validFrom = DateUtil.asLocalDateTime(holder.getNotBefore());
+    	this.validTo = DateUtil.asLocalDateTime(holder.getNotAfter());
+    	   	
     	// holder.getExtensions() does not return an empty list but 'null'
     	int nExtensions = 0;
 		Extensions exts = holder.getExtensions();
@@ -127,19 +129,19 @@ public class X509CertificateHolderShallow {
 		this.serial = serial;
 	}
 
-	public String getValidFrom() {
+	public LocalDateTime getValidFrom() {
 		return validFrom;
 	}
 
-	public void setValidFrom(String validFrom) {
+	public void setValidFrom(LocalDateTime validFrom) {
 		this.validFrom = validFrom;
 	}
 
-	public String getValidTo() {
+	public LocalDateTime getValidTo() {
 		return validTo;
 	}
 
-	public void setValidTo(String validTo) {
+	public void setValidTo(LocalDateTime validTo) {
 		this.validTo = validTo;
 	}
 

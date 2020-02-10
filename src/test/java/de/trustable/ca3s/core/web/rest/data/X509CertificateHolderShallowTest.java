@@ -7,7 +7,6 @@ import java.security.GeneralSecurityException;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.util.JCAManager;
@@ -73,8 +72,8 @@ class X509CertificateHolderShallowTest {
 		assertEquals( "265430426828270065898530867527273204553104", x509Holder.getSerial());
 		assertEquals( "E96gS+Zf0kEztTa8sAsnp0S7Qqo=", x509Holder.getFingerprint());
 		assertEquals( "V3", x509Holder.getType());
-		assertEquals( "Mon Oct 29 13:31:27 CET 2018", x509Holder.getValidFrom());
-		assertEquals( "Sun Jan 27 13:31:27 CET 2019", x509Holder.getValidTo());
+		assertEquals( "2018-10-29T13:31:27", x509Holder.getValidFrom().toString());
+		assertEquals( "2019-01-27T13:31:27", x509Holder.getValidTo().toString());
 		
 		
 		assertEquals( 6, x509Holder.getSans().length);
