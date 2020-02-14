@@ -10,7 +10,7 @@
         },
         {
             "fieldName": "importDate",
-            "fieldType": "LocalDate",
+            "fieldType": "Instant",
             "fieldValidateRules": [
                 "required"
             ]

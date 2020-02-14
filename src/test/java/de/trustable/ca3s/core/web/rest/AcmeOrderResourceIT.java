@@ -20,8 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
 import javax.persistence.EntityManager;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
@@ -43,14 +43,14 @@ public class AcmeOrderResourceIT {
     private static final AcmeOrderStatus DEFAULT_STATUS = AcmeOrderStatus.PENDING;
     private static final AcmeOrderStatus UPDATED_STATUS = AcmeOrderStatus.READY;
 
-    private static final LocalDate DEFAULT_EXPIRES = LocalDate.ofEpochDay(0L);
-    private static final LocalDate UPDATED_EXPIRES = LocalDate.now(ZoneId.systemDefault());
+    private static final Instant DEFAULT_EXPIRES = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_EXPIRES = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
-    private static final LocalDate DEFAULT_NOT_BEFORE = LocalDate.ofEpochDay(0L);
-    private static final LocalDate UPDATED_NOT_BEFORE = LocalDate.now(ZoneId.systemDefault());
+    private static final Instant DEFAULT_NOT_BEFORE = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_NOT_BEFORE = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
-    private static final LocalDate DEFAULT_NOT_AFTER = LocalDate.ofEpochDay(0L);
-    private static final LocalDate UPDATED_NOT_AFTER = LocalDate.now(ZoneId.systemDefault());
+    private static final Instant DEFAULT_NOT_AFTER = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_NOT_AFTER = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
     private static final String DEFAULT_ERROR = "AAAAAAAAAA";
     private static final String UPDATED_ERROR = "BBBBBBBBBB";

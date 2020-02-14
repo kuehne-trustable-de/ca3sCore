@@ -6,7 +6,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -153,7 +153,7 @@ public class CaInternalConnector {
 	 * @return
 	 */
 	private Certificate getLongestValidCertificate(List<Certificate> certList) {
-		LocalDate now = LocalDate.now();
+		Instant now = Instant.now();
 		Certificate certLongestValid = null;
 		
 		for( Certificate cert:certList) {
@@ -226,7 +226,7 @@ public class CaInternalConnector {
 		LOG.debug("crlReason : " + crlReasonStr);
 
 		cert.setRevoked(true);
-		cert.setRevokedSince(LocalDate.now());
+		cert.setRevokedSince(Instant.now());
 		cert.setRevocationReason(crlReasonStr);
 
 		certRepository.save(cert);

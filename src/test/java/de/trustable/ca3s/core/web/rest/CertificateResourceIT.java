@@ -21,8 +21,8 @@ import org.springframework.util.Base64Utils;
 import org.springframework.validation.Validator;
 
 import javax.persistence.EntityManager;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
@@ -64,20 +64,20 @@ public class CertificateResourceIT {
     private static final String DEFAULT_SERIAL = "AAAAAAAAAA";
     private static final String UPDATED_SERIAL = "BBBBBBBBBB";
 
-    private static final LocalDate DEFAULT_VALID_FROM = LocalDate.ofEpochDay(0L);
-    private static final LocalDate UPDATED_VALID_FROM = LocalDate.now(ZoneId.systemDefault());
+    private static final Instant DEFAULT_VALID_FROM = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_VALID_FROM = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
-    private static final LocalDate DEFAULT_VALID_TO = LocalDate.ofEpochDay(0L);
-    private static final LocalDate UPDATED_VALID_TO = LocalDate.now(ZoneId.systemDefault());
+    private static final Instant DEFAULT_VALID_TO = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_VALID_TO = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
     private static final String DEFAULT_CREATION_EXECUTION_ID = "AAAAAAAAAA";
     private static final String UPDATED_CREATION_EXECUTION_ID = "BBBBBBBBBB";
 
-    private static final LocalDate DEFAULT_CONTENT_ADDED_AT = LocalDate.ofEpochDay(0L);
-    private static final LocalDate UPDATED_CONTENT_ADDED_AT = LocalDate.now(ZoneId.systemDefault());
+    private static final Instant DEFAULT_CONTENT_ADDED_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_CONTENT_ADDED_AT = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
-    private static final LocalDate DEFAULT_REVOKED_SINCE = LocalDate.ofEpochDay(0L);
-    private static final LocalDate UPDATED_REVOKED_SINCE = LocalDate.now(ZoneId.systemDefault());
+    private static final Instant DEFAULT_REVOKED_SINCE = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_REVOKED_SINCE = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
     private static final String DEFAULT_REVOCATION_REASON = "AAAAAAAAAA";
     private static final String UPDATED_REVOCATION_REASON = "BBBBBBBBBB";

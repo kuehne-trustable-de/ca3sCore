@@ -21,13 +21,18 @@
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.cSR.requestedOn')" for="csr-requestedOn">Requested On</label>
-                        <div class="input-group">
-                            <input id="csr-requestedOn" type="date" class="form-control" name="requestedOn"  :class="{'valid': !$v.cSR.requestedOn.$invalid, 'invalid': $v.cSR.requestedOn.$invalid }"
-                            v-model="$v.cSR.requestedOn.$model"  required />
+                        <div class="d-flex">
+                            <input id="csr-requestedOn" type="datetime-local" class="form-control" name="requestedOn" :class="{'valid': !$v.cSR.requestedOn.$invalid, 'invalid': $v.cSR.requestedOn.$invalid }"
+                             required
+                            :value="convertDateTimeFromServer($v.cSR.requestedOn.$model)"
+                            @change="updateInstantField('requestedOn', $event)"/>
                         </div>
                         <div v-if="$v.cSR.requestedOn.$anyDirty && $v.cSR.requestedOn.$invalid">
                             <small class="form-text text-danger" v-if="!$v.cSR.requestedOn.required" v-text="$t('entity.validation.required')">
                                 This field is required.
+                            </small>
+                            <small class="form-text text-danger" v-if="!$v.cSR.requestedOn.ZonedDateTimelocal" v-text="$t('entity.validation.ZonedDateTimelocal')">
+                                This field should be a date and time.
                             </small>
                         </div>
                     </div>

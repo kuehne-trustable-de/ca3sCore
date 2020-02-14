@@ -40,7 +40,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.Optional;
 
 import org.jose4j.jwt.consumer.JwtContext;
@@ -146,7 +146,7 @@ public class ChallengeController extends ACMEController {
 //				solved = true;
 //				LOG.error("!!! ignoring callback outcome !!!");
 
-				challengeDao.setValidated(LocalDate.now());
+				challengeDao.setValidated(Instant.now());
 				challengeRepository.save(challengeDao);
 
 				LOG.debug("challengeDao set to '{}' at {}", challengeDao.getStatus().toString(), challengeDao.getValidated());

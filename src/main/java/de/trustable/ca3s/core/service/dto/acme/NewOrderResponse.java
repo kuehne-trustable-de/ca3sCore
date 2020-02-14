@@ -92,7 +92,7 @@ public class NewOrderResponse {
 	
 	public NewOrderResponse( AcmeOrder orderDao, Set<String> authUrlSet, String finalizeUrl) {
 		this.setStatus(orderDao.getStatus());
-		this.setExpires(DateUtil.asDate( orderDao.getExpires()));
+		this.setExpires(DateUtil.asDate(orderDao.getExpires()));
 	
 		Set<IdentifierResponse> identifiersResp = new HashSet<IdentifierResponse>();
 		for( AcmeIdentifier ident: orderDao.getAcmeIdentifiers()) {
@@ -130,7 +130,7 @@ public class NewOrderResponse {
 	 */
 	public void setExpires(Date expires) {
 		if( expires != null) {
-		  this.expires = new Date(expires.getTime());
+		  this.expires = expires;
 		}
 	}
 

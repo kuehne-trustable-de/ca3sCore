@@ -14,7 +14,7 @@
                         <span v-text="$t('ca3SApp.acmeNonce.expiresAt')">Expires At</span>
                     </dt>
                     <dd>
-                        <span>{{acmeNonce.expiresAt}}</span>
+                        <span v-if="acmeNonce.expiresAt">{{$d(Date.parse(acmeNonce.expiresAt), 'long') }}</span>
                     </dd>
                 </dl>
                 <button type="submit"

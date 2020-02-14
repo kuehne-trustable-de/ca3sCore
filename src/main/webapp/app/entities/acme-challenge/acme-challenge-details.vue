@@ -32,7 +32,7 @@
                         <span v-text="$t('ca3SApp.acmeChallenge.validated')">Validated</span>
                     </dt>
                     <dd>
-                        <span>{{acmeChallenge.validated}}</span>
+                        <span v-if="acmeChallenge.validated">{{$d(Date.parse(acmeChallenge.validated), 'long') }}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.acmeChallenge.status')">Status</span>

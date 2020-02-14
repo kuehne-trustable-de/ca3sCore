@@ -7,7 +7,7 @@
         },
         {
             "fieldName": "expiresAt",
-            "fieldType": "LocalDate"
+            "fieldType": "Instant"
         }
     ],
     "relationships": [],

@@ -1,14 +1,12 @@
 package de.trustable.ca3s.core.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,7 +17,6 @@ import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
  */
 @Entity
 @Table(name = "csr")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @NamedQueries({
 	@NamedQuery(name = "CSR.findByPublicKeyHash",
 	query = "SELECT c FROM CSR c WHERE " +
@@ -41,7 +38,7 @@ public class CSR implements Serializable {
 
     @NotNull
     @Column(name = "requested_on", nullable = false)
-    private LocalDate requestedOn;
+    private Instant requestedOn;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -72,15 +69,12 @@ public class CSR implements Serializable {
     private String subjectPublicKeyInfoBase64;
 
     @OneToMany(mappedBy = "csr")
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<RDN> rdns = new HashSet<>();
 
     @OneToMany(mappedBy = "csr")
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<RequestAttribute> ras = new HashSet<>();
 
     @OneToMany(mappedBy = "csr")
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<CsrAttribute> csrAttributes = new HashSet<>();
 
     @ManyToOne
@@ -113,16 +107,16 @@ public class CSR implements Serializable {
         this.csrBase64 = csrBase64;
     }
 
-    public LocalDate getRequestedOn() {
+    public Instant getRequestedOn() {
         return requestedOn;
     }
 
-    public CSR requestedOn(LocalDate requestedOn) {
+    public CSR requestedOn(Instant requestedOn) {
         this.requestedOn = requestedOn;
         return this;
     }
 
-    public void setRequestedOn(LocalDate requestedOn) {
+    public void setRequestedOn(Instant requestedOn) {
         this.requestedOn = requestedOn;
     }
 

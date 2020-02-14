@@ -11,8 +11,6 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -121,7 +119,7 @@ public class DirectoryConnector {
 	public boolean importCertifiateFromFile(String filename) {
 		
 		File certFile = new File(filename);
-		LocalDate lastChangeDate = Instant.ofEpochMilli(certFile.lastModified()).atZone(ZoneId.systemDefault()).toLocalDate();;
+		Instant lastChangeDate = Instant.ofEpochMilli(certFile.lastModified());
 
 		List<ImportedURL> impUrlList = importedURLRepository.findEntityByUrl(certFile.toURI().toString());
 		if( impUrlList.isEmpty()) {
@@ -152,9 +150,10 @@ public class DirectoryConnector {
 
 		}else {
 			ImportedURL impUrl = impUrlList.get(0);
-			if( impUrl.getImportDate().equals(lastChangeDate)) {
-				LOGGER.debug("ImportedURL for '{}' has a different import date {} compared to the files lastChangeDate {}", impUrl.getName(), impUrl.getImportDate(), lastChangeDate);
-
+			if( impUrl.getImportDate().getEpochSecond() != lastChangeDate.getEpochSecond()) {
+				LOGGER.debug("ImportedURL for '{}' has a different import date {} compared to the files lastChangeDate {}", 
+						impUrl.getName(), impUrl.getImportDate().getEpochSecond(), lastChangeDate.getEpochSecond());
+/*
 				try {
 					byte[] content = Files.readAllBytes(Paths.get(filename));
 					Certificate certDao = certUtil.createCertificate(content, null, null, true);
@@ -174,7 +173,8 @@ public class DirectoryConnector {
 					LOGGER.info("reading and re-importing certificate from '{}' causes {}",
 							filename, e.getLocalizedMessage());
 				}
-
+*/
+				
 			}else {
 //				LOGGER.debug("certificate unchanged at '{}'", filename);
 			}

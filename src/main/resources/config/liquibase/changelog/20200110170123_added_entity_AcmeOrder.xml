@@ -22,13 +22,13 @@
             <column name="status" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
-            <column name="expires" type="date">
+            <column name="expires" type="datetime">
                 <constraints nullable="true" />
             </column>
-            <column name="not_before" type="date">
+            <column name="not_before" type="datetime">
                 <constraints nullable="true" />
             </column>
-            <column name="not_after" type="date">
+            <column name="not_after" type="datetime">
                 <constraints nullable="true" />
             </column>
             <column name="error" type="varchar(255)">
@@ -51,6 +51,9 @@
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
+        <dropDefaultValue tableName="acme_order" columnName="expires" columnDataType="datetime"/>
+        <dropDefaultValue tableName="acme_order" columnName="not_before" columnDataType="datetime"/>
+        <dropDefaultValue tableName="acme_order" columnName="not_after" columnDataType="datetime"/>
     </changeSet>
 
     <changeSet id="20200110170123-1-relations" author="jhipster">
@@ -74,9 +77,9 @@
             <column name="id" type="numeric"/>
             <column name="order_id" type="numeric"/>
             <column name="status" type="string"/>
-            <column name="expires" type="date"/>
-            <column name="not_before" type="date"/>
-            <column name="not_after" type="date"/>
+            <column name="expires" type="datetime"/>
+            <column name="not_before" type="datetime"/>
+            <column name="not_after" type="datetime"/>
             <column name="error" type="string"/>
             <column name="finalize_url" type="string"/>
             <column name="certificate_url" type="string"/>

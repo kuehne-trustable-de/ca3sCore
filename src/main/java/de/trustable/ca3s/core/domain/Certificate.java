@@ -5,7 +5,7 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -102,20 +102,20 @@ import java.util.Set;
 
     @NotNull
     @Column(name = "valid_from", nullable = false)
-    private LocalDate validFrom;
+    private Instant validFrom;
 
     @NotNull
     @Column(name = "valid_to", nullable = false)
-    private LocalDate validTo;
+    private Instant validTo;
 
     @Column(name = "creation_execution_id")
     private String creationExecutionId;
 
     @Column(name = "content_added_at")
-    private LocalDate contentAddedAt;
+    private Instant contentAddedAt;
 
     @Column(name = "revoked_since")
-    private LocalDate revokedSince;
+    private Instant revokedSince;
 
     @Column(name = "revocation_reason")
     private String revocationReason;
@@ -268,29 +268,29 @@ import java.util.Set;
         this.serial = serial;
     }
 
-    public LocalDate getValidFrom() {
+    public Instant getValidFrom() {
         return validFrom;
     }
 
-    public Certificate validFrom(LocalDate validFrom) {
+    public Certificate validFrom(Instant validFrom) {
         this.validFrom = validFrom;
         return this;
     }
 
-    public void setValidFrom(LocalDate validFrom) {
+    public void setValidFrom(Instant validFrom) {
         this.validFrom = validFrom;
     }
 
-    public LocalDate getValidTo() {
+    public Instant getValidTo() {
         return validTo;
     }
 
-    public Certificate validTo(LocalDate validTo) {
+    public Certificate validTo(Instant validTo) {
         this.validTo = validTo;
         return this;
     }
 
-    public void setValidTo(LocalDate validTo) {
+    public void setValidTo(Instant validTo) {
         this.validTo = validTo;
     }
 
@@ -307,29 +307,29 @@ import java.util.Set;
         this.creationExecutionId = creationExecutionId;
     }
 
-    public LocalDate getContentAddedAt() {
+    public Instant getContentAddedAt() {
         return contentAddedAt;
     }
 
-    public Certificate contentAddedAt(LocalDate contentAddedAt) {
+    public Certificate contentAddedAt(Instant contentAddedAt) {
         this.contentAddedAt = contentAddedAt;
         return this;
     }
 
-    public void setContentAddedAt(LocalDate contentAddedAt) {
+    public void setContentAddedAt(Instant contentAddedAt) {
         this.contentAddedAt = contentAddedAt;
     }
 
-    public LocalDate getRevokedSince() {
+    public Instant getRevokedSince() {
         return revokedSince;
     }
 
-    public Certificate revokedSince(LocalDate revokedSince) {
+    public Certificate revokedSince(Instant revokedSince) {
         this.revokedSince = revokedSince;
         return this;
     }
 
-    public void setRevokedSince(LocalDate revokedSince) {
+    public void setRevokedSince(Instant revokedSince) {
         this.revokedSince = revokedSince;
     }
 

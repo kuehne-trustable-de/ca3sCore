@@ -3,7 +3,7 @@ import axios from 'axios';
 import { format } from 'date-fns';
 
 import * as config from '@/shared/config/config';
-import { DATE_FORMAT } from '@/shared/date/filters';
+import { DATE_TIME_FORMAT } from '@/shared/date/filters';
 import AcmeNonceService from '@/entities/acme-nonce/acme-nonce.service';
 import { AcmeNonce } from '@/shared/model/acme-nonce.model';
 
@@ -31,7 +31,7 @@ describe('Service Tests', () => {
       it('should find an element', async () => {
         const returnedFromService = Object.assign(
           {
-            expiresAt: format(currentDate, DATE_FORMAT)
+            expiresAt: format(currentDate, DATE_TIME_FORMAT)
           },
           elemDefault
         );
@@ -45,7 +45,7 @@ describe('Service Tests', () => {
         const returnedFromService = Object.assign(
           {
             id: 0,
-            expiresAt: format(currentDate, DATE_FORMAT)
+            expiresAt: format(currentDate, DATE_TIME_FORMAT)
           },
           elemDefault
         );
@@ -66,7 +66,7 @@ describe('Service Tests', () => {
         const returnedFromService = Object.assign(
           {
             nonceValue: 'BBBBBB',
-            expiresAt: format(currentDate, DATE_FORMAT)
+            expiresAt: format(currentDate, DATE_TIME_FORMAT)
           },
           elemDefault
         );
@@ -87,7 +87,7 @@ describe('Service Tests', () => {
         const returnedFromService = Object.assign(
           {
             nonceValue: 'BBBBBB',
-            expiresAt: format(currentDate, DATE_FORMAT)
+            expiresAt: format(currentDate, DATE_TIME_FORMAT)
           },
           elemDefault
         );

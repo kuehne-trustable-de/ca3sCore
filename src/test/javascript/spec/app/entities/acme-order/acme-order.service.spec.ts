@@ -3,7 +3,7 @@ import axios from 'axios';
 import { format } from 'date-fns';
 
 import * as config from '@/shared/config/config';
-import { DATE_FORMAT } from '@/shared/date/filters';
+import { DATE_TIME_FORMAT } from '@/shared/date/filters';
 import AcmeOrderService from '@/entities/acme-order/acme-order.service';
 import { AcmeOrder, AcmeOrderStatus } from '@/shared/model/acme-order.model';
 
@@ -31,9 +31,9 @@ describe('Service Tests', () => {
       it('should find an element', async () => {
         const returnedFromService = Object.assign(
           {
-            expires: format(currentDate, DATE_FORMAT),
-            notBefore: format(currentDate, DATE_FORMAT),
-            notAfter: format(currentDate, DATE_FORMAT)
+            expires: format(currentDate, DATE_TIME_FORMAT),
+            notBefore: format(currentDate, DATE_TIME_FORMAT),
+            notAfter: format(currentDate, DATE_TIME_FORMAT)
           },
           elemDefault
         );
@@ -47,9 +47,9 @@ describe('Service Tests', () => {
         const returnedFromService = Object.assign(
           {
             id: 0,
-            expires: format(currentDate, DATE_FORMAT),
-            notBefore: format(currentDate, DATE_FORMAT),
-            notAfter: format(currentDate, DATE_FORMAT)
+            expires: format(currentDate, DATE_TIME_FORMAT),
+            notBefore: format(currentDate, DATE_TIME_FORMAT),
+            notAfter: format(currentDate, DATE_TIME_FORMAT)
           },
           elemDefault
         );
@@ -73,9 +73,9 @@ describe('Service Tests', () => {
           {
             orderId: 1,
             status: 'BBBBBB',
-            expires: format(currentDate, DATE_FORMAT),
-            notBefore: format(currentDate, DATE_FORMAT),
-            notAfter: format(currentDate, DATE_FORMAT),
+            expires: format(currentDate, DATE_TIME_FORMAT),
+            notBefore: format(currentDate, DATE_TIME_FORMAT),
+            notAfter: format(currentDate, DATE_TIME_FORMAT),
             error: 'BBBBBB',
             finalizeUrl: 'BBBBBB',
             certificateUrl: 'BBBBBB'
@@ -102,9 +102,9 @@ describe('Service Tests', () => {
           {
             orderId: 1,
             status: 'BBBBBB',
-            expires: format(currentDate, DATE_FORMAT),
-            notBefore: format(currentDate, DATE_FORMAT),
-            notAfter: format(currentDate, DATE_FORMAT),
+            expires: format(currentDate, DATE_TIME_FORMAT),
+            notBefore: format(currentDate, DATE_TIME_FORMAT),
+            notAfter: format(currentDate, DATE_TIME_FORMAT),
             error: 'BBBBBB',
             finalizeUrl: 'BBBBBB',
             certificateUrl: 'BBBBBB'

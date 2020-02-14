@@ -20,19 +20,19 @@
                         <span v-text="$t('ca3SApp.acmeOrder.expires')">Expires</span>
                     </dt>
                     <dd>
-                        <span>{{acmeOrder.expires}}</span>
+                        <span v-if="acmeOrder.expires">{{$d(Date.parse(acmeOrder.expires), 'long') }}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.acmeOrder.notBefore')">Not Before</span>
                     </dt>
                     <dd>
-                        <span>{{acmeOrder.notBefore}}</span>
+                        <span v-if="acmeOrder.notBefore">{{$d(Date.parse(acmeOrder.notBefore), 'long') }}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.acmeOrder.notAfter')">Not After</span>
                     </dt>
                     <dd>
-                        <span>{{acmeOrder.notAfter}}</span>
+                        <span v-if="acmeOrder.notAfter">{{$d(Date.parse(acmeOrder.notAfter), 'long') }}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.acmeOrder.error')">Error</span>

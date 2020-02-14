@@ -39,23 +39,29 @@
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.acmeOrder.expires')" for="acme-order-expires">Expires</label>
-                        <div class="input-group">
-                            <input id="acme-order-expires" type="date" class="form-control" name="expires"  :class="{'valid': !$v.acmeOrder.expires.$invalid, 'invalid': $v.acmeOrder.expires.$invalid }"
-                            v-model="$v.acmeOrder.expires.$model"  />
+                        <div class="d-flex">
+                            <input id="acme-order-expires" type="datetime-local" class="form-control" name="expires" :class="{'valid': !$v.acmeOrder.expires.$invalid, 'invalid': $v.acmeOrder.expires.$invalid }"
+                            
+                            :value="convertDateTimeFromServer($v.acmeOrder.expires.$model)"
+                            @change="updateInstantField('expires', $event)"/>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.acmeOrder.notBefore')" for="acme-order-notBefore">Not Before</label>
-                        <div class="input-group">
-                            <input id="acme-order-notBefore" type="date" class="form-control" name="notBefore"  :class="{'valid': !$v.acmeOrder.notBefore.$invalid, 'invalid': $v.acmeOrder.notBefore.$invalid }"
-                            v-model="$v.acmeOrder.notBefore.$model"  />
+                        <div class="d-flex">
+                            <input id="acme-order-notBefore" type="datetime-local" class="form-control" name="notBefore" :class="{'valid': !$v.acmeOrder.notBefore.$invalid, 'invalid': $v.acmeOrder.notBefore.$invalid }"
+                            
+                            :value="convertDateTimeFromServer($v.acmeOrder.notBefore.$model)"
+                            @change="updateInstantField('notBefore', $event)"/>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.acmeOrder.notAfter')" for="acme-order-notAfter">Not After</label>
-                        <div class="input-group">
-                            <input id="acme-order-notAfter" type="date" class="form-control" name="notAfter"  :class="{'valid': !$v.acmeOrder.notAfter.$invalid, 'invalid': $v.acmeOrder.notAfter.$invalid }"
-                            v-model="$v.acmeOrder.notAfter.$model"  />
+                        <div class="d-flex">
+                            <input id="acme-order-notAfter" type="datetime-local" class="form-control" name="notAfter" :class="{'valid': !$v.acmeOrder.notAfter.$invalid, 'invalid': $v.acmeOrder.notAfter.$invalid }"
+                            
+                            :value="convertDateTimeFromServer($v.acmeOrder.notAfter.$model)"
+                            @change="updateInstantField('notAfter', $event)"/>
                         </div>
                     </div>
                     <div class="form-group">

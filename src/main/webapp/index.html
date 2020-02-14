@@ -12,6 +12,7 @@
     <link rel="shortcut icon" href="favicon.ico" />
     <link rel="manifest" href="manifest.webapp" />
     <link rel="stylesheet" href="content/css/loading.css">
+    <link rel="stylesheet" href="content/css/additional-styles.css">
 
     <!-- jhipster-needle-add-resources-to-root - JHipster will add new resources here -->
 </head>
@@ -114,7 +115,8 @@
             background-color: rgba(0, 0, 0, 0.05);
         }
         .table-responsive td {
-            border-right: 1px solid #aaa;
+            border: 1px solid #aaa;
+            padding: 0px 2px 0px 2px;
         }
         .table-responsive thead, .table-responsive  thead tr {
             background: CadetBlue;
@@ -126,6 +128,29 @@
         div.table-responsive table thead tr th{
             border: 1px solid #aaa;
         }
+
+        selectorField {
+            background: rgba(252, 252, 252, 1);
+            text-align: left;
+        }
+
+        .largeSelector {
+            width: 72%;
+        }
+
+        .midSelector {
+            width: 15%;
+        }
+
+        .smallSelector {
+            width: 10%;
+        }
+
+        .addRemoveSelector {
+            padding: 4px 4px;;
+            font-weight: bold;
+        }
+
     </style>
 
     <!-- uncomment this for adding service worker

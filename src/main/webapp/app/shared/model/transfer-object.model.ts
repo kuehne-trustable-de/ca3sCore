@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2020-02-10 12:30:38.
+// Generated using typescript-generator version 2.19.577 on 2020-02-13 13:23:07.
 
 export interface IUploadPrecheckData {
     passphrase?: string;
@@ -20,6 +20,35 @@ export interface IX509CertificateHolderShallow {
     sans?: string[];
 }
 
+export interface ICertificateView extends ISerializable {
+    id?: number;
+    tbsDigest?: string;
+    subject?: string;
+    issuer?: string;
+    type?: string;
+    description?: string;
+    serial?: string;
+    validFrom?: Date;
+    validTo?: Date;
+    contentAddedAt?: Date;
+    revokedSince?: Date;
+    revocationReason?: string;
+    revoked?: boolean;
+}
+
+export interface ICertificateFilter extends ISerializable {
+    attributeName?: string;
+    attributeValue?: string;
+    selector?: ISelector;
+}
+
+export interface ICertificateSelectionData extends ISerializable {
+    itemName?: string;
+    itemType?: string;
+    itemDefaultSelector?: ISelector;
+    itemDefaultValue?: string;
+}
+
 export interface IPkcsXXData {
     dataType?: IPKCSDataType;
     p10Holder?: IPkcs10RequestHolderShallow;
@@ -27,6 +56,9 @@ export interface IPkcsXXData {
     certificatePresentInDB?: boolean;
     publicKeyPresentInDB?: boolean;
     certificateId?: number;
+}
+
+export interface ISerializable {
 }
 
 export interface IPkcs10RequestHolderShallow {
@@ -38,5 +70,7 @@ export interface IPkcs10RequestHolderShallow {
     subject?: string;
     publicKeyAlgorithmName?: string;
 }
+
+export type ISelector = "EQUALS" | "LIKE" | "NOTLIKE" | "LESSTHAN" | "GREATERTHAN" | "ISTRUE"| "ISFALSE";
 
 export type IPKCSDataType = "CSR" | "X509_CERTIFICATE" | "UNKNOWN";

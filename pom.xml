@@ -618,6 +618,10 @@
 					<classes>
 						<class>de.trustable.ca3s.core.web.rest.data.UploadPrecheckData</class>
 						<class>de.trustable.ca3s.core.web.rest.data.X509CertificateHolderShallow</class>
+						<class>de.trustable.ca3s.core.web.rest.data.CertificateView</class>
+						<class>de.trustable.ca3s.core.web.rest.data.CertificateFilter</class>
+						<class>de.trustable.ca3s.core.web.rest.data.CertificateSelectionData</class>
+						<class>de.trustable.ca3s.core.web.rest.data.Selector</class>
 						<class>de.trustable.ca3s.core.web.rest.data.PkcsXXData</class>
 					</classes>
 					<addTypeNamePrefix>I</addTypeNamePrefix>

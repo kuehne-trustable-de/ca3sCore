@@ -54,9 +54,11 @@
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.acmeChallenge.validated')" for="acme-challenge-validated">Validated</label>
-                        <div class="input-group">
-                            <input id="acme-challenge-validated" type="date" class="form-control" name="validated"  :class="{'valid': !$v.acmeChallenge.validated.$invalid, 'invalid': $v.acmeChallenge.validated.$invalid }"
-                            v-model="$v.acmeChallenge.validated.$model"  />
+                        <div class="d-flex">
+                            <input id="acme-challenge-validated" type="datetime-local" class="form-control" name="validated" :class="{'valid': !$v.acmeChallenge.validated.$invalid, 'invalid': $v.acmeChallenge.validated.$invalid }"
+                            
+                            :value="convertDateTimeFromServer($v.acmeChallenge.validated.$model)"
+                            @change="updateInstantField('validated', $event)"/>
                         </div>
                     </div>
                     <div class="form-group">

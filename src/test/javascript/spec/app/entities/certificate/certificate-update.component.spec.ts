@@ -3,6 +3,10 @@ import { shallowMount, createLocalVue, Wrapper } from '@vue/test-utils';
 import sinon, { SinonStubbedInstance } from 'sinon';
 import Router from 'vue-router';
 
+import format from 'date-fns/format';
+import parseISO from 'date-fns/parseISO';
+import { DATE_TIME_LONG_FORMAT } from '@/shared/date/filters';
+
 import AlertService from '@/shared/alert/alert.service';
 import * as config from '@/shared/config/config';
 import CertificateUpdateComponent from '@/entities/certificate/certificate-update.vue';
@@ -46,6 +50,23 @@ describe('Component Tests', () => {
         }
       });
       comp = wrapper.vm;
+    });
+
+    describe('load', () => {
+      it('Should convert date from string', () => {
+        // GIVEN
+        const date = new Date('2019-10-15T11:42:02Z');
+
+        // WHEN
+        const convertedDate = comp.convertDateTimeFromServer(date);
+
+        // THEN
+        expect(convertedDate).toEqual(format(date, DATE_TIME_LONG_FORMAT));
+      });
+
+      it('Should not convert date if date is not present', () => {
+        expect(comp.convertDateTimeFromServer(null)).toBeNull();
+      });
     });
 
     describe('save', () => {

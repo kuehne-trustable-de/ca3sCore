@@ -30,7 +30,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequestUri;
 
 import java.net.URI;
-import java.time.LocalDate;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -270,7 +271,7 @@ public class NewOrderController extends ACMEController {
 
   private static final Logger LOG = LoggerFactory.getLogger(NewOrderController.class);
   
-  private static final int DEFAULT_ORDER_VALID_DAYS = 5;
+  private static final long DEFAULT_ORDER_VALID_DAYS = 5L;
 
   @Autowired
   private AcmeOrderRepository orderRepository;
@@ -336,8 +337,8 @@ public class NewOrderController extends ACMEController {
 		
 		orderDao.setStatus(AcmeOrderStatus.PENDING);
 
-		LocalDate now = LocalDate.now();
-		orderDao.setExpires(now.plusDays(DEFAULT_ORDER_VALID_DAYS));
+		Instant now = Instant.now();
+		orderDao.setExpires(now.plus(DEFAULT_ORDER_VALID_DAYS, ChronoUnit.DAYS));
 		orderDao.setNotBefore(now);
 		orderDao.setNotAfter(orderDao.getExpires());
 

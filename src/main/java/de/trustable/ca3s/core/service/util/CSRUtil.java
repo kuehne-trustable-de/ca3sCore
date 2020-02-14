@@ -2,7 +2,7 @@ package de.trustable.ca3s.core.service.util;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Date;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -108,7 +108,7 @@ public class CSRUtil {
 
 		// not yet ...
 //				setProcessInstanceId(processInstanceId);
-		csr.setRequestedOn(DateUtil.asLocalDate(new Date()));
+		csr.setRequestedOn(Instant.now());
 		
 		LOG.debug("RDN arr #" + p10ReqHolder.getSubjectRDNs().length);
 

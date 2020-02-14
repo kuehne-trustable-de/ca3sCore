@@ -86,7 +86,7 @@ public class ChallengeResponse {
 		if( challengeDao.getValidated() == null) {
 			this.setValidated(null);
 		}else {
-			this.setValidated(DateUtil.asDate( challengeDao.getValidated()));
+			this.setValidated( DateUtil.asDate(challengeDao.getValidated()));
 		}
 	}
 	
@@ -158,7 +158,7 @@ public class ChallengeResponse {
 	 */
 	public void setValidated(Date validated) {
 		if( validated != null) {
-			this.validated = new Date(validated.getTime());
+			this.validated = validated;
 		}
 
 	}

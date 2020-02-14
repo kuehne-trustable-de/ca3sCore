@@ -3,7 +3,7 @@ package de.trustable.ca3s.core.domain;
 import javax.persistence.*;
 
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.Instant;
 
 /**
  * A AcmeNonce.
@@ -32,7 +32,7 @@ public class AcmeNonce implements Serializable {
     private String nonceValue;
 
     @Column(name = "expires_at")
-    private LocalDate expiresAt;
+    private Instant expiresAt;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -56,16 +56,16 @@ public class AcmeNonce implements Serializable {
         this.nonceValue = nonceValue;
     }
 
-    public LocalDate getExpiresAt() {
+    public Instant getExpiresAt() {
         return expiresAt;
     }
 
-    public AcmeNonce expiresAt(LocalDate expiresAt) {
+    public AcmeNonce expiresAt(Instant expiresAt) {
         this.expiresAt = expiresAt;
         return this;
     }
 
-    public void setExpiresAt(LocalDate expiresAt) {
+    public void setExpiresAt(Instant expiresAt) {
         this.expiresAt = expiresAt;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove

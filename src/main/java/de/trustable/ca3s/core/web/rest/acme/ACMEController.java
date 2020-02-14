@@ -340,7 +340,7 @@ public class ACMEController {
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DATE, DEFAULT_NONCE_VALID_DAYS); // minus number would decrement the days
 
-		nonce.setExpiresAt(DateUtil.asLocalDate(new Date(cal.getTimeInMillis())));
+		nonce.setExpiresAt(DateUtil.asInstant(new Date(cal.getTimeInMillis())));
 		nonceRepository.save(nonce);
 
 		LOG.debug("New Nonce {} created", nonce.getNonceValue());

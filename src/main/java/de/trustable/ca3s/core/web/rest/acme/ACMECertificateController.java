@@ -37,7 +37,7 @@ import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -362,7 +362,7 @@ public class ACMECertificateController extends ACMEController {
 		bpmnUtil.startCertificateRevoctionProcess(certDao, crlReason, revocationDate);
 
 		certDao.setRevoked(true);
-		certDao.setRevokedSince(LocalDate.now());
+		certDao.setRevokedSince(Instant.now());
 		certDao.setRevocationReason(crlReasonStr);
 		certDao.setRevocationExecutionId("39");
 

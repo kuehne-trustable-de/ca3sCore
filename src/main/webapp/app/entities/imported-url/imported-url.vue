@@ -37,7 +37,7 @@
                         <router-link :to="{name: 'ImportedURLView', params: {importedURLId: importedURL.id}}">{{importedURL.id}}</router-link>
                     </td>
                     <td>{{importedURL.name}}</td>
-                    <td>{{importedURL.importDate}}</td>
+                    <td v-if="importedURL.importDate"> {{$d(Date.parse(importedURL.importDate), 'short') }}</td>
                     <td class="text-right">
                         <div class="btn-group">
                             <router-link :to="{name: 'ImportedURLView', params: {importedURLId: importedURL.id}}" tag="button" class="btn btn-info btn-sm details">

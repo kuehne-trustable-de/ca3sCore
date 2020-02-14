@@ -6,6 +6,7 @@
       "home": "Home",
       "check": "Check",
       "request": "Request certificate",
+      "certificates": "Certificates",
       "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
       "entities": {
         "main": "Entities",

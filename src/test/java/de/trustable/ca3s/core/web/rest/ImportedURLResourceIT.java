@@ -20,8 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
 import javax.persistence.EntityManager;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
@@ -39,8 +39,8 @@ public class ImportedURLResourceIT {
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
     private static final String UPDATED_NAME = "BBBBBBBBBB";
 
-    private static final LocalDate DEFAULT_IMPORT_DATE = LocalDate.ofEpochDay(0L);
-    private static final LocalDate UPDATED_IMPORT_DATE = LocalDate.now(ZoneId.systemDefault());
+    private static final Instant DEFAULT_IMPORT_DATE = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_IMPORT_DATE = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
     @Autowired
     private ImportedURLRepository importedURLRepository;

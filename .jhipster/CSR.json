@@ -11,7 +11,7 @@
         },
         {
             "fieldName": "requestedOn",
-            "fieldType": "LocalDate",
+            "fieldType": "Instant",
             "fieldValidateRules": [
                 "required"
             ]

@@ -8,7 +8,7 @@ import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -101,7 +101,7 @@ public class ScepServletImpl extends ScepServlet {
     	
     	List<Certificate> certList = certRepository.findByAttributeValue( CertificateAttribute.ATTRIBUTE_SCEP_RECIPIENT, "true");
     	
-    	LocalDate now = LocalDate.now();
+    	Instant now = Instant.now();
     	Certificate currentRecepientCert = null;
     	for( Certificate recCert: certList){
     		

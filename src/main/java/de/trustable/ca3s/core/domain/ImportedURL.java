@@ -4,7 +4,7 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.Instant;
 
 /**
  * A ImportedURL.
@@ -31,7 +31,7 @@ public class ImportedURL implements Serializable {
 
     @NotNull
     @Column(name = "import_date", nullable = false)
-    private LocalDate importDate;
+    private Instant importDate;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -55,16 +55,16 @@ public class ImportedURL implements Serializable {
         this.name = name;
     }
 
-    public LocalDate getImportDate() {
+    public Instant getImportDate() {
         return importDate;
     }
 
-    public ImportedURL importDate(LocalDate importDate) {
+    public ImportedURL importDate(Instant importDate) {
         this.importDate = importDate;
         return this;
     }
 
-    public void setImportDate(LocalDate importDate) {
+    public void setImportDate(Instant importDate) {
         this.importDate = importDate;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove

@@ -5,7 +5,7 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.Instant;
 
 import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
 
@@ -39,7 +39,7 @@ public class AcmeChallenge implements Serializable {
     private String token;
 
     @Column(name = "validated")
-    private LocalDate validated;
+    private Instant validated;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -111,16 +111,16 @@ public class AcmeChallenge implements Serializable {
         this.token = token;
     }
 
-    public LocalDate getValidated() {
+    public Instant getValidated() {
         return validated;
     }
 
-    public AcmeChallenge validated(LocalDate validated) {
+    public AcmeChallenge validated(Instant validated) {
         this.validated = validated;
         return this;
     }
 
-    public void setValidated(LocalDate validated) {
+    public void setValidated(Instant validated) {
         this.validated = validated;
     }
 

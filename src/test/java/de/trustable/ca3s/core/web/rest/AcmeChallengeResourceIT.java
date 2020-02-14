@@ -20,8 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
 import javax.persistence.EntityManager;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
@@ -49,8 +49,8 @@ public class AcmeChallengeResourceIT {
     private static final String DEFAULT_TOKEN = "AAAAAAAAAA";
     private static final String UPDATED_TOKEN = "BBBBBBBBBB";
 
-    private static final LocalDate DEFAULT_VALIDATED = LocalDate.ofEpochDay(0L);
-    private static final LocalDate UPDATED_VALIDATED = LocalDate.now(ZoneId.systemDefault());
+    private static final Instant DEFAULT_VALIDATED = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_VALIDATED = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
     private static final ChallengeStatus DEFAULT_STATUS = ChallengeStatus.PENDING;
     private static final ChallengeStatus UPDATED_STATUS = ChallengeStatus.VALID;

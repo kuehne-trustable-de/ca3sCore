@@ -3,7 +3,7 @@ import axios from 'axios';
 import { format } from 'date-fns';
 
 import * as config from '@/shared/config/config';
-import { DATE_FORMAT } from '@/shared/date/filters';
+import { DATE_TIME_FORMAT } from '@/shared/date/filters';
 import CertificateService from '@/entities/certificate/certificate.service';
 import { Certificate } from '@/shared/model/certificate.model';
 
@@ -51,10 +51,10 @@ describe('Service Tests', () => {
       it('should find an element', async () => {
         const returnedFromService = Object.assign(
           {
-            validFrom: format(currentDate, DATE_FORMAT),
-            validTo: format(currentDate, DATE_FORMAT),
-            contentAddedAt: format(currentDate, DATE_FORMAT),
-            revokedSince: format(currentDate, DATE_FORMAT)
+            validFrom: format(currentDate, DATE_TIME_FORMAT),
+            validTo: format(currentDate, DATE_TIME_FORMAT),
+            contentAddedAt: format(currentDate, DATE_TIME_FORMAT),
+            revokedSince: format(currentDate, DATE_TIME_FORMAT)
           },
           elemDefault
         );
@@ -68,10 +68,10 @@ describe('Service Tests', () => {
         const returnedFromService = Object.assign(
           {
             id: 0,
-            validFrom: format(currentDate, DATE_FORMAT),
-            validTo: format(currentDate, DATE_FORMAT),
-            contentAddedAt: format(currentDate, DATE_FORMAT),
-            revokedSince: format(currentDate, DATE_FORMAT)
+            validFrom: format(currentDate, DATE_TIME_FORMAT),
+            validTo: format(currentDate, DATE_TIME_FORMAT),
+            contentAddedAt: format(currentDate, DATE_TIME_FORMAT),
+            revokedSince: format(currentDate, DATE_TIME_FORMAT)
           },
           elemDefault
         );
@@ -103,11 +103,11 @@ describe('Service Tests', () => {
             authorityKeyIdentifier: 'BBBBBB',
             fingerprint: 'BBBBBB',
             serial: 'BBBBBB',
-            validFrom: format(currentDate, DATE_FORMAT),
-            validTo: format(currentDate, DATE_FORMAT),
+            validFrom: format(currentDate, DATE_TIME_FORMAT),
+            validTo: format(currentDate, DATE_TIME_FORMAT),
             creationExecutionId: 'BBBBBB',
-            contentAddedAt: format(currentDate, DATE_FORMAT),
-            revokedSince: format(currentDate, DATE_FORMAT),
+            contentAddedAt: format(currentDate, DATE_TIME_FORMAT),
+            revokedSince: format(currentDate, DATE_TIME_FORMAT),
             revocationReason: 'BBBBBB',
             revoked: true,
             revocationExecutionId: 'BBBBBB',
@@ -143,11 +143,11 @@ describe('Service Tests', () => {
             authorityKeyIdentifier: 'BBBBBB',
             fingerprint: 'BBBBBB',
             serial: 'BBBBBB',
-            validFrom: format(currentDate, DATE_FORMAT),
-            validTo: format(currentDate, DATE_FORMAT),
+            validFrom: format(currentDate, DATE_TIME_FORMAT),
+            validTo: format(currentDate, DATE_TIME_FORMAT),
             creationExecutionId: 'BBBBBB',
-            contentAddedAt: format(currentDate, DATE_FORMAT),
-            revokedSince: format(currentDate, DATE_FORMAT),
+            contentAddedAt: format(currentDate, DATE_TIME_FORMAT),
+            revokedSince: format(currentDate, DATE_TIME_FORMAT),
             revocationReason: 'BBBBBB',
             revoked: true,
             revocationExecutionId: 'BBBBBB',

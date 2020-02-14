@@ -47,9 +47,9 @@
                     </td>
                     <td>{{acmeOrder.orderId}}</td>
                     <td v-text="$t('ca3SApp.AcmeOrderStatus.' + acmeOrder.status)">{{acmeOrder.status}}</td>
-                    <td>{{acmeOrder.expires}}</td>
-                    <td>{{acmeOrder.notBefore}}</td>
-                    <td>{{acmeOrder.notAfter}}</td>
+                    <td v-if="acmeOrder.expires"> {{$d(Date.parse(acmeOrder.expires), 'short') }}</td>
+                    <td v-if="acmeOrder.notBefore"> {{$d(Date.parse(acmeOrder.notBefore), 'short') }}</td>
+                    <td v-if="acmeOrder.notAfter"> {{$d(Date.parse(acmeOrder.notAfter), 'short') }}</td>
                     <td>{{acmeOrder.error}}</td>
                     <td>{{acmeOrder.finalizeUrl}}</td>
                     <td>{{acmeOrder.certificateUrl}}</td>

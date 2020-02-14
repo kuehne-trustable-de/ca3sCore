@@ -14,7 +14,7 @@
                         <span v-text="$t('ca3SApp.cSR.requestedOn')">Requested On</span>
                     </dt>
                     <dd>
-                        <span>{{cSR.requestedOn}}</span>
+                        <span v-if="cSR.requestedOn">{{$d(Date.parse(cSR.requestedOn), 'long') }}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.cSR.status')">Status</span>

@@ -45,7 +45,7 @@
                     <td>{{acmeChallenge.type}}</td>
                     <td>{{acmeChallenge.value}}</td>
                     <td>{{acmeChallenge.token}}</td>
-                    <td>{{acmeChallenge.validated}}</td>
+                    <td v-if="acmeChallenge.validated"> {{$d(Date.parse(acmeChallenge.validated), 'short') }}</td>
                     <td v-text="$t('ca3SApp.ChallengeStatus.' + acmeChallenge.status)">{{acmeChallenge.status}}</td>
                     <td>
                         <div v-if="acmeChallenge.acmeAuthorization">

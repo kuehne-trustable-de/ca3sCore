@@ -36,6 +36,13 @@
                     </span>
                 </b-nav-item>
                 
+                <b-nav-item v-if="authenticated" to="/cert-list" exact>
+                    <span>
+                        <font-awesome-icon icon="id-card" />
+                        <span v-text="$t('global.menu.certificates')">Certificates</span>
+                    </span>
+                </b-nav-item>
+                
                 <b-nav-item-dropdown
                     id="entity-menu"
                     v-if="authenticated"

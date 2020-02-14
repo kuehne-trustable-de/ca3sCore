@@ -62,13 +62,13 @@
                         <span v-text="$t('ca3SApp.certificate.validFrom')">Valid From</span>
                     </dt>
                     <dd>
-                        <span>{{certificate.validFrom}}</span>
+                        <span v-if="certificate.validFrom">{{$d(Date.parse(certificate.validFrom), 'long') }}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.validTo')">Valid To</span>
                     </dt>
                     <dd>
-                        <span>{{certificate.validTo}}</span>
+                        <span v-if="certificate.validTo">{{$d(Date.parse(certificate.validTo), 'long') }}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.creationExecutionId')">Creation Execution Id</span>
@@ -80,13 +80,13 @@
                         <span v-text="$t('ca3SApp.certificate.contentAddedAt')">Content Added At</span>
                     </dt>
                     <dd>
-                        <span>{{certificate.contentAddedAt}}</span>
+                        <span v-if="certificate.contentAddedAt">{{$d(Date.parse(certificate.contentAddedAt), 'long') }}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.revokedSince')">Revoked Since</span>
                     </dt>
                     <dd>
-                        <span>{{certificate.revokedSince}}</span>
+                        <span v-if="certificate.revokedSince">{{$d(Date.parse(certificate.revokedSince), 'long') }}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.revocationReason')">Revocation Reason</span>

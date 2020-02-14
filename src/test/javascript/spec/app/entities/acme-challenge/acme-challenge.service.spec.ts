@@ -3,7 +3,7 @@ import axios from 'axios';
 import { format } from 'date-fns';
 
 import * as config from '@/shared/config/config';
-import { DATE_FORMAT } from '@/shared/date/filters';
+import { DATE_TIME_FORMAT } from '@/shared/date/filters';
 import AcmeChallengeService from '@/entities/acme-challenge/acme-challenge.service';
 import { AcmeChallenge, ChallengeStatus } from '@/shared/model/acme-challenge.model';
 
@@ -31,7 +31,7 @@ describe('Service Tests', () => {
       it('should find an element', async () => {
         const returnedFromService = Object.assign(
           {
-            validated: format(currentDate, DATE_FORMAT)
+            validated: format(currentDate, DATE_TIME_FORMAT)
           },
           elemDefault
         );
@@ -45,7 +45,7 @@ describe('Service Tests', () => {
         const returnedFromService = Object.assign(
           {
             id: 0,
-            validated: format(currentDate, DATE_FORMAT)
+            validated: format(currentDate, DATE_TIME_FORMAT)
           },
           elemDefault
         );
@@ -69,7 +69,7 @@ describe('Service Tests', () => {
             type: 'BBBBBB',
             value: 'BBBBBB',
             token: 'BBBBBB',
-            validated: format(currentDate, DATE_FORMAT),
+            validated: format(currentDate, DATE_TIME_FORMAT),
             status: 'BBBBBB'
           },
           elemDefault
@@ -94,7 +94,7 @@ describe('Service Tests', () => {
             type: 'BBBBBB',
             value: 'BBBBBB',
             token: 'BBBBBB',
-            validated: format(currentDate, DATE_FORMAT),
+            validated: format(currentDate, DATE_TIME_FORMAT),
             status: 'BBBBBB'
           },
           elemDefault

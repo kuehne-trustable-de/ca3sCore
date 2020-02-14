@@ -3,7 +3,7 @@ import axios from 'axios';
 import { format } from 'date-fns';
 
 import * as config from '@/shared/config/config';
-import { DATE_FORMAT } from '@/shared/date/filters';
+import { DATE_TIME_FORMAT } from '@/shared/date/filters';
 import ImportedURLService from '@/entities/imported-url/imported-url.service';
 import { ImportedURL } from '@/shared/model/imported-url.model';
 
@@ -31,7 +31,7 @@ describe('Service Tests', () => {
       it('should find an element', async () => {
         const returnedFromService = Object.assign(
           {
-            importDate: format(currentDate, DATE_FORMAT)
+            importDate: format(currentDate, DATE_TIME_FORMAT)
           },
           elemDefault
         );
@@ -45,7 +45,7 @@ describe('Service Tests', () => {
         const returnedFromService = Object.assign(
           {
             id: 0,
-            importDate: format(currentDate, DATE_FORMAT)
+            importDate: format(currentDate, DATE_TIME_FORMAT)
           },
           elemDefault
         );
@@ -66,7 +66,7 @@ describe('Service Tests', () => {
         const returnedFromService = Object.assign(
           {
             name: 'BBBBBB',
-            importDate: format(currentDate, DATE_FORMAT)
+            importDate: format(currentDate, DATE_TIME_FORMAT)
           },
           elemDefault
         );
@@ -87,7 +87,7 @@ describe('Service Tests', () => {
         const returnedFromService = Object.assign(
           {
             name: 'BBBBBB',
-            importDate: format(currentDate, DATE_FORMAT)
+            importDate: format(currentDate, DATE_TIME_FORMAT)
           },
           elemDefault
         );

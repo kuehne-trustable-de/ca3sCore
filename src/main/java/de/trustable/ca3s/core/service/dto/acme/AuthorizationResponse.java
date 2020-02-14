@@ -110,7 +110,7 @@ public class AuthorizationResponse {
 	 * @param expires the expires to set
 	 */
 	public void setExpires(Date expires) {
-		this.expires = new Date(expires.getTime());
+		this.expires = expires;
 	}
 
 	/**

@@ -28,7 +28,7 @@
             <column name="token" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
-            <column name="validated" type="date">
+            <column name="validated" type="datetime">
                 <constraints nullable="true" />
             </column>
             <column name="status" type="varchar(255)">
@@ -39,6 +39,7 @@
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
+        <dropDefaultValue tableName="acme_challenge" columnName="validated" columnDataType="datetime"/>
     </changeSet>
 
     <changeSet id="20200110170126-1-relations" author="jhipster">
@@ -64,7 +65,7 @@
             <column name="type" type="string"/>
             <column name="value" type="string"/>
             <column name="token" type="string"/>
-            <column name="validated" type="date"/>
+            <column name="validated" type="datetime"/>
             <column name="status" type="string"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
         </loadData>

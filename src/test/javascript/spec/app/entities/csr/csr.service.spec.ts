@@ -3,7 +3,7 @@ import axios from 'axios';
 import { format } from 'date-fns';
 
 import * as config from '@/shared/config/config';
-import { DATE_FORMAT } from '@/shared/date/filters';
+import { DATE_TIME_FORMAT } from '@/shared/date/filters';
 import CSRService from '@/entities/csr/csr.service';
 import { CSR, CsrStatus } from '@/shared/model/csr.model';
 
@@ -43,7 +43,7 @@ describe('Service Tests', () => {
       it('should find an element', async () => {
         const returnedFromService = Object.assign(
           {
-            requestedOn: format(currentDate, DATE_FORMAT)
+            requestedOn: format(currentDate, DATE_TIME_FORMAT)
           },
           elemDefault
         );
@@ -57,7 +57,7 @@ describe('Service Tests', () => {
         const returnedFromService = Object.assign(
           {
             id: 0,
-            requestedOn: format(currentDate, DATE_FORMAT)
+            requestedOn: format(currentDate, DATE_TIME_FORMAT)
           },
           elemDefault
         );
@@ -78,7 +78,7 @@ describe('Service Tests', () => {
         const returnedFromService = Object.assign(
           {
             csrBase64: 'BBBBBB',
-            requestedOn: format(currentDate, DATE_FORMAT),
+            requestedOn: format(currentDate, DATE_TIME_FORMAT),
             status: 'BBBBBB',
             processInstanceId: 'BBBBBB',
             signingAlgorithm: 'BBBBBB',
@@ -107,7 +107,7 @@ describe('Service Tests', () => {
         const returnedFromService = Object.assign(
           {
             csrBase64: 'BBBBBB',
-            requestedOn: format(currentDate, DATE_FORMAT),
+            requestedOn: format(currentDate, DATE_TIME_FORMAT),
             status: 'BBBBBB',
             processInstanceId: 'BBBBBB',
             signingAlgorithm: 'BBBBBB',

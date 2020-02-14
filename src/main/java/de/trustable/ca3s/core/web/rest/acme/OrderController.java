@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.GeneralSecurityException;
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -245,7 +245,7 @@ public class OrderController extends ACMEController {
   			 * only 'pending' and 'processing' status of not-yet-expired orders need to be considered
   			 */
   			if( (orderDao.getStatus() == AcmeOrderStatus.PENDING) || (orderDao.getStatus() == AcmeOrderStatus.PROCESSING )) {
-  				if( orderDao.getExpires().isBefore(LocalDate.now()) ) {
+  				if( orderDao.getExpires().isBefore(Instant.now()) ) {
 					LOG.debug("pending order {} expired on ", orderDao.getOrderId(), orderDao.getExpires().toString());
   			  	  	orderDao.setStatus(AcmeOrderStatus.INVALID);
 				} else {

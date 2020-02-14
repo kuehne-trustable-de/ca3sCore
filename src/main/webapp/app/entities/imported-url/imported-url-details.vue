@@ -14,7 +14,7 @@
                         <span v-text="$t('ca3SApp.importedURL.importDate')">Import Date</span>
                     </dt>
                     <dd>
-                        <span>{{importedURL.importDate}}</span>
+                        <span v-if="importedURL.importDate">{{$d(Date.parse(importedURL.importDate), 'long') }}</span>
                     </dd>
                 </dl>
                 <button type="submit"

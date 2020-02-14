@@ -16,9 +16,11 @@
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.acmeNonce.expiresAt')" for="acme-nonce-expiresAt">Expires At</label>
-                        <div class="input-group">
-                            <input id="acme-nonce-expiresAt" type="date" class="form-control" name="expiresAt"  :class="{'valid': !$v.acmeNonce.expiresAt.$invalid, 'invalid': $v.acmeNonce.expiresAt.$invalid }"
-                            v-model="$v.acmeNonce.expiresAt.$model"  />
+                        <div class="d-flex">
+                            <input id="acme-nonce-expiresAt" type="datetime-local" class="form-control" name="expiresAt" :class="{'valid': !$v.acmeNonce.expiresAt.$invalid, 'invalid': $v.acmeNonce.expiresAt.$invalid }"
+                            
+                            :value="convertDateTimeFromServer($v.acmeNonce.expiresAt.$model)"
+                            @change="updateInstantField('expiresAt', $event)"/>
                         </div>
                     </div>
                 </div>

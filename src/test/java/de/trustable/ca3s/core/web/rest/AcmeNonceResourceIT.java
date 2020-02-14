@@ -20,8 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
 import javax.persistence.EntityManager;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
@@ -39,8 +39,8 @@ public class AcmeNonceResourceIT {
     private static final String DEFAULT_NONCE_VALUE = "AAAAAAAAAA";
     private static final String UPDATED_NONCE_VALUE = "BBBBBBBBBB";
 
-    private static final LocalDate DEFAULT_EXPIRES_AT = LocalDate.ofEpochDay(0L);
-    private static final LocalDate UPDATED_EXPIRES_AT = LocalDate.now(ZoneId.systemDefault());
+    private static final Instant DEFAULT_EXPIRES_AT = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_EXPIRES_AT = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
     @Autowired
     private AcmeNonceRepository acmeNonceRepository;

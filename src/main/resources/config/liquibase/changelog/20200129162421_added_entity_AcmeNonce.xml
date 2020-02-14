@@ -19,11 +19,12 @@
             <column name="nonce_value" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="expires_at" type="date">
+            <column name="expires_at" type="datetime">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
+        <dropDefaultValue tableName="acme_nonce" columnName="expires_at" columnDataType="datetime"/>
     </changeSet>
 
     <changeSet id="20200129162421-1-relations" author="jhipster">
@@ -46,7 +47,7 @@
                   tableName="acme_nonce">
             <column name="id" type="numeric"/>
             <column name="nonce_value" type="string"/>
-            <column name="expires_at" type="date"/>
+            <column name="expires_at" type="datetime"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
         </loadData>
     </changeSet>

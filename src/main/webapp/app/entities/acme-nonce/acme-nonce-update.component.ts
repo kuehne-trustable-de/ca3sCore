@@ -1,6 +1,10 @@
 import { Component, Vue, Inject } from 'vue-property-decorator';
 
 import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
+import format from 'date-fns/format';
+import parse from 'date-fns/parse';
+import parseISO from 'date-fns/parseISO';
+import { DATE_TIME_LONG_FORMAT } from '@/shared/date/filters';
 
 import AlertService from '@/shared/alert/alert.service';
 import { IAcmeNonce, AcmeNonce } from '@/shared/model/acme-nonce.model';
@@ -53,10 +57,34 @@ export default class AcmeNonceUpdate extends Vue {
     }
   }
 
+  public convertDateTimeFromServer(date: Date): string {
+    if (date) {
+      return format(date, DATE_TIME_LONG_FORMAT);
+    }
+    return null;
+  }
+
+  public updateInstantField(field, event) {
+    if (event.target.value) {
+      this.acmeNonce[field] = parse(event.target.value, DATE_TIME_LONG_FORMAT, new Date());
+    } else {
+      this.acmeNonce[field] = null;
+    }
+  }
+
+  public updateZonedDateTimeField(field, event) {
+    if (event.target.value) {
+      this.acmeNonce[field] = parse(event.target.value, DATE_TIME_LONG_FORMAT, new Date());
+    } else {
+      this.acmeNonce[field] = null;
+    }
+  }
+
   public retrieveAcmeNonce(acmeNonceId): void {
     this.acmeNonceService()
       .find(acmeNonceId)
       .then(res => {
+        res.expiresAt = new Date(res.expiresAt);
         this.acmeNonce = res;
       });
   }

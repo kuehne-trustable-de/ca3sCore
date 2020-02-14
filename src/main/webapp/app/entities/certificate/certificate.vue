@@ -63,11 +63,11 @@
                     <td>{{certificate.authorityKeyIdentifier}}</td>
                     <td>{{certificate.fingerprint}}</td>
                     <td>{{certificate.serial}}</td>
-                    <td>{{certificate.validFrom}}</td>
-                    <td>{{certificate.validTo}}</td>
+                    <td v-if="certificate.validFrom"> {{$d(Date.parse(certificate.validFrom), 'short') }}</td>
+                    <td v-if="certificate.validTo"> {{$d(Date.parse(certificate.validTo), 'short') }}</td>
                     <td>{{certificate.creationExecutionId}}</td>
-                    <td>{{certificate.contentAddedAt}}</td>
-                    <td>{{certificate.revokedSince}}</td>
+                    <td v-if="certificate.contentAddedAt"> {{$d(Date.parse(certificate.contentAddedAt), 'short') }}</td>
+                    <td v-if="certificate.revokedSince"> {{$d(Date.parse(certificate.revokedSince), 'short') }}</td>
                     <td>{{certificate.revocationReason}}</td>
                     <td>{{certificate.revoked}}</td>
                     <td>{{certificate.revocationExecutionId}}</td>

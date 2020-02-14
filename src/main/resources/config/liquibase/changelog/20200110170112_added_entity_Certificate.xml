@@ -43,19 +43,19 @@
             <column name="serial" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
-            <column name="valid_from" type="date">
+            <column name="valid_from" type="datetime">
                 <constraints nullable="false" />
             </column>
-            <column name="valid_to" type="date">
+            <column name="valid_to" type="datetime">
                 <constraints nullable="false" />
             </column>
             <column name="creation_execution_id" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="content_added_at" type="date">
+            <column name="content_added_at" type="datetime">
                 <constraints nullable="true" />
             </column>
-            <column name="revoked_since" type="date">
+            <column name="revoked_since" type="datetime">
                 <constraints nullable="true" />
             </column>
             <column name="revocation_reason" type="varchar(255)">
@@ -78,6 +78,10 @@
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
+        <dropDefaultValue tableName="certificate" columnName="valid_from" columnDataType="datetime"/>
+        <dropDefaultValue tableName="certificate" columnName="valid_to" columnDataType="datetime"/>
+        <dropDefaultValue tableName="certificate" columnName="content_added_at" columnDataType="datetime"/>
+        <dropDefaultValue tableName="certificate" columnName="revoked_since" columnDataType="datetime"/>
     </changeSet>
 
     <changeSet id="20200110170112-1-relations" author="jhipster">
@@ -108,11 +112,11 @@
             <column name="authority_key_identifier" type="string"/>
             <column name="fingerprint" type="string"/>
             <column name="serial" type="string"/>
-            <column name="valid_from" type="date"/>
-            <column name="valid_to" type="date"/>
+            <column name="valid_from" type="datetime"/>
+            <column name="valid_to" type="datetime"/>
             <column name="creation_execution_id" type="string"/>
-            <column name="content_added_at" type="date"/>
-            <column name="revoked_since" type="date"/>
+            <column name="content_added_at" type="datetime"/>
+            <column name="revoked_since" type="datetime"/>
             <column name="revocation_reason" type="string"/>
             <column name="revoked" type="boolean"/>
             <column name="revocation_execution_id" type="string"/>

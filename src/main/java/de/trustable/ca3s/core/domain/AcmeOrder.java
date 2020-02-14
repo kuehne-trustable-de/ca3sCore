@@ -5,7 +5,7 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -40,13 +40,13 @@ public class AcmeOrder implements Serializable {
     private AcmeOrderStatus status;
 
     @Column(name = "expires")
-    private LocalDate expires;
+    private Instant expires;
 
     @Column(name = "not_before")
-    private LocalDate notBefore;
+    private Instant notBefore;
 
     @Column(name = "not_after")
-    private LocalDate notAfter;
+    private Instant notAfter;
 
     @Column(name = "error")
     private String error;
@@ -110,42 +110,42 @@ public class AcmeOrder implements Serializable {
         this.status = status;
     }
 
-    public LocalDate getExpires() {
+    public Instant getExpires() {
         return expires;
     }
 
-    public AcmeOrder expires(LocalDate expires) {
+    public AcmeOrder expires(Instant expires) {
         this.expires = expires;
         return this;
     }
 
-    public void setExpires(LocalDate expires) {
+    public void setExpires(Instant expires) {
         this.expires = expires;
     }
 
-    public LocalDate getNotBefore() {
+    public Instant getNotBefore() {
         return notBefore;
     }
 
-    public AcmeOrder notBefore(LocalDate notBefore) {
+    public AcmeOrder notBefore(Instant notBefore) {
         this.notBefore = notBefore;
         return this;
     }
 
-    public void setNotBefore(LocalDate notBefore) {
+    public void setNotBefore(Instant notBefore) {
         this.notBefore = notBefore;
     }
 
-    public LocalDate getNotAfter() {
+    public Instant getNotAfter() {
         return notAfter;
     }
 
-    public AcmeOrder notAfter(LocalDate notAfter) {
+    public AcmeOrder notAfter(Instant notAfter) {
         this.notAfter = notAfter;
         return this;
     }
 
-    public void setNotAfter(LocalDate notAfter) {
+    public void setNotAfter(Instant notAfter) {
         this.notAfter = notAfter;
     }
 

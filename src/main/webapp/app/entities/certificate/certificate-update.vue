@@ -81,25 +81,35 @@
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.certificate.validFrom')" for="certificate-validFrom">Valid From</label>
-                        <div class="input-group">
-                            <input id="certificate-validFrom" type="date" class="form-control" name="validFrom"  :class="{'valid': !$v.certificate.validFrom.$invalid, 'invalid': $v.certificate.validFrom.$invalid }"
-                            v-model="$v.certificate.validFrom.$model"  required />
+                        <div class="d-flex">
+                            <input id="certificate-validFrom" type="datetime-local" class="form-control" name="validFrom" :class="{'valid': !$v.certificate.validFrom.$invalid, 'invalid': $v.certificate.validFrom.$invalid }"
+                             required
+                            :value="convertDateTimeFromServer($v.certificate.validFrom.$model)"
+                            @change="updateInstantField('validFrom', $event)"/>
                         </div>
                         <div v-if="$v.certificate.validFrom.$anyDirty && $v.certificate.validFrom.$invalid">
                             <small class="form-text text-danger" v-if="!$v.certificate.validFrom.required" v-text="$t('entity.validation.required')">
                                 This field is required.
                             </small>
+                            <small class="form-text text-danger" v-if="!$v.certificate.validFrom.ZonedDateTimelocal" v-text="$t('entity.validation.ZonedDateTimelocal')">
+                                This field should be a date and time.
+                            </small>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.certificate.validTo')" for="certificate-validTo">Valid To</label>
-                        <div class="input-group">
-                            <input id="certificate-validTo" type="date" class="form-control" name="validTo"  :class="{'valid': !$v.certificate.validTo.$invalid, 'invalid': $v.certificate.validTo.$invalid }"
-                            v-model="$v.certificate.validTo.$model"  required />
+                        <div class="d-flex">
+                            <input id="certificate-validTo" type="datetime-local" class="form-control" name="validTo" :class="{'valid': !$v.certificate.validTo.$invalid, 'invalid': $v.certificate.validTo.$invalid }"
+                             required
+                            :value="convertDateTimeFromServer($v.certificate.validTo.$model)"
+                            @change="updateInstantField('validTo', $event)"/>
                         </div>
                         <div v-if="$v.certificate.validTo.$anyDirty && $v.certificate.validTo.$invalid">
                             <small class="form-text text-danger" v-if="!$v.certificate.validTo.required" v-text="$t('entity.validation.required')">
                                 This field is required.
+                            </small>
+                            <small class="form-text text-danger" v-if="!$v.certificate.validTo.ZonedDateTimelocal" v-text="$t('entity.validation.ZonedDateTimelocal')">
+                                This field should be a date and time.
                             </small>
                         </div>
                     </div>
@@ -110,16 +120,20 @@
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.certificate.contentAddedAt')" for="certificate-contentAddedAt">Content Added At</label>
-                        <div class="input-group">
-                            <input id="certificate-contentAddedAt" type="date" class="form-control" name="contentAddedAt"  :class="{'valid': !$v.certificate.contentAddedAt.$invalid, 'invalid': $v.certificate.contentAddedAt.$invalid }"
-                            v-model="$v.certificate.contentAddedAt.$model"  />
+                        <div class="d-flex">
+                            <input id="certificate-contentAddedAt" type="datetime-local" class="form-control" name="contentAddedAt" :class="{'valid': !$v.certificate.contentAddedAt.$invalid, 'invalid': $v.certificate.contentAddedAt.$invalid }"
+                            
+                            :value="convertDateTimeFromServer($v.certificate.contentAddedAt.$model)"
+                            @change="updateInstantField('contentAddedAt', $event)"/>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.certificate.revokedSince')" for="certificate-revokedSince">Revoked Since</label>
-                        <div class="input-group">
-                            <input id="certificate-revokedSince" type="date" class="form-control" name="revokedSince"  :class="{'valid': !$v.certificate.revokedSince.$invalid, 'invalid': $v.certificate.revokedSince.$invalid }"
-                            v-model="$v.certificate.revokedSince.$model"  />
+                        <div class="d-flex">
+                            <input id="certificate-revokedSince" type="datetime-local" class="form-control" name="revokedSince" :class="{'valid': !$v.certificate.revokedSince.$invalid, 'invalid': $v.certificate.revokedSince.$invalid }"
+                            
+                            :value="convertDateTimeFromServer($v.certificate.revokedSince.$model)"
+                            @change="updateInstantField('revokedSince', $event)"/>
                         </div>
                     </div>
                     <div class="form-group">

@@ -4,6 +4,10 @@ import { mixins } from 'vue-class-component';
 import JhiDataUtils from '@/shared/data/data-utils.service';
 
 import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
+import format from 'date-fns/format';
+import parse from 'date-fns/parse';
+import parseISO from 'date-fns/parseISO';
+import { DATE_TIME_LONG_FORMAT } from '@/shared/date/filters';
 
 import RDNService from '../rdn/rdn.service';
 import { IRDN } from '@/shared/model/rdn.model';
@@ -108,10 +112,34 @@ export default class CSRUpdate extends mixins(JhiDataUtils) {
     }
   }
 
+  public convertDateTimeFromServer(date: Date): string {
+    if (date) {
+      return format(date, DATE_TIME_LONG_FORMAT);
+    }
+    return null;
+  }
+
+  public updateInstantField(field, event) {
+    if (event.target.value) {
+      this.cSR[field] = parse(event.target.value, DATE_TIME_LONG_FORMAT, new Date());
+    } else {
+      this.cSR[field] = null;
+    }
+  }
+
+  public updateZonedDateTimeField(field, event) {
+    if (event.target.value) {
+      this.cSR[field] = parse(event.target.value, DATE_TIME_LONG_FORMAT, new Date());
+    } else {
+      this.cSR[field] = null;
+    }
+  }
+
   public retrieveCSR(cSRId): void {
     this.cSRService()
       .find(cSRId)
       .then(res => {
+        res.requestedOn = new Date(res.requestedOn);
         this.cSR = res;
       });
   }

@@ -1,6 +1,10 @@
 import { Component, Vue, Inject } from 'vue-property-decorator';
 
 import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
+import format from 'date-fns/format';
+import parse from 'date-fns/parse';
+import parseISO from 'date-fns/parseISO';
+import { DATE_TIME_LONG_FORMAT } from '@/shared/date/filters';
 
 import AcmeAuthorizationService from '../acme-authorization/acme-authorization.service';
 import { IAcmeAuthorization } from '@/shared/model/acme-authorization.model';
@@ -76,10 +80,34 @@ export default class AcmeChallengeUpdate extends Vue {
     }
   }
 
+  public convertDateTimeFromServer(date: Date): string {
+    if (date) {
+      return format(date, DATE_TIME_LONG_FORMAT);
+    }
+    return null;
+  }
+
+  public updateInstantField(field, event) {
+    if (event.target.value) {
+      this.acmeChallenge[field] = parse(event.target.value, DATE_TIME_LONG_FORMAT, new Date());
+    } else {
+      this.acmeChallenge[field] = null;
+    }
+  }
+
+  public updateZonedDateTimeField(field, event) {
+    if (event.target.value) {
+      this.acmeChallenge[field] = parse(event.target.value, DATE_TIME_LONG_FORMAT, new Date());
+    } else {
+      this.acmeChallenge[field] = null;
+    }
+  }
+
   public retrieveAcmeChallenge(acmeChallengeId): void {
     this.acmeChallengeService()
       .find(acmeChallengeId)
       .then(res => {
+        res.validated = new Date(res.validated);
         this.acmeChallenge = res;
       });
   }

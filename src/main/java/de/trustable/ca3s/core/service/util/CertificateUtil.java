@@ -24,7 +24,7 @@ import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.ECParameterSpec;
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -32,8 +32,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
-import javax.servlet.ServletException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.ASN1Encodable;
@@ -323,12 +321,12 @@ public class CertificateUtil {
 		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SERIAL_PADDED, getPaddedSerial(serial));
 
 		// add validity period
-		cert.setValidFrom( DateUtil.asLocalDate(x509Cert.getNotBefore()));
+		cert.setValidFrom( DateUtil.asInstant(x509Cert.getNotBefore()));
 		setCertAttribute(cert,
 				CertificateAttribute.ATTRIBUTE_VALID_FROM_TIMESTAMP, ""
 						+ x509Cert.getNotBefore().getTime());
 
-		cert.setValidTo(DateUtil.asLocalDate(x509Cert.getNotAfter()));
+		cert.setValidTo(DateUtil.asInstant(x509Cert.getNotAfter()));
 		setCertAttribute(cert,
 				CertificateAttribute.ATTRIBUTE_VALID_TO_TIMESTAMP, ""
 						+ x509Cert.getNotAfter().getTime());
@@ -380,7 +378,7 @@ public class CertificateUtil {
 			}
 		}
 
-		cert.setContentAddedAt(LocalDate.now());
+		cert.setContentAddedAt(Instant.now());
 		
 		certificateRepository.save(cert);
 //		LOG.debug("certificate id '" + cert.getId() +"' post-save");
@@ -1133,7 +1131,7 @@ public class CertificateUtil {
 		 * LOG.warn("wrapping of public key into PEM failed."); } }
 		 */
 		 csr.setProcessInstanceId(processInstanceId);
-		 csr.setRequestedOn(LocalDate.now());
+		 csr.setRequestedOn(Instant.now());
 
 		LOG.debug("RDN arr #" + p10ReqHolder.getSubjectRDNs().length);
 

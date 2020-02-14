@@ -136,12 +136,11 @@ public class CaBackendTask implements JavaDelegate {
 				String crlReasonStr = cryptoUtil.crlReasonAsString(crlReason);
 				LOGGER.debug("crlReason : " + crlReasonStr);
 
-				Date revocationDate = new Date();
-
-				caConnAdapter.revokeCertificate(revokeCert, crlReason, revocationDate, caConfig);
+				Date now = new Date();
+				caConnAdapter.revokeCertificate(revokeCert, crlReason, now, caConfig);
 
 				revokeCert.setRevoked(true);
-				revokeCert.setRevokedSince( DateUtil.asLocalDate(revocationDate));
+				revokeCert.setRevokedSince(DateUtil.asInstant(now));
 				revokeCert.setRevocationReason(crlReasonStr);
 				revokeCert.setRevocationExecutionId(execution.getProcessInstanceId());
 

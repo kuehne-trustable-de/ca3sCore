@@ -8,6 +8,7 @@ Component.registerHooks([
 import Router from 'vue-router';
 const Home = () => import('../core/home/home.vue');
 const PkcsXX = () => import('../core/pkcsxx/pkcsxx.vue');
+const CertList = () => import('../core/cert-list/cert-list.vue');
 const Error = () => import('../core/error/error.vue');
 const Register = () => import('../account/register/register.vue');
 const Activate = () => import('../account/activate/activate.vue');
@@ -214,6 +215,11 @@ export default new Router({
       name: 'PkcsXX',
       component: PkcsXX
     },
+    {
+      path: '/cert-list',
+      name: 'CertList',
+      component: CertList
+    },   
     {
       path: '/account/password',
       name: 'ChangePassword',

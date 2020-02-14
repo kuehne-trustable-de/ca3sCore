@@ -21,8 +21,8 @@ import org.springframework.util.Base64Utils;
 import org.springframework.validation.Validator;
 
 import javax.persistence.EntityManager;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
@@ -41,8 +41,8 @@ public class CSRResourceIT {
     private static final String DEFAULT_CSR_BASE_64 = "AAAAAAAAAA";
     private static final String UPDATED_CSR_BASE_64 = "BBBBBBBBBB";
 
-    private static final LocalDate DEFAULT_REQUESTED_ON = LocalDate.ofEpochDay(0L);
-    private static final LocalDate UPDATED_REQUESTED_ON = LocalDate.now(ZoneId.systemDefault());
+    private static final Instant DEFAULT_REQUESTED_ON = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_REQUESTED_ON = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
     private static final CsrStatus DEFAULT_STATUS = CsrStatus.PROCESSING;
     private static final CsrStatus UPDATED_STATUS = CsrStatus.ISSUED;

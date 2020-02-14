@@ -21,13 +21,18 @@
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.importedURL.importDate')" for="imported-url-importDate">Import Date</label>
-                        <div class="input-group">
-                            <input id="imported-url-importDate" type="date" class="form-control" name="importDate"  :class="{'valid': !$v.importedURL.importDate.$invalid, 'invalid': $v.importedURL.importDate.$invalid }"
-                            v-model="$v.importedURL.importDate.$model"  required />
+                        <div class="d-flex">
+                            <input id="imported-url-importDate" type="datetime-local" class="form-control" name="importDate" :class="{'valid': !$v.importedURL.importDate.$invalid, 'invalid': $v.importedURL.importDate.$invalid }"
+                             required
+                            :value="convertDateTimeFromServer($v.importedURL.importDate.$model)"
+                            @change="updateInstantField('importDate', $event)"/>
                         </div>
                         <div v-if="$v.importedURL.importDate.$anyDirty && $v.importedURL.importDate.$invalid">
                             <small class="form-text text-danger" v-if="!$v.importedURL.importDate.required" v-text="$t('entity.validation.required')">
                                 This field is required.
+                            </small>
+                            <small class="form-text text-danger" v-if="!$v.importedURL.importDate.ZonedDateTimelocal" v-text="$t('entity.validation.ZonedDateTimelocal')">
+                                This field should be a date and time.
                             </small>
                         </div>
                     </div>

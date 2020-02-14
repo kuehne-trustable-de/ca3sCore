@@ -41,11 +41,11 @@ entity Certificate {
   authorityKeyIdentifier String
   fingerprint String
   serial String required
-  validFrom LocalDate required
-  validTo LocalDate required
+  validFrom Instant required
+  validTo Instant required
   creationExecutionId String
-  contentAddedAt LocalDate
-  revokedSince LocalDate
+  contentAddedAt Instant
+  revokedSince Instant
   revocationReason String
   revoked Boolean
   revocationExecutionId String
@@ -60,7 +60,7 @@ enum CsrStatus {
 entity CSR{
 
    	csrBase64 TextBlob required
-  	requestedOn LocalDate required
+  	requestedOn Instant required
   	status CsrStatus required
   	processInstanceId String
 	signingAlgorithm String
@@ -122,7 +122,7 @@ entity RequestAttributeValue{
 entity ImportedURL{
 
   	name String required
-  	importDate LocalDate required
+  	importDate Instant required
 }
 
 
@@ -202,15 +202,15 @@ entity AcmeOrder{
 // consider this order invalid, encoded in the format specified in RFC 3339
 // [RFC3339]. This field is REQUIRED for objects with "pending" or "valid" in
 // the status field.
-	expires LocalDate
+	expires Instant
 
 // notBefore (optional, string): The requested value of the notBefore field in
 // the certificate, in the date format defined in [RFC3339].
-	notBefore LocalDate
+	notBefore Instant
 
 // notAfter (optional, string): The requested value of the notAfter field in the
 // certificate, in the date format defined in [RFC3339].
-	notAfter LocalDate
+	notAfter Instant
 
 // error (optional, object): The error that occurred while processing the order,
 // if any. This field is structured as a problem document [RFC7807].
@@ -267,14 +267,14 @@ entity AcmeChallenge {
 	type String required
 	value String required
 	token String required
-	validated LocalDate
+	validated Instant
 	status ChallengeStatus required
 	
 }
 
 entity AcmeNonce {
 	nonceValue String
-	expiresAt LocalDate
+	expiresAt Instant
 }
 
 // defining multiple OneToMany relationships with comments

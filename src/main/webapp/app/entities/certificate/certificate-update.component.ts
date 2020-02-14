@@ -4,6 +4,10 @@ import { mixins } from 'vue-class-component';
 import JhiDataUtils from '@/shared/data/data-utils.service';
 
 import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
+import format from 'date-fns/format';
+import parse from 'date-fns/parse';
+import parseISO from 'date-fns/parseISO';
+import { DATE_TIME_LONG_FORMAT } from '@/shared/date/filters';
 
 import CSRService from '../csr/csr.service';
 import { ICSR } from '@/shared/model/csr.model';
@@ -105,10 +109,37 @@ export default class CertificateUpdate extends mixins(JhiDataUtils) {
     }
   }
 
+  public convertDateTimeFromServer(date: Date): string {
+    if (date) {
+      return format(date, DATE_TIME_LONG_FORMAT);
+    }
+    return null;
+  }
+
+  public updateInstantField(field, event) {
+    if (event.target.value) {
+      this.certificate[field] = parse(event.target.value, DATE_TIME_LONG_FORMAT, new Date());
+    } else {
+      this.certificate[field] = null;
+    }
+  }
+
+  public updateZonedDateTimeField(field, event) {
+    if (event.target.value) {
+      this.certificate[field] = parse(event.target.value, DATE_TIME_LONG_FORMAT, new Date());
+    } else {
+      this.certificate[field] = null;
+    }
+  }
+
   public retrieveCertificate(certificateId): void {
     this.certificateService()
       .find(certificateId)
       .then(res => {
+        res.validFrom = new Date(res.validFrom);
+        res.validTo = new Date(res.validTo);
+        res.contentAddedAt = new Date(res.contentAddedAt);
+        res.revokedSince = new Date(res.revokedSince);
         this.certificate = res;
       });
   }

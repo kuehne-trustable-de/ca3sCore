@@ -1,6 +1,10 @@
 import { Component, Vue, Inject } from 'vue-property-decorator';
 
 import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
+import format from 'date-fns/format';
+import parse from 'date-fns/parse';
+import parseISO from 'date-fns/parseISO';
+import { DATE_TIME_LONG_FORMAT } from '@/shared/date/filters';
 
 import AlertService from '@/shared/alert/alert.service';
 import { IImportedURL, ImportedURL } from '@/shared/model/imported-url.model';
@@ -57,10 +61,34 @@ export default class ImportedURLUpdate extends Vue {
     }
   }
 
+  public convertDateTimeFromServer(date: Date): string {
+    if (date) {
+      return format(date, DATE_TIME_LONG_FORMAT);
+    }
+    return null;
+  }
+
+  public updateInstantField(field, event) {
+    if (event.target.value) {
+      this.importedURL[field] = parse(event.target.value, DATE_TIME_LONG_FORMAT, new Date());
+    } else {
+      this.importedURL[field] = null;
+    }
+  }
+
+  public updateZonedDateTimeField(field, event) {
+    if (event.target.value) {
+      this.importedURL[field] = parse(event.target.value, DATE_TIME_LONG_FORMAT, new Date());
+    } else {
+      this.importedURL[field] = null;
+    }
+  }
+
   public retrieveImportedURL(importedURLId): void {
     this.importedURLService()
       .find(importedURLId)
       .then(res => {
+        res.importDate = new Date(res.importDate);
         this.importedURL = res;
       });
   }

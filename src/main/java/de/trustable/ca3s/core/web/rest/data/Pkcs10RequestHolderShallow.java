@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.util.Pkcs10RequestHolder;
 
-@JsonIgnoreProperties({"p10Req", "reqAttributes", "subjectRDNs", "publicSigningKey"})
 public class Pkcs10RequestHolderShallow {
 
 	

@@ -37,7 +37,7 @@
                         <router-link :to="{name: 'AcmeNonceView', params: {acmeNonceId: acmeNonce.id}}">{{acmeNonce.id}}</router-link>
                     </td>
                     <td>{{acmeNonce.nonceValue}}</td>
-                    <td>{{acmeNonce.expiresAt}}</td>
+                    <td v-if="acmeNonce.expiresAt"> {{$d(Date.parse(acmeNonce.expiresAt), 'short') }}</td>
                     <td class="text-right">
                         <div class="btn-group">
                             <router-link :to="{name: 'AcmeNonceView', params: {acmeNonceId: acmeNonce.id}}" tag="button" class="btn btn-info btn-sm details">

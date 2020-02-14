@@ -19,7 +19,7 @@
             <column name="csr_base_64" type="${clobType}">
                 <constraints nullable="false" />
             </column>
-            <column name="requested_on" type="date">
+            <column name="requested_on" type="datetime">
                 <constraints nullable="false" />
             </column>
             <column name="status" type="varchar(255)">
@@ -51,6 +51,7 @@
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
+        <dropDefaultValue tableName="csr" columnName="requested_on" columnDataType="datetime"/>
     </changeSet>
 
     <changeSet id="20200110170113-1-relations" author="jhipster">
@@ -73,7 +74,7 @@
                   tableName="csr">
             <column name="id" type="numeric"/>
             <column name="csr_base_64" type="clob"/>
-            <column name="requested_on" type="date"/>
+            <column name="requested_on" type="datetime"/>
             <column name="status" type="string"/>
             <column name="process_instance_id" type="string"/>
             <column name="signing_algorithm" type="string"/>

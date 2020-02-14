@@ -86,8 +86,8 @@ public class OrderResponse extends NewOrderResponse {
 
 	public OrderResponse (AcmeOrder orderDao, Set<String> authUrlSet, String finalizeUrl, String certificateUrl) {
 		super(orderDao, authUrlSet, finalizeUrl);
-		this.setNotBefore(DateUtil.asDate( orderDao.getNotBefore()));
-		this.setNotAfter(DateUtil.asDate( orderDao.getNotAfter()));
+		this.setNotBefore(DateUtil.asDate(orderDao.getNotBefore()));
+		this.setNotAfter(DateUtil.asDate(orderDao.getNotAfter()));
 		this.setCertificate(certificateUrl);
 	}
 		
@@ -108,7 +108,7 @@ public class OrderResponse extends NewOrderResponse {
 	 */
 	public void setNotBefore(Date notBefore) {
 		if( notBefore != null) {
-			this.notBefore = new Date(notBefore.getTime());
+			this.notBefore = notBefore;
 		}
 	}
 
@@ -125,7 +125,7 @@ public class OrderResponse extends NewOrderResponse {
 	 */
 	public void setNotAfter(Date notAfter) {
 		if( notAfter != null) {
-		  this.notAfter = new Date(notAfter.getTime());
+		  this.notAfter = notAfter;
 		}
 	}
 

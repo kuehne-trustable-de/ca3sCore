@@ -46,7 +46,7 @@
                         <router-link :to="{name: 'CSRView', params: {cSRId: cSR.id}}">{{cSR.id}}</router-link>
                     </td>
                     <td>{{cSR.csrBase64}}</td>
-                    <td>{{cSR.requestedOn}}</td>
+                    <td v-if="cSR.requestedOn"> {{$d(Date.parse(cSR.requestedOn), 'short') }}</td>
                     <td v-text="$t('ca3SApp.CsrStatus.' + cSR.status)">{{cSR.status}}</td>
                     <td>{{cSR.processInstanceId}}</td>
                     <td>{{cSR.signingAlgorithm}}</td>
