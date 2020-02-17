@@ -1,21 +1,29 @@
 package de.trustable.ca3s.core.service.util;
 
 import java.security.GeneralSecurityException;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.bouncycastle.asn1.x509.CRLReason;
+import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import de.trustable.ca3s.core.domain.BPNMProcessInfo;
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.enumeration.BPNMProcessType;
+import de.trustable.ca3s.core.repository.BPNMProcessInfoRepository;
 import de.trustable.util.CryptoUtil;
 
 @Service
@@ -35,6 +43,53 @@ public class BPMNUtil{
 	@Autowired
     private RuntimeService runtimeService;
 
+	@Autowired
+    private RepositoryService repoService;
+
+	@Autowired
+    private BPNMProcessInfoRepository bpnmInfoRepo;
+
+	
+	public List<ProcessDefinition> getProcessDefinitions(){
+		
+		return repoService.createProcessDefinitionQuery().latestVersion().list();
+	}
+
+	public void updateProcessDefinitions(){
+		
+		List<ProcessDefinition> pdList = getProcessDefinitions();
+		for(ProcessDefinition pd: pdList ) {
+			Optional<BPNMProcessInfo> optBI = bpnmInfoRepo.findByName(pd.getKey());
+			if( !optBI.isPresent() ) {
+				BPNMProcessInfo newBI = new BPNMProcessInfo();
+				newBI.setAuthor("system");
+				newBI.setLastChange(Instant.now());
+				newBI.setName(pd.getKey());
+				
+				String version = pd.getVersionTag();
+				if( version == null) {
+					version = "0.0.1";
+				}
+				
+				newBI.setVersion(version);
+				
+				// @todo determine the type properly
+				newBI.setType(BPNMProcessType.CA_INVOCATION);
+				
+				// @todo calculate a signature
+				newBI.setSignatureBase64("");
+				
+				LOG.info("added new BPNMProcessInfo from camunda database: {}", newBI);
+
+				bpnmInfoRepo.save(newBI);
+								
+			}else {
+				// @todo check for updates
+				LOG.debug("BPNMProcessInfo {} already exists", pd.getKey());
+			}
+		}
+	}
+
 	/**
 	 *
 	 * @param csr
@@ -50,7 +105,6 @@ public class BPMNUtil{
 
 //		String processName = null;
 		String processName = "CAInvocationProcess";
-		
 		
 		CAConnectorConfig caConfigDefault = configUtil.getDefaultConfig();
 		if(caConfigDefault != null ){

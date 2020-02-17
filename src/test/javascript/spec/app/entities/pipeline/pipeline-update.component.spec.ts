@@ -11,6 +11,10 @@ import PipelineService from '@/entities/pipeline/pipeline.service';
 
 import PipelineAttributeService from '@/entities/pipeline-attribute/pipeline-attribute.service';
 
+import CAConnectorConfigService from '@/entities/ca-connector-config/ca-connector-config.service';
+
+import BPNMProcessInfoService from '@/entities/bpnm-process-info/bpnm-process-info.service';
+
 const localVue = createLocalVue();
 
 config.initVueApp(localVue);
@@ -38,7 +42,11 @@ describe('Component Tests', () => {
           alertService: () => new AlertService(store),
           pipelineService: () => pipelineServiceStub,
 
-          pipelineAttributeService: () => new PipelineAttributeService()
+          pipelineAttributeService: () => new PipelineAttributeService(),
+
+          cAConnectorConfigService: () => new CAConnectorConfigService(),
+
+          bPNMProcessInfoService: () => new BPNMProcessInfoService()
         }
       });
       comp = wrapper.vm;

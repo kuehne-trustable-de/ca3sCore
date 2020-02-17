@@ -135,13 +135,28 @@ entity Pipeline{
 
   	name String required
   	type PipelineType required
-  	urlPart String required
+  	urlPart String
 }
 
 entity PipelineAttribute{
 	
   	name String required
   	value String required
+}
+
+enum BPNMProcessType {
+    CA_INVOCATION, REQUEST_AUTHORIZATION
+}
+
+entity BPNMProcessInfo{
+
+  	name String required
+  	version String required
+  	type BPNMProcessType required
+  	author String required
+  	lastChange Instant required
+  	signatureBase64 TextBlob required
+  	
 }
 
 
@@ -336,6 +351,9 @@ relationship ManyToOne {
 
 	CSR{pipeline} to Pipeline
 
+	Pipeline{caConnector} to CAConnectorConfig
+	Pipeline{processInfo} to BPNMProcessInfo
+	
 
 }
 

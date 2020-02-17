@@ -19,7 +19,9 @@
       "name": "Name",
       "type": "Type",
       "urlPart": "Url Part",
-      "pipelineAttributes": "Pipeline Attributes"
+      "pipelineAttributes": "Pipeline Attributes",
+      "caConnector": "Ca Connector",
+      "processInfo": "Process Info"
     }
   }
 }

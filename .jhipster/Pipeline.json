@@ -18,10 +18,7 @@
         },
         {
             "fieldName": "urlPart",
-            "fieldType": "String",
-            "fieldValidateRules": [
-                "required"
-            ]
+            "fieldType": "String"
         }
     ],
     "relationships": [
@@ -30,6 +27,20 @@
             "otherEntityName": "pipelineAttribute",
             "otherEntityRelationshipName": "pipeline",
             "relationshipName": "pipelineAttributes"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "cAConnectorConfig",
+            "otherEntityRelationshipName": "pipeline",
+            "relationshipName": "caConnector",
+            "otherEntityField": "id"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "bPNMProcessInfo",
+            "otherEntityRelationshipName": "pipeline",
+            "relationshipName": "processInfo",
+            "otherEntityField": "id"
         }
     ],
     "changelogDate": "20200110170119",

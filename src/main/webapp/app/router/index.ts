@@ -165,6 +165,12 @@ const AcmeNonce = () => import('../entities/acme-nonce/acme-nonce.vue');
 const AcmeNonceUpdate = () => import('../entities/acme-nonce/acme-nonce-update.vue');
 // prettier-ignore
 const AcmeNonceDetails = () => import('../entities/acme-nonce/acme-nonce-details.vue');
+// prettier-ignore
+const BPNMProcessInfo = () => import('../entities/bpnm-process-info/bpnm-process-info.vue');
+// prettier-ignore
+const BPNMProcessInfoUpdate = () => import('../entities/bpnm-process-info/bpnm-process-info-update.vue');
+// prettier-ignore
+const BPNMProcessInfoDetails = () => import('../entities/bpnm-process-info/bpnm-process-info-details.vue');
 // jhipster-needle-add-entity-to-router-import - JHipster will import entities to the router here
 
 Vue.use(Router);
@@ -872,6 +878,31 @@ export default new Router({
       path: '/acme-nonce/:acmeNonceId/view',
       name: 'AcmeNonceView',
       component: AcmeNonceDetails,
+      meta: { authorities: ['ROLE_USER'] }
+    }
+    ,
+    {
+      path: '/bpnm-process-info',
+      name: 'BPNMProcessInfo',
+      component: BPNMProcessInfo,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/bpnm-process-info/new',
+      name: 'BPNMProcessInfoCreate',
+      component: BPNMProcessInfoUpdate,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/bpnm-process-info/:bPNMProcessInfoId/edit',
+      name: 'BPNMProcessInfoEdit',
+      component: BPNMProcessInfoUpdate,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/bpnm-process-info/:bPNMProcessInfoId/view',
+      name: 'BPNMProcessInfoView',
+      component: BPNMProcessInfoDetails,
       meta: { authorities: ['ROLE_USER'] }
     }
     // jhipster-needle-add-entity-to-router - JHipster will add entities to the router here

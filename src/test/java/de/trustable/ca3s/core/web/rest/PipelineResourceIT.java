@@ -191,24 +191,6 @@ public class PipelineResourceIT {
 
     @Test
     @Transactional
-    public void checkUrlPartIsRequired() throws Exception {
-        int databaseSizeBeforeTest = pipelineRepository.findAll().size();
-        // set the field null
-        pipeline.setUrlPart(null);
-
-        // Create the Pipeline, which fails.
-
-        restPipelineMockMvc.perform(post("/api/pipelines")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(pipeline)))
-            .andExpect(status().isBadRequest());
-
-        List<Pipeline> pipelineList = pipelineRepository.findAll();
-        assertThat(pipelineList).hasSize(databaseSizeBeforeTest);
-    }
-
-    @Test
-    @Transactional
     public void getAllPipelines() throws Exception {
         // Initialize the database
         pipelineRepository.saveAndFlush(pipeline);

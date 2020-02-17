@@ -35,12 +35,21 @@
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.urlPart')" for="pipeline-urlPart">Url Part</label>
                         <input type="text" class="form-control" name="urlPart" id="pipeline-urlPart"
-                            :class="{'valid': !$v.pipeline.urlPart.$invalid, 'invalid': $v.pipeline.urlPart.$invalid }" v-model="$v.pipeline.urlPart.$model"  required/>
-                        <div v-if="$v.pipeline.urlPart.$anyDirty && $v.pipeline.urlPart.$invalid">
-                            <small class="form-text text-danger" v-if="!$v.pipeline.urlPart.required" v-text="$t('entity.validation.required')">
-                                This field is required.
-                            </small>
-                        </div>
+                            :class="{'valid': !$v.pipeline.urlPart.$invalid, 'invalid': $v.pipeline.urlPart.$invalid }" v-model="$v.pipeline.urlPart.$model" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-control-label" v-bind:value="$t('ca3SApp.pipeline.caConnector')" for="pipeline-caConnector">Ca Connector</label>
+                        <select class="form-control" id="pipeline-caConnector" name="caConnector" v-model="pipeline.caConnector">
+                            <option v-bind:value="null"></option>
+                            <option v-bind:value="pipeline.caConnector && cAConnectorConfigOption.id === pipeline.caConnector.id ? pipeline.caConnector : cAConnectorConfigOption" v-for="cAConnectorConfigOption in cAConnectorConfigs" :key="cAConnectorConfigOption.id">{{cAConnectorConfigOption.id}}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-control-label" v-bind:value="$t('ca3SApp.pipeline.processInfo')" for="pipeline-processInfo">Process Info</label>
+                        <select class="form-control" id="pipeline-processInfo" name="processInfo" v-model="pipeline.processInfo">
+                            <option v-bind:value="null"></option>
+                            <option v-bind:value="pipeline.processInfo && bPNMProcessInfoOption.id === pipeline.processInfo.id ? pipeline.processInfo : bPNMProcessInfoOption" v-for="bPNMProcessInfoOption in bPNMProcessInfos" :key="bPNMProcessInfoOption.id">{{bPNMProcessInfoOption.id}}</option>
+                        </select>
                     </div>
                 </div>
                 <div>

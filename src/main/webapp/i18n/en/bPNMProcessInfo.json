@@ -1,0 +1,27 @@
+{
+  "ca3SApp": {
+    "bPNMProcessInfo": {
+      "home": {
+        "title": "BPNM Process Infos",
+        "createLabel": "Create a new BPNM Process Info",
+        "createOrEditLabel": "Create or edit a BPNM Process Info",
+        "notFound": "No BPNM Process Infos found"
+      },
+      "created": "A new BPNM Process Info is created with identifier {{ param }}",
+      "updated": "A BPNM Process Info is updated with identifier {{ param }}",
+      "deleted": "A BPNM Process Info is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete BPNM Process Info {{ id }}?"
+      },
+      "detail": {
+        "title": "BPNM Process Info"
+      },
+      "name": "Name",
+      "version": "Version",
+      "type": "Type",
+      "author": "Author",
+      "lastChange": "Last Change",
+      "signatureBase64": "Signature Base 64"
+    }
+  }
+}

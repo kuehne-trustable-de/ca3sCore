@@ -7,7 +7,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
-import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
+import de.trustable.ca3s.core.service.util.BPMNUtil;
 
 @Component
 public class StartupApplicationListener implements
@@ -15,12 +15,12 @@ public class StartupApplicationListener implements
  
 	Logger LOG = LoggerFactory.getLogger(StartupApplicationListener.class);
 
- 
 	@Autowired
-	CAConnectorConfigRepository caConfigRepo;
-
+	BPMNUtil bpmnUtil;
+	
     @Override public void onApplicationEvent(ContextRefreshedEvent event) {
         LOG.info("Basic application startup finished. Starting ca3s startup tasks");
         
+        bpmnUtil.updateProcessDefinitions();
     }
 }

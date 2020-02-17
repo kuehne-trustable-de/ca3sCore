@@ -5,6 +5,12 @@ import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validator
 import PipelineAttributeService from '../pipeline-attribute/pipeline-attribute.service';
 import { IPipelineAttribute } from '@/shared/model/pipeline-attribute.model';
 
+import CAConnectorConfigService from '../ca-connector-config/ca-connector-config.service';
+import { ICAConnectorConfig } from '@/shared/model/ca-connector-config.model';
+
+import BPNMProcessInfoService from '../bpnm-process-info/bpnm-process-info.service';
+import { IBPNMProcessInfo } from '@/shared/model/bpnm-process-info.model';
+
 import AlertService from '@/shared/alert/alert.service';
 import { IPipeline, Pipeline } from '@/shared/model/pipeline.model';
 import PipelineService from './pipeline.service';
@@ -17,9 +23,7 @@ const validations: any = {
     type: {
       required
     },
-    urlPart: {
-      required
-    }
+    urlPart: {}
   }
 };
 
@@ -34,6 +38,14 @@ export default class PipelineUpdate extends Vue {
   @Inject('pipelineAttributeService') private pipelineAttributeService: () => PipelineAttributeService;
 
   public pipelineAttributes: IPipelineAttribute[] = [];
+
+  @Inject('cAConnectorConfigService') private cAConnectorConfigService: () => CAConnectorConfigService;
+
+  public cAConnectorConfigs: ICAConnectorConfig[] = [];
+
+  @Inject('bPNMProcessInfoService') private bPNMProcessInfoService: () => BPNMProcessInfoService;
+
+  public bPNMProcessInfos: IBPNMProcessInfo[] = [];
   public isSaving = false;
 
   beforeRouteEnter(to, from, next) {
@@ -85,6 +97,16 @@ export default class PipelineUpdate extends Vue {
       .retrieve()
       .then(res => {
         this.pipelineAttributes = res.data;
+      });
+    this.cAConnectorConfigService()
+      .retrieve()
+      .then(res => {
+        this.cAConnectorConfigs = res.data;
+      });
+    this.bPNMProcessInfoService()
+      .retrieve()
+      .then(res => {
+        this.bPNMProcessInfos = res.data;
       });
   }
 }

@@ -22,6 +22,22 @@
                     <dd>
                         <span>{{pipeline.urlPart}}</span>
                     </dd>
+                    <dt>
+                        <span v-text="$t('ca3SApp.pipeline.caConnector')">Ca Connector</span>
+                    </dt>
+                    <dd>
+                        <div v-if="pipeline.caConnector">
+                            <router-link :to="{name: 'CAConnectorConfigView', params: {cAConnectorConfigId: pipeline.caConnector.id}}">{{pipeline.caConnector.id}}</router-link>
+                        </div>
+                    </dd>
+                    <dt>
+                        <span v-text="$t('ca3SApp.pipeline.processInfo')">Process Info</span>
+                    </dt>
+                    <dd>
+                        <div v-if="pipeline.processInfo">
+                            <router-link :to="{name: 'BPNMProcessInfoView', params: {bPNMProcessInfoId: pipeline.processInfo.id}}">{{pipeline.processInfo.id}}</router-link>
+                        </div>
+                    </dd>
                 </dl>
                 <button type="submit"
                         v-on:click.prevent="previousState()"

@@ -10,19 +10,20 @@
 
 				<div class="col-xs-12 table-responsive">
 
-					<div v-for="filter in filters">
+					<div v-for="(filter, index) in filters" :key="index">
 						<select float="left" class="smallSelector" v-model="filter.attributeName">
-							<option v-for="certSelectionItem in certSelectionItems">{{certSelectionItem.itemName}}</option>
+							<option v-for="certSelectionItem in certSelectionItems" :key="certSelectionItem.itemName">{{certSelectionItem.itemName}}</option>
 
 						</select>
 
 						<select float="left" class="smallSelector" v-model="filter.selector">
-							<option v-for="item in getChoices(filter.attributeName)">{{item}}</option>
+							<option v-for="item in getChoices(filter.attributeName)" :key="item">{{item}}</option>
 						</select>
 
 						<input float="left" class="largeSelector" v-model="filter.attributeValue"/>
 
-						<button class="addRemoveSelector">+</button>
+						<button class="addRemoveSelector" v-if="index == 0" v-on:click="addSelector()">+</button>
+						<button class="addRemoveSelector" v-if="index > 0" v-on:click="removeSelector(index)">-</button>
 					</div>
 
 					<certificate-table :columns="columns" :data="certApiUrl" :per-page="10">
@@ -38,10 +39,10 @@
 						<datatable-pager v-model="page" type="short"></datatable-pager>
 				
 						<label>Abbreviated</label>
-						<datatable-pager v-model="page" type="abbreviated"></datatable-pager-->
+						<datatable-pager v-model="page" type="abbreviated"></datatable-pager>
 				
 						<label>Long</label>
-						<datatable-pager v-model="page" type="long"></datatable-pager>
+						<datatable-pager v-model="page" type="long"></datatable-pager-->
 					</section>
 				</div>
 			</div>

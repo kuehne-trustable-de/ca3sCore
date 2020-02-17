@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core.domain;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -16,7 +15,6 @@ import de.trustable.ca3s.core.domain.enumeration.PipelineType;
  */
 @Entity
 @Table(name = "pipeline")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Pipeline implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -34,13 +32,19 @@ public class Pipeline implements Serializable {
     @Column(name = "type", nullable = false)
     private PipelineType type;
 
-    @NotNull
-    @Column(name = "url_part", nullable = false)
+    @Column(name = "url_part")
     private String urlPart;
 
     @OneToMany(mappedBy = "pipeline")
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<PipelineAttribute> pipelineAttributes = new HashSet<>();
+
+    @ManyToOne
+    @JsonIgnoreProperties("pipelines")
+    private CAConnectorConfig caConnector;
+
+    @ManyToOne
+    @JsonIgnoreProperties("pipelines")
+    private BPNMProcessInfo processInfo;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -113,6 +117,32 @@ public class Pipeline implements Serializable {
 
     public void setPipelineAttributes(Set<PipelineAttribute> pipelineAttributes) {
         this.pipelineAttributes = pipelineAttributes;
+    }
+
+    public CAConnectorConfig getCaConnector() {
+        return caConnector;
+    }
+
+    public Pipeline caConnector(CAConnectorConfig cAConnectorConfig) {
+        this.caConnector = cAConnectorConfig;
+        return this;
+    }
+
+    public void setCaConnector(CAConnectorConfig cAConnectorConfig) {
+        this.caConnector = cAConnectorConfig;
+    }
+
+    public BPNMProcessInfo getProcessInfo() {
+        return processInfo;
+    }
+
+    public Pipeline processInfo(BPNMProcessInfo bPNMProcessInfo) {
+        this.processInfo = bPNMProcessInfo;
+        return this;
+    }
+
+    public void setProcessInfo(BPNMProcessInfo bPNMProcessInfo) {
+        this.processInfo = bPNMProcessInfo;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 

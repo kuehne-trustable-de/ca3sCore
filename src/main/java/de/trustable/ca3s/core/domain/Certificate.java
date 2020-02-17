@@ -60,7 +60,8 @@ import java.util.Set;
         " att2.name = :name2 and att2.value = :value2 "
         ),
          
-})public class Certificate implements Serializable {
+})
+public class Certificate implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

@@ -70,7 +70,7 @@
 						</dt>
 						<dd v-if="precheckResponse.p10Holder.sans.length > 0">
 							<ul>
-								<li v-for="san in precheckResponse.p10Holder.sans">{{san}}</li>
+								<li v-for="san in precheckResponse.p10Holder.sans" :key="san">{{san}}</li>
 							</ul>
 						</dd>
 					</dl>
@@ -117,7 +117,7 @@
 						</dt>
 						<dd v-if="precheckResponse.certificates[0].sans.length > 0">
 							<ul>
-								<li v-for="san in precheckResponse.certificates[0].sans">{{san}}</li>
+								<li v-for="san in precheckResponse.certificates[0].sans" :key="san">{{san}}</li>
 							</ul>
 						</dd>
 					</dl>

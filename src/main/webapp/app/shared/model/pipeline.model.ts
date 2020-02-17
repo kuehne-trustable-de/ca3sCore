@@ -1,4 +1,6 @@
 import { IPipelineAttribute } from '@/shared/model/pipeline-attribute.model';
+import { ICAConnectorConfig } from '@/shared/model/ca-connector-config.model';
+import { IBPNMProcessInfo } from '@/shared/model/bpnm-process-info.model';
 
 export const enum PipelineType {
   ACME = 'ACME',
@@ -12,6 +14,8 @@ export interface IPipeline {
   type?: PipelineType;
   urlPart?: string;
   pipelineAttributes?: IPipelineAttribute[];
+  caConnector?: ICAConnectorConfig;
+  processInfo?: IBPNMProcessInfo;
 }
 
 export class Pipeline implements IPipeline {
@@ -20,6 +24,8 @@ export class Pipeline implements IPipeline {
     public name?: string,
     public type?: PipelineType,
     public urlPart?: string,
-    public pipelineAttributes?: IPipelineAttribute[]
+    public pipelineAttributes?: IPipelineAttribute[],
+    public caConnector?: ICAConnectorConfig,
+    public processInfo?: IBPNMProcessInfo
   ) {}
 }

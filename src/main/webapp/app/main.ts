@@ -49,6 +49,7 @@ import ProtectedContentService from '@/entities/protected-content/protected-cont
 import AcmeIdentifierService from '@/entities/acme-identifier/acme-identifier.service';
 import AcmeAuthorizationService from '@/entities/acme-authorization/acme-authorization.service';
 import AcmeNonceService from '@/entities/acme-nonce/acme-nonce.service';
+import BPNMProcessInfoService from '@/entities/bpnm-process-info/bpnm-process-info.service';
 // jhipster-needle-add-entity-service-to-main-import - JHipster will import entities services here
 
 Vue.config.productionTip = false;
@@ -131,6 +132,7 @@ new Vue({
     acmeIdentifierService: () => new AcmeIdentifierService(),
     acmeAuthorizationService: () => new AcmeAuthorizationService(),
     acmeNonceService: () => new AcmeNonceService(),
+    bPNMProcessInfoService: () => new BPNMProcessInfoService(),
     // jhipster-needle-add-entity-service-to-main - JHipster will import entities services here
     accountService: () => accountService
   },

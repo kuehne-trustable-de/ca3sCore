@@ -97,7 +97,16 @@ export default class CertList extends Vue {
     { itemType: 'boolean', hasValue: false, choices: ['ISTRUE', 'ISFALSE']}
   ];
 
-  public filters: ICertificateFilter[] = [{attributeName: 'subject', attributeValue: 'trust', selector: 'LIKE'}];
+  public defaultFilter: ICertificateFilter = {attributeName: 'subject', attributeValue: 'trust', selector: 'LIKE'};
+  public filters: ICertificateFilter[] = [this.defaultFilter];
+
+  public addSelector() {
+    const newFilter = {...this.defaultFilter};
+    this.filters.push(newFilter);
+  }
+  public removeSelector(index: number) {
+    this.filters.splice(index, 1);
+  }
 
   public getChoices(itemName: string): string[] {
     window.console.info('getChoices(' + itemName + ')');
@@ -154,52 +163,6 @@ export default class CertList extends Vue {
 
         return url;
       }
-
-/*
-      async getData({ sortBy, sortDir, perPage, page }: IDataFnParams<ICertificate>) {
-
-        const sortParams = sortBy && sortDir ? {
-          order: sortDir,
-          sort: colFieldToStr(sortBy).replace(/\./g, '/'),
-        } : {};
-
-        const params = {
-          // Sorting
-          ...sortParams,
-
-          // Filtering
-          // See https://documenter.getpostman.com/view/2025350/RWaEzAiG#json-field-masking
-          filter: this.columns.map(col => colFieldToStr(col.field!).replace(/\./g, '/')).join(','),
-
-          // Paging
-          limit: perPage || 10,
-          offset: ((page - 1) * perPage) || 0,
-        };
-        const filterLen = filters.length;
-        for ( let i = 0; i < filterLen; i++) {
-          const filter = filters[i];
-          const idx = i + 1;
-          params['attributeName_' + idx] = filter.attributeName;
-          params['attributeValue_' + idx] = filter.attributeValue;
-          params['attributeSelector_' + idx] = filter.selector;
-        }
-
-        const baseApiUrl = 'publicapi/certificateList';
-        const url = `${baseApiUrl}?${makeQueryStringFromObj(params)}`;
-
-        const {
-          // Data to display
-          data,
-          // Get the total number of matched items
-          headers: { 'spacex-api-count': totalCount },
-        } = await axios.get(url);
-
-        return {
-          rows: data,
-          totalRowCount: totalCount,
-        } as ITableContentParam<ICertificate>;
-      }
-*/
 
     };
   }

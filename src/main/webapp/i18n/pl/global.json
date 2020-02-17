@@ -30,6 +30,7 @@
         "acmeIdentifier": "Acme Identifier",
         "acmeAuthorization": "Acme Authorization",
         "acmeNonce": "Acme Nonce",
+        "bpnmProcessInfo": "BPNM Process Info",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {
