@@ -10,20 +10,25 @@
 
 				<div class="col-xs-12 table-responsive">
 
-					<div v-for="(filter, index) in filters" :key="index">
-						<select float="left" class="smallSelector" v-model="filter.attributeName">
-							<option v-for="certSelectionItem in certSelectionItems" :key="certSelectionItem.itemName">{{certSelectionItem.itemName}}</option>
+					<div class="table-responsive">
 
-						</select>
+						<div v-for="(filter, index) in filters" :key="index">
+							<select float="left" class="smallSelector fa-1x" v-model="filter.attributeName">
+								<option v-for="certSelectionItem in certSelectionItems" :key="certSelectionItem.itemName">{{certSelectionItem.itemName}}</option>
 
-						<select float="left" class="smallSelector" v-model="filter.selector">
-							<option v-for="item in getChoices(filter.attributeName)" :key="item">{{item}}</option>
-						</select>
+							</select>
 
-						<input float="left" class="largeSelector" v-model="filter.attributeValue"/>
+							<select float="left" class="smallSelector fa-1x" v-model="filter.selector">
+								<option v-for="item in getChoices(filter.attributeName)" :key="item">{{item}}</option>
+							</select>
 
-						<button class="addRemoveSelector" v-if="index == 0" v-on:click="addSelector()">+</button>
-						<button class="addRemoveSelector" v-if="index > 0" v-on:click="removeSelector(index)">-</button>
+							<input type="date" v-if="getInputType(filter.attributeName) == 'date'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue"/>
+							<input type="hidden" v-else-if="getInputType(filter.attributeName) == 'boolean'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue"/>
+							<input v-else float="left" class="largeSelector fa-1x" v-model="filter.attributeValue"/>
+
+							<button class="addRemoveSelector" float="right" v-if="index == 0" v-on:click="addSelector()">+</button>
+							<button class="addRemoveSelector" float="right" v-if="index > 0" v-on:click="removeSelector(index)">-</button>
+						</div>
 					</div>
 
 					<certificate-table :columns="columns" :data="certApiUrl" :per-page="10">

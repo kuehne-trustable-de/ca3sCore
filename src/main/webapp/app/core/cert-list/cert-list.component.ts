@@ -86,14 +86,14 @@ export default class CertList extends Vue {
     { itemName: 'subject', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable'},
     { itemName: 'issuer', itemType: 'string', itemDefaultSelector: null, itemDefaultValue: null},
     { itemName: 'serial', itemType: 'number', itemDefaultSelector: null, itemDefaultValue: null},
-    { itemName: 'validTo', itemType: 'date', itemDefaultSelector: 'GREATERTHAN', itemDefaultValue: '{now}'},
-    { itemName: 'revoked', itemType: 'boolean', itemDefaultSelector: 'EQUALS', itemDefaultValue: 'true'}
+    { itemName: 'validTo', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}'},
+    { itemName: 'revoked', itemType: 'boolean', itemDefaultSelector: 'ISTRUE', itemDefaultValue: 'true'}
   ];
 
   public selectionChoices: ISelectionChoices [] = [
     { itemType: 'string', hasValue: true, choices: ['EQUALS', 'LIKE', 'NOTLIKE', 'LESSTHAN', 'GREATERTHAN']},
     { itemType: 'number', hasValue: true, choices: ['EQUALS', 'LESSTHAN', 'GREATERTHAN']},
-    { itemType: 'date', hasValue: true, choices: ['EQUALS', 'LESSTHAN', 'GREATERTHAN']},
+    { itemType: 'date', hasValue: true, choices: ['ON', 'BEFORE', 'AFTER']},
     { itemType: 'boolean', hasValue: false, choices: ['ISTRUE', 'ISFALSE']}
   ];
 
@@ -106,6 +106,14 @@ export default class CertList extends Vue {
   }
   public removeSelector(index: number) {
     this.filters.splice(index, 1);
+  }
+
+  public getInputType(itemName: string): string {
+    const selectionItem = this.certSelectionItems.find(selections => selections.itemName === itemName);
+    if ( selectionItem ) {
+      return selectionItem.itemType;
+    }
+    return '';
   }
 
   public getChoices(itemName: string): string[] {

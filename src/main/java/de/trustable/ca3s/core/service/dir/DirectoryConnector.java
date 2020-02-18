@@ -119,7 +119,9 @@ public class DirectoryConnector {
 	public boolean importCertifiateFromFile(String filename) {
 		
 		File certFile = new File(filename);
-		Instant lastChangeDate = Instant.ofEpochMilli(certFile.lastModified());
+		
+		// discard the milliseconds
+		Instant lastChangeDate = Instant.ofEpochMilli((certFile.lastModified() / 1000L) * 1000L);
 
 		List<ImportedURL> impUrlList = importedURLRepository.findEntityByUrl(certFile.toURI().toString());
 		if( impUrlList.isEmpty()) {

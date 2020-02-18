@@ -12,6 +12,7 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.text.SimpleDateFormat;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.domain.CertificateAttribute_;
 import de.trustable.ca3s.core.domain.Certificate_;
+import de.trustable.ca3s.core.service.util.DateUtil;
 import de.trustable.ca3s.core.web.rest.data.Selector;
 
 
@@ -157,8 +159,7 @@ public final class CertificateSpecifications {
 			
 			pred = cb.and( cb.equal(attJoin.<String>get(CertificateAttribute_.name), CertificateAttribute.ATTRIBUTE_SUBJECT),
 					buildPredicate( attributeSelector, cb, attJoin.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()));
-
-			
+		
 		}else if( "san".equals(attribute)){
 			Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes);
 			
@@ -248,6 +249,9 @@ public final class CertificateSpecifications {
 		if( Selector.EQUALS.toString().equals(attributeSelector)){
 			logger.debug("buildPredicate equal ('{}') for value '{}'", attributeSelector, value);
 			return cb.equal(expression, value);
+		}else if( Selector.ON.toString().equals(attributeSelector)){
+			logger.debug("buildPredicate on ('{}') for value '{}'", attributeSelector, value);
+			return cb.equal(expression, value);
 		}else if( Selector.LIKE.toString().equals(attributeSelector)){
 			logger.debug("buildPredicate like ('{}') for value '{}'", attributeSelector, getContainsLikePattern(value));
 			return cb.like(expression, getContainsLikePattern(value));
@@ -257,8 +261,14 @@ public final class CertificateSpecifications {
 		}else if( Selector.LESSTHAN.toString().equals(attributeSelector)){
 			logger.debug("buildPredicate lessThan ('{}') for value '{}'", attributeSelector, value);
 				return cb.lessThan(expression, value);
+		}else if( Selector.BEFORE.toString().equals(attributeSelector)){
+			logger.debug("buildPredicate before ('{}') for value '{}'", attributeSelector, value);
+				return cb.lessThan(expression, value);
 		}else if( Selector.GREATERTHAN.toString().equals(attributeSelector)){
 			logger.debug("buildPredicate greaterThan ('{}') for value '{}'", attributeSelector, value);
+				return cb.greaterThan(expression, value);
+		}else if( Selector.AFTER.toString().equals(attributeSelector)){
+			logger.debug("buildPredicate after ('{}') for value '{}'", attributeSelector, value);
 				return cb.greaterThan(expression, value);
 		}else{
 			logger.debug("buildPredicate defaults to equals ('{}') for value '{}'", attributeSelector, value);
@@ -279,20 +289,28 @@ public final class CertificateSpecifications {
 
 	
 	private static Predicate buildDatePredicate(String attributeSelector, CriteriaBuilder cb, Expression<Instant> expression, String value) {
+		Instant dateTime;
 		try{
-			Instant dateTime = Instant.ofEpochMilli(Long.parseLong(value));
-			if( "on".equals(attributeSelector)){
-				logger.debug("buildPredicate on ('{}') for value {}", attributeSelector, dateTime);
+
+			try {
+				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+				dateTime = DateUtil.asInstant(dateFormat.parse(value));
+			} catch(Exception ex ){
+				dateTime = Instant.ofEpochMilli(Long.parseLong(value));
+			}
+			
+			if( Selector.ON.toString().equals(attributeSelector)){
+				logger.debug("buildDatePredicate on ('{}') for value {}", attributeSelector, dateTime);
 				return cb.equal(expression, dateTime);
-			}else if( "before".equals(attributeSelector)){
-				logger.debug("buildPredicate before ('{}') for value {}", attributeSelector, dateTime);
+			}else if( Selector.BEFORE.toString().equals(attributeSelector)){
+				logger.debug("buildDatePredicate before ('{}') for value {}", attributeSelector, dateTime);
 				return cb.lessThanOrEqualTo(expression, dateTime);
-			}else if( "after".equals(attributeSelector)){
-				logger.debug("buildPredicate after ('{}') for value {}", attributeSelector, dateTime);
+			}else if( Selector.AFTER.toString().equals(attributeSelector)){
+				logger.debug("buildDatePredicate after ('{}') for value {}", attributeSelector, dateTime);
 				return cb.greaterThanOrEqualTo(expression, dateTime);
 			}else{
-				logger.debug("buildPredicate defaults to equals ('{}') for value {}", attributeSelector, value);
-				return cb.equal(expression, value);
+				logger.debug("buildDatePredicate defaults to equals ('{}') for value {}", attributeSelector, dateTime);
+				return cb.equal(expression, dateTime);
 			}
 		} catch(Exception ex ){
 			logger.debug("parsing date ... ", ex);

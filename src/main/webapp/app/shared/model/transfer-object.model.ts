@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2020-02-13 13:23:07.
+// Generated using typescript-generator version 2.19.577 on 2020-02-18 21:21:30.
 
 export interface IUploadPrecheckData {
     passphrase?: string;
@@ -71,6 +71,6 @@ export interface IPkcs10RequestHolderShallow {
     publicKeyAlgorithmName?: string;
 }
 
-export type ISelector = "EQUALS" | "LIKE" | "NOTLIKE" | "LESSTHAN" | "GREATERTHAN" | "ISTRUE"| "ISFALSE";
+export type ISelector = "EQUALS" | "LIKE" | "NOTLIKE" | "LESSTHAN" | "GREATERTHAN" | "ON" | "BEFORE" | "AFTER" | "ISTRUE" | "ISFALSE";
 
 export type IPKCSDataType = "CSR" | "X509_CERTIFICATE" | "UNKNOWN";

@@ -104,12 +104,16 @@
         }
     </script>
 
+<!--
+                background: #dfdfdf;
+
+-->
     <style>
         .table-responsive tr {
             border-bottom: 1px solid #000;
         }
-        .table-responsive tr:nth-child(odd) {
-            background: #dfdfdf;
+        .table-responsive tr:nth-child(2n+1) {
+            background-color: rgba(0, 0, 0, 0.05);
         }
         .table-striped tbody tr:nth-of-type(2n+1) {
             background-color: rgba(0, 0, 0, 0.05);
@@ -119,13 +123,17 @@
             padding: 0px 2px 0px 2px;
         }
         .table-responsive thead, .table-responsive  thead tr {
-            background: CadetBlue;
+            background: LightSkyBlue;
 
         }
         div.table-responsive>table{
             border-collapse: none !important;
         }
         div.table-responsive table thead tr th{
+            border: 1px solid #aaa;
+        }
+
+        div.table-responsive {
             border: 1px solid #aaa;
         }
 
