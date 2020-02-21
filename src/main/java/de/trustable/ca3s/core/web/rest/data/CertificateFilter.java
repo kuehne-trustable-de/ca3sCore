@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import de.trustable.ca3s.core.service.dto.Selector;
+
 public class CertificateFilter implements Serializable {
 
 	/**

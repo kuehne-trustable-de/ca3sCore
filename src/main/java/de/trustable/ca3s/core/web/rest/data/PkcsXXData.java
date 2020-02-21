@@ -10,12 +10,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.util.Pkcs10RequestHolder;
 
 @Immutable
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PkcsXXData {
 
+	@SuppressWarnings("unused")
 	private static final Logger LOGGER = LoggerFactory.getLogger(PkcsXXData.class);
 
 	@JsonProperty("dataType")

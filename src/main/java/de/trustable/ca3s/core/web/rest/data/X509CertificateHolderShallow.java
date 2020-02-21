@@ -22,6 +22,7 @@ import de.trustable.util.OidNameMapper;
 
 public class X509CertificateHolderShallow {
 	
+	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(X509CertificateHolderShallow.class);
 
     private String subject;

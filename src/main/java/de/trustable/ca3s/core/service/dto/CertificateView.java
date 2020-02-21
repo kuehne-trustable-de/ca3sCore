@@ -1,4 +1,5 @@
-package de.trustable.ca3s.core.web.rest.data;
+package de.trustable.ca3s.core.service.dto;
+
 import java.io.Serializable;
 import java.time.Instant;
 

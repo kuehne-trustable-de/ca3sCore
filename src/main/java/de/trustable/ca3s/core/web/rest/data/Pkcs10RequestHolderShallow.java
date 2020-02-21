@@ -4,7 +4,6 @@ import java.util.Set;
 
 import org.bouncycastle.asn1.x509.GeneralName;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import de.trustable.ca3s.core.service.util.CSRUtil;

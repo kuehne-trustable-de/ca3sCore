@@ -2,8 +2,6 @@ import Component from 'vue-class-component';
 import { Inject, Vue } from 'vue-property-decorator';
 import LoginService from '@/account/login.service';
 
-import { ICertificate } from '@/shared/model/certificate.model';
-
 import { ICertificateFilter, ISelector, ICertificateSelectionData, ICertificateView } from '@/shared/model/transfer-object.model';
 
 import { colFieldToStr, formatUtcDate, makeQueryStringFromObj } from '@/shared/utils';
@@ -46,7 +44,7 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>(
         ...endpointDesc,
 
         ...( perPage !== null ? {
-            limit:  perPage || 10,
+            limit:  perPage || 20,
             offset: ( ( pageIndex - 1 ) * perPage ) || 0,
         } : {} ),
     } ) )
@@ -61,13 +59,13 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>(
           // Data to display
           data,
           // Get the total number of matched items
-          headers: { 'spacex-api-count': totalCount },
+          headers: { 'x-total-count': totalCount },
         } = await axios.get(url);
 
         return {
           rows: data,
           totalRowCount: totalCount,
-        } as ITableContentParam<ICertificate>;
+        } as ITableContentParam<ICertificateView>;
       }
     )
   );
@@ -143,12 +141,13 @@ export default class CertList extends Vue {
         { label: 'subject', field: 'subject', headerClass: 'class-in-header second-class' },
         { label: 'issuer', field: 'issuer' },
         { label: 'type', field: 'type' },
-        { label: 'serial', field: 'serial' },
-        { label: 'validFrom', field: 'validFrom' },
-        { label: 'validTo', field: 'validTo' },
+        { label: 'serial', field: 'serial', align: 'right',
+representedAs: row => `${(row.serial.length > 12) ? row.serial.substring(0, 6).concat('..', row.serial.substring(row.serial.length - 4, row.serial.length - 1 )) : row.serial}` },
+        { label: 'validFrom', field: 'validFrom', representedAs: row => `${row.validFrom.toString().substring(0, 10)}`  },
+        { label: 'validTo', field: 'validTo', representedAs: row => `${row.validTo.toString().substring(0, 10)}` },
         { label: 'revoked', field: 'revoked' },
         { label: 'revokedSince', field: 'revokedSince' }
-      ] as TColumnsDefinition<ICertificate>,
+      ] as TColumnsDefinition<ICertificateView>,
       page: 1,
       filter: '',
 

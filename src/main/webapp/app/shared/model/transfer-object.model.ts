@@ -1,6 +1,22 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2020-02-18 21:21:30.
+// Generated using typescript-generator version 2.19.577 on 2020-02-21 11:50:10.
+
+export interface ICertificateView extends ISerializable {
+    id?: number;
+    tbsDigest?: string;
+    subject?: string;
+    issuer?: string;
+    type?: string;
+    description?: string;
+    serial?: string;
+    validFrom?: Date;
+    validTo?: Date;
+    contentAddedAt?: Date;
+    revokedSince?: Date;
+    revocationReason?: string;
+    revoked?: boolean;
+}
 
 export interface IUploadPrecheckData {
     passphrase?: string;
@@ -18,22 +34,6 @@ export interface IX509CertificateHolderShallow {
     extensions?: string[];
     keyPresent?: boolean;
     sans?: string[];
-}
-
-export interface ICertificateView extends ISerializable {
-    id?: number;
-    tbsDigest?: string;
-    subject?: string;
-    issuer?: string;
-    type?: string;
-    description?: string;
-    serial?: string;
-    validFrom?: Date;
-    validTo?: Date;
-    contentAddedAt?: Date;
-    revokedSince?: Date;
-    revocationReason?: string;
-    revoked?: boolean;
 }
 
 export interface ICertificateFilter extends ISerializable {

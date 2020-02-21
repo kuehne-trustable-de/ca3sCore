@@ -10,7 +10,7 @@
 
 				<div class="col-xs-12 table-responsive">
 
-					<div class="table-responsive">
+					<div>
 
 						<div v-for="(filter, index) in filters" :key="index">
 							<select float="left" class="smallSelector fa-1x" v-model="filter.attributeName">
@@ -26,12 +26,21 @@
 							<input type="hidden" v-else-if="getInputType(filter.attributeName) == 'boolean'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue"/>
 							<input v-else float="left" class="largeSelector fa-1x" v-model="filter.attributeValue"/>
 
-							<button class="addRemoveSelector" float="right" v-if="index == 0" v-on:click="addSelector()">+</button>
-							<button class="addRemoveSelector" float="right" v-if="index > 0" v-on:click="removeSelector(index)">-</button>
+							<button class="addRemoveSelector" float="right" v-if="index == 0" v-on:click="addSelector()">
+		                        <font-awesome-icon icon="plus"></font-awesome-icon>
+							</button>
+							<button class="addRemoveSelector" float="right" v-if="index > 0" v-on:click="removeSelector(index)">
+		                        <font-awesome-icon icon="minus"></font-awesome-icon>
+							</button>
 						</div>
 					</div>
 
-					<certificate-table :columns="columns" :data="certApiUrl" :per-page="10">
+					<certificate-table :columns="columns" :data="certApiUrl" :per-page="20">
+					    <!--template name="footer" scope="{ rows, columns, pagination }">
+							<tr>
+								<td :colspan="columns.length">Showing rows {{pagination.from}} to {{pagination.to}} of {{pagination.of}} items.</td>
+							</tr>
+						</template-->
 						<!--template name="footer" scope="{ page }">
 							<tr>
 								<td :colspan="columns.length">Showing rows {{page.from}} to {{page.to}} of {{page.of}} items.</td>
