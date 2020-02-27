@@ -28,6 +28,7 @@ export default class PKCSXX extends Vue {
   public upload: IUploadPrecheckData = <IUploadPrecheckData>{};
   public precheckResponse: IPkcsXXData = <IPkcsXXData>{};
 
+  public responseStatus = 0;
   public isChecked = false;
   public isChecking = false;
   public isSaving = false;
@@ -40,6 +41,40 @@ export default class PKCSXX extends Vue {
     return this.$store.getters.account ? this.$store.getters.account.login : '';
   }
 
+  public catchDroppedFile(e: DragEvent): void {
+    const droppedFiles = e.dataTransfer.files;
+    if (!droppedFiles && droppedFiles.length === 0) {
+      return;
+    }
+    const readerBase64 = new FileReader();
+    const readerBinary = new FileReader();
+    const blob = droppedFiles.item(0).slice(0, droppedFiles.item(0).size);
+    const self = this;
+
+    readerBase64.onloadend = function() {
+        const base64Text = readerBase64.result.toString();
+
+        if ( /^[\x00-\x7F]*$/.test(base64Text) ) {
+          self.upload.content = base64Text;
+          console.log('dropped ascii-only content : ' + base64Text);
+          self.$forceUpdate();
+          self.contentCall(precheckUrl);
+        } else {
+          readerBinary.readAsDataURL(blob);
+        }
+    };
+
+    readerBinary.onloadend = function() {
+        const base64Text = readerBinary.result.toString().split(',')[1];
+        self.upload.content = base64Text;
+        console.log('dropped binary content, base64 encoded : ' + base64Text);
+        self.$forceUpdate();
+        self.contentCall(precheckUrl);
+    };
+
+    readerBase64.readAsText(blob);
+  }
+
   public notifyChange(_evt: Event): void {
 //      alert('CSR changed');
       this.contentCall(precheckUrl);
@@ -50,6 +85,12 @@ export default class PKCSXX extends Vue {
   }
 
   async contentCall(url: string) {
+    // don't do a call without content
+    if (this.upload.content.trim().length === 0) {
+      return;
+    }
+
+    this.responseStatus = 0;
     try {
       const response = await axios.post(`${url}`, this.upload);
       this.precheckResponse = response.data;
@@ -58,6 +99,7 @@ export default class PKCSXX extends Vue {
     } catch (error) {
       console.error(error);
       this.isChecked = false;
+      this.responseStatus = error.response.status;
     }
   }
 

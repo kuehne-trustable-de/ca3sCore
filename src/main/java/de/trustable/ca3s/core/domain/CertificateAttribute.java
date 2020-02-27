@@ -144,5 +144,7 @@ public class CertificateAttribute implements Serializable {
 	
 	public static final String ATTRIBUTE_FILE_SOURCE = "FILE_SOURCE";
 
+	public static final String ATTRIBUTE_UPLOADED_BY = "UPLOADED_BY";
+
 
 }

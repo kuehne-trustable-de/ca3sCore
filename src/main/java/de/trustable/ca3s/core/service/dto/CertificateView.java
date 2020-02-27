@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.time.Instant;
 
 import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.CertificateAttribute;
+import de.trustable.ca3s.core.service.util.CertificateUtil;
 
 /**
  * A certificate view from a given certificate and its attributes
@@ -22,6 +24,14 @@ public class CertificateView implements Serializable {
 
     private String type;
 
+    private String keyLength;
+
+    private String signingAlgorithm;
+    
+    private String paddingAlgorithm;
+    
+    private String hashAlgorithm;
+    
     private String description;
 
     private String serial;
@@ -40,12 +50,16 @@ public class CertificateView implements Serializable {
 
     public CertificateView() {}
     
-    public CertificateView(final Certificate cert) {
+    public CertificateView(final CertificateUtil certUtil, final Certificate cert) {
     	this.id = cert.getId();
     	this.tbsDigest = cert.getTbsDigest();
     	this.subject = cert.getSubject();
     	this.issuer = cert.getIssuer();
     	this.type = cert.getType();
+   		this.keyLength = certUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_KEY_LENGTH);
+		this.signingAlgorithm = certUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SIGNATURE_ALGO);
+		this.paddingAlgorithm = certUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_PADDING_ALGO);
+		this.hashAlgorithm = certUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_HASH_ALGO );
     	this.description = cert.getDescription();
     	this.serial = cert.getSerial();
     	this.validFrom = cert.getValidFrom();
@@ -159,6 +173,38 @@ public class CertificateView implements Serializable {
 
 	public void setRevoked(Boolean revoked) {
 		this.revoked = revoked;
+	}
+
+	public String getKeyLength() {
+		return keyLength;
+	}
+
+	public String getSigningAlgorithm() {
+		return signingAlgorithm;
+	}
+
+	public String getPaddingAlgorithm() {
+		return paddingAlgorithm;
+	}
+
+	public String getHashAlgorithm() {
+		return hashAlgorithm;
+	}
+
+	public void setKeyLength(String keyLength) {
+		this.keyLength = keyLength;
+	}
+
+	public void setSigningAlgorithm(String signingAlgorithm) {
+		this.signingAlgorithm = signingAlgorithm;
+	}
+
+	public void setPaddingAlgorithm(String paddingAlgorithm) {
+		this.paddingAlgorithm = paddingAlgorithm;
+	}
+
+	public void setHashAlgorithm(String hashAlgorithm) {
+		this.hashAlgorithm = hashAlgorithm;
 	}
 
     

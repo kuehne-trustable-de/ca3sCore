@@ -82,10 +82,12 @@ public class X509CertificateHolderShallow {
 			
 			GeneralNames namesSAN = GeneralNames.fromExtensions(exts, Extension.subjectAlternativeName);
 			
-			int j = 0;
-			this.sans = new String[namesSAN.getNames().length];
-			for( GeneralName gn : namesSAN.getNames()) {
-				this.sans[j++] = CSRUtil.getGeneralNameDescription(gn);
+			if( (namesSAN != null) && (namesSAN.getNames() != null)) {
+				int j = 0;
+				this.sans = new String[namesSAN.getNames().length];
+				for( GeneralName gn : namesSAN.getNames()) {
+					this.sans[j++] = CSRUtil.getGeneralNameDescription(gn);
+				}
 			}
     	}
     }

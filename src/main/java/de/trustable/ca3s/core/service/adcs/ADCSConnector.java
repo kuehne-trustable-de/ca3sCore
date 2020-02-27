@@ -305,7 +305,6 @@ public class ADCSConnector {
 	 * 
 	 * @see de.trustable.ca3s.adcs.CertificateSource#retrieveCertificates()
 	 */
-	@Transactional(propagation = Propagation.REQUIRED)
 	public int retrieveCertificates(CAConnectorConfig caConnectorDao) throws OODBConnectionsACDSException, ACDSProxyUnavailableException {
 
 		LOGGER.debug("in retrieveCertificates");
@@ -335,24 +334,7 @@ public class ADCSConnector {
 						CertificateAttribute.ATTRIBUTE_CA_PROCESSING_ID, reqId);
 
 				if (certDaoList.isEmpty()) {
-					GetCertificateResponse certResponse = adcsConnector.getCertificateByRequestId(reqId);
-
-					try {
-						Certificate certDao = certUtil.createCertificate(certResponse.getB64Cert(), null,
-								null, false);
-
-						// the Request ID is specific to ADCS instance
-						certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_PROCESSING_CA, info);
-						certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_CA_PROCESSING_ID,
-								certResponse.getReqId());
-						certificateRepository.save(certDao);
-
-						LOGGER.debug("certificate with reqId '{}' imported from ca '{}'", reqId, info);
-
-					} catch (GeneralSecurityException | IOException e) {
-						LOGGER.info("retrieving and importing certificate with reqId '{}' from ca '{}' causes {}",
-								reqId, info, e.getLocalizedMessage());
-					}
+					importCertificate(adcsConnector, info, reqId);
 
 				} else {
 					LOGGER.debug("certificate with requestID '{}' from ca '{}' alreeady present", reqId, info);
@@ -376,6 +358,29 @@ public class ADCSConnector {
 		}
 
 		return nNewCerts;
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	private void importCertificate(ADCSWinNativeConnector adcsConnector, String info, String reqId)
+			throws ACDSException {
+		GetCertificateResponse certResponse = adcsConnector.getCertificateByRequestId(reqId);
+
+		try {
+			Certificate certDao = certUtil.createCertificate(certResponse.getB64Cert(), null,
+					null, false);
+
+			// the Request ID is specific to ADCS instance
+			certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_PROCESSING_CA, info);
+			certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_CA_PROCESSING_ID,
+					certResponse.getReqId());
+			certificateRepository.save(certDao);
+
+			LOGGER.debug("certificate with reqId '{}' imported from ca '{}'", reqId, info);
+
+		} catch (GeneralSecurityException | IOException e) {
+			LOGGER.info("retrieving and importing certificate with reqId '{}' from ca '{}' causes {}",
+					reqId, info, e.getLocalizedMessage());
+		}
 	}
 
 

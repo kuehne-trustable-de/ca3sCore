@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.KeyStore;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.List;
@@ -13,6 +14,7 @@ import javax.validation.Valid;
 
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.util.encoders.Base64;
+import org.bouncycastle.util.encoders.DecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
@@ -79,6 +83,7 @@ public class ContentUploadProcessor {
      * @return the {@link ResponseEntity} .
      */
     @PostMapping("/uploadContent")
+	@Transactional
     public ResponseEntity<PkcsXXData> uploadContent(@Valid @RequestBody UploadPrecheckData uploaded) {
     	
     	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -90,13 +95,47 @@ public class ContentUploadProcessor {
 		PkcsXXData p10ReqData = new PkcsXXData();
     	
 		try {
+	    	try {
+		    	CertificateFactory factory = CertificateFactory.getInstance("X.509");
+		    	X509Certificate cert = (X509Certificate) factory.generateCertificate(new ByteArrayInputStream(Base64.decode(content)));
+		    	content = cryptoUtil.x509CertToPem(cert);
+		    	LOG.debug("certificate parsed from base64 (non-pem) content");
+	    	} catch (GeneralSecurityException | IOException | DecoderException gse) {
+		    	LOG.debug("certificate parsing from base64 (non-pem) content failed", gse);
+	    	}
+	    	
 			X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(content);
-			Certificate cert = certUtil.getCertificateByPEM(content);
-			p10ReqData = new PkcsXXData(certHolder, cert );
 			
-		} catch (org.bouncycastle.util.encoders.DecoderException de){	
-			// no parseable ...
+			List<Certificate> certList = certificateRepository.findByIssuerSerial(certHolder.getIssuer().toString(), certHolder.getSerialNumber().toString());
+			if( !certList.isEmpty()){
+				// certificate already present in db
+				LOG.info("certificate already present");
+				return new ResponseEntity<PkcsXXData>(HttpStatus.CONFLICT);
+			}
+			
+			// insert certificate
+			Certificate cert = certUtil.createCertificate(content, null, null, false);
+			
+			// save the source of the certificate
+			certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_UPLOADED_BY, requestorName);
+
+			certificateRepository.save(cert);
+			
+			if( cert == null ) {
+				LOG.info("problem importing uploaded certificate content");
+				return new ResponseEntity<PkcsXXData>(HttpStatus.BAD_REQUEST);
+			}
+			
+			// certificate inserted into the db 
+			p10ReqData = new PkcsXXData(certHolder, true );
+			certUtil.setCertAttribute(cert, CsrAttribute.ATTRIBUTE_REQUSTOR_NAME, requestorName);
+			
+			return new ResponseEntity<PkcsXXData>(p10ReqData, HttpStatus.CREATED);
+			
+		} catch (DecoderException de){	
+			// not parseable ...
 			p10ReqData.setDataType(PKCSDataType.UNKNOWN);
+			LOG.debug("certificate parsing problem of uploaded content:", de);
 		} catch (GeneralSecurityException | IOException e) {
 			
 			LOG.debug("not a certificate, trying to parse it as CSR ");
@@ -120,7 +159,8 @@ public class ContentUploadProcessor {
 						p10ReqData.setCertificatePresentInDB(true);
 						
 						X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(cert.getContent());
-						p10ReqData = new PkcsXXData(certHolder, cert );
+						p10ReqData = new PkcsXXData(certHolder, cert != null );
+						return new ResponseEntity<PkcsXXData>(p10ReqData, HttpStatus.CREATED);
 					}
 				}
 				
@@ -150,7 +190,7 @@ public class ContentUploadProcessor {
 							LOG.debug("certificate {} found in PKCS12 for alias {}", x509cert.getSubjectDN().getName(), alias);
 
 			    			Certificate cert = certUtil.getCertificateByX509(x509cert);
-			    			p10ReqData = new PkcsXXData(new X509CertificateHolder(x509cert.getEncoded()), cert );
+			    			p10ReqData = new PkcsXXData(new X509CertificateHolder(x509cert.getEncoded()), cert != null );
 			            	
 				            if (pkcs12Store.isKeyEntry(alias)){
 
@@ -163,7 +203,9 @@ public class ContentUploadProcessor {
 				} catch (org.bouncycastle.util.encoders.DecoderException de){	
 					// no parseable ...
 					p10ReqData.setDataType(PKCSDataType.UNKNOWN);
+					LOG.debug("p12 parsing problem of uploaded content:", de);
 				}catch(GeneralSecurityException | IOException e3) {
+					LOG.debug("general problem with uploaded content:", e3);
 					return new ResponseEntity<PkcsXXData>(HttpStatus.BAD_REQUEST);
 				}
 			}

@@ -8,6 +8,8 @@ import { colFieldToStr, formatUtcDate, makeQueryStringFromObj } from '@/shared/u
 
 import { VuejsDatatableFactory, TColumnsDefinition, ITableContentParam, IDataFnParams } from 'vuejs-datatable';
 
+// import { VuejsDatatableFactory} from 'themes/bootstrap-4';
+
 import axios from 'axios';
 import { initFilters } from '@/shared/date/filters';
 
@@ -21,7 +23,6 @@ interface ISelectionChoices {
     hasValue: boolean;
     choices?: ISelector[];
 }
-
 
 VuejsDatatableFactory.registerTableType<any, any, any, any, any>(
   'certificate-table',
@@ -64,7 +65,7 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>(
 
         return {
           rows: data,
-          totalRowCount: totalCount,
+          totalRowCount: parseInt( totalCount, 10 ),
         } as ITableContentParam<ICertificateView>;
       }
     )
@@ -140,13 +141,17 @@ export default class CertList extends Vue {
         { label: 'id', field: 'id' },
         { label: 'subject', field: 'subject', headerClass: 'class-in-header second-class' },
         { label: 'issuer', field: 'issuer' },
-        { label: 'type', field: 'type' },
+        { label: 'type', field: 'type', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
+        { label: 'length', field: 'keyLength', align: 'right' },
         { label: 'serial', field: 'serial', align: 'right',
-representedAs: row => `${(row.serial.length > 12) ? row.serial.substring(0, 6).concat('..', row.serial.substring(row.serial.length - 4, row.serial.length - 1 )) : row.serial}` },
+representedAs: row => `${(row.serial.length > 12) ? row.serial.substring(0, 6).concat('...', row.serial.substring(row.serial.length - 4, row.serial.length - 1 )) : row.serial}` },
         { label: 'validFrom', field: 'validFrom', representedAs: row => `${row.validFrom.toString().substring(0, 10)}`  },
         { label: 'validTo', field: 'validTo', representedAs: row => `${row.validTo.toString().substring(0, 10)}` },
-        { label: 'revoked', field: 'revoked' },
-        { label: 'revokedSince', field: 'revokedSince' }
+        { label: 'revoked', field: 'revoked', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
+        { label: 'revokedSince', field: 'revokedSince' },
+        { label: 'signingAlgo', field: 'signingAlgorithm' },
+//        { label: 'paddingAlgo', field: 'paddingAlgorithm' },
+        { label: 'hashAlgo', field: 'hashAlgorithm' }
       ] as TColumnsDefinition<ICertificateView>,
       page: 1,
       filter: '',

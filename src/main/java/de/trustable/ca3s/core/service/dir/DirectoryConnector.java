@@ -27,10 +27,13 @@ import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.domain.ImportedURL;
+import de.trustable.ca3s.core.repository.CertificateAttributeRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.ImportedURLRepository;
+import de.trustable.ca3s.core.service.schedule.ImportInfo;
 import de.trustable.ca3s.core.service.util.CAStatus;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.ca3s.core.service.util.TransactionHandler;
 
 @Service
 public class DirectoryConnector {
@@ -39,8 +42,7 @@ public class DirectoryConnector {
 	private static final String FILE_PREFIX = "file://";
 	private static final String IMPORT_SELECTOR_REGEX = ".*\\.(cer|cert|crt|pem)";
 
-	private static final  int MAX_IMPORTS_PER_CALL = 100;
-	
+	private static final long MAX_IMPORTS_MILLISECONDS = 300L * 1000L;
 	
 	Logger LOGGER = LoggerFactory.getLogger(DirectoryConnector.class);
 
@@ -51,8 +53,13 @@ public class DirectoryConnector {
 	private CertificateRepository certificateRepository;
 
 	@Autowired
+	private CertificateAttributeRepository certificateAttributeRepository;
+
+	@Autowired
 	private ImportedURLRepository importedURLRepository;
 
+    @Autowired
+    private TransactionHandler transactionHandler;
 	
 	/**
 	 * 
@@ -95,20 +102,21 @@ public class DirectoryConnector {
 
 
 		Set<String> certSet = listFilesUsingFileWalkAndVisitor(dir.getAbsolutePath(), regEx);
-		
-		int n = 0;
+
+		ImportInfo importInfo = new ImportInfo();
+
+		long startTime = System.currentTimeMillis();
 		for( String filename: certSet) {
 
-			boolean imported = importCertifiateFromFile(filename);
-			if( imported) { n++; }
+			transactionHandler.runInNewTransaction(() -> importCertifiateFromFile(filename, importInfo));
 			
-			if( n >= MAX_IMPORTS_PER_CALL ) {
-				LOGGER.debug("retrieveCertificates: {} imported, delaying ...", MAX_IMPORTS_PER_CALL);
+			if( (System.currentTimeMillis() - startTime) > MAX_IMPORTS_MILLISECONDS ) {
+				LOGGER.debug("retrieveCertificates: imported for more than {} sec., delaying ...", MAX_IMPORTS_MILLISECONDS / 1000L);
 				break;
 			}
 		}
-
-		return n;
+		
+		return importInfo.getImported();
 	}
 
 
@@ -116,72 +124,84 @@ public class DirectoryConnector {
 	 * 
 	 * @param filename
 	 */
-	public boolean importCertifiateFromFile(String filename) {
+	public ImportInfo importCertifiateFromFile(String filename, ImportInfo importInfo) {
 		
-		File certFile = new File(filename);
-		
-		// discard the milliseconds
-		Instant lastChangeDate = Instant.ofEpochMilli((certFile.lastModified() / 1000L) * 1000L);
-
-		List<ImportedURL> impUrlList = importedURLRepository.findEntityByUrl(certFile.toURI().toString());
-		if( impUrlList.isEmpty()) {
-			// new item found
-			try {
-				byte[] content = Files.readAllBytes(Paths.get(filename));
-				Certificate certDao = certUtil.createCertificate(content, null, null, false);
-
-				// save the source of the certificate
-				certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_FILE_SOURCE, filename);
-
-				certificateRepository.save(certDao);
-
-			} catch (GeneralSecurityException | IOException e) {
-				LOGGER.info("reading and importing certificate from '{}' causes {}",
-						filename, e.getLocalizedMessage());
-			}
-
-			// the import does not necessarily succeed, but we should mark the file as imported 
-			ImportedURL impUrl = new ImportedURL();
-			impUrl.setName(certFile.toURI().toString());
-			impUrl.setImportDate(lastChangeDate);
-			importedURLRepository.save(impUrl);
+		try {
+			File certFile = new File(filename);
 			
-			LOGGER.debug("certificate imported from '{}'", filename);
-
-			return true;
-
-		}else {
-			ImportedURL impUrl = impUrlList.get(0);
-			if( impUrl.getImportDate().getEpochSecond() != lastChangeDate.getEpochSecond()) {
-				LOGGER.debug("ImportedURL for '{}' has a different import date {} compared to the files lastChangeDate {}", 
-						impUrl.getName(), impUrl.getImportDate().getEpochSecond(), lastChangeDate.getEpochSecond());
-/*
+			// discard the milliseconds
+			Instant lastChangeDate = Instant.ofEpochMilli((certFile.lastModified() / 1000L) * 1000L);
+	
+			List<ImportedURL> impUrlList = importedURLRepository.findEntityByUrl(certFile.toURI().toString());
+			if( impUrlList.isEmpty()) {
+				// new item found
 				try {
+					
+					LOGGER.debug("new certificate '{}' found, importing ...", filename);
+
 					byte[] content = Files.readAllBytes(Paths.get(filename));
-					Certificate certDao = certUtil.createCertificate(content, null, null, true);
-
+					Certificate certDao = certUtil.createCertificate(content, null, null, false);
+	
 					// save the source of the certificate
-					certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_FILE_SOURCE, filename);
-					certificateRepository.save(certDao);
-
-					impUrl.setImportDate(lastChangeDate);
-					importedURLRepository.save(impUrl);
-
-					LOGGER.debug("certificate updated from '{}'", filename);
-
-					return true;
-
+//					certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_FILE_SOURCE, filename);
+	
+//					certificateAttributeRepository.saveAll(certDao.getCertificateAttributes());
+//					certificateRepository.save(certDao);
+	
 				} catch (GeneralSecurityException | IOException e) {
-					LOGGER.info("reading and re-importing certificate from '{}' causes {}",
+					LOGGER.info("reading and importing certificate from '{}' causes {}",
 							filename, e.getLocalizedMessage());
 				}
-*/
+	
+				// the import does not necessarily succeed, but we should mark the file as imported 
+				ImportedURL impUrl = new ImportedURL();
+				impUrl.setName(certFile.toURI().toString());
+				impUrl.setImportDate(lastChangeDate);
+				importedURLRepository.save(impUrl);
 				
+				LOGGER.debug("certificate imported from '{}'", filename);
+	
+				importInfo.incImported();
+				return importInfo;
+	
 			}else {
-//				LOGGER.debug("certificate unchanged at '{}'", filename);
+				ImportedURL impUrl = impUrlList.get(0);
+				if( impUrl.getImportDate().getEpochSecond() != lastChangeDate.getEpochSecond()) {
+					LOGGER.debug("ImportedURL for '{}' has a different import date {} compared to the files lastChangeDate {}", 
+							impUrl.getName(), impUrl.getImportDate().getEpochSecond(), lastChangeDate.getEpochSecond());
+	/*
+					try {
+						byte[] content = Files.readAllBytes(Paths.get(filename));
+						Certificate certDao = certUtil.createCertificate(content, null, null, true);
+	
+						// save the source of the certificate
+						certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_FILE_SOURCE, filename);
+						certificateRepository.save(certDao);
+	
+						impUrl.setImportDate(lastChangeDate);
+						importedURLRepository.save(impUrl);
+	
+						LOGGER.debug("certificate updated from '{}'", filename);
+	
+						return true;
+	
+					} catch (GeneralSecurityException | IOException e) {
+						LOGGER.info("reading and re-importing certificate from '{}' causes {}",
+								filename, e.getLocalizedMessage());
+					}
+	*/
+					
+				}else {
+	//				LOGGER.debug("certificate unchanged at '{}'", filename);
+				}
 			}
+			
+			importInfo.incRejected();
+			return importInfo;
+		} catch (Throwable th) {
+			LOGGER.debug("certificate import failed", th);
+			return null;
 		}
-		return false;
 	}
 
 	/**
@@ -241,5 +261,3 @@ public class DirectoryConnector {
 
 
 }
-
-

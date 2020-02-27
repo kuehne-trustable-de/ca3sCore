@@ -1,5 +1,5 @@
 <template>
-    <div class="row justify-content-center">
+    <div class="row justify-content-center" v-cloak @drop.prevent="catchDroppedFile" @dragover.prevent>
         <div class="col-8">
             <form name="editForm" role="form" novalidate >
 
@@ -25,6 +25,18 @@
 							autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                             v-model="$v.upload.passphrase.$model" required/>
                     </div>
+
+					<dl class="row jh-entity-details" v-if="responseStatus > 0">
+						<dt>
+							<span v-text="$t('pkcsxx.upload.result.error')">Error</span>
+						</dt>
+						<dd>
+							<span v-if="responseStatus == 400" v-text="$t('pkcsxx.upload.result.content.not.parseable')">Ccontent not parseable</span>
+							<span v-else-if="responseStatus == 409" v-text="$t('pkcsxx.upload.result.certificate.already.exists')">Certificate already exists</span>
+							<span v-else-if="responseStatus == 201" v-text="$t('pkcsxx.upload.result.upload.successful')">Upload successful</span>
+							<span v-else v-text="$t('pkcsxx.upload.result.general error')">General error</span>
+						</dd>
+					</dl>
 
 					<dl class="row jh-entity-details" v-if="isChecked === true && precheckResponse.dataType === 'UNKNOWN'">
 						<dt>
@@ -80,7 +92,7 @@
 							<span v-text="$t('pkcsxx.upload.type')">Result</span>
 						</dt>
 						<dd>
-								<span v-text="$t('pkcsxx.upload.certificate')">X.509 certificate</span>
+							<span v-text="$t('pkcsxx.upload.result.certificate')">Certificate</span>
 						</dd>
 
 						<dt>
@@ -90,12 +102,18 @@
 							<span>{{precheckResponse.certificates[0].subject}}</span>
 						</dd>
 
-
 						<dt>
 							<span v-text="$t('pkcsxx.upload.issuer')">Issuer</span>
 						</dt>
 						<dd>
 							<span>{{precheckResponse.certificates[0].issuer}}</span>
+						</dd>
+
+						<dt>
+							<span v-text="$t('pkcsxx.upload.serial')">Serial</span>
+						</dt>
+						<dd>
+							<span>{{precheckResponse.certificates[0].serial}}</span>
 						</dd>
 
 						<dt>
@@ -123,8 +141,13 @@
 					</dl>
 
 				</div>
+
+
                 <div v-if="authenticated">
-                    <button type="button" id="uploadContent"  class="btn btn-primary" v-on:click="uploadContent">
+					<div class="row jh-entity-details" v-if="isChecked === true && precheckResponse.dataType === 'X509_CERTIFICATE' && precheckResponse.certificatePresentInDB">
+						<span v-text="$t('pkcsxx.upload.result.certificate.present')">Certificate.already.present</span>
+					</div>
+                    <button type="button" id="uploadContent" :disabled="precheckResponse.certificatePresentInDB || precheckResponse.publicKeyPresentInDB" class="btn btn-primary" v-on:click="uploadContent">
                         <font-awesome-icon icon="upload"></font-awesome-icon>&nbsp;<span v-text="$t('pkcsxx.upload.submit')">Upload</span>
                     </button>
                 </div>

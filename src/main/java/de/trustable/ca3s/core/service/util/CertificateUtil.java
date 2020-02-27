@@ -406,8 +406,8 @@ public class CertificateUtil {
 		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SIGNATURE_ALGO, sigAlgName);
 
 		String keyAlgName = sigAlgName;
-		String hashAlgName = null;
-		String paddingAlgName = null;
+		String hashAlgName = "undefined";
+		String paddingAlgName = "PKCS1"; // assume a common default padding
 		
 		if( sigAlgName.contains("with")) {
 			String[] parts = sigAlgName.split("with");
@@ -426,12 +426,8 @@ public class CertificateUtil {
 		}
 
 		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_KEY_ALGO, keyAlgName);
-		if(hashAlgName != null) {
-			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_HASH_ALGO, hashAlgName);
-		}
-		if(paddingAlgName != null) {
-			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_PADDING_ALGO, paddingAlgName);
-		}
+		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_HASH_ALGO, hashAlgName);
+		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_PADDING_ALGO, paddingAlgName);
 
 		try {
 			String curveName = deriveCurveName(x509Cert.getPublicKey());

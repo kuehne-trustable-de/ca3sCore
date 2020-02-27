@@ -42,10 +42,10 @@ public class CertificateImportScheduler {
 	@Scheduled(fixedDelay = 30000)
 	public void runMinute() {
 
-		if ("true".equalsIgnoreCase(certificateImportActive)) {
+		if ("true".equalsIgnoreCase(certificateImportActive) ) {
 			for (CAConnectorConfig caConfig : caConfigRepo.findAll()) {
 
-				if( Interval.MINUTE.equals(caConfig.getInterval())){
+				if( Interval.MINUTE.equals(caConfig.getInterval()) && caConfig.isActive()){
 					runImporter(caConfig);
 				}
 			}
@@ -61,7 +61,7 @@ public class CertificateImportScheduler {
 		if ("true".equalsIgnoreCase(certificateImportActive)) {
 			for (CAConnectorConfig caConfig : caConfigRepo.findAll()) {
 
-				if( Interval.HOUR.equals(caConfig.getInterval())){
+				if( Interval.HOUR.equals(caConfig.getInterval()) && caConfig.isActive()){
 					runImporter(caConfig);
 				}
 			}
@@ -77,7 +77,7 @@ public class CertificateImportScheduler {
 		if ("true".equalsIgnoreCase(certificateImportActive)) {
 			for (CAConnectorConfig caConfig : caConfigRepo.findAll()) {
 
-				if( Interval.DAY.equals(caConfig.getInterval())){
+				if( Interval.DAY.equals(caConfig.getInterval()) && caConfig.isActive()){
 					runImporter(caConfig);
 				}
 			}
@@ -93,7 +93,7 @@ public class CertificateImportScheduler {
 		if ("true".equalsIgnoreCase(certificateImportActive)) {
 			for (CAConnectorConfig caConfig : caConfigRepo.findAll()) {
 
-				if( Interval.DAY.equals(caConfig.getInterval())){
+				if( Interval.DAY.equals(caConfig.getInterval()) && caConfig.isActive()){
 					runImporter(caConfig);
 				}
 			}

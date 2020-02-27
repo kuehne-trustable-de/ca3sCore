@@ -143,5 +143,5 @@
     </div>
 </template>
 
-<script lang="ts" src="./certificate-details.component.ts">
+<script lang="ts" src="./cert-info.component.ts">
 </script>

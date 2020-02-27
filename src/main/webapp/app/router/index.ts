@@ -9,6 +9,7 @@ import Router from 'vue-router';
 const Home = () => import('../core/home/home.vue');
 const PkcsXX = () => import('../core/pkcsxx/pkcsxx.vue');
 const CertList = () => import('../core/cert-list/cert-list.vue');
+const CertInfo = () => import('../core/cert-list/cert-info.vue');
 const Error = () => import('../core/error/error.vue');
 const Register = () => import('../account/register/register.vue');
 const Activate = () => import('../account/activate/activate.vue');
@@ -225,7 +226,12 @@ export default new Router({
       path: '/cert-list',
       name: 'CertList',
       component: CertList
-    },   
+    },
+    {
+      path: '/cert-info',
+      name: 'CertInfo',
+      component: CertInfo
+    },
     {
       path: '/account/password',
       name: 'ChangePassword',

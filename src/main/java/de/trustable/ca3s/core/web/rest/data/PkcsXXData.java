@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import de.trustable.ca3s.core.domain.Certificate;
-
 @Immutable
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PkcsXXData {
@@ -39,7 +37,7 @@ public class PkcsXXData {
 	public PkcsXXData() {
 	}
 
-	public PkcsXXData(final X509CertificateHolder certHolder, Certificate cert) {
+	public PkcsXXData(final X509CertificateHolder certHolder, boolean isCertificatePresentInDB) {
 
 		setDataType(PKCSDataType.X509_CERTIFICATE);
 		
@@ -47,7 +45,7 @@ public class PkcsXXData {
 		x509HolderArr[0] =	new X509CertificateHolderShallow(certHolder);
 		setCertsHolder( x509HolderArr);
 		
-		this.setCertificatePresentInDB( cert!= null);
+		this.setCertificatePresentInDB( isCertificatePresentInDB);
 	}
 	
 
