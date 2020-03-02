@@ -9,18 +9,24 @@ export interface ICertificate {
   issuer?: string;
   type?: string;
   description?: string;
-  subjectKeyIdentifier?: string;
-  authorityKeyIdentifier?: string;
   fingerprint?: string;
   serial?: string;
   validFrom?: Date;
   validTo?: Date;
+  keyAlgorithm?: string;
+  keyLength?: number;
+  curveName?: string;
+  hashingAlgorithm?: string;
+  paddingAlgorithm?: string;
+  signingAlgorithm?: string;
   creationExecutionId?: string;
   contentAddedAt?: Date;
   revokedSince?: Date;
   revocationReason?: string;
   revoked?: boolean;
   revocationExecutionId?: string;
+  endEntity?: boolean;
+  selfsigned?: boolean;
   content?: any;
   csr?: ICSR;
   certificateAttributes?: ICertificateAttribute[];
@@ -35,23 +41,31 @@ export class Certificate implements ICertificate {
     public issuer?: string,
     public type?: string,
     public description?: string,
-    public subjectKeyIdentifier?: string,
-    public authorityKeyIdentifier?: string,
     public fingerprint?: string,
     public serial?: string,
     public validFrom?: Date,
     public validTo?: Date,
+    public keyAlgorithm?: string,
+    public keyLength?: number,
+    public curveName?: string,
+    public hashingAlgorithm?: string,
+    public paddingAlgorithm?: string,
+    public signingAlgorithm?: string,
     public creationExecutionId?: string,
     public contentAddedAt?: Date,
     public revokedSince?: Date,
     public revocationReason?: string,
     public revoked?: boolean,
     public revocationExecutionId?: string,
+    public endEntity?: boolean,
+    public selfsigned?: boolean,
     public content?: any,
     public csr?: ICSR,
     public certificateAttributes?: ICertificateAttribute[],
     public issuingCertificate?: ICertificate
   ) {
     this.revoked = this.revoked || false;
+    this.endEntity = this.endEntity || false;
+    this.selfsigned = this.selfsigned || false;
   }
 }

@@ -55,16 +55,6 @@
                             :class="{'valid': !$v.certificate.description.$invalid, 'invalid': $v.certificate.description.$invalid }" v-model="$v.certificate.description.$model" />
                     </div>
                     <div class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.subjectKeyIdentifier')" for="certificate-subjectKeyIdentifier">Subject Key Identifier</label>
-                        <input type="text" class="form-control" name="subjectKeyIdentifier" id="certificate-subjectKeyIdentifier"
-                            :class="{'valid': !$v.certificate.subjectKeyIdentifier.$invalid, 'invalid': $v.certificate.subjectKeyIdentifier.$invalid }" v-model="$v.certificate.subjectKeyIdentifier.$model" />
-                    </div>
-                    <div class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.authorityKeyIdentifier')" for="certificate-authorityKeyIdentifier">Authority Key Identifier</label>
-                        <input type="text" class="form-control" name="authorityKeyIdentifier" id="certificate-authorityKeyIdentifier"
-                            :class="{'valid': !$v.certificate.authorityKeyIdentifier.$invalid, 'invalid': $v.certificate.authorityKeyIdentifier.$invalid }" v-model="$v.certificate.authorityKeyIdentifier.$model" />
-                    </div>
-                    <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.certificate.fingerprint')" for="certificate-fingerprint">Fingerprint</label>
                         <input type="text" class="form-control" name="fingerprint" id="certificate-fingerprint"
                             :class="{'valid': !$v.certificate.fingerprint.$invalid, 'invalid': $v.certificate.fingerprint.$invalid }" v-model="$v.certificate.fingerprint.$model" />
@@ -114,6 +104,36 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.keyAlgorithm')" for="certificate-keyAlgorithm">Key Algorithm</label>
+                        <input type="text" class="form-control" name="keyAlgorithm" id="certificate-keyAlgorithm"
+                            :class="{'valid': !$v.certificate.keyAlgorithm.$invalid, 'invalid': $v.certificate.keyAlgorithm.$invalid }" v-model="$v.certificate.keyAlgorithm.$model" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.keyLength')" for="certificate-keyLength">Key Length</label>
+                        <input type="number" class="form-control" name="keyLength" id="certificate-keyLength"
+                            :class="{'valid': !$v.certificate.keyLength.$invalid, 'invalid': $v.certificate.keyLength.$invalid }" v-model.number="$v.certificate.keyLength.$model" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.curveName')" for="certificate-curveName">Curve Name</label>
+                        <input type="text" class="form-control" name="curveName" id="certificate-curveName"
+                            :class="{'valid': !$v.certificate.curveName.$invalid, 'invalid': $v.certificate.curveName.$invalid }" v-model="$v.certificate.curveName.$model" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.hashingAlgorithm')" for="certificate-hashingAlgorithm">Hashing Algorithm</label>
+                        <input type="text" class="form-control" name="hashingAlgorithm" id="certificate-hashingAlgorithm"
+                            :class="{'valid': !$v.certificate.hashingAlgorithm.$invalid, 'invalid': $v.certificate.hashingAlgorithm.$invalid }" v-model="$v.certificate.hashingAlgorithm.$model" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.paddingAlgorithm')" for="certificate-paddingAlgorithm">Padding Algorithm</label>
+                        <input type="text" class="form-control" name="paddingAlgorithm" id="certificate-paddingAlgorithm"
+                            :class="{'valid': !$v.certificate.paddingAlgorithm.$invalid, 'invalid': $v.certificate.paddingAlgorithm.$invalid }" v-model="$v.certificate.paddingAlgorithm.$model" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.signingAlgorithm')" for="certificate-signingAlgorithm">Signing Algorithm</label>
+                        <input type="text" class="form-control" name="signingAlgorithm" id="certificate-signingAlgorithm"
+                            :class="{'valid': !$v.certificate.signingAlgorithm.$invalid, 'invalid': $v.certificate.signingAlgorithm.$invalid }" v-model="$v.certificate.signingAlgorithm.$model" />
+                    </div>
+                    <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.certificate.creationExecutionId')" for="certificate-creationExecutionId">Creation Execution Id</label>
                         <input type="text" class="form-control" name="creationExecutionId" id="certificate-creationExecutionId"
                             :class="{'valid': !$v.certificate.creationExecutionId.$invalid, 'invalid': $v.certificate.creationExecutionId.$invalid }" v-model="$v.certificate.creationExecutionId.$model" />
@@ -150,6 +170,16 @@
                         <label class="form-control-label" v-text="$t('ca3SApp.certificate.revocationExecutionId')" for="certificate-revocationExecutionId">Revocation Execution Id</label>
                         <input type="text" class="form-control" name="revocationExecutionId" id="certificate-revocationExecutionId"
                             :class="{'valid': !$v.certificate.revocationExecutionId.$invalid, 'invalid': $v.certificate.revocationExecutionId.$invalid }" v-model="$v.certificate.revocationExecutionId.$model" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.endEntity')" for="certificate-endEntity">End Entity</label>
+                        <input type="checkbox" class="form-check" name="endEntity" id="certificate-endEntity"
+                            :class="{'valid': !$v.certificate.endEntity.$invalid, 'invalid': $v.certificate.endEntity.$invalid }" v-model="$v.certificate.endEntity.$model" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.selfsigned')" for="certificate-selfsigned">Selfsigned</label>
+                        <input type="checkbox" class="form-check" name="selfsigned" id="certificate-selfsigned"
+                            :class="{'valid': !$v.certificate.selfsigned.$invalid, 'invalid': $v.certificate.selfsigned.$invalid }" v-model="$v.certificate.selfsigned.$model" />
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.certificate.content')" for="certificate-content">Content</label>

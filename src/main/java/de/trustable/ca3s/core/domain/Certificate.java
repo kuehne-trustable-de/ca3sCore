@@ -88,12 +88,6 @@ public class Certificate implements Serializable {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "subject_key_identifier")
-    private String subjectKeyIdentifier;
-
-    @Column(name = "authority_key_identifier")
-    private String authorityKeyIdentifier;
-
     @Column(name = "fingerprint")
     private String fingerprint;
 
@@ -108,6 +102,24 @@ public class Certificate implements Serializable {
     @NotNull
     @Column(name = "valid_to", nullable = false)
     private Instant validTo;
+
+    @Column(name = "key_algorithm")
+    private String keyAlgorithm;
+
+    @Column(name = "key_length")
+    private Integer keyLength;
+
+    @Column(name = "curve_name")
+    private String curveName;
+
+    @Column(name = "hashing_algorithm")
+    private String hashingAlgorithm;
+
+    @Column(name = "padding_algorithm")
+    private String paddingAlgorithm;
+
+    @Column(name = "signing_algorithm")
+    private String signingAlgorithm;
 
     @Column(name = "creation_execution_id")
     private String creationExecutionId;
@@ -127,6 +139,12 @@ public class Certificate implements Serializable {
     @Column(name = "revocation_execution_id")
     private String revocationExecutionId;
 
+    @Column(name = "end_entity")
+    private Boolean endEntity;
+
+    @Column(name = "selfsigned")
+    private Boolean selfsigned;
+
     
     @Lob
     @Column(name = "content", nullable = false)
@@ -136,7 +154,7 @@ public class Certificate implements Serializable {
     @JoinColumn(unique = true)
     private CSR csr;
 
-    @OneToMany(mappedBy = "certificate")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "certificate", cascade = {CascadeType.ALL})
     private Set<CertificateAttribute> certificateAttributes = new HashSet<>();
 
     @ManyToOne
@@ -217,32 +235,6 @@ public class Certificate implements Serializable {
         this.description = description;
     }
 
-    public String getSubjectKeyIdentifier() {
-        return subjectKeyIdentifier;
-    }
-
-    public Certificate subjectKeyIdentifier(String subjectKeyIdentifier) {
-        this.subjectKeyIdentifier = subjectKeyIdentifier;
-        return this;
-    }
-
-    public void setSubjectKeyIdentifier(String subjectKeyIdentifier) {
-        this.subjectKeyIdentifier = subjectKeyIdentifier;
-    }
-
-    public String getAuthorityKeyIdentifier() {
-        return authorityKeyIdentifier;
-    }
-
-    public Certificate authorityKeyIdentifier(String authorityKeyIdentifier) {
-        this.authorityKeyIdentifier = authorityKeyIdentifier;
-        return this;
-    }
-
-    public void setAuthorityKeyIdentifier(String authorityKeyIdentifier) {
-        this.authorityKeyIdentifier = authorityKeyIdentifier;
-    }
-
     public String getFingerprint() {
         return fingerprint;
     }
@@ -293,6 +285,84 @@ public class Certificate implements Serializable {
 
     public void setValidTo(Instant validTo) {
         this.validTo = validTo;
+    }
+
+    public String getKeyAlgorithm() {
+        return keyAlgorithm;
+    }
+
+    public Certificate keyAlgorithm(String keyAlgorithm) {
+        this.keyAlgorithm = keyAlgorithm;
+        return this;
+    }
+
+    public void setKeyAlgorithm(String keyAlgorithm) {
+        this.keyAlgorithm = keyAlgorithm;
+    }
+
+    public Integer getKeyLength() {
+        return keyLength;
+    }
+
+    public Certificate keyLength(Integer keyLength) {
+        this.keyLength = keyLength;
+        return this;
+    }
+
+    public void setKeyLength(Integer keyLength) {
+        this.keyLength = keyLength;
+    }
+
+    public String getCurveName() {
+        return curveName;
+    }
+
+    public Certificate curveName(String curveName) {
+        this.curveName = curveName;
+        return this;
+    }
+
+    public void setCurveName(String curveName) {
+        this.curveName = curveName;
+    }
+
+    public String getHashingAlgorithm() {
+        return hashingAlgorithm;
+    }
+
+    public Certificate hashingAlgorithm(String hashingAlgorithm) {
+        this.hashingAlgorithm = hashingAlgorithm;
+        return this;
+    }
+
+    public void setHashingAlgorithm(String hashingAlgorithm) {
+        this.hashingAlgorithm = hashingAlgorithm;
+    }
+
+    public String getPaddingAlgorithm() {
+        return paddingAlgorithm;
+    }
+
+    public Certificate paddingAlgorithm(String paddingAlgorithm) {
+        this.paddingAlgorithm = paddingAlgorithm;
+        return this;
+    }
+
+    public void setPaddingAlgorithm(String paddingAlgorithm) {
+        this.paddingAlgorithm = paddingAlgorithm;
+    }
+
+    public String getSigningAlgorithm() {
+        return signingAlgorithm;
+    }
+
+    public Certificate signingAlgorithm(String signingAlgorithm) {
+        this.signingAlgorithm = signingAlgorithm;
+        return this;
+    }
+
+    public void setSigningAlgorithm(String signingAlgorithm) {
+        this.signingAlgorithm = signingAlgorithm;
     }
 
     public String getCreationExecutionId() {
@@ -371,6 +441,32 @@ public class Certificate implements Serializable {
 
     public void setRevocationExecutionId(String revocationExecutionId) {
         this.revocationExecutionId = revocationExecutionId;
+    }
+
+    public Boolean isEndEntity() {
+        return endEntity;
+    }
+
+    public Certificate endEntity(Boolean endEntity) {
+        this.endEntity = endEntity;
+        return this;
+    }
+
+    public void setEndEntity(Boolean endEntity) {
+        this.endEntity = endEntity;
+    }
+
+    public Boolean isSelfsigned() {
+        return selfsigned;
+    }
+
+    public Certificate selfsigned(Boolean selfsigned) {
+        this.selfsigned = selfsigned;
+        return this;
+    }
+
+    public void setSelfsigned(Boolean selfsigned) {
+        this.selfsigned = selfsigned;
     }
 
     public String getContent() {
@@ -463,18 +559,24 @@ public class Certificate implements Serializable {
             ", issuer='" + getIssuer() + "'" +
             ", type='" + getType() + "'" +
             ", description='" + getDescription() + "'" +
-            ", subjectKeyIdentifier='" + getSubjectKeyIdentifier() + "'" +
-            ", authorityKeyIdentifier='" + getAuthorityKeyIdentifier() + "'" +
             ", fingerprint='" + getFingerprint() + "'" +
             ", serial='" + getSerial() + "'" +
             ", validFrom='" + getValidFrom() + "'" +
             ", validTo='" + getValidTo() + "'" +
+            ", keyAlgorithm='" + getKeyAlgorithm() + "'" +
+            ", keyLength=" + getKeyLength() +
+            ", curveName='" + getCurveName() + "'" +
+            ", hashingAlgorithm='" + getHashingAlgorithm() + "'" +
+            ", paddingAlgorithm='" + getPaddingAlgorithm() + "'" +
+            ", signingAlgorithm='" + getSigningAlgorithm() + "'" +
             ", creationExecutionId='" + getCreationExecutionId() + "'" +
             ", contentAddedAt='" + getContentAddedAt() + "'" +
             ", revokedSince='" + getRevokedSince() + "'" +
             ", revocationReason='" + getRevocationReason() + "'" +
             ", revoked='" + isRevoked() + "'" +
             ", revocationExecutionId='" + getRevocationExecutionId() + "'" +
+            ", endEntity='" + isEndEntity() + "'" +
+            ", selfsigned='" + isSelfsigned() + "'" +
             ", content='" + getContent() + "'" +
             "}";
     }

@@ -127,7 +127,7 @@ public class ContentUploadProcessor {
 			}
 			
 			// certificate inserted into the db 
-			p10ReqData = new PkcsXXData(certHolder, true );
+			p10ReqData = new PkcsXXData(certHolder, content, true );
 			certUtil.setCertAttribute(cert, CsrAttribute.ATTRIBUTE_REQUSTOR_NAME, requestorName);
 			
 			return new ResponseEntity<PkcsXXData>(p10ReqData, HttpStatus.CREATED);

@@ -9,25 +9,30 @@ import java.util.Date;
 public class DateUtil {
 
 	public static Instant asInstant(Date date) {
+		if( date == null ) { return null;}
 		return Instant.ofEpochMilli(date.getTime());
 	}
 
 
 	public static Date asDate(LocalDate localDate) {
+		if( localDate == null ) { return null;}
 		return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
 	}
 
 	public static Date asDate(LocalDateTime localDateTime) {
+		if( localDateTime == null ) { return null;}
 		return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
 	}
 
 
 	public static Date asDate(Instant instant) {
+		if( instant == null ) { return null;}
 		return Date.from(instant);
 	}
 
 
 	public static LocalDate asLocalDate(Date date) {
+		if( date == null ) { return null;}
 		return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
 	}
 
@@ -36,6 +41,7 @@ public class DateUtil {
 	}
 
 	public static LocalDateTime asLocalDateTime(Date date) {
+		if( date == null ) { return null;}
 		return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalDateTime();
 	}
 
@@ -44,10 +50,12 @@ public class DateUtil {
 	}
 
 	public static LocalDate asLocalDateUTC(Date date) {
+		if( date == null ) { return null;}
 		return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.of("UTC").normalized()).toLocalDate();
 	}
 
 	public static LocalDateTime asLocalDateTimeUTC(Date date) {
+		if( date == null ) { return null;}
 		return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.of("UTC").normalized()).toLocalDateTime();
 	}
 
@@ -57,6 +65,7 @@ public class DateUtil {
 
 
 	public static LocalDateTime asLocalDateTime(Instant instant) {
+		if( instant == null ) { return null;}
 		return instant.atZone(ZoneId.of("UTC").normalized()).toLocalDateTime();
 	}
 

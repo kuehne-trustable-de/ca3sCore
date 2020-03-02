@@ -5,12 +5,6 @@
                 <h2 class="jh-entity-heading"><span v-text="$t('ca3SApp.certificate.detail.title')">Certificate</span> {{certificate.id}}</h2>
                 <dl class="row jh-entity-details">
                     <dt>
-                        <span v-text="$t('ca3SApp.certificate.tbsDigest')">Tbs Digest</span>
-                    </dt>
-                    <dd>
-                        <span>{{certificate.tbsDigest}}</span>
-                    </dd>
-                    <dt>
                         <span v-text="$t('ca3SApp.certificate.subject')">Subject</span>
                     </dt>
                     <dd>
@@ -20,37 +14,15 @@
                         <span v-text="$t('ca3SApp.certificate.issuer')">Issuer</span>
                     </dt>
                     <dd>
-                        <span>{{certificate.issuer}}</span>
+                        <span v-if="certificate.selfsigned" v-text="$t('ca3SApp.certificate.selfsigned')">Selfsigned</span>
+                        <router-link v-else-if="certificate.issuingCertificate" :to="{name: 'CertificateView', params: {certificateId: certificate.issuingCertificate.id}}">{{certificate.issuer}}</router-link>
+                        <span v-else>{{certificate.issuer}}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.type')">Type</span>
                     </dt>
                     <dd>
                         <span>{{certificate.type}}</span>
-                    </dd>
-                    <dt>
-                        <span v-text="$t('ca3SApp.certificate.description')">Description</span>
-                    </dt>
-                    <dd>
-                        <span>{{certificate.description}}</span>
-                    </dd>
-                    <dt>
-                        <span v-text="$t('ca3SApp.certificate.subjectKeyIdentifier')">Subject Key Identifier</span>
-                    </dt>
-                    <dd>
-                        <span>{{certificate.subjectKeyIdentifier}}</span>
-                    </dd>
-                    <dt>
-                        <span v-text="$t('ca3SApp.certificate.authorityKeyIdentifier')">Authority Key Identifier</span>
-                    </dt>
-                    <dd>
-                        <span>{{certificate.authorityKeyIdentifier}}</span>
-                    </dd>
-                    <dt>
-                        <span v-text="$t('ca3SApp.certificate.fingerprint')">Fingerprint</span>
-                    </dt>
-                    <dd>
-                        <span>{{certificate.fingerprint}}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.serial')">Serial</span>
@@ -71,10 +43,34 @@
                         <span v-if="certificate.validTo">{{$d(Date.parse(certificate.validTo), 'long') }}</span>
                     </dd>
                     <dt>
-                        <span v-text="$t('ca3SApp.certificate.creationExecutionId')">Creation Execution Id</span>
+                        <span v-text="$t('ca3SApp.certificate.keyAlgorithm')">Key Algorithm</span>
                     </dt>
                     <dd>
-                        <span>{{certificate.creationExecutionId}}</span>
+                        <span>{{certificate.keyAlgorithm}}</span>
+                    </dd>
+                    <dt>
+                        <span v-text="$t('ca3SApp.certificate.keyLength')">Key Length</span>
+                    </dt>
+                    <dd>
+                        <span>{{certificate.keyLength}}</span>
+                    </dd>
+                    <dt v-if="certificate.curveName">
+                        <span v-text="$t('ca3SApp.certificate.curveName')">Curve Name</span>
+                    </dt>
+                    <dd v-if="certificate.curveName">
+                        <span>{{certificate.curveName}}</span>
+                    </dd>
+                    <dt>
+                        <span v-text="$t('ca3SApp.certificate.hashingAlgorithm')">Hashing Algorithm</span>
+                    </dt>
+                    <dd>
+                        <span>{{certificate.hashingAlgorithm}}</span>
+                    </dd>
+                    <dt>
+                        <span v-text="$t('ca3SApp.certificate.paddingAlgorithm')">Padding Algorithm</span>
+                    </dt>
+                    <dd>
+                        <span>{{certificate.paddingAlgorithm}}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.contentAddedAt')">Content Added At</span>
@@ -82,35 +78,23 @@
                     <dd>
                         <span v-if="certificate.contentAddedAt">{{$d(Date.parse(certificate.contentAddedAt), 'long') }}</span>
                     </dd>
-                    <dt>
+                    <dt v-if="certificate.revoked">
                         <span v-text="$t('ca3SApp.certificate.revokedSince')">Revoked Since</span>
                     </dt>
-                    <dd>
+                    <dd v-if="certificate.revoked">
                         <span v-if="certificate.revokedSince">{{$d(Date.parse(certificate.revokedSince), 'long') }}</span>
                     </dd>
-                    <dt>
+                    <dt v-if="certificate.revoked">
                         <span v-text="$t('ca3SApp.certificate.revocationReason')">Revocation Reason</span>
                     </dt>
-                    <dd>
+                    <dd v-if="certificate.revoked">
                         <span>{{certificate.revocationReason}}</span>
                     </dd>
                     <dt>
-                        <span v-text="$t('ca3SApp.certificate.revoked')">Revoked</span>
+                        <span v-text="$t('ca3SApp.certificate.fingerprint')">Fingerprint</span>
                     </dt>
                     <dd>
-                        <span>{{certificate.revoked}}</span>
-                    </dd>
-                    <dt>
-                        <span v-text="$t('ca3SApp.certificate.revocationExecutionId')">Revocation Execution Id</span>
-                    </dt>
-                    <dd>
-                        <span>{{certificate.revocationExecutionId}}</span>
-                    </dd>
-                    <dt>
-                        <span v-text="$t('ca3SApp.certificate.content')">Content</span>
-                    </dt>
-                    <dd>
-                        <span>{{certificate.content}}</span>
+                        <span>{{certificate.fingerprint}}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.csr')">Csr</span>

@@ -63,6 +63,7 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>(
           headers: { 'x-total-count': totalCount },
         } = await axios.get(url);
 
+
         return {
           rows: data,
           totalRowCount: parseInt( totalCount, 10 ),
@@ -115,8 +116,44 @@ export default class CertList extends Vue {
     return '';
   }
 
+  public getRevocationStyle(revoked: boolean): string {
+    return revoked ? 'text-decoration:line-through;' : '';
+  }
+
+  public getValidToStyle(validToString: string, revoked: boolean): string {
+
+    if( revoked ){
+      return '';
+    }
+
+    const validTo = new Date(validToString);
+
+    const dateNow = new Date();
+    const dateWarn = new Date();
+    dateWarn.setDate( dateNow.getDate() + 35);
+    const dateAlarm = new Date();
+    dateAlarm.setDate( dateNow.getDate() + 10);
+
+    if ( validTo > dateNow && validTo < dateAlarm ) {
+//      window.console.info('getValidToStyle(' + validTo + '), dateNow: ' + dateNow + ' , dateWarn: ' + dateWarn + ' -> ' + (validTo > dateNow) + ' - ' + (validTo < dateWarn));
+      return 'color:red;font-weight: bold;';
+    } else if ( validTo > dateNow && validTo < dateWarn ) {
+      return 'color:yellow; font-weight: bold;';
+    }
+    return '';
+  }
+
+  public toLocalDate(dateAsString: string): string {
+
+    if ( dateAsString && dateAsString.length > 8 ) {
+      const dateObj = new Date(dateAsString);
+      return dateObj.toLocaleDateString();
+    }
+    return '';
+  }
+
   public getChoices(itemName: string): string[] {
-    window.console.info('getChoices(' + itemName + ')');
+//    window.console.info('getChoices(' + itemName + ')');
 
     const selectionItem = this.certSelectionItems.find(selections => selections.itemName === itemName);
 
@@ -145,13 +182,14 @@ export default class CertList extends Vue {
         { label: 'length', field: 'keyLength', align: 'right' },
         { label: 'serial', field: 'serial', align: 'right',
 representedAs: row => `${(row.serial.length > 12) ? row.serial.substring(0, 6).concat('...', row.serial.substring(row.serial.length - 4, row.serial.length - 1 )) : row.serial}` },
-        { label: 'validFrom', field: 'validFrom', representedAs: row => `${row.validFrom.toString().substring(0, 10)}`  },
-        { label: 'validTo', field: 'validTo', representedAs: row => `${row.validTo.toString().substring(0, 10)}` },
+        { label: 'validFrom', field: 'validFrom'  },
+        { label: 'validTo', field: 'validTo' },
+        { label: 'hashAlgo', field: 'hashAlgorithm' },
+        { label: 'paddingAlgo', field: 'paddingAlgorithm' },
         { label: 'revoked', field: 'revoked', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
         { label: 'revokedSince', field: 'revokedSince' },
-        { label: 'signingAlgo', field: 'signingAlgorithm' },
-//        { label: 'paddingAlgo', field: 'paddingAlgorithm' },
-        { label: 'hashAlgo', field: 'hashAlgorithm' }
+        { label: 'revocationReason', field: 'reason' }
+ //       { label: 'signingAlgo', field: 'signingAlgorithm' },
       ] as TColumnsDefinition<ICertificateView>,
       page: 1,
       filter: '',

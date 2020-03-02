@@ -34,14 +34,6 @@
             "fieldType": "String"
         },
         {
-            "fieldName": "subjectKeyIdentifier",
-            "fieldType": "String"
-        },
-        {
-            "fieldName": "authorityKeyIdentifier",
-            "fieldType": "String"
-        },
-        {
             "fieldName": "fingerprint",
             "fieldType": "String"
         },
@@ -67,6 +59,30 @@
             ]
         },
         {
+            "fieldName": "keyAlgorithm",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "keyLength",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "curveName",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "hashingAlgorithm",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "paddingAlgorithm",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "signingAlgorithm",
+            "fieldType": "String"
+        },
+        {
             "fieldName": "creationExecutionId",
             "fieldType": "String"
         },
@@ -89,6 +105,14 @@
         {
             "fieldName": "revocationExecutionId",
             "fieldType": "String"
+        },
+        {
+            "fieldName": "endEntity",
+            "fieldType": "Boolean"
+        },
+        {
+            "fieldName": "selfsigned",
+            "fieldType": "Boolean"
         },
         {
             "fieldName": "content",

@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.time.Instant;
 
 import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 
 /**
@@ -56,10 +55,10 @@ public class CertificateView implements Serializable {
     	this.subject = cert.getSubject();
     	this.issuer = cert.getIssuer();
     	this.type = cert.getType();
-   		this.keyLength = certUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_KEY_LENGTH);
-		this.signingAlgorithm = certUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SIGNATURE_ALGO);
-		this.paddingAlgorithm = certUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_PADDING_ALGO);
-		this.hashAlgorithm = certUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_HASH_ALGO );
+   		this.keyLength = cert.getKeyLength().toString();
+		this.signingAlgorithm = cert.getSigningAlgorithm();
+		this.paddingAlgorithm = cert.getPaddingAlgorithm();
+		this.hashAlgorithm = cert.getHashingAlgorithm();
     	this.description = cert.getDescription();
     	this.serial = cert.getSerial();
     	this.validFrom = cert.getValidFrom();

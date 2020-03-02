@@ -365,8 +365,9 @@ public class OrderController extends ACMEController {
 		OrderResponse orderResp = new OrderResponse(orderDao, authorizationsResp, finalizeUrl, certificateUrl);
 
 		if( LOG.isDebugEnabled()) {
-			LOG.debug("order response for valid {} request: {}", jwtUtil.getOrderResponseAsJSON(orderResp));
+			LOG.debug("order response for verified {} request: {}", jwtUtil.getOrderResponseAsJSON(orderResp));
 		}
+		
 		if( valid ) {
 //  				URI authUri = locationUriOfAuthorization(challengeDao.getAuthorization().getAuthorizationId(), baseUriBuilder);
 //  			    additionalHeaders.set("Link", "<" + authUri.toASCIIString() + ">;rel=\"up\"");

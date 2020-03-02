@@ -38,18 +38,19 @@
 					<certificate-table :columns="columns" :data="certApiUrl" :per-page="20" name="certificates">
 						<template scope="{ row }">
         			<tr>
-								<td><router-link :to="{name: 'CertificateView', params: {certificateId: row.id}}" >{{ row.id }}</router-link></td>
-									<td><router-link :to="{name: 'CertificateView', params: {certificateId: row.id}}" >{{ row.subject }}</router-link></td>
-									<td><router-link :to="{name: 'CertificateView', params: {certificateId: row.id}}" >{{ row.issuer }}</router-link></td>
-									<!--td><router-link :to="{name: 'CertificateView', params: {certificateId: row.id}}" >{{ row.type }}</router-link></td-->
-									<td><router-link :to="{name: 'CertificateView', params: {certificateId: row.id}}" >{{ row.keyLength }}</router-link></td>
-									<td><router-link :to="{name: 'CertificateView', params: {certificateId: row.id}}" >{{(row.serial.length > 12) ? row.serial.substring(0, 6).concat('...', row.serial.substring(row.serial.length - 4, row.serial.length - 1 )) : row.serial}}</router-link></td>
-									<td><router-link :to="{name: 'CertificateView', params: {certificateId: row.id}}" >{{ row.validFrom.toString().substring(0, 10)}}</router-link></td>
-									<td><router-link :to="{name: 'CertificateView', params: {certificateId: row.id}}" >{{ row.validTo.toString().substring(0, 10)}}</router-link></td>
-									<!--td><router-link :to="{name: 'CertificateView', params: {certificateId: row.id}}" >{{ row.revoked }}</router-link></td-->
-									<td><router-link :to="{name: 'CertificateView', params: {certificateId: row.id}}" >{{ row.revokedSince === null ? '' : row.revokedSince.toString().substring(0, 10) }}</router-link></td>
-									<td><router-link :to="{name: 'CertificateView', params: {certificateId: row.id}}" >{{ row.signingAlgorithm }}</router-link></td>
-									<td><router-link :to="{name: 'CertificateView', params: {certificateId: row.id}}" >{{ row.hashAlgorithm }}</router-link></td>
+						<td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ row.id }}</router-link></td>
+						<td :style="getRevocationStyle(row.revoked)"><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ row.subject }}</router-link></td>
+						<td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ row.issuer }}</router-link></td>
+						<!--td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ row.type }}</router-link></td-->
+						<td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ row.keyLength }}</router-link></td>
+						<td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{(row.serial.length > 12) ? row.serial.substring(0, 6).concat('...', row.serial.substring(row.serial.length - 4, row.serial.length )) : row.serial}}</router-link></td>
+						<td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ toLocalDate(row.validFrom)}}</router-link></td>
+						<td ><router-link :style="getValidToStyle(row.validTo, row.revoked)" :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ toLocalDate(row.validTo) }}</router-link></td>
+						<td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ row.hashAlgorithm }}</router-link></td>
+						<td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ row.paddingAlgorithm }}</router-link></td>
+						<!--td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ row.revoked }}</router-link></td-->
+						<td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ toLocalDate(row.revokedSince) }}</router-link></td>
+						<td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ row.revocationReason }}</router-link></td>
                 
         			</tr>
     				</template>

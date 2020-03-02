@@ -35,7 +35,7 @@ public class CertificateListResource {
 	CertificateViewRepository certificateViewRepository;
 	
 	
-    private final Logger log = LoggerFactory.getLogger(CertificateResource.class);
+    private final Logger log = LoggerFactory.getLogger(CertificateListResource.class);
 
 
     /**

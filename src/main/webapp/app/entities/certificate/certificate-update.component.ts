@@ -34,8 +34,6 @@ const validations: any = {
       required
     },
     description: {},
-    subjectKeyIdentifier: {},
-    authorityKeyIdentifier: {},
     fingerprint: {},
     serial: {
       required
@@ -46,12 +44,20 @@ const validations: any = {
     validTo: {
       required
     },
+    keyAlgorithm: {},
+    keyLength: {},
+    curveName: {},
+    hashingAlgorithm: {},
+    paddingAlgorithm: {},
+    signingAlgorithm: {},
     creationExecutionId: {},
     contentAddedAt: {},
     revokedSince: {},
     revocationReason: {},
     revoked: {},
     revocationExecutionId: {},
+    endEntity: {},
+    selfsigned: {},
     content: {
       required
     }

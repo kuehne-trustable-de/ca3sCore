@@ -38,11 +38,17 @@ public class PkcsXXData {
 	}
 
 	public PkcsXXData(final X509CertificateHolder certHolder, boolean isCertificatePresentInDB) {
+		
+		this(certHolder, null, isCertificatePresentInDB);
+	}
+	
+	public PkcsXXData(final X509CertificateHolder certHolder, String pemCertificate, boolean isCertificatePresentInDB) {
 
 		setDataType(PKCSDataType.X509_CERTIFICATE);
 		
 		X509CertificateHolderShallow[] x509HolderArr = new X509CertificateHolderShallow[1];
 		x509HolderArr[0] =	new X509CertificateHolderShallow(certHolder);
+		x509HolderArr[0].setPemCertificate(pemCertificate);
 		setCertsHolder( x509HolderArr);
 		
 		this.setCertificatePresentInDB( isCertificatePresentInDB);

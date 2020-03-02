@@ -31,12 +31,6 @@
             <column name="description" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="subject_key_identifier" type="varchar(255)">
-                <constraints nullable="true" />
-            </column>
-            <column name="authority_key_identifier" type="varchar(255)">
-                <constraints nullable="true" />
-            </column>
             <column name="fingerprint" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
@@ -48,6 +42,24 @@
             </column>
             <column name="valid_to" type="datetime">
                 <constraints nullable="false" />
+            </column>
+            <column name="key_algorithm" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="key_length" type="integer">
+                <constraints nullable="true" />
+            </column>
+            <column name="curve_name" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="hashing_algorithm" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="padding_algorithm" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="signing_algorithm" type="varchar(255)">
+                <constraints nullable="true" />
             </column>
             <column name="creation_execution_id" type="varchar(255)">
                 <constraints nullable="true" />
@@ -65,6 +77,12 @@
                 <constraints nullable="true" />
             </column>
             <column name="revocation_execution_id" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="end_entity" type="boolean">
+                <constraints nullable="true" />
+            </column>
+            <column name="selfsigned" type="boolean">
                 <constraints nullable="true" />
             </column>
             <column name="content" type="${clobType}">
@@ -108,18 +126,24 @@
             <column name="issuer" type="string"/>
             <column name="type" type="string"/>
             <column name="description" type="string"/>
-            <column name="subject_key_identifier" type="string"/>
-            <column name="authority_key_identifier" type="string"/>
             <column name="fingerprint" type="string"/>
             <column name="serial" type="string"/>
             <column name="valid_from" type="datetime"/>
             <column name="valid_to" type="datetime"/>
+            <column name="key_algorithm" type="string"/>
+            <column name="key_length" type="numeric"/>
+            <column name="curve_name" type="string"/>
+            <column name="hashing_algorithm" type="string"/>
+            <column name="padding_algorithm" type="string"/>
+            <column name="signing_algorithm" type="string"/>
             <column name="creation_execution_id" type="string"/>
             <column name="content_added_at" type="datetime"/>
             <column name="revoked_since" type="datetime"/>
             <column name="revocation_reason" type="string"/>
             <column name="revoked" type="boolean"/>
             <column name="revocation_execution_id" type="string"/>
+            <column name="end_entity" type="boolean"/>
+            <column name="selfsigned" type="boolean"/>
             <column name="content" type="clob"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
         </loadData>

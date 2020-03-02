@@ -30,18 +30,24 @@
                     <th v-on:click="changeOrder('issuer')"><span v-text="$t('ca3SApp.certificate.issuer')">Issuer</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
                     <th v-on:click="changeOrder('type')"><span v-text="$t('ca3SApp.certificate.type')">Type</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
                     <th v-on:click="changeOrder('description')"><span v-text="$t('ca3SApp.certificate.description')">Description</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
-                    <th v-on:click="changeOrder('subjectKeyIdentifier')"><span v-text="$t('ca3SApp.certificate.subjectKeyIdentifier')">Subject Key Identifier</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
-                    <th v-on:click="changeOrder('authorityKeyIdentifier')"><span v-text="$t('ca3SApp.certificate.authorityKeyIdentifier')">Authority Key Identifier</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
                     <th v-on:click="changeOrder('fingerprint')"><span v-text="$t('ca3SApp.certificate.fingerprint')">Fingerprint</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
                     <th v-on:click="changeOrder('serial')"><span v-text="$t('ca3SApp.certificate.serial')">Serial</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
                     <th v-on:click="changeOrder('validFrom')"><span v-text="$t('ca3SApp.certificate.validFrom')">Valid From</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
                     <th v-on:click="changeOrder('validTo')"><span v-text="$t('ca3SApp.certificate.validTo')">Valid To</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
+                    <th v-on:click="changeOrder('keyAlgorithm')"><span v-text="$t('ca3SApp.certificate.keyAlgorithm')">Key Algorithm</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
+                    <th v-on:click="changeOrder('keyLength')"><span v-text="$t('ca3SApp.certificate.keyLength')">Key Length</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
+                    <th v-on:click="changeOrder('curveName')"><span v-text="$t('ca3SApp.certificate.curveName')">Curve Name</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
+                    <th v-on:click="changeOrder('hashingAlgorithm')"><span v-text="$t('ca3SApp.certificate.hashingAlgorithm')">Hashing Algorithm</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
+                    <th v-on:click="changeOrder('paddingAlgorithm')"><span v-text="$t('ca3SApp.certificate.paddingAlgorithm')">Padding Algorithm</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
+                    <th v-on:click="changeOrder('signingAlgorithm')"><span v-text="$t('ca3SApp.certificate.signingAlgorithm')">Signing Algorithm</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
                     <th v-on:click="changeOrder('creationExecutionId')"><span v-text="$t('ca3SApp.certificate.creationExecutionId')">Creation Execution Id</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
                     <th v-on:click="changeOrder('contentAddedAt')"><span v-text="$t('ca3SApp.certificate.contentAddedAt')">Content Added At</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
                     <th v-on:click="changeOrder('revokedSince')"><span v-text="$t('ca3SApp.certificate.revokedSince')">Revoked Since</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
                     <th v-on:click="changeOrder('revocationReason')"><span v-text="$t('ca3SApp.certificate.revocationReason')">Revocation Reason</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
                     <th v-on:click="changeOrder('revoked')"><span v-text="$t('ca3SApp.certificate.revoked')">Revoked</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
                     <th v-on:click="changeOrder('revocationExecutionId')"><span v-text="$t('ca3SApp.certificate.revocationExecutionId')">Revocation Execution Id</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
+                    <th v-on:click="changeOrder('endEntity')"><span v-text="$t('ca3SApp.certificate.endEntity')">End Entity</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
+                    <th v-on:click="changeOrder('selfsigned')"><span v-text="$t('ca3SApp.certificate.selfsigned')">Selfsigned</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
                     <th v-on:click="changeOrder('content')"><span v-text="$t('ca3SApp.certificate.content')">Content</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
                     <th v-on:click="changeOrder('csr.id')"><span v-text="$t('ca3SApp.certificate.csr')">Csr</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
                     <th v-on:click="changeOrder('issuingCertificate.id')"><span v-text="$t('ca3SApp.certificate.issuingCertificate')">Issuing Certificate</span> <font-awesome-icon icon="sort"></font-awesome-icon></th>
@@ -59,18 +65,24 @@
                     <td>{{certificate.issuer}}</td>
                     <td>{{certificate.type}}</td>
                     <td>{{certificate.description}}</td>
-                    <td>{{certificate.subjectKeyIdentifier}}</td>
-                    <td>{{certificate.authorityKeyIdentifier}}</td>
                     <td>{{certificate.fingerprint}}</td>
                     <td>{{certificate.serial}}</td>
                     <td v-if="certificate.validFrom"> {{$d(Date.parse(certificate.validFrom), 'short') }}</td>
                     <td v-if="certificate.validTo"> {{$d(Date.parse(certificate.validTo), 'short') }}</td>
+                    <td>{{certificate.keyAlgorithm}}</td>
+                    <td>{{certificate.keyLength}}</td>
+                    <td>{{certificate.curveName}}</td>
+                    <td>{{certificate.hashingAlgorithm}}</td>
+                    <td>{{certificate.paddingAlgorithm}}</td>
+                    <td>{{certificate.signingAlgorithm}}</td>
                     <td>{{certificate.creationExecutionId}}</td>
                     <td v-if="certificate.contentAddedAt"> {{$d(Date.parse(certificate.contentAddedAt), 'short') }}</td>
                     <td v-if="certificate.revokedSince"> {{$d(Date.parse(certificate.revokedSince), 'short') }}</td>
                     <td>{{certificate.revocationReason}}</td>
                     <td>{{certificate.revoked}}</td>
                     <td>{{certificate.revocationExecutionId}}</td>
+                    <td>{{certificate.endEntity}}</td>
+                    <td>{{certificate.selfsigned}}</td>
                     <td>{{certificate.content}}</td>
                     <td>
                         <div v-if="certificate.csr">

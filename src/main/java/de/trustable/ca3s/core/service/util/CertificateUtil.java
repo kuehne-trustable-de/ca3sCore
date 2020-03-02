@@ -234,7 +234,13 @@ public class CertificateUtil {
 		
 		cert = new Certificate();
 		cert.setCertificateAttributes(new HashSet<CertificateAttribute>());
-		
+
+		String type = "X509V" + x509Cert.getVersion();
+		cert.setType(type);
+
+		String serial = x509Cert.getSerialNumber().toString();
+		cert.setSerial(serial);
+
 		cert.setContent(pemCert);
 
 		if( csr != null) {
@@ -245,62 +251,57 @@ public class CertificateUtil {
 		// indexed key for searching
 		cert.setTbsDigest(tbsDigestBase64);
 
-		String type = "X509V3|" + x509Cert.getVersion();
-		cert.setType(type);
-		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_TYPE, type);
-
 		// derive a readable description
 		String desc = cryptoUtil.getDescription(x509Cert);
 		cert.setDescription(CryptoService.limitLength(desc, 250));
 
-		String issuer = CryptoService.limitLength(x509Cert.getIssuerDN().getName(), 250);
-		cert.setIssuer(issuer);
-		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ISSUER, issuer.toLowerCase());
-
-		X500Name x500NameIssuer = x509CertHolder.getIssuer();
-		insertNameAttributes(cert, CertificateAttribute.ATTRIBUTE_ISSUER, x500NameIssuer);
-/*			
-		for( RDN rdn: x500NameIssuer.getRDNs() ){
-			addCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ISSUER, rdn.getFirst().getValue().toString().toLowerCase());
-		}
-*/			
-		String subject = CryptoService.limitLength(x509Cert.getSubjectDN().getName(), 250);
-		cert.setSubject(subject);
-		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SUBJECT, subject.toLowerCase());
-
-		X500Name x500NameSubject = x509CertHolder.getSubject();
-		insertNameAttributes(cert, CertificateAttribute.ATTRIBUTE_SUBJECT, x500NameSubject);
-
-		JcaX509ExtensionUtils util = new JcaX509ExtensionUtils();
-		
-		// build two SKI variants for cert identification
-		SubjectKeyIdentifier ski = util.createSubjectKeyIdentifier(x509Cert.getPublicKey());
-		String b46Ski = Base64.encodeBase64String(ski.getKeyIdentifier());
-		
-		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SKI,b46Ski);
-		cert.setSubjectKeyIdentifier(b46Ski);
-		
-		SubjectKeyIdentifier skiTruncated = util.createTruncatedSubjectKeyIdentifier(x509Cert.getPublicKey());
-		if( !ski.equals(skiTruncated)){
-			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SKI,
-					Base64.encodeBase64String(skiTruncated.getKeyIdentifier()));
-		}
 
 		// good old SHA1 fingerprint
 		String fingerprint = Base64.encodeBase64String(generateSHA1Fingerprint(certBytes));
-		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_FINGERPRINT, fingerprint);
+		cert.setFingerprint(fingerprint);
+
+		cert.setValidFrom( DateUtil.asInstant(x509Cert.getNotBefore()));
+		cert.setValidTo(DateUtil.asInstant(x509Cert.getNotAfter()));
+
+		//initialize revocation details
+		cert.setRevokedSince(null);
+		cert.setRevocationReason(null);
+		cert.setRevoked(false);
+
+		if (executionId != null) {
+			cert.setCreationExecutionId(executionId);
+		}
+
+		cert.setContentAddedAt(Instant.now());
+
+		String issuer = CryptoService.limitLength(x509Cert.getIssuerDN().getName(), 250);
+		cert.setIssuer(issuer);
+
+		String subject = CryptoService.limitLength(x509Cert.getSubjectDN().getName(), 250);
+		cert.setSubject(subject);
+
+		cert.setSelfsigned(false);
+
+		certificateRepository.save(cert);
+
+		//
+		// write certificate attributes
+		//
 		
 		// guess some details from basic constraint
 		int basicConstraint = x509Cert.getBasicConstraints();
 		if (Integer.MAX_VALUE == basicConstraint) {
+			cert.setEndEntity(true);
 			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CA, "true");
 		} else if (-1 == basicConstraint) {
-			setCertAttribute(cert,
-					CertificateAttribute.ATTRIBUTE_END_ENTITY, "true");
+			cert.setEndEntity(true);
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_END_ENTITY, "true");
 		} else {
+			cert.setEndEntity(true);
 			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CA, "true");
 			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CHAIN_LENGTH, "" + basicConstraint);
 		}
+
 
 		// add the basic key usages a attributes
 		usageAsCertAttributes( x509Cert.getKeyUsage(), cert );
@@ -314,33 +315,47 @@ public class CertificateUtil {
 		}
 
 
+		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ISSUER, issuer.toLowerCase());
+
+		X500Name x500NameIssuer = x509CertHolder.getIssuer();
+		insertNameAttributes(cert, CertificateAttribute.ATTRIBUTE_ISSUER, x500NameIssuer);
+
+		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SUBJECT, subject.toLowerCase());
+
+		X500Name x500NameSubject = x509CertHolder.getSubject();
+		insertNameAttributes(cert, CertificateAttribute.ATTRIBUTE_SUBJECT, x500NameSubject);
+
+		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_TYPE, type);
+
+
+		JcaX509ExtensionUtils util = new JcaX509ExtensionUtils();
+		
+		// build two SKI variants for cert identification
+		SubjectKeyIdentifier ski = util.createSubjectKeyIdentifier(x509Cert.getPublicKey());
+		String b46Ski = Base64.encodeBase64String(ski.getKeyIdentifier());
+		
+		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SKI,b46Ski);
+		
+		SubjectKeyIdentifier skiTruncated = util.createTruncatedSubjectKeyIdentifier(x509Cert.getPublicKey());
+		if( !ski.equals(skiTruncated)){
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SKI,
+					Base64.encodeBase64String(skiTruncated.getKeyIdentifier()));
+		}
+		
 		// add two serial variants
-		String serial = x509Cert.getSerialNumber().toString();
-		cert.setSerial(serial);
 		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SERIAL, serial);
 		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SERIAL_PADDED, getPaddedSerial(serial));
 
 		// add validity period
-		cert.setValidFrom( DateUtil.asInstant(x509Cert.getNotBefore()));
 		setCertAttribute(cert,
 				CertificateAttribute.ATTRIBUTE_VALID_FROM_TIMESTAMP, ""
 						+ x509Cert.getNotBefore().getTime());
 
-		cert.setValidTo(DateUtil.asInstant(x509Cert.getNotAfter()));
 		setCertAttribute(cert,
 				CertificateAttribute.ATTRIBUTE_VALID_TO_TIMESTAMP, ""
 						+ x509Cert.getNotAfter().getTime());
 
 		addAdditionalCertificateAttributes(x509Cert, cert);
-
-		//initialize revocation details
-		cert.setRevokedSince(null);
-		cert.setRevocationReason(null);
-		cert.setRevoked(false);
-
-		if (executionId != null) {
-			cert.setCreationExecutionId(executionId);
-		}
 
 		certificateRepository.save(cert);
 		certificateAttributeRepository.saveAll(cert.getCertificateAttributes());
@@ -355,6 +370,7 @@ public class CertificateUtil {
 			// cert.setIssuingCertificate(cert);
 			
 			// mark it as self signed
+			cert.setSelfsigned(true);
 			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SELFSIGNED, "true");
 
 			LOG.debug("certificate '" + x509Cert.getSubjectDN().getName() +"' is selfsigned");
@@ -378,7 +394,6 @@ public class CertificateUtil {
 			}
 		}
 
-		cert.setContentAddedAt(Instant.now());
 		
 		certificateRepository.save(cert);
 //		LOG.debug("certificate id '" + cert.getId() +"' post-save");
@@ -403,7 +418,7 @@ public class CertificateUtil {
 		// extract signature algo
 		String sigAlgName = x509Cert.getSigAlgName().toLowerCase();
 		
-		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SIGNATURE_ALGO, sigAlgName);
+		cert.setSigningAlgorithm(sigAlgName);
 
 		String keyAlgName = sigAlgName;
 		String hashAlgName = "undefined";
@@ -425,15 +440,16 @@ public class CertificateUtil {
 			}
 		}
 
-		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_KEY_ALGO, keyAlgName);
-		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_HASH_ALGO, hashAlgName);
-		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_PADDING_ALGO, paddingAlgName);
-
+		cert.setKeyAlgorithm(keyAlgName);
+		cert.setHashingAlgorithm(hashAlgName);
+		cert.setPaddingAlgorithm(paddingAlgName);
+		cert.setSigningAlgorithm(sigAlgName);
+		
 		try {
 			String curveName = deriveCurveName(x509Cert.getPublicKey());
 			LOG.info("found curve name "+ curveName +" for certificate '" + x509Cert.getSubjectDN().getName() +"' with key algo " + keyAlgName);
 			
-			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CURVE_NAME, curveName);
+			cert.setCurveName(curveName);
 			
 		} catch (GeneralSecurityException e) {
 			if( keyAlgName.contains("ec")) {
@@ -457,9 +473,7 @@ public class CertificateUtil {
 		}
 
 		int keyLength = getKeyLength(x509Cert.getPublicKey());
-		if(keyLength > 0) {
-			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_KEY_LENGTH, keyLength);
-		}
+		cert.setKeyLength(keyLength);
 		
 	}
 

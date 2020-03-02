@@ -86,8 +86,7 @@ public class CSRContentProcessor {
 
 			X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(content);
 			List<Certificate> certList = certificateRepository.findByIssuerSerial(certHolder.getIssuer().toString(), certHolder.getSerialNumber().toString());
-			p10ReqData = new PkcsXXData(certHolder, !certList.isEmpty());
-			
+			p10ReqData = new PkcsXXData(certHolder, content, !certList.isEmpty());
 		} catch (org.bouncycastle.util.encoders.DecoderException de){	
 			// no parseable ...
 			p10ReqData.setDataType(PKCSDataType.UNKNOWN);

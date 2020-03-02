@@ -37,18 +37,24 @@ entity Certificate {
   issuer String required
   type String required
   description String
-  subjectKeyIdentifier String
-  authorityKeyIdentifier String
   fingerprint String
   serial String required
   validFrom Instant required
   validTo Instant required
+  keyAlgorithm String
+  keyLength Integer 
+  curveName String
+  hashingAlgorithm String
+  paddingAlgorithm String
+  signingAlgorithm String
   creationExecutionId String
   contentAddedAt Instant
   revokedSince Instant
   revocationReason String
   revoked Boolean
   revocationExecutionId String
+  endEntity Boolean
+  selfsigned Boolean
   content TextBlob required
   
 }

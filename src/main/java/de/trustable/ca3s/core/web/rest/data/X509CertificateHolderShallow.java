@@ -46,6 +46,8 @@ public class X509CertificateHolderShallow {
 
     private boolean keyPresent;
 
+    private String pemCertificate;
+
     
     public X509CertificateHolderShallow(X509CertificateHolder holder) {
     	this.keyPresent = false;
@@ -171,6 +173,14 @@ public class X509CertificateHolderShallow {
 
 	public void setKeyPresent(boolean keyPresent) {
 		this.keyPresent = keyPresent;
+	}
+
+	public String getPemCertrificate() {
+		return pemCertificate;
+	}
+
+	public void setPemCertificate(String pemCertificate) {
+		this.pemCertificate = pemCertificate;
 	}
 
     
