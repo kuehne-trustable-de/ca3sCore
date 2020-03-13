@@ -193,63 +193,71 @@ public final class CertificateSpecifications {
     	List<CertificateView> certViewList = new ArrayList<CertificateView>();
     	for( Object[] objArr: listResponse) {
 
-			logger.debug("objArr len {}, colList len {}", objArr.length, colList.size());
-
+    		if( logger.isDebugEnabled() && (objArr.length != colList.size())) {
+    			logger.debug("objArr len {}, colList len {}", objArr.length, colList.size());
+    		}
+    		
     		CertificateView cv = buildCertificateViewFromObjArr(colList, objArr);
         	
         	certViewList.add(cv);
     	}
 
-    	
+    	// start again to retrieve the row count
         Pageable pageable = PageRequest.of(pageOffset / pagesize, pagesize, sortDir, sortCol);
         
         Long nTotalElements = 1000L;
-        
-/*        
+                
         CriteriaQuery<Long> queryCount = cb.createQuery(Long.class);
         Root<Certificate> iRoot = queryCount.from(Certificate.class);
-        queryCount.select(cb.count(iRoot));
 
     	Predicate predCount = null;
+		ArrayList<Selection<?>> selectionListCount = new ArrayList<Selection<?>>();
 
 		// walk thru all requested columns
 		for( String col: columnArr) {
 			colList.add(col);
 			
-	    	Predicate localPred;
 			if( selectionMap.containsKey(col) ) {
-				SelectionData selDate = selectionMap.get(col);
-				logger.debug("buildPredicate for '{}', selector '{}', value '{}' ", col, selDate.selector, selDate.value);
-
-				localPred = buildPredicate( root, 
-						cb, 
-						col, 
-						selDate.selector, 
-						selDate.value,
-						selectionList);
+				List<SelectionData> selDataList = selectionMap.get(col);
+				for(SelectionData selDataItem: selDataList ) {
+					logger.debug("buildPredicate for '{}', selector '{}', value '{}' ", col, selDataItem.selector, selDataItem.value);
+	
+					predList.add( buildPredicate( iRoot, 
+							cb, 
+							col, 
+							selDataItem.selector, 
+							selDataItem.value,
+							selectionListCount));
+				}
 			}else {
 				logger.debug("buildPredicate for '{}' without selector ", col );
-				localPred = buildPredicate( root, 
+				predList.add( buildPredicate( iRoot, 
 					cb, 
 					col, 
 					null, 
 					"",
-					selectionList);
+					selectionListCount));
 			}
-
+			
+		}
+		
+		// chain all the conditions together
+    	for( Predicate predPart: predList) {
 			// chain all the predicates
 			if( predCount == null ){
-				predCount = localPred;
+				predCount = predPart;
 			}else{
-				predCount = cb.and(pred, localPred);
+				predCount = cb.and(predCount, predPart);
 			}
-		}
-
+    	}
+		
+        queryCount.select(cb.count(iRoot));
+      
 		queryCount.where(predCount);
 
 		nTotalElements = entityManager.createQuery(queryCount).getSingleResult();
 		logger.debug("buildPredicate selects {} elements ", nTotalElements);
-*/        
+        
         return new PageImpl<CertificateView>(certViewList, pageable, nTotalElements);
 
 	}
@@ -296,6 +304,10 @@ public final class CertificateSpecifications {
 		    	cv.setPaddingAlgorithm((String) objArr[i]);	
 			}else if( "hashAlgorithm".equalsIgnoreCase(attribute)) {
 		    	cv.setHashAlgorithm((String) objArr[i]);	
+			}else if( "revocationReason".equalsIgnoreCase(attribute)) {
+		    	cv.setRevocationReason((String) objArr[i]);	
+		    	
+		    	
 			}else {
 				logger.warn("unexpected attribute '{}' from query", attribute);
 			}
@@ -466,6 +478,10 @@ public final class CertificateSpecifications {
 			addNewColumn(selectionList,root.get(Certificate_.revokedSince));
 			pred = buildDatePredicate( attributeSelector, cb, root.<Instant>get(Certificate_.revokedSince), attributeValue);
 	
+		}else if( "revocationReason".equals(attribute)){
+			addNewColumn(selectionList,root.get(Certificate_.revocationReason));
+			pred = buildPredicate( attributeSelector, cb, root.<String>get(Certificate_.revocationReason), attributeValue);
+
 		}else{
 			logger.warn("fall-thru clause adding 'true' condition for {} ", attribute);
 		}
@@ -484,9 +500,12 @@ public final class CertificateSpecifications {
 			return cb.conjunction();
 		}
 		
-		if( Selector.EQUALS.toString().equals(attributeSelector)){
+		if( Selector.EQUAL.toString().equals(attributeSelector)){
 			logger.debug("buildPredicate equal ('{}') for value '{}'", attributeSelector, value);
 			return cb.equal(expression, value);
+		}else if( Selector.NOT_EQUAL.toString().equals(attributeSelector)){
+			logger.debug("buildPredicate not equal ('{}') for value '{}'", attributeSelector, value);
+			return cb.notEqual(expression, value);
 		}else if( Selector.ON.toString().equals(attributeSelector)){
 			logger.debug("buildPredicate on ('{}') for value '{}'", attributeSelector, value);
 			return cb.equal(expression, value);
@@ -522,7 +541,7 @@ public final class CertificateSpecifications {
 		
 		long lValue = Long.parseLong(value);
 		
-		if( Selector.EQUALS.toString().equals(attributeSelector)){
+		if( Selector.EQUAL.toString().equals(attributeSelector)){
 			logger.debug("buildPredicate equal ('{}') for value '{}'", attributeSelector, lValue);
 			return cb.equal(expression, lValue);
 		}else if( Selector.LESSTHAN.toString().equals(attributeSelector)){
@@ -545,7 +564,7 @@ public final class CertificateSpecifications {
 		
 		int lValue = Integer.parseInt(value);
 		
-		if( Selector.EQUALS.toString().equals(attributeSelector)){
+		if( Selector.EQUAL.toString().equals(attributeSelector)){
 			logger.debug("buildPredicate equal ('{}') for value '{}'", attributeSelector, lValue);
 			return cb.equal(expression, lValue);
 		}else if( Selector.LESSTHAN.toString().equals(attributeSelector)){
@@ -607,8 +626,11 @@ public final class CertificateSpecifications {
 			}
 		} catch(Exception ex ){
 			logger.debug("parsing date ... ", ex);
-			throw ex;
+//			throw ex;
 		}
+		
+		return cb.conjunction();
+
 	}
 
 }

@@ -87,14 +87,24 @@ export default class CertList extends Vue {
     { itemName: 'issuer', itemType: 'string', itemDefaultSelector: null, itemDefaultValue: null},
     { itemName: 'serial', itemType: 'number', itemDefaultSelector: null, itemDefaultValue: null},
     { itemName: 'validTo', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}'},
-    { itemName: 'revoked', itemType: 'boolean', itemDefaultSelector: 'ISTRUE', itemDefaultValue: 'true'}
+    { itemName: 'revoked', itemType: 'boolean', itemDefaultSelector: 'ISTRUE', itemDefaultValue: 'true'},
+    { itemName: 'revocationReason', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'true' , values: ['keyCompromise',
+      'cACompromise',
+      'affiliationChanged',
+      'superseded',
+      'cessationOfOperation',
+      'privilegeWithdrawn',
+      'aACompromise',
+      'unspecified']}
+
   ];
 
   public selectionChoices: ISelectionChoices [] = [
-    { itemType: 'string', hasValue: true, choices: ['EQUALS', 'LIKE', 'NOTLIKE', 'LESSTHAN', 'GREATERTHAN']},
-    { itemType: 'number', hasValue: true, choices: ['EQUALS', 'LESSTHAN', 'GREATERTHAN']},
+    { itemType: 'string', hasValue: true, choices: ['EQUAL', 'NOT_EQUAL', 'LIKE', 'NOTLIKE', 'LESSTHAN', 'GREATERTHAN']},
+    { itemType: 'number', hasValue: true, choices: ['EQUAL', 'NOT_EQUAL', 'LESSTHAN', 'GREATERTHAN']},
     { itemType: 'date', hasValue: true, choices: ['ON', 'BEFORE', 'AFTER']},
-    { itemType: 'boolean', hasValue: false, choices: ['ISTRUE', 'ISFALSE']}
+    { itemType: 'boolean', hasValue: false, choices: ['ISTRUE', 'ISFALSE']},
+    { itemType: 'set', hasValue: false, choices: ['EQUAL', 'NOT_EQUAL']}
   ];
 
   public defaultFilter: ICertificateFilter = {attributeName: 'subject', attributeValue: 'trust', selector: 'LIKE'};
@@ -120,13 +130,14 @@ export default class CertList extends Vue {
     return revoked ? 'text-decoration:line-through;' : '';
   }
 
-  public getValidToStyle(validToString: string, revoked: boolean): string {
+  public getValidToStyle(validFromString: string, validToString: string, revoked: boolean): string {
 
-    if( revoked ){
+    if ( revoked ) {
       return '';
     }
 
     const validTo = new Date(validToString);
+    const validFrom = new Date(validFromString);
 
     const dateNow = new Date();
     const dateWarn = new Date();
@@ -139,6 +150,8 @@ export default class CertList extends Vue {
       return 'color:red;font-weight: bold;';
     } else if ( validTo > dateNow && validTo < dateWarn ) {
       return 'color:yellow; font-weight: bold;';
+    } else if ( validTo > dateNow && validFrom <= dateNow ) {
+      return 'color:green; font-weight: bold;';
     }
     return '';
   }
@@ -152,7 +165,15 @@ export default class CertList extends Vue {
     return '';
   }
 
-  public getChoices(itemName: string): string[] {
+  public getValueChoices(itemName: string): string[] {
+    const selectionItem = this.certSelectionItems.find(selections => selections.itemName === itemName);
+    if ( selectionItem ) {
+      return selectionItem.values;
+    }
+    return [];
+  }
+
+  public getSelectorChoices(itemName: string): string[] {
 //    window.console.info('getChoices(' + itemName + ')');
 
     const selectionItem = this.certSelectionItems.find(selections => selections.itemName === itemName);
@@ -188,7 +209,7 @@ representedAs: row => `${(row.serial.length > 12) ? row.serial.substring(0, 6).c
         { label: 'paddingAlgo', field: 'paddingAlgorithm' },
         { label: 'revoked', field: 'revoked', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
         { label: 'revokedSince', field: 'revokedSince' },
-        { label: 'revocationReason', field: 'reason' }
+        { label: 'reason', field: 'revocationReason' }
  //       { label: 'signingAlgo', field: 'signingAlgorithm' },
       ] as TColumnsDefinition<ICertificateView>,
       page: 1,

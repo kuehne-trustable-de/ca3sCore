@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2020-03-02 23:19:47.
+// Generated using typescript-generator version 2.19.577 on 2020-03-13 15:30:40.
 
 export interface ICertificateView extends ISerializable {
     id?: number;
@@ -28,6 +28,7 @@ export interface IUploadPrecheckData {
 }
 
 export interface IX509CertificateHolderShallow {
+    certificateId?: number;
     subject?: string;
     issuer?: string;
     type?: string;
@@ -37,6 +38,8 @@ export interface IX509CertificateHolderShallow {
     validTo?: Date;
     extensions?: string[];
     keyPresent?: boolean;
+    certificatePresentInDB?: boolean;
+    publicKeyPresentInDB?: boolean;
     pemCertrificate?: string;
     sans?: string[];
 }
@@ -52,15 +55,26 @@ export interface ICertificateSelectionData extends ISerializable {
     itemType?: string;
     itemDefaultSelector?: ISelector;
     itemDefaultValue?: string;
+    values?: string[];
 }
 
 export interface IPkcsXXData {
+    csrPublicKeyPresentInDB?: boolean;
     dataType?: IPKCSDataType;
     p10Holder?: IPkcs10RequestHolderShallow;
     certificates?: IX509CertificateHolderShallow[];
-    certificatePresentInDB?: boolean;
-    publicKeyPresentInDB?: boolean;
-    certificateId?: number;
+    passphraseRequired?: boolean;
+}
+
+export interface IDataCollection {
+    labels?: string[];
+    datasets?: IDataSet[];
+}
+
+export interface IDataSet {
+    label?: string;
+    data?: number[];
+    backgroundColor?: string[];
 }
 
 export interface ISerializable {
@@ -76,6 +90,6 @@ export interface IPkcs10RequestHolderShallow {
     publicKeyAlgorithmName?: string;
 }
 
-export type ISelector = "EQUALS" | "LIKE" | "NOTLIKE" | "LESSTHAN" | "GREATERTHAN" | "ON" | "BEFORE" | "AFTER" | "ISTRUE" | "ISFALSE";
+export type ISelector = "EQUAL" | "NOT_EQUAL" | "LIKE" | "NOTLIKE" | "LESSTHAN" | "GREATERTHAN" | "ON" | "BEFORE" | "AFTER" | "ISTRUE" | "ISFALSE";
 
-export type IPKCSDataType = "CSR" | "X509_CERTIFICATE" | "UNKNOWN";
+export type IPKCSDataType = "CSR" | "X509_CERTIFICATE" | "UNKNOWN" | "CONTAINER" | "CONTAINER_REQUIRING_PASSPHRASE";

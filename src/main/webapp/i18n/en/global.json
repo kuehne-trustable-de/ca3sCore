@@ -34,6 +34,7 @@
         "acmeAuthorization": "Acme Authorization",
         "acmeNonce": "Acme Nonce",
         "bpnmProcessInfo": "BPNM Process Info",
+        "requestProxyConfig": "Request Proxy Config",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {

@@ -11,17 +11,22 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
 
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.CaConfigTestConfiguration;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.service.schedule.ImportInfo;
+import de.trustable.ca3s.core.schedule.ImportInfo;
 
 @SpringBootTest(classes = Ca3SApp.class)
-@Import(CaConfigTestConfiguration.class)
+@ContextConfiguration(classes=CaConfigTestConfiguration.class)
 class DirectoryConnectorIT {
+
+	private static final String CERTIFICATE_A_SIGN_STRONG = "certificates/cert_11844.crt";
+
+	private static final String SUBJECT_A_SIGN_STRONG = "a-sign strong";
 
 	@Autowired
 	DirectoryConnector dc;
@@ -32,10 +37,15 @@ class DirectoryConnectorIT {
 	@Test
 	void testImportCertifiateFromFile() throws IOException {
 
+		List<Certificate> certListPreTest = cr.findAll();
+
+		List<Certificate> certListTestCert = cr.findByAttributeValue(CertificateAttribute.ATTRIBUTE_SUBJECT, SUBJECT_A_SIGN_STRONG);
+		assertEquals(0, certListTestCert.size() );
+
 		File tmpCrt = File.createTempFile("testCertificate", ".crt");
 		tmpCrt.delete();
 		
-		Files.copy(getClass().getClassLoader().getResourceAsStream("certificates/cert_11844.crt"), tmpCrt.toPath());
+		Files.copy(getClass().getClassLoader().getResourceAsStream(CERTIFICATE_A_SIGN_STRONG), tmpCrt.toPath());
 		
 		ImportInfo importInfo = new ImportInfo();
 		
@@ -48,10 +58,12 @@ class DirectoryConnectorIT {
 			System.out.println("cert #" + cert.getSerial());
 		}
 		
-//		List<Certificate> certList = cr.findByAttributeValue(CertificateAttribute.ATTRIBUTE_SERIAL, "10000000012751161201");
 		
-		assertEquals(1, certList.size());
-		
+		assertEquals(1, certList.size() - certListPreTest.size());
+
+		certListTestCert = cr.findByAttributeValue(CertificateAttribute.ATTRIBUTE_SUBJECT, SUBJECT_A_SIGN_STRONG);
+		assertEquals(1, certListTestCert.size() );
+
 	}
 
 }

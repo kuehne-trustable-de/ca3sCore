@@ -2,7 +2,7 @@ package de.trustable.ca3s.core.service.dto;
 
 public enum Selector {
 
-	EQUALS, LIKE, NOTLIKE, LESSTHAN, GREATERTHAN, ON, BEFORE, AFTER, ISTRUE, ISFALSE;
+	EQUAL, NOT_EQUAL, LIKE, NOTLIKE, LESSTHAN, GREATERTHAN, ON, BEFORE, AFTER, ISTRUE, ISFALSE;
 
 	public static boolean requiresValue(String attributeSelector) {
 		

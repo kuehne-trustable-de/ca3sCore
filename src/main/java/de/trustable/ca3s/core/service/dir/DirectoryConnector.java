@@ -30,7 +30,7 @@ import de.trustable.ca3s.core.domain.ImportedURL;
 import de.trustable.ca3s.core.repository.CertificateAttributeRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.ImportedURLRepository;
-import de.trustable.ca3s.core.service.schedule.ImportInfo;
+import de.trustable.ca3s.core.schedule.ImportInfo;
 import de.trustable.ca3s.core.service.util.CAStatus;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.TransactionHandler;

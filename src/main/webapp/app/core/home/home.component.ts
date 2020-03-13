@@ -2,17 +2,8 @@ import Component from 'vue-class-component';
 import { Inject, Vue } from 'vue-property-decorator';
 import LoginService from '@/account/login.service';
 
-import { ICertificate } from '@/shared/model/certificate.model';
-import { colFieldToStr, formatUtcDate, makeQueryStringFromObj } from '@/shared/utils';
-
-import { VuejsDatatableFactory, TColumnsDefinition, ITableContentParam, IDataFnParams } from 'vuejs-datatable';
-
-import axios from 'axios';
-
 // import VueAxios from 'vue-axios'
 // Vue.use(VueAxios, axios)
-
-Vue.use(VuejsDatatableFactory);
 
 @Component
 export default class Home extends Vue {
@@ -31,60 +22,36 @@ export default class Home extends Vue {
     return this.$store.getters.account ? this.$store.getters.account.login : '';
   }
 
-  el() { return '#vue-certificates'; }
-  data() {
+  public get chartdata(): Object {
     return {
-      columns: [
-        { label: 'id', field: 'id' },
-        { label: 'subject', field: 'subject', headerClass: 'class-in-header second-class' },
-        { label: 'issuer', field: 'issuer' },
-        { label: 'type', field: 'type' },
-        { label: 'serial', field: 'serial' },
-        { label: 'validFrom', field: 'validFrom' },
-        { label: 'validTo', field: 'validTo' },
-        { label: 'revoked', field: 'revoked' },
-        { label: 'revokedSince', field: 'revokedSince' }
-      ] as TColumnsDefinition<ICertificate>,
-      page: 1,
-      filter: '',
-
-      async getData({ sortBy, sortDir, perPage, page }: IDataFnParams<ICertificate>) {
-
-        const sortParams = sortBy && sortDir ? {
-          order: sortDir,
-          sort: colFieldToStr(sortBy).replace(/\./g, '/'),
-        } : {};
-
-        const params = {
-          // Sorting
-          ...sortParams,
-
-          // Filtering
-          // See https://documenter.getpostman.com/view/2025350/RWaEzAiG#json-field-masking
-          filter: this.columns.map(col => colFieldToStr(col.field!).replace(/\./g, '/')).join(','),
-
-          // Paging
-          limit: perPage || 10,
-          offset: ((page - 1) * perPage) || 0,
-        };
-
-        const baseApiUrl = 'api/certificates';
-        const url = `${baseApiUrl}?${makeQueryStringFromObj(params)}`;
-
-        const {
-          // Data to display
-          data,
-          // Get the total number of matched items
-          headers: { 'spacex-api-count': totalCount },
-        } = await axios.get(url);
-
-        return {
-          rows: data,
-          totalRowCount: totalCount,
-        } as ITableContentParam<ICertificate>;
-      },
-
+      labels: ['January', 'February'],
+      datasets: [
+        {
+          label: 'Data One',
+          backgroundColor: '#f87979',
+          data: [40, 20]
+        }
+      ]
     };
   }
 
+  public get options(): Object {
+    return {
+      responsive: true,
+      maintainAspectRatio: false
+    };
+  }
+
+  el() { return '#vue-home'; }
+
+  data() {
+    return {
+        chartData: {
+            type: 'line',
+            series: [{
+                values: [4, 5, 3, 3, 4, 4]
+            }]
+        }
+    };
+  }
 }

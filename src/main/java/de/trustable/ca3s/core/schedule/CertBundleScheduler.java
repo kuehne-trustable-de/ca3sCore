@@ -1,4 +1,4 @@
-package de.trustable.ca3s.core.service.schedule;
+package de.trustable.ca3s.core.schedule;
 
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;

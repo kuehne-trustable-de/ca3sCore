@@ -25,14 +25,10 @@ public class PkcsXXData {
 	@JsonProperty("certificates")
 	private X509CertificateHolderShallow[] certsHolder;
 	
-	@JsonProperty("certificatePresentInDB")
-	private boolean certificatePresentInDB = false;
-	
-	@JsonProperty("publicKeyPresentInDB")
-	private boolean publicKeyPresentInDB = false;
-	
-	@JsonProperty("certificateId")
-	private long certificateId;
+	private boolean csrPublicKeyPresentInDB = false;
+
+	@JsonProperty("passphraseRequired")
+	private boolean passphraseRequired = false;
 	
 	public PkcsXXData() {
 	}
@@ -49,18 +45,15 @@ public class PkcsXXData {
 		X509CertificateHolderShallow[] x509HolderArr = new X509CertificateHolderShallow[1];
 		x509HolderArr[0] =	new X509CertificateHolderShallow(certHolder);
 		x509HolderArr[0].setPemCertificate(pemCertificate);
-		setCertsHolder( x509HolderArr);
+		x509HolderArr[0].setCertificatePresentInDB( isCertificatePresentInDB);
 		
-		this.setCertificatePresentInDB( isCertificatePresentInDB);
+		setCertsHolder( x509HolderArr);
 	}
 	
 
 	public PkcsXXData(final Pkcs10RequestHolderShallow p10Holder) {
-
 		setDataType(PKCSDataType.CSR);
-
 		setP10Holder(p10Holder);
-
 	}
 
 	
@@ -70,23 +63,6 @@ public class PkcsXXData {
 
 	public void setDataType(PKCSDataType dataType) {
 		this.dataType = dataType;
-	}
-
-	public boolean isCertificatePresentInDB() {
-		return certificatePresentInDB;
-	}
-
-	public void setCertificatePresentInDB(boolean presentInDB) {
-		this.certificatePresentInDB = presentInDB;
-	}
-
-	
-	public boolean isPublicKeyPresentInDB() {
-		return publicKeyPresentInDB;
-	}
-
-	public void setPublicKeyPresentInDB(boolean publicKeyPresentInDB) {
-		this.publicKeyPresentInDB = publicKeyPresentInDB;
 	}
 
 	public X509CertificateHolderShallow[] getCertsHolder() {
@@ -105,12 +81,20 @@ public class PkcsXXData {
 		this.p10Holder = p10Holder;
 	}
 
-	public long getCertificateId() {
-		return certificateId;
+	public boolean isPassphraseRequired() {
+		return passphraseRequired;
 	}
 
-	public void setCertificateId(long certificateId) {
-		this.certificateId = certificateId;
+	public void setPassphraseRequired(boolean passphraseRequired) {
+		this.passphraseRequired = passphraseRequired;
+	}
+
+	public boolean isCsrPublicKeyPresentInDB() {
+		return csrPublicKeyPresentInDB;
+	}
+
+	public void setCsrPublicKeyPresentInDB(boolean csrPublicKeyPresentInDB) {
+		this.csrPublicKeyPresentInDB = csrPublicKeyPresentInDB;
 	}
 
 	

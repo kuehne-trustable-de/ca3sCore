@@ -4,9 +4,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.Key;
+import java.security.KeyPair;
 import java.security.KeyStore;
+import java.security.PrivateKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -42,6 +45,7 @@ import de.trustable.ca3s.core.web.rest.data.PKCSDataType;
 import de.trustable.ca3s.core.web.rest.data.Pkcs10RequestHolderShallow;
 import de.trustable.ca3s.core.web.rest.data.PkcsXXData;
 import de.trustable.ca3s.core.web.rest.data.UploadPrecheckData;
+import de.trustable.ca3s.core.web.rest.data.X509CertificateHolderShallow;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.Pkcs10RequestHolder;
 
@@ -105,22 +109,14 @@ public class ContentUploadProcessor {
 	    	}
 	    	
 			X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(content);
-			
-			List<Certificate> certList = certificateRepository.findByIssuerSerial(certHolder.getIssuer().toString(), certHolder.getSerialNumber().toString());
-			if( !certList.isEmpty()){
+			List<Certificate> certList = findCertificateByIssuerSerial(certHolder);
+			if(!certList.isEmpty()){
 				// certificate already present in db
 				LOG.info("certificate already present");
 				return new ResponseEntity<PkcsXXData>(HttpStatus.CONFLICT);
 			}
 			
-			// insert certificate
-			Certificate cert = certUtil.createCertificate(content, null, null, false);
-			
-			// save the source of the certificate
-			certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_UPLOADED_BY, requestorName);
-
-			certificateRepository.save(cert);
-			
+			Certificate cert = insertCertificate(content, requestorName);
 			if( cert == null ) {
 				LOG.info("problem importing uploaded certificate content");
 				return new ResponseEntity<PkcsXXData>(HttpStatus.BAD_REQUEST);
@@ -151,60 +147,107 @@ public class ContentUploadProcessor {
 
 				p10ReqData = new PkcsXXData(p10ReqHolderShallow);
 
-				p10ReqData.setPublicKeyPresentInDB( !csrList.isEmpty());
+				p10ReqData.setCsrPublicKeyPresentInDB(!csrList.isEmpty());
 				if(csrList.isEmpty()) {
 					Certificate cert = startCertificateCreationProcess(content, requestorName );
 					if( cert != null) {
-						p10ReqData.setCertificateId(cert.getId());
-						p10ReqData.setCertificatePresentInDB(true);
-						
 						X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(cert.getContent());
 						p10ReqData = new PkcsXXData(certHolder, cert != null );
+						p10ReqData.getCertsHolder()[0].setCertificateId(cert.getId());
+						p10ReqData.getCertsHolder()[0].setCertificatePresentInDB(true);
 						return new ResponseEntity<PkcsXXData>(p10ReqData, HttpStatus.CREATED);
 					}
 				}
 				
 			} catch (IOException | GeneralSecurityException e2) {
 				LOG.debug("describeCSR ", e2);
-				LOG.debug("not a csr, trying to parse it as PKCS12 ");
+				LOG.debug("not a certificate, not a CSR, trying to parse it as a P12 container");
 				try {
 					
 			        KeyStore pkcs12Store = KeyStore.getInstance("PKCS12", "BC");
 
 			        ByteArrayInputStream bais = new ByteArrayInputStream( Base64.decode(content));
 			        
-			        char[] passwd = new char[0];
+			        char[] passphrase = new char[0];
 			        if( ( uploaded.getPassphrase() != null ) && (uploaded.getPassphrase().trim().length() > 0)) {
-			        	passwd = uploaded.getPassphrase().toCharArray();
+			        	passphrase = uploaded.getPassphrase().toCharArray();
 			        }
 			        
-			        pkcs12Store.load(bais, passwd);
+			        pkcs12Store.load(bais, passphrase);
+					LOG.debug("keystore loaded successfully!");
+
+			        List<X509CertificateHolderShallow> certList = new ArrayList<X509CertificateHolderShallow>();
 
 			        for (Enumeration<String> en = pkcs12Store.aliases(); en.hasMoreElements();)
 			        {
 			            String alias = en.nextElement();
+						LOG.debug("iterating keystore, found alias {}, isCertificateEntry {}, isKeyEntry {}", alias, pkcs12Store.isCertificateEntry(alias), pkcs12Store.isKeyEntry(alias));
 
-			            if (pkcs12Store.isCertificateEntry(alias)){
+			            if (pkcs12Store.isCertificateEntry(alias) || pkcs12Store.isKeyEntry(alias)){
 			            	
 			            	X509Certificate x509cert = (X509Certificate)pkcs12Store.getCertificate(alias);
-							LOG.debug("certificate {} found in PKCS12 for alias {}", x509cert.getSubjectDN().getName(), alias);
-
-			    			Certificate cert = certUtil.getCertificateByX509(x509cert);
-			    			p10ReqData = new PkcsXXData(new X509CertificateHolder(x509cert.getEncoded()), cert != null );
+			            	if( x509cert == null) {
+								LOG.debug("alias {} does NOT refer to a certificate entry", alias);
+			            		continue;
+			            	}
+							LOG.debug("certificate {} found in PKCS12 for alias '{}'", x509cert.getSubjectDN().getName(), alias);
 			            	
+					    	String b64Content = cryptoUtil.x509CertToPem(x509cert);
+			    			X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(b64Content);
+			    			X509CertificateHolderShallow x509Holder = new X509CertificateHolderShallow(certHolder);
+			    			x509Holder.setPemCertificate(b64Content);
+			            	
+		    				Certificate cert = null;
+			    			List<Certificate> certListDB = findCertificateByIssuerSerial(certHolder);
+							LOG.debug("certListDB has # {} item", certListDB.size());
+			    			if(!certListDB.isEmpty()){
+			    				cert = certListDB.get(0);
+			    				if( certListDB.size() > 1 ) {
+			    					LOG.info("problem: found more than one matching certificate for issuer {}, serial {}", certHolder.getIssuer().toString(), certHolder.getSerialNumber().toString());
+			    				}
+			    			}else {
+			    				// insert certificate
+			    				cert = insertCertificate(b64Content, requestorName);
+			    				if( cert == null ) {
+			    					LOG.info("problem importing uploaded certificate content");
+			    					return new ResponseEntity<PkcsXXData>(HttpStatus.BAD_REQUEST);
+			    				}
+			    			}
+		    				x509Holder.setCertificateId(cert.getId());
+		    				x509Holder.setCertificatePresentInDB(true);
+
 				            if (pkcs12Store.isKeyEntry(alias)){
 
-				            	Key key = pkcs12Store.getKey(alias, passwd);
-								LOG.debug("key {} found alongside certificate in PKCS12 for alias {}", key, alias);
+				            	Key key = pkcs12Store.getKey(alias, passphrase);
+								LOG.debug("key {} found alongside certificate in PKCS12 for alias {}", "*****", alias);
+								
+								KeyPair keyPair = new KeyPair(x509cert.getPublicKey(), (PrivateKey) key);
+								certUtil.storePrivateKey(cert, keyPair);
+								x509Holder.setKeyPresent(true);
+								LOG.debug("key {} stored for certificate {}", "*****", cert.getId());
+
 				            }
+			    			certList.add(x509Holder);
 			            }
 			        }
 
+			        p10ReqData = new PkcsXXData();
+			        X509CertificateHolderShallow[] chsArr = new X509CertificateHolderShallow[certList.size()];
+			        certList.toArray(chsArr);
+			        p10ReqData.setCertsHolder(chsArr);
+
+					p10ReqData.setDataType(PKCSDataType.CONTAINER);
+
+				} catch( IOException ioe) {
+					// not able to process, presumable passphrase required ...
+					p10ReqData.setPassphraseRequired(true);
+					p10ReqData.setDataType(PKCSDataType.CONTAINER_REQUIRING_PASSPHRASE);
+					LOG.debug("p12 missing a passphrase:", ioe);
 				} catch (org.bouncycastle.util.encoders.DecoderException de){	
 					// no parseable ...
 					p10ReqData.setDataType(PKCSDataType.UNKNOWN);
 					LOG.debug("p12 parsing problem of uploaded content:", de);
-				}catch(GeneralSecurityException | IOException e3) {
+				}catch(GeneralSecurityException e3) {
 					LOG.debug("general problem with uploaded content:", e3);
 					return new ResponseEntity<PkcsXXData>(HttpStatus.BAD_REQUEST);
 				}
@@ -212,6 +255,22 @@ public class ContentUploadProcessor {
 		}
 
 		return new ResponseEntity<PkcsXXData>(p10ReqData, HttpStatus.OK);
+	}
+
+
+	private Certificate insertCertificate(String content, String requestorName)
+			throws GeneralSecurityException, IOException {
+		// insert certificate
+		Certificate cert = certUtil.createCertificate(content, null, null, false);
+		
+		// save the source of the certificate
+		certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_UPLOADED_BY, requestorName);
+
+		certificateRepository.save(cert);
+		
+		LOG.info("created new certificate entry with id {} uploaded by {}", cert.getId(), requestorName);
+
+		return cert;
 	}
 
     
@@ -264,5 +323,9 @@ public class ContentUploadProcessor {
 		return null;
 	}
 
+	private List<Certificate> findCertificateByIssuerSerial(X509CertificateHolder certHolder) {
+		return certificateRepository.findByIssuerSerial(certHolder.getIssuer().toString(), certHolder.getSerialNumber().toString());
+		
+	}
 
 }

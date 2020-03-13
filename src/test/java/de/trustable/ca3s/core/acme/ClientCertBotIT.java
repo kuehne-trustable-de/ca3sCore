@@ -20,12 +20,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
 
+import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.CaConfigTestConfiguration;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(CaConfigTestConfiguration.class)
+@SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(classes=CaConfigTestConfiguration.class)
 public class ClientCertBotIT {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClientCertBotIT.class);

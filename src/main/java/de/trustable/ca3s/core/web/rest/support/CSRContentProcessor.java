@@ -7,6 +7,7 @@ import java.security.Key;
 import java.security.KeyStore;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -34,6 +35,7 @@ import de.trustable.ca3s.core.web.rest.data.PKCSDataType;
 import de.trustable.ca3s.core.web.rest.data.Pkcs10RequestHolderShallow;
 import de.trustable.ca3s.core.web.rest.data.PkcsXXData;
 import de.trustable.ca3s.core.web.rest.data.UploadPrecheckData;
+import de.trustable.ca3s.core.web.rest.data.X509CertificateHolderShallow;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.Pkcs10RequestHolder;
 
@@ -48,9 +50,6 @@ public class CSRContentProcessor {
 
 	@Autowired
 	private CryptoUtil cryptoUtil;
-
-	@Autowired
-	private CertificateUtil certUtil;
 
 	@Autowired
 	private CSRRepository csrRepository;
@@ -104,49 +103,73 @@ public class CSRContentProcessor {
 				List<CSR> csrList = csrRepository.findByPublicKeyHash(p10ReqHolder.getPublicKeyHash());
 				LOG.debug("public key with hash '{}' used in #{} csrs, yet", p10ReqHolder.getPublicKeyHash(), csrList.size());
 				
-				p10ReqData.setPublicKeyPresentInDB( !csrList.isEmpty());
+				p10ReqData.setCsrPublicKeyPresentInDB(!csrList.isEmpty());
 				p10ReqData = new PkcsXXData(p10ReqHolderShallow);
 			} catch (IOException | GeneralSecurityException e2) {
 				LOG.debug("describeCSR ", e2);
-				LOG.debug("not a csr, trying to parse it as PKCS12 ");
+				LOG.debug("not a certificate, not a CSR, trying to parse it as a P12 container");
 				try {
 					
 			        KeyStore pkcs12Store = KeyStore.getInstance("PKCS12", "BC");
 
 			        ByteArrayInputStream bais = new ByteArrayInputStream( Base64.decode(content));
 			        
-			        char[] passwd = new char[0];
+			        char[] passphrase = new char[0];
 			        if( ( uploaded.getPassphrase() != null ) && (uploaded.getPassphrase().trim().length() > 0)) {
-			        	passwd = uploaded.getPassphrase().toCharArray();
+			        	passphrase = uploaded.getPassphrase().toCharArray();
 			        }
 			        
-			        pkcs12Store.load(bais, passwd);
+			        pkcs12Store.load(bais, passphrase);
+					LOG.debug("keystore loaded successfully!");
+
+			        List<X509CertificateHolderShallow> certList = new ArrayList<X509CertificateHolderShallow>();
 
 			        for (Enumeration<String> en = pkcs12Store.aliases(); en.hasMoreElements();)
 			        {
 			            String alias = en.nextElement();
+						LOG.debug("iterating keystore, found alias {}, isCertificateEntry {}, isKeyEntry {}", alias, pkcs12Store.isCertificateEntry(alias), pkcs12Store.isKeyEntry(alias));
 
-			            if (pkcs12Store.isCertificateEntry(alias)){
-			            	
+			            if (pkcs12Store.isCertificateEntry(alias) || pkcs12Store.isKeyEntry(alias)){
+
 			            	X509Certificate x509cert = (X509Certificate)pkcs12Store.getCertificate(alias);
+			            	if( x509cert == null) {
+								LOG.debug("alias {} does NOT refer to a certificate entry", alias);
+			            		continue;
+			            	}
 							LOG.debug("certificate {} found in PKCS12 for alias {}", x509cert.getSubjectDN().getName(), alias);
-
-			    			Certificate cert = certUtil.getCertificateByX509(x509cert);
-			    			p10ReqData = new PkcsXXData(new X509CertificateHolder(x509cert.getEncoded()), cert != null );
 			            	
-				            if (pkcs12Store.isKeyEntry(alias)){
+					    	String b64Content = cryptoUtil.x509CertToPem(x509cert);
+			    			X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(b64Content);
+			    			X509CertificateHolderShallow x509Holder = new X509CertificateHolderShallow(certHolder);
+			    			x509Holder.setPemCertificate(b64Content);
 
-				            	Key key = pkcs12Store.getKey(alias, passwd);
+				            if (pkcs12Store.isKeyEntry(alias)){
+				            	Key key = pkcs12Store.getKey(alias, passphrase);
+				            	x509Holder.setKeyPresent(true);
 								LOG.debug("key {} found alongside certificate in PKCS12 for alias {}", key, alias);
 				            }
+				            
+			    			certList.add(x509Holder);
 			            }
 			        }
 
+			        p10ReqData = new PkcsXXData();
+			        X509CertificateHolderShallow[] chsArr = new X509CertificateHolderShallow[certList.size()];
+			        certList.toArray(chsArr);
+			        p10ReqData.setCertsHolder(chsArr);
+
+					p10ReqData.setDataType(PKCSDataType.CONTAINER);
+
+				} catch( IOException ioe) {
+					// not able to process, presumable passphrase required ...
+					p10ReqData.setPassphraseRequired(true);
+					p10ReqData.setDataType(PKCSDataType.CONTAINER_REQUIRING_PASSPHRASE);
+					LOG.debug("p12 missing a passphrase:", ioe);
 				} catch (org.bouncycastle.util.encoders.DecoderException de){	
-					// no parseable ...
+					// not parseable ...
 					p10ReqData.setDataType(PKCSDataType.UNKNOWN);
 					LOG.debug("p12 parsing problem of uploaded content:", de);
-				}catch(GeneralSecurityException | IOException e3) {
+				} catch(GeneralSecurityException e3) {
 					LOG.debug("general problem with uploaded content:", e3);
 					return new ResponseEntity<PkcsXXData>(HttpStatus.BAD_REQUEST);
 				}

@@ -39,6 +39,7 @@
     <include file="config/liquibase/changelog/20200129162419_added_entity_AcmeAuthorization.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200129162421_added_entity_AcmeNonce.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200217073825_added_entity_BPNMProcessInfo.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200304173100_added_entity_RequestProxyConfig.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <include file="config/liquibase/changelog/20200110170111_added_entity_constraints_CertificateAttribute.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170112_added_entity_constraints_Certificate.xml" relativeToChangelogFile="false"/>
@@ -55,6 +56,7 @@
     <include file="config/liquibase/changelog/20200129162418_added_entity_constraints_AcmeIdentifier.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200129162419_added_entity_constraints_AcmeAuthorization.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170119_added_entity_constraints_Pipeline.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200304173100_added_entity_constraints_RequestProxyConfig.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     
     <include file="config/liquibase/changelog/20200120140000_added_indices.xml" relativeToChangelogFile="false"/>

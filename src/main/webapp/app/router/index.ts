@@ -172,6 +172,12 @@ const BPNMProcessInfo = () => import('../entities/bpnm-process-info/bpnm-process
 const BPNMProcessInfoUpdate = () => import('../entities/bpnm-process-info/bpnm-process-info-update.vue');
 // prettier-ignore
 const BPNMProcessInfoDetails = () => import('../entities/bpnm-process-info/bpnm-process-info-details.vue');
+// prettier-ignore
+const RequestProxyConfig = () => import('../entities/request-proxy-config/request-proxy-config.vue');
+// prettier-ignore
+const RequestProxyConfigUpdate = () => import('../entities/request-proxy-config/request-proxy-config-update.vue');
+// prettier-ignore
+const RequestProxyConfigDetails = () => import('../entities/request-proxy-config/request-proxy-config-details.vue');
 // jhipster-needle-add-entity-to-router-import - JHipster will import entities to the router here
 
 Vue.use(Router);
@@ -909,6 +915,31 @@ export default new Router({
       path: '/bpnm-process-info/:bPNMProcessInfoId/view',
       name: 'BPNMProcessInfoView',
       component: BPNMProcessInfoDetails,
+      meta: { authorities: ['ROLE_USER'] }
+    }
+    ,
+    {
+      path: '/request-proxy-config',
+      name: 'RequestProxyConfig',
+      component: RequestProxyConfig,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/request-proxy-config/new',
+      name: 'RequestProxyConfigCreate',
+      component: RequestProxyConfigUpdate,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/request-proxy-config/:requestProxyConfigId/edit',
+      name: 'RequestProxyConfigEdit',
+      component: RequestProxyConfigUpdate,
+      meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/request-proxy-config/:requestProxyConfigId/view',
+      name: 'RequestProxyConfigView',
+      component: RequestProxyConfigDetails,
       meta: { authorities: ['ROLE_USER'] }
     }
     // jhipster-needle-add-entity-to-router - JHipster will add entities to the router here

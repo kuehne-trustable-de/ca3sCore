@@ -35,9 +35,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.context.annotation.Import;
 
-import de.trustable.ca3s.core.CaConfigTestConfiguration;
+import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.test.util.AcceptAllCertSelector;
 import de.trustable.ca3s.core.test.util.AcceptAllVerifier;
 import de.trustable.ca3s.core.test.util.X509Certificates;
@@ -45,8 +44,7 @@ import de.trustable.util.CryptoUtil;
 import de.trustable.util.JCAManager;
 
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(CaConfigTestConfiguration.class)
+@SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Disabled("Integration test fails for unknown reason, running it as a separate client succeeds. Maybe a classloader issue? ")
 public class ScepServiceIT{
 

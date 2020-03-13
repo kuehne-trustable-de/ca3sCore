@@ -7,8 +7,43 @@
     <artifactId>ca-3-s</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
+    
+    
     <name>ca3s core</name>
+    <description>ca3s offers a unified view and administrative interface for your certificate landscape. 
+    It's a CA system with a flexible RA part based on BPM. backed by a CMP-connected CA or an ADCS. Offers automatic certificate distribution interfaces (like ACME and SCEP) for CAs that don't offer such interfaces.
+    Brushed-up codebase of the sourceforge's ca3s-project ([https://sourceforge.net/projects/ca3s/]</description>
+    <url>https://github.com/kuehne-trustable-de/ca3sCore</url>
 
+	
+	<licenses>
+		<license>
+			<name>European Union Public Licence (EUPL-1.2)</name>
+			<url>https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12</url>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Andreas Kuehne</name>
+			<email>kuehne@trustable.de</email>
+			<organization>trustable solutions UG</organization>
+			<organizationUrl>https://trustable.de</organizationUrl>
+		</developer>
+		<developer>
+			<name>Damian Wabisch</name>
+			<email>damian@trustable.de</email>
+			<organization>trustable solutions UG</organization>
+			<organizationUrl>https://trustable.de</organizationUrl>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>https://github.com/kuehne-trustable-de/ca3sCore.git</connection>
+		<developerConnection>https://github.com/kuehne-trustable-de/ca3sCore.git</developerConnection>
+		<url>https://github.com/kuehne-trustable-de/ca3sCore.git</url>
+	</scm>
+    
     <repositories>
         <!-- jhipster-needle-maven-repository -->
     </repositories>
@@ -98,6 +133,9 @@
     	<nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
     	<adcsUtilVersion>1.0.1</adcsUtilVersion>
 		<adcsProxyClientVersion>1.0.0-SNAPSHOT</adcsProxyClientVersion>
+		
+		<webSocketDTOVersion>0.0.1-SNAPSHOT</webSocketDTOVersion>
+		
         <nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
        	<jose4jVersion>0.6.5</jose4jVersion>
        	<acme4jVersion>2.6</acme4jVersion>
@@ -405,6 +443,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>de.trustable.ca3s</groupId>
+			<artifactId>ca3sWebSocketDTO</artifactId>
+			<version>${webSocketDTOVersion}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>com.nimbusds</groupId>
 			<artifactId>nimbus-jose-jwt</artifactId>
 			<version>${nimbus-jose-jwt-version}</version>
@@ -640,6 +684,8 @@
 						<class>de.trustable.ca3s.core.web.rest.data.CertificateFilter</class>
 						<class>de.trustable.ca3s.core.web.rest.data.CertificateSelectionData</class>
 						<class>de.trustable.ca3s.core.web.rest.data.PkcsXXData</class>
+						<class>de.trustable.ca3s.core.web.rest.data.DataCollection</class>
+						<class>de.trustable.ca3s.core.web.rest.data.DataSet</class>
 					</classes>
 					<addTypeNamePrefix>I</addTypeNamePrefix>
 					<optionalProperties>all</optionalProperties>
@@ -947,6 +993,8 @@
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <version>${maven-failsafe-plugin.version}</version>
                     <configuration>
+    					<argLine>-Xmx2048m -Dspring.test.context.cache.maxSize=1</argLine>
+    					
                         <!-- Due to spring-boot repackage, without adding this property test classes are not found
                              See https://github.com/spring-projects/spring-boot/issues/6254 -->
                         <classesDirectory>${project.build.outputDirectory}</classesDirectory>
@@ -984,6 +1032,21 @@
                     <version>${spring-boot.version}</version>
                 </plugin>
                 <!-- jhipster-needle-maven-add-plugin-management -->
+                
+			    <plugin>
+			      <groupId>org.apache.maven.plugins</groupId>
+			      <artifactId>maven-gpg-plugin</artifactId>
+			      <version>1.6</version>
+			      <executions>
+			        <execution>
+			          <id>sign-artifacts</id>
+			          <phase>verify</phase>
+			          <goals>
+			            <goal>sign</goal>
+			          </goals>
+			        </execution>
+			      </executions>
+			    </plugin>
             </plugins>
         </pluginManagement>
     </build>

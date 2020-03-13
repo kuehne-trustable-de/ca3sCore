@@ -19,11 +19,11 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group" v-if="precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE'">
                         <label class="form-control-label" v-text="$t('pkcsxx.upload.passphrase')" for="upload-passphrase">Passphrase</label>
                         <input type="text" class="form-control" name="passphrase" id="upload-passphrase"
 							autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                            v-model="$v.upload.passphrase.$model" required/>
+                            v-model="$v.upload.passphrase.$model" v-on:input="notifyChange"/>
                     </div>
 
 					<dl class="row jh-entity-details" v-if="responseStatus > 0">
@@ -55,7 +55,7 @@
 							<span><div v-if="precheckResponse.p10Holder.csrvalid === false">invalid </div>{{precheckResponse.dataType}}</span>
 						</dd>
 
-						<div v-if="precheckResponse.publicKeyPresentInDB === true">
+						<div v-if="precheckResponse.csrPublicKeyPresentInDB === true">
 							<dt>
 								<span v-text="$t('pkcsxx.upload.warning.label')">Warning</span>
 							</dt>
@@ -140,14 +140,38 @@
 						</dd>
 					</dl>
 
-				</div>
+					<dl class="row jh-entity-details" v-if="precheckResponse.dataType === 'CONTAINER'">
+						<dt>
+							<span v-text="$t('pkcsxx.upload.type')">Result</span>
+						</dt>
+						<dd>
+							<span v-text="$t('pkcsxx.upload.result.certificate')">Certificate Container</span>
+						</dd>
 
+						<dt v-if="precheckResponse.certificates.length === 0">
+						</dt>
+
+						<dd v-if="precheckResponse.certificates.length === 0">
+							<span v-text="$t('pkcsxx.upload.container.no.certificates')">No certificates contained</span>
+						</dd>
+
+						<dt>
+							<span v-text="$t('pkcsxx.upload.certificates')">Certificates</span>
+						</dt>
+						<dd>
+							<ul>
+								<li v-for="cert in precheckResponse.certificates" :key="cert.serial"><div v-if="cert.certificatePresentInDB">present</div><div v-else>present</div>{{cert.subject}}</li>
+							</ul>
+						</dd>
+
+					</dl>
+				</div>
 
                 <div v-if="authenticated">
 					<div class="row jh-entity-details" v-if="isChecked === true && precheckResponse.dataType === 'X509_CERTIFICATE' && precheckResponse.certificatePresentInDB">
 						<span v-text="$t('pkcsxx.upload.result.certificate.present')">Certificate.already.present</span>
 					</div>
-                    <button type="button" id="uploadContent" :disabled="precheckResponse.certificatePresentInDB || precheckResponse.publicKeyPresentInDB" class="btn btn-primary" v-on:click="uploadContent">
+                    <button type="button" id="uploadContent" :disabled="precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE' || precheckResponse.certificatePresentInDB || precheckResponse.publicKeyPresentInDB" class="btn btn-primary" v-on:click="uploadContent">
                         <font-awesome-icon icon="upload"></font-awesome-icon>&nbsp;<span v-text="$t('pkcsxx.upload.submit')">Upload</span>
                     </button>
                 </div>

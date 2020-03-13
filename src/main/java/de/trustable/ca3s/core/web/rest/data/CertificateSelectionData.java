@@ -26,5 +26,8 @@ public class CertificateSelectionData implements Serializable {
 	@JsonProperty("itemDefaultValue")
 	private String itemDefaultValue;
 
+	@JsonProperty("values")
+	private String[] values;
+
 	
 }

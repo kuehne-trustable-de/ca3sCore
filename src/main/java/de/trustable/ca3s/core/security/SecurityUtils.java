@@ -11,6 +11,12 @@ import java.util.Optional;
 
 /**
  * Utility class for Spring Security.
+ * 
+ * @todo check kerberos integration
+ * 
+ * https://www.baeldung.com/spring-security-kerberos-integration
+ * https://www.baeldung.com/spring-security-kerberos
+ * 
  */
 public final class SecurityUtils {
 

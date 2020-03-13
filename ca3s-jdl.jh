@@ -22,6 +22,14 @@ enum CAConnectorType {
     INTERNAL, CMP, ADCS, ADCS_CERTIFICATE_INVENTORY, DIRECTORY
 }
 
+entity RequestProxyConfig{
+
+	name String required
+	requestProxyUrl String required
+	active Boolean
+}
+
+
 entity CertificateAttribute {
 //	attributeId Long required
     name String required
@@ -367,6 +375,7 @@ relationship OneToOne{
 
   Certificate{csr} to CSR{certificate}
 
+  RequestProxyConfig{secret} to ProtectedContent
 }
 
 // Set pagination options

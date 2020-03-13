@@ -1,4 +1,5 @@
 package de.trustable.ca3s.core.repository;
+import java.time.Instant;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -60,4 +61,17 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
 
 	  @Query(name = "Certificate.findByTBSDigest")
 	  List<Certificate> findByTBSDigest(@Param("tbsDigest") String tbsDigest);
+	  
+	  @Query(name = "Certificate.findByValidTo")
+	  List<Certificate> findByValidTo(@Param("after") Instant after, 
+		      @Param("before") Instant before);
+
+	  @Query(name = "Certificate.findActiveCertificatesByHashAlgo")
+	  List<Object[]> findActiveCertificatesByHashAlgo(@Param("now") Instant now);
+	  
+	  @Query(name = "Certificate.findActiveCertificatesByKeyAlgo")
+	  List<Object[]> findActiveCertificatesByKeyAlgo(@Param("now") Instant now);
+	  
+	  @Query(name = "Certificate.findActiveCertificatesByKeyLength")
+	  List<Object[]> findActiveCertificatesByKeyLength(@Param("now") Instant now);
 }

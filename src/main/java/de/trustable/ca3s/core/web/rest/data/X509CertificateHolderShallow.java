@@ -25,6 +25,8 @@ public class X509CertificateHolderShallow {
 	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(X509CertificateHolderShallow.class);
 
+	private long certificateId;
+	
     private String subject;
 
     private String issuer;
@@ -45,6 +47,11 @@ public class X509CertificateHolderShallow {
     private String[] extensions;
 
     private boolean keyPresent;
+
+	private boolean certificatePresentInDB = false;
+	
+	private boolean publicKeyPresentInDB = false;
+	
 
     private String pemCertificate;
 
@@ -181,6 +188,31 @@ public class X509CertificateHolderShallow {
 
 	public void setPemCertificate(String pemCertificate) {
 		this.pemCertificate = pemCertificate;
+	}
+
+	public boolean isCertificatePresentInDB() {
+		return certificatePresentInDB;
+	}
+
+	public void setCertificatePresentInDB(boolean presentInDB) {
+		this.certificatePresentInDB = presentInDB;
+	}
+
+	
+	public boolean isPublicKeyPresentInDB() {
+		return publicKeyPresentInDB;
+	}
+
+	public void setPublicKeyPresentInDB(boolean publicKeyPresentInDB) {
+		this.publicKeyPresentInDB = publicKeyPresentInDB;
+	}
+
+	public long getCertificateId() {
+		return certificateId;
+	}
+
+	public void setCertificateId(long certificateId) {
+		this.certificateId = certificateId;
 	}
 
     

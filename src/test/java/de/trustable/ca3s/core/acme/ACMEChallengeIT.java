@@ -28,18 +28,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
 import org.takes.Take;
 import org.takes.facets.fork.FkRegex;
 import org.takes.facets.fork.TkFork;
 import org.takes.http.Exit;
 import org.takes.http.FtBasic;
 
+import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.CaConfigTestConfiguration;
 import de.trustable.util.JCAManager;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(CaConfigTestConfiguration.class)
+@SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(classes=CaConfigTestConfiguration.class)
 public class ACMEChallengeIT {
 
     private static final Logger LOG = LoggerFactory.getLogger(ACMEChallengeIT.class);

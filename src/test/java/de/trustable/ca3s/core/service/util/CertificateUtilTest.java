@@ -57,8 +57,6 @@ public class CertificateUtilTest {
 	@Test
 	public void testAKIandSKIGeneration() throws GeneralSecurityException {
 
-//		CryptoUtil cryptoUtil = new CryptoUtil();
-		
 		X509Certificate x509Cert = CryptoUtil.convertPemToCertificate(testCert);
 		assertNotNull(x509Cert);
 		
@@ -74,6 +72,17 @@ public class CertificateUtilTest {
 		assertEquals(b46Ski, b46Aki);
 	}
 
+	@Test
+	public void testGetKeyLength() throws GeneralSecurityException {
+
+		X509Certificate x509Cert = CryptoUtil.convertPemToCertificate(testCert);
+		assertNotNull(x509Cert);
+		
+		int keyLength = CertificateUtil.getAlignedKeyLength(x509Cert.getPublicKey());
+		assertEquals(2048, keyLength);
+		
+	}
+	
 	@Test
 	public void testFileUrl() throws MalformedURLException {
 		

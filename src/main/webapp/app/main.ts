@@ -4,6 +4,8 @@ import Vue from 'vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import App from './app.vue';
 import Vue2Filters from 'vue2-filters';
+import zingchartVue from 'zingchart-vue';
+
 import router from './router';
 import * as config from './shared/config/config';
 import * as bootstrapVueConfig from './shared/config/config-bootstrap-vue';
@@ -50,6 +52,7 @@ import AcmeIdentifierService from '@/entities/acme-identifier/acme-identifier.se
 import AcmeAuthorizationService from '@/entities/acme-authorization/acme-authorization.service';
 import AcmeNonceService from '@/entities/acme-nonce/acme-nonce.service';
 import BPNMProcessInfoService from '@/entities/bpnm-process-info/bpnm-process-info.service';
+import RequestProxyConfigService from '@/entities/request-proxy-config/request-proxy-config.service';
 // jhipster-needle-add-entity-service-to-main-import - JHipster will import entities services here
 
 Vue.config.productionTip = false;
@@ -59,6 +62,7 @@ bootstrapVueConfig.initBootstrapVue(Vue);
 Vue.use(Vue2Filters);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 Vue.component('jhi-item-count', JhiItemCountComponent);
+Vue.component('zingchart', zingchartVue);
 
 const i18n = config.initI18N(Vue);
 const store = config.initVueXStore(Vue);
@@ -133,6 +137,7 @@ new Vue({
     acmeAuthorizationService: () => new AcmeAuthorizationService(),
     acmeNonceService: () => new AcmeNonceService(),
     bPNMProcessInfoService: () => new BPNMProcessInfoService(),
+    requestProxyConfigService: () => new RequestProxyConfigService(),
     // jhipster-needle-add-entity-service-to-main - JHipster will import entities services here
     accountService: () => accountService
   },

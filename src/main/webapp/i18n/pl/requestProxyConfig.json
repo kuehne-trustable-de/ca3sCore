@@ -1,0 +1,25 @@
+{
+  "ca3SApp": {
+    "requestProxyConfig": {
+      "home": {
+        "title": "Request Proxy Config",
+        "createLabel": "Dodaj Request Proxy Config",
+        "createOrEditLabel": "Dodaj lub edytuj: Request Proxy Config",
+        "notFound": "No Request Proxy Configs found"
+      },
+      "created": "Utworzono nowy obiekt typu Request Proxy Config z identyfikatorem {{ param }}",
+      "updated": "Uaktualniono obiekt typu Request Proxy Config z identyfikatorem {{ param }}",
+      "deleted": "Usunięto obiekt typu Request Proxy Config z identyfikatorem {{ param }}",
+      "delete": {
+        "question": "Czy na pewno chcesz usunąć Request Proxy Config {{ id }}?"
+      },
+      "detail": {
+        "title": "Request Proxy Config"
+      },
+      "name": "Name",
+      "requestProxyUrl": "Request Proxy Url",
+      "active": "Active",
+      "secret": "Secret"
+    }
+  }
+}

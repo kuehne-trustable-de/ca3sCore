@@ -1,13 +1,31 @@
 package de.trustable.ca3s.core.domain;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * A Certificate.
@@ -59,8 +77,36 @@ import java.util.Set;
         " att1.name = :name1 and att1.value = :value1 AND" +
         " att2.name = :name2 and att2.value = :value2 "
         ),
-         
+    @NamedQuery(name = "Certificate.findByValidTo",
+    query = "SELECT c FROM Certificate c WHERE " +
+        "c.validTo >= :after and " +
+        " c.validTo <= :before"
+    ),
+    @NamedQuery(name = "Certificate.findActiveCertificatesByHashAlgo",
+    query = "SELECT c.hashingAlgorithm, count(c) as total FROM Certificate c WHERE " +
+        "c.validTo >= :now and " +
+        " c.validFrom <= :now and " +
+        " c.revoked = FALSE " +
+        " GROUP BY c.hashingAlgorithm ORDER BY c.hashingAlgorithm ASC"
+    ),
+
+    @NamedQuery(name = "Certificate.findActiveCertificatesByKeyAlgo",
+    query = "SELECT c.keyAlgorithm, count(c) as total FROM Certificate c WHERE " +
+        "c.validTo >= :now and " +
+        " c.validFrom <= :now and " +
+        " c.revoked = FALSE " +
+        " GROUP BY c.keyAlgorithm ORDER BY c.keyAlgorithm ASC"
+    ),
+
+    @NamedQuery(name = "Certificate.findActiveCertificatesByKeyLength",
+    query = "SELECT concat(c.keyAlgorithm, ':',c.keyLength), count(c) as total FROM Certificate c WHERE " +
+        "c.validTo >= :now and " +
+        " c.validFrom <= :now and " +
+        " c.revoked = FALSE " +
+        " GROUP BY c.keyAlgorithm, c.keyLength ORDER BY c.keyAlgorithm, c.keyLength ASC"
+    ),
 })
+
 public class Certificate implements Serializable {
 
     private static final long serialVersionUID = 1L;

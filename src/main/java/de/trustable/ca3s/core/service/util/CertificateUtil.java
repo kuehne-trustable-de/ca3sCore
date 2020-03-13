@@ -91,6 +91,18 @@ public class CertificateUtil {
 
 	private static final String SERIAL_PADDING_PATTERN = "000000000000000000000";
 
+	static HashSet<Integer> lenSet = new HashSet<Integer>();
+	static {
+		lenSet.add(256);
+		lenSet.add(512);
+		lenSet.add(1024);
+		lenSet.add(2048);
+		lenSet.add(3072);
+		lenSet.add(4096);
+		lenSet.add(6144);
+		lenSet.add(8192);
+	}
+
 
 	private static final Logger LOG = LoggerFactory.getLogger(CertificateUtil.class);
 
@@ -472,12 +484,21 @@ public class CertificateUtil {
 			}
 		}
 
-		int keyLength = getKeyLength(x509Cert.getPublicKey());
+		int keyLength = getAlignedKeyLength(x509Cert.getPublicKey());
 		cert.setKeyLength(keyLength);
 		
 	}
 
-	
+	public static int getAlignedKeyLength(final PublicKey pk) {
+		int keyLength = getKeyLength(pk);
+		if( lenSet.contains(keyLength + 1) ) {
+			return keyLength + 1;
+		}
+		if( lenSet.contains(keyLength + 2) ) {
+			return keyLength + 2;
+		}
+		return keyLength;
+	}	
 	/**
 	 * Gets the key length of supported keys
 	 * @param pk PublicKey used to derive the keysize
