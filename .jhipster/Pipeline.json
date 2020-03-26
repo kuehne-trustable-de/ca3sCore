@@ -19,6 +19,10 @@
         {
             "fieldName": "urlPart",
             "fieldType": "String"
+        },
+        {
+            "fieldName": "decription",
+            "fieldType": "String"
         }
     ],
     "relationships": [

@@ -21,10 +21,6 @@
             "fieldType": "String"
         },
         {
-            "fieldName": "secret",
-            "fieldType": "String"
-        },
-        {
             "fieldName": "pollingOffset",
             "fieldType": "Integer"
         },
@@ -44,9 +40,22 @@
             "fieldName": "interval",
             "fieldType": "Interval",
             "fieldValues": "MINUTE,HOUR,DAY,WEEK,MONTH"
+        },
+        {
+            "fieldName": "plainSecret",
+            "fieldType": "String"
         }
     ],
-    "relationships": [],
+    "relationships": [
+        {
+            "relationshipType": "one-to-one",
+            "otherEntityName": "protectedContent",
+            "otherEntityRelationshipName": "cAConnectorConfig",
+            "relationshipName": "secret",
+            "otherEntityField": "id",
+            "ownerSide": true
+        }
+    ],
     "changelogDate": "20200110170110",
     "entityTableName": "ca_connector_config",
     "dto": "no",

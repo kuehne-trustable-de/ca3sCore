@@ -199,10 +199,17 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-control-label" v-bind:value="$t('ca3SApp.certificate.issuingCertificate')" for="certificate-issuingCertificate">Issuing Certificate</label>
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.issuingCertificate')" for="certificate-issuingCertificate">Issuing Certificate</label>
                         <select class="form-control" id="certificate-issuingCertificate" name="issuingCertificate" v-model="certificate.issuingCertificate">
                             <option v-bind:value="null"></option>
                             <option v-bind:value="certificate.issuingCertificate && certificateOption.id === certificate.issuingCertificate.id ? certificate.issuingCertificate : certificateOption" v-for="certificateOption in certificates" :key="certificateOption.id">{{certificateOption.id}}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.rootCertificate')" for="certificate-rootCertificate">Root Certificate</label>
+                        <select class="form-control" id="certificate-rootCertificate" name="rootCertificate" v-model="certificate.rootCertificate">
+                            <option v-bind:value="null"></option>
+                            <option v-bind:value="certificate.rootCertificate && certificateOption.id === certificate.rootCertificate.id ? certificate.rootCertificate : certificateOption" v-for="certificateOption in certificates" :key="certificateOption.id">{{certificateOption.id}}</option>
                         </select>
                     </div>
                 </div>

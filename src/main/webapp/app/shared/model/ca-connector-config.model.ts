@@ -1,3 +1,5 @@
+import { IProtectedContent } from '@/shared/model/protected-content.model';
+
 export const enum CAConnectorType {
   INTERNAL = 'INTERNAL',
   CMP = 'CMP',
@@ -19,12 +21,13 @@ export interface ICAConnectorConfig {
   name?: string;
   caConnectorType?: CAConnectorType;
   caUrl?: string;
-  secret?: string;
   pollingOffset?: number;
   defaultCA?: boolean;
   active?: boolean;
   selector?: string;
   interval?: Interval;
+  plainSecret?: string;
+  secret?: IProtectedContent;
 }
 
 export class CAConnectorConfig implements ICAConnectorConfig {
@@ -33,12 +36,13 @@ export class CAConnectorConfig implements ICAConnectorConfig {
     public name?: string,
     public caConnectorType?: CAConnectorType,
     public caUrl?: string,
-    public secret?: string,
     public pollingOffset?: number,
     public defaultCA?: boolean,
     public active?: boolean,
     public selector?: string,
-    public interval?: Interval
+    public interval?: Interval,
+    public plainSecret?: string,
+    public secret?: IProtectedContent
   ) {
     this.defaultCA = this.defaultCA || false;
     this.active = this.active || false;

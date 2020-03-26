@@ -150,6 +150,11 @@
         <!-- camunda.spring-boot.version>3.4.0</camunda.spring-boot.version-->
         <camunda.spring-boot.version>3.2.0</camunda.spring-boot.version>
        
+        <xml.maven.saxon.version>9.7.0-18</xml.maven.saxon.version>
+        <xml.maven.plugin.version>1.0.1</xml.maven.plugin.version>
+        
+        <gpg.keyname>5F46A2C0A82BD58E</gpg.keyname>
+       
     </properties>
 
     <dependencyManagement>
@@ -677,6 +682,7 @@
 				<configuration>
 					<jsonLibrary>jackson2</jsonLibrary>
 					<classes>
+						<class>de.trustable.ca3s.core.service.util.CAStatus</class>
 						<class>de.trustable.ca3s.core.service.dto.CertificateView</class>
 						<class>de.trustable.ca3s.core.service.dto.Selector</class>
 						<class>de.trustable.ca3s.core.web.rest.data.UploadPrecheckData</class>
@@ -694,6 +700,107 @@
 					<outputFileType>implementationFile</outputFileType>
 				</configuration>
 			</plugin>
+       	    <!-- plugin>
+		      <groupId>org.apache.maven.plugins</groupId>
+		      <artifactId>maven-gpg-plugin</artifactId>
+		      <version>1.6</version>
+		      <executions>
+		        <execution>
+		          <id>sign-artifacts</id>
+		          <phase>verify</phase>
+		          <goals>
+		            <goal>sign</goal>
+		          </goals>
+		          <configuration>
+              		<keyname>${gpg.keyname}</keyname>
+              		<passphraseServerId>${gpg.keyname}</passphraseServerId>
+            	  </configuration>
+		          
+		        </execution>
+		      </executions>
+		    </plugin-->
+		    
+		    <!-- plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>xml-maven-plugin</artifactId>
+				<version>${xml.maven.plugin.version}</version>
+
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>transform</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<transformationSets>
+						<transformationSet>
+							<dir>./src/main/resources/config/liquibase</dir>
+							<stylesheet>./src/main/resources/stylesheet/adaptMasterLBForMSSQL.xsl</stylesheet>
+							<outputDir>${project.build.directory}/generated-package/src/main/resources/config/liquibase</outputDir>
+							<includes>*.xml</includes>
+							
+							<parameters>
+								<parameter>
+									<name>MssqlLiquibaseTarget</name>
+									<value>http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd</value>
+								</parameter>
+							</parameters>
+						</transformationSet>
+						<transformationSet>
+							<dir>./src/main/resources/config/liquibase/changelog</dir>
+							<stylesheet>./src/main/resources/stylesheet/adaptChangelogLBForMSSQL.xsl</stylesheet>
+							<outputDir>${project.build.directory}/generated-package/src/main/resources/config/liquibase/changelog</outputDir>
+							<includes>00000000000000_initial_schema.xml</includes>
+							<parameters>
+								<parameter>
+									<name>MssqlLiquibaseTarget</name>
+									<value>http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd</value>
+								</parameter>
+								<parameter>
+									<name>InsertSequence</name>
+									<value>true</value>
+								</parameter>
+							</parameters>
+						</transformationSet>
+						<transformationSet>
+							<dir>./src/main/resources/config/liquibase/changelog</dir>
+							<stylesheet>./src/main/resources/stylesheet/adaptChangelogLBForMSSQL.xsl</stylesheet>
+							<outputDir>${project.build.directory}/generated-package/src/main/resources/config/liquibase/changelog</outputDir>
+							<includes>*_added_*.xml</includes>
+							
+							<parameters>
+								<parameter>
+									<name>MssqlLiquibaseTarget</name>
+									<value>http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd</value>
+								</parameter>
+							</parameters>
+						</transformationSet>
+						<transformationSet>
+							<dir>.</dir>
+							<stylesheet>./src/main/resources/stylesheet/adaptPOM.xsl</stylesheet>
+							<outputDir>${project.build.directory}/generated-package/</outputDir>
+							<includes>pom.xml</includes>
+							
+							<parameters>
+								<parameter>
+									<name>MssqlLiquibaseTarget</name>
+									<value>http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd</value>
+								</parameter>
+							</parameters>
+						</transformationSet>
+					</transformationSets>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>net.sf.saxon</groupId>
+						<artifactId>Saxon-HE</artifactId>
+						<version>${xml.maven.saxon.version}</version>
+					</dependency>
+				</dependencies>
+
+			</plugin-->
                                 
         </plugins>
         <pluginManagement>
@@ -1032,24 +1139,9 @@
                     <version>${spring-boot.version}</version>
                 </plugin>
                 <!-- jhipster-needle-maven-add-plugin-management -->
-                
-			    <plugin>
-			      <groupId>org.apache.maven.plugins</groupId>
-			      <artifactId>maven-gpg-plugin</artifactId>
-			      <version>1.6</version>
-			      <executions>
-			        <execution>
-			          <id>sign-artifacts</id>
-			          <phase>verify</phase>
-			          <goals>
-			            <goal>sign</goal>
-			          </goals>
-			        </execution>
-			      </executions>
-			    </plugin>
             </plugins>
-        </pluginManagement>
-    </build>
+			</pluginManagement>                
+    	</build>
     <profiles>
         <profile>
             <id>no-liquibase</id>

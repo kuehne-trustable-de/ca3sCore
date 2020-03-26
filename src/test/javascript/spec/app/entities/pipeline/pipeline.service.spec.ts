@@ -7,6 +7,15 @@ import PipelineService from '@/entities/pipeline/pipeline.service';
 import { Pipeline, PipelineType } from '@/shared/model/pipeline.model';
 
 const mockedAxios: any = axios;
+const error = {
+  response: {
+    status: null,
+    data: {
+      type: null
+    }
+  }
+};
+
 jest.mock('axios', () => ({
   get: jest.fn(),
   post: jest.fn(),
@@ -21,7 +30,7 @@ describe('Service Tests', () => {
     beforeEach(() => {
       service = new PipelineService();
 
-      elemDefault = new Pipeline(0, 'AAAAAAA', PipelineType.ACME, 'AAAAAAA');
+      elemDefault = new Pipeline(0, 'AAAAAAA', PipelineType.ACME, 'AAAAAAA', 'AAAAAAA');
     });
 
     describe('Service methods', () => {
@@ -33,6 +42,17 @@ describe('Service Tests', () => {
           expect(res).toMatchObject(elemDefault);
         });
       });
+
+      it('should not find an element', async () => {
+        mockedAxios.get.mockReturnValue(Promise.reject(error));
+        return service
+          .find(123)
+          .then()
+          .catch(err => {
+            expect(err).toMatchObject(error);
+          });
+      });
+
       it('should create a Pipeline', async () => {
         const returnedFromService = Object.assign(
           {
@@ -48,12 +68,24 @@ describe('Service Tests', () => {
         });
       });
 
+      it('should not create a Pipeline', async () => {
+        mockedAxios.post.mockReturnValue(Promise.reject(error));
+
+        return service
+          .create({})
+          .then()
+          .catch(err => {
+            expect(err).toMatchObject(error);
+          });
+      });
+
       it('should update a Pipeline', async () => {
         const returnedFromService = Object.assign(
           {
             name: 'BBBBBB',
             type: 'BBBBBB',
-            urlPart: 'BBBBBB'
+            urlPart: 'BBBBBB',
+            decription: 'BBBBBB'
           },
           elemDefault
         );
@@ -65,12 +97,25 @@ describe('Service Tests', () => {
           expect(res).toMatchObject(expected);
         });
       });
+
+      it('should not update a Pipeline', async () => {
+        mockedAxios.put.mockReturnValue(Promise.reject(error));
+
+        return service
+          .update({})
+          .then()
+          .catch(err => {
+            expect(err).toMatchObject(error);
+          });
+      });
+
       it('should return a list of Pipeline', async () => {
         const returnedFromService = Object.assign(
           {
             name: 'BBBBBB',
             type: 'BBBBBB',
-            urlPart: 'BBBBBB'
+            urlPart: 'BBBBBB',
+            decription: 'BBBBBB'
           },
           elemDefault
         );
@@ -80,11 +125,34 @@ describe('Service Tests', () => {
           expect(res).toContainEqual(expected);
         });
       });
+
+      it('should not return a list of Pipeline', async () => {
+        mockedAxios.get.mockReturnValue(Promise.reject(error));
+
+        return service
+          .retrieve()
+          .then()
+          .catch(err => {
+            expect(err).toMatchObject(error);
+          });
+      });
+
       it('should delete a Pipeline', async () => {
         mockedAxios.delete.mockReturnValue(Promise.resolve({ ok: true }));
         return service.delete(123).then(res => {
           expect(res.ok).toBeTruthy();
         });
+      });
+
+      it('should not delete a Pipeline', async () => {
+        mockedAxios.delete.mockReturnValue(Promise.reject(error));
+
+        return service
+          .delete(123)
+          .then()
+          .catch(err => {
+            expect(err).toMatchObject(error);
+          });
       });
     });
   });

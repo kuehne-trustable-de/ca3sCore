@@ -34,6 +34,7 @@ public class DashBoardContent {
 	
 	public static final String RED = "#FF0000";
 	public static final String ORANGE = "#FFA500";
+	public static final String GRAY = "#888888";
 	
 	public static final String[] DAY_OF_WEEK = {"So", "Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"};
 
@@ -62,7 +63,7 @@ public class DashBoardContent {
     	String[] labels = new String[nDays];
     	dc.setLabels(labels);
     	    	
-    	DataSet[] dataSets = new DataSet[2];
+    	DataSet[] dataSets = new DataSet[1];
 		dc.setDatasets(dataSets);
 
     	for( int i = 0; i < nDays; i++) {
@@ -71,8 +72,8 @@ public class DashBoardContent {
     		labels[i] = DAY_OF_WEEK[dow];
     	}
 
-		dataSets[0] = new DataSet( "Expiring soon", ORANGE, nDays );
-		dataSets[1] = new DataSet( "Urgent", RED, nDays );
+		dataSets[0] = new DataSet( "Expiring soon", nDays );
+//		dataSets[1] = new DataSet( "Urgent", RED, nDays );
 
     	for( Certificate cert: certList) {
     		if(cert.isRevoked()) {
@@ -81,15 +82,21 @@ public class DashBoardContent {
 	    		int relativeDay = (int)((cert.getValidTo().getEpochSecond() - nowSec) / (3600L * 24L));
 	    		
 	    		DataSet ds = dataSets[0];
+
+    			String color = GRAY;
+
 	    		if(cert.getValidTo().isBefore(urgent) ) {
-	    			ds = dataSets[1];
+	    			color = RED;
 	    		}else if(cert.getValidTo().isBefore(urgentWeekend) ) {
 	        		int dow = cert.getValidTo().atZone(ZoneId.systemDefault()).getDayOfWeek().getValue();
 	        		if( dow >= 5) {
-	        			ds = dataSets[1];
+		    			color = RED;
+	        		}else {
+	        			color = ORANGE;
 	        		}
 	    		}
 	    		
+	    		ds.getBackgroundColor()[relativeDay] = color;
 	    		ds.getData()[relativeDay]++;
     		}
     	}
@@ -153,9 +160,13 @@ public class DashBoardContent {
 
 		int i = 0;
 		for( Object[] resArr: valuesArr) {
-			labels[i] = resArr[0].toString();
-			ds.getData()[i] = ((Long)resArr[1]).intValue();
-			ds.getBackgroundColor()[i] = getRandomColor();
+			
+			if( (resArr.length > 0) && (resArr[0] != null) ) {
+				LOG.debug("resArr[0].toString() : {}", resArr[0]);
+				labels[i] = resArr[0].toString();
+				ds.getData()[i] = ((Long)resArr[1]).intValue();
+				ds.getBackgroundColor()[i] = getRandomColor();
+			}
 			i++;
 		}
 		return dc;

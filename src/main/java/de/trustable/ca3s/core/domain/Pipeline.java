@@ -1,4 +1,5 @@
 package de.trustable.ca3s.core.domain;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
@@ -15,6 +16,13 @@ import de.trustable.ca3s.core.domain.enumeration.PipelineType;
  */
 @Entity
 @Table(name = "pipeline")
+@NamedQueries({
+	@NamedQuery(name = "Pipeline.findByTypeUrl",
+	query = "SELECT p FROM Pipeline p WHERE " +
+			"p.type = :type and " +
+			"p.urlPart = :urlPart"
+    )
+})
 public class Pipeline implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -35,15 +43,18 @@ public class Pipeline implements Serializable {
     @Column(name = "url_part")
     private String urlPart;
 
+    @Column(name = "decription")
+    private String decription;
+
     @OneToMany(mappedBy = "pipeline")
     private Set<PipelineAttribute> pipelineAttributes = new HashSet<>();
 
     @ManyToOne
-    @JsonIgnoreProperties("pipelines")
+    @JsonIgnoreProperties({"pipelines", "secret"})
     private CAConnectorConfig caConnector;
 
     @ManyToOne
-    @JsonIgnoreProperties("pipelines")
+    @JsonIgnoreProperties({"pipelines", "secret"})
     private BPNMProcessInfo processInfo;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
@@ -92,6 +103,19 @@ public class Pipeline implements Serializable {
 
     public void setUrlPart(String urlPart) {
         this.urlPart = urlPart;
+    }
+
+    public String getDecription() {
+        return decription;
+    }
+
+    public Pipeline decription(String decription) {
+        this.decription = decription;
+        return this;
+    }
+
+    public void setDecription(String decription) {
+        this.decription = decription;
     }
 
     public Set<PipelineAttribute> getPipelineAttributes() {
@@ -169,6 +193,7 @@ public class Pipeline implements Serializable {
             ", name='" + getName() + "'" +
             ", type='" + getType() + "'" +
             ", urlPart='" + getUrlPart() + "'" +
+            ", decription='" + getDecription() + "'" +
             "}";
     }
 }

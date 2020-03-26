@@ -16,6 +16,7 @@ public class ACMEUtil {
 	public static final URI UNSUPPORTED_CONTACT = URI.create(ACME_ERROR_URI_NAMESPACE + ":unsupportedContact");
 	public static final URI EXTERNAL_ACCOUNT_REQUIRED = URI.create(ACME_ERROR_URI_NAMESPACE + ":externalAccountRequired");
 	public static final URI ACCOUNT_DOES_NOT_EXIST = URI.create(ACME_ERROR_URI_NAMESPACE + ":accountDoesNotExist");
+	public static final URI REALM_DOES_NOT_EXIST = URI.create(ACME_ERROR_URI_NAMESPACE + ":realmDoesNotExist");
 	public static final URI ACCOUNT_DEACTIVATED = URI.create(ACME_ERROR_URI_NAMESPACE + ":accountDeactivated");
 	public static final URI MALFORMED = URI.create(ACME_ERROR_URI_NAMESPACE + ":malformed");
 	public static final URI RATE_LIMITED = URI.create(ACME_ERROR_URI_NAMESPACE + ":rateLimited");

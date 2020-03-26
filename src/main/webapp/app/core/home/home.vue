@@ -1,13 +1,32 @@
 <template>
   <div>
     <div >
-      <!--bar-chart :chart-data="expiringCertificatesByDate"></bar-chart-->
-      <bar-chart class="wideColumn" :chart-data="expiringCertificatesByDate"></bar-chart>
+      <div class="wideColumn" >
+        <div class="box">
+          <div><h4 v-text="$t('home.dashboard.expiringCertificatesByDate')">text</h4></div>
+          <bar-chart :chart-data="expiringCertificatesByDate" :options="options"></bar-chart>
+        </div>
+      </div>
     </div>
-    <div >
-      <pie-chart class="column" :chart-data="activeCertificatesByHashAlgo"></pie-chart>
-      <pie-chart class="column" :chart-data="activeCertificatesByKeyAlgo"></pie-chart>
-      <pie-chart class="column" :chart-data="activeCertificatesByKeyLength"></pie-chart>
+    <div>
+      <div class="column" >
+        <div class="box">
+          <div><h4 v-text="$t('home.dashboard.activeCertificatesByKeyAlgo')">text</h4></div>
+          <pie-chart :chart-data="activeCertificatesByKeyAlgo"></pie-chart>
+        </div>
+      </div>
+      <div class="column" >
+        <div class="box">
+          <div><h4 v-text="$t('home.dashboard.activeCertificatesByKeyLength')">text</h4></div>
+          <pie-chart :chart-data="activeCertificatesByKeyLength"></pie-chart>
+        </div>
+      </div>
+      <div class="column" >
+        <div class="box">
+          <div><h4 v-text="$t('home.dashboard.activeCertificatesByHashAlgo')">text</h4></div>
+          <pie-chart :chart-data="activeCertificatesByHashAlgo"></pie-chart>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -30,6 +49,18 @@
         activeCertificatesByHashAlgo: {},
         activeCertificatesByKeyAlgo: {},
         activeCertificatesByKeyLength: {},
+        options: {
+          scales: {
+            yAxes: [
+              {
+                ticks: {
+                  beginAtZero: true
+                }
+              }]
+          },
+          responsive: true,
+          maintainAspectRatio: false
+        }
       }
     },
     mounted () {
@@ -109,14 +140,21 @@
   }
 
   .wideColumn {
-    text-align: center;
-    padding: 20px;
+    float: left;
+    padding: 10px;
+    width: 100%;
     height: 500px;
     max-height: 500px;
   }
   
+  .box {
+    border: 2px solid #a0a0a0;
+    border-radius: 5px;
+    padding: 10px; 
+  }
   .column {
     float: left;
+    padding: 10px;
     width: 33.33%;
   }
 </style>

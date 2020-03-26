@@ -7,6 +7,15 @@ import CAConnectorConfigService from '@/entities/ca-connector-config/ca-connecto
 import { CAConnectorConfig, CAConnectorType, Interval } from '@/shared/model/ca-connector-config.model';
 
 const mockedAxios: any = axios;
+const error = {
+  response: {
+    status: null,
+    data: {
+      type: null
+    }
+  }
+};
+
 jest.mock('axios', () => ({
   get: jest.fn(),
   post: jest.fn(),
@@ -26,12 +35,12 @@ describe('Service Tests', () => {
         'AAAAAAA',
         CAConnectorType.INTERNAL,
         'AAAAAAA',
-        'AAAAAAA',
         0,
         false,
         false,
         'AAAAAAA',
-        Interval.MINUTE
+        Interval.MINUTE,
+        'AAAAAAA'
       );
     });
 
@@ -44,6 +53,17 @@ describe('Service Tests', () => {
           expect(res).toMatchObject(elemDefault);
         });
       });
+
+      it('should not find an element', async () => {
+        mockedAxios.get.mockReturnValue(Promise.reject(error));
+        return service
+          .find(123)
+          .then()
+          .catch(err => {
+            expect(err).toMatchObject(error);
+          });
+      });
+
       it('should create a CAConnectorConfig', async () => {
         const returnedFromService = Object.assign(
           {
@@ -59,18 +79,29 @@ describe('Service Tests', () => {
         });
       });
 
+      it('should not create a CAConnectorConfig', async () => {
+        mockedAxios.post.mockReturnValue(Promise.reject(error));
+
+        return service
+          .create({})
+          .then()
+          .catch(err => {
+            expect(err).toMatchObject(error);
+          });
+      });
+
       it('should update a CAConnectorConfig', async () => {
         const returnedFromService = Object.assign(
           {
             name: 'BBBBBB',
             caConnectorType: 'BBBBBB',
             caUrl: 'BBBBBB',
-            secret: 'BBBBBB',
             pollingOffset: 1,
             defaultCA: true,
             active: true,
             selector: 'BBBBBB',
-            interval: 'BBBBBB'
+            interval: 'BBBBBB',
+            plainSecret: 'BBBBBB'
           },
           elemDefault
         );
@@ -82,18 +113,30 @@ describe('Service Tests', () => {
           expect(res).toMatchObject(expected);
         });
       });
+
+      it('should not update a CAConnectorConfig', async () => {
+        mockedAxios.put.mockReturnValue(Promise.reject(error));
+
+        return service
+          .update({})
+          .then()
+          .catch(err => {
+            expect(err).toMatchObject(error);
+          });
+      });
+
       it('should return a list of CAConnectorConfig', async () => {
         const returnedFromService = Object.assign(
           {
             name: 'BBBBBB',
             caConnectorType: 'BBBBBB',
             caUrl: 'BBBBBB',
-            secret: 'BBBBBB',
             pollingOffset: 1,
             defaultCA: true,
             active: true,
             selector: 'BBBBBB',
-            interval: 'BBBBBB'
+            interval: 'BBBBBB',
+            plainSecret: 'BBBBBB'
           },
           elemDefault
         );
@@ -103,11 +146,34 @@ describe('Service Tests', () => {
           expect(res).toContainEqual(expected);
         });
       });
+
+      it('should not return a list of CAConnectorConfig', async () => {
+        mockedAxios.get.mockReturnValue(Promise.reject(error));
+
+        return service
+          .retrieve()
+          .then()
+          .catch(err => {
+            expect(err).toMatchObject(error);
+          });
+      });
+
       it('should delete a CAConnectorConfig', async () => {
         mockedAxios.delete.mockReturnValue(Promise.resolve({ ok: true }));
         return service.delete(123).then(res => {
           expect(res.ok).toBeTruthy();
         });
+      });
+
+      it('should not delete a CAConnectorConfig', async () => {
+        mockedAxios.delete.mockReturnValue(Promise.reject(error));
+
+        return service
+          .delete(123)
+          .then()
+          .catch(err => {
+            expect(err).toMatchObject(error);
+          });
       });
     });
   });

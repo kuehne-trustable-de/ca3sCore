@@ -45,9 +45,6 @@ public class CAConnectorConfigResourceIT {
     private static final String DEFAULT_CA_URL = "AAAAAAAAAA";
     private static final String UPDATED_CA_URL = "BBBBBBBBBB";
 
-    private static final String DEFAULT_SECRET = "AAAAAAAAAA";
-    private static final String UPDATED_SECRET = "BBBBBBBBBB";
-
     private static final Integer DEFAULT_POLLING_OFFSET = 1;
     private static final Integer UPDATED_POLLING_OFFSET = 2;
 
@@ -62,6 +59,9 @@ public class CAConnectorConfigResourceIT {
 
     private static final Interval DEFAULT_INTERVAL = Interval.MINUTE;
     private static final Interval UPDATED_INTERVAL = Interval.HOUR;
+
+    private static final String DEFAULT_PLAIN_SECRET = "AAAAAAAAAA";
+    private static final String UPDATED_PLAIN_SECRET = "BBBBBBBBBB";
 
     @Autowired
     private CAConnectorConfigRepository cAConnectorConfigRepository;
@@ -111,12 +111,12 @@ public class CAConnectorConfigResourceIT {
             .name(DEFAULT_NAME)
             .caConnectorType(DEFAULT_CA_CONNECTOR_TYPE)
             .caUrl(DEFAULT_CA_URL)
-            .secret(DEFAULT_SECRET)
             .pollingOffset(DEFAULT_POLLING_OFFSET)
             .defaultCA(DEFAULT_DEFAULT_CA)
             .active(DEFAULT_ACTIVE)
             .selector(DEFAULT_SELECTOR)
-            .interval(DEFAULT_INTERVAL);
+            .interval(DEFAULT_INTERVAL)
+            .plainSecret(DEFAULT_PLAIN_SECRET);
         return cAConnectorConfig;
     }
     /**
@@ -130,12 +130,12 @@ public class CAConnectorConfigResourceIT {
             .name(UPDATED_NAME)
             .caConnectorType(UPDATED_CA_CONNECTOR_TYPE)
             .caUrl(UPDATED_CA_URL)
-            .secret(UPDATED_SECRET)
             .pollingOffset(UPDATED_POLLING_OFFSET)
             .defaultCA(UPDATED_DEFAULT_CA)
             .active(UPDATED_ACTIVE)
             .selector(UPDATED_SELECTOR)
-            .interval(UPDATED_INTERVAL);
+            .interval(UPDATED_INTERVAL)
+            .plainSecret(UPDATED_PLAIN_SECRET);
         return cAConnectorConfig;
     }
 
@@ -162,12 +162,12 @@ public class CAConnectorConfigResourceIT {
         assertThat(testCAConnectorConfig.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testCAConnectorConfig.getCaConnectorType()).isEqualTo(DEFAULT_CA_CONNECTOR_TYPE);
         assertThat(testCAConnectorConfig.getCaUrl()).isEqualTo(DEFAULT_CA_URL);
-        assertThat(testCAConnectorConfig.getSecret()).isEqualTo(DEFAULT_SECRET);
         assertThat(testCAConnectorConfig.getPollingOffset()).isEqualTo(DEFAULT_POLLING_OFFSET);
         assertThat(testCAConnectorConfig.isDefaultCA()).isEqualTo(DEFAULT_DEFAULT_CA);
         assertThat(testCAConnectorConfig.isActive()).isEqualTo(DEFAULT_ACTIVE);
         assertThat(testCAConnectorConfig.getSelector()).isEqualTo(DEFAULT_SELECTOR);
         assertThat(testCAConnectorConfig.getInterval()).isEqualTo(DEFAULT_INTERVAL);
+        assertThat(testCAConnectorConfig.getPlainSecret()).isEqualTo(DEFAULT_PLAIN_SECRET);
     }
 
     @Test
@@ -235,17 +235,17 @@ public class CAConnectorConfigResourceIT {
         // Get all the cAConnectorConfigList
         restCAConnectorConfigMockMvc.perform(get("/api/ca-connector-configs?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(cAConnectorConfig.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].caConnectorType").value(hasItem(DEFAULT_CA_CONNECTOR_TYPE.toString())))
             .andExpect(jsonPath("$.[*].caUrl").value(hasItem(DEFAULT_CA_URL)))
-            .andExpect(jsonPath("$.[*].secret").value(hasItem(DEFAULT_SECRET)))
             .andExpect(jsonPath("$.[*].pollingOffset").value(hasItem(DEFAULT_POLLING_OFFSET)))
             .andExpect(jsonPath("$.[*].defaultCA").value(hasItem(DEFAULT_DEFAULT_CA.booleanValue())))
             .andExpect(jsonPath("$.[*].active").value(hasItem(DEFAULT_ACTIVE.booleanValue())))
             .andExpect(jsonPath("$.[*].selector").value(hasItem(DEFAULT_SELECTOR)))
-            .andExpect(jsonPath("$.[*].interval").value(hasItem(DEFAULT_INTERVAL.toString())));
+            .andExpect(jsonPath("$.[*].interval").value(hasItem(DEFAULT_INTERVAL.toString())))
+            .andExpect(jsonPath("$.[*].plainSecret").value(hasItem(DEFAULT_PLAIN_SECRET)));
     }
     
     @Test
@@ -257,17 +257,17 @@ public class CAConnectorConfigResourceIT {
         // Get the cAConnectorConfig
         restCAConnectorConfigMockMvc.perform(get("/api/ca-connector-configs/{id}", cAConnectorConfig.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(cAConnectorConfig.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.caConnectorType").value(DEFAULT_CA_CONNECTOR_TYPE.toString()))
             .andExpect(jsonPath("$.caUrl").value(DEFAULT_CA_URL))
-            .andExpect(jsonPath("$.secret").value(DEFAULT_SECRET))
             .andExpect(jsonPath("$.pollingOffset").value(DEFAULT_POLLING_OFFSET))
             .andExpect(jsonPath("$.defaultCA").value(DEFAULT_DEFAULT_CA.booleanValue()))
             .andExpect(jsonPath("$.active").value(DEFAULT_ACTIVE.booleanValue()))
             .andExpect(jsonPath("$.selector").value(DEFAULT_SELECTOR))
-            .andExpect(jsonPath("$.interval").value(DEFAULT_INTERVAL.toString()));
+            .andExpect(jsonPath("$.interval").value(DEFAULT_INTERVAL.toString()))
+            .andExpect(jsonPath("$.plainSecret").value(DEFAULT_PLAIN_SECRET));
     }
 
     @Test
@@ -294,12 +294,12 @@ public class CAConnectorConfigResourceIT {
             .name(UPDATED_NAME)
             .caConnectorType(UPDATED_CA_CONNECTOR_TYPE)
             .caUrl(UPDATED_CA_URL)
-            .secret(UPDATED_SECRET)
             .pollingOffset(UPDATED_POLLING_OFFSET)
             .defaultCA(UPDATED_DEFAULT_CA)
             .active(UPDATED_ACTIVE)
             .selector(UPDATED_SELECTOR)
-            .interval(UPDATED_INTERVAL);
+            .interval(UPDATED_INTERVAL)
+            .plainSecret(UPDATED_PLAIN_SECRET);
 
         restCAConnectorConfigMockMvc.perform(put("/api/ca-connector-configs")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -313,12 +313,12 @@ public class CAConnectorConfigResourceIT {
         assertThat(testCAConnectorConfig.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testCAConnectorConfig.getCaConnectorType()).isEqualTo(UPDATED_CA_CONNECTOR_TYPE);
         assertThat(testCAConnectorConfig.getCaUrl()).isEqualTo(UPDATED_CA_URL);
-        assertThat(testCAConnectorConfig.getSecret()).isEqualTo(UPDATED_SECRET);
         assertThat(testCAConnectorConfig.getPollingOffset()).isEqualTo(UPDATED_POLLING_OFFSET);
         assertThat(testCAConnectorConfig.isDefaultCA()).isEqualTo(UPDATED_DEFAULT_CA);
         assertThat(testCAConnectorConfig.isActive()).isEqualTo(UPDATED_ACTIVE);
         assertThat(testCAConnectorConfig.getSelector()).isEqualTo(UPDATED_SELECTOR);
         assertThat(testCAConnectorConfig.getInterval()).isEqualTo(UPDATED_INTERVAL);
+        assertThat(testCAConnectorConfig.getPlainSecret()).isEqualTo(UPDATED_PLAIN_SECRET);
     }
 
     @Test

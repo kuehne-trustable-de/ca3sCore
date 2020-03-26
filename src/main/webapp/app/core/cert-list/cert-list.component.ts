@@ -8,8 +8,6 @@ import { colFieldToStr, formatUtcDate, makeQueryStringFromObj } from '@/shared/u
 
 import { VuejsDatatableFactory, TColumnsDefinition, ITableContentParam, IDataFnParams } from 'vuejs-datatable';
 
-// import { VuejsDatatableFactory} from 'themes/bootstrap-4';
-
 import axios from 'axios';
 import { initFilters } from '@/shared/date/filters';
 
@@ -62,7 +60,6 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>(
           // Get the total number of matched items
           headers: { 'x-total-count': totalCount },
         } = await axios.get(url);
-
 
         return {
           rows: data,
@@ -186,6 +183,22 @@ export default class CertList extends Vue {
       }
     }
     return [];
+  }
+
+  public getLoading(): boolean {
+    return true;
+  }
+
+  public getColor(): string {
+    return '#3AB982';
+  }
+
+  public getSize(): Object {
+    return {height: '35px',
+      width: '4px',
+      margin: '2px',
+      radius: '2px'
+    };
   }
 
   el() { return '#vue-certificates'; }

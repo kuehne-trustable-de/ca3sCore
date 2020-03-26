@@ -28,7 +28,6 @@
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.name')">Name</span></th>
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.caConnectorType')">Ca Connector Type</span></th>
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.caUrl')">Ca Url</span></th>
-                    <th><span v-text="$t('ca3SApp.cAConnectorConfig.secret')">Secret</span></th>
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.pollingOffset')">Polling Offset</span></th>
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.defaultCA')">Default CA</span></th>
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.active')">Active</span></th>
@@ -46,7 +45,6 @@
                     <td>{{cAConnectorConfig.name}}</td>
                     <td v-text="$t('ca3SApp.CAConnectorType.' + cAConnectorConfig.caConnectorType)">{{cAConnectorConfig.caConnectorType}}</td>
                     <td>{{cAConnectorConfig.caUrl}}</td>
-                    <td>{{cAConnectorConfig.secret}}</td>
                     <td>{{cAConnectorConfig.pollingOffset}}</td>
                     <td>{{cAConnectorConfig.defaultCA}}</td>
                     <td>{{cAConnectorConfig.active}}</td>
@@ -78,7 +76,7 @@
         <b-modal ref="removeEntity" id="removeEntity" >
             <span slot="modal-title"><span id="ca3SApp.cAConnectorConfig.delete.question" v-text="$t('entity.delete.title')">Confirm delete operation</span></span>
             <div class="modal-body">
-                <p id="jhi-delete-cAConnectorConfig-heading" v-bind:title="$t('ca3SApp.cAConnectorConfig.delete.question')">Are you sure you want to delete this CA Connector Config?</p>
+                <p id="jhi-delete-cAConnectorConfig-heading" v-text="$t('ca3SApp.cAConnectorConfig.delete.question', {'id': removeId})">Are you sure you want to delete this CA Connector Config?</p>
             </div>
             <div slot="modal-footer">
                 <button type="button" class="btn btn-secondary" v-text="$t('entity.action.cancel')" v-on:click="closeDialog()">Cancel</button>

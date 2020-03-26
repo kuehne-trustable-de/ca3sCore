@@ -95,7 +95,15 @@ export default class PKCSXX extends Vue {
       const response = await axios.post(`${url}`, this.upload);
       this.precheckResponse = response.data;
       console.log(this.precheckResponse.dataType);
-      if ( this.precheckResponse && this.precheckResponse.certificates && this.precheckResponse.dataType === 'X509_CERTIFICATE' && this.precheckResponse.certificates[0].pemCertrificate ) {
+
+      if ( this.precheckResponse && this.precheckResponse.dataType === 'X509_CERTIFICATE_CREATED' &&
+           this.precheckResponse.certificates[0]) {
+        this.$router.push({name: 'CertInfo', params: {certificateId: this.precheckResponse.certificates[0].certificateId.toString()}});
+      }
+
+      if ( this.precheckResponse && this.precheckResponse.certificates &&
+           this.precheckResponse.dataType === 'X509_CERTIFICATE' &&
+           this.precheckResponse.certificates[0].pemCertrificate ) {
         this.upload.content = this.precheckResponse.certificates[0].pemCertrificate;
       }
       this.isChecked = true;

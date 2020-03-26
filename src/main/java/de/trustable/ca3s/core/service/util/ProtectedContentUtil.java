@@ -6,10 +6,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import de.trustable.ca3s.core.domain.ProtectedContent;
+import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
+import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
+
 @Service
 public class ProtectedContentUtil {
-
-//	private @Value("${protectionSecret}") String protectionSecret;
 
     private final Logger log = LoggerFactory.getLogger(ProtectedContentUtil.class);
 
@@ -34,4 +36,27 @@ public class ProtectedContentUtil {
 		return textEncryptor.decrypt(protectedContent);
 
 	}
+
+	/**
+	 * 	 
+	 * create a new ProtectedContent object and save the given content
+	 * 
+	 * @param plainText the plain text to be protected
+	 * @param pct the content type of the plainText
+	 * @param crt the related entity
+	 * @param connectionId the related entity
+	 * @return
+	 */
+	public ProtectedContent createProtectedContent(final String plainText, ProtectedContentType pct, ContentRelationType crt, long connectionId) {
+		
+		ProtectedContent pc = new ProtectedContent();
+		pc.setContentBase64(protectString(plainText));
+		
+		pc.setType(pct);
+		pc.setRelationType(crt);
+		pc.setRelatedId(connectionId);
+		
+		return pc;
+	}
+
 }

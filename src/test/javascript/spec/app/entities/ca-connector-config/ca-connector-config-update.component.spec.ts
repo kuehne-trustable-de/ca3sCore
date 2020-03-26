@@ -9,6 +9,8 @@ import CAConnectorConfigUpdateComponent from '@/entities/ca-connector-config/ca-
 import CAConnectorConfigClass from '@/entities/ca-connector-config/ca-connector-config-update.component';
 import CAConnectorConfigService from '@/entities/ca-connector-config/ca-connector-config.service';
 
+import ProtectedContentService from '@/entities/protected-content/protected-content.service';
+
 const localVue = createLocalVue();
 
 config.initVueApp(localVue);
@@ -34,7 +36,9 @@ describe('Component Tests', () => {
         router,
         provide: {
           alertService: () => new AlertService(store),
-          cAConnectorConfigService: () => cAConnectorConfigServiceStub
+          cAConnectorConfigService: () => cAConnectorConfigServiceStub,
+
+          protectedContentService: () => new ProtectedContentService()
         }
       });
       comp = wrapper.vm;

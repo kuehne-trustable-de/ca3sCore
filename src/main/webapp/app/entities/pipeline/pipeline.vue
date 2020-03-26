@@ -28,6 +28,7 @@
                     <th><span v-text="$t('ca3SApp.pipeline.name')">Name</span></th>
                     <th><span v-text="$t('ca3SApp.pipeline.type')">Type</span></th>
                     <th><span v-text="$t('ca3SApp.pipeline.urlPart')">Url Part</span></th>
+                    <th><span v-text="$t('ca3SApp.pipeline.decription')">Decription</span></th>
                     <th><span v-text="$t('ca3SApp.pipeline.caConnector')">Ca Connector</span></th>
                     <th><span v-text="$t('ca3SApp.pipeline.processInfo')">Process Info</span></th>
                     <th></th>
@@ -42,14 +43,15 @@
                     <td>{{pipeline.name}}</td>
                     <td v-text="$t('ca3SApp.PipelineType.' + pipeline.type)">{{pipeline.type}}</td>
                     <td>{{pipeline.urlPart}}</td>
+                    <td>{{pipeline.decription}}</td>
                     <td>
                         <div v-if="pipeline.caConnector">
-                            <router-link :to="{name: 'CAConnectorConfigView', params: {cAConnectorConfigId: pipeline.caConnector.id}}">{{pipeline.caConnector.id}}</router-link>
+                            <router-link :to="{name: 'CAConnectorConfigView', params: {cAConnectorConfigId: pipeline.caConnector.id}}">{{pipeline.caConnector.name}}</router-link>
                         </div>
                     </td>
                     <td>
                         <div v-if="pipeline.processInfo">
-                            <router-link :to="{name: 'BPNMProcessInfoView', params: {bPNMProcessInfoId: pipeline.processInfo.id}}">{{pipeline.processInfo.id}}</router-link>
+                            <router-link :to="{name: 'BPNMProcessInfoView', params: {bPNMProcessInfoId: pipeline.processInfo.id}}">{{pipeline.processInfo.name}}</router-link>
                         </div>
                     </td>
                     <td class="text-right">
@@ -78,7 +80,7 @@
         <b-modal ref="removeEntity" id="removeEntity" >
             <span slot="modal-title"><span id="ca3SApp.pipeline.delete.question" v-text="$t('entity.delete.title')">Confirm delete operation</span></span>
             <div class="modal-body">
-                <p id="jhi-delete-pipeline-heading" v-bind:title="$t('ca3SApp.pipeline.delete.question')">Are you sure you want to delete this Pipeline?</p>
+                <p id="jhi-delete-pipeline-heading" v-text="$t('ca3SApp.pipeline.delete.question', {'id': removeId})">Are you sure you want to delete this Pipeline?</p>
             </div>
             <div slot="modal-footer">
                 <button type="button" class="btn btn-secondary" v-text="$t('entity.action.cancel')" v-on:click="closeDialog()">Cancel</button>

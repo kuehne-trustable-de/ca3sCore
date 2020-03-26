@@ -75,6 +75,7 @@ import de.trustable.ca3s.core.domain.AcmeOrder;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
+import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
 import de.trustable.ca3s.core.repository.AcmeOrderRepository;
@@ -162,6 +163,9 @@ public class OrderController extends ACMEController {
   	  
   	LOG.info("Received finalize order request ");
   	
+	// check for existence of a pipeline for the realm
+  	Pipeline pipeline = getPipelineForRealm(realm);
+
   	try {
   		JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
   		FinalizeRequest finalizeReq = jwtUtil.getFinalizeReq(context.getJwtClaims());
@@ -294,7 +298,7 @@ public class OrderController extends ACMEController {
 						orderDao.setStatus(AcmeOrderStatus.READY);
 						
 					  	LOG.debug("order {} status 'ready', producing certificate", orderDao.getOrderId());
-				  	  	startCertificateCreationProcess(orderDao, CryptoUtil.pkcs10RequestToPem( p10Holder.getP10Req()));
+				  	  	startCertificateCreationProcess(orderDao, pipeline, CryptoUtil.pkcs10RequestToPem( p10Holder.getP10Req()));
 
 						orderRepository.save(orderDao);
 					}
@@ -381,10 +385,11 @@ public class OrderController extends ACMEController {
     /**
      * 
      * @param orderDao
+     * @param pipeline 
      * @return
      * @throws IOException
      */
-	private Certificate startCertificateCreationProcess(AcmeOrder orderDao, final String csrAsPem)  {
+	private Certificate startCertificateCreationProcess(AcmeOrder orderDao, Pipeline pipeline, final String csrAsPem)  {
 		
 		orderDao.setStatus(AcmeOrderStatus.PROCESSING);
 		
@@ -401,7 +406,7 @@ public class OrderController extends ACMEController {
 				LOG.debug("RDN contains #{}", rdn.getRdnAttributes().size());
 			}
 			
-			Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
+			Certificate cert = bpmnUtil.startCertificateCreationProcess(csr, pipeline);
 			if(cert != null) {
 				LOG.debug("updating order id {} with new certificate id {}", orderDao.getOrderId(), cert.getId());
 				orderDao.setCertificate(cert);

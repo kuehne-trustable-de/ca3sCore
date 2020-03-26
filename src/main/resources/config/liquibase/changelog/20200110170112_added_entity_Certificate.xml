@@ -94,6 +94,9 @@
             <column name="issuing_certificate_id" type="bigint">
                 <constraints nullable="true" />
             </column>
+            <column name="root_certificate_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
         <dropDefaultValue tableName="certificate" columnName="valid_from" columnDataType="datetime"/>

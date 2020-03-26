@@ -20,5 +20,11 @@
                                  referencedColumnNames="id"
                                  referencedTableName="certificate"/>
 
+        <addForeignKeyConstraint baseColumnNames="root_certificate_id"
+                                 baseTableName="certificate"
+                                 constraintName="fk_certificate_root_certificate_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="certificate"/>
+
     </changeSet>
 </databaseChangeLog>

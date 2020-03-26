@@ -25,6 +25,16 @@ public class DataSet {
     	}
     }
     
+    public DataSet(String label, int dataSize) {
+    	this.label = label;
+    	this.backgroundColors = new String[dataSize];
+    	this.data = new int[dataSize];
+    	for( int i = 0; i < dataSize; i++) {
+    		this.data[i] = 0;
+    		this.backgroundColors[i] = "#000000";
+    	}
+    }
+    
 	public String getLabel() {
 		return label;
 	}

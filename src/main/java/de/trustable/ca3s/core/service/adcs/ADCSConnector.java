@@ -70,6 +70,7 @@ import de.trustable.ca3s.core.security.provider.Ca3sTrustManager;
 import de.trustable.ca3s.core.service.util.CAStatus;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.CryptoService;
+import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import io.swagger.client.ApiException;
 
 @Service
@@ -93,6 +94,10 @@ public class ADCSConnector {
 	@Autowired
 	private CertificateRepository certificateRepository;
 
+	@Autowired
+	private ProtectedContentUtil protUtil;
+	
+
 	/**
 	 * 
 	 */
@@ -114,7 +119,13 @@ public class ADCSConnector {
 			}
 		}else {
 
-			RemoteADCSClient rc = new RemoteADCSClient(config.getCaUrl(), config.getSecret());
+			if( config.getSecret() == null) {
+				throw new ACDSProxyUnavailableException("passphrase missing in ca configuration for ca '" + config.getName() + "' !");
+			}
+			
+			String plainSecret = protUtil.unprotectString( config.getSecret().getContentBase64());
+
+			RemoteADCSClient rc = new RemoteADCSClient(config.getCaUrl(), plainSecret);
 
 			rc.getApiClient().setConnectTimeout(30 * 1000);
 			rc.getApiClient().setReadTimeout(60 * 1000);
@@ -123,7 +134,7 @@ public class ADCSConnector {
 			rc.getApiClient().setTrustManagers(managers);
 			
 			try {
-				ADCSWinNativeConnector adcsConnector = new ADCSWinNativeConnectorAdapter(rc, config.getSecret());
+				ADCSWinNativeConnector adcsConnector = new ADCSWinNativeConnectorAdapter(rc, plainSecret);
 				LOGGER.debug("ADCSConnector trying to connect to remote ADCS proxy ...");
 				String info = adcsConnector.getInfo();
 				LOGGER.debug("info call returns '{}'", info);

@@ -1,5 +1,7 @@
 import { Component, Vue, Inject } from 'vue-property-decorator';
 
+import axios from 'axios';
+
 import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
 
 import PipelineAttributeService from '../pipeline-attribute/pipeline-attribute.service';
@@ -44,6 +46,9 @@ export default class PipelineUpdate extends Vue {
   public cAConnectorConfigs: ICAConnectorConfig[] = [];
 
   @Inject('bPNMProcessInfoService') private bPNMProcessInfoService: () => BPNMProcessInfoService;
+
+
+  public allCertGenerators: CAConnectorConfigService[];
 
   public bPNMProcessInfos: IBPNMProcessInfo[] = [];
   public isSaving = false;
@@ -108,5 +113,26 @@ export default class PipelineUpdate extends Vue {
       .then(res => {
         this.bPNMProcessInfos = res.data;
       });
+
   }
+
+  public mounted(): void {
+    this.fillData();
+  }
+
+  public fillData(): void {
+    window.console.info('calling fillData ');
+    const self = this;
+
+    axios({
+      method: 'get',
+      url: 'api/ca-connector-configs/cert-generators',
+      responseType: 'stream'
+    })
+    .then(function(response) {
+      window.console.info('allCertGenerators returns ' + response.data );
+      self.allCertGenerators = response.data;
+    });
+  }
+
 }

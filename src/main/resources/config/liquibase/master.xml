@@ -57,6 +57,7 @@
     <include file="config/liquibase/changelog/20200129162419_added_entity_constraints_AcmeAuthorization.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170119_added_entity_constraints_Pipeline.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200304173100_added_entity_constraints_RequestProxyConfig.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200110170110_added_entity_constraints_CAConnectorConfig.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     
     <include file="config/liquibase/changelog/20200120140000_added_indices.xml" relativeToChangelogFile="false"/>

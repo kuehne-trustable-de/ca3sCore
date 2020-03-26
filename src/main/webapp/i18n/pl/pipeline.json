@@ -19,6 +19,7 @@
       "name": "Name",
       "type": "Type",
       "urlPart": "Url Part",
+      "decription": "Decription",
       "pipelineAttributes": "Pipeline Attributes",
       "caConnector": "Ca Connector",
       "processInfo": "Process Info"

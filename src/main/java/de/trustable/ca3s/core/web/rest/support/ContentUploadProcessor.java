@@ -151,10 +151,15 @@ public class ContentUploadProcessor {
 				if(csrList.isEmpty()) {
 					Certificate cert = startCertificateCreationProcess(content, requestorName );
 					if( cert != null) {
+
+						// return the id of the freshly created certificate
 						X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(cert.getContent());
+						p10ReqData = new PkcsXXData(certHolder, cert);
+/*						
 						p10ReqData = new PkcsXXData(certHolder, cert != null );
 						p10ReqData.getCertsHolder()[0].setCertificateId(cert.getId());
 						p10ReqData.getCertsHolder()[0].setCertificatePresentInDB(true);
+*/						
 						return new ResponseEntity<PkcsXXData>(p10ReqData, HttpStatus.CREATED);
 					}
 				}

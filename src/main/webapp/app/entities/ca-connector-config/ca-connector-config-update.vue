@@ -4,11 +4,11 @@
             <form name="editForm" role="form" novalidate v-on:submit.prevent="save()" >
                 <h2 id="ca3SApp.cAConnectorConfig.home.createOrEditLabel" v-text="$t('ca3SApp.cAConnectorConfig.home.createOrEditLabel')">Create or edit a CAConnectorConfig</h2>
                 <div>
-                    <div class="form-group" v-if="cAConnectorConfig.id">
+                    <!--div class="form-group" v-if="cAConnectorConfig.id">
                         <label for="id" v-text="$t('global.field.id')">ID</label>
                         <input type="text" class="form-control" id="id" name="id"
                                v-model="cAConnectorConfig.id" readonly />
-                    </div>
+                    </div-->
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.name')" for="ca-connector-config-name">Name</label>
                         <input type="text" class="form-control" name="name" id="ca-connector-config-name"
@@ -40,11 +40,6 @@
                             :class="{'valid': !$v.cAConnectorConfig.caUrl.$invalid, 'invalid': $v.cAConnectorConfig.caUrl.$invalid }" v-model="$v.cAConnectorConfig.caUrl.$model" />
                     </div>
                     <div class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.secret')" for="ca-connector-config-secret">Secret</label>
-                        <input type="text" class="form-control" name="secret" id="ca-connector-config-secret"
-                            :class="{'valid': !$v.cAConnectorConfig.secret.$invalid, 'invalid': $v.cAConnectorConfig.secret.$invalid }" v-model="$v.cAConnectorConfig.secret.$model" />
-                    </div>
-                    <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.pollingOffset')" for="ca-connector-config-pollingOffset">Polling Offset</label>
                         <input type="number" class="form-control" name="pollingOffset" id="ca-connector-config-pollingOffset"
                             :class="{'valid': !$v.cAConnectorConfig.pollingOffset.$invalid, 'invalid': $v.cAConnectorConfig.pollingOffset.$invalid }" v-model.number="$v.cAConnectorConfig.pollingOffset.$model" />
@@ -74,8 +69,16 @@
                             <option value="MONTH" v-bind:label="$t('ca3SApp.Interval.MONTH')">MONTH</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.plainSecret')" for="ca-connector-config-plainSecret">Passphrase</label>
+                        <input type="password" class="form-control" name="plainSecret" id="ca-connector-config-plainSecret"
+                            :class="{'valid': !$v.cAConnectorConfig.plainSecret.$invalid, 'invalid': $v.cAConnectorConfig.plainSecret.$invalid }" v-model="$v.cAConnectorConfig.plainSecret.$model" />
+                    </div>
                 </div>
                 <div>
+                    <button type="button" id="test" class="btn btn-secondary" v-on:click="testCaConnectorConfig()">
+                        <font-awesome-icon icon="stethoscope"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.test')">Test</span>
+                    </button>
                     <button type="button" id="cancel-save" class="btn btn-secondary" v-on:click="previousState()">
                         <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.cancel')">Cancel</span>
                     </button>

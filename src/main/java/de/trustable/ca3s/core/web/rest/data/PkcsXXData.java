@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import de.trustable.ca3s.core.domain.Certificate;
+
 @Immutable
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PkcsXXData {
@@ -27,10 +29,23 @@ public class PkcsXXData {
 	
 	private boolean csrPublicKeyPresentInDB = false;
 
+	@JsonProperty("createdCertificateId")
+	private String createdCertificateId;
+
 	@JsonProperty("passphraseRequired")
 	private boolean passphraseRequired = false;
 	
 	public PkcsXXData() {
+	}
+
+	public PkcsXXData(final X509CertificateHolder certHolder, Certificate cert) {
+		
+		setDataType(PKCSDataType.X509_CERTIFICATE_CREATED);
+		X509CertificateHolderShallow[] x509HolderArr = new X509CertificateHolderShallow[1];
+		x509HolderArr[0] =	new X509CertificateHolderShallow(certHolder);
+		x509HolderArr[0].setCertificateId(cert.getId());
+		x509HolderArr[0].setCertificatePresentInDB(true);
+		setCertsHolder( x509HolderArr);
 	}
 
 	public PkcsXXData(final X509CertificateHolder certHolder, boolean isCertificatePresentInDB) {
@@ -95,6 +110,14 @@ public class PkcsXXData {
 
 	public void setCsrPublicKeyPresentInDB(boolean csrPublicKeyPresentInDB) {
 		this.csrPublicKeyPresentInDB = csrPublicKeyPresentInDB;
+	}
+
+	public String getCreatedCertificateId() {
+		return createdCertificateId;
+	}
+
+	public void setCreatedCertificateId(String createdCertificateId) {
+		this.createdCertificateId = createdCertificateId;
 	}
 
 	

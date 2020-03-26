@@ -23,11 +23,17 @@
                         <span>{{pipeline.urlPart}}</span>
                     </dd>
                     <dt>
+                        <span v-text="$t('ca3SApp.pipeline.decription')">Decription</span>
+                    </dt>
+                    <dd>
+                        <span>{{pipeline.decription}}</span>
+                    </dd>
+                    <dt>
                         <span v-text="$t('ca3SApp.pipeline.caConnector')">Ca Connector</span>
                     </dt>
                     <dd>
                         <div v-if="pipeline.caConnector">
-                            <router-link :to="{name: 'CAConnectorConfigView', params: {cAConnectorConfigId: pipeline.caConnector.id}}">{{pipeline.caConnector.id}}</router-link>
+                            <router-link :to="{name: 'CAConnectorConfigView', params: {cAConnectorConfigId: pipeline.caConnector.id}}">{{pipeline.caConnector.name}}</router-link>
                         </div>
                     </dd>
                     <dt>
@@ -35,7 +41,7 @@
                     </dt>
                     <dd>
                         <div v-if="pipeline.processInfo">
-                            <router-link :to="{name: 'BPNMProcessInfoView', params: {bPNMProcessInfoId: pipeline.processInfo.id}}">{{pipeline.processInfo.id}}</router-link>
+                            <router-link :to="{name: 'BPNMProcessInfoView', params: {bPNMProcessInfoId: pipeline.processInfo.id}}">{{pipeline.processInfo.name}}</router-link>
                         </div>
                     </dd>
                 </dl>
@@ -44,7 +50,6 @@
                         class="btn btn-info">
                     <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.back')"> Back</span>
                 </button>
-                
                 <router-link v-if="pipeline.id" :to="{name: 'PipelineEdit', params: {pipelineId: pipeline.id}}" tag="button" class="btn btn-primary">
                     <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.edit')"> Edit</span>
                 </router-link>

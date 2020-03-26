@@ -53,6 +53,7 @@ import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.service.util.CAStatus;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import de.trustable.util.CryptoUtil;
 
 @Service
@@ -68,6 +69,9 @@ public class CaCmpConnector {
 
 	@Autowired
 	CertificateUtil certUtil;
+
+	@Autowired
+	private ProtectedContentUtil protUtil;
 
 	@Autowired
 	private CertificateRepository certificateRepository;
@@ -102,8 +106,10 @@ public class CaCmpConnector {
 
 			LOGGER.debug("csr contains #{} CsrAttributes, #{} RequestAttributes and #{} RDN", csr.getCsrAttributes().size(), csr.getRas().size(), csr.getRdns().size());
 
+			String plainSecret = protUtil.unprotectString( caConnConfig.getSecret().getContentBase64());
+
 			// build a CMP request from the CSR
-			PKIMessage pkiRequest = buildCertRequest(certReqId, csr, caConnConfig.getSecret());
+			PKIMessage pkiRequest = buildCertRequest(certReqId, csr, plainSecret);
 
 			byte[] requestBytes = pkiRequest.getEncoded();
 
@@ -159,8 +165,10 @@ public class CaCmpConnector {
 	public void revokeCertificate(Certificate certDao, final CRLReason crlReason, final Date revocationDate,
 			CAConnectorConfig caConnConfig) throws GeneralSecurityException {
 
+		String plainSecret = protUtil.unprotectString( caConnConfig.getSecret().getContentBase64());
+
 		revokeCertificate(new X500Name(certDao.getIssuer()), new X500Name(certDao.getSubject()),
-				new BigInteger(certDao.getSerial()), crlReason, caConnConfig.getSecret(), caConnConfig.getCaUrl(),
+				new BigInteger(certDao.getSerial()), crlReason, plainSecret, caConnConfig.getCaUrl(),
 				caConnConfig.getSelector());
 	}
 
@@ -300,7 +308,8 @@ public class CaCmpConnector {
 	public CAStatus getStatus(final CAConnectorConfig caConnConfig) {
 		
 		try {
-			GenMsgContent infoContent = getGeneralInfo(caConnConfig.getSecret(), caConnConfig.getCaUrl(), caConnConfig.getSelector());
+			String plainSecret = protUtil.unprotectString( caConnConfig.getSecret().getContentBase64());
+			GenMsgContent infoContent = getGeneralInfo(plainSecret, caConnConfig.getCaUrl(), caConnConfig.getSelector());
 			
 			InfoTypeAndValue[] infoTypeAndValueArr = infoContent.toInfoTypeAndValueArray();
 	

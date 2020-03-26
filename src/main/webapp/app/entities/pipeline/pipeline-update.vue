@@ -38,14 +38,21 @@
                             :class="{'valid': !$v.pipeline.urlPart.$invalid, 'invalid': $v.pipeline.urlPart.$invalid }" v-model="$v.pipeline.urlPart.$model" />
                     </div>
                     <div class="form-group">
-                        <label class="form-control-label" v-bind:value="$t('ca3SApp.pipeline.caConnector')" for="pipeline-caConnector">Ca Connector</label>
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.decription')" for="pipeline-decription">Decription</label>
+                        <input type="text" class="form-control" name="decription" id="pipeline-decription"
+                            :class="{'valid': !$v.pipeline.decription.$invalid, 'invalid': $v.pipeline.decription.$invalid }" v-model="$v.pipeline.decription.$model" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.caConnector')" for="pipeline-caConnector">Ca Connector</label>
                         <select class="form-control" id="pipeline-caConnector" name="caConnector" v-model="pipeline.caConnector">
                             <option v-bind:value="null"></option>
-                            <option v-bind:value="pipeline.caConnector && cAConnectorConfigOption.id === pipeline.caConnector.id ? pipeline.caConnector : cAConnectorConfigOption" v-for="cAConnectorConfigOption in cAConnectorConfigs" :key="cAConnectorConfigOption.id">{{cAConnectorConfigOption.id}}</option>
+                            <option v-bind:value="pipeline.caConnector && cAConnectorConfigOption.id === pipeline.caConnector.id ? pipeline.caConnector : cAConnectorConfigOption" v-for="cAConnectorConfigOption in allCertGenerators" :key="cAConnectorConfigOption.id">{{cAConnectorConfigOption.name}}</option>
+
+                            <!--option v-bind:value="pipeline.caConnector && cAConnectorConfigOption.id === pipeline.caConnector.id ? pipeline.caConnector : cAConnectorConfigOption" v-for="cAConnectorConfigOption in cAConnectorConfigs" :key="cAConnectorConfigOption.id">{{cAConnectorConfigOption.id}}</option-->
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-control-label" v-bind:value="$t('ca3SApp.pipeline.processInfo')" for="pipeline-processInfo">Process Info</label>
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.processInfo')" for="pipeline-processInfo">Process Info</label>
                         <select class="form-control" id="pipeline-processInfo" name="processInfo" v-model="pipeline.processInfo">
                             <option v-bind:value="null"></option>
                             <option v-bind:value="pipeline.processInfo && bPNMProcessInfoOption.id === pipeline.processInfo.id ? pipeline.processInfo : bPNMProcessInfoOption" v-for="bPNMProcessInfoOption in bPNMProcessInfos" :key="bPNMProcessInfoOption.id">{{bPNMProcessInfoOption.id}}</option>

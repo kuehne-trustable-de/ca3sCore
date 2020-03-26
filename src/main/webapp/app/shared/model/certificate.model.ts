@@ -31,6 +31,7 @@ export interface ICertificate {
   csr?: ICSR;
   certificateAttributes?: ICertificateAttribute[];
   issuingCertificate?: ICertificate;
+  rootCertificate?: ICertificate;
 }
 
 export class Certificate implements ICertificate {
@@ -62,7 +63,8 @@ export class Certificate implements ICertificate {
     public content?: any,
     public csr?: ICSR,
     public certificateAttributes?: ICertificateAttribute[],
-    public issuingCertificate?: ICertificate
+    public issuingCertificate?: ICertificate,
+    public rootCertificate?: ICertificate
   ) {
     this.revoked = this.revoked || false;
     this.endEntity = this.endEntity || false;

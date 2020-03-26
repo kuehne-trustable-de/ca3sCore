@@ -11,6 +11,7 @@ import CAConnectorConfigService from './ca-connector-config.service';
 export default class CAConnectorConfig extends mixins(Vue2Filters.mixin, AlertMixin) {
   @Inject('cAConnectorConfigService') private cAConnectorConfigService: () => CAConnectorConfigService;
   private removeId: number = null;
+
   public cAConnectorConfigs: ICAConnectorConfig[] = [];
 
   public isFetching = false;
@@ -41,6 +42,9 @@ export default class CAConnectorConfig extends mixins(Vue2Filters.mixin, AlertMi
 
   public prepareRemove(instance: ICAConnectorConfig): void {
     this.removeId = instance.id;
+    if (<any>this.$refs.removeEntity) {
+      (<any>this.$refs.removeEntity).show();
+    }
   }
 
   public removeCAConnectorConfig(): void {
@@ -50,7 +54,6 @@ export default class CAConnectorConfig extends mixins(Vue2Filters.mixin, AlertMi
         const message = this.$t('ca3SApp.cAConnectorConfig.deleted', { param: this.removeId });
         this.alertService().showAlert(message, 'danger');
         this.getAlertFromStore();
-
         this.removeId = null;
         this.retrieveAllCAConnectorConfigs();
         this.closeDialog();

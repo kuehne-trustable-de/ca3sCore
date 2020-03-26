@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -18,6 +19,7 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
+import javax.persistence.criteria.Subquery;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,6 +130,7 @@ public final class CertificateSpecifications {
 	
 					predList.add( buildPredicate( root, 
 							cb, 
+							query,
 							col, 
 							selDataItem.selector, 
 							selDataItem.value,
@@ -137,6 +140,7 @@ public final class CertificateSpecifications {
 				logger.debug("buildPredicate for '{}' without selector ", col );
 				predList.add( buildPredicate( root, 
 					cb, 
+					query,
 					col, 
 					null, 
 					"",
@@ -174,7 +178,7 @@ public final class CertificateSpecifications {
 		}
 		
 		query.multiselect(selectionList);
-    	query.distinct(true);
+//    	query.distinct(true);
 		
     	TypedQuery<Object[]> typedQuery = entityManager.createQuery(query);
     	typedQuery.setMaxResults(pagesize);
@@ -224,6 +228,7 @@ public final class CertificateSpecifications {
 	
 					predList.add( buildPredicate( iRoot, 
 							cb, 
+							queryCount,
 							col, 
 							selDataItem.selector, 
 							selDataItem.value,
@@ -233,6 +238,7 @@ public final class CertificateSpecifications {
 				logger.debug("buildPredicate for '{}' without selector ", col );
 				predList.add( buildPredicate( iRoot, 
 					cb, 
+					queryCount,
 					col, 
 					null, 
 					"",
@@ -385,6 +391,7 @@ public final class CertificateSpecifications {
 	private static Predicate buildPredicate(
 			Root<Certificate> root, 
 			CriteriaBuilder cb, 
+			CriteriaQuery<?> certQuery,
 			final String attribute, 
 			final String attributeSelector, 
 			final String attributeValue,
@@ -397,19 +404,37 @@ public final class CertificateSpecifications {
 			pred = buildPredicateLong( attributeSelector, cb, root.<Long>get(Certificate_.id), attributeValue);
 		
 		}else if( "subject".equals(attribute)){
-			Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes);
+//			Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes);
 			addNewColumn(selectionList,root.get(Certificate_.subject));
 		
-			pred = cb.and( cb.equal(attJoin.<String>get(CertificateAttribute_.name), CertificateAttribute.ATTRIBUTE_SUBJECT),
-			buildPredicate( attributeSelector, cb, attJoin.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()));
+//			pred = cb.and( cb.equal(attJoin.<String>get(CertificateAttribute_.name), CertificateAttribute.ATTRIBUTE_SUBJECT),
+//			buildPredicate( attributeSelector, cb, attJoin.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()));
 		
+			if( attributeValue.trim().length() > 0 ) {
+				//subquery
+			    Subquery<CertificateAttribute> certAttSubquery = certQuery.subquery(CertificateAttribute.class);
+			    Root<CertificateAttribute> certAttRoot = certAttSubquery.from(CertificateAttribute.class);
+			    pred = cb.exists(certAttSubquery.select(certAttRoot)//subquery selection
+			                     .where(cb.and( cb.equal(certAttRoot.get(CertificateAttribute_.CERTIFICATE), root.get(Certificate_.ID)),
+			                    		 cb.equal(certAttRoot.get(CertificateAttribute_.NAME), CertificateAttribute.ATTRIBUTE_SUBJECT),
+			                    		 buildPredicate( attributeSelector, cb, certAttRoot.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()) )));
+			}		    
 		}else if( "issuer".equals(attribute)){
-			Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes);
+//			Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes);
 			addNewColumn(selectionList,root.get(Certificate_.issuer));
 			
-			pred = cb.and( cb.equal(attJoin.<String>get(CertificateAttribute_.name), CertificateAttribute.ATTRIBUTE_ISSUER),
-			buildPredicate( attributeSelector, cb, attJoin.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()));
+//			pred = cb.and( cb.equal(attJoin.<String>get(CertificateAttribute_.name), CertificateAttribute.ATTRIBUTE_ISSUER),
+//			buildPredicate( attributeSelector, cb, attJoin.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()));
 			
+			if( attributeValue.trim().length() > 0 ) {
+				//subquery
+			    Subquery<CertificateAttribute> certAttSubquery = certQuery.subquery(CertificateAttribute.class);
+			    Root<CertificateAttribute> certAttRoot = certAttSubquery.from(CertificateAttribute.class);
+			    pred = cb.exists(certAttSubquery.select(certAttRoot)//subquery selection
+			                     .where(cb.and( cb.equal(certAttRoot.get(CertificateAttribute_.CERTIFICATE), root.get(Certificate_.ID)),
+			                    		 cb.equal(certAttRoot.get(CertificateAttribute_.NAME), CertificateAttribute.ATTRIBUTE_ISSUER),
+			                    		 buildPredicate( attributeSelector, cb, certAttRoot.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()) )));
+			}
 		}else if( "san".equals(attribute)){
 			Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
 			addNewColumn(selectionList,attJoin.get(CertificateAttribute_.value));

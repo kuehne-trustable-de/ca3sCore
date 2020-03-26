@@ -44,6 +44,9 @@ public class PipelineResourceIT {
     private static final String DEFAULT_URL_PART = "AAAAAAAAAA";
     private static final String UPDATED_URL_PART = "BBBBBBBBBB";
 
+    private static final String DEFAULT_DECRIPTION = "AAAAAAAAAA";
+    private static final String UPDATED_DECRIPTION = "BBBBBBBBBB";
+
     @Autowired
     private PipelineRepository pipelineRepository;
 
@@ -91,7 +94,8 @@ public class PipelineResourceIT {
         Pipeline pipeline = new Pipeline()
             .name(DEFAULT_NAME)
             .type(DEFAULT_TYPE)
-            .urlPart(DEFAULT_URL_PART);
+            .urlPart(DEFAULT_URL_PART)
+            .decription(DEFAULT_DECRIPTION);
         return pipeline;
     }
     /**
@@ -104,7 +108,8 @@ public class PipelineResourceIT {
         Pipeline pipeline = new Pipeline()
             .name(UPDATED_NAME)
             .type(UPDATED_TYPE)
-            .urlPart(UPDATED_URL_PART);
+            .urlPart(UPDATED_URL_PART)
+            .decription(UPDATED_DECRIPTION);
         return pipeline;
     }
 
@@ -131,6 +136,7 @@ public class PipelineResourceIT {
         assertThat(testPipeline.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testPipeline.getType()).isEqualTo(DEFAULT_TYPE);
         assertThat(testPipeline.getUrlPart()).isEqualTo(DEFAULT_URL_PART);
+        assertThat(testPipeline.getDecription()).isEqualTo(DEFAULT_DECRIPTION);
     }
 
     @Test
@@ -198,11 +204,12 @@ public class PipelineResourceIT {
         // Get all the pipelineList
         restPipelineMockMvc.perform(get("/api/pipelines?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(pipeline.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
-            .andExpect(jsonPath("$.[*].urlPart").value(hasItem(DEFAULT_URL_PART)));
+            .andExpect(jsonPath("$.[*].urlPart").value(hasItem(DEFAULT_URL_PART)))
+            .andExpect(jsonPath("$.[*].decription").value(hasItem(DEFAULT_DECRIPTION)));
     }
     
     @Test
@@ -214,11 +221,12 @@ public class PipelineResourceIT {
         // Get the pipeline
         restPipelineMockMvc.perform(get("/api/pipelines/{id}", pipeline.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(pipeline.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))
-            .andExpect(jsonPath("$.urlPart").value(DEFAULT_URL_PART));
+            .andExpect(jsonPath("$.urlPart").value(DEFAULT_URL_PART))
+            .andExpect(jsonPath("$.decription").value(DEFAULT_DECRIPTION));
     }
 
     @Test
@@ -244,7 +252,8 @@ public class PipelineResourceIT {
         updatedPipeline
             .name(UPDATED_NAME)
             .type(UPDATED_TYPE)
-            .urlPart(UPDATED_URL_PART);
+            .urlPart(UPDATED_URL_PART)
+            .decription(UPDATED_DECRIPTION);
 
         restPipelineMockMvc.perform(put("/api/pipelines")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -258,6 +267,7 @@ public class PipelineResourceIT {
         assertThat(testPipeline.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testPipeline.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testPipeline.getUrlPart()).isEqualTo(UPDATED_URL_PART);
+        assertThat(testPipeline.getDecription()).isEqualTo(UPDATED_DECRIPTION);
     }
 
     @Test

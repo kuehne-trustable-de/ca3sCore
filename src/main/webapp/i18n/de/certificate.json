@@ -42,7 +42,8 @@
       "content": "Content",
       "csr": "Csr",
       "certificateAttributes": "Certificate Attributes",
-      "issuingCertificate": "Issuing Certificate"
+      "issuingCertificate": "Issuing Certificate",
+      "rootCertificate": "Root Certificate"
     }
   }
 }

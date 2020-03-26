@@ -19,12 +19,13 @@
       "name": "Name",
       "caConnectorType": "Ca Connector Type",
       "caUrl": "Ca Url",
-      "secret": "Secret",
       "pollingOffset": "Polling Offset",
       "defaultCA": "Default CA",
       "active": "Active",
       "selector": "Selector",
-      "interval": "Interval"
+      "interval": "Interval",
+      "plainSecret": "Passphrase",
+      "secret": "Secret"
     }
   }
 }

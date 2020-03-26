@@ -1,12 +1,25 @@
 package de.trustable.ca3s.core.domain;
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
 
 import java.io.Serializable;
 
-import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 import de.trustable.ca3s.core.domain.enumeration.Interval;
 
 /**
@@ -14,6 +27,12 @@ import de.trustable.ca3s.core.domain.enumeration.Interval;
  */
 @Entity
 @Table(name = "ca_connector_config")
+@NamedQueries({
+	@NamedQuery(name = "CAConnectorConfig.findAllCertGenerators",
+	query = "SELECT ccc FROM CAConnectorConfig ccc WHERE " +
+			"ccc.caConnectorType in ('ADCS', 'CMP', 'INTERNAL' )"
+    )
+})
 public class CAConnectorConfig implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -34,9 +53,6 @@ public class CAConnectorConfig implements Serializable {
     @Column(name = "ca_url")
     private String caUrl;
 
-    @Column(name = "secret")
-    private String secret;
-
     @Column(name = "polling_offset")
     private Integer pollingOffset;
 
@@ -52,6 +68,14 @@ public class CAConnectorConfig implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "jhi_interval")
     private Interval interval;
+
+    @Column(name = "plain_secret")
+    private String plainSecret;
+
+    @OneToOne
+    @JsonIgnore
+    @JoinColumn(unique = true)
+    private ProtectedContent secret;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -99,19 +123,6 @@ public class CAConnectorConfig implements Serializable {
 
     public void setCaUrl(String caUrl) {
         this.caUrl = caUrl;
-    }
-
-    public String getSecret() {
-        return secret;
-    }
-
-    public CAConnectorConfig secret(String secret) {
-        this.secret = secret;
-        return this;
-    }
-
-    public void setSecret(String secret) {
-        this.secret = secret;
     }
 
     public Integer getPollingOffset() {
@@ -178,6 +189,32 @@ public class CAConnectorConfig implements Serializable {
     public void setInterval(Interval interval) {
         this.interval = interval;
     }
+
+    public String getPlainSecret() {
+        return plainSecret;
+    }
+
+    public CAConnectorConfig plainSecret(String plainSecret) {
+        this.plainSecret = plainSecret;
+        return this;
+    }
+
+    public void setPlainSecret(String plainSecret) {
+        this.plainSecret = plainSecret;
+    }
+
+    public ProtectedContent getSecret() {
+        return secret;
+    }
+
+    public CAConnectorConfig secret(ProtectedContent protectedContent) {
+        this.secret = protectedContent;
+        return this;
+    }
+
+    public void setSecret(ProtectedContent protectedContent) {
+        this.secret = protectedContent;
+    }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
@@ -203,12 +240,12 @@ public class CAConnectorConfig implements Serializable {
             ", name='" + getName() + "'" +
             ", caConnectorType='" + getCaConnectorType() + "'" +
             ", caUrl='" + getCaUrl() + "'" +
-            ", secret='" + getSecret() + "'" +
             ", pollingOffset=" + getPollingOffset() +
             ", defaultCA='" + isDefaultCA() + "'" +
             ", active='" + isActive() + "'" +
             ", selector='" + getSelector() + "'" +
             ", interval='" + getInterval() + "'" +
+            ", plainSecret='" + getPlainSecret() + "'" +
             "}";
     }
 }

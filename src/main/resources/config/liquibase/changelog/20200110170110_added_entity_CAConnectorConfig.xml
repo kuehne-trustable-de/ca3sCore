@@ -25,9 +25,6 @@
             <column name="ca_url" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="secret" type="varchar(255)">
-                <constraints nullable="true" />
-            </column>
             <column name="polling_offset" type="integer">
                 <constraints nullable="true" />
             </column>
@@ -42,6 +39,12 @@
             </column>
             <column name="jhi_interval" type="varchar(255)">
                 <constraints nullable="true" />
+            </column>
+            <column name="plain_secret" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="secret_id" type="bigint">
+                <constraints unique="true" nullable="true" uniqueConstraintName="ux_ca_connector_config_secret_id" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
@@ -69,12 +72,12 @@
             <column name="name" type="string"/>
             <column name="ca_connector_type" type="string"/>
             <column name="ca_url" type="string"/>
-            <column name="secret" type="string"/>
             <column name="polling_offset" type="numeric"/>
             <column name="default_ca" type="boolean"/>
             <column name="active" type="boolean"/>
             <column name="selector" type="string"/>
             <column name="jhi_interval" type="string"/>
+            <column name="plain_secret" type="string"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
         </loadData>
     </changeSet>

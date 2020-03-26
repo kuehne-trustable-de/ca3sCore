@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2020-03-13 15:30:40.
+// Generated using typescript-generator version 2.19.577 on 2020-03-26 17:33:19.
 
 export interface ICertificateView extends ISerializable {
     id?: number;
@@ -63,6 +63,7 @@ export interface IPkcsXXData {
     dataType?: IPKCSDataType;
     p10Holder?: IPkcs10RequestHolderShallow;
     certificates?: IX509CertificateHolderShallow[];
+    createdCertificateId?: string;
     passphraseRequired?: boolean;
 }
 
@@ -90,6 +91,8 @@ export interface IPkcs10RequestHolderShallow {
     publicKeyAlgorithmName?: string;
 }
 
+export type ICAStatus = "Active" | "Deactivated" | "Unknown";
+
 export type ISelector = "EQUAL" | "NOT_EQUAL" | "LIKE" | "NOTLIKE" | "LESSTHAN" | "GREATERTHAN" | "ON" | "BEFORE" | "AFTER" | "ISTRUE" | "ISFALSE";
 
-export type IPKCSDataType = "CSR" | "X509_CERTIFICATE" | "UNKNOWN" | "CONTAINER" | "CONTAINER_REQUIRING_PASSPHRASE";
+export type IPKCSDataType = "CSR" | "X509_CERTIFICATE" | "X509_CERTIFICATE_CREATED" | "UNKNOWN" | "CONTAINER" | "CONTAINER_REQUIRING_PASSPHRASE";

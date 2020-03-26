@@ -4,7 +4,7 @@
       "packageName": "de.trustable.ca3s.core",
       "nativeLanguage": "de"
     },
-    "jhipsterVersion": "6.6.0",
+    "jhipsterVersion": "6.8.0",
     "applicationType": "monolith",
     "baseName": "ca3s",
     "packageName": "de.trustable.ca3s.core",
@@ -31,7 +31,7 @@
     "otherModules": [
       {
         "name": "generator-jhipster-vuejs",
-        "version": "1.3.0"
+        "version": "1.7.0"
       }
     ],
     "enableTranslation": true,
@@ -41,10 +41,14 @@
     "blueprints": [
       {
         "name": "generator-jhipster-vuejs",
-        "version": "1.3.0"
+        "version": "1.7.0"
       }
     ],
-    "creationTimestamp": 1578670205962
+    "creationTimestamp": 1578670205962,
+    "useSass": true,
+    "clientFramework": "vue",
+    "clientTheme": "none",
+    "clientThemeVariant": ""
   },
   "generator-jhipster-vuejs": {
     "jhipsterVersion": "6.5.1",

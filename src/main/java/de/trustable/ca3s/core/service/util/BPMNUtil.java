@@ -22,6 +22,7 @@ import de.trustable.ca3s.core.domain.BPNMProcessInfo;
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.domain.enumeration.BPNMProcessType;
 import de.trustable.ca3s.core.repository.BPNMProcessInfoRepository;
 import de.trustable.util.CryptoUtil;
@@ -90,6 +91,19 @@ public class BPMNUtil{
 		}
 	}
 
+
+	/**
+	 * 
+	 * @param csr
+	 * @param pipeline
+	 * @return
+	 */
+	public Certificate startCertificateCreationProcess(CSR csr, Pipeline pipeline) {
+		
+		return startCertificateCreationProcess(csr, pipeline.getCaConnector(), pipeline.getProcessInfo());
+	}
+
+
 	/**
 	 *
 	 * @param csr
@@ -97,17 +111,30 @@ public class BPMNUtil{
 	 */
 	public Certificate startCertificateCreationProcess(CSR csr)  {
 		
+		CAConnectorConfig caConfigDefault = configUtil.getDefaultConfig();
+		return startCertificateCreationProcess(csr, caConfigDefault, null);
+	}
+	
+	/**
+	 *
+	 * @param csr
+	 * @return
+	 */
+	public Certificate startCertificateCreationProcess(CSR csr, CAConnectorConfig caConfig, BPNMProcessInfo processInfo)  {
+		
 		String status = "Failed";
 		String certificateId = "";
 		Certificate certificate = null;
 		String failureReason = "";
 		String processInstanceId = "";
 
-//		String processName = null;
 		String processName = "CAInvocationProcess";
+
+		if( processInfo != null) {
+			processName = processInfo.getName();
+		}
 		
-		CAConnectorConfig caConfigDefault = configUtil.getDefaultConfig();
-		if(caConfigDefault != null ){
+		if(caConfig != null ){
 			
 			if(processName != null && (processName.trim().length() > 0 )) {
 				// BPNM call
@@ -115,7 +142,7 @@ public class BPMNUtil{
 					Map<String, Object> variables = new HashMap<String,Object>();
 					variables.put("csrId", csr.getId());
 					variables.put("csr", csr);
-					variables.put("caConfigId", caConfigDefault.getId());
+					variables.put("caConfigId", caConfig.getId());
 					variables.put("status", "Failed");
 					variables.put("certificateId", certificateId);
 					variables.put("failureReason", failureReason);
@@ -140,7 +167,7 @@ public class BPMNUtil{
 			} else {
 				// direct call
 				try {
-					certificate = caConnAdapter.signCertificateRequest(csr, caConfigDefault);
+					certificate = caConnAdapter.signCertificateRequest(csr, caConfig);
 					status = "Created";
 				} catch (GeneralSecurityException e) {
 					

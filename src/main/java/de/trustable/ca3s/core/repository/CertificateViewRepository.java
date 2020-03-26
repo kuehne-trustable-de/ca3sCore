@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.repository;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
@@ -18,6 +19,8 @@ public class CertificateViewRepository {
 	@Autowired
     private EntityManager entityManager;
 
+//	@Autowired
+//	private CertificateJPQLSpecifications spec;
 	
 	public Page<CertificateView> findSelection(Map<String, String[]> parameterMap){
 		
@@ -26,6 +29,8 @@ public class CertificateViewRepository {
 		return CertificateSpecifications.handleQueryParamsCertificateView(entityManager, 
 				cb, 
 				parameterMap);
+
+//	    public List<Object[]>  getCertificateList(Map<String, String[]> parameterMap) {
 
 	}
 

@@ -34,9 +34,11 @@ import static org.springframework.web.servlet.support.ServletUriComponentsBuilde
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.service.dto.acme.DirectoryResponse;
 
 /*
@@ -130,23 +132,26 @@ import de.trustable.ca3s.core.service.dto.acme.DirectoryResponse;
 @RequestMapping("/acme/{realm}/directory")
 public class DirectoryController extends ACMEController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DirectoryController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DirectoryController.class);
 
-  @RequestMapping(method = {GET, POST}, produces = APPLICATION_JSON_VALUE)
-  public @ResponseBody DirectoryResponse getDirectory() {
-	  
-	DirectoryResponse resp = new DirectoryResponse();
-	
-	resp.setNewNonceUri( newNonceResourceUriBuilderFrom(fromCurrentRequestUri()).build().normalize().toUri());
-	resp.setNewAccountUri( newAccountResourceUriBuilderFrom(fromCurrentRequestUri()).build().normalize().toUri());
-	resp.setNewOrderUri(newOrderResourceUriBuilderFrom(fromCurrentRequestUri()).build().normalize().toUri());
-	resp.setNewAuthzUri(newAuthorizationResourceUriBuilderFrom(fromCurrentRequestUri()).build().normalize().toUri());
+	@RequestMapping(method = { GET, POST }, produces = APPLICATION_JSON_VALUE)
+	public @ResponseBody DirectoryResponse getDirectory(@PathVariable final String realm) {
 
-	resp.setRevokeUri(revokeResourceUriBuilderFrom(fromCurrentRequestUri()).build().normalize().toUri());
-	resp.setKeyChangeUri(keyChangeResourceUriBuilderFrom(fromCurrentRequestUri()).build().normalize().toUri());
-	
-	LOG.info("directory request, returning {}", resp);
-    return resp;
-  }
+		// check for existence of a pipeline for the realm
+		getPipelineForRealm(realm);
+
+		DirectoryResponse resp = new DirectoryResponse();
+
+		resp.setNewNonceUri(newNonceResourceUriBuilderFrom(fromCurrentRequestUri()).build().normalize().toUri());
+		resp.setNewAccountUri(newAccountResourceUriBuilderFrom(fromCurrentRequestUri()).build().normalize().toUri());
+		resp.setNewOrderUri(newOrderResourceUriBuilderFrom(fromCurrentRequestUri()).build().normalize().toUri());
+		resp.setNewAuthzUri(newAuthorizationResourceUriBuilderFrom(fromCurrentRequestUri()).build().normalize().toUri());
+
+		resp.setRevokeUri(revokeResourceUriBuilderFrom(fromCurrentRequestUri()).build().normalize().toUri());
+		resp.setKeyChangeUri(keyChangeResourceUriBuilderFrom(fromCurrentRequestUri()).build().normalize().toUri());
+
+		LOG.info("directory request, returning {}", resp);
+		return resp;
+	}
 
 }

@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import javax.transaction.Transactional;
+
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
@@ -68,6 +70,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
@@ -384,6 +387,8 @@ public class CertificateUtil {
 			// mark it as self signed
 			cert.setSelfsigned(true);
 			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SELFSIGNED, "true");
+			cert.setIssuingCertificate(cert);
+			cert.setRootCertificate(cert);
 
 			LOG.debug("certificate '" + x509Cert.getSubjectDN().getName() +"' is selfsigned");
 			
@@ -400,6 +405,10 @@ public class CertificateUtil {
 						LOG.debug("certificate '" + x509Cert.getSubjectDN().getName() +"' issued by " + issuingCert.getSubject());
 					}
 				}
+
+				Certificate rootCert = findRootCertificate(issuingCert);
+				cert.setRootCertificate(rootCert);
+				
 			} catch( GeneralSecurityException gse){
 //				LOG.debug("exception while retrieving issuer", gse);
 				LOG.info("problem retrieving issuer for certificate '" + x509Cert.getSubjectDN().getName() +"' right now ...");
@@ -861,17 +870,6 @@ public class CertificateUtil {
 
 	}
 
-	/*
-	public Certificate findCertificateById(long id) {
-
-		Optional<Certificate> certOpt = certificateRepository.findById(id);
-		if( certList.isEmpty()) {
-			return null;
-		}
-		return certList.iterator().next();
-	}
-*/
-	
 	
 	public Certificate findIssuingCertificate(Certificate cert) throws GeneralSecurityException {
 		
@@ -1093,6 +1091,48 @@ public class CertificateUtil {
 
 		return issuerDao;
 	}
+
+	/**
+	 * 
+	 * @param cert
+	 * @return
+	 * @throws GeneralSecurityException
+	 */
+	private Certificate findRootCertificate(Certificate cert) throws GeneralSecurityException {
+		
+		for(int i = 0; i < 10; i++) {
+			
+			// end of chain?
+			if( cert.isSelfsigned()) {
+				
+				// hurra, terminated ...
+				return cert;
+			}
+			
+			// step up one level
+			Certificate issuingCert = cert.getIssuingCertificate();
+			
+			// is the issuer already known?
+			if( issuingCert == null) {
+				
+				// no, try to find it
+				issuingCert = findIssuingCertificate(cert);
+				if(issuingCert != null) {
+					cert.setIssuingCertificate(issuingCert);
+					certificateRepository.save(cert);
+					LOG.debug("determined issuing certificate {} for {}", issuingCert.getId(), cert.getId());
+				} else {
+					break;
+				}
+			}
+			
+			cert = issuingCert;
+		}
+
+		LOG.info("unable to determined issuing certificate for {}", cert.getId());
+		return null;
+	}
+
 
 	/**
 	 * @param x509CertHolder
@@ -1334,15 +1374,8 @@ public class CertificateUtil {
 
 		LOG.debug("new private key as PEM : " + sw.toString());
 
-		String protContent = protUtil.protectString(sw.toString());
-		ProtectedContent pt = new ProtectedContent();
-		pt.setType(ProtectedContentType.KEY);
-		pt.setContentBase64(protContent);
-		pt.setRelationType(ContentRelationType.CERTIFICATE);
-		pt.setRelatedId(cert.getId());
-		
+		ProtectedContent pt = protUtil.createProtectedContent(sw.toString(), ProtectedContentType.KEY, ContentRelationType.CERTIFICATE, cert.getId());
 		protContentRepository.save(pt);
-		
 	}
 
 	/**

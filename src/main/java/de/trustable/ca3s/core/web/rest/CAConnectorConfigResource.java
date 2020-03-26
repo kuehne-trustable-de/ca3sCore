@@ -1,13 +1,19 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
+import de.trustable.ca3s.core.domain.ProtectedContent;
+import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
+import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
+import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 import de.trustable.ca3s.core.service.CAConnectorConfigService;
+import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
 
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,12 +32,21 @@ import java.util.Optional;
 @RequestMapping("/api")
 public class CAConnectorConfigResource {
 
-    private final Logger log = LoggerFactory.getLogger(CAConnectorConfigResource.class);
+    public static final String PLAIN_SECRET_PLACEHOLDER = "******";
+
+	private final Logger log = LoggerFactory.getLogger(CAConnectorConfigResource.class);
 
     private static final String ENTITY_NAME = "cAConnectorConfig";
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
+
+	@Autowired
+	private ProtectedContentUtil protUtil;
+	
+	@Autowired
+	private ProtectedContentRepository protContentRepository;
+	
 
     private final CAConnectorConfigService cAConnectorConfigService;
 
@@ -52,6 +67,17 @@ public class CAConnectorConfigResource {
         if (cAConnectorConfig.getId() != null) {
             throw new BadRequestAlertException("A new cAConnectorConfig cannot already have an ID", ENTITY_NAME, "idexists");
         }
+        
+        if((cAConnectorConfig.getPlainSecret() == null) || (cAConnectorConfig.getPlainSecret().trim().length() == 0))  {
+	        cAConnectorConfig.setSecret(null);
+	        cAConnectorConfig.setPlainSecret("");
+        }else {	
+	        ProtectedContent protSecret = protUtil.createProtectedContent(cAConnectorConfig.getPlainSecret(), ProtectedContentType.PASSWORD, ContentRelationType.CONNECTION, -1L);
+	        protContentRepository.save(protSecret);
+	        cAConnectorConfig.setSecret(protSecret);
+	        cAConnectorConfig.setPlainSecret(PLAIN_SECRET_PLACEHOLDER);
+        }
+        
         CAConnectorConfig result = cAConnectorConfigService.save(cAConnectorConfig);
         return ResponseEntity.created(new URI("/api/ca-connector-configs/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -73,6 +99,24 @@ public class CAConnectorConfigResource {
         if (cAConnectorConfig.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
+        
+		if(cAConnectorConfig.getSecret() != null ) {
+			protContentRepository.delete(cAConnectorConfig.getSecret());
+		}
+        
+        if((cAConnectorConfig.getPlainSecret() == null) || (cAConnectorConfig.getPlainSecret().trim().length() == 0))  {
+	        cAConnectorConfig.setSecret(null);
+	        cAConnectorConfig.setPlainSecret("");
+        }else if(PLAIN_SECRET_PLACEHOLDER.equals(cAConnectorConfig.getPlainSecret().trim())) {
+        	// no passphrase change received from the UI, just do nothing
+        }else {	
+	        ProtectedContent protSecret = protUtil.createProtectedContent(cAConnectorConfig.getPlainSecret(), ProtectedContentType.PASSWORD, ContentRelationType.CONNECTION, cAConnectorConfig.getId());
+	        protContentRepository.save(protSecret);
+	        
+	        cAConnectorConfig.setSecret(protSecret);
+	        cAConnectorConfig.setPlainSecret(PLAIN_SECRET_PLACEHOLDER);
+        }
+        
         CAConnectorConfig result = cAConnectorConfigService.save(cAConnectorConfig);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, cAConnectorConfig.getId().toString()))

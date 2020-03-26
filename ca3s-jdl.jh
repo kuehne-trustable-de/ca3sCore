@@ -5,17 +5,16 @@ enum Interval {
 
 entity CAConnectorConfig{
 
-//	configId Long required
-
 	name String required
 	caConnectorType CAConnectorType required
 	caUrl String
-	secret String
+//	secret String
 	pollingOffset Integer 
 	defaultCA Boolean
 	active Boolean
 	selector String
 	interval Interval
+	plainSecret String
 }
 
 enum CAConnectorType {
@@ -37,8 +36,6 @@ entity CertificateAttribute {
 }
 
 entity Certificate {
-
-//  certificateId Long required
 
   tbsDigest String required
   subject String required
@@ -64,7 +61,6 @@ entity Certificate {
   endEntity Boolean
   selfsigned Boolean
   content TextBlob required
-  
 }
 
 enum CsrStatus {
@@ -150,6 +146,7 @@ entity Pipeline{
   	name String required
   	type PipelineType required
   	urlPart String
+  	decription String
 }
 
 entity PipelineAttribute{
@@ -170,7 +167,6 @@ entity BPNMProcessInfo{
   	author String required
   	lastChange Instant required
   	signatureBase64 TextBlob required
-  	
 }
 
 
@@ -355,20 +351,18 @@ relationship OneToMany {
 
 relationship ManyToOne {
 
-	AcmeOrder{csr} to CSR,
-
+	AcmeOrder{csr} to CSR
 	AcmeOrder{certificate} to Certificate
 
     RequestAttribute{holdingRequestAttribute} to RequestAttributeValue
 
   	Certificate{issuingCertificate} to Certificate
+  	Certificate{rootCertificate} to Certificate
 
 	CSR{pipeline} to Pipeline
 
 	Pipeline{caConnector} to CAConnectorConfig
 	Pipeline{processInfo} to BPNMProcessInfo
-	
-
 }
 
 relationship OneToOne{
@@ -376,6 +370,8 @@ relationship OneToOne{
   Certificate{csr} to CSR{certificate}
 
   RequestProxyConfig{secret} to ProtectedContent
+  
+  CAConnectorConfig{secret} to ProtectedContent
 }
 
 // Set pagination options
