@@ -23,6 +23,10 @@
             ]
         },
         {
+            "fieldName": "root",
+            "fieldType": "String"
+        },
+        {
             "fieldName": "type",
             "fieldType": "String",
             "fieldValidateRules": [

@@ -30,6 +30,7 @@ const validations: any = {
     issuer: {
       required
     },
+    root: {},
     type: {
       required
     },

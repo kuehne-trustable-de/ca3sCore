@@ -262,10 +262,26 @@
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
         </dependency>
+        		<dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+        </dependency>
+        
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
+            <version>3.5.5</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.sabomichal</groupId>
+            <artifactId>liquibase-mssql</artifactId>
+        </dependency>
+        
+        <!-- dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency-->
+        
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
@@ -720,7 +736,7 @@
 		      </executions>
 		    </plugin-->
 		    
-		    <!-- plugin>
+		    <plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>xml-maven-plugin</artifactId>
 				<version>${xml.maven.plugin.version}</version>
@@ -738,7 +754,7 @@
 						<transformationSet>
 							<dir>./src/main/resources/config/liquibase</dir>
 							<stylesheet>./src/main/resources/stylesheet/adaptMasterLBForMSSQL.xsl</stylesheet>
-							<outputDir>${project.build.directory}/generated-package/src/main/resources/config/liquibase</outputDir>
+							<outputDir>${project.build.directory}/generated-package/src/main/resources/config/liquibase-mssql</outputDir>
 							<includes>*.xml</includes>
 							
 							<parameters>
@@ -751,7 +767,7 @@
 						<transformationSet>
 							<dir>./src/main/resources/config/liquibase/changelog</dir>
 							<stylesheet>./src/main/resources/stylesheet/adaptChangelogLBForMSSQL.xsl</stylesheet>
-							<outputDir>${project.build.directory}/generated-package/src/main/resources/config/liquibase/changelog</outputDir>
+							<outputDir>${project.build.directory}/generated-package/src/main/resources/config/liquibase-mssql/changelog</outputDir>
 							<includes>00000000000000_initial_schema.xml</includes>
 							<parameters>
 								<parameter>
@@ -767,7 +783,7 @@
 						<transformationSet>
 							<dir>./src/main/resources/config/liquibase/changelog</dir>
 							<stylesheet>./src/main/resources/stylesheet/adaptChangelogLBForMSSQL.xsl</stylesheet>
-							<outputDir>${project.build.directory}/generated-package/src/main/resources/config/liquibase/changelog</outputDir>
+							<outputDir>${project.build.directory}/generated-package/src/main/resources/config/liquibase-mssql/changelog</outputDir>
 							<includes>*_added_*.xml</includes>
 							
 							<parameters>
@@ -777,7 +793,8 @@
 								</parameter>
 							</parameters>
 						</transformationSet>
-						<transformationSet>
+						
+						<!--  transformationSet>
 							<dir>.</dir>
 							<stylesheet>./src/main/resources/stylesheet/adaptPOM.xsl</stylesheet>
 							<outputDir>${project.build.directory}/generated-package/</outputDir>
@@ -789,7 +806,8 @@
 									<value>http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd</value>
 								</parameter>
 							</parameters>
-						</transformationSet>
+						</transformationSet-->
+						
 					</transformationSets>
 				</configuration>
 				<dependencies>
@@ -800,7 +818,7 @@
 					</dependency>
 				</dependencies>
 
-			</plugin-->
+			</plugin>
                                 
         </plugins>
         <pluginManagement>
@@ -1068,6 +1086,13 @@
                                         <includes>
                                             <include>config/*.yml</include>
                                         </includes>
+                                    </resource>
+                                    <resource>
+                                        <directory>${project.build.directory}/generated-package/src/main/resources/</directory>
+                                        <!-- filtering>true</filtering>
+                                        <includes>
+                                            <include>config//*.xml</include>
+                                        </includes-->
                                     </resource>
                                     <resource>
                                         <directory>src/main/resources/</directory>

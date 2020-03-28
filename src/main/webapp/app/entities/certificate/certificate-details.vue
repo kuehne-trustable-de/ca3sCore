@@ -23,6 +23,12 @@
                         <span>{{certificate.issuer}}</span>
                     </dd>
                     <dt>
+                        <span v-text="$t('ca3SApp.certificate.root')">Root</span>
+                    </dt>
+                    <dd>
+                        <span>{{certificate.root}}</span>
+                    </dd>
+                    <dt>
                         <span v-text="$t('ca3SApp.certificate.type')">Type</span>
                     </dt>
                     <dd>

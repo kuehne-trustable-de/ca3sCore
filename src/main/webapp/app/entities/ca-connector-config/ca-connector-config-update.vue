@@ -76,9 +76,9 @@
                     </div>
                 </div>
                 <div>
-                    <button type="button" id="test" class="btn btn-secondary" v-on:click="testCaConnectorConfig()">
+                    <!--button type="button" id="test" class="btn btn-secondary" v-on:click="testCaConnectorConfig()">
                         <font-awesome-icon icon="stethoscope"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.test')">Test</span>
-                    </button>
+                    </button-->
                     <button type="button" id="cancel-save" class="btn btn-secondary" v-on:click="previousState()">
                         <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.cancel')">Cancel</span>
                     </button>

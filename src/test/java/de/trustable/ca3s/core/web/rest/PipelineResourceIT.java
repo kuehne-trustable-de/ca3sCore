@@ -44,8 +44,11 @@ public class PipelineResourceIT {
     private static final String DEFAULT_URL_PART = "AAAAAAAAAA";
     private static final String UPDATED_URL_PART = "BBBBBBBBBB";
 
-    private static final String DEFAULT_DECRIPTION = "AAAAAAAAAA";
-    private static final String UPDATED_DECRIPTION = "BBBBBBBBBB";
+    private static final String DEFAULT_DESCRIPTION = "AAAAAAAAAA";
+    private static final String UPDATED_DESCRIPTION = "BBBBBBBBBB";
+
+    private static final Boolean DEFAULT_APPROVAL_REQUIRED = false;
+    private static final Boolean UPDATED_APPROVAL_REQUIRED = true;
 
     @Autowired
     private PipelineRepository pipelineRepository;
@@ -95,7 +98,8 @@ public class PipelineResourceIT {
             .name(DEFAULT_NAME)
             .type(DEFAULT_TYPE)
             .urlPart(DEFAULT_URL_PART)
-            .decription(DEFAULT_DECRIPTION);
+            .description(DEFAULT_DESCRIPTION)
+            .approvalRequired(DEFAULT_APPROVAL_REQUIRED);
         return pipeline;
     }
     /**
@@ -109,7 +113,8 @@ public class PipelineResourceIT {
             .name(UPDATED_NAME)
             .type(UPDATED_TYPE)
             .urlPart(UPDATED_URL_PART)
-            .decription(UPDATED_DECRIPTION);
+            .description(UPDATED_DESCRIPTION)
+            .approvalRequired(UPDATED_APPROVAL_REQUIRED);
         return pipeline;
     }
 
@@ -136,7 +141,8 @@ public class PipelineResourceIT {
         assertThat(testPipeline.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testPipeline.getType()).isEqualTo(DEFAULT_TYPE);
         assertThat(testPipeline.getUrlPart()).isEqualTo(DEFAULT_URL_PART);
-        assertThat(testPipeline.getDecription()).isEqualTo(DEFAULT_DECRIPTION);
+        assertThat(testPipeline.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        assertThat(testPipeline.isApprovalRequired()).isEqualTo(DEFAULT_APPROVAL_REQUIRED);
     }
 
     @Test
@@ -209,7 +215,8 @@ public class PipelineResourceIT {
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
             .andExpect(jsonPath("$.[*].urlPart").value(hasItem(DEFAULT_URL_PART)))
-            .andExpect(jsonPath("$.[*].decription").value(hasItem(DEFAULT_DECRIPTION)));
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
+            .andExpect(jsonPath("$.[*].approvalRequired").value(hasItem(DEFAULT_APPROVAL_REQUIRED.booleanValue())));
     }
     
     @Test
@@ -226,7 +233,8 @@ public class PipelineResourceIT {
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))
             .andExpect(jsonPath("$.urlPart").value(DEFAULT_URL_PART))
-            .andExpect(jsonPath("$.decription").value(DEFAULT_DECRIPTION));
+            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
+            .andExpect(jsonPath("$.approvalRequired").value(DEFAULT_APPROVAL_REQUIRED.booleanValue()));
     }
 
     @Test
@@ -253,7 +261,8 @@ public class PipelineResourceIT {
             .name(UPDATED_NAME)
             .type(UPDATED_TYPE)
             .urlPart(UPDATED_URL_PART)
-            .decription(UPDATED_DECRIPTION);
+            .description(UPDATED_DESCRIPTION)
+            .approvalRequired(UPDATED_APPROVAL_REQUIRED);
 
         restPipelineMockMvc.perform(put("/api/pipelines")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -267,7 +276,8 @@ public class PipelineResourceIT {
         assertThat(testPipeline.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testPipeline.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testPipeline.getUrlPart()).isEqualTo(UPDATED_URL_PART);
-        assertThat(testPipeline.getDecription()).isEqualTo(UPDATED_DECRIPTION);
+        assertThat(testPipeline.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
+        assertThat(testPipeline.isApprovalRequired()).isEqualTo(UPDATED_APPROVAL_REQUIRED);
     }
 
     @Test

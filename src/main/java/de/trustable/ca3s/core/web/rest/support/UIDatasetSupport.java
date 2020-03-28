@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.web.rest.support;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -63,18 +64,24 @@ public class UIDatasetSupport {
     @PostMapping("/ca-connector-configs/getStatus")
     public CAStatus getCAConnectorStatus( @Valid @RequestBody CAConnectorConfig cAConnectorConfig) {
 
-    	
+
+    	LOG.debug("checking status for {}", cAConnectorConfig);
+
         if((cAConnectorConfig.getPlainSecret() == null) || (cAConnectorConfig.getPlainSecret().trim().length() == 0))  {
 	        cAConnectorConfig.setSecret(null);
         }else if(CAConnectorConfigResource.PLAIN_SECRET_PLACEHOLDER.equals(cAConnectorConfig.getPlainSecret().trim())) {
-        	// no passphrase change received from the UI, just do nothing
-        	return CAStatus.Unknown;
+        	// no passphrase change received from the UI, use the existing 'secret' object
+        	
+        	Optional<CAConnectorConfig> optCcc = caConnConfRepo.findById(cAConnectorConfig.getId());
+        	if(optCcc.isPresent()) {
+    	        cAConnectorConfig.setSecret(optCcc.get().getSecret());
+        	}else {
+        		return CAStatus.Unknown;
+        	}
         }else {	
-	        ProtectedContent protSecret = protUtil.createProtectedContent(cAConnectorConfig.getPlainSecret(), ProtectedContentType.PASSWORD, ContentRelationType.CONNECTION, cAConnectorConfig.getId());
+	        ProtectedContent protSecret = protUtil.createProtectedContent(cAConnectorConfig.getPlainSecret(), ProtectedContentType.PASSWORD, ContentRelationType.CONNECTION, -1L);
 	        cAConnectorConfig.setSecret(protSecret);
         }
-
-    	LOG.debug("checking status for {}", cAConnectorConfig);
     	
     	CAStatus status = caConnectorAdapter.getStatus(cAConnectorConfig);
 

@@ -13,7 +13,8 @@ export interface IPipeline {
   name?: string;
   type?: PipelineType;
   urlPart?: string;
-  decription?: string;
+  description?: string;
+  approvalRequired?: boolean;
   pipelineAttributes?: IPipelineAttribute[];
   caConnector?: ICAConnectorConfig;
   processInfo?: IBPNMProcessInfo;
@@ -25,9 +26,12 @@ export class Pipeline implements IPipeline {
     public name?: string,
     public type?: PipelineType,
     public urlPart?: string,
-    public decription?: string,
+    public description?: string,
+    public approvalRequired?: boolean,
     public pipelineAttributes?: IPipelineAttribute[],
     public caConnector?: ICAConnectorConfig,
     public processInfo?: IBPNMProcessInfo
-  ) {}
+  ) {
+    this.approvalRequired = this.approvalRequired || false;
+  }
 }

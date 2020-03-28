@@ -40,6 +40,11 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.root')" for="certificate-root">Root</label>
+                        <input type="text" class="form-control" name="root" id="certificate-root"
+                            :class="{'valid': !$v.certificate.root.$invalid, 'invalid': $v.certificate.root.$invalid }" v-model="$v.certificate.root.$model" />
+                    </div>
+                    <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.certificate.type')" for="certificate-type">Type</label>
                         <input type="text" class="form-control" name="type" id="certificate-type"
                             :class="{'valid': !$v.certificate.type.$invalid, 'invalid': $v.certificate.type.$invalid }" v-model="$v.certificate.type.$model"  required/>

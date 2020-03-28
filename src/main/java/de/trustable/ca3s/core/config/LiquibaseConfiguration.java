@@ -16,6 +16,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 
 import javax.sql.DataSource;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.concurrent.Executor;
 
 @Configuration
@@ -37,18 +40,42 @@ public class LiquibaseConfiguration {
         // If you don't want Liquibase to start asynchronously, substitute by this:
         // SpringLiquibase liquibase = SpringLiquibaseUtil.createSpringLiquibase(liquibaseDataSource.getIfAvailable(), liquibaseProperties, dataSource.getIfUnique(), dataSourceProperties);
         SpringLiquibase liquibase = SpringLiquibaseUtil.createAsyncSpringLiquibase(this.env, executor, liquibaseDataSource.getIfAvailable(), liquibaseProperties, dataSource.getIfUnique(), dataSourceProperties);
+        
         liquibase.setChangeLog("classpath:config/liquibase/master.xml");
+        
         liquibase.setContexts(liquibaseProperties.getContexts());
         liquibase.setDefaultSchema(liquibaseProperties.getDefaultSchema());
-        liquibase.setLiquibaseSchema(liquibaseProperties.getLiquibaseSchema());
-        liquibase.setLiquibaseTablespace(liquibaseProperties.getLiquibaseTablespace());
-        liquibase.setDatabaseChangeLogLockTable(liquibaseProperties.getDatabaseChangeLogLockTable());
-        liquibase.setDatabaseChangeLogTable(liquibaseProperties.getDatabaseChangeLogTable());
+        
+		try {
+	        // liquibase.setLiquibaseSchema(liquibaseProperties.getLiquibaseSchema());
+			Method method = liquibase.getClass().getMethod("setLiquibaseSchema", String.class);
+			method.invoke(liquibase, liquibaseProperties.getLiquibaseSchema());
+
+	        //liquibase.setLiquibaseTablespace(liquibaseProperties.getLiquibaseTablespace());
+			method = liquibase.getClass().getMethod("setLiquibaseTablespace", String.class);
+			method.invoke(liquibase, liquibaseProperties.getLiquibaseTablespace());
+
+//	        liquibase.setDatabaseChangeLogLockTable(liquibaseProperties.getDatabaseChangeLogLockTable());
+			method = liquibase.getClass().getMethod("setDatabaseChangeLogLockTable", String.class);
+			method.invoke(liquibase, liquibaseProperties.getDatabaseChangeLogLockTable());
+
+//	        liquibase.setDatabaseChangeLogTable(liquibaseProperties.getDatabaseChangeLogTable());
+			method = liquibase.getClass().getMethod("setDatabaseChangeLogTable", String.class);
+			method.invoke(liquibase, liquibaseProperties.getDatabaseChangeLogTable());
+
+//	        liquibase.setTestRollbackOnUpdate(liquibaseProperties.isTestRollbackOnUpdate());
+			method = liquibase.getClass().getMethod("setTestRollbackOnUpdate", Boolean.class);
+			method.invoke(liquibase, liquibaseProperties.isTestRollbackOnUpdate());
+
+		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            log.debug("Old Liquibase version, not supporting more recent methods");
+		}
+		
         liquibase.setDropFirst(liquibaseProperties.isDropFirst());
         liquibase.setLabels(liquibaseProperties.getLabels());
         liquibase.setChangeLogParameters(liquibaseProperties.getParameters());
         liquibase.setRollbackFile(liquibaseProperties.getRollbackFile());
-        liquibase.setTestRollbackOnUpdate(liquibaseProperties.isTestRollbackOnUpdate());
+        
         if (env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_NO_LIQUIBASE))) {
             liquibase.setShouldRun(false);
         } else {

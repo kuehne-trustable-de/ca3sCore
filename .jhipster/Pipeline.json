@@ -21,8 +21,12 @@
             "fieldType": "String"
         },
         {
-            "fieldName": "decription",
+            "fieldName": "description",
             "fieldType": "String"
+        },
+        {
+            "fieldName": "approvalRequired",
+            "fieldType": "Boolean"
         }
     ],
     "relationships": [

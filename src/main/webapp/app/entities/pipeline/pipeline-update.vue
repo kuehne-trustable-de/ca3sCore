@@ -38,9 +38,14 @@
                             :class="{'valid': !$v.pipeline.urlPart.$invalid, 'invalid': $v.pipeline.urlPart.$invalid }" v-model="$v.pipeline.urlPart.$model" />
                     </div>
                     <div class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.decription')" for="pipeline-decription">Decription</label>
-                        <input type="text" class="form-control" name="decription" id="pipeline-decription"
-                            :class="{'valid': !$v.pipeline.decription.$invalid, 'invalid': $v.pipeline.decription.$invalid }" v-model="$v.pipeline.decription.$model" />
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.description')" for="pipeline-description">Description</label>
+                        <textarea type="text" class="form-control" name="description" id="pipeline-description"
+                            :class="{'valid': !$v.pipeline.description.$invalid, 'invalid': $v.pipeline.description.$invalid }" v-model="$v.pipeline.description.$model" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.approvalRequired')" for="pipeline-approvalRequired">Approval Required</label>
+                        <input type="checkbox" class="form-check" name="approvalRequired" id="pipeline-approvalRequired"
+                            :class="{'valid': !$v.pipeline.approvalRequired.$invalid, 'invalid': $v.pipeline.approvalRequired.$invalid }" v-model="$v.pipeline.approvalRequired.$model" />
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.caConnector')" for="pipeline-caConnector">Ca Connector</label>

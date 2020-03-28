@@ -7,6 +7,7 @@ export interface ICertificate {
   tbsDigest?: string;
   subject?: string;
   issuer?: string;
+  root?: string;
   type?: string;
   description?: string;
   fingerprint?: string;
@@ -40,6 +41,7 @@ export class Certificate implements ICertificate {
     public tbsDigest?: string,
     public subject?: string,
     public issuer?: string,
+    public root?: string,
     public type?: string,
     public description?: string,
     public fingerprint?: string,

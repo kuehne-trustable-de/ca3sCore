@@ -25,7 +25,10 @@
             <column name="url_part" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="decription" type="varchar(255)">
+            <column name="description" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="approval_required" type="boolean">
                 <constraints nullable="true" />
             </column>
             <column name="ca_connector_id" type="bigint">
@@ -60,7 +63,8 @@
             <column name="name" type="string"/>
             <column name="type" type="string"/>
             <column name="url_part" type="string"/>
-            <column name="decription" type="string"/>
+            <column name="description" type="string"/>
+            <column name="approval_required" type="boolean"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
         </loadData>
     </changeSet>

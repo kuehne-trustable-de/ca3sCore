@@ -28,7 +28,8 @@
                     <th><span v-text="$t('ca3SApp.pipeline.name')">Name</span></th>
                     <th><span v-text="$t('ca3SApp.pipeline.type')">Type</span></th>
                     <th><span v-text="$t('ca3SApp.pipeline.urlPart')">Url Part</span></th>
-                    <th><span v-text="$t('ca3SApp.pipeline.decription')">Decription</span></th>
+                    <th><span v-text="$t('ca3SApp.pipeline.description')">Description</span></th>
+                    <th><span v-text="$t('ca3SApp.pipeline.approvalRequired')">Approval Required</span></th>
                     <th><span v-text="$t('ca3SApp.pipeline.caConnector')">Ca Connector</span></th>
                     <th><span v-text="$t('ca3SApp.pipeline.processInfo')">Process Info</span></th>
                     <th></th>
@@ -43,15 +44,16 @@
                     <td>{{pipeline.name}}</td>
                     <td v-text="$t('ca3SApp.PipelineType.' + pipeline.type)">{{pipeline.type}}</td>
                     <td>{{pipeline.urlPart}}</td>
-                    <td>{{pipeline.decription}}</td>
+                    <td>{{pipeline.description}}</td>
+                    <td>{{pipeline.approvalRequired}}</td>
                     <td>
                         <div v-if="pipeline.caConnector">
-                            <router-link :to="{name: 'CAConnectorConfigView', params: {cAConnectorConfigId: pipeline.caConnector.id}}">{{pipeline.caConnector.name}}</router-link>
+                            <router-link :to="{name: 'CAConnectorConfigView', params: {cAConnectorConfigId: pipeline.caConnector.id}}">{{pipeline.caConnector.id}}</router-link>
                         </div>
                     </td>
                     <td>
                         <div v-if="pipeline.processInfo">
-                            <router-link :to="{name: 'BPNMProcessInfoView', params: {bPNMProcessInfoId: pipeline.processInfo.id}}">{{pipeline.processInfo.name}}</router-link>
+                            <router-link :to="{name: 'BPNMProcessInfoView', params: {bPNMProcessInfoId: pipeline.processInfo.id}}">{{pipeline.processInfo.id}}</router-link>
                         </div>
                     </td>
                     <td class="text-right">

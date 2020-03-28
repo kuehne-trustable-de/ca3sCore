@@ -19,6 +19,7 @@
       "tbsDigest": "Tbs Digest",
       "subject": "Subject",
       "issuer": "Issuer",
+      "root": "Root",
       "type": "Type",
       "description": "Description",
       "fingerprint": "Fingerprint",

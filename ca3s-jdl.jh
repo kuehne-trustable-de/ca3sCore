@@ -8,7 +8,6 @@ entity CAConnectorConfig{
 	name String required
 	caConnectorType CAConnectorType required
 	caUrl String
-//	secret String
 	pollingOffset Integer 
 	defaultCA Boolean
 	active Boolean
@@ -40,6 +39,7 @@ entity Certificate {
   tbsDigest String required
   subject String required
   issuer String required
+  root String
   type String required
   description String
   fingerprint String
@@ -135,8 +135,6 @@ entity ImportedURL{
   	importDate Instant required
 }
 
-
-
 enum PipelineType {
     ACME, SCEP, WEB
 }
@@ -146,7 +144,8 @@ entity Pipeline{
   	name String required
   	type PipelineType required
   	urlPart String
-  	decription String
+  	description String
+  	approvalRequired Boolean
 }
 
 entity PipelineAttribute{
@@ -264,7 +263,6 @@ entity AcmeIdentifier {
 // "dns" AcmeIdentifier type. See the registry defined in Section 9.7.7 for any
 // others.
 	type String required
-
 	value String required
     
 }

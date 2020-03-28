@@ -370,6 +370,10 @@ public class CertificateUtil {
 				CertificateAttribute.ATTRIBUTE_VALID_TO_TIMESTAMP, ""
 						+ x509Cert.getNotAfter().getTime());
 
+		long validityPeriod = ( x509Cert.getNotAfter().getTime() - x509Cert.getNotBefore().getTime() ) / 1000L;
+		setCertAttribute(cert,
+				CertificateAttribute.ATTRIBUTE_VALIDITY_PERIOD, "" + validityPeriod);
+		
 		addAdditionalCertificateAttributes(x509Cert, cert);
 
 		certificateRepository.save(cert);
@@ -388,7 +392,10 @@ public class CertificateUtil {
 			cert.setSelfsigned(true);
 			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SELFSIGNED, "true");
 			cert.setIssuingCertificate(cert);
+			
 			cert.setRootCertificate(cert);
+			cert.setRoot(cert.getSubject());
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ROOT, cert.getSubject().toLowerCase());
 
 			LOG.debug("certificate '" + x509Cert.getSubjectDN().getName() +"' is selfsigned");
 			
@@ -408,7 +415,9 @@ public class CertificateUtil {
 
 				Certificate rootCert = findRootCertificate(issuingCert);
 				cert.setRootCertificate(rootCert);
-				
+				cert.setRoot(rootCert.getSubject());
+				setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ROOT, rootCert.getSubject().toLowerCase());
+
 			} catch( GeneralSecurityException gse){
 //				LOG.debug("exception while retrieving issuer", gse);
 				LOG.info("problem retrieving issuer for certificate '" + x509Cert.getSubjectDN().getName() +"' right now ...");

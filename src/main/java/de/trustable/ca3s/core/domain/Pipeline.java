@@ -43,8 +43,11 @@ public class Pipeline implements Serializable {
     @Column(name = "url_part")
     private String urlPart;
 
-    @Column(name = "decription")
-    private String decription;
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "approval_required")
+    private Boolean approvalRequired;
 
     @OneToMany(mappedBy = "pipeline")
     private Set<PipelineAttribute> pipelineAttributes = new HashSet<>();
@@ -105,17 +108,30 @@ public class Pipeline implements Serializable {
         this.urlPart = urlPart;
     }
 
-    public String getDecription() {
-        return decription;
+    public String getDescription() {
+        return description;
     }
 
-    public Pipeline decription(String decription) {
-        this.decription = decription;
+    public Pipeline description(String description) {
+        this.description = description;
         return this;
     }
 
-    public void setDecription(String decription) {
-        this.decription = decription;
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Boolean isApprovalRequired() {
+        return approvalRequired;
+    }
+
+    public Pipeline approvalRequired(Boolean approvalRequired) {
+        this.approvalRequired = approvalRequired;
+        return this;
+    }
+
+    public void setApprovalRequired(Boolean approvalRequired) {
+        this.approvalRequired = approvalRequired;
     }
 
     public Set<PipelineAttribute> getPipelineAttributes() {
@@ -193,7 +209,8 @@ public class Pipeline implements Serializable {
             ", name='" + getName() + "'" +
             ", type='" + getType() + "'" +
             ", urlPart='" + getUrlPart() + "'" +
-            ", decription='" + getDecription() + "'" +
+            ", description='" + getDescription() + "'" +
+            ", approvalRequired='" + isApprovalRequired() + "'" +
             "}";
     }
 }

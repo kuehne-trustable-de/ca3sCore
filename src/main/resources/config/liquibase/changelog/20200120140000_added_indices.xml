@@ -51,6 +51,42 @@
     </changeSet>
 
     <changeSet author="kuehn (generated)" id="1579528622029-110">
+        <createIndex indexName="index_valid_from" tableName="certificate">
+            <column name="valid_from"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="kuehn (generated)" id="1579528622029-111">
+        <createIndex indexName="index_valid_to" tableName="certificate">
+            <column name="valid_to"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="kuehn (generated)" id="1579528622029-112">
+        <createIndex indexName="index_revoked_since" tableName="certificate">
+            <column name="revoked_since"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="kuehn (generated)" id="1579528622029-113">
+        <createIndex indexName="index_subject" tableName="certificate">
+            <column name="subject"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="kuehn (generated)" id="1579528622029-114">
+        <createIndex indexName="index_requested_on" tableName="csr">
+            <column name="requested_on"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="kuehn (generated)" id="1579528622029-115">
+        <createIndex indexName="index_status" tableName="csr">
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="kuehn (generated)" id="1579528622029-116">
         <createIndex indexName="index_name" tableName="imported_url">
             <column name="name"/>
         </createIndex>

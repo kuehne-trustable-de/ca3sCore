@@ -110,6 +110,9 @@ public class Certificate implements Serializable {
     @Column(name = "issuer", nullable = false)
     private String issuer;
 
+    @Column(name = "root")
+    private String root;
+
     @NotNull
     @Column(name = "type", nullable = false)
     private String type;
@@ -240,6 +243,19 @@ public class Certificate implements Serializable {
 
     public void setIssuer(String issuer) {
         this.issuer = issuer;
+    }
+
+    public String getRoot() {
+        return root;
+    }
+
+    public Certificate root(String root) {
+        this.root = root;
+        return this;
+    }
+
+    public void setRoot(String root) {
+        this.root = root;
     }
 
     public String getType() {
@@ -603,6 +619,7 @@ public class Certificate implements Serializable {
             ", tbsDigest='" + getTbsDigest() + "'" +
             ", subject='" + getSubject() + "'" +
             ", issuer='" + getIssuer() + "'" +
+            ", root='" + getRoot() + "'" +
             ", type='" + getType() + "'" +
             ", description='" + getDescription() + "'" +
             ", fingerprint='" + getFingerprint() + "'" +

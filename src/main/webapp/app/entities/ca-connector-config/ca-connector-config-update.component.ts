@@ -108,7 +108,7 @@ export default class CAConnectorConfigUpdate extends Vue {
       responseType: 'stream'
     })
     .then(function(response) {
-      window.console.info('allCertGenerators returns ' + response.data );
+      window.console.info('testCaConnectorConfig returns ' + response.data );
       self.caStatus = response.data;
     });
   }

@@ -19,7 +19,8 @@
       "name": "Name",
       "type": "Type",
       "urlPart": "Url Part",
-      "decription": "Decription",
+      "description": "Description",
+      "approvalRequired": "Approval Required",
       "pipelineAttributes": "Pipeline Attributes",
       "caConnector": "Ca Connector",
       "processInfo": "Process Info"

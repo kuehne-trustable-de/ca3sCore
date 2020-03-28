@@ -30,7 +30,7 @@ describe('Service Tests', () => {
     beforeEach(() => {
       service = new PipelineService();
 
-      elemDefault = new Pipeline(0, 'AAAAAAA', PipelineType.ACME, 'AAAAAAA', 'AAAAAAA');
+      elemDefault = new Pipeline(0, 'AAAAAAA', PipelineType.ACME, 'AAAAAAA', 'AAAAAAA', false);
     });
 
     describe('Service methods', () => {
@@ -85,7 +85,8 @@ describe('Service Tests', () => {
             name: 'BBBBBB',
             type: 'BBBBBB',
             urlPart: 'BBBBBB',
-            decription: 'BBBBBB'
+            description: 'BBBBBB',
+            approvalRequired: true
           },
           elemDefault
         );
@@ -115,7 +116,8 @@ describe('Service Tests', () => {
             name: 'BBBBBB',
             type: 'BBBBBB',
             urlPart: 'BBBBBB',
-            decription: 'BBBBBB'
+            description: 'BBBBBB',
+            approvalRequired: true
           },
           elemDefault
         );

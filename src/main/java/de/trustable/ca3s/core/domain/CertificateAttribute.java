@@ -119,6 +119,7 @@ public class CertificateAttribute implements Serializable {
 	public static final String ATTRIBUTE_SAN = "SAN";
 	public static final String ATTRIBUTE_SUBJECT_RDN_PART = "SUBJECT_RDN_PART";
 	public static final String ATTRIBUTE_ISSUER = "ISSUER";
+	public static final String ATTRIBUTE_ROOT = "ROOT";
 	public static final String ATTRIBUTE_TYPE = "TYPE";
 	public static final String ATTRIBUTE_USAGE = "USAGE";
 //	public static final String ATTRIBUTE_KEY_LENGTH = "KEY_LENGTH";
@@ -136,6 +137,7 @@ public class CertificateAttribute implements Serializable {
 	public static final String ATTRIBUTE_VALID_FROM_TIMESTAMP = "VALID_FROM_TIMESTAMP";
 	public static final String ATTRIBUTE_VALID_TO = "VALID_TO";
 	public static final String ATTRIBUTE_VALID_TO_TIMESTAMP = "VALID_TO_TIMESTAMP";
+	public static final String ATTRIBUTE_VALIDITY_PERIOD = "VALIDITY_PERIOD";
 	
 	public static final String ATTRIBUTE_CA_CONNECTOR_ID = "CA_CONNECTOR_ID";
 
@@ -145,6 +147,4 @@ public class CertificateAttribute implements Serializable {
 	public static final String ATTRIBUTE_FILE_SOURCE = "FILE_SOURCE";
 
 	public static final String ATTRIBUTE_UPLOADED_BY = "UPLOADED_BY";
-
-
 }

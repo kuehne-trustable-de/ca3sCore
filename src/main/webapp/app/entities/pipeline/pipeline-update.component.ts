@@ -25,7 +25,9 @@ const validations: any = {
     type: {
       required
     },
-    urlPart: {}
+    urlPart: {},
+    description: {},
+    approvalRequired: {}
   }
 };
 
@@ -48,7 +50,7 @@ export default class PipelineUpdate extends Vue {
   @Inject('bPNMProcessInfoService') private bPNMProcessInfoService: () => BPNMProcessInfoService;
 
 
-  public allCertGenerators: CAConnectorConfigService[];
+  public allCertGenerators: CAConnectorConfigService[] = [];
 
   public bPNMProcessInfos: IBPNMProcessInfo[] = [];
   public isSaving = false;
@@ -134,5 +136,4 @@ export default class PipelineUpdate extends Vue {
       self.allCertGenerators = response.data;
     });
   }
-
 }

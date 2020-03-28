@@ -46,6 +46,9 @@ public class CertificateResourceIT {
     private static final String DEFAULT_ISSUER = "AAAAAAAAAA";
     private static final String UPDATED_ISSUER = "BBBBBBBBBB";
 
+    private static final String DEFAULT_ROOT = "AAAAAAAAAA";
+    private static final String UPDATED_ROOT = "BBBBBBBBBB";
+
     private static final String DEFAULT_TYPE = "AAAAAAAAAA";
     private static final String UPDATED_TYPE = "BBBBBBBBBB";
 
@@ -157,6 +160,7 @@ public class CertificateResourceIT {
             .tbsDigest(DEFAULT_TBS_DIGEST)
             .subject(DEFAULT_SUBJECT)
             .issuer(DEFAULT_ISSUER)
+            .root(DEFAULT_ROOT)
             .type(DEFAULT_TYPE)
             .description(DEFAULT_DESCRIPTION)
             .fingerprint(DEFAULT_FINGERPRINT)
@@ -191,6 +195,7 @@ public class CertificateResourceIT {
             .tbsDigest(UPDATED_TBS_DIGEST)
             .subject(UPDATED_SUBJECT)
             .issuer(UPDATED_ISSUER)
+            .root(UPDATED_ROOT)
             .type(UPDATED_TYPE)
             .description(UPDATED_DESCRIPTION)
             .fingerprint(UPDATED_FINGERPRINT)
@@ -238,6 +243,7 @@ public class CertificateResourceIT {
         assertThat(testCertificate.getTbsDigest()).isEqualTo(DEFAULT_TBS_DIGEST);
         assertThat(testCertificate.getSubject()).isEqualTo(DEFAULT_SUBJECT);
         assertThat(testCertificate.getIssuer()).isEqualTo(DEFAULT_ISSUER);
+        assertThat(testCertificate.getRoot()).isEqualTo(DEFAULT_ROOT);
         assertThat(testCertificate.getType()).isEqualTo(DEFAULT_TYPE);
         assertThat(testCertificate.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
         assertThat(testCertificate.getFingerprint()).isEqualTo(DEFAULT_FINGERPRINT);
@@ -421,6 +427,7 @@ public class CertificateResourceIT {
             .andExpect(jsonPath("$.[*].tbsDigest").value(hasItem(DEFAULT_TBS_DIGEST)))
             .andExpect(jsonPath("$.[*].subject").value(hasItem(DEFAULT_SUBJECT)))
             .andExpect(jsonPath("$.[*].issuer").value(hasItem(DEFAULT_ISSUER)))
+            .andExpect(jsonPath("$.[*].root").value(hasItem(DEFAULT_ROOT)))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
             .andExpect(jsonPath("$.[*].fingerprint").value(hasItem(DEFAULT_FINGERPRINT)))
@@ -458,6 +465,7 @@ public class CertificateResourceIT {
             .andExpect(jsonPath("$.tbsDigest").value(DEFAULT_TBS_DIGEST))
             .andExpect(jsonPath("$.subject").value(DEFAULT_SUBJECT))
             .andExpect(jsonPath("$.issuer").value(DEFAULT_ISSUER))
+            .andExpect(jsonPath("$.root").value(DEFAULT_ROOT))
             .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))
             .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
             .andExpect(jsonPath("$.fingerprint").value(DEFAULT_FINGERPRINT))
@@ -505,6 +513,7 @@ public class CertificateResourceIT {
             .tbsDigest(UPDATED_TBS_DIGEST)
             .subject(UPDATED_SUBJECT)
             .issuer(UPDATED_ISSUER)
+            .root(UPDATED_ROOT)
             .type(UPDATED_TYPE)
             .description(UPDATED_DESCRIPTION)
             .fingerprint(UPDATED_FINGERPRINT)
@@ -539,6 +548,7 @@ public class CertificateResourceIT {
         assertThat(testCertificate.getTbsDigest()).isEqualTo(UPDATED_TBS_DIGEST);
         assertThat(testCertificate.getSubject()).isEqualTo(UPDATED_SUBJECT);
         assertThat(testCertificate.getIssuer()).isEqualTo(UPDATED_ISSUER);
+        assertThat(testCertificate.getRoot()).isEqualTo(UPDATED_ROOT);
         assertThat(testCertificate.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testCertificate.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
         assertThat(testCertificate.getFingerprint()).isEqualTo(UPDATED_FINGERPRINT);

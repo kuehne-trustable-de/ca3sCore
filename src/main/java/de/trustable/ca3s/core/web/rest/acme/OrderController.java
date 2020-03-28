@@ -410,7 +410,7 @@ public class OrderController extends ACMEController {
 			if(cert != null) {
 				LOG.debug("updating order id {} with new certificate id {}", orderDao.getOrderId(), cert.getId());
 				orderDao.setCertificate(cert);
-				orderDao.setStatus(AcmeOrderStatus.READY);
+				orderDao.setStatus(AcmeOrderStatus.VALID);
 				
 				LOG.debug("adding certificate attribute 'ACME_ACCOUNT_ID' {} for certificate id {}", orderDao.getAccount().getAccountId(), cert.getId());
 				certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ACME_ACCOUNT_ID, orderDao.getAccount().getAccountId());

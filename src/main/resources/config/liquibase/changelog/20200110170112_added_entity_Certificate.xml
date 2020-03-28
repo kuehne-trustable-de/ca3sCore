@@ -25,6 +25,9 @@
             <column name="issuer" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
+            <column name="root" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
             <column name="type" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
@@ -127,6 +130,7 @@
             <column name="tbs_digest" type="string"/>
             <column name="subject" type="string"/>
             <column name="issuer" type="string"/>
+            <column name="root" type="string"/>
             <column name="type" type="string"/>
             <column name="description" type="string"/>
             <column name="fingerprint" type="string"/>

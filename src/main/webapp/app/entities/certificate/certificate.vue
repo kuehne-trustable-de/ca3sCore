@@ -28,6 +28,7 @@
                     <th v-on:click="changeOrder('tbsDigest')"><span v-text="$t('ca3SApp.certificate.tbsDigest')">Tbs Digest</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'tbsDigest'"></jhi-sort-indicator></th>
                     <th v-on:click="changeOrder('subject')"><span v-text="$t('ca3SApp.certificate.subject')">Subject</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'subject'"></jhi-sort-indicator></th>
                     <th v-on:click="changeOrder('issuer')"><span v-text="$t('ca3SApp.certificate.issuer')">Issuer</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'issuer'"></jhi-sort-indicator></th>
+                    <th v-on:click="changeOrder('root')"><span v-text="$t('ca3SApp.certificate.root')">Root</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'root'"></jhi-sort-indicator></th>
                     <th v-on:click="changeOrder('type')"><span v-text="$t('ca3SApp.certificate.type')">Type</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'type'"></jhi-sort-indicator></th>
                     <th v-on:click="changeOrder('description')"><span v-text="$t('ca3SApp.certificate.description')">Description</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'description'"></jhi-sort-indicator></th>
                     <th v-on:click="changeOrder('fingerprint')"><span v-text="$t('ca3SApp.certificate.fingerprint')">Fingerprint</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'fingerprint'"></jhi-sort-indicator></th>
@@ -64,6 +65,7 @@
                     <td>{{certificate.tbsDigest}}</td>
                     <td>{{certificate.subject}}</td>
                     <td>{{certificate.issuer}}</td>
+                    <td>{{certificate.root}}</td>
                     <td>{{certificate.type}}</td>
                     <td>{{certificate.description}}</td>
                     <td>{{certificate.fingerprint}}</td>

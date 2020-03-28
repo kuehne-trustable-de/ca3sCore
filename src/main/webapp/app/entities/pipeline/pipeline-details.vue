@@ -23,10 +23,16 @@
                         <span>{{pipeline.urlPart}}</span>
                     </dd>
                     <dt>
-                        <span v-text="$t('ca3SApp.pipeline.decription')">Decription</span>
+                        <span v-text="$t('ca3SApp.pipeline.description')">Description</span>
                     </dt>
                     <dd>
-                        <span>{{pipeline.decription}}</span>
+                        <span>{{pipeline.description}}</span>
+                    </dd>
+                    <dt>
+                        <span v-text="$t('ca3SApp.pipeline.approvalRequired')">Approval Required</span>
+                    </dt>
+                    <dd>
+                        <span>{{pipeline.approvalRequired}}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.pipeline.caConnector')">Ca Connector</span>
