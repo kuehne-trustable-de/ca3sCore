@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseDataSource;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
@@ -27,6 +28,9 @@ public class LiquibaseConfiguration {
     private final Logger log = LoggerFactory.getLogger(LiquibaseConfiguration.class);
 
     private final Environment env;
+
+	@Value("${liquibase.changeLog:classpath:config/liquibase/master.xml}")
+	private String certificateImportActive;
 
     public LiquibaseConfiguration(Environment env) {
         this.env = env;
