@@ -29,7 +29,7 @@ public class LiquibaseConfiguration {
 
     private final Environment env;
 
-	@Value("${liquibase.changeLog:classpath:config/liquibase/master.xml}")
+	@Value("${spring.liquibase.changeLog:classpath:config/liquibase/master.xml}")
 	private String certificateImportActive;
 
     public LiquibaseConfiguration(Environment env) {
@@ -45,7 +45,9 @@ public class LiquibaseConfiguration {
         // SpringLiquibase liquibase = SpringLiquibaseUtil.createSpringLiquibase(liquibaseDataSource.getIfAvailable(), liquibaseProperties, dataSource.getIfUnique(), dataSourceProperties);
         SpringLiquibase liquibase = SpringLiquibaseUtil.createAsyncSpringLiquibase(this.env, executor, liquibaseDataSource.getIfAvailable(), liquibaseProperties, dataSource.getIfUnique(), dataSourceProperties);
         
-        liquibase.setChangeLog("classpath:config/liquibase/master.xml");
+        log.debug("Using liquibase files from '{}'", certificateImportActive);
+        
+        liquibase.setChangeLog(certificateImportActive);
         
         liquibase.setContexts(liquibaseProperties.getContexts());
         liquibase.setDefaultSchema(liquibaseProperties.getDefaultSchema());

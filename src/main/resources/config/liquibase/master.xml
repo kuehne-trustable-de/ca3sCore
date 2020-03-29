@@ -6,6 +6,7 @@
 
     <property name="now" value="now()" dbms="h2"/>
     <property name="now" value="now()" dbms="mysql"/>
+	<property name="now" value="GETDATE()" dbms="mssql"/>
 
     <property name="floatType" value="float4" dbms="postgresql, h2"/>
     <property name="floatType" value="float" dbms="mysql, oracle, mssql, mariadb"/>
@@ -61,7 +62,7 @@
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     
     <include file="config/liquibase/changelog/20200120140000_added_indices.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/setupCamundaTables.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200101000000_added_entitities_camunda.xml" relativeToChangelogFile="false"/>
     
             
 </databaseChangeLog>
