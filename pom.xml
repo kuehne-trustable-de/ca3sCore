@@ -754,9 +754,8 @@
 						<transformationSet>
 							<dir>./src/main/resources/config/liquibase</dir>
 							<stylesheet>./src/main/resources/stylesheet/adaptMasterLBForMSSQL.xsl</stylesheet>
-							<outputDir>${project.build.directory}/generated-package/src/main/resources/config/liquibase-mssql</outputDir>
+							<outputDir>${project.build.directory}/classes/config/liquibase-mssql</outputDir>
 							<includes>*.xml</includes>
-							
 							<parameters>
 								<parameter>
 									<name>MssqlLiquibaseTarget</name>
@@ -767,7 +766,7 @@
 						<transformationSet>
 							<dir>./src/main/resources/config/liquibase/changelog</dir>
 							<stylesheet>./src/main/resources/stylesheet/adaptChangelogLBForMSSQL.xsl</stylesheet>
-							<outputDir>${project.build.directory}/generated-package/src/main/resources/config/liquibase-mssql/changelog</outputDir>
+							<outputDir>${project.build.directory}/classes/config/liquibase-mssql/changelog</outputDir>
 							<includes>00000000000000_initial_schema.xml</includes>
 							<parameters>
 								<parameter>
@@ -783,7 +782,7 @@
 						<transformationSet>
 							<dir>./src/main/resources/config/liquibase/changelog</dir>
 							<stylesheet>./src/main/resources/stylesheet/adaptChangelogLBForMSSQL.xsl</stylesheet>
-							<outputDir>${project.build.directory}/generated-package/src/main/resources/config/liquibase-mssql/changelog</outputDir>
+							<outputDir>${project.build.directory}/classes/config/liquibase-mssql/changelog</outputDir>
 							<includes>*_added_*.xml</includes>
 							
 							<parameters>
@@ -793,21 +792,6 @@
 								</parameter>
 							</parameters>
 						</transformationSet>
-						
-						<!--  transformationSet>
-							<dir>.</dir>
-							<stylesheet>./src/main/resources/stylesheet/adaptPOM.xsl</stylesheet>
-							<outputDir>${project.build.directory}/generated-package/</outputDir>
-							<includes>pom.xml</includes>
-							
-							<parameters>
-								<parameter>
-									<name>MssqlLiquibaseTarget</name>
-									<value>http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd</value>
-								</parameter>
-							</parameters>
-						</transformationSet-->
-						
 					</transformationSets>
 				</configuration>
 				<dependencies>
@@ -1086,13 +1070,6 @@
                                         <includes>
                                             <include>config/*.yml</include>
                                         </includes>
-                                    </resource>
-                                    <resource>
-                                        <directory>${project.build.directory}/generated-package/src/main/resources/</directory>
-                                        <!-- filtering>true</filtering>
-                                        <includes>
-                                            <include>config//*.xml</include>
-                                        </includes-->
                                     </resource>
                                     <resource>
                                         <directory>src/main/resources/</directory>

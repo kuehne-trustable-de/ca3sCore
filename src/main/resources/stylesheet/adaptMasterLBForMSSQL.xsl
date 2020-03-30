@@ -17,6 +17,17 @@
 		<xsl:attribute name="file" select="concat($MssqlLiquibasePathPrefix, $path_part)"/>
 	</xsl:template>
 
+	<!--  ensure a definition of 'now' is present for mssql -->
+	<xsl:template match="dbcl:property[@dbms='mysql']">
+		<xsl:copy>
+			<xsl:apply-templates select="@* | node()" />
+		</xsl:copy>
+		<dbcl:property name="now" value="GETDATE()" dbms="mssql"/>	
+	</xsl:template>
+
+	<xsl:template match="dbcl:property[@dbms='mssql']"/>
+
+
 	<xsl:template match="@* | node()">
 		<xsl:copy>
 			<xsl:apply-templates select="@* | node()" />
