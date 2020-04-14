@@ -3,7 +3,7 @@ import { Component, Inject } from 'vue-property-decorator';
 import { mixins } from 'vue-class-component';
 import JhiDataUtils from '@/shared/data/data-utils.service';
 
-import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
+import { numeric, required, minLength, maxLength, minValue, maxValue } from 'vuelidate/lib/validators';
 import format from 'date-fns/format';
 import parse from 'date-fns/parse';
 import parseISO from 'date-fns/parseISO';
@@ -33,18 +33,34 @@ const validations: any = {
     csrBase64: {
       required
     },
+    subject: {
+      required
+    },
     requestedOn: {
+      required
+    },
+    requestedBy: {
+      required
+    },
+    pipelineType: {
       required
     },
     status: {
       required
     },
+    administeredBy: {},
+    approvedOn: {},
+    rejectedOn: {},
+    rejectionReason: {},
     processInstanceId: {},
     signingAlgorithm: {},
     isCSRValid: {},
     x509KeySpec: {},
     publicKeyAlgorithm: {},
+    keyAlgorithm: {},
+    keyLength: {},
     publicKeyHash: {},
+    serversideKeyGeneration: {},
     subjectPublicKeyInfoBase64: {
       required
     }
@@ -140,6 +156,8 @@ export default class CSRUpdate extends mixins(JhiDataUtils) {
       .find(cSRId)
       .then(res => {
         res.requestedOn = new Date(res.requestedOn);
+        res.approvedOn = new Date(res.approvedOn);
+        res.rejectedOn = new Date(res.rejectedOn);
         this.cSR = res;
       });
   }

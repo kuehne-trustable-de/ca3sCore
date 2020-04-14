@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.web.servlet;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -16,12 +17,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import de.trustable.ca3s.core.domain.Pipeline;
+import de.trustable.ca3s.core.domain.enumeration.PipelineType;
+import de.trustable.ca3s.core.repository.PipelineRepository;
+
 @Transactional
 @RestController
 public class Ca3sSCEPServiceResource {
 
 	@Autowired
 	private ScepServletImpl scepServlet;
+
+	@Autowired
+	PipelineRepository pipeRepo;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Ca3sSCEPServiceResource.class);
 
@@ -35,8 +43,22 @@ public class Ca3sSCEPServiceResource {
 
 		long startTime = System.currentTimeMillis();
 
-		scepServlet.service(request, response);
-
+		List<Pipeline> pipelineList = pipeRepo.findByTypeUrl(PipelineType.SCEP, realm);
+		if( pipelineList.isEmpty() ) {
+			LOGGER.info("no matching pipeline for scep request realm {}", realm);
+			throw new ServletException("Request URL not found");
+		}
+		
+		// transfer additional information thru the given servlet implementation into the callbacks 
+		scepServlet.requestPipeline.set(pipelineList.get(0));
+		
+		try {
+			scepServlet.service(request, response);
+		}finally {
+			// make absolutely sure that the pipeline is dis-connected from the current thread an may not be used in subsequent calls! 
+			scepServlet.requestPipeline.remove();
+		}
+		
 		LOGGER.info("duration of scep processing " + (System.currentTimeMillis() - startTime));
 
 	}

@@ -1,19 +1,21 @@
 {
   "home": {
-    "title": "Welcome, Java Hipster!",
-    "subtitle": "This is your homepage",
+    "title": "ca3s Web Interface",
+    "subtitle": "User Interface",
     "logged": {
-      "message": "You are logged in as user \"{{username}}\"."
+      "message": "\"{{username}}\", you are logged in as \"{{roles}}\"."
     },
-    "question": "If you have any question on JHipster:",
+    "dashboard": {
+      "expiringCertificatesByDate": "expiring certs (by date)",
+      "activeCertificatesByKeyAlgo": "certs by key algo",
+      "activeCertificatesByKeyLength": "certs by key length",
+      "activeCertificatesByHashAlgo": "certs by hash algo"
+    },
     "link": {
       "homepage": "JHipster homepage",
       "stackoverflow": "JHipster on Stack Overflow",
-      "bugtracker": "JHipster bug tracker",
-      "chat": "JHipster public chat room",
-      "follow": "follow @jhipster on Twitter"
+      "bugtracker": "JHipster bug tracker"
     },
-    "like": "If you like JHipster, don't forget to give us a star on",
     "github": "GitHub"
   }
 }

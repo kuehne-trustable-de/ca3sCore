@@ -2,14 +2,13 @@ import Component from 'vue-class-component';
 import { Inject, Vue } from 'vue-property-decorator';
 import LoginService from '@/account/login.service';
 
-import { ICertificateFilter, ISelector, ICertificateSelectionData, ICertificateView } from '@/shared/model/transfer-object.model';
+import { ICertificateFilter, ICertificateFilterList, ISelector, ICertificateSelectionData, ICertificateView } from '@/shared/model/transfer-object.model';
 
-import { colFieldToStr, formatUtcDate, makeQueryStringFromObj } from '@/shared/utils';
+import { colFieldToStr, makeQueryStringFromObj } from '@/shared/utils';
 
-import { VuejsDatatableFactory, TColumnsDefinition, ITableContentParam, IDataFnParams } from 'vuejs-datatable';
+import { VuejsDatatableFactory, TColumnsDefinition, ITableContentParam } from 'vuejs-datatable';
 
 import axios from 'axios';
-import { initFilters } from '@/shared/date/filters';
 
 // import VueAxios from 'vue-axios'
 // Vue.use(VueAxios, axios)
@@ -51,6 +50,7 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>(
     // Alias our process steps, because the source, here, is our API url, and paged is the complete query string
     .setDisplayHandler(
       async ( { source: baseEndPoint, paged: endpointDesc } ) => {
+
         const delimit = baseEndPoint.includes('?') ? '&' : '?';
         const url = `${ baseEndPoint}${delimit}${ makeQueryStringFromObj( endpointDesc ) }`;
 
@@ -105,14 +105,15 @@ export default class CertList extends Vue {
   ];
 
   public defaultFilter: ICertificateFilter = {attributeName: 'subject', attributeValue: 'trust', selector: 'LIKE'};
-  public filters: ICertificateFilter[] = [this.defaultFilter];
+  public filters: ICertificateFilterList = {filterList: [this.defaultFilter]};
+  public lastFilters: string = JSON.stringify({filterList: [this.defaultFilter]});
 
   public addSelector() {
     const newFilter = {...this.defaultFilter};
-    this.filters.push(newFilter);
+    this.filters.filterList.push(newFilter);
   }
   public removeSelector(index: number) {
-    this.filters.splice(index, 1);
+    this.filters.filterList.splice(index, 1);
   }
 
   public getInputType(itemName: string): string {
@@ -231,11 +232,11 @@ representedAs: row => `${(row.serial.length > 12) ? row.serial.substring(0, 6).c
 //      certApiUrl: 'publicapi/certificateList',
 
       get certApiUrl() {
-        const filterLen = self.filters.length;
+        const filterLen = self.filters.filterList.length;
 
         const params = {};
         for ( let i = 0; i < filterLen; i++) {
-          const filter = self.filters[i];
+          const filter = self.filters.filterList[i];
           const idx = i + 1;
           params['attributeName_' + idx] = filter.attributeName;
           params['attributeValue_' + idx] = filter.attributeValue;
@@ -250,5 +251,52 @@ representedAs: row => `${(row.serial.length > 12) ? row.serial.substring(0, 6).c
 
     };
   }
+
+  public mounted(): void {
+    this.getUsersFilterList();
+    setInterval(() => this.putUsersFilterList(this), 3000);
+  }
+
+  public getUsersFilterList(): void {
+    window.console.info('calling getUsersFilterList ');
+    const self = this;
+
+    axios({
+      method: 'get',
+      url: 'api/userProperties/filterList/CertList',
+      responseType: 'stream'
+    })
+    .then(function(response) {
+//      window.console.debug('getUsersFilterList returns ' + response.data );
+      if (response.status === 200) {
+        self.filters.filterList = response.data.filterList;
+//        window.console.debug('getUsersFilterList sets filters to ' + JSON.stringify(self.filters));
+        self.lastFilters = JSON.stringify(self.filters);
+      }
+    });
+  }
+
+  public putUsersFilterList(self): void {
+    window.console.debug('calling putUsersFilterList ');
+    const lastFiltersValue = JSON.stringify(self.filters);
+    if ( self.lastFilters === lastFiltersValue ) {
+//      window.console.debug('putUsersFilterList: no change ...');
+    } else {
+      window.console.debug('putUsersFilterList: change detected ...');
+      axios({
+        method: 'put',
+        url: 'api/userProperties/filterList/CertList',
+        data: self.filters,
+        responseType: 'stream'
+      })
+      .then(function(response) {
+//        window.console.debug('putUsersFilterList returns ' + response.status);
+        if (response.status === 204) {
+          self.lastFilters = lastFiltersValue;
+        }
+      });
+    }
+  }
+
 
 }

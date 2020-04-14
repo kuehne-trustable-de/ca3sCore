@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.Pipeline;
 
 @Immutable
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -34,6 +35,13 @@ public class PkcsXXData {
 
 	@JsonProperty("passphraseRequired")
 	private boolean passphraseRequired = false;
+
+	@JsonProperty("csrPending")
+	private boolean csrPending = false;
+
+	@JsonProperty("createdCSRId")
+	private String createdCSRId;
+
 	
 	public PkcsXXData() {
 	}
@@ -120,5 +128,20 @@ public class PkcsXXData {
 		this.createdCertificateId = createdCertificateId;
 	}
 
-	
+	public boolean isCsrPending() {
+		return csrPending;
+	}
+
+	public void setCsrPending(boolean csrPending) {
+		this.csrPending = csrPending;
+	}
+
+	public String getCreatedCSRId() {
+		return createdCSRId;
+	}
+
+	public void setCreatedCSRId(String createdCSRId) {
+		this.createdCSRId = createdCSRId;
+	}
+
 }

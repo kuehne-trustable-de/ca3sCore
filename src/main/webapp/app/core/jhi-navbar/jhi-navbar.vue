@@ -8,7 +8,7 @@
                 <span v-text="$t('global.title')" class="navbar-title">ca3s</span> <span class="navbar-version">{{version}}</span>
             </b-navbar-brand>
              <b-navbar-brand class="logo float-left" b-link to="/" v-if="authenticated">
-                <span v-if="username" v-text="$t('home.logged.message', { 'username': username})" class="navbar-version">You are logged in as user "{{username}}"</span> 
+                <span v-if="username" v-text="$t('home.logged.message', { 'username': username, 'roles': roles})" class="navbar-version">"{{username}}", You are logged in as "{{roles}}"</span> 
             </b-navbar-brand>
         </div>
         
@@ -31,7 +31,7 @@
                 
                 <b-nav-item v-if="authenticated" to="/pkcsxx" exact>
                     <span>
-                        <font-awesome-icon icon="upload" />
+                        <font-awesome-icon icon="cart-plus" />
                         <span v-text="$t('global.menu.request')">Request</span>
                     </span>
                 </b-nav-item>
@@ -40,6 +40,13 @@
                     <span>
                         <font-awesome-icon icon="id-card" />
                         <span v-text="$t('global.menu.certificates')">Certificates</span>
+                    </span>
+                </b-nav-item>
+                
+                <b-nav-item v-if="authenticated" to="/csr-list" exact>
+                    <span>
+                        <font-awesome-icon icon="gavel" />
+                        <span v-text="$t('global.menu.requests')">Requests</span>
                     </span>
                 </b-nav-item>
                 
@@ -91,10 +98,10 @@
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.pipeline')">Pipeline</span>
                     </b-dropdown-item>
-                    <b-dropdown-item to="/pipeline-attribute">
+                    <!-- b-dropdown-item to="/pipeline-attribute">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.pipelineAttribute')">PipelineAttribute</span>
-                    </b-dropdown-item>
+                    </b-dropdown-item -->
                     <b-dropdown-item to="/acme-account">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.acmeAccount')">ACMEAccount</span>
@@ -103,7 +110,7 @@
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.acmeContact')">AcmeContact</span>
                     </b-dropdown-item>
-                    <b-dropdown-item to="/acme-order">
+                    <!-- b-dropdown-item to="/acme-order">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.acmeOrder')">AcmeOrder</span>
                     </b-dropdown-item>
@@ -130,7 +137,7 @@
                     <b-dropdown-item to="/acme-nonce">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.acmeNonce')">AcmeNonce</span>
-                    </b-dropdown-item>
+                    </b-dropdown-item-->
                     <b-dropdown-item to="/bpnm-process-info">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.bpnmProcessInfo')">BPNMProcessInfo</span>
@@ -138,6 +145,10 @@
                     <b-dropdown-item to="/request-proxy-config">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.requestProxyConfig')">RequestProxyConfig</span>
+                    </b-dropdown-item>
+                    <b-dropdown-item to="/user-preference">
+                        <font-awesome-icon icon="asterisk" />
+                        <span v-text="$t('global.menu.entities.userPreference')">UserPreference</span>
                     </b-dropdown-item>
                     <!-- jhipster-needle-add-entity-to-menu - JHipster will add entities to the menu here -->
                 </b-nav-item-dropdown>

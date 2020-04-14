@@ -19,7 +19,7 @@
             <column name="name" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
-            <column name="value" type="varchar(255)">
+            <column name="value" type="${clobType}">
                 <constraints nullable="true" />
             </column>
             <column name="certificate_id" type="bigint">
@@ -49,7 +49,7 @@
                   tableName="certificate_attribute">
             <column name="id" type="numeric"/>
             <column name="name" type="string"/>
-            <column name="value" type="string"/>
+            <column name="value" type="clob"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
         </loadData>
     </changeSet>

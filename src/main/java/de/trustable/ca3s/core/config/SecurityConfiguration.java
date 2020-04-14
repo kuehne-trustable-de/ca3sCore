@@ -86,6 +86,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers("/ca3sScep/**").permitAll()
             .antMatchers("/publicapi/**").permitAll()
             .antMatchers("/api/**").authenticated()
+            .antMatchers("/api/administerRequest").hasAuthority(AuthoritiesConstants.RA_OFFICER)
             .antMatchers("/websocket/tracker").hasAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/websocket/**").permitAll()
             .antMatchers("/management/health").permitAll()

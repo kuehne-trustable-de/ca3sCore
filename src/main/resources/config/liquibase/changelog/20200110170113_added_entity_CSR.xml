@@ -19,11 +19,32 @@
             <column name="csr_base_64" type="${clobType}">
                 <constraints nullable="false" />
             </column>
+            <column name="subject" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
             <column name="requested_on" type="datetime">
+                <constraints nullable="false" />
+            </column>
+            <column name="requested_by" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="pipeline_type" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
             <column name="status" type="varchar(255)">
                 <constraints nullable="false" />
+            </column>
+            <column name="administered_by" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="approved_on" type="datetime">
+                <constraints nullable="true" />
+            </column>
+            <column name="rejected_on" type="datetime">
+                <constraints nullable="true" />
+            </column>
+            <column name="rejection_reason" type="varchar(255)">
+                <constraints nullable="true" />
             </column>
             <column name="process_instance_id" type="varchar(255)">
                 <constraints nullable="true" />
@@ -40,7 +61,16 @@
             <column name="public_key_algorithm" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+            <column name="key_algorithm" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="key_length" type="integer">
+                <constraints nullable="true" />
+            </column>
             <column name="public_key_hash" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="serverside_key_generation" type="boolean">
                 <constraints nullable="true" />
             </column>
             <column name="subject_public_key_info_base_64" type="${clobType}">
@@ -52,6 +82,8 @@
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
         <dropDefaultValue tableName="csr" columnName="requested_on" columnDataType="datetime"/>
+        <dropDefaultValue tableName="csr" columnName="approved_on" columnDataType="datetime"/>
+        <dropDefaultValue tableName="csr" columnName="rejected_on" columnDataType="datetime"/>
     </changeSet>
 
     <changeSet id="20200110170113-1-relations" author="jhipster">
@@ -74,14 +106,24 @@
                   tableName="csr">
             <column name="id" type="numeric"/>
             <column name="csr_base_64" type="clob"/>
+            <column name="subject" type="string"/>
             <column name="requested_on" type="datetime"/>
+            <column name="requested_by" type="string"/>
+            <column name="pipeline_type" type="string"/>
             <column name="status" type="string"/>
+            <column name="administered_by" type="string"/>
+            <column name="approved_on" type="datetime"/>
+            <column name="rejected_on" type="datetime"/>
+            <column name="rejection_reason" type="string"/>
             <column name="process_instance_id" type="string"/>
             <column name="signing_algorithm" type="string"/>
             <column name="is_csr_valid" type="boolean"/>
             <column name="x_509_key_spec" type="string"/>
             <column name="public_key_algorithm" type="string"/>
+            <column name="key_algorithm" type="string"/>
+            <column name="key_length" type="numeric"/>
             <column name="public_key_hash" type="string"/>
+            <column name="serverside_key_generation" type="boolean"/>
             <column name="subject_public_key_info_base_64" type="clob"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
         </loadData>

@@ -10,8 +10,30 @@
             ]
         },
         {
+            "fieldName": "subject",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
             "fieldName": "requestedOn",
             "fieldType": "Instant",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "requestedBy",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "pipelineType",
+            "fieldType": "PipelineType",
+            "fieldValues": "ACME,SCEP,WEB,INTERNAL",
             "fieldValidateRules": [
                 "required"
             ]
@@ -23,6 +45,22 @@
             "fieldValidateRules": [
                 "required"
             ]
+        },
+        {
+            "fieldName": "administeredBy",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "approvedOn",
+            "fieldType": "Instant"
+        },
+        {
+            "fieldName": "rejectedOn",
+            "fieldType": "Instant"
+        },
+        {
+            "fieldName": "rejectionReason",
+            "fieldType": "String"
         },
         {
             "fieldName": "processInstanceId",
@@ -45,8 +83,20 @@
             "fieldType": "String"
         },
         {
+            "fieldName": "keyAlgorithm",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "keyLength",
+            "fieldType": "Integer"
+        },
+        {
             "fieldName": "publicKeyHash",
             "fieldType": "String"
+        },
+        {
+            "fieldName": "serversideKeyGeneration",
+            "fieldType": "Boolean"
         },
         {
             "fieldName": "subjectPublicKeyInfoBase64",

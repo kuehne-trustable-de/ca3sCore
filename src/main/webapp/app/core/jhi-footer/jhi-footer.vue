@@ -1,7 +1,7 @@
 <template>
-    <div id="footer" class="footer">
+    <!--div id="footer" class="footer">
         <p v-text="$t('footer')">brought to you by trustable solutions</p>
-    </div>
+    </div-->
 </template>
 
 <script lang="ts" src="./jhi-footer.component.ts">

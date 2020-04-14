@@ -59,6 +59,8 @@ import org.jose4j.jwt.consumer.JwtContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.audit.listener.AuditApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -86,6 +88,7 @@ import de.trustable.ca3s.core.service.dto.acme.OrderResponse;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.ACMEUtil;
+import de.trustable.ca3s.core.service.util.AuditUtil;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
@@ -125,6 +128,10 @@ public class OrderController extends ACMEController {
 
     @Autowired
     private CSRUtil csrUtil;
+
+	@Autowired
+	private ApplicationEventPublisher applicationEventPublisher;
+	
 
     @RequestMapping(value = "/{orderId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
     public ResponseEntity<?> postAsGetOrder(@RequestBody final String requestBody,
@@ -253,6 +260,8 @@ public class OrderController extends ACMEController {
 					LOG.debug("pending order {} expired on ", orderDao.getOrderId(), orderDao.getExpires().toString());
   			  	  	orderDao.setStatus(AcmeOrderStatus.INVALID);
 				} else {
+
+					boolean orderReady = true;
 					
 					for(String san: snSet) {
 						boolean bSanFound = false;
@@ -265,42 +274,46 @@ public class OrderController extends ACMEController {
 						}
 						if(!bSanFound) {
 							LOG.info("failed to find requested hostname '{}' (from CSR) in authorization", san);
+		  			  	  	orderReady = false;
+		  			  	  	break;
 						}
 					}
 					
-					/*
-					 * check all authorizations having at least one successfully validated challenge
-					 */
-					boolean orderReady = true;
-					
-					for (AcmeAuthorization authDao : orderDao.getAcmeAuthorizations()) {
-
-						boolean authReady = false;
-						for (AcmeChallenge challDao : authDao.getChallenges()) {
-							if (challDao.getStatus() == ChallengeStatus.VALID) {
-								LOG.debug("challenge {} of type {} is valid ", challDao.getChallengeId(), challDao.getType());
-								authReady = true;
+					if (orderReady) {
+						/*
+						 * check all authorizations having at least one successfully validated challenge
+						 */
+						for (AcmeAuthorization authDao : orderDao.getAcmeAuthorizations()) {
+	
+							boolean authReady = false;
+							for (AcmeChallenge challDao : authDao.getChallenges()) {
+								if (challDao.getStatus() == ChallengeStatus.VALID) {
+									LOG.debug("challenge {} of type {} is valid ", challDao.getChallengeId(), challDao.getType());
+									authReady = true;
+									break;
+								}
+							}
+							if (authReady) {
+								LOG.debug("found valid challenge, authorization id {} is valid ", authDao.getAcmeAuthorizationId());
+							} else {
+								LOG.debug("no valid challange, authorization id {} and order {} fails ",
+										authDao.getAcmeAuthorizationId(), orderDao.getOrderId());
+								orderReady = false;
 								break;
 							}
 						}
-						if (authReady) {
-							LOG.debug("found valid challenge, authorization id {} is valid ", authDao.getAcmeAuthorizationId());
-						} else {
-							LOG.debug("no valid challange, authorization id {} and order {} fails ",
-									authDao.getAcmeAuthorizationId(), orderDao.getOrderId());
-							orderReady = false;
-							break;
-						}
 					}
-
+					
 					if (orderReady) {
 						LOG.debug("order status {} changes to ready for order {}", orderDao.getStatus(), orderDao.getOrderId());
 						orderDao.setStatus(AcmeOrderStatus.READY);
 						
 					  	LOG.debug("order {} status 'ready', producing certificate", orderDao.getOrderId());
-				  	  	startCertificateCreationProcess(orderDao, pipeline, CryptoUtil.pkcs10RequestToPem( p10Holder.getP10Req()));
+				  	  	startCertificateCreationProcess(orderDao, pipeline, "ACME_ACCOUNT_" + acctDao.getAccountId(), CryptoUtil.pkcs10RequestToPem( p10Holder.getP10Req()));
 
 						orderRepository.save(orderDao);
+					}else {
+	  			  	  	orderDao.setStatus(AcmeOrderStatus.INVALID);
 					}
 
 
@@ -386,10 +399,11 @@ public class OrderController extends ACMEController {
      * 
      * @param orderDao
      * @param pipeline 
+     * @param string 
      * @return
      * @throws IOException
      */
-	private Certificate startCertificateCreationProcess(AcmeOrder orderDao, Pipeline pipeline, final String csrAsPem)  {
+	private Certificate startCertificateCreationProcess(AcmeOrder orderDao, Pipeline pipeline, final String requestor, final String csrAsPem)  {
 		
 		orderDao.setStatus(AcmeOrderStatus.PROCESSING);
 		
@@ -397,16 +411,21 @@ public class OrderController extends ACMEController {
 		try {
 			Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(csrAsPem);
 
-			CSR csr = csrUtil.buildCSR(csrAsPem, p10ReqHolder);
+			CSR csr = csrUtil.buildCSR(csrAsPem, requestor, p10ReqHolder, pipeline);
 			
 			csrRepository.save(csr);
+
+			applicationEventPublisher.publishEvent(
+			        new AuditApplicationEvent(
+			        		orderDao.getAccount().getAccountId().toString(), AuditUtil.AUDIT_ACME_CERTIFICATE_REQUESTED, "certificate requested, csr " + csr.getId() + " created"));
+
 
 			LOG.debug("csr contains #{} CsrAttributes, #{} RequestAttributes and #{} RDN", csr.getCsrAttributes().size(), csr.getRas().size(), csr.getRdns().size());
 			for(de.trustable.ca3s.core.domain.RDN rdn:csr.getRdns()) {
 				LOG.debug("RDN contains #{}", rdn.getRdnAttributes().size());
 			}
 			
-			Certificate cert = bpmnUtil.startCertificateCreationProcess(csr, pipeline);
+			Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
 			if(cert != null) {
 				LOG.debug("updating order id {} with new certificate id {}", orderDao.getOrderId(), cert.getId());
 				orderDao.setCertificate(cert);
@@ -418,6 +437,10 @@ public class OrderController extends ACMEController {
 				
 				certificateRepository.save(cert);
 				
+				applicationEventPublisher.publishEvent(
+				        new AuditApplicationEvent(
+				        		orderDao.getAccount().getAccountId().toString(), AuditUtil.AUDIT_ACME_CERTIFICATE_CREATED, "certificate " +cert.getId()+ " created"));
+
 				return cert;
 				
 			} else {

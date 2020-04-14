@@ -1,4 +1,5 @@
 package de.trustable.ca3s.core.domain;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
@@ -23,6 +24,7 @@ public class CertificateAttribute implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Lob
     @Column(name = "value")
     private String value;
 
@@ -103,7 +105,8 @@ public class CertificateAttribute implements Serializable {
             ", value='" + getValue() + "'" +
             "}";
     }
-    
+
+
 	public static final String ATTRIBUTE_ACME_ACCOUNT_ID = "ACME:ACCOUNT_ID";
 	public static final String ATTRIBUTE_ACME_ORDER_ID = "ACME:ORDER_ID";
 	public static final String ATTRIBUTE_SCEP_RECIPIENT = "CA3S:SCEP_RECIPIENT";
@@ -147,4 +150,5 @@ public class CertificateAttribute implements Serializable {
 	public static final String ATTRIBUTE_FILE_SOURCE = "FILE_SOURCE";
 
 	public static final String ATTRIBUTE_UPLOADED_BY = "UPLOADED_BY";
+
 }

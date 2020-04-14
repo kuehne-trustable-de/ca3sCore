@@ -32,15 +32,18 @@ import org.jscep.util.CertificationRequestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
+import org.springframework.boot.actuate.audit.listener.AuditApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Controller;
 
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.domain.CsrAttribute;
+import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
+import de.trustable.ca3s.core.service.util.AuditUtil;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
@@ -80,14 +83,16 @@ public class ScepServletImpl extends ScepServlet {
 	private BPMNUtil bpmnUtil;
 	
     @Autowired
-    CryptoUtil cryptoUtil;
+    private CryptoUtil cryptoUtil;
 
     @Autowired
-    CertificateUtil certUtil;
-
-    @Autowired
-	ApplicationContext context;
+    private CertificateUtil certUtil;
     
+	@Autowired
+	private ApplicationEventPublisher applicationEventPublisher;
+
+	public ThreadLocal<Pipeline> requestPipeline = new ThreadLocal<>();
+
     @Override
     public void init() throws ServletException {   	
     }
@@ -142,7 +147,7 @@ public class ScepServletImpl extends ScepServlet {
 
 				certRepository.save(currentRecepientCert);
 
-			} catch (GeneralSecurityException | IOException e) {
+			} catch (OperationFailureException | GeneralSecurityException | IOException e) {
 				throw new ServletException(e);
 			}
 
@@ -151,19 +156,33 @@ public class ScepServletImpl extends ScepServlet {
 		return currentRecepientCert;
     }
 
-	private Certificate startCertificateCreationProcess(final String csrAsPem, TransactionId transId )  {
+	private Certificate startCertificateCreationProcess(final String csrAsPem, TransactionId transId) throws OperationFailureException  {
 		
+        Pipeline pipeline = requestPipeline.get();
+        if( pipeline == null ) {
+            LOGGER.warn("doEnrol: no processing pipeline defined");
+			throw new OperationFailureException(FailInfo.badRequest);
+        }
+
+        LOGGER.debug("doEnrol: processing request using pipeline {}", pipeline.getName());
+
+
 		// BPNM call
 		try {
 			Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(csrAsPem);
 
-			CSR csr = csrUtil.buildCSR(csrAsPem, p10ReqHolder);
+			CSR csr = csrUtil.buildCSR(csrAsPem, CsrAttribute.REQUESTOR_SCEP, p10ReqHolder, pipeline);
 
 			CsrAttribute csrAttributeTransId = new CsrAttribute();
 			csrAttributeTransId.setName(CertificateAttribute.ATTRIBUTE_SCEP_TRANS_ID);
 			csrAttributeTransId.setValue(transId.toString());
 			csr.addCsrAttributes(csrAttributeTransId);
 			csrRepository.save(csr);
+
+			applicationEventPublisher.publishEvent(
+			        new AuditApplicationEvent(
+			        		"SCEP", AuditUtil.AUDIT_SCEP_CERTIFICATE_REQUESTED, 
+			        		"scep certificate request in transaction " + transId + " , csr " + csr.getId() + " created"));
 
 			LOGGER.debug("csr contains #{} CsrAttributes, #{} RequestAttributes and #{} RDN", csr.getCsrAttributes().size(), csr.getRas().size(), csr.getRdns().size());
 			for(de.trustable.ca3s.core.domain.RDN rdn:csr.getRdns()) {
@@ -177,7 +196,13 @@ public class ScepServletImpl extends ScepServlet {
 				certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SCEP_TRANS_ID, transId.toString());
 				
 				certRepository.save(cert);
-				
+
+				applicationEventPublisher.publishEvent(
+				        new AuditApplicationEvent(
+				        		"SCEP", AuditUtil.AUDIT_SCEP_CERTIFICATE_CREATED, 
+				        		"scep certificate "+ cert.getId() +" created for transaction " + transId ));
+
+
 				return cert;
 				
 			} else {
@@ -202,6 +227,7 @@ public class ScepServletImpl extends ScepServlet {
             TransactionId transId) throws OperationFailureException {
     	
         LOGGER.debug("doEnrol(" + csr.toString() + ", " + transId.toString() +")");
+        
         try {
         	
             X500Name subject = X500Name.getInstance(csr.getSubject());

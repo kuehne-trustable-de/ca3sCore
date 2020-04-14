@@ -145,3 +145,5 @@ Desktop.ini
 # ESLint
 ######################
 .eslintcache
+/application-prod.yml.mssql
+/application-prod.yml.dumpsql

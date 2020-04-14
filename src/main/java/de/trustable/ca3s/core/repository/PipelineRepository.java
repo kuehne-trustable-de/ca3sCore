@@ -22,4 +22,7 @@ public interface PipelineRepository extends JpaRepository<Pipeline, Long> {
 	  List<Pipeline> findByTypeUrl(@Param("type") PipelineType type, 
 		      @Param("urlPart") String urlPart);
 
+	  @Query(name = "Pipeline.findByType")
+	  List<Pipeline> findByType(@Param("type") PipelineType type);
+
 }

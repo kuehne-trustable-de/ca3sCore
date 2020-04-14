@@ -5,12 +5,15 @@ import Vue2Filters from 'vue2-filters';
 import { ICertificateAttribute } from '@/shared/model/certificate-attribute.model';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
+import JhiDataUtils from '@/shared/data/data-utils.service';
+
 import CertificateAttributeService from './certificate-attribute.service';
 
 @Component
-export default class CertificateAttribute extends mixins(Vue2Filters.mixin, AlertMixin) {
+export default class CertificateAttribute extends mixins(JhiDataUtils, Vue2Filters.mixin, AlertMixin) {
   @Inject('certificateAttributeService') private certificateAttributeService: () => CertificateAttributeService;
   private removeId: number = null;
+
   public certificateAttributes: ICertificateAttribute[] = [];
 
   public isFetching = false;
@@ -41,6 +44,9 @@ export default class CertificateAttribute extends mixins(Vue2Filters.mixin, Aler
 
   public prepareRemove(instance: ICertificateAttribute): void {
     this.removeId = instance.id;
+    if (<any>this.$refs.removeEntity) {
+      (<any>this.$refs.removeEntity).show();
+    }
   }
 
   public removeCertificateAttribute(): void {
@@ -50,7 +56,6 @@ export default class CertificateAttribute extends mixins(Vue2Filters.mixin, Aler
         const message = this.$t('ca3SApp.certificateAttribute.deleted', { param: this.removeId });
         this.alertService().showAlert(message, 'danger');
         this.getAlertFromStore();
-
         this.removeId = null;
         this.retrieveAllCertificateAttributes();
         this.closeDialog();

@@ -6,42 +6,67 @@ const baseApiUrl = 'api/csrs';
 
 export default class CSRService {
   public find(id: number): Promise<ICSR> {
-    return new Promise<ICSR>(resolve => {
-      axios.get(`${baseApiUrl}/${id}`).then(function(res) {
-        resolve(res.data);
-      });
+    return new Promise<ICSR>((resolve, reject) => {
+      axios
+        .get(`${baseApiUrl}/${id}`)
+        .then(function(res) {
+          resolve(res.data);
+        })
+        .catch(err => {
+          reject(err);
+        });
     });
   }
 
   public retrieve(): Promise<any> {
-    return new Promise<any>(resolve => {
-      axios.get(baseApiUrl).then(function(res) {
-        resolve(res);
-      });
+    return new Promise<any>((resolve, reject) => {
+      axios
+        .get(baseApiUrl)
+        .then(function(res) {
+          resolve(res);
+        })
+        .catch(err => {
+          reject(err);
+        });
     });
   }
 
   public delete(id: number): Promise<any> {
-    return new Promise<any>(resolve => {
-      axios.delete(`${baseApiUrl}/${id}`).then(function(res) {
-        resolve(res);
-      });
+    return new Promise<any>((resolve, reject) => {
+      axios
+        .delete(`${baseApiUrl}/${id}`)
+        .then(function(res) {
+          resolve(res);
+        })
+        .catch(err => {
+          reject(err);
+        });
     });
   }
 
   public create(entity: ICSR): Promise<ICSR> {
-    return new Promise<ICSR>(resolve => {
-      axios.post(`${baseApiUrl}`, entity).then(function(res) {
-        resolve(res.data);
-      });
+    return new Promise<ICSR>((resolve, reject) => {
+      axios
+        .post(`${baseApiUrl}`, entity)
+        .then(function(res) {
+          resolve(res.data);
+        })
+        .catch(err => {
+          reject(err);
+        });
     });
   }
 
   public update(entity: ICSR): Promise<ICSR> {
-    return new Promise<ICSR>(resolve => {
-      axios.put(`${baseApiUrl}`, entity).then(function(res) {
-        resolve(res.data);
-      });
+    return new Promise<ICSR>((resolve, reject) => {
+      axios
+        .put(`${baseApiUrl}`, entity)
+        .then(function(res) {
+          resolve(res.data);
+        })
+        .catch(err => {
+          reject(err);
+        });
     });
   }
 }

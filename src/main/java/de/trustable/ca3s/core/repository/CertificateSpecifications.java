@@ -90,6 +90,8 @@ public final class CertificateSpecifications {
 			CriteriaBuilder cb, 
 			Map<String, String[]> parameterMap) {
 		
+		long startTime = System.currentTimeMillis();
+		
 		CriteriaQuery<Object[]> query = cb.createQuery(Object[].class);
 		Root<Certificate> root = query.from(Certificate.class);
 
@@ -188,10 +190,14 @@ public final class CertificateSpecifications {
     	}catch( Exception e ){
     		logger.debug("failed in retrieve sql query", e);
     	}
-    	
+
+		long queryStartTime = System.currentTimeMillis();
+
     	// submit the query
     	List<Object[]> listResponse = typedQuery.getResultList();
-    	
+
+		logger.debug("typedQuery.getResultList() took {} msecs", System.currentTimeMillis() - queryStartTime);
+
     	// use the result set to fill the response object
     	List<CertificateView> certViewList = new ArrayList<CertificateView>();
     	for( Object[] objArr: listResponse) {
@@ -204,14 +210,17 @@ public final class CertificateSpecifications {
         	
         	certViewList.add(cv);
     	}
-
+	
     	// start again to retrieve the row count
         Pageable pageable = PageRequest.of(pageOffset / pagesize, pagesize, sortDir, sortCol);
-        
+    
         Long nTotalElements = 1000L;
                 
         CriteriaQuery<Long> queryCount = cb.createQuery(Long.class);
         Root<Certificate> iRoot = queryCount.from(Certificate.class);
+
+		// collect all selectors in a list
+		List<Predicate> predCountList = new ArrayList<Predicate>();
 
     	Predicate predCount = null;
 		ArrayList<Selection<?>> selectionListCount = new ArrayList<Selection<?>>();
@@ -225,7 +234,7 @@ public final class CertificateSpecifications {
 				for(SelectionData selDataItem: selDataList ) {
 					logger.debug("buildPredicate for '{}', selector '{}', value '{}' ", col, selDataItem.selector, selDataItem.value);
 	
-					predList.add( buildPredicate( iRoot, 
+					predCountList.add( buildPredicate( iRoot, 
 							cb, 
 							queryCount,
 							col, 
@@ -235,7 +244,7 @@ public final class CertificateSpecifications {
 				}
 			}else {
 				logger.debug("buildPredicate for '{}' without selector ", col );
-				predList.add( buildPredicate( iRoot, 
+				predCountList.add( buildPredicate( iRoot, 
 					cb, 
 					queryCount,
 					col, 
@@ -247,7 +256,7 @@ public final class CertificateSpecifications {
 		}
 		
 		// chain all the conditions together
-    	for( Predicate predPart: predList) {
+    	for( Predicate predPart: predCountList) {
 			// chain all the predicates
 			if( predCount == null ){
 				predCount = predPart;
@@ -260,8 +269,21 @@ public final class CertificateSpecifications {
       
 		queryCount.where(predCount);
 
+
+    	try {
+        	TypedQuery<Long> typedCountQuery = entityManager.createQuery(queryCount);
+    		logger.debug("assembled count query: " + typedCountQuery.unwrap(org.hibernate.query.Query.class).getQueryString());
+    	}catch( Exception e ){
+    		logger.debug("failed in retrieve sql query", e);
+    	}
+
+		long countStartTime = System.currentTimeMillis();
+
 		nTotalElements = entityManager.createQuery(queryCount).getSingleResult();
-		logger.debug("buildPredicate selects {} elements ", nTotalElements);
+
+		logger.debug("count getSingleResult() took {} msecs", System.currentTimeMillis() - countStartTime);
+
+		logger.debug("buildPredicate selects {} elements in {} msecs", nTotalElements, System.currentTimeMillis() - startTime);
         
         return new PageImpl<CertificateView>(certViewList, pageable, nTotalElements);
 

@@ -44,7 +44,11 @@
       "csr": "Csr",
       "certificateAttributes": "Certificate Attributes",
       "issuingCertificate": "Issuing Certificate",
-      "rootCertificate": "Root Certificate"
+      "rootCertificate": "Root Certificate",
+      "download": {
+        "pkix": "Download PKIX",
+        "pem": "Download PEM"
+      }
     }
   }
 }

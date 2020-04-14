@@ -93,26 +93,22 @@ public class BPMNUtil{
 
 
 	/**
-	 * 
-	 * @param csr
-	 * @param pipeline
-	 * @return
-	 */
-	public Certificate startCertificateCreationProcess(CSR csr, Pipeline pipeline) {
-		
-		return startCertificateCreationProcess(csr, pipeline.getCaConnector(), pipeline.getProcessInfo());
-	}
-
-
-	/**
 	 *
 	 * @param csr
 	 * @return
 	 */
 	public Certificate startCertificateCreationProcess(CSR csr)  {
-		
-		CAConnectorConfig caConfigDefault = configUtil.getDefaultConfig();
-		return startCertificateCreationProcess(csr, caConfigDefault, null);
+
+		CAConnectorConfig caConfig = null;
+		BPNMProcessInfo pi = null;
+
+		if( csr.getPipeline() == null) {
+			caConfig = configUtil.getDefaultConfig();
+		}else {
+			caConfig = csr.getPipeline().getCaConnector();
+			pi = csr.getPipeline().getProcessInfo();
+		}
+		return startCertificateCreationProcess(csr, caConfig, pi);
 	}
 	
 	/**

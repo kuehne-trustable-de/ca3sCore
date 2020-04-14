@@ -4,7 +4,8 @@
       "null": "",
       "ACME": "ACME",
       "SCEP": "SCEP",
-      "WEB": "WEB"
+      "WEB": "WEB",
+      "INTERNAL": "INTERNAL"
     }
   }
 }

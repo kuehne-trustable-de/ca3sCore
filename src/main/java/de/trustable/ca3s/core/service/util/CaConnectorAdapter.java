@@ -14,7 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
+import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.service.adcs.ADCSConnector;
 import de.trustable.ca3s.core.service.cmp.CaCmpConnector;
 import de.trustable.ca3s.core.service.dir.DirectoryConnector;
@@ -86,8 +88,8 @@ public class CaConnectorAdapter {
 	 * @throws IOException
 	 */
 	public Certificate signCertificateRequest(final String csrBase64, CAConnectorConfig caConfig ) throws GeneralSecurityException, IOException {
-		
-		CSR csr = csrUtil.buildCSR(csrBase64, csrUtil.parseBase64CSR(csrBase64));
+
+		CSR csr = csrUtil.buildCSR(csrBase64, CsrAttribute.REQUESTOR_SYSTEM, csrUtil.parseBase64CSR(csrBase64), PipelineType.INTERNAL, null);
 		return signCertificateRequest(csr, caConfig );
 		
 	}

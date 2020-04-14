@@ -1,4 +1,5 @@
 package de.trustable.ca3s.core.domain;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
@@ -23,8 +24,8 @@ public class CsrAttribute implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @NotNull
-    @Column(name = "value", nullable = false)
+    @Lob
+    @Column(name = "value")
     private String value;
 
     @ManyToOne
@@ -105,11 +106,19 @@ public class CsrAttribute implements Serializable {
             "}";
     }
     
-	public static final String ATTRIBUTE_REQUSTOR_NAME = "CA3S:REQUESTOR_NAME";
-	public static final String ATTRIBUTE_PROCESSING_CA = "CA3S:PROCESSING_CA";
-	public static final String ATTRIBUTE_CA_PROCESSING_ID = "CA3S:CA_PROCESSING_ID";
-	public static final String ATTRIBUTE_CA_PROCESSING_STARTED_TIMESTAMP = "CA3S:CA_PROCESSING_STARTED_TIMESTAMP";
-	public static final String ATTRIBUTE_CA_PROCESSING_FINISHED_TIMESTAMP = "CA3S:CA_PROCESSING_FINISHED_TIMESTAMP";
+	public static final String ATTRIBUTE_REQUESTED_BY = "REQUESTOR_NAME";
+	public static final String ATTRIBUTE_PROCESSING_CA = "PROCESSING_CA";
+	public static final String ATTRIBUTE_CA_PROCESSING_ID = "CA_PROCESSING_ID";
+	public static final String ATTRIBUTE_CA_PROCESSING_STARTED_TIMESTAMP = "CA_PROCESSING_STARTED_TIMESTAMP";
+	public static final String ATTRIBUTE_CA_PROCESSING_FINISHED_TIMESTAMP = "CA_PROCESSING_FINISHED_TIMESTAMP";
+
+	public static final String ATTRIBUTE_SUBJECT = CertificateAttribute.ATTRIBUTE_SUBJECT;
+
+	public static final String ATTRIBUTE_ADMINISTRATION_COMMENT = "ADMINISTRATION_COMMENT";
+	public static final String ATTRIBUTE_REQUESTOR_COMMENT = "REQUESTOR_COMMENT";
 	
+	public static final String REQUESTOR_SYSTEM = "SYSTEM";
+
+	public static final String REQUESTOR_SCEP = "REQUESTOR_SCEP";
 
 }

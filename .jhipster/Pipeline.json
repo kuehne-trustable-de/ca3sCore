@@ -11,7 +11,7 @@
         {
             "fieldName": "type",
             "fieldType": "PipelineType",
-            "fieldValues": "ACME,SCEP,WEB",
+            "fieldValues": "ACME,SCEP,WEB,INTERNAL",
             "fieldValidateRules": [
                 "required"
             ]

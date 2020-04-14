@@ -6,13 +6,19 @@ import axios from 'axios';
 import { required} from 'vuelidate/lib/validators';
 
 import { IUploadPrecheckData, IPkcsXXData } from '@/shared/model/transfer-object.model';
+import { IPipeline } from '@/shared/model/pipeline.model';
 
 const precheckUrl = 'publicapi/describeContent';
 const uploadUrl = 'api/uploadContent';
 
 const validations: any = {
   upload: {
+    pipelineId: {
+    },
     passphrase: {
+    },
+    requestorcomment: {
+
     },
     content: {
       required
@@ -27,6 +33,8 @@ export default class PKCSXX extends Vue {
 
   public upload: IUploadPrecheckData = <IUploadPrecheckData>{};
   public precheckResponse: IPkcsXXData = <IPkcsXXData>{};
+
+  public allWebPipelines: IPipeline[] = [];
 
   public responseStatus = 0;
   public isChecked = false;
@@ -92,9 +100,16 @@ export default class PKCSXX extends Vue {
 
     this.responseStatus = 0;
     try {
+      document.body.style.cursor = 'wait';
       const response = await axios.post(`${url}`, this.upload);
       this.precheckResponse = response.data;
       console.log(this.precheckResponse.dataType);
+      document.body.style.cursor = 'default';
+
+      if ( this.precheckResponse && this.precheckResponse.dataType === 'CSR' &&
+           this.precheckResponse.csrPending ) {
+        this.$router.push({name: 'CsrInfo', params: {csrId: this.precheckResponse.createdCSRId}});
+      }
 
       if ( this.precheckResponse && this.precheckResponse.dataType === 'X509_CERTIFICATE_CREATED' &&
            this.precheckResponse.certificates[0]) {
@@ -109,9 +124,45 @@ export default class PKCSXX extends Vue {
       this.isChecked = true;
     } catch (error) {
       console.error(error);
+      document.body.style.cursor = 'default';
       this.isChecked = false;
       this.responseStatus = error.response.status;
     }
   }
 
+  public mounted(): void {
+    this.fillPipelineData();
+  }
+
+  public fillPipelineData(): void {
+    window.console.info('calling fillPipelineData');
+    const self = this;
+
+    axios({
+      method: 'get',
+      url: 'api//pipeline/getWebPipelines',
+      responseType: 'stream'
+    })
+    .then(function(response) {
+      window.console.info('getWebPipelines returns ' + response.data );
+      self.allWebPipelines = response.data;
+    });
+  }
+
+  public showRequestorCommentsArea(): boolean {
+    window.console.info('pipelineId : ' + this.upload.pipelineId );
+    return this.authenticated;
+  }
+
+  public currentPipelineInfo( pipelineId): string {
+    window.console.info('currentPipelineInfo : ' + pipelineId );
+
+    for ( let i = 0; i < this.allWebPipelines.length; i++ ) {
+      window.console.info('checking pipelineId : ' + this.upload.pipelineId );
+      if ( this.upload.pipelineId === this.allWebPipelines[i].id ) {
+        return this.allWebPipelines[i].description;
+      }
+    }
+    return '';
+  }
 }

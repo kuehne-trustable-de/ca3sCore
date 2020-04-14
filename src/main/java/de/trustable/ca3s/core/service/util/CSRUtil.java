@@ -3,6 +3,7 @@ package de.trustable.ca3s.core.service.util;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,15 +25,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.trustable.ca3s.core.domain.CSR;
+import de.trustable.ca3s.core.domain.CsrAttribute;
+import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.domain.RDN;
 import de.trustable.ca3s.core.domain.RDNAttribute;
 import de.trustable.ca3s.core.domain.RequestAttribute;
 import de.trustable.ca3s.core.domain.RequestAttributeValue;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
+import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CsrAttributeRepository;
 import de.trustable.ca3s.core.repository.RDNAttributeRepository;
 import de.trustable.ca3s.core.repository.RDNRepository;
+import de.trustable.ca3s.core.repository.RequestAttributeRepository;
+import de.trustable.ca3s.core.repository.RequestAttributeValueRepository;
 import de.trustable.util.Pkcs10RequestHolder;
 
 @Service
@@ -45,6 +51,13 @@ public class CSRUtil {
 	
 	@Autowired
 	private RDNRepository rdnRepository;
+	
+	@Autowired
+	private RequestAttributeRepository rasRepository;
+	
+	@Autowired
+	private RequestAttributeValueRepository rasvRepository;
+	
 	
 	@Autowired
 	private RDNAttributeRepository rdnAttRepository;
@@ -72,20 +85,31 @@ public class CSRUtil {
 
 	      return p10ReqHolder;
 	}
-	
+
+	public CSR buildCSR(final String csrBase64, String requestorName, final Pkcs10RequestHolder p10ReqHolder, Pipeline pipeline) {
+		
+		return buildCSR(csrBase64, requestorName, p10ReqHolder, pipeline.getType(), pipeline);
+	}
 	/**
 	 * 
 	 * @param csrBase64
 	 * @param p10ReqHolder
+	 * @param pipelineType 
 	 * @return
 	 */
-	public CSR buildCSR(final String csrBase64, final Pkcs10RequestHolder p10ReqHolder) {
+	public CSR buildCSR(final String csrBase64, String requestorName, final Pkcs10RequestHolder p10ReqHolder, PipelineType pipelineType, Pipeline pipeline) {
 
 		CSR csr = new CSR();
 
 		csr.setStatus(CsrStatus.PENDING);
 		
+		csr.setPipeline(pipeline);
+		
+		csr.setPipelineType(pipelineType);
+		
 		csr.setCsrBase64(csrBase64);
+		
+		csr.setSubject(p10ReqHolder.getSubject());
 
 		csr.setSigningAlgorithm(p10ReqHolder.getSigningAlgorithm());
 
@@ -96,6 +120,10 @@ public class CSRUtil {
 		csr.setPublicKeyAlgorithm(p10ReqHolder.getPublicKeyAlgorithm());
 
 		csr.setPublicKeyHash(p10ReqHolder.getPublicKeyHash());
+
+		csr.setKeyLength( CertificateUtil.getAlignedKeyLength(p10ReqHolder.getPublicSigningKey()));
+		
+		csr.setServersideKeyGeneration(false);
 
 		csr.setSubjectPublicKeyInfoBase64(p10ReqHolder.getSubjectPublicKeyInfoBase64());
 
@@ -134,6 +162,8 @@ public class CSRUtil {
 			rdn.setRdnAttributes(rdnAttributes);
 			newRdns.add(rdn);
 		}
+
+		insertNameAttributes(csr, CsrAttribute.ATTRIBUTE_SUBJECT, p10ReqHolder.getSubjectRDNs());
 
 		if (p10ReqHolder.getSubjectRDNs().length == 0) {
 
@@ -192,15 +222,29 @@ public class CSRUtil {
 		}
 		csr.setRas(newRas);
 
-		csrRepository.save(csr);
-
+		// add requestor
+		CsrAttribute csrAttRequestorName = new CsrAttribute();
+		csrAttRequestorName.setCsr(csr);
+		csrAttRequestorName.setName(CsrAttribute.ATTRIBUTE_REQUESTED_BY);
+		csrAttRequestorName.setValue(requestorName);
+		csr.setRequestedBy(requestorName);
+		csr.getCsrAttributes().add(csrAttRequestorName);
+		
 		rdnRepository.saveAll(csr.getRdns());
 		
 		for( RDN rdn: csr.getRdns()) {
 			rdnAttRepository.saveAll(rdn.getRdnAttributes());
 		}
 		
+		rasRepository.saveAll(csr.getRas());
+		
+		for( RequestAttribute ras: csr.getRas()) {
+			rasvRepository.saveAll(ras.getRequestAttributeValues());
+		}
+		
 		csrAttRepository.saveAll(csr.getCsrAttributes());
+
+		csrRepository.save(csr);
 
 		LOG.debug("saved #{} csr attributes,  ",newRas.size());
 
@@ -294,4 +338,67 @@ public class CSRUtil {
 	public static String getGeneralNameDescription(GeneralName gName) {
 		return getGeneralNameType(gName) + " : " + gName.getName().toString();
 	}
+	
+	public String getCSRAttribute(CSR csrDao, String name) {
+		for( CsrAttribute csrAttr:csrDao.getCsrAttributes()) {
+			if( csrAttr.getName().equals(name)) {
+				return csrAttr.getValue();
+			}
+		}
+		return null;
+	}
+
+	public void insertNameAttributes(CSR csr, String attributeName, org.bouncycastle.asn1.x500.RDN[] rdns) {
+		for( org.bouncycastle.asn1.x500.RDN rdn: rdns ){
+			for( org.bouncycastle.asn1.x500.AttributeTypeAndValue atv: rdn.getTypesAndValues()){
+				String value = atv.getValue().toString().toLowerCase();
+				setCsrAttribute(csr, attributeName, value, true);
+				setCsrAttribute(csr, attributeName, atv.getType().getId().toLowerCase() +"="+ value, true);
+			}
+		}
+	}
+
+	public void setCsrAttribute(CSR csr, String name, String value, boolean multiValue) {
+		
+		if( name == null) {
+			LOG.warn("no use to insert attribute with name 'null'", new Exception());
+			return;
+		}
+		if( value == null) {
+			value= "";
+		}
+		
+		
+		
+		Collection<CsrAttribute> csrAttrList = csr.getCsrAttributes();
+		for( CsrAttribute csrAttr : csrAttrList) {
+
+//	        LOG.debug("checking certificate attribute '{}' containing value '{}'", certAttr.getName(), certAttr.getValue());
+
+			if( name.equals(csrAttr.getName())) {
+				if( value.equals(csrAttr.getValue())) {
+					// attribute already present, no use in duplication here
+					return;
+				}else {
+					if( !multiValue ) {
+						csrAttr.setValue(value);
+						return;
+					}
+				}
+			}
+		}
+		
+		CsrAttribute cAtt = new CsrAttribute();
+		cAtt.setCsr(csr);
+		cAtt.setName(name);
+		cAtt.setValue(value);
+		
+		csr.getCsrAttributes().add(cAtt);
+		
+		csrAttRepository.save(cAtt);
+
+	}
+
+
+
 }

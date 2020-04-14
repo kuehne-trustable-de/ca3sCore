@@ -5,7 +5,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     
     
@@ -699,11 +699,17 @@
 					<jsonLibrary>jackson2</jsonLibrary>
 					<classes>
 						<class>de.trustable.ca3s.core.service.util.CAStatus</class>
+						
 						<class>de.trustable.ca3s.core.service.dto.CertificateView</class>
+						<class>de.trustable.ca3s.core.service.dto.CSRView</class>
 						<class>de.trustable.ca3s.core.service.dto.Selector</class>
+						
+						<class>de.trustable.ca3s.core.web.rest.data.CSRAdministrationData</class>
 						<class>de.trustable.ca3s.core.web.rest.data.UploadPrecheckData</class>
 						<class>de.trustable.ca3s.core.web.rest.data.X509CertificateHolderShallow</class>
 						<class>de.trustable.ca3s.core.web.rest.data.CertificateFilter</class>
+						<class>de.trustable.ca3s.core.web.rest.data.CertificateFilterList</class>
+						
 						<class>de.trustable.ca3s.core.web.rest.data.CertificateSelectionData</class>
 						<class>de.trustable.ca3s.core.web.rest.data.PkcsXXData</class>
 						<class>de.trustable.ca3s.core.web.rest.data.DataCollection</class>
@@ -1216,6 +1222,7 @@
                                 <configuration>
                                     <arguments>run webpack:build</arguments>
                                     <environmentVariables>
+                                        <VERSION>${project.version}</VERSION>
                                         <APP_VERSION>${project.version}</APP_VERSION>
                                     </environmentVariables>
                                     <npmInheritsProxyConfigFromMaven>false</npmInheritsProxyConfigFromMaven>

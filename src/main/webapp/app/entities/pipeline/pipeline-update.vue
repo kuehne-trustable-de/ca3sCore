@@ -32,7 +32,7 @@
                             </small>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" v-if="$v.pipeline.type.$model !== 'WEB'">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.urlPart')" for="pipeline-urlPart">Url Part</label>
                         <input type="text" class="form-control" name="urlPart" id="pipeline-urlPart"
                             :class="{'valid': !$v.pipeline.urlPart.$invalid, 'invalid': $v.pipeline.urlPart.$invalid }" v-model="$v.pipeline.urlPart.$model" />
@@ -47,6 +47,17 @@
                         <input type="checkbox" class="form-check" name="approvalRequired" id="pipeline-approvalRequired"
                             :class="{'valid': !$v.pipeline.approvalRequired.$invalid, 'invalid': $v.pipeline.approvalRequired.$invalid }" v-model="$v.pipeline.approvalRequired.$model" />
                     </div>
+
+                    <div class="form-group" v-if="$v.pipeline.approvalRequired.$model">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.approvalInfo')" for="pipeline-approvalInfo1">Approval Info</label>
+                        
+                        <input type="text" class="form-control" name="urlPart" id="pipeline-approvalInfo1"
+                            :class="{'valid': !$v.pipeline.approvalInfo1.$invalid, 'invalid': $v.pipeline.approvalInfo1.$invalid }" v-model="$v.pipeline.approvalInfo1.$model" />
+
+                        <!--input type="checkbox" class="form-check" name="approvalInfo1Req" id="pipeline-approvalInfo1Req"
+                            :class="{'valid': !$v.pipeline.approvalInfoReq1.$invalid, 'invalid': $v.pipeline.approvalInfoReq1.$invalid }" v-model="$v.pipeline.approvalInfoReq1.$model" /-->
+                    </div>
+
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.caConnector')" for="pipeline-caConnector">Ca Connector</label>
                         <select class="form-control" id="pipeline-caConnector" name="caConnector" v-model="pipeline.caConnector">

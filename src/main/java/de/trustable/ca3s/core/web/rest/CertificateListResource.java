@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import de.trustable.ca3s.core.repository.CertificatePageRepository;
 import de.trustable.ca3s.core.repository.CertificateViewRepository;
 import de.trustable.ca3s.core.service.dto.CertificateView;
 import io.github.jhipster.web.util.PaginationUtil;
@@ -28,9 +27,6 @@ import io.github.jhipster.web.util.PaginationUtil;
 @RequestMapping("/publicapi")
 public class CertificateListResource {
 
-	@Autowired
-	CertificatePageRepository certPageRepository;
-	
 	@Autowired
 	CertificateViewRepository certificateViewRepository;
 	

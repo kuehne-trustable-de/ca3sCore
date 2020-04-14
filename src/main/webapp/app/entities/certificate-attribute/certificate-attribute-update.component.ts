@@ -1,6 +1,9 @@
-import { Component, Vue, Inject } from 'vue-property-decorator';
+import { Component, Inject } from 'vue-property-decorator';
 
-import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
+import { mixins } from 'vue-class-component';
+import JhiDataUtils from '@/shared/data/data-utils.service';
+
+import { numeric, required, minLength, maxLength, minValue, maxValue } from 'vuelidate/lib/validators';
 
 import CertificateService from '../certificate/certificate.service';
 import { ICertificate } from '@/shared/model/certificate.model';
@@ -21,7 +24,7 @@ const validations: any = {
 @Component({
   validations
 })
-export default class CertificateAttributeUpdate extends Vue {
+export default class CertificateAttributeUpdate extends mixins(JhiDataUtils) {
   @Inject('alertService') private alertService: () => AlertService;
   @Inject('certificateAttributeService') private certificateAttributeService: () => CertificateAttributeService;
   public certificateAttribute: ICertificateAttribute = new CertificateAttribute();

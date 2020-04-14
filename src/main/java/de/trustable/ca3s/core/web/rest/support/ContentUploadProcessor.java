@@ -12,6 +12,7 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -21,6 +22,8 @@ import org.bouncycastle.util.encoders.DecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.audit.listener.AuditApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -35,9 +38,12 @@ import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.domain.CsrAttribute;
+import de.trustable.ca3s.core.domain.Pipeline;
+import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.repository.CsrAttributeRepository;
+import de.trustable.ca3s.core.repository.PipelineRepository;
+import de.trustable.ca3s.core.service.util.AuditUtil;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
@@ -70,15 +76,18 @@ public class ContentUploadProcessor {
 	@Autowired
 	private CSRRepository csrRepository;
 
-	@Autowired
-	private CsrAttributeRepository csrAttributeRepository;
-
     @Autowired
     private CertificateRepository certificateRepository;
+
+    @Autowired
+    private PipelineRepository pipelineRepository;
 
 	@Autowired
 	private BPMNUtil bpmnUtil;
 
+	@Autowired
+	private ApplicationEventPublisher applicationEventPublisher;
+	
 
     /**
      * {@code POST  /csrContent} : Process a PKCSXX-object encoded as PEM.
@@ -105,7 +114,7 @@ public class ContentUploadProcessor {
 		    	content = cryptoUtil.x509CertToPem(cert);
 		    	LOG.debug("certificate parsed from base64 (non-pem) content");
 	    	} catch (GeneralSecurityException | IOException | DecoderException gse) {
-		    	LOG.debug("certificate parsing from base64 (non-pem) content failed", gse);
+		    	LOG.debug("certificate parsing from base64 (non-pem) content failed: " + gse.getMessage());
 	    	}
 	    	
 			X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(content);
@@ -124,14 +133,14 @@ public class ContentUploadProcessor {
 			
 			// certificate inserted into the db 
 			p10ReqData = new PkcsXXData(certHolder, content, true );
-			certUtil.setCertAttribute(cert, CsrAttribute.ATTRIBUTE_REQUSTOR_NAME, requestorName);
+			certUtil.setCertAttribute(cert, CsrAttribute.ATTRIBUTE_REQUESTED_BY, requestorName);
 			
 			return new ResponseEntity<PkcsXXData>(p10ReqData, HttpStatus.CREATED);
 			
 		} catch (DecoderException de){	
 			// not parseable ...
 			p10ReqData.setDataType(PKCSDataType.UNKNOWN);
-			LOG.debug("certificate parsing problem of uploaded content:", de);
+			LOG.debug("certificate parsing problem of uploaded content:" + de.getMessage());
 		} catch (GeneralSecurityException | IOException e) {
 			
 			LOG.debug("not a certificate, trying to parse it as CSR ");
@@ -149,23 +158,21 @@ public class ContentUploadProcessor {
 
 				p10ReqData.setCsrPublicKeyPresentInDB(!csrList.isEmpty());
 				if(csrList.isEmpty()) {
-					Certificate cert = startCertificateCreationProcess(content, requestorName );
+					
+					Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
+					Certificate cert = startCertificateCreationProcess(content, p10ReqData, requestorName, uploaded.getRequestorcomment(), optPipeline );
 					if( cert != null) {
 
 						// return the id of the freshly created certificate
 						X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(cert.getContent());
 						p10ReqData = new PkcsXXData(certHolder, cert);
-/*						
-						p10ReqData = new PkcsXXData(certHolder, cert != null );
-						p10ReqData.getCertsHolder()[0].setCertificateId(cert.getId());
-						p10ReqData.getCertsHolder()[0].setCertificatePresentInDB(true);
-*/						
+						
 						return new ResponseEntity<PkcsXXData>(p10ReqData, HttpStatus.CREATED);
 					}
 				}
 				
 			} catch (IOException | GeneralSecurityException e2) {
-				LOG.debug("describeCSR ", e2);
+				LOG.debug("describeCSR : " + e2.getMessage());
 				LOG.debug("not a certificate, not a CSR, trying to parse it as a P12 container");
 				try {
 					
@@ -247,13 +254,13 @@ public class ContentUploadProcessor {
 					// not able to process, presumable passphrase required ...
 					p10ReqData.setPassphraseRequired(true);
 					p10ReqData.setDataType(PKCSDataType.CONTAINER_REQUIRING_PASSPHRASE);
-					LOG.debug("p12 missing a passphrase:", ioe);
+					LOG.debug("p12 missing a passphrase: " + ioe.getMessage());
 				} catch (org.bouncycastle.util.encoders.DecoderException de){	
 					// no parseable ...
 					p10ReqData.setDataType(PKCSDataType.UNKNOWN);
-					LOG.debug("p12 parsing problem of uploaded content:", de);
+					LOG.debug("p12 parsing problem of uploaded content: " + de.getMessage());
 				}catch(GeneralSecurityException e3) {
-					LOG.debug("general problem with uploaded content:", e3);
+					LOG.debug("general problem with uploaded content: " + e3.getMessage());
 					return new ResponseEntity<PkcsXXData>(HttpStatus.BAD_REQUEST);
 				}
 			}
@@ -279,47 +286,57 @@ public class ContentUploadProcessor {
 	}
 
     
-    /**
-     * 
-     * @param orderDao
-     * @return
-     * @throws IOException
-     */
-	private Certificate startCertificateCreationProcess(final String csrAsPem, final String requestorName )  {
+/**
+ * 
+ * @param csrAsPem
+ * @param p10ReqData 
+ * @param requestorName
+ * @param requestorComment
+ * @param optPipeline
+ * @return
+ */
+	private Certificate startCertificateCreationProcess(final String csrAsPem, PkcsXXData p10ReqData, final String requestorName, String requestorComment, Optional<Pipeline> optPipeline )  {
 		
 		
 		// BPNM call
 		try {
 			Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(csrAsPem);
 
-			CSR csr = csrUtil.buildCSR(csrAsPem, p10ReqHolder);
+			CSR csr;
 			
+			if( optPipeline.isPresent()) {
+				csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, optPipeline.get());
+			}else {
+				csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, PipelineType.WEB, null);
+			}
+
+			csrUtil.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_REQUESTOR_COMMENT, requestorComment, false);
 			csrRepository.save(csr);
 
-			CsrAttribute csrAttRequestorName = new CsrAttribute();
-			csrAttRequestorName.setCsr(csr);
-			csrAttRequestorName.setName(CsrAttribute.ATTRIBUTE_REQUSTOR_NAME);
-			csrAttRequestorName.setValue(requestorName);
-			csr.getCsrAttributes().add(csrAttRequestorName);
-			
-			csrAttributeRepository.save(csrAttRequestorName);
-			
+			applicationEventPublisher.publishEvent(
+			        new AuditApplicationEvent(
+			        		requestorName, AuditUtil.AUDIT_WEB_CERTIFICATE_REQUESTED, "certificate requested at web interface, csr " + csr.getId() + " uploaded"));
+
 			LOG.debug("csr contains #{} CsrAttributes, #{} RequestAttributes and #{} RDN", csr.getCsrAttributes().size(), csr.getRas().size(), csr.getRdns().size());
 			for(de.trustable.ca3s.core.domain.RDN rdn:csr.getRdns()) {
 				LOG.debug("RDN contains #{}", rdn.getRdnAttributes().size());
 			}
-			
-			Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
-			if(cert != null) {
-				
-				certificateRepository.save(cert);
-				return cert;
-				
-			} else {
-				LOG.warn("creation of certificate requested by {} failed ", requestorName);
-			}
 
-			// end of BPMN call
+			if( optPipeline.isPresent() && optPipeline.get().isApprovalRequired()) {
+				LOG.debug("defering certificate creation for csr #{}", csr.getId());
+				p10ReqData.setCsrPending(true);
+				p10ReqData.setCreatedCSRId(csr.getId().toString());
+			} else {
+				
+				Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
+				if(cert != null) {
+					certificateRepository.save(cert);
+					return cert;
+				} else {
+					LOG.warn("creation of certificate requested by {} failed ", requestorName);
+				}
+				// end of BPMN call
+			}
 
 		} catch (GeneralSecurityException | IOException e) {
 			LOG.warn("execution of CSRProcessingTask failed ", e);

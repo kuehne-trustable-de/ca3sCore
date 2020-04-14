@@ -1,0 +1,24 @@
+{
+  "ca3SApp": {
+    "userPreference": {
+      "home": {
+        "title": "User Preference",
+        "createLabel": "Dodaj User Preference",
+        "createOrEditLabel": "Dodaj lub edytuj: User Preference",
+        "notFound": "No User Preferences found"
+      },
+      "created": "Utworzono nowy obiekt typu User Preference z identyfikatorem {{ param }}",
+      "updated": "Uaktualniono obiekt typu User Preference z identyfikatorem {{ param }}",
+      "deleted": "Usunięto obiekt typu User Preference z identyfikatorem {{ param }}",
+      "delete": {
+        "question": "Czy na pewno chcesz usunąć User Preference {{ id }}?"
+      },
+      "detail": {
+        "title": "User Preference"
+      },
+      "userId": "User Id",
+      "name": "Name",
+      "content": "Content"
+    }
+  }
+}

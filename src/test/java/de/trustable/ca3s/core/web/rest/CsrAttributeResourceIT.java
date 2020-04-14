@@ -17,6 +17,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Base64Utils;
 import org.springframework.validation.Validator;
 
 import javax.persistence.EntityManager;
@@ -166,24 +167,6 @@ public class CsrAttributeResourceIT {
 
     @Test
     @Transactional
-    public void checkValueIsRequired() throws Exception {
-        int databaseSizeBeforeTest = csrAttributeRepository.findAll().size();
-        // set the field null
-        csrAttribute.setValue(null);
-
-        // Create the CsrAttribute, which fails.
-
-        restCsrAttributeMockMvc.perform(post("/api/csr-attributes")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(csrAttribute)))
-            .andExpect(status().isBadRequest());
-
-        List<CsrAttribute> csrAttributeList = csrAttributeRepository.findAll();
-        assertThat(csrAttributeList).hasSize(databaseSizeBeforeTest);
-    }
-
-    @Test
-    @Transactional
     public void getAllCsrAttributes() throws Exception {
         // Initialize the database
         csrAttributeRepository.saveAndFlush(csrAttribute);
@@ -191,10 +174,10 @@ public class CsrAttributeResourceIT {
         // Get all the csrAttributeList
         restCsrAttributeMockMvc.perform(get("/api/csr-attributes?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(csrAttribute.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
-            .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE)));
+            .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE.toString())));
     }
     
     @Test
@@ -206,10 +189,10 @@ public class CsrAttributeResourceIT {
         // Get the csrAttribute
         restCsrAttributeMockMvc.perform(get("/api/csr-attributes/{id}", csrAttribute.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(csrAttribute.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
-            .andExpect(jsonPath("$.value").value(DEFAULT_VALUE));
+            .andExpect(jsonPath("$.value").value(DEFAULT_VALUE.toString()));
     }
 
     @Test

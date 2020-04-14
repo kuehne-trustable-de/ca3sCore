@@ -4,9 +4,9 @@
 		<div class="col-xs-12 table-responsive">
 
 			<div>
-				<div>Foo</div>
+				<div>Certificate list</div>
 
-				<div v-for="(filter, index) in filters" :key="index">
+				<div v-for="(filter, index) in filters.filterList" :key="index">
 					<select float="left" class="smallSelector fa-1x" v-model="filter.attributeName">
 						<option v-for="certSelectionItem in certSelectionItems" :key="certSelectionItem.itemName">{{certSelectionItem.itemName}}</option>
 					</select>
@@ -15,7 +15,7 @@
 						<option v-for="item in getSelectorChoices(filter.attributeName)" :key="item">{{item}}</option>
 					</select>
 
-					<select v-if="getInputType(filter.attributeName) == 'set'" float="left" class="smallSelector fa-1x" v-model="filter.selector">
+					<select v-if="getInputType(filter.attributeName) == 'set'" float="left" class="smallSelector fa-1x" v-model="filter.attributeValue">
 						<option v-for="item in getValueChoices(filter.attributeName)" :key="item">{{item}}</option>
 					</select>
 					<input type="date" v-else-if="getInputType(filter.attributeName) == 'date'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue"/>

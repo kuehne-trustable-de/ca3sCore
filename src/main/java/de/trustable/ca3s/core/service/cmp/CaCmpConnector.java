@@ -130,6 +130,7 @@ public class CaCmpConnector {
 			// extract the certificate
 			de.trustable.ca3s.core.domain.Certificate cert = readCertResponse(responseBytes, pkiRequest, csr);
 
+			csr.setCertificate(cert);
 			csr.setStatus(CsrStatus.ISSUED);
 
 			return cert;
@@ -308,6 +309,11 @@ public class CaCmpConnector {
 	public CAStatus getStatus(final CAConnectorConfig caConnConfig) {
 		
 		try {
+			if( caConnConfig.getSecret() == null) {
+				LOGGER.error("CMP instance requires 'secret' to be present");
+				return CAStatus.Deactivated;
+			}
+			
 			String plainSecret = protUtil.unprotectString( caConnConfig.getSecret().getContentBase64());
 			GenMsgContent infoContent = getGeneralInfo(plainSecret, caConnConfig.getCaUrl(), caConnConfig.getSelector());
 			

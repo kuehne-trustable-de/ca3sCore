@@ -6,6 +6,7 @@
       "home": "Home",
       "check": "Check",
       "request": "Request certificate",
+      "requests": "Requests",
       "certificates": "Certificates",
       "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
       "entities": {
@@ -35,6 +36,7 @@
         "acmeNonce": "Acme Nonce",
         "bpnmProcessInfo": "BPNM Process Info",
         "requestProxyConfig": "Request Proxy Config",
+        "userPreference": "User Preference",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {

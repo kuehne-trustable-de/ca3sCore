@@ -1,6 +1,9 @@
-import { Component, Vue, Inject } from 'vue-property-decorator';
+import { Component, Inject } from 'vue-property-decorator';
 
-import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
+import { mixins } from 'vue-class-component';
+import JhiDataUtils from '@/shared/data/data-utils.service';
+
+import { numeric, required, minLength, maxLength, minValue, maxValue } from 'vuelidate/lib/validators';
 
 import CSRService from '../csr/csr.service';
 import { ICSR } from '@/shared/model/csr.model';
@@ -14,16 +17,14 @@ const validations: any = {
     name: {
       required
     },
-    value: {
-      required
-    }
+    value: {}
   }
 };
 
 @Component({
   validations
 })
-export default class CsrAttributeUpdate extends Vue {
+export default class CsrAttributeUpdate extends mixins(JhiDataUtils) {
   @Inject('alertService') private alertService: () => AlertService;
   @Inject('csrAttributeService') private csrAttributeService: () => CsrAttributeService;
   public csrAttribute: ICsrAttribute = new CsrAttribute();

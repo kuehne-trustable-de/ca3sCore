@@ -1,0 +1,117 @@
+import { Component, Inject } from 'vue-property-decorator';
+
+import axios from 'axios';
+
+import { mixins } from 'vue-class-component';
+import JhiDataUtils from '@/shared/data/data-utils.service';
+
+import { ICSRAdministrationData } from '@/shared/model/transfer-object.model';
+
+import { ICSR } from '@/shared/model/csr.model';
+import CSRService from '../../entities/csr/csr.service';
+
+
+@Component
+export default class CsrInfo extends mixins(JhiDataUtils) {
+  @Inject('cSRService') private cSRService: () => CSRService;
+  public cSR: ICSR = {};
+
+  public csrAdminData: ICSRAdministrationData = {};
+
+  public requestorComment = '';
+
+  public get authenticated(): boolean {
+    return this.$store.getters.authenticated;
+  }
+
+  public get roles(): string {
+    return this.$store.getters.account ? this.$store.getters.account.authorities[0] : '';
+  }
+
+  public getUsername(): string {
+    return this.$store.getters.account ? this.$store.getters.account.login : '';
+  }
+
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      if (to.params.csrId) {
+        vm.retrieveCsr(to.params.csrId);
+      }
+    });
+  }
+
+  public retrieveCsr(csrId) {
+    this.cSRService()
+      .find(csrId)
+      .then(res => {
+        this.cSR = res;
+        window.console.info('csr :' + this.cSR.status );
+      });
+  }
+
+  public previousState() {
+    this.$router.go(-1);
+  }
+
+  public mounted(): void {
+    this.requestorComment = this.getRequestorComment();
+  }
+
+  public getRequestorComment(): string {
+
+    if ( this.cSR.csrAttributes === undefined) {
+      return '';
+    }
+
+    for ( let i = 0; i < this.cSR.csrAttributes.length; i++ ) {
+      window.console.info('checking csrAttribute : ' + i );
+      if ( this.cSR.csrAttributes[i].name === 'REQUESTOR_COMMENT' ) {
+        return this.cSR.csrAttributes[i].value;
+      }
+    }
+    return '';
+  }
+
+  public async withdrawCSR() {
+    this.csrAdminData.csrId = this.cSR.id;
+    this.csrAdminData.administrationType = 'REJECT';
+
+    this.sendAdministrationAction('api/withdrawOwnRequest');
+  }
+
+  public async rejectCSR() {
+    this.csrAdminData.csrId = this.cSR.id;
+    this.csrAdminData.administrationType = 'REJECT';
+
+    this.sendAdministrationAction('api/administerRequest');
+  }
+
+  public confirmCSR() {
+    this.csrAdminData.csrId = this.cSR.id;
+    this.csrAdminData.administrationType = 'ACCEPT';
+
+    this.sendAdministrationAction('api/administerRequest');
+  }
+
+  sendAdministrationAction(adminUrl: string) {
+    document.body.style.cursor = 'wait';
+    axios({
+      method: 'post',
+      url: adminUrl,
+      data : this.csrAdminData,
+      responseType: 'stream'
+    })
+    .then(function(response) {
+      console.log(response.status);
+
+      if ( response.status === 201) {
+        this.$router.push({name: 'CertInfo', params: {certificateId: response.data.toString()}});
+      }
+    }).catch(function(error) {
+      console.log(error);
+    }).then(function() {
+      // always executed
+      document.body.style.cursor = 'default';
+    });
+  }
+}

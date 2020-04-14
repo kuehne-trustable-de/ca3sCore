@@ -31,7 +31,7 @@ entity RequestProxyConfig{
 entity CertificateAttribute {
 //	attributeId Long required
     name String required
-    value String
+    value TextBlob
 }
 
 entity Certificate {
@@ -68,23 +68,33 @@ enum CsrStatus {
 }
 
 entity CSR{
-
+	
    	csrBase64 TextBlob required
+  	subject String required
   	requestedOn Instant required
+  	requestedBy String required
+  	pipelineType PipelineType required
   	status CsrStatus required
+  	administeredBy String
+  	approvedOn Instant
+  	rejectedOn Instant
+  	rejectionReason String
   	processInstanceId String
 	signingAlgorithm String
 	isCSRValid Boolean
 	x509KeySpec String
 	publicKeyAlgorithm String
+	keyAlgorithm String
+  	keyLength Integer 
 	publicKeyHash String
+  	serversideKeyGeneration Boolean
 	subjectPublicKeyInfoBase64 TextBlob required
 }
 
 entity CsrAttribute{
 
   	name String required
-  	value String required
+  	value TextBlob
 }
 
 enum ProtectedContentType {
@@ -136,7 +146,7 @@ entity ImportedURL{
 }
 
 enum PipelineType {
-    ACME, SCEP, WEB
+    ACME, SCEP, WEB, INTERNAL
 }
 
 entity Pipeline{
@@ -298,6 +308,14 @@ entity AcmeChallenge {
 entity AcmeNonce {
 	nonceValue String
 	expiresAt Instant
+}
+
+
+entity UserPreference{
+	
+	userId Long required
+  	name String required
+	content TextBlob required
 }
 
 // defining multiple OneToMany relationships with comments

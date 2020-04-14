@@ -19,6 +19,22 @@
                         </div>
                     </div>
 
+                	<div v-if="authenticated" class="form-group">
+                        <label class="form-control-label" v-text="$t('pkcsxx.upload.pipeline')" for="pkcsxx-pipeline">Pipeline</label>
+                        <select class="form-control" id="pkcsxx-pipeline" name="pkcsxx-pipeline" v-model="$v.upload.pipelineId.$model">
+                            <option v-bind:value="null"></option>
+                            <option v-bind:value="upload && webPipeline.id === upload.pipelineId ? upload.pipelineId : webPipeline.id" v-for="webPipeline in allWebPipelines" :key="webPipeline.id">{{webPipeline.name}}</option>
+                        </select>
+                        <!--label class="form-control-label" >__ {{currentPipelineInfo(upload.pipelineId)}} __</label-->
+                    </div>
+
+                    <div class="form-group" v-if="showRequestorCommentsArea()">
+                        <label class="form-control-label" v-text="$t('pkcsxx.upload.requestorComment')" for="upload-requestor-comment">Requestor Comment</label>
+                        <textarea type="text" class="form-control" name="requestor-comment" id="upload-requestor-comment"
+							autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                            v-model="$v.upload.requestorcomment.$model" v-on:input="notifyChange"/>
+                    </div>
+
                     <div class="form-group" v-if="precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE'">
                         <label class="form-control-label" v-text="$t('pkcsxx.upload.passphrase')" for="upload-passphrase">Passphrase</label>
                         <input type="text" class="form-control" name="passphrase" id="upload-passphrase"
@@ -55,14 +71,12 @@
 							<span><div v-if="precheckResponse.p10Holder.csrvalid === false">invalid </div>{{precheckResponse.dataType}}</span>
 						</dd>
 
-						<div v-if="precheckResponse.csrPublicKeyPresentInDB === true">
-							<dt>
-								<span v-text="$t('pkcsxx.upload.warning.label')">Warning</span>
-							</dt>
-							<dd>
-								<span v-text="$t('pkcsxx.upload.warning.publicKeyPresent')">Public key already in use</span>
-							</dd>
-						</div>
+						<dt v-if="precheckResponse.csrPublicKeyPresentInDB === true">
+							<span v-text="$t('pkcsxx.upload.warning.label')">Warning</span>
+						</dt>
+						<dd v-if="precheckResponse.csrPublicKeyPresentInDB === true">
+							<span v-text="$t('pkcsxx.upload.warning.publicKeyPresent')">Public key already in use</span>
+						</dd>
 
 						<dt>
 							<span v-text="$t('pkcsxx.upload.subject')">Subject</span>
@@ -167,8 +181,9 @@
 					</dl>
 				</div>
 
+
                 <div v-if="authenticated">
-					<div class="row jh-entity-details" v-if="isChecked === true && precheckResponse.dataType === 'X509_CERTIFICATE' && precheckResponse.certificatePresentInDB">
+					<div class="row jh-entity-details" v-if="isChecked === true && precheckResponse.dataType === 'X509_CERTIFICATE' && precheckResponse.csrPublicKeyPresentInDB === false">
 						<span v-text="$t('pkcsxx.upload.result.certificate.present')">Certificate.already.present</span>
 					</div>
                     <button type="button" id="uploadContent" :disabled="precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE' || precheckResponse.certificatePresentInDB || precheckResponse.publicKeyPresentInDB" class="btn btn-primary" v-on:click="uploadContent">

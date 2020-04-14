@@ -21,11 +21,11 @@
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.certificateAttribute.value')" for="certificate-attribute-value">Value</label>
-                        <input type="text" class="form-control" name="value" id="certificate-attribute-value"
-                            :class="{'valid': !$v.certificateAttribute.value.$invalid, 'invalid': $v.certificateAttribute.value.$invalid }" v-model="$v.certificateAttribute.value.$model" />
+                        <textarea class="form-control" name="value" id="certificate-attribute-value"
+                            :class="{'valid': !$v.certificateAttribute.value.$invalid, 'invalid': $v.certificateAttribute.value.$invalid }" v-model="$v.certificateAttribute.value.$model" ></textarea>
                     </div>
                     <div class="form-group">
-                        <label class="form-control-label" v-bind:value="$t('ca3SApp.certificateAttribute.certificate')" for="certificate-attribute-certificate">Certificate</label>
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificateAttribute.certificate')" for="certificate-attribute-certificate">Certificate</label>
                         <select class="form-control" id="certificate-attribute-certificate" name="certificate" v-model="certificateAttribute.certificate">
                             <option v-bind:value="null"></option>
                             <option v-bind:value="certificateAttribute.certificate && certificateOption.id === certificateAttribute.certificate.id ? certificateAttribute.certificate : certificateOption" v-for="certificateOption in certificates" :key="certificateOption.id">{{certificateOption.id}}</option>

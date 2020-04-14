@@ -112,6 +112,25 @@
                             <router-link :to="{name: 'CertificateView', params: {certificateId: certificate.issuingCertificate.id}}">{{certificate.issuingCertificate.id}}</router-link>
                         </div>
                     </dd>
+
+                    <dt v-if="certificate.issuingCertificate">
+                        <span v-text="$t('ca3SApp.certificate.download.pkix')">Pkix</span>
+                    </dt>
+                    <dd v-if="certificate.issuingCertificate">
+                        <div>
+                            <a href="downloadUrl" @click.prevent="downloadItem('.crt', 'application/pkix-cert')" >{{certificate.subject}}.crt</a>
+                        </div>
+                    </dd>
+                    <dt v-if="certificate.issuingCertificate">
+                        <span v-text="$t('ca3SApp.certificate.download.pem')">PEM</span>
+                    </dt>
+                    <dd v-if="certificate.issuingCertificate">
+                        <div>
+                            <a href="downloadUrl" @click.prevent="downloadItem('.cer', 'application/pem-certificate')" >{{certificate.subject}}.cer</a>
+                        </div>
+                    </dd>
+
+
                 </dl>
                 <button type="submit"
                         v-on:click.prevent="previousState()"
@@ -119,9 +138,13 @@
                     <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.back')"> Back</span>
                 </button>
                 
-                <router-link v-if="certificate.id" :to="{name: 'CertificateEdit', params: {certificateId: certificate.id}}" tag="button" class="btn btn-primary">
+                <!--router-link v-if="certificate.id" :to="{name: 'CertificateEdit', params: {certificateId: certificate.id}}" tag="button" class="btn btn-primary">
                     <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.edit')"> Edit</span>
-                </router-link>
+                </router-link-->
+
+                <!--router-link v-if="certificate.id" :to="{name: '/publicapi/cert', params: {certificateId: certificate.id}}" tag="button" class="btn btn-primary">
+                    <font-awesome-icon icon="arrow-down"></font-awesome-icon>&nbsp;<span v-text="$t('cert.action.download')"> Download</span>
+                </router-link-->
             </div>
         </div>
     </div>

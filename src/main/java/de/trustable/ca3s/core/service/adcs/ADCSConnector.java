@@ -228,7 +228,8 @@ public class ADCSConnector {
 				certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_CA_PROCESSING_ID,
 						certResponse.getReqId());
 				certificateRepository.save(certDao);
-
+				
+				csr.setCertificate(certDao);
 				csr.setStatus(CsrStatus.ISSUED);
 
 				csrAttrs.add(createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_FINISHED_TIMESTAMP,"" + System.currentTimeMillis()));

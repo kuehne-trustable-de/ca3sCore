@@ -2,9 +2,11 @@ package de.trustable.ca3s.core.acme;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.net.BindException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URL;
 import java.security.GeneralSecurityException;
@@ -22,6 +24,7 @@ import org.shredzone.acme4j.Account;
 import org.shredzone.acme4j.AccountBuilder;
 import org.shredzone.acme4j.Authorization;
 import org.shredzone.acme4j.Certificate;
+import org.shredzone.acme4j.Identifier;
 import org.shredzone.acme4j.Metadata;
 import org.shredzone.acme4j.Order;
 import org.shredzone.acme4j.Session;
@@ -51,14 +54,16 @@ import de.trustable.ca3s.core.security.provider.Ca3sKeyStoreProvider;
 import de.trustable.ca3s.core.security.provider.TimedRenewalCertMapHolder;
 import de.trustable.util.JCAManager;
 
-@SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(classes=CaConfigTestConfiguration.class)
+// @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+// @ContextConfiguration(classes=CaConfigTestConfiguration.class)
 public class ACMEHappyPathIT {
 
     private static final Logger LOG = LoggerFactory.getLogger(ACMEHappyPathIT.class);
 
-	@LocalServerPort
-	int serverPort; // random port chosen by spring test
+//	@LocalServerPort
+	int serverPort = 8080; // random port chosen by spring test
+	
+	final String ACME_PATH_PART = "/acme/ejbca/directory";
 
 	@BeforeAll
 	public static void setUpBeforeClass() throws Exception {
@@ -75,7 +80,7 @@ public class ACMEHappyPathIT {
 	@Test
 	public void testAccountHandling() throws AcmeException {
 
-		String dirUrl = "http://localhost:" + serverPort + "/acme/foo/directory";
+		String dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
 		System.out.println("connecting to " + dirUrl );
 		Session session = new Session(dirUrl);
 		Metadata meta = session.getMetadata();
@@ -135,7 +140,7 @@ public class ACMEHappyPathIT {
 	@Test
 	public void testOrderHandling() throws AcmeException, IOException, InterruptedException {
 
-		String dirUrl = "http://localhost:" + serverPort + "/acme/foo/directory";
+		String dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
 		System.out.println("connecting to " + dirUrl );
 		Session session = new Session(dirUrl);
 		Metadata meta = session.getMetadata();
@@ -179,9 +184,9 @@ public class ACMEHappyPathIT {
 		KeyPair domainKeyPair = KeyPairUtils.createKeyPair(2048);
 
 		CSRBuilder csrb = new CSRBuilder();
-		csrb.addDomain("example.org");
-		csrb.addDomain("www.example.org");
-		csrb.addDomain("m.example.org");
+		csrb.addDomain("localhost");
+//		csrb.addDomain("www.example.org");
+//		csrb.addDomain("m.example.org");
 		csrb.setOrganization("The Example Organization");
 		csrb.sign(domainKeyPair);
 		byte[] csr = csrb.getEncoded();
@@ -212,12 +217,193 @@ public class ACMEHappyPathIT {
 	}
 
 	@Test
+	public void testHTTPValidation() throws AcmeException, IOException, InterruptedException {
+
+		String dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
+		System.out.println("connecting to " + dirUrl );
+		Session session = new Session(dirUrl);
+		Metadata meta = session.getMetadata();
+		
+		URI tos = meta.getTermsOfService();
+		URL website = meta.getWebsite();
+		LOG.debug("TermsOfService {}, website {}", tos, website);
+		
+		KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
+		
+		
+		Account account = new AccountBuilder()
+		        .addContact("mailto:acmeOrderTest@ca3s.org")
+		        .agreeToTermsOfService()
+		        .useKeyPair(accountKeyPair)
+		        .create(session);
+
+		/*
+		 * test with a domain name and an IP address
+		 * and matching CSR
+		 */
+		{
+			Order order = account.newOrder()
+			        .domains("localhost")
+			        .identifier(Identifier.ip(InetAddress.getByName("127.0.0.1")))
+			        .notAfter(Instant.now().plus(Duration.ofDays(20L)))
+			        .create();
+			
+			
+			for (Authorization auth : order.getAuthorizations()) {
+				LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
+				if (auth.getStatus() == Status.PENDING) {
+	
+					Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
+	
+					int MAX_TRIAL = 10;
+					for( int retry = 0; retry < MAX_TRIAL; retry++) {
+						try {
+							provideAuthEndpoint(challenge, order);
+							break;
+						} catch( BindException be) {
+							System.out.println("bind exception, waiting for port to become available");
+						}
+						if( retry == MAX_TRIAL -1) {
+							System.out.println("callback port not available");
+						}
+					}
+					challenge.trigger();
+				}
+			}
+	
+			KeyPair domainKeyPair = KeyPairUtils.createKeyPair(2048);
+	
+			CSRBuilder csrb = new CSRBuilder();
+			csrb.addDomain("localhost");
+			csrb.addDomain("127.0.0.1");
+			csrb.setOrganization("The Example Organization");
+			csrb.sign(domainKeyPair);
+			byte[] csr = csrb.getEncoded();
+			
+			order.execute(csr);
+			
+			assertEquals("Expecting the finalize request to pass", Status.VALID, order.getStatus());
+			
+			Certificate acmeCert = order.getCertificate();
+			assertNotNull("Expected to receive no certificate", acmeCert);
+		}
+		
+		/*
+		 * test with a domain name and an IP address
+		 * and an additional IP in the CSR
+		 */
+		{
+		Order order = account.newOrder()
+		        .domains("localhost")
+		        .notAfter(Instant.now().plus(Duration.ofDays(20L)))
+		        .create();
+		
+		
+		for (Authorization auth : order.getAuthorizations()) {
+			LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
+			if (auth.getStatus() == Status.PENDING) {
+
+				Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
+
+				int MAX_TRIAL = 10;
+				for( int retry = 0; retry < MAX_TRIAL; retry++) {
+					try {
+						provideAuthEndpoint(challenge, order);
+						break;
+					} catch( BindException be) {
+						System.out.println("bind exception, waiting for port to become available");
+					}
+					if( retry == MAX_TRIAL -1) {
+						System.out.println("callback port not available");
+					}
+				}
+				challenge.trigger();
+			}
+		}
+
+		KeyPair domainKeyPair = KeyPairUtils.createKeyPair(2048);
+
+		CSRBuilder csrb = new CSRBuilder();
+		csrb.addDomain("localhost");
+		csrb.addDomain("127.0.0.1");
+		csrb.setOrganization("The Example Organization");
+		csrb.sign(domainKeyPair);
+		byte[] csr = csrb.getEncoded();
+		
+		order.execute(csr);
+		
+		assertEquals("Expecting the finalize request to fail", Status.INVALID, order.getStatus());
+		
+		Certificate acmeCert = order.getCertificate();
+		assertNull("Expected to receive no certificate", acmeCert);
+		}
+
+		/*
+		 * test with a domain name and an IP address
+		 * and too much domains in the CSR
+		 */
+		{
+		Order order = account.newOrder()
+		        .domains("localhost")
+		        .identifier(Identifier.ip(InetAddress.getByName("127.0.0.1")))
+//		        .domains("localhost", "example.org", "www.example.org", "m.example.org")
+//		        .identifier(Identifier.ip(InetAddress.getByName("192.168.56.10")))
+		        .notAfter(Instant.now().plus(Duration.ofDays(20L)))
+		        .create();
+		
+		
+		for (Authorization auth : order.getAuthorizations()) {
+			LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
+			if (auth.getStatus() == Status.PENDING) {
+
+				Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
+
+				int MAX_TRIAL = 10;
+				for( int retry = 0; retry < MAX_TRIAL; retry++) {
+					try {
+						provideAuthEndpoint(challenge, order);
+						break;
+					} catch( BindException be) {
+						System.out.println("bind exception, waiting for port to become available");
+					}
+					if( retry == MAX_TRIAL -1) {
+						System.out.println("callback port not available");
+					}
+				}
+				challenge.trigger();
+			}
+		}
+
+		KeyPair domainKeyPair = KeyPairUtils.createKeyPair(2048);
+
+		CSRBuilder csrb = new CSRBuilder();
+		csrb.addDomain("localhost");
+		csrb.addDomain("127.0.0.1");
+		csrb.addDomain("example.org");
+		csrb.addDomain("www.example.org");
+		csrb.addDomain("m.example.org");
+		csrb.setOrganization("The Example Organization");
+		csrb.sign(domainKeyPair);
+		byte[] csr = csrb.getEncoded();
+		
+		order.execute(csr);
+		
+		assertEquals("Expecting the finalize request to fail", Status.INVALID, order.getStatus());
+		
+		Certificate acmeCert = order.getCertificate();
+		assertNull("Expected to receive no certificate", acmeCert);
+		}
+
+	}
+
+
+	@Test
 	public void testWinStore() throws AcmeException, IOException, GeneralSecurityException, InterruptedException {
 
 		boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
 
 		if( isWindows ) {
-			String dirUrl = "http://localhost:" + serverPort + "/acme/foo/directory";
+			String dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
 			System.out.println("connecting to " + dirUrl );
 			Session session = new Session(dirUrl);
 			Metadata meta = session.getMetadata();
@@ -258,7 +444,8 @@ public class ACMEHappyPathIT {
 			KeyPair domainKeyPair = KeyPairUtils.createKeyPair(2048);
 	
 			CSRBuilder csrb = new CSRBuilder();
-			csrb.addDomain("WinStore.example.org");
+			csrb.addDomain("localhost");
+//			csrb.addDomain("WinStore.example.org");
 			csrb.setOrganization("The Example Organization' windows client");
 			csrb.sign(domainKeyPair);
 			byte[] csr = csrb.getEncoded();
@@ -286,13 +473,29 @@ public class ACMEHappyPathIT {
 	        .create();
 	}
 
+	
 	void provideAuthEndpoint(final Http01Challenge challenge, Order order) throws IOException, InterruptedException {
+		int MAX_TRIAL = 10;
+		for( int retry = 0; retry < MAX_TRIAL; retry++) {
+			try {
+				provideAuthEndpoint(challenge);
+				break;
+			} catch( BindException be) {
+				System.out.println("bind exception, waiting for port to become available");
+			}
+			if( retry == MAX_TRIAL -1) {
+				System.out.println("callback port not available");
+			}
+		}
+	}
+	
+	void provideAuthEndpoint(final Http01Challenge challenge) throws IOException, InterruptedException {
 
 		int callbackPort = 8800;
 		final String fileNameRegEx = "/\\.well-known/acme-challenge/" + challenge.getToken();
 		String fileContent = challenge.getAuthorization();
 
-		LOG.debug("Handling authorization for {} servingf {}", fileNameRegEx, fileContent);
+		LOG.debug("Handling authorization for {} serving {}", fileNameRegEx, fileContent);
 
 		Take tk = new TkFork(new FkRegex(fileNameRegEx, fileContent));
 		
@@ -308,8 +511,8 @@ public class ACMEHappyPathIT {
 		final Exit exitOnValid = new Exit() {
 			@Override
 			public boolean ready() {
-				boolean bTerminate = !(order.getStatus().equals( Status.PENDING));
-				LOG.info("exitOnValid {}", order.getStatus().toString());
+				boolean bTerminate = !(challenge.getStatus().equals( Status.PENDING));
+				LOG.info("exitOnValid {}", challenge.getStatus().toString());
 				return (bTerminate);
 			}
 		};

@@ -26,14 +26,24 @@
                 <tr>
                     <th><span v-text="$t('global.field.id')">ID</span></th>
                     <th><span v-text="$t('ca3SApp.cSR.csrBase64')">Csr Base 64</span></th>
+                    <th><span v-text="$t('ca3SApp.cSR.subject')">Subject</span></th>
                     <th><span v-text="$t('ca3SApp.cSR.requestedOn')">Requested On</span></th>
+                    <th><span v-text="$t('ca3SApp.cSR.requestedBy')">Requested By</span></th>
+                    <th><span v-text="$t('ca3SApp.cSR.pipelineType')">Pipeline Type</span></th>
                     <th><span v-text="$t('ca3SApp.cSR.status')">Status</span></th>
+                    <th><span v-text="$t('ca3SApp.cSR.administeredBy')">Administered By</span></th>
+                    <th><span v-text="$t('ca3SApp.cSR.approvedOn')">Approved On</span></th>
+                    <th><span v-text="$t('ca3SApp.cSR.rejectedOn')">Rejected On</span></th>
+                    <th><span v-text="$t('ca3SApp.cSR.rejectionReason')">Rejection Reason</span></th>
                     <th><span v-text="$t('ca3SApp.cSR.processInstanceId')">Process Instance Id</span></th>
                     <th><span v-text="$t('ca3SApp.cSR.signingAlgorithm')">Signing Algorithm</span></th>
                     <th><span v-text="$t('ca3SApp.cSR.isCSRValid')">Is CSR Valid</span></th>
                     <th><span v-text="$t('ca3SApp.cSR.x509KeySpec')">X 509 Key Spec</span></th>
                     <th><span v-text="$t('ca3SApp.cSR.publicKeyAlgorithm')">Public Key Algorithm</span></th>
+                    <th><span v-text="$t('ca3SApp.cSR.keyAlgorithm')">Key Algorithm</span></th>
+                    <th><span v-text="$t('ca3SApp.cSR.keyLength')">Key Length</span></th>
                     <th><span v-text="$t('ca3SApp.cSR.publicKeyHash')">Public Key Hash</span></th>
+                    <th><span v-text="$t('ca3SApp.cSR.serversideKeyGeneration')">Serverside Key Generation</span></th>
                     <th><span v-text="$t('ca3SApp.cSR.subjectPublicKeyInfoBase64')">Subject Public Key Info Base 64</span></th>
                     <th><span v-text="$t('ca3SApp.cSR.pipeline')">Pipeline</span></th>
                     <th></th>
@@ -46,14 +56,24 @@
                         <router-link :to="{name: 'CSRView', params: {cSRId: cSR.id}}">{{cSR.id}}</router-link>
                     </td>
                     <td>{{cSR.csrBase64}}</td>
-                    <td v-if="cSR.requestedOn"> {{$d(Date.parse(cSR.requestedOn), 'short') }}</td>
+                    <td>{{cSR.subject}}</td>
+                    <td>{{cSR.requestedOn ? $d(Date.parse(cSR.requestedOn), 'short') : ''}}</td>
+                    <td>{{cSR.requestedBy}}</td>
+                    <td v-text="$t('ca3SApp.PipelineType.' + cSR.pipelineType)">{{cSR.pipelineType}}</td>
                     <td v-text="$t('ca3SApp.CsrStatus.' + cSR.status)">{{cSR.status}}</td>
+                    <td>{{cSR.administeredBy}}</td>
+                    <td>{{cSR.approvedOn ? $d(Date.parse(cSR.approvedOn), 'short') : ''}}</td>
+                    <td>{{cSR.rejectedOn ? $d(Date.parse(cSR.rejectedOn), 'short') : ''}}</td>
+                    <td>{{cSR.rejectionReason}}</td>
                     <td>{{cSR.processInstanceId}}</td>
                     <td>{{cSR.signingAlgorithm}}</td>
                     <td>{{cSR.isCSRValid}}</td>
                     <td>{{cSR.x509KeySpec}}</td>
                     <td>{{cSR.publicKeyAlgorithm}}</td>
+                    <td>{{cSR.keyAlgorithm}}</td>
+                    <td>{{cSR.keyLength}}</td>
                     <td>{{cSR.publicKeyHash}}</td>
+                    <td>{{cSR.serversideKeyGeneration}}</td>
                     <td>{{cSR.subjectPublicKeyInfoBase64}}</td>
                     <td>
                         <div v-if="cSR.pipeline">
@@ -86,7 +106,7 @@
         <b-modal ref="removeEntity" id="removeEntity" >
             <span slot="modal-title"><span id="ca3SApp.cSR.delete.question" v-text="$t('entity.delete.title')">Confirm delete operation</span></span>
             <div class="modal-body">
-                <p id="jhi-delete-cSR-heading" v-bind:title="$t('ca3SApp.cSR.delete.question')">Are you sure you want to delete this CSR?</p>
+                <p id="jhi-delete-cSR-heading" v-text="$t('ca3SApp.cSR.delete.question', {'id': removeId})">Are you sure you want to delete this CSR?</p>
             </div>
             <div slot="modal-footer">
                 <button type="button" class="btn btn-secondary" v-text="$t('entity.action.cancel')" v-on:click="closeDialog()">Cancel</button>

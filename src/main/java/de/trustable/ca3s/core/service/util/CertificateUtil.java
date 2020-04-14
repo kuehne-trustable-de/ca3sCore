@@ -33,8 +33,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import javax.transaction.Transactional;
-
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
@@ -70,7 +68,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
@@ -391,9 +388,10 @@ public class CertificateUtil {
 			// mark it as self signed
 			cert.setSelfsigned(true);
 			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SELFSIGNED, "true");
-			cert.setIssuingCertificate(cert);
 			
-			cert.setRootCertificate(cert);
+			cert.setIssuingCertificate(null); // don't build a self reference here
+			cert.setRootCertificate(null);
+			
 			cert.setRoot(cert.getSubject());
 			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ROOT, cert.getSubject().toLowerCase());
 
@@ -882,7 +880,7 @@ public class CertificateUtil {
 	
 	public Certificate findIssuingCertificate(Certificate cert) throws GeneralSecurityException {
 		
-		if( "true".equalsIgnoreCase( getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SELFSIGNED))) {
+		if( cert.isSelfsigned()) {
 			// no need for lengthy calculations, we do know the issuer, yet
 			return cert;
 		}

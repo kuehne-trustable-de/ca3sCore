@@ -30,7 +30,6 @@ import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.web.rest.data.PKCSDataType;
 import de.trustable.ca3s.core.web.rest.data.Pkcs10RequestHolderShallow;
 import de.trustable.ca3s.core.web.rest.data.PkcsXXData;
@@ -80,7 +79,7 @@ public class CSRContentProcessor {
 		    	content = cryptoUtil.x509CertToPem(cert);
 		    	LOG.debug("certificate parsed from base64 (non-pem) content");
 	    	} catch (GeneralSecurityException | IOException | DecoderException gse) {
-		    	LOG.debug("certificate parsing from base64 (non-pem) content failed", gse);
+		    	LOG.debug("certificate parsing from base64 (non-pem) content failed: {}", gse.getMessage());
 	    	}
 
 			X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(content);
@@ -89,10 +88,9 @@ public class CSRContentProcessor {
 		} catch (org.bouncycastle.util.encoders.DecoderException de){	
 			// no parseable ...
 			p10ReqData.setDataType(PKCSDataType.UNKNOWN);
-			LOG.debug("certificate parsing problem of uploaded content:", de);
+			LOG.debug("certificate parsing problem of uploaded content: " + de.getMessage());
 		} catch (GeneralSecurityException e) {
-			
-			LOG.debug("not a certificate, trying to parse it as CSR ", e);
+			LOG.debug("not a certificate, trying to parse it as CSR ");
 			
 			try {
 				
@@ -103,10 +101,11 @@ public class CSRContentProcessor {
 				List<CSR> csrList = csrRepository.findByPublicKeyHash(p10ReqHolder.getPublicKeyHash());
 				LOG.debug("public key with hash '{}' used in #{} csrs, yet", p10ReqHolder.getPublicKeyHash(), csrList.size());
 				
-				p10ReqData.setCsrPublicKeyPresentInDB(!csrList.isEmpty());
 				p10ReqData = new PkcsXXData(p10ReqHolderShallow);
+				p10ReqData.setCsrPublicKeyPresentInDB(!csrList.isEmpty());
+								
 			} catch (IOException | GeneralSecurityException e2) {
-				LOG.debug("describeCSR ", e2);
+				LOG.debug("describeCSR : " + e2.getMessage());
 				LOG.debug("not a certificate, not a CSR, trying to parse it as a P12 container");
 				try {
 					
@@ -168,9 +167,9 @@ public class CSRContentProcessor {
 				} catch (org.bouncycastle.util.encoders.DecoderException de){	
 					// not parseable ...
 					p10ReqData.setDataType(PKCSDataType.UNKNOWN);
-					LOG.debug("p12 parsing problem of uploaded content:", de);
+					LOG.debug("p12 parsing problem of uploaded content: " + de.getMessage());
 				} catch(GeneralSecurityException e3) {
-					LOG.debug("general problem with uploaded content:", e3);
+					LOG.debug("general problem with uploaded content: " + e3.getMessage());
 					return new ResponseEntity<PkcsXXData>(HttpStatus.BAD_REQUEST);
 				}
 			}

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2020-03-26 17:33:19.
+// Generated using typescript-generator version 2.19.577 on 2020-04-14 18:18:04.
 
 export interface ICertificateView extends ISerializable {
     id?: number;
@@ -22,9 +22,37 @@ export interface ICertificateView extends ISerializable {
     revoked?: boolean;
 }
 
+export interface ICSRView extends ISerializable {
+    id?: number;
+    certificateId?: number;
+    status?: ICsrStatus;
+    subject?: string;
+    pipelineType?: IPipelineType;
+    rejectedOn?: Date;
+    rejectionReason?: string;
+    requestedBy?: string;
+    processingCA?: string;
+    pipelineName?: string;
+    x509KeySpec?: string;
+    keyLength?: string;
+    signingAlgorithm?: string;
+    publicKeyAlgorithm?: string;
+    requestedOn?: Date;
+}
+
+export interface ICSRAdministrationData extends ISerializable {
+    csrId?: number;
+    administrationType?: IAdministrationType;
+    rejectionReason?: string;
+    comment?: string;
+}
+
 export interface IUploadPrecheckData {
     passphrase?: string;
+    requestorcomment?: string;
+    pipelineId?: number;
     content?: string;
+    namedValues?: INamedValue[];
 }
 
 export interface IX509CertificateHolderShallow {
@@ -50,6 +78,10 @@ export interface ICertificateFilter extends ISerializable {
     selector?: ISelector;
 }
 
+export interface ICertificateFilterList extends ISerializable {
+    filterList?: ICertificateFilter[];
+}
+
 export interface ICertificateSelectionData extends ISerializable {
     itemName?: string;
     itemType?: string;
@@ -65,6 +97,8 @@ export interface IPkcsXXData {
     certificates?: IX509CertificateHolderShallow[];
     createdCertificateId?: string;
     passphraseRequired?: boolean;
+    csrPending?: boolean;
+    createdCSRId?: string;
 }
 
 export interface IDataCollection {
@@ -81,6 +115,11 @@ export interface IDataSet {
 export interface ISerializable {
 }
 
+export interface INamedValue {
+    name?: string;
+    value?: string;
+}
+
 export interface IPkcs10RequestHolderShallow {
     csrvalid?: boolean;
     signingAlgorithmName?: string;
@@ -94,5 +133,11 @@ export interface IPkcs10RequestHolderShallow {
 export type ICAStatus = "Active" | "Deactivated" | "Unknown";
 
 export type ISelector = "EQUAL" | "NOT_EQUAL" | "LIKE" | "NOTLIKE" | "LESSTHAN" | "GREATERTHAN" | "ON" | "BEFORE" | "AFTER" | "ISTRUE" | "ISFALSE";
+
+export type ICsrStatus = "PROCESSING" | "ISSUED" | "REJECTED" | "PENDING";
+
+export type IPipelineType = "ACME" | "SCEP" | "WEB" | "INTERNAL";
+
+export type IAdministrationType = "ACCEPT" | "REJECT";
 
 export type IPKCSDataType = "CSR" | "X509_CERTIFICATE" | "X509_CERTIFICATE_CREATED" | "UNKNOWN" | "CONTAINER" | "CONTAINER_REQUIRING_PASSPHRASE";

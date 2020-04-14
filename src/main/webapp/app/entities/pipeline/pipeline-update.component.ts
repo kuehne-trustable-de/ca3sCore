@@ -27,7 +27,8 @@ const validations: any = {
     },
     urlPart: {},
     description: {},
-    approvalRequired: {}
+    approvalRequired: {},
+    approvalInfo1: {}
   }
 };
 

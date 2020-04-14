@@ -13,6 +13,7 @@ import CSRService from './csr.service';
 export default class CSR extends mixins(JhiDataUtils, Vue2Filters.mixin, AlertMixin) {
   @Inject('cSRService') private cSRService: () => CSRService;
   private removeId: number = null;
+
   public cSRS: ICSR[] = [];
 
   public isFetching = false;
@@ -43,6 +44,9 @@ export default class CSR extends mixins(JhiDataUtils, Vue2Filters.mixin, AlertMi
 
   public prepareRemove(instance: ICSR): void {
     this.removeId = instance.id;
+    if (<any>this.$refs.removeEntity) {
+      (<any>this.$refs.removeEntity).show();
+    }
   }
 
   public removeCSR(): void {
@@ -52,7 +56,6 @@ export default class CSR extends mixins(JhiDataUtils, Vue2Filters.mixin, AlertMi
         const message = this.$t('ca3SApp.cSR.deleted', { param: this.removeId });
         this.alertService().showAlert(message, 'danger');
         this.getAlertFromStore();
-
         this.removeId = null;
         this.retrieveAllCSRs();
         this.closeDialog();

@@ -70,7 +70,7 @@
         <b-modal ref="removeEntity" id="removeEntity" >
             <span slot="modal-title"><span id="ca3SApp.csrAttribute.delete.question" v-text="$t('entity.delete.title')">Confirm delete operation</span></span>
             <div class="modal-body">
-                <p id="jhi-delete-csrAttribute-heading" v-bind:title="$t('ca3SApp.csrAttribute.delete.question')">Are you sure you want to delete this Csr Attribute?</p>
+                <p id="jhi-delete-csrAttribute-heading" v-text="$t('ca3SApp.csrAttribute.delete.question', {'id': removeId})">Are you sure you want to delete this Csr Attribute?</p>
             </div>
             <div slot="modal-footer">
                 <button type="button" class="btn btn-secondary" v-text="$t('entity.action.cancel')" v-on:click="closeDialog()">Cancel</button>

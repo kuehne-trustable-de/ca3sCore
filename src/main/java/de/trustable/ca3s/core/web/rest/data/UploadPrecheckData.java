@@ -12,8 +12,17 @@ public class UploadPrecheckData {
 	@JsonProperty("passphrase")
 	private String passphrase;
 	
+	@JsonProperty("requestorcomment")
+	private String requestorcomment;
+	
+	@JsonProperty("pipelineId")
+	private Long pipelineId;
+
 	@JsonProperty("content")
 	private String content;
+
+	@JsonProperty("namedValues")
+	private NamedValue[] namedValues;
 
 	public String getPassphrase() {
 		return passphrase;
@@ -31,4 +40,20 @@ public class UploadPrecheckData {
 		this.content = content;
 	}
 
+	public Long getPipelineId() {
+		return pipelineId;
+	}
+
+	public void setPipelineId(Long pipelineId) {
+		this.pipelineId = pipelineId;
+	}
+
+	public String getRequestorcomment() {
+		return requestorcomment;
+	}
+
+	public void setRequestorcomment(String requestorcomment) {
+		this.requestorcomment = requestorcomment;
+	}
+	
 }

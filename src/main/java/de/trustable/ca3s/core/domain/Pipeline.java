@@ -21,7 +21,12 @@ import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 	query = "SELECT p FROM Pipeline p WHERE " +
 			"p.type = :type and " +
 			"p.urlPart = :urlPart"
+    ),
+	@NamedQuery(name = "Pipeline.findByType",
+	query = "SELECT p FROM Pipeline p WHERE " +
+			"p.type = :type "
     )
+
 })
 public class Pipeline implements Serializable {
 

@@ -21,16 +21,11 @@
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.csrAttribute.value')" for="csr-attribute-value">Value</label>
-                        <input type="text" class="form-control" name="value" id="csr-attribute-value"
-                            :class="{'valid': !$v.csrAttribute.value.$invalid, 'invalid': $v.csrAttribute.value.$invalid }" v-model="$v.csrAttribute.value.$model"  required/>
-                        <div v-if="$v.csrAttribute.value.$anyDirty && $v.csrAttribute.value.$invalid">
-                            <small class="form-text text-danger" v-if="!$v.csrAttribute.value.required" v-text="$t('entity.validation.required')">
-                                This field is required.
-                            </small>
-                        </div>
+                        <textarea class="form-control" name="value" id="csr-attribute-value"
+                            :class="{'valid': !$v.csrAttribute.value.$invalid, 'invalid': $v.csrAttribute.value.$invalid }" v-model="$v.csrAttribute.value.$model" ></textarea>
                     </div>
                     <div class="form-group">
-                        <label class="form-control-label" v-bind:value="$t('ca3SApp.csrAttribute.csr')" for="csr-attribute-csr">Csr</label>
+                        <label class="form-control-label" v-text="$t('ca3SApp.csrAttribute.csr')" for="csr-attribute-csr">Csr</label>
                         <select class="form-control" id="csr-attribute-csr" name="csr" v-model="csrAttribute.csr">
                             <option v-bind:value="null"></option>
                             <option v-bind:value="csrAttribute.csr && cSROption.id === csrAttribute.csr.id ? csrAttribute.csr : cSROption" v-for="cSROption in cSRS" :key="cSROption.id">{{cSROption.id}}</option>

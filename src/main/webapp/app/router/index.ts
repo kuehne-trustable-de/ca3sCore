@@ -10,6 +10,8 @@ const Home = () => import('../core/home/home.vue');
 const PkcsXX = () => import('../core/pkcsxx/pkcsxx.vue');
 const CertList = () => import('../core/cert-list/cert-list.vue');
 const CertInfo = () => import('../core/cert-list/cert-info.vue');
+const CsrList = () => import('../core/csr-list/csr-list.vue');
+const CsrInfo = () => import('../core/csr-list/csr-info.vue');
 const Error = () => import('../core/error/error.vue');
 const Register = () => import('../account/register/register.vue');
 const Activate = () => import('../account/activate/activate.vue');
@@ -178,6 +180,12 @@ const RequestProxyConfig = () => import('../entities/request-proxy-config/reques
 const RequestProxyConfigUpdate = () => import('../entities/request-proxy-config/request-proxy-config-update.vue');
 // prettier-ignore
 const RequestProxyConfigDetails = () => import('../entities/request-proxy-config/request-proxy-config-details.vue');
+// prettier-ignore
+const UserPreference = () => import('../entities/user-preference/user-preference.vue');
+// prettier-ignore
+const UserPreferenceUpdate = () => import('../entities/user-preference/user-preference-update.vue');
+// prettier-ignore
+const UserPreferenceDetails = () => import('../entities/user-preference/user-preference-details.vue');
 // jhipster-needle-add-entity-to-router-import - JHipster will import entities to the router here
 
 Vue.use(Router);
@@ -239,16 +247,28 @@ export default new Router({
       component: CertInfo
     },
     {
+      path: '/csr-list',
+      name: 'CsrList',
+      component: CsrList,
+      meta: { authorities: ['ROLE_USER', 'ROLE_RA', 'ROLE_ADMIN'] }
+    },
+    {
+      path: '/csr-info',
+      name: 'CsrInfo',
+      component: CsrInfo,
+      meta: { authorities: ['ROLE_USER', 'ROLE_RA', 'ROLE_ADMIN'] }
+    },
+    {
       path: '/account/password',
       name: 'ChangePassword',
       component: ChangePassword,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_USER', 'ROLE_RA'] }
     },
     {
       path: '/account/settings',
       name: 'Settings',
       component: Settings,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_USER', 'ROLE_RA'] }
     },
     {
       path: '/admin/user-management',
