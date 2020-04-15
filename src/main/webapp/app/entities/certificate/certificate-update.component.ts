@@ -27,6 +27,7 @@ const validations: any = {
     subject: {
       required
     },
+    sans: {},
     issuer: {
       required
     },

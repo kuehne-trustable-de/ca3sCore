@@ -1,7 +1,4 @@
-import { Component, Inject } from 'vue-property-decorator';
-
-import { mixins } from 'vue-class-component';
-import JhiDataUtils from '@/shared/data/data-utils.service';
+import { Component, Vue, Inject } from 'vue-property-decorator';
 
 import { numeric, required, minLength, maxLength, minValue, maxValue } from 'vuelidate/lib/validators';
 
@@ -24,7 +21,7 @@ const validations: any = {
 @Component({
   validations
 })
-export default class CsrAttributeUpdate extends mixins(JhiDataUtils) {
+export default class CsrAttributeUpdate extends Vue {
   @Inject('alertService') private alertService: () => AlertService;
   @Inject('csrAttributeService') private csrAttributeService: () => CsrAttributeService;
   public csrAttribute: ICsrAttribute = new CsrAttribute();

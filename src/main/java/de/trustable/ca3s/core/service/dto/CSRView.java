@@ -25,6 +25,8 @@ public class CSRView implements Serializable {
 
     private String subject;
 
+    private String sans;
+
   	private PipelineType pipelineType;
 
     private Instant rejectedOn;
@@ -53,6 +55,8 @@ public class CSRView implements Serializable {
     	
     	this.id = csr.getId();
     	this.certificateId = csr.getCertificate().getId();
+    	this.subject = csr.getSubject();
+    	this.sans = csr.getSans();
     	this.status = csr.getStatus();
     	this.publicKeyAlgorithm = csr.getPublicKeyAlgorithm();
     	this.signingAlgorithm = csr.getSigningAlgorithm();
@@ -190,7 +194,13 @@ public class CSRView implements Serializable {
 	public void setRequestedBy(String requestedBy) {
 		this.requestedBy = requestedBy;
 	}
-    
-	
+
+	public String getSans() {
+		return sans;
+	}
+
+	public void setSans(String sans) {
+		this.sans = sans;
+	}
   
 }

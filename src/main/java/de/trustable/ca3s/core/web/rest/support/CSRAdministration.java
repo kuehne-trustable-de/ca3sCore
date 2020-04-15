@@ -78,7 +78,7 @@ public class CSRAdministration {
     		CSR csr = optCSR.get();
 			csr.setAdministeredBy(raOfficerName);
 			if( adminData.getComment() != null && !adminData.getComment().trim().isEmpty()) {
-				csrUtil.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_ADMINISTRATION_COMMENT, adminData.getComment(), true);
+				csr.setAdministrationComment(adminData.getComment());
 			}
     		
     		if(AdministrationType.ACCEPT.equals(adminData.getAdministrationType())){
@@ -151,7 +151,7 @@ public class CSRAdministration {
     		
 			csr.setAdministeredBy(userName);
 			if( adminData.getComment() != null && !adminData.getComment().trim().isEmpty()) {
-				csrUtil.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_ADMINISTRATION_COMMENT, adminData.getComment(), true);
+				csr.setAdministrationComment(adminData.getComment());
 			}
     		
 			csr.setRejectionReason(adminData.getRejectionReason());

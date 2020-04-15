@@ -37,6 +37,7 @@ describe('Service Tests', () => {
         0,
         'AAAAAAA',
         'AAAAAAA',
+        'AAAAAAA',
         currentDate,
         'AAAAAAA',
         PipelineType.ACME,
@@ -54,6 +55,8 @@ describe('Service Tests', () => {
         0,
         'AAAAAAA',
         false,
+        'AAAAAAA',
+        'AAAAAAA',
         'AAAAAAA'
       );
     });
@@ -126,6 +129,7 @@ describe('Service Tests', () => {
           {
             csrBase64: 'BBBBBB',
             subject: 'BBBBBB',
+            sans: 'BBBBBB',
             requestedOn: format(currentDate, DATE_TIME_FORMAT),
             requestedBy: 'BBBBBB',
             pipelineType: 'BBBBBB',
@@ -143,7 +147,9 @@ describe('Service Tests', () => {
             keyLength: 1,
             publicKeyHash: 'BBBBBB',
             serversideKeyGeneration: true,
-            subjectPublicKeyInfoBase64: 'BBBBBB'
+            subjectPublicKeyInfoBase64: 'BBBBBB',
+            requestorComment: 'BBBBBB',
+            administrationComment: 'BBBBBB'
           },
           elemDefault
         );
@@ -179,6 +185,7 @@ describe('Service Tests', () => {
           {
             csrBase64: 'BBBBBB',
             subject: 'BBBBBB',
+            sans: 'BBBBBB',
             requestedOn: format(currentDate, DATE_TIME_FORMAT),
             requestedBy: 'BBBBBB',
             pipelineType: 'BBBBBB',
@@ -196,7 +203,9 @@ describe('Service Tests', () => {
             keyLength: 1,
             publicKeyHash: 'BBBBBB',
             serversideKeyGeneration: true,
-            subjectPublicKeyInfoBase64: 'BBBBBB'
+            subjectPublicKeyInfoBase64: 'BBBBBB',
+            requestorComment: 'BBBBBB',
+            administrationComment: 'BBBBBB'
           },
           elemDefault
         );

@@ -43,6 +43,7 @@ describe('Service Tests', () => {
         'AAAAAAA',
         'AAAAAAA',
         'AAAAAAA',
+        'AAAAAAA',
         currentDate,
         currentDate,
         'AAAAAAA',
@@ -134,6 +135,7 @@ describe('Service Tests', () => {
           {
             tbsDigest: 'BBBBBB',
             subject: 'BBBBBB',
+            sans: 'BBBBBB',
             issuer: 'BBBBBB',
             root: 'BBBBBB',
             type: 'BBBBBB',
@@ -193,6 +195,7 @@ describe('Service Tests', () => {
           {
             tbsDigest: 'BBBBBB',
             subject: 'BBBBBB',
+            sans: 'BBBBBB',
             issuer: 'BBBBBB',
             root: 'BBBBBB',
             type: 'BBBBBB',

@@ -310,7 +310,7 @@ public class ContentUploadProcessor {
 				csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, PipelineType.WEB, null);
 			}
 
-			csrUtil.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_REQUESTOR_COMMENT, requestorComment, false);
+			csr.setRequestorComment(requestorComment);
 			csrRepository.save(csr);
 
 			applicationEventPublisher.publishEvent(

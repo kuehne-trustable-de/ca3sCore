@@ -29,31 +29,59 @@
                     <dd>
                         <span>{{cSR.subject}}</span>
                     </dd>
+
+                    <dt v-if="cSR.sans && cSR.sans.length > 0">
+						<span v-text="$t('ca3SApp.cSR.sans')">Subject alternative names</span>
+					</dt>
+					<dd v-if="cSR.sans && cSR.sans.length > 0">
+						<ul>
+							<li v-for="san in sansOnly(cSR.csrAttributes)" :key="san.Id" >{{san.value}}</li>
+						</ul>
+					</dd>
+
                     <dt>
                         <span v-text="$t('ca3SApp.cSR.requestedBy')">Subject</span>
                     </dt>
                     <dd>
                         <span>{{cSR.requestedBy}}</span>
                     </dd>
+
                     <dt>
                         <span v-text="$t('ca3SApp.cSR.requestedOn')">Requested On</span>
                     </dt>
                     <dd>
                         <span v-if="cSR.requestedOn">{{$d(Date.parse(cSR.requestedOn), 'long') }}</span>
                     </dd>
-                    <dt>
+
+                    <dt v-if="cSR.requestorComment && cSR.requestorComment.length > 0">
+                        <span v-text="$t('ca3SApp.cSR.requestorComment')">Requestor comment</span>
+                    </dt>
+                    <dd v-if="cSR.requestorComment && cSR.requestorComment.length > 0">
+                        <span>{{cSR.requestorComment}}</span>
+                    </dd>
+
+                    <dt v-if="cSR.status === 'REJECTED'">
                         <span v-text="$t('ca3SApp.cSR.rejectedOn')">Rejected On</span>
                     </dt>
                     <dd v-if="cSR.status === 'REJECTED'">
                         <span v-if="cSR.rejectedOn">{{$d(Date.parse(cSR.rejectedOn), 'long') }}</span>
                     </dd>
+
                     <dt v-if="cSR.status === 'REJECTED'">
                         <span v-text="$t('ca3SApp.cSR.rejectionReason')">Rejection Reason</span>
                     </dt>
                     <dd v-if="cSR.status === 'REJECTED'">
                         <span>{{cSR.rejectionReason}}</span>
                     </dd>
-                    <dt v-if="cSR.status === 'REJECTED'">
+
+                    <dt v-if="cSR.administrationComment && cSR.administrationComment.length > 0">
+                        <span v-text="$t('ca3SApp.cSR.administrationComment')">Administrator comment</span>
+                    </dt>
+                    <dd v-if="cSR.administrationComment && cSR.administrationComment.length > 0">
+                        <span>{{cSR.administrationComment}}</span>
+                    </dd>
+
+                    <dt>
                         <span v-text="$t('ca3SApp.cSR.x509KeySpec')">X 509 Key Spec</span>
                     </dt>
                     <dd>
@@ -110,13 +138,6 @@
                         <span>{{cSR.processInstanceId}}</span>
                     </dd-->
                     
-                    <dt v-if="requestorComment.length > 0">
-                        <span v-text="$t('ca3SApp.cSR.requestorComment')">Requestor comment</span>
-                    </dt>
-                    <dd v-if="requestorComment.length > 0">
-                        <span>{{requestorComment}}</span>
-                    </dd>
-
                     <dt>
                         <span v-text="$t('ca3SApp.cSR.csrBase64')">Csr Base 64</span>
                     </dt>

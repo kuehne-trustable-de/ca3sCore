@@ -17,6 +17,12 @@
                         <span>{{cSR.subject}}</span>
                     </dd>
                     <dt>
+                        <span v-text="$t('ca3SApp.cSR.sans')">Sans</span>
+                    </dt>
+                    <dd>
+                        <span>{{cSR.sans}}</span>
+                    </dd>
+                    <dt>
                         <span v-text="$t('ca3SApp.cSR.requestedOn')">Requested On</span>
                     </dt>
                     <dd>
@@ -123,6 +129,18 @@
                     </dt>
                     <dd>
                         <span>{{cSR.subjectPublicKeyInfoBase64}}</span>
+                    </dd>
+                    <dt>
+                        <span v-text="$t('ca3SApp.cSR.requestorComment')">Requestor Comment</span>
+                    </dt>
+                    <dd>
+                        <span>{{cSR.requestorComment}}</span>
+                    </dd>
+                    <dt>
+                        <span v-text="$t('ca3SApp.cSR.administrationComment')">Administration Comment</span>
+                    </dt>
+                    <dd>
+                        <span>{{cSR.administrationComment}}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.cSR.pipeline')">Pipeline</span>

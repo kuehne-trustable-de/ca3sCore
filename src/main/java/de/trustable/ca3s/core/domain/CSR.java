@@ -53,6 +53,9 @@ public class CSR implements Serializable {
     @Column(name = "subject", nullable = false)
     private String subject;
 
+    @Column(name = "sans")
+    private String sans;
+
     @NotNull
     @Column(name = "requested_on", nullable = false)
     private Instant requestedOn;
@@ -115,6 +118,14 @@ public class CSR implements Serializable {
     @Column(name = "subject_public_key_info_base_64", nullable = false)
     private String subjectPublicKeyInfoBase64;
 
+    @Lob
+    @Column(name = "requestor_comment")
+    private String requestorComment;
+
+    @Lob
+    @Column(name = "administration_comment")
+    private String administrationComment;
+
     @OneToMany(mappedBy = "csr")
     private Set<RDN> rdns = new HashSet<>();
 
@@ -166,6 +177,19 @@ public class CSR implements Serializable {
 
     public void setSubject(String subject) {
         this.subject = subject;
+    }
+
+    public String getSans() {
+        return sans;
+    }
+
+    public CSR sans(String sans) {
+        this.sans = sans;
+        return this;
+    }
+
+    public void setSans(String sans) {
+        this.sans = sans;
     }
 
     public Instant getRequestedOn() {
@@ -402,6 +426,32 @@ public class CSR implements Serializable {
         this.subjectPublicKeyInfoBase64 = subjectPublicKeyInfoBase64;
     }
 
+    public String getRequestorComment() {
+        return requestorComment;
+    }
+
+    public CSR requestorComment(String requestorComment) {
+        this.requestorComment = requestorComment;
+        return this;
+    }
+
+    public void setRequestorComment(String requestorComment) {
+        this.requestorComment = requestorComment;
+    }
+
+    public String getAdministrationComment() {
+        return administrationComment;
+    }
+
+    public CSR administrationComment(String administrationComment) {
+        this.administrationComment = administrationComment;
+        return this;
+    }
+
+    public void setAdministrationComment(String administrationComment) {
+        this.administrationComment = administrationComment;
+    }
+
     public Set<RDN> getRdns() {
         return rdns;
     }
@@ -526,6 +576,7 @@ public class CSR implements Serializable {
             "id=" + getId() +
             ", csrBase64='" + getCsrBase64() + "'" +
             ", subject='" + getSubject() + "'" +
+            ", sans='" + getSans() + "'" +
             ", requestedOn='" + getRequestedOn() + "'" +
             ", requestedBy='" + getRequestedBy() + "'" +
             ", pipelineType='" + getPipelineType() + "'" +
@@ -544,6 +595,8 @@ public class CSR implements Serializable {
             ", publicKeyHash='" + getPublicKeyHash() + "'" +
             ", serversideKeyGeneration='" + isServersideKeyGeneration() + "'" +
             ", subjectPublicKeyInfoBase64='" + getSubjectPublicKeyInfoBase64() + "'" +
+            ", requestorComment='" + getRequestorComment() + "'" +
+            ", administrationComment='" + getAdministrationComment() + "'" +
             "}";
     }
 }

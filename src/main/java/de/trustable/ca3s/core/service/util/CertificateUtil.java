@@ -82,6 +82,7 @@ import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.CertificateAttributeRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
+import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
 
@@ -485,21 +486,32 @@ public class CertificateUtil {
 			}
 		}
 
+		String allSans = "";
+
 		// list all SANs
 		if (x509Cert.getSubjectAlternativeNames() != null) {
 			Collection<List<?>> altNames = x509Cert.getSubjectAlternativeNames();
 			
 			if( altNames != null) {
 				for (List<?> altName : altNames) {
+					
+					String sanValue = ((String)altName.get(1)).toLowerCase();
+					if( allSans.length() > 0) {
+						allSans += ";";
+					}
+					allSans += sanValue;
+
 	                Integer altNameType = (Integer) altName.get(0);
 	                if (altNameType != 2 && altNameType != 7) { // dns or ip
 	                    continue;
 	                }
-	                setCertMultiValueAttribute(cert, CertificateAttribute.ATTRIBUTE_SAN, ((String)altName.get(1)).toLowerCase());
+	                setCertMultiValueAttribute(cert, CertificateAttribute.ATTRIBUTE_SAN, sanValue);
 				}
 			}
 		}
 
+		cert.setSans(CryptoUtil.limitLength(allSans, 250));
+		
 		int keyLength = getAlignedKeyLength(x509Cert.getPublicKey());
 		cert.setKeyLength(keyLength);
 		
@@ -1158,144 +1170,6 @@ public class CertificateUtil {
 	}
 
 
-	/**
-	 * @return
-	 * @throws GeneralSecurityException
-	 *
-	private X509ExtensionUtils getX509UtilInstance() throws GeneralSecurityException {
-		DigestCalculator digCalc;
-		try {
-			digCalc = new BcDigestCalculatorProvider().get(new AlgorithmIdentifier(OIWObjectIdentifiers.idSHA1));
-		} catch (OperatorCreationException e) {
-			LOG.warn("Problem instatiating digest calculator for SHA1", e);
-			throw new GeneralSecurityException(e.getMessage());
-		}
-		X509ExtensionUtils x509ExtensionUtils = new X509ExtensionUtils(digCalc);
-		return x509ExtensionUtils;
-	}
-*/
-	/**
-	 * @deprecated
-	 * 
-	 * @param csrBase64
-	 * @param p10ReqHolder
-	 * @param processInstanceId
-	 * @return
-	 */
-	public CSR createCSR(final String csrBase64, final Pkcs10RequestHolder p10ReqHolder, final String processInstanceId) {
-
-		CSR csr = new CSR();
-		
-		csr.setStatus(CsrStatus.PENDING);
-		
-		csr.setCsrBase64(csrBase64);
-
-		csr.setSigningAlgorithm(p10ReqHolder.getSigningAlgorithm());
-
-		csr.setIsCSRValid(p10ReqHolder.isCSRValid());
-
-		csr.setx509KeySpec(p10ReqHolder.getX509KeySpec());
-
-		csr.setPublicKeyAlgorithm(p10ReqHolder.getPublicKeyAlgorithm());
-
-		csr.setPublicKeyHash(p10ReqHolder.getPublicKeyHash());
-		
-		csr.setSubjectPublicKeyInfoBase64(p10ReqHolder.getSubjectPublicKeyInfoBase64());
-
-		/*
-		 * if( p10ReqHolder.publicSigningKey != null ){ try {
-		 * this.setPublicKeyPEM(cryptoUtil.publicKeyToPem(
-		 * p10ReqHolder.publicSigningKey)); } catch (IOException e) {
-		 * LOG.warn("wrapping of public key into PEM failed."); } }
-		 */
-		 csr.setProcessInstanceId(processInstanceId);
-		 csr.setRequestedOn(Instant.now());
-
-		LOG.debug("RDN arr #" + p10ReqHolder.getSubjectRDNs().length);
-
-		Set<de.trustable.ca3s.core.domain.RDN> newRdns = new HashSet<de.trustable.ca3s.core.domain.RDN>();
-
-		for (RDN currentRdn : p10ReqHolder.getSubjectRDNs()) {
-
-			de.trustable.ca3s.core.domain.RDN rdnDao = new de.trustable.ca3s.core.domain.RDN();
-			rdnDao.setCsr(csr);
-
-			LOG.debug("AttributeTypeAndValue arr #" + currentRdn.size());
-			Set<RDNAttribute> rdnAttributes = new HashSet<RDNAttribute>();
-
-			AttributeTypeAndValue[] attrTVArr = currentRdn.getTypesAndValues();
-			for (AttributeTypeAndValue attrTV : attrTVArr) {
-				
-				RDNAttribute rdnAtt = new RDNAttribute();
-				rdnAtt.setRdn(rdnDao);
-				rdnAtt.setAttributeType(attrTV.getType().toString());
-				rdnAtt.setAttributeValue(attrTV.getValue().toString());
-				LOG.debug("Adding RDNAttribute: '{}' = '{}'", attrTV.getType().toString(), attrTV.getValue().toString());
-				
-				rdnAttributes.add(rdnAtt);
-			}
-
-			rdnDao.setRdnAttributes(rdnAttributes);
-			newRdns.add(rdnDao);
-		}
-		
-		if(p10ReqHolder.getSubjectRDNs().length == 0) {
-
-			LOG.info("Subject empty, using SANs" );
-			Set<GeneralName> gNameSet = getSANList(p10ReqHolder);
-			for( GeneralName gName : gNameSet) {
-				if( GeneralName.dNSName == gName.getTagNo()) {
-					
-					de.trustable.ca3s.core.domain.RDN rdnDao = new de.trustable.ca3s.core.domain.RDN();
-					rdnDao.setCsr(csr);
-					
-					Set<RDNAttribute> rdnAttributes = new HashSet<RDNAttribute>();
-					RDNAttribute rdnAtt = new RDNAttribute();
-					rdnAtt.setRdn(rdnDao);
-					rdnAtt.setAttributeType(X509ObjectIdentifiers.commonName.toString());
-					rdnAtt.setAttributeValue(gName.getName().toString());
-					rdnAttributes.add(rdnAtt);
-					rdnDao.setRdnAttributes(rdnAttributes);
-					newRdns.add(rdnDao);
-					LOG.info("First DNS SAN inserted as CN: " + gName.getName().toString() );
-					break; // just one CN !
-				}
-			}
-			
-		}
-		
-		
-		csr.setRdns(newRdns);
-
-		Set<RequestAttribute> newRas = new HashSet<RequestAttribute>();
-
-		for (Attribute attr : p10ReqHolder.getReqAttributes()) {
-
-			RequestAttribute reqAttrs = new RequestAttribute();
-			reqAttrs.setCsr(csr);
-			reqAttrs.setAttributeType( attr.getAttrType().toString());
-
-			Set<RequestAttributeValue> requestAttributes = new HashSet<RequestAttributeValue>();
-			String type = attr.getAttrType().toString();
-			ASN1Set valueSet = attr.getAttrValues();
-			LOG.debug("AttributeSet type " + type + " #" + valueSet.size());
-
-			for (ASN1Encodable asn1Enc : valueSet.toArray()) {
-				String value = asn1Enc.toString();
-				LOG.debug("Attribute value " + value);
-
-				RequestAttributeValue reqAttr = new RequestAttributeValue();
-				reqAttr.setReqAttr(reqAttrs);
-				reqAttr.setAttributeValue(asn1Enc.toString());
-				requestAttributes.add(reqAttr);
-			}
-			reqAttrs.setRequestAttributeValues(requestAttributes);
-			newRas.add(reqAttrs);
-		}
-		csr.setRas(newRas);
-		
-		return csr;
-	}
 
 	public Set<GeneralName> getSANList(X509CertificateHolder x509CertHolder){
 		

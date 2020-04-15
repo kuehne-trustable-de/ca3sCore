@@ -39,6 +39,8 @@ import de.trustable.ca3s.core.repository.RDNAttributeRepository;
 import de.trustable.ca3s.core.repository.RDNRepository;
 import de.trustable.ca3s.core.repository.RequestAttributeRepository;
 import de.trustable.ca3s.core.repository.RequestAttributeValueRepository;
+import de.trustable.util.CryptoUtil;
+import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
 
 @Service
@@ -111,13 +113,31 @@ public class CSRUtil {
 		
 		csr.setSubject(p10ReqHolder.getSubject());
 
-		csr.setSigningAlgorithm(p10ReqHolder.getSigningAlgorithm());
+
+		/**
+		 * produce a readable form of algorithms
+		 */
+		String sigAlgName = OidNameMapper.lookupOid(p10ReqHolder.getSigningAlgorithm());
+		String keyAlgName = sigAlgName;
+		if( sigAlgName.toLowerCase().contains("with")) {
+			String[] parts = sigAlgName.toLowerCase().split("with");
+			if(parts.length > 1) {
+				if(parts[1].contains("and")) {
+					String[] parts2 = parts[1].split("and");
+					keyAlgName = parts2[0];
+				}else {
+					keyAlgName = parts[1];
+				}
+			}
+		}
+
+		csr.setSigningAlgorithm(sigAlgName);
 
 		csr.setIsCSRValid(p10ReqHolder.isCSRValid());
 
 		csr.setx509KeySpec(p10ReqHolder.getX509KeySpec());
 
-		csr.setPublicKeyAlgorithm(p10ReqHolder.getPublicKeyAlgorithm());
+		csr.setPublicKeyAlgorithm(keyAlgName);
 
 		csr.setPublicKeyHash(p10ReqHolder.getPublicKeyHash());
 
@@ -165,10 +185,46 @@ public class CSRUtil {
 
 		insertNameAttributes(csr, CsrAttribute.ATTRIBUTE_SUBJECT, p10ReqHolder.getSubjectRDNs());
 
+		Set<GeneralName> gNameSet = getSANList(p10ReqHolder);
+
+		String allSans = "";
+		LOG.debug("putting SANs into CSRAttributes");
+		for (GeneralName gName : gNameSet) {
+			
+			String sanValue = gName.getName().toString();
+			if( allSans.length() > 0) {
+				allSans += ";";
+			}
+			allSans += sanValue;
+			
+			this.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_SAN, sanValue, true);
+			if (GeneralName.dNSName == gName.getTagNo()) {
+				this.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_TYPED_SAN, "DNS:" + sanValue, true);
+			} else if (GeneralName.iPAddress == gName.getTagNo()) {
+				this.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_TYPED_SAN, "IP:" + sanValue, true);
+			} else if (GeneralName.ediPartyName == gName.getTagNo()) {
+				this.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_TYPED_SAN, "EDI:" + sanValue, true);
+			} else if (GeneralName.otherName == gName.getTagNo()) {
+				this.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_TYPED_SAN, "other:" + sanValue, true);
+			} else if (GeneralName.registeredID == gName.getTagNo()) {
+				this.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_TYPED_SAN, "regID:" + sanValue, true);
+			} else if (GeneralName.rfc822Name == gName.getTagNo()) {
+				this.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_TYPED_SAN, "rfc822:" + sanValue, true);
+			} else if (GeneralName.uniformResourceIdentifier == gName.getTagNo()) {
+				this.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_TYPED_SAN, "URI:" + sanValue, true);
+			} else if (GeneralName.x400Address == gName.getTagNo()) {
+				this.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_TYPED_SAN, "X400:" + sanValue, true);
+			} else if (GeneralName.directoryName == gName.getTagNo()) {
+				this.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_TYPED_SAN, "DirName:" + sanValue, true);
+			}else {
+				LOG.info("unexpected name / tag '{}' in SANs", gName.getTagNo());
+			}
+		}
+		csr.setSans(CryptoUtil.limitLength(allSans, 250));
+
 		if (p10ReqHolder.getSubjectRDNs().length == 0) {
 
 			LOG.info("Subject empty, using SANs");
-			Set<GeneralName> gNameSet = getSANList(p10ReqHolder);
 			for (GeneralName gName : gNameSet) {
 				if (GeneralName.dNSName == gName.getTagNo()) {
 

@@ -5,12 +5,10 @@ import Vue2Filters from 'vue2-filters';
 import { ICertificateAttribute } from '@/shared/model/certificate-attribute.model';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
-import JhiDataUtils from '@/shared/data/data-utils.service';
-
 import CertificateAttributeService from './certificate-attribute.service';
 
 @Component
-export default class CertificateAttribute extends mixins(JhiDataUtils, Vue2Filters.mixin, AlertMixin) {
+export default class CertificateAttribute extends mixins(Vue2Filters.mixin, AlertMixin) {
   @Inject('certificateAttributeService') private certificateAttributeService: () => CertificateAttributeService;
   private removeId: number = null;
 

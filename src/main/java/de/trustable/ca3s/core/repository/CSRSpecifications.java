@@ -27,7 +27,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.CSR_;
@@ -288,6 +287,8 @@ public final class CSRSpecifications {
 		    	cv.setStatus((CsrStatus) objArr[i]); 
 		    }else if( "subject".equalsIgnoreCase(attribute)) {
 		    	cv.setSubject((String) objArr[i]);	
+		    }else if( "sans".equalsIgnoreCase(attribute)) {
+		    	cv.setSans((String) objArr[i]);	
 		    }else if( "publicKeyAlgorithm".equalsIgnoreCase(attribute)) {
 		    	cv.setPublicKeyAlgorithm((String) objArr[i]);	
 		    }else if( "signingAlgorithm".equalsIgnoreCase(attribute)) {
@@ -397,19 +398,6 @@ public final class CSRSpecifications {
 			List<Selection<?>> selectionList) {
 	
 		Predicate pred = cb.conjunction();
-/*
-		if( "id".equalsIgnoreCase(attribute)) {
-		}else if( "certificateId".equalsIgnoreCase(attribute)) {
-	    }else if( "subject".equalsIgnoreCase(attribute)) {
-	    }else if( "publicKeyAlgorithm".equalsIgnoreCase(attribute)) {
-	    }else if( "signingAlgorithm".equalsIgnoreCase(attribute)) {
-	    }else if( "keyLength".equalsIgnoreCase(attribute)) {
-	    }else if( "x509KeySpec".equalsIgnoreCase(attribute)) {
-	    }else if( "requestedBy".equalsIgnoreCase(attribute)) {
-	    }else if( "processingCA".equalsIgnoreCase(attribute)) {
-	    }else if( "pipelineName".equalsIgnoreCase(attribute)) {
-	    }else if( "requestedOn".equalsIgnoreCase(attribute)) {
-*/
 
 		if( "id".equals(attribute)){
 			addNewColumn(selectionList,root.get(CSR_.id));
@@ -434,6 +422,18 @@ public final class CSRSpecifications {
 			    pred = cb.exists(csrAttSubquery.select(csrAttRoot)//subquery selection
 	                     .where(cb.and( cb.equal(csrAttRoot.get(CsrAttribute_.CSR), root.get(CSR_.ID)),
 	                    		 cb.equal(csrAttRoot.get(CsrAttribute_.NAME), CsrAttribute.ATTRIBUTE_SUBJECT),
+	                    		 buildPredicate( attributeSelector, cb, csrAttRoot.<String>get(CsrAttribute_.value), attributeValue.toLowerCase()) )));
+			}
+		}else if( "sans".equals(attribute)){
+			addNewColumn(selectionList,root.get(CSR_.sans));
+		
+			if( attributeValue.trim().length() > 0 ) {
+				//subquery
+			    Subquery<CsrAttribute> csrAttSubquery = csrQuery.subquery(CsrAttribute.class);
+			    Root<CsrAttribute> csrAttRoot = csrAttSubquery.from(CsrAttribute.class);
+			    pred = cb.exists(csrAttSubquery.select(csrAttRoot)//subquery selection
+	                     .where(cb.and( cb.equal(csrAttRoot.get(CsrAttribute_.CSR), root.get(CSR_.ID)),
+	                    		 cb.equal(csrAttRoot.get(CsrAttribute_.NAME), CsrAttribute.ATTRIBUTE_SAN),
 	                    		 buildPredicate( attributeSelector, cb, csrAttRoot.<String>get(CsrAttribute_.value), attributeValue.toLowerCase()) )));
 			}
 		}else if( "publicKeyAlgorithm".equals(attribute)){

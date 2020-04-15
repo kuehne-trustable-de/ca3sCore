@@ -78,6 +78,7 @@ export default class CsrList extends Vue {
   public csrSelectionItems: ICertificateSelectionData[] = [
     { itemName: 'status', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'PENDING', values: ['PROCESSING', 'ISSUED', 'REJECTED', 'PENDING']},
     { itemName: 'subject', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable'},
+    { itemName: 'sans', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable'},
     { itemName: 'requestedOn', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}'},
     { itemName: 'requestedBy', itemType: 'string', itemDefaultSelector: 'EQUAL', itemDefaultValue: '{user}'},
     { itemName: 'rejectedOn', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}'},
@@ -217,6 +218,7 @@ export default class CsrList extends Vue {
         { label: 'length', field: 'keyLength', align: 'right' },
         { label: 'rejected', field: 'rejectedOn'  },
         { label: 'reason', field: 'rejectionReason'  },
+        { label: 'san', field: 'sans'  },
       ] as TColumnsDefinition<ICSRView>,
       page: 1,
       filter: '',

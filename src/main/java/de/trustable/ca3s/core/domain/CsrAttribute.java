@@ -24,7 +24,6 @@ public class CsrAttribute implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Lob
     @Column(name = "value")
     private String value;
 
@@ -105,6 +104,7 @@ public class CsrAttribute implements Serializable {
             ", value='" + getValue() + "'" +
             "}";
     }
+
     
 	public static final String ATTRIBUTE_REQUESTED_BY = "REQUESTOR_NAME";
 	public static final String ATTRIBUTE_PROCESSING_CA = "PROCESSING_CA";
@@ -114,11 +114,12 @@ public class CsrAttribute implements Serializable {
 
 	public static final String ATTRIBUTE_SUBJECT = CertificateAttribute.ATTRIBUTE_SUBJECT;
 
-	public static final String ATTRIBUTE_ADMINISTRATION_COMMENT = "ADMINISTRATION_COMMENT";
-	public static final String ATTRIBUTE_REQUESTOR_COMMENT = "REQUESTOR_COMMENT";
-	
 	public static final String REQUESTOR_SYSTEM = "SYSTEM";
 
 	public static final String REQUESTOR_SCEP = "REQUESTOR_SCEP";
+
+	public static final String ATTRIBUTE_TYPED_SAN = "TYPED_SAN";
+
+	public static final String ATTRIBUTE_SAN = "SAN";
 
 }

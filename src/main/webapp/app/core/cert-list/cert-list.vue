@@ -34,20 +34,20 @@
 			<certificate-table :columns="columns" :data="certApiUrl" :per-page="20" name="certificates">
 				<template scope="{ row }">
 					<tr>
-						<td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ row.id }}</router-link></td>
+						<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.id }}</td>
 						<td :style="getRevocationStyle(row.revoked)"><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ row.subject }}</router-link></td>
-						<td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ row.issuer }}</router-link></td>
+						<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.issuer }}</td>
 						<!--td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ row.type }}</router-link></td-->
-						<td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ row.keyLength }}</router-link></td>
-						<td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{(row.serial.length > 12) ? row.serial.substring(0, 6).concat('...', row.serial.substring(row.serial.length - 4, row.serial.length )) : row.serial}}</router-link></td>
-						<td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ toLocalDate(row.validFrom)}}</router-link></td>
+						<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.keyLength }}</td>
+						<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{(row.serial.length > 12) ? row.serial.substring(0, 6).concat('...', row.serial.substring(row.serial.length - 4, row.serial.length )) : row.serial}}</td>
+						<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ toLocalDate(row.validFrom)}}</td>
 						<td ><router-link :style="getValidToStyle(row.validFrom, row.validTo, row.revoked)" :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ toLocalDate(row.validTo) }}</router-link></td>
-						<td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ row.hashAlgorithm }}</router-link></td>
-						<td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ row.paddingAlgorithm }}</router-link></td>
-						<!--td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ row.revoked }}</router-link></td-->
-						<td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ toLocalDate(row.revokedSince) }}</router-link></td>
-						<td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ row.revocationReason }}</router-link></td>
-				
+						<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.hashAlgorithm }}</td>
+						<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.paddingAlgorithm }}</td>
+						<!--td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.revoked }}</router-link></td-->
+						<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ toLocalDate(row.revokedSince) }}</td>
+						<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.revocationReason }}</td>
+						<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.sans }}</td>
 					</tr>
 				</template>
 				<!--template name="footer" scope="{ rows, columns, pagination }">

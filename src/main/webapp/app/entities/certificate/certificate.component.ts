@@ -20,6 +20,9 @@ export default class Certificate extends mixins(JhiDataUtils, Vue2Filters.mixin,
   public propOrder = 'id';
   public reverse = true;
   public totalItems = 0;
+  public infiniteId = +new Date();
+  public links = {};
+
   public certificates: ICertificate[] = [];
 
   public isFetching = false;
@@ -30,6 +33,16 @@ export default class Certificate extends mixins(JhiDataUtils, Vue2Filters.mixin,
 
   public clear(): void {
     this.page = 1;
+    this.links = {};
+    this.infiniteId += 1;
+    this.certificates = [];
+    this.retrieveAllCertificates();
+  }
+
+  public reset(): void {
+    this.page = 1;
+    this.infiniteId += 1;
+    this.certificates = [];
     this.retrieveAllCertificates();
   }
 
@@ -45,10 +58,23 @@ export default class Certificate extends mixins(JhiDataUtils, Vue2Filters.mixin,
       .retrieve(paginationQuery)
       .then(
         res => {
-          this.certificates = res.data;
+          if (res.data && res.data.length > 0) {
+            for (let i = 0; i < res.data.length; i++) {
+              this.certificates.push(res.data[i]);
+            }
+//            if (res.headers && res.headers['link']) {
+//              this.links = this.parseLinks(res.headers['link']);
+//            }
+          }
           this.totalItems = Number(res.headers['x-total-count']);
           this.queryCount = this.totalItems;
           this.isFetching = false;
+          if (<any>this.$refs.infiniteLoading) {
+            (<any>this.$refs.infiniteLoading).stateChanger.loaded();
+            if (this.links !== {} && this.page > this.links['last']) {
+              (<any>this.$refs.infiniteLoading).stateChanger.complete();
+            }
+          }
         },
         err => {
           this.isFetching = false;
@@ -58,6 +84,9 @@ export default class Certificate extends mixins(JhiDataUtils, Vue2Filters.mixin,
 
   public prepareRemove(instance: ICertificate): void {
     this.removeId = instance.id;
+    if (<any>this.$refs.removeEntity) {
+      (<any>this.$refs.removeEntity).show();
+    }
   }
 
   public removeCertificate(): void {
@@ -67,11 +96,17 @@ export default class Certificate extends mixins(JhiDataUtils, Vue2Filters.mixin,
         const message = this.$t('ca3SApp.certificate.deleted', { param: this.removeId });
         this.alertService().showAlert(message, 'danger');
         this.getAlertFromStore();
-
         this.removeId = null;
-        this.retrieveAllCertificates();
+        this.reset();
         this.closeDialog();
       });
+  }
+
+  public loadMore($state): void {
+    if (!this.isFetching) {
+      this.page++;
+      this.transition();
+    }
   }
 
   public sort(): Array<any> {
@@ -96,7 +131,7 @@ export default class Certificate extends mixins(JhiDataUtils, Vue2Filters.mixin,
   public changeOrder(propOrder): void {
     this.propOrder = propOrder;
     this.reverse = !this.reverse;
-    this.transition();
+    this.reset();
   }
 
   public closeDialog(): void {

@@ -45,6 +45,9 @@ public class CSRResourceIT {
     private static final String DEFAULT_SUBJECT = "AAAAAAAAAA";
     private static final String UPDATED_SUBJECT = "BBBBBBBBBB";
 
+    private static final String DEFAULT_SANS = "AAAAAAAAAA";
+    private static final String UPDATED_SANS = "BBBBBBBBBB";
+
     private static final Instant DEFAULT_REQUESTED_ON = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_REQUESTED_ON = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
@@ -99,6 +102,12 @@ public class CSRResourceIT {
     private static final String DEFAULT_SUBJECT_PUBLIC_KEY_INFO_BASE_64 = "AAAAAAAAAA";
     private static final String UPDATED_SUBJECT_PUBLIC_KEY_INFO_BASE_64 = "BBBBBBBBBB";
 
+    private static final String DEFAULT_REQUESTOR_COMMENT = "AAAAAAAAAA";
+    private static final String UPDATED_REQUESTOR_COMMENT = "BBBBBBBBBB";
+
+    private static final String DEFAULT_ADMINISTRATION_COMMENT = "AAAAAAAAAA";
+    private static final String UPDATED_ADMINISTRATION_COMMENT = "BBBBBBBBBB";
+
     @Autowired
     private CSRRepository cSRRepository;
 
@@ -146,6 +155,7 @@ public class CSRResourceIT {
         CSR cSR = new CSR()
             .csrBase64(DEFAULT_CSR_BASE_64)
             .subject(DEFAULT_SUBJECT)
+            .sans(DEFAULT_SANS)
             .requestedOn(DEFAULT_REQUESTED_ON)
             .requestedBy(DEFAULT_REQUESTED_BY)
             .pipelineType(DEFAULT_PIPELINE_TYPE)
@@ -163,7 +173,9 @@ public class CSRResourceIT {
             .keyLength(DEFAULT_KEY_LENGTH)
             .publicKeyHash(DEFAULT_PUBLIC_KEY_HASH)
             .serversideKeyGeneration(DEFAULT_SERVERSIDE_KEY_GENERATION)
-            .subjectPublicKeyInfoBase64(DEFAULT_SUBJECT_PUBLIC_KEY_INFO_BASE_64);
+            .subjectPublicKeyInfoBase64(DEFAULT_SUBJECT_PUBLIC_KEY_INFO_BASE_64)
+            .requestorComment(DEFAULT_REQUESTOR_COMMENT)
+            .administrationComment(DEFAULT_ADMINISTRATION_COMMENT);
         return cSR;
     }
     /**
@@ -176,6 +188,7 @@ public class CSRResourceIT {
         CSR cSR = new CSR()
             .csrBase64(UPDATED_CSR_BASE_64)
             .subject(UPDATED_SUBJECT)
+            .sans(UPDATED_SANS)
             .requestedOn(UPDATED_REQUESTED_ON)
             .requestedBy(UPDATED_REQUESTED_BY)
             .pipelineType(UPDATED_PIPELINE_TYPE)
@@ -193,7 +206,9 @@ public class CSRResourceIT {
             .keyLength(UPDATED_KEY_LENGTH)
             .publicKeyHash(UPDATED_PUBLIC_KEY_HASH)
             .serversideKeyGeneration(UPDATED_SERVERSIDE_KEY_GENERATION)
-            .subjectPublicKeyInfoBase64(UPDATED_SUBJECT_PUBLIC_KEY_INFO_BASE_64);
+            .subjectPublicKeyInfoBase64(UPDATED_SUBJECT_PUBLIC_KEY_INFO_BASE_64)
+            .requestorComment(UPDATED_REQUESTOR_COMMENT)
+            .administrationComment(UPDATED_ADMINISTRATION_COMMENT);
         return cSR;
     }
 
@@ -219,6 +234,7 @@ public class CSRResourceIT {
         CSR testCSR = cSRList.get(cSRList.size() - 1);
         assertThat(testCSR.getCsrBase64()).isEqualTo(DEFAULT_CSR_BASE_64);
         assertThat(testCSR.getSubject()).isEqualTo(DEFAULT_SUBJECT);
+        assertThat(testCSR.getSans()).isEqualTo(DEFAULT_SANS);
         assertThat(testCSR.getRequestedOn()).isEqualTo(DEFAULT_REQUESTED_ON);
         assertThat(testCSR.getRequestedBy()).isEqualTo(DEFAULT_REQUESTED_BY);
         assertThat(testCSR.getPipelineType()).isEqualTo(DEFAULT_PIPELINE_TYPE);
@@ -237,6 +253,8 @@ public class CSRResourceIT {
         assertThat(testCSR.getPublicKeyHash()).isEqualTo(DEFAULT_PUBLIC_KEY_HASH);
         assertThat(testCSR.isServersideKeyGeneration()).isEqualTo(DEFAULT_SERVERSIDE_KEY_GENERATION);
         assertThat(testCSR.getSubjectPublicKeyInfoBase64()).isEqualTo(DEFAULT_SUBJECT_PUBLIC_KEY_INFO_BASE_64);
+        assertThat(testCSR.getRequestorComment()).isEqualTo(DEFAULT_REQUESTOR_COMMENT);
+        assertThat(testCSR.getAdministrationComment()).isEqualTo(DEFAULT_ADMINISTRATION_COMMENT);
     }
 
     @Test
@@ -362,6 +380,7 @@ public class CSRResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(cSR.getId().intValue())))
             .andExpect(jsonPath("$.[*].csrBase64").value(hasItem(DEFAULT_CSR_BASE_64.toString())))
             .andExpect(jsonPath("$.[*].subject").value(hasItem(DEFAULT_SUBJECT)))
+            .andExpect(jsonPath("$.[*].sans").value(hasItem(DEFAULT_SANS)))
             .andExpect(jsonPath("$.[*].requestedOn").value(hasItem(DEFAULT_REQUESTED_ON.toString())))
             .andExpect(jsonPath("$.[*].requestedBy").value(hasItem(DEFAULT_REQUESTED_BY)))
             .andExpect(jsonPath("$.[*].pipelineType").value(hasItem(DEFAULT_PIPELINE_TYPE.toString())))
@@ -379,7 +398,9 @@ public class CSRResourceIT {
             .andExpect(jsonPath("$.[*].keyLength").value(hasItem(DEFAULT_KEY_LENGTH)))
             .andExpect(jsonPath("$.[*].publicKeyHash").value(hasItem(DEFAULT_PUBLIC_KEY_HASH)))
             .andExpect(jsonPath("$.[*].serversideKeyGeneration").value(hasItem(DEFAULT_SERVERSIDE_KEY_GENERATION.booleanValue())))
-            .andExpect(jsonPath("$.[*].subjectPublicKeyInfoBase64").value(hasItem(DEFAULT_SUBJECT_PUBLIC_KEY_INFO_BASE_64.toString())));
+            .andExpect(jsonPath("$.[*].subjectPublicKeyInfoBase64").value(hasItem(DEFAULT_SUBJECT_PUBLIC_KEY_INFO_BASE_64.toString())))
+            .andExpect(jsonPath("$.[*].requestorComment").value(hasItem(DEFAULT_REQUESTOR_COMMENT.toString())))
+            .andExpect(jsonPath("$.[*].administrationComment").value(hasItem(DEFAULT_ADMINISTRATION_COMMENT.toString())));
     }
     
     @Test
@@ -395,6 +416,7 @@ public class CSRResourceIT {
             .andExpect(jsonPath("$.id").value(cSR.getId().intValue()))
             .andExpect(jsonPath("$.csrBase64").value(DEFAULT_CSR_BASE_64.toString()))
             .andExpect(jsonPath("$.subject").value(DEFAULT_SUBJECT))
+            .andExpect(jsonPath("$.sans").value(DEFAULT_SANS))
             .andExpect(jsonPath("$.requestedOn").value(DEFAULT_REQUESTED_ON.toString()))
             .andExpect(jsonPath("$.requestedBy").value(DEFAULT_REQUESTED_BY))
             .andExpect(jsonPath("$.pipelineType").value(DEFAULT_PIPELINE_TYPE.toString()))
@@ -412,7 +434,9 @@ public class CSRResourceIT {
             .andExpect(jsonPath("$.keyLength").value(DEFAULT_KEY_LENGTH))
             .andExpect(jsonPath("$.publicKeyHash").value(DEFAULT_PUBLIC_KEY_HASH))
             .andExpect(jsonPath("$.serversideKeyGeneration").value(DEFAULT_SERVERSIDE_KEY_GENERATION.booleanValue()))
-            .andExpect(jsonPath("$.subjectPublicKeyInfoBase64").value(DEFAULT_SUBJECT_PUBLIC_KEY_INFO_BASE_64.toString()));
+            .andExpect(jsonPath("$.subjectPublicKeyInfoBase64").value(DEFAULT_SUBJECT_PUBLIC_KEY_INFO_BASE_64.toString()))
+            .andExpect(jsonPath("$.requestorComment").value(DEFAULT_REQUESTOR_COMMENT.toString()))
+            .andExpect(jsonPath("$.administrationComment").value(DEFAULT_ADMINISTRATION_COMMENT.toString()));
     }
 
     @Test
@@ -438,6 +462,7 @@ public class CSRResourceIT {
         updatedCSR
             .csrBase64(UPDATED_CSR_BASE_64)
             .subject(UPDATED_SUBJECT)
+            .sans(UPDATED_SANS)
             .requestedOn(UPDATED_REQUESTED_ON)
             .requestedBy(UPDATED_REQUESTED_BY)
             .pipelineType(UPDATED_PIPELINE_TYPE)
@@ -455,7 +480,9 @@ public class CSRResourceIT {
             .keyLength(UPDATED_KEY_LENGTH)
             .publicKeyHash(UPDATED_PUBLIC_KEY_HASH)
             .serversideKeyGeneration(UPDATED_SERVERSIDE_KEY_GENERATION)
-            .subjectPublicKeyInfoBase64(UPDATED_SUBJECT_PUBLIC_KEY_INFO_BASE_64);
+            .subjectPublicKeyInfoBase64(UPDATED_SUBJECT_PUBLIC_KEY_INFO_BASE_64)
+            .requestorComment(UPDATED_REQUESTOR_COMMENT)
+            .administrationComment(UPDATED_ADMINISTRATION_COMMENT);
 
         restCSRMockMvc.perform(put("/api/csrs")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -468,6 +495,7 @@ public class CSRResourceIT {
         CSR testCSR = cSRList.get(cSRList.size() - 1);
         assertThat(testCSR.getCsrBase64()).isEqualTo(UPDATED_CSR_BASE_64);
         assertThat(testCSR.getSubject()).isEqualTo(UPDATED_SUBJECT);
+        assertThat(testCSR.getSans()).isEqualTo(UPDATED_SANS);
         assertThat(testCSR.getRequestedOn()).isEqualTo(UPDATED_REQUESTED_ON);
         assertThat(testCSR.getRequestedBy()).isEqualTo(UPDATED_REQUESTED_BY);
         assertThat(testCSR.getPipelineType()).isEqualTo(UPDATED_PIPELINE_TYPE);
@@ -486,6 +514,8 @@ public class CSRResourceIT {
         assertThat(testCSR.getPublicKeyHash()).isEqualTo(UPDATED_PUBLIC_KEY_HASH);
         assertThat(testCSR.isServersideKeyGeneration()).isEqualTo(UPDATED_SERVERSIDE_KEY_GENERATION);
         assertThat(testCSR.getSubjectPublicKeyInfoBase64()).isEqualTo(UPDATED_SUBJECT_PUBLIC_KEY_INFO_BASE_64);
+        assertThat(testCSR.getRequestorComment()).isEqualTo(UPDATED_REQUESTOR_COMMENT);
+        assertThat(testCSR.getAdministrationComment()).isEqualTo(UPDATED_ADMINISTRATION_COMMENT);
     }
 
     @Test

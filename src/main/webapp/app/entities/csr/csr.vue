@@ -27,6 +27,7 @@
                     <th><span v-text="$t('global.field.id')">ID</span></th>
                     <th><span v-text="$t('ca3SApp.cSR.csrBase64')">Csr Base 64</span></th>
                     <th><span v-text="$t('ca3SApp.cSR.subject')">Subject</span></th>
+                    <th><span v-text="$t('ca3SApp.cSR.sans')">Sans</span></th>
                     <th><span v-text="$t('ca3SApp.cSR.requestedOn')">Requested On</span></th>
                     <th><span v-text="$t('ca3SApp.cSR.requestedBy')">Requested By</span></th>
                     <th><span v-text="$t('ca3SApp.cSR.pipelineType')">Pipeline Type</span></th>
@@ -45,6 +46,8 @@
                     <th><span v-text="$t('ca3SApp.cSR.publicKeyHash')">Public Key Hash</span></th>
                     <th><span v-text="$t('ca3SApp.cSR.serversideKeyGeneration')">Serverside Key Generation</span></th>
                     <th><span v-text="$t('ca3SApp.cSR.subjectPublicKeyInfoBase64')">Subject Public Key Info Base 64</span></th>
+                    <th><span v-text="$t('ca3SApp.cSR.requestorComment')">Requestor Comment</span></th>
+                    <th><span v-text="$t('ca3SApp.cSR.administrationComment')">Administration Comment</span></th>
                     <th><span v-text="$t('ca3SApp.cSR.pipeline')">Pipeline</span></th>
                     <th></th>
                 </tr>
@@ -57,6 +60,7 @@
                     </td>
                     <td>{{cSR.csrBase64}}</td>
                     <td>{{cSR.subject}}</td>
+                    <td>{{cSR.sans}}</td>
                     <td>{{cSR.requestedOn ? $d(Date.parse(cSR.requestedOn), 'short') : ''}}</td>
                     <td>{{cSR.requestedBy}}</td>
                     <td v-text="$t('ca3SApp.PipelineType.' + cSR.pipelineType)">{{cSR.pipelineType}}</td>
@@ -75,6 +79,8 @@
                     <td>{{cSR.publicKeyHash}}</td>
                     <td>{{cSR.serversideKeyGeneration}}</td>
                     <td>{{cSR.subjectPublicKeyInfoBase64}}</td>
+                    <td>{{cSR.requestorComment}}</td>
+                    <td>{{cSR.administrationComment}}</td>
                     <td>
                         <div v-if="cSR.pipeline">
                             <router-link :to="{name: 'PipelineView', params: {pipelineId: cSR.pipeline.id}}">{{cSR.pipeline.id}}</router-link>

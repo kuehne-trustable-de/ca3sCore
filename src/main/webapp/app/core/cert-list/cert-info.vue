@@ -10,6 +10,18 @@
                     <dd>
                         <span>{{certificate.subject}}</span>
                     </dd>
+
+                    <dt v-if="certificate.sans && certificate.sans.length > 0">
+						<span v-text="$t('ca3SApp.certificate.sans')">Subject alternative names</span>
+					</dt>
+					<dd v-if="certificate.sans && certificate.sans.length > 0">
+						<ul>
+							<li v-for="san in sansOnly(certificate.certificateAttributes)" :key="san.Id" >{{san.value}}</li>
+						</ul>
+					</dd>
+
+
+
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.issuer')">Issuer</span>
                     </dt>

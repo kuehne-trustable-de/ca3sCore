@@ -21,8 +21,8 @@
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.csrAttribute.value')" for="csr-attribute-value">Value</label>
-                        <textarea class="form-control" name="value" id="csr-attribute-value"
-                            :class="{'valid': !$v.csrAttribute.value.$invalid, 'invalid': $v.csrAttribute.value.$invalid }" v-model="$v.csrAttribute.value.$model" ></textarea>
+                        <input type="text" class="form-control" name="value" id="csr-attribute-value"
+                            :class="{'valid': !$v.csrAttribute.value.$invalid, 'invalid': $v.csrAttribute.value.$invalid }" v-model="$v.csrAttribute.value.$model" />
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.csrAttribute.csr')" for="csr-attribute-csr">Csr</label>

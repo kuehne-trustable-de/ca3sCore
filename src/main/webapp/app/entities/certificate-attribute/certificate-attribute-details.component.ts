@@ -1,13 +1,10 @@
-import { Component, Inject } from 'vue-property-decorator';
-
-import { mixins } from 'vue-class-component';
-import JhiDataUtils from '@/shared/data/data-utils.service';
+import { Component, Vue, Inject } from 'vue-property-decorator';
 
 import { ICertificateAttribute } from '@/shared/model/certificate-attribute.model';
 import CertificateAttributeService from './certificate-attribute.service';
 
 @Component
-export default class CertificateAttributeDetails extends mixins(JhiDataUtils) {
+export default class CertificateAttributeDetails extends Vue {
   @Inject('certificateAttributeService') private certificateAttributeService: () => CertificateAttributeService;
   public certificateAttribute: ICertificateAttribute = {};
 

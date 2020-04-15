@@ -16,6 +16,10 @@
             ]
         },
         {
+            "fieldName": "sans",
+            "fieldType": "String"
+        },
+        {
             "fieldName": "issuer",
             "fieldType": "String",
             "fieldValidateRules": [

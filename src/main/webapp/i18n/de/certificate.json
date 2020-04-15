@@ -18,6 +18,7 @@
       },
       "tbsDigest": "Tbs Digest",
       "subject": "Subject",
+      "sans": "Sans",
       "issuer": "Issuer",
       "root": "Root",
       "type": "Type",

@@ -17,6 +17,12 @@
                         <span>{{certificate.subject}}</span>
                     </dd>
                     <dt>
+                        <span v-text="$t('ca3SApp.certificate.sans')">Sans</span>
+                    </dt>
+                    <dd>
+                        <span>{{certificate.sans}}</span>
+                    </dd>
+                    <dt>
                         <span v-text="$t('ca3SApp.certificate.issuer')">Issuer</span>
                     </dt>
                     <dd>

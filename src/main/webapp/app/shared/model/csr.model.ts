@@ -7,7 +7,8 @@ import { ICertificate } from '@/shared/model/certificate.model';
 export const enum PipelineType {
   ACME = 'ACME',
   SCEP = 'SCEP',
-  WEB = 'WEB'
+  WEB = 'WEB',
+  INTERNAL = 'INTERNAL'
 }
 
 export const enum CsrStatus {
@@ -21,6 +22,7 @@ export interface ICSR {
   id?: number;
   csrBase64?: any;
   subject?: string;
+  sans?: string;
   requestedOn?: Date;
   requestedBy?: string;
   pipelineType?: PipelineType;
@@ -39,6 +41,8 @@ export interface ICSR {
   publicKeyHash?: string;
   serversideKeyGeneration?: boolean;
   subjectPublicKeyInfoBase64?: any;
+  requestorComment?: any;
+  administrationComment?: any;
   rdns?: IRDN[];
   ras?: IRequestAttribute[];
   csrAttributes?: ICsrAttribute[];
@@ -51,6 +55,7 @@ export class CSR implements ICSR {
     public id?: number,
     public csrBase64?: any,
     public subject?: string,
+    public sans?: string,
     public requestedOn?: Date,
     public requestedBy?: string,
     public pipelineType?: PipelineType,
@@ -69,6 +74,8 @@ export class CSR implements ICSR {
     public publicKeyHash?: string,
     public serversideKeyGeneration?: boolean,
     public subjectPublicKeyInfoBase64?: any,
+    public requestorComment?: any,
+    public administrationComment?: any,
     public rdns?: IRDN[],
     public ras?: IRequestAttribute[],
     public csrAttributes?: ICsrAttribute[],

@@ -7,6 +7,7 @@ import { ICertificate } from '@/shared/model/certificate.model';
 import CertificateService from '../../entities/certificate/certificate.service';
 
 import axios from 'axios';
+import { ICertificateAttribute } from '@/shared/model/certificate-attribute.model';
 
 @Component
 export default class CertificateDetails extends mixins(JhiDataUtils) {
@@ -30,6 +31,12 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
         link.click();
         URL.revokeObjectURL(link.href);
       }).catch(console.error);
+  }
+
+  public sansOnly(attArr: ICertificateAttribute[]) {
+    return attArr.filter(function(att) {
+      return att.name === 'SAN';
+    });
   }
 
   beforeRouteEnter(to, from, next) {

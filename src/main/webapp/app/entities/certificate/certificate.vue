@@ -27,6 +27,7 @@
                     <th v-on:click="changeOrder('id')"><span v-text="$t('global.field.id')">ID</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'id'"></jhi-sort-indicator></th>
                     <th v-on:click="changeOrder('tbsDigest')"><span v-text="$t('ca3SApp.certificate.tbsDigest')">Tbs Digest</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'tbsDigest'"></jhi-sort-indicator></th>
                     <th v-on:click="changeOrder('subject')"><span v-text="$t('ca3SApp.certificate.subject')">Subject</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'subject'"></jhi-sort-indicator></th>
+                    <th v-on:click="changeOrder('sans')"><span v-text="$t('ca3SApp.certificate.sans')">Sans</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'sans'"></jhi-sort-indicator></th>
                     <th v-on:click="changeOrder('issuer')"><span v-text="$t('ca3SApp.certificate.issuer')">Issuer</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'issuer'"></jhi-sort-indicator></th>
                     <th v-on:click="changeOrder('root')"><span v-text="$t('ca3SApp.certificate.root')">Root</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'root'"></jhi-sort-indicator></th>
                     <th v-on:click="changeOrder('type')"><span v-text="$t('ca3SApp.certificate.type')">Type</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'type'"></jhi-sort-indicator></th>
@@ -64,6 +65,7 @@
                     </td>
                     <td>{{certificate.tbsDigest}}</td>
                     <td>{{certificate.subject}}</td>
+                    <td>{{certificate.sans}}</td>
                     <td>{{certificate.issuer}}</td>
                     <td>{{certificate.root}}</td>
                     <td>{{certificate.type}}</td>

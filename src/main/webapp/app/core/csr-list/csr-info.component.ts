@@ -9,6 +9,7 @@ import { ICSRAdministrationData } from '@/shared/model/transfer-object.model';
 
 import { ICSR } from '@/shared/model/csr.model';
 import CSRService from '../../entities/csr/csr.service';
+import { ICsrAttribute } from '@/shared/model/csr-attribute.model';
 
 
 @Component
@@ -93,6 +94,11 @@ export default class CsrInfo extends mixins(JhiDataUtils) {
     this.sendAdministrationAction('api/administerRequest');
   }
 
+  public sansOnly(attArr: ICsrAttribute[]) {
+    return attArr.filter(function(att) {
+      return att.name === 'SAN';
+    });
+  }
   sendAdministrationAction(adminUrl: string) {
     document.body.style.cursor = 'wait';
     axios({

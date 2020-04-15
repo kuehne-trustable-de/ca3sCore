@@ -30,6 +30,11 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cSR.sans')" for="csr-sans">Sans</label>
+                        <input type="text" class="form-control" name="sans" id="csr-sans"
+                            :class="{'valid': !$v.cSR.sans.$invalid, 'invalid': $v.cSR.sans.$invalid }" v-model="$v.cSR.sans.$model" />
+                    </div>
+                    <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.cSR.requestedOn')" for="csr-requestedOn">Requested On</label>
                         <div class="d-flex">
                             <input id="csr-requestedOn" type="datetime-local" class="form-control" name="requestedOn" :class="{'valid': !$v.cSR.requestedOn.$invalid, 'invalid': $v.cSR.requestedOn.$invalid }"
@@ -62,6 +67,7 @@
                             <option value="ACME" v-bind:label="$t('ca3SApp.PipelineType.ACME')">ACME</option>
                             <option value="SCEP" v-bind:label="$t('ca3SApp.PipelineType.SCEP')">SCEP</option>
                             <option value="WEB" v-bind:label="$t('ca3SApp.PipelineType.WEB')">WEB</option>
+                            <option value="INTERNAL" v-bind:label="$t('ca3SApp.PipelineType.INTERNAL')">INTERNAL</option>
                         </select>
                         <div v-if="$v.cSR.pipelineType.$anyDirty && $v.cSR.pipelineType.$invalid">
                             <small class="form-text text-danger" v-if="!$v.cSR.pipelineType.required" v-text="$t('entity.validation.required')">
@@ -165,6 +171,16 @@
                                 This field is required.
                             </small>
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cSR.requestorComment')" for="csr-requestorComment">Requestor Comment</label>
+                        <textarea class="form-control" name="requestorComment" id="csr-requestorComment"
+                            :class="{'valid': !$v.cSR.requestorComment.$invalid, 'invalid': $v.cSR.requestorComment.$invalid }" v-model="$v.cSR.requestorComment.$model" ></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cSR.administrationComment')" for="csr-administrationComment">Administration Comment</label>
+                        <textarea class="form-control" name="administrationComment" id="csr-administrationComment"
+                            :class="{'valid': !$v.cSR.administrationComment.$invalid, 'invalid': $v.cSR.administrationComment.$invalid }" v-model="$v.cSR.administrationComment.$model" ></textarea>
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.cSR.pipeline')" for="csr-pipeline">Pipeline</label>

@@ -31,13 +31,14 @@ entity RequestProxyConfig{
 entity CertificateAttribute {
 //	attributeId Long required
     name String required
-    value TextBlob
+    value String
 }
 
 entity Certificate {
 
   tbsDigest String required
   subject String required
+  sans String 
   issuer String required
   root String
   type String required
@@ -71,6 +72,7 @@ entity CSR{
 	
    	csrBase64 TextBlob required
   	subject String required
+  	sans String 
   	requestedOn Instant required
   	requestedBy String required
   	pipelineType PipelineType required
@@ -89,12 +91,14 @@ entity CSR{
 	publicKeyHash String
   	serversideKeyGeneration Boolean
 	subjectPublicKeyInfoBase64 TextBlob required
+	requestorComment TextBlob 
+	administrationComment TextBlob 
 }
 
 entity CsrAttribute{
 
   	name String required
-  	value TextBlob
+  	value String
 }
 
 enum ProtectedContentType {

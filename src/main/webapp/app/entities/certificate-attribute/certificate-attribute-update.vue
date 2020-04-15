@@ -21,8 +21,8 @@
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.certificateAttribute.value')" for="certificate-attribute-value">Value</label>
-                        <textarea class="form-control" name="value" id="certificate-attribute-value"
-                            :class="{'valid': !$v.certificateAttribute.value.$invalid, 'invalid': $v.certificateAttribute.value.$invalid }" v-model="$v.certificateAttribute.value.$model" ></textarea>
+                        <input type="text" class="form-control" name="value" id="certificate-attribute-value"
+                            :class="{'valid': !$v.certificateAttribute.value.$invalid, 'invalid': $v.certificateAttribute.value.$invalid }" v-model="$v.certificateAttribute.value.$model" />
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.certificateAttribute.certificate')" for="certificate-attribute-certificate">Certificate</label>

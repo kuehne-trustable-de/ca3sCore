@@ -29,10 +29,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
+import de.trustable.ca3s.core.domain.CSR_;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.domain.CertificateAttribute_;
 import de.trustable.ca3s.core.domain.Certificate_;
+import de.trustable.ca3s.core.domain.CsrAttribute;
+import de.trustable.ca3s.core.domain.CsrAttribute_;
 import de.trustable.ca3s.core.service.dto.CertificateView;
 import de.trustable.ca3s.core.service.dto.Selector;
 import de.trustable.ca3s.core.service.util.DateUtil;
@@ -303,6 +306,8 @@ public final class CertificateSpecifications {
 		    	cv.setTbsDigest((String) objArr[i]);	
 		    }else if( "subject".equalsIgnoreCase(attribute)) {
 		    	cv.setSubject((String) objArr[i]);	
+		    }else if( "sans".equalsIgnoreCase(attribute)) {
+		    	cv.setSans((String) objArr[i]);	
 		    }else if( "issuer".equalsIgnoreCase(attribute)) {
 		    	cv.setIssuer((String) objArr[i]);	
 		    }else if( "type".equalsIgnoreCase(attribute)) {
@@ -440,6 +445,18 @@ public final class CertificateSpecifications {
 	                    		 cb.equal(certAttRoot.get(CertificateAttribute_.NAME), CertificateAttribute.ATTRIBUTE_SUBJECT),
 	                    		 buildPredicate( attributeSelector, cb, certAttRoot.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()) )));
 			}		    
+		}else if( "sans".equals(attribute)){
+			addNewColumn(selectionList,root.get(Certificate_.sans));
+		
+			if( attributeValue.trim().length() > 0 ) {
+				//subquery
+			    Subquery<CertificateAttribute> certAttSubquery = certQuery.subquery(CertificateAttribute.class);
+			    Root<CertificateAttribute> certAttRoot = certAttSubquery.from(CertificateAttribute.class);
+			    pred = cb.exists(certAttSubquery.select(certAttRoot)//subquery selection
+	                     .where(cb.and( cb.equal(certAttRoot.get(CertificateAttribute_.CERTIFICATE), root.get(Certificate_.ID)),
+	                    		 cb.equal(certAttRoot.get(CertificateAttribute_.NAME), CertificateAttribute.ATTRIBUTE_SUBJECT),
+	                    		 buildPredicate( attributeSelector, cb, certAttRoot.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()) )));
+			}
 		}else if( "issuer".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.issuer));
 			

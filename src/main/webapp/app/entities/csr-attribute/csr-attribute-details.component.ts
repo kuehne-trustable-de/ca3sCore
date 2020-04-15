@@ -1,13 +1,10 @@
-import { Component, Inject } from 'vue-property-decorator';
-
-import { mixins } from 'vue-class-component';
-import JhiDataUtils from '@/shared/data/data-utils.service';
+import { Component, Vue, Inject } from 'vue-property-decorator';
 
 import { ICsrAttribute } from '@/shared/model/csr-attribute.model';
 import CsrAttributeService from './csr-attribute.service';
 
 @Component
-export default class CsrAttributeDetails extends mixins(JhiDataUtils) {
+export default class CsrAttributeDetails extends Vue {
   @Inject('csrAttributeService') private csrAttributeService: () => CsrAttributeService;
   public csrAttribute: ICsrAttribute = {};
 

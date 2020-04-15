@@ -5,12 +5,10 @@ import Vue2Filters from 'vue2-filters';
 import { ICsrAttribute } from '@/shared/model/csr-attribute.model';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
-import JhiDataUtils from '@/shared/data/data-utils.service';
-
 import CsrAttributeService from './csr-attribute.service';
 
 @Component
-export default class CsrAttribute extends mixins(JhiDataUtils, Vue2Filters.mixin, AlertMixin) {
+export default class CsrAttribute extends mixins(Vue2Filters.mixin, AlertMixin) {
   @Inject('csrAttributeService') private csrAttributeService: () => CsrAttributeService;
   private removeId: number = null;
 

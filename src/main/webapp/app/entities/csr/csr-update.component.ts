@@ -36,6 +36,7 @@ const validations: any = {
     subject: {
       required
     },
+    sans: {},
     requestedOn: {
       required
     },
@@ -63,7 +64,9 @@ const validations: any = {
     serversideKeyGeneration: {},
     subjectPublicKeyInfoBase64: {
       required
-    }
+    },
+    requestorComment: {},
+    administrationComment: {}
   }
 };
 

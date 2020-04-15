@@ -81,6 +81,7 @@ export default class CertList extends Vue {
 
   public certSelectionItems: ICertificateSelectionData[] = [
     { itemName: 'subject', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable'},
+    { itemName: 'sans', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable'},
     { itemName: 'issuer', itemType: 'string', itemDefaultSelector: null, itemDefaultValue: null},
     { itemName: 'serial', itemType: 'number', itemDefaultSelector: null, itemDefaultValue: null},
     { itemName: 'validTo', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}'},
@@ -223,8 +224,8 @@ representedAs: row => `${(row.serial.length > 12) ? row.serial.substring(0, 6).c
         { label: 'paddingAlgo', field: 'paddingAlgorithm' },
         { label: 'revoked', field: 'revoked', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
         { label: 'revokedSince', field: 'revokedSince' },
-        { label: 'reason', field: 'revocationReason' }
- //       { label: 'signingAlgo', field: 'signingAlgorithm' },
+        { label: 'reason', field: 'revocationReason' },
+        { label: 'SAN', field: 'sans' }
       ] as TColumnsDefinition<ICertificateView>,
       page: 1,
       filter: '',

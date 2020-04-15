@@ -19,6 +19,8 @@ public class CertificateView implements Serializable {
 
     private String subject;
 
+    private String sans;
+
     private String issuer;
 
     private String type;
@@ -53,6 +55,7 @@ public class CertificateView implements Serializable {
     	this.id = cert.getId();
     	this.tbsDigest = cert.getTbsDigest();
     	this.subject = cert.getSubject();
+    	this.sans = cert.getSans();
     	this.issuer = cert.getIssuer();
     	this.type = cert.getType();
    		this.keyLength = cert.getKeyLength().toString();
@@ -204,6 +207,14 @@ public class CertificateView implements Serializable {
 
 	public void setHashAlgorithm(String hashAlgorithm) {
 		this.hashAlgorithm = hashAlgorithm;
+	}
+
+	public String getSans() {
+		return sans;
+	}
+
+	public void setSans(String sans) {
+		this.sans = sans;
 	}
 
     
