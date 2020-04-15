@@ -454,7 +454,7 @@ public final class CertificateSpecifications {
 			    Root<CertificateAttribute> certAttRoot = certAttSubquery.from(CertificateAttribute.class);
 			    pred = cb.exists(certAttSubquery.select(certAttRoot)//subquery selection
 	                     .where(cb.and( cb.equal(certAttRoot.get(CertificateAttribute_.CERTIFICATE), root.get(Certificate_.ID)),
-	                    		 cb.equal(certAttRoot.get(CertificateAttribute_.NAME), CertificateAttribute.ATTRIBUTE_SUBJECT),
+	                    		 cb.equal(certAttRoot.get(CertificateAttribute_.NAME), CertificateAttribute.ATTRIBUTE_SAN),
 	                    		 buildPredicate( attributeSelector, cb, certAttRoot.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()) )));
 			}
 		}else if( "issuer".equals(attribute)){

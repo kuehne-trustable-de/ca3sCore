@@ -305,8 +305,6 @@ public final class CSRSpecifications {
 		    	cv.setPipelineName((String) objArr[i]);	
 		    }else if( "pipelineType".equalsIgnoreCase(attribute)) {
 		    	cv.setPipelineType((PipelineType) objArr[i]);	
-		    }else if( "pipelineName".equalsIgnoreCase(attribute)) {
-		    	cv.setPipelineName((String) objArr[i]);	
 		    }else if( "requestedOn".equalsIgnoreCase(attribute)) {
 		    	cv.setRequestedOn((Instant) objArr[i]);			    	
 		    }else if( "rejectedOn".equalsIgnoreCase(attribute)) {
@@ -474,10 +472,21 @@ public final class CSRSpecifications {
 			if( attributeValue.trim().length() > 0 ) {
 				pred = buildPredicateInteger( attributeSelector, cb, root.<Integer>get(CSR_.keyLength), attributeValue);
 			}
-			
 		}else if( "requestedOn".equals(attribute)){
 			addNewColumn(selectionList,root.get(CSR_.requestedOn));
-			pred = buildDatePredicate( attributeSelector, cb, root.<Instant>get(CSR_.requestedOn), attributeValue);
+			if( attributeValue.trim().length() > 0 ) {
+				pred = buildDatePredicate( attributeSelector, cb, root.<Instant>get(CSR_.requestedOn), attributeValue);
+			}
+		}else if( "rejectedOn".equals(attribute)){
+			addNewColumn(selectionList,root.get(CSR_.rejectedOn));
+			if( attributeValue.trim().length() > 0 ) {
+				pred = buildDatePredicate( attributeSelector, cb, root.<Instant>get(CSR_.rejectedOn), attributeValue);
+			}
+		}else if( "rejectionReason".equals(attribute)){
+			addNewColumn(selectionList,root.get(CSR_.rejectionReason));
+			if( attributeValue.trim().length() > 0 ) {
+				pred = buildPredicate( attributeSelector, cb, root.<String>get(CSR_.rejectionReason), attributeValue);
+			}
 		}else{
 			logger.warn("fall-thru clause adding 'true' condition for {} ", attribute);
 		}

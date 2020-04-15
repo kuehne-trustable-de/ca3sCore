@@ -278,7 +278,7 @@ representedAs: row => `${(row.serial.length > 12) ? row.serial.substring(0, 6).c
   }
 
   public putUsersFilterList(self): void {
-    window.console.debug('calling putUsersFilterList ');
+//    window.console.debug('calling putUsersFilterList ');
     const lastFiltersValue = JSON.stringify(self.filters);
     if ( self.lastFilters === lastFiltersValue ) {
 //      window.console.debug('putUsersFilterList: no change ...');

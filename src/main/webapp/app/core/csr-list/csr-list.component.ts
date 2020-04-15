@@ -271,7 +271,7 @@ export default class CsrList extends Vue {
   }
 
   public putUsersFilterList(self): void {
-    window.console.debug('calling putUsersFilterList ');
+//    window.console.debug('calling putUsersFilterList ');
     const lastFiltersValue = JSON.stringify(self.filters);
     if ( self.lastFilters === lastFiltersValue ) {
 //      window.console.debug('putUsersFilterList: no change ...');
