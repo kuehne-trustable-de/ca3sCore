@@ -182,6 +182,11 @@
                             :class="{'valid': !$v.certificate.revocationExecutionId.$invalid, 'invalid': $v.certificate.revocationExecutionId.$invalid }" v-model="$v.certificate.revocationExecutionId.$model" />
                     </div>
                     <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.administrationComment')" for="certificate-administrationComment">Administration Comment</label>
+                        <textarea class="form-control" name="administrationComment" id="certificate-administrationComment"
+                            :class="{'valid': !$v.certificate.administrationComment.$invalid, 'invalid': $v.certificate.administrationComment.$invalid }" v-model="$v.certificate.administrationComment.$model" ></textarea>
+                    </div>
+                    <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.certificate.endEntity')" for="certificate-endEntity">End Entity</label>
                         <input type="checkbox" class="form-check" name="endEntity" id="certificate-endEntity"
                             :class="{'valid': !$v.certificate.endEntity.$invalid, 'invalid': $v.certificate.endEntity.$invalid }" v-model="$v.certificate.endEntity.$model" />

@@ -58,6 +58,7 @@ describe('Service Tests', () => {
         'AAAAAAA',
         false,
         'AAAAAAA',
+        'AAAAAAA',
         false,
         false,
         'AAAAAAA'
@@ -156,6 +157,7 @@ describe('Service Tests', () => {
             revocationReason: 'BBBBBB',
             revoked: true,
             revocationExecutionId: 'BBBBBB',
+            administrationComment: 'BBBBBB',
             endEntity: true,
             selfsigned: true,
             content: 'BBBBBB'
@@ -216,6 +218,7 @@ describe('Service Tests', () => {
             revocationReason: 'BBBBBB',
             revoked: true,
             revocationExecutionId: 'BBBBBB',
+            administrationComment: 'BBBBBB',
             endEntity: true,
             selfsigned: true,
             content: 'BBBBBB'

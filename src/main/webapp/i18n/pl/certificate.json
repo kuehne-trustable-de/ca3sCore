@@ -39,6 +39,7 @@
       "revocationReason": "Revocation Reason",
       "revoked": "Revoked",
       "revocationExecutionId": "Revocation Execution Id",
+      "administrationComment": "Administration Comment",
       "endEntity": "End Entity",
       "selfsigned": "Selfsigned",
       "content": "Content",

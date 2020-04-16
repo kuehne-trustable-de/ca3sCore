@@ -156,7 +156,7 @@ public class CertificateAdministration {
 		certDao.setRevocationReason(crlReasonStr);
 		
 		if( adminData.getComment() != null && adminData.getComment().trim().length() > 0) {
-			certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_REVOCATION_COMMENT, adminData.getComment());
+			certDao.setAdministrationComment(adminData.getComment());
 		}
 		certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_REVOKED_BY, revokingUser);
 		

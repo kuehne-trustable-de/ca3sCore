@@ -27,6 +27,7 @@ export interface ICertificate {
   revocationReason?: string;
   revoked?: boolean;
   revocationExecutionId?: string;
+  administrationComment?: any;
   endEntity?: boolean;
   selfsigned?: boolean;
   content?: any;
@@ -62,6 +63,7 @@ export class Certificate implements ICertificate {
     public revocationReason?: string,
     public revoked?: boolean,
     public revocationExecutionId?: string,
+    public administrationComment?: any,
     public endEntity?: boolean,
     public selfsigned?: boolean,
     public content?: any,

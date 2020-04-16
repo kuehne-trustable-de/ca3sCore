@@ -58,6 +58,7 @@ const validations: any = {
     revocationReason: {},
     revoked: {},
     revocationExecutionId: {},
+    administrationComment: {},
     endEntity: {},
     selfsigned: {},
     content: {

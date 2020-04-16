@@ -143,6 +143,12 @@
                         <span>{{certificate.revocationExecutionId}}</span>
                     </dd>
                     <dt>
+                        <span v-text="$t('ca3SApp.certificate.administrationComment')">Administration Comment</span>
+                    </dt>
+                    <dd>
+                        <span>{{certificate.administrationComment}}</span>
+                    </dd>
+                    <dt>
                         <span v-text="$t('ca3SApp.certificate.endEntity')">End Entity</span>
                     </dt>
                     <dd>

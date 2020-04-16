@@ -115,6 +115,11 @@
             "fieldType": "String"
         },
         {
+            "fieldName": "administrationComment",
+            "fieldType": "byte[]",
+            "fieldTypeBlobContent": "text"
+        },
+        {
             "fieldName": "endEntity",
             "fieldType": "Boolean"
         },

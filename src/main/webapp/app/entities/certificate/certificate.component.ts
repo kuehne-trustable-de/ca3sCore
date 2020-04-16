@@ -62,9 +62,6 @@ export default class Certificate extends mixins(JhiDataUtils, Vue2Filters.mixin,
             for (let i = 0; i < res.data.length; i++) {
               this.certificates.push(res.data[i]);
             }
-//            if (res.headers && res.headers['link']) {
-//              this.links = this.parseLinks(res.headers['link']);
-//            }
           }
           this.totalItems = Number(res.headers['x-total-count']);
           this.queryCount = this.totalItems;

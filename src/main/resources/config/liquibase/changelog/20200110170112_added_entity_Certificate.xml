@@ -85,6 +85,9 @@
             <column name="revocation_execution_id" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+            <column name="administration_comment" type="${clobType}">
+                <constraints nullable="true" />
+            </column>
             <column name="end_entity" type="boolean">
                 <constraints nullable="true" />
             </column>
@@ -153,6 +156,7 @@
             <column name="revocation_reason" type="string"/>
             <column name="revoked" type="boolean"/>
             <column name="revocation_execution_id" type="string"/>
+            <column name="administration_comment" type="clob"/>
             <column name="end_entity" type="boolean"/>
             <column name="selfsigned" type="boolean"/>
             <column name="content" type="clob"/>

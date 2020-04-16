@@ -183,6 +183,10 @@ public class Certificate implements Serializable {
     @Column(name = "revocation_execution_id")
     private String revocationExecutionId;
 
+    @Lob
+    @Column(name = "administration_comment")
+    private String administrationComment;
+
     @Column(name = "end_entity")
     private Boolean endEntity;
 
@@ -199,7 +203,6 @@ public class Certificate implements Serializable {
     private CSR csr;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "certificate", cascade = {CascadeType.ALL})
-    @JsonIgnoreProperties({"certificate"})
     private Set<CertificateAttribute> certificateAttributes = new HashSet<>();
 
     @ManyToOne
@@ -520,6 +523,19 @@ public class Certificate implements Serializable {
         this.revocationExecutionId = revocationExecutionId;
     }
 
+    public String getAdministrationComment() {
+        return administrationComment;
+    }
+
+    public Certificate administrationComment(String administrationComment) {
+        this.administrationComment = administrationComment;
+        return this;
+    }
+
+    public void setAdministrationComment(String administrationComment) {
+        this.administrationComment = administrationComment;
+    }
+
     public Boolean isEndEntity() {
         return endEntity;
     }
@@ -667,6 +683,7 @@ public class Certificate implements Serializable {
             ", revocationReason='" + getRevocationReason() + "'" +
             ", revoked='" + isRevoked() + "'" +
             ", revocationExecutionId='" + getRevocationExecutionId() + "'" +
+            ", administrationComment='" + getAdministrationComment() + "'" +
             ", endEntity='" + isEndEntity() + "'" +
             ", selfsigned='" + isSelfsigned() + "'" +
             ", content='" + getContent() + "'" +

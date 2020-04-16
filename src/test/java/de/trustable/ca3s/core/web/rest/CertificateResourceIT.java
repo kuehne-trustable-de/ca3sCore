@@ -106,6 +106,9 @@ public class CertificateResourceIT {
     private static final String DEFAULT_REVOCATION_EXECUTION_ID = "AAAAAAAAAA";
     private static final String UPDATED_REVOCATION_EXECUTION_ID = "BBBBBBBBBB";
 
+    private static final String DEFAULT_ADMINISTRATION_COMMENT = "AAAAAAAAAA";
+    private static final String UPDATED_ADMINISTRATION_COMMENT = "BBBBBBBBBB";
+
     private static final Boolean DEFAULT_END_ENTITY = false;
     private static final Boolean UPDATED_END_ENTITY = true;
 
@@ -183,6 +186,7 @@ public class CertificateResourceIT {
             .revocationReason(DEFAULT_REVOCATION_REASON)
             .revoked(DEFAULT_REVOKED)
             .revocationExecutionId(DEFAULT_REVOCATION_EXECUTION_ID)
+            .administrationComment(DEFAULT_ADMINISTRATION_COMMENT)
             .endEntity(DEFAULT_END_ENTITY)
             .selfsigned(DEFAULT_SELFSIGNED)
             .content(DEFAULT_CONTENT);
@@ -219,6 +223,7 @@ public class CertificateResourceIT {
             .revocationReason(UPDATED_REVOCATION_REASON)
             .revoked(UPDATED_REVOKED)
             .revocationExecutionId(UPDATED_REVOCATION_EXECUTION_ID)
+            .administrationComment(UPDATED_ADMINISTRATION_COMMENT)
             .endEntity(UPDATED_END_ENTITY)
             .selfsigned(UPDATED_SELFSIGNED)
             .content(UPDATED_CONTENT);
@@ -268,6 +273,7 @@ public class CertificateResourceIT {
         assertThat(testCertificate.getRevocationReason()).isEqualTo(DEFAULT_REVOCATION_REASON);
         assertThat(testCertificate.isRevoked()).isEqualTo(DEFAULT_REVOKED);
         assertThat(testCertificate.getRevocationExecutionId()).isEqualTo(DEFAULT_REVOCATION_EXECUTION_ID);
+        assertThat(testCertificate.getAdministrationComment()).isEqualTo(DEFAULT_ADMINISTRATION_COMMENT);
         assertThat(testCertificate.isEndEntity()).isEqualTo(DEFAULT_END_ENTITY);
         assertThat(testCertificate.isSelfsigned()).isEqualTo(DEFAULT_SELFSIGNED);
         assertThat(testCertificate.getContent()).isEqualTo(DEFAULT_CONTENT);
@@ -453,6 +459,7 @@ public class CertificateResourceIT {
             .andExpect(jsonPath("$.[*].revocationReason").value(hasItem(DEFAULT_REVOCATION_REASON)))
             .andExpect(jsonPath("$.[*].revoked").value(hasItem(DEFAULT_REVOKED.booleanValue())))
             .andExpect(jsonPath("$.[*].revocationExecutionId").value(hasItem(DEFAULT_REVOCATION_EXECUTION_ID)))
+            .andExpect(jsonPath("$.[*].administrationComment").value(hasItem(DEFAULT_ADMINISTRATION_COMMENT.toString())))
             .andExpect(jsonPath("$.[*].endEntity").value(hasItem(DEFAULT_END_ENTITY.booleanValue())))
             .andExpect(jsonPath("$.[*].selfsigned").value(hasItem(DEFAULT_SELFSIGNED.booleanValue())))
             .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT.toString())));
@@ -492,6 +499,7 @@ public class CertificateResourceIT {
             .andExpect(jsonPath("$.revocationReason").value(DEFAULT_REVOCATION_REASON))
             .andExpect(jsonPath("$.revoked").value(DEFAULT_REVOKED.booleanValue()))
             .andExpect(jsonPath("$.revocationExecutionId").value(DEFAULT_REVOCATION_EXECUTION_ID))
+            .andExpect(jsonPath("$.administrationComment").value(DEFAULT_ADMINISTRATION_COMMENT.toString()))
             .andExpect(jsonPath("$.endEntity").value(DEFAULT_END_ENTITY.booleanValue()))
             .andExpect(jsonPath("$.selfsigned").value(DEFAULT_SELFSIGNED.booleanValue()))
             .andExpect(jsonPath("$.content").value(DEFAULT_CONTENT.toString()));
@@ -541,6 +549,7 @@ public class CertificateResourceIT {
             .revocationReason(UPDATED_REVOCATION_REASON)
             .revoked(UPDATED_REVOKED)
             .revocationExecutionId(UPDATED_REVOCATION_EXECUTION_ID)
+            .administrationComment(UPDATED_ADMINISTRATION_COMMENT)
             .endEntity(UPDATED_END_ENTITY)
             .selfsigned(UPDATED_SELFSIGNED)
             .content(UPDATED_CONTENT);
@@ -577,6 +586,7 @@ public class CertificateResourceIT {
         assertThat(testCertificate.getRevocationReason()).isEqualTo(UPDATED_REVOCATION_REASON);
         assertThat(testCertificate.isRevoked()).isEqualTo(UPDATED_REVOKED);
         assertThat(testCertificate.getRevocationExecutionId()).isEqualTo(UPDATED_REVOCATION_EXECUTION_ID);
+        assertThat(testCertificate.getAdministrationComment()).isEqualTo(UPDATED_ADMINISTRATION_COMMENT);
         assertThat(testCertificate.isEndEntity()).isEqualTo(UPDATED_END_ENTITY);
         assertThat(testCertificate.isSelfsigned()).isEqualTo(UPDATED_SELFSIGNED);
         assertThat(testCertificate.getContent()).isEqualTo(UPDATED_CONTENT);
