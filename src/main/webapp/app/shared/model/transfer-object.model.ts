@@ -1,11 +1,12 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2020-04-14 18:18:04.
+// Generated using typescript-generator version 2.19.577 on 2020-04-16 19:11:32.
 
 export interface ICertificateView extends ISerializable {
     id?: number;
     tbsDigest?: string;
     subject?: string;
+    sans?: string;
     issuer?: string;
     type?: string;
     keyLength?: string;
@@ -27,6 +28,7 @@ export interface ICSRView extends ISerializable {
     certificateId?: number;
     status?: ICsrStatus;
     subject?: string;
+    sans?: string;
     pipelineType?: IPipelineType;
     rejectedOn?: Date;
     rejectionReason?: string;
@@ -44,6 +46,12 @@ export interface ICSRAdministrationData extends ISerializable {
     csrId?: number;
     administrationType?: IAdministrationType;
     rejectionReason?: string;
+    comment?: string;
+}
+
+export interface ICertificateAdministrationData extends ISerializable {
+    certificateId?: number;
+    revocationReason?: string;
     comment?: string;
 }
 

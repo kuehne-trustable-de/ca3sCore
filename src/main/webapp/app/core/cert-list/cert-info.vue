@@ -144,20 +144,49 @@
 
 
                 </dl>
-                <button type="submit"
-                        v-on:click.prevent="previousState()"
-                        class="btn btn-info">
-                    <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.back')"> Back</span>
-                </button>
-                
-                <!--router-link v-if="certificate.id" :to="{name: 'CertificateEdit', params: {certificateId: certificate.id}}" tag="button" class="btn btn-primary">
-                    <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.edit')"> Edit</span>
-                </router-link-->
-
-                <!--router-link v-if="certificate.id" :to="{name: '/publicapi/cert', params: {certificateId: certificate.id}}" tag="button" class="btn btn-primary">
-                    <font-awesome-icon icon="arrow-down"></font-awesome-icon>&nbsp;<span v-text="$t('cert.action.download')"> Download</span>
-                </router-link-->
             </div>
+<!--
+    certificateAdminData
+-->
+            <form name="editForm" role="form" novalidate>
+                <div>
+                    <div v-if="isRevocable()" class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cSR.revocationReason')" for="revocationReason">Revocation reason</label>
+                        <select class="form-control" id="cert-revocationReason" name="revocationReason" v-model="certificateAdminData.revocationReason">
+                            <option v-bind:value="'keyCompromise'">keyCompromise</option>
+                            <option v-bind:value="'cACompromise'">cACompromise</option>
+                            <option v-bind:value="'affiliationChanged'">affiliationChanged</option>
+                            <option v-bind:value="'superseded'">superseded</option>
+                            <option v-bind:value="'cessationOfOperation'">cessationOfOperation</option>
+                            <option v-bind:value="'privilegeWithdrawn'">privilegeWithdrawn</option>
+                            <option v-bind:value="'unspecified'">unspecified</option>
+                        </select>
+                    </div>
+
+                    <div v-if="isRevocable()" class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.comment')" for="comment">Comment</label>
+                        <textarea class="form-control" name="content" id="comment"
+							autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                            v-model="certificateAdminData.comment" />
+                    </div>
+
+                    <button type="submit"
+                            v-on:click.prevent="previousState()"
+                            class="btn btn-info">
+                        <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.back')"> Back</span>
+                    </button>
+
+                    <button type="button" id="revoke" v-if="isRAOfficer() && !isOwnCertificate() && isRevocable()" class="btn btn-secondary" v-on:click="revokeCertificate()">
+                        <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.revoke')">Revoke</span>
+                    </button>
+
+                    <button type="button" id="withdraw" v-if="isOwnCertificate() && isRevocable()" class="btn btn-secondary" v-on:click="withdrawCertificate()">
+                        <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.withdraw')">Withdraw</span>
+                    </button>
+
+                </div>
+            </form>
+
         </div>
     </div>
 </template>

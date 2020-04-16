@@ -22,13 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.service.util.AuditUtil;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
-import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.web.rest.data.AdministrationType;
 import de.trustable.ca3s.core.web.rest.data.CSRAdministrationData;
 
@@ -50,9 +48,6 @@ public class CSRAdministration {
 	@Autowired
 	private BPMNUtil bpmnUtil;
 
-	@Autowired
-	private CSRUtil csrUtil;
-	
 	@Autowired
 	private ApplicationEventPublisher applicationEventPublisher;
 	
@@ -94,7 +89,7 @@ public class CSRAdministration {
         			
         			applicationEventPublisher.publishEvent(
         			        new AuditApplicationEvent(
-        			        		raOfficerName, AuditUtil.AUDIT_CERTIFICATE_ACCEPTED, "csr " + csr.getId() + " accepted by RA Officer"));
+        			        		raOfficerName, AuditUtil.AUDIT_CSR_ACCEPTED, "csr " + csr.getId() + " accepted by RA Officer"));
         			
     	    		return new ResponseEntity<Long>(cert.getId(), HttpStatus.CREATED);
 
@@ -112,7 +107,7 @@ public class CSRAdministration {
     			
     			applicationEventPublisher.publishEvent(
     			        new AuditApplicationEvent(
-    			        		raOfficerName, AuditUtil.AUDIT_CERTIFICATE_REJECTED, "csr " + csr.getId() + " rejected by RA Officer"));
+    			        		raOfficerName, AuditUtil.AUDIT_CSR_REJECTED, "csr " + csr.getId() + " rejected by RA Officer"));
     			
         		return new ResponseEntity<Long>(adminData.getCsrId(), HttpStatus.OK);
     		}
@@ -161,7 +156,7 @@ public class CSRAdministration {
 			
 			applicationEventPublisher.publishEvent(
 			        new AuditApplicationEvent(
-			        		userName, AuditUtil.AUDIT_CERTIFICATE_REJECTED, "csr " + csr.getId() + " withdrawn by user"));
+			        		userName, AuditUtil.AUDIT_CSR_REJECTED, "csr " + csr.getId() + " withdrawn by user"));
 			
     		return new ResponseEntity<Long>(adminData.getCsrId(), HttpStatus.OK);
     		

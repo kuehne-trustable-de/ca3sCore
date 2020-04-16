@@ -299,5 +299,4 @@ representedAs: row => `${(row.serial.length > 12) ? row.serial.substring(0, 6).c
     }
   }
 
-
 }

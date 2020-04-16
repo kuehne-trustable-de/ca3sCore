@@ -11,7 +11,6 @@ import { ICSR } from '@/shared/model/csr.model';
 import CSRService from '../../entities/csr/csr.service';
 import { ICsrAttribute } from '@/shared/model/csr-attribute.model';
 
-
 @Component
 export default class CsrInfo extends mixins(JhiDataUtils) {
   @Inject('cSRService') private cSRService: () => CSRService;
@@ -101,6 +100,8 @@ export default class CsrInfo extends mixins(JhiDataUtils) {
   }
   sendAdministrationAction(adminUrl: string) {
     document.body.style.cursor = 'wait';
+    const self = this;
+
     axios({
       method: 'post',
       url: adminUrl,
@@ -111,13 +112,14 @@ export default class CsrInfo extends mixins(JhiDataUtils) {
       console.log(response.status);
 
       if ( response.status === 201) {
-        this.$router.push({name: 'CertInfo', params: {certificateId: response.data.toString()}});
+        self.$router.push({name: 'CertInfo', params: {certificateId: response.data.toString()}});
       }
     }).catch(function(error) {
       console.log(error);
     }).then(function() {
       // always executed
       document.body.style.cursor = 'default';
+      self.previousState();
     });
   }
 }

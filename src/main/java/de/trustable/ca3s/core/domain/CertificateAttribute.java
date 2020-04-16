@@ -148,5 +148,8 @@ public class CertificateAttribute implements Serializable {
 	public static final String ATTRIBUTE_FILE_SOURCE = "FILE_SOURCE";
 
 	public static final String ATTRIBUTE_UPLOADED_BY = "UPLOADED_BY";
+
+	public static final String ATTRIBUTE_REVOCATION_COMMENT = "REVOCATION_COMMENT";
+	public static final String ATTRIBUTE_REVOKED_BY = "REVOKED_BY";
     
 }

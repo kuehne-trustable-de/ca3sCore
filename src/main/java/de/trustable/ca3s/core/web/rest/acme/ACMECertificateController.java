@@ -85,7 +85,6 @@ public class ACMECertificateController extends ACMEController {
 	@Autowired
 	private BPMNUtil bpmnUtil;
 	
-
   	@Autowired
   	private CertificateUtil certUtil;
 
@@ -364,7 +363,13 @@ public class ACMECertificateController extends ACMEController {
 		certDao.setRevoked(true);
 		certDao.setRevokedSince(Instant.now());
 		certDao.setRevocationReason(crlReasonStr);
+		
+		/*
+		 * @ todo
+		 */
 		certDao.setRevocationExecutionId("39");
+
+		certificateRepository.save(certDao);
 
 	}
 

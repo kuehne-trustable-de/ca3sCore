@@ -705,6 +705,8 @@
 						<class>de.trustable.ca3s.core.service.dto.Selector</class>
 						
 						<class>de.trustable.ca3s.core.web.rest.data.CSRAdministrationData</class>
+						<class>de.trustable.ca3s.core.web.rest.data.CertificateAdministrationData</class>
+						
 						<class>de.trustable.ca3s.core.web.rest.data.UploadPrecheckData</class>
 						<class>de.trustable.ca3s.core.web.rest.data.X509CertificateHolderShallow</class>
 						<class>de.trustable.ca3s.core.web.rest.data.CertificateFilter</class>

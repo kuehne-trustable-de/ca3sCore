@@ -59,6 +59,7 @@ entity Certificate {
   revocationReason String
   revoked Boolean
   revocationExecutionId String
+  administrationComment TextBlob 
   endEntity Boolean
   selfsigned Boolean
   content TextBlob required
