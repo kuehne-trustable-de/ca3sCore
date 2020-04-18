@@ -288,8 +288,8 @@ public class ADCSConnector {
 	private CsrAttribute createCsrAttribute(CSR csr, final String name, final String value) {
 		CsrAttribute csrAttr = new CsrAttribute();
 		csrAttr.setCsr(csr);
-		csrAttr.setName(CsrAttribute.ATTRIBUTE_CA_PROCESSING_FINISHED_TIMESTAMP);
-		csrAttr.setValue( "" + System.currentTimeMillis());
+		csrAttr.setName(name);
+		csrAttr.setValue(value);
 		return csrAttr;
 	}
 
