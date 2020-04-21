@@ -73,6 +73,12 @@
                         <span>{{certificate.curveName}}</span>
                     </dd>
                     <dt>
+                        <span v-text="$t('ca3SApp.certificate.signingAlgorithm')">Signing Algorithm</span>
+                    </dt>
+                    <dd>
+                        <span>{{certificate.signingAlgorithm}}</span>
+                    </dd>
+                    <dt>
                         <span v-text="$t('ca3SApp.certificate.hashingAlgorithm')">Hashing Algorithm</span>
                     </dt>
                     <dd>
@@ -84,6 +90,14 @@
                     <dd>
                         <span>{{certificate.paddingAlgorithm}}</span>
                     </dd>
+                    
+                    <dt>
+                        <span v-text="$t('ca3SApp.certificate.usage')">Usage</span>
+                    </dt>
+                    <dd>
+                        <span>{{usage}}</span>
+                    </dd>
+
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.contentAddedAt')">Content Added At</span>
                     </dt>
@@ -125,18 +139,18 @@
                         </div>
                     </dd>
 
-                    <dt v-if="certificate.issuingCertificate">
+                    <dt v-if="certificate.subject">
                         <span v-text="$t('ca3SApp.certificate.download.pkix')">Pkix</span>
                     </dt>
-                    <dd v-if="certificate.issuingCertificate">
+                    <dd v-if="certificate.subject">
                         <div>
                             <a href="downloadUrl" @click.prevent="downloadItem('.crt', 'application/pkix-cert')" >{{certificate.subject}}.crt</a>
                         </div>
                     </dd>
-                    <dt v-if="certificate.issuingCertificate">
+                    <dt v-if="certificate.subject">
                         <span v-text="$t('ca3SApp.certificate.download.pem')">PEM</span>
                     </dt>
-                    <dd v-if="certificate.issuingCertificate">
+                    <dd v-if="certificate.subject">
                         <div>
                             <a href="downloadUrl" @click.prevent="downloadItem('.cer', 'application/pem-certificate')" >{{certificate.subject}}.cer</a>
                         </div>

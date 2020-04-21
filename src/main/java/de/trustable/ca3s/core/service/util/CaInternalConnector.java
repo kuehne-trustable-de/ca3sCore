@@ -225,6 +225,7 @@ public class CaInternalConnector {
 		String crlReasonStr = cryptoUtil.crlReasonAsString(crlReason);
 		LOG.debug("crlReason : " + crlReasonStr);
 
+		cert.setActive(false);
 		cert.setRevoked(true);
 		cert.setRevokedSince(Instant.now());
 		cert.setRevocationReason(crlReasonStr);

@@ -157,7 +157,30 @@ public final class CertificateSpecifications {
 				orderSelection = selectionList.get(selectionList.size()-1);
 			}
 		}
-		
+
+		ArrayList<Selection<?>> selectionListDummy = new ArrayList<Selection<?>>();
+		for( String selection: selectionMap.keySet()) {
+			boolean handled = false;
+			for( String col: columnArr) {
+				if( selection.equals(col)) {
+					handled=true;
+				}
+			}
+			if( !handled) {
+				List<SelectionData> selDataList = selectionMap.get(selection);
+				for(SelectionData selDataItem: selDataList ) {
+				
+					predList.add( buildPredicate( root, 
+							cb, 
+							query,
+							selection, 
+							selDataItem.selector, 
+							selDataItem.value,
+							selectionListDummy));
+				}					
+			}
+		}
+
 		// chain all the conditions together
     	Predicate pred = null;
     	for( Predicate predPart: predList) {
@@ -257,7 +280,30 @@ public final class CertificateSpecifications {
 			}
 			
 		}
-		
+
+		selectionListDummy.clear();
+		for( String selection: selectionMap.keySet()) {
+			boolean handled = false;
+			for( String col: columnArr) {
+				if( selection.equals(col)) {
+					handled=true;
+				}
+			}
+			if( !handled) {
+				List<SelectionData> selDataList = selectionMap.get(selection);
+				for(SelectionData selDataItem: selDataList ) {
+				
+					predCountList.add( buildPredicate( iRoot, 
+							cb, 
+							queryCount,
+							selection, 
+							selDataItem.selector, 
+							selDataItem.value,
+							selectionListDummy));
+				}					
+			}
+		}
+
 		// chain all the conditions together
     	for( Predicate predPart: predCountList) {
 			// chain all the predicates
@@ -330,6 +376,8 @@ public final class CertificateSpecifications {
 		    	cv.setRevocationReason((String) objArr[i]);	
 			}else if( "revoked".equalsIgnoreCase(attribute)) {
 		    	cv.setRevoked((Boolean) objArr[i]);	
+			}else if( "keyAlgorithm".equalsIgnoreCase(attribute)) {
+		    	cv.setKeyAlgorithm((String) objArr[i]);	
 			}else if( "signingAlgorithm".equalsIgnoreCase(attribute)) {
 		    	cv.setSigningAlgorithm((String) objArr[i]);	
 			}else if( "paddingAlgorithm".equalsIgnoreCase(attribute)) {
@@ -433,9 +481,6 @@ public final class CertificateSpecifications {
 //			Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes);
 			addNewColumn(selectionList,root.get(Certificate_.subject));
 		
-//			pred = cb.and( cb.equal(attJoin.<String>get(CertificateAttribute_.name), CertificateAttribute.ATTRIBUTE_SUBJECT),
-//			buildPredicate( attributeSelector, cb, attJoin.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()));
-		
 			if( attributeValue.trim().length() > 0 ) {
 				//subquery
 			    Subquery<CertificateAttribute> certAttSubquery = certQuery.subquery(CertificateAttribute.class);
@@ -487,7 +532,12 @@ public final class CertificateSpecifications {
 			
 			pred = cb.and( cb.equal(attJoin.<String>get(CertificateAttribute_.name), CertificateAttribute.ATTRIBUTE_SAN),
 			buildPredicate( attributeSelector, cb, attJoin.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()));
+		}else if( "usage".equals(attribute)){
+			Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
+			addNewColumn(selectionList,attJoin.get(CertificateAttribute_.value));
 			
+			pred = cb.and( cb.equal(attJoin.<String>get(CertificateAttribute_.name), CertificateAttribute.ATTRIBUTE_USAGE),
+			buildPredicate( attributeSelector, cb, attJoin.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()));
 		}else if( "ski".equals(attribute)){
 			Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
 			addNewColumn(selectionList,attJoin.get(CertificateAttribute_.value));
@@ -515,6 +565,10 @@ public final class CertificateSpecifications {
 			addNewColumn(selectionList,root.get(Certificate_.paddingAlgorithm));
 			pred = buildPredicate( attributeSelector, cb, root.<String>get(Certificate_.paddingAlgorithm), attributeValue);
 			
+		}else if( "keyAlgorithm".equals(attribute)){
+			addNewColumn(selectionList,root.get(Certificate_.keyAlgorithm));
+			pred = buildPredicate( attributeSelector, cb, root.<String>get(Certificate_.keyAlgorithm), attributeValue);
+			
 		}else if( "keyLength".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.keyLength));
 			pred = buildPredicateInteger( attributeSelector, cb, root.<Integer>get(Certificate_.keyLength), attributeValue);
@@ -541,6 +595,9 @@ public final class CertificateSpecifications {
 		}else if( "validTo".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.validTo));
 			pred = buildDatePredicate( attributeSelector, cb, root.<Instant>get(Certificate_.validTo), attributeValue);
+		}else if( "active".equals(attribute)){
+			addNewColumn(selectionList,root.get(Certificate_.active));
+			pred = buildBooleanPredicate( attributeSelector, cb, root.<Boolean>get(Certificate_.active), attributeValue);
 		}else if( "revoked".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.revoked));
 			pred = buildBooleanPredicate( attributeSelector, cb, root.<Boolean>get(Certificate_.revoked), attributeValue);
@@ -610,7 +667,7 @@ public final class CertificateSpecifications {
 			return cb.conjunction();
 		}
 		
-		long lValue = Long.parseLong(value);
+		long lValue = Long.parseLong(value.trim());
 		
 		if( Selector.EQUAL.toString().equals(attributeSelector)){
 			logger.debug("buildPredicate equal ('{}') for value '{}'", attributeSelector, lValue);
@@ -633,7 +690,7 @@ public final class CertificateSpecifications {
 			return cb.conjunction();
 		}
 		
-		int lValue = Integer.parseInt(value);
+		int lValue = Integer.parseInt(value.trim());
 		
 		if( Selector.EQUAL.toString().equals(attributeSelector)){
 			logger.debug("buildPredicate equal ('{}') for value '{}'", attributeSelector, lValue);

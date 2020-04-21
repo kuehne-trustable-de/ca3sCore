@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2020-04-16 19:11:32.
+// Generated using typescript-generator version 2.19.577 on 2020-04-20 22:18:16.
 
 export interface ICertificateView extends ISerializable {
     id?: number;
@@ -10,6 +10,7 @@ export interface ICertificateView extends ISerializable {
     issuer?: string;
     type?: string;
     keyLength?: string;
+    keyAlgorithm?: string;
     signingAlgorithm?: string;
     paddingAlgorithm?: string;
     hashAlgorithm?: string;

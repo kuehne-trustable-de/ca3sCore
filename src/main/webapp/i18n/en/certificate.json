@@ -42,6 +42,7 @@
       "administrationComment": "Administration Comment",
       "endEntity": "End Entity",
       "selfsigned": "Selfsigned",
+      "active": "Active",
       "content": "Content",
       "csr": "Csr",
       "certificateAttributes": "Certificate Attributes",

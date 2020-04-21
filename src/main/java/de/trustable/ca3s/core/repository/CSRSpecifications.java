@@ -564,7 +564,7 @@ public final class CSRSpecifications {
 			return cb.conjunction();
 		}
 		
-		long lValue = Long.parseLong(value);
+		long lValue = Long.parseLong(value.trim());
 		
 		if( Selector.EQUAL.toString().equals(attributeSelector)){
 			logger.debug("buildPredicate equal ('{}') for value '{}'", attributeSelector, lValue);
@@ -587,7 +587,7 @@ public final class CSRSpecifications {
 			return cb.conjunction();
 		}
 		
-		int lValue = Integer.parseInt(value);
+		int lValue = Integer.parseInt(value.trim());
 		
 		if( Selector.EQUAL.toString().equals(attributeSelector)){
 			logger.debug("buildPredicate equal ('{}') for value '{}'", attributeSelector, lValue);

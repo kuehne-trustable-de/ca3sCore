@@ -21,8 +21,8 @@ interface ISelectionChoices {
     choices?: ISelector[];
 }
 
-VuejsDatatableFactory.registerTableType<any, any, any, any, any>(
-  'certificate-table',
+VuejsDatatableFactory.useDefaultType( false ).registerTableType<any, any, any, any, any>(
+  'certificate',
   tableType => tableType
     .setFilterHandler( ( source, filter, columns ) => ( {
         // See https://documenter.getpostman.com/view/2025350/RWaEzAiG#json-field-masking
@@ -67,6 +67,27 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>(
         } as ITableContentParam<ICertificateView>;
       }
     )
+    .mergeSettings( {
+        table: {
+            class:   'table table-hover table-striped',
+            sorting: {
+                sortAsc:  '<i class="fas fa-sort-amount-up" title="Sort ascending"></i>',
+                sortDesc: '<i class="fas fa-sort-amount-down" title="Sort descending"></i>',
+                sortNone: '<i class="fas fa-sort" title="Sort"></i>',
+            },
+        },
+        pager: {
+            classes: {
+                pager:    'pagination text-center',
+                selected: 'active',
+            },
+            icons: {
+                next:     '<i class="fas fa-chevron-right" title="Next page"></i>',
+                previous: '<i class="fas fa-chevron-left" title="Previous page"></i>',
+            },
+        },
+      }
+    )
   );
 
 @Component
@@ -84,7 +105,9 @@ export default class CertList extends Vue {
     { itemName: 'sans', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable'},
     { itemName: 'issuer', itemType: 'string', itemDefaultSelector: null, itemDefaultValue: null},
     { itemName: 'serial', itemType: 'number', itemDefaultSelector: null, itemDefaultValue: null},
+    { itemName: 'id', itemType: 'number', itemDefaultSelector: null, itemDefaultValue: null},
     { itemName: 'validTo', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}'},
+    { itemName: 'active', itemType: 'boolean', itemDefaultSelector: 'ISTRUE', itemDefaultValue: 'true'},
     { itemName: 'revoked', itemType: 'boolean', itemDefaultSelector: 'ISTRUE', itemDefaultValue: 'true'},
     { itemName: 'revocationReason', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'true' , values: ['keyCompromise',
       'cACompromise',
@@ -93,8 +116,12 @@ export default class CertList extends Vue {
       'cessationOfOperation',
       'privilegeWithdrawn',
       'aACompromise',
-      'unspecified']}
-
+      'unspecified']},
+    { itemName: 'keyAlgorithm', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'true', values: ['rsa', 'dsa', 'ec']},
+    { itemName: 'signingAlgorithm', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'true', values: ['rsa', 'dsa', 'ecdsa']},
+    { itemName: 'paddingAlgorithm', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'true', values: ['pkcs1', 'mgf1']},
+    { itemName: 'usage', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'true', values: ['nonRepudiation',
+      'cRLSign', 'keyCertSign', 'digitalSignature', 'keyEncipherment', 'dataEncipherment', 'unspecified', 'keyAgreement']}
   ];
 
   public selectionChoices: ISelectionChoices [] = [
@@ -108,6 +135,9 @@ export default class CertList extends Vue {
   public defaultFilter: ICertificateFilter = {attributeName: 'subject', attributeValue: 'trust', selector: 'LIKE'};
   public filters: ICertificateFilterList = {filterList: [this.defaultFilter]};
   public lastFilters: string = JSON.stringify({filterList: [this.defaultFilter]});
+
+  public contentAccessUrl: string;
+  public tmpContentAccessUrl: string;
 
   public addSelector() {
     const newFilter = {...this.defaultFilter};
@@ -229,33 +259,44 @@ representedAs: row => `${(row.serial.length > 12) ? row.serial.substring(0, 6).c
       ] as TColumnsDefinition<ICertificateView>,
       page: 1,
       filter: '',
-
-//      certApiUrl: 'publicapi/certificateList',
+      contentAccessUrl: '',
 
       get certApiUrl() {
-        const filterLen = self.filters.filterList.length;
-
-        const params = {};
-        for ( let i = 0; i < filterLen; i++) {
-          const filter = self.filters.filterList[i];
-          const idx = i + 1;
-          params['attributeName_' + idx] = filter.attributeName;
-          params['attributeValue_' + idx] = filter.attributeValue;
-          params['attributeSelector_' + idx] = filter.selector;
-        }
-
-        const baseApiUrl = 'publicapi/certificateList';
-        const url = `${baseApiUrl}?${makeQueryStringFromObj(params)}`;
-
-        return url;
+        window.console.info('certApiUrl returns : ' + self.contentAccessUrl);
+        return self.contentAccessUrl;
       }
 
     };
   }
 
+  public buildContentAccessUrl() {
+    const filterLen = this.filters.filterList.length;
+
+    const params = {};
+    for ( let i = 0; i < filterLen; i++) {
+      const filter = this.filters.filterList[i];
+      const idx = i + 1;
+      params['attributeName_' + idx] = filter.attributeName;
+      params['attributeValue_' + idx] = filter.attributeValue;
+      params['attributeSelector_' + idx] = filter.selector;
+    }
+
+    const baseApiUrl = 'publicapi/certificateList';
+    const url = `${baseApiUrl}?${makeQueryStringFromObj(params)}`;
+
+    if ( this.tmpContentAccessUrl !== url) {
+      this.tmpContentAccessUrl = url;
+      window.console.info('buildContentAccessUrl: change detected');
+    } else if ( this.contentAccessUrl !== url) {
+      this.contentAccessUrl = url;
+      window.console.info('buildContentAccessUrl: change propagated');
+    }
+  }
+
   public mounted(): void {
     this.getUsersFilterList();
     setInterval(() => this.putUsersFilterList(this), 3000);
+    setInterval(() => this.buildContentAccessUrl(), 1000);
   }
 
   public getUsersFilterList(): void {

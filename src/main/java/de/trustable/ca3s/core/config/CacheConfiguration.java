@@ -34,6 +34,7 @@ public class CacheConfiguration {
             createCache(cm, de.trustable.ca3s.core.repository.UserRepository.USERS_BY_LOGIN_CACHE);
             createCache(cm, de.trustable.ca3s.core.repository.UserRepository.USERS_BY_EMAIL_CACHE);
             createCache(cm, de.trustable.ca3s.core.domain.CAConnectorConfig.class.getName());
+            createCache(cm, "CRLs");
             createCache(cm, de.trustable.ca3s.core.domain.CSR.class.getName());
             createCache(cm, de.trustable.ca3s.core.domain.CSR.class.getName() + ".rdns");
             createCache(cm, de.trustable.ca3s.core.domain.CSR.class.getName() + ".ras");
@@ -50,5 +51,5 @@ public class CacheConfiguration {
             cm.destroyCache(cacheName);
         }
         cm.createCache(cacheName, jcacheConfiguration);
-    }
+    }    
 }

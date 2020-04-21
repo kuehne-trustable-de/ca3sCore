@@ -31,7 +31,7 @@
 				</div>
 			</div>
 
-			<certificate-table :columns="columns" :data="certApiUrl" :per-page="20" name="certificates">
+			<certificate :columns="columns" :data="certApiUrl" :per-page="20" name="certificates">
 				<template scope="{ row }">
 					<tr>
 						<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.id }}</td>
@@ -60,20 +60,10 @@
 						<td :colspan="columns.length">Showing rows {{page.from}} to {{page.to}} of {{page.of}} items.</td>
 					</tr>
 				</template-->
-			</certificate-table>
-			
+			</certificate>
+
 			<section class="pagers-table">
-
-				<datatable-pager table="certificates" type="abbreviated"></datatable-pager>	    	
-
-				<!--label>Short</label>
-				<datatable-pager v-model="page" type="short"></datatable-pager>
-		
-				<label>Abbreviated</label>
-				<datatable-pager v-model="page" type="abbreviated"></datatable-pager>
-		
-				<label>Long</label>
-				<datatable-pager v-model="page" type="long"></datatable-pager-->
+				<certificate-pager type="abbreviated" table="certificates"></certificate-pager>	    	
 			</section>
 		</div>
   	</div>
@@ -87,4 +77,5 @@
   table {
     width: 100%;
   }
+
 </style>

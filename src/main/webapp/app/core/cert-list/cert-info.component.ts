@@ -17,6 +17,8 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
 
   public certificateAdminData: ICertificateAdministrationData = {};
 
+  public usage = '';
+
   public downloadUrl(): string {
     const url = '/publicapi/cert/' + this.certificate.id;
     window.console.info('downloadUrl() : ' + url);
@@ -55,6 +57,9 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
       .find(certificateId)
       .then(res => {
         this.certificate = res;
+
+        this.usage = this.getAttributeList( 'USAGE' );
+
       });
   }
 
@@ -120,4 +125,26 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
     });
   }
 
+  getAttribute( attrName: string): string {
+
+    for ( let i = 0; i < this.certificate.certificateAttributes.length; i++ ) {
+      if ( this.certificate.certificateAttributes[i].name === attrName) {
+        return this.certificate.certificateAttributes[i].value;
+      }
+    }
+    return '';
+  }
+
+  getAttributeList( attrName: string): string {
+    let ret = '';
+    for ( let i = 0; i < this.certificate.certificateAttributes.length; i++ ) {
+      if ( this.certificate.certificateAttributes[i].name === attrName) {
+        if ( ret.length > 0) {
+          ret += ', ';
+        }
+        ret += this.certificate.certificateAttributes[i].value;
+      }
+    }
+    return ret;
+  }
 }

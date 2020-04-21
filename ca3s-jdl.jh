@@ -62,6 +62,7 @@ entity Certificate {
   administrationComment TextBlob 
   endEntity Boolean
   selfsigned Boolean
+  active Boolean
   content TextBlob required
 }
 

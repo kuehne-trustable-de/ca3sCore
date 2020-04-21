@@ -161,6 +161,12 @@
                         <span>{{certificate.selfsigned}}</span>
                     </dd>
                     <dt>
+                        <span v-text="$t('ca3SApp.certificate.active')">Active</span>
+                    </dt>
+                    <dd>
+                        <span>{{certificate.active}}</span>
+                    </dd>
+                    <dt>
                         <span v-text="$t('ca3SApp.certificate.content')">Content</span>
                     </dt>
                     <dd>

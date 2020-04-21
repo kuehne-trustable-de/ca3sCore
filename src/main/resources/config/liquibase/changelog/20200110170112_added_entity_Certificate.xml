@@ -94,6 +94,9 @@
             <column name="selfsigned" type="boolean">
                 <constraints nullable="true" />
             </column>
+            <column name="active" type="boolean">
+                <constraints nullable="true" />
+            </column>
             <column name="content" type="${clobType}">
                 <constraints nullable="false" />
             </column>
@@ -159,6 +162,7 @@
             <column name="administration_comment" type="clob"/>
             <column name="end_entity" type="boolean"/>
             <column name="selfsigned" type="boolean"/>
+            <column name="active" type="boolean"/>
             <column name="content" type="clob"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
         </loadData>

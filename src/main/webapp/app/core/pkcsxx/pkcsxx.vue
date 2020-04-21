@@ -59,7 +59,7 @@
 							<span v-text="$t('pkcsxx.upload.result.label')">Result</span>
 						</dt>
 						<dd>
-							<span v-text="$t('pkcsxx.upload.result.unknown')">Unknwon content</span>
+							<span v-text="$t('pkcsxx.upload.result.unknown')">Unknown content</span>
 						</dd>
 					</dl>
 
@@ -183,10 +183,18 @@
 
 
                 <div v-if="authenticated">
-					<div class="row jh-entity-details" v-if="isChecked === true && precheckResponse.dataType === 'X509_CERTIFICATE' && precheckResponse.csrPublicKeyPresentInDB === false">
+					<!--div class="row jh-entity-details" v-if="isChecked === true && precheckResponse.dataType === 'X509_CERTIFICATE' && precheckResponse.csrPublicKeyPresentInDB === false">
 						<span v-text="$t('pkcsxx.upload.result.certificate.present')">Certificate.already.present</span>
-					</div>
-                    <button type="button" id="uploadContent" :disabled="precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE' || precheckResponse.certificatePresentInDB || precheckResponse.publicKeyPresentInDB" class="btn btn-primary" v-on:click="uploadContent">
+					</div-->
+					
+                    <button type="button" id="uploadContent"
+					    v-if="precheckResponse.dataType === 'CSR'" 
+					    :disabled="precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE' || precheckResponse.certificatePresentInDB || precheckResponse.publicKeyPresentInDB" class="btn btn-primary" v-on:click="uploadContent">
+                        <font-awesome-icon icon="upload"></font-awesome-icon>&nbsp;<span v-text="$t('pkcsxx.upload.requestCertificate')">Request certificate</span>
+                    </button>
+                    <button type="button" id="uploadContent" 
+					    v-if="precheckResponse.dataType === 'X509_CERTIFICATE' || precheckResponse.dataType === 'CONTAINER' " 
+					    :disabled="precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE' || precheckResponse.certificatePresentInDB || precheckResponse.publicKeyPresentInDB" class="btn btn-primary" v-on:click="uploadContent">
                         <font-awesome-icon icon="upload"></font-awesome-icon>&nbsp;<span v-text="$t('pkcsxx.upload.submit')">Upload</span>
                     </button>
                 </div>

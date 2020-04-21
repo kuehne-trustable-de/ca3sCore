@@ -1341,6 +1341,7 @@
                                 <configuration>
                                     <arguments>run webpack:prod</arguments>
                                     <environmentVariables>
+                                        <VERSION>${project.version}</VERSION>
                                         <APP_VERSION>${project.version}</APP_VERSION>
                                     </environmentVariables>
                                     <npmInheritsProxyConfigFromMaven>false</npmInheritsProxyConfigFromMaven>

@@ -78,7 +78,13 @@ public class CSRAdministration {
     		
     		if(AdministrationType.ACCEPT.equals(adminData.getAdministrationType())){
     			csr.setApprovedOn(Instant.now());
+    			csrRepository.save(csr);
+
+    			applicationEventPublisher.publishEvent(
+    			        new AuditApplicationEvent(
+    			        		raOfficerName, AuditUtil.AUDIT_CSR_ACCEPTED, "csr " + csr.getId() + " accepted by RA Officer"));
     			
+
     			Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
     			if(cert != null) {
     				certificateRepository.save(cert);
@@ -86,10 +92,6 @@ public class CSRAdministration {
     				csr.setCertificate(cert);
     				csr.setStatus(CsrStatus.ISSUED);
         			csrRepository.save(csr);
-        			
-        			applicationEventPublisher.publishEvent(
-        			        new AuditApplicationEvent(
-        			        		raOfficerName, AuditUtil.AUDIT_CSR_ACCEPTED, "csr " + csr.getId() + " accepted by RA Officer"));
         			
     	    		return new ResponseEntity<Long>(cert.getId(), HttpStatus.CREATED);
 

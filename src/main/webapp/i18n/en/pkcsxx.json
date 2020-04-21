@@ -3,7 +3,9 @@
     "title": "Welcome, Java Hipster!",
     "subtitle": "Upload a security object",
     "upload": {
+      "type": "Content type",
       "upload": "Upload",
+      "requestCertificate": "Request certificate",
       "content": "Content",
       "passphrase": "Passphrase",
       "subject": "Subject",
@@ -12,6 +14,7 @@
       "sans": "Subject alternative names",
       "pipeline": "Processing pipeline",
       "submit": "Upload",
+      "certificates": "Certificates",
       "certificate": {
         "validfrom": "Valid from",
         "validto": "Valid to"
@@ -23,8 +26,9 @@
       },
       "result": {
         "label": "Result",
-        "unknown": "Unknwon content",
-        "type": "Content type"
+        "unknown": "Unknown content",
+        "type": "Content type",
+        "certificate": "Certificate"
       },
       "requestorComment": "Requestor comment"
     }

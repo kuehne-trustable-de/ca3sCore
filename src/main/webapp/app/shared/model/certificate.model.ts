@@ -30,6 +30,7 @@ export interface ICertificate {
   administrationComment?: any;
   endEntity?: boolean;
   selfsigned?: boolean;
+  active?: boolean;
   content?: any;
   csr?: ICSR;
   certificateAttributes?: ICertificateAttribute[];
@@ -66,6 +67,7 @@ export class Certificate implements ICertificate {
     public administrationComment?: any,
     public endEntity?: boolean,
     public selfsigned?: boolean,
+    public active?: boolean,
     public content?: any,
     public csr?: ICSR,
     public certificateAttributes?: ICertificateAttribute[],
@@ -75,5 +77,6 @@ export class Certificate implements ICertificate {
     this.revoked = this.revoked || false;
     this.endEntity = this.endEntity || false;
     this.selfsigned = this.selfsigned || false;
+    this.active = this.active || false;
   }
 }

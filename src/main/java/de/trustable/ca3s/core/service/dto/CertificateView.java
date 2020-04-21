@@ -27,6 +27,8 @@ public class CertificateView implements Serializable {
 
     private String keyLength;
 
+    private String keyAlgorithm;
+    
     private String signingAlgorithm;
     
     private String paddingAlgorithm;
@@ -217,5 +219,12 @@ public class CertificateView implements Serializable {
 		this.sans = sans;
 	}
 
+	public String getKeyAlgorithm() {
+		return keyAlgorithm;
+	}
+
+	public void setKeyAlgorithm(String keyAlgorithm) {
+		this.keyAlgorithm = keyAlgorithm;
+	}
     
 }

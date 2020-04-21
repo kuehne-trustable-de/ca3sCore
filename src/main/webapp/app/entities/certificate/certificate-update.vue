@@ -197,6 +197,11 @@
                             :class="{'valid': !$v.certificate.selfsigned.$invalid, 'invalid': $v.certificate.selfsigned.$invalid }" v-model="$v.certificate.selfsigned.$model" />
                     </div>
                     <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.active')" for="certificate-active">Active</label>
+                        <input type="checkbox" class="form-check" name="active" id="certificate-active"
+                            :class="{'valid': !$v.certificate.active.$invalid, 'invalid': $v.certificate.active.$invalid }" v-model="$v.certificate.active.$model" />
+                    </div>
+                    <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.certificate.content')" for="certificate-content">Content</label>
                         <textarea class="form-control" name="content" id="certificate-content"
                             :class="{'valid': !$v.certificate.content.$invalid, 'invalid': $v.certificate.content.$invalid }" v-model="$v.certificate.content.$model"  required></textarea>

@@ -95,6 +95,7 @@ export default class PKCSXX extends Vue {
   async contentCall(url: string) {
     // don't do a call without content
     if (this.upload.content.trim().length === 0) {
+      this.precheckResponse.dataType = 'UNKNOWN';
       return;
     }
 

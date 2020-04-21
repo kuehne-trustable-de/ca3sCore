@@ -61,6 +61,7 @@ const validations: any = {
     administrationComment: {},
     endEntity: {},
     selfsigned: {},
+    active: {},
     content: {
       required
     }

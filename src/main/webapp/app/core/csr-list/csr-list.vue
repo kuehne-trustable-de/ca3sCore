@@ -31,7 +31,7 @@
 				</div>
 			</div>
 
-			<certificate-table :columns="columns" :data="certApiUrl" :per-page="20" name="requests">
+			<requests-table :columns="columns" :data="csrApiUrl" :per-page="20" name="requests">
 				<template scope="{ row }">
 					<tr>
 						<td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})">{{ row.id }}</td>
@@ -51,30 +51,13 @@
 					</tr>
 				</template>
 
-				<!--template name="footer" scope="{ rows, columns, pagination }">
-					<tr>
-						<td :colspan="columns.length">Showing rows {{pagination.from}} to {{pagination.to}} of {{pagination.of}} items.</td>
-					</tr>
-				</template-->
-				<!--template name="footer" scope="{ page }">
-					<tr>
-						<td :colspan="columns.length">Showing rows {{page.from}} to {{page.to}} of {{page.of}} items.</td>
-					</tr>
-				</template-->
-			</certificate-table>
+				<template name="no-result">
+					<div v-text="$t('list.noContent')">no content</div>
+				</template>
+			</requests-table>
 			
 			<section class="pagers-table">
-
-				<datatable-pager table="certificates" type="abbreviated"></datatable-pager>	    	
-
-				<!--label>Short</label>
-				<datatable-pager v-model="page" type="short"></datatable-pager>
-		
-				<label>Abbreviated</label>
-				<datatable-pager v-model="page" type="abbreviated"></datatable-pager>
-		
-				<label>Long</label>
-				<datatable-pager v-model="page" type="long"></datatable-pager-->
+				<requests-table-pager type="abbreviated" table="requests"></requests-table-pager>	    	
 			</section>
 		</div>
   	</div>

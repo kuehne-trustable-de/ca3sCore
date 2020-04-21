@@ -54,7 +54,7 @@ import java.util.Set;
         " att1.name = :name1 and att1.value like CONCAT( :value1, '%') AND" +
         " att2.name = :name2 and att2.value like CONCAT( :value2, '%') "
         ),
-            
+
     @NamedQuery(name = "Certificate.findByTermNamed2",
     query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes att1 JOIN c.certificateAttributes att2  WHERE " +
         " att1.name = :name1 and att1.value = :value1 AND" +
@@ -96,6 +96,24 @@ import java.util.Set;
         " c.validFrom <= :now and " +
         " c.revoked = FALSE " +
         " GROUP BY c.keyLength ORDER BY c.keyLength ASC"
+    ),
+    @NamedQuery(name = "Certificate.findInactiveCertificatesByValidFrom",
+    query = "SELECT c FROM Certificate c WHERE " +
+        "c.validFrom >= :now and " +
+        "c.validTo < :now and " +
+        "c.revoked = FALSE and " +
+        "c.active = FALSE "
+    ),
+    @NamedQuery(name = "Certificate.findActiveCertificatesByValidTo",
+    query = "SELECT c FROM Certificate c WHERE " +
+        "c.validTo <= :now and " +
+        "c.active = TRUE "
+    ),
+    @NamedQuery(name = "Certificate.findActiveCertificateByCrlURL",
+    query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes certAtt WHERE " +
+        " certAtt.name = 'CRL_URL' and " + 
+        " c.active = TRUE " +
+        " order by certAtt.value "
     ),
 })
 
@@ -193,6 +211,8 @@ public class Certificate implements Serializable {
     @Column(name = "selfsigned")
     private Boolean selfsigned;
 
+    @Column(name = "active")
+    private Boolean active;
     
     @Lob
     @Column(name = "content", nullable = false)
@@ -638,6 +658,21 @@ public class Certificate implements Serializable {
     public void setRootCertificate(Certificate certificate) {
         this.rootCertificate = certificate;
     }
+    
+    public Boolean isActive() {
+        return active;
+    }
+
+    public Certificate active(Boolean active) {
+        this.active = active;
+        return this;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
@@ -686,6 +721,7 @@ public class Certificate implements Serializable {
             ", administrationComment='" + getAdministrationComment() + "'" +
             ", endEntity='" + isEndEntity() + "'" +
             ", selfsigned='" + isSelfsigned() + "'" +
+            ", active='" + isActive() + "'" +
             ", content='" + getContent() + "'" +
             "}";
     }

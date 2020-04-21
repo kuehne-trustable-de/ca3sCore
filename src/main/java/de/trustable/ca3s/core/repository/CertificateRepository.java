@@ -2,6 +2,8 @@ package de.trustable.ca3s.core.repository;
 import java.time.Instant;
 import java.util.List;
 
+import javax.persistence.NamedQuery;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
@@ -74,4 +76,14 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
 	  
 	  @Query(name = "Certificate.findActiveCertificatesByKeyLength")
 	  List<Object[]> findActiveCertificatesByKeyLength(@Param("now") Instant now);
+	  
+	  @Query(name = "Certificate.findInactiveCertificatesByValidFrom")
+	  List<Certificate> findInactiveCertificatesByValidFrom(@Param("now") Instant now);
+	  
+	  @Query(name = "Certificate.findActiveCertificatesByValidTo")
+	  List<Certificate> findActiveCertificatesByValidTo(@Param("now") Instant now);
+	
+	  @Query(name = "Certificate.findActiveCertificateByCrlURL")
+	  List<Certificate> findActiveCertificateByCrlURL();
+	
 }

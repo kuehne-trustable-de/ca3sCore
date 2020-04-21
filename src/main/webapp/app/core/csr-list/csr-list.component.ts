@@ -21,7 +21,7 @@ interface ISelectionChoices {
 }
 
 VuejsDatatableFactory.registerTableType<any, any, any, any, any>(
-  'certificate-table',
+  'requests-table',
   tableType => tableType
     .setFilterHandler( ( source, filter, columns ) => ( {
         // See https://documenter.getpostman.com/view/2025350/RWaEzAiG#json-field-masking
@@ -66,6 +66,27 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>(
         } as ITableContentParam<ICSRView>;
       }
     )
+    .mergeSettings( {
+        table: {
+            class:   'table table-hover table-striped',
+            sorting: {
+                sortAsc:  '<i class="fas fa-sort-amount-up" title="Sort ascending"></i>',
+                sortDesc: '<i class="fas fa-sort-amount-down" title="Sort descending"></i>',
+                sortNone: '<i class="fas fa-sort" title="Sort"></i>',
+            },
+        },
+        pager: {
+            classes: {
+                pager:    'pagination text-center',
+                selected: 'active',
+            },
+            icons: {
+                next:     '<i class="fas fa-chevron-right" title="Next page"></i>',
+                previous: '<i class="fas fa-chevron-left" title="Previous page"></i>',
+            },
+        },
+      }
+    )
   );
 
 @Component
@@ -93,6 +114,9 @@ export default class CsrList extends Vue {
     { itemType: 'boolean', hasValue: false, choices: ['ISTRUE', 'ISFALSE']},
     { itemType: 'set', hasValue: false, choices: ['EQUAL', 'NOT_EQUAL']}
   ];
+
+  public contentAccessUrl: string;
+  public tmpContentAccessUrl: string;
 
   public defaultFilter: ICertificateFilter = {attributeName: 'status', attributeValue: 'PENDING', selector: 'EQUAL'};
   public filters: ICertificateFilterList = {filterList: [this.defaultFilter]};
@@ -222,36 +246,48 @@ export default class CsrList extends Vue {
       ] as TColumnsDefinition<ICSRView>,
       page: 1,
       filter: '',
+      contentAccessUrl: '',
 
-      get certApiUrl() {
-//        self.putUsersFilterList(self);
-
-        const filterLen = self.filters.filterList.length;
-
-        const params = {};
-        for ( let i = 0; i < filterLen; i++) {
-          const filter = self.filters.filterList[i];
-          const idx = i + 1;
-          params['attributeName_' + idx] = filter.attributeName;
-          params['attributeValue_' + idx] = filter.attributeValue;
-          params['attributeSelector_' + idx] = filter.selector;
-        }
-
-        const baseApiUrl = 'api/csrList';
-        const url = `${baseApiUrl}?${makeQueryStringFromObj(params)}`;
-
-        return url;
+      get csrApiUrl() {
+        window.console.info('csrApiUrl returns : ' + self.contentAccessUrl);
+        return self.contentAccessUrl;
       }
 
     };
   }
 
+  public buildContentAccessUrl() {
+    const filterLen = this.filters.filterList.length;
+
+    const params = {};
+    for ( let i = 0; i < filterLen; i++) {
+      const filter = this.filters.filterList[i];
+      const idx = i + 1;
+      params['attributeName_' + idx] = filter.attributeName;
+      params['attributeValue_' + idx] = filter.attributeValue;
+      params['attributeSelector_' + idx] = filter.selector;
+    }
+
+    const baseApiUrl = 'api/csrList';
+    const url = `${baseApiUrl}?${makeQueryStringFromObj(params)}`;
+
+    if ( this.tmpContentAccessUrl !== url) {
+      this.tmpContentAccessUrl = url;
+      window.console.info('buildContentAccessUrl: change detected: ' + url);
+    } else if ( this.contentAccessUrl !== url) {
+      this.contentAccessUrl = url;
+      window.console.info('buildContentAccessUrl: change propagated: ' + url);
+    }
+  }
+
   public mounted(): void {
     this.getUsersFilterList();
     setInterval(() => this.putUsersFilterList(this), 3000);
+    setInterval(() => this.buildContentAccessUrl(), 1000);
   }
 
   public getUsersFilterList(): void {
+
     window.console.info('calling getUsersFilterList ');
     const self = this;
 

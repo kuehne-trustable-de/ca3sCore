@@ -51,6 +51,7 @@
                     <th v-on:click="changeOrder('administrationComment')"><span v-text="$t('ca3SApp.certificate.administrationComment')">Administration Comment</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'administrationComment'"></jhi-sort-indicator></th>
                     <th v-on:click="changeOrder('endEntity')"><span v-text="$t('ca3SApp.certificate.endEntity')">End Entity</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'endEntity'"></jhi-sort-indicator></th>
                     <th v-on:click="changeOrder('selfsigned')"><span v-text="$t('ca3SApp.certificate.selfsigned')">Selfsigned</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'selfsigned'"></jhi-sort-indicator></th>
+                    <th v-on:click="changeOrder('active')"><span v-text="$t('ca3SApp.certificate.active')">Active</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'active'"></jhi-sort-indicator></th>
                     <th v-on:click="changeOrder('content')"><span v-text="$t('ca3SApp.certificate.content')">Content</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'content'"></jhi-sort-indicator></th>
                     <th v-on:click="changeOrder('csr.id')"><span v-text="$t('ca3SApp.certificate.csr')">Csr</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'csr.id'"></jhi-sort-indicator></th>
                     <th v-on:click="changeOrder('issuingCertificate.id')"><span v-text="$t('ca3SApp.certificate.issuingCertificate')">Issuing Certificate</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'issuingCertificate.id'"></jhi-sort-indicator></th>
@@ -90,6 +91,7 @@
                     <td>{{certificate.administrationComment}}</td>
                     <td>{{certificate.endEntity}}</td>
                     <td>{{certificate.selfsigned}}</td>
+                    <td>{{certificate.active}}</td>
                     <td>{{certificate.content}}</td>
                     <td>
                         <div v-if="certificate.csr">

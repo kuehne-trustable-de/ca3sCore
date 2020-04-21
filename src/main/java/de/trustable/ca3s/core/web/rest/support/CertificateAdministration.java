@@ -151,6 +151,8 @@ public class CertificateAdministration {
 		
 		bpmnUtil.startCertificateRevoctionProcess(certDao, crlReason, revocationDate);
 
+		// @todo isn't this already done in the process?
+		certDao.setActive(false);
 		certDao.setRevoked(true);
 		certDao.setRevokedSince(Instant.now());
 		certDao.setRevocationReason(crlReasonStr);

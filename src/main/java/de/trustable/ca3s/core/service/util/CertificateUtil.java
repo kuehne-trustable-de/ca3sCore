@@ -27,6 +27,7 @@ import java.security.spec.ECParameterSpec;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
@@ -35,24 +36,29 @@ import java.util.Set;
 
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1OctetString;
+import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.asn1.ASN1Set;
+import org.bouncycastle.asn1.DERIA5String;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
-import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.AuthorityKeyIdentifier;
+import org.bouncycastle.asn1.x509.CRLDistPoint;
+import org.bouncycastle.asn1.x509.DistributionPoint;
+import org.bouncycastle.asn1.x509.DistributionPointName;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.Extensions;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
-import org.bouncycastle.asn1.x509.X509ObjectIdentifiers;
+import org.bouncycastle.asn1.x509.X509Extensions;
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -72,12 +78,9 @@ import org.springframework.stereotype.Service;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
+import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.domain.ProtectedContent;
-import de.trustable.ca3s.core.domain.RDNAttribute;
-import de.trustable.ca3s.core.domain.RequestAttribute;
-import de.trustable.ca3s.core.domain.RequestAttributeValue;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
-import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.CertificateAttributeRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
@@ -204,7 +207,7 @@ public class CertificateUtil {
 		X509Certificate x509Cert = CryptoService.convertPemToCertificate(pemCert);
 		Certificate cert = getCertificateByX509(x509Cert);
 
-		if (cert  == null) {
+		if (cert == null) {
 			String tbsDigestBase64 = Base64.encodeBase64String(cryptoUtil.getSHA256Digest(x509Cert.getTBSCertificate())).toLowerCase();
 			cert = createCertificate(pemCert, csr, executionId, x509Cert, tbsDigestBase64);
 		} else {
@@ -275,6 +278,16 @@ public class CertificateUtil {
 
 		cert.setValidFrom( DateUtil.asInstant(x509Cert.getNotBefore()));
 		cert.setValidTo(DateUtil.asInstant(x509Cert.getNotAfter()));
+
+		cert.setActive(true);
+
+		Date now = new Date();
+		if( x509Cert.getNotBefore().after(now) ) {
+			cert.setActive(false);
+		}
+		if( x509Cert.getNotAfter().before(now) ) {
+			cert.setActive(false);
+		}
 
 		//initialize revocation details
 		cert.setRevokedSince(null);
@@ -413,10 +426,11 @@ public class CertificateUtil {
 				}
 
 				Certificate rootCert = findRootCertificate(issuingCert);
-				cert.setRootCertificate(rootCert);
-				cert.setRoot(rootCert.getSubject());
-				setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ROOT, rootCert.getSubject().toLowerCase());
-
+				if( rootCert != null) {
+					cert.setRootCertificate(rootCert);
+					cert.setRoot(rootCert.getSubject());
+					setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ROOT, rootCert.getSubject().toLowerCase());
+				}
 			} catch( GeneralSecurityException gse){
 //				LOG.debug("exception while retrieving issuer", gse);
 				LOG.info("problem retrieving issuer for certificate '" + x509Cert.getSubjectDN().getName() +"' right now ...");
@@ -440,16 +454,14 @@ public class CertificateUtil {
 	 * @param x509Cert
 	 * @param cert
 	 * @throws CertificateParsingException
+	 * @throws IOException 
 	 */
 	private void addAdditionalCertificateAttributes(X509Certificate x509Cert, Certificate cert)
-			throws CertificateParsingException {
+			throws CertificateParsingException, IOException {
 		
 		// extract signature algo
 		String sigAlgName = x509Cert.getSigAlgName().toLowerCase();
-		
-		cert.setSigningAlgorithm(sigAlgName);
-
-		String keyAlgName = sigAlgName;
+		String keyAlgName = x509Cert.getPublicKey().getAlgorithm();
 		String hashAlgName = "undefined";
 		String paddingAlgName = "PKCS1"; // assume a common default padding
 		
@@ -459,26 +471,26 @@ public class CertificateUtil {
 				hashAlgName = parts[0];
 				if(parts[1].contains("and")) {
 					String[] parts2 = parts[1].split("and");
-					keyAlgName = parts2[0];
+					sigAlgName = parts2[0];
 					if(parts2.length > 1) {
 						paddingAlgName = parts2[1];
 					}
 				}else {
-					keyAlgName = parts[1];
+					sigAlgName = parts[1];
 				}
 			}
 		}
 
-		cert.setKeyAlgorithm(keyAlgName);
-		cert.setHashingAlgorithm(hashAlgName);
-		cert.setPaddingAlgorithm(paddingAlgName);
-		cert.setSigningAlgorithm(sigAlgName);
+		cert.setKeyAlgorithm(keyAlgName.toLowerCase());
+		cert.setHashingAlgorithm(hashAlgName.toLowerCase());
+		cert.setPaddingAlgorithm(paddingAlgName.toLowerCase());
+		cert.setSigningAlgorithm(sigAlgName.toLowerCase());
 		
 		try {
 			String curveName = deriveCurveName(x509Cert.getPublicKey());
 			LOG.info("found curve name "+ curveName +" for certificate '" + x509Cert.getSubjectDN().getName() +"' with key algo " + keyAlgName);
 			
-			cert.setCurveName(curveName);
+			cert.setCurveName(curveName.toLowerCase());
 			
 		} catch (GeneralSecurityException e) {
 			if( keyAlgName.contains("ec")) {
@@ -494,18 +506,45 @@ public class CertificateUtil {
 			
 			if( altNames != null) {
 				for (List<?> altName : altNames) {
+					String sanValue = "";
+				
+					if(altName.get(1) instanceof String) {
+						sanValue = ((String)altName.get(1)).toLowerCase();
+					}else if (altName.get(1) instanceof byte[]) {
+						sanValue = new String((byte[])(altName.get(1))).toLowerCase();
+					}else {
+	    				LOG.info("unexpected content type in SANS : {}", altName.get(1).toString());
+					}
 					
-					String sanValue = ((String)altName.get(1)).toLowerCase();
 					if( allSans.length() > 0) {
 						allSans += ";";
 					}
 					allSans += sanValue;
 
-	                Integer altNameType = (Integer) altName.get(0);
-	                if (altNameType != 2 && altNameType != 7) { // dns or ip
-	                    continue;
-	                }
+	                int altNameType = (Integer) altName.get(0);
 	                setCertMultiValueAttribute(cert, CertificateAttribute.ATTRIBUTE_SAN, sanValue);
+	    			if (GeneralName.dNSName == altNameType) {
+	    				setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN, "DNS:" + sanValue);
+	    			} else if (GeneralName.iPAddress == altNameType) {
+	    				setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN, "IP:" + sanValue);
+	    			} else if (GeneralName.ediPartyName == altNameType) {
+	    				setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN, "EDI:" + sanValue);
+	    			} else if (GeneralName.otherName == altNameType) {
+	    				setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN, "other:" + sanValue);
+	    			} else if (GeneralName.registeredID == altNameType) {
+	    				setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN, "regID:" + sanValue);
+	    			} else if (GeneralName.rfc822Name == altNameType) {
+	    				setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN, "rfc822:" + sanValue);
+	    			} else if (GeneralName.uniformResourceIdentifier == altNameType) {
+	    				setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN, "URI:" + sanValue);
+	    			} else if (GeneralName.x400Address == altNameType) {
+	    				setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN, "X400:" + sanValue);
+	    			} else if (GeneralName.directoryName == altNameType) {
+	    				setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN, "DirName:" + sanValue);
+	    			}else {
+	    				LOG.info("unexpected name / tag '{}' in SANs for san {}", altNameType, sanValue);
+	    			}
+
 				}
 			}
 		}
@@ -515,8 +554,18 @@ public class CertificateUtil {
 		int keyLength = getAlignedKeyLength(x509Cert.getPublicKey());
 		cert.setKeyLength(keyLength);
 		
+		List<String> crlUrls = getCrlDistributionPoints(x509Cert);
+		for( String crlUrl : crlUrls) {
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_URL, crlUrl);
+		}
+		
 	}
 
+	/**
+	 * 
+	 * @param pk
+	 * @return
+	 */
 	public static int getAlignedKeyLength(final PublicKey pk) {
 		int keyLength = getKeyLength(pk);
 		if( lenSet.contains(keyLength + 1) ) {
@@ -657,12 +706,12 @@ public class CertificateUtil {
 			value= "";
 		}
 		
-		
+		value = CryptoUtil.limitLength(value, 250);
 		
 		Collection<CertificateAttribute> certAttrList = cert.getCertificateAttributes();
 		for( CertificateAttribute certAttr : certAttrList) {
 
-//	        LOG.debug("checking certificate attribute '{}' containng value '{}'", certAttr.getName(), certAttr.getValue());
+//	        LOG.debug("checking certificate attribute '{}' containing value '{}'", certAttr.getName(), certAttr.getValue());
 
 			if( name.equals(certAttr.getName())) {
 				if( value.equals(certAttr.getValue())) {
@@ -1290,5 +1339,53 @@ public class CertificateUtil {
         return priKey;
     }
 
+    /**
+     * Extracts all CRL distribution point URLs from the "CRL Distribution Point"
+     * extension in a X.509 certificate. If CRL distribution point extension is
+     * unavailable, returns an empty list. 
+     */
+    public List<String> getCrlDistributionPoints(X509Certificate cert) throws CertificateParsingException, IOException {
+
+    	List<String> crlUrls = new ArrayList<String>();
+
+    	byte[] crldpExt = cert.getExtensionValue(X509Extensions.CRLDistributionPoints.getId());
+    	if( crldpExt != null && crldpExt.length > 0) {
+	    		
+	    	ASN1InputStream oAsnInStream = new ASN1InputStream(new ByteArrayInputStream(crldpExt));
+	    	
+	    	ASN1Primitive derObjCrlDP = oAsnInStream.readObject();
+	    	DEROctetString dosCrlDP = (DEROctetString) derObjCrlDP;
+	    	byte[] crldpExtOctets = dosCrlDP.getOctets();
+	    	
+	    	ASN1InputStream oAsnInStream2 = new ASN1InputStream(new ByteArrayInputStream(crldpExtOctets));
+	    	
+	    	ASN1Primitive derObj2 = oAsnInStream2.readObject();
+	    	CRLDistPoint distPoint = CRLDistPoint.getInstance(derObj2);
+	    	for (DistributionPoint dp : distPoint.getDistributionPoints()) {
+	    		System.out.println(dp);
+	               DistributionPointName dpn = dp.getDistributionPoint();
+	               // Look for URIs in fullName
+	               if (dpn != null) {
+	                   if (dpn.getType() == DistributionPointName.FULL_NAME) {
+	                       GeneralName[] genNames = GeneralNames.getInstance(
+	                           dpn.getName()).getNames();
+	                       // Look for an URI
+	                       for (int j = 0; j < genNames.length; j++) {
+	                           if (genNames[j].getTagNo() == GeneralName.uniformResourceIdentifier) {
+	                               String url = DERIA5String.getInstance(genNames[j].getName()).getString();
+	                               crlUrls.add(url);
+	                           }
+	                       }
+	                   }
+	               }
+	    	}
+	    	
+	    	oAsnInStream.close();
+	    	oAsnInStream2.close();
+    	}
+    	
+    	return crlUrls;
+    }
+     
 
 }
