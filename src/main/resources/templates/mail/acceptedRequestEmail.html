@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title th:text="#{email.acceptedRequest.title}">Certificate request accepted</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="shortcut icon" th:href="@{|${baseUrl}/favicon.ico|}" />
+    </head>
+    <body>
+        <p th:text="#{email.notification.greeting(${user.login})}">
+            Dear
+        </p>
+        <p th:text="#{email.request.accepted.text1}">
+            Your certificate request has been accepted. You may download the certificate in your favorite format using the URL below:
+        </p>
+        <p>
+            <a th:with="url=(@{|${baseUrl}/cert-info?id=${certId}|})" th:href="${url}"
+            th:text="${url}">Certificate download link</a>
+        </p>
+        <p>
+            <span th:text="#{email.activation.text2}">Regards, </span>
+            <br/>
+            <em th:text="#{email.request.signature}">your ca3s notification robot.</em>
+        </p>
+    </body>
+</html>

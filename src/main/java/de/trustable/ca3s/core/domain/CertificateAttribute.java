@@ -153,5 +153,7 @@ public class CertificateAttribute implements Serializable {
 
 	public static final String ATTRIBUTE_CRL_URL = "CRL_URL";
 
+	public static final String ATTRIBUTE_CRL_NEXT_UPDATE = "CRL_NEXT_UPDATE";
+
     
 }

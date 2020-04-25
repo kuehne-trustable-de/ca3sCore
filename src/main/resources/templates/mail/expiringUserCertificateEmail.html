@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title th:if="${expiringCertList.isEmpty() == 1}" th:text="#{email.expiringCertificate.title(${expiringCertList.get(0).subject})}">Certificate '${expiringCertList.get(0).subject}' will expire soon!</title>
+        <title th:if="${expiringCertList.isEmpty() > 1}" th:text="#{email.expiringCertificate2.title(${expiringCertList.length})}">${expiringCertList.length} certificates will expire soon</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="shortcut icon" th:href="@{|${baseUrl}/favicon.ico|}" />
+    </head>
+    <body>
+        <p th:text="#{email.notification.greeting(${user.login})}">
+            Dear
+        </p>
+
+        <p>
+            <table>
+                <tr>
+                    <th>NAME</th>
+                    <th>PRICE</th>
+                    <th>IN STOCK</th>
+                </tr>
+                <tr th:each="cert : ${expiringCertList}">
+                    <td th:text="${cert.subject}">foo.com</td>
+                    <td th:text="${cert.sans}">foo.com, 8.8.8.8</td>
+                    <td th:text="${cert.validTo}">2.41</td>
+                </tr>
+            </table>
+        </p> 
+
+        <p>
+            <span th:text="#{email.activation.text2}">Regards, </span>
+            <br/>
+            <em th:text="#{email.request.signature}">your ca3s notification robot.</em>
+        </p>
+    </body>
+</html>

@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.web.rest.support;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -21,10 +22,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.thymeleaf.context.Context;
 
+import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
+import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.repository.CertificateRepository;
+import de.trustable.ca3s.core.repository.UserRepository;
+import de.trustable.ca3s.core.schedule.CertExpiryScheduler;
+import de.trustable.ca3s.core.service.MailService;
 import de.trustable.ca3s.core.service.util.AuditUtil;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
@@ -53,6 +60,15 @@ public class CertificateAdministration {
   	private CertificateUtil certUtil;
 
 	@Autowired
+	private UserRepository userRepository;
+	
+	@Autowired
+	private MailService mailService;
+	
+	@Autowired
+	private CertExpiryScheduler certExpiryScheduler;
+	
+	@Autowired
 	private ApplicationEventPublisher applicationEventPublisher;
 	
 	
@@ -74,14 +90,34 @@ public class CertificateAdministration {
     	Optional<Certificate> optCert = certificateRepository.findById(adminData.getCertificateId());
     	if( optCert.isPresent()) {
     		
-    		Certificate certificate = optCert.get();
+    		Certificate cert = optCert.get();
 
-    		revokeCertificate(certificate, adminData, raOfficerName);
+    		revokeCertificate(cert, adminData, raOfficerName);
 
 			applicationEventPublisher.publishEvent(
 			        new AuditApplicationEvent(
-			        		raOfficerName, AuditUtil.AUDIT_CERTIFICATE_REVOKED, "certificate " + certificate.getId() + " revoked by RA Officer  '" + raOfficerName + "'"));
-			
+			        		raOfficerName, AuditUtil.AUDIT_CERTIFICATE_REVOKED, "certificate " + cert.getId() + " revoked by RA Officer  '" + raOfficerName + "'"));
+
+			CSR csr = cert.getCsr();
+			if( csr != null) {
+				Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());
+				if( optUser.isPresent()) {
+					User requestor = optUser.get();
+			        if (requestor.getEmail() == null) {
+			        	LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
+			        }else {
+			        
+				        Locale locale = Locale.forLanguageTag(requestor.getLangKey());
+				        Context context = new Context(locale);
+				        context.setVariable("csr", csr);
+				        context.setVariable("cert", cert);
+				        mailService.sendEmailFromTemplate(context, requestor, "mail/revokedCertificateEmail", "email.revokedCertificate.title");
+			        }
+				} else {
+					LOG.info("certificate requestor '{}' unknown!", csr.getRequestedBy());
+				}
+			}
+
     		return new ResponseEntity<Long>(adminData.getCertificateId(), HttpStatus.OK);
     	
     	}else {
@@ -134,6 +170,12 @@ public class CertificateAdministration {
     	
 	}
 
+    /**
+     * 
+     * @param certDao
+     * @param adminData
+     * @param revokingUser
+     */
 	private void revokeCertificate(Certificate certDao, final CertificateAdministrationData adminData, final String revokingUser) {
 		
 
@@ -171,4 +213,16 @@ public class CertificateAdministration {
 
 	}
 
+    /**
+     * {@code POST  /withdrawOwnCertificate} : Withdraw own certificate.
+     *
+     * @param 
+     * @return the {@link ResponseEntity} .
+     */
+    @PostMapping("/sendExpiringCertificateEmail")
+	@Transactional
+    public ResponseEntity<Integer> sendExpiringCertificateEmail() {
+    	int nExpiringCerts = certExpiryScheduler.notifyRAOfficerHolderOnExpiry();
+		return new ResponseEntity<Integer>(nExpiringCerts, HttpStatus.OK);
+    }
 }

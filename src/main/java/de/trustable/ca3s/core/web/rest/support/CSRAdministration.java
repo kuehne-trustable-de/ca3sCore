@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.web.rest.support;
 
 import java.time.Instant;
+import java.util.Locale;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -19,12 +20,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.thymeleaf.context.Context;
 
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
+import de.trustable.ca3s.core.repository.UserRepository;
+import de.trustable.ca3s.core.service.MailService;
 import de.trustable.ca3s.core.service.util.AuditUtil;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.web.rest.data.AdministrationType;
@@ -48,6 +53,12 @@ public class CSRAdministration {
 	@Autowired
 	private BPMNUtil bpmnUtil;
 
+	@Autowired
+	private UserRepository userRepository;
+	
+	@Autowired
+	private MailService mailService;
+	
 	@Autowired
 	private ApplicationEventPublisher applicationEventPublisher;
 	
@@ -93,6 +104,22 @@ public class CSRAdministration {
     				csr.setStatus(CsrStatus.ISSUED);
         			csrRepository.save(csr);
         			
+        			Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());
+        			if( optUser.isPresent()) {
+        				User requestor = optUser.get();
+	    		        if (requestor.getEmail() == null) {
+	    		        	LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
+	    		        }else {
+	    		        
+		    		        Locale locale = Locale.forLanguageTag(requestor.getLangKey());
+		    		        Context context = new Context(locale);
+		    		        context.setVariable("certId", cert.getId());
+		    		        context.setVariable("subject", cert.getSubject());
+		    		        mailService.sendEmailFromTemplate(context, requestor, "mail/acceptedRequestEmail", "email.acceptedRequest.title");
+	    		        }
+        			} else {
+        				LOG.warn("certificate requestor '{}' unknown!", csr.getRequestedBy());
+        			}
     	    		return new ResponseEntity<Long>(cert.getId(), HttpStatus.CREATED);
 
     			} else {
@@ -106,7 +133,22 @@ public class CSRAdministration {
     			csr.setStatus(CsrStatus.REJECTED);
     			csrRepository.save(csr);
     			
-    			
+    			Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());
+    			if( optUser.isPresent()) {
+    				User requestor = optUser.get();
+    		        if (requestor.getEmail() == null) {
+    		        	LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
+    		        }else {
+    		        
+	    		        Locale locale = Locale.forLanguageTag(requestor.getLangKey());
+	    		        Context context = new Context(locale);
+	    		        context.setVariable("csr", csr);
+	    		        mailService.sendEmailFromTemplate(context, requestor, "mail/rejectedRequestEmail", "email.rejectedRequest.title");
+    		        }
+    			} else {
+    				LOG.warn("certificate requestor '{}' unknown!", csr.getRequestedBy());
+    			}
+
     			applicationEventPublisher.publishEvent(
     			        new AuditApplicationEvent(
     			        		raOfficerName, AuditUtil.AUDIT_CSR_REJECTED, "csr " + csr.getId() + " rejected by RA Officer"));

@@ -22,7 +22,7 @@
                 	<div v-if="authenticated" class="form-group">
                         <label class="form-control-label" v-text="$t('pkcsxx.upload.pipeline')" for="pkcsxx-pipeline">Pipeline</label>
                         <select class="form-control" id="pkcsxx-pipeline" name="pkcsxx-pipeline" v-model="$v.upload.pipelineId.$model">
-                            <option v-bind:value="null"></option>
+                            <!--option v-bind:value="null"></option-->
                             <option v-bind:value="upload && webPipeline.id === upload.pipelineId ? upload.pipelineId : webPipeline.id" v-for="webPipeline in allWebPipelines" :key="webPipeline.id">{{webPipeline.name}}</option>
                         </select>
                         <!--label class="form-control-label" >__ {{currentPipelineInfo(upload.pipelineId)}} __</label-->

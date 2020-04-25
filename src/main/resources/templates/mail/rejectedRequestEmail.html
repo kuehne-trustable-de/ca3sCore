@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title th:text="#{email.rejectedRequest.title}">Certificate request rejected</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="shortcut icon" th:href="@{|${baseUrl}/favicon.ico|}" />
+    </head>
+    <body>
+        <p th:text="#{email.notification.greeting(${user.login})}">
+            Dear
+        </p>
+        <p th:text="#{email.request.rejected.text1(${csr.rejectedOn})}">
+            Your certificate request submitted on ${csr.rejected_on} has been rejected by the Registration officer!
+        </p>
+        <p th:if="${csr.rejectionReason != null}">
+            <span th:text="${csr.rejectionReason}"></span>
+        </p>
+        <p>
+            <span th:text="#{email.activation.text2}">Regards, </span>
+            <br/>
+            <em th:text="#{email.request.signature}">your ca3s notification robot.</em>
+        </p>
+    </body>
+</html>

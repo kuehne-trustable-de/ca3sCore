@@ -88,7 +88,7 @@ public class CSRUtil {
 	      return p10ReqHolder;
 	}
 
-	public CSR buildCSR(final String csrBase64, String requestorName, final Pkcs10RequestHolder p10ReqHolder, Pipeline pipeline) {
+	public CSR buildCSR(final String csrBase64, String requestorName, final Pkcs10RequestHolder p10ReqHolder, Pipeline pipeline) throws IOException {
 		
 		return buildCSR(csrBase64, requestorName, p10ReqHolder, pipeline.getType(), pipeline);
 	}
@@ -98,8 +98,9 @@ public class CSRUtil {
 	 * @param p10ReqHolder
 	 * @param pipelineType 
 	 * @return
+	 * @throws IOException 
 	 */
-	public CSR buildCSR(final String csrBase64, String requestorName, final Pkcs10RequestHolder p10ReqHolder, PipelineType pipelineType, Pipeline pipeline) {
+	public CSR buildCSR(final String csrBase64, String requestorName, final Pkcs10RequestHolder p10ReqHolder, PipelineType pipelineType, Pipeline pipeline) throws IOException {
 
 		CSR csr = new CSR();
 
@@ -109,7 +110,10 @@ public class CSRUtil {
 		
 		csr.setPipelineType(pipelineType);
 		
-		csr.setCsrBase64(csrBase64);
+		// avoid to forward the initial CSR text: don't store accidentially included private keys or XSS attacks 
+//		csr.setCsrBase64(csrBase64);
+		
+		csr.setCsrBase64(CryptoUtil.pkcs10RequestToPem(p10ReqHolder.getP10Req()));
 		
 		csr.setSubject(p10ReqHolder.getSubject());
 
@@ -192,6 +196,10 @@ public class CSRUtil {
 		for (GeneralName gName : gNameSet) {
 			
 			String sanValue = gName.getName().toString();
+			if (GeneralName.otherName == gName.getTagNo()) {
+				sanValue = "--other value--";
+			}
+			
 			if( allSans.length() > 0) {
 				allSans += ";";
 			}

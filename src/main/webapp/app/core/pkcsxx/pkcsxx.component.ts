@@ -141,7 +141,7 @@ export default class PKCSXX extends Vue {
 
     axios({
       method: 'get',
-      url: 'api//pipeline/getWebPipelines',
+      url: 'api/pipeline/getWebPipelines',
       responseType: 'stream'
     })
     .then(function(response) {

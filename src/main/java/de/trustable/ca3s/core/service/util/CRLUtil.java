@@ -29,11 +29,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.GeneralSecurityException;
 import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509CRL;
+import java.security.cert.X509Certificate;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import javax.naming.Context;
@@ -42,12 +45,16 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import javax.security.auth.x500.X500Principal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.schedule.CertExpiryScheduler;
 
 
@@ -56,6 +63,12 @@ public class CRLUtil {
 
 	Logger LOG = LoggerFactory.getLogger(CRLUtil.class);
 
+	@Autowired
+	private CertificateRepository certificateRepository;
+
+	@Autowired
+	private CertificateUtil certUtil;
+	
 
     /**
      * Downloads CRL from given URL. Supports http, https, ftp and ldap based
@@ -64,17 +77,48 @@ public class CRLUtil {
 	@Cacheable("CRLs")
     public X509CRL downloadCRL(String crlURL) throws IOException,
             CertificateException, CRLException, NamingException {
-    	
+		
+		long startTime = System.currentTimeMillis();
+
+		X509CRL crl = null;
         if (crlURL.startsWith("http://") || crlURL.startsWith("https://")
                 || crlURL.startsWith("ftp://")) {
-            return downloadCRLFromWeb(crlURL);
+        	crl = downloadCRLFromWeb(crlURL);
         } else if (crlURL.startsWith("ldap://")) {
-            return downloadCRLFromLDAP(crlURL);
-        } else {
+        	crl = downloadCRLFromLDAP(crlURL);
+        }
+        
+        if(crl == null) {
             throw new IOException(
                     "Can not download CRL from certificate "
                             + "distribution point: " + crlURL);
         }
+        
+        int nRevCerts = 0;
+        if( crl.getRevokedCertificates() != null ) {
+        	nRevCerts = crl.getRevokedCertificates().size();
+        }
+		LOG.info("download from '{}' with #{} items took {} mSec", crlURL, nRevCerts, System.currentTimeMillis() - startTime );
+
+        X500Principal principal = crl.getIssuerX500Principal();
+        
+        List<Certificate> certList = certificateRepository.findCACertByIssuer(principal.getName());
+        if( certList.size() == 0) {
+        	LOG.debug("principal '{}' not found to verify CRL '{}'", principal.getName(), crlURL);
+        	return null;
+        }
+        
+        for( Certificate cert: certList) {
+        	try {
+	        	X509Certificate x509cert = certUtil.convertPemToCertificate(cert.getContent());
+	        	crl.verify(x509cert.getPublicKey());
+	            return crl;
+        	} catch(GeneralSecurityException gse) {
+            	LOG.debug("principal '{}' / cert id {} does NOT verify CRL '{}'", principal.getName(), cert.getId(), crlURL);
+        	}
+        }
+
+        return null;
     }
 
     /**

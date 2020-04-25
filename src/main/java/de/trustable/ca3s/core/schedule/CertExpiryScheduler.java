@@ -9,7 +9,11 @@ import java.security.cert.X509CRL;
 import java.security.cert.X509CRLEntry;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.naming.NamingException;
 
@@ -23,14 +27,19 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.context.Context;
 
+import de.trustable.ca3s.core.domain.Authority;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
+import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.repository.CertificateRepository;
+import de.trustable.ca3s.core.repository.UserRepository;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
+import de.trustable.ca3s.core.service.MailService;
 import de.trustable.ca3s.core.service.util.AuditUtil;
 import de.trustable.ca3s.core.service.util.CRLUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
-import de.trustable.ca3s.core.service.util.DateUtil;
 import de.trustable.util.CryptoUtil;
 
 /**
@@ -50,6 +59,9 @@ public class CertExpiryScheduler {
 	private CertificateRepository certificateRepo;
 	
 	@Autowired
+	private UserRepository userRepository;
+	
+	@Autowired
 	private CRLUtil crlUtil;
 	
 	@Autowired
@@ -58,6 +70,9 @@ public class CertExpiryScheduler {
 	@Autowired
 	private CryptoUtil cryptoUtil;
 	
+	@Autowired
+	private MailService mailService;
+
 	@Autowired
 	private ApplicationEventPublisher applicationEventPublisher;
 	
@@ -96,10 +111,12 @@ public class CertExpiryScheduler {
 		}
 		
 	}
+	
+	
 	@Scheduled(fixedDelay = 3600000)
 	public void updateRevocationStatus() {
 
-		Instant now = Instant.now();
+		long startTime = System.currentTimeMillis();
 		
 		List<Certificate> certWithURLList = certificateRepo.findActiveCertificateByCrlURL();
 
@@ -107,31 +124,53 @@ public class CertExpiryScheduler {
 		for (Certificate cert : certWithURLList) {
 			LOG.debug("Checking certificate {} for CRL status", cert.getId());
 			boolean bCRLDownloadSuccess = false; 
+			int crlUrlCount = 0;
 			for( CertificateAttribute certAtt: cert.getCertificateAttributes()) {
+				String nextUpdate = certUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE);
+				if( nextUpdate != null ) {
+					try {
+					long nextUpdateMilliSec = Long.parseLong(nextUpdate);
+					if( startTime < nextUpdateMilliSec) {
+						LOG.debug("No CRL check for certificate {}, {} sec left ...", cert.getId(), (nextUpdateMilliSec - startTime) / 1000L);
+						continue;
+					}
+					} catch(NumberFormatException nfe) {
+						LOG.warn("unexpected value for 'next update' in ATTRIBUTE_CRL_NEXT_UPDATE: {} in cert {}", nextUpdate, cert.getId());
+					}
+				}
+				
 				try {
 					X509Certificate x509Cert = certUtil.convertPemToCertificate(cert.getContent());
 					if( CertificateAttribute.ATTRIBUTE_CRL_URL.equals(certAtt.getName())) {
+						crlUrlCount++;
 						try {
 							X509CRL crl = crlUtil.downloadCRL(certAtt.getValue());
-							
-							if( crl.isRevoked(x509Cert) ) {
-								X509CRLEntry crlItem = crl.getRevokedCertificate(new BigInteger(cert.getSerial()));
-								cert.setActive(false);
-								cert.setRevoked(true);
+							if( crl == null) {
+								continue;
+							}
+
+							X509CRLEntry crlItem = crl.getRevokedCertificate(new BigInteger(cert.getSerial()));
+
+							if( (crlItem != null) && (crl.isRevoked(x509Cert) ) ) {
+								
 								String revocationReason = "unspecified";
 								if( crlItem.getRevocationReason() != null ) {
 									if( cryptoUtil.crlReasonAsString(CRLReason.lookup(crlItem.getRevocationReason().ordinal())) != null ) {
 										revocationReason = cryptoUtil.crlReasonAsString(CRLReason.lookup(crlItem.getRevocationReason().ordinal()));
 									}
 								}
-								cert.setRevocationReason(revocationReason);
 								
+								Date revocationDate = new Date();
 								if( crlItem.getRevocationDate() != null) {
-									cert.setRevokedSince(DateUtil.asInstant(crlItem.getRevocationDate()));
+									revocationDate = crlItem.getRevocationDate();
 								}else {
 									LOG.debug("Checking certificate {}: no RevocationDate present for reason {}!", cert.getId(), revocationReason);
 								}
 								
+							    certUtil.setRevocationStatus(cert, revocationReason, revocationDate);
+
+							    certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE, crl.getNextUpdate().getTime());
+							    
 								applicationEventPublisher.publishEvent(
 								        new AuditApplicationEvent(
 								        		"SYSTEM", AuditUtil.AUDIT_CERTIFICATE_REVOKED, "certificate " + cert.getId() + " revocation detected in CRL"));
@@ -147,16 +186,59 @@ public class CertExpiryScheduler {
 				}
 			}
 			if( !bCRLDownloadSuccess ) {
-				LOG.info("Downloading CRL for certificate {} failed", cert.getId());
+				LOG.info("Downloading all CRL #{} for certificate {} failed", crlUrlCount, cert.getId());
 			}
 
-/*			
+			
 			if( count++ > MAX_RECORDS_PER_TRANSACTION) {
-				LOG.info("limited certificate URL processing to {} per call", MAX_RECORDS_PER_TRANSACTION);
+				LOG.info("limited certificate revocation check to {} per call", MAX_RECORDS_PER_TRANSACTION);
 				break;
 			}
-*/			
+			
 		}
+
+		LOG.info("#{} certificate revocation checks in {} mSec", count, System.currentTimeMillis() - startTime );
+	}
+
+	/**
+	 * 
+	 */
+	@Scheduled(cron = "0 15 2 * * ?")
+	public int notifyRAOfficerHolderOnExpiry() {
+
+		Instant now = Instant.now();
+    	int nDays = 30;
+    	Instant after = now;
+    	Instant before = now.plus(nDays, ChronoUnit.DAYS);
+    	List<Certificate> expiringCertList = certificateRepo.findByValidTo(after, before);
+
+    	if( expiringCertList.isEmpty()) {
+			LOG.info("No expiring certificate in the next {} days. No need to send a notificaton eMail to RA officers", nDays);
+    	}else {
+			LOG.info("#{} expiring certificate in the next {} days.", expiringCertList.size(), nDays);
+	    	for( User raOfficer: findAllRAOfficer()) {
+		        Locale locale = Locale.forLanguageTag(raOfficer.getLangKey());
+		        Context context = new Context(locale);
+		        context.setVariable("expiringCertList", expiringCertList);
+		        mailService.sendEmailFromTemplate(context, raOfficer, "mail/expiringCertificateEmail", "email.allExpiringCertificate.subject");
+	    	}
+    	}
+    	return expiringCertList.size();
+	}
+
+	List<User> findAllRAOfficer(){
 		
+		List<User> raOfficerList = new ArrayList<User>();
+    	for( User user: userRepository.findAll()) {
+    		for( Authority auth: user.getAuthorities()) {
+				LOG.debug("user {} {} has role {}", user.getFirstName(), user.getLastName(), auth.getName());
+    			if( AuthoritiesConstants.RA_OFFICER.equalsIgnoreCase(auth.getName())) {
+    				raOfficerList.add(user);
+    				LOG.debug("found user {} {} having the role of a RA officers", user.getFirstName(), user.getLastName());
+    				break;
+    			}
+    		}
+    	}
+		return raOfficerList;
 	}
 }

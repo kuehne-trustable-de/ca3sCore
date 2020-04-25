@@ -62,8 +62,10 @@ import java.util.Set;
         ),
     @NamedQuery(name = "Certificate.findByValidTo",
     query = "SELECT c FROM Certificate c WHERE " +
-        "c.validTo >= :after and " +
-        " c.validTo <= :before"
+        " c.validTo >= :after and " +
+        " c.validTo <= :before and " +
+        " c.revoked = FALSE " +
+        " order by c.validTo asc"
     ),
     @NamedQuery(name = "Certificate.findByValidToGroupedByDay",
     query = "SELECT concat(YEAR(c.validTo), '.', MONTH(c.validTo), '.', DAY(c.validTo)), count(c) FROM Certificate c WHERE " +

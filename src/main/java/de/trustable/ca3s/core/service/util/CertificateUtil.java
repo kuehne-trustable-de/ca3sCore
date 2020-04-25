@@ -506,10 +506,13 @@ public class CertificateUtil {
 			
 			if( altNames != null) {
 				for (List<?> altName : altNames) {
+	                int altNameType = (Integer) altName.get(0);
+
 					String sanValue = "";
-				
 					if(altName.get(1) instanceof String) {
 						sanValue = ((String)altName.get(1)).toLowerCase();
+	    			}else if (GeneralName.otherName == altNameType) {
+//	    				sanValue = "--other value--";
 					}else if (altName.get(1) instanceof byte[]) {
 						sanValue = new String((byte[])(altName.get(1))).toLowerCase();
 					}else {
@@ -521,7 +524,6 @@ public class CertificateUtil {
 					}
 					allSans += sanValue;
 
-	                int altNameType = (Integer) altName.get(0);
 	                setCertMultiValueAttribute(cert, CertificateAttribute.ATTRIBUTE_SAN, sanValue);
 	    			if (GeneralName.dNSName == altNameType) {
 	    				setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN, "DNS:" + sanValue);
@@ -1119,7 +1121,7 @@ public class CertificateUtil {
 			LOG.debug("AKI from crt extension failed, trying to find issuer name");
 			issuingCertList = certificateRepository.findCACertByIssuer(x509CertHolder.getIssuer().toString());
 			if( issuingCertList.size() > 1){
-				LOG.debug("more than one issuer found for ertificate id '{}' by matching issuer name '{}'");
+				LOG.debug("more than one issuer found for certificate id '{}' by matching issuer name '{}'");
 			}
 		}
 /*
@@ -1386,6 +1388,21 @@ public class CertificateUtil {
     	
     	return crlUrls;
     }
-     
 
+    public void setRevocationStatus(final Certificate cert, final String revocationReason, final Date revocationDate) {
+    	setRevocationStatus(cert, revocationReason, DateUtil.asInstant(revocationDate));
+    }
+    
+    public void setRevocationStatus(final Certificate cert, final String revocationReason, final Instant revocationDate) {
+    	
+		cert.setActive(false);
+		cert.setRevoked(true);
+		if( revocationReason == null || revocationReason.trim().isEmpty()) {
+			cert.setRevocationReason("unspecified");
+		}else {
+			cert.setRevocationReason(revocationReason);
+		}
+		
+		cert.setRevokedSince(revocationDate);
+	}
 }
