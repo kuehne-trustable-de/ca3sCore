@@ -113,7 +113,7 @@ public class CertExpiryScheduler {
 	}
 	
 	
-	@Scheduled(fixedDelay = 3600000)
+//	@Scheduled(fixedDelay = 3600000)
 	public void updateRevocationStatus() {
 
 		long startTime = System.currentTimeMillis();
@@ -138,6 +138,7 @@ public class CertExpiryScheduler {
 						LOG.warn("unexpected value for 'next update' in ATTRIBUTE_CRL_NEXT_UPDATE: {} in cert {}", nextUpdate, cert.getId());
 					}
 				}
+
 				
 				try {
 					X509Certificate x509Cert = certUtil.convertPemToCertificate(cert.getContent());
@@ -184,6 +185,7 @@ public class CertExpiryScheduler {
 				} catch (GeneralSecurityException e) {
 					LOG.info("Problem reading X509 content of certificate {} " + cert.getId(), e);
 				}
+				
 			}
 			if( !bCRLDownloadSuccess ) {
 				LOG.info("Downloading all CRL #{} for certificate {} failed", crlUrlCount, cert.getId());
