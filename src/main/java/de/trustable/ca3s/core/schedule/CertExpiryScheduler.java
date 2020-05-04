@@ -113,7 +113,7 @@ public class CertExpiryScheduler {
 	}
 	
 	
-	@Scheduled(fixedDelay = 3600000)
+//	@Scheduled(fixedDelay = 3600000)
 	public void updateRevocationStatus() {
 
 		long startTime = System.currentTimeMillis();
