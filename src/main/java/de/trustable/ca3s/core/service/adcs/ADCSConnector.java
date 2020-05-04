@@ -224,6 +224,8 @@ public class ADCSConnector {
 				// handle response
 				certDao = certUtil.createCertificate(certResponse.getB64Cert(), csr, null);
 
+				certDao.setRevocationCA(config);
+				
 				// the Request ID is specific to ADCS
 				certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_CA_PROCESSING_ID,
 						certResponse.getReqId());
@@ -346,7 +348,7 @@ public class ADCSConnector {
 						CertificateAttribute.ATTRIBUTE_CA_PROCESSING_ID, reqId);
 
 				if (certDaoList.isEmpty()) {
-					importCertificate(adcsConnector, info, reqId);
+					importCertificate(adcsConnector, info, reqId, caConnectorDao);
 
 				} else {
 					LOGGER.debug("certificate with requestID '{}' from ca '{}' alreeady present", reqId, info);
@@ -373,7 +375,7 @@ public class ADCSConnector {
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	private void importCertificate(ADCSWinNativeConnector adcsConnector, String info, String reqId)
+	private void importCertificate(ADCSWinNativeConnector adcsConnector, String info, String reqId, CAConnectorConfig cAConnectorConfig)
 			throws ACDSException {
 		GetCertificateResponse certResponse = adcsConnector.getCertificateByRequestId(reqId);
 
@@ -381,10 +383,17 @@ public class ADCSConnector {
 			Certificate certDao = certUtil.createCertificate(certResponse.getB64Cert(), null,
 					null, false);
 
+			// in this special of importing we know where to revoke this certificate
+			certDao.setRevocationCA(cAConnectorConfig);
+			
+			if( certDao.isSelfsigned()) {
+				certDao.setTrusted(true);
+			}
+			
 			// the Request ID is specific to ADCS instance
 			certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_PROCESSING_CA, info);
-			certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_CA_PROCESSING_ID,
-					certResponse.getReqId());
+			certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_CA_PROCESSING_ID, certResponse.getReqId());
+			
 			certificateRepository.save(certDao);
 
 			LOGGER.debug("certificate with reqId '{}' imported from ca '{}'", reqId, info);

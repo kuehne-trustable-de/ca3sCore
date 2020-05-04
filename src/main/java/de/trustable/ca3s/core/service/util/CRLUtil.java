@@ -45,26 +45,27 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import javax.naming.ldap.LdapName;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.security.auth.x500.X500Principal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.schedule.CertExpiryScheduler;
+import de.trustable.ca3s.core.repository.CertificateSpecifications;
+import de.trustable.ca3s.core.service.dto.CertificateView;
 
 
 @Service
 public class CRLUtil {
 
 	Logger LOG = LoggerFactory.getLogger(CRLUtil.class);
-
-	@Autowired
-	private CertificateRepository certificateRepository;
 
 	@Autowired
 	private CertificateUtil certUtil;
@@ -102,7 +103,13 @@ public class CRLUtil {
 
         X500Principal principal = crl.getIssuerX500Principal();
         
-        List<Certificate> certList = certificateRepository.findCACertByIssuer(principal.getName());
+        
+    	List<Certificate> certList = CertificateSpecifications.findCertificatesBySubject(entityManager, 
+    			entityManager.getCriteriaBuilder(), 
+    			new LdapName(principal.getName()).getRdns());
+
+//        List<Certificate> certList = certificateRepository.findCACertByIssuer(principal.getName());
+    	
         if( certList.size() == 0) {
         	LOG.debug("principal '{}' not found to verify CRL '{}'", principal.getName(), crlURL);
         	return null;
@@ -174,5 +181,23 @@ public class CRLUtil {
         }
     }
 
+
+	@Autowired
+    private EntityManager entityManager;
+
+//	@Autowired
+//	private CertificateJPQLSpecifications spec;
+	
+	public Page<CertificateView> findSelection(Map<String, String[]> parameterMap){
+		
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		
+		return CertificateSpecifications.handleQueryParamsCertificateView(entityManager, 
+				cb, 
+				parameterMap);
+
+//	    public List<Object[]>  getCertificateList(Map<String, String[]> parameterMap) {
+
+	}
 
 }

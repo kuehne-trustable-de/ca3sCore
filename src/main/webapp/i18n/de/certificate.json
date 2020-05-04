@@ -42,12 +42,14 @@
       "administrationComment": "Administration Comment",
       "endEntity": "End Entity",
       "selfsigned": "Selfsigned",
+      "trusted": "Trusted",
       "active": "Active",
       "content": "Content",
       "csr": "Csr",
       "certificateAttributes": "Certificate Attributes",
       "issuingCertificate": "Issuing Certificate",
-      "rootCertificate": "Root Certificate"
+      "rootCertificate": "Root Certificate",
+      "revocationCA": "Revocation CA"
     }
   }
 }

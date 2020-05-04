@@ -118,7 +118,6 @@ import java.util.Set;
         " order by certAtt.value "
     ),
 })
-
 public class Certificate implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -213,8 +212,12 @@ public class Certificate implements Serializable {
     @Column(name = "selfsigned")
     private Boolean selfsigned;
 
+    @Column(name = "trusted")
+    private Boolean trusted;
+
     @Column(name = "active")
     private Boolean active;
+
     
     @Lob
     @Column(name = "content", nullable = false)
@@ -228,14 +231,16 @@ public class Certificate implements Serializable {
     private Set<CertificateAttribute> certificateAttributes = new HashSet<>();
 
     @ManyToOne
-//    @JsonIgnore
     @JsonIgnoreProperties({"rootCertificate", "issuingCertificate", "certificateAttributes"})
     private Certificate issuingCertificate;
 
     @ManyToOne
-//    @JsonIgnore
     @JsonIgnoreProperties({"rootCertificate", "issuingCertificate", "certificateAttributes"})
     private Certificate rootCertificate;
+
+    @ManyToOne
+    @JsonIgnoreProperties("certificates")
+    private CAConnectorConfig revocationCA;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -584,6 +589,32 @@ public class Certificate implements Serializable {
         this.selfsigned = selfsigned;
     }
 
+    public Boolean isTrusted() {
+        return trusted;
+    }
+
+    public Certificate trusted(Boolean trusted) {
+        this.trusted = trusted;
+        return this;
+    }
+
+    public void setTrusted(Boolean trusted) {
+        this.trusted = trusted;
+    }
+
+    public Boolean isActive() {
+        return active;
+    }
+
+    public Certificate active(Boolean active) {
+        this.active = active;
+        return this;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
     public String getContent() {
         return content;
     }
@@ -660,21 +691,19 @@ public class Certificate implements Serializable {
     public void setRootCertificate(Certificate certificate) {
         this.rootCertificate = certificate;
     }
-    
-    public Boolean isActive() {
-        return active;
+
+    public CAConnectorConfig getRevocationCA() {
+        return revocationCA;
     }
 
-    public Certificate active(Boolean active) {
-        this.active = active;
+    public Certificate revocationCA(CAConnectorConfig cAConnectorConfig) {
+        this.revocationCA = cAConnectorConfig;
         return this;
     }
 
-    public void setActive(Boolean active) {
-        this.active = active;
+    public void setRevocationCA(CAConnectorConfig cAConnectorConfig) {
+        this.revocationCA = cAConnectorConfig;
     }
-
-
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
@@ -723,6 +752,7 @@ public class Certificate implements Serializable {
             ", administrationComment='" + getAdministrationComment() + "'" +
             ", endEntity='" + isEndEntity() + "'" +
             ", selfsigned='" + isSelfsigned() + "'" +
+            ", trusted='" + isTrusted() + "'" +
             ", active='" + isActive() + "'" +
             ", content='" + getContent() + "'" +
             "}";

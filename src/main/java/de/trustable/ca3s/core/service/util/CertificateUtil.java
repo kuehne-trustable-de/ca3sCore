@@ -34,6 +34,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
+
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1InputStream;
@@ -336,10 +340,10 @@ public class CertificateUtil {
 		List<String> extKeyUsageList = x509Cert.getExtendedKeyUsage();
 		if (extKeyUsageList != null) {
 			for (String extUsage : extKeyUsageList) {
-				setCertMultiValueAttribute(cert, OidNameMapper.lookupOid(extUsage), extUsage);
+				setCertMultiValueAttribute(cert, CertificateAttribute.ATTRIBUTE_EXTENDED_USAGE_OID, extUsage);
+				setCertMultiValueAttribute(cert, CertificateAttribute.ATTRIBUTE_EXTENDED_USAGE, OidNameMapper.lookupOid(extUsage));
 			}
 		}
-
 
 		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ISSUER, issuer.toLowerCase());
 
@@ -668,11 +672,28 @@ public class CertificateUtil {
 
 	
 	public void insertNameAttributes(Certificate cert, String attributeName, X500Name x500NameSubject) {
+		
+		
+		try {
+			List<Rdn> rdnList = new LdapName(x500NameSubject.toString()).getRdns();
+			for( Rdn rdn: rdnList) {
+	    		String rdnExpression = rdn.getType() + "=" + rdn.getValue();
+	    		setCertMultiValueAttribute(cert, attributeName, rdnExpression);
+			}
+		} catch (InvalidNameException e) {
+			LOG.info("problem parsing RDN for {}", x500NameSubject.toString());
+		}
+		
 		for( RDN rdn: x500NameSubject.getRDNs() ){
 			for( org.bouncycastle.asn1.x500.AttributeTypeAndValue atv: rdn.getTypesAndValues()){
 				String value = atv.getValue().toString().toLowerCase();
 				setCertMultiValueAttribute(cert, attributeName, value);
-				setCertMultiValueAttribute(cert, attributeName, atv.getType().getId().toLowerCase() +"="+ value);
+				String oid = atv.getType().getId().toLowerCase();
+				setCertMultiValueAttribute(cert, attributeName, oid +"="+ value);
+				
+				if( !oid.equals(atv.getType().toString().toLowerCase())) {
+					setCertMultiValueAttribute(cert, attributeName, atv.getType().toString().toLowerCase() +"="+ value);
+				}
 			}
 		}
 	}
@@ -716,7 +737,7 @@ public class CertificateUtil {
 //	        LOG.debug("checking certificate attribute '{}' containing value '{}'", certAttr.getName(), certAttr.getValue());
 
 			if( name.equals(certAttr.getName())) {
-				if( value.equals(certAttr.getValue())) {
+				if( value.equalsIgnoreCase(certAttr.getValue())) {
 					// attribute already present, no use in duplication here
 					return;
 				}else {
@@ -911,31 +932,31 @@ public class CertificateUtil {
 		}
 
 		if ( (usage.length > 0) && usage[0]){
-			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "digitalSignature ");
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "digitalSignature");
 		}
 		if ( (usage.length > 1) && usage[1]){
-			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "nonRepudiation ");
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "nonRepudiation");
 		}
 		if ( (usage.length > 2) && usage[2]){
-			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "keyEncipherment ");
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "keyEncipherment");
 		}
 		if ( (usage.length > 3) && usage[3]){
-			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "dataEncipherment ");
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "dataEncipherment");
 		}
 		if ( (usage.length > 4) && usage[4]){
-			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "keyAgreement ");
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "keyAgreement");
 		}
 		if ( (usage.length > 5) && usage[5]){
-			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "keyCertSign ");
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "keyCertSign");
 		}
 		if ( (usage.length > 6) && usage[6]){
-			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "cRLSign ");
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "cRLSign");
 		}
 		if ( (usage.length > 7) && usage[7]) {
-			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "encipherOnly ");
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "encipherOnly");
 		}
 		if ( (usage.length > 8) && usage[8]) {
-			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "decipherOnly ");
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "decipherOnly");
 		}
 
 	}
@@ -1109,7 +1130,7 @@ public class CertificateUtil {
 
 		List<Certificate> issuingCertList = new ArrayList<Certificate>();
 
-		// lokk for the AKI extension in the given certificate
+		// look for the AKI extension in the given certificate
 		if( (x509CertHolder != null) && (x509CertHolder.getExtensions() != null)) {
 			AuthorityKeyIdentifier aki = AuthorityKeyIdentifier.fromExtensions(x509CertHolder.getExtensions());
 			if( aki != null) {
@@ -1175,7 +1196,7 @@ public class CertificateUtil {
 			// end of chain?
 			if( cert.isSelfsigned()) {
 				
-				// hurra, terminated ...
+				// hurrah, terminate ...
 				return cert;
 			}
 			

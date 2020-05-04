@@ -197,6 +197,11 @@
                             :class="{'valid': !$v.certificate.selfsigned.$invalid, 'invalid': $v.certificate.selfsigned.$invalid }" v-model="$v.certificate.selfsigned.$model" />
                     </div>
                     <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.trusted')" for="certificate-trusted">Trusted</label>
+                        <input type="checkbox" class="form-check" name="trusted" id="certificate-trusted"
+                            :class="{'valid': !$v.certificate.trusted.$invalid, 'invalid': $v.certificate.trusted.$invalid }" v-model="$v.certificate.trusted.$model" />
+                    </div>
+                    <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.certificate.active')" for="certificate-active">Active</label>
                         <input type="checkbox" class="form-check" name="active" id="certificate-active"
                             :class="{'valid': !$v.certificate.active.$invalid, 'invalid': $v.certificate.active.$invalid }" v-model="$v.certificate.active.$model" />
@@ -230,6 +235,13 @@
                         <select class="form-control" id="certificate-rootCertificate" name="rootCertificate" v-model="certificate.rootCertificate">
                             <option v-bind:value="null"></option>
                             <option v-bind:value="certificate.rootCertificate && certificateOption.id === certificate.rootCertificate.id ? certificate.rootCertificate : certificateOption" v-for="certificateOption in certificates" :key="certificateOption.id">{{certificateOption.id}}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.revocationCA')" for="certificate-revocationCA">Revocation CA</label>
+                        <select class="form-control" id="certificate-revocationCA" name="revocationCA" v-model="certificate.revocationCA">
+                            <option v-bind:value="null"></option>
+                            <option v-bind:value="certificate.revocationCA && cAConnectorConfigOption.id === certificate.revocationCA.id ? certificate.revocationCA : cAConnectorConfigOption" v-for="cAConnectorConfigOption in cAConnectorConfigs" :key="cAConnectorConfigOption.id">{{cAConnectorConfigOption.id}}</option>
                         </select>
                     </div>
                 </div>

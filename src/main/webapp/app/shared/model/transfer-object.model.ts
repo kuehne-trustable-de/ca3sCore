@@ -1,13 +1,17 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2020-04-20 22:18:16.
+// Generated using typescript-generator version 2.19.577 on 2020-04-28 11:14:33.
 
 export interface ICertificateView extends ISerializable {
     id?: number;
+    csrId?: number;
+    issuerId?: number;
     tbsDigest?: string;
     subject?: string;
     sans?: string;
     issuer?: string;
+    root?: string;
+    fingerprint?: string;
     type?: string;
     keyLength?: string;
     keyAlgorithm?: string;
@@ -22,6 +26,27 @@ export interface ICertificateView extends ISerializable {
     revokedSince?: Date;
     revocationReason?: string;
     revoked?: boolean;
+    selfsigned?: boolean;
+    ca?: boolean;
+    intermediate?: boolean;
+    endEntity?: boolean;
+    chainLength?: number;
+    usage?: string[];
+    extUsage?: string[];
+    sanArr?: string[];
+    caConnectorId?: number;
+    caProcessingId?: number;
+    acmeAccountId?: number;
+    acmeOrderId?: number;
+    scepTransId?: number;
+    scepRecipient?: string;
+    fileSource?: string;
+    uploadedBy?: string;
+    revokedBy?: string;
+    requestedBy?: string;
+    crlUrl?: string;
+    crlNextUpdate?: Date;
+    downloadFilename?: string;
 }
 
 export interface ICSRView extends ISerializable {

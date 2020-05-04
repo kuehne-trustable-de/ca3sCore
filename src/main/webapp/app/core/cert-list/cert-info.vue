@@ -1,158 +1,168 @@
 <template>
     <div class="row justify-content-center">
         <div class="col-8">
-            <div v-if="certificate">
-                <h2 class="jh-entity-heading"><span v-text="$t('ca3SApp.certificate.detail.title')">Certificate</span> {{certificate.id}}</h2>
+            <div v-if="certificateView">
+                <h2 class="jh-entity-heading"><span v-text="$t('ca3SApp.certificate.detail.title')">Certificate</span> {{certificateView.id}}</h2>
                 <dl class="row jh-entity-details">
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.subject')">Subject</span>
                     </dt>
                     <dd>
-                        <span>{{certificate.subject}}</span>
+                        <span>{{certificateView.subject}}</span>
                     </dd>
 
-                    <dt v-if="certificate.sans && certificate.sans.length > 0">
+                    <dt v-if="certificateView.sanArr && certificateView.sanArr.length > 0">
 						<span v-text="$t('ca3SApp.certificate.sans')">Subject alternative names</span>
 					</dt>
-					<dd v-if="certificate.sans && certificate.sans.length > 0">
+					<dd v-if="certificateView.sanArr && certificateView.sanArr.length > 0">
 						<ul>
-							<li v-for="san in sansOnly(certificate.certificateAttributes)" :key="san.Id" >{{san.value}}</li>
+							<li v-for="san in certificateView.sanArr" :key="san" >{{san}}</li>
 						</ul>
 					</dd>
-
-
 
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.issuer')">Issuer</span>
                     </dt>
                     <dd>
-                        <span v-if="certificate.selfsigned" v-text="$t('ca3SApp.certificate.selfsigned')">Selfsigned</span>
-                        <router-link v-else-if="certificate.issuingCertificate" :to="{name: 'CertificateView', params: {certificateId: certificate.issuingCertificate.id}}">{{certificate.issuer}}</router-link>
-                        <span v-else>{{certificate.issuer}}</span>
+                        <span v-if="certificateView.selfsigned" v-text="$t('ca3SApp.certificate.selfsigned')">Selfsigned</span>
+                        <router-link v-else-if="certificateView.issuerId" :to="{name: 'CertInfo', params: {certificateId: certificateView.issuerId}}">{{certificateView.issuer}}</router-link>
+                        <span v-else>{{certificateView.issuer}}</span>
                     </dd>
+
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.type')">Type</span>
                     </dt>
                     <dd>
-                        <span>{{certificate.type}}</span>
+                        <span>{{certificateView.type}}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.serial')">Serial</span>
                     </dt>
                     <dd>
-                        <span>{{certificate.serial}}</span>
+                        <span>{{certificateView.serial}}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.validFrom')">Valid From</span>
                     </dt>
                     <dd>
-                        <span v-if="certificate.validFrom">{{$d(Date.parse(certificate.validFrom), 'long') }}</span>
+                        <span v-if="certificateView.validFrom">{{$d(Date.parse(certificateView.validFrom), 'long') }}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.validTo')">Valid To</span>
                     </dt>
                     <dd>
-                        <span v-if="certificate.validTo">{{$d(Date.parse(certificate.validTo), 'long') }}</span>
+                        <span v-if="certificateView.validTo">{{$d(Date.parse(certificateView.validTo), 'long') }}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.keyAlgorithm')">Key Algorithm</span>
                     </dt>
                     <dd>
-                        <span>{{certificate.keyAlgorithm}}</span>
+                        <span>{{certificateView.keyAlgorithm}}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.keyLength')">Key Length</span>
                     </dt>
                     <dd>
-                        <span>{{certificate.keyLength}}</span>
+                        <span>{{certificateView.keyLength}}</span>
                     </dd>
-                    <dt v-if="certificate.curveName">
+                    <dt v-if="certificateView.curveName && certificateView.curveName.length > 0">
                         <span v-text="$t('ca3SApp.certificate.curveName')">Curve Name</span>
                     </dt>
-                    <dd v-if="certificate.curveName">
-                        <span>{{certificate.curveName}}</span>
+                    <dd v-if="certificateView.curveName && certificateView.curveName.length > 0">
+                        <span>{{certificateView.curveName}}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.signingAlgorithm')">Signing Algorithm</span>
                     </dt>
                     <dd>
-                        <span>{{certificate.signingAlgorithm}}</span>
+                        <span>{{certificateView.signingAlgorithm}}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.hashingAlgorithm')">Hashing Algorithm</span>
                     </dt>
                     <dd>
-                        <span>{{certificate.hashingAlgorithm}}</span>
+                        <span>{{certificateView.hashAlgorithm}}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.paddingAlgorithm')">Padding Algorithm</span>
                     </dt>
                     <dd>
-                        <span>{{certificate.paddingAlgorithm}}</span>
+                        <span>{{certificateView.paddingAlgorithm}}</span>
                     </dd>
                     
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.usage')">Usage</span>
                     </dt>
-                    <dd>
-                        <span>{{usage}}</span>
-                    </dd>
+					<dd>
+						<ul v-if="certificateView.usage && certificateView.usage.length > 0">
+							<li v-for="usg in certificateView.usage" :key="usg" >{{usg}}</li>
+						</ul>
+					</dd>
 
                     <dt>
-                        <span v-text="$t('ca3SApp.certificate.contentAddedAt')">Content Added At</span>
+                        <span v-text="$t('ca3SApp.certificate.extended.usage')">Usage</span>
+                    </dt>
+					<dd>
+						<ul v-if="certificateView.extUsage && certificateView.extUsage.length > 0">
+							<li v-for="extUsage in certificateView.extUsage" :key="extUsage" >{{extUsage}}</li>
+						</ul>
+					</dd>
+
+                    <dt>
+                        <span v-text="$t('ca3SApp.certificateView.contentAddedAt')">Content Added At</span>
                     </dt>
                     <dd>
-                        <span v-if="certificate.contentAddedAt">{{$d(Date.parse(certificate.contentAddedAt), 'long') }}</span>
+                        <span v-if="certificateView.contentAddedAt">{{$d(Date.parse(certificateView.contentAddedAt), 'long') }}</span>
                     </dd>
-                    <dt v-if="certificate.revoked">
+                    <dt v-if="certificateView.revoked">
                         <span v-text="$t('ca3SApp.certificate.revokedSince')">Revoked Since</span>
                     </dt>
-                    <dd v-if="certificate.revoked">
-                        <span v-if="certificate.revokedSince">{{$d(Date.parse(certificate.revokedSince), 'long') }}</span>
+                    <dd v-if="certificateView.revoked">
+                        <span v-if="certificateView.revokedSince">{{$d(Date.parse(certificateView.revokedSince), 'long') }}</span>
                     </dd>
-                    <dt v-if="certificate.revoked">
+                    <dt v-if="certificateView.revoked">
                         <span v-text="$t('ca3SApp.certificate.revocationReason')">Revocation Reason</span>
                     </dt>
-                    <dd v-if="certificate.revoked">
-                        <span>{{certificate.revocationReason}}</span>
+                    <dd v-if="certificateView.revoked">
+                        <span>{{certificateView.revocationReason}}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.fingerprint')">Fingerprint</span>
                     </dt>
                     <dd>
-                        <span>{{certificate.fingerprint}}</span>
+                        <span>{{certificateView.fingerprint}}</span>
                     </dd>
-                    <dt>
+                    <dt v-if="certificateView.csrId">
                         <span v-text="$t('ca3SApp.certificate.csr')">Csr</span>
                     </dt>
-                    <dd>
-                        <div v-if="certificate.csr">
-                            <router-link :to="{name: 'CSRView', params: {cSRId: certificate.csr.id}}">{{certificate.csr.id}}</router-link>
+                    <dd v-if="certificateView.csrId">
+                        <div>
+                            <router-link :to="{name: 'CSRView', params: {cSRId: certificateView.csrId}}">{{certificateView.csrId}}</router-link>
                         </div>
                     </dd>
-                    <dt>
+                    <!--dt>
                         <span v-text="$t('ca3SApp.certificate.issuingCertificate')">Issuing Certificate</span>
                     </dt>
                     <dd>
-                        <div v-if="certificate.issuingCertificate">
-                            <router-link :to="{name: 'CertificateView', params: {certificateId: certificate.issuingCertificate.id}}">{{certificate.issuingCertificate.id}}</router-link>
+                        <div v-if="certificateView.issuerId">
+                            <router-link :to="{name: 'CertInfo', params: {certificateId: certificateView.issuerId}}">{{certificateView.issuer}}</router-link>
                         </div>
-                    </dd>
+                    </dd-->
 
-                    <dt v-if="certificate.subject">
+                    <dt v-if="certificateView.subject">
                         <span v-text="$t('ca3SApp.certificate.download.pkix')">Pkix</span>
                     </dt>
-                    <dd v-if="certificate.subject">
+                    <dd v-if="certificateView.subject">
                         <div>
-                            <a href="downloadUrl" @click.prevent="downloadItem('.crt', 'application/pkix-cert')" >{{certificate.subject}}.crt</a>
+                            <a href="downloadUrl" @click.prevent="downloadItem('.crt', 'application/pkix-cert')" >{{certificateView.downloadFilename}}.crt</a>
                         </div>
                     </dd>
-                    <dt v-if="certificate.subject">
+                    <dt v-if="certificateView.subject">
                         <span v-text="$t('ca3SApp.certificate.download.pem')">PEM</span>
                     </dt>
-                    <dd v-if="certificate.subject">
+                    <dd v-if="certificateView.subject">
                         <div>
-                            <a href="downloadUrl" @click.prevent="downloadItem('.cer', 'application/pem-certificate')" >{{certificate.subject}}.cer</a>
+                            <a href="downloadUrl" @click.prevent="downloadItem('.cer', 'application/pem-certificate')" >{{certificateView.downloadFilename}}.cer</a>
                         </div>
                     </dd>
 

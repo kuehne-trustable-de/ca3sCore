@@ -15,6 +15,9 @@ import { ICSR } from '@/shared/model/csr.model';
 import CertificateAttributeService from '../certificate-attribute/certificate-attribute.service';
 import { ICertificateAttribute } from '@/shared/model/certificate-attribute.model';
 
+import CAConnectorConfigService from '../ca-connector-config/ca-connector-config.service';
+import { ICAConnectorConfig } from '@/shared/model/ca-connector-config.model';
+
 import AlertService from '@/shared/alert/alert.service';
 import { ICertificate, Certificate } from '@/shared/model/certificate.model';
 import CertificateService from './certificate.service';
@@ -61,6 +64,7 @@ const validations: any = {
     administrationComment: {},
     endEntity: {},
     selfsigned: {},
+    trusted: {},
     active: {},
     content: {
       required
@@ -85,6 +89,10 @@ export default class CertificateUpdate extends mixins(JhiDataUtils) {
   public certificateAttributes: ICertificateAttribute[] = [];
 
   public certificates: ICertificate[] = [];
+
+  @Inject('cAConnectorConfigService') private cAConnectorConfigService: () => CAConnectorConfigService;
+
+  public cAConnectorConfigs: ICAConnectorConfig[] = [];
   public isSaving = false;
 
   beforeRouteEnter(to, from, next) {
@@ -178,6 +186,11 @@ export default class CertificateUpdate extends mixins(JhiDataUtils) {
       .retrieve()
       .then(res => {
         this.certificates = res.data;
+      });
+    this.cAConnectorConfigService()
+      .retrieve()
+      .then(res => {
+        this.cAConnectorConfigs = res.data;
       });
   }
 }

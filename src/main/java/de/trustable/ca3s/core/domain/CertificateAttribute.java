@@ -123,6 +123,9 @@ public class CertificateAttribute implements Serializable {
 	public static final String ATTRIBUTE_ROOT = "ROOT";
 	public static final String ATTRIBUTE_TYPE = "TYPE";
 	public static final String ATTRIBUTE_USAGE = "USAGE";
+	public static final String ATTRIBUTE_EXTENDED_USAGE = "EXTENDED_USAGE";
+	public static final String ATTRIBUTE_EXTENDED_USAGE_OID = "EXTENDED_USAGE_OID";
+
 //	public static final String ATTRIBUTE_KEY_LENGTH = "KEY_LENGTH";
 //	public static final String ATTRIBUTE_SIGNATURE_ALGO = "SIGNATURE_ALGO";
 //	public static final String ATTRIBUTE_KEY_ALGO = "KEY_ALGO";

@@ -258,6 +258,33 @@ public class CertificateUtilTest {
 	"dwkBZYrKyfdPeqAv70T4AgHTeGj6c9KMylD6EQ3Dl7CH8w==\r\n" + 
 	"-----END CERTIFICATE-----\r\n";
 	
+	public static final String testLocalhost = 
+	"-----BEGIN CERTIFICATE-----\r\n" + 
+	"MIIEJzCCAw+gAwIBAgITFQAADZ6N95LGYz1zLAABAAANnjANBgkqhkiG9w0BAQsF\r\n" + 
+	"ADAcMRowGAYDVQQDExFXUy0yMDE5LUlzc3VpbmdDQTAeFw0yMDA0MjcxMTUwMjNa\r\n" + 
+	"Fw0yMTA0MjYxMTAxMDdaMFwxCzAJBgNVBAYTAkRFMRYwFAYDVQQKEw10cnVzdGFi\r\n" + 
+	"bGUgTHRkMRswGQYDVQQLExJjYTNzIDE1ODc5ODg4MTk2MzAxGDAWBgNVBAMTD0RF\r\n" + 
+	"U0tUT1AtSjJDRjc0VjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKnR\r\n" + 
+	"RZjN2Tr/CwlGW8tKnx47n1MTYNsa85h2jMVHUYRZOdpQMdrPRPlMn2joxW3tjgfo\r\n" + 
+	"l14DKIeaWoFxJJVqB006Ls4l6j899sbIstu9KR3ojXtjBs0s6qXBojCZrOmEeCU9\r\n" + 
+	"iWcL35qeSSlvmR6HL7f2GQ7xbWz4EEDrBQU7SZrkFsXJgowIrFR+nStHKkEqxcsz\r\n" + 
+	"+1y2hdv+6/OOBi3Yup6MiluYcmD3fqflEMHC7rQbUqyeWc8jboF0uL+W0DnxApwS\r\n" + 
+	"M+ofzzI28i/YZkafBGsLTeMTY7wYqneAqnzW4PTI7MSOyVB3mqJuH0tUBuqsN6Be\r\n" + 
+	"iJnSMBa61s9Q/Xj/mb0CAwEAAaOCASAwggEcMBMGA1UdJQQMMAoGCCsGAQUFBwMO\r\n" + 
+	"MB0GA1UdDgQWBBSUEqchB+jQT7/mf0aWt+BaaXcA7TAfBgNVHSMEGDAWgBTcYoRv\r\n" + 
+	"4Ad+klBDqCFzuWtK2ncZozBNBgNVHR8ERjBEMEKgQKA+hjxmaWxlOi8vLy9XSU4t\r\n" + 
+	"SjRFRkNTQVJFTjkvQ2VydEVucm9sbC9XUy0yMDE5LUlzc3VpbmdDQSgxKS5jcmww\r\n" + 
+	"aAYIKwYBBQUHAQEEXDBaMFgGCCsGAQUFBzAChkxmaWxlOi8vLy9XSU4tSjRFRkNT\r\n" + 
+	"QVJFTjkvQ2VydEVucm9sbC9XSU4tSjRFRkNTQVJFTjlfV1MtMjAxOS1Jc3N1aW5n\r\n" + 
+	"Q0EoMSkuY3J0MAwGA1UdEwEB/wQCMAAwDQYJKoZIhvcNAQELBQADggEBAJjEFIe4\r\n" + 
+	"CtRVc9vX8np4jZsqHE4K1TVkarj9a68RG2GTHUAdtNAVjK+ZFYeSdIg8YqkkLQmQ\r\n" + 
+	"Jh9BHPr5du1jBdgktznsm9wg7sljOUqm+v1XEk7wD4fsv6di1n52YlPX52+wNvpN\r\n" + 
+	"/vhZU15sHX/KqK6L7ZiXLEqBe3kRd1kfOf44+uPVqNFEs+OP1pCNKPZz9tjLBJrL\r\n" + 
+	"RuOzwmbh8xagJhXOokKwpRk4tFfL5Y6P2P4iZPNBRY1sWMDh8CIDl0ICrnl5KFo5\r\n" + 
+	"lPB7f85pmG1HvGAeQXdhkaVeTXUbC0CsjILEXcgFNyvQgHNT07TVT63zcEsm9wIC\r\n" + 
+	"5wvSWO94GjWtJT0=\r\n" + 
+	"-----END CERTIFICATE-----\r\n";
+	
 	@Test
 	public void testAKIandSKIGeneration() throws GeneralSecurityException {
 
@@ -430,5 +457,29 @@ public class CertificateUtilTest {
 		assertEquals("pkcs1", cert.getPaddingAlgorithm());
 		
 	}
+
+	@Test
+	public void testBuildCertificatestLocalhost() throws GeneralSecurityException, IOException{
+		
+		String executionId = "";
+		Certificate cert = certificateUtil.createCertificate(testLocalhost, null, executionId);
+		assertNotNull(cert);
+
+
+		for(CertificateAttribute certAtt : cert.getCertificateAttributes()) {
+			if( CertificateAttribute.ATTRIBUTE_CRL_URL.equals(certAtt.getName())) {
+				System.out.println("ATTRIBUTE_CRL_URL" + certAtt.getValue());
+			}
+		}
+		
+		assertEquals("rsa", cert.getKeyAlgorithm());
+		assertEquals("rsa", cert.getSigningAlgorithm());
+		assertEquals("sha256", cert.getHashingAlgorithm());
+		assertEquals("2048", cert.getKeyLength().toString());
+		assertEquals("pkcs1", cert.getPaddingAlgorithm());
+		
+	}
+
+	
 	
 }

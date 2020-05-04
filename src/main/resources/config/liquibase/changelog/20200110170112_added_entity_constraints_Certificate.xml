@@ -26,5 +26,11 @@
                                  referencedColumnNames="id"
                                  referencedTableName="certificate"/>
 
+        <addForeignKeyConstraint baseColumnNames="revocationca_id"
+                                 baseTableName="certificate"
+                                 constraintName="fk_certificate_revocationca_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="ca_connector_config"/>
+
     </changeSet>
 </databaseChangeLog>

@@ -17,6 +17,8 @@ import CSRService from '@/entities/csr/csr.service';
 
 import CertificateAttributeService from '@/entities/certificate-attribute/certificate-attribute.service';
 
+import CAConnectorConfigService from '@/entities/ca-connector-config/ca-connector-config.service';
+
 const localVue = createLocalVue();
 
 config.initVueApp(localVue);
@@ -46,7 +48,9 @@ describe('Component Tests', () => {
 
           cSRService: () => new CSRService(),
 
-          certificateAttributeService: () => new CertificateAttributeService()
+          certificateAttributeService: () => new CertificateAttributeService(),
+
+          cAConnectorConfigService: () => new CAConnectorConfigService()
         }
       });
       comp = wrapper.vm;

@@ -3,45 +3,36 @@ import { Component, Inject } from 'vue-property-decorator';
 import { mixins } from 'vue-class-component';
 import JhiDataUtils from '@/shared/data/data-utils.service';
 
-import { ICertificate } from '@/shared/model/certificate.model';
-import CertificateService from '../../entities/certificate/certificate.service';
+import { ICertificateView } from '@/shared/model/transfer-object.model';
+import CertificateViewService from '../../entities/certificate/certificate-view.service';
 
 import axios from 'axios';
-import { ICertificateAttribute } from '@/shared/model/certificate-attribute.model';
 import { ICertificateAdministrationData } from '@/shared/model/transfer-object.model';
 
 @Component
 export default class CertificateDetails extends mixins(JhiDataUtils) {
-  @Inject('certificateService') private certificateService: () => CertificateService;
-  public certificate: ICertificate = {};
+  @Inject('certificateViewService') private certificateViewService: () => CertificateViewService;
 
+  public certificateView: ICertificateView = {};
   public certificateAdminData: ICertificateAdministrationData = {};
 
-  public usage = '';
-
   public downloadUrl(): string {
-    const url = '/publicapi/cert/' + this.certificate.id;
+    const url = '/publicapi/cert/' + this.certificateView.id;
     window.console.info('downloadUrl() : ' + url);
     return url;
   }
 
   public downloadItem(extension: string, mimetype: string) {
-    const url = '/publicapi/cert/' + this.certificate.id;
+    const url = '/publicapi/cert/' + this.certificateView.id;
     axios.get(url, { responseType: 'blob', headers: { 'Accept': mimetype } })
       .then(response => {
         const blob = new Blob([response.data], { type: mimetype, endings: 'transparent'});
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = this.certificate.subject + extension;
+        link.download = this.certificateView.downloadFilename + extension;
         link.click();
         URL.revokeObjectURL(link.href);
       }).catch(console.error);
-  }
-
-  public sansOnly(attArr: ICertificateAttribute[]) {
-    return attArr.filter(function(att) {
-      return att.name === 'SAN';
-    });
   }
 
   beforeRouteEnter(to, from, next) {
@@ -53,13 +44,10 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
   }
 
   public retrieveCertificate(certificateId) {
-    this.certificateService()
+    this.certificateViewService()
       .find(certificateId)
       .then(res => {
-        this.certificate = res;
-
-        this.usage = this.getAttributeList( 'USAGE' );
-
+        this.certificateView = res;
       });
   }
 
@@ -67,7 +55,7 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
     this.$router.go(-1);
   }
 
-    public get roles(): string {
+  public get roles(): string {
     return this.$store.getters.account ? this.$store.getters.account.authorities[0] : '';
   }
 
@@ -76,8 +64,8 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
   }
 
   public isRevocable() {
-    return !(this.certificate.revoked) &&
-      ( this.certificate.validTo ) &&
+    return !(this.certificateView.revoked) &&
+      ( this.certificateView.validTo ) &&
 //      ( this.certificate.validTo.getMilliseconds() < Date.now()) &&
       ( this.isRAOfficer() || this.isOwnCertificate() );
   }
@@ -87,16 +75,16 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
   }
 
   public isOwnCertificate() {
-      return this.certificate.csr && this.getUsername() === this.certificate.csr.requestedBy;
+      return this.getUsername() === this.certificateView.requestedBy;
   }
 
   public revokeCertificate() {
-    this.certificateAdminData.certificateId = this.certificate.id;
+    this.certificateAdminData.certificateId = this.certificateView.id;
     this.sendAdministrationAction('api/administerCertificate');
   }
 
   public withdrawCertificate() {
-    this.certificateAdminData.certificateId = this.certificate.id;
+    this.certificateAdminData.certificateId = this.certificateView.id;
     this.sendAdministrationAction('api/withdrawOwnCertificate');
   }
 
@@ -125,26 +113,4 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
     });
   }
 
-  getAttribute( attrName: string): string {
-
-    for ( let i = 0; i < this.certificate.certificateAttributes.length; i++ ) {
-      if ( this.certificate.certificateAttributes[i].name === attrName) {
-        return this.certificate.certificateAttributes[i].value;
-      }
-    }
-    return '';
-  }
-
-  getAttributeList( attrName: string): string {
-    let ret = '';
-    for ( let i = 0; i < this.certificate.certificateAttributes.length; i++ ) {
-      if ( this.certificate.certificateAttributes[i].name === attrName) {
-        if ( ret.length > 0) {
-          ret += ', ';
-        }
-        ret += this.certificate.certificateAttributes[i].value;
-      }
-    }
-    return ret;
-  }
 }

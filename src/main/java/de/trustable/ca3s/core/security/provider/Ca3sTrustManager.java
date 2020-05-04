@@ -77,13 +77,13 @@ public class Ca3sTrustManager implements X509TrustManager {
 			}
 			
 			Certificate issuingCACertDao = certUtil.findIssuingCertificate(serverCertDao);
-			LOGGER.debug("checkServerTrusted : no issuing certificate found for certificate subject '" + serverCertDao.getSubject() + "',  : chain has " + chain.length + " elements");
 			if( issuingCACertDao == null && (chain.length > 1)) {
+				LOGGER.debug("checkServerTrusted : no issuing certificate found for certificate subject '" + serverCertDao.getSubject() + "',  : chain has " + chain.length + " elements");
 				
 				issuingCACertDao = certUtil.createCertificate(cryptoUtil.x509CertToPem(chain[1]), null, 
 						null,
 						false);
-				LOGGER.debug("checkServerTrusted importing Issueing CA cert '" + chain[1].getSubjectDN().getName() + "'");
+				LOGGER.debug("checkServerTrusted importing issuing CA cert '" + chain[1].getSubjectDN().getName() + "'");
 				
 				serverCertDao = certUtil.createCertificate(cryptoUtil.x509CertToPem(serverCert), null, 
 						null,

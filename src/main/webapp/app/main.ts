@@ -31,6 +31,7 @@ import TrackerService from './admin/tracker/tracker.service';
 import CAConnectorConfigService from '@/entities/ca-connector-config/ca-connector-config.service';
 import CertificateAttributeService from '@/entities/certificate-attribute/certificate-attribute.service';
 import CertificateService from '@/entities/certificate/certificate.service';
+import CertificateViewService from '@/entities/certificate/certificate-view.service';
 import CSRService from '@/entities/csr/csr.service';
 import CsrAttributeService from '@/entities/csr-attribute/csr-attribute.service';
 import RDNService from '@/entities/rdn/rdn.service';
@@ -117,6 +118,7 @@ new Vue({
     cAConnectorConfigService: () => new CAConnectorConfigService(),
     certificateAttributeService: () => new CertificateAttributeService(),
     certificateService: () => new CertificateService(),
+    certificateViewService: () => new CertificateViewService(),
     cSRService: () => new CSRService(),
     csrAttributeService: () => new CsrAttributeService(),
     rDNService: () => new RDNService(),

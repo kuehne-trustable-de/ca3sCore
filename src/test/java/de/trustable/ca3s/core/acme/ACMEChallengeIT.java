@@ -36,17 +36,17 @@ import org.takes.http.Exit;
 import org.takes.http.FtBasic;
 
 import de.trustable.ca3s.core.Ca3SApp;
-import de.trustable.ca3s.core.CaConfigTestConfiguration;
+import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.util.JCAManager;
 
-// @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-// @ContextConfiguration(classes=CaConfigTestConfiguration.class)
+@SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(classes=PipelineTestConfiguration.class)
 public class ACMEChallengeIT {
 
     private static final Logger LOG = LoggerFactory.getLogger(ACMEChallengeIT.class);
 
-//	@LocalServerPort
-	int serverPort = 8080; // random port chosen by spring test
+	@LocalServerPort
+	int serverPort; // random port chosen by spring test
 
 	@BeforeAll
 	public static void setUpBeforeClass() throws Exception {
@@ -58,7 +58,7 @@ public class ACMEChallengeIT {
 	@Test
 	public void testAccountHandling() throws AcmeException, IOException, InterruptedException {
 
-		String dirUrl = "http://localhost:" + serverPort + "/acme/ejbca/directory";
+		String dirUrl = "http://localhost:" + serverPort + "/acme/test/directory";
 
 		Session session = new Session(dirUrl);
 		Metadata meta = session.getMetadata();

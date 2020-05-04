@@ -62,6 +62,7 @@ entity Certificate {
   administrationComment TextBlob 
   endEntity Boolean
   selfsigned Boolean
+  trusted Boolean
   active Boolean
   content TextBlob required
 }
@@ -380,6 +381,7 @@ relationship ManyToOne {
 
   	Certificate{issuingCertificate} to Certificate
   	Certificate{rootCertificate} to Certificate
+	Certificate{revocationCA} to CAConnectorConfig
 
 	CSR{pipeline} to Pipeline
 

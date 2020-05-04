@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.naming.ldap.Rdn;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -88,7 +89,69 @@ public final class CertificateSpecifications {
     		return Integer.parseInt(inArr[0]);
     	}
     }
-    
+
+    /**
+     * 
+     * @param entityManager
+     * @param cb
+     * @param rdnList
+     * @return
+     */
+	public static List<Certificate> findCertificatesBySubject(EntityManager entityManager, 
+			CriteriaBuilder cb, 
+			List<Rdn> rdnList) {
+		
+		CriteriaQuery<Certificate> query = cb.createQuery(Certificate.class);
+		Root<Certificate> root = query.from(Certificate.class);
+
+		
+		Predicate pred = cb.conjunction();
+    	for( Rdn rdn: rdnList) {
+    		
+    		String rdnExpression = rdn.getType() + "=" + rdn.getValue();
+			logger.debug("single rdn representation '{}' ", rdnExpression);
+    		
+		    Subquery<CertificateAttribute> certAttSubquery = query.subquery(CertificateAttribute.class);
+		    Root<CertificateAttribute> certAttRoot = certAttSubquery.from(CertificateAttribute.class);
+		    Predicate predPart = cb.exists(certAttSubquery.select(certAttRoot)//subquery selection
+                     .where(cb.and( cb.equal(certAttRoot.get(CertificateAttribute_.CERTIFICATE), root.get(Certificate_.ID)),
+                    		 cb.equal(certAttRoot.get(CertificateAttribute_.NAME), CertificateAttribute.ATTRIBUTE_SUBJECT),
+                    		 buildPredicate( Selector.EQUAL.toString(), cb, certAttRoot.<String>get(CertificateAttribute_.value), rdnExpression))));
+
+			pred = cb.and(pred, predPart);
+
+    	}
+		
+		query.where(pred);
+	
+//		query.multiselect(selectionList);
+//    	query.distinct(true);
+		
+    	TypedQuery<Certificate> typedQuery = entityManager.createQuery(query);
+    	
+    	try {
+    		logger.debug("assembled query: " + typedQuery.unwrap(org.hibernate.query.Query.class).getQueryString());
+    	}catch( Exception e ){
+    		logger.debug("failed in retrieve sql query", e);
+    	}
+
+		long queryStartTime = System.currentTimeMillis();
+
+    	// submit the query
+    	List<Certificate> listResponse = typedQuery.getResultList();
+
+		logger.debug("typedQuery.getResultList() return {} items took {} msecs", listResponse.size(), System.currentTimeMillis() - queryStartTime);
+
+		return listResponse;
+	}
+
+    /**
+     * 
+     * @param entityManager
+     * @param cb
+     * @param parameterMap
+     * @return
+     */
 	public static Page<CertificateView> handleQueryParamsCertificateView(EntityManager entityManager, 
 			CriteriaBuilder cb, 
 			Map<String, String[]> parameterMap) {

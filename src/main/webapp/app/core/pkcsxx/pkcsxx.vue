@@ -19,7 +19,7 @@
                         </div>
                     </div>
 
-                	<div v-if="authenticated" class="form-group">
+                	<div v-if="showCSRRelatedArea()" class="form-group">
                         <label class="form-control-label" v-text="$t('pkcsxx.upload.pipeline')" for="pkcsxx-pipeline">Pipeline</label>
                         <select class="form-control" id="pkcsxx-pipeline" name="pkcsxx-pipeline" v-model="$v.upload.pipelineId.$model">
                             <!--option v-bind:value="null"></option-->
@@ -28,7 +28,7 @@
                         <!--label class="form-control-label" >__ {{currentPipelineInfo(upload.pipelineId)}} __</label-->
                     </div>
 
-                    <div class="form-group" v-if="showRequestorCommentsArea()">
+                    <div class="form-group" v-if="showCSRRelatedArea()">
                         <label class="form-control-label" v-text="$t('pkcsxx.upload.requestorComment')" for="upload-requestor-comment">Requestor Comment</label>
                         <textarea type="text" class="form-control" name="requestor-comment" id="upload-requestor-comment"
 							autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
@@ -106,7 +106,8 @@
 							<span v-text="$t('pkcsxx.upload.type')">Result</span>
 						</dt>
 						<dd>
-							<span v-text="$t('pkcsxx.upload.result.certificate')">Certificate</span>
+							<span v-if="precheckResponse.certificates[0].certificatePresentInDB" v-text="$t('pkcsxx.upload.result.certificateInDatabase')">Certificate (already in database)</span>
+							<span v-else v-text="$t('pkcsxx.upload.result.certificate')">Certificate</span>
 						</dd>
 
 						<dt>
@@ -189,11 +190,11 @@
 					
                     <button type="button" id="uploadContent"
 					    v-if="precheckResponse.dataType === 'CSR'" 
-					    :disabled="precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE' || precheckResponse.certificatePresentInDB || precheckResponse.publicKeyPresentInDB" class="btn btn-primary" v-on:click="uploadContent">
+					    :disabled="precheckResponse.csrPublicKeyPresentInDB || precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE' || precheckResponse.certificatePresentInDB || precheckResponse.publicKeyPresentInDB" class="btn btn-primary" v-on:click="uploadContent">
                         <font-awesome-icon icon="upload"></font-awesome-icon>&nbsp;<span v-text="$t('pkcsxx.upload.requestCertificate')">Request certificate</span>
                     </button>
                     <button type="button" id="uploadContent" 
-					    v-if="precheckResponse.dataType === 'X509_CERTIFICATE' || precheckResponse.dataType === 'CONTAINER' " 
+					    v-if="showCertificateUpload()" 
 					    :disabled="precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE' || precheckResponse.certificatePresentInDB || precheckResponse.publicKeyPresentInDB" class="btn btn-primary" v-on:click="uploadContent">
                         <font-awesome-icon icon="upload"></font-awesome-icon>&nbsp;<span v-text="$t('pkcsxx.upload.submit')">Upload</span>
                     </button>

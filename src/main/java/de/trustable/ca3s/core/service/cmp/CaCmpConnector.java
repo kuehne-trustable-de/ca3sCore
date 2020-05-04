@@ -128,7 +128,7 @@ public class CaCmpConnector {
 			LOGGER.debug("responseBytes : " + java.util.Base64.getEncoder().encodeToString(responseBytes));
 
 			// extract the certificate
-			de.trustable.ca3s.core.domain.Certificate cert = readCertResponse(responseBytes, pkiRequest, csr);
+			de.trustable.ca3s.core.domain.Certificate cert = readCertResponse(responseBytes, pkiRequest, csr, caConnConfig);
 
 			csr.setCertificate(cert);
 			csr.setStatus(CsrStatus.ISSUED);
@@ -379,7 +379,9 @@ public class CaCmpConnector {
 	 * @throws GeneralSecurityException
 	 */
 	public de.trustable.ca3s.core.domain.Certificate readCertResponse(final byte[] responseBytes,
-			PKIMessage pkiMessageReq, final CSR csr)
+			final PKIMessage pkiMessageReq, 
+			final CSR csr, 
+			final CAConnectorConfig config)
 			throws IOException, CRMFException, CMPException, GeneralSecurityException {
 
 		final ASN1Primitive derObject = cryptoUtil.getDERObject(responseBytes);
@@ -518,8 +520,9 @@ public class CaCmpConnector {
 							LOGGER.info("#" + i + ": " + cert);
 						}
 
-						de.trustable.ca3s.core.domain.Certificate certDao = certUtil
-								.createCertificate(cert.getEncoded(), csr, null, false);
+						de.trustable.ca3s.core.domain.Certificate certDao = 
+								certUtil.createCertificate(cert.getEncoded(), csr, null, false);
+						certDao.setRevocationCA(config);
 						certificateRepository.save(certDao);
 
 						return certDao;

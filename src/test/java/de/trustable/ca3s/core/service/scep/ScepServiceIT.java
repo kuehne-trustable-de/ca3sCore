@@ -44,14 +44,14 @@ import de.trustable.util.CryptoUtil;
 import de.trustable.util.JCAManager;
 
 
-@SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Disabled("Integration test fails for unknown reason, running it as a separate client succeeds. Maybe a classloader issue? ")
+// @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ScepServiceIT{
 
 	public static final Logger LOG = LogManager.getLogger(ScepServiceIT.class);
 
 	@LocalServerPort
-	int serverPort; // random port chosen by spring test
+	int serverPort = 8080; // random port chosen by spring test
  
 	static KeyPair keyPair;
 	static X509Certificate ephemeralCert;

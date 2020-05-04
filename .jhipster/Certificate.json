@@ -128,6 +128,10 @@
             "fieldType": "Boolean"
         },
         {
+            "fieldName": "trusted",
+            "fieldType": "Boolean"
+        },
+        {
             "fieldName": "active",
             "fieldType": "Boolean"
         },
@@ -167,6 +171,13 @@
             "otherEntityName": "certificate",
             "otherEntityRelationshipName": "certificate",
             "relationshipName": "rootCertificate",
+            "otherEntityField": "id"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "cAConnectorConfig",
+            "otherEntityRelationshipName": "certificate",
+            "relationshipName": "revocationCA",
             "otherEntityField": "id"
         }
     ],

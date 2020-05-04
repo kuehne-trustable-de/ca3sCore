@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,6 +68,8 @@ public class CSRContentProcessor {
     @PostMapping("/describeContent")
     public ResponseEntity<PkcsXXData> describeContent(@Valid @RequestBody UploadPrecheckData uploaded) {
     	
+    	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    	
     	String content = uploaded.getContent();
     	LOG.debug("REST request to describe a PEM clob : {}", content);
         
@@ -83,8 +87,13 @@ public class CSRContentProcessor {
 	    	}
 
 			X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(content);
-			List<Certificate> certList = certificateRepository.findByIssuerSerial(certHolder.getIssuer().toString(), certHolder.getSerialNumber().toString());
-			p10ReqData = new PkcsXXData(certHolder, content, !certList.isEmpty());
+			if( auth.isAuthenticated()) {
+				List<Certificate> certList = certificateRepository.findByIssuerSerial(certHolder.getIssuer().toString(), certHolder.getSerialNumber().toString());
+				p10ReqData = new PkcsXXData(certHolder, content, !certList.isEmpty());
+			} else {
+				// no information leakage to the outside if not authenticated
+				p10ReqData = new PkcsXXData(certHolder, content, false);
+			}
 		} catch (org.bouncycastle.util.encoders.DecoderException de){	
 			// no parseable ...
 			p10ReqData.setDataType(PKCSDataType.UNKNOWN);
@@ -98,12 +107,14 @@ public class CSRContentProcessor {
 				
 				Pkcs10RequestHolderShallow p10ReqHolderShallow = new Pkcs10RequestHolderShallow( p10ReqHolder);
 				
-				List<CSR> csrList = csrRepository.findByPublicKeyHash(p10ReqHolder.getPublicKeyHash());
-				LOG.debug("public key with hash '{}' used in #{} csrs, yet", p10ReqHolder.getPublicKeyHash(), csrList.size());
-				
 				p10ReqData = new PkcsXXData(p10ReqHolderShallow);
-				p10ReqData.setCsrPublicKeyPresentInDB(!csrList.isEmpty());
-								
+				// no information leakage to the outside if not authenticated
+				if( auth.isAuthenticated()) {
+					List<CSR> csrList = csrRepository.findByPublicKeyHash(p10ReqHolder.getPublicKeyHash());
+					LOG.debug("public key with hash '{}' used in #{} csrs, yet", p10ReqHolder.getPublicKeyHash(), csrList.size());
+					p10ReqData.setCsrPublicKeyPresentInDB(!csrList.isEmpty());
+				}
+
 			} catch (IOException | GeneralSecurityException e2) {
 				LOG.debug("describeCSR : " + e2.getMessage());
 				LOG.debug("not a certificate, not a CSR, trying to parse it as a P12 container");

@@ -62,6 +62,7 @@ describe('Service Tests', () => {
         false,
         false,
         false,
+        false,
         'AAAAAAA'
       );
     });
@@ -161,6 +162,7 @@ describe('Service Tests', () => {
             administrationComment: 'BBBBBB',
             endEntity: true,
             selfsigned: true,
+            trusted: true,
             active: true,
             content: 'BBBBBB'
           },
@@ -223,6 +225,7 @@ describe('Service Tests', () => {
             administrationComment: 'BBBBBB',
             endEntity: true,
             selfsigned: true,
+            trusted: true,
             active: true,
             content: 'BBBBBB'
           },

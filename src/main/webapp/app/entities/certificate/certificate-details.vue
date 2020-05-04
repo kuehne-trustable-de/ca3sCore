@@ -161,6 +161,12 @@
                         <span>{{certificate.selfsigned}}</span>
                     </dd>
                     <dt>
+                        <span v-text="$t('ca3SApp.certificate.trusted')">Trusted</span>
+                    </dt>
+                    <dd>
+                        <span>{{certificate.trusted}}</span>
+                    </dd>
+                    <dt>
                         <span v-text="$t('ca3SApp.certificate.active')">Active</span>
                     </dt>
                     <dd>
@@ -194,6 +200,14 @@
                     <dd>
                         <div v-if="certificate.rootCertificate">
                             <router-link :to="{name: 'CertificateView', params: {certificateId: certificate.rootCertificate.id}}">{{certificate.rootCertificate.id}}</router-link>
+                        </div>
+                    </dd>
+                    <dt>
+                        <span v-text="$t('ca3SApp.certificate.revocationCA')">Revocation CA</span>
+                    </dt>
+                    <dd>
+                        <div v-if="certificate.revocationCA">
+                            <router-link :to="{name: 'CAConnectorConfigView', params: {cAConnectorConfigId: certificate.revocationCA.id}}">{{certificate.revocationCA.id}}</router-link>
                         </div>
                     </dd>
                 </dl>

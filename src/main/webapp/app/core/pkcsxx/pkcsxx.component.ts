@@ -150,9 +150,24 @@ export default class PKCSXX extends Vue {
     });
   }
 
-  public showRequestorCommentsArea(): boolean {
-    window.console.info('pipelineId : ' + this.upload.pipelineId );
-    return this.authenticated;
+  public showCSRRelatedArea(): boolean {
+//    window.console.info('pipelineId : ' + this.upload.pipelineId );
+    if ( this.precheckResponse &&
+      this.precheckResponse.dataType === 'CSR' &&
+      this.authenticated ) {
+        return true;
+      }
+
+    return false;
+  }
+
+  public showCertificateUpload(): boolean {
+    if ( this.precheckResponse &&
+         ( this.precheckResponse.dataType === 'X509_CERTIFICATE' || this.precheckResponse.dataType === 'CONTAINER' ) &&
+        this.isRAOfficer() ) {
+      return !this.precheckResponse.certificates[0].certificatePresentInDB;
+    }
+    return false;
   }
 
   public currentPipelineInfo( pipelineId): string {
@@ -166,4 +181,13 @@ export default class PKCSXX extends Vue {
     }
     return '';
   }
+
+  public isRAOfficer() {
+      return this.roles === 'ROLE_RA';
+  }
+
+  public get roles(): string {
+    return this.$store.getters.account ? this.$store.getters.account.authorities[0] : '';
+  }
+
 }

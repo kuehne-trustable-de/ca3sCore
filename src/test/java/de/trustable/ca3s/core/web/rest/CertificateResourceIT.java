@@ -115,6 +115,9 @@ public class CertificateResourceIT {
     private static final Boolean DEFAULT_SELFSIGNED = false;
     private static final Boolean UPDATED_SELFSIGNED = true;
 
+    private static final Boolean DEFAULT_TRUSTED = false;
+    private static final Boolean UPDATED_TRUSTED = true;
+
     private static final Boolean DEFAULT_ACTIVE = false;
     private static final Boolean UPDATED_ACTIVE = true;
 
@@ -192,6 +195,7 @@ public class CertificateResourceIT {
             .administrationComment(DEFAULT_ADMINISTRATION_COMMENT)
             .endEntity(DEFAULT_END_ENTITY)
             .selfsigned(DEFAULT_SELFSIGNED)
+            .trusted(DEFAULT_TRUSTED)
             .active(DEFAULT_ACTIVE)
             .content(DEFAULT_CONTENT);
         return certificate;
@@ -230,6 +234,7 @@ public class CertificateResourceIT {
             .administrationComment(UPDATED_ADMINISTRATION_COMMENT)
             .endEntity(UPDATED_END_ENTITY)
             .selfsigned(UPDATED_SELFSIGNED)
+            .trusted(UPDATED_TRUSTED)
             .active(UPDATED_ACTIVE)
             .content(UPDATED_CONTENT);
         return certificate;
@@ -281,6 +286,7 @@ public class CertificateResourceIT {
         assertThat(testCertificate.getAdministrationComment()).isEqualTo(DEFAULT_ADMINISTRATION_COMMENT);
         assertThat(testCertificate.isEndEntity()).isEqualTo(DEFAULT_END_ENTITY);
         assertThat(testCertificate.isSelfsigned()).isEqualTo(DEFAULT_SELFSIGNED);
+        assertThat(testCertificate.isTrusted()).isEqualTo(DEFAULT_TRUSTED);
         assertThat(testCertificate.isActive()).isEqualTo(DEFAULT_ACTIVE);
         assertThat(testCertificate.getContent()).isEqualTo(DEFAULT_CONTENT);
     }
@@ -468,6 +474,7 @@ public class CertificateResourceIT {
             .andExpect(jsonPath("$.[*].administrationComment").value(hasItem(DEFAULT_ADMINISTRATION_COMMENT.toString())))
             .andExpect(jsonPath("$.[*].endEntity").value(hasItem(DEFAULT_END_ENTITY.booleanValue())))
             .andExpect(jsonPath("$.[*].selfsigned").value(hasItem(DEFAULT_SELFSIGNED.booleanValue())))
+            .andExpect(jsonPath("$.[*].trusted").value(hasItem(DEFAULT_TRUSTED.booleanValue())))
             .andExpect(jsonPath("$.[*].active").value(hasItem(DEFAULT_ACTIVE.booleanValue())))
             .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT.toString())));
     }
@@ -509,6 +516,7 @@ public class CertificateResourceIT {
             .andExpect(jsonPath("$.administrationComment").value(DEFAULT_ADMINISTRATION_COMMENT.toString()))
             .andExpect(jsonPath("$.endEntity").value(DEFAULT_END_ENTITY.booleanValue()))
             .andExpect(jsonPath("$.selfsigned").value(DEFAULT_SELFSIGNED.booleanValue()))
+            .andExpect(jsonPath("$.trusted").value(DEFAULT_TRUSTED.booleanValue()))
             .andExpect(jsonPath("$.active").value(DEFAULT_ACTIVE.booleanValue()))
             .andExpect(jsonPath("$.content").value(DEFAULT_CONTENT.toString()));
     }
@@ -560,6 +568,7 @@ public class CertificateResourceIT {
             .administrationComment(UPDATED_ADMINISTRATION_COMMENT)
             .endEntity(UPDATED_END_ENTITY)
             .selfsigned(UPDATED_SELFSIGNED)
+            .trusted(UPDATED_TRUSTED)
             .active(UPDATED_ACTIVE)
             .content(UPDATED_CONTENT);
 
@@ -598,6 +607,7 @@ public class CertificateResourceIT {
         assertThat(testCertificate.getAdministrationComment()).isEqualTo(UPDATED_ADMINISTRATION_COMMENT);
         assertThat(testCertificate.isEndEntity()).isEqualTo(UPDATED_END_ENTITY);
         assertThat(testCertificate.isSelfsigned()).isEqualTo(UPDATED_SELFSIGNED);
+        assertThat(testCertificate.isTrusted()).isEqualTo(UPDATED_TRUSTED);
         assertThat(testCertificate.isActive()).isEqualTo(UPDATED_ACTIVE);
         assertThat(testCertificate.getContent()).isEqualTo(UPDATED_CONTENT);
     }

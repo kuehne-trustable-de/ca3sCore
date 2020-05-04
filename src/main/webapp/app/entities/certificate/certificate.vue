@@ -51,11 +51,13 @@
                     <th v-on:click="changeOrder('administrationComment')"><span v-text="$t('ca3SApp.certificate.administrationComment')">Administration Comment</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'administrationComment'"></jhi-sort-indicator></th>
                     <th v-on:click="changeOrder('endEntity')"><span v-text="$t('ca3SApp.certificate.endEntity')">End Entity</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'endEntity'"></jhi-sort-indicator></th>
                     <th v-on:click="changeOrder('selfsigned')"><span v-text="$t('ca3SApp.certificate.selfsigned')">Selfsigned</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'selfsigned'"></jhi-sort-indicator></th>
+                    <th v-on:click="changeOrder('trusted')"><span v-text="$t('ca3SApp.certificate.trusted')">Trusted</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'trusted'"></jhi-sort-indicator></th>
                     <th v-on:click="changeOrder('active')"><span v-text="$t('ca3SApp.certificate.active')">Active</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'active'"></jhi-sort-indicator></th>
                     <th v-on:click="changeOrder('content')"><span v-text="$t('ca3SApp.certificate.content')">Content</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'content'"></jhi-sort-indicator></th>
                     <th v-on:click="changeOrder('csr.id')"><span v-text="$t('ca3SApp.certificate.csr')">Csr</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'csr.id'"></jhi-sort-indicator></th>
                     <th v-on:click="changeOrder('issuingCertificate.id')"><span v-text="$t('ca3SApp.certificate.issuingCertificate')">Issuing Certificate</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'issuingCertificate.id'"></jhi-sort-indicator></th>
                     <th v-on:click="changeOrder('rootCertificate.id')"><span v-text="$t('ca3SApp.certificate.rootCertificate')">Root Certificate</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'rootCertificate.id'"></jhi-sort-indicator></th>
+                    <th v-on:click="changeOrder('revocationCA.id')"><span v-text="$t('ca3SApp.certificate.revocationCA')">Revocation CA</span> <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'revocationCA.id'"></jhi-sort-indicator></th>
                     <th></th>
                 </tr>
                 </thead>
@@ -91,6 +93,7 @@
                     <td>{{certificate.administrationComment}}</td>
                     <td>{{certificate.endEntity}}</td>
                     <td>{{certificate.selfsigned}}</td>
+                    <td>{{certificate.trusted}}</td>
                     <td>{{certificate.active}}</td>
                     <td>{{certificate.content}}</td>
                     <td>
@@ -106,6 +109,11 @@
                     <td>
                         <div v-if="certificate.rootCertificate">
                             <router-link :to="{name: 'CertificateView', params: {certificateId: certificate.rootCertificate.id}}">{{certificate.rootCertificate.id}}</router-link>
+                        </div>
+                    </td>
+                    <td>
+                        <div v-if="certificate.revocationCA">
+                            <router-link :to="{name: 'CAConnectorConfigView', params: {cAConnectorConfigId: certificate.revocationCA.id}}">{{certificate.revocationCA.id}}</router-link>
                         </div>
                     </td>
                     <td class="text-right">
