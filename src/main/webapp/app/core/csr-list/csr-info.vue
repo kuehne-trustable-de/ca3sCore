@@ -162,7 +162,7 @@
                     </div>
 
                     <div v-if="cSR.status === 'PENDING' && ((roles === 'ROLE_RA') || (getUsername() === cSR.requestedBy))" class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.cSR.comment')" for="comment">Comment</label>
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.comment')" for="comment">Comment</label>
                         <textarea class="form-control" name="content" id="comment"
 							autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                             v-model="csrAdminData.comment" />

@@ -49,7 +49,16 @@
       "certificateAttributes": "Certificate Attributes",
       "issuingCertificate": "Issuing Certificate",
       "rootCertificate": "Root Certificate",
-      "revocationCA": "Revocation CA"
+      "revocationCA": "Revocation CA",
+      "usage": "Usage",
+      "extended": {
+        "usage": "Extended Usage"
+      },
+      "download": {
+        "pkix": "PKIX (DER encoded)",
+        "pem": "PEM encoded"
+      }
+
     }
   }
 }

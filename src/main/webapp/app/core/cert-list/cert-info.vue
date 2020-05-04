@@ -109,7 +109,7 @@
 					</dd>
 
                     <dt>
-                        <span v-text="$t('ca3SApp.certificateView.contentAddedAt')">Content Added At</span>
+                        <span v-text="$t('ca3SApp.certificate.contentAddedAt')">Content Added At</span>
                     </dt>
                     <dd>
                         <span v-if="certificateView.contentAddedAt">{{$d(Date.parse(certificateView.contentAddedAt), 'long') }}</span>

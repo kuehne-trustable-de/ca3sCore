@@ -10,6 +10,7 @@
       "passphrase": "Passphrase",
       "subject": "Subject",
       "issuer": "Issuer",
+      "serial": "Serial no.",
       "algoname": "Build with",
       "sans": "Subject alternative names",
       "pipeline": "Processing pipeline",
@@ -28,7 +29,8 @@
         "label": "Result",
         "unknown": "Unknown content",
         "type": "Content type",
-        "certificate": "Certificate"
+        "certificate": "Certificate",
+        "certificateInDatabase": "Certificate already in database"
       },
       "requestorComment": "Requestor comment"
     }

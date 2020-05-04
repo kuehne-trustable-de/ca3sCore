@@ -21,6 +21,7 @@
       "urlPart": "Url Part",
       "description": "Description",
       "approvalRequired": "Approval Required",
+      "approvalInfo": "Approval Info",
       "pipelineAttributes": "Pipeline Attributes",
       "caConnector": "Ca Connector",
       "processInfo": "Process Info"
