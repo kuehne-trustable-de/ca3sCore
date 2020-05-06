@@ -128,7 +128,11 @@
       "edit": "Edit",
       "open": "Open",
       "save": "Save",
-      "view": "View"
+      "view": "View",
+      "reject": "Reject Request",
+      "confirm": "Confirm Request",
+      "revoke": "Revoke",
+      "withdraw": "Withdraw"   
     },
     "detail": {
       "field": "Field",

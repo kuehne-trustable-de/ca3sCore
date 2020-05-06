@@ -27,9 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.threeten.bp.Instant;
-import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.ZoneId;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
@@ -70,6 +67,7 @@ import de.trustable.ca3s.core.security.provider.Ca3sTrustManager;
 import de.trustable.ca3s.core.service.util.CAStatus;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.CryptoService;
+import de.trustable.ca3s.core.service.util.DateUtil;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import io.swagger.client.ApiException;
 
@@ -504,7 +502,7 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 			crr.serial(serial);
 			crr.setReason(reason);
 			
-			crr.setDate(OffsetDateTime.ofInstant(Instant.ofEpochMilli(revocationDate.getTime()), ZoneId.systemDefault()));
+			crr.setRevTime(revocationDate.getTime());
 			
 			ObjectMapper objectMapper = new ObjectMapper();
 			String payload = objectMapper.writeValueAsString(crr);

@@ -48,10 +48,12 @@ import org.springframework.stereotype.Service;
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.domain.RDNAttribute;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.service.util.CAStatus;
+import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import de.trustable.util.CryptoUtil;
@@ -69,6 +71,9 @@ public class CaCmpConnector {
 
 	@Autowired
 	CertificateUtil certUtil;
+
+	@Autowired
+	CSRUtil csrUtil;
 
 	@Autowired
 	private ProtectedContentUtil protUtil;
@@ -492,6 +497,8 @@ public class CaCmpConnector {
 				if ((respArr[i].getCertifiedKeyPair() == null)
 						|| (respArr[i].getCertifiedKeyPair().getCertOrEncCert() == null)) {
 
+					csrUtil.setStatus(csr, CsrStatus.REJECTED);
+					csrUtil.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_FAILURE_INFO, statusText, true);
 					throw new GeneralSecurityException(
 							"CMP response contains no certificate, status :" + status + "\n" + statusText);
 				}

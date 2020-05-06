@@ -22,7 +22,6 @@ import de.trustable.ca3s.core.domain.BPNMProcessInfo;
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.domain.enumeration.BPNMProcessType;
 import de.trustable.ca3s.core.repository.BPNMProcessInfoRepository;
 import de.trustable.util.CryptoUtil;
@@ -200,8 +199,9 @@ public class BPMNUtil{
 	 *
 	 * @param certificate
 	 * @return
+	 * @throws GeneralSecurityException 
 	 */
-	public void startCertificateRevoctionProcess(Certificate certificate, final CRLReason crlReason, final Date revocationDate)  {
+	public void startCertificateRevoctionProcess(Certificate certificate, final CRLReason crlReason, final Date revocationDate) throws GeneralSecurityException  {
 		
 		String status = "Failed";
 		String failureReason = "";
@@ -210,6 +210,17 @@ public class BPMNUtil{
 //		String processName = null;
 		String processName = "CAInvocationProcess";
 		
+		if( certificate == null) {
+			throw new GeneralSecurityException("certificate to be revoked MUST be provided");
+		}
+		
+		if( crlReason == null) {
+			throw new GeneralSecurityException("revocation reason for certificate "+certificate.getId()+" MUST be provided" );
+		}
+		
+		if( revocationDate == null) {
+			throw new GeneralSecurityException("revocation date for certificate "+certificate.getId()+" MUST be provided" );
+		}
 		
 		CAConnectorConfig caConfigDefault = configUtil.getDefaultConfig();
 		if(caConfigDefault != null ){
@@ -252,9 +263,7 @@ public class BPMNUtil{
 					failureReason = e.getLocalizedMessage();
 					LOG.error(failureReason);
 				}
-
 			}
-				
 		} else {
 			failureReason = "no default and active CA configured";
 			LOG.error(failureReason);
@@ -264,18 +273,12 @@ public class BPMNUtil{
 		// end of BPMN call
 		
 		if ("Revoked".equals(status)) {
-
-			if( certificate != null) {
-				LOG.debug("certificate id {} revoked by BPMN process {}", certificate.getId(), processInstanceId);
-			}else {
-				LOG.warn("revocation of certificate by BPMN process {} failed", processInstanceId);
-			}
-			
+			LOG.debug("certificate id {} revoked by BPMN process {}", certificate.getId(), processInstanceId);
 		} else {
 			LOG.warn("revocation of certificate by BPMN process {} failed with reason '{}' ", processInstanceId, failureReason);
+			throw new GeneralSecurityException(failureReason);
 		}
 
 	}
-
 
 }

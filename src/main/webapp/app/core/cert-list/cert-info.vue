@@ -175,7 +175,7 @@
             <form name="editForm" role="form" novalidate>
                 <div>
                     <div v-if="isRevocable()" class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.cSR.revocationReason')" for="revocationReason">Revocation reason</label>
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.revocationReason')" for="revocationReason">Revocation reason</label>
                         <select class="form-control" id="cert-revocationReason" name="revocationReason" v-model="certificateAdminData.revocationReason">
                             <option v-bind:value="'keyCompromise'">keyCompromise</option>
                             <option v-bind:value="'cACompromise'">cACompromise</option>

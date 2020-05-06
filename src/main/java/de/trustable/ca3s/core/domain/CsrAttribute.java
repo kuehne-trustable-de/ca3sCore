@@ -122,4 +122,6 @@ public class CsrAttribute implements Serializable {
 
 	public static final String ATTRIBUTE_SAN = "SAN";
 
+	public static final String ATTRIBUTE_FAILURE_INFO = "REJECTION_INFO";
+
 }

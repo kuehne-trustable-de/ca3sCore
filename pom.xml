@@ -5,7 +5,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     
     
@@ -132,7 +132,7 @@
         <certBundleVersion>0.0.4-SNAPSHOT</certBundleVersion>
     	<nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
     	<adcsUtilVersion>1.0.1</adcsUtilVersion>
-		<adcsProxyClientVersion>1.0.0-SNAPSHOT</adcsProxyClientVersion>
+		<adcsProxyClientVersion>1.0.3</adcsProxyClientVersion>
 		
 		<webSocketDTOVersion>0.0.1-SNAPSHOT</webSocketDTOVersion>
 		
@@ -142,6 +142,13 @@
        	<takesVersion>1.16</takesVersion>
    		<jscepVersion>2.5.4</jscepVersion>
    		<jasyptVersion>1.9.3</jasyptVersion>
+
+	    <kerberosCoreVersion>1.0.1.RELEASE</kerberosCoreVersion>
+	    <kerberosWebVersion>1.0.1.RELEASE</kerberosWebVersion>
+	    <kerberosClientVersion>1.0.1.RELEASE</kerberosClientVersion>
+
+	    <springSecurityLdapVersion>5.3.1.RELEASE</springSecurityLdapVersion>
+
 
 		<typescriptGeneratorVersion>2.19.577</typescriptGeneratorVersion>
   
@@ -488,6 +495,39 @@
 		    <artifactId>jscep</artifactId>
 		    <version>${jscepVersion}</version>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.springframework.security.kerberos/spring-security-kerberos-core -->
+		<dependency>
+		    <groupId>org.springframework.security.kerberos</groupId>
+		    <artifactId>spring-security-kerberos-core</artifactId>
+		    <version>${kerberosCoreVersion}</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.springframework.security.kerberos/spring-security-kerberos-web -->
+		<dependency>
+		    <groupId>org.springframework.security.kerberos</groupId>
+		    <artifactId>spring-security-kerberos-web</artifactId>
+		    <version>${kerberosWebVersion}</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.springframework.security.kerberos/spring-security-kerberos-client -->
+		<dependency>
+		    <groupId>org.springframework.security.kerberos</groupId>
+		    <artifactId>spring-security-kerberos-client</artifactId>
+		    <version>${kerberosClientVersion}</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-ldap -->
+		<dependency>
+		    <groupId>org.springframework.security</groupId>
+		    <artifactId>spring-security-ldap</artifactId>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.springframework.ldap/spring-ldap-core -->
+		<dependency>
+    		<groupId>org.springframework.ldap</groupId>
+    		<artifactId>spring-ldap-core</artifactId>
+    	</dependency>
 
 	   <!-- https://mvnrepository.com/artifact/org.jasypt/jasypt -->
 		<dependency>

@@ -402,7 +402,24 @@ public class CSRUtil {
 	public static String getGeneralNameDescription(GeneralName gName) {
 		return getGeneralNameType(gName) + " : " + gName.getName().toString();
 	}
+
+	/**
+	 * 
+	 * @param csrDao
+	 * @param status
+	 */
+	public void setStatus(CSR csrDao, CsrStatus status) {
+		csrDao.setStatus(status);
+		csrRepository.save(csrDao);
+	}
 	
+	
+	/**
+	 * 
+	 * @param csrDao
+	 * @param name
+	 * @return
+	 */
 	public String getCSRAttribute(CSR csrDao, String name) {
 		for( CsrAttribute csrAttr:csrDao.getCsrAttributes()) {
 			if( csrAttr.getName().equals(name)) {

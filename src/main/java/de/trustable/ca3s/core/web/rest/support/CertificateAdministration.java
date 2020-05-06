@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.web.rest.support;
 
+import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Locale;
@@ -92,34 +93,39 @@ public class CertificateAdministration {
     		
     		Certificate cert = optCert.get();
 
-    		revokeCertificate(cert, adminData, raOfficerName);
+    		try {
+				revokeCertificate(cert, adminData, raOfficerName);
 
-			applicationEventPublisher.publishEvent(
-			        new AuditApplicationEvent(
-			        		raOfficerName, AuditUtil.AUDIT_CERTIFICATE_REVOKED, "certificate " + cert.getId() + " revoked by RA Officer  '" + raOfficerName + "'"));
-
-			CSR csr = cert.getCsr();
-			if( csr != null) {
-				Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());
-				if( optUser.isPresent()) {
-					User requestor = optUser.get();
-			        if (requestor.getEmail() == null) {
-			        	LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
-			        }else {
-			        
-				        Locale locale = Locale.forLanguageTag(requestor.getLangKey());
-				        Context context = new Context(locale);
-				        context.setVariable("csr", csr);
-				        context.setVariable("cert", cert);
-				        mailService.sendEmailFromTemplate(context, requestor, "mail/revokedCertificateEmail", "email.revokedCertificate.title");
-			        }
-				} else {
-					LOG.info("certificate requestor '{}' unknown!", csr.getRequestedBy());
+				applicationEventPublisher.publishEvent(
+				        new AuditApplicationEvent(
+				        		raOfficerName, AuditUtil.AUDIT_CERTIFICATE_REVOKED, "certificate " + cert.getId() + " revoked by RA Officer  '" + raOfficerName + "'"));
+	
+				CSR csr = cert.getCsr();
+				if( csr != null) {
+					Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());
+					if( optUser.isPresent()) {
+						User requestor = optUser.get();
+				        if (requestor.getEmail() == null) {
+				        	LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
+				        }else {
+				        
+					        Locale locale = Locale.forLanguageTag(requestor.getLangKey());
+					        Context context = new Context(locale);
+					        context.setVariable("csr", csr);
+					        context.setVariable("cert", cert);
+					        mailService.sendEmailFromTemplate(context, requestor, "mail/revokedCertificateEmail", "email.revokedCertificate.title");
+				        }
+					} else {
+						LOG.info("certificate requestor '{}' unknown!", csr.getRequestedBy());
+					}
 				}
+	
+	    		return new ResponseEntity<Long>(adminData.getCertificateId(), HttpStatus.OK);
+
+			} catch (GeneralSecurityException e) {
+	    		return ResponseEntity.badRequest().build();
 			}
 
-    		return new ResponseEntity<Long>(adminData.getCertificateId(), HttpStatus.OK);
-    	
     	}else {
     		return ResponseEntity.notFound().build();
     	}
@@ -156,14 +162,19 @@ public class CertificateAdministration {
         		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     		}
 
-    		revokeCertificate(certificate, adminData, userName);
+    		try {
+	    		revokeCertificate(certificate, adminData, userName);
+	
+				applicationEventPublisher.publishEvent(
+				        new AuditApplicationEvent(
+				        		userName, AuditUtil.AUDIT_CERTIFICATE_REVOKED, "certificate " + certificate.getId() + " revoked by owner '" + userName + "'"));
+				
+	    		return new ResponseEntity<Long>(adminData.getCertificateId(), HttpStatus.OK);
+	    		
+			} catch (GeneralSecurityException e) {
+	    		return ResponseEntity.badRequest().build();
+			}
 
-			applicationEventPublisher.publishEvent(
-			        new AuditApplicationEvent(
-			        		userName, AuditUtil.AUDIT_CERTIFICATE_REVOKED, "certificate " + certificate.getId() + " revoked by owner '" + userName + "'"));
-			
-    		return new ResponseEntity<Long>(adminData.getCertificateId(), HttpStatus.OK);
-    	
     	}else {
     		return ResponseEntity.notFound().build();
     	}
@@ -175,8 +186,9 @@ public class CertificateAdministration {
      * @param certDao
      * @param adminData
      * @param revokingUser
+     * @throws GeneralSecurityException 
      */
-	private void revokeCertificate(Certificate certDao, final CertificateAdministrationData adminData, final String revokingUser) {
+	private void revokeCertificate(Certificate certDao, final CertificateAdministrationData adminData, final String revokingUser) throws GeneralSecurityException {
 		
 
 		if (certDao.isRevoked()) {
