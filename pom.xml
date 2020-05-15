@@ -5,7 +5,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.1.2-SNAPSHOT</version>
     <packaging>jar</packaging>
     
     
@@ -131,8 +131,8 @@
         <cryptoUtilVersion>1.0.7-SNAPSHOT</cryptoUtilVersion>
         <certBundleVersion>0.0.4-SNAPSHOT</certBundleVersion>
     	<nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
-    	<adcsUtilVersion>1.0.1</adcsUtilVersion>
-		<adcsProxyClientVersion>1.0.3</adcsProxyClientVersion>
+    	<adcsUtilVersion>1.1.1</adcsUtilVersion>
+		<adcsProxyClientVersion>1.1.2</adcsProxyClientVersion>
 		
 		<webSocketDTOVersion>0.0.1-SNAPSHOT</webSocketDTOVersion>
 		
@@ -149,7 +149,6 @@
 
 	    <springSecurityLdapVersion>5.3.1.RELEASE</springSecurityLdapVersion>
 
-
 		<typescriptGeneratorVersion>2.19.577</typescriptGeneratorVersion>
   
         <!-- start-class>camunda.transformation.pipeline.CamundaTransformationPipelineApp</start-class-->
@@ -157,8 +156,13 @@
         <!-- camunda.spring-boot.version>3.4.0</camunda.spring-boot.version-->
         <camunda.spring-boot.version>3.2.0</camunda.spring-boot.version>
        
+       	<conductorVersion>3.0.1</conductorVersion>
+       
         <xml.maven.saxon.version>9.7.0-18</xml.maven.saxon.version>
-        <xml.maven.plugin.version>1.0.1</xml.maven.plugin.version>
+        <xml.maven.plugin.version>1.0.2</xml.maven.plugin.version>
+        
+        <dependencyCheck.version>5.3.1</dependencyCheck.version>
+        <dependencyCheck.skip>true</dependencyCheck.skip>
         
         <gpg.keyname>5F46A2C0A82BD58E</gpg.keyname>
        
@@ -569,6 +573,14 @@
             <scope>test</scope>
         </dependency>
 
+		<dependency>
+			<groupId>io.ddavison</groupId>
+			<artifactId>conductor</artifactId>
+			<version>${conductorVersion}</version>
+			<scope>test</scope>
+		</dependency>
+
+
     </dependencies>
 
     <build>
@@ -851,6 +863,54 @@
 				</dependencies>
 
 			</plugin>
+
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>${dependencyCheck.version}</version>
+                <configuration>
+                    <cveValidForHours>12</cveValidForHours>
+                    <failBuildOnCVSS>4</failBuildOnCVSS>
+                    <outputDirectory>${project.build.directory}/dependency-check</outputDirectory>
+                    <format>HTML</format>
+                    <skip>${dependencyCheck.skip}</skip>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>2.0.0</version>
+        <executions>
+          <execution>
+            <id>download-licenses</id>
+            <goals>
+              <goal>download-licenses</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      
+    <!-- plugin>
+      <groupId>org.complykit</groupId>
+      <artifactId>license-check-maven-plugin</artifactId>
+      <version>0.5.3</version>
+      <executions>
+        <execution>
+          <phase>verify</phase>
+          <goals>
+            <goal>os-check</goal>
+          </goals>
+        </execution>
+      </executions>
+    </plugin-->            
                                 
         </plugins>
         <pluginManagement>

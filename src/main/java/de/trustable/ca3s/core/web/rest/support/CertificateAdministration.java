@@ -113,7 +113,8 @@ public class CertificateAdministration {
 					        Context context = new Context(locale);
 					        context.setVariable("csr", csr);
 					        context.setVariable("cert", cert);
-					        mailService.sendEmailFromTemplate(context, requestor, "mail/revokedCertificateEmail", "email.revokedCertificate.title");
+					        String[] args = {cert.getSubject(), cert.getSerial(), cert.getIssuer()};
+					        mailService.sendEmailFromTemplate(context, requestor, "mail/revokedCertificateEmail", "email.revokedCertificate.title", args);
 				        }
 					} else {
 						LOG.info("certificate requestor '{}' unknown!", csr.getRequestedBy());

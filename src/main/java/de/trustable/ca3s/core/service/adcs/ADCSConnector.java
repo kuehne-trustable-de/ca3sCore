@@ -65,9 +65,9 @@ import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.security.provider.Ca3sTrustManager;
 import de.trustable.ca3s.core.service.util.CAStatus;
+import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.CryptoService;
-import de.trustable.ca3s.core.service.util.DateUtil;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import io.swagger.client.ApiException;
 
@@ -97,7 +97,7 @@ public class ADCSConnector {
 	
 
 	/**
-	 * 
+	 * Adapter class to connect to an ADCS server using the parameter given in a CaConnectorConfig
 	 */
 	public ADCSConnector() {
 
@@ -123,7 +123,7 @@ public class ADCSConnector {
 			
 			String plainSecret = protUtil.unprotectString( config.getSecret().getContentBase64());
 
-			RemoteADCSClient rc = new RemoteADCSClient(config.getCaUrl(), plainSecret);
+			RemoteADCSClient rc = new RemoteADCSClient(config.getCaUrl());
 
 			rc.getApiClient().setConnectTimeout(30 * 1000);
 			rc.getApiClient().setReadTimeout(60 * 1000);
@@ -150,9 +150,11 @@ public class ADCSConnector {
 	}
 	
 	/**
+	 * Retrieve the current status of the ADCSProxy
 	 * 
-	 * @param caConfig
-	 * @return
+	 * @param caConfig set of configuration items
+	 * 
+	 * @return current status
 	 */
 	public CAStatus getStatus(final CAConnectorConfig caConfig) {
 	
@@ -170,10 +172,13 @@ public class ADCSConnector {
 	}
 	
 	/**
+	 * Send a csr object to the ADCS and retrieve a created certificate
 	 * 
-	 * @param csr
-	 * @return
-	 * @throws GeneralSecurityException
+	 * @param csr the CSR object, not just a P10 PEM string, holding e.g. a CRS status
+	 * 
+	 * @return the freshly created certificate, already stored in the database
+	 * 
+	 * @throws GeneralSecurityException soemthing went wrong, e.g. a rejection of the CSR. The status of the CSR is updated accordingly.
 	 */
 	public Certificate signCertificateRequest(CSR csr, CAConnectorConfig config) throws GeneralSecurityException {
 
@@ -262,13 +267,22 @@ public class ADCSConnector {
 
 		} catch (NoLocalACDSException noLocalAdcsEx) {
 			// no local ADCS available ...
+			// reset the state back to pending
+			csr.setStatus(CsrStatus.PENDING);
+
 			throw new GeneralSecurityException("no local adcs connector available", noLocalAdcsEx);
 
 		} catch (ACDSException adcsEx) {
 			// no local ADCS available ...
+			// reset the state back to pending
+			csr.setStatus(CsrStatus.PENDING);
+			
 			throw new GeneralSecurityException("adcs connector returned exception", adcsEx);
 
 		} catch (IOException ioex) {
+			// presumably a connection problem, reset the state back to pending
+			csr.setStatus(CsrStatus.PENDING);
+			
 			throw new GeneralSecurityException("adcs connector caused IOException", ioex);
 		}
 
@@ -286,6 +300,7 @@ public class ADCSConnector {
 	 * @return
 	 */
 	private CsrAttribute createCsrAttribute(CSR csr, final String name, final String value) {
+		
 		CsrAttribute csrAttr = new CsrAttribute();
 		csrAttr.setCsr(csr);
 		csrAttr.setName(name);
@@ -293,17 +308,25 @@ public class ADCSConnector {
 		return csrAttr;
 	}
 
-	public void revokeCertificate(Certificate certDao, final CRLReason crlReason, final Date revocationDate, CAConnectorConfig adcsDao)
+	/**
+	 * Revoke a given certificate created by the ADCS server identified by connector config
+	 * 
+	 * @param certDao the certificate object to be revoked
+	 * @param crlReason the revocation reason
+	 * @param revocationDate the revocation date
+	 * @param config the connection data identifying an ADCS instance
+	 * 
+	 * @throws GeneralSecurityException
+	 */
+	public void revokeCertificate(Certificate certDao, final CRLReason crlReason, final Date revocationDate, CAConnectorConfig config)
 			throws GeneralSecurityException {
 
 		try {
 			BigInteger serial = new BigInteger(certDao.getSerial(), 10);
 			String serialAsHex = serial.toString(16);
-			LOGGER.debug("revoking certificate {} with serial '{}' with reason {}", certDao.getId(),
-					serialAsHex, crlReason.getValue());
-
+			LOGGER.debug("revoking certificate {} with serial '{}' with reason {}", certDao.getId(), serialAsHex, crlReason.getValue());
 			
-			getConnector(adcsDao).revokeCertifcate(serialAsHex, crlReason.getValue().intValue(), revocationDate);
+			getConnector(config).revokeCertifcate(serialAsHex, crlReason.getValue().intValue(), revocationDate);
 
 		} catch (ACDSException adcsEx) {
 			// no local ADCS available ...
@@ -312,20 +335,30 @@ public class ADCSConnector {
 
 	}
 
-	/*
-	 * (non-Javadoc)
+
+	/**
+	 * Try to retrieve new certificates added since the last call. This method is usually called by a timer.
+	 * A chunk of certificates starting with a given offset will be requested. If there are new certificates available (with a ADCS request id greater than the offset)
+	 * the content of these new certificates will be retrieved in distinct calls and stored in the internal database. The highest request ID will be stored as starting 
+	 * offset for subsequent calls. 
+	 * The number of certificates is limited to avoid blocking the calling cron job.  
+	 *  
+	 * @param config the connection data identifying an ADCS instance
 	 * 
-	 * @see de.trustable.ca3s.adcs.CertificateSource#retrieveCertificates()
+	 * @return the number in imported certificates
+	 * 
+	 * @throws OODBConnectionsACDSException
+	 * @throws ACDSProxyUnavailableException
 	 */
-	public int retrieveCertificates(CAConnectorConfig caConnectorDao) throws OODBConnectionsACDSException, ACDSProxyUnavailableException {
+	public int retrieveCertificates(CAConnectorConfig config) throws OODBConnectionsACDSException, ACDSProxyUnavailableException {
 
 		LOGGER.debug("in retrieveCertificates");
 
 		int limit = 100;
 
-		int pollingOffset = caConnectorDao.getPollingOffset();
+		int pollingOffset = config.getPollingOffset();
 		
-		ADCSWinNativeConnector adcsConnector = getConnector(caConnectorDao);
+		ADCSWinNativeConnector adcsConnector = getConnector(config);
 
 		try {
 			
@@ -346,7 +379,7 @@ public class ADCSConnector {
 						CertificateAttribute.ATTRIBUTE_CA_PROCESSING_ID, reqId);
 
 				if (certDaoList.isEmpty()) {
-					importCertificate(adcsConnector, info, reqId, caConnectorDao);
+					importCertificate(adcsConnector, info, reqId, config);
 
 				} else {
 					LOGGER.debug("certificate with requestID '{}' from ca '{}' alreeady present", reqId, info);
@@ -363,18 +396,29 @@ public class ADCSConnector {
 			LOGGER.warn("ACDSException : ", e);
 		}
 
-		int nNewCerts = (pollingOffset - caConnectorDao.getPollingOffset());
+		int nNewCerts = (pollingOffset - config.getPollingOffset());
 		
 		if( nNewCerts > 0 ) {
-			caConnectorDao.setPollingOffset(pollingOffset);
+			config.setPollingOffset(pollingOffset);
 		}
 
 		return nNewCerts;
 	}
 
+	/**
+	 * retrieve a single certificate content and store it in the internal database
+	 * 
+	 * @param adcsConnector the current connector
+	 * @param caName the textual description of the ADCS CA
+	 * @param reqId te ADCS request id of the certificate to be retrieved
+	 * @param config the connection data identifying an ADCS instance
+	 * 
+	 * @throws ACDSException
+	 */
 	@Transactional(propagation = Propagation.REQUIRED)
-	private void importCertificate(ADCSWinNativeConnector adcsConnector, String info, String reqId, CAConnectorConfig cAConnectorConfig)
+	private void importCertificate(ADCSWinNativeConnector adcsConnector, String caName, String reqId, CAConnectorConfig config)
 			throws ACDSException {
+		
 		GetCertificateResponse certResponse = adcsConnector.getCertificateByRequestId(reqId);
 
 		try {
@@ -382,23 +426,26 @@ public class ADCSConnector {
 					null, false);
 
 			// in this special of importing we know where to revoke this certificate
-			certDao.setRevocationCA(cAConnectorConfig);
+			certDao.setRevocationCA(config);
 			
+			// @todo : implement more sophisticated strategies
 			if( certDao.isSelfsigned()) {
 				certDao.setTrusted(true);
 			}
 			
 			// the Request ID is specific to ADCS instance
-			certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_PROCESSING_CA, info);
+			certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_PROCESSING_CA, caName);
 			certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_CA_PROCESSING_ID, certResponse.getReqId());
 			
 			certificateRepository.save(certDao);
 
-			LOGGER.debug("certificate with reqId '{}' imported from ca '{}'", reqId, info);
+			LOGGER.debug("certificate with reqId '{}' imported from ca '{}'", reqId, caName);
 
 		} catch (GeneralSecurityException | IOException e) {
 			LOGGER.info("retrieving and importing certificate with reqId '{}' from ca '{}' causes {}",
-					reqId, info, e.getLocalizedMessage());
+					reqId, caName, e.getLocalizedMessage());
+			
+			throw new ACDSException(e.getLocalizedMessage());
 		}
 	}
 
@@ -418,6 +465,12 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 	RemoteADCSClient remoteClient;
 	byte[] sharedSecret;
 
+	/**
+	 * 
+	 * @param remoteClient
+	 * @param secret
+	 * @throws GeneralSecurityException
+	 */
 	public ADCSWinNativeConnectorAdapter(RemoteADCSClient remoteClient, String secret) throws GeneralSecurityException {
 		this.remoteClient = remoteClient;
 		
@@ -450,7 +503,7 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 			ObjectMapper objectMapper = new ObjectMapper();
 			String payload = objectMapper.writeValueAsString(cre);
 			
-	        LOGGER.debug("calculated secret as ({} bytes) : {} ", sharedSecret.length,  Base64.encodeBase64String(sharedSecret));
+//	        LOGGER.debug("calculated secret as ({} bytes) : {} ", sharedSecret.length,  Base64.encodeBase64String(sharedSecret));
 
 			// Create HMAC signer
 			JWSSigner signer = new MACSigner(sharedSecret);
@@ -478,7 +531,7 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 			
 		} catch (ApiException e) {
 			if( e.getCode() == 503) {
-				throw new OODBConnectionsACDSException(e.getLocalizedMessage());
+				throw new ACDSProxyUnavailableException(e.getLocalizedMessage());
 			}
 			
 			LOGGER.warn("ACDSException : " + e.getCode() , e );
@@ -507,7 +560,7 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 			ObjectMapper objectMapper = new ObjectMapper();
 			String payload = objectMapper.writeValueAsString(crr);
 			
-	        LOGGER.debug("calculated secret as ({} bytes) : {} ", sharedSecret.length,  Base64.encodeBase64String(sharedSecret));
+//	        LOGGER.debug("calculated secret as ({} bytes) : {} ", sharedSecret.length,  Base64.encodeBase64String(sharedSecret));
 
 			// Create HMAC signer
 			JWSSigner signer = new MACSigner(sharedSecret);
@@ -528,7 +581,7 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 			remoteClient.revokeCertificate(jwsRequest);
 		} catch (ApiException e) {
 			if( e.getCode() == 503) {
-				throw new OODBConnectionsACDSException(e.getLocalizedMessage());
+				throw new ACDSProxyUnavailableException(e.getLocalizedMessage());
 			}
 			LOGGER.warn("ACDSException : " + e.getCode() , e );
 			throw new ACDSException(e.getLocalizedMessage());	
@@ -548,7 +601,7 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 			return rir;
 		} catch (ApiException e) {
 			if( e.getCode() == 503) {
-				throw new OODBConnectionsACDSException(e.getLocalizedMessage());
+				throw new ACDSProxyUnavailableException(e.getLocalizedMessage());
 			}else if( e.getCause() instanceof SocketTimeoutException){
 				throw new ACDSProxyUnavailableException(e.getCause().getMessage());
 			}
@@ -576,7 +629,7 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 			return resp;
 		} catch (ApiException e) {
 			if( e.getCode() == 503) {
-				throw new OODBConnectionsACDSException(e.getLocalizedMessage());
+				throw new ACDSProxyUnavailableException(e.getLocalizedMessage());
 			}else if( e.getCause() instanceof SocketTimeoutException){
 				throw new ACDSProxyUnavailableException(e.getCause().getMessage());
 			}
@@ -592,7 +645,7 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 			return info;
 		} catch (ApiException e) {
 			if( e.getCode() == 503) {
-				throw new OODBConnectionsACDSException(e.getLocalizedMessage());
+				throw new ACDSProxyUnavailableException(e.getLocalizedMessage());
 			}else if( e.getCause() instanceof SocketTimeoutException){
 				throw new ACDSProxyUnavailableException(e.getCause().getMessage());
 			}else if( e.getCause() instanceof ConnectException){

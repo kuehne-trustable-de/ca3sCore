@@ -30,9 +30,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 
 import de.trustable.ca3s.core.domain.Authority;
+import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
@@ -57,6 +59,9 @@ public class CertExpiryScheduler {
 	
 	@Autowired
 	private CertificateRepository certificateRepo;
+	
+	@Autowired
+	private CSRRepository csrRepo;
 	
 	@Autowired
 	private UserRepository userRepository;
@@ -206,22 +211,27 @@ public class CertExpiryScheduler {
 	 * 
 	 */
 	@Scheduled(cron = "0 15 2 * * ?")
+//	@Scheduled(fixedDelay = 60000)
 	public int notifyRAOfficerHolderOnExpiry() {
 
 		Instant now = Instant.now();
     	int nDays = 30;
     	Instant after = now;
     	Instant before = now.plus(nDays, ChronoUnit.DAYS);
+    	Instant relevantPendingStart = now.minus(nDays, ChronoUnit.DAYS);
     	List<Certificate> expiringCertList = certificateRepo.findByValidTo(after, before);
 
-    	if( expiringCertList.isEmpty()) {
-			LOG.info("No expiring certificate in the next {} days. No need to send a notificaton eMail to RA officers", nDays);
+    	List<CSR> pendingCsrList = csrRepo.findPendingByDay(relevantPendingStart, now);
+
+    	if( expiringCertList.isEmpty() && pendingCsrList.isEmpty()) {
+			LOG.info("No expiring certificates in the next {} days / no pending requests. No need to send a notificaton eMail to RA officers", nDays);
     	}else {
-			LOG.info("#{} expiring certificate in the next {} days.", expiringCertList.size(), nDays);
+			LOG.info("#{} expiring certificate in the next {} days, #{} pending requests", expiringCertList.size(), nDays, pendingCsrList.size());
 	    	for( User raOfficer: findAllRAOfficer()) {
 		        Locale locale = Locale.forLanguageTag(raOfficer.getLangKey());
 		        Context context = new Context(locale);
 		        context.setVariable("expiringCertList", expiringCertList);
+		        context.setVariable("pendingCsrList", pendingCsrList);
 		        mailService.sendEmailFromTemplate(context, raOfficer, "mail/expiringCertificateEmail", "email.allExpiringCertificate.subject");
 	    	}
     	}

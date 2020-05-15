@@ -4,23 +4,70 @@
         <title th:text="#{email.allExpiringCertificate.title}">List of certificates expiring soon</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <link rel="shortcut icon" th:href="@{|${baseUrl}/favicon.ico|}" />
+        <style>
+            table th {
+                font-weight: bold; 
+            }
+            table th, table td {
+                padding: 1px 2px;
+                border: 1px solid #ddd; 
+            }
+            table tr {
+                background-color: #fff;
+                border-top: 1px solid #ccc; 
+            }
+            table tr:nth-child(2n) {
+                background-color: #f8f8f8; 
+            }
+        </style>
     </head>
     <body>
-        <p th:text="#{email.notification.greeting(${user.login})}">
-            Dear
+        <p th:text="#{email.notification.greeting.RA(${user.login})}">
+            Dear RA Officer,
+        </p>
+        <p th:text="#{email.notification.greeting.RA.2}">
+            this is the daily notification eMail informing about pending requests and expiring certificates.
         </p>
 
-        <p>
+        <p th:if="${#lists.isEmpty(pendingCsrList) and #lists.isEmpty(expiringCertList)}" th:text="#{email.notification.greeting.RA.empty.set}">
+            Currently there are no pending requests and or expiring certificates.
+        </p>
+
+        <p th:if="${not #lists.isEmpty(pendingCsrList)}">
+            <h2 th:text="#{email.pending.requests.header}">Pending requests</h2>
+            <table>
+                <tr>
+                    <th>Subject</th>
+                    <th>SANs</th>
+                    <th>requested by</th>
+                    <th>requested on</th>
+                    <th>details</th>
+                </tr>
+                <tr th:each="csr : ${pendingCsrList}">
+                    <td th:text="${csr.subject}"></td>
+                    <td th:text="${csr.sans}"></td>
+                    <td th:text="${csr.requestedBy}"></td>
+                    <td th:text="${#dates.format(csr.requestedOn, 'dd.MM.yyyy, HH:mm')}"></td>
+                    
+                    <td><a th:with="url=(@{|${baseUrl}/CsrInfo?id=${csr.id}|})" th:href="${url}" th:text="#{email.notification.csr.RA.link}">CSR details</a></td> 
+                </tr>
+            </table>
+        </p> 
+
+        <p th:if="${not #lists.isEmpty(expiringCertList)}">
+            <h2 th:text="#{email.expiring.certificates.header}">Expiring certificates</h2>
             <table>
                 <tr>
                     <th>Subject</th>
                     <th>SANs</th>
                     <th>expiring on</th>
+                    <th>details</th>
                 </tr>
                 <tr th:each="cert : ${expiringCertList}">
-                    <td th:text="${cert.subject}">foo.com</td>
-                    <td th:text="${cert.sans}">foo.com, 8.8.8.8</td>
-                    <td th:text="${cert.validTo}">2.41</td>
+                    <td th:text="${cert.subject}"></td>
+                    <td th:text="${cert.sans}"></td>
+                    <td th:text="${#dates.format(cert.validTo, 'dd.MM.yyyy, HH:mm')}"></td>
+                    <td><a th:with="url=(@{|${baseUrl}/cert-info?id=${cert.id}|})" th:href="${url}" th:text="#{email.notification.cert.RA.link}">Certificate details</a></td> 
                 </tr>
             </table>
         </p> 

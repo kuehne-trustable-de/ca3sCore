@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.service;
 
+import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.User;
 
 import io.github.jhipster.config.JHipsterProperties;
@@ -73,6 +74,14 @@ public class MailService {
 
     @Async
     public void sendEmailFromTemplate(Context context, User user, String templateName, String titleKey) {
+
+        sendEmailFromTemplate(context, user, templateName, titleKey, null);
+
+    }
+    
+    @Async
+    public void sendEmailFromTemplate(Context context, User user, String templateName, String titleKey, String[] args) {
+    	
         if (user.getEmail() == null) {
             log.debug("Email doesn't exist for user '{}'", user.getLogin());
             return;
@@ -81,7 +90,7 @@ public class MailService {
         context.setVariable(USER, user);
         context.setVariable(BASE_URL, jHipsterProperties.getMail().getBaseUrl());
         String content = templateEngine.process(templateName, context);
-        String subject = messageSource.getMessage(titleKey, null, locale);
+        String subject = messageSource.getMessage(titleKey, args, locale);
         sendEmail(user.getEmail(), subject, content, false, true);
     }
 
@@ -117,4 +126,5 @@ public class MailService {
         log.debug("Sending password reset email to '{}'", user.getEmail());
         sendEmailFromTemplate(user, "mail/passwordResetEmail", "email.reset.title");
     }
+
 }

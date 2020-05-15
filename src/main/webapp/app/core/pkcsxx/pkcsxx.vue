@@ -8,6 +8,10 @@
 
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('pkcsxx.upload.content')" for="upload-content">Content</label>
+						<div>
+                        	<label class="form-control-label" v-text="$t('pkcsxx.upload.fileSelector')" for="fileSelector">Select a file</label>
+							<input type="file" id="fileSelector" ref="fileSelector" name="fileSelector" @change="notifyFileChange" />
+						</div>
                         <textarea class="form-control pem-upload" name="content" id="upload-content"
 							autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                             v-model="$v.upload.content.$model"  required

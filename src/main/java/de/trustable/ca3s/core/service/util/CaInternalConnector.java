@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.CRLReason;
@@ -23,6 +24,8 @@ import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
+import de.trustable.ca3s.core.domain.CsrAttribute;
+import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.web.servlet.ScepServletImpl;
@@ -173,6 +176,11 @@ public class CaInternalConnector {
 	public Certificate signCertificateRequest(CSR csr, CAConnectorConfig caConfig) throws GeneralSecurityException {
 
 		try {
+			
+			csrUtil.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_CA_PROCESSING_STARTED_TIMESTAMP,"" + System.currentTimeMillis(), false);
+
+			csr.setStatus(CsrStatus.PROCESSING);
+
 			Certificate intermediate = getIntermediate();
 		
 			PrivateKey privKeyIntermediate = certUtil.getPrivateKey(intermediate);
@@ -187,6 +195,11 @@ public class CaInternalConnector {
 			cert.setRevocationCA(caConfig);
 			
 			certRepository.save(cert);
+			
+			csrUtil.setCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_FINISHED_TIMESTAMP,"" + System.currentTimeMillis(), true);
+
+			csr.setStatus(CsrStatus.ISSUED);
+			csrRepository.save(csr);
 			
 			return cert;
 

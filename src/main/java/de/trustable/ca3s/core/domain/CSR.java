@@ -28,9 +28,15 @@ import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
     @NamedQuery(name = "CSR.countAll",
     query = "SELECT count(c) FROM CSR c "
     ),
+    @NamedQuery(name = "CSR.findPendingByDay",
+    query = "SELECT c FROM CSR c WHERE " +
+        " c.requestedOn >= :after and " +
+        " c.requestedOn <= :before and " +
+        " c.status = 'PENDING' "
+    ),
     @NamedQuery(name = "CSR.findPendingGroupedByDay",
     query = "SELECT concat(YEAR(c.requestedOn), '.', MONTH(c.requestedOn), '.', DAY(c.requestedOn)), count(c) FROM CSR c WHERE " +
-        "c.requestedOn >= :after and " +
+        " c.requestedOn >= :after and " +
         " c.requestedOn <= :before and " +
         " c.status = 'PENDING' " +
         " group by YEAR(c.requestedOn), MONTH(c.requestedOn), DAY(c.requestedOn)"

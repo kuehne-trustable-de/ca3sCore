@@ -3,6 +3,7 @@
     "title": "Welcome, Java Hipster!",
     "subtitle": "Upload a security object",
     "upload": {
+      "fileSelector": "select a file or drop content in the box below",
       "type": "Content type",
       "upload": "Upload",
       "requestCertificate": "Request certificate",

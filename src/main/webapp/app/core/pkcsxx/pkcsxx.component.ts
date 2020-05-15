@@ -18,7 +18,6 @@ const validations: any = {
     passphrase: {
     },
     requestorcomment: {
-
     },
     content: {
       required
@@ -84,14 +83,45 @@ export default class PKCSXX extends Vue {
   }
 
   public notifyChange(_evt: Event): void {
-//      alert('CSR changed');
       this.contentCall(precheckUrl);
   }
 
+  // handle the selection of a file
+  public notifyFileChange(evt: any): void {
+
+    const self = this;
+    const selectedFile = evt.target.files[0];
+    const readerBase64 = new FileReader();
+      readerBase64.onload =
+        function(_result) {
+          const base64Text = readerBase64.result.toString();
+
+          // check, whether this is base64 encoded content
+          if ( /^[\x00-\x7F]*$/.test(base64Text) ) {
+            self.upload.content = base64Text;
+            self.contentCall(precheckUrl);
+          } else {
+            // binary, start re-reading it as base64-encoded comntent
+            const readerBinary = new FileReader();
+            readerBinary.onload =
+              function(__result) {
+                const base64Bin = readerBinary.result.toString().split(',')[1];
+                self.upload.content = base64Bin;
+                self.contentCall(precheckUrl);
+              };
+            readerBinary.readAsDataURL(selectedFile);
+          }
+        };
+      readerBase64.readAsText(selectedFile);
+
+  }
+
+  // handle any changes affecting the plain content
   public uploadContent(_evt: Event): void {
       this.contentCall(uploadUrl);
   }
 
+  // run for the bachend and tell about all the bytes to process
   async contentCall(url: string) {
     // don't do a call without content
     if (this.upload.content.trim().length === 0) {
