@@ -47,9 +47,6 @@ public class CSRAdministration {
 	@Autowired
 	private CSRRepository csrRepository;
 
-    @Autowired
-    private CertificateRepository certificateRepository;
-
 	@Autowired
 	private BPMNUtil bpmnUtil;
 
@@ -98,12 +95,15 @@ public class CSRAdministration {
 
     			Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
     			if(cert != null) {
+/* 
+ * refactored to  CaBackendTask
+ * 
     				certificateRepository.save(cert);
         			
     				csr.setCertificate(cert);
     				csr.setStatus(CsrStatus.ISSUED);
         			csrRepository.save(csr);
-        			
+ */       			
         			Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());
         			if( optUser.isPresent()) {
         				User requestor = optUser.get();

@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.util.Iterator;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.shredzone.acme4j.Account;
 import org.shredzone.acme4j.AccountBuilder;
@@ -35,9 +36,9 @@ import org.shredzone.acme4j.util.CSRBuilder;
 import org.shredzone.acme4j.util.KeyPairUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.test.context.ContextConfiguration;
 import org.takes.Take;
 import org.takes.facets.fork.FkRegex;
 import org.takes.facets.fork.TkFork;
@@ -46,7 +47,7 @@ import org.takes.http.FtBasic;
 
 import de.trustable.ca3s.cert.bundle.TimedRenewalCertMap;
 import de.trustable.ca3s.core.Ca3SApp;
-import de.trustable.ca3s.core.CaConfigTestConfiguration;
+import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 import de.trustable.ca3s.core.security.provider.Ca3sFallbackBundleFactory;
 import de.trustable.ca3s.core.security.provider.Ca3sKeyManagerProvider;
@@ -54,17 +55,29 @@ import de.trustable.ca3s.core.security.provider.Ca3sKeyStoreProvider;
 import de.trustable.ca3s.core.security.provider.TimedRenewalCertMapHolder;
 import de.trustable.util.JCAManager;
 
-// @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-// @ContextConfiguration(classes=CaConfigTestConfiguration.class)
+@SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ACMEHappyPathIT {
 
     private static final Logger LOG = LoggerFactory.getLogger(ACMEHappyPathIT.class);
 
-//	@LocalServerPort
-	int serverPort = 8080; // random port chosen by spring test
+	@LocalServerPort
+	int serverPort; // random port chosen by spring test
 	
-	final String ACME_PATH_PART = "/acme/ejbca/directory";
+	final String ACME_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM + "/directory";
+	String dirUrl;
 
+	@Autowired
+	PipelineTestConfiguration ptc;
+	
+	
+	@BeforeEach
+	void init() {
+		dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
+		ptc.getInternalACMETestPipelineLaxRestrictions();
+		
+	}
+
+	
 	@BeforeAll
 	public static void setUpBeforeClass() throws Exception {
 		
@@ -80,7 +93,6 @@ public class ACMEHappyPathIT {
 	@Test
 	public void testAccountHandling() throws AcmeException {
 
-		String dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
 		System.out.println("connecting to " + dirUrl );
 		Session session = new Session(dirUrl);
 		Metadata meta = session.getMetadata();
@@ -140,7 +152,6 @@ public class ACMEHappyPathIT {
 	@Test
 	public void testOrderHandling() throws AcmeException, IOException, InterruptedException {
 
-		String dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
 		System.out.println("connecting to " + dirUrl );
 		Session session = new Session(dirUrl);
 		Metadata meta = session.getMetadata();
@@ -219,7 +230,6 @@ public class ACMEHappyPathIT {
 	@Test
 	public void testHTTPValidation() throws AcmeException, IOException, InterruptedException {
 
-		String dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
 		System.out.println("connecting to " + dirUrl );
 		Session session = new Session(dirUrl);
 		Metadata meta = session.getMetadata();
@@ -403,7 +413,6 @@ public class ACMEHappyPathIT {
 		boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
 
 		if( isWindows ) {
-			String dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
 			System.out.println("connecting to " + dirUrl );
 			Session session = new Session(dirUrl);
 			Metadata meta = session.getMetadata();

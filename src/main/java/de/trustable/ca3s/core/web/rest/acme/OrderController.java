@@ -37,8 +37,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.bouncycastle.asn1.ASN1Encodable;
@@ -91,8 +93,10 @@ import de.trustable.ca3s.core.service.util.ACMEUtil;
 import de.trustable.ca3s.core.service.util.AuditUtil;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CSRUtil;
+import de.trustable.ca3s.core.service.util.CertificateProcessingUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.JwtUtil;
+import de.trustable.ca3s.core.web.rest.data.PkcsXXData;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
@@ -129,6 +133,9 @@ public class OrderController extends ACMEController {
     @Autowired
     private CSRUtil csrUtil;
 
+	@Autowired
+	private CertificateProcessingUtil cpUtil;
+	
 	@Autowired
 	private ApplicationEventPublisher applicationEventPublisher;
 	
@@ -325,17 +332,6 @@ public class OrderController extends ACMEController {
 			// certificate creation only on status 'Ready' and no certificate created, yet
   	  		if((orderDao.getStatus() == AcmeOrderStatus.READY) && (orderDao.getCertificate() == null)){
 			  	LOG.debug("order {} status 'ready', producing certificate", orderDao.getOrderId());
-
-/*			  	
-				CsrDao csrDao = new CsrDao( Base64.encodeToString(csrByte), p10Holder, "ACMEOrder-" + orderDao.getOrderId() );
-				csrRepository.save(csrDao);
-		  	  	LOG.debug("csr dao stored");
-*/	  	  	  
-//		  	  	orderDao.setCsrDao(csrDao);
-
-//		  	  	startCertificateCreationProcess(orderDao, CryptoUtil.pkcs10RequestToPem( p10Holder.getP10Req()));
-		  	  	
-//				orderRepository.save(orderDao);
   			}
   			
   			boolean valid = true;
@@ -394,7 +390,45 @@ public class OrderController extends ACMEController {
 		}
 	}
 
-    
+	
+	private Certificate startCertificateCreationProcess(AcmeOrder orderDao, Pipeline pipeline, final String requestorName, final String csrAsPem)  {
+
+	    List<String> messageList = new ArrayList<String>();
+		CSR csr = cpUtil.buildCSR(csrAsPem, requestorName, AuditUtil.AUDIT_ACME_CERTIFICATE_REQUESTED, "", pipeline, messageList );
+		
+		if( csr == null) {
+			LOG.info("building CSR failed");
+			String msg = "";
+			if( !messageList.isEmpty()) {
+				msg = messageList.get(0);
+			}
+			final ProblemDetail problem = new ProblemDetail(ACMEUtil.BAD_CSR, msg,
+					BAD_REQUEST, "", ACMEController.NO_INSTANCE);
+			throw new AcmeProblemException(problem);
+		}
+		
+		Certificate cert = cpUtil.processCertificateRequest(csr, requestorName, AuditUtil.AUDIT_ACME_CERTIFICATE_CREATED, pipeline );
+
+		
+
+		if( cert == null) {
+			orderDao.setStatus(AcmeOrderStatus.INVALID);
+			LOG.warn("creation of certificate by ACME order {} failed ", orderDao.getOrderId());
+		}else {
+			LOG.debug("updating order id {} with new certificate id {}", orderDao.getOrderId(), cert.getId());
+			orderDao.setCertificate(cert);
+			orderDao.setStatus(AcmeOrderStatus.VALID);
+			
+			LOG.debug("adding certificate attribute 'ACME_ACCOUNT_ID' {} for certificate id {}", orderDao.getAccount().getAccountId(), cert.getId());
+			certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ACME_ACCOUNT_ID, orderDao.getAccount().getAccountId());
+			certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ACME_ORDER_ID, orderDao.getOrderId());
+		}
+		
+		return cert;
+
+	}
+
+	
     /**
      * 
      * @param orderDao
@@ -403,7 +437,7 @@ public class OrderController extends ACMEController {
      * @return
      * @throws IOException
      */
-	private Certificate startCertificateCreationProcess(AcmeOrder orderDao, Pipeline pipeline, final String requestor, final String csrAsPem)  {
+	private Certificate _startCertificateCreationProcess(AcmeOrder orderDao, Pipeline pipeline, final String requestor, final String csrAsPem)  {
 		
 		orderDao.setStatus(AcmeOrderStatus.PROCESSING);
 		

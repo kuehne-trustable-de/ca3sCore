@@ -7,12 +7,12 @@
 				<div >
 
                     <div class="form-group">
-                        <label class="form-control-label" v-text="$t('pkcsxx.upload.content')" for="upload-content">Content</label>
+                        <!--label class="form-control-label" v-text="$t('pkcsxx.upload.content')" for="upload-content">Content</label-->
 						<div>
                         	<label class="form-control-label" v-text="$t('pkcsxx.upload.fileSelector')" for="fileSelector">Select a file</label>
 							<input type="file" id="fileSelector" ref="fileSelector" name="fileSelector" @change="notifyFileChange" />
 						</div>
-                        <textarea class="form-control pem-upload" name="content" id="upload-content"
+                        <textarea class="form-control pem-content draggable" name="content" id="upload-content"
 							autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                             v-model="$v.upload.content.$model"  required
 							v-on:input="notifyChange"/>
@@ -25,10 +25,15 @@
 
                 	<div v-if="showCSRRelatedArea()" class="form-group">
                         <label class="form-control-label" v-text="$t('pkcsxx.upload.pipeline')" for="pkcsxx-pipeline">Pipeline</label>
-                        <select class="form-control" id="pkcsxx-pipeline" name="pkcsxx-pipeline" v-model="$v.upload.pipelineId.$model">
-                            <!--option v-bind:value="null"></option-->
+                        <select class="form-control" id="pkcsxx-pipeline" name="pkcsxx-pipeline" v-model="$v.upload.pipelineId.$model" required>
                             <option v-bind:value="upload && webPipeline.id === upload.pipelineId ? upload.pipelineId : webPipeline.id" v-for="webPipeline in allWebPipelines" :key="webPipeline.id">{{webPipeline.name}}</option>
                         </select>
+						<!--span>upload.pipelineId.id  = {{upload.pipelineId.id}}</span>
+                        <div v-if="upload.pipelineId.id < 1110">
+                            <small class="form-text text-danger" v-text="$t('entity.validation.required')">
+                                This field is required.
+                            </small>
+                        </div-->
                         <!--label class="form-control-label" >__ {{currentPipelineInfo(upload.pipelineId)}} __</label-->
                     </div>
 
@@ -79,7 +84,7 @@
 							<span v-text="$t('pkcsxx.upload.warning.label')">Warning</span>
 						</dt>
 						<dd v-if="precheckResponse.csrPublicKeyPresentInDB === true">
-							<span v-text="$t('pkcsxx.upload.warning.publicKeyPresent')">Public key already in use</span>
+							<span class="text-danger" v-text="$t('pkcsxx.upload.warning.publicKeyPresent')">Public key already in use</span>
 						</dd>
 
 						<dt>
@@ -210,15 +215,22 @@
     </div>
 </template>
 
-<style scoped>
-textarea.pem-upload {
-  font-family: monospace; 
-  height: 10em;
-  
-}
-
-</style>
 
 <script lang="ts" src="./pkcsxx.component.ts">
 
 </script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+
+.pem-content {
+	height: 200px;
+	width: 600px;
+}
+
+.draggable {
+	background: url("../../../content/images/uploadIcon.png") no-repeat center
+		center;
+	background-size: 80px 80px;
+}
+</style>

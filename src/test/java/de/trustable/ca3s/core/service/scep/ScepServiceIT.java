@@ -26,6 +26,7 @@ import org.jscep.client.Client;
 import org.jscep.client.ClientException;
 import org.jscep.client.EnrollmentResponse;
 import org.jscep.client.verification.CertificateVerifier;
+import org.jscep.transaction.FailInfo;
 import org.jscep.transaction.TransactionException;
 import org.jscep.transport.response.Capabilities;
 import org.jscep.transport.response.Capability;
@@ -33,10 +34,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 
 import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.test.util.AcceptAllCertSelector;
 import de.trustable.ca3s.core.test.util.AcceptAllVerifier;
 import de.trustable.ca3s.core.test.util.X509Certificates;
@@ -44,24 +47,30 @@ import de.trustable.util.CryptoUtil;
 import de.trustable.util.JCAManager;
 
 
-@Disabled("Integration test fails for unknown reason, running it as a separate client succeeds. Maybe a classloader issue? ")
-// @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+//@Disabled("Integration test fails for unknown reason, running it as a separate client succeeds. Maybe a classloader issue? ")
+@SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ScepServiceIT{
 
 	public static final Logger LOG = LogManager.getLogger(ScepServiceIT.class);
 
 	@LocalServerPort
-	int serverPort = 8080; // random port chosen by spring test
+	int serverPort; // random port chosen by spring test
  
 	static KeyPair keyPair;
 	static X509Certificate ephemeralCert;
 	static X500Principal enrollingPrincipal; 
 	static char[] password = "password".toCharArray();
+
+	@Autowired
+	PipelineTestConfiguration ptc;
+	
 	
 	CertificateVerifier acceptAllVerifier = new AcceptAllVerifier();
 
 	Client client;
+	Client client1CN;
 
+	
 	@BeforeAll
 	public static void setUpBeforeClass() throws Exception {
 		JCAManager.getInstance();
@@ -74,13 +83,23 @@ public class ScepServiceIT{
 
 	}
 
+	
 	@BeforeEach
 	public void setUp() throws MalformedURLException {
 
-		URL serverUrl = new URL("http://localhost:" + serverPort + "/ca3sScep/test");
+		ptc.getInternalSCEPTestPipelineLaxRestrictions();
+		ptc.getInternalSCEPTestPipelineCN1Restrictions();
+
+		URL serverUrl = new URL("http://localhost:" + serverPort + "/ca3sScep/" + PipelineTestConfiguration.SCEP_REALM);
 		LOG.debug("scep serverUrl : " + serverUrl.toString());
 
 		client = new Client(serverUrl, acceptAllVerifier);
+
+
+		URL serverUrl1CN = new URL("http://localhost:" + serverPort + "/ca3sScep/" + PipelineTestConfiguration.SCEP1CN_REALM);
+		LOG.debug("scep serverUrl1CN : " + serverUrl1CN.toString());
+
+		client1CN = new Client(serverUrl1CN, acceptAllVerifier);
 
 	}
 
@@ -111,6 +130,25 @@ public class ScepServiceIT{
 
 	}
 
+	@Test
+	public void testScepEnrolRejected() throws GeneralSecurityException, IOException, ClientException, TransactionException {
+
+
+		PKCS10CertificationRequest csr = CryptoUtil.getCsr(enrollingPrincipal, 
+				keyPair.getPublic(), 
+				keyPair.getPrivate(),
+				password);
+
+		EnrollmentResponse resp = client1CN.enrol(ephemeralCert, keyPair.getPrivate(), csr);
+		assertNotNull(resp);
+		assertTrue(resp.isFailure());
+		
+		assertEquals("Expecting FailInfo.badRequest", FailInfo.badRequest, resp.getFailInfo());
+		
+	}
+
+	
+	
 	@Test
 	public void testScepCapabilities() throws MalformedURLException {
 

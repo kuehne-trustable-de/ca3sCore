@@ -21,4 +21,8 @@ public interface CAConnectorConfigRepository extends JpaRepository<CAConnectorCo
 	@Query(name = "CAConnectorConfig.findAllCertGenerators")
 	List<CAConnectorConfig> findAllCertGenerators();
 
+	@Query(name = "CAConnectorConfig.findbyName")
+	List<CAConnectorConfig> findByName(@Param("name") String name);
+
+
 }

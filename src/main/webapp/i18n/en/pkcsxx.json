@@ -1,9 +1,9 @@
 {
   "pkcsxx": {
-    "title": "Welcome, Java Hipster!",
-    "subtitle": "Upload a security object",
+    "title": "Certificate Request",
+    "subtitle": "Upload a certificate request",
     "upload": {
-      "fileSelector": "select a file or drop content in the box below",
+      "fileSelector": "Select a file or drop content in the box below",
       "type": "Content type",
       "upload": "Upload",
       "requestCertificate": "Request certificate",

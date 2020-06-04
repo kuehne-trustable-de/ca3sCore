@@ -3,7 +3,7 @@ import { Vue } from 'vue-property-decorator';
 
 import axios from 'axios';
 
-import { required} from 'vuelidate/lib/validators';
+import { required, minLength} from 'vuelidate/lib/validators';
 
 import { IUploadPrecheckData, IPkcsXXData } from '@/shared/model/transfer-object.model';
 import { IPipeline } from '@/shared/model/pipeline.model';
@@ -14,6 +14,8 @@ const uploadUrl = 'api/uploadContent';
 const validations: any = {
   upload: {
     pipelineId: {
+      id: {required},
+      name: {required}
     },
     passphrase: {
     },

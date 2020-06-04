@@ -43,10 +43,13 @@ import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
+
 import de.trustable.ca3s.core.service.util.AuditUtil;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CSRUtil;
+import de.trustable.ca3s.core.service.util.CertificateProcessingUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.ca3s.core.service.util.PipelineUtil;
 import de.trustable.ca3s.core.web.rest.data.PKCSDataType;
 import de.trustable.ca3s.core.web.rest.data.Pkcs10RequestHolderShallow;
 import de.trustable.ca3s.core.web.rest.data.PkcsXXData;
@@ -84,7 +87,13 @@ public class ContentUploadProcessor {
 
 	@Autowired
 	private BPMNUtil bpmnUtil;
+	
+	@Autowired
+	private PipelineUtil pvUtil;
 
+	@Autowired
+	private CertificateProcessingUtil cpUtil;
+	
 	@Autowired
 	private ApplicationEventPublisher applicationEventPublisher;
 	
@@ -286,6 +295,36 @@ public class ContentUploadProcessor {
 	}
 
     
+
+	private Certificate startCertificateCreationProcess(final String csrAsPem, PkcsXXData p10ReqData, final String requestorName, String requestorComment, Optional<Pipeline> optPipeline )  {
+
+		if( optPipeline.isPresent()) {
+			
+			Pipeline pipeline  = optPipeline.get();
+			
+		    List<String> messageList = new ArrayList<String>();
+
+			CSR csr = cpUtil.buildCSR(csrAsPem, requestorName, AuditUtil.AUDIT_SCEP_CERTIFICATE_REQUESTED, "", pipeline, messageList );
+
+			p10ReqData.setMessages(messageList.toArray(new String[messageList.size()]));
+
+			if( csr != null) {
+				if( pipeline.isApprovalRequired() ) {
+					LOG.debug("defering certificate creation for csr #{}", csr.getId());
+					p10ReqData.setCsrPending(true);
+					p10ReqData.setCreatedCSRId(csr.getId().toString());
+				}else {
+					
+					Certificate cert = cpUtil.processCertificateRequest(csr, requestorName,  AuditUtil.AUDIT_WEB_CERTIFICATE_CREATED, pipeline);
+					return cert;
+				}
+			}
+		}else {
+            LOG.warn("doEnrol: no processing pipeline defined");
+		}
+		return null;
+	}
+	
 /**
  * 
  * @param csrAsPem
@@ -295,7 +334,7 @@ public class ContentUploadProcessor {
  * @param optPipeline
  * @return
  */
-	private Certificate startCertificateCreationProcess(final String csrAsPem, PkcsXXData p10ReqData, final String requestorName, String requestorComment, Optional<Pipeline> optPipeline )  {
+	private Certificate _startCertificateCreationProcess(final String csrAsPem, PkcsXXData p10ReqData, final String requestorName, String requestorComment, Optional<Pipeline> optPipeline )  {
 		
 		
 		// BPNM call
@@ -304,8 +343,15 @@ public class ContentUploadProcessor {
 
 			CSR csr;
 			
+			
 			if( optPipeline.isPresent()) {
-				csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, optPipeline.get());
+				Pipeline p = optPipeline.get();
+				
+			    List<String> messageList = new ArrayList<String>();
+
+				pvUtil.isPipelineRestrictionsResolved(p, p10ReqHolder, messageList);
+
+				csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, p);
 			}else {
 				csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, PipelineType.WEB, null);
 			}

@@ -39,6 +39,7 @@ import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.validator.routines.InetAddressValidator;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
@@ -502,6 +503,32 @@ public class CertificateUtil {
 			}
 		}
 
+		String subject = x509Cert.getSubjectDN().getName();
+		if( subject != null && subject.trim().length() > 0) {
+		
+			try {
+				InetAddressValidator inv = InetAddressValidator.getInstance();
+
+				List<Rdn> rdnList = new LdapName(subject).getRdns();
+				for( Rdn rdn: rdnList) {
+					 if("CN".equalsIgnoreCase(rdn.getType())) {
+						 String cn = rdn.getValue().toString();
+						 if( inv.isValid(cn)) {
+							 LOG.debug("CN found IP in subject: '{}'", cn);
+		    				setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_VSAN, "IP:" + cn);
+						 }else {
+							 LOG.debug("CN found DNS name in subject: '{}'", cn);
+		    				setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_VSAN, "DNS:" + cn);
+						 }
+					 }
+				}
+			} catch (InvalidNameException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+		
 		String allSans = "";
 
 		// list all SANs
@@ -529,27 +556,7 @@ public class CertificateUtil {
 					allSans += sanValue;
 
 	                setCertMultiValueAttribute(cert, CertificateAttribute.ATTRIBUTE_SAN, sanValue);
-	    			if (GeneralName.dNSName == altNameType) {
-	    				setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN, "DNS:" + sanValue);
-	    			} else if (GeneralName.iPAddress == altNameType) {
-	    				setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN, "IP:" + sanValue);
-	    			} else if (GeneralName.ediPartyName == altNameType) {
-	    				setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN, "EDI:" + sanValue);
-	    			} else if (GeneralName.otherName == altNameType) {
-	    				setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN, "other:" + sanValue);
-	    			} else if (GeneralName.registeredID == altNameType) {
-	    				setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN, "regID:" + sanValue);
-	    			} else if (GeneralName.rfc822Name == altNameType) {
-	    				setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN, "rfc822:" + sanValue);
-	    			} else if (GeneralName.uniformResourceIdentifier == altNameType) {
-	    				setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN, "URI:" + sanValue);
-	    			} else if (GeneralName.x400Address == altNameType) {
-	    				setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN, "X400:" + sanValue);
-	    			} else if (GeneralName.directoryName == altNameType) {
-	    				setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN, "DirName:" + sanValue);
-	    			}else {
-	    				LOG.info("unexpected name / tag '{}' in SANs for san {}", altNameType, sanValue);
-	    			}
+	    			setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN, getTypedSAN(altNameType, sanValue));
 
 				}
 			}
@@ -565,6 +572,32 @@ public class CertificateUtil {
 			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_URL, crlUrl);
 		}
 		
+	}
+
+	public static String getTypedSAN(int altNameType, String sanValue) {
+		
+		if (GeneralName.dNSName == altNameType) {
+			return( "DNS:" + sanValue);
+		} else if (GeneralName.iPAddress == altNameType) {
+			return( "IP:" + sanValue);
+		} else if (GeneralName.ediPartyName == altNameType) {
+			return( "EDI:" + sanValue);
+		} else if (GeneralName.otherName == altNameType) {
+			return( "other:" + sanValue);
+		} else if (GeneralName.registeredID == altNameType) {
+			return( "regID:" + sanValue);
+		} else if (GeneralName.rfc822Name == altNameType) {
+			return( "rfc822:" + sanValue);
+		} else if (GeneralName.uniformResourceIdentifier == altNameType) {
+			return( "URI:" + sanValue);
+		} else if (GeneralName.x400Address == altNameType) {
+			return( "X400:" + sanValue);
+		} else if (GeneralName.directoryName == altNameType) {
+			return( "DirName:" + sanValue);
+		}else {
+			LOG.warn("unexpected name / tag '{}' in SANs for san {}", altNameType, sanValue);
+			return "Unknown:" + sanValue;
+		}
 	}
 
 	/**
@@ -670,14 +703,19 @@ public class CertificateUtil {
 	}
 
 
-	
+	/**
+	 * 
+	 * @param cert
+	 * @param attributeName
+	 * @param x500NameSubject
+	 */
 	public void insertNameAttributes(Certificate cert, String attributeName, X500Name x500NameSubject) {
 		
 		
 		try {
 			List<Rdn> rdnList = new LdapName(x500NameSubject.toString()).getRdns();
 			for( Rdn rdn: rdnList) {
-	    		String rdnExpression = rdn.getType() + "=" + rdn.getValue();
+	    		String rdnExpression = rdn.getType().toLowerCase() + "=" + rdn.getValue().toString().toLowerCase().trim();
 	    		setCertMultiValueAttribute(cert, attributeName, rdnExpression);
 			}
 		} catch (InvalidNameException e) {
@@ -686,7 +724,7 @@ public class CertificateUtil {
 		
 		for( RDN rdn: x500NameSubject.getRDNs() ){
 			for( org.bouncycastle.asn1.x500.AttributeTypeAndValue atv: rdn.getTypesAndValues()){
-				String value = atv.getValue().toString().toLowerCase();
+				String value = atv.getValue().toString().toLowerCase().trim();
 				setCertMultiValueAttribute(cert, attributeName, value);
 				String oid = atv.getType().getId().toLowerCase();
 				setCertMultiValueAttribute(cert, attributeName, oid +"="+ value);
@@ -707,18 +745,43 @@ public class CertificateUtil {
 		return null;
 	}
 
+	/**
+	 * 
+	 * @param certDao
+	 * @param name
+	 * @param value
+	 */
 	public void setCertAttribute(Certificate certDao, String name, long value) {
 		setCertAttribute(certDao, name, Long.toString(value));
 	}
 
+	/**
+	 * 
+	 * @param cert
+	 * @param name
+	 * @param value
+	 */
 	public void setCertMultiValueAttribute(Certificate cert, String name, String value) {
 		setCertAttribute(cert, name, value, true);
 	}
 	
+	/**
+	 * 
+	 * @param cert
+	 * @param name
+	 * @param value
+	 */
 	public void setCertAttribute(Certificate cert, String name, String value) {
 		setCertAttribute(cert, name, value, true);
 	}
 	
+	/**
+	 * 
+	 * @param cert
+	 * @param name
+	 * @param value
+	 * @param multiValue
+	 */
 	public void setCertAttribute(Certificate cert, String name, String value, boolean multiValue) {
 		
 		if( name == null) {
@@ -1426,4 +1489,69 @@ public class CertificateUtil {
 		
 		cert.setRevokedSince(revocationDate);
 	}
+    
+    
+	/**
+	 * 
+	 * @param sanArr
+	 * @return
+	 */
+	public List<Certificate> findReplaceCandidates(String[] sanArr) {
+
+		List<String> sans = new ArrayList<String>();
+		for (String san : sanArr) {
+			LOG.debug("SAN present: {} ", san);
+			sans.add(san);
+		}
+		
+		return findReplaceCandidates(sans);
+		
+	}
+	
+	/**
+	 * 
+	 * @param sans
+	 * @return
+	 */
+	public List<Certificate> findReplaceCandidates(List<String> sans) {
+
+		LOG.debug("sans list contains {} elements", sans.size());
+
+		List<Certificate> candidateList = new ArrayList<Certificate>();
+		
+		if( sans.size() == 0) {
+			return candidateList;
+		}
+		
+		List<Certificate> matchingCertList = certificateRepository.findActiveCertificatesBySANs(Instant.now(), sans);
+		LOG.debug("objArrList contains {} elements", matchingCertList.size());
+		
+		for (Certificate cert : matchingCertList) {
+			LOG.debug("replacement candidate {}: {} ", cert.getId(), cert.getSubject());
+
+			boolean matches = true;
+			for( CertificateAttribute certAttr:cert.getCertificateAttributes()) {
+				
+				if( certAttr.getName().equals(CsrAttribute.ATTRIBUTE_TYPED_SAN) || certAttr.getName().equals(CsrAttribute.ATTRIBUTE_TYPED_VSAN)) {
+					String san = certAttr.getValue();
+					if( !sans.contains(san)) {
+						matches = false;
+						LOG.debug("candidate san {} NOT in provided san list", san, cert.getSubject());
+						break;
+					}
+				}
+			}
+			if( matches) {
+				candidateList.add(cert);
+				LOG.debug("replacement candidate {}: contains all SANs", cert.getId());
+			}
+
+		}
+		
+		return candidateList;
+
+	}
+
+
+
 }

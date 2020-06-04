@@ -198,7 +198,7 @@ public class UserPreferenceResourceIT {
         // Get all the userPreferenceList
         restUserPreferenceMockMvc.perform(get("/api/user-preferences?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(userPreference.getId().intValue())))
             .andExpect(jsonPath("$.[*].userId").value(hasItem(DEFAULT_USER_ID.intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
@@ -214,7 +214,7 @@ public class UserPreferenceResourceIT {
         // Get the userPreference
         restUserPreferenceMockMvc.perform(get("/api/user-preferences/{id}", userPreference.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(userPreference.getId().intValue()))
             .andExpect(jsonPath("$.userId").value(DEFAULT_USER_ID.intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))

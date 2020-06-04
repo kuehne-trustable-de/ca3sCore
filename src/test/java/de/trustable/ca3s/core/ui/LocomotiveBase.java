@@ -388,11 +388,14 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
         String text;
         WebElement e = waitForElement(by);
 
-        if (e.getTagName().equalsIgnoreCase("input") || e.getTagName().equalsIgnoreCase("select"))
+        if (e.getTagName().equalsIgnoreCase("input") || e.getTagName().equalsIgnoreCase("select") || e.getTagName().equalsIgnoreCase("textarea")) {
             text = e.getAttribute("value");
-        else
+ //           System.out.println("reading attribute 'value' for " + e.getTagName() + " retrieves text '" + text +"'");
+        }else {
             text = e.getText();
-
+ //           System.out.println("reading text for " + e.getTagName() + " retrieves text '" + text +"'");
+        }
+        
         return text;
     }
 

@@ -23,6 +23,7 @@
 
 
 <style >
+
 #vue-certificates nav>.pagination>li>span {
 	border: none;
 	background: none;

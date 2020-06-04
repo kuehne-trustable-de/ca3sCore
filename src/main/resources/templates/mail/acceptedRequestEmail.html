@@ -13,7 +13,7 @@
             Your certificate request has been accepted. You may download the certificate in your favorite format using the URL below:
         </p>
         <p>
-            <a th:with="url=(@{|${baseUrl}/cert-info?id=${certId}|})" th:href="${url}"
+            <a th:with="url=(@{|${baseUrl}/publicapi/certPKIX/${certId}|})" th:href="${url}"
             th:text="${url}">Certificate download link</a>
         </p>
         <p>

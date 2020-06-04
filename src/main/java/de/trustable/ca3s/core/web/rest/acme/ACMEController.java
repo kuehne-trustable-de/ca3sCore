@@ -215,7 +215,7 @@ public class ACMEController {
 		}
 
 		if(pipelineList.size() > 1) {
-			LOG.warn("misconfiguration for realm {}", realm);
+			LOG.warn("misconfiguration for realm '{}', multiple configurations handling this realm", realm);
 			final ProblemDetail problem = new ProblemDetail(ACMEUtil.SERVER_INTERNAL, "Pipeline configuration broken",
 					BAD_REQUEST, "", ACMEController.NO_INSTANCE);
 			throw new AcmeProblemException(problem);

@@ -1,10 +1,12 @@
 package de.trustable.ca3s.core.ui;
 
-import java.awt.HeadlessException;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.cert.X509Certificate;
 
 import javax.security.auth.x500.X500Principal;
 
@@ -21,7 +23,6 @@ import org.springframework.boot.web.server.LocalServerPort;
 
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
-import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.JCAManager;
 import io.ddavison.conductor.Browser;
@@ -35,8 +36,12 @@ import io.ddavison.conductor.Browser;
 )
 public class CSRSubmitIT extends WebTestBase{
 
+    public static final By LOC_TXT_WEBPACK_ERROR = By.xpath("//div//h1 [text() = 'An error has occured :-(']");
+    
     public static final By LOC_LNK_ACCOUNT_MENUE = By.xpath("//nav//a [.//span [text() = 'Account']]");
     public static final By LOC_LNK_REQ_CERT_MENUE = By.xpath("//nav//a [.//span [text() = 'Request certificate']]");
+    public static final By LOC_LNK_REQUESTS_MENUE = By.xpath("//nav//a [.//span [text() = 'Requests']]");
+    public static final By LOC_LNK_CERTIFICATES_MENUE = By.xpath("//nav//a [.//span [text() = 'Certificates']]");
     public static final By LOC_LNK_ACCOUNT_SIGN_IN_MENUE = By.xpath("//nav//a [span [text() = 'Sign in']]");
     public static final By LOC_LNK_ACCOUNT_SIGN_OUT_MENUE = By.xpath("//nav//a [span [text() = 'Sign out']]");
     
@@ -56,13 +61,44 @@ public class CSRSubmitIT extends WebTestBase{
     public static final By LOC_TEXT_PKIX_LABEL = By.xpath("//div//dl [dt[span [text() = 'PKIX (DER encoded)']]]");
     public static final By LOC_SEL_REVOCATION_REASON = By.xpath("//form//select [@name = 'revocationReason']");
 
-    public static final By LOC_BTN_WITHDRAW_CERTIFICATE = By.xpath("//form/div/button [@type='button'][span [text() = 'Withdraw']]");
+    public static final By LOC_TEXT_CSR_HEADER = By.xpath("//div/h2/span [text() = 'CSR']");
 
+    public static final By LOC_TEXT_REQUEST_LIST = By.xpath("//div [text() = 'Request List']");
+    public static final By LOC_TEXT_CERTIFICATE_LIST = By.xpath("//div [text() = 'Certificate list']");
+    
+    public static final By LOC_SEL_CSR_ATTRIBUTE = By.xpath("//div/select [@name = 'csrSelectionAttribute']");
+    public static final By LOC_SEL_CSR_CHOICE = By.xpath("//div/select [@name = 'csrSelectionChoice']");
+    public static final By LOC_INP_CSR_VALUE = By.xpath("//div/input [@name = 'csrSelectionValue']");
+    public static final By LOC_SEL_CSR_VALUE_SET = By.xpath("//div/select [@name = 'csrSelectionSet']");
+    public static final By LOC_INP_CSR_DATE = By.xpath("//div/input [@name = 'csrSelectionValueDate']");
+    public static final By LOC_INP_CSR_BOOLEAN = By.xpath("//div/input [@name = 'csrSelectionValueBoolean']");
+    
+    public static final By LOC_SEL_CERT_ATTRIBUTE = By.xpath("//div/select [@name = 'certSelectionAttribute']");
+    public static final By LOC_SEL_CERT_CHOICE = By.xpath("//div/select [@name = 'certSelectionChoice']");
+    public static final By LOC_INP_CERT_VALUE = By.xpath("//div/input [@name = 'certSelectionValue']");
+    public static final By LOC_SEL_CERT_VALUE_SET = By.xpath("//div/select [@name = 'certSelectionSet']");
+    public static final By LOC_INP_CERT_DATE = By.xpath("//div/input [@name = 'certSelectionValueDate']");
+    public static final By LOC_INP_CERT_BOOLEAN = By.xpath("//div/input [@name = 'certSelectionValueBoolean']");
+    
+    public static final By LOC_TD_CSR_ITEM_PENDING = By.xpath("//table//td [starts-with(text(), 'PENDING')]");
+
+    public static final By LOC_TA_DOWNLOAD_CERT_CONTENT = By.xpath("//dd/span/textarea [@name = 'certContent']");
+    public static final By LOC_TEXT_CERT_REVOCATION_REASON = By.xpath("//div//dd/span[@name = 'revocationReason']");
+
+
+    public static final By LOC_BTN_WITHDRAW_CERTIFICATE = By.xpath("//form/div/button [@type='button'][span [text() = 'Withdraw']]");
+    public static final By LOC_BTN_CONFIRM_REQUEST = By.xpath("//form/div/button [@type='button'][span [text() = 'Confirm Request']]");
+    public static final By LOC_BTN_BACK = By.xpath("//form/div/button [@type='submit'][span [text() = 'Back']]");
+
+    
     private static final Logger LOG = LoggerFactory.getLogger(CSRSubmitIT.class);
 
     
 	private static final String USER_NAME_USER = "user";
-	private static final String USER_NAME_PASSWORD = "user";
+	private static final String USER_PASSWORD_USER = "user";
+
+	private static final String USER_NAME_RA = "ra";
+	private static final String USER_PASSWORD_RA = "s3cr3t";
 
 	@LocalServerPort
 	int serverPort; // random port chosen by spring test
@@ -75,28 +111,33 @@ public class CSRSubmitIT extends WebTestBase{
 	public static void setUpBeforeClass() throws Exception {
 		JCAManager.getInstance();
 		
+	    waitForUrl();
 	}
 
 	@BeforeEach
 	void init() {
-	    waitForUrl();
-	    super.startWebDriver();
-	    driver.manage().window().setSize(new Dimension(2000,768));
+		
+		ptc.getInternalWebDirectTestPipeline();
+		ptc.getInternalWebRACheckTestPipeline();
+		
+		if( driver == null) {
+		    super.startWebDriver();
+		    driver.manage().window().setSize(new Dimension(2000,768));
+		}
 	}
 	
 	@Test
 	public void testCSRSubmitDirect() throws GeneralSecurityException, IOException {
 
-		Pipeline pipeline = ptc.getInternalWebDirectTestPipeline();
-		
-		signIn(USER_NAME_USER, USER_NAME_PASSWORD);
+		signIn(USER_NAME_USER, USER_PASSWORD_USER);
 		
 		validatePresent(LOC_LNK_REQ_CERT_MENUE);
 		click(LOC_LNK_REQ_CERT_MENUE);
 		
 		validatePresent(LOC_TA_UPLOAD_CONTENT);
 		
-	    String subject = "CN=reqTest" + System.currentTimeMillis() + ", O=trustable Ltd, C=DE";
+		String cn = "reqTest" + System.currentTimeMillis();
+	    String subject = "CN=" + cn + ", O=trustable Ltd, C=DE";
 	    X500Principal subjectPrincipal = new X500Principal(subject);
 	    String csr = buildCSRAsPEM(subjectPrincipal);
         setLongText(LOC_TA_UPLOAD_CONTENT, csr);
@@ -109,25 +150,159 @@ public class CSRSubmitIT extends WebTestBase{
 	    
 	    validatePresent(LOC_BTN_REQUEST_CERTIFICATE);
 	    click(LOC_BTN_REQUEST_CERTIFICATE);
-	    
+
+
+        waitForElement(LOC_TEXT_CERT_HEADER);
 	    validatePresent(LOC_TEXT_CERT_HEADER);
 		validatePresent(LOC_TEXT_PKIX_LABEL);
+
 		
+		String certAsPem = getText(LOC_TA_DOWNLOAD_CERT_CONTENT);
+		System.out.println("PEM cert = \n" + certAsPem );
+		
+	    X509Certificate newCert = CryptoUtil.convertPemToCertificate(certAsPem);
+	    
+	    boolean match = equalsIgnoreOrdering(subjectPrincipal, new X500Principal(newCert.getSubjectDN().toString()));
+	    assertTrue("Expect cert's subject to be as requested (ignoring order)", match);
+	    
 		validatePresent(LOC_SEL_REVOCATION_REASON);
 	    selectOptionByText(LOC_SEL_REVOCATION_REASON, "superseded");
 
 	    click(LOC_BTN_WITHDRAW_CERTIFICATE);
-		
+
+	    // waiting for the form to rebuild ...
+		validatePresent(LOC_TA_UPLOAD_CONTENT);
+	    
+		click(LOC_LNK_CERTIFICATES_MENUE);
+
+	    // select the certificate in the cert list
+	    validatePresent(LOC_SEL_CERT_ATTRIBUTE);
+	    selectOptionByText(LOC_SEL_CERT_ATTRIBUTE, "subject");
+	    
+	    validatePresent(LOC_SEL_CERT_CHOICE);
+	    
+	    selectOptionByText(LOC_SEL_CERT_CHOICE, "EQUAL");
+
+	    validatePresent(LOC_INP_CERT_VALUE);
+	    setText(LOC_INP_CERT_VALUE, cn);
+
+	    By byCertSubject = By.xpath("//table//td [contains(text(), '"+cn+"')]");
+	    validatePresent(byCertSubject);
+	    click(byCertSubject);
+
+	    validatePresent(LOC_TEXT_CERT_REVOCATION_REASON);
+	    
+/*		
 		try {
 			System.in.read();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+*/		
+	}
+
+	@Test
+	public void testCSRSubmitRACheck() throws GeneralSecurityException, IOException {
+
+		signIn(USER_NAME_USER, USER_PASSWORD_USER);
 		
+		validatePresent(LOC_LNK_REQ_CERT_MENUE);
+		click(LOC_LNK_REQ_CERT_MENUE);
+		
+		validatePresent(LOC_TA_UPLOAD_CONTENT);
+		
+		String cn = "reqTest" + System.currentTimeMillis();
+	    String subject = "CN=" + cn + ", O=trustable Ltd, C=DE";
+	    X500Principal subjectPrincipal = new X500Principal(subject);
+	    String csr = buildCSRAsPEM(subjectPrincipal);
+        setLongText(LOC_TA_UPLOAD_CONTENT, csr);
+        
+	    validatePresent(LOC_TEXT_CONTENT_TYPE);
+	    
+	    validatePresent(LOC_SEL_PIPELINE);
+	    
+	    selectOptionByText(LOC_SEL_PIPELINE, PipelineTestConfiguration.PIPELINE_NAME_WEB_RA_ISSUANCE);
+	    
+	    validatePresent(LOC_BTN_REQUEST_CERTIFICATE);
+	    click(LOC_BTN_REQUEST_CERTIFICATE);
+	    
+	    validatePresent(LOC_TEXT_CSR_HEADER);
+		
+	    // switch to RA officer role
+		signIn(USER_NAME_RA, USER_PASSWORD_RA);
+
+	    validatePresent(LOC_LNK_REQUESTS_MENUE);
+	    click(LOC_LNK_REQUESTS_MENUE);
+		
+	    validatePresent(LOC_TEXT_REQUEST_LIST);
+
+	    validatePresent(LOC_SEL_CSR_ATTRIBUTE);
+	    selectOptionByText(LOC_SEL_CSR_ATTRIBUTE, "subject");
+	    
+	    validatePresent(LOC_SEL_CSR_CHOICE);
+	    
+	    selectOptionByText(LOC_SEL_CSR_CHOICE, "EQUAL");
+
+	    validatePresent(LOC_INP_CSR_VALUE);
+	    setText(LOC_INP_CSR_VALUE, cn);
+
+	    validatePresent(LOC_TD_CSR_ITEM_PENDING);
+	    click(LOC_TD_CSR_ITEM_PENDING);
+
+	    validatePresent(LOC_TEXT_CSR_HEADER);
+
+	    By bySubject = By.xpath("//div//dl/dd/span [contains(text(), '"+cn+"')]");
+	    validatePresent(bySubject);
+	    
+	    validatePresent(LOC_BTN_CONFIRM_REQUEST);
+	    click(LOC_BTN_CONFIRM_REQUEST);
+	    
+	    validatePresent(LOC_TEXT_REQUEST_LIST);
+
+		signIn(USER_NAME_USER, USER_PASSWORD_USER);
+
+		click(LOC_LNK_CERTIFICATES_MENUE);
+
+	    validatePresent(LOC_TEXT_CERTIFICATE_LIST);
+
+
+	    validatePresent(LOC_SEL_CERT_ATTRIBUTE);
+	    selectOptionByText(LOC_SEL_CERT_ATTRIBUTE, "subject");
+	    
+	    validatePresent(LOC_SEL_CERT_CHOICE);
+	    
+	    selectOptionByText(LOC_SEL_CERT_CHOICE, "EQUAL");
+
+	    validatePresent(LOC_INP_CERT_VALUE);
+	    setText(LOC_INP_CERT_VALUE, cn);
+
+	    By byCertSubject = By.xpath("//table//td [contains(text(), '"+cn+"')]");
+	    validatePresent(byCertSubject);
+	    click(byCertSubject);
+	    
+	    validatePresent(LOC_TEXT_CERT_HEADER);
+		validatePresent(LOC_TEXT_PKIX_LABEL);
+		
+/*
+		try {
+			System.in.read();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+*/
+
 	}
 
 	private void signIn(final String user, final String password) {
+		
+		if( isPresent(LOC_TXT_WEBPACK_ERROR) ) {
+			System.err.println(
+					"###########################################################\n"+
+					"Startup failed, webpack missing. Please build full package.\n"+
+			        "###########################################################\n");
+		}
 		
 		validatePresent(LOC_LNK_ACCOUNT_MENUE);
 		

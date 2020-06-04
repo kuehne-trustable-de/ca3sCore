@@ -7,6 +7,7 @@ import java.security.Key;
 import java.security.KeyStore;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -19,6 +20,7 @@ import org.bouncycastle.util.encoders.DecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -32,6 +34,7 @@ import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
+import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.web.rest.data.PKCSDataType;
 import de.trustable.ca3s.core.web.rest.data.Pkcs10RequestHolderShallow;
 import de.trustable.ca3s.core.web.rest.data.PkcsXXData;
@@ -57,6 +60,9 @@ public class CSRContentProcessor {
 
 	@Autowired
 	private CertificateRepository certificateRepository;
+
+	@Autowired
+	private CertificateUtil certUtil;
 
 
     /**
@@ -108,11 +114,15 @@ public class CSRContentProcessor {
 				Pkcs10RequestHolderShallow p10ReqHolderShallow = new Pkcs10RequestHolderShallow( p10ReqHolder);
 				
 				p10ReqData = new PkcsXXData(p10ReqHolderShallow);
-				// no information leakage to the outside if not authenticated
+				// no information leakage to the outside: check authentication
 				if( auth.isAuthenticated()) {
 					List<CSR> csrList = csrRepository.findByPublicKeyHash(p10ReqHolder.getPublicKeyHash());
 					LOG.debug("public key with hash '{}' used in #{} csrs, yet", p10ReqHolder.getPublicKeyHash(), csrList.size());
 					p10ReqData.setCsrPublicKeyPresentInDB(!csrList.isEmpty());
+					
+					
+					List<Certificate> candidates = certUtil.findReplaceCandidates(p10ReqData.getP10Holder().getSans());
+					p10ReqData.setReplacementCandidates(candidates);
 				}
 
 			} catch (IOException | GeneralSecurityException e2) {
@@ -171,7 +181,7 @@ public class CSRContentProcessor {
 					p10ReqData.setDataType(PKCSDataType.CONTAINER);
 
 				} catch( IOException ioe) {
-					// not able to process, presumable passphrase required ...
+					// not able to process, presumably passphrase required ...
 					p10ReqData.setPassphraseRequired(true);
 					p10ReqData.setDataType(PKCSDataType.CONTAINER_REQUIRING_PASSPHRASE);
 					LOG.debug("p12 missing a passphrase:", ioe);
@@ -188,6 +198,5 @@ public class CSRContentProcessor {
 
 		return new ResponseEntity<PkcsXXData>(p10ReqData, HttpStatus.OK);
 	}
-
 
 }

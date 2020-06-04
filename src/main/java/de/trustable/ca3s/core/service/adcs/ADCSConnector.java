@@ -178,7 +178,7 @@ public class ADCSConnector {
 	 * 
 	 * @return the freshly created certificate, already stored in the database
 	 * 
-	 * @throws GeneralSecurityException soemthing went wrong, e.g. a rejection of the CSR. The status of the CSR is updated accordingly.
+	 * @throws GeneralSecurityException something went wrong, e.g. a rejection of the CSR. The status of the CSR is updated accordingly.
 	 */
 	public Certificate signCertificateRequest(CSR csr, CAConnectorConfig config) throws GeneralSecurityException {
 
@@ -284,11 +284,12 @@ public class ADCSConnector {
 			csr.setStatus(CsrStatus.PENDING);
 			
 			throw new GeneralSecurityException("adcs connector caused IOException", ioex);
+			
+		}finally {
+			csr.setCsrAttributes(csrAttrs);
+			csrRepository.save(csr);
 		}
-
-		csr.setCsrAttributes(csrAttrs);
-		csrRepository.save(csr);
-
+		
 		LOGGER.debug("returning certDao : " + certDao.getId());
 
 		return (certDao);
@@ -350,9 +351,79 @@ public class ADCSConnector {
 	 * @throws OODBConnectionsACDSException
 	 * @throws ACDSProxyUnavailableException
 	 */
-	public int retrieveCertificates(CAConnectorConfig config) throws OODBConnectionsACDSException, ACDSProxyUnavailableException {
+	public int retrieveCertificatesOffsetOnly(CAConnectorConfig config) throws OODBConnectionsACDSException, ACDSProxyUnavailableException {
 
 		LOGGER.debug("in retrieveCertificates");
+
+		int limit = 100;
+
+		int pollingOffset = config.getPollingOffset();
+		
+		ADCSWinNativeConnector adcsConnector = getConnector(config);
+
+		try {
+			
+			String info = adcsConnector.getInfo();
+
+			List<String> newReqIdList = adcsConnector.getRequesIdList(pollingOffset, limit);
+			if (newReqIdList.isEmpty()) {
+				LOGGER.debug("no certificates retrieved at request offset {} at ca '{}'", pollingOffset, info);
+			}
+
+			for (String reqId : newReqIdList) {
+				pollingOffset = Integer.parseInt(reqId);
+
+//				LOGGER.debug("certRepository {}, info '{}', reqId {}", certRepository, info, reqId );
+
+				List<Certificate> certDaoList = certificateRepository.findBySearchTermNamed2(
+						CertificateAttribute.ATTRIBUTE_PROCESSING_CA, info,
+						CertificateAttribute.ATTRIBUTE_CA_PROCESSING_ID, reqId);
+
+				if (certDaoList.isEmpty()) {
+					importCertificate(adcsConnector, info, reqId, config);
+
+				} else {
+					LOGGER.debug("certificate with requestID '{}' from ca '{}' alreeady present", reqId, info);
+				}
+			}
+
+		} catch (OODBConnectionsACDSException oodbc) {
+			throw oodbc;
+		} catch (ACDSProxyUnavailableException pue) {
+			throw pue;
+		} catch (ACDSException e) {
+			LOGGER.info("polling certificate list starting from {} with a limit of {} causes {}", pollingOffset,
+					limit, e.getLocalizedMessage());
+			LOGGER.warn("ACDSException : ", e);
+		}
+
+		int nNewCerts = (pollingOffset - config.getPollingOffset());
+		
+		if( nNewCerts > 0 ) {
+			config.setPollingOffset(pollingOffset);
+		}
+
+		return nNewCerts;
+	}
+
+
+	/**
+	 * Try to retrieve new certificates added since the last call. This method is usually called by a timer.
+	 * A chunk of certificates starting with a given offset will be requested. If there are new certificates available (with a ADCS request id greater than the offset)
+	 * the content of these new certificates will be retrieved in distinct calls and stored in the internal database. The highest request ID will be stored as starting 
+	 * offset for subsequent calls. 
+	 * The number of certificates is limited to avoid blocking the calling cron job.  
+	 *  
+	 * @param config the connection data identifying an ADCS instance
+	 * 
+	 * @return the number in imported certificates
+	 * 
+	 * @throws OODBConnectionsACDSException
+	 * @throws ACDSProxyUnavailableException
+	 */
+	public int retrieveCertificates(CAConnectorConfig config) throws OODBConnectionsACDSException, ACDSProxyUnavailableException {
+
+		LOGGER.debug("in retrieveCertificates by 'resolvedWhen'");
 
 		int limit = 100;
 

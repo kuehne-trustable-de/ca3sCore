@@ -308,41 +308,6 @@ public class ACMECertificateController extends ACMEController {
 	}
 
 	
-    /**
-     * 
-     * @param orderDao
-     * @return
-     * @throws Exception 
-     * @throws IOException
-     */
-/*	
-	private void startCertificateCreationProcess(Certificate certDao, final String reason)  {
-		
-		
-		ProcessDefinitionData pdd = processHandler.getProcessDefinitionDataByKey("ImmediateCertificateRevocation");
-		StartFormDataVO sfdVO = processHandler.getFormData(pdd.getId());
-		for (FormPropertyVO formPropertyVO : sfdVO.getListFormProperty()) {
-			
-			if ("certificateId".equalsIgnoreCase(formPropertyVO.getName())) {
-				formPropertyVO.setValue(Long.toString(certDao.getCertificateId()));
-			}
-		}
-		
-		ProcessInstance pi = processHandler.startProcessInstance(sfdVO);
-
-		java.util.Map<String, Object> procVars = pi.getProcessVariables();
-
-		String status = (String) procVars.get("status");
-		if ("Revoked".equals(status)) {
-
-			LOG.debug("certificate id {} revoked by ACME call", certDao.getCertificateId());
-			
-		} else {
-			LOG.warn("revocation of certificate id {} by ACME call failed with status {}", certDao.getCertificateId(), status);
-		}
-	}
-*/
-	
 	private void revokeCertificate(Certificate certDao, final String reason) throws Exception {
 		
 

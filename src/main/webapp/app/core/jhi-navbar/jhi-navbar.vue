@@ -49,7 +49,28 @@
                         <span v-text="$t('global.menu.requests')">Requests</span>
                     </span>
                 </b-nav-item>
-                
+
+                <b-nav-item-dropdown
+                    id="config-menu"
+                    v-if="authenticated"
+                    active-class="active" class="pointer">
+
+                    <span slot="button-content" class="navbar-dropdown-menu">
+                        <font-awesome-icon icon="th-list" />
+                        <span v-text="$t('global.menu.config.main')">Config</span>
+                    </span>
+
+                    <b-dropdown-item to="/ca-connector-config">
+                        <font-awesome-icon icon="asterisk" />
+                        <span v-text="$t('global.menu.config.caConnectorConfig')">CAConnectorConfig</span>
+                    </b-dropdown-item>
+
+                    <b-dropdown-item to="/confPipeline">
+                        <font-awesome-icon icon="asterisk" />
+                        <span v-text="$t('global.menu.config.pipeline')">Pipeline</span>
+                    </b-dropdown-item>
+                </b-nav-item-dropdown>
+
                 <b-nav-item-dropdown
                     id="entity-menu"
                     v-if="authenticated"

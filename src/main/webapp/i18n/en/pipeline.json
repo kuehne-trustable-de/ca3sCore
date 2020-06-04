@@ -7,6 +7,35 @@
         "createOrEditLabel": "Create or edit a Pipeline",
         "notFound": "No Pipelines found"
       },
+      "c": {
+        "cardinality": "Cardinality 'C'"
+      },
+      "cn": {
+        "cardinality": "Cardinality 'CN'"
+      },
+      "o": {
+        "cardinality": "Cardinality 'O'"
+      },
+      "ou": {
+        "cardinality": "Cardinality 'OU'"
+      },
+      "s": {
+        "cardinality": "Cardinality 'ST'"
+      },
+      "l": {
+        "cardinality": "Cardinality 'L'"
+      },
+      "template": "Template",
+      "regExMatch": "Match as Regular expression",
+      "toPendingOnFailedRestrictions": "Forward failed req. to 'Pending'",
+      "ipAsSubjectAllowed": "IP as Subject Allowed",
+      "ipAsSanAllowed": "IP as SAN Allowed",
+      "allowChallengeHTTP01": "Challenge HTTP01",
+      "allowChallengeDNS": "Challenge DNS",
+      "allowWildcards": "Allow Wildcards",
+      "checkCAA": "Challenge CAA",
+      "caNameCAA": "CA Name in CAA",
+
       "created": "A new Pipeline is created with identifier {{ param }}",
       "updated": "A Pipeline is updated with identifier {{ param }}",
       "deleted": "A Pipeline is deleted with identifier {{ param }}",

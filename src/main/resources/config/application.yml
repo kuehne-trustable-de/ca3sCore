@@ -162,3 +162,8 @@ win-auth:
 
 # application:
 protectionSecret: ZiNWY1NzA2YjAzZTY2ODJhNWM5MjFjYzZmZTZlMDE4Y
+
+# ===================================================================
+# configure camunda web app, e.g. cockpit
+# ===================================================================
+camunda.bpm.webapp.index-redirect-enabled: false

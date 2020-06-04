@@ -139,10 +139,10 @@
                     </dd-->
                     
                     <dt>
-                        <span v-text="$t('ca3SApp.cSR.csrBase64')">Csr Base 64</span>
+                        <span v-text="$t('ca3SApp.cSR.csrBase64')">Csr Base64</span>
                     </dt>
                     <dd>
-                        <span><textarea class="form-control" name="content" id="comment"
+                        <span><textarea class="form-control pem-content" name="csrContent" id="comment"
 							autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly
                             v-model="cSR.csrBase64" /></span>
 

@@ -121,7 +121,9 @@ export default class CertList extends Vue {
     { itemName: 'signingAlgorithm', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'true', values: ['rsa', 'dsa', 'ecdsa']},
     { itemName: 'paddingAlgorithm', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'true', values: ['pkcs1', 'mgf1']},
     { itemName: 'usage', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'true', values: ['nonRepudiation',
-      'cRLSign', 'keyCertSign', 'digitalSignature', 'keyEncipherment', 'dataEncipherment', 'unspecified', 'keyAgreement']}
+      'cRLSign', 'keyCertSign', 'digitalSignature', 'keyEncipherment', 'dataEncipherment', 'unspecified', 'keyAgreement']},
+    { itemName: 'requestedBy', itemType: 'string', itemDefaultSelector: 'EQUAL', itemDefaultValue: '{user}'}
+
   ];
 
   public selectionChoices: ISelectionChoices [] = [

@@ -30,6 +30,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
+import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.CSR_;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
@@ -672,6 +673,17 @@ public final class CertificateSpecifications {
 		}else if( "revocationReason".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.revocationReason));
 			pred = buildPredicate( attributeSelector, cb, root.<String>get(Certificate_.revocationReason), attributeValue);
+
+		}else if( "requestedBy".equals(attribute)){
+			
+			if( attributeValue.trim().length() > 0 ) {
+				//subquery
+			    Subquery<CSR> csrSubquery = certQuery.subquery(CSR.class);
+			    Root<CSR> csrRoot = csrSubquery.from(CSR.class);
+			    pred = cb.exists(csrSubquery.select(csrRoot)//subquery selection
+	                     .where(cb.and( cb.equal(csrRoot.get(CSR_.CERTIFICATE), root.get(Certificate_.ID)),
+	                    		 buildPredicate( attributeSelector, cb, csrRoot.<String>get(CSR_.requestedBy), attributeValue.toLowerCase()) )));
+			}
 
 		}else{
 			logger.warn("fall-thru clause adding 'true' condition for {} ", attribute);

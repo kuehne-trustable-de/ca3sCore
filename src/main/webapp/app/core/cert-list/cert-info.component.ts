@@ -22,6 +22,18 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
     return url;
   }
 
+  public downloadUrlDER(): string {
+    const url = '/publicapi/certPKIX/' + this.certificateView.id + '/' + this.certificateView.downloadFilename + '.crt';
+    window.console.info('downloadUrlDER() : ' + url);
+    return url;
+  }
+
+  public downloadUrlPEM(): string {
+    const url = '/publicapi/certPEM/' + this.certificateView.id + '/' + this.certificateView.downloadFilename + '.cer';
+    window.console.info('downloadUrlPEM() : ' + url);
+    return url;
+  }
+
   public downloadItem(extension: string, mimetype: string) {
     const url = '/publicapi/cert/' + this.certificateView.id;
     axios.get(url, { responseType: 'blob', headers: { 'Accept': mimetype } })
@@ -30,6 +42,8 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = this.certificateView.downloadFilename + extension;
+        link.type = mimetype;
+    window.console.info('tmp download lnk : ' + link.download);
         link.click();
         URL.revokeObjectURL(link.href);
       }).catch(console.error);
@@ -103,13 +117,15 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
 
       if ( response.status === 201) {
         self.$router.push({name: 'CertInfo', params: {certificateId: response.data.toString()}});
+      } else {
+        self.previousState();
       }
     }).catch(function(error) {
       console.log(error);
+      self.previousState();
     }).then(function() {
       // always executed
       document.body.style.cursor = 'default';
-      self.previousState();
     });
   }
 

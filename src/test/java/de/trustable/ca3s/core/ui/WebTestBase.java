@@ -8,20 +8,26 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import javax.security.auth.x500.X500Principal;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WebTestBase extends LocomotiveBase {
 
 	public static final String SESSION_COOKIE_NAME = "JSESSIONID";
 	public static final String SESSION_COOKIE_DEFAULT_VALUE = "DummyCookieValue";
 
+    private static final Logger LOG = LoggerFactory.getLogger(WebTestBase.class);
+
 	public WebTestBase() {
 		super();
 	}
 
-	public void waitForUrl() {
+	public static void waitForUrl() {
 		for (int i = 0; i < 30; i++) {
 			try {
 				System.out.println("connecting to : " + configuration.url());
@@ -94,6 +100,36 @@ public class WebTestBase extends LocomotiveBase {
 
 		return sessionVal;
 
+	}
+
+	public boolean equalsIgnoreOrdering(final X500Principal p1, final X500Principal p2) {
+
+		if (p1.equals(p2)) {
+			return true;
+		}
+
+		String[] p1Parts = p1.toString().split(",");
+		String[] p2Parts = p2.toString().split(",");
+
+		for (String part : p1Parts) {
+
+			LOG.debug("checking for '" + part + "'");
+
+			boolean match = false;
+			for (String other : p2Parts) {
+				LOG.debug("matching against '" + other + "'");
+				if (other.trim().equalsIgnoreCase(part.trim())) {
+					match = true;
+					break;
+				}
+			}
+			if (!match) {
+				LOG.debug("did not find a match for '" + part + "'");
+				return false;
+			}
+
+		}
+		return true;
 	}
 
 	void setLongText(final By loc, final String text) {

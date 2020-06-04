@@ -67,7 +67,52 @@ public class CertificateDownloadController  {
   	@Autowired
   	private CertificateUtil certUtil;
 
-    
+    /**
+     * Public certificate download endpoint providing DER format
+     *  
+     * @param certId the internal certificate id
+     * @return the binary certificate
+     */
+    @RequestMapping(value = "/certPKIX/{certId}/{filename}", method = GET)
+    public ResponseEntity<?> getCertificatePKIX(@PathVariable final long certId, @PathVariable final String filename) {
+
+		LOG.info("Received certificate download request (PKIX) for id {} as file '{}'", certId, filename);
+    	return buildCertResponseForId(certId, ACMEController.APPLICATION_PKIX_CERT_VALUE);  			
+    }
+
+    /**
+     * Public certificate download endpoint providing PEM format including the certificate chain
+     *  
+     * @param certId the internal certificate id
+     * @return the PEM-encoded certificate chain
+     */
+    @RequestMapping(value = "/certPEMChain/{certId}/{filename}", method = GET)
+    public ResponseEntity<?> getCertificatePEMChain(@PathVariable final long certId, @PathVariable final String filename) {
+
+		LOG.info("Received certificate download request (PEM with chain) for id {} as file '{}'", certId, filename);
+    	return buildCertResponseForId(certId, ACMEController.APPLICATION_PEM_CERT_CHAIN_VALUE);  			
+    }
+
+    /**
+     * Public certificate download endpoint providing PEM format
+     *  
+     * @param certId the internal certificate id
+     * @return the PEM-encoded certificate 
+     */
+    @RequestMapping(value = "/certPEM/{certId}/{filename}", method = GET)
+    public ResponseEntity<?> getCertificatePEM(@PathVariable final long certId, @PathVariable final String filename) {
+
+		LOG.info("Received certificate download request (PEM) for id {} as file '{}'", certId, filename);
+    	return buildCertResponseForId(certId, ACMEController.APPLICATION_PKIX_CERT_VALUE);  			
+    }
+
+    /**
+     * Public certificate download endpoint
+     * 
+     * @param certId the internal certificate id
+     * @param accept the description of the requested format
+     * @return the certificate in the requested encoded form 
+     */
     @RequestMapping(value = "/cert/{certId}", method = GET)
     public ResponseEntity<?> getCertificate(@PathVariable final long certId, 
     		@RequestHeader(name="Accept", defaultValue=ACMEController.APPLICATION_PEM_CERT_CHAIN_VALUE) final String accept) {

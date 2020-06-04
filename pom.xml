@@ -128,7 +128,7 @@
         <junit.itReportFolder>${project.testresult.directory}/integrationTest</junit.itReportFolder>
         <!-- jhipster-needle-maven-property -->
         
-        <cryptoUtilVersion>1.0.7-SNAPSHOT</cryptoUtilVersion>
+        <cryptoUtilVersion>1.1.1</cryptoUtilVersion>
         <certBundleVersion>0.0.4-SNAPSHOT</certBundleVersion>
     	<nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
     	<adcsUtilVersion>1.1.1</adcsUtilVersion>
@@ -148,7 +148,8 @@
 	    <kerberosClientVersion>1.0.1.RELEASE</kerberosClientVersion>
 
 	    <springSecurityLdapVersion>5.3.1.RELEASE</springSecurityLdapVersion>
-
+		<commonsValidatorVersion>1.6</commonsValidatorVersion>
+		
 		<typescriptGeneratorVersion>2.19.577</typescriptGeneratorVersion>
   
         <!-- start-class>camunda.transformation.pipeline.CamundaTransformationPipelineApp</start-class-->
@@ -426,13 +427,7 @@
             <artifactId>spring-security-messaging</artifactId>
         </dependency>
         <!-- jhipster-needle-maven-add-dependency -->
-        
-        <dependency>
-            <groupId>org.camunda.bpm.springboot</groupId>
-            <artifactId>camunda-bpm-spring-boot-starter</artifactId>
-            <!-- camunda-bpm-spring-boot-starter-webapp -->
-            <version>${camunda.spring-boot.version}</version>
-        </dependency>
+
         <dependency>
             <groupId>org.camunda.bpm.springboot</groupId>
             <artifactId>camunda-bpm-spring-boot-starter-rest</artifactId>
@@ -442,13 +437,14 @@
             <groupId>org.camunda.bpm.springboot</groupId>
             <artifactId>camunda-bpm-spring-boot-starter-webapp</artifactId>
             <version>${camunda.spring-boot.version}</version>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>org.camunda.bpm.springboot</groupId>
             <artifactId>camunda-bpm-spring-boot-starter-test</artifactId>
             <version>${camunda.spring-boot.version}</version>
             <scope>test</scope>
-        </dependency-->
+        </dependency>
+        
 
 		<dependency>
   			<groupId>de.trustable.ca3s</groupId>
@@ -540,7 +536,15 @@
 		    <version>${jasyptVersion}</version>
 		</dependency>
    
+		<!-- https://mvnrepository.com/artifact/commons-validator/commons-validator -->
 		<dependency>
+		    <groupId>commons-validator</groupId>
+		    <artifactId>commons-validator</artifactId>
+		    <version>${commonsValidatorVersion}</version>
+		</dependency>
+   
+   <!--  start of test dependencies -->
+   		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
@@ -751,7 +755,8 @@
 					<jsonLibrary>jackson2</jsonLibrary>
 					<classes>
 						<class>de.trustable.ca3s.core.service.util.CAStatus</class>
-						
+											
+						<class>de.trustable.ca3s.core.service.dto.PipelineView</class>
 						<class>de.trustable.ca3s.core.service.dto.CertificateView</class>
 						<class>de.trustable.ca3s.core.service.dto.CSRView</class>
 						<class>de.trustable.ca3s.core.service.dto.Selector</class>
@@ -884,35 +889,22 @@
                 </executions>
             </plugin>
 
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>license-maven-plugin</artifactId>
-        <version>2.0.0</version>
-        <executions>
-          <execution>
-            <id>download-licenses</id>
-            <goals>
-              <goal>download-licenses</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      
-    <!-- plugin>
-      <groupId>org.complykit</groupId>
-      <artifactId>license-check-maven-plugin</artifactId>
-      <version>0.5.3</version>
-      <executions>
-        <execution>
-          <phase>verify</phase>
-          <goals>
-            <goal>os-check</goal>
-          </goals>
-        </execution>
-      </executions>
-    </plugin-->            
-                                
+	      <plugin>
+	        <groupId>org.codehaus.mojo</groupId>
+	        <artifactId>license-maven-plugin</artifactId>
+	        <version>2.0.0</version>
+	        <executions>
+	          <execution>
+	            <id>download-licenses</id>
+	            <goals>
+	              <goal>download-licenses</goal>
+	            </goals>
+	          </execution>
+	        </executions>
+	      </plugin>
+	      
         </plugins>
+        
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -1211,6 +1203,8 @@
                     <version>${maven-failsafe-plugin.version}</version>
                     <configuration>
     					<argLine>-Xmx2048m -Dspring.test.context.cache.maxSize=1</argLine>
+    					
+    					<forkCount>0</forkCount>
     					
                         <!-- Due to spring-boot repackage, without adding this property test classes are not found
                              See https://github.com/spring-projects/spring-boot/issues/6254 -->

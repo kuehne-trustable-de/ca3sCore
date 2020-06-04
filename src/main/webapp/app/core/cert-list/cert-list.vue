@@ -7,20 +7,20 @@
 				<div>Certificate list</div>
 
 				<div v-for="(filter, index) in filters.filterList" :key="index">
-					<select float="left" class="smallSelector fa-1x" v-model="filter.attributeName">
+					<select float="left" class="smallSelector fa-1x" v-model="filter.attributeName" name="certSelectionAttribute">
 						<option v-for="certSelectionItem in certSelectionItems" :key="certSelectionItem.itemName">{{certSelectionItem.itemName}}</option>
 					</select>
 
-					<select float="left" class="smallSelector fa-1x" v-model="filter.selector">
+					<select float="left" class="smallSelector fa-1x" v-model="filter.selector" name="certSelectionChoice">
 						<option v-for="item in getSelectorChoices(filter.attributeName)" :key="item">{{item}}</option>
 					</select>
 
-					<select v-if="getInputType(filter.attributeName) == 'set'" float="left" class="smallSelector fa-1x" v-model="filter.attributeValue">
+					<select v-if="getInputType(filter.attributeName) == 'set'" float="left" class="smallSelector fa-1x" v-model="filter.attributeValue" name="certSelectionSet">
 						<option v-for="item in getValueChoices(filter.attributeName)" :key="item">{{item}}</option>
 					</select>
-					<input type="date" v-else-if="getInputType(filter.attributeName) == 'date'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue"/>
-					<input type="hidden" v-else-if="getInputType(filter.attributeName) == 'boolean'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue"/>
-					<input v-else float="left" class="largeSelector fa-1x" v-model="filter.attributeValue"/>
+					<input type="date" v-else-if="getInputType(filter.attributeName) == 'date'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueDate"/>
+					<input type="hidden" v-else-if="getInputType(filter.attributeName) == 'boolean'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueBoolean"/>
+					<input v-else float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValue"/>
 
 					<button class="addRemoveSelector" float="right" v-if="index == 0" v-on:click="addSelector()">
 						<font-awesome-icon icon="plus"></font-awesome-icon>
@@ -35,7 +35,7 @@
 				<template scope="{ row }">
 					<tr>
 						<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.id }}</td>
-						<td :style="getRevocationStyle(row.revoked)"><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ row.subject }}</router-link></td>
+						<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" :style="getRevocationStyle(row.revoked)">{{ row.subject }}</td>
 						<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.issuer }}</td>
 						<!--td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ row.type }}</router-link></td-->
 						<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.keyLength }}</td>

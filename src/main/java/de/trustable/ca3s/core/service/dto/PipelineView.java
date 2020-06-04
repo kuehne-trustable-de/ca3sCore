@@ -1,0 +1,251 @@
+package de.trustable.ca3s.core.service.dto;
+
+import java.io.Serializable;
+
+import de.trustable.ca3s.core.domain.enumeration.PipelineType;
+
+public class PipelineView implements Serializable {
+
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3936438948802709288L;
+
+    private Long id;
+
+    private String name;
+
+    private PipelineType type;
+
+    private String urlPart;
+
+    private String description;
+
+    private Boolean approvalRequired;
+
+    private String caConnectorName;
+
+    private String processInfoName;
+
+    private RDNRestriction restriction_C;
+    private RDNRestriction restriction_CN;
+    private RDNRestriction restriction_L;
+    private RDNRestriction restriction_O;
+    private RDNRestriction restriction_OU;
+    private RDNRestriction restriction_S;
+
+    private boolean toPendingOnFailedRestrictions = false;
+
+    private boolean ipAsSubjectAllowed = false;
+    private boolean ipAsSANAllowed = false ;
+    
+    private ACMEConfigItems acmeConfigItems;
+    
+    private SCEPConfigItems scepConfigItems;
+    
+    private WebConfigItems webConfigItems;
+    
+
+    public PipelineView() {}
+
+	public Long getId() {
+		return id;
+	}
+
+
+	public String getName() {
+		return name;
+	}
+
+
+	public PipelineType getType() {
+		return type;
+	}
+
+
+	public String getUrlPart() {
+		return urlPart;
+	}
+
+
+	public String getDescription() {
+		return description;
+	}
+
+
+	public Boolean getApprovalRequired() {
+		return approvalRequired;
+	}
+
+
+	public String getCaConnectorName() {
+		return caConnectorName;
+	}
+
+
+	public String getProcessInfoName() {
+		return processInfoName;
+	}
+
+
+	public RDNRestriction getRestriction_C() {
+		return restriction_C;
+	}
+
+
+	public RDNRestriction getRestriction_CN() {
+		return restriction_CN;
+	}
+
+
+	public RDNRestriction getRestriction_L() {
+		return restriction_L;
+	}
+
+
+	public RDNRestriction getRestriction_O() {
+		return restriction_O;
+	}
+
+
+	public RDNRestriction getRestriction_OU() {
+		return restriction_OU;
+	}
+
+
+	public RDNRestriction getRestriction_S() {
+		return restriction_S;
+	}
+
+
+	public boolean isIpAsSubjectAllowed() {
+		return ipAsSubjectAllowed;
+	}
+
+
+	public boolean isIpAsSANAllowed() {
+		return ipAsSANAllowed;
+	}
+
+
+	public ACMEConfigItems getAcmeConfigItems() {
+		return acmeConfigItems;
+	}
+
+
+	public SCEPConfigItems getScepConfigItems() {
+		return scepConfigItems;
+	}
+
+
+	public WebConfigItems getWebConfigItems() {
+		return webConfigItems;
+	}
+
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+
+	public void setType(PipelineType type) {
+		this.type = type;
+	}
+
+
+	public void setUrlPart(String urlPart) {
+		this.urlPart = urlPart;
+	}
+
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+
+	public void setApprovalRequired(Boolean approvalRequired) {
+		this.approvalRequired = approvalRequired;
+	}
+
+
+	public void setCaConnectorName(String caConnectorName) {
+		this.caConnectorName = caConnectorName;
+	}
+
+
+	public void setProcessInfoName(String processInfoName) {
+		this.processInfoName = processInfoName;
+	}
+
+
+	public void setRestriction_C(RDNRestriction restriction_C) {
+		this.restriction_C = restriction_C;
+	}
+
+
+	public void setRestriction_CN(RDNRestriction restriction_CN) {
+		this.restriction_CN = restriction_CN;
+	}
+
+
+	public void setRestriction_L(RDNRestriction restriction_L) {
+		this.restriction_L = restriction_L;
+	}
+
+
+	public void setRestriction_O(RDNRestriction restriction_O) {
+		this.restriction_O = restriction_O;
+	}
+
+
+	public void setRestriction_OU(RDNRestriction restriction_OU) {
+		this.restriction_OU = restriction_OU;
+	}
+
+
+	public void setRestriction_S(RDNRestriction restriction_S) {
+		this.restriction_S = restriction_S;
+	}
+
+
+	public void setIpAsSubjectAllowed(boolean ipAsSubjectAllowed) {
+		this.ipAsSubjectAllowed = ipAsSubjectAllowed;
+	}
+
+
+	public void setIpAsSANAllowed(boolean ipAsSANAllowed) {
+		this.ipAsSANAllowed = ipAsSANAllowed;
+	}
+
+
+	public void setAcmeConfigItems(ACMEConfigItems acmeConfigItems) {
+		this.acmeConfigItems = acmeConfigItems;
+	}
+
+
+	public void setScepConfigItems(SCEPConfigItems scepConfigItems) {
+		this.scepConfigItems = scepConfigItems;
+	}
+
+
+	public void setWebConfigItems(WebConfigItems webConfigItems) {
+		this.webConfigItems = webConfigItems;
+	}
+
+	public boolean isToPendingOnFailedRestrictions() {
+		return toPendingOnFailedRestrictions;
+	}
+
+	public void setToPendingOnFailedRestrictions(boolean toPendingOnFailedRestrictions) {
+		this.toPendingOnFailedRestrictions = toPendingOnFailedRestrictions;
+	}
+
+	
+
+}

@@ -9,6 +9,11 @@
       "requests": "Requests",
       "certificates": "Certificates",
       "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
+      "config": {
+        "main": "Config",
+        "caConnectorConfig": "CA Connector Config",
+        "pipeline": "Pipeline"
+      },
       "entities": {
         "main": "Entities",
         "caConnectorConfig": "CA Connector Config",

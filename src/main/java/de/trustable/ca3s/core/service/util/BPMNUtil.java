@@ -23,7 +23,10 @@ import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.enumeration.BPNMProcessType;
+import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.BPNMProcessInfoRepository;
+import de.trustable.ca3s.core.repository.CSRRepository;
+import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.util.CryptoUtil;
 
 @Service
@@ -49,6 +52,12 @@ public class BPMNUtil{
 	@Autowired
     private BPNMProcessInfoRepository bpnmInfoRepo;
 
+	@Autowired
+	private CSRRepository csrRepository;
+	
+	@Autowired
+	private CertificateRepository certRepository;
+	
 	
 	public List<ProcessDefinition> getProcessDefinitions(){
 		
@@ -107,6 +116,7 @@ public class BPMNUtil{
 			caConfig = csr.getPipeline().getCaConnector();
 			pi = csr.getPipeline().getProcessInfo();
 		}
+
 		return startCertificateCreationProcess(csr, caConfig, pi);
 	}
 	
@@ -169,20 +179,25 @@ public class BPMNUtil{
 					failureReason = e.getLocalizedMessage();
 					LOG.error(failureReason);
 				}
-
 			}
-				
 		} else {
 			failureReason = "no default and active CA configured";
 			LOG.error(failureReason);
 		} 
 		
-
 		// end of BPMN call
 		
 		if ("Created".equals(status)) {
 
 			if( certificate != null) {
+				
+				certificate.setCsr(csr);
+				certRepository.save(certificate);
+				
+				csr.setCertificate(certificate);
+				csr.setStatus(CsrStatus.ISSUED);
+				csrRepository.save(csr);
+				
 				LOG.debug("new certificate id {} created by BPMN process {}", certificate.getId(), processInstanceId);
 				return certificate;
 			}else {

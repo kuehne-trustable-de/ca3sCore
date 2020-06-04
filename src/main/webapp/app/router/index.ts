@@ -30,6 +30,14 @@ const JhiAuditsComponent = () => import('../admin/audits/audits.vue');
 const JhiMetricsComponent = () => import('../admin/metrics/metrics.vue');
 const JhiTrackerComponent = () => import('../admin/tracker/tracker.vue');
 /* tslint:disable */
+
+// prettier-ignore
+const ConfPipeline = () => import('../core/pipeline/pipeline.vue');
+// prettier-ignore
+const ConfPipelineUpdate = () => import('../core/pipeline/pipeline-update.vue');
+// prettier-ignore
+const ConfPipelineDetails = () => import('../core/pipeline/pipeline-details.vue');
+
 // prettier-ignore
 const CAConnectorConfig = () => import('../entities/ca-connector-config/ca-connector-config.vue');
 // prettier-ignore
@@ -258,6 +266,47 @@ export default new Router({
       component: CsrInfo,
       meta: { authorities: ['ROLE_USER', 'ROLE_RA', 'ROLE_ADMIN'] }
     },
+
+
+    {
+      path: '/csr-info',
+      name: 'CsrInfo',
+      component: CsrInfo,
+      meta: { authorities: ['ROLE_USER', 'ROLE_RA', 'ROLE_ADMIN'] }
+    },
+
+    {
+      path: '/confPipeline',
+      name: 'ConfPipeline',
+      component: ConfPipeline,
+      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
+    },
+    {
+      path: '/confPipeline/new',
+      name: 'ConfPipelineCreate',
+      component: ConfPipelineUpdate,
+      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
+    },
+    {
+      path: '/confPipeline/:pipelineId/edit',
+      name: 'ConfPipelineEdit',
+      component: ConfPipelineUpdate,
+      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
+    },
+    {
+      path: '/confPipeline/:pipelineId/view',
+      name: 'ConfPipelineView',
+      component: ConfPipelineDetails,
+      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
+    },
+    {
+      path: '/confPipeline/:pipelineId/view',
+      name: 'ConfPipelineView',
+      component: ConfPipelineDetails,
+      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
+    }
+    ,
+
     {
       path: '/account/password',
       name: 'ChangePassword',

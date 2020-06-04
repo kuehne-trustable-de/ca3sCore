@@ -113,13 +113,15 @@ export default class CsrInfo extends mixins(JhiDataUtils) {
 
       if ( response.status === 201) {
         self.$router.push({name: 'CertInfo', params: {certificateId: response.data.toString()}});
+      } else {
+        self.previousState();
       }
     }).catch(function(error) {
       console.log(error);
+      self.previousState();
     }).then(function() {
       // always executed
       document.body.style.cursor = 'default';
-      self.previousState();
     });
   }
 }

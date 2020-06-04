@@ -13,20 +13,22 @@ import java.util.function.Consumer;
 
 import org.junit.Rule;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.rules.TemporaryFolder;
 import org.shredzone.acme4j.exception.AcmeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ContextConfiguration;
 
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.CaConfigTestConfiguration;
+import de.trustable.ca3s.core.PipelineTestConfiguration;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(classes=CaConfigTestConfiguration.class)
 public class ClientCertBotIT {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClientCertBotIT.class);
@@ -51,6 +53,20 @@ public class ClientCertBotIT {
 		logFolder= folder.newFolder("log");
 	}
 
+	final String ACME_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM + "/directory";
+	String dirUrl;
+
+	@Autowired
+	PipelineTestConfiguration ptc;
+	
+	
+	@BeforeEach
+	void init() {
+		dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
+		ptc.getInternalACMETestPipelineLaxRestrictions();
+		
+	}
+
 
 	@Test
 	public void testAccountHandling() throws AcmeException {
@@ -61,8 +77,6 @@ public class ClientCertBotIT {
 		if (isWindows) {
 		    LOG.info("certbot test no available on Windows");
 		} else {
-
-			String dirUrl = "http://localhost:" + serverPort + "/acme/foo/directory";
 
 		    builder.command("certbot", "certonly",  "-n", "-v", "--debug", "--agree-tos", 
 		    		"--server", dirUrl,

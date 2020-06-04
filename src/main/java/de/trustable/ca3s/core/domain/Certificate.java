@@ -99,6 +99,20 @@ import java.util.Set;
         " c.revoked = FALSE " +
         " GROUP BY c.keyLength ORDER BY c.keyLength ASC"
     ),
+
+    @NamedQuery(name = "Certificate.findActiveCertificatesBySANs",
+    query = "SELECT c as total FROM Certificate c " +
+    	" JOIN c.certificateAttributes certAtt " +
+    	" WHERE " +
+        " c.validTo >= :now and " +
+        " c.validFrom <= :now and " +
+        " c.revoked = FALSE and " +
+        " ( certAtt.name = 'TYPED_SAN' or certAtt.name = 'TYPED_VSAN') and " +
+        " certAtt.value in :sans " +
+        " group by c " +
+        " order by count(certAtt) desc"
+    ),
+    
     @NamedQuery(name = "Certificate.findInactiveCertificatesByValidFrom",
     query = "SELECT c FROM Certificate c WHERE " +
         "c.validFrom >= :now and " +

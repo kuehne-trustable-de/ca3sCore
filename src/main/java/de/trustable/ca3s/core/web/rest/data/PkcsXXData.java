@@ -1,5 +1,7 @@
 package de.trustable.ca3s.core.web.rest.data;
 
+import java.util.List;
+
 import javax.annotation.concurrent.Immutable;
 
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -42,6 +44,12 @@ public class PkcsXXData {
 	@JsonProperty("createdCSRId")
 	private String createdCSRId;
 
+	@JsonProperty("messages")
+	private String[] messages;
+
+	@JsonProperty("replacementCandidates")
+	CertificateNameId[] replacementCandidates;
+	
 	
 	public PkcsXXData() {
 	}
@@ -50,7 +58,7 @@ public class PkcsXXData {
 		
 		setDataType(PKCSDataType.X509_CERTIFICATE_CREATED);
 		X509CertificateHolderShallow[] x509HolderArr = new X509CertificateHolderShallow[1];
-		x509HolderArr[0] =	new X509CertificateHolderShallow(certHolder);
+		x509HolderArr[0] = new X509CertificateHolderShallow(certHolder);
 		x509HolderArr[0].setCertificateId(cert.getId());
 		x509HolderArr[0].setCertificatePresentInDB(true);
 		setCertsHolder( x509HolderArr);
@@ -144,4 +152,31 @@ public class PkcsXXData {
 		this.createdCSRId = createdCSRId;
 	}
 
+	public String[] getMessages() {
+		return messages;
+	}
+
+	public void setMessages(String[] messages) {
+		this.messages = messages;
+	}
+
+	public CertificateNameId[] getReplacementCandidates() {
+		return replacementCandidates;
+	}
+
+	public void setReplacementCandidates(CertificateNameId[] replacementCandidates) {
+		this.replacementCandidates = replacementCandidates;
+	}
+
+	public void setReplacementCandidates(List<Certificate> candidates) {
+		
+		this.replacementCandidates = new CertificateNameId[candidates.size()];
+		int i = 0;
+		for( Certificate cert: candidates) {
+			this.replacementCandidates[i++] = new CertificateNameId(cert);
+		}
+	}
+
+	
+	
 }

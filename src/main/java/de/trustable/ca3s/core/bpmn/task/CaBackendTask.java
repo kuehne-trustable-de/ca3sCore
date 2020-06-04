@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
@@ -170,9 +171,14 @@ public class CaBackendTask implements JavaDelegate {
 				
 				Certificate cert = caConnAdapter.signCertificateRequest(csr, caConfig);
 				
-				cert.setCreationExecutionId(execution.getProcessInstanceId());
-
-				LOGGER.debug("certificateId " + cert.getId());
+    			if(cert != null) {
+    				cert.setCreationExecutionId(execution.getProcessInstanceId());
+    				certificateRepository.save(cert);       			
+    				LOGGER.debug("certificateId " + cert.getId());
+    			}else {
+    				LOGGER.warn("ceated certificate for csr #" + csr.getId() + " == null!");
+    			}
+    			
 
 				execution.setVariable("certificateId", cert.getId());
 				execution.setVariable("certificate", cert);

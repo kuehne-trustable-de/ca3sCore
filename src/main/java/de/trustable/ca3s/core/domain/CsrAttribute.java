@@ -118,10 +118,12 @@ public class CsrAttribute implements Serializable {
 
 	public static final String REQUESTOR_SCEP = "REQUESTOR_SCEP";
 
-	public static final String ATTRIBUTE_TYPED_SAN = "TYPED_SAN";
-
 	public static final String ATTRIBUTE_SAN = "SAN";
+	public static final String ATTRIBUTE_TYPED_SAN = "TYPED_SAN";
+	public static final String ATTRIBUTE_TYPED_VSAN = "TYPED_VSAN";
+
 
 	public static final String ATTRIBUTE_FAILURE_INFO = "REJECTION_INFO";
+
 
 }

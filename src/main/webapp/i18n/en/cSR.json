@@ -16,7 +16,7 @@
       "detail": {
         "title": "CSR"
       },
-      "csrBase64": "Csr Base 64",
+      "csrBase64": "Csr Base64",
       "subject": "Subject",
       "sans": "Sans",
       "requestedOn": "Requested On",
@@ -36,7 +36,7 @@
       "keyLength": "Key Length",
       "publicKeyHash": "Public Key Hash",
       "serversideKeyGeneration": "Serverside Key Generation",
-      "subjectPublicKeyInfoBase64": "Subject Public Key Info Base 64",
+      "subjectPublicKeyInfoBase64": "Subject Public Key Info Base64",
       "requestorComment": "Requestor Comment",
       "administrationComment": "Administration Comment",
       "rdns": "Rdns",

@@ -376,7 +376,7 @@ public class CSRResourceIT {
         // Get all the cSRList
         restCSRMockMvc.perform(get("/api/csrs?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE ))
             .andExpect(jsonPath("$.[*].id").value(hasItem(cSR.getId().intValue())))
             .andExpect(jsonPath("$.[*].csrBase64").value(hasItem(DEFAULT_CSR_BASE_64.toString())))
             .andExpect(jsonPath("$.[*].subject").value(hasItem(DEFAULT_SUBJECT)))
@@ -412,7 +412,7 @@ public class CSRResourceIT {
         // Get the cSR
         restCSRMockMvc.perform(get("/api/csrs/{id}", cSR.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(cSR.getId().intValue()))
             .andExpect(jsonPath("$.csrBase64").value(DEFAULT_CSR_BASE_64.toString()))
             .andExpect(jsonPath("$.subject").value(DEFAULT_SUBJECT))

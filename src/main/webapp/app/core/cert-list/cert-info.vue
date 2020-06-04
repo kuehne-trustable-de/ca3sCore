@@ -99,11 +99,11 @@
 						</ul>
 					</dd>
 
-                    <dt>
+                    <dt v-if="certificateView.extUsage && certificateView.extUsage.length > 0">
                         <span v-text="$t('ca3SApp.certificate.extended.usage')">Usage</span>
                     </dt>
-					<dd>
-						<ul v-if="certificateView.extUsage && certificateView.extUsage.length > 0">
+					<dd v-if="certificateView.extUsage && certificateView.extUsage.length > 0">
+						<ul>
 							<li v-for="extUsage in certificateView.extUsage" :key="extUsage" >{{extUsage}}</li>
 						</ul>
 					</dd>
@@ -124,7 +124,7 @@
                         <span v-text="$t('ca3SApp.certificate.revocationReason')">Revocation Reason</span>
                     </dt>
                     <dd v-if="certificateView.revoked">
-                        <span>{{certificateView.revocationReason}}</span>
+                        <span name="revocationReason">{{certificateView.revocationReason}}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.fingerprint')">Fingerprint</span>
@@ -149,12 +149,27 @@
                         </div>
                     </dd-->
 
+                    <dt v-if="certificateView.requestedBy">
+                        <span v-text="$t('ca3SApp.certificate.requestedBy')">Requested by</span>
+                    </dt>
+                    <dd v-if="certificateView.requestedBy">
+                        <span>{{certificateView.requestedBy}}</span>
+                    </dd>
+
+                    <dt v-if="certificateView.requestedOn">
+                        <span v-text="$t('ca3SApp.certificate.requestedOn')">Requested on</span>
+                    </dt>
+                    <dd v-if="certificateView.requestedOn">
+                        <span>{{certificateView.requestedOn}}</span>
+                    </dd>
+
                     <dt v-if="certificateView.subject">
                         <span v-text="$t('ca3SApp.certificate.download.pkix')">Pkix</span>
                     </dt>
                     <dd v-if="certificateView.subject">
                         <div>
                             <a href="downloadUrl" @click.prevent="downloadItem('.crt', 'application/pkix-cert')" >{{certificateView.downloadFilename}}.crt</a>
+                            <!--a :href="downloadUrlDER()" >{{certificateView.downloadFilename}}.crt</a-->
                         </div>
                     </dd>
                     <dt v-if="certificateView.subject">
@@ -163,9 +178,19 @@
                     <dd v-if="certificateView.subject">
                         <div>
                             <a href="downloadUrl" @click.prevent="downloadItem('.cer', 'application/pem-certificate')" >{{certificateView.downloadFilename}}.cer</a>
+                            <!--a :href="downloadUrlPEM()" >{{certificateView.downloadFilename}}.cer</a-->
                         </div>
                     </dd>
 
+                    <dt>
+                        <span v-text="$t('ca3SApp.certificate.csrBase64')">Csr Base64</span>
+                    </dt>
+                    <dd>
+                        <span><textarea class="form-control pem-content" name="certContent" id="comment"
+							autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly
+                            v-model="certificateView.certB64" /></span>
+
+                    </dd>
 
                 </dl>
             </div>

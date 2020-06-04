@@ -1,24 +1,23 @@
 package de.trustable.ca3s.core;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.domain.Example;
+import org.springframework.stereotype.Service;
 
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
+import de.trustable.ca3s.core.domain.enumeration.RDNCardinalityRestriction;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
+import de.trustable.ca3s.core.service.dto.PipelineView;
+import de.trustable.ca3s.core.service.dto.RDNRestriction;
+import de.trustable.ca3s.core.service.util.PipelineUtil;
 
 
 @Service
@@ -32,12 +31,23 @@ public class PipelineTestConfiguration {
 	public static final String PIPELINE_NAME_WEB_RA_ISSUANCE = "ra issuance";
 
 	private static final String PIPELINE_NAME_ACME = "acme";
+	private static final String PIPELINE_NAME_ACME1CN = "acme1CN";
+	private static final String PIPELINE_NAME_SCEP = "scep";
+	private static final String PIPELINE_NAME_SCEP1CN = "scep1CN";
+
+	public static final String ACME_REALM = "acmeTest";
+	public static final String ACME1CN_REALM = "acmeTest1CN";
+	public static final String SCEP_REALM = "scepTest";
+	public static final String SCEP1CN_REALM = "scepTest1CN";
 
 	@Autowired
 	CAConnectorConfigRepository cacRepo;
 	
 	@Autowired
 	PipelineRepository pipelineRepo;
+	
+	@Autowired
+	PipelineUtil pipelineUtil;
 	
 
 	public CAConnectorConfig internalTestCAC() {
@@ -68,7 +78,7 @@ public class PipelineTestConfiguration {
 	}
 	
 
-	public Pipeline getInternalACMETestPipeline() {
+	public Pipeline getInternalACMETestPipelineLaxRestrictions() {
 
 		Pipeline examplePipeline = new Pipeline();
 		examplePipeline.setName(PIPELINE_NAME_ACME);
@@ -82,17 +92,75 @@ public class PipelineTestConfiguration {
 		}
 		
 
-		Pipeline pipelineACME = new Pipeline();
-		pipelineACME.setApprovalRequired(false);
+		PipelineView pv_LaxRestrictions = new PipelineView();
+    	pv_LaxRestrictions.setRestriction_C(new RDNRestriction());
+		pv_LaxRestrictions.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+    	pv_LaxRestrictions.setRestriction_CN(new RDNRestriction());
+		pv_LaxRestrictions.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+    	pv_LaxRestrictions.setRestriction_L(new RDNRestriction());
+		pv_LaxRestrictions.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+    	pv_LaxRestrictions.setRestriction_O(new RDNRestriction());
+		pv_LaxRestrictions.getRestriction_O().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+    	pv_LaxRestrictions.setRestriction_OU(new RDNRestriction());
+		pv_LaxRestrictions.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
+    	pv_LaxRestrictions.setRestriction_S(new RDNRestriction());
+		pv_LaxRestrictions.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+
 		
-		pipelineACME.setCaConnector(internalTestCAC());
-		pipelineACME.setName(PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
-		pipelineACME.setType(PipelineType.ACME);
-		pipelineACME.setUrlPart("test");
-		pipelineRepo.save(pipelineACME);
-		return pipelineACME;
+		pv_LaxRestrictions.setApprovalRequired(false);
+		
+		pv_LaxRestrictions.setCaConnectorName(internalTestCAC().getName());
+		pv_LaxRestrictions.setName(PIPELINE_NAME_ACME);
+		pv_LaxRestrictions.setType(PipelineType.ACME);
+		pv_LaxRestrictions.setUrlPart(ACME_REALM);
+
+		Pipeline pipelineLaxRestrictions = pipelineUtil.toPipeline(pv_LaxRestrictions);
+		pipelineRepo.save(pipelineLaxRestrictions);
+		return pipelineLaxRestrictions;
+	}
+
+	public Pipeline getInternalACMETestPipeline_1_CN_ONLY_Restrictions() {
+
+		Pipeline examplePipeline = new Pipeline();
+		examplePipeline.setName(PIPELINE_NAME_ACME1CN);
+		Example<Pipeline> example = Example.of(examplePipeline);
+		List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+		
+		if( !existingPLList.isEmpty()) {
+			LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_ACME1CN);
+
+			return existingPLList.get(0);
+		}
+		
+
+		PipelineView pv_1CNRestrictions = new PipelineView();
+    	pv_1CNRestrictions.setRestriction_C(new RDNRestriction());
+		pv_1CNRestrictions.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
+    	pv_1CNRestrictions.setRestriction_CN(new RDNRestriction());
+		pv_1CNRestrictions.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+    	pv_1CNRestrictions.setRestriction_L(new RDNRestriction());
+		pv_1CNRestrictions.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+    	pv_1CNRestrictions.setRestriction_O(new RDNRestriction());
+		pv_1CNRestrictions.getRestriction_O().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+    	pv_1CNRestrictions.setRestriction_OU(new RDNRestriction());
+		pv_1CNRestrictions.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+    	pv_1CNRestrictions.setRestriction_S(new RDNRestriction());
+		pv_1CNRestrictions.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+
+		
+		pv_1CNRestrictions.setApprovalRequired(false);
+		
+		pv_1CNRestrictions.setCaConnectorName(internalTestCAC().getName());
+		pv_1CNRestrictions.setName(PIPELINE_NAME_ACME1CN);
+		pv_1CNRestrictions.setType(PipelineType.ACME);
+		pv_1CNRestrictions.setUrlPart(ACME1CN_REALM);
+
+		Pipeline pipelineLaxRestrictions = pipelineUtil.toPipeline(pv_1CNRestrictions);
+		pipelineRepo.save(pipelineLaxRestrictions);
+		return pipelineLaxRestrictions;
 	}
 	
+
 	public Pipeline getInternalWebDirectTestPipeline() {
 
 		Pipeline examplePipeline = new Pipeline();
@@ -112,6 +180,31 @@ public class PipelineTestConfiguration {
 		
 		pipelineWeb.setCaConnector(internalTestCAC());
 		pipelineWeb.setName(PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
+		pipelineWeb.setType(PipelineType.WEB);
+		pipelineWeb.setUrlPart("test");
+		pipelineRepo.save(pipelineWeb);
+		return pipelineWeb;
+	}
+	
+	public Pipeline getInternalWebRACheckTestPipeline() {
+
+		Pipeline examplePipeline = new Pipeline();
+		examplePipeline.setName(PIPELINE_NAME_WEB_RA_ISSUANCE);
+		Example<Pipeline> example = Example.of(examplePipeline);
+		List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+		
+		if( !existingPLList.isEmpty()) {
+			LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_WEB_RA_ISSUANCE);
+
+			return existingPLList.get(0);
+		}
+		
+
+		Pipeline pipelineWeb = new Pipeline();
+		pipelineWeb.setApprovalRequired(true);
+		
+		pipelineWeb.setCaConnector(internalTestCAC());
+		pipelineWeb.setName(PIPELINE_NAME_WEB_RA_ISSUANCE);
 		pipelineWeb.setType(PipelineType.WEB);
 		pipelineWeb.setUrlPart("test");
 		pipelineRepo.save(pipelineWeb);
@@ -141,5 +234,87 @@ public class PipelineTestConfiguration {
 		pipelineWeb.setUrlPart("test");
 		pipelineRepo.save(pipelineWeb);
 		return pipelineWeb;
+	}
+
+
+	public Pipeline getInternalSCEPTestPipelineLaxRestrictions() {
+		
+		Pipeline examplePipeline = new Pipeline();
+		examplePipeline.setName(PIPELINE_NAME_SCEP);
+		Example<Pipeline> example = Example.of(examplePipeline);
+		List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+		
+		if( !existingPLList.isEmpty()) {
+			LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_SCEP);
+
+			return existingPLList.get(0);
+		}
+		
+		PipelineView pv_LaxRestrictions = new PipelineView();
+    	pv_LaxRestrictions.setRestriction_C(new RDNRestriction());
+		pv_LaxRestrictions.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+    	pv_LaxRestrictions.setRestriction_CN(new RDNRestriction());
+		pv_LaxRestrictions.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+    	pv_LaxRestrictions.setRestriction_L(new RDNRestriction());
+		pv_LaxRestrictions.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+    	pv_LaxRestrictions.setRestriction_O(new RDNRestriction());
+		pv_LaxRestrictions.getRestriction_O().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+    	pv_LaxRestrictions.setRestriction_OU(new RDNRestriction());
+		pv_LaxRestrictions.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
+    	pv_LaxRestrictions.setRestriction_S(new RDNRestriction());
+		pv_LaxRestrictions.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+
+		
+		pv_LaxRestrictions.setApprovalRequired(false);
+		
+		pv_LaxRestrictions.setCaConnectorName(internalTestCAC().getName());
+		pv_LaxRestrictions.setName(PIPELINE_NAME_SCEP);
+		pv_LaxRestrictions.setType(PipelineType.SCEP);
+		pv_LaxRestrictions.setUrlPart(SCEP_REALM);
+
+		Pipeline pipelineLaxRestrictions = pipelineUtil.toPipeline(pv_LaxRestrictions);
+		pipelineRepo.save(pipelineLaxRestrictions);
+		return pipelineLaxRestrictions;
+
+	}
+	
+	public Pipeline getInternalSCEPTestPipelineCN1Restrictions() {
+		
+		Pipeline examplePipeline = new Pipeline();
+		examplePipeline.setName(PIPELINE_NAME_SCEP1CN);
+		Example<Pipeline> example = Example.of(examplePipeline);
+		List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+		
+		if( !existingPLList.isEmpty()) {
+			LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_SCEP1CN);
+
+			return existingPLList.get(0);
+		}
+		
+		PipelineView pv_1CNRestrictions = new PipelineView();
+    	pv_1CNRestrictions.setRestriction_C(new RDNRestriction());
+		pv_1CNRestrictions.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
+    	pv_1CNRestrictions.setRestriction_CN(new RDNRestriction());
+		pv_1CNRestrictions.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+    	pv_1CNRestrictions.setRestriction_L(new RDNRestriction());
+		pv_1CNRestrictions.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+    	pv_1CNRestrictions.setRestriction_O(new RDNRestriction());
+		pv_1CNRestrictions.getRestriction_O().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+    	pv_1CNRestrictions.setRestriction_OU(new RDNRestriction());
+		pv_1CNRestrictions.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+    	pv_1CNRestrictions.setRestriction_S(new RDNRestriction());
+		pv_1CNRestrictions.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+		
+		pv_1CNRestrictions.setApprovalRequired(false);
+		
+		pv_1CNRestrictions.setCaConnectorName(internalTestCAC().getName());
+		pv_1CNRestrictions.setName(PIPELINE_NAME_SCEP1CN);
+		pv_1CNRestrictions.setType(PipelineType.SCEP);
+		pv_1CNRestrictions.setUrlPart(SCEP1CN_REALM);
+
+		Pipeline pipelineLaxRestrictions = pipelineUtil.toPipeline(pv_1CNRestrictions);
+		pipelineRepo.save(pipelineLaxRestrictions);
+		return pipelineLaxRestrictions;
+
 	}
 }

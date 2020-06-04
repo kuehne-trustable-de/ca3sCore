@@ -103,6 +103,12 @@ dl.inlined-elements>div>dt::after {
 	content: " :\00A0"
 }
 
+textarea.pem-content {
+  font-family: monospace;
+  font-size: 0.8rem;
+  height: 10em;
+}
+
 .alert {
 	padding: 10px;
 	margin: 10px 0;

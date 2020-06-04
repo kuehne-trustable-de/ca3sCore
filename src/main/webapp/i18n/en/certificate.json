@@ -41,6 +41,8 @@
       "revocationExecutionId": "Revocation Execution Id",
       "comment": "Comment",
       "administrationComment": "Administration Comment",
+      "requestedBy": "Requested by",
+      "requestedOn": "Requested on",
       "endEntity": "End Entity",
       "selfsigned": "Selfsigned",
       "trusted": "Trusted",
@@ -58,8 +60,8 @@
       "download": {
         "pkix": "PKIX (DER encoded)",
         "pem": "PEM encoded"
-      }
-
+      },
+      "csrBase64": "Certificate PEM"
     }
   }
 }

@@ -72,6 +72,9 @@ public class CAConnectorConfigResource {
 	        cAConnectorConfig.setSecret(null);
 	        cAConnectorConfig.setPlainSecret("");
         }else {	
+        	if( protUtil == null) {
+        		System.err.println("Autowired failed ...");
+        	}
 	        ProtectedContent protSecret = protUtil.createProtectedContent(cAConnectorConfig.getPlainSecret(), ProtectedContentType.PASSWORD, ContentRelationType.CONNECTION, -1L);
 	        protContentRepository.save(protSecret);
 	        cAConnectorConfig.setSecret(protSecret);

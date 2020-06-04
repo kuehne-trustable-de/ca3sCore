@@ -8,12 +8,14 @@ import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +36,7 @@ import de.trustable.ca3s.core.domain.enumeration.Interval;
  * Integration tests for the {@link CAConnectorConfigResource} REST controller.
  */
 @SpringBootTest(classes = Ca3SApp.class)
+@ExtendWith(SpringExtension.class)
 public class CAConnectorConfigResourceIT {
 
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
@@ -235,7 +238,7 @@ public class CAConnectorConfigResourceIT {
         // Get all the cAConnectorConfigList
         restCAConnectorConfigMockMvc.perform(get("/api/ca-connector-configs?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(cAConnectorConfig.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].caConnectorType").value(hasItem(DEFAULT_CA_CONNECTOR_TYPE.toString())))
@@ -257,7 +260,7 @@ public class CAConnectorConfigResourceIT {
         // Get the cAConnectorConfig
         restCAConnectorConfigMockMvc.perform(get("/api/ca-connector-configs/{id}", cAConnectorConfig.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(cAConnectorConfig.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.caConnectorType").value(DEFAULT_CA_CONNECTOR_TYPE.toString()))

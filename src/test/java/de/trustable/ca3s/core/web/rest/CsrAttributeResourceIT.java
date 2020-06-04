@@ -173,7 +173,7 @@ public class CsrAttributeResourceIT {
         // Get all the csrAttributeList
         restCsrAttributeMockMvc.perform(get("/api/csr-attributes?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(csrAttribute.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE)));
@@ -188,7 +188,7 @@ public class CsrAttributeResourceIT {
         // Get the csrAttribute
         restCsrAttributeMockMvc.perform(get("/api/csr-attributes/{id}", csrAttribute.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(csrAttribute.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.value").value(DEFAULT_VALUE));

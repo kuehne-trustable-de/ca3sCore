@@ -41,13 +41,16 @@ import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.domain.Pipeline;
+import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.service.util.AuditUtil;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CSRUtil;
+import de.trustable.ca3s.core.service.util.CertificateProcessingUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.CryptoService;
+import de.trustable.ca3s.core.web.rest.data.PkcsXXData;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.Pkcs10RequestHolder;
 
@@ -88,6 +91,9 @@ public class ScepServletImpl extends ScepServlet {
     @Autowired
     private CertificateUtil certUtil;
     
+	@Autowired
+	private CertificateProcessingUtil cpUtil;
+	
 	@Autowired
 	private ApplicationEventPublisher applicationEventPublisher;
 
@@ -156,7 +162,42 @@ public class ScepServletImpl extends ScepServlet {
 		return currentRecepientCert;
     }
 
+    
 	private Certificate startCertificateCreationProcess(final String csrAsPem, TransactionId transId) throws OperationFailureException  {
+    
+        Pipeline pipeline = requestPipeline.get();
+        if( pipeline == null ) {
+            LOGGER.warn("doEnrol: no processing pipeline defined");
+			throw new OperationFailureException(FailInfo.badRequest);
+        }
+
+		String requestorName = "SCEP-transId-" + transId.toString();
+        LOGGER.debug("doEnrol: processing request by {} using pipeline {}", requestorName, pipeline.getName());
+        
+		CSR csr = cpUtil.buildCSR(csrAsPem, requestorName, AuditUtil.AUDIT_SCEP_CERTIFICATE_REQUESTED, "", pipeline );
+		
+		CsrAttribute csrAttributeTransId = new CsrAttribute();
+		csrAttributeTransId.setName(CertificateAttribute.ATTRIBUTE_SCEP_TRANS_ID);
+		csrAttributeTransId.setValue(transId.toString());
+		csr.addCsrAttributes(csrAttributeTransId);
+		csrRepository.save(csr);
+
+		Certificate cert = cpUtil.processCertificateRequest(csr, requestorName,  AuditUtil.AUDIT_SCEP_CERTIFICATE_CREATED, pipeline );
+
+		if( cert == null) {
+			LOGGER.warn("creation of certificate by SCEP transaction id '{}' failed ", transId.toString());
+		}else {
+			LOGGER.debug("new certificate id '{}' for SCEP transaction id '{}'", cert.getId(), transId.toString() );
+			
+			certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SCEP_TRANS_ID, transId.toString());
+			certRepository.save(cert);
+		}
+
+		return cert;
+
+	}
+	
+	private Certificate _startCertificateCreationProcess(final String csrAsPem, TransactionId transId) throws OperationFailureException  {
 		
         Pipeline pipeline = requestPipeline.get();
         if( pipeline == null ) {

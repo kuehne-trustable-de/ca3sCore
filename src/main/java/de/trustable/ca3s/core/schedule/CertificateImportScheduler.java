@@ -124,6 +124,7 @@ public class CertificateImportScheduler {
 				} catch (OODBConnectionsACDSException e) {
 					LOG.warn("defering ADCS querying for '{}'", caConfig.getName());
 				} catch (ACDSProxyUnavailableException e) {
+					LOG.debug("problem retrieving certificates", e);
 					LOG.warn("ADCS proxy '{}' unavailable, trying later ...", caConfig.getName());
 				} catch (Throwable th) {
 					LOG.info("ADCS certificate retrieval for '{}' (url '{}') failed with msg '{}'",

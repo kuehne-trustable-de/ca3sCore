@@ -83,6 +83,9 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
 	  @Query(name = "Certificate.findActiveCertificatesByValidTo")
 	  List<Certificate> findActiveCertificatesByValidTo(@Param("now") Instant now);
 	
+	  @Query(name = "Certificate.findActiveCertificatesBySANs")
+	  List<Certificate> findActiveCertificatesBySANs(@Param("now") Instant now, @Param("sans") List<String> sans);
+
 	  @Query(name = "Certificate.findActiveCertificateByCrlURL")
 	  List<Certificate> findActiveCertificateByCrlURL();
 	

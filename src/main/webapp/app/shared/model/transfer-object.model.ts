@@ -1,6 +1,29 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2020-04-28 11:14:33.
+// Generated using typescript-generator version 2.19.577 on 2020-05-28 19:00:41.
+
+export interface IPipelineView extends ISerializable {
+    id?: number;
+    name?: string;
+    type?: IPipelineType;
+    urlPart?: string;
+    description?: string;
+    approvalRequired?: boolean;
+    caConnectorName?: string;
+    processInfoName?: string;
+    restriction_C?: IRDNRestriction;
+    restriction_CN?: IRDNRestriction;
+    restriction_L?: IRDNRestriction;
+    restriction_O?: IRDNRestriction;
+    restriction_OU?: IRDNRestriction;
+    restriction_S?: IRDNRestriction;
+    toPendingOnFailedRestrictions?: boolean;
+    ipAsSubjectAllowed?: boolean;
+    ipAsSANAllowed?: boolean;
+    acmeConfigItems?: IACMEConfigItems;
+    scepConfigItems?: ISCEPConfigItems;
+    webConfigItems?: IWebConfigItems;
+}
 
 export interface ICertificateView extends ISerializable {
     id?: number;
@@ -36,6 +59,7 @@ export interface ICertificateView extends ISerializable {
     sanArr?: string[];
     caConnectorId?: number;
     caProcessingId?: number;
+    processingCa?: string;
     acmeAccountId?: number;
     acmeOrderId?: number;
     scepTransId?: number;
@@ -46,6 +70,7 @@ export interface ICertificateView extends ISerializable {
     requestedBy?: string;
     crlUrl?: string;
     crlNextUpdate?: Date;
+    certB64?: string;
     downloadFilename?: string;
 }
 
@@ -146,6 +171,31 @@ export interface IDataSet {
     backgroundColor?: string[];
 }
 
+export interface IRDNRestriction {
+    cardinalityRestriction?: IRDNCardinalityRestriction;
+    contentTemplate?: string;
+    regExMatch?: boolean;
+}
+
+export interface IACMEConfigItems extends ISerializable {
+    allowChallengeHTTP01?: boolean;
+    allowChallengeDNS?: boolean;
+    allowWildcards?: boolean;
+    checkCAA?: boolean;
+    caNameCAA?: string;
+    processInfoNameAccountValidation?: string;
+    processInfoNameOrderValidation?: string;
+    processInfoNameChallengeValidation?: string;
+}
+
+export interface ISCEPConfigItems extends ISerializable {
+    capabilityRenewal?: boolean;
+    capabilityPostPKIOperation?: boolean;
+}
+
+export interface IWebConfigItems extends ISerializable {
+}
+
 export interface ISerializable {
 }
 
@@ -168,10 +218,12 @@ export type ICAStatus = "Active" | "Deactivated" | "Unknown";
 
 export type ISelector = "EQUAL" | "NOT_EQUAL" | "LIKE" | "NOTLIKE" | "LESSTHAN" | "GREATERTHAN" | "ON" | "BEFORE" | "AFTER" | "ISTRUE" | "ISFALSE";
 
-export type ICsrStatus = "PROCESSING" | "ISSUED" | "REJECTED" | "PENDING";
-
 export type IPipelineType = "ACME" | "SCEP" | "WEB" | "INTERNAL";
+
+export type ICsrStatus = "PROCESSING" | "ISSUED" | "REJECTED" | "PENDING";
 
 export type IAdministrationType = "ACCEPT" | "REJECT";
 
 export type IPKCSDataType = "CSR" | "X509_CERTIFICATE" | "X509_CERTIFICATE_CREATED" | "UNKNOWN" | "CONTAINER" | "CONTAINER_REQUIRING_PASSPHRASE";
+
+export type IRDNCardinalityRestriction = "NOT_ALLOWED" | "ZERO_OR_ONE" | "ONE" | "ZERO_OR_MANY" | "ONE_OR_MANY";

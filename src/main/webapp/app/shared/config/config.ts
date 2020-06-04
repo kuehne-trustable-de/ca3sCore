@@ -43,6 +43,7 @@ import { faCartPlus } from '@fortawesome/free-solid-svg-icons/faCartPlus';
 import { faIdCard } from '@fortawesome/free-solid-svg-icons/faIdCard'; 
 import { faMinus } from '@fortawesome/free-solid-svg-icons/faMinus';
 
+
 import VueCookie from 'vue-cookie';
 import Vuelidate from 'vuelidate';
 import Vue2Filters from 'vue2-filters';

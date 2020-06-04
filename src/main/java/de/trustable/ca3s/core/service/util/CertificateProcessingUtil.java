@@ -1,0 +1,286 @@
+package de.trustable.ca3s.core.service.util;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.audit.listener.AuditApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import de.trustable.ca3s.core.domain.CSR;
+import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.Pipeline;
+import de.trustable.ca3s.core.domain.enumeration.PipelineType;
+import de.trustable.ca3s.core.repository.CSRRepository;
+import de.trustable.ca3s.core.repository.CertificateRepository;
+import de.trustable.util.CryptoUtil;
+import de.trustable.util.Pkcs10RequestHolder;
+
+@Service
+public class CertificateProcessingUtil {
+
+	private final Logger LOG = LoggerFactory.getLogger(CertificateProcessingUtil.class);
+
+	
+	@Autowired
+	private CryptoUtil cryptoUtil;
+
+    @Autowired
+    private CSRUtil csrUtil;
+
+	@Autowired
+	private CSRRepository csrRepository;
+
+    @Autowired
+    private CertificateRepository certificateRepository;
+
+	@Autowired
+	private BPMNUtil bpmnUtil;
+	
+	@Autowired
+	private PipelineUtil pvUtil;
+
+	@Autowired
+	private ApplicationEventPublisher applicationEventPublisher;
+
+
+	/**
+	 * 
+	 * @param csrAsPem
+	 * @param requestorName
+	 * @param requestAuditType
+	 * @param certificateAuditType
+	 * @param requestorComment
+	 * @param pipeline
+	 * @return
+	 */
+	public Certificate processCertificateRequest(final String csrAsPem, final String requestorName, final String requestAuditType, final String certificateAuditType, String requestorComment, Pipeline pipeline )  {
+		
+		CSR csr = buildCSR(csrAsPem, requestorName, requestAuditType, requestorComment, pipeline );
+		if( csr == null) {
+			LOG.info("building CSR failed");
+		}
+		return processCertificateRequest(csr, requestorName, certificateAuditType, pipeline );
+		
+	}
+
+	/**
+	 * 
+	 * @param csrAsPem
+	 * @param requestorName
+	 * @param requestAuditType
+	 * @param requestorComment
+	 * @param pipeline
+	 * @return
+	 */
+	public CSR buildCSR(final String csrAsPem, final String requestorName, final String requestAuditType, String requestorComment, Pipeline pipeline )  {
+
+	    List<String> messageList = new ArrayList<String>();
+	    return buildCSR(csrAsPem, requestorName, requestAuditType, requestorComment, pipeline, messageList );
+	}
+	
+	/**
+	 * 
+	 * @param csrAsPem
+	 * @param requestorName
+	 * @param requestorComment
+	 * @param optPipeline
+	 * @return
+	 */
+	public CSR buildCSR(final String csrAsPem, final String requestorName, final String requestAuditType, String requestorComment, Pipeline pipeline, List<String> messageList )  {
+			
+		CSR csr;
+		Pkcs10RequestHolder p10ReqHolder;
+
+		try {
+			p10ReqHolder = cryptoUtil.parseCertificateRequest(csrAsPem);
+
+			if( pipeline == null) {
+				csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, pipeline);
+			}else {
+				
+				csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, PipelineType.WEB, null);
+			}
+			
+			csr.setRequestorComment(requestorComment);
+			csrRepository.save(csr);
+
+			applicationEventPublisher.publishEvent(
+			        new AuditApplicationEvent(
+			        		CryptoUtil.limitLength(requestorName, 50), requestAuditType, "certificate requested, csr " + csr.getId() + " created"));
+
+			LOG.debug("csr contains #{} CsrAttributes, #{} RequestAttributes and #{} RDN", csr.getCsrAttributes().size(), csr.getRas().size(), csr.getRdns().size());
+			for(de.trustable.ca3s.core.domain.RDN rdn:csr.getRdns()) {
+				LOG.debug("RDN contains #{}", rdn.getRdnAttributes().size());
+			}
+		} catch (GeneralSecurityException | IOException e) {
+			LOG.warn("problem building a CSR for requestor '"+requestorName+"'failed", e);
+			return null;
+		}
+			
+		if( pvUtil.isPipelineRestrictionsResolved(pipeline, p10ReqHolder, messageList)) {
+			return csr;
+		} else{
+			String msg = "certificate request " + csr.getId() + " rejected";
+			if( !messageList.isEmpty()) {
+				msg += ", validation of restriction failed: '" + messageList.get(0) + "'"; 
+			}
+			
+			if( messageList.size() > 1) {
+				msg += ", " + (messageList.size() - 1) + " more failures."; 
+			}
+			
+			LOG.info("Restrictions failed {}", msg);
+
+			HashMap<String, Object> messageMap = new HashMap<String, Object>();
+			for(String msgItem: messageList) {
+				messageMap.put("RequestRestriction", CryptoUtil.limitLength(msgItem, 250) );
+			}
+			
+			applicationEventPublisher.publishEvent(
+			        new AuditApplicationEvent(
+			        		CryptoUtil.limitLength(requestorName, 50), AuditUtil.AUDIT_REQUEST_RESTRICTIONS_FAILED, messageMap));
+		}
+
+		return null;
+	}
+
+	/**
+	 * 
+	 * @param csrAsPem
+	 * @param p10ReqData 
+	 * @param requestorName
+	 * @param requestorComment
+	 * @param optPipeline
+	 * @return
+	 */
+	public Certificate processCertificateRequest(CSR csr, final String requestorName, final String certificateAuditType, Pipeline pipeline )  {
+			
+
+		if( csr == null) {
+			LOG.warn("creation of certificate requires a csr!");
+			return null;
+		}
+		
+		boolean bApprovalRequired = false;
+		
+		if( pipeline != null) {
+			bApprovalRequired = pipeline.isApprovalRequired();
+		}
+
+		if( bApprovalRequired ){
+			LOG.debug("defering certificate creation for csr #{}", csr.getId());
+		} else {
+			
+			Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
+			if(cert != null) {
+				certificateRepository.save(cert);
+				applicationEventPublisher.publishEvent(
+				        new AuditApplicationEvent(
+				        		CryptoUtil.limitLength(requestorName, 50), certificateAuditType, "certificate " +cert.getId()+ " created"));
+
+				return cert;
+			} else {
+				LOG.warn("creation of certificate requested by {} failed ", requestorName);
+			}
+		}
+				
+		return null;
+	}
+
+
+	/**
+	 * 
+	 * @param csrAsPem
+	 * @param p10ReqData 
+	 * @param requestorName
+	 * @param requestorComment
+	 * @param optPipeline
+	 * @return
+	 */
+	/*
+	public Certificate _processCertificateRequest(final String csrAsPem, PkcsXXData p10ReqData, final String requestorName, final String requestAuditType, final String certificateAuditType, String requestorComment, Pipeline pipeline )  {
+			
+
+		
+	    List<String> messageList = new ArrayList<String>();
+
+		// BPNM call
+		try {
+			Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(csrAsPem);
+
+			CSR csr;
+			boolean bApprovalRequired = false;
+			
+			if( pipeline == null) {
+				csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, PipelineType.WEB, null);
+			}else {
+				bApprovalRequired = pipeline.isApprovalRequired();
+				
+				csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, PipelineType.WEB, null);
+			}
+			
+			csr.setRequestorComment(requestorComment);
+			csrRepository.save(csr);
+
+			applicationEventPublisher.publishEvent(
+			        new AuditApplicationEvent(
+			        		requestorName, requestAuditType, "certificate requested, csr " + csr.getId() + " uploaded"));
+
+			LOG.debug("csr contains #{} CsrAttributes, #{} RequestAttributes and #{} RDN", csr.getCsrAttributes().size(), csr.getRas().size(), csr.getRdns().size());
+			for(de.trustable.ca3s.core.domain.RDN rdn:csr.getRdns()) {
+				LOG.debug("RDN contains #{}", rdn.getRdnAttributes().size());
+			}
+
+			if( pvUtil.isPipelineRestrictionsResolved(pipeline, p10ReqHolder, messageList)) {
+				
+				if( bApprovalRequired ){
+					LOG.debug("defering certificate creation for csr #{}", csr.getId());
+					p10ReqData.setCsrPending(true);
+					p10ReqData.setCreatedCSRId(csr.getId().toString());
+				} else {
+					
+					Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
+					if(cert != null) {
+						certificateRepository.save(cert);
+						applicationEventPublisher.publishEvent(
+						        new AuditApplicationEvent(
+						        		requestorName, certificateAuditType, "certificate " +cert.getId()+ " created"));
+
+						return cert;
+					} else {
+						LOG.warn("creation of certificate requested by {} failed ", requestorName);
+					}
+				}
+				
+			} else{
+				String msg = "certificate request " + csr.getId() + " rejected";
+				if( !messageList.isEmpty()) {
+					msg += ", validation of restriction failed: '" + messageList.get(0) + "'"; 
+				}
+				
+				if( messageList.size() > 1) {
+					msg += ", " + (messageList.size() - 1) + " more failures."; 
+				}
+				
+				applicationEventPublisher.publishEvent(
+				        new AuditApplicationEvent(
+				        		requestorName, AuditUtil.AUDIT_REQUEST_RESTRICTIONS_FAILED, msg));
+			}
+
+			p10ReqData.setMessages(messageList.toArray(new String[messageList.size()]));
+
+		} catch (GeneralSecurityException | IOException e) {
+			LOG.warn("execution of CSRProcessingTask failed ", e);
+		}
+
+		return null;
+	}
+*/
+}

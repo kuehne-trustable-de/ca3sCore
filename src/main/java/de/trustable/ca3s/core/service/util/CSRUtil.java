@@ -3,9 +3,15 @@ package de.trustable.ca3s.core.service.util;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
@@ -25,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.trustable.ca3s.core.domain.CSR;
+import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.domain.RDN;
@@ -39,6 +46,7 @@ import de.trustable.ca3s.core.repository.RDNAttributeRepository;
 import de.trustable.ca3s.core.repository.RDNRepository;
 import de.trustable.ca3s.core.repository.RequestAttributeRepository;
 import de.trustable.ca3s.core.repository.RequestAttributeValueRepository;
+import de.trustable.ca3s.core.web.rest.data.PkcsXXData;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
@@ -66,8 +74,6 @@ public class CSRUtil {
 	
 	@Autowired
 	private CsrAttributeRepository csrAttRepository;
-	
-	
 
 	@Autowired
 	private CryptoService cryptoUtil;
@@ -161,6 +167,11 @@ public class CSRUtil {
 		// not yet ...
 //				setProcessInstanceId(processInstanceId);
 		csr.setRequestedOn(Instant.now());
+
+		csr.setRequestedBy(requestorName);
+
+		csrRepository.save(csr);
+
 		
 		LOG.debug("RDN arr #" + p10ReqHolder.getSubjectRDNs().length);
 
@@ -187,6 +198,13 @@ public class CSRUtil {
 			newRdns.add(rdn);
 		}
 
+
+		try {
+			insertNameAttributes(csr, CsrAttribute.ATTRIBUTE_SUBJECT, new LdapName(p10ReqHolder.getSubject()));
+		} catch (InvalidNameException e) {
+			LOG.info("problem parsing RDN for {}", p10ReqHolder.getSubject());
+		}
+		
 		insertNameAttributes(csr, CsrAttribute.ATTRIBUTE_SUBJECT, p10ReqHolder.getSubjectRDNs());
 
 		Set<GeneralName> gNameSet = getSANList(p10ReqHolder);
@@ -291,7 +309,6 @@ public class CSRUtil {
 		csrAttRequestorName.setCsr(csr);
 		csrAttRequestorName.setName(CsrAttribute.ATTRIBUTE_REQUESTED_BY);
 		csrAttRequestorName.setValue(requestorName);
-		csr.setRequestedBy(requestorName);
 		csr.getCsrAttributes().add(csrAttRequestorName);
 		
 		rdnRepository.saveAll(csr.getRdns());
@@ -339,30 +356,35 @@ public class CSRUtil {
 				ASN1Set valueSet = attr.getAttrValues();
 				LOG.debug("ExtensionRequest / AttrValues has {} elements", valueSet.size());
 				for (ASN1Encodable asn1Enc : valueSet) {
-					DERSequence derSeq = (DERSequence)asn1Enc;
-
-					LOG.debug("ExtensionRequest / DERSequence has {} elements", derSeq.size());
-					LOG.debug("ExtensionRequest / DERSequence[0] is a  {}", derSeq.getObjectAt(0).getClass().getName());
-
-					DERSequence derSeq2 = (DERSequence)derSeq.getObjectAt(0);
-					LOG.debug("ExtensionRequest / DERSequence2 has {} elements", derSeq2.size());
-					LOG.debug("ExtensionRequest / DERSequence2[0] is a  {}", derSeq2.getObjectAt(0).getClass().getName());
-
-
-					ASN1ObjectIdentifier objId = (ASN1ObjectIdentifier)(derSeq2.getObjectAt(0));
-					if( Extension.subjectAlternativeName.equals(objId)) {
-						DEROctetString derStr = (DEROctetString)derSeq2.getObjectAt(1);
-						GeneralNames names = GeneralNames.getInstance(derStr.getOctets());
-						LOG.debug("Attribute value SAN" + names);
-						LOG.debug("SAN values #" + names.getNames().length);
-						
-						for (GeneralName gnSAN : names.getNames()) {
-							LOG.debug("GN " + gnSAN.toString());
-							generalNameSet.add(gnSAN);
-							
+					if( asn1Enc instanceof DERSequence) {
+						DERSequence derSeq = (DERSequence)asn1Enc;
+	
+						LOG.debug("ExtensionRequest / DERSequence has {} elements", derSeq.size());
+						if( derSeq.size() > 0 ) {
+							LOG.debug("ExtensionRequest / DERSequence[0] is a  {}", derSeq.getObjectAt(0).getClass().getName());
+		
+							DERSequence derSeq2 = (DERSequence)derSeq.getObjectAt(0);
+							LOG.debug("ExtensionRequest / DERSequence2 has {} elements", derSeq2.size());
+							LOG.debug("ExtensionRequest / DERSequence2[0] is a  {}", derSeq2.getObjectAt(0).getClass().getName());
+		
+		
+							ASN1ObjectIdentifier objId = (ASN1ObjectIdentifier)(derSeq2.getObjectAt(0));
+							if( Extension.subjectAlternativeName.equals(objId)) {
+								DEROctetString derStr = (DEROctetString)derSeq2.getObjectAt(1);
+								GeneralNames names = GeneralNames.getInstance(derStr.getOctets());
+								LOG.debug("Attribute value SAN" + names);
+								LOG.debug("SAN values #" + names.getNames().length);
+								
+								for (GeneralName gnSAN : names.getNames()) {									
+									LOG.debug("GN " + gnSAN.toString());
+									generalNameSet.add(gnSAN);
+								}
+							} else {
+								LOG.debug("non-interesting extensions attribute: " + objId.getId());
+							}
+						}else {
+							LOG.debug("ExtensionRequest / DERSequence has no elements: " + derSeq.toString());
 						}
-					} else {
-						LOG.info("Unexpected Extensions Attribute value " + objId.getId());
 					}
 				}
 				
@@ -400,7 +422,9 @@ public class CSRUtil {
 	}
 	
 	public static String getGeneralNameDescription(GeneralName gName) {
-		return getGeneralNameType(gName) + " : " + gName.getName().toString();
+		
+		return CertificateUtil.getTypedSAN(gName.getTagNo(), gName.getName().toString());
+
 	}
 
 	/**
@@ -429,12 +453,36 @@ public class CSRUtil {
 		return null;
 	}
 
+	
+	
+	public void insertNameAttributes(CSR csr, String attributeName, LdapName ldapName) {
+		List<Rdn> rdnList = ldapName.getRdns();
+		for( Rdn rdn: rdnList) {
+    		String rdnExpression = rdn.getType().toLowerCase() + "=" + rdn.getValue().toString().toLowerCase().trim();
+			setCsrAttribute(csr, attributeName, rdnExpression, true);
+		}
+	}
+
 	public void insertNameAttributes(CSR csr, String attributeName, org.bouncycastle.asn1.x500.RDN[] rdns) {
+		
 		for( org.bouncycastle.asn1.x500.RDN rdn: rdns ){
 			for( org.bouncycastle.asn1.x500.AttributeTypeAndValue atv: rdn.getTypesAndValues()){
-				String value = atv.getValue().toString().toLowerCase();
+				String value = atv.getValue().toString().toLowerCase().trim();
 				setCsrAttribute(csr, attributeName, value, true);
-				setCsrAttribute(csr, attributeName, atv.getType().getId().toLowerCase() +"="+ value, true);
+				
+				String oid = atv.getType().getId().toLowerCase();
+				setCsrAttribute(csr, attributeName, oid +"="+ value, true);
+
+				if( !oid.equals(atv.getType().toString().toLowerCase())) {
+					setCsrAttribute(csr, attributeName, atv.getType().toString().toLowerCase() +"="+ value, true);
+				}
+/*
+ * long text form				
+				String oidName = OidNameMapper.lookupOid(oid);
+				if( !oid.equals(oidName.toLowerCase())) {
+					setCsrAttribute(csr, attributeName, oidName +"="+ value, true);
+				}
+*/
 			}
 		}
 	}
@@ -479,7 +527,5 @@ public class CSRUtil {
 		csrAttRepository.save(cAtt);
 
 	}
-
-
 
 }

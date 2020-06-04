@@ -73,6 +73,7 @@ public class CertificateView implements Serializable {
     private String crlUrl;
     private Instant crlNextUpdate;    
 
+    private String certB64;
     private String downloadFilename;
 
     public CertificateView() {}
@@ -98,7 +99,8 @@ public class CertificateView implements Serializable {
     	this.revokedSince = cert.getRevokedSince();
     	this.revocationReason = cert.getRevocationReason();
     	this.revoked = cert.isRevoked();
-
+    	this.certB64 = cert.getContent();
+    	
     	if( cert.getCsr() != null) {
     		this.requestedBy = cert.getCsr().getRequestedBy();
     		this.csrId = cert.getCsr().getId();
@@ -151,10 +153,11 @@ public class CertificateView implements Serializable {
     			this.chainLength = Long.parseLong(certAttr.getValue());
     		} else if( CertificateAttribute.ATTRIBUTE_USAGE.equalsIgnoreCase(certAttr.getName())) {
     			usageList.add(certAttr.getValue());
-    		} else if( CertificateAttribute.ATTRIBUTE_EXTENDED_USAGE.equalsIgnoreCase(certAttr.getName())) {
+    		} else if(CertificateAttribute.ATTRIBUTE_EXTENDED_USAGE.equalsIgnoreCase(certAttr.getName())) {
     			extUsageList.add(certAttr.getValue());
     		}else {
-    			LOG.info("Unexpected certificate attribute '{}' with value '{}'", certAttr.getName(), certAttr.getValue());
+    			LOG.debug("Unexpected certificate attribute '{}' with value '{}'", certAttr.getName(), certAttr.getValue());
+    			
     		}
     	}
     	this.usage = usageList.toArray(new String[usageList.size()]);
@@ -525,7 +528,13 @@ public class CertificateView implements Serializable {
 	public void setProcessingCa(String processingCa) {
 		this.processingCa = processingCa;
 	}
-	
-	
+
+	public String getCertB64() {
+		return certB64;
+	}
+
+	public void setCertB64(String certB64) {
+		this.certB64 = certB64;
+	}	
 	
 }

@@ -31,6 +31,10 @@ import de.trustable.ca3s.core.domain.enumeration.Interval;
 	@NamedQuery(name = "CAConnectorConfig.findAllCertGenerators",
 	query = "SELECT ccc FROM CAConnectorConfig ccc WHERE " +
 			"ccc.caConnectorType in ('ADCS', 'CMP', 'INTERNAL' )"
+    ),
+	@NamedQuery(name = "CAConnectorConfig.findbyName",
+	query = "SELECT ccc FROM CAConnectorConfig ccc WHERE " +
+			"ccc.name = :name"
     )
 })
 public class CAConnectorConfig implements Serializable {
