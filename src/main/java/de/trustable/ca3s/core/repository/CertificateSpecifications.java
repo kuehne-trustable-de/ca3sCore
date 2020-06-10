@@ -677,12 +677,10 @@ public final class CertificateSpecifications {
 		}else if( "requestedBy".equals(attribute)){
 			
 			if( attributeValue.trim().length() > 0 ) {
-				//subquery
-			    Subquery<CSR> csrSubquery = certQuery.subquery(CSR.class);
-			    Root<CSR> csrRoot = csrSubquery.from(CSR.class);
-			    pred = cb.exists(csrSubquery.select(csrRoot)//subquery selection
-	                     .where(cb.and( cb.equal(csrRoot.get(CSR_.CERTIFICATE), root.get(Certificate_.ID)),
-	                    		 buildPredicate( attributeSelector, cb, csrRoot.<String>get(CSR_.requestedBy), attributeValue.toLowerCase()) )));
+				Join<Certificate,CSR> attJoin = root.join(Certificate_.csr, JoinType.LEFT);
+				addNewColumn(selectionList,attJoin.get(CSR_.requestedBy));
+				
+				pred = buildPredicate( attributeSelector, cb, attJoin.<String>get(CSR_.requestedBy), attributeValue);
 			}
 
 		}else{

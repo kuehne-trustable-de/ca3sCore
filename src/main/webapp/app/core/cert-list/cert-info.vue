@@ -137,17 +137,9 @@
                     </dt>
                     <dd v-if="certificateView.csrId">
                         <div>
-                            <router-link :to="{name: 'CSRView', params: {cSRId: certificateView.csrId}}">{{certificateView.csrId}}</router-link>
+                            <router-link :to="{name: 'CsrInfo', params: {cSRId: certificateView.csrId}}">{{certificateView.csrId}}</router-link>
                         </div>
                     </dd>
-                    <!--dt>
-                        <span v-text="$t('ca3SApp.certificate.issuingCertificate')">Issuing Certificate</span>
-                    </dt>
-                    <dd>
-                        <div v-if="certificateView.issuerId">
-                            <router-link :to="{name: 'CertInfo', params: {certificateId: certificateView.issuerId}}">{{certificateView.issuer}}</router-link>
-                        </div>
-                    </dd-->
 
                     <dt v-if="certificateView.requestedBy">
                         <span v-text="$t('ca3SApp.certificate.requestedBy')">Requested by</span>
@@ -183,7 +175,7 @@
                     </dd>
 
                     <dt>
-                        <span v-text="$t('ca3SApp.certificate.csrBase64')">Csr Base64</span>
+                        <span v-text="$t('ca3SApp.certificate.csrBase64')">Certificate as PEM</span>
                     </dt>
                     <dd>
                         <span><textarea class="form-control pem-content" name="certContent" id="comment"

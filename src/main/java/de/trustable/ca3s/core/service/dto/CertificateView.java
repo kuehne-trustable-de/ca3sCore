@@ -163,11 +163,16 @@ public class CertificateView implements Serializable {
     	this.usage = usageList.toArray(new String[usageList.size()]);
     	this.extUsage = extUsageList.toArray(new String[extUsageList.size()]);
     	
-    	this.downloadFilename = cert.getSubject().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
-    	if( this.downloadFilename.trim().isEmpty()) {
-    		this.downloadFilename = "cert" + cert.getSerial();
-    	}
+    	this.downloadFilename = getDownloadFilename(cert);
     }
+
+	public String getDownloadFilename(final Certificate cert) {
+		String downloadFilename = cert.getSubject().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+    	if( downloadFilename.trim().isEmpty()) {
+    		downloadFilename = "cert" + cert.getSerial();
+    	}
+    	return downloadFilename;
+	}
     
 	public Long getId() {
 		return id;
