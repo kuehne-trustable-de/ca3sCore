@@ -1,0 +1,9 @@
+---
+version: 1
+applications:
+- name: ca3s
+  memory: 2048M
+  disk_quota: 1800M
+  instances: 1
+env:
+  SPRING_PROFILES_ACTIVE: prod 
