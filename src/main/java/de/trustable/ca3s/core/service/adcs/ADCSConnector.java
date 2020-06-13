@@ -18,7 +18,6 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.TrustManager;
 
-import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.slf4j.Logger;
@@ -54,7 +53,6 @@ import de.trustable.ca3s.client.model.CertificateRequestElementsAttributes;
 import de.trustable.ca3s.client.model.CertificateRevocationRequest;
 import de.trustable.ca3s.client.model.GetCertificateResponseValues;
 import de.trustable.ca3s.client.model.JWSWrappedRequest;
-import de.trustable.ca3s.client.model.RequestIdsResponse;
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
@@ -65,7 +63,6 @@ import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.security.provider.Ca3sTrustManager;
 import de.trustable.ca3s.core.service.util.CAStatus;
-import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.CryptoService;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
@@ -668,7 +665,7 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 	@Override
 	public List<String> getRequesIdList(int offset, int limit) throws ACDSException {
 		try {
-			RequestIdsResponse rir = remoteClient.getRequestIdList(offset, limit);
+			List<String> rir = remoteClient.getRequestIdList(offset, limit);
 			return rir;
 		} catch (ApiException e) {
 			if( e.getCode() == 503) {
@@ -720,6 +717,7 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 			}else if( e.getCause() instanceof SocketTimeoutException){
 				throw new ACDSProxyUnavailableException(e.getCause().getMessage());
 			}else if( e.getCause() instanceof ConnectException){
+				LOGGER.warn("Connection problem", e );
 				throw new ACDSProxyUnavailableException(e.getCause().getMessage());
 			}else if( e.getCause() instanceof SSLHandshakeException){
 				LOGGER.warn("TLS problem : configure trust anchor for ADCS proxy at " + remoteClient.getApiClient().getBasePath() );

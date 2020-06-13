@@ -130,7 +130,7 @@
         <!-- jhipster-needle-maven-property -->
         
         <cryptoUtilVersion>1.1.1</cryptoUtilVersion>
-        <certBundleVersion>0.0.4-SNAPSHOT</certBundleVersion>
+        <certBundleVersion>1.0.0</certBundleVersion>
     	<nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
     	<adcsUtilVersion>1.1.1</adcsUtilVersion>
 		<adcsProxyClientVersion>1.1.2</adcsProxyClientVersion>
