@@ -194,6 +194,7 @@
                     <div v-if="isRevocable()" class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.certificate.revocationReason')" for="revocationReason">Revocation reason</label>
                         <select class="form-control" id="cert-revocationReason" name="revocationReason" v-model="certificateAdminData.revocationReason">
+                            <option v-bind:value="'certificateHold'">certificateHold</option>
                             <option v-bind:value="'keyCompromise'">keyCompromise</option>
                             <option v-bind:value="'cACompromise'">cACompromise</option>
                             <option v-bind:value="'affiliationChanged'">affiliationChanged</option>
@@ -211,10 +212,15 @@
                             v-model="certificateAdminData.comment" />
                     </div>
 
+
                     <button type="submit"
                             v-on:click.prevent="previousState()"
                             class="btn btn-info">
                         <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.back')"> Back</span>
+                    </button>
+
+                    <button type="button" id="removeFromCRL" v-if="isRemovableFromCRL()" class="btn btn-secondary" v-on:click="removeCertificateFromCRL()">
+                        <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.removeCertificateFromCRL')">Remove from CRL</span>
                     </button>
 
                     <button type="button" id="revoke" v-if="isRAOfficer() && !isOwnCertificate() && isRevocable()" class="btn btn-secondary" v-on:click="revokeCertificate()">

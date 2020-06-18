@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import de.trustable.ca3s.core.domain.Pipeline;
+import de.trustable.ca3s.core.domain.PipelineAttribute;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.service.PipelineViewService;
 import de.trustable.ca3s.core.service.dto.PipelineView;
@@ -43,7 +44,12 @@ public class PipelineViewServiceImpl implements PipelineViewService {
         log.debug("Request to save Pipeline : {}", pipelineView);
 
         Pipeline p = pvUtil.toPipeline(pipelineView);
-        
+/*        
+        log.debug("Saving #{} pipeline attributes", p.getPipelineAttributes().size());
+        for( PipelineAttribute pa: p.getPipelineAttributes()) {
+            log.debug("Request to save PipelineAttribute: {}", pa);
+        }
+*/        
         pipelineRepository.save(p);
         
         return pipelineView;

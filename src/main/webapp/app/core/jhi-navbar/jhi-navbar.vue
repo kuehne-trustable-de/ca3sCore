@@ -60,7 +60,7 @@
                         <span v-text="$t('global.menu.config.main')">Config</span>
                     </span>
 
-                    <b-dropdown-item to="/ca-connector-config">
+                    <b-dropdown-item to="/confCaConnector">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.config.caConnectorConfig')">CAConnectorConfig</span>
                     </b-dropdown-item>
@@ -79,14 +79,14 @@
                         <font-awesome-icon icon="th-list" />
                         <span v-text="$t('global.menu.entities.main')">Entities</span>
                     </span>
-                    <b-dropdown-item to="/ca-connector-config">
+                    <!--b-dropdown-item to="/ca-connector-config">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.caConnectorConfig')">CAConnectorConfig</span>
                     </b-dropdown-item>
-                    <!--b-dropdown-item to="/certificate-attribute">
+                    <b-dropdown-item to="/certificate-attribute">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.certificateAttribute')">CertificateAttribute</span>
-                    </b-dropdown-item-->
+                    </b-dropdown-item>
                     <b-dropdown-item to="/certificate">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.certificate')">Certificate</span>
@@ -95,7 +95,7 @@
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.csr')">CSR</span>
                     </b-dropdown-item>
-                    <!--b-dropdown-item to="/csr-attribute">
+                    <b-dropdown-item to="/csr-attribute">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.csrAttribute')">CsrAttribute</span>
                     </b-dropdown-item>
@@ -114,12 +114,12 @@
                     <b-dropdown-item to="/request-attribute-value">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.requestAttributeValue')">RequestAttributeValue</span>
-                    </b-dropdown-item-->
+                    </b-dropdown-item>
                     <b-dropdown-item to="/pipeline">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.pipeline')">Pipeline</span>
                     </b-dropdown-item>
-                    <!-- b-dropdown-item to="/pipeline-attribute">
+                    <b-dropdown-item to="/pipeline-attribute">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.pipelineAttribute')">PipelineAttribute</span>
                     </b-dropdown-item -->

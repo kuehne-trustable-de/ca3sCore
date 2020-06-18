@@ -39,13 +39,11 @@ export default class PipelineUpdate extends Vue {
   @Inject('pipelineViewService') private pipelineViewService: () => PipelineViewService;
   public pipeline: IPipelineView = {};
 
-
   @Inject('cAConnectorConfigService') private cAConnectorConfigService: () => CAConnectorConfigService;
 
   public cAConnectorConfigs: ICAConnectorConfig[] = [];
 
   @Inject('bPNMProcessInfoService') private bPNMProcessInfoService: () => BPNMProcessInfoService;
-
 
   public allCertGenerators: CAConnectorConfigService[] = [];
 
@@ -55,7 +53,7 @@ export default class PipelineUpdate extends Vue {
   beforeRouteEnter(to, from, next) {
     next(vm => {
       if (to.params.pipelineId) {
-        vm.retrievePipeline(to.params.pipelineId);
+        vm.retrievePipeline(to.params.pipelineId, to.params.mode);
       }
       vm.initRelationships();
     });
@@ -84,11 +82,15 @@ export default class PipelineUpdate extends Vue {
     }
   }
 
-  public retrievePipeline(pipelineId): void {
+  public retrievePipeline(pipelineId, mode): void {
     this.pipelineViewService()
       .find(pipelineId)
       .then(res => {
         this.pipeline = res;
+        if (mode === 'copy') {
+          this.pipeline.name = 'Copy of ' + this.pipeline.name;
+          this.pipeline.id = null;
+        }
       });
   }
 

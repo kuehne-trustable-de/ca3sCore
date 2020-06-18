@@ -40,11 +40,13 @@ export default class CAConnectorConfigUpdate extends Vue {
   public isSaving = false;
 
   beforeRouteEnter(to, from, next) {
+    const self = this;
     next(vm => {
       if (to.params.cAConnectorConfigId) {
-        vm.retrieveCAConnectorConfig(to.params.cAConnectorConfigId);
+        vm.retrieveCAConnectorConfig(to.params.cAConnectorConfigId, to.params.mode);
       }
       vm.initRelationships();
+
     });
   }
 
@@ -71,11 +73,16 @@ export default class CAConnectorConfigUpdate extends Vue {
     }
   }
 
-  public retrieveCAConnectorConfig(cAConnectorConfigId): void {
+  public retrieveCAConnectorConfig(cAConnectorConfigId, mode): void {
+
     this.cAConnectorConfigService()
       .find(cAConnectorConfigId)
       .then(res => {
         this.cAConnectorConfig = res;
+        if (mode === 'copy') {
+          this.cAConnectorConfig.name = 'Copy of ' + this.cAConnectorConfig.name;
+          this.cAConnectorConfig.id = null;
+        }
       });
   }
 
@@ -84,6 +91,7 @@ export default class CAConnectorConfigUpdate extends Vue {
   }
 
   public initRelationships(): void {
+
   }
 
   public testCaConnectorConfig(): void {

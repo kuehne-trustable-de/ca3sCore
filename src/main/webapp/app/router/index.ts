@@ -39,6 +39,15 @@ const ConfPipelineUpdate = () => import('../core/pipeline/pipeline-update.vue');
 const ConfPipelineDetails = () => import('../core/pipeline/pipeline-details.vue');
 
 // prettier-ignore
+const ConfCaConnector = () => import('../core/ca-connector-config/ca-connector-config.vue');
+// prettier-ignore
+const ConfCaConnectorUpdate = () => import('../core/ca-connector-config/ca-connector-config-update.vue');
+// prettier-ignore
+const ConfCaConnectorDetails = () => import('../core/ca-connector-config/ca-connector-config-details.vue');
+
+
+
+// prettier-ignore
 const CAConnectorConfig = () => import('../entities/ca-connector-config/ca-connector-config.vue');
 // prettier-ignore
 const CAConnectorConfigUpdate = () => import('../entities/ca-connector-config/ca-connector-config-update.vue');
@@ -288,8 +297,14 @@ export default new Router({
       meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
     },
     {
-      path: '/confPipeline/:pipelineId/edit',
+      path: '/confPipeline/:pipelineId/:mode',
       name: 'ConfPipelineEdit',
+      component: ConfPipelineUpdate,
+      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
+    },
+    {
+      path: '/confPipeline/:pipelineId/:mode',
+      name: 'ConfPipelineCopy',
       component: ConfPipelineUpdate,
       meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
     },
@@ -299,13 +314,38 @@ export default new Router({
       component: ConfPipelineDetails,
       meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
     },
+
     {
-      path: '/confPipeline/:pipelineId/view',
-      name: 'ConfPipelineView',
-      component: ConfPipelineDetails,
+      path: '/confCaConnector',
+      name: 'ConfCaConnector',
+      component: ConfCaConnector,
       meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
-    }
-    ,
+    },
+    {
+      path: '/confCaConnector/new',
+      name: 'ConfCaConnectorCreate',
+      component: ConfCaConnectorUpdate,
+      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
+    },
+    {
+      path: '/confCaConnector/:cAConnectorConfigId/:mode',
+      name: 'ConfCaConnectorEdit',
+      component: ConfCaConnectorUpdate,
+      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
+    },
+    {
+      path: '/confCaConnector/:cAConnectorConfigId/:mode',
+      name: 'ConfCaConnectorCopy',
+      component: ConfCaConnectorUpdate,
+      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
+    },
+    {
+      path: '/confCaConnector/:caConnectorId/view',
+      name: 'ConfCaConnectorView',
+      component: ConfCaConnectorDetails,
+      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
+    },
+
 
     {
       path: '/account/password',

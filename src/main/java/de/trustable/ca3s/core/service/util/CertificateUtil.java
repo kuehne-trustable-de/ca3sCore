@@ -185,10 +185,15 @@ public class CertificateUtil {
 	public Certificate getCertificateByX509(final X509Certificate x509Cert) throws GeneralSecurityException, IOException {
 
 		String tbsDigestBase64 = Base64.encodeBase64String(cryptoUtil.getSHA256Digest(x509Cert.getTBSCertificate())).toLowerCase();
+		LOG.info("looking for TBS hash '" + tbsDigestBase64 +"' in certificate store");
+		
 		List<Certificate> certList = certificateRepository.findByTBSDigest(tbsDigestBase64);
 
 		if (certList.isEmpty()) {
 			return null;
+		} else if(certList.size() > 1){
+			LOG.info("#{} certificates found in certificate store for TBS hash '{}'",  certList.size(), tbsDigestBase64 );
+			return certList.get(0);
 		} else {
 			return certList.get(0);
 		}
@@ -684,7 +689,7 @@ public class CertificateUtil {
 	    if(publicKey instanceof java.security.interfaces.ECPublicKey){
 	        final java.security.interfaces.ECPublicKey pk = (java.security.interfaces.ECPublicKey) publicKey;
 	        final ECParameterSpec params = pk.getParams();
-	        return deriveCurveName(EC5Util.convertSpec(params, false));
+	        return deriveCurveName(EC5Util.convertSpec(params));
 	    } else if(publicKey instanceof org.bouncycastle.jce.interfaces.ECPublicKey){
 	        final org.bouncycastle.jce.interfaces.ECPublicKey pk = (org.bouncycastle.jce.interfaces.ECPublicKey) publicKey;
 	        return deriveCurveName(pk.getParameters());
@@ -695,7 +700,7 @@ public class CertificateUtil {
 	    if(privateKey instanceof java.security.interfaces.ECPrivateKey){
 	        final java.security.interfaces.ECPrivateKey pk = (java.security.interfaces.ECPrivateKey) privateKey;
 	        final ECParameterSpec params = pk.getParams();
-	        return deriveCurveName(EC5Util.convertSpec(params, false));
+	        return deriveCurveName(EC5Util.convertSpec(params));
 	    } else if(privateKey instanceof org.bouncycastle.jce.interfaces.ECPrivateKey){
 	        final org.bouncycastle.jce.interfaces.ECPrivateKey pk = (org.bouncycastle.jce.interfaces.ECPrivateKey) privateKey;
 	        return deriveCurveName(pk.getParameters());

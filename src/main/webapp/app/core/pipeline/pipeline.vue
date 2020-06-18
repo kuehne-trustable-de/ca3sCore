@@ -66,6 +66,10 @@
                                 <font-awesome-icon icon="pencil-alt"></font-awesome-icon>
                                 <span class="d-none d-md-inline" v-text="$t('entity.action.edit')">Edit</span>
                             </router-link>
+                            <router-link :to="{name: 'ConfPipelineEdit', params: {pipelineId: pipeline.id, mode: 'copy'}}"  tag="button" class="btn btn-secondary btn-sm copy">
+                                <font-awesome-icon icon="clone"></font-awesome-icon>
+                                <span class="d-none d-md-inline" v-text="$t('entity.action.copy')">Copy</span>
+                            </router-link>
                             <b-button v-on:click="prepareRemove(pipeline)"
                                    variant="danger"
                                    class="btn btn-sm"

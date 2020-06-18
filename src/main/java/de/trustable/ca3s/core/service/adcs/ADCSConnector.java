@@ -307,10 +307,10 @@ public class ADCSConnector {
 	}
 
 	/**
-	 * Revoke a given certificate created by the ADCS server identified by connector config
+	 * Revoke (or reactivate) a given certificate created by the ADCS server identified by connector config
 	 * 
 	 * @param certDao the certificate object to be revoked
-	 * @param crlReason the revocation reason
+	 * @param crlReason the revocation reason. The reason 'removeFromCRL' reactivates a certificate that was put 'on hold' previously.
 	 * @param revocationDate the revocation date
 	 * @param config the connection data identifying an ADCS instance
 	 * 
@@ -319,12 +319,19 @@ public class ADCSConnector {
 	public void revokeCertificate(Certificate certDao, final CRLReason crlReason, final Date revocationDate, CAConnectorConfig config)
 			throws GeneralSecurityException {
 
+		int reasonIntValue = crlReason.getValue().intValue();
+		if( CRLReason.removeFromCRL == reasonIntValue) {
+			reasonIntValue = 0xffffffff;
+		}else if( reasonIntValue > 6 ) {
+			throw new GeneralSecurityException("adcs connector supports revocation reasons 0..6, not " + reasonIntValue + " !");
+		}
+		
 		try {
 			BigInteger serial = new BigInteger(certDao.getSerial(), 10);
 			String serialAsHex = serial.toString(16);
-			LOGGER.debug("revoking certificate {} with serial '{}' with reason {}", certDao.getId(), serialAsHex, crlReason.getValue());
+			LOGGER.debug("revoking certificate {} with serial '{}' with reason {}", certDao.getId(), serialAsHex, reasonIntValue);
 			
-			getConnector(config).revokeCertifcate(serialAsHex, crlReason.getValue().intValue(), revocationDate);
+			getConnector(config).revokeCertifcate(serialAsHex, reasonIntValue, revocationDate);
 
 		} catch (ACDSException adcsEx) {
 			// no local ADCS available ...

@@ -80,6 +80,7 @@ public class PipelineViewResource {
         if (pipelineView.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
+        
         PipelineView result = pipelineViewService.save(pipelineView);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, pipelineView.getId().toString()))

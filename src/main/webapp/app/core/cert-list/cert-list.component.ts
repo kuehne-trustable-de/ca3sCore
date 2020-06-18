@@ -116,6 +116,7 @@ export default class CertList extends Vue {
       'cessationOfOperation',
       'privilegeWithdrawn',
       'aACompromise',
+      'certificateHold',
       'unspecified']},
     { itemName: 'keyAlgorithm', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'true', values: ['rsa', 'dsa', 'ec']},
     { itemName: 'signingAlgorithm', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'true', values: ['rsa', 'dsa', 'ecdsa']},

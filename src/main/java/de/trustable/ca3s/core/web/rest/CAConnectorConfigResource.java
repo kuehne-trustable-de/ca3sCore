@@ -4,6 +4,7 @@ import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.ProtectedContent;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
+import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 import de.trustable.ca3s.core.service.CAConnectorConfigService;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -47,6 +49,9 @@ public class CAConnectorConfigResource {
 	@Autowired
 	private ProtectedContentRepository protContentRepository;
 	
+	@Autowired
+	private CAConnectorConfigRepository caConfigRepository;
+	
 
     private final CAConnectorConfigService cAConnectorConfigService;
 
@@ -69,12 +74,14 @@ public class CAConnectorConfigResource {
         }
         
         if((cAConnectorConfig.getPlainSecret() == null) || (cAConnectorConfig.getPlainSecret().trim().length() == 0))  {
+            log.debug("REST request to save CAConnectorConfig : cAConnectorConfig.getPlainSecret() == null");
 	        cAConnectorConfig.setSecret(null);
 	        cAConnectorConfig.setPlainSecret("");
         }else {	
         	if( protUtil == null) {
         		System.err.println("Autowired failed ...");
         	}
+        	
 	        ProtectedContent protSecret = protUtil.createProtectedContent(cAConnectorConfig.getPlainSecret(), ProtectedContentType.PASSWORD, ContentRelationType.CONNECTION, -1L);
 	        protContentRepository.save(protSecret);
 	        cAConnectorConfig.setSecret(protSecret);
@@ -96,6 +103,7 @@ public class CAConnectorConfigResource {
      * or with status {@code 500 (Internal Server Error)} if the cAConnectorConfig couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
+    @Transactional
     @PutMapping("/ca-connector-configs")
     public ResponseEntity<CAConnectorConfig> updateCAConnectorConfig(@Valid @RequestBody CAConnectorConfig cAConnectorConfig) throws URISyntaxException {
         log.debug("REST request to update CAConnectorConfig : {}", cAConnectorConfig);
@@ -103,23 +111,53 @@ public class CAConnectorConfigResource {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         
-		if(cAConnectorConfig.getSecret() != null ) {
-			protContentRepository.delete(cAConnectorConfig.getSecret());
-		}
         
         if((cAConnectorConfig.getPlainSecret() == null) || (cAConnectorConfig.getPlainSecret().trim().length() == 0))  {
+            
+        	log.debug("REST request to update CAConnectorConfig : cAConnectorConfig.getPlainSecret() == null");
+
+    		if(cAConnectorConfig.getSecret() != null ) {
+            	log.debug("REST request to update CAConnectorConfig : protContentRepository.delete() ");
+    			protContentRepository.delete(cAConnectorConfig.getSecret());
+    		}
+
 	        cAConnectorConfig.setSecret(null);
 	        cAConnectorConfig.setPlainSecret("");
-        }else if(PLAIN_SECRET_PLACEHOLDER.equals(cAConnectorConfig.getPlainSecret().trim())) {
-        	// no passphrase change received from the UI, just do nothing
-        }else {	
-	        ProtectedContent protSecret = protUtil.createProtectedContent(cAConnectorConfig.getPlainSecret(), ProtectedContentType.PASSWORD, ContentRelationType.CONNECTION, cAConnectorConfig.getId());
-	        protContentRepository.save(protSecret);
-	        
-	        cAConnectorConfig.setSecret(protSecret);
-	        cAConnectorConfig.setPlainSecret(PLAIN_SECRET_PLACEHOLDER);
+        } else {
+        	if( PLAIN_SECRET_PLACEHOLDER.equals(cAConnectorConfig.getPlainSecret().trim())) {
+	        	log.debug("REST request to update CAConnectorConfig : PLAIN_SECRET_PLACEHOLDER.equals(cAConnectorConfig.getPlainSecret())");
+	        	
+	        	// no passphrase change received from the UI, just do nothing
+	        	// leave the secret unchanged
+	        	
+	        	cAConnectorConfig.setSecret(caConfigRepository.getOne(cAConnectorConfig.getId()).getSecret());
+        	}else {
+	        	log.debug("REST request to update CAConnectorConfig : PlainSecret modified");
+	        	
+        		if(cAConnectorConfig.getSecret() != null ) {
+                	log.debug("REST request to update CAConnectorConfig : protContentRepository.delete() ");
+        			protContentRepository.delete(cAConnectorConfig.getSecret());
+        		}
+        		
+                ProtectedContent protSecret = protUtil.createProtectedContent(cAConnectorConfig.getPlainSecret(), ProtectedContentType.PASSWORD, ContentRelationType.CONNECTION, cAConnectorConfig.getId());
+                protContentRepository.save(protSecret);
+                
+                cAConnectorConfig.setSecret(protSecret);
+    	        cAConnectorConfig.setPlainSecret(PLAIN_SECRET_PLACEHOLDER);
+        	}
         }
         
+        if( cAConnectorConfig.isDefaultCA()) {
+        	for( CAConnectorConfig other: caConfigRepository.findAll() ) {
+        		if( other.getId() != cAConnectorConfig.getId() &&
+        				other.isDefaultCA()) {
+
+                	log.debug("REST request to update CAConnectorConfig : remove 'deaultCA' flag from caConfig {} ", other.getId());
+        			other.setDefaultCA(false);
+        			caConfigRepository.save(other);
+        		}
+        	}
+        }
         CAConnectorConfig result = cAConnectorConfigService.save(cAConnectorConfig);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, cAConnectorConfig.getId().toString()))

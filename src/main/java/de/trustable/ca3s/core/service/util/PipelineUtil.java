@@ -281,10 +281,16 @@ public class PipelineUtil {
 		addPipelineAttribute(pipelineAttributes, p, ACME_CHECK_CAA,pv.getAcmeConfigItems().isCheckCAA());
 		addPipelineAttribute(pipelineAttributes, p, ACME_NAME_CAA,pv.getAcmeConfigItems().getCaNameCAA());
 		
-		
 		p.setPipelineAttributes(pipelineAttributes);
-		pipelineRepository.save(p);
+		
+/*		
+		for(PipelineAttribute pa: p.getPipelineAttributes()) {
+			LOG.debug("PipelineAttribute : " +  pa);
+		}
+		
+*/
     	pipelineAttRepository.saveAll(p.getPipelineAttributes());
+		pipelineRepository.save(p);
     	
 		return p;
 	}
@@ -296,6 +302,12 @@ public class PipelineUtil {
 	}
 
 	public void addPipelineAttribute(Set<PipelineAttribute> pipelineAttributes, Pipeline p, String name, String value) {
+		
+		
+		if( name == null || name.trim().isEmpty()) {
+			new Exception("name == null");
+			return;
+		}
 		
 		if( value == null || value.trim().isEmpty()) {
 			return;

@@ -33,36 +33,25 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequestUri;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import org.bouncycastle.asn1.ASN1Encodable;
-import org.bouncycastle.asn1.ASN1ObjectIdentifier;
-import org.bouncycastle.asn1.ASN1Set;
-import org.bouncycastle.asn1.DEROctetString;
-import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.GeneralName;
-import org.bouncycastle.asn1.x509.GeneralNames;
 import org.jose4j.base64url.Base64Url;
 import org.jose4j.jwt.consumer.JwtContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.audit.listener.AuditApplicationEvent;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -83,20 +72,16 @@ import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
 import de.trustable.ca3s.core.repository.AcmeOrderRepository;
-import de.trustable.ca3s.core.repository.CSRRepository;
-import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.service.dto.acme.FinalizeRequest;
 import de.trustable.ca3s.core.service.dto.acme.OrderResponse;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.ACMEUtil;
 import de.trustable.ca3s.core.service.util.AuditUtil;
-import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateProcessingUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.JwtUtil;
-import de.trustable.ca3s.core.web.rest.data.PkcsXXData;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
@@ -113,15 +98,6 @@ public class OrderController extends ACMEController {
     private AcmeOrderRepository orderRepository;
 
     @Autowired
-    private CSRRepository csrRepository;
-
-    @Autowired
-    private CertificateRepository certificateRepository;
-
-	@Autowired
-	private BPMNUtil bpmnUtil;
-	
-    @Autowired
     private JwtUtil jwtUtil;
 
     @Autowired
@@ -130,16 +106,9 @@ public class OrderController extends ACMEController {
     @Autowired
     private CertificateUtil certUtil;
 
-    @Autowired
-    private CSRUtil csrUtil;
-
 	@Autowired
 	private CertificateProcessingUtil cpUtil;
 	
-	@Autowired
-	private ApplicationEventPublisher applicationEventPublisher;
-	
-
     @RequestMapping(value = "/{orderId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
     public ResponseEntity<?> postAsGetOrder(@RequestBody final String requestBody,
   		  @PathVariable final long orderId, @PathVariable final String realm) {
@@ -429,69 +398,6 @@ public class OrderController extends ACMEController {
 	}
 
 	
-    /**
-     * 
-     * @param orderDao
-     * @param pipeline 
-     * @param string 
-     * @return
-     * @throws IOException
-     */
-	private Certificate _startCertificateCreationProcess(AcmeOrder orderDao, Pipeline pipeline, final String requestor, final String csrAsPem)  {
-		
-		orderDao.setStatus(AcmeOrderStatus.PROCESSING);
-		
-		// BPNM call
-		try {
-			Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(csrAsPem);
-
-			CSR csr = csrUtil.buildCSR(csrAsPem, requestor, p10ReqHolder, pipeline);
-			
-			csrRepository.save(csr);
-
-			applicationEventPublisher.publishEvent(
-			        new AuditApplicationEvent(
-			        		orderDao.getAccount().getAccountId().toString(), AuditUtil.AUDIT_ACME_CERTIFICATE_REQUESTED, "certificate requested, csr " + csr.getId() + " created"));
-
-
-			LOG.debug("csr contains #{} CsrAttributes, #{} RequestAttributes and #{} RDN", csr.getCsrAttributes().size(), csr.getRas().size(), csr.getRdns().size());
-			for(de.trustable.ca3s.core.domain.RDN rdn:csr.getRdns()) {
-				LOG.debug("RDN contains #{}", rdn.getRdnAttributes().size());
-			}
-			
-			Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
-			if(cert != null) {
-				LOG.debug("updating order id {} with new certificate id {}", orderDao.getOrderId(), cert.getId());
-				orderDao.setCertificate(cert);
-				orderDao.setStatus(AcmeOrderStatus.VALID);
-				
-				LOG.debug("adding certificate attribute 'ACME_ACCOUNT_ID' {} for certificate id {}", orderDao.getAccount().getAccountId(), cert.getId());
-				certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ACME_ACCOUNT_ID, orderDao.getAccount().getAccountId());
-				certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ACME_ORDER_ID, orderDao.getOrderId());
-				
-				certificateRepository.save(cert);
-				
-				applicationEventPublisher.publishEvent(
-				        new AuditApplicationEvent(
-				        		orderDao.getAccount().getAccountId().toString(), AuditUtil.AUDIT_ACME_CERTIFICATE_CREATED, "certificate " +cert.getId()+ " created"));
-
-				return cert;
-				
-			} else {
-				orderDao.setStatus(AcmeOrderStatus.INVALID);
-				LOG.warn("creation of certificate by ACME order {} failed ", orderDao.getOrderId());
-			}
-
-			// end of BPMN call
-
-		} catch (GeneralSecurityException | IOException e) {
-			LOG.warn("execution of CSRProcessingTask failed ", e);
-		}
-
-		return null;
-	}
-
-	
     private String getASN1ValueAsString(Attribute attr) {
         return  getASN1ValueAsString(attr.getAttrValues().toArray());
     }
@@ -507,77 +413,14 @@ public class OrderController extends ACMEController {
         return value;
     }
 
-    void retrieveSANFromCSRAttribute(Set<String> sanSet, Attribute attrExtension ){
+    private void retrieveSANFromCSRAttribute(Set<String> sanSet, Attribute attrExtension ){
     	
-        ASN1Set valueSet = attrExtension.getAttrValues();
-        LOG.debug( "ExtensionRequest / AttrValues has " + valueSet.size() + " elements" );
-        for (ASN1Encodable asn1Enc : valueSet) {
-            DERSequence derSeq = (DERSequence)asn1Enc;
+  	  	Set<GeneralName> generalNameSet = new HashSet<>();
 
-            LOG.debug( "ExtensionRequest / DERSequence has "+derSeq.size()+" elements" );
-
-            for( ASN1Encodable asn1Enc2 : derSeq.toArray()) {
-
-            	LOG.debug( "ExtensionRequest / asn1Enc2 is a " + asn1Enc2.getClass().getName());
-
-                DERSequence derSeq2 = (DERSequence) asn1Enc2;
-                LOG.debug( "ExtensionRequest / DERSequence2 has " + derSeq2.size() + " elements");
-                LOG.debug( "ExtensionRequest / DERSequence2[0] is a " + derSeq2.getObjectAt(0).getClass().getName());
-
-                ASN1Encodable asn1EncValue = derSeq2.getObjectAt(1);
-                LOG.debug("ExtensionRequest / DERSequence2[1] (asn1EncValue)is a " + asn1EncValue.getClass().getName());
-
-
-                ASN1ObjectIdentifier objId = (ASN1ObjectIdentifier) (derSeq2.getObjectAt(0));
-                String attrReadableName = OidNameMapper.lookupOid(objId.getId());
-
-
-                if (Extension.subjectAlternativeName.equals(objId)) {
-                    DEROctetString derStr = (DEROctetString) derSeq2.getObjectAt(1);
-                    byte[] valBytes = derStr.getOctets();
-
-                    GeneralNames names = GeneralNames.getInstance(valBytes);
-                    LOG.debug("Attribute value SAN" + names);
-                    LOG.debug("SAN values #" + names.getNames().length);
-
-                    for (GeneralName gnSAN : names.getNames()) {
-                    	LOG.debug( "GN " + gnSAN.getName().toString());
-                    	sanSet.add(gnSAN.getName().toString());
-                    }
-                } else {
-                    String stringValue = asn1EncValue.toString();
-
-//                    Log.d(TAG, "asn1EncValue.toASN1Primitive " + asn1EncValue.toASN1Primitive().getClass().getName());
-                    Method[] methods = asn1EncValue.getClass().getMethods();
-
-                    for( Method m: methods){
-//                        Log.d(TAG, "checking method " + m.getName());
-                        try {
-
-                            if( "getString".equals(m.getName())){
-                                stringValue = (String)m.invoke(asn1EncValue);
-                                break;
-                            }else if( "getOctets".equals(m.getName())){
-                                stringValue = new String((byte[])m.invoke(asn1EncValue));
-                                break;
-                            }else if( "getValue".equals(m.getName())){
-                                stringValue = (String)m.invoke(asn1EncValue);
-                                break;
-                            }else if( "getId".equals(m.getName())){
-                                stringValue = OidNameMapper.lookupOid((String)m.invoke(asn1EncValue));
-                                break;
-                            }else if( "getAdjustedDate".equals(m.getName())){
-                                stringValue = (String)m.invoke(asn1EncValue);
-                                break;
-                            }
-                        } catch (IllegalAccessException | InvocationTargetException e) {
-                        	LOG.debug( "invoking " + m.getName(), e);
-                        }
-                    }
-                    LOG.debug("found attrReadableName '{}' with value '{}'", attrReadableName, stringValue);
-
-                }
-            }
+	    CSRUtil.retrieveSANFromCSRAttribute(generalNameSet, attrExtension );
+	    
+        for (GeneralName gn : generalNameSet) {
+        	sanSet.add(gn.getName().toString());
         }
 
     }

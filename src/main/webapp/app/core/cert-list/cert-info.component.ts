@@ -84,12 +84,25 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
       ( this.isRAOfficer() || this.isOwnCertificate() );
   }
 
+  public isRemovableFromCRL() {
+    return (this.certificateView.revocationReason	=== 'certificateHold') &&
+      ( this.certificateView.validTo ) &&
+//      ( this.certificate.validTo.getMilliseconds() < Date.now()) &&
+      ( this.isRAOfficer() || this.isOwnCertificate() );
+  }
+
   public isRAOfficer() {
       return this.roles === 'ROLE_RA';
   }
 
   public isOwnCertificate() {
       return this.getUsername() === this.certificateView.requestedBy;
+  }
+
+  public removeCertificateFromCRL() {
+    this.certificateAdminData.certificateId = this.certificateView.id;
+    this.certificateAdminData.revocationReason = 'removeFromCRL';
+    this.sendAdministrationAction('api/administerCertificate');
   }
 
   public revokeCertificate() {

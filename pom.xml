@@ -129,7 +129,7 @@
         <junit.itReportFolder>${project.testresult.directory}/integrationTest</junit.itReportFolder>
         <!-- jhipster-needle-maven-property -->
         
-        <cryptoUtilVersion>1.1.1</cryptoUtilVersion>
+        <cryptoUtilVersion>1.1.2</cryptoUtilVersion>
         <certBundleVersion>1.0.0</certBundleVersion>
     	<nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
     	<adcsUtilVersion>1.1.1</adcsUtilVersion>
@@ -139,7 +139,7 @@
 		
         <nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
        	<jose4jVersion>0.6.5</jose4jVersion>
-       	<acme4jVersion>2.6</acme4jVersion>
+       	<acme4jVersion>2.8</acme4jVersion>
        	<takesVersion>1.16</takesVersion>
    		<jscepVersion>2.5.4</jscepVersion>
    		<jasyptVersion>1.9.3</jasyptVersion>
@@ -891,7 +891,7 @@
                 </executions>
             </plugin>
 
-	      <plugin>
+	      <!-- plugin>
 	        <groupId>org.codehaus.mojo</groupId>
 	        <artifactId>license-maven-plugin</artifactId>
 	        <version>2.0.0</version>
@@ -903,7 +903,7 @@
 	            </goals>
 	          </execution>
 	        </executions>
-	      </plugin>
+	      </plugin-->
 	      
         </plugins>
         

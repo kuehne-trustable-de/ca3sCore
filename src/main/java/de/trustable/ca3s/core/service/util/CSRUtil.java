@@ -1,9 +1,10 @@
 package de.trustable.ca3s.core.service.util;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1Set;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.DERSequence;
+import org.bouncycastle.asn1.DLSequence;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
@@ -31,7 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.trustable.ca3s.core.domain.CSR;
-import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.domain.RDN;
@@ -46,7 +47,6 @@ import de.trustable.ca3s.core.repository.RDNAttributeRepository;
 import de.trustable.ca3s.core.repository.RDNRepository;
 import de.trustable.ca3s.core.repository.RequestAttributeRepository;
 import de.trustable.ca3s.core.repository.RequestAttributeValueRepository;
-import de.trustable.ca3s.core.web.rest.data.PkcsXXData;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
@@ -338,9 +338,121 @@ public class CSRUtil {
 	 * @return
 	 */
 	Set<GeneralName> getSANList(Pkcs10RequestHolder p10ReqHolder){
+		
 		return(getSANList(p10ReqHolder.getReqAttributes() ) );
+		
 	}
 	
+	
+    public static void retrieveSANFromCSRAttribute(Set<GeneralName> sanSet, Attribute attrExtension ){
+    	
+        ASN1Set valueSet = attrExtension.getAttrValues();
+        LOG.info( "ExtensionRequest / AttrValues has " + valueSet.size() + " elements" );
+        for (ASN1Encodable asn1Enc : valueSet) {
+        	
+            if( asn1Enc instanceof DERSequence ) {
+	            DERSequence derSeq = (DERSequence)asn1Enc;
+	            LOG.debug( "ExtensionRequest / DERSequence has "+derSeq.size()+" elements" );
+	            extractSANsFromArray(sanSet, derSeq.toArray());
+            }else if( asn1Enc instanceof DLSequence ) {
+            	DLSequence dlSeq = (DLSequence)asn1Enc;
+	            LOG.debug( "ExtensionRequest / DLSequence has "+dlSeq.size()+" elements" );
+	            extractSANsFromArray(sanSet, dlSeq.toArray());
+            } else {
+                LOG.info( "asn1Enc in valueSet is of an unexpected type " + asn1Enc.getClass().getName());
+            }
+        }
+
+    }
+
+    /**
+     * Extract all SANs from an ASN1Encodable
+     * 
+     * @param sanSet
+     * @param asn1Array
+     */
+	static void extractSANsFromArray(Set<GeneralName> sanSet, ASN1Encodable[] asn1Array) {
+		for( ASN1Encodable asn1Enc : asn1Array) {
+
+			LOG.debug( "ExtensionRequest / asn1Enc2 is a " + asn1Enc.getClass().getName());
+
+		    ASN1Encodable asn1EncValue = null;
+		    ASN1ObjectIdentifier objId = null;
+
+            if( asn1Enc instanceof DERSequence ) {
+    		    DERSequence derSeq2 = (DERSequence) asn1Enc;
+    		    LOG.debug( "ExtensionRequest / DERSequence2 has " + derSeq2.size() + " elements");
+    		    LOG.debug( "ExtensionRequest / DERSequence2[0] is a " + derSeq2.getObjectAt(0).getClass().getName());
+    		    
+    		    objId = (ASN1ObjectIdentifier) (derSeq2.getObjectAt(0));
+    		    asn1EncValue = derSeq2.getObjectAt(1);
+
+            }else if( asn1Enc instanceof DLSequence ) {
+            	DLSequence dlSeq = (DLSequence)asn1Enc;
+	            LOG.debug( "DLSequence has "+dlSeq.size()+" elements" );
+	            
+    		    objId = (ASN1ObjectIdentifier) (dlSeq.getObjectAt(0));
+    		    asn1EncValue = dlSeq.getObjectAt(1);
+
+            } else {
+                LOG.info( "asn1Enc in asn1Array is of an unexpected type " + asn1Enc.getClass().getName());
+                continue;
+            }
+		    
+		    LOG.debug("ExtensionRequest / DERSequence2[1] (asn1EncValue)is a " + asn1EncValue.getClass().getName());
+
+
+		    String attrReadableName = OidNameMapper.lookupOid(objId.getId());
+
+
+		    if (Extension.subjectAlternativeName.equals(objId)) {
+		        DEROctetString derStr = (DEROctetString) asn1EncValue;
+		        byte[] valBytes = derStr.getOctets();
+
+		        GeneralNames names = GeneralNames.getInstance(valBytes);
+		        LOG.debug("Attribute value SAN" + names);
+		        LOG.debug("SAN values #" + names.getNames().length);
+
+		        for (GeneralName gnSAN : names.getNames()) {
+		        	LOG.debug( "GN " + gnSAN.getName().toString());
+		        	sanSet.add(gnSAN);
+		        }
+		    } else {
+		        String stringValue = asn1EncValue.toString();
+
+		        Method[] methods = asn1EncValue.getClass().getMethods();
+
+		        for( Method m: methods){
+//                        Log.d(TAG, "checking method " + m.getName());
+		            try {
+
+		                if( "getString".equals(m.getName())){
+		                    stringValue = (String)m.invoke(asn1EncValue);
+		                    break;
+		                }else if( "getOctets".equals(m.getName())){
+		                    stringValue = new String((byte[])m.invoke(asn1EncValue));
+		                    break;
+		                }else if( "getValue".equals(m.getName())){
+		                    stringValue = (String)m.invoke(asn1EncValue);
+		                    break;
+		                }else if( "getId".equals(m.getName())){
+		                    stringValue = OidNameMapper.lookupOid((String)m.invoke(asn1EncValue));
+		                    break;
+		                }else if( "getAdjustedDate".equals(m.getName())){
+		                    stringValue = (String)m.invoke(asn1EncValue);
+		                    break;
+		                }
+		            } catch (IllegalAccessException | InvocationTargetException e) {
+		            	LOG.debug( "invoking " + m.getName(), e);
+		            }
+		        }
+		        LOG.debug("found attrReadableName '{}' with value '{}'", attrReadableName, stringValue);
+
+		    }
+		}
+	}
+
+
 	/**
 	 * 
 	 * @param reqAttributes
@@ -353,6 +465,8 @@ public class CSRUtil {
 		for( Attribute attr : reqAttributes) {
 			if( PKCSObjectIdentifiers.pkcs_9_at_extensionRequest.equals(attr.getAttrType())){
 
+			    retrieveSANFromCSRAttribute(generalNameSet, attr );
+/*
 				ASN1Set valueSet = attr.getAttrValues();
 				LOG.debug("ExtensionRequest / AttrValues has {} elements", valueSet.size());
 				for (ASN1Encodable asn1Enc : valueSet) {
@@ -387,7 +501,7 @@ public class CSRUtil {
 						}
 					}
 				}
-				
+*/				
 			}
 		}
 		return generalNameSet;
