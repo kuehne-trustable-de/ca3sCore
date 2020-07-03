@@ -15,5 +15,6 @@ public class CertificateFilterList implements Serializable {
 	@JsonProperty("filterList")
 	private CertificateFilter[] filterList;
 
-
+	@JsonProperty("orderList")
+	private CertificateOrder orderList;
 }

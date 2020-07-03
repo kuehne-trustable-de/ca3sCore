@@ -3,6 +3,7 @@ package de.trustable.ca3s.core.web.rest.support;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import javax.validation.Valid;
 
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -73,9 +75,17 @@ public class UIDatasetSupport {
      * @return the {@link Pipeline} .
      */
     @GetMapping("/pipeline/getWebPipelines")
-    public List<Pipeline> getWebPipelines() {
+	@Transactional
+	public List<Pipeline> getWebPipelines() {
 
-        return pipelineRepo.findByType(PipelineType.WEB);
+    	List<Pipeline> pipelineList =  pipelineRepo.findByType(PipelineType.WEB);
+    	pipelineList.forEach(new Consumer<Pipeline>(){
+			@Override
+			public void accept(Pipeline p) {
+		    	LOG.debug("pipeline {} has #{} attributes", p.getName(), p.getPipelineAttributes().size());
+			}
+    	});
+        return pipelineList;
 	}
 
    

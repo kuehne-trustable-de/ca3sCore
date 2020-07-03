@@ -6,7 +6,7 @@
         <link rel="shortcut icon" th:href="@{|${baseUrl}/favicon.ico|}" />
     </head>
     <body>
-        <p th:text="#{email.email.notification.greeting.greeting(${user.login})}">
+        <p th:text="#{email.notification.greeting(${user.login})}">
             Dear
         </p>
         <p th:text="#{email.certificate.revoked.text1(${cert.subject}, ${cert.revokedSince}, ${cert.revocationReason})}">

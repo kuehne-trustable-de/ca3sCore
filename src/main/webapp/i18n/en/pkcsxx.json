@@ -33,7 +33,21 @@
         "certificate": "Certificate",
         "certificateInDatabase": "Certificate already in database"
       },
-      "requestorComment": "Requestor comment"
+      "requestorComment": "Requestor comment",
+      "creationMode": {
+        "selection": "Creation mode",
+        "csrAvailable": "CSR available",
+        "commandLineTool": "CSR generation command lines",
+        "serversideKeyCreation": "Serverside key creation"
+      },
+      "certificateParams": "Enter certificate parameter",
+      "cn": "Common name",
+      "c": "Country",
+      "o": "Organisation",
+      "ou": "Organisation Unit",
+      "l": "Location",
+      "st": "State",
+      "key-length": "Key length"
     }
   }
 }

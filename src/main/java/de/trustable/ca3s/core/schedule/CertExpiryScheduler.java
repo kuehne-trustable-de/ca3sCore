@@ -232,13 +232,17 @@ public class CertExpiryScheduler {
 		        Context context = new Context(locale);
 		        context.setVariable("expiringCertList", expiringCertList);
 		        context.setVariable("pendingCsrList", pendingCsrList);
-		        mailService.sendEmailFromTemplate(context, raOfficer, "mail/expiringCertificateEmail", "email.allExpiringCertificate.subject");
+		        mailService.sendEmailFromTemplate(context, raOfficer, "mail/pendingReqExpiringCertificateEmail", "email.allExpiringCertificate.subject");
 	    	}
     	}
     	return expiringCertList.size();
 	}
 
-	List<User> findAllRAOfficer(){
+	/**
+	 * 
+	 * @return
+	 */
+	private List<User> findAllRAOfficer(){
 		
 		List<User> raOfficerList = new ArrayList<User>();
     	for( User user: userRepository.findAll()) {

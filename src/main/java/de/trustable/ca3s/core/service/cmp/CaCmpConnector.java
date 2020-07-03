@@ -70,10 +70,10 @@ public class CaCmpConnector {
 	private CryptoUtil cryptoUtil;
 
 	@Autowired
-	CertificateUtil certUtil;
+	private CertificateUtil certUtil;
 
 	@Autowired
-	CSRUtil csrUtil;
+	private CSRUtil csrUtil;
 
 	@Autowired
 	private ProtectedContentUtil protUtil;
@@ -152,6 +152,15 @@ public class CaCmpConnector {
 		}
 	}
 
+	/**
+	 * 
+	 * @param x509Cert
+	 * @param crlReason
+	 * @param hmacSecret
+	 * @param cmpEndpoint
+	 * @param alias
+	 * @throws GeneralSecurityException
+	 */
 	public void revokeCertificate(X509Certificate x509Cert, final CRLReason crlReason, String hmacSecret,
 			String cmpEndpoint, String alias) throws GeneralSecurityException {
 
@@ -311,6 +320,11 @@ public class CaCmpConnector {
 
 	}
 
+	/**
+	 * 
+	 * @param caConnConfig
+	 * @return
+	 */
 	public CAStatus getStatus(final CAConnectorConfig caConnConfig) {
 		
 		try {

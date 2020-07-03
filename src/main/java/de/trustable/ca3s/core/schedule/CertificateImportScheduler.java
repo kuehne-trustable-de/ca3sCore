@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import de.trustable.ca3s.adcsCertUtil.ACDSProxyUnavailableException;
-import de.trustable.ca3s.adcsCertUtil.OODBConnectionsACDSException;
+import de.trustable.ca3s.adcsCertUtil.ADCSProxyUnavailableException;
+import de.trustable.ca3s.adcsCertUtil.OODBConnectionsADCSException;
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 import de.trustable.ca3s.core.domain.enumeration.Interval;
@@ -71,7 +71,7 @@ public class CertificateImportScheduler {
 		}
 	}
 
-	@Scheduled(cron = "0 5 1 * * *")
+	@Scheduled(cron = "0 14 1 * * *")
 	public void runDay() {
 
 		if ("true".equalsIgnoreCase(certificateImportActive)) {
@@ -87,13 +87,29 @@ public class CertificateImportScheduler {
 		}
 	}
 
-	@Scheduled(cron = "0 10 1 1 * *")
+	@Scheduled(cron = "0 5 2 ? * SUN")
+	public void runWeek() {
+
+		if ("true".equalsIgnoreCase(certificateImportActive)) {
+			for (CAConnectorConfig caConfig : caConfigRepo.findAll()) {
+
+				if( Interval.WEEK.equals(caConfig.getInterval()) && caConfig.isActive()){
+					runImporter(caConfig);
+				}
+			}
+			LOG.debug("retrieveCertificates 'Month' finished");
+		} else {
+			LOG.debug("retrieveCertificates disabled");
+		}
+	}
+
+	@Scheduled(cron = "22 5 3 1 * ?")
 	public void runMonth() {
 
 		if ("true".equalsIgnoreCase(certificateImportActive)) {
 			for (CAConnectorConfig caConfig : caConfigRepo.findAll()) {
 
-				if( Interval.DAY.equals(caConfig.getInterval()) && caConfig.isActive()){
+				if( Interval.MONTH.equals(caConfig.getInterval()) && caConfig.isActive()){
 					runImporter(caConfig);
 				}
 			}
@@ -121,10 +137,10 @@ public class CertificateImportScheduler {
 								caConfig.getName(), caConfig.getCaUrl());
 					}
 
-				} catch (OODBConnectionsACDSException e) {
+				} catch (OODBConnectionsADCSException e) {
 					LOG.warn("defering ADCS querying for '{}'", caConfig.getName());
-				} catch (ACDSProxyUnavailableException e) {
-					LOG.debug("problem retrieving certificates", e);
+				} catch (ADCSProxyUnavailableException e) {
+//					LOG.debug("problem retrieving certificates", e);
 					LOG.warn("ADCS proxy '{}' unavailable, trying later ...", caConfig.getName());
 				} catch (Throwable th) {
 					LOG.info("ADCS certificate retrieval for '{}' (url '{}') failed with msg '{}'",

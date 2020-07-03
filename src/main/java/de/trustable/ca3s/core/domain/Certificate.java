@@ -1,14 +1,28 @@
 package de.trustable.ca3s.core.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * A Certificate.
@@ -130,6 +144,17 @@ import java.util.Set;
         " certAtt.name = 'CRL_URL' and " + 
         " c.active = TRUE " +
         " order by certAtt.value "
+    ),
+    @NamedQuery(name = "Certificate.findTimestampNotExistForCA",
+    query = "SELECT c  FROM Certificate c JOIN c.certificateAttributes att1 WHERE " +
+        " att1.name = '" +CertificateAttribute.ATTRIBUTE_PROCESSING_CA+"' and att1.value = :caName AND" +
+        " NOT EXISTS (select att2 from CertificateAttribute att2 WHERE att2.certificate = c AND " +
+        " att2.name = :timestamp )"
+    ),
+    @NamedQuery(name = "Certificate.findMaxTimestampForCA",
+    query = "SELECT max(att2.value)  FROM Certificate c JOIN c.certificateAttributes att1 JOIN c.certificateAttributes att2  WHERE " +
+        " att1.name = '" +CertificateAttribute.ATTRIBUTE_PROCESSING_CA+"' and att1.value = :caName AND" +
+        " att2.name = :timestamp"
     ),
 })
 public class Certificate implements Serializable {

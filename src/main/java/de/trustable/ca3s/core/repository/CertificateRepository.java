@@ -88,5 +88,11 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
 
 	  @Query(name = "Certificate.findActiveCertificateByCrlURL")
 	  List<Certificate> findActiveCertificateByCrlURL();
+	  
+	  @Query(name = "Certificate.findTimestampNotExistForCA")
+	  List<Certificate> findTimestampNotExistForCA(@Param("caName") String caName, @Param("timestamp") String timestamp);
 	
+	  @Query(name = "Certificate.findMaxTimestampForCA")
+	  String findMaxTimestampForCA(@Param("caName") String caName, @Param("timestamp") String timestamp);
+		  
 }

@@ -113,7 +113,11 @@ public class CertificateAdministration {
 					        Context context = new Context(locale);
 					        context.setVariable("csr", csr);
 					        context.setVariable("cert", cert);
-					        String[] args = {cert.getSubject(), cert.getSerial(), cert.getIssuer()};
+					        String subject = cert.getSubject();
+					        if( subject == null ) {
+					        	subject =  "";
+					        }
+					        String[] args = {subject, cert.getSerial(), cert.getIssuer()};
 					        mailService.sendEmailFromTemplate(context, requestor, "mail/revokedCertificateEmail", "email.revokedCertificate.title", args);
 				        }
 					} else {

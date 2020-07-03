@@ -144,6 +144,8 @@ public class CertificateAttribute implements Serializable {
 	public static final String ATTRIBUTE_VALIDITY_PERIOD = "VALIDITY_PERIOD";
 	
 	public static final String ATTRIBUTE_CA_CONNECTOR_ID = "CA_CONNECTOR_ID";
+	public static final String ATTRIBUTE_CA_RESOLVED_TIMESTAMP = "CA_RESOLVED_TIMESTAMP";
+	public static final String ATTRIBUTE_CA_REVOKED_TIMESTAMP = "CA_REVOKED_TIMESTAMP";
 
 	public static final String ATTRIBUTE_CA_PROCESSING_ID = CsrAttribute.ATTRIBUTE_CA_PROCESSING_ID;
 	public static final String ATTRIBUTE_PROCESSING_CA = CsrAttribute.ATTRIBUTE_PROCESSING_CA;

@@ -24,6 +24,9 @@ public class UploadPrecheckData {
 	@JsonProperty("namedValues")
 	private NamedValue[] namedValues;
 
+	@JsonProperty("certificateAttributes")
+	private NamedValues[] certificateAttributes;
+
 	public String getPassphrase() {
 		return passphrase;
 	}

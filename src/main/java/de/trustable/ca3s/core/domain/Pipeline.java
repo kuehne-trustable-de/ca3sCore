@@ -54,7 +54,8 @@ public class Pipeline implements Serializable {
     @Column(name = "approval_required")
     private Boolean approvalRequired;
 
-    @OneToMany(mappedBy = "pipeline")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "pipeline")
+    @JsonIgnoreProperties({"pipeline"})
     private Set<PipelineAttribute> pipelineAttributes = new HashSet<>();
 
     @ManyToOne

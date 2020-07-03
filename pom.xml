@@ -132,8 +132,8 @@
         <cryptoUtilVersion>1.1.2</cryptoUtilVersion>
         <certBundleVersion>1.0.0</certBundleVersion>
     	<nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
-    	<adcsUtilVersion>1.1.1</adcsUtilVersion>
-		<adcsProxyClientVersion>1.1.2</adcsProxyClientVersion>
+    	<adcsUtilVersion>1.1.3</adcsUtilVersion>
+		<adcsProxyClientVersion>1.2.0</adcsProxyClientVersion>
 		
 		<webSocketDTOVersion>0.0.1-SNAPSHOT</webSocketDTOVersion>
 		
@@ -766,6 +766,7 @@
 						<class>de.trustable.ca3s.core.web.rest.data.UploadPrecheckData</class>
 						<class>de.trustable.ca3s.core.web.rest.data.X509CertificateHolderShallow</class>
 						<class>de.trustable.ca3s.core.web.rest.data.CertificateFilter</class>
+						<class>de.trustable.ca3s.core.web.rest.data.CertificateOrder</class>
 						<class>de.trustable.ca3s.core.web.rest.data.CertificateFilterList</class>
 						
 						<class>de.trustable.ca3s.core.web.rest.data.CertificateSelectionData</class>

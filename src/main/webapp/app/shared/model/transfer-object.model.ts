@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2020-05-28 19:00:41.
+// Generated using typescript-generator version 2.19.577 on 2020-07-03 18:57:10.
 
 export interface IPipelineView extends ISerializable {
     id?: number;
@@ -112,6 +112,7 @@ export interface IUploadPrecheckData {
     pipelineId?: number;
     content?: string;
     namedValues?: INamedValue[];
+    certificateAttributes?: INamedValues[];
 }
 
 export interface IX509CertificateHolderShallow {
@@ -137,8 +138,14 @@ export interface ICertificateFilter extends ISerializable {
     selector?: ISelector;
 }
 
+export interface ICertificateOrder extends ISerializable {
+    orderBy?: string;
+    orderDir?: string;
+}
+
 export interface ICertificateFilterList extends ISerializable {
     filterList?: ICertificateFilter[];
+    orderList?: ICertificateOrder;
 }
 
 export interface ICertificateSelectionData extends ISerializable {
@@ -158,6 +165,8 @@ export interface IPkcsXXData {
     passphraseRequired?: boolean;
     csrPending?: boolean;
     createdCSRId?: string;
+    messages?: string[];
+    replacementCandidates?: ICertificateNameId[];
 }
 
 export interface IDataCollection {
@@ -204,6 +213,11 @@ export interface INamedValue {
     value?: string;
 }
 
+export interface INamedValues {
+    name?: string;
+    values?: string[];
+}
+
 export interface IPkcs10RequestHolderShallow {
     csrvalid?: boolean;
     signingAlgorithmName?: string;
@@ -212,6 +226,11 @@ export interface IPkcs10RequestHolderShallow {
     sans?: string[];
     subject?: string;
     publicKeyAlgorithmName?: string;
+}
+
+export interface ICertificateNameId extends ISerializable {
+    id?: number;
+    name?: string;
 }
 
 export type ICAStatus = "Active" | "Deactivated" | "Unknown";

@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
@@ -98,8 +100,9 @@ import de.trustable.util.Pkcs10RequestHolder;
 @Service
 public class CertificateUtil {
 
-	private static final String SERIAL_PADDING_PATTERN = "000000000000000000000";
-
+	private static final String SERIAL_PADDING_PATTERN = "000000000000000000000000000000000000000000000000000000000000000";
+	private static final String TIMESTAMP_PADDING_PATTERN = "000000000000000000";
+	
 	static HashSet<Integer> lenSet = new HashSet<Integer>();
 	static {
 		lenSet.add(256);
@@ -185,14 +188,14 @@ public class CertificateUtil {
 	public Certificate getCertificateByX509(final X509Certificate x509Cert) throws GeneralSecurityException, IOException {
 
 		String tbsDigestBase64 = Base64.encodeBase64String(cryptoUtil.getSHA256Digest(x509Cert.getTBSCertificate())).toLowerCase();
-		LOG.info("looking for TBS hash '" + tbsDigestBase64 +"' in certificate store");
+		LOG.debug("looking for TBS hash '" + tbsDigestBase64 +"' in certificate store");
 		
 		List<Certificate> certList = certificateRepository.findByTBSDigest(tbsDigestBase64);
 
 		if (certList.isEmpty()) {
 			return null;
 		} else if(certList.size() > 1){
-			LOG.info("#{} certificates found in certificate store for TBS hash '{}'",  certList.size(), tbsDigestBase64 );
+			LOG.debug("#{} certificates found in certificate database for TBS hash '{}'",  certList.size(), tbsDigestBase64 );
 			return certList.get(0);
 		} else {
 			return certList.get(0);
@@ -584,7 +587,13 @@ public class CertificateUtil {
 		if (GeneralName.dNSName == altNameType) {
 			return( "DNS:" + sanValue);
 		} else if (GeneralName.iPAddress == altNameType) {
-			return( "IP:" + sanValue);
+			String normalizedIpAddress = sanValue;
+			try {
+				normalizedIpAddress = InetAddress.getByName(sanValue).getHostAddress();
+			} catch (UnknownHostException e) {
+				LOG.debug("Problem parsing ip address '" + sanValue +"'!", e.getLocalizedMessage());
+			}
+			return( "IP:" + normalizedIpAddress);
 		} else if (GeneralName.ediPartyName == altNameType) {
 			return( "EDI:" + sanValue);
 		} else if (GeneralName.otherName == altNameType) {
@@ -932,17 +941,40 @@ public class CertificateUtil {
 	}
 
 	/**
+	 * bloat the string-typed serial to a defined length to ensure ordering works out fine. The length of serials has a wide range (1 .. 50 cahrs)
 	 * 
-	 * @param serial
-	 * @return
+	 * @param serial a serial (e.g.'1' or '2586886443079766545651298663063516315029340169') encoded as a string.
+	 * @return the padded serial string. If serial is null, return max number of zeroes
 	 */
 	public static String getPaddedSerial(final String serial){
 	
+		if( serial == null) {
+			return SERIAL_PADDING_PATTERN;
+		}
 		int len = serial.length();
 		if( len >= SERIAL_PADDING_PATTERN.length() ){
 			return serial;
 		}
 		return SERIAL_PADDING_PATTERN.substring(serial.length()) + serial; 
+	}
+	
+	/**
+	 * bloat the string-typed timestamp to a defined length to ensure ordering works out fine 
+	 * 
+	 * @param timestamp a timestamp (e.g.'1593080183000') encoded as a string
+	 * @return the padded timestamp string. If timestamp is null, return max number of zeroes
+	 */
+	public static String getPaddedTimestamp(final String timestamp){
+	
+		if( timestamp == null) {
+			return TIMESTAMP_PADDING_PATTERN;
+		}
+		
+		int len = timestamp.length();
+		if( len >= TIMESTAMP_PADDING_PATTERN.length() ){
+			return timestamp;
+		}
+		return TIMESTAMP_PADDING_PATTERN.substring(timestamp.length()) + timestamp; 
 	}
 	
     /**
