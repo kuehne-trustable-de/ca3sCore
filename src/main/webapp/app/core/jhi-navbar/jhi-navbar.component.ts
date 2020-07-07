@@ -54,7 +54,17 @@ export default class JhiNavbar extends Vue {
   }
 
   public get roles(): string {
-    return this.$store.getters.account ? this.$store.getters.account.authorities[0] : '';
+
+    let roles = '';
+    if (this.$store.getters.account) {
+      for (const role of this.$store.getters.account.authorities) {
+        if (roles.length > 0) {
+          roles += ', ';
+        }
+        roles += role;
+      }
+    }
+    return roles;
   }
 
   public hasAnyAuthority(authorities: any): boolean {

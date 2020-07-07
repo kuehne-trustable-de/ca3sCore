@@ -2,6 +2,14 @@ package de.trustable.ca3s.core.web.rest.data;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x509.Extension;
@@ -15,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.DateUtil;
 import de.trustable.util.CryptoUtil;
@@ -41,6 +50,8 @@ public class X509CertificateHolderShallow {
 
     private LocalDateTime validTo;
     
+    private NamedValues[] subjectParts;
+    
 	@JsonProperty("sans")
 	private String[] sans;
 
@@ -60,6 +71,37 @@ public class X509CertificateHolderShallow {
     	this.keyPresent = false;
     	
     	this.subject = holder.getSubject().toString();
+
+    	// split the subject into parts
+		HashMap<String, List<String>> rdnMap = new HashMap<String, List<String>>();
+		
+		try {
+			List<Rdn> rdnList = new LdapName(subject).getRdns();
+			for( Rdn rdn: rdnList) {
+				String name = rdn.getType();
+				List<String> nameList;
+				if( !rdnMap.containsKey(name)) {
+					nameList = new ArrayList<String>();
+					rdnMap.put(name, nameList);
+				}
+				nameList = rdnMap.get(name);
+				nameList.add(rdn.getValue().toString());
+			}
+			
+			subjectParts = new NamedValues[rdnMap.size()];
+			Iterator<String> it = rdnMap.keySet().iterator();
+			for( int i = 0; i < rdnMap.size(); i++) {
+				String name = it.next();
+				List<String> valueList = rdnMap.get(name);
+				String[] values = new String[valueList.size()];
+				valueList.toArray(values);
+				NamedValues nvs = new NamedValues(name, values);
+				subjectParts[i] = nvs;
+			}
+		} catch (InvalidNameException e1) {
+			LOG.info("problem parsing subject '{}', : {}", subject, e1.getLocalizedMessage());
+		}
+
     	this.issuer = holder.getIssuer().toString();
     	this.type = "V" + holder.getVersionNumber();
     	
@@ -213,6 +255,14 @@ public class X509CertificateHolderShallow {
 
 	public void setCertificateId(long certificateId) {
 		this.certificateId = certificateId;
+	}
+
+	public NamedValues[] getSubjectParts() {
+		return subjectParts;
+	}
+
+	public void setSubjectParts(NamedValues[] subjectParts) {
+		this.subjectParts = subjectParts;
 	}
 
     

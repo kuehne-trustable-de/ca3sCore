@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2020-07-03 18:57:10.
+// Generated using typescript-generator version 2.19.577 on 2020-07-07 13:57:28.
 
 export interface IPipelineView extends ISerializable {
     id?: number;
@@ -17,6 +17,7 @@ export interface IPipelineView extends ISerializable {
     restriction_O?: IRDNRestriction;
     restriction_OU?: IRDNRestriction;
     restriction_S?: IRDNRestriction;
+    restriction_SAN?: IRDNRestriction;
     toPendingOnFailedRestrictions?: boolean;
     ipAsSubjectAllowed?: boolean;
     ipAsSANAllowed?: boolean;
@@ -124,6 +125,7 @@ export interface IX509CertificateHolderShallow {
     serial?: string;
     validFrom?: Date;
     validTo?: Date;
+    subjectParts?: INamedValues[];
     extensions?: string[];
     keyPresent?: boolean;
     certificatePresentInDB?: boolean;

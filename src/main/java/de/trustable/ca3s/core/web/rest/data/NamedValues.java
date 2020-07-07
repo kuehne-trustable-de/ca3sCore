@@ -9,6 +9,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NamedValues {
 
+	public NamedValues() {
+	}
+	
+	public NamedValues( final String name, final String[] values) {
+		this.name = name;
+		this.values = values;
+	}
+	
 	@JsonProperty("name")
 	private String name;
 	

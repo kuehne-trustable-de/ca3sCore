@@ -7,6 +7,7 @@ export interface IPipelineRestrictions {
   ou: IPipelineRestriction;
   l: IPipelineRestriction;
   st: IPipelineRestriction;
+  san: IPipelineRestriction;
 }
 
 export class PipelineRestrictions implements IPipelineRestrictions {
@@ -17,6 +18,7 @@ export class PipelineRestrictions implements IPipelineRestrictions {
     public ou: PipelineRestriction;
     public l: PipelineRestriction;
     public st: PipelineRestriction;
+    public san: PipelineRestriction;
 
   constructor(
     cn?: PipelineRestriction,
@@ -24,7 +26,8 @@ export class PipelineRestrictions implements IPipelineRestrictions {
     o?: PipelineRestriction,
     ou?: PipelineRestriction,
     l?: PipelineRestriction,
-    st?: PipelineRestriction
+    st?: PipelineRestriction,
+    san?: PipelineRestriction
   ) {
 //    const dummyPR: PipelineRestriction = new PipelineRestriction('NOT_ALLOWED', '', false);
     this.cn = cn || new PipelineRestriction('NOT_ALLOWED', '', false);
@@ -33,5 +36,6 @@ export class PipelineRestrictions implements IPipelineRestrictions {
     this.ou = ou || new PipelineRestriction('NOT_ALLOWED', '', false);
     this.l = l || new PipelineRestriction('NOT_ALLOWED', '', false);
     this.st = st || new PipelineRestriction('NOT_ALLOWED', '', false);
+    this.san = san || new PipelineRestriction('NOT_ALLOWED', '', false);
   }
 }

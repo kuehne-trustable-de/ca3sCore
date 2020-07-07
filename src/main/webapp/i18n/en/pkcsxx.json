@@ -21,7 +21,11 @@
         "validfrom": "Valid from",
         "validto": "Valid to"
       },
-
+      "creationTool": {
+        "keytool": "Java keytool",
+        "openssl": "Openssl",
+        "cmdline": "Command line"
+      },
       "warning": {
         "label": "Warning",
         "publicKeyPresent": "Public key already in use"

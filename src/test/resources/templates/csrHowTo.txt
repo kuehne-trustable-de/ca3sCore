@@ -3,7 +3,6 @@ keytool
 ##############################
 
 keytool -genkeypair -keyalg RSA -keysize 2048 -alias testAlias -keystore test.p12 -storetype pkcs12  -dname "CN=test"
-
 keytool -certreq  -keystore test.p12 -alias testAlias -ext 'SAN=dns:test.example.com,ip:127.0.0.1'
 
 
@@ -26,3 +25,11 @@ openssl req \
     <(printf "[SAN]\nsubjectAltName='DNS.1:*.api-scispike.com,DNS.2:api.scispike.com,DNS.3:app.scispike.com'")) \
   -keyout private_key.pem \
   -out server.crt
+  
+  
+  openssl req -newkey rsa:4096 -days 365 -nodes  
+  	-subj "/C=US/ST=Distributed/L=Cloud/O=Cluster/CN=*.api-scispike.com" 
+  	-extensions SAN   -config <( cat $( echo /etc/ssl/openssl.cnf  ) <(printf "[SAN]\nsubjectAltName='DNS.1:*.api-scispike.com,DNS.2:api.scispike.com,DNS.3:app.scispike.com'")) 
+  	-keyout private_key.pem 
+  	-out server.csr
+  

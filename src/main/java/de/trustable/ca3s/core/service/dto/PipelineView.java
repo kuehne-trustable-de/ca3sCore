@@ -34,6 +34,8 @@ public class PipelineView implements Serializable {
     private RDNRestriction restriction_O;
     private RDNRestriction restriction_OU;
     private RDNRestriction restriction_S;
+    
+    private RDNRestriction restriction_SAN;
 
     private boolean toPendingOnFailedRestrictions = false;
 
@@ -213,6 +215,14 @@ public class PipelineView implements Serializable {
 		this.restriction_S = restriction_S;
 	}
 
+
+	public RDNRestriction getRestriction_SAN() {
+		return restriction_SAN;
+	}
+
+	public void setRestriction_SAN(RDNRestriction restriction_SAN) {
+		this.restriction_SAN = restriction_SAN;
+	}
 
 	public void setIpAsSubjectAllowed(boolean ipAsSubjectAllowed) {
 		this.ipAsSubjectAllowed = ipAsSubjectAllowed;

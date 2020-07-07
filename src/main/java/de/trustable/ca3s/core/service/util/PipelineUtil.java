@@ -58,6 +58,10 @@ public class PipelineUtil {
 	public static final String RESTR_S_TEMPLATE = "RESTR_S_TEMPLATE";
 	public static final String RESTR_S_REGEXMATCH = "RESTR_S_REGEXMATCH";
 
+	public static final String RESTR_SAN_CARDINALITY = "RESTR_SAN_CARDINALITY";
+	public static final String RESTR_SAN_TEMPLATE = "RESTR_SAN_TEMPLATE";
+	public static final String RESTR_SAN_REGEXMATCH = "RESTR_SAN_REGEXMATCH";
+
 	public static final String ALLOW_IP_AS_SUBJECT = "ALLOW_IP_AS_SUBJECT";
 	public static final String ALLOW_IP_AS_SAN = "ALLOW_IP_AS_SAN";
 	public static final String TO_PENDIND_ON_FAILED_RESTRICTIONS = "TO_PENDIND_ON_FAILED_RESTRICTIONS";
@@ -123,6 +127,9 @@ public class PipelineUtil {
 		pv.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
     	pv.setRestriction_S(new RDNRestriction());
 		pv.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+    	
+    	pv.setRestriction_SAN(new RDNRestriction());
+		pv.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
     	
     	ACMEConfigItems acmeConfigItems = new ACMEConfigItems ();
     	
@@ -190,6 +197,13 @@ public class PipelineUtil {
     		}else if( RESTR_S_REGEXMATCH.equals(plAtt.getName())) {
     			pv.getRestriction_S().setRegExMatch(Boolean.valueOf(plAtt.getValue()));
     			
+    		}else if( RESTR_SAN_CARDINALITY.equals(plAtt.getName())) {
+				pv.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
+    		}else if( RESTR_SAN_TEMPLATE.equals(plAtt.getName())) {
+    			pv.getRestriction_SAN().setContentTemplate(plAtt.getValue());
+    		}else if( RESTR_SAN_REGEXMATCH.equals(plAtt.getName())) {
+    			pv.getRestriction_SAN().setRegExMatch(Boolean.valueOf(plAtt.getValue()));
+    			
     		}else if( TO_PENDIND_ON_FAILED_RESTRICTIONS.equals(plAtt.getName())) {
     			pv.setToPendingOnFailedRestrictions(Boolean.valueOf(plAtt.getValue()));
     		}
@@ -243,7 +257,6 @@ public class PipelineUtil {
 		}
 		
 		Set<PipelineAttribute> pipelineAttributes = new HashSet<PipelineAttribute>();
-		
 
 		addPipelineAttribute(pipelineAttributes, p, RESTR_C_CARDINALITY, pv.getRestriction_C().getCardinalityRestriction().name());
 		addPipelineAttribute(pipelineAttributes, p, RESTR_C_TEMPLATE, pv.getRestriction_C().getContentTemplate());
@@ -265,6 +278,10 @@ public class PipelineUtil {
 		addPipelineAttribute(pipelineAttributes, p, RESTR_S_CARDINALITY, pv.getRestriction_S().getCardinalityRestriction().name());
 		addPipelineAttribute(pipelineAttributes, p, RESTR_S_TEMPLATE, pv.getRestriction_S().getContentTemplate());
 		addPipelineAttribute(pipelineAttributes, p, RESTR_S_REGEXMATCH, pv.getRestriction_S().isRegExMatch());
+
+		addPipelineAttribute(pipelineAttributes, p, RESTR_SAN_CARDINALITY, pv.getRestriction_SAN().getCardinalityRestriction().name());
+		addPipelineAttribute(pipelineAttributes, p, RESTR_SAN_TEMPLATE, pv.getRestriction_SAN().getContentTemplate());
+		addPipelineAttribute(pipelineAttributes, p, RESTR_SAN_REGEXMATCH, pv.getRestriction_SAN().isRegExMatch());
 
 		addPipelineAttribute(pipelineAttributes, p, ALLOW_IP_AS_SUBJECT,pv.isIpAsSubjectAllowed());
 		addPipelineAttribute(pipelineAttributes, p, ALLOW_IP_AS_SAN,pv.isIpAsSANAllowed());
@@ -339,6 +356,12 @@ public class PipelineUtil {
 	    if( !checkRestrictions(BCStyle.L, pv.getRestriction_L(), rdnArr, messageList)) { outcome = false;}
 	    if( !checkRestrictions(BCStyle.ST, pv.getRestriction_S(), rdnArr, messageList)) { outcome = false;}
 
+    	Set<GeneralName> gNameSet = CSRUtil.getSANList(p10ReqHolder.getReqAttributes());
+    	LOG.debug("#" + gNameSet.size() + " SANs present");
+		
+
+	    if( !checkRestrictions(pv.getRestriction_SAN(), gNameSet, messageList)) { outcome = false;}
+
 	    if(!pv.isIpAsSubjectAllowed()) {
 	    	if( isSubjectIP(rdnArr, messageList)) {
 	    		outcome = false;
@@ -346,7 +369,7 @@ public class PipelineUtil {
 	    }
 	    
 	    if(!pv.isIpAsSANAllowed()) {
-	    	if( hasIPinSANList(p10ReqHolder, messageList)) {
+	    	if( hasIPinSANList(gNameSet, messageList)) {
 	    		outcome = false;
 	    	}
 	    }
@@ -355,12 +378,9 @@ public class PipelineUtil {
 	}
 
 
-	private boolean hasIPinSANList(Pkcs10RequestHolder p10ReqHolder, List<String> messageList) {
+	private boolean hasIPinSANList(Set<GeneralName> gNameSet, List<String> messageList) {
 
 		boolean outcome = false;
-		
-    	Set<GeneralName> gNameSet = CSRUtil.getSANList(p10ReqHolder.getReqAttributes());
-		System.out.println("#" + gNameSet.size() + " SANs present");
 		
     	for( GeneralName gn: gNameSet) {
 			if (GeneralName.iPAddress == gn.getTagNo()) {
@@ -372,6 +392,93 @@ public class PipelineUtil {
 		return outcome;
 	}
 
+
+	private boolean checkRestrictions(RDNRestriction restriction, Set<GeneralName> gNameSet, List<String> messageList) {
+
+		if( restriction == null) {
+			return true; // no restrictions present!!
+		}
+		
+		boolean outcome = true;
+
+		String template = "";
+		LOG.debug("checking SANs");
+
+		boolean hasTemplate = false;
+		if( restriction.getContentTemplate() != null) {
+			template = restriction.getContentTemplate().trim();
+			hasTemplate = !template.isEmpty();
+		}
+		int n = 0;
+		
+    	for( GeneralName gn: gNameSet) {
+			n++;
+			if( hasTemplate) {
+				String value = gn.getName().toString().trim();
+				if( restriction.isRegExMatch()) {
+					boolean evalResult = false;
+					try {
+						evalResult = value.matches(template);
+					}catch(PatternSyntaxException pse) {
+						LOG.warn("pattern '"+template+"' is not valid");
+					}
+					if( !evalResult ) {
+						String msg = "restriction mismatch: SAN '"+value +"' does not match regular expression '"+template+"' !";
+						messageList.add(msg);
+						LOG.debug(msg);
+						outcome = false;
+					}
+				}else{
+					if( !template.equalsIgnoreCase(value) ) {
+						String msg = "restriction mismatch: SAN '"+value +"' does not match expected value '"+template+"' !";
+						messageList.add(msg);
+						LOG.debug(msg);
+						outcome = false;
+					}
+				}
+			}
+				
+		}
+		
+		RDNCardinalityRestriction cardinality = restriction.getCardinalityRestriction();
+		if( RDNCardinalityRestriction.NOT_ALLOWED.equals(cardinality)) {
+			if( n > 0) {
+				String msg = "restrcition mismatch: A SAN MUST NOT occur!";
+				messageList.add(msg);
+				LOG.debug(msg);
+				outcome = false;
+			}
+		} else if( RDNCardinalityRestriction.ONE.equals(cardinality)) {
+			if( n ==  0) {
+				String msg = "restrcition mismatch: SAN MUST occur once, missing here!";
+				messageList.add(msg);
+				LOG.debug(msg);
+				outcome = false;
+			}
+			if( n != 1) {
+				String msg = "restrcition mismatch: SAN MUST occur exactly once, found "+n+" times!";
+				messageList.add(msg);
+				LOG.debug(msg);
+				outcome = false;
+			}
+		} else if( RDNCardinalityRestriction.ONE_OR_MANY.equals(cardinality)) {
+			if( n == 0) {
+				String msg = "restrcition mismatch: SAns MUST occur once or more, missing here!";
+				messageList.add(msg);
+				LOG.debug(msg);
+				outcome = false;
+			}
+		} else if( RDNCardinalityRestriction.ZERO_OR_ONE.equals(cardinality)) {
+			if( n > 1) {
+				String msg = "restrcition mismatch: SANs MUST occur zero or once, found "+n+" times!";
+				messageList.add(msg);
+				LOG.debug(msg);
+				outcome = false;
+			}
+		}
+		return outcome;
+	}
+	
 
 	private boolean checkRestrictions(ASN1ObjectIdentifier restricted, RDNRestriction restriction, RDN[] rdnArr, List<String> messageList) {
 
