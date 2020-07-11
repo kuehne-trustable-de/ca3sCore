@@ -315,12 +315,12 @@ public class CertificateUtilTest {
 	}
 	
 
-//	@Test
-//	public void testFileUrl() throws MalformedURLException {
-//
-//		File dir = new File("c:/tmp");
-//		assertTrue( dir.exists() && dir.canRead());
-//	}
+	@Test
+	public void testFileUrl() throws MalformedURLException {
+
+		File dir = new File("c:/tmp");
+		assertTrue( dir.exists() && dir.canRead());
+	}
 	
 	@Test
 	public void testBuildCertificate() throws GeneralSecurityException, IOException{
