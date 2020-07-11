@@ -36,7 +36,7 @@ public class PipelineViewServiceImpl implements PipelineViewService {
     /**
      * Save a pipeline.
      *
-     * @param pipeline the entity to save.
+     * @param pipelineView the entity to save.
      * @return the persisted entity.
      */
     @Override

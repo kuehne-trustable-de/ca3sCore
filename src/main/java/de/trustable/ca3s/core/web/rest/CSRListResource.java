@@ -21,7 +21,7 @@ import de.trustable.ca3s.core.service.dto.CSRView;
 import io.github.jhipster.web.util.PaginationUtil;
 
 /**
- * REST controller for managing {@link de.trustable.ca3s.core.domain.CSRView}.
+ * REST controller for managing {@link de.trustable.ca3s.core.service.dto.CSRView}.
  */
 @RestController
 @RequestMapping("/api")

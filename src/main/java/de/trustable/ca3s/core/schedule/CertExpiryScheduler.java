@@ -208,7 +208,7 @@ public class CertExpiryScheduler {
 	}
 
 	/**
-	 * 
+	 * @return number of expiring certificates
 	 */
 	@Scheduled(cron = "0 15 2 * * ?")
 //	@Scheduled(fixedDelay = 60000)

@@ -286,27 +286,6 @@ public class NewOrderController extends ACMEController {
   private AcmeIdentifierRepository identRepository;
 
 
-  /**
-   * @param nonceDAO         Required
-   * @param authorizationDAO Required
-   * @param accountDAO       Required
-   */
-  
-/*  
-  public NewOrderController(final NonceDao nonceDAO, final AuthorizationDAO authorizationDAO, final AccountDAO
-          accountDAO) {
-	  
-    Validate.notNull(authorizationDAO, "Missing authorization DAO component");
-    Validate.notNull(accountDAO, "Missing account DAO component");
-    this.authorizationDAO = authorizationDAO;
-    this.accountDAO = accountDAO;
-    this.compactJwsNewAuthorizationRequest = new NewAuthorizationRequest
-            (accountDAO, nonceDAO, CompactJwsSerializationToJwtContextConverter.INSTANCE);
-    this.flattenedJwsJsonNewAuthorizationRequest = new NewAuthorizationRequest
-            (accountDAO, nonceDAO, FlattenedJwsJsonSerializationToJwtContextConverter.INSTANCE);
-  }
-*/
-  
   @RequestMapping(method = POST, consumes = APPLICATION_JOSE_JSON_VALUE)
   public ResponseEntity<?> consumingPostedJoseJson(@RequestBody final String requestBody, @PathVariable final String realm) {
 		LOG.info("Received consumingPostedJoseJson request ");

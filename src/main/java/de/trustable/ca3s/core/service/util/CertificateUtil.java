@@ -152,7 +152,7 @@ public class CertificateUtil {
 	 * @param pemCert
 	 * @param csr
 	 * @param executionId
-	 * @return
+	 * @return certificate
 	 * @throws GeneralSecurityException
 	 * @throws IOException
 	 */
@@ -205,7 +205,7 @@ public class CertificateUtil {
 	 * @param csr
 	 * @param executionId
 	 * @param reimport
-	 * @return
+	 * @return certificate
 	 * @throws GeneralSecurityException
 	 * @throws IOException
 	 */
@@ -623,7 +623,7 @@ public class CertificateUtil {
 	/**
 	 * Gets the key length of supported keys
 	 * @param pk PublicKey used to derive the keysize
-	 * @return -1 if key is unsupported, otherwise a number >= 0. 0 usually means the length can not be calculated, 
+	 * @return -1 if key is unsupported, otherwise a number &gt;= 0. 0 usually means the length can not be calculated,
 	 * for example if the key is an EC key and the "implicitlyCA" encoding is used.
 	 */
 	public static int getKeyLength(final PublicKey pk) {
@@ -893,8 +893,8 @@ public class CertificateUtil {
 
 	/**
 	 * 
-	 * @param startCertDao
-	 * @return
+	 * @param startCert end entity certificate for chain search
+	 * @return X509Certificate Array
 	 * @throws GeneralSecurityException
 	 */
 	public X509Certificate[] getX509CertificateChain(final Certificate startCert) throws GeneralSecurityException {
@@ -913,8 +913,8 @@ public class CertificateUtil {
 	
 	/**
 	 * 
-	 * @param startCertDao
-	 * @return
+	 * @param startCert end entity certificate for chain search
+	 * @return X509Certificate List
 	 * @throws GeneralSecurityException
 	 */
 	public List<X509Certificate> getX509CertificateChainAsList(final Certificate startCert) throws GeneralSecurityException {
@@ -989,8 +989,8 @@ public class CertificateUtil {
 
 	/**
 	 * convert the usage-bits to a readable string
-	 * @param usage
-	 * @return descriptive text representing the key usage
+	 * @param usage	boolean array of usage
+	 * @param cert	certificate to set attributes
 	 */
 	public void usageAsCertAttributes( boolean[] usage, Certificate cert ){
 
@@ -1056,8 +1056,8 @@ public class CertificateUtil {
 
 	  /**
 	   * 
-	   * @param pem
-	   * @return
+	   * @param pem string that will be converted to X509Certificate
+	   * @return X509CertificateHolder converted from PEM String
 	   * @throws GeneralSecurityException
 	   */
 	  public X509CertificateHolder convertPemToCertificateHolder (final String pem) throws GeneralSecurityException {
@@ -1073,8 +1073,8 @@ public class CertificateUtil {
 	  
 		/**
 		 * 
-		 * @param pem
-		 * @return
+		 * @param pem string that will be converted to X509Certificate
+		 * @return X509Certificate converted from PEM String
 		 * @throws GeneralSecurityException
 		 */
 		public X509Certificate convertPemToCertificate(final String pem)
@@ -1131,8 +1131,8 @@ public class CertificateUtil {
 
 		/**
 		 * 
-		 * @param pem
-		 * @return
+		 * @param pem string that will be converted to PrivateKey
+		 * @return PrivateKey converted from PEM String
 		 * @throws GeneralSecurityException
 		 */
 		public PrivateKey convertPemToPrivateKey(final String pem)
@@ -1188,8 +1188,8 @@ public class CertificateUtil {
  
 	/**
 	 * 
-	 * @param x509CertHolder
-	 * @return
+	 * @param x509CertHolder certificate to search issuning certificate
+	 * @return issuing certificate from input certificate
 	 * @throws GeneralSecurityException
 	 */
 	public Certificate findIssuingCertificate(X509CertificateHolder x509CertHolder) throws GeneralSecurityException {
@@ -1253,8 +1253,8 @@ public class CertificateUtil {
 
 	/**
 	 * 
-	 * @param cert
-	 * @return
+	 * @param cert certificate to search root certificate
+	 * @return root certificate from input certificate
 	 * @throws GeneralSecurityException
 	 */
 	private Certificate findRootCertificate(Certificate cert) throws GeneralSecurityException {
@@ -1294,9 +1294,9 @@ public class CertificateUtil {
 
 
 	/**
-	 * @param x509CertHolder
-	 * @param aki
-	 * @return
+	 * @param x509CertHolder 	certificate
+	 * @param aki				Authority Key Information
+	 * @return list of certificates
 	 */
 	private List<Certificate> findCertsByAKI(X509CertificateHolder x509CertHolder, AuthorityKeyIdentifier aki) {
 		
@@ -1378,8 +1378,8 @@ public class CertificateUtil {
 
 	/**
 	 * 
-	 * @param keyPair
-	 * @return
+	 * @param cert		certificate that needs to be stored in PEM format
+	 * @param keyPair	keypair that needs to be stored in PEM format
 	 * @throws IOException
 */	 
 	public void storePrivateKey(Certificate cert, KeyPair keyPair) throws IOException {
@@ -1401,8 +1401,8 @@ public class CertificateUtil {
 
 	/**
 	 * 
-	 * @param cert
-	 * @return
+	 * @param cert certificate to search privateKey
+	 * @return PrivateKey for input certificate
 	 */
     public PrivateKey getPrivateKey(Certificate cert) {
         
@@ -1498,8 +1498,8 @@ public class CertificateUtil {
     
 	/**
 	 * 
-	 * @param sanArr
-	 * @return
+	 * @param sanArr SAN array
+	 * @return list of certificates
 	 */
 	public List<Certificate> findReplaceCandidates(String[] sanArr) {
 
@@ -1515,8 +1515,8 @@ public class CertificateUtil {
 	
 	/**
 	 * 
-	 * @param sans
-	 * @return
+	 * @param sans SANs as List
+	 * @return list of certificates
 	 */
 	public List<Certificate> findReplaceCandidates(List<String> sans) {
 
