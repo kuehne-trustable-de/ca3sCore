@@ -23,9 +23,9 @@ public class RemoteConnector {
 
 	/**
 	 * 
-	 * @param requestUrl
+	 * @param requestUrlParam
 	 * @param requestBytes
-	 * @return
+	 * @return byte array
 	 * @throws IOException
 	 */
 	public byte[] sendHttpReq(final String requestUrlParam, final byte[] requestBytes) throws IOException {

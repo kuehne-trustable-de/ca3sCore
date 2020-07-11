@@ -58,7 +58,7 @@ public class RevokeRequest {
 	}
 
 	/**
-	 * @param csr the certificate to set
+	 * @param certificate the certificate to set
 	 */
 	public void setCertificate(String certificate) {
 		this.certificate = certificate;

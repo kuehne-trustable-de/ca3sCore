@@ -121,7 +121,7 @@ public class AuthorizationResponse {
 	}
 
 	/**
-	 * @param identifiers the identifier to set
+	 * @param identifier the identifier to set
 	 */
 	public void setIdentifier(IdentifierResponse identifier) {
 		this.identifier = identifier;

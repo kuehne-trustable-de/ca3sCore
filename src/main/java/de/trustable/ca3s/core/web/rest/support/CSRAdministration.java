@@ -63,7 +63,7 @@ public class CSRAdministration {
     /**
      * {@code POST  /administerRequest} : Process a PKCSXX-object encoded as PEM.
      *
-     * @param a structure holding some crypto-related content, e.g. CSR, certificate, P12 container
+     * @param adminData a structure holding some crypto-related content, e.g. CSR, certificate, P12 container
      * @return the {@link ResponseEntity} .
      */
     @PostMapping("/administerRequest")
@@ -165,7 +165,7 @@ public class CSRAdministration {
     /**
      * {@code POST  /withdrawOwnRequest} : Withdraw own request .
      *
-     * @param a structure holding some crypto-related content, e.g. CSR, certificate, P12 container
+     * @param adminData a structure holding some crypto-related content, e.g. CSR, certificate, P12 container
      * @return the {@link ResponseEntity} .
      */
     @PostMapping("/withdrawOwnRequest")

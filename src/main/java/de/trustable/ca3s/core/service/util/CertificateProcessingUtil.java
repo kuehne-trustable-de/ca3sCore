@@ -52,13 +52,13 @@ public class CertificateProcessingUtil {
 
 	/**
 	 * 
-	 * @param csrAsPem
-	 * @param requestorName
-	 * @param requestAuditType
-	 * @param certificateAuditType
-	 * @param requestorComment
-	 * @param pipeline
-	 * @return
+	 * @param csrAsPem				certificate signing request in PEM format
+	 * @param requestorName			requestorName
+	 * @param requestAuditType		requestAuditType
+	 * @param certificateAuditType	certificateAuditType
+	 * @param requestorComment		requestorComment
+	 * @param pipeline				pipeline
+	 * @return certificate
 	 */
 	public Certificate processCertificateRequest(final String csrAsPem, final String requestorName, final String requestAuditType, final String certificateAuditType, String requestorComment, Pipeline pipeline )  {
 		
@@ -72,12 +72,12 @@ public class CertificateProcessingUtil {
 
 	/**
 	 * 
-	 * @param csrAsPem
-	 * @param requestorName
-	 * @param requestAuditType
-	 * @param requestorComment
-	 * @param pipeline
-	 * @return
+	 * @param csrAsPem				certificate signing request in PEM format
+	 * @param requestorName			requestorName
+	 * @param requestAuditType		requestAuditType
+	 * @param requestorComment		requestorComment
+	 * @param pipeline				pipeline
+	 * @return csr
 	 */
 	public CSR buildCSR(final String csrAsPem, final String requestorName, final String requestAuditType, String requestorComment, Pipeline pipeline )  {
 
@@ -87,11 +87,13 @@ public class CertificateProcessingUtil {
 	
 	/**
 	 * 
-	 * @param csrAsPem
-	 * @param requestorName
-	 * @param requestorComment
-	 * @param optPipeline
-	 * @return
+	 * @param csrAsPem				certificate signing request in PEM format
+	 * @param requestorName			requestorName
+	 * @param requestAuditType		requestAuditType
+	 * @param requestorComment		requestorComment
+	 * @param pipeline				pipeline
+	 * @param messageList			messageList
+	 * @return csr
 	 */
 	public CSR buildCSR(final String csrAsPem, final String requestorName, final String requestAuditType, String requestorComment, Pipeline pipeline, List<String> messageList )  {
 			
@@ -152,13 +154,11 @@ public class CertificateProcessingUtil {
 	}
 
 	/**
-	 * 
-	 * @param csrAsPem
-	 * @param p10ReqData 
-	 * @param requestorName
-	 * @param requestorComment
-	 * @param optPipeline
-	 * @return
+	 * @param csr					certificate signing request as CSR object
+	 * @param requestorName			requestorName
+	 * @param certificateAuditType 	certificateAuditType
+	 * @param pipeline				pipeline
+	 * @return certificate
 	 */
 	public Certificate processCertificateRequest(CSR csr, final String requestorName, final String certificateAuditType, Pipeline pipeline )  {
 			
@@ -194,93 +194,4 @@ public class CertificateProcessingUtil {
 		return null;
 	}
 
-
-	/**
-	 * 
-	 * @param csrAsPem
-	 * @param p10ReqData 
-	 * @param requestorName
-	 * @param requestorComment
-	 * @param optPipeline
-	 * @return
-	 */
-	/*
-	public Certificate _processCertificateRequest(final String csrAsPem, PkcsXXData p10ReqData, final String requestorName, final String requestAuditType, final String certificateAuditType, String requestorComment, Pipeline pipeline )  {
-			
-
-		
-	    List<String> messageList = new ArrayList<String>();
-
-		// BPNM call
-		try {
-			Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(csrAsPem);
-
-			CSR csr;
-			boolean bApprovalRequired = false;
-			
-			if( pipeline == null) {
-				csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, PipelineType.WEB, null);
-			}else {
-				bApprovalRequired = pipeline.isApprovalRequired();
-				
-				csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, PipelineType.WEB, null);
-			}
-			
-			csr.setRequestorComment(requestorComment);
-			csrRepository.save(csr);
-
-			applicationEventPublisher.publishEvent(
-			        new AuditApplicationEvent(
-			        		requestorName, requestAuditType, "certificate requested, csr " + csr.getId() + " uploaded"));
-
-			LOG.debug("csr contains #{} CsrAttributes, #{} RequestAttributes and #{} RDN", csr.getCsrAttributes().size(), csr.getRas().size(), csr.getRdns().size());
-			for(de.trustable.ca3s.core.domain.RDN rdn:csr.getRdns()) {
-				LOG.debug("RDN contains #{}", rdn.getRdnAttributes().size());
-			}
-
-			if( pvUtil.isPipelineRestrictionsResolved(pipeline, p10ReqHolder, messageList)) {
-				
-				if( bApprovalRequired ){
-					LOG.debug("defering certificate creation for csr #{}", csr.getId());
-					p10ReqData.setCsrPending(true);
-					p10ReqData.setCreatedCSRId(csr.getId().toString());
-				} else {
-					
-					Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
-					if(cert != null) {
-						certificateRepository.save(cert);
-						applicationEventPublisher.publishEvent(
-						        new AuditApplicationEvent(
-						        		requestorName, certificateAuditType, "certificate " +cert.getId()+ " created"));
-
-						return cert;
-					} else {
-						LOG.warn("creation of certificate requested by {} failed ", requestorName);
-					}
-				}
-				
-			} else{
-				String msg = "certificate request " + csr.getId() + " rejected";
-				if( !messageList.isEmpty()) {
-					msg += ", validation of restriction failed: '" + messageList.get(0) + "'"; 
-				}
-				
-				if( messageList.size() > 1) {
-					msg += ", " + (messageList.size() - 1) + " more failures."; 
-				}
-				
-				applicationEventPublisher.publishEvent(
-				        new AuditApplicationEvent(
-				        		requestorName, AuditUtil.AUDIT_REQUEST_RESTRICTIONS_FAILED, msg));
-			}
-
-			p10ReqData.setMessages(messageList.toArray(new String[messageList.size()]));
-
-		} catch (GeneralSecurityException | IOException e) {
-			LOG.warn("execution of CSRProcessingTask failed ", e);
-		}
-
-		return null;
-	}
-*/
 }

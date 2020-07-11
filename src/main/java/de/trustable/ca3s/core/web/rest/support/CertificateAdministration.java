@@ -76,7 +76,7 @@ public class CertificateAdministration {
     /**
      * {@code POST  /administerCertificate} : revoke a certificate.
      *
-     * @param 
+     * @param adminData a structure holding some crypto-related content, e.g. CSR, certificate, P12 container
      * @return the {@link ResponseEntity} .
      */
     @PostMapping("/administerCertificate")
@@ -137,7 +137,7 @@ public class CertificateAdministration {
     /**
      * {@code POST  /withdrawOwnCertificate} : Withdraw own certificate.
      *
-     * @param 
+     * @param adminData a structure holding some crypto-related content, e.g. CSR, certificate, P12 container
      * @return the {@link ResponseEntity} .
      */
     @PostMapping("/withdrawOwnCertificate")
@@ -229,7 +229,6 @@ public class CertificateAdministration {
     /**
      * {@code POST  /withdrawOwnCertificate} : Withdraw own certificate.
      *
-     * @param 
      * @return the {@link ResponseEntity} .
      */
     @PostMapping("/sendExpiringCertificateEmail")
