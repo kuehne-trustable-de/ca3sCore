@@ -30,12 +30,12 @@ export class PipelineRestrictions implements IPipelineRestrictions {
     san?: PipelineRestriction
   ) {
 //    const dummyPR: PipelineRestriction = new PipelineRestriction('NOT_ALLOWED', '', false);
-    this.cn = cn || new PipelineRestriction('NOT_ALLOWED', '', false);
-    this.c = c || new PipelineRestriction('NOT_ALLOWED', '', false);
-    this.o = o || new PipelineRestriction('NOT_ALLOWED', '', false);
-    this.ou = ou || new PipelineRestriction('NOT_ALLOWED', '', false);
-    this.l = l || new PipelineRestriction('NOT_ALLOWED', '', false);
-    this.st = st || new PipelineRestriction('NOT_ALLOWED', '', false);
-    this.san = san || new PipelineRestriction('NOT_ALLOWED', '', false);
+    this.cn = cn || new PipelineRestriction('CN', 'NOT_ALLOWED', '', false);
+    this.c = c || new PipelineRestriction('C', 'NOT_ALLOWED', '', false);
+    this.o = o || new PipelineRestriction('O', 'NOT_ALLOWED', '', false);
+    this.ou = ou || new PipelineRestriction('OU', 'NOT_ALLOWED', '', false);
+    this.l = l || new PipelineRestriction('L', 'NOT_ALLOWED', '', false);
+    this.st = st || new PipelineRestriction('ST', 'NOT_ALLOWED', '', false);
+    this.san = san || new PipelineRestriction('SAN', 'NOT_ALLOWED', '', false);
   }
 }

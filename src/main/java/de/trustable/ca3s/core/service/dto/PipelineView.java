@@ -37,6 +37,10 @@ public class PipelineView implements Serializable {
     
     private RDNRestriction restriction_SAN;
 
+    private RDNRestriction[] rdnRestrictions;
+    
+    private ARARestriction[] araRestrictions;
+    
     private boolean toPendingOnFailedRestrictions = false;
 
     private boolean ipAsSubjectAllowed = false;
@@ -254,6 +258,22 @@ public class PipelineView implements Serializable {
 
 	public void setToPendingOnFailedRestrictions(boolean toPendingOnFailedRestrictions) {
 		this.toPendingOnFailedRestrictions = toPendingOnFailedRestrictions;
+	}
+
+	public ARARestriction[] getAraRestrictions() {
+		return araRestrictions;
+	}
+
+	public void setAraRestrictions(ARARestriction[] araRestrictions) {
+		this.araRestrictions = araRestrictions;
+	}
+
+	public RDNRestriction[] getRdnRestrictions() {
+		return rdnRestrictions;
+	}
+
+	public void setRdnRestrictions(RDNRestriction[] rdnRestrictions) {
+		this.rdnRestrictions = rdnRestrictions;
 	}
 
 	

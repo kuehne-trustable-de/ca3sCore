@@ -5,13 +5,16 @@ import axios from 'axios';
 
 import { required, minLength} from 'vuelidate/lib/validators';
 
-import { IUploadPrecheckData, IPkcsXXData, INamedValues } from '@/shared/model/transfer-object.model';
+import { IUploadPrecheckData, IPkcsXXData, INamedValues, ICreationMode, IKeyAlgoLength, IPipelineView } from '@/shared/model/transfer-object.model';
 import { IPipelineRestrictions, PipelineRestrictions } from '@/shared/model/pipeline-restrictions';
+import { IPipelineRestriction, PipelineRestriction } from '@/shared/model/pipeline-restriction';
+
 import { IPipeline } from '@/shared/model/pipeline.model';
 
 const precheckUrl = 'publicapi/describeContent';
 const uploadUrl = 'api/uploadContent';
 
+/*
 const validations: any = {
   upload: {
     pipelineId: {
@@ -31,19 +34,27 @@ const validations: any = {
 @Component({
   validations
 })
+*/
+
+@Component
 export default class PKCSXX extends Vue {
 
-  public upload: IUploadPrecheckData = <IUploadPrecheckData>{};
+  private upload: IUploadPrecheckData = <IUploadPrecheckData>{};
   public precheckResponse: IPkcsXXData = <IPkcsXXData>{};
 
-  public allWebPipelines: IPipeline[] = [];
+  public allWebPipelines: IPipelineView[] = [];
+  public selectPipelineView: IPipelineView = {};
+  public rdnRestrictions: IPipelineRestriction[] = [];
+  public araRestrictions: IPipelineRestriction[] = [];
+  
   public selectPipelineInfo = '';
 
   public pipelineRestrictions: IPipelineRestrictions = new PipelineRestrictions();
 
-  public creationMode = 'csrAvailable';
-  public keyAlgoLength = 'RSA-2048';
-  public creationTool = 'keytool';
+  private creationTool = 'keytool';
+  private creationMode: ICreationMode = 'CSR_AVAILABLE';
+  private keyAlgoLength: IKeyAlgoLength = 'RSA_2048';
+
   public sampleCommandLine = 'keytool -genkeypair -keyalg RSA -keysize 2048 -alias testAlias -keystore test.p12 -storetype pkcs12  -dname "CN=test\n\n' +
 'keytool -certreq  -keystore test.p12 -alias testAlias -ext "SAN=dns:test.example.com,ip:127.0.0.1"';
 
@@ -99,57 +110,23 @@ export default class PKCSXX extends Vue {
     this.updatePipelineRestrictionsByPipelineInfo(this.allWebPipelines[idx]);
   }
 
-  public updatePipelineRestrictionsByPipelineInfo(pipeline: IPipeline): void {
+  public updatePipelineRestrictionsByPipelineInfo(pipeline: IPipelineView): void {
 
+    this.selectPipelineView = pipeline;
     this.selectPipelineInfo = pipeline.description;
+
+    this.rdnRestrictions = new Array<PipelineRestriction>();
+
+    for (const rr of pipeline.rdnRestrictions) {
+      if ( rr.cardinalityRestriction === 'NOT_ALLOWED') {
+        // ignore this
+      } else {
+        this.rdnRestrictions.push( new PipelineRestriction(rr.rdnName, rr.cardinalityRestriction, rr.contentTemplate, rr.regExMatch));
+      }
+    }
 
     window.console.info('calling updatePipelineRestrictions 1: ' + this.selectPipelineInfo);
 
-    for (const pAtt of pipeline.pipelineAttributes) {
-      if ( pAtt.name === 'RESTR_C_CARDINALITY') {
-        this.pipelineRestrictions.c.cardinality = pAtt.value;
-      } else if ( pAtt.name === 'RESTR_C_TEMPLATE') {
-        this.pipelineRestrictions.c.template = pAtt.value;
-      } else if ( pAtt.name === 'RESTR_C_REGEXMATCH') {
-        this.pipelineRestrictions.c.regex = pAtt.value.toLowerCase() === 'true';
-      } else if ( pAtt.name === 'RESTR_CN_CARDINALITY') {
-        this.pipelineRestrictions.cn.cardinality = pAtt.value;
-      } else if ( pAtt.name === 'RESTR_CN_TEMPLATE') {
-        this.pipelineRestrictions.cn.template = pAtt.value;
-      } else if ( pAtt.name === 'RESTR_CN_REGEXMATCH') {
-        this.pipelineRestrictions.cn.regex = pAtt.value.toLowerCase() === 'true';
-      } else if ( pAtt.name === 'RESTR_O_CARDINALITY') {
-        this.pipelineRestrictions.o.cardinality = pAtt.value;
-      } else if ( pAtt.name === 'RESTR_O_TEMPLATE') {
-        this.pipelineRestrictions.o.template = pAtt.value;
-      } else if ( pAtt.name === 'RESTR_O_REGEXMATCH') {
-        this.pipelineRestrictions.o.regex = pAtt.value.toLowerCase() === 'true';
-      } else if ( pAtt.name === 'RESTR_OU_CARDINALITY') {
-        this.pipelineRestrictions.ou.cardinality = pAtt.value;
-      } else if ( pAtt.name === 'RESTR_OU_TEMPLATE') {
-        this.pipelineRestrictions.ou.template = pAtt.value;
-      } else if ( pAtt.name === 'RESTR_OU_REGEXMATCH') {
-        this.pipelineRestrictions.ou.regex = pAtt.value.toLowerCase() === 'true';
-      } else if ( pAtt.name === 'RESTR_L_CARDINALITY') {
-        this.pipelineRestrictions.l.cardinality = pAtt.value;
-      } else if ( pAtt.name === 'RESTR_L_TEMPLATE') {
-        this.pipelineRestrictions.l.template = pAtt.value;
-      } else if ( pAtt.name === 'RESTR_L_REGEXMATCH') {
-        this.pipelineRestrictions.l.regex = pAtt.value.toLowerCase() === 'true';
-      } else if ( pAtt.name === 'RESTR_ST_CARDINALITY') {
-        this.pipelineRestrictions.st.cardinality = pAtt.value;
-      } else if ( pAtt.name === 'RESTR_ST_TEMPLATE') {
-        this.pipelineRestrictions.st.template = pAtt.value;
-      } else if ( pAtt.name === 'RESTR_ST_REGEXMATCH') {
-        this.pipelineRestrictions.st.regex = pAtt.value.toLowerCase() === 'true';
-      } else if ( pAtt.name === 'RESTR_SAN_CARDINALITY') {
-        this.pipelineRestrictions.san.cardinality = pAtt.value;
-      } else if ( pAtt.name === 'RESTR_SAN_TEMPLATE') {
-        this.pipelineRestrictions.san.template = pAtt.value;
-      } else if ( pAtt.name === 'RESTR_SAN_REGEXMATCH') {
-        this.pipelineRestrictions.san.regex = pAtt.value.toLowerCase() === 'true';
-      }
-    }
     this.pipelineRestrictions.c.alignContent();
     this.pipelineRestrictions.cn.alignContent();
     this.pipelineRestrictions.o.alignContent();
@@ -158,63 +135,54 @@ export default class PKCSXX extends Vue {
     this.pipelineRestrictions.st.alignContent();
     this.pipelineRestrictions.san.alignContent();
 
-    this.upload.certificateAttributes = [<INamedValues>{},
-      <INamedValues>{},
-      <INamedValues>{},
-      <INamedValues>{},
-      <INamedValues>{},
-      <INamedValues>{},
-      <INamedValues>{},
-      <INamedValues>{}];
+    this.upload.certificateAttributes = new Array<INamedValues>();
+    this.upload.arAttributes = new Array<INamedValues>();
 
-    this.upload.certificateAttributes[0].name = 'c';
-    this.upload.certificateAttributes[1].name = 'cn';
-    this.upload.certificateAttributes[2].name = 'o';
-    this.upload.certificateAttributes[3].name = 'ou';
-    this.upload.certificateAttributes[4].name = 'l';
-    this.upload.certificateAttributes[5].name = 'st';
-    this.upload.certificateAttributes[6].name = 'san';
+    for (const rr of this.rdnRestrictions) {
+      const nv: INamedValues = {};
+      nv.name = rr.name;
+      if ( rr.readOnly) {
+        nv.values = [rr.template];
+      } else {
+        nv.values = [''];
+      }
+      this.upload.certificateAttributes.push(nv);
+    }
 
-    if ( this.pipelineRestrictions.c.readOnly) {
-      this.upload.certificateAttributes[0].values = [this.pipelineRestrictions.c.template];
-    } else {
-      this.upload.certificateAttributes[0].values = [''];
+    this.araRestrictions = new Array<PipelineRestriction>();
+
+    for (const rr of pipeline.araRestrictions) {
+      this.araRestrictions.push( new PipelineRestriction(rr.name, rr.cardinalityRestriction, rr.contentTemplate, rr.regExMatch ));
     }
-    if ( this.pipelineRestrictions.cn.readOnly) {
-      this.upload.certificateAttributes[1].values = [this.pipelineRestrictions.cn.template];
-    } else {
-      this.upload.certificateAttributes[1].values = [''];
+
+    for (const rr of this.araRestrictions) {
+      const nv: INamedValues = {};
+      nv.name = rr.name;
+      if ( rr.readOnly) {
+        nv.values = [rr.template];
+      } else {
+        nv.values = [''];
+      }
+      this.upload.arAttributes.push(nv);
     }
-    if ( this.pipelineRestrictions.o.readOnly) {
-      this.upload.certificateAttributes[2].values = [this.pipelineRestrictions.o.template];
-    } else {
-      this.upload.certificateAttributes[2].values = [''];
-    }
-    if ( this.pipelineRestrictions.ou.readOnly) {
-      this.upload.certificateAttributes[3].values = [this.pipelineRestrictions.ou.template];
-    } else {
-      this.upload.certificateAttributes[3].values = [''];
-    }
-    if ( this.pipelineRestrictions.l.readOnly) {
-      this.upload.certificateAttributes[4].values = [this.pipelineRestrictions.l.template];
-    } else {
-      this.upload.certificateAttributes[4].values = [''];
-    }
-    if ( this.pipelineRestrictions.st.readOnly) {
-      this.upload.certificateAttributes[5].values = [this.pipelineRestrictions.st.template];
-    } else {
-      this.upload.certificateAttributes[5].values = [''];
-    }
-    if ( this.pipelineRestrictions.san.readOnly) {
-      this.upload.certificateAttributes[6].values = [this.pipelineRestrictions.san.template];
-    } else {
-      this.upload.certificateAttributes[6].values = [''];
-    }
+
+//    this.creationMode = 'CSR_AVAILABLE';
+    this.upload.containerType = 'PKCS_12';
+    this.keyAlgoLength = 'RSA_2048';
   }
 
   public get commandLine(): string {
 
     let cmdline = '';
+
+    let nvSAN: INamedValues;
+
+    for (const nv of this.upload.certificateAttributes) {
+      if ( nv.name === 'SAN') {
+        nvSAN = nv;
+        break;
+      }
+    }
 
     let algo = 'undefined';
     if ( this.keyAlgoLength.startsWith('RSA')) {
@@ -233,14 +201,26 @@ export default class PKCSXX extends Vue {
 
       cmdline += ' -alias keyAlias -keystore test.p12 -storetype pkcs12  -dname "CN=';
 
-      cmdline += this.upload.certificateAttributes[1].values[0];
 
-      cmdline += '"\n\n';
+      let dname = '';
+      for (const nv of this.upload.certificateAttributes) {
+          const name = nv.name;
+          for (const value of nv.values) {
+            if ( value.length > 0) {
+              if ( dname.length > 0) {
+                dname += ', ';
+              }
+              dname += name + '=' + value;
+            }
+          }
+      }
+      cmdline += ' -dname "' + dname + '"\n\n';
+
       cmdline += 'keytool -certreq -keystore test.p12 -alias keyAlias';
 
-      if (this.upload.certificateAttributes[6].values.length > 0 && this.upload.certificateAttributes[6].values[0].length > 0) {
+      if (nvSAN !== undefined && nvSAN.values.length > 0 && nvSAN.values[0].length > 0) {
         let sans = '';
-        for (const san of this.upload.certificateAttributes[6].values) {
+        for (const san of nvSAN.values) {
           if ( sans.length > 0) {
             sans += ',';
           }
@@ -257,47 +237,25 @@ export default class PKCSXX extends Vue {
       //
       cmdline = 'openssl req -newkey ' + algo + ':' + keyLen;
       cmdline += ' -days 365 -nodes -subj ';
-      let subject = '';
-      for (const part of this.upload.certificateAttributes[0].values) {
-        if ( part.length > 0) {
-          subject += '/C=' + part;
-        }
-      }
-      for (const part of this.upload.certificateAttributes[5].values) {
-        if ( part.length > 0) {
-          subject += '/ST=' + part;
-        }
-      }
-      for (const part of this.upload.certificateAttributes[4].values) {
-        if ( part.length > 0) {
-          subject += '/L=' + part;
-        }
-      }
-      for (const part of this.upload.certificateAttributes[2].values) {
-        if ( part.length > 0) {
-          subject += '/O=' + part;
-        }
-      }
-      for (const part of this.upload.certificateAttributes[3].values) {
-        if ( part.length > 0) {
-          subject += '/OU=' + part;
-        }
-      }
-      for (const part of this.upload.certificateAttributes[1].values) {
-        if ( part.length > 0) {
-          subject += '/CN=' + part;
-        }
-      }
 
+      let subject = '';
+      for (const nv of this.upload.certificateAttributes) {
+          const name = nv.name;
+          for (const value of nv.values) {
+            if ( value.length > 0) {
+              subject += '/' + name.toUpperCase() + '=' + value;
+            }
+          }
+      }
       if ( subject.length > 0) {
         cmdline += '"' + subject + '"';
       }
 
-      if (this.upload.certificateAttributes[6].values.length > 0  && this.upload.certificateAttributes[6].values[0].length > 0) {
+      if (nvSAN !== undefined && nvSAN.values.length > 0 && nvSAN.values[0].length > 0) {
         cmdline += ' -extensions SAN -config <( cat $( echo /etc/ssl/openssl.cnf  ) <(printf "[SAN]\nsubjectAltName=\'';
         let sans = '';
         let idx = 1;
-        for (const san of this.upload.certificateAttributes[6].values) {
+        for (const san of nvSAN.values) {
           if ( sans.length > 0) {
             sans += ',';
           }
@@ -361,6 +319,10 @@ export default class PKCSXX extends Vue {
   // run for the backend and tell about all the bytes to process
   async contentCall(url: string) {
     // don't do a call without content
+
+    this.upload.creationMode = this.creationMode;
+    this.upload.keyAlgoLength = this.keyAlgoLength;
+
     if (this.upload.content.trim().length === 0) {
       this.precheckResponse.dataType = 'UNKNOWN';
       return;
@@ -480,4 +442,8 @@ export default class PKCSXX extends Vue {
     return this.$store.getters.account ? this.$store.getters.account.authorities[0] : '';
   }
 
+  public updateValue(key, value) {
+    window.console.info('updateValue for ' + key );
+    this.$emit('change', { ...this.upload, [key]: value });
+  }
 }

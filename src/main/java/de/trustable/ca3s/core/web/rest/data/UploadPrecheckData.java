@@ -21,11 +21,24 @@ public class UploadPrecheckData {
 	@JsonProperty("content")
 	private String content;
 
+	@JsonProperty("creationMode")
+	private CreationMode creationMode = CreationMode.CSR_AVAILABLE;
+	
+	@JsonProperty("keyAlgoLength")
+	private KeyAlgoLength keyAlgoLength = KeyAlgoLength.RSA_2048;
+
+	@JsonProperty("containerType")
+	private ContainerType containerType = ContainerType.PKCS_12;
+	
+	
 	@JsonProperty("namedValues")
 	private NamedValue[] namedValues;
 
 	@JsonProperty("certificateAttributes")
 	private NamedValues[] certificateAttributes;
+
+	@JsonProperty("arAttributes")
+	private NamedValues[] arAttributes;
 
 	public String getPassphrase() {
 		return passphrase;
@@ -58,5 +71,54 @@ public class UploadPrecheckData {
 	public void setRequestorcomment(String requestorcomment) {
 		this.requestorcomment = requestorcomment;
 	}
+
+	public CreationMode getCreationMode() {
+		return creationMode;
+	}
+
+	public KeyAlgoLength getKeyAlgoLength() {
+		return keyAlgoLength;
+	}
+
+	public ContainerType getContainerType() {
+		return containerType;
+	}
+
+	public NamedValue[] getNamedValues() {
+		return namedValues;
+	}
+
+	public NamedValues[] getCertificateAttributes() {
+		return certificateAttributes;
+	}
+
+	public NamedValues[] getArAttributes() {
+		return arAttributes;
+	}
+
+	public void setCreationMode(CreationMode creationMode) {
+		this.creationMode = creationMode;
+	}
+
+	public void setKeyAlgoLength(KeyAlgoLength keyAlgoLength) {
+		this.keyAlgoLength = keyAlgoLength;
+	}
+
+	public void setContainerType(ContainerType containerType) {
+		this.containerType = containerType;
+	}
+
+	public void setNamedValues(NamedValue[] namedValues) {
+		this.namedValues = namedValues;
+	}
+
+	public void setCertificateAttributes(NamedValues[] certificateAttributes) {
+		this.certificateAttributes = certificateAttributes;
+	}
+
+	public void setArAttributes(NamedValues[] arAttributes) {
+		this.arAttributes = arAttributes;
+	}
+	
 	
 }

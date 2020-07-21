@@ -9,7 +9,7 @@ import { ICAConnectorConfig } from '@/shared/model/ca-connector-config.model';
 
 import BPNMProcessInfoService from '../../entities/bpnm-process-info/bpnm-process-info.service';
 import { IBPNMProcessInfo } from '@/shared/model/bpnm-process-info.model';
-import { IPipelineView } from '@/shared/model/transfer-object.model';
+import { IPipelineView, IARARestriction } from '@/shared/model/transfer-object.model';
 
 import AlertService from '@/shared/alert/alert.service';
 import PipelineViewService from './pipelineview.service';
@@ -90,6 +90,14 @@ export default class PipelineUpdate extends Vue {
         if (mode === 'copy') {
           this.pipeline.name = 'Copy of ' + this.pipeline.name;
           this.pipeline.id = null;
+        }
+        if (this.pipeline.araRestrictions && (this.pipeline.araRestrictions.length > 0)) {
+          window.console.info('pipeline.araRestrictions.length' + this.pipeline.araRestrictions.length );
+        } else {
+          window.console.info('pipeline.araRestrictions undefined');
+          const araRestrictions: IARARestriction[] = new Array();
+          this.pipeline.araRestrictions = araRestrictions;
+          this.pipeline.araRestrictions.push({});
         }
       });
   }

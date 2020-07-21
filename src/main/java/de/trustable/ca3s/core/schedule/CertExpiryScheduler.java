@@ -118,7 +118,7 @@ public class CertExpiryScheduler {
 	}
 	
 	
-//	@Scheduled(fixedDelay = 3600000)
+	@Scheduled(fixedDelay = 3600000)
 	public void updateRevocationStatus() {
 
 		long startTime = System.currentTimeMillis();
@@ -211,6 +211,7 @@ public class CertExpiryScheduler {
 	 * 
 	 */
 	@Scheduled(cron = "0 15 2 * * ?")
+//	@Scheduled(cron = "0 15 2 * * ?")
 //	@Scheduled(fixedDelay = 60000)
 	public int notifyRAOfficerHolderOnExpiry() {
 

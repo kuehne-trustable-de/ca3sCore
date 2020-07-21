@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.web.rest.support;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -35,8 +36,10 @@ import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.repository.UserPreferenceRepository;
 import de.trustable.ca3s.core.service.UserService;
+import de.trustable.ca3s.core.service.dto.PipelineView;
 import de.trustable.ca3s.core.service.util.CAStatus;
 import de.trustable.ca3s.core.service.util.CaConnectorAdapter;
+import de.trustable.ca3s.core.service.util.PipelineUtil;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import de.trustable.ca3s.core.web.rest.CAConnectorConfigResource;
 import de.trustable.ca3s.core.web.rest.data.CertificateFilterList;
@@ -60,6 +63,9 @@ public class UIDatasetSupport {
 	private PipelineRepository pipelineRepo;
 	
 	@Autowired
+	private PipelineUtil pipelineUtil;
+	
+	@Autowired
 	private ProtectedContentUtil protUtil;
 
     @Autowired
@@ -76,16 +82,19 @@ public class UIDatasetSupport {
      */
     @GetMapping("/pipeline/getWebPipelines")
 	@Transactional
-	public List<Pipeline> getWebPipelines() {
+	public List<PipelineView> getWebPipelines() {
 
+    	List<PipelineView> pvList = new ArrayList<PipelineView>();
     	List<Pipeline> pipelineList =  pipelineRepo.findByType(PipelineType.WEB);
     	pipelineList.forEach(new Consumer<Pipeline>(){
 			@Override
 			public void accept(Pipeline p) {
 		    	LOG.debug("pipeline {} has #{} attributes", p.getName(), p.getPipelineAttributes().size());
+		    	
+		    	pvList.add(pipelineUtil.from(p));
 			}
     	});
-        return pipelineList;
+        return pvList;
 	}
 
    

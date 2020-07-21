@@ -1,27 +1,19 @@
 package de.trustable.ca3s.core.service.dto;
 
-import de.trustable.ca3s.core.domain.enumeration.RDNCardinalityRestriction;
+import de.trustable.ca3s.core.domain.enumeration.ARACardinalityRestriction;
 
-public class RDNRestriction {
+public class ARARestriction {
 
-	String rdnName;
-	RDNCardinalityRestriction cardinalityRestriction;
+	String name;
+	ARACardinalityRestriction cardinalityRestriction;
 	String contentTemplate;
 	boolean regExMatch = false;
 	
-	public RDNRestriction() {
+	public ARARestriction() {
 		
 	}
-	
-	public String getRdnName() {
-		return rdnName;
-	}
 
-	public void setRdnName(String rdnName) {
-		this.rdnName = rdnName;
-	}
-
-	public RDNCardinalityRestriction getCardinalityRestriction() {
+	public ARACardinalityRestriction getCardinalityRestriction() {
 		return cardinalityRestriction;
 	}
 
@@ -33,7 +25,7 @@ public class RDNRestriction {
 		return regExMatch;
 	}
 
-	public void setCardinalityRestriction(RDNCardinalityRestriction cardinalityRestriction) {
+	public void setCardinalityRestriction(ARACardinalityRestriction cardinalityRestriction) {
 		this.cardinalityRestriction = cardinalityRestriction;
 	}
 
@@ -44,6 +36,15 @@ public class RDNRestriction {
 	public void setRegExMatch(boolean regExMatch) {
 		this.regExMatch = regExMatch;
 	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+	
 	
 	
 }

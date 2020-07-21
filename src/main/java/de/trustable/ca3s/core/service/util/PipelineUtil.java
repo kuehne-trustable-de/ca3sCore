@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.validator.routines.InetAddressValidator;
@@ -21,12 +23,14 @@ import de.trustable.ca3s.core.domain.BPNMProcessInfo;
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.domain.PipelineAttribute;
+import de.trustable.ca3s.core.domain.enumeration.ARACardinalityRestriction;
 import de.trustable.ca3s.core.domain.enumeration.RDNCardinalityRestriction;
 import de.trustable.ca3s.core.repository.BPNMProcessInfoRepository;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.PipelineAttributeRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.service.dto.ACMEConfigItems;
+import de.trustable.ca3s.core.service.dto.ARARestriction;
 import de.trustable.ca3s.core.service.dto.PipelineView;
 import de.trustable.ca3s.core.service.dto.RDNRestriction;
 import de.trustable.util.OidNameMapper;
@@ -62,6 +66,13 @@ public class PipelineUtil {
 	public static final String RESTR_SAN_TEMPLATE = "RESTR_SAN_TEMPLATE";
 	public static final String RESTR_SAN_REGEXMATCH = "RESTR_SAN_REGEXMATCH";
 
+	public static final String RESTR_ARA_PREFIX = "RESTR_ARA_";
+	public static final String RESTR_ARA_PATTERN = RESTR_ARA_PREFIX + "(.*)_(.*)";
+	public static final String RESTR_ARA_NAME = "NAME";
+	public static final String RESTR_ARA_CARDINALITY = "CARDINALITY";
+	public static final String RESTR_ARA_TEMPLATE = "TEMPLATE";
+	public static final String RESTR_ARA_REGEXMATCH = "REGEXMATCH";
+	
 	public static final String ALLOW_IP_AS_SUBJECT = "ALLOW_IP_AS_SUBJECT";
 	public static final String ALLOW_IP_AS_SAN = "ALLOW_IP_AS_SAN";
 	public static final String TO_PENDIND_ON_FAILED_RESTRICTIONS = "TO_PENDIND_ON_FAILED_RESTRICTIONS";
@@ -115,22 +126,55 @@ public class PipelineUtil {
     		pv.setProcessInfoName(pipeline.getProcessInfo().getName());
     	}
     	
-    	pv.setRestriction_C(new RDNRestriction());
-		pv.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
-    	pv.setRestriction_CN(new RDNRestriction());
-		pv.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
-    	pv.setRestriction_L(new RDNRestriction());
-		pv.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
-    	pv.setRestriction_O(new RDNRestriction());
-		pv.getRestriction_O().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
-    	pv.setRestriction_OU(new RDNRestriction());
-		pv.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
-    	pv.setRestriction_S(new RDNRestriction());
-		pv.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+    	RDNRestriction[] rdnRestrictArr = new RDNRestriction[7];
+		
+		RDNRestriction rdnRestrict = new RDNRestriction();
+		rdnRestrict.setRdnName("C");
+		rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+    	pv.setRestriction_C(rdnRestrict);
+    	rdnRestrictArr[0] = rdnRestrict;
     	
-    	pv.setRestriction_SAN(new RDNRestriction());
-		pv.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
+		rdnRestrict = new RDNRestriction();
+		rdnRestrict.setRdnName("CN");
+		rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+    	pv.setRestriction_CN(rdnRestrict);
+    	rdnRestrictArr[1] = rdnRestrict;
     	
+		rdnRestrict = new RDNRestriction();
+		rdnRestrict.setRdnName("O");
+		rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+    	pv.setRestriction_O(rdnRestrict);
+    	rdnRestrictArr[2] = rdnRestrict;
+    	
+		rdnRestrict = new RDNRestriction();
+		rdnRestrict.setRdnName("OU");
+		rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+    	pv.setRestriction_OU(rdnRestrict);
+    	rdnRestrictArr[3] = rdnRestrict;
+    	
+		rdnRestrict = new RDNRestriction();
+		rdnRestrict.setRdnName("L");
+		rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+    	pv.setRestriction_L(rdnRestrict);
+    	rdnRestrictArr[4] = rdnRestrict;
+    	
+		rdnRestrict = new RDNRestriction();
+		rdnRestrict.setRdnName("ST");
+		rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+    	pv.setRestriction_S(rdnRestrict);
+    	rdnRestrictArr[5] = rdnRestrict;
+    	
+		rdnRestrict = new RDNRestriction();
+		rdnRestrict.setRdnName("SAN");
+		rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+    	pv.setRestriction_SAN(rdnRestrict);
+    	rdnRestrictArr[6] = rdnRestrict;
+    	
+		pv.setRdnRestrictions(rdnRestrictArr);
+		
+		
+		pv.setAraRestrictions(new ARARestriction[0]);
+		
     	ACMEConfigItems acmeConfigItems = new ACMEConfigItems ();
     	
 //    	acmeConfigItems.setProcessInfoNameAccountValidation(processInfoNameAccountValidation);
@@ -210,7 +254,58 @@ public class PipelineUtil {
     	}
     	
     	pv.setAcmeConfigItems(acmeConfigItems);
+
+    	/*
+    	 * determine the number of  ARA restrictions
+    	 */
+		Pattern araPattern = Pattern.compile(RESTR_ARA_PATTERN);
+		int nARA = 0;
+    	for( PipelineAttribute plAtt: pipeline.getPipelineAttributes()) {
+    		if( plAtt.getName().startsWith(RESTR_ARA_PREFIX)) {
+    			Matcher m = araPattern.matcher(plAtt.getName());
+    		    if (m.find( )) {
+    		    	int araIdx = Integer.parseInt(m.group(1));
+    		    	if( araIdx +1 > nARA) {
+    		    		nARA = araIdx +1;
+    		    	}
+    		    }
+    		}
+    	}
+    	LOG.debug("#{} ARA itmes found", nARA);
+		ARARestriction[] araRestrictions = new ARARestriction[nARA];
+		
     	
+    	/*
+    	 * find all ARA restrictions
+    	 */
+    	for( PipelineAttribute plAtt: pipeline.getPipelineAttributes()) {
+    		if( plAtt.getName().startsWith(RESTR_ARA_PREFIX)) {
+    	    	LOG.debug("ARA itmes : {}", plAtt.getName());
+    			Matcher m = araPattern.matcher(plAtt.getName());
+    		    if (m.find( )) {
+    		    	int araIdx = Integer.parseInt(m.group(1));
+        	    	LOG.debug("araIdx: {}", araIdx);
+    		    	if( araRestrictions[araIdx] == null) {
+    		    		araRestrictions[araIdx] = new ARARestriction(); 
+    		    	}
+    		    	ARARestriction araRestriction = araRestrictions[araIdx]; 
+    		    	String namePart = m.group(2);
+        	    	LOG.debug("ARA namePart : {}", namePart);
+    		    	if( RESTR_ARA_NAME.equals(namePart)) {
+    		    		araRestriction.setName(plAtt.getValue());
+    		    	}else if( RESTR_ARA_CARDINALITY.equals(namePart)) {
+    		    		araRestriction.setCardinalityRestriction(ARACardinalityRestriction.valueOf(plAtt.getValue()));
+    	    		}else if( RESTR_ARA_TEMPLATE.equals(namePart)) {
+    	    			araRestriction.setContentTemplate(plAtt.getValue());
+    	    		}else if( RESTR_ARA_REGEXMATCH.equals(namePart)) {
+    	    			araRestriction.setRegExMatch(Boolean.valueOf(plAtt.getValue()));
+    	    		}
+    		    }
+		    }
+		}
+
+		pv.setAraRestrictions(araRestrictions);
+
     	return pv;
     }
 
@@ -306,6 +401,15 @@ public class PipelineUtil {
 		}
 		
 */
+		ARARestriction[] araRestrictions = pv.getAraRestrictions();
+		for( int i = 0; i < araRestrictions.length; i++) {
+			ARARestriction araRestriction = araRestrictions[i];
+			addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + i + "_" + RESTR_ARA_NAME,araRestriction.getName());
+			addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + i + "_" + RESTR_ARA_CARDINALITY,araRestriction.getCardinalityRestriction().name());
+			addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + i + "_" + RESTR_ARA_TEMPLATE,araRestriction.getContentTemplate());
+			addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + i + "_" + RESTR_ARA_REGEXMATCH,araRestriction.isRegExMatch());
+		}
+		
     	pipelineAttRepository.saveAll(p.getPipelineAttributes());
 		pipelineRepository.save(p);
     	

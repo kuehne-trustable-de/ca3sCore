@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2020-07-07 13:57:28.
+// Generated using typescript-generator version 2.19.577 on 2020-07-21 19:25:38.
 
 export interface IPipelineView extends ISerializable {
     id?: number;
@@ -18,6 +18,8 @@ export interface IPipelineView extends ISerializable {
     restriction_OU?: IRDNRestriction;
     restriction_S?: IRDNRestriction;
     restriction_SAN?: IRDNRestriction;
+    rdnRestrictions?: IRDNRestriction[];
+    araRestrictions?: IARARestriction[];
     toPendingOnFailedRestrictions?: boolean;
     ipAsSubjectAllowed?: boolean;
     ipAsSANAllowed?: boolean;
@@ -112,8 +114,12 @@ export interface IUploadPrecheckData {
     requestorcomment?: string;
     pipelineId?: number;
     content?: string;
+    creationMode?: ICreationMode;
+    keyAlgoLength?: IKeyAlgoLength;
+    containerType?: IContainerType;
     namedValues?: INamedValue[];
     certificateAttributes?: INamedValues[];
+    arAttributes?: INamedValues[];
 }
 
 export interface IX509CertificateHolderShallow {
@@ -183,7 +189,15 @@ export interface IDataSet {
 }
 
 export interface IRDNRestriction {
+    rdnName?: string;
     cardinalityRestriction?: IRDNCardinalityRestriction;
+    contentTemplate?: string;
+    regExMatch?: boolean;
+}
+
+export interface IARARestriction {
+    name?: string;
+    cardinalityRestriction?: IARACardinalityRestriction;
     contentTemplate?: string;
     regExMatch?: boolean;
 }
@@ -245,6 +259,14 @@ export type ICsrStatus = "PROCESSING" | "ISSUED" | "REJECTED" | "PENDING";
 
 export type IAdministrationType = "ACCEPT" | "REJECT";
 
+export type ICreationMode = "CSR_AVAILABLE" | "COMMANDLINE_TOOL" | "SERVERSIDE_KEY_CREATION";
+
+export type IKeyAlgoLength = "RSA_2048" | "RSA_4096";
+
+export type IContainerType = "PKCS_12" | "JKS";
+
 export type IPKCSDataType = "CSR" | "X509_CERTIFICATE" | "X509_CERTIFICATE_CREATED" | "UNKNOWN" | "CONTAINER" | "CONTAINER_REQUIRING_PASSPHRASE";
 
 export type IRDNCardinalityRestriction = "NOT_ALLOWED" | "ZERO_OR_ONE" | "ONE" | "ZERO_OR_MANY" | "ONE_OR_MANY";
+
+export type IARACardinalityRestriction = "ZERO_OR_ONE" | "ONE";

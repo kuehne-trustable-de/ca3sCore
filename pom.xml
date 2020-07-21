@@ -819,6 +819,33 @@
 				</executions>
 				<configuration>
 					<transformationSets>
+					
+						<transformationSet>
+							<dir>./src/main/resources/config/liquibase</dir>
+							<stylesheet>./src/main/resources/stylesheet/alignLBSchemaVersion.xsl</stylesheet>
+							<outputDir>${project.build.directory}/classes/config/liquibase-3.5</outputDir>
+							<includes>*.xml</includes>
+							<parameters>
+								<parameter>
+									<name>LiquibaseTarget</name>
+									<value>http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd</value>
+								</parameter>
+							</parameters>
+						</transformationSet>
+						<transformationSet>
+							<dir>./src/main/resources/config/liquibase/changelog</dir>
+							<stylesheet>./src/main/resources/stylesheet/alignLBSchemaVersion.xsl</stylesheet>
+							<outputDir>${project.build.directory}/classes/config/liquibase-3.5/changelog</outputDir>
+							<includes>*.xml</includes>
+							<parameters>
+								<parameter>
+									<name>LiquibaseTarget</name>
+									<value>http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd</value>
+								</parameter>
+							</parameters>
+						</transformationSet>
+
+					
 						<transformationSet>
 							<dir>./src/main/resources/config/liquibase</dir>
 							<stylesheet>./src/main/resources/stylesheet/adaptMasterLBForMSSQL.xsl</stylesheet>
