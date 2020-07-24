@@ -2,6 +2,8 @@ package de.trustable.ca3s.core.repository;
 
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.ProtectedContent;
+import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
+import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 
 import java.util.List;
 
@@ -20,5 +22,10 @@ public interface ProtectedContentRepository extends JpaRepository<ProtectedConte
 	  @Query(name = "ProtectedContent.findByCertificateId")
 	  List<ProtectedContent> findByCertificateId(@Param("certId") Long certId);
 
+	  @Query(name = "ProtectedContent.findByCSRId")
+	  List<ProtectedContent> findByCSRId(@Param("csrId") Long csrId);
+
+	  @Query(name = "ProtectedContent.findByTypeRelationId")
+	  List<ProtectedContent> findByTypeRelationId(@Param("type") ProtectedContentType type, @Param("relationType") ContentRelationType relationType, @Param("id") Long id);
 	
 }

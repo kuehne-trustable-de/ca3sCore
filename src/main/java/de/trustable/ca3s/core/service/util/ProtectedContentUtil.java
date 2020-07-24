@@ -1,14 +1,19 @@
 package de.trustable.ca3s.core.service.util;
 
+import java.util.List;
+
 import org.jasypt.util.text.BasicTextEncryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import de.trustable.ca3s.core.domain.ProtectedContent;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
+import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 
 @Service
 public class ProtectedContentUtil {
@@ -17,6 +22,9 @@ public class ProtectedContentUtil {
 
 	private BasicTextEncryptor textEncryptor;
 
+	@Autowired
+	private ProtectedContentRepository protContentRepository;
+	
 	public ProtectedContentUtil(@Value("${protectionSecret:S3cr3t}") String protectionSecret) {
 		textEncryptor = new BasicTextEncryptor();
 		if( (protectionSecret == null) || (protectionSecret.trim().length() == 0)) {
@@ -56,7 +64,19 @@ public class ProtectedContentUtil {
 		pc.setRelationType(crt);
 		pc.setRelatedId(connectionId);
 		
+		protContentRepository.save(pc);
 		return pc;
+	}
+
+	/**
+	 * 
+	 * @param type
+	 * @param crt
+	 * @param id
+	 * @return
+	 */
+	public List<ProtectedContent> retrieveProtectedContent(ProtectedContentType type, ContentRelationType crt, long id) {
+		return protContentRepository.findByTypeRelationId(type, crt, id);
 	}
 
 }

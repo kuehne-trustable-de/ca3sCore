@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2020-07-21 19:25:38.
+// Generated using typescript-generator version 2.19.577 on 2020-07-24 12:39:35.
 
 export interface IPipelineView extends ISerializable {
     id?: number;
@@ -75,6 +75,7 @@ export interface ICertificateView extends ISerializable {
     crlNextUpdate?: Date;
     certB64?: string;
     downloadFilename?: string;
+    isServersideKeyGeneration?: boolean;
 }
 
 export interface ICSRView extends ISerializable {
@@ -111,6 +112,7 @@ export interface ICertificateAdministrationData extends ISerializable {
 
 export interface IUploadPrecheckData {
     passphrase?: string;
+    secret?: string;
     requestorcomment?: string;
     pipelineId?: number;
     content?: string;

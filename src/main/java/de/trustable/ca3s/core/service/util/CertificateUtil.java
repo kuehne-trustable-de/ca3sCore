@@ -1408,6 +1408,14 @@ public class CertificateUtil {
 		return generalNameSet;
 	}
 
+	public void storePrivateKey(CSR csr, KeyPair keyPair) throws IOException {
+		
+		StringWriter sw = keyToPEM(keyPair);
+
+		ProtectedContent pt = protUtil.createProtectedContent(sw.toString(), ProtectedContentType.KEY, ContentRelationType.CSR, csr.getId());
+		protContentRepository.save(pt);
+	}
+
 	/**
 	 * 
 	 * @param keyPair
@@ -1416,6 +1424,13 @@ public class CertificateUtil {
 */	 
 	public void storePrivateKey(Certificate cert, KeyPair keyPair) throws IOException {
 		
+		StringWriter sw = keyToPEM(keyPair);
+
+		ProtectedContent pt = protUtil.createProtectedContent(sw.toString(), ProtectedContentType.KEY, ContentRelationType.CERTIFICATE, cert.getId());
+		protContentRepository.save(pt);
+	}
+
+	private StringWriter keyToPEM(KeyPair keyPair) throws IOException {
 		StringWriter sw = new StringWriter();
 		PemObject pemObject = new PemObject( "PRIVATE KEY", keyPair.getPrivate() .getEncoded());
 		PemWriter pemWriter = new PemWriter(sw);
@@ -1426,10 +1441,39 @@ public class CertificateUtil {
 		}
 
 		LOG.debug("new private key as PEM : " + sw.toString());
-
-		ProtectedContent pt = protUtil.createProtectedContent(sw.toString(), ProtectedContentType.KEY, ContentRelationType.CERTIFICATE, cert.getId());
-		protContentRepository.save(pt);
+		return sw;
 	}
+
+	/**
+	 * 
+	 * @param cert
+	 * @return
+	 */
+    public PrivateKey getPrivateKey(CSR csr) {
+        
+        PrivateKey priKey = null;
+        
+		try {
+			List<ProtectedContent> pcList = protContentRepository.findByCertificateId(csr.getId());
+			
+			if( pcList.isEmpty()) {
+	            LOG.error("retrieval of private key for csr '{}' returns not key!", csr.getId());
+			} else {
+				if( pcList.size() > 1) {
+		            LOG.warn("retrieval of private key for certificate '{}' returns more than one key ({}) !", csr.getId(), pcList.size());
+				}
+				
+				String content = protUtil.unprotectString( pcList.get(0).getContentBase64());
+				priKey = cryptoUtil.convertPemToPrivateKey (content);
+		        LOG.debug("getPrivateKey() returns " + priKey.toString());
+			}
+			
+		} catch (GeneralSecurityException e) {
+            LOG.warn("getPrivateKey", e);
+		}
+
+        return priKey;
+    }
 
 	/**
 	 * 
@@ -1448,6 +1492,40 @@ public class CertificateUtil {
 			} else {
 				if( pcList.size() > 1) {
 		            LOG.warn("retrieval of private key for certificate '{}' returns more than one key ({}) !", cert.getId(), pcList.size());
+				}
+				
+				String content = protUtil.unprotectString( pcList.get(0).getContentBase64());
+				priKey = cryptoUtil.convertPemToPrivateKey (content);
+		        LOG.debug("getPrivateKey() returns " + priKey.toString());
+			}
+			
+		} catch (GeneralSecurityException e) {
+            LOG.warn("getPrivateKey", e);
+		}
+
+        return priKey;
+    }
+
+	/**
+	 * 
+	 * @param type 
+	 * @param relationType 
+	 * @param id 
+	 * @param cert
+	 * @return
+	 */
+    public PrivateKey getPrivateKey(ProtectedContentType type, ContentRelationType relationType, Long id) {
+        
+        PrivateKey priKey = null;
+        
+		try {
+			List<ProtectedContent> pcList = protContentRepository.findByTypeRelationId(type, relationType, id);
+			
+			if( pcList.isEmpty()) {
+	            LOG.error("retrieval of private key for element with id '{}' returns not key!", id);
+			} else {
+				if( pcList.size() > 1) {
+		            LOG.warn("retrieval of private key for element with id '{}' returns more than one key ({}) !", id, pcList.size());
 				}
 				
 				String content = protUtil.unprotectString( pcList.get(0).getContentBase64());

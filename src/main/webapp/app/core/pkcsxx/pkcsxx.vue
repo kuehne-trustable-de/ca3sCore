@@ -42,6 +42,7 @@
 						</select>
 					</div>
 
+<!--
                     <div class="form-group" v-if="creationMode === 'SERVERSIDE_KEY_CREATION'">
 						<label class="form-control-label" v-text="$t('pkcsxx.upload.containerType.selection')" for="pkcsxx-container-type">Container type</label>
 						<select class="form-control" id="pkcsxx-key-tool" name="pkcsxx-container-type" v-model="upload.containerType" >
@@ -49,6 +50,7 @@
 							<option value="JKS" v-text="$t('pkcsxx.upload.containerType.jks')" >JKS</option>
 						</select>
 					</div>
+-->
 
                 	<div class="form-group" v-if="(creationMode === 'COMMANDLINE_TOOL') || (creationMode === 'SERVERSIDE_KEY_CREATION')">
                         <label class="form-control-label" v-text="$t('pkcsxx.upload.certificateParams')" for="pkcsxx-pipeline">certificateParams</label>
@@ -59,8 +61,8 @@
 							</div>
                         	<div class="col colContent">
 								<select class="form-control" id="pkcsxx.upload.key-length" name="pkcsxx.upload.key-length" v-model="keyAlgoLength">
-									<option value="RSA-2048" selected="selected">RSA-2048</option>
-									<option value="RSA-4096">RSA-4096</option>
+									<option value="RSA_2048" selected="selected">RSA_2048</option>
+									<option value="RSA_4096">RSA_4096</option>
 								</select>
 							</div>
                 		</div>
@@ -88,6 +90,13 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="form-group" v-if="creationMode === 'SERVERSIDE_KEY_CREATION'">
+						<label class="form-control-label" v-text="$t('pkcsxx.upload.serversideCreationTool.secret')" for="upload-secret">Secret</label>
+                        <input type="text" class="form-control" name="upload-secret" id="upload-secret"
+							autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+							v-model="upload.secret" />
+					</div>
 
                     <div class="form-group" v-if="creationMode === 'COMMANDLINE_TOOL'">
 						<label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.cmdline')" for="pkcsxx-cmdline">Command line</label>
@@ -279,7 +288,7 @@
 					</div-->
 					
                     <button type="button" id="uploadContent"
-					    v-if="precheckResponse.dataType === 'CSR'" 
+					    v-if="precheckResponse.dataType === 'CSR' || (creationMode === 'SERVERSIDE_KEY_CREATION')" 
 					    :disabled="precheckResponse.csrPublicKeyPresentInDB || precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE' || precheckResponse.certificatePresentInDB || precheckResponse.publicKeyPresentInDB" class="btn btn-primary" v-on:click="uploadContent">
                         <font-awesome-icon icon="upload"></font-awesome-icon>&nbsp;<span v-text="$t('pkcsxx.upload.requestCertificate')">Request certificate</span>
                     </button>

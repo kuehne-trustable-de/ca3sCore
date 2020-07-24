@@ -61,6 +61,7 @@ public class ACMEController {
 	public static final String APPLICATION_PEM_CERT_CHAIN_VALUE = "application/pem-certificate-chain";
 	public static final String APPLICATION_PEM_CERT_VALUE = "application/pem-certificate";
 	public static final String APPLICATION_PEM_FILE_VALUE = "application/x-pem-file";
+	public static final String APPLICATION_PKCS12_VALUE = "application/x-pkcs12";
 	
 	public static final MediaType APPLICATION_PROBLEM_JSON = new MediaType("application", "problem+json");
 	public static final MediaType APPLICATION_JOSE_JSON = MediaType.parseMediaType(APPLICATION_JOSE_JSON_VALUE);
@@ -70,11 +71,13 @@ public class ACMEController {
 			.parseMediaType(APPLICATION_PEM_CERT_CHAIN_VALUE);
 	public static final MediaType APPLICATION_PEM_CERT = MediaType.parseMediaType(APPLICATION_PEM_CERT_VALUE);
 	public static final MediaType APPLICATION_PEM_FILE = MediaType.parseMediaType(APPLICATION_PEM_FILE_VALUE);
+	public static final MediaType APPLICATION_PKCS12 = MediaType.parseMediaType(APPLICATION_PKCS12_VALUE);
 
 	public static int DEFAULT_NONCE_VALID_DAYS = 1;
 	public static final String REPLAY_NONCE_HEADER = "Replay-Nonce";
 
 	static final String GENERAL_URL_PREFIX = "/acme/{realm}";
+
 
 	String DIRECTORY_RESOURCE_MAPPING = afterPrefix(
 			DirectoryController.class.getAnnotation(RequestMapping.class).value()[0]);

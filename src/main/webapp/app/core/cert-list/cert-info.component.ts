@@ -15,6 +15,7 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
 
   public certificateView: ICertificateView = {};
   public certificateAdminData: ICertificateAdministrationData = {};
+  public p12Alias: string = 'alias';
 
   public downloadUrl(): string {
     const url = '/publicapi/cert/' + this.certificateView.id;
@@ -36,6 +37,21 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
 
   public downloadItem(extension: string, mimetype: string) {
     const url = '/publicapi/cert/' + this.certificateView.id;
+    axios.get(url, { responseType: 'blob', headers: { 'Accept': mimetype } })
+      .then(response => {
+        const blob = new Blob([response.data], { type: mimetype, endings: 'transparent'});
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = this.certificateView.downloadFilename + extension;
+        link.type = mimetype;
+    window.console.info('tmp download lnk : ' + link.download);
+        link.click();
+        URL.revokeObjectURL(link.href);
+      }).catch(console.error);
+  }
+
+  public downloadKeystore(extension: string, mimetype: string) {
+    const url = '/publicapi/keystore/' + this.certificateView.id + '/' + encodeURIComponent(this.p12Alias);
     axios.get(url, { responseType: 'blob', headers: { 'Accept': mimetype } })
       .then(response => {
         const blob = new Blob([response.data], { type: mimetype, endings: 'transparent'});

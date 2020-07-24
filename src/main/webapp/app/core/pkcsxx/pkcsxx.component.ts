@@ -46,7 +46,7 @@ export default class PKCSXX extends Vue {
   public selectPipelineView: IPipelineView = {};
   public rdnRestrictions: IPipelineRestriction[] = [];
   public araRestrictions: IPipelineRestriction[] = [];
-  
+
   public selectPipelineInfo = '';
 
   public pipelineRestrictions: IPipelineRestrictions = new PipelineRestrictions();
@@ -199,8 +199,7 @@ export default class PKCSXX extends Vue {
       cmdline = 'keytool -genkeypair -keyalg ' + algo;
       cmdline += ' -keysize ' + keyLen;
 
-      cmdline += ' -alias keyAlias -keystore test.p12 -storetype pkcs12  -dname "CN=';
-
+      cmdline += ' -alias keyAlias -keystore test.p12 -storetype pkcs12';
 
       let dname = '';
       for (const nv of this.upload.certificateAttributes) {
@@ -323,7 +322,7 @@ export default class PKCSXX extends Vue {
     this.upload.creationMode = this.creationMode;
     this.upload.keyAlgoLength = this.keyAlgoLength;
 
-    if (this.upload.content.trim().length === 0) {
+    if ( this.creationMode === 'CSR_AVAILABLE' && this.upload.content.trim().length === 0) {
       this.precheckResponse.dataType = 'UNKNOWN';
       return;
     }
@@ -351,25 +350,17 @@ export default class PKCSXX extends Vue {
            this.precheckResponse.certificates[0].pemCertrificate ) {
         this.upload.content = this.precheckResponse.certificates[0].pemCertrificate;
 
-        for (const subjectPart of this.precheckResponse.certificates[0].subjectParts) {
-
-          if ( subjectPart.name === 'C') {
-            this.upload.certificateAttributes[0].values = subjectPart.values;
-          } else if ( subjectPart.name === 'CN') {
-            this.upload.certificateAttributes[1].values = subjectPart.values;
-          } else if ( subjectPart.name === 'O') {
-            this.upload.certificateAttributes[2].values = subjectPart.values;
-          } else if ( subjectPart.name === 'OU') {
-            this.upload.certificateAttributes[3].values = subjectPart.values;
-          } else if ( subjectPart.name === 'L') {
-            this.upload.certificateAttributes[4].values = subjectPart.values;
-          } else if ( subjectPart.name === 'ST') {
-            this.upload.certificateAttributes[5].values = subjectPart.values;
+        for (const nv of this.upload.certificateAttributes) {
+          if ( nv.name === 'SAN') {
+            nv.values = this.precheckResponse.certificates[0].sans;
           } else {
-            console.log('unexpected subjectPart.name ' + subjectPart.name);
+            for (const subjectPart of this.precheckResponse.certificates[0].subjectParts) {
+              if ( subjectPart.name.toUpperCase() === nv.name.toUpperCase()) {
+                nv.values = subjectPart.values;
+              }
+            }
           }
         }
-        this.upload.certificateAttributes[6].values = this.precheckResponse.certificates[0].sans;
       }
       this.isChecked = true;
     } catch (error) {

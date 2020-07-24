@@ -76,6 +76,8 @@ public class CertificateView implements Serializable {
     private String certB64;
     private String downloadFilename;
 
+	private Boolean isServersideKeyGeneration = false;
+
     public CertificateView() {}
     
     public CertificateView(final Certificate cert) {
@@ -104,6 +106,7 @@ public class CertificateView implements Serializable {
     	if( cert.getCsr() != null) {
     		this.requestedBy = cert.getCsr().getRequestedBy();
     		this.csrId = cert.getCsr().getId();
+    		this.isServersideKeyGeneration  = cert.getCsr().isServersideKeyGeneration();
     	} else {
     		this.requestedBy =  "";
     	}
@@ -540,6 +543,15 @@ public class CertificateView implements Serializable {
 
 	public void setCertB64(String certB64) {
 		this.certB64 = certB64;
+	}
+
+	public Boolean getIsServersideKeyGeneration() {
+		return isServersideKeyGeneration;
+	}
+
+	public void setIsServersideKeyGeneration(Boolean isServersideKeyGeneration) {
+		this.isServersideKeyGeneration = isServersideKeyGeneration;
 	}	
+	
 	
 }

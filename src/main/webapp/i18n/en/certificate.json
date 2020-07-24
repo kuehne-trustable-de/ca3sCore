@@ -59,7 +59,9 @@
       },
       "download": {
         "pkix": "PKIX (DER encoded)",
-        "pem": "PEM encoded"
+        "pem": "PEM encoded",
+        "PKCS12": "PKCS12 Container",
+        "p12Alias": "Key Alias"
       },
       "csrBase64": "Certificate PEM"
     }

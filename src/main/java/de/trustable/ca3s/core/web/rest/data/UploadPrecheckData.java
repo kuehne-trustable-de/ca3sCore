@@ -12,6 +12,9 @@ public class UploadPrecheckData {
 	@JsonProperty("passphrase")
 	private String passphrase;
 	
+	@JsonProperty("secret")
+	private String secret;
+	
 	@JsonProperty("requestorcomment")
 	private String requestorcomment;
 	
@@ -118,6 +121,14 @@ public class UploadPrecheckData {
 
 	public void setArAttributes(NamedValues[] arAttributes) {
 		this.arAttributes = arAttributes;
+	}
+
+	public String getSecret() {
+		return secret;
+	}
+
+	public void setSecret(String secret) {
+		this.secret = secret;
 	}
 	
 	

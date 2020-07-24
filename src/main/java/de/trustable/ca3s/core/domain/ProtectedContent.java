@@ -19,10 +19,23 @@ import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 	query = "SELECT pc FROM ProtectedContent pc WHERE " +
 			"pc.relationType = 'CERTIFICATE' and " +
 			"pc.relatedId    = :certId"
+    ),
+	@NamedQuery(name = "ProtectedContent.findByCSRId",
+	query = "SELECT pc FROM ProtectedContent pc WHERE " +
+			"pc.relationType = 'CSR' and " +
+			"pc.relatedId    = :csrId"
+    ),
+	@NamedQuery(name = "ProtectedContent.findByTypeRelationId",
+	query = "SELECT pc FROM ProtectedContent pc WHERE " +
+			"pc.type = :type and " +
+			"pc.relationType = :relationType and " +
+			"pc.relatedId    = :id"
     )
 })
 public class ProtectedContent implements Serializable {
 
+	
+	
     private static final long serialVersionUID = 1L;
 
     @Id

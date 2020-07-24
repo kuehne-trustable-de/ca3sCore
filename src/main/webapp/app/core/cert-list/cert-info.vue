@@ -155,13 +155,29 @@
                         <span>{{certificateView.requestedOn}}</span>
                     </dd>
 
+
+                    <dt v-if="certificateView.isServersideKeyGeneration">
+                        <span v-text="$t('ca3SApp.certificate.download.PKCS12')">PKCS12 keystore</span>
+                    </dt>
+                    <dd v-if="certificateView.isServersideKeyGeneration">
+                    	<div class="row">
+                            <div class="col">
+								<label class="form-control-label" v-text="$t('ca3SApp.certificate.download.p12Alias')" for="p12Alias">Alias</label>
+                                <input type="text" class="form-check-inline" name="p12Alias" id="p12Alias" v-model="p12Alias" />
+                            </div>
+
+                            <div class="col colContent">
+                                <a href="downloadUrl" @click.prevent="downloadKeystore('.p12', 'application/x-pkcs12')" >{{certificateView.downloadFilename}}.p12</a>
+                            </div>
+                        </div>
+                    </dd>
+
                     <dt v-if="certificateView.subject">
                         <span v-text="$t('ca3SApp.certificate.download.pkix')">Pkix</span>
                     </dt>
                     <dd v-if="certificateView.subject">
                         <div>
                             <a href="downloadUrl" @click.prevent="downloadItem('.crt', 'application/pkix-cert')" >{{certificateView.downloadFilename}}.crt</a>
-                            <!--a :href="downloadUrlDER()" >{{certificateView.downloadFilename}}.crt</a-->
                         </div>
                     </dd>
                     <dt v-if="certificateView.subject">
@@ -170,7 +186,6 @@
                     <dd v-if="certificateView.subject">
                         <div>
                             <a href="downloadUrl" @click.prevent="downloadItem('.cer', 'application/pem-certificate')" >{{certificateView.downloadFilename}}.cer</a>
-                            <!--a :href="downloadUrlPEM()" >{{certificateView.downloadFilename}}.cer</a-->
                         </div>
                     </dd>
 
