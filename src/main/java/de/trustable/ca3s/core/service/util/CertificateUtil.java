@@ -1469,10 +1469,11 @@ public class CertificateUtil {
 		return sw;
 	}
 
+
 	/**
 	 * 
-	 * @param cert certificate to search privateKey
-	 * @return PrivateKey for input certificate
+	 * @param csr
+	 * @return
 	 */
     public PrivateKey getPrivateKey(CSR csr) {
         
@@ -1531,14 +1532,13 @@ public class CertificateUtil {
         return priKey;
     }
 
-	/**
-	 * 
-	 * @param type 
-	 * @param relationType 
-	 * @param id 
-	 * @param cert
-	 * @return
-	 */
+    /**
+     * 
+     * @param type
+     * @param relationType
+     * @param id
+     * @return
+     */
     public PrivateKey getPrivateKey(ProtectedContentType type, ContentRelationType relationType, Long id) {
         
         PrivateKey priKey = null;

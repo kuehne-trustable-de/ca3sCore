@@ -404,10 +404,13 @@ public class PipelineUtil {
 		ARARestriction[] araRestrictions = pv.getAraRestrictions();
 		for( int i = 0; i < araRestrictions.length; i++) {
 			ARARestriction araRestriction = araRestrictions[i];
-			addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + i + "_" + RESTR_ARA_NAME,araRestriction.getName());
-			addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + i + "_" + RESTR_ARA_CARDINALITY,araRestriction.getCardinalityRestriction().name());
-			addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + i + "_" + RESTR_ARA_TEMPLATE,araRestriction.getContentTemplate());
-			addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + i + "_" + RESTR_ARA_REGEXMATCH,araRestriction.isRegExMatch());
+			String araName = araRestriction.getName();
+			if(araName != null && !araName.trim().isEmpty()) {
+				addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + i + "_" + RESTR_ARA_NAME,araName.trim());
+				addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + i + "_" + RESTR_ARA_CARDINALITY,araRestriction.getCardinalityRestriction().name());
+				addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + i + "_" + RESTR_ARA_TEMPLATE,araRestriction.getContentTemplate());
+				addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + i + "_" + RESTR_ARA_REGEXMATCH,araRestriction.isRegExMatch());
+			}
 		}
 		
     	pipelineAttRepository.saveAll(p.getPipelineAttributes());

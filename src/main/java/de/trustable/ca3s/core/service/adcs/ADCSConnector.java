@@ -349,8 +349,8 @@ public class ADCSConnector {
 	 * 
 	 * @return the number in imported certificates
 	 * 
-	 * @throws OODBConnectionsACDSException		something went wrong
-	 * @throws ACDSProxyUnavailableException 	something went wrong, the adcsProxy is unavailable
+	 * @throws OODBConnectionsADCSException		something went wrong
+	 * @throws ADCSProxyUnavailableException 	something went wrong, the adcsProxy is unavailable
 	 */
 	public int retrieveCertificatesOffsetOnly(CAConnectorConfig config) throws OODBConnectionsADCSException, ADCSProxyUnavailableException {
 
@@ -417,8 +417,8 @@ public class ADCSConnector {
 	 * 
 	 * @return the number in imported certificates
 	 * 
-	 * @throws OODBConnectionsACDSException		something went wrong
-	 * @throws ACDSProxyUnavailableException 	something went wrong, the adcsProxy is unavailable
+	 * @throws OODBConnectionsADCSException		something went wrong
+	 * @throws ADCSProxyUnavailableException 	something went wrong, the adcsProxy is unavailable
 	 */
 	public int retrieveCertificatesByResolvedDate(CAConnectorConfig config) throws OODBConnectionsADCSException, ADCSProxyUnavailableException {
 
@@ -628,8 +628,8 @@ public class ADCSConnector {
 	 * 
 	 * @return the number in imported certificates
 	 * 
-	 * @throws OODBConnectionsACDSException
-	 * @throws ACDSProxyUnavailableException
+	 * @throws OODBConnectionsADCSException		something went wrong
+	 * @throws ADCSProxyUnavailableException 	something went wrong, the adcsProxy is unavailable
 	 */
 	@Transactional
 	public int retrieveCertificates(CAConnectorConfig config) throws OODBConnectionsADCSException, ADCSProxyUnavailableException {

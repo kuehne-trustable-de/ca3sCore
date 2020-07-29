@@ -79,7 +79,8 @@
                     </div>
 
                     <!-- Additional Request Attributes -->
-                    <div class="form-group">
+                    <div class="form-group" v-if="araRestrictions.length > 0">
+                        <label class="form-control-label" v-text="$t('pkcsxx.upload.requestParams')" for="pkcsxx-pipeline">certificateParams</label>
 
                         <div class="row" v-for="(item, index) in araRestrictions" :key="index" >
                             <div class="col">
@@ -91,11 +92,27 @@
                         </div>
                     </div>
 
-                    <div class="form-group" v-if="creationMode === 'SERVERSIDE_KEY_CREATION'">
-						<label class="form-control-label" v-text="$t('pkcsxx.upload.serversideCreationTool.secret')" for="upload-secret">Secret</label>
-                        <input type="text" class="form-control" name="upload-secret" id="upload-secret"
-							autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-							v-model="upload.secret" />
+                    <div class="form-group" v-if="creationMode === 'SERVERSIDE_KEY_CREATION'">						
+                        <div class="row" >
+                            <div class="col">
+								<label class="form-control-label" v-text="$t('pkcsxx.upload.serversideCreation.secret')" for="upload-secret">Secret</label>
+                            </div>
+                            <div class="col colContent">
+								<input type="password" class="form-control" name="upload-secret" id="upload-secret"
+									autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+									v-model="upload.secret" />
+                            </div>
+                        </div>
+                        <div class="row" >
+                            <div class="col">
+								<label class="form-control-label" v-text="$t('pkcsxx.upload.serversideCreation.repeat')" for="upload-secret-repeat">Repeat</label>
+                            </div>
+                            <div class="col colContent">
+								<input type="password" class="form-control" name="upload-secret-repeat" id="upload-secret-repeat"
+									autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+									v-model="secretRepeat" />
+                            </div>
+                        </div>
 					</div>
 
                     <div class="form-group" v-if="creationMode === 'COMMANDLINE_TOOL'">
@@ -104,10 +121,13 @@
 							autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly v-model="commandLine" />
 					</div>
 
-                    <div class="form-group" v-if="(creationMode === 'CSR_AVAILABLE') || (creationMode === 'COMMANDLINE_TOOL')">
+                    <div class="form-group">
                         <!--label class="form-control-label" v-text="$t('pkcsxx.upload.content')" for="upload-content">Content</label-->
 						<div>
-                        	<label class="form-control-label" v-text="$t('pkcsxx.upload.fileSelector')" for="fileSelector">Select a file</label>
+                        	<label v-if="(creationMode === 'CSR_AVAILABLE')" 
+								class="form-control-label" v-text="$t('pkcsxx.upload.fileSelectorCSR')" for="fileSelector">Select a CSR</label>
+                        	<label v-if="(creationMode === 'COMMANDLINE_TOOL') || (creationMode === 'SERVERSIDE_KEY_CREATION')"
+								class="form-control-label" v-text="$t('pkcsxx.upload.fileSelectorCertificate')" for="fileSelector">Select a certificate</label>
 							<input type="file" id="fileSelector" ref="fileSelector" name="fileSelector" @change="notifyFileChange" />
 						</div>
                         <textarea class="form-control pem-content draggable" name="content" id="upload-content"

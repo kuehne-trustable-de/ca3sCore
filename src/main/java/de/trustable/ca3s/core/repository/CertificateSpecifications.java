@@ -36,8 +36,6 @@ import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.domain.CertificateAttribute_;
 import de.trustable.ca3s.core.domain.Certificate_;
-import de.trustable.ca3s.core.domain.CsrAttribute;
-import de.trustable.ca3s.core.domain.CsrAttribute_;
 import de.trustable.ca3s.core.service.dto.CertificateView;
 import de.trustable.ca3s.core.service.dto.Selector;
 import de.trustable.ca3s.core.service.util.DateUtil;

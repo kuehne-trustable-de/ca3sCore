@@ -51,9 +51,10 @@ export default class PKCSXX extends Vue {
 
   public pipelineRestrictions: IPipelineRestrictions = new PipelineRestrictions();
 
-  private creationTool = 'keytool';
-  private creationMode: ICreationMode = 'CSR_AVAILABLE';
-  private keyAlgoLength: IKeyAlgoLength = 'RSA_2048';
+  public creationTool = 'keytool';
+  public secretRepeat = '';
+  public creationMode: ICreationMode = 'CSR_AVAILABLE';
+  public keyAlgoLength: IKeyAlgoLength = 'RSA_2048';
 
   public sampleCommandLine = 'keytool -genkeypair -keyalg RSA -keysize 2048 -alias testAlias -keystore test.p12 -storetype pkcs12  -dname "CN=test\n\n' +
 'keytool -certreq  -keystore test.p12 -alias testAlias -ext "SAN=dns:test.example.com,ip:127.0.0.1"';

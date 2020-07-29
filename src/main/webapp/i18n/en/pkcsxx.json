@@ -3,7 +3,8 @@
     "title": "Certificate Request",
     "subtitle": "Upload a certificate request",
     "upload": {
-      "fileSelector": "Select a file or drop content in the box below",
+      "fileSelectorCSR": "Select a CSR file or drop content in the box below",
+      "fileSelectorCertificate": "Select a sample certificate file or drop content in the box below",
       "type": "Content type",
       "upload": "Upload",
       "requestCertificate": "Request certificate",
@@ -22,6 +23,7 @@
         "validto": "Valid to"
       },
       "creationTool": {
+        "selection": "Tool selection",
         "keytool": "Java keytool",
         "openssl": "Openssl",
         "cmdline": "Command line"
@@ -44,13 +46,19 @@
         "commandLineTool": "CSR generation command lines",
         "serversideKeyCreation": "Serverside key creation"
       },
-      "certificateParams": "Enter certificate parameter",
-      "cn": "Common name",
-      "c": "Country",
-      "o": "Organisation",
-      "ou": "Organisation Unit",
-      "l": "Location",
-      "st": "State",
+      "serversideCreation":{
+        "secret": "Container secret",
+        "repeat": "Repeat secret"
+      },
+      "certificateParams": "Certificate parameter",
+      "requestParams": "Additional request parameter",
+      "CN": "Common name",
+      "C": "Country",
+      "O": "Organisation",
+      "OU": "Organisation unit",
+      "L": "Location",
+      "ST": "State",
+      "SAN": "SAN",
       "key-length": "Key length"
     }
   }
