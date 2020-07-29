@@ -256,6 +256,14 @@ export default class CsrList extends Vue {
     };
   }
 
+  // refesh table by pressing 'enter'
+  public updateTable() {
+
+//    window.console.debug('updateTable: enter pressed ...');
+    this.buildContentAccessUrl();
+    this.buildContentAccessUrl();
+  }
+
   public buildContentAccessUrl() {
     const filterLen = this.filters.filterList.length;
 

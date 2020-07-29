@@ -125,7 +125,7 @@ public class CertificateView implements Serializable {
     			this.caProcessingId = Long.parseLong(certAttr.getValue());
     		} else if( CertificateAttribute.ATTRIBUTE_PROCESSING_CA.equalsIgnoreCase(certAttr.getName())) {
     			this.processingCa = certAttr.getValue();
-    		} else if( CertificateAttribute.ATTRIBUTE_FILE_SOURCE.equalsIgnoreCase(certAttr.getName())) {
+    		} else if( CertificateAttribute.ATTRIBUTE_SOURCE.equalsIgnoreCase(certAttr.getName())) {
     			this.fileSource = certAttr.getValue();
     		} else if( CertificateAttribute.ATTRIBUTE_UPLOADED_BY.equalsIgnoreCase(certAttr.getName())) {
     			this.uploadedBy = certAttr.getValue();

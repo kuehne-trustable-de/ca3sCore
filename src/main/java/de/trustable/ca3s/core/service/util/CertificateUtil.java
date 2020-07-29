@@ -134,7 +134,12 @@ public class CertificateUtil {
 	private CryptoService cryptoUtil;
 
 	
+
     public Certificate createCertificate(final byte[] encodedCert, final CSR csr, final String executionId, final boolean reimport) throws GeneralSecurityException, IOException {
+    	return createCertificate(encodedCert, csr, executionId, reimport, null);
+    	
+    }
+  	public Certificate createCertificate(final byte[] encodedCert, final CSR csr, final String executionId, final boolean reimport, final String importUrl) throws GeneralSecurityException, IOException {
 
     	try {
 	    	CertificateFactory factory = CertificateFactory.getInstance("X.509");
@@ -142,7 +147,7 @@ public class CertificateUtil {
 	    	
 	    	String pemCert = cryptoUtil.x509CertToPem(cert);
 	
-	        return createCertificate(pemCert, csr, executionId, reimport);
+	        return createCertificate(pemCert, csr, executionId, reimport, importUrl);
     	} catch (GeneralSecurityException | IOException e) {
     		throw e;
     	} catch (Throwable th) {
@@ -162,7 +167,23 @@ public class CertificateUtil {
 	public Certificate createCertificate(final String pemCert, final CSR csr, 
 			final String executionId) throws GeneralSecurityException, IOException {
 		
-		return createCertificate(pemCert, csr, executionId, false);
+		return createCertificate(pemCert, csr, executionId, false, null);
+	}
+
+	/**
+	 * 
+	 * @param pemCert
+	 * @param csr
+	 * @param executionId
+	 * @param reimport
+	 * @return
+	 * @throws GeneralSecurityException
+	 * @throws IOException
+	 */
+	public Certificate createCertificate(final String pemCert, final CSR csr, 
+			final String executionId, final boolean reimport) throws GeneralSecurityException, IOException {
+		
+		return createCertificate(pemCert, csr, executionId, false, null);
 	}
 
 	/**
@@ -214,7 +235,7 @@ public class CertificateUtil {
 	 */
 	public Certificate createCertificate(final String pemCert, final CSR csr, 
 			final String executionId,
-			final boolean reimport) throws GeneralSecurityException, IOException {
+			final boolean reimport, final String importUrl) throws GeneralSecurityException, IOException {
 
 
 		X509Certificate x509Cert = CryptoService.convertPemToCertificate(pemCert);
@@ -223,6 +244,10 @@ public class CertificateUtil {
 		if (cert == null) {
 			String tbsDigestBase64 = Base64.encodeBase64String(cryptoUtil.getSHA256Digest(x509Cert.getTBSCertificate())).toLowerCase();
 			cert = createCertificate(pemCert, csr, executionId, x509Cert, tbsDigestBase64);
+			
+			// save the source of the certificate
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SOURCE, importUrl);
+
 		} else {
 			LOG.info("certificate '" + cert .getSubject() +"' already exists");
 

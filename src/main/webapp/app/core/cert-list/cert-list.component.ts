@@ -272,6 +272,14 @@ representedAs: row => `${(row.serial.length > 12) ? row.serial.substring(0, 6).c
     };
   }
 
+  // refesh table by pressing 'enter'
+  public updateTable() {
+
+//    window.console.debug('updateTable: enter pressed ...');
+    this.buildContentAccessUrl();
+    this.buildContentAccessUrl();
+  }
+
   public buildContentAccessUrl() {
     const filterLen = this.filters.filterList.length;
 

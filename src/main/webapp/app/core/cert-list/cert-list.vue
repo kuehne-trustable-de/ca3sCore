@@ -18,9 +18,9 @@
 					<select v-if="getInputType(filter.attributeName) == 'set'" float="left" class="smallSelector fa-1x" v-model="filter.attributeValue" name="certSelectionSet">
 						<option v-for="item in getValueChoices(filter.attributeName)" :key="item">{{item}}</option>
 					</select>
-					<input type="date" v-else-if="getInputType(filter.attributeName) == 'date'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueDate"/>
-					<input type="hidden" v-else-if="getInputType(filter.attributeName) == 'boolean'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueBoolean"/>
-					<input v-else float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValue"/>
+					<input type="date" v-else-if="getInputType(filter.attributeName) == 'date'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueDate" v-on:keydown.enter="updateTable"/>
+					<input type="hidden" v-else-if="getInputType(filter.attributeName) == 'boolean'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueBoolean" v-on:keydown.enter="updateTable"/>
+					<input v-else float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValue" v-on:keydown.enter="updateTable"/>
 
 					<button class="addRemoveSelector" float="right" v-if="index == 0" v-on:click="addSelector()">
 						<font-awesome-icon icon="plus"></font-awesome-icon>

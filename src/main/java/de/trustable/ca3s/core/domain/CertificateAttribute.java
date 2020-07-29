@@ -150,7 +150,7 @@ public class CertificateAttribute implements Serializable {
 	public static final String ATTRIBUTE_CA_PROCESSING_ID = CsrAttribute.ATTRIBUTE_CA_PROCESSING_ID;
 	public static final String ATTRIBUTE_PROCESSING_CA = CsrAttribute.ATTRIBUTE_PROCESSING_CA;
 	
-	public static final String ATTRIBUTE_FILE_SOURCE = "FILE_SOURCE";
+	public static final String ATTRIBUTE_SOURCE = "SOURCE";
 
 	public static final String ATTRIBUTE_UPLOADED_BY = "UPLOADED_BY";
 

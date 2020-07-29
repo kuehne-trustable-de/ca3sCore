@@ -9,8 +9,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileAttribute;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,6 +36,11 @@ import de.trustable.ca3s.core.schedule.ImportInfo;
 import de.trustable.ca3s.core.service.util.CAStatus;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.TransactionHandler;
+import edu.uci.ics.crawler4j.crawler.CrawlConfig;
+import edu.uci.ics.crawler4j.crawler.CrawlController;
+import edu.uci.ics.crawler4j.fetcher.PageFetcher;
+import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig;
+import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
 
 @Service
 public class DirectoryConnector {
@@ -91,31 +98,73 @@ public class DirectoryConnector {
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public int retrieveCertificates(CAConnectorConfig caConfig) throws IOException {
 
-		File dir = new File(getFilename(caConfig));
-
-	    String regEx = IMPORT_SELECTOR_REGEX;
-	    if( (caConfig.getSelector() != null) && (caConfig.getSelector().trim().length() > 0 ) ) {
-	    	regEx = caConfig.getSelector().trim();
-	    }
-
-		LOGGER.debug("in retrieveCertificates for directory '{}' using regex '{}'", dir, regEx);
-
-
-		Set<String> certSet = listFilesUsingFileWalkAndVisitor(dir.getAbsolutePath(), regEx);
-
 		ImportInfo importInfo = new ImportInfo();
 
-		long startTime = System.currentTimeMillis();
-		for( String filename: certSet) {
+//	    String regEx = IMPORT_SELECTOR_REGEX;
+	    String regEx = ( (caConfig.getSelector() != null) && (caConfig.getSelector().trim().length() > 0 ) ) ? caConfig.getSelector().trim(): IMPORT_SELECTOR_REGEX;
+	    
 
-			transactionHandler.runInNewTransaction(() -> importCertifiateFromFile(filename, importInfo));
+		if( caConfig.getCaUrl() == null) {
+			LOGGER.warn("in retrieveCertificates: url missing");
+			return 0;
+		}
+		String url = caConfig.getCaUrl().toLowerCase();
+		if( url.startsWith("http://") ||
+				url.startsWith("https://") ) {
 			
-			if( (System.currentTimeMillis() - startTime) > MAX_IMPORTS_MILLISECONDS ) {
-				LOGGER.debug("retrieveCertificates: imported for more than {} sec., delaying ...", MAX_IMPORTS_MILLISECONDS / 1000L);
-				break;
+			CrawlConfig config = new CrawlConfig();
+
+	        // Set the folder where intermediate crawl data is stored (e.g. list of urls that are extracted from previously
+	        // fetched pages and need to be crawled later).
+			Path tmpFolder = Files.createTempDirectory("crawler4j");
+	        config.setCrawlStorageFolder(tmpFolder.toString());
+
+	        // Number of threads to use during crawling. Increasing this typically makes crawling faster. But crawling
+	        // speed depends on many other factors as well. You can experiment with this to figure out what number of
+	        // threads works best for you.
+	        int numberOfCrawlers = 1;
+
+	        // Since certificates and CRLs maybe binary content, we need to set this parameter to
+	        // true to make sure they are included in the crawl.
+	        config.setIncludeBinaryContentInCrawling(true);
+
+	        List<String> crawlDomains = Arrays.asList(caConfig.getCaUrl());
+
+	        PageFetcher pageFetcher = new PageFetcher(config);
+	        RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
+	        RobotstxtServer robotstxtServer = new RobotstxtServer(robotstxtConfig, pageFetcher);
+
+			try {
+				CrawlController controller = new CrawlController(config, pageFetcher, robotstxtServer);
+		        for (String domain : crawlDomains) {
+		            controller.addSeed(domain);
+		        }
+
+		        CrawlController.WebCrawlerFactory<CertificateCrawler> factory = () -> new CertificateCrawler(crawlDomains, regEx, certUtil, importInfo);
+		        controller.start(factory, numberOfCrawlers);
+			} catch (Exception e) {
+				LOGGER.info("problem building crawler for '{}'", caConfig.getCaUrl());
+			}
+		}else {
+			
+			File dir = new File(getFilename(caConfig));
+	
+			LOGGER.debug("in retrieveCertificates for directory '{}' using regex '{}'", dir, regEx);
+	
+	
+			Set<String> certSet = listFilesUsingFileWalkAndVisitor(dir.getAbsolutePath(), regEx);
+		
+			long startTime = System.currentTimeMillis();
+			for( String filename: certSet) {
+	
+				transactionHandler.runInNewTransaction(() -> importCertifiateFromFile(filename, importInfo));
+				
+				if( (System.currentTimeMillis() - startTime) > MAX_IMPORTS_MILLISECONDS ) {
+					LOGGER.debug("retrieveCertificates: imported for more than {} sec., delaying ...", MAX_IMPORTS_MILLISECONDS / 1000L);
+					break;
+				}
 			}
 		}
-		
 		return importInfo.getImported();
 	}
 
@@ -140,13 +189,7 @@ public class DirectoryConnector {
 					LOGGER.debug("new certificate '{}' found, importing ...", filename);
 
 					byte[] content = Files.readAllBytes(Paths.get(filename));
-					Certificate certDao = certUtil.createCertificate(content, null, null, false);
-	
-					// save the source of the certificate
-//					certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_FILE_SOURCE, filename);
-	
-//					certificateAttributeRepository.saveAll(certDao.getCertificateAttributes());
-//					certificateRepository.save(certDao);
+					certUtil.createCertificate(content, null, null, false, filename);
 	
 				} catch (GeneralSecurityException | IOException e) {
 					LOGGER.info("reading and importing certificate from '{}' causes {}",
