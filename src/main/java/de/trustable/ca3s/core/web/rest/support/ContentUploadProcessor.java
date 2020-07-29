@@ -146,7 +146,7 @@ public class ContentUploadProcessor {
     /**
      * {@code POST  /csrContent} : Process a PKCSXX-object encoded as PEM.
      *
-     * @param a structure holding some crypto-related content, e.g. CSR, certificate, P12 container
+     * @param uploaded a structure holding some crypto-related content, e.g. CSR, certificate, P12 container
      * @return the {@link ResponseEntity} .
      */
     @PostMapping("/uploadContent")

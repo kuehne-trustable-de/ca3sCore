@@ -43,8 +43,8 @@ public class CaConnectorAdapter {
 	
 	/**
 	 * 
-	 * @param caConfig
-	 * @return
+	 * @param caConfig CAConnectorConfig
+	 * @return CAStatus
 	 */
 	public CAStatus getStatus(CAConnectorConfig caConfig ) {
 
@@ -81,9 +81,9 @@ public class CaConnectorAdapter {
 
 	/**
 	 * 
-	 * @param csrBase64
-	 * @param caConfig
-	 * @return
+	 * @param csrBase64 csr as Base64 String
+	 * @param caConfig	CAConnectorConfig
+	 * @return certificate
 	 * @throws GeneralSecurityException
 	 * @throws IOException
 	 */
@@ -96,9 +96,9 @@ public class CaConnectorAdapter {
 
 	/**
 	 * 
-	 * @param csr
-	 * @param caConfig
-	 * @return
+	 * @param csr 		csr as CSR object
+	 * @param caConfig	CAConnectorConfig
+	 * @return certificate
 	 * @throws GeneralSecurityException
 	 */
 	public Certificate signCertificateRequest(CSR csr, CAConnectorConfig caConfig ) throws GeneralSecurityException  {
@@ -126,10 +126,10 @@ public class CaConnectorAdapter {
 
 	/**
 	 * 
-	 * @param certificateDao
-	 * @param crlReason
-	 * @param revocationDate
-	 * @param caConfig
+	 * @param certificateDao	certificateDao for revocation
+	 * @param crlReason			crl reason for revocation
+	 * @param revocationDate	date for revocation
+	 * @param caConfig			CAConnectorConfig
 	 * @throws GeneralSecurityException
 	 */
 	@Transactional

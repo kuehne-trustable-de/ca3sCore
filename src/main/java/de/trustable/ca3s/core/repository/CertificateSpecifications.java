@@ -93,10 +93,10 @@ public final class CertificateSpecifications {
 
     /**
      * 
-     * @param entityManager
-     * @param cb
-     * @param rdnList
-     * @return
+     * @param entityManager EntityManager
+     * @param cb CriteriaBuilder
+     * @param rdnList list of RDNs
+     * @return list of certificates
      */
 	public static List<Certificate> findCertificatesBySubject(EntityManager entityManager, 
 			CriteriaBuilder cb, 
@@ -148,10 +148,10 @@ public final class CertificateSpecifications {
 
     /**
      * 
-     * @param entityManager
-     * @param cb
-     * @param parameterMap
-     * @return
+     * @param entityManager	EntityManager
+     * @param cb CriteriaBuilder
+     * @param parameterMap map of parameters
+     * @return page
      */
 	public static Page<CertificateView> handleQueryParamsCertificateView(EntityManager entityManager, 
 			CriteriaBuilder cb, 

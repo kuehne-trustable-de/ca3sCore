@@ -56,15 +56,6 @@ public class AccountRequest {
 	@JsonProperty("externalAccountBinding") 
     private Object externalAccountBinding = null;
 
-    /**
-     * @param contacts Optional
-     
-    public NewAccountRequest(final Collection<String> contacts, final boolean termsAgreed) {
-      this.contacts = (contacts == null ? emptySet() : unmodifiableSet(new HashSet<>(contacts)));
-      this.termsAgreed = termsAgreed;
-    }
-*/
-
 	
     @Override
     public String toString() {

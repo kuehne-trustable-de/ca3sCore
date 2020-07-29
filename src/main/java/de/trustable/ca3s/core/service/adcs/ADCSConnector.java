@@ -167,7 +167,8 @@ public class ADCSConnector {
 	/**
 	 * Send a csr object to the ADCS and retrieve a created certificate
 	 * 
-	 * @param csr the CSR object, not just a P10 PEM string, holding e.g. a CRS status
+	 * @param csr 	 the CSR object, not just a P10 PEM string, holding e.g. a CRS status
+	 * @param config CAConnectorConfig
 	 * 
 	 * @return the freshly created certificate, already stored in the database
 	 * 
@@ -310,7 +311,7 @@ public class ADCSConnector {
 	 * @param revocationDate the revocation date
 	 * @param config the connection data identifying an ADCS instance
 	 * 
-	 * @throws GeneralSecurityException
+	 * @throws GeneralSecurityException something went wrong, e.g. revocation reason is unknown
 	 */
 	public void revokeCertificate(Certificate certDao, final CRLReason crlReason, final Date revocationDate, CAConnectorConfig config)
 			throws GeneralSecurityException {
@@ -348,8 +349,8 @@ public class ADCSConnector {
 	 * 
 	 * @return the number in imported certificates
 	 * 
-	 * @throws OODBConnectionsACDSException
-	 * @throws ACDSProxyUnavailableException
+	 * @throws OODBConnectionsACDSException		something went wrong
+	 * @throws ACDSProxyUnavailableException 	something went wrong, the adcsProxy is unavailable
 	 */
 	public int retrieveCertificatesOffsetOnly(CAConnectorConfig config) throws OODBConnectionsADCSException, ADCSProxyUnavailableException {
 
@@ -416,8 +417,8 @@ public class ADCSConnector {
 	 * 
 	 * @return the number in imported certificates
 	 * 
-	 * @throws OODBConnectionsACDSException
-	 * @throws ACDSProxyUnavailableException
+	 * @throws OODBConnectionsACDSException		something went wrong
+	 * @throws ACDSProxyUnavailableException 	something went wrong, the adcsProxy is unavailable
 	 */
 	public int retrieveCertificatesByResolvedDate(CAConnectorConfig config) throws OODBConnectionsADCSException, ADCSProxyUnavailableException {
 
@@ -648,7 +649,7 @@ public class ADCSConnector {
 	 * @param reqId te ADCS request id of the certificate to be retrieved
 	 * @param config the connection data identifying an ADCS instance
 	 * 
-	 * @throws ACDSException
+	 * @throws ACDSException something went wrong
 	 */
 	@Transactional(propagation = Propagation.REQUIRED)
 	private Certificate importCertificate(ADCSWinNativeConnector adcsConnector, String caName, String reqId, CAConnectorConfig config)

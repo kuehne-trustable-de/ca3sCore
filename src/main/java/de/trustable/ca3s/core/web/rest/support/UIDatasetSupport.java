@@ -113,7 +113,7 @@ public class UIDatasetSupport {
     /**
      * {@code POST  /ca-connector-configs/getStatus} : get all elements able to create a certificate.
      * 
-     * @param caConnConfig
+     * @param cAConnectorConfig CAConnectorConfig
      * @return the {@link CAStatus} .
      */
     @PostMapping("/ca-connector-configs/getStatus")

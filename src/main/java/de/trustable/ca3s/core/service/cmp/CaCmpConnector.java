@@ -91,16 +91,12 @@ public class CaCmpConnector {
 
 	/**
 	 * 
-	 * @param csr
-	 * @param user
-	 * @param password
-	 * @param hmacSecret
-	 * @param cmpEndpoint
-	 * @param alias
+	 * @param csr			csr as CSR object
+	 * @param caConnConfig	CAConnectorConfig
 	 * 
 	 * @return the created certificate, pem encoded
 	 * 
-	 * @throws GeneralSecurityException
+	 * @throws GeneralSecurityException something went wrong, e.g. no CSM format
 	 */
 	public de.trustable.ca3s.core.domain.Certificate signCertificateRequest(CSR csr, CAConnectorConfig caConnConfig)
 			throws GeneralSecurityException {
@@ -189,13 +185,14 @@ public class CaCmpConnector {
 
 	/**
 	 * 
-	 * @param csr
-	 * @param user
-	 * @param password
+	 * @param issuerDN
+	 * @param subjectDN
+	 * @param serial
+	 * @param crlReason
 	 * @param hmacSecret
 	 * @param cmpEndpoint
 	 * @param alias
-	 * @return
+	 *
 	 * @throws GeneralSecurityException
 	 */
 	public void revokeCertificate(final X500Name issuerDN, final X500Name subjectDN, final BigInteger serial,
@@ -237,10 +234,8 @@ public class CaCmpConnector {
 	 * 
 	 * @param certReqId
 	 * @param csr
-	 * @param publicKey
 	 * @param hmacSecret
-	 * @return
-	 * @throws IOException
+	 * @return PKIMessage
 	 * @throws GeneralSecurityException
 	 */
 	public PKIMessage buildCertRequest(long certReqId, final CSR csr, final String hmacSecret)
@@ -390,8 +385,9 @@ public class CaCmpConnector {
 	 * 
 	 * 
 	 * @param responseBytes
-	 * @param pkiRequest
-	 * @return
+	 * @param pkiMessageReq
+	 * @param csr
+	 * @param config
 	 * @throws IOException
 	 * @throws CRMFException
 	 * @throws CMPException

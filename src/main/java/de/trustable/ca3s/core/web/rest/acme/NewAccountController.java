@@ -77,17 +77,6 @@ public class NewAccountController extends ACMEController {
   @Autowired
   AcmeContactRepository contactRepo;
   
-  
-  /**
-   * @param nonceDAO   Required
-   * @param accountDAO Required
-
-  public NewAccountController(final AccountDao accountDAO) {
-    Validate.notNull(accountDAO, "Missing account DAO component");
-    this.accountDAO = accountDAO;
-  }
-*/
-
   @RequestMapping(method = POST, consumes = APPLICATION_JOSE_JSON_VALUE)
   public ResponseEntity<?> consumingPostedJoseJson(@RequestBody final String requestBody, @PathVariable final String realm) {
 	  
