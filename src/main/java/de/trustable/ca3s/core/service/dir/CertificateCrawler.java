@@ -52,7 +52,7 @@ public class CertificateCrawler extends WebCrawler {
         String href = url.getURL().toLowerCase();
     	
         if (filters.matcher(href).matches()) {
-        	LOGGER.debug("not visiting filtered page {}", href);
+//        	LOGGER.debug("not visiting filtered page {}", href);
             return false;
         }
 
@@ -67,7 +67,7 @@ public class CertificateCrawler extends WebCrawler {
                 return true;
             }
         }
-    	LOGGER.debug("not visiting {}", href);
+//    	LOGGER.debug("not visiting {}", href);
         return false;
     }
 
