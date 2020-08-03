@@ -31,7 +31,6 @@
                     <th><span v-text="$t('ca3SApp.pipeline.description')">Description</span></th>
                     <th><span v-text="$t('ca3SApp.pipeline.approvalRequired')">Approval Required</span></th>
                     <th><span v-text="$t('ca3SApp.pipeline.caConnector')">Ca Connector</span></th>
-                    <th><span v-text="$t('ca3SApp.pipeline.processInfo')">Process Info</span></th>
                     <th></th>
                 </tr>
                 </thead>
@@ -46,22 +45,13 @@
                     <td>{{pipeline.urlPart}}</td>
                     <td>{{pipeline.description}}</td>
                     <td>{{pipeline.approvalRequired}}</td>
-                    <td>
-                        <div v-if="pipeline.caConnector">
-                            <router-link :to="{name: 'CAConnectorConfigView', params: {cAConnectorConfigId: pipeline.caConnector.id}}">{{pipeline.caConnector.name}}</router-link>
-                        </div>
-                    </td>
-                    <td>
-                        <div v-if="pipeline.processInfo">
-                            <router-link :to="{name: 'BPNMProcessInfoView', params: {bPNMProcessInfoId: pipeline.processInfo.id}}">{{pipeline.processInfo.id}}</router-link>
-                        </div>
-                    </td>
+                    <td>{{pipeline.caConnectorName}}</td>
                     <td class="text-right">
                         <div class="btn-group">
-                            <router-link :to="{name: 'ConfPipelineView', params: {pipelineId: pipeline.id}}" tag="button" class="btn btn-info btn-sm details">
+                            <!--router-link :to="{name: 'ConfPipelineView', params: {pipelineId: pipeline.id}}" tag="button" class="btn btn-info btn-sm details">
                                 <font-awesome-icon icon="eye"></font-awesome-icon>
                                 <span class="d-none d-md-inline" v-text="$t('entity.action.view')">View</span>
-                            </router-link>
+                            </router-link-->
                             <router-link :to="{name: 'ConfPipelineEdit', params: {pipelineId: pipeline.id}}"  tag="button" class="btn btn-primary btn-sm edit">
                                 <font-awesome-icon icon="pencil-alt"></font-awesome-icon>
                                 <span class="d-none d-md-inline" v-text="$t('entity.action.edit')">Edit</span>

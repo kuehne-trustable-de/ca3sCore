@@ -219,15 +219,8 @@
 
                         <div class="row" v-for="(item, index) in pipeline.araRestrictions" :key="index" >
                             <div class="col">
-                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.attribute.name')" for="pipeline-ara-name">Name</label>
-                                <input type="text" class="form-control" name="pipeline-ara-name" id="pipeline-ara-name" v-model="pipeline.araRestrictions[index].name" />
-                            </div>
-                            <div class="col">
-                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ara.cardinality')" for="pipeline-ara-cardinality">Cardinality</label>
-                                <select class="form-control" id="pipeline-cn-cardinality" name="pipeline-cn-cardinality" v-model="pipeline.araRestrictions[index].cardinalityRestriction">
-                                    <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
-                                    <option value="ONE">ONE</option>
-                                </select>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ara.name')" for="pipeline-ara-name">Name</label>
+                                <input type="text" class="form-control" name="pipeline-ara-name" id="pipeline-ara-name" v-model="pipeline.araRestrictions[index].name" v-on:input="alignARAArraySize(index)"/>
                             </div>
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.template')" for="pipeline-ara-template">Template</label>
@@ -237,6 +230,11 @@
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.regExMatch')" for="pipeline-ara-regExMatch">Regular Expression</label>
                                 <input type="checkbox" class="form-check-inline" name="pipeline-ara-regExMatch" id="pipeline-ara-regExMatch" v-model="pipeline.araRestrictions[index].regExMatch" />
                             </div>
+                            <div class="col">
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ara.required')" for="pipeline-ara-required">Required</label>
+                                <input type="checkbox" class="form-check-inline" name="pipeline-ara-required" id="pipeline-ara-required" v-model="pipeline.araRestrictions[index].required" />
+                            </div>
+
                         </div>
                     </div>
 
@@ -261,13 +259,14 @@
                             :class="{'valid': !$v.pipeline.ipAsSanAllowed.$invalid, 'invalid': $v.pipeline.ipAsSanAllowed.$invalid }" v-model="$v.pipeline.ipAsSanAllowed.$model" />
                     </div>
 
-
+<!--
                     <div class="form-group" v-if="$v.pipeline.approvalRequired.$model">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.approvalInfo')" for="pipeline-approvalInfo1">Approval Info</label>
                         
                         <input type="text" class="form-control" name="urlPart" id="pipeline-approvalInfo1"
                             :class="{'valid': !$v.pipeline.approvalInfo1.$invalid, 'invalid': $v.pipeline.approvalInfo1.$invalid }" v-model="$v.pipeline.approvalInfo1.$model" />
                     </div>
+-->
 
                     <div v-if="$v.pipeline.type.$model === 'ACME'" class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.allowChallengeHTTP01')" for="pipeline-allowChallengeHTTP01">Challenge HTTP01</label>

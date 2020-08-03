@@ -23,7 +23,6 @@ import de.trustable.ca3s.core.domain.BPNMProcessInfo;
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.domain.PipelineAttribute;
-import de.trustable.ca3s.core.domain.enumeration.ARACardinalityRestriction;
 import de.trustable.ca3s.core.domain.enumeration.RDNCardinalityRestriction;
 import de.trustable.ca3s.core.repository.BPNMProcessInfoRepository;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
@@ -69,9 +68,10 @@ public class PipelineUtil {
 	public static final String RESTR_ARA_PREFIX = "RESTR_ARA_";
 	public static final String RESTR_ARA_PATTERN = RESTR_ARA_PREFIX + "(.*)_(.*)";
 	public static final String RESTR_ARA_NAME = "NAME";
-	public static final String RESTR_ARA_CARDINALITY = "CARDINALITY";
+//	public static final String RESTR_ARA_CARDINALITY = "CARDINALITY";
 	public static final String RESTR_ARA_TEMPLATE = "TEMPLATE";
 	public static final String RESTR_ARA_REGEXMATCH = "REGEXMATCH";
+	public static final String RESTR_ARA_REQUIRED = "REQUIRED";
 	
 	public static final String ALLOW_IP_AS_SUBJECT = "ALLOW_IP_AS_SUBJECT";
 	public static final String ALLOW_IP_AS_SAN = "ALLOW_IP_AS_SAN";
@@ -136,37 +136,37 @@ public class PipelineUtil {
     	
 		rdnRestrict = new RDNRestriction();
 		rdnRestrict.setRdnName("CN");
-		rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+		rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
     	pv.setRestriction_CN(rdnRestrict);
     	rdnRestrictArr[1] = rdnRestrict;
     	
 		rdnRestrict = new RDNRestriction();
 		rdnRestrict.setRdnName("O");
-		rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+		rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
     	pv.setRestriction_O(rdnRestrict);
     	rdnRestrictArr[2] = rdnRestrict;
     	
 		rdnRestrict = new RDNRestriction();
 		rdnRestrict.setRdnName("OU");
-		rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+		rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
     	pv.setRestriction_OU(rdnRestrict);
     	rdnRestrictArr[3] = rdnRestrict;
     	
 		rdnRestrict = new RDNRestriction();
 		rdnRestrict.setRdnName("L");
-		rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+		rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
     	pv.setRestriction_L(rdnRestrict);
     	rdnRestrictArr[4] = rdnRestrict;
     	
 		rdnRestrict = new RDNRestriction();
 		rdnRestrict.setRdnName("ST");
-		rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+		rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
     	pv.setRestriction_S(rdnRestrict);
     	rdnRestrictArr[5] = rdnRestrict;
     	
 		rdnRestrict = new RDNRestriction();
 		rdnRestrict.setRdnName("SAN");
-		rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+		rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
     	pv.setRestriction_SAN(rdnRestrict);
     	rdnRestrictArr[6] = rdnRestrict;
     	
@@ -293,8 +293,8 @@ public class PipelineUtil {
         	    	LOG.debug("ARA namePart : {}", namePart);
     		    	if( RESTR_ARA_NAME.equals(namePart)) {
     		    		araRestriction.setName(plAtt.getValue());
-    		    	}else if( RESTR_ARA_CARDINALITY.equals(namePart)) {
-    		    		araRestriction.setCardinalityRestriction(ARACardinalityRestriction.valueOf(plAtt.getValue()));
+    		    	}else if( RESTR_ARA_REQUIRED.equals(namePart)) {
+    		    		araRestriction.setRequired(Boolean.valueOf(plAtt.getValue()));
     	    		}else if( RESTR_ARA_TEMPLATE.equals(namePart)) {
     	    			araRestriction.setContentTemplate(plAtt.getValue());
     	    		}else if( RESTR_ARA_REGEXMATCH.equals(namePart)) {
@@ -402,14 +402,16 @@ public class PipelineUtil {
 		
 */
 		ARARestriction[] araRestrictions = pv.getAraRestrictions();
+		int j = 0;
 		for( int i = 0; i < araRestrictions.length; i++) {
 			ARARestriction araRestriction = araRestrictions[i];
 			String araName = araRestriction.getName();
 			if(araName != null && !araName.trim().isEmpty()) {
-				addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + i + "_" + RESTR_ARA_NAME,araName.trim());
-				addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + i + "_" + RESTR_ARA_CARDINALITY,araRestriction.getCardinalityRestriction().name());
-				addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + i + "_" + RESTR_ARA_TEMPLATE,araRestriction.getContentTemplate());
-				addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + i + "_" + RESTR_ARA_REGEXMATCH,araRestriction.isRegExMatch());
+				addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_NAME,araName.trim());
+				addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_REQUIRED,araRestriction.isRequired());
+				addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_TEMPLATE,araRestriction.getContentTemplate());
+				addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_REGEXMATCH,araRestriction.isRegExMatch());
+				j++;
 			}
 		}
 		

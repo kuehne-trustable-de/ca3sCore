@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2020-07-24 12:39:35.
+// Generated using typescript-generator version 2.19.577 on 2020-07-30 19:45:53.
 
 export interface IPipelineView extends ISerializable {
     id?: number;
@@ -199,9 +199,9 @@ export interface IRDNRestriction {
 
 export interface IARARestriction {
     name?: string;
-    cardinalityRestriction?: IARACardinalityRestriction;
     contentTemplate?: string;
     regExMatch?: boolean;
+    required?: boolean;
 }
 
 export interface IACMEConfigItems extends ISerializable {
@@ -270,5 +270,3 @@ export type IContainerType = "PKCS_12" | "JKS";
 export type IPKCSDataType = "CSR" | "X509_CERTIFICATE" | "X509_CERTIFICATE_CREATED" | "UNKNOWN" | "CONTAINER" | "CONTAINER_REQUIRING_PASSPHRASE";
 
 export type IRDNCardinalityRestriction = "NOT_ALLOWED" | "ZERO_OR_ONE" | "ONE" | "ZERO_OR_MANY" | "ONE_OR_MANY";
-
-export type IARACardinalityRestriction = "ZERO_OR_ONE" | "ONE";

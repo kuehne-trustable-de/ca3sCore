@@ -1,161 +1,176 @@
 {
-  "global": {
-    "title": "Ca3s",
-    "browsehappy": "Sie benutzen einen <strong>veralteten</strong> Browser. Bitte <a href=\"http://browsehappy.com/?locale=de/\">aktualisieren Sie Ihren Browser</a>, um die Benutzerfreundlichkeit zu erhöhen.",
-    "menu": {
-      "home": "Startseite",
-      "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
-      "entities": {
-        "main": "Entitäten",
-        "caConnectorConfig": "CA Connector Config",
-        "certificateAttribute": "Certificate Attribute",
-        "certificate": "Certificate",
-        "csr": "CSR",
-        "csrAttribute": "Csr Attribute",
-        "rdn": "RDN",
-        "rdnAttribute": "RDN Attribute",
-        "requestAttribute": "Request Attribute",
-        "requestAttributeValue": "Request Attribute Value",
-        "pipeline": "Pipeline",
-        "pipelineAttribute": "Pipeline Attribute",
-        "acmeAccount": "ACME Account",
-        "acmeContact": "Acme Contact",
-        "acmeOrder": "Acme Order",
-        "identifier": "Identifier",
-        "authorization": "Authorization",
-        "acmeChallenge": "Acme Challenge",
-        "nonce": "Nonce",
-        "importedUrl": "Imported URL",
-        "protectedContent": "Protected Content",
-        "acmeIdentifier": "Acme Identifier",
-        "acmeAuthorization": "Acme Authorization",
-        "acmeNonce": "Acme Nonce",
-        "bpnmProcessInfo": "BPNM Process Info",
-        "requestProxyConfig": "Request Proxy Config",
-        "userPreference": "User Preference",
-        "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
-      },
-      "account": {
-        "main": "Zugang",
-        "settings": "Einstellungen",
-        "password": "Passwort",
-        "sessions": "Sitzungen",
-        "login": "Anmelden",
-        "logout": "Abmelden",
-        "register": "Registrierung"
-      },
-      "admin": {
-        "main": "Administration",
-        "userManagement": "Benutzerverwaltung",
-        "tracker": "Benutzer Aktivitäten",
-        "metrics": "Metriken",
-        "health": "Status",
-        "configuration": "Konfiguration",
-        "logs": "Protokoll",
-        "audits": "Audits",
-        "apidocs": "API",
-        "database": "Datenbank",
-        "jhipster-needle-menu-add-admin-element": "JHipster will add additional menu entries here (do not translate!)"
-      },
-      "language": "Sprache"
-    },
-    "form": {
-      "username.label": "Benutzername",
-      "username.placeholder": "Ihr Benutzername",
-      "currentpassword.label": "Aktuelles Passwort",
-      "currentpassword.placeholder": "Aktuelles Passwort",
-      "newpassword.label": "Neues Passwort",
-      "newpassword.placeholder": "Neues Passwort",
-      "confirmpassword.label": "Neues Passwort bestätigen",
-      "confirmpassword.placeholder": "Bestätigen Sie Ihr neues Passwort",
-      "email.label": "Email Adresse",
-      "email.placeholder": "Ihre Email Adresse"
-    },
-    "messages": {
-      "info": {
-        "authenticated": {
-          "prefix": "Wenn Sie sich ",
-          "link": "anmelden",
-          "suffix": " möchten, versuchen Sie es mit <br/>- Administrator (Name=\"admin\" und Passwort=\"admin\")<br/>- Benutzer (Name=\"user\" und Passwort=\"user\")."
-        },
-        "register": {
-          "noaccount": "Sie haben noch keinen Zugang?",
-          "link": "Registrieren Sie sich"
-        }
-      },
-      "error": {
-        "dontmatch": "Das bestätigte Passwort entspricht nicht dem neuen Passwort!"
-      },
-      "validate": {
-        "newpassword": {
-          "required": "Ein neues Passwort wird benötigt.",
-          "minlength": "Das neue Passwort muss mindestens 4 Zeichen lang sein",
-          "maxlength": "Das neue Passwort darf nicht länger als 50 Zeichen sein",
-          "strength": "Passwortstärke:"
-        },
-        "confirmpassword": {
-          "required": "Sie müssen das Passwort bestätigen.",
-          "minlength": "Das bestätigte Passwort muss mindestens 4 Zeichen lang sein",
-          "maxlength": "Das bestätigte Passwort darf nicht länger als 50 Zeichen sein"
-        },
-        "email": {
-          "required": "Ihre Email Adresse wird benötigt.",
-          "invalid": "Ihre Email Adresse ist ungültig.",
-          "minlength": "Ihre Email Adresse muss mindestens 5 Zeichen lang sein",
-          "maxlength": "Ihre Email Adresse darf nicht länger als 50 Zeichen sein"
-        }
-      }
-    },
-    "field": {
-      "id": "ID"
-    },
-    "ribbon": {
-      "dev": "Development"
-    },
-    "item-count": "Ergebnis {{first}} - {{second}} von {{total}} Elemente."
-  },
-  "entity": {
-    "action": {
-      "addblob": "Blob hinzufügen",
-      "addimage": "Bild hinzufügen",
-      "back": "Zurück",
-      "cancel": "Abbrechen",
-      "delete": "Löschen",
-      "edit": "Bearbeiten",
-      "open": "Öffnen",
-      "save": "Speichern",
-      "view": "Details"
-    },
-    "detail": {
-      "field": "Feld",
-      "value": "Wert"
-    },
-    "delete": {
-      "title": "Löschen bestätigen"
-    },
-    "validation": {
-      "required": "Dieses Feld wird benötigt.",
-      "minlength": "Dieses Feld muss mind. {{min}} Zeichen lang sein.",
-      "maxlength": "Dieses Feld darf max. {{max}} Zeichen lang sein.",
-      "min": "Dieses Feld muss größer als {{min}} sein.",
-      "max": "Dieses Feld muss kleiner als {{max}} sein.",
-      "minbytes": "Dieses Feld sollte mehr als {{min}} bytes haben.",
-      "maxbytes": "Dieses Feld sollte nicht mehr als {{max}} bytes haben.",
-      "pattern": "Dieses Feld muss das Muster {{pattern}} erfüllen.",
-      "number": "Dieses Feld muss eine Zahl sein.",
-      "datetimelocal": "Dieses Feld muss eine Datums- und Zeitangabe enthalten."
-    }
-  },
-  "error": {
-    "internalServerError": "Interner Serverfehler",
-    "server.not.reachable": "Server ist nicht erreichbar",
-    "url.not.found": "Nicht gefunden",
-    "NotNull": "Feld {{fieldName}} kann nicht leer sein!",
-    "Size": "Feld {{fieldName}} erfüllt nicht die minimalen/maximalen Voraussetzungen!",
-    "userexists": "Benutzername bereits vergeben!",
-    "emailexists": "Email wird bereits verwendet!",
-    "idexists": "Ein neuer {{entityName}} kann noch keine ID haben",
-    "idnull": "Ungültige ID"
-  },
-  "footer": "Dies ist Ihre Fußzeile"
+	"entity": {
+		"action": {
+			"addblob": "Blob hinzufügen",
+			"addimage": "Bild hinzufügen",
+			"back": "Zurück",
+			"cancel": "Abbrechen",
+			"confirm": "Anfrage bestätigen",
+			"copy": "Kopieren",
+			"delete": "Löschen",
+			"edit": "Bearbeiten",
+			"open": "Öffnen",
+			"reject": "Anfrage ablehnen",
+			"revoke": "Widerrufen",
+			"save": "Speichern",
+			"view": "Details",
+			"withdraw": "Verwerfen"
+		},
+		"delete": {
+			"title": "Löschen bestätigen"
+		},
+		"detail": {
+			"field": "Feld",
+			"value": "Wert"
+		},
+		"validation": {
+			"datetimelocal": "Dieses Feld muss eine Datums- und Zeitangabe enthalten.",
+			"max": "Dieses Feld muss kleiner als {{max}} sein.",
+			"maxbytes": "Dieses Feld sollte nicht mehr als {{max}} bytes haben.",
+			"maxlength": "Dieses Feld darf max. {{max}} Zeichen lang sein.",
+			"min": "Dieses Feld muss größer als {{min}} sein.",
+			"minbytes": "Dieses Feld sollte mehr als {{min}} bytes haben.",
+			"minlength": "Dieses Feld muss mind. {{min}} Zeichen lang sein.",
+			"number": "Dieses Feld muss eine Zahl sein.",
+			"pattern": "Dieses Feld muss das Muster {{pattern}} erfüllen.",
+			"patternLogin": "Dieses Feld darf nur Buchstaben, Ziffern und E-Mail-Adressen enthalten.",
+			"required": "Dieses Feld wird benötigt."
+		}
+	},
+	"error": {
+		"NotNull": "Feld {{fieldName}} kann nicht leer sein!",
+		"Size": "Feld {{fieldName}} erfüllt nicht die minimalen/maximalen Voraussetzungen!",
+		"emailexists": "Email wird bereits verwendet!",
+		"idexists": "Ein neuer {{entityName}} kann noch keine ID haben",
+		"idnull": "Ungültige ID",
+		"internalServerError": "Interner Serverfehler",
+		"server.not.reachable": "Server ist nicht erreichbar",
+		"url.not.found": "Nicht gefunden",
+		"userexists": "Benutzername bereits vergeben!"
+	},
+	"footer": "Dies ist Ihre Fußzeile",
+	"global": {
+		"browsehappy": "Sie benutzen einen <strong>veralteten</strong> Browser. Bitte <a href=\"http://browsehappy.com/?locale=de/\">aktualisieren Sie Ihren Browser</a>, um die Benutzerfreundlichkeit zu erhöhen.",
+		"field": {
+			"id": "ID"
+		},
+		"form": {
+			"confirmpassword.label": "Neues Passwort bestätigen",
+			"confirmpassword.placeholder": "Bestätigen Sie Ihr neues Passwort",
+			"currentpassword.label": "Aktuelles Passwort",
+			"currentpassword.placeholder": "Aktuelles Passwort",
+			"email.label": "Email Adresse",
+			"email.placeholder": "Ihre Email Adresse",
+			"newpassword.label": "Neues Passwort",
+			"newpassword.placeholder": "Neues Passwort",
+			"username.label": "Benutzername",
+			"username.placeholder": "Ihr Benutzername"
+		},
+		"item-count": "Ergebnis {{first}} - {{second}} von {{total}} Elemente.",
+		"menu": {
+			"account": {
+				"login": "Anmelden",
+				"logout": "Abmelden",
+				"main": "Zugang",
+				"password": "Passwort",
+				"register": "Registrierung",
+				"sessions": "Sitzungen",
+				"settings": "Einstellungen"
+			},
+			"admin": {
+				"apidocs": "API",
+				"audits": "Audits",
+				"configuration": "Konfiguration",
+				"database": "Datenbank",
+				"health": "Status",
+				"jhipster-needle-menu-add-admin-element": "JHipster will add additional menu entries here (do not translate!)",
+				"logs": "Protokoll",
+				"main": "Administration",
+				"metrics": "Metriken",
+				"tracker": "Benutzer Aktivitäten",
+				"userManagement": "Benutzerverwaltung"
+			},
+			"certificates": "Zertifikate",
+			"check": "Prüfen",
+			"config": {
+				"caConnectorConfig": "CA Connector Config",
+				"main": "Konfig",
+				"pipeline": "Pipeline"
+			},
+			"entities": {
+				"acmeAccount": "ACME Account",
+				"acmeAuthorization": "Acme Authorization",
+				"acmeChallenge": "Acme Challenge",
+				"acmeContact": "Acme Contact",
+				"acmeIdentifier": "Acme Identifier",
+				"acmeNonce": "Acme Nonce",
+				"acmeOrder": "Acme Order",
+				"authorization": "Authorization",
+				"bpnmProcessInfo": "BPNM Process Info",
+				"caConnectorConfig": "CA Connector Config",
+				"certificate": "Certificate",
+				"certificateAttribute": "Certificate Attribute",
+				"csr": "CSR",
+				"csrAttribute": "Csr Attribute",
+				"identifier": "Identifier",
+				"importedUrl": "Imported URL",
+				"jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)",
+				"main": "Entitäten",
+				"nonce": "Nonce",
+				"pipeline": "Pipeline",
+				"pipelineAttribute": "Pipeline Attribute",
+				"protectedContent": "Protected Content",
+				"rdn": "RDN",
+				"rdnAttribute": "RDN Attribute",
+				"requestAttribute": "Request Attribute",
+				"requestAttributeValue": "Request Attribute Value",
+				"requestProxyConfig": "Request Proxy Config",
+				"userPreference": "User Preference"
+			},
+			"home": "Startseite",
+			"jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
+			"language": "Sprache",
+			"request": "Zertifikat anfordern",
+			"requests": "Anträge"
+		},
+		"messages": {
+			"error": {
+				"dontmatch": "Das bestätigte Passwort entspricht nicht dem neuen Passwort!"
+			},
+			"info": {
+				"authenticated": {
+					"link": "anmelden",
+					"prefix": "Wenn Sie sich ",
+					"suffix": " möchten, versuchen Sie es mit <br/>- Administrator (Name=\"admin\" und Passwort=\"admin\")<br/>- Benutzer (Name=\"user\" und Passwort=\"user\")."
+				},
+				"register": {
+					"link": "Registrieren Sie sich",
+					"noaccount": "Sie haben noch keinen Zugang?"
+				}
+			},
+			"validate": {
+				"confirmpassword": {
+					"maxlength": "Das bestätigte Passwort darf nicht länger als 50 Zeichen sein",
+					"minlength": "Das bestätigte Passwort muss mindestens 4 Zeichen lang sein",
+					"required": "Sie müssen das Passwort bestätigen."
+				},
+				"email": {
+					"invalid": "Ihre Email Adresse ist ungültig.",
+					"maxlength": "Ihre Email Adresse darf nicht länger als 50 Zeichen sein",
+					"minlength": "Ihre Email Adresse muss mindestens 5 Zeichen lang sein",
+					"required": "Ihre Email Adresse wird benötigt."
+				},
+				"newpassword": {
+					"maxlength": "Das neue Passwort darf nicht länger als 50 Zeichen sein",
+					"minlength": "Das neue Passwort muss mindestens 4 Zeichen lang sein",
+					"required": "Ein neues Passwort wird benötigt.",
+					"strength": "Passwortstärke:"
+				}
+			}
+		},
+		"ribbon": {
+			"dev": "Development"
+		},
+		"title": "Ca3s"
+	}
 }

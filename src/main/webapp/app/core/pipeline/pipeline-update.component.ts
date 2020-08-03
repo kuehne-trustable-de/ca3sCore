@@ -50,6 +50,26 @@ export default class PipelineUpdate extends Vue {
   public bPNMProcessInfos: IBPNMProcessInfo[] = [];
   public isSaving = false;
 
+  public alignARAArraySize(index: number): void {
+    window.console.info('in alignARAArraySize(' + index + ')');
+    const currentSize = this.pipeline.araRestrictions.length;
+    const name =  this.pipeline.araRestrictions[index].name || '';
+
+    if ( name.trim().length === 0 ) {
+      if ( currentSize > 1 ) {
+        // preserve last element
+        this.pipeline.araRestrictions.splice(index, 1);
+        window.console.info('in alignARAArraySize(' + index + '): dropped empty element');
+      }
+    } else {
+      if ( index + 1 === currentSize ) {
+        this.pipeline.araRestrictions.push({});
+        window.console.info('in alignARAArraySize(' + index + '): appended one element');
+      }
+    }
+
+  }
+
   beforeRouteEnter(to, from, next) {
     next(vm => {
       if (to.params.pipelineId) {

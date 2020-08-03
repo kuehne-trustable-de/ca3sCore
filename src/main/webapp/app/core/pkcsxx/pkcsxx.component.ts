@@ -106,6 +106,31 @@ export default class PKCSXX extends Vue {
     readerBase64.readAsText(blob);
   }
 
+  public alignRDNArraySize(restrictionIndex: number, valueIndex: number): void {
+    window.console.info('in alignRDNArraySize(' + restrictionIndex + ', ' + valueIndex + ')');
+    const restriction = this.rdnRestrictions[restrictionIndex];
+
+    if ( restriction.multipleValues ) {
+
+      const namedValue = this.upload.certificateAttributes[restrictionIndex];
+      const currentSize = namedValue.values.length;
+      const currentValue = namedValue.values[valueIndex] || '';
+
+      if ( currentValue.trim().length === 0 ) {
+        if ( currentSize > 1 ) {
+          // preserve last element
+          namedValue.values.splice(valueIndex, 1);
+          window.console.info('in alignRDNArraySize(' + valueIndex + '): dropped empty element');
+        }
+      } else {
+        if ( valueIndex + 1 === currentSize ) {
+          namedValue.values.push('');
+          window.console.info('in alignRDNArraySize(' + valueIndex + '): appended one element');
+        }
+      }
+    }
+  }
+
   public updatePipelineRestrictions(evt: any): void {
     const idx = evt.currentTarget.selectedIndex;
     this.updatePipelineRestrictionsByPipelineInfo(this.allWebPipelines[idx]);
@@ -153,7 +178,8 @@ export default class PKCSXX extends Vue {
     this.araRestrictions = new Array<PipelineRestriction>();
 
     for (const rr of pipeline.araRestrictions) {
-      this.araRestrictions.push( new PipelineRestriction(rr.name, rr.cardinalityRestriction, rr.contentTemplate, rr.regExMatch ));
+      const cardinalityRestriction = rr.required ? 'ONE' : 'ZERO_OR_ONE';
+      this.araRestrictions.push( new PipelineRestriction(rr.name, cardinalityRestriction, rr.contentTemplate, rr.regExMatch ));
     }
 
     for (const rr of this.araRestrictions) {
@@ -410,6 +436,22 @@ export default class PKCSXX extends Vue {
          ( this.precheckResponse.dataType === 'X509_CERTIFICATE' || this.precheckResponse.dataType === 'CONTAINER' ) &&
         this.isRAOfficer() ) {
       return !this.precheckResponse.certificates[0].certificatePresentInDB;
+    }
+    return false;
+  }
+
+  public enableCertificateRequest(): boolean {
+
+    if (this.creationMode === 'CSR_AVAILABLE') {
+      if (this.precheckResponse.csrPublicKeyPresentInDB ) {
+        return false;
+      }
+      return true;
+
+    } else if (this.creationMode === 'SERVERSIDE_KEY_CREATION') {
+      if (this.upload.secret.trim() === this.secretRepeat.trim()) {
+        return true;
+      }
     }
     return false;
   }

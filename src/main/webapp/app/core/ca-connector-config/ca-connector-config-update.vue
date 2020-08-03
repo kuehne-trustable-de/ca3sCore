@@ -39,12 +39,12 @@
                         <input type="text" class="form-control" name="caUrl" id="ca-connector-config-caUrl"
                             :class="{'valid': !$v.cAConnectorConfig.caUrl.$invalid, 'invalid': $v.cAConnectorConfig.caUrl.$invalid }" v-model="$v.cAConnectorConfig.caUrl.$model" />
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'ADCS_CERTIFICATE_INVENTORY'">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.pollingOffset')" for="ca-connector-config-pollingOffset">Polling Offset</label>
                         <input type="number" class="form-control" name="pollingOffset" id="ca-connector-config-pollingOffset"
                             :class="{'valid': !$v.cAConnectorConfig.pollingOffset.$invalid, 'invalid': $v.cAConnectorConfig.pollingOffset.$invalid }" v-model.number="$v.cAConnectorConfig.pollingOffset.$model" />
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" v-if="!($v.cAConnectorConfig.caConnectorType.$model === 'DIRECTORY' || $v.cAConnectorConfig.caConnectorType.$model === 'ADCS_CERTIFICATE_INVENTORY')">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.defaultCA')" for="ca-connector-config-defaultCA">Default CA</label>
                         <input type="checkbox" class="form-check" name="defaultCA" id="ca-connector-config-defaultCA"
                             :class="{'valid': !$v.cAConnectorConfig.defaultCA.$invalid, 'invalid': $v.cAConnectorConfig.defaultCA.$invalid }" v-model="$v.cAConnectorConfig.defaultCA.$model" />
@@ -59,7 +59,7 @@
                         <input type="text" class="form-control" name="selector" id="ca-connector-config-selector"
                             :class="{'valid': !$v.cAConnectorConfig.selector.$invalid, 'invalid': $v.cAConnectorConfig.selector.$invalid }" v-model="$v.cAConnectorConfig.selector.$model" />
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'DIRECTORY' || $v.cAConnectorConfig.caConnectorType.$model === 'ADCS_CERTIFICATE_INVENTORY' ">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.interval')" for="ca-connector-config-interval">Interval</label>
                         <select class="form-control" name="interval" :class="{'valid': !$v.cAConnectorConfig.interval.$invalid, 'invalid': $v.cAConnectorConfig.interval.$invalid }" v-model="$v.cAConnectorConfig.interval.$model" id="ca-connector-config-interval" >
                             <option value="MINUTE" v-bind:label="$t('ca3SApp.Interval.MINUTE')">MINUTE</option>

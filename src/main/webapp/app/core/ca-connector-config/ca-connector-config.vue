@@ -52,10 +52,10 @@
                     <td v-text="$t('ca3SApp.Interval.' + cAConnectorConfig.interval)">{{cAConnectorConfig.interval}}</td>
                     <td class="text-right">
                         <div class="btn-group">
-                            <router-link :to="{name: 'ConfCaConnectorView', params: {cAConnectorConfigId: cAConnectorConfig.id}}" tag="button" class="btn btn-info btn-sm details">
+                            <!--router-link :to="{name: 'ConfCaConnectorView', params: {cAConnectorConfigId: cAConnectorConfig.id}}" tag="button" class="btn btn-info btn-sm details">
                                 <font-awesome-icon icon="eye"></font-awesome-icon>
                                 <span class="d-none d-md-inline" v-text="$t('entity.action.view')">View</span>
-                            </router-link>
+                            </router-link-->
                             <router-link :to="{name: 'ConfCaConnectorEdit', params: {cAConnectorConfigId: cAConnectorConfig.id, mode: 'edit'}}"  tag="button" class="btn btn-primary btn-sm edit">
                                 <font-awesome-icon icon="pencil-alt"></font-awesome-icon>
                                 <span class="d-none d-md-inline" v-text="$t('entity.action.edit')">Edit</span>

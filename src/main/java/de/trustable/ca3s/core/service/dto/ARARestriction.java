@@ -1,21 +1,16 @@
 package de.trustable.ca3s.core.service.dto;
 
-import de.trustable.ca3s.core.domain.enumeration.ARACardinalityRestriction;
-
 public class ARARestriction {
 
 	String name;
-	ARACardinalityRestriction cardinalityRestriction;
 	String contentTemplate;
 	boolean regExMatch = false;
+	boolean required = false;
 	
 	public ARARestriction() {
 		
 	}
 
-	public ARACardinalityRestriction getCardinalityRestriction() {
-		return cardinalityRestriction;
-	}
 
 	public String getContentTemplate() {
 		return contentTemplate;
@@ -23,10 +18,6 @@ public class ARARestriction {
 
 	public boolean isRegExMatch() {
 		return regExMatch;
-	}
-
-	public void setCardinalityRestriction(ARACardinalityRestriction cardinalityRestriction) {
-		this.cardinalityRestriction = cardinalityRestriction;
 	}
 
 	public void setContentTemplate(String contentTemplate) {
@@ -43,6 +34,16 @@ public class ARARestriction {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+
+	public boolean isRequired() {
+		return required;
+	}
+
+
+	public void setRequired(boolean required) {
+		this.required = required;
 	}
 	
 	

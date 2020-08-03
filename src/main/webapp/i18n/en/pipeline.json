@@ -25,6 +25,13 @@
       "l": {
         "cardinality": "Cardinality 'L'"
       },
+      "san": {
+        "cardinality": "SAN cardinality"
+      },
+      "ara": {
+        "name": "Attribute name",
+        "required": "Attribute required"
+      },
       "template": "Template",
       "regExMatch": "Match as Regular expression",
       "toPendingOnFailedRestrictions": "Forward failed req. to 'Pending'",

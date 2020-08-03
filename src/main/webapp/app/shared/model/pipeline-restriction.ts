@@ -6,6 +6,7 @@ export interface IPipelineRestriction {
   regex: boolean;
   readOnly: boolean;
   required: boolean;
+  multipleValues: boolean;
 
   alignContent(): void;
 
@@ -14,6 +15,7 @@ export interface IPipelineRestriction {
 export class PipelineRestriction implements IPipelineRestriction {
   public readOnly: boolean;
   public required: boolean;
+  public multipleValues: boolean;
   constructor(
     public name: string,
     public cardinality: string,
@@ -36,6 +38,10 @@ export class PipelineRestriction implements IPipelineRestriction {
     this.required = false;
     if (this.cardinality === 'ONE' || this.cardinality === 'ONE_OR_MANY' ) {
       this.required = true;
+    }
+    this.multipleValues = false;
+    if (this.cardinality === 'ZERO_OR_MANY' || this.cardinality === 'ONE_OR_MANY' ) {
+      this.multipleValues = true;
     }
   }
 }
