@@ -148,7 +148,7 @@ public class PipelineUtil {
     	
 		rdnRestrict = new RDNRestriction();
 		rdnRestrict.setRdnName("OU");
-		rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+		rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
     	pv.setRestriction_OU(rdnRestrict);
     	rdnRestrictArr[3] = rdnRestrict;
     	
