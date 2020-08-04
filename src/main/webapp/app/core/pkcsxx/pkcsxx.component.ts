@@ -39,7 +39,7 @@ const validations: any = {
 @Component
 export default class PKCSXX extends Vue {
 
-  private upload: IUploadPrecheckData = <IUploadPrecheckData>{};
+  public upload: IUploadPrecheckData = <IUploadPrecheckData>{};
   public precheckResponse: IPkcsXXData = <IPkcsXXData>{};
 
   public allWebPipelines: IPipelineView[] = [];
@@ -53,6 +53,7 @@ export default class PKCSXX extends Vue {
 
   public creationTool = 'keytool';
   public secretRepeat = '';
+  public secret = '';
   public creationMode: ICreationMode = 'CSR_AVAILABLE';
   public keyAlgoLength: IKeyAlgoLength = 'RSA_2048';
 
@@ -161,6 +162,7 @@ export default class PKCSXX extends Vue {
     this.pipelineRestrictions.st.alignContent();
     this.pipelineRestrictions.san.alignContent();
 
+    this.upload.secret = '';
     this.upload.certificateAttributes = new Array<INamedValues>();
     this.upload.arAttributes = new Array<INamedValues>();
 
@@ -348,6 +350,7 @@ export default class PKCSXX extends Vue {
 
     this.upload.creationMode = this.creationMode;
     this.upload.keyAlgoLength = this.keyAlgoLength;
+    this.upload.secret = this.secret;
 
     if ( this.creationMode === 'CSR_AVAILABLE' && this.upload.content.trim().length === 0) {
       this.precheckResponse.dataType = 'UNKNOWN';
@@ -440,20 +443,21 @@ export default class PKCSXX extends Vue {
     return false;
   }
 
-  public enableCertificateRequest(): boolean {
+  public disableCertificateRequest(): boolean {
 
     if (this.creationMode === 'CSR_AVAILABLE') {
       if (this.precheckResponse.csrPublicKeyPresentInDB ) {
-        return false;
-      }
-      return true;
-
-    } else if (this.creationMode === 'SERVERSIDE_KEY_CREATION') {
-      if (this.upload.secret.trim() === this.secretRepeat.trim()) {
         return true;
       }
+      return false;
+
+    } else if (this.creationMode === 'SERVERSIDE_KEY_CREATION') {
+      window.console.info('upload.secret : "' + this.secret + '" , secretRepeat : "' + this.secretRepeat + '"' );
+      if (this.secret.trim() === this.secretRepeat.trim()) {
+        return false;
+      }
     }
-    return false;
+    return true;
   }
 
   public currentPipelineInfo( pipelineId: number): string {

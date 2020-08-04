@@ -102,7 +102,7 @@
                             <div class="col colContent">
 								<input type="password" class="form-control" name="upload-secret" id="upload-secret"
 									autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-									v-model="upload.secret" />
+									v-model="secret" />
                             </div>
                         </div>
                         <div class="row" >
@@ -314,7 +314,7 @@
 -->
                     <button type="button" id="uploadContent"
 					    v-if="precheckResponse.dataType === 'CSR' || (creationMode === 'SERVERSIDE_KEY_CREATION')" 
-					    :disabled="enableCertificateRequest()"
+					    :disabled="disableCertificateRequest()"
 						class="btn btn-primary" v-on:click="uploadContent">
                         <font-awesome-icon icon="upload"></font-awesome-icon>&nbsp;<span v-text="$t('pkcsxx.upload.requestCertificate')">Request certificate</span>
                     </button>
