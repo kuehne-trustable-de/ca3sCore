@@ -177,7 +177,7 @@
                     </dt>
                     <dd v-if="certificateView.subject">
                         <div>
-                            <a href="downloadUrl" @click.prevent="downloadItem('.crt', 'application/pkix-cert')" >{{certificateView.downloadFilename}}.crt</a>
+                            <a href="downloadUrl" @click.prevent="downloadPKIX('.crt', 'application/pkix-cert')" >{{certificateView.downloadFilename}}.crt</a>
                         </div>
                     </dd>
                     <dt v-if="certificateView.subject">

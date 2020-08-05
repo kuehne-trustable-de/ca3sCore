@@ -90,25 +90,24 @@ public class CertificateDownloadController  {
      * @param certId the internal certificate id
      * @return the binary certificate
      */
-    @RequestMapping(value = "/certPKIX/{certId}/{filename}/{alias}", 
+    @RequestMapping(value = "/certPKIX/{certId}/{filename}", 
     		method = GET,
     		produces = ACMEController.APPLICATION_PKIX_CERT_VALUE)
-    public @ResponseBody byte[] getCertificatePKIX(@PathVariable final long certId, @PathVariable final String filename, @PathVariable final String alias) throws NotFoundException {
+    public @ResponseBody byte[] getCertificatePKIX(@PathVariable final long certId, @PathVariable final String filename) throws NotFoundException {
 
-		LOG.info("Received certificate download request (PKIX) for id {} as file '{}' and alias '{}'", certId, filename, alias);
+		LOG.info("Received certificate download request (PKIX) for id {} as file '{}' ", certId, filename);
 
     	if( SecurityContextHolder.getContext() == null ) {
 			throw new NotFoundException("Authentication required");
     	}
 
 		try {
-			return buildByteArrayResponseForId(certId, ACMEController.APPLICATION_PKIX_CERT_VALUE, alias);
+			return buildByteArrayResponseForId(certId, ACMEController.APPLICATION_PKIX_CERT_VALUE, "");
 		} catch (HttpClientErrorException | AcmeProblemException | GeneralSecurityException e) {
 			throw new NotFoundException(e.getMessage());
 		}
 
     }
-
     /**
      * Public certificate download endpoint providing PEM format including the certificate chain
      *  
@@ -156,26 +155,37 @@ public class CertificateDownloadController  {
      * Keystore download endpoint
      * 
      * @param certId the internal certificate id
+     * @param filename the requested file name, for logging purposes only 
+     * @param alias the identification id within the keystore 
      * @param accept the description of the requested format
      * @return the certificate in the requested encoded form 
      * @throws NotFoundException 
      */
-    @RequestMapping(value = "/keystore/{certId}", 
+    @RequestMapping(value = "/keystore/{certId}/{filename}/{alias}", 
     		method = GET,
     		produces = ACMEController.APPLICATION_PKCS12_VALUE)
-    public @ResponseBody byte[] getKeystore(@PathVariable final long certId, 
+    public @ResponseBody byte[] getKeystore(@PathVariable final long certId,
+    		@PathVariable final String filename,
+    		@PathVariable final String alias,
     		@RequestHeader(name="Accept", defaultValue=ACMEController.APPLICATION_PKCS12_VALUE) final String accept) throws NotFoundException {
 
-		LOG.info("Received keystore request for id {}", certId);
+		LOG.info("Received keystore request for id '{}' for filename '{}' with alias '{}'", certId, filename, alias);
 		
     	try {
-			return buildByteArrayResponseForId(certId, accept, "");
+			return buildByteArrayResponseForId(certId, accept, alias);
 		} catch (HttpClientErrorException | AcmeProblemException | GeneralSecurityException e) {
 			throw new NotFoundException(e.getMessage());
 		}  			
     }
 
-    
+    /**
+     * 
+     * @param certId
+     * @param accept
+     * @return
+     * @throws HttpClientErrorException
+     * @throws AcmeProblemException
+     */
 	public ResponseEntity<?> buildCertResponseForId(final long certId, final String accept)
 			throws HttpClientErrorException, AcmeProblemException {
 		
@@ -201,6 +211,16 @@ public class CertificateDownloadController  {
   		}
 	}
 
+	/**
+	 * 
+	 * @param certId
+	 * @param accept
+	 * @param alias
+	 * @return
+	 * @throws HttpClientErrorException
+	 * @throws AcmeProblemException
+	 * @throws GeneralSecurityException
+	 */
 	public @ResponseBody byte[] buildByteArrayResponseForId(final long certId, final String accept, final String alias)
 			throws HttpClientErrorException, AcmeProblemException, GeneralSecurityException {
 		
@@ -304,6 +324,11 @@ public class CertificateDownloadController  {
 	private @ResponseBody byte[] buildPKCS12Response(Certificate certDao, final String alias, final HttpHeaders headers) throws GeneralSecurityException {
 		LOG.info("building PKCS12 container response");
 
+		String entryAlias = "entry";
+		if( alias != null && !alias.trim().isEmpty()) {
+			entryAlias = alias;
+		}
+		
 		CSR csr = certDao.getCsr();
 		if (csr == null) {
 			throw new GeneralSecurityException("problem downloading keystore content for cert id "+certDao.getId()+": no csr object available ");
@@ -313,7 +338,7 @@ public class CertificateDownloadController  {
     	String userName = auth.getName();
     	if( userName == null ) {
 			throw new GeneralSecurityException("problem downloading keystore content for csr id "+csr.getId()+":  user name not available");
-    	}if(userName.equals(csr.getRequestedBy())) {
+    	}if(!userName.equals(csr.getRequestedBy())) {
 			throw new GeneralSecurityException("problem downloading keystore content for csr id "+csr.getId()+": user does not match initial requestor");
     	}
 
@@ -338,7 +363,7 @@ public class CertificateDownloadController  {
 
 			X509Certificate[] chain = certUtil.getX509CertificateChain(certDao);
 
-			p12.setKeyEntry("entry", key, passphraseChars, chain);
+			p12.setKeyEntry(entryAlias, key, passphraseChars, chain);
 
 			try(ByteArrayOutputStream baos = new ByteArrayOutputStream()){
 				p12.store(baos, passphraseChars);
@@ -347,7 +372,7 @@ public class CertificateDownloadController  {
 				KeyStore store = KeyStore.getInstance("pkcs12");
 				store.load(bais, passphraseChars);
 				
-				java.security.cert.Certificate cert = store.getCertificate(alias);
+				java.security.cert.Certificate cert = store.getCertificate(entryAlias);
 				LOG.debug("retrieved cert " + cert);
 
 				return baos.toByteArray();
