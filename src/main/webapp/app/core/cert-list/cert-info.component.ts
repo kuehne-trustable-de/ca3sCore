@@ -38,38 +38,22 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
   public downloadItem(extension: string, mimetype: string) {
     const filename = this.certificateView.downloadFilename + extension;
     const url = '/publicapi/cert/' + this.certificateView.id;
-    axios.get(url, { responseType: 'blob', headers: { 'Accept': mimetype } })
-      .then(response => {
-        const blob = new Blob([response.data], { type: mimetype, endings: 'transparent'});
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = filename;
-        link.type = mimetype;
-    window.console.info('tmp download lnk : ' + link.download);
-        link.click();
-        URL.revokeObjectURL(link.href);
-      }).catch(console.error);
+    this.download(url, filename, mimetype);
   }
 
   public downloadPKIX(extension: string, mimetype: string) {
     const filename = this.certificateView.downloadFilename + extension;
     const url = '/publicapi/certPKIX/' + this.certificateView.id + '/' + encodeURIComponent(filename);
-    axios.get(url, { responseType: 'blob', headers: { 'Accept': mimetype } })
-      .then(response => {
-        const blob = new Blob([response.data], { type: mimetype, endings: 'transparent'});
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = filename;
-        link.type = mimetype;
-    window.console.info('tmp download lnk : ' + link.download);
-        link.click();
-        URL.revokeObjectURL(link.href);
-      }).catch(console.error);
+    this.download(url, filename, mimetype);
   }
 
   public downloadKeystore(extension: string, mimetype: string) {
     const filename = this.certificateView.downloadFilename + extension;
     const url = '/publicapi/keystore/' + this.certificateView.id + '/' + encodeURIComponent(filename) + '/' + encodeURIComponent(this.p12Alias);
+    this.download(url, filename, mimetype);
+  }
+
+  public download(url: string, filename: string, mimetype: string) {
     axios.get(url, { responseType: 'blob', headers: { 'Accept': mimetype } })
       .then(response => {
         const blob = new Blob([response.data], { type: mimetype, endings: 'transparent'});
@@ -77,7 +61,9 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
         link.href = URL.createObjectURL(blob);
         link.download = filename;
         link.type = mimetype;
-    window.console.info('tmp download lnk : ' + link.download);
+
+        window.console.info('tmp download lnk : ' + link.download);
+
         link.click();
         URL.revokeObjectURL(link.href);
       }).catch(console.error);

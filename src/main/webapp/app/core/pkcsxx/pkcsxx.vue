@@ -60,7 +60,7 @@
 								<label class="form-control-label" v-text="$t('pkcsxx.upload.key-length')" for="pkcsxx.upload.key-length">Key length</label>
 							</div>
                         	<div class="col colContent">
-								<select class="form-control" id="pkcsxx.upload.key-length" name="pkcsxx.upload.key-length" v-model="keyAlgoLength">
+								<select class="form-control w-50" id="pkcsxx.upload.key-length" name="pkcsxx.upload.key-length" v-model="keyAlgoLength">
 									<option value="RSA_2048" selected="selected">RSA_2048</option>
 									<option value="RSA_4096">RSA_4096</option>
 								</select>
@@ -74,8 +74,11 @@
 							</div>
 							<div class="col colContent">
 								<input v-for="(val, valueIndex) in upload.certificateAttributes[index].values" :key="valueIndex"
-									type="text" class="form-check-inline" name="pkcsxx.upload.{rr.name}" id="pkcsxx.upload.{rr.name}" 
-									v-model="upload.certificateAttributes[index].values[valueIndex]" v-on:input="alignRDNArraySize(index, valueIndex)"/>
+									type="text" class="form-control form-check-inline valid" name="pkcsxx.upload.{rr.name}" id="pkcsxx.upload.{rr.name}" 
+									v-model="upload.certificateAttributes[index].values[valueIndex]"
+									:readonly="rr.readOnly" 
+									:required="rr.required"
+									v-on:input="alignRDNArraySize(index, valueIndex)"/>
 							</div>
 						</div>
                     </div>
@@ -89,7 +92,10 @@
 								<label class="form-control-label" for="pkcsxx.upload.ara.{item.name}">{{item.name}}</label>
                             </div>
                             <div class="col colContent">
-								<input type="text" class="form-check-inline" name="pkcsxx.upload.ara.{item.name}" id="pkcsxx.upload.ara.{item.name}" v-model="upload.arAttributes[index].values[0]" />
+								<input type="text" class="form-control form-check-inline valid" name="pkcsxx.upload.ara.{item.name}" id="pkcsxx.upload.ara.{item.name}" 
+									:readonly="item.readOnly"
+									:required="item.required"
+									v-model="upload.arAttributes[index].values[0]" />
                             </div>
                         </div>
                     </div>
@@ -100,7 +106,7 @@
 								<label class="form-control-label" v-text="$t('pkcsxx.upload.serversideCreation.secret')" for="upload-secret">Secret</label>
                             </div>
                             <div class="col colContent">
-								<input type="password" class="form-control" name="upload-secret" id="upload-secret"
+								<input type="password" class="form-control w-50" name="upload-secret" id="upload-secret"
 									autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
 									v-model="secret" />
                             </div>
@@ -110,7 +116,7 @@
 								<label class="form-control-label" v-text="$t('pkcsxx.upload.serversideCreation.repeat')" for="upload-secret-repeat">Repeat</label>
                             </div>
                             <div class="col colContent">
-								<input type="password" class="form-control" name="upload-secret-repeat" id="upload-secret-repeat"
+								<input type="password" class="form-control w-50" name="upload-secret-repeat" id="upload-secret-repeat"
 									autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
 									v-model="secretRepeat" />
                             </div>

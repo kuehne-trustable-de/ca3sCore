@@ -47,6 +47,7 @@ import org.jose4j.jwt.consumer.JwtContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -73,6 +74,9 @@ public class ChallengeController extends ACMEController {
 
     @Autowired
     private AcmeChallengeRepository challengeRepository;
+
+	@Value("${acmeClientPorts:80, 5544, 8800}")
+	private String portList;
 
 
     @RequestMapping(value = "/{challengeId}", method = GET, produces = APPLICATION_JSON_VALUE)
@@ -178,6 +182,21 @@ public class ChallengeController extends ACMEController {
 	private boolean checkChallengeHttp(AcmeChallenge challengeDao) {
 
 		int[] ports = {80, 5544, 8800};
+
+		if(portList != null && !portList.trim().isEmpty()) {
+			String[] parts = portList.split(",;");
+			ports = new int[parts.length];
+		    for( int i = 0; i < parts.length; i++) {
+		    	ports[i] = -1;
+		    	try {
+		    		ports[i] = Integer.parseInt(parts[i]);
+		    		LOG.debug("checkChallengeHttp port number '" + ports[i] + "' configured for HTTP callback");
+		    	} catch( NumberFormatException nfe) {
+					LOG.warn("checkChallengeHttp port number parsing fails for '" + ports[i] + "', ignoring", nfe);
+		    	}
+		    }
+			
+		}
 		
 	    String token = challengeDao.getToken();
 	    String pkThumbprint = challengeDao.getAcmeAuthorization().getOrder().getAccount().getPublicKeyHash();
