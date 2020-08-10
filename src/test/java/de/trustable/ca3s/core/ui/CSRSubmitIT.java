@@ -111,12 +111,13 @@ public class CSRSubmitIT extends WebTestBase{
 	public static void setUpBeforeClass() throws Exception {
 		JCAManager.getInstance();
 		
-	    waitForUrl();
 	}
 
 	@BeforeEach
 	void init() {
 		
+	    waitForUrl();
+
 		ptc.getInternalWebDirectTestPipeline();
 		ptc.getInternalWebRACheckTestPipeline();
 		

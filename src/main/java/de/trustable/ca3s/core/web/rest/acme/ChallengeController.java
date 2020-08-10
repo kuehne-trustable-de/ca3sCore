@@ -184,12 +184,12 @@ public class ChallengeController extends ACMEController {
 		int[] ports = {80, 5544, 8800};
 
 		if(portList != null && !portList.trim().isEmpty()) {
-			String[] parts = portList.split(",;");
+			String[] parts = portList.split(",");
 			ports = new int[parts.length];
 		    for( int i = 0; i < parts.length; i++) {
 		    	ports[i] = -1;
 		    	try {
-		    		ports[i] = Integer.parseInt(parts[i]);
+		    		ports[i] = Integer.parseInt(parts[i].trim());
 		    		LOG.debug("checkChallengeHttp port number '" + ports[i] + "' configured for HTTP callback");
 		    	} catch( NumberFormatException nfe) {
 					LOG.warn("checkChallengeHttp port number parsing fails for '" + ports[i] + "', ignoring", nfe);

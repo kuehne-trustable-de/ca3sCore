@@ -402,16 +402,18 @@ public class PipelineUtil {
 		
 */
 		ARARestriction[] araRestrictions = pv.getAraRestrictions();
-		int j = 0;
-		for( int i = 0; i < araRestrictions.length; i++) {
-			ARARestriction araRestriction = araRestrictions[i];
-			String araName = araRestriction.getName();
-			if(araName != null && !araName.trim().isEmpty()) {
-				addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_NAME,araName.trim());
-				addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_REQUIRED,araRestriction.isRequired());
-				addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_TEMPLATE,araRestriction.getContentTemplate());
-				addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_REGEXMATCH,araRestriction.isRegExMatch());
-				j++;
+		if( araRestrictions != null) {
+			int j = 0;
+			for( int i = 0; i < araRestrictions.length; i++) {
+				ARARestriction araRestriction = araRestrictions[i];
+				String araName = araRestriction.getName();
+				if(araName != null && !araName.trim().isEmpty()) {
+					addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_NAME,araName.trim());
+					addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_REQUIRED,araRestriction.isRequired());
+					addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_TEMPLATE,araRestriction.getContentTemplate());
+					addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_REGEXMATCH,araRestriction.isRegExMatch());
+					j++;
+				}
 			}
 		}
 		

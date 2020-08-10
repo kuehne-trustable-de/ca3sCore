@@ -2,6 +2,8 @@ package de.trustable.ca3s.core;
 
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +79,7 @@ public class PipelineTestConfiguration {
 		
 	}
 	
-
+	@Transactional
 	public Pipeline getInternalACMETestPipelineLaxRestrictions() {
 
 		Pipeline examplePipeline = new Pipeline();
@@ -106,6 +108,8 @@ public class PipelineTestConfiguration {
     	pv_LaxRestrictions.setRestriction_S(new RDNRestriction());
 		pv_LaxRestrictions.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
 
+    	pv_LaxRestrictions.setRestriction_SAN(new RDNRestriction());
+		pv_LaxRestrictions.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
 		
 		pv_LaxRestrictions.setApprovalRequired(false);
 		
@@ -119,6 +123,7 @@ public class PipelineTestConfiguration {
 		return pipelineLaxRestrictions;
 	}
 
+	@Transactional
 	public Pipeline getInternalACMETestPipeline_1_CN_ONLY_Restrictions() {
 
 		Pipeline examplePipeline = new Pipeline();
@@ -147,6 +152,9 @@ public class PipelineTestConfiguration {
     	pv_1CNRestrictions.setRestriction_S(new RDNRestriction());
 		pv_1CNRestrictions.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
 
+		pv_1CNRestrictions.setRestriction_SAN(new RDNRestriction());
+		pv_1CNRestrictions.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
+		
 		
 		pv_1CNRestrictions.setApprovalRequired(false);
 		
@@ -161,6 +169,7 @@ public class PipelineTestConfiguration {
 	}
 	
 
+	@Transactional
 	public Pipeline getInternalWebDirectTestPipeline() {
 
 		Pipeline examplePipeline = new Pipeline();
@@ -186,6 +195,7 @@ public class PipelineTestConfiguration {
 		return pipelineWeb;
 	}
 	
+	@Transactional
 	public Pipeline getInternalWebRACheckTestPipeline() {
 
 		Pipeline examplePipeline = new Pipeline();
@@ -211,6 +221,7 @@ public class PipelineTestConfiguration {
 		return pipelineWeb;
 	}
 	
+	@Transactional
 	public Pipeline getInternalWebRATestPipeline() {
 
 		Pipeline examplePipeline = new Pipeline();
@@ -237,6 +248,7 @@ public class PipelineTestConfiguration {
 	}
 
 
+	@Transactional
 	public Pipeline getInternalSCEPTestPipelineLaxRestrictions() {
 		
 		Pipeline examplePipeline = new Pipeline();
@@ -264,7 +276,9 @@ public class PipelineTestConfiguration {
     	pv_LaxRestrictions.setRestriction_S(new RDNRestriction());
 		pv_LaxRestrictions.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
 
-		
+		pv_LaxRestrictions.setRestriction_SAN(new RDNRestriction());
+		pv_LaxRestrictions.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
+
 		pv_LaxRestrictions.setApprovalRequired(false);
 		
 		pv_LaxRestrictions.setCaConnectorName(internalTestCAC().getName());
@@ -278,6 +292,7 @@ public class PipelineTestConfiguration {
 
 	}
 	
+	@Transactional
 	public Pipeline getInternalSCEPTestPipelineCN1Restrictions() {
 		
 		Pipeline examplePipeline = new Pipeline();
@@ -304,7 +319,10 @@ public class PipelineTestConfiguration {
 		pv_1CNRestrictions.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
     	pv_1CNRestrictions.setRestriction_S(new RDNRestriction());
 		pv_1CNRestrictions.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
-		
+
+		pv_1CNRestrictions.setRestriction_SAN(new RDNRestriction());
+		pv_1CNRestrictions.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
+
 		pv_1CNRestrictions.setApprovalRequired(false);
 		
 		pv_1CNRestrictions.setCaConnectorName(internalTestCAC().getName());
