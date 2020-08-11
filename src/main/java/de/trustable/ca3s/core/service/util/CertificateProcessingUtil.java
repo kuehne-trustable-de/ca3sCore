@@ -104,10 +104,10 @@ public class CertificateProcessingUtil {
 			p10ReqHolder = cryptoUtil.parseCertificateRequest(csrAsPem);
 
 			if( pipeline == null) {
-				csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, pipeline);
-			}else {
-				
+				LOG.debug("CSR requested without pipeline given!", new Exception());
 				csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, PipelineType.WEB, null);
+			}else {
+				csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, pipeline);
 			}
 			
 			csr.setRequestorComment(requestorComment);

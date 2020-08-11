@@ -111,6 +111,7 @@ public class BPMNUtil{
 		BPNMProcessInfo pi = null;
 
 		if( csr.getPipeline() == null) {
+			LOG.warn("No pipeline information in CSR #{}", csr.getId());
 			caConfig = configUtil.getDefaultConfig();
 		}else {
 			caConfig = csr.getPipeline().getCaConnector();
