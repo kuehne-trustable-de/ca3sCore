@@ -1,6 +1,16 @@
 <template>
+
   	<div class="row">
 
+       <b-alert :show="dismissCountDown"
+            dismissible
+            :variant="alertType"
+            @dismissed="dismissCountDown=0"
+            @dismiss-count-down="countDownChanged">
+            {{alertMessage}}
+        </b-alert>
+        <br/>
+ 
 		<div class="col-xs-12 table-responsive">
 
 			<div>

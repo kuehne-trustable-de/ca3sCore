@@ -180,8 +180,15 @@ public class ContentUploadProcessor {
 	    			}else if( "SAN".equalsIgnoreCase(name)){
 	    				
 	    				for( String value: nv.getValues()) {
-	    					String [] sanParts = value.split(":");
-	    					if( sanParts != null && sanParts.length > 1) {
+	    					String content = value.trim();
+	    					if( content.isEmpty()) {
+	    						continue;
+	    					}
+	    					
+	    					String [] sanParts = content.split(":");
+	    					if( sanParts.length == 1) {
+    							gnList.add(new GeneralName(GeneralName.dNSName, content));
+	    					} else if( sanParts.length > 1) {
 	    						if(nameGeneralNameMap.containsKey(sanParts[0].toUpperCase() )) {
 	    							Integer type = nameGeneralNameMap.get(sanParts[0].toUpperCase());
 	    							gnList.add(new GeneralName(type, sanParts[1]));

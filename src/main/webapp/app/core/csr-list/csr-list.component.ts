@@ -1,5 +1,6 @@
 import Component from 'vue-class-component';
 import { Vue } from 'vue-property-decorator';
+import { mixins } from 'vue-class-component';
 
 import { ICertificateFilter, ICertificateFilterList, ISelector, ICertificateSelectionData, ICSRView } from '@/shared/model/transfer-object.model';
 
@@ -8,6 +9,7 @@ import { colFieldToStr, makeQueryStringFromObj } from '@/shared/utils';
 import { VuejsDatatableFactory, TColumnsDefinition, ITableContentParam } from 'vuejs-datatable';
 
 import axios from 'axios';
+import AlertMixin from '@/shared/alert/alert.mixin';
 
 // import VueAxios from 'vue-axios'
 // Vue.use(VueAxios, axios)
@@ -90,7 +92,7 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>(
   );
 
 @Component
-export default class CsrList extends Vue {
+export default class CsrList extends mixins(AlertMixin, Vue) {
 
   public get authenticated(): boolean {
     return this.$store.getters.authenticated;

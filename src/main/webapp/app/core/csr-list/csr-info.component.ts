@@ -4,6 +4,7 @@ import axios from 'axios';
 
 import { mixins } from 'vue-class-component';
 import JhiDataUtils from '@/shared/data/data-utils.service';
+import AlertService from '@/shared/alert/alert.service';
 
 import { ICSRAdministrationData } from '@/shared/model/transfer-object.model';
 
@@ -13,6 +14,7 @@ import { ICsrAttribute } from '@/shared/model/csr-attribute.model';
 
 @Component
 export default class CsrInfo extends mixins(JhiDataUtils) {
+  @Inject('alertService') private alertService: () => AlertService;
   @Inject('cSRService') private cSRService: () => CSRService;
   public cSR: ICSR = {};
 
@@ -119,6 +121,9 @@ export default class CsrInfo extends mixins(JhiDataUtils) {
     }).catch(function(error) {
       console.log(error);
       self.previousState();
+      const message = self.$t('problem processing request: ' + error);
+      self.alertService().showAlert(message, 'info');
+
     }).then(function() {
       // always executed
       document.body.style.cursor = 'default';

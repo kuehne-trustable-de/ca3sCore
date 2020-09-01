@@ -87,13 +87,13 @@ spring:
       enabled: false
   task:
     execution:
-      thread-name-prefix: ca-3-s-jh-task-
+      thread-name-prefix: ca-3-s-task-
       pool:
         core-size: 2
         max-size: 50
         queue-capacity: 10000
     scheduling:
-      thread-name-prefix: ca-3-s-jh-scheduling-
+      thread-name-prefix: ca-3-s-scheduling-
       pool:
         size: 2
   thymeleaf:
@@ -131,11 +131,11 @@ jhipster:
   #     allow-credentials: true
   #     max-age: 1800
   mail:
-    from: ca3s_jh@localhost
+    from: ca3s@localhost
   swagger:
     default-include-pattern: /api/.*
-    title: ca3s_jh API
-    description: ca3s_jh API documentation
+    title: ca3s API
+    description: ca3s API documentation
     version: 0.0.1
     terms-of-service-url:
     contact-name:
