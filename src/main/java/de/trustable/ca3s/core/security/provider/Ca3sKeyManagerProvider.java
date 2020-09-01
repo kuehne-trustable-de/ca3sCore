@@ -24,6 +24,7 @@ public class Ca3sKeyManagerProvider extends Provider {
     
 	private static TimedRenewalCertMap certMap;
 
+	@SuppressWarnings("deprecation")
 	public Ca3sKeyManagerProvider(final TimedRenewalCertMap certMap) {
 		super("Ca3sKeyManagerProvider", 1.0, "Key management provider implemented by ca3s");
 		

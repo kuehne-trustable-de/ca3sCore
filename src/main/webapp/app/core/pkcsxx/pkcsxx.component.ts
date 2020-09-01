@@ -9,8 +9,6 @@ import { IUploadPrecheckData, IPkcsXXData, INamedValues, ICreationMode, IKeyAlgo
 import { IPipelineRestrictions, PipelineRestrictions } from '@/shared/model/pipeline-restrictions';
 import { IPipelineRestriction, PipelineRestriction } from '@/shared/model/pipeline-restriction';
 
-import { IPipeline } from '@/shared/model/pipeline.model';
-
 const precheckUrl = 'publicapi/describeContent';
 const uploadUrl = 'api/uploadContent';
 
@@ -233,6 +231,10 @@ export default class PKCSXX extends Vue {
       let dname = '';
       for (const nv of this.upload.certificateAttributes) {
           const name = nv.name;
+          if ( name === 'SAN') {
+            continue;
+          }
+
           for (const value of nv.values) {
             if ( value.length > 0) {
               if ( dname.length > 0) {
@@ -437,7 +439,7 @@ export default class PKCSXX extends Vue {
   public showCertificateUpload(): boolean {
     if ( this.precheckResponse &&
          ( this.precheckResponse.dataType === 'X509_CERTIFICATE' || this.precheckResponse.dataType === 'CONTAINER' ) &&
-        this.isRAOfficer() ) {
+        (this.isRAOfficer() || this.isAdmin()) ) {
       return !this.precheckResponse.certificates[0].certificatePresentInDB;
     }
     return false;
@@ -473,7 +475,20 @@ export default class PKCSXX extends Vue {
   }
 
   public isRAOfficer() {
-      return this.roles === 'ROLE_RA';
+    return this.hasRole('ROLE_RA');
+  }
+
+  public isAdmin() {
+    return this.hasRole('ROLE_ADMIN');
+  }
+
+  public hasRole(targetRole: string) {
+    for (const role of this.$store.getters.account.authorities) {
+      if ( targetRole === role) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public get roles(): string {

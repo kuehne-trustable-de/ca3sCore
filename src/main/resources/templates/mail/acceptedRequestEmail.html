@@ -13,12 +13,15 @@
             Your certificate request has been accepted. You may download the certificate in your favorite format using the URL below:
         </p>
         <p>
-            <a th:with="url=(@{|${baseUrl}/publicapi/certPKIX/${certId}/${filename}|})" th:href="${url}"
+            <a th:with="url=(@{|${baseUrl}/publicapi/certPKIX/${certId}/${filenameCrt}|})" th:href="${url}"
             th:text="${url}">Certificate download (DER encoded)</a>
         </p>
         <p>
-            <a th:with="url=(@{|${baseUrl}//certPEMChain/${certId}/${filename}|})" th:href="${url}"
+            <a th:with="url=(@{|${baseUrl}/publicapi/certPEMChain/${certId}/${filenamePem}|})" th:href="${url}"
             th:text="${url}">Certificate download (PEM with chain))</a>
+        </p>
+        <p th:if="${isServersideKeyGeneration}" th:text="#{email.request.accepted.P12.available}">
+            Login into your account to download your key and certificate container. 
         </p>
         <p>
             <span th:text="#{email.activation.text2}">Regards, </span>

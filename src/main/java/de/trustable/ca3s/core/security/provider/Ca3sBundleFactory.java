@@ -38,7 +38,7 @@ public class Ca3sBundleFactory implements BundleFactory {
 	
 	
 	@Override
-	public KeyCertBundle newKeyBundle(String bundleName) throws GeneralSecurityException {
+	public KeyCertBundle newKeyBundle(final String bundleName, long minValiditySeconds) throws GeneralSecurityException {
 		
 		
 		KeyPair localKeyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();

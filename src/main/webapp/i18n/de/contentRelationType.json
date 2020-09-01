@@ -1,9 +1,0 @@
-{
-  "ca3SApp": {
-    "ContentRelationType": {
-      "null": "",
-      "CERTIFICATE": "CERTIFICATE",
-      "CONNECTION": "CONNECTION"
-    }
-  }
-}

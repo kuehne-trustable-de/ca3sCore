@@ -103,9 +103,6 @@ public class ContentUploadProcessor {
 	private CertificateUtil certUtil;
 
     @Autowired
-    private CSRUtil csrUtil;
-
-	@Autowired
 	private CSRRepository csrRepository;
 
     @Autowired
@@ -114,9 +111,6 @@ public class ContentUploadProcessor {
     @Autowired
     private PipelineRepository pipelineRepository;
 
-	@Autowired
-	private BPMNUtil bpmnUtil;
-	
 	@Autowired
 	private PipelineUtil pvUtil;
 
@@ -179,7 +173,9 @@ public class ContentUploadProcessor {
 	    			if( nameOIDMap.containsKey(name)) {
 	    				ASN1ObjectIdentifier oid = nameOIDMap.get(name);
 	    				for( String value: nv.getValues()) {
-	    					namebuilder.addRDN(oid, value);
+	    					if( value != null && !value.isEmpty()) {
+	    						namebuilder.addRDN(oid, value);
+	    					}
 	    				}
 	    			}else if( "SAN".equalsIgnoreCase(name)){
 	    				

@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
+import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.web.rest.support.CertificateAdministration;
 
 /**
@@ -166,17 +167,9 @@ public class CertificateView implements Serializable {
     	this.usage = usageList.toArray(new String[usageList.size()]);
     	this.extUsage = extUsageList.toArray(new String[extUsageList.size()]);
     	
-    	this.downloadFilename = getDownloadFilename(cert);
+    	this.downloadFilename = CertificateUtil.getDownloadFilename(cert);
     }
 
-	public String getDownloadFilename(final Certificate cert) {
-		String downloadFilename = cert.getSubject().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
-    	if( downloadFilename.trim().isEmpty()) {
-    		downloadFilename = "cert" + cert.getSerial();
-    	}
-    	return downloadFilename;
-	}
-    
 	public Long getId() {
 		return id;
 	}

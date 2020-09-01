@@ -81,7 +81,7 @@ public class CertificateAdministration {
      */
     @PostMapping("/administerCertificate")
 	@Transactional
-    public ResponseEntity<Long> administerRequest(@Valid @RequestBody CertificateAdministrationData adminData) {
+    public ResponseEntity<Long> administerCertificate(@Valid @RequestBody CertificateAdministrationData adminData) {
     	
     	LOG.debug("REST request to revoke certificate : {}", adminData);
         

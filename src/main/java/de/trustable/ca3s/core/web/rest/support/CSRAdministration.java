@@ -32,6 +32,7 @@ import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.MailService;
 import de.trustable.ca3s.core.service.util.AuditUtil;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
+import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.web.rest.data.AdministrationType;
 import de.trustable.ca3s.core.web.rest.data.CSRAdministrationData;
 
@@ -115,6 +116,18 @@ public class CSRAdministration {
 		    		        Context context = new Context(locale);
 		    		        context.setVariable("certId", cert.getId());
 		    		        context.setVariable("subject", cert.getSubject());
+		    		        
+		    		    	String downloadFilename = CertificateUtil.getDownloadFilename(cert);
+
+		    		    	boolean isServersideKeyGeneration = false;
+		    		    	if(cert.getCsr() != null) {
+		    		    		isServersideKeyGeneration = cert.getCsr().isServersideKeyGeneration();
+		    		    	}
+		    		        context.setVariable("isServersideKeyGeneration", isServersideKeyGeneration);
+		    		        
+		    		        context.setVariable("filenameCrt", downloadFilename + ".crt");
+		    		        context.setVariable("filenamePem", downloadFilename + ".pem");
+		    		        
 		    		        mailService.sendEmailFromTemplate(context, requestor, "mail/acceptedRequestEmail", "email.acceptedRequest.title");
 	    		        }
         			} else {
@@ -143,7 +156,7 @@ public class CSRAdministration {
 	    		        Locale locale = Locale.forLanguageTag(requestor.getLangKey());
 	    		        Context context = new Context(locale);
 	    		        context.setVariable("csr", csr);
-	    		        mailService.sendEmailFromTemplate(context, requestor, "mail/rejectedRequestEmail", "email.rejectedRequest.title");
+	    		        mailService.sendEmailFromTemplate(context, requestor, "mail/rejectedRequestEmail", "email.request.rejection.title");
     		        }
     			} else {
     				LOG.warn("certificate requestor '{}' unknown!", csr.getRequestedBy());

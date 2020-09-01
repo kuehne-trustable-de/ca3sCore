@@ -51,7 +51,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -93,7 +92,7 @@ public class CertificateDownloadController  {
     @RequestMapping(value = "/certPKIX/{certId}/{filename}", 
     		method = GET,
     		produces = ACMEController.APPLICATION_PKIX_CERT_VALUE)
-    public @ResponseBody byte[] getCertificatePKIX(@PathVariable final long certId, @PathVariable final String filename) throws NotFoundException {
+    public ResponseEntity<byte[]> getCertificatePKIX(@PathVariable final long certId, @PathVariable final String filename) throws NotFoundException {
 
 		LOG.info("Received certificate download request (PKIX) for id {} as file '{}' ", certId, filename);
 
@@ -102,7 +101,7 @@ public class CertificateDownloadController  {
     	}
 
 		try {
-			return buildByteArrayResponseForId(certId, ACMEController.APPLICATION_PKIX_CERT_VALUE, "");
+			return buildByteArrayResponseForId(certId, ACMEController.APPLICATION_PKIX_CERT_VALUE, "", filename);
 		} catch (HttpClientErrorException | AcmeProblemException | GeneralSecurityException e) {
 			throw new NotFoundException(e.getMessage());
 		}
@@ -118,7 +117,7 @@ public class CertificateDownloadController  {
     public ResponseEntity<?> getCertificatePEMChain(@PathVariable final long certId, @PathVariable final String filename) {
 
 		LOG.info("Received certificate download request (PEM with chain) for id {} as file '{}'", certId, filename);
-    	return buildCertResponseForId(certId, ACMEController.APPLICATION_PEM_CERT_CHAIN_VALUE);  			
+    	return buildCertResponseForId(certId, ACMEController.APPLICATION_PEM_CERT_CHAIN_VALUE, filename);  			
     }
 
     /**
@@ -131,7 +130,7 @@ public class CertificateDownloadController  {
     public ResponseEntity<?> getCertificatePEM(@PathVariable final long certId, @PathVariable final String filename) {
 
 		LOG.info("Received certificate download request (PEM) for id {} as file '{}'", certId, filename);
-    	return buildCertResponseForId(certId, ACMEController.APPLICATION_PKIX_CERT_VALUE);  			
+    	return buildCertResponseForId(certId, ACMEController.APPLICATION_PKIX_CERT_VALUE, filename);  			
     }
 
     /**
@@ -147,7 +146,7 @@ public class CertificateDownloadController  {
 
 		LOG.info("Received certificate request for id {}", certId);
 		
-    	return buildCertResponseForId(certId, accept);  			
+    	return buildCertResponseForId(certId, accept, "cert_" + certId + ".cer");  			
     }
 
     
@@ -164,7 +163,7 @@ public class CertificateDownloadController  {
     @RequestMapping(value = "/keystore/{certId}/{filename}/{alias}", 
     		method = GET,
     		produces = ACMEController.APPLICATION_PKCS12_VALUE)
-    public @ResponseBody byte[] getKeystore(@PathVariable final long certId,
+    public ResponseEntity<byte[]> getKeystore(@PathVariable final long certId,
     		@PathVariable final String filename,
     		@PathVariable final String alias,
     		@RequestHeader(name="Accept", defaultValue=ACMEController.APPLICATION_PKCS12_VALUE) final String accept) throws NotFoundException {
@@ -172,7 +171,7 @@ public class CertificateDownloadController  {
 		LOG.info("Received keystore request for id '{}' for filename '{}' with alias '{}'", certId, filename, alias);
 		
     	try {
-			return buildByteArrayResponseForId(certId, accept, alias);
+			return buildByteArrayResponseForId(certId, accept, alias, filename);
 		} catch (HttpClientErrorException | AcmeProblemException | GeneralSecurityException e) {
 			throw new NotFoundException(e.getMessage());
 		}  			
@@ -182,11 +181,12 @@ public class CertificateDownloadController  {
      * 
      * @param certId
      * @param accept
+     * @param filename 
      * @return
      * @throws HttpClientErrorException
      * @throws AcmeProblemException
      */
-	public ResponseEntity<?> buildCertResponseForId(final long certId, final String accept)
+	public ResponseEntity<?> buildCertResponseForId(final long certId, final String accept, String filename)
 			throws HttpClientErrorException, AcmeProblemException {
 		
 		Optional<Certificate> certOpt = certificateRepository.findById(certId);
@@ -197,7 +197,8 @@ public class CertificateDownloadController  {
   			Certificate certDao = certOpt.get();
 
   			final HttpHeaders headers = new HttpHeaders();
-
+			headers.set("content-disposition", "inline; filename=\"" + filename + "\"");
+			headers.set("content-length", String.valueOf(2000));
 			ResponseEntity<?> resp = buildCertifcateResponse(accept, certDao, headers);
   			
 			if( resp == null) {
@@ -216,12 +217,13 @@ public class CertificateDownloadController  {
 	 * @param certId
 	 * @param accept
 	 * @param alias
+	 * @param filename 
 	 * @return
 	 * @throws HttpClientErrorException
 	 * @throws AcmeProblemException
 	 * @throws GeneralSecurityException
 	 */
-	public @ResponseBody byte[] buildByteArrayResponseForId(final long certId, final String accept, final String alias)
+	public ResponseEntity<byte[]> buildByteArrayResponseForId(final long certId, final String accept, final String alias, String filename)
 			throws HttpClientErrorException, AcmeProblemException, GeneralSecurityException {
 		
 		Optional<Certificate> certOpt = certificateRepository.findById(certId);
@@ -232,23 +234,15 @@ public class CertificateDownloadController  {
   			Certificate certDao = certOpt.get();
 
   			final HttpHeaders headers = new HttpHeaders();
-
-			byte[] resp = null;
+			headers.set("content-disposition", "inline; filename=\"" + filename + "\"");
 
 			if(ACMEController.APPLICATION_PKIX_CERT_VALUE.equalsIgnoreCase(accept)){
-				resp = buildPkixCertResponse(certDao, headers);
+				return buildPkixCertResponse(certDao, headers);
 			}else if(ACMEController.APPLICATION_PKCS12_VALUE.equalsIgnoreCase(accept)){
-				resp = buildPKCS12Response(certDao, alias, headers);
+				return  buildPKCS12Response(certDao, alias, headers);
 			}
 
-			if( resp == null) {
-				String msg = "problem returning certificate with accepting type " + accept;
-				LOG.info(msg);
-				
-				throw new GeneralSecurityException(msg);
-			}
-			
-			return resp;
+  		  throw new HttpClientErrorException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
   		}
 	}
 
@@ -297,6 +291,7 @@ public class CertificateDownloadController  {
 			}
 			
 			LOG.debug("returning cert and issuer : \n" + resultPem );
+			headers.set("content-length", String.valueOf(resultPem.getBytes().length));
 			return ResponseEntity.ok().contentType(ACMEController.APPLICATION_PEM_CERT_CHAIN).headers(headers).body(resultPem.getBytes());
 			
 		} catch (GeneralSecurityException ge) {
@@ -308,12 +303,14 @@ public class CertificateDownloadController  {
 	}
 
 
-	private @ResponseBody byte[]  buildPkixCertResponse(Certificate certDao, final HttpHeaders headers) throws GeneralSecurityException {
+	private ResponseEntity<byte[]> buildPkixCertResponse(Certificate certDao, final HttpHeaders headers) throws GeneralSecurityException {
 		LOG.info("building PKIX certificate response");
 
 		try {
 			X509Certificate x509Cert = CryptoService.convertPemToCertificate(certDao.getContent());
-			return x509Cert.getEncoded();
+			byte[] contentBytes = x509Cert.getEncoded();
+			headers.set("content-length", String.valueOf(contentBytes.length));
+			return ResponseEntity.ok().contentType(ACMEController.APPLICATION_PKIX_CERT).headers(headers).body(contentBytes);
 		}catch(GeneralSecurityException gse) {
 			LOG.info("problem downloading certificate content for cert id " + certDao.getId(), gse);
 			throw gse;
@@ -321,7 +318,7 @@ public class CertificateDownloadController  {
 	}
 
 
-	private @ResponseBody byte[] buildPKCS12Response(Certificate certDao, final String alias, final HttpHeaders headers) throws GeneralSecurityException {
+	private ResponseEntity<byte[]> buildPKCS12Response(Certificate certDao, final String alias, final HttpHeaders headers) throws GeneralSecurityException {
 		LOG.info("building PKCS12 container response");
 
 		String entryAlias = "entry";
@@ -375,7 +372,9 @@ public class CertificateDownloadController  {
 				java.security.cert.Certificate cert = store.getCertificate(entryAlias);
 				LOG.debug("retrieved cert " + cert);
 
-				return baos.toByteArray();
+				byte[] contentBytes = baos.toByteArray();
+				headers.set("content-length", String.valueOf(contentBytes.length));
+				return ResponseEntity.ok().contentType(ACMEController.APPLICATION_PKCS12).headers(headers).body(contentBytes);
 			}
 			
 		} catch (IOException gse) {

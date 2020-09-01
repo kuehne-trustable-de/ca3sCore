@@ -23,6 +23,7 @@ public class Ca3sKeyStoreProvider extends Provider {
 
     private static KeyStoreImpl keystoreImpl;
 
+	@SuppressWarnings("deprecation")
 	public Ca3sKeyStoreProvider(final TimedRenewalCertMap certMap, final String alias) {
 		super("Ca3sKeyStoreProvider", 1.0, "Certificate provider implemented by ca3s");
 		

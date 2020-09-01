@@ -160,5 +160,9 @@ public class CertificateAttribute implements Serializable {
 
 	public static final String ATTRIBUTE_CRL_NEXT_UPDATE = "CRL_NEXT_UPDATE";
 
+	public static final String ATTRIBUTE_OCSP_URL = "OCSP_URL";
+
+	public static final String ATTRIBUTE_POLICY_ID = "POLICY_ID";
+
     
 }

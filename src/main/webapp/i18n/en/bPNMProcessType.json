@@ -1,9 +1,0 @@
-{
-  "ca3SApp": {
-    "BPNMProcessType": {
-      "null": "",
-      "CA_INVOCATION": "CA_INVOCATION",
-      "REQUEST_AUTHORIZATION": "REQUEST_AUTHORIZATION"
-    }
-  }
-}

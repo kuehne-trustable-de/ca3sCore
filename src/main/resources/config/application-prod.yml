@@ -18,6 +18,8 @@ logging:
     ROOT: INFO
     io.github.jhipster: INFO
     de.trustable.ca3s.core: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
 
 management:
   metrics:

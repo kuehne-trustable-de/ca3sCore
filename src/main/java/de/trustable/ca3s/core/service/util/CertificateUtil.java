@@ -48,6 +48,7 @@ import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.asn1.ASN1Set;
+import org.bouncycastle.asn1.ASN1TaggedObject;
 import org.bouncycastle.asn1.DERIA5String;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.DERSequence;
@@ -56,6 +57,8 @@ import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x509.AccessDescription;
+import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
 import org.bouncycastle.asn1.x509.AuthorityKeyIdentifier;
 import org.bouncycastle.asn1.x509.CRLDistPoint;
 import org.bouncycastle.asn1.x509.DistributionPoint;
@@ -64,8 +67,10 @@ import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.Extensions;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
+import org.bouncycastle.asn1.x509.PolicyInformation;
 import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
 import org.bouncycastle.asn1.x509.X509Extensions;
+import org.bouncycastle.asn1.x509.X509ObjectIdentifiers;
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -77,6 +82,7 @@ import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemWriter;
+import org.bouncycastle.x509.extension.X509ExtensionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -605,7 +611,93 @@ public class CertificateUtil {
 			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_URL, crlUrl);
 		}
 		
+		String ocspUrl = getOCSPUrl(x509Cert);
+		if( ocspUrl != null) {
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_OCSP_URL, ocspUrl);
+		}
+		
+		List<String> certificatePolicyIds = getCertificatePolicies(x509Cert);
+		for(String polId: certificatePolicyIds) {
+			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_POLICY_ID, polId);
+		}
 	}
+
+	public List<String> getCertificatePolicies(X509Certificate x509Cert) {
+		ArrayList<String> certificatePolicyIds = new ArrayList<String>();
+		byte[] extVal = x509Cert.getExtensionValue(Extension.certificatePolicies.getId());
+		if (extVal == null) {
+			return certificatePolicyIds;
+		}
+		try {
+		org.bouncycastle.asn1.x509.CertificatePolicies cf = org.bouncycastle.asn1.x509.CertificatePolicies
+				.getInstance(X509ExtensionUtil.fromExtensionValue(extVal));
+		PolicyInformation[] information = cf.getPolicyInformation();
+		for (PolicyInformation p : information) {
+			ASN1ObjectIdentifier aIdentifier = p.getPolicyIdentifier();
+			certificatePolicyIds.add(aIdentifier.getId());
+		}
+		} catch (IOException ex) {
+			LOG.error("Failed to get OCSP URL for certificate '" + x509Cert.getSubjectDN().getName() + "'", ex);
+		}
+		
+		return certificatePolicyIds;
+	}
+	
+	
+	private String getOCSPUrl(X509Certificate x509Cert) {
+		ASN1Primitive obj;
+		try {
+			obj = getExtensionValue(x509Cert, Extension.authorityInfoAccess.getId());
+		} catch (IOException ex) {
+			LOG.error("Failed to get OCSP URL for certificate '" + x509Cert.getSubjectDN().getName() + "'", ex);
+			return null;
+		}
+
+		if (obj == null) {
+			return null;
+		}
+
+		AuthorityInformationAccess authorityInformationAccess = AuthorityInformationAccess.getInstance(obj);
+
+		AccessDescription[] accessDescriptions = authorityInformationAccess.getAccessDescriptions();
+		for (AccessDescription accessDescription : accessDescriptions) {
+			boolean correctAccessMethod = accessDescription.getAccessMethod().equals(X509ObjectIdentifiers.ocspAccessMethod);
+			if (!correctAccessMethod) {
+				continue;
+			}
+
+			GeneralName name = accessDescription.getAccessLocation();
+			if (name.getTagNo() != GeneralName.uniformResourceIdentifier) {
+				continue;
+			}
+
+			DERIA5String derStr = DERIA5String.getInstance((ASN1TaggedObject) name.toASN1Primitive(), false);
+			return derStr.getString();
+		}
+
+		return null;
+
+	}
+	
+	/**
+	 * @param x509Cert
+	 *            the certificate from which we need the ExtensionValue
+	 * @param oid
+	 *            the Object Identifier value for the extension.
+	 * @return the extension value as an ASN1Primitive object
+	 * @throws IOException
+	 */
+	private static ASN1Primitive getExtensionValue(X509Certificate x509Cert, String oid) throws IOException {
+		byte[] bytes = x509Cert.getExtensionValue(oid);
+		if (bytes == null) {
+			return null;
+		}
+		ASN1InputStream aIn = new ASN1InputStream(new ByteArrayInputStream(bytes));
+		ASN1OctetString octs = (ASN1OctetString) aIn.readObject();
+		aIn = new ASN1InputStream(new ByteArrayInputStream(octs.getOctets()));
+		return aIn.readObject();
+	}
+
 
 	public static String getTypedSAN(int altNameType, String sanValue) {
 		
@@ -1692,6 +1784,13 @@ public class CertificateUtil {
 
 	}
 
+	public static String getDownloadFilename(final Certificate cert) {
+		String downloadFilename = cert.getSubject().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+    	if( downloadFilename.trim().isEmpty()) {
+    		downloadFilename = "cert" + cert.getSerial();
+    	}
+    	return downloadFilename;
+	}
 
 
 }
