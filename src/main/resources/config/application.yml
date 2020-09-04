@@ -163,15 +163,15 @@ win-auth:
 ca3s:
   tlsAccess:
     port: 8442
-  adminAccess:
-    port: 8444
-  raAccess:
-    port: 8445
-  acmeAccess:
-    port: 8446
-    https: false
-  scepAccess:
-    port: 8447
+#  adminAccess:
+#    port: 8444
+#  raAccess:
+#    port: 8445
+#  acmeAccess:
+#    port: 8446
+#    https: false
+#  scepAccess:
+#    port: 8447
 
 # application:
 protectionSecret: ZiNWY1NzA2YjAzZTY2ODJhNWM5MjFjYzZmZTZlMDE4Y

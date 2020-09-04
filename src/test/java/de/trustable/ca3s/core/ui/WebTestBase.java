@@ -132,7 +132,7 @@ public class WebTestBase extends LocomotiveBase {
 		return true;
 	}
 
-	void setLongText(final By loc, final String text) {
+	public void setLongText(final By loc, final String text) {
 
 		WebElement we = waitForElement(loc);
 		String javascript = "arguments[0].value = '"+text.replaceAll("(\\r\\n|\\r|\\n)", "\\\\n")+"';";
@@ -155,4 +155,9 @@ public class WebTestBase extends LocomotiveBase {
 */
 	}
 
+	public boolean isEnabled(final By loc) {
+
+		WebElement we = waitForElement(loc);
+		return we.isEnabled();
+	}
 }

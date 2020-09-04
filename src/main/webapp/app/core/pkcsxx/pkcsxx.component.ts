@@ -1,5 +1,7 @@
-import Component from 'vue-class-component';
+import { Component, Inject } from 'vue-property-decorator';
 import { Vue } from 'vue-property-decorator';
+import { mixins } from 'vue-class-component';
+import AlertMixin from '@/shared/alert/alert.mixin';
 
 import axios from 'axios';
 
@@ -35,7 +37,7 @@ const validations: any = {
 */
 
 @Component
-export default class PKCSXX extends Vue {
+export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
   public upload: IUploadPrecheckData = <IUploadPrecheckData>{};
   public precheckResponse: IPkcsXXData = <IPkcsXXData>{};
@@ -55,8 +57,7 @@ export default class PKCSXX extends Vue {
   public creationMode: ICreationMode = 'CSR_AVAILABLE';
   public keyAlgoLength: IKeyAlgoLength = 'RSA_2048';
 
-  public sampleCommandLine = 'keytool -genkeypair -keyalg RSA -keysize 2048 -alias testAlias -keystore test.p12 -storetype pkcs12  -dname "CN=test\n\n' +
-'keytool -certreq  -keystore test.p12 -alias testAlias -ext "SAN=dns:test.example.com,ip:127.0.0.1"';
+  public cmdline = '';
 
   public responseStatus = 0;
   public isChecked = false;
@@ -128,6 +129,11 @@ export default class PKCSXX extends Vue {
         }
       }
     }
+    this.updateCmdLine();
+  }
+
+  public updateCmdLine(): void{
+    this.cmdline = this.buildCommandLine();
   }
 
   public updatePipelineRestrictions(evt: any): void {
@@ -198,7 +204,7 @@ export default class PKCSXX extends Vue {
     this.keyAlgoLength = 'RSA_2048';
   }
 
-  public get commandLine(): string {
+  public buildCommandLine(): string {
 
     let cmdline = '';
 
@@ -232,6 +238,7 @@ export default class PKCSXX extends Vue {
       for (const nv of this.upload.certificateAttributes) {
           const name = nv.name;
           if ( name === 'SAN') {
+            // handle SANS specially, see below
             continue;
           }
 
@@ -251,10 +258,16 @@ export default class PKCSXX extends Vue {
       if (nvSAN !== undefined && nvSAN.values.length > 0 && nvSAN.values[0].length > 0) {
         let sans = '';
         for (const san of nvSAN.values) {
-          if ( sans.length > 0) {
-            sans += ',';
+          if ( san.length > 0) {
+            if ( sans.length > 0) {
+              sans += ',';
+            }
+            if ( san.includes(':')) {
+              sans += san;
+            } else {
+              sans += 'dns:' + san;
+            }
           }
-          sans += san;
         }
         if ( sans.length > 0) {
           cmdline += ' -ext "SAN=' + sans + '"';
@@ -271,6 +284,10 @@ export default class PKCSXX extends Vue {
       let subject = '';
       for (const nv of this.upload.certificateAttributes) {
           const name = nv.name;
+          if ( name === 'SAN') {
+            // handle SANS specially, see below
+            continue;
+          }
           for (const value of nv.values) {
             if ( value.length > 0) {
               subject += '/' + name.toUpperCase() + '=' + value;
@@ -286,14 +303,16 @@ export default class PKCSXX extends Vue {
         let sans = '';
         let idx = 1;
         for (const san of nvSAN.values) {
-          if ( sans.length > 0) {
-            sans += ',';
-          }
-          const parts = san.split(':', 2);
-          if ( parts.length < 2) {
-            sans += 'DNS.' + idx + ':' + san;
-          } else {
-            sans += parts[0] + '.' + idx + ':' + parts[1];
+          if ( san.length > 0) {
+            if ( sans.length > 0) {
+              sans += ',';
+            }
+            const parts = san.split(':', 2);
+            if ( parts.length < 2) {
+              sans += 'DNS.' + idx + ':' + san;
+            } else {
+              sans += parts[0] + '.' + idx + ':' + parts[1];
+            }
           }
           idx++;
         }
@@ -400,6 +419,9 @@ export default class PKCSXX extends Vue {
       document.body.style.cursor = 'default';
       this.isChecked = false;
       this.responseStatus = error.response.status;
+      const message = this.$t('problem processing request: ' + error);
+      this.alertService().showAlert(message, 'info');
+
     }
   }
 

@@ -2,6 +2,7 @@ import { Component, Inject } from 'vue-property-decorator';
 
 import { mixins } from 'vue-class-component';
 import JhiDataUtils from '@/shared/data/data-utils.service';
+import AlertService from '@/shared/alert/alert.service';
 
 import { ICertificateView } from '@/shared/model/transfer-object.model';
 import CertificateViewService from '../../entities/certificate/certificate-view.service';
@@ -12,6 +13,7 @@ import { ICertificateAdministrationData } from '@/shared/model/transfer-object.m
 @Component
 export default class CertificateDetails extends mixins(JhiDataUtils) {
   @Inject('certificateViewService') private certificateViewService: () => CertificateViewService;
+  @Inject('alertService') private alertService: () => AlertService;
 
   public certificateView: ICertificateView = {};
   public certificateAdminData: ICertificateAdministrationData = {};
@@ -156,6 +158,8 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
     }).catch(function(error) {
       console.log(error);
       self.previousState();
+      const message = self.$t('problem processing request: ' + error);
+      self.alertService().showAlert(message, 'info');
     }).then(function() {
       // always executed
       document.body.style.cursor = 'default';

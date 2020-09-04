@@ -1,6 +1,6 @@
 import Component from 'vue-class-component';
-import { Inject, Vue } from 'vue-property-decorator';
-import LoginService from '@/account/login.service';
+import { Vue } from 'vue-property-decorator';
+import { mixins } from 'vue-class-component';
 
 import { ICertificateFilter, ICertificateFilterList, ISelector, ICertificateSelectionData, ICertificateView } from '@/shared/model/transfer-object.model';
 
@@ -9,6 +9,7 @@ import { colFieldToStr, makeQueryStringFromObj } from '@/shared/utils';
 import { VuejsDatatableFactory, TColumnsDefinition, ITableContentParam } from 'vuejs-datatable';
 
 import axios from 'axios';
+import AlertMixin from '@/shared/alert/alert.mixin';
 
 // import VueAxios from 'vue-axios'
 // Vue.use(VueAxios, axios)
@@ -91,10 +92,7 @@ VuejsDatatableFactory.useDefaultType( false ).registerTableType<any, any, any, a
   );
 
 @Component
-export default class CertList extends Vue {
-
-  @Inject('loginService')
-  private loginService: () => LoginService;
+export default class CertList extends mixins(AlertMixin, Vue) {
 
   public get authenticated(): boolean {
     return this.$store.getters.authenticated;
