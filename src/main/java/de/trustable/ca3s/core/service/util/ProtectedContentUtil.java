@@ -30,8 +30,10 @@ public class ProtectedContentUtil {
 		if( (protectionSecret == null) || (protectionSecret.trim().length() == 0)) {
 			throw new UnsupportedOperationException("Configuration parameter 'protectionSecret' missing or invalid");
 		}
-		log.debug("using protection  secret '{}'", protectionSecret);
-		
+		if( log.isDebugEnabled()) {
+			String paddedSecret = "******" + protectionSecret;
+			log.debug("using protection  secret '{}'", "******" + paddedSecret.substring(paddedSecret.length() - 6));
+		}
 		textEncryptor.setPassword(protectionSecret);
 	}
 	

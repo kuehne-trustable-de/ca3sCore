@@ -8,7 +8,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -17,6 +22,16 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.kerberos.authentication.KerberosServiceAuthenticationProvider;
+import org.springframework.security.kerberos.authentication.sun.SunJaasKerberosTicketValidator;
+import org.springframework.security.kerberos.client.config.SunJaasKrb5LoginConfig;
+import org.springframework.security.kerberos.client.ldap.KerberosLdapContextSource;
+import org.springframework.security.kerberos.web.authentication.SpnegoAuthenticationProcessingFilter;
+import org.springframework.security.kerberos.web.authentication.SpnegoEntryPoint;
+import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
+import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
+import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
+import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
@@ -26,6 +41,9 @@ import org.springframework.web.filter.CorsFilter;
 import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
+import de.trustable.ca3s.core.security.Ca3sAuthenticationProvider;
+import de.trustable.ca3s.core.security.DaoAuthenticationProviderWrapper;
+import de.trustable.ca3s.core.security.DomainUserDetailsService;
 import de.trustable.ca3s.core.security.jwt.JWTConfigurer;
 import de.trustable.ca3s.core.security.jwt.TokenProvider;
 
@@ -72,42 +90,62 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Value("${win-auth.ldap-search-filter:(| (userPrincipalName={0}) (sAMAccountName={0}))}")
 	private String ldapSearchFilter;
 
-
     private final TokenProvider tokenProvider;
 
     private final CorsFilter corsFilter;
     private final SecurityProblemSupport problemSupport;
-
-    public SecurityConfiguration(TokenProvider tokenProvider, CorsFilter corsFilter, SecurityProblemSupport problemSupport) {
+    private final DomainUserDetailsService userDetailsService;
+//    private final Ca3sAuthenticationProvider authProvider;
+    
+    public SecurityConfiguration(TokenProvider tokenProvider, 
+    		CorsFilter corsFilter, 
+    		SecurityProblemSupport problemSupport, 
+    		DomainUserDetailsService userDetailsService) {
         this.tokenProvider = tokenProvider;
         this.corsFilter = corsFilter;
         this.problemSupport = problemSupport;
+        this.userDetailsService = userDetailsService;
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-/*
+    
+    @Bean
+    public AuthenticationProvider daoAuthenticationProvider(){
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
+
+		LOG.info("SecurityConfiguration daoAuthenticationProvider()");
+
+//        return daoAuthenticationProvider;
+        return new DaoAuthenticationProviderWrapper(daoAuthenticationProvider);
+    }
+
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
 		super.configure(auth);
 
+		LOG.info("SecurityConfiguration.configure (AuthenticationManagerBuilder) for adDomain '{}'", adDomain);
+
+//		auth.authenticationProvider(authProvider);
+		
 		if( !adDomain.isEmpty()) {
 			auth
 				.authenticationProvider(activeDirectoryLdapAuthenticationProvider())
 				.authenticationProvider(kerberosServiceAuthenticationProvider());
+			
+			LOG.info("kerberosServiceAuthenticationProvider & activeDirectoryLdapAuthenticationProvider added");
 		}
+
+//		auth.authenticationProvider(daoAuthenticationProvider());
 		
 	}
 
-	@Bean
-	public ActiveDirectoryLdapAuthenticationProvider activeDirectoryLdapAuthenticationProvider() {
-		return new ActiveDirectoryLdapAuthenticationProvider(adDomain, adServer);
-	}
-*/
-
+	
     @Override
     public void configure(WebSecurity web) {
         web.ignoring()
@@ -123,6 +161,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(HttpSecurity http) throws Exception {
     	
+    	LOG.info("SecurityConfiguration.configure ");
+
     	if(scepPort == 0 ) {
     		scepPort = httpPort;
     	}
@@ -143,9 +183,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
             .csrf().disable()
             .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
-//			.addFilterBefore(spnegoAuthenticationProcessingFilter(authenticationManagerBean()), UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(spnegoAuthenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling()
-            .authenticationEntryPoint(problemSupport)
+            .authenticationEntryPoint(spnegoEntryPoint())
             .accessDeniedHandler(problemSupport)
         .and()
             .headers()
@@ -233,10 +273,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
      *
      * @return  the new request matcher.
      */
-    private RequestMatcher forPortAndPath(final int port, @Nonnull final HttpMethod method,
-            @Nonnull final String pathPattern) {
-        return new AndRequestMatcher(forPort(port), new AntPathRequestMatcher(pathPattern, method.name()));
-    }
+//    private RequestMatcher forPortAndPath(final int port, @Nonnull final HttpMethod method,
+//            @Nonnull final String pathPattern) {
+//        return new AndRequestMatcher(forPort(port), new AntPathRequestMatcher(pathPattern, method.name()));
+//    }
 
     /**
      * A request matcher which matches just a port.
@@ -252,16 +292,23 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         	return result; 
         };
     }
-/*    
+ 
+//	@Bean
+	public ActiveDirectoryLdapAuthenticationProvider activeDirectoryLdapAuthenticationProvider() {
+		return new ActiveDirectoryLdapAuthenticationProvider(adDomain, adServer);
+	}
+
+
 	@Bean
-	public SpnegoAuthenticationProcessingFilter spnegoAuthenticationProcessingFilter(
-			AuthenticationManager authenticationManager) {
+	public SpnegoAuthenticationProcessingFilter spnegoAuthenticationProcessingFilter() throws Exception {
 		SpnegoAuthenticationProcessingFilter filter = new SpnegoAuthenticationProcessingFilter();
-		filter.setAuthenticationManager(authenticationManager);
+		
+		filter.setAuthenticationManager(super.authenticationManagerBean());
+//		filter.setAuthenticationManager(authenticationManagerBean());
 		return filter;
 	}
 
-	@Bean
+//	@Bean
 	public KerberosServiceAuthenticationProvider kerberosServiceAuthenticationProvider() throws Exception {
 		KerberosServiceAuthenticationProvider provider = new KerberosServiceAuthenticationProvider();
 		provider.setTicketValidator(sunJaasKerberosTicketValidator());
@@ -281,6 +328,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Bean
 	public KerberosLdapContextSource kerberosLdapContextSource() throws Exception {
 		if( adServer.isEmpty()) {
+        	LOG.info("No AD server configured!");
 			return null;
 		}
 		KerberosLdapContextSource contextSource = new KerberosLdapContextSource(adServer);
@@ -307,8 +355,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		service.setUserDetailsMapper(new LdapUserDetailsMapper());
 		return service;
 	}
+	
+    @Bean
+    public SpnegoEntryPoint spnegoEntryPoint() {
+        return new SpnegoEntryPoint("/login");
+    }
 
-
+/*
 	@Bean
 	@Override
 	public AuthenticationManager authenticationManagerBean() throws Exception {
