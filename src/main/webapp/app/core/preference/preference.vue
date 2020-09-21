@@ -1,80 +1,59 @@
 <template>
-    <div>
-        <h2 id="page-heading">
-            <span v-text="$t('ca3SApp.userPreference.home.title')" id="user-preference-heading">User Preferences</span>
-            <router-link :to="{name: 'UserPreferenceCreate'}" tag="button" id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-user-preference">
-                <font-awesome-icon icon="plus"></font-awesome-icon>
-                <span  v-text="$t('ca3SApp.userPreference.home.createLabel')">
-                    Create a new User Preference
-                </span>
-            </router-link>
-        </h2>
-        <b-alert :show="dismissCountDown"
-            dismissible
-            :variant="alertType"
-            @dismissed="dismissCountDown=0"
-            @dismiss-count-down="countDownChanged">
-            {{alertMessage}}
-        </b-alert>
-        <br/>
-        <div class="alert alert-warning" v-if="!isFetching && userPreferences && userPreferences.length === 0">
-            <span v-text="$t('ca3SApp.userPreference.home.notFound')">No userPreferences found</span>
-        </div>
-        <div class="table-responsive" v-if="userPreferences && userPreferences.length > 0">
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th><span v-text="$t('global.field.id')">ID</span></th>
-                    <th><span v-text="$t('ca3SApp.userPreference.userId')">User Id</span></th>
-                    <th><span v-text="$t('ca3SApp.userPreference.name')">Name</span></th>
-                    <th><span v-text="$t('ca3SApp.userPreference.content')">Content</span></th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="userPreference in userPreferences"
-                    :key="userPreference.id">
-                    <td>
-                        <router-link :to="{name: 'UserPreferenceView', params: {userPreferenceId: userPreference.id}}">{{userPreference.id}}</router-link>
-                    </td>
-                    <td>{{userPreference.userId}}</td>
-                    <td>{{userPreference.name}}</td>
-                    <td>{{userPreference.content}}</td>
-                    <td class="text-right">
-                        <div class="btn-group">
-                            <router-link :to="{name: 'UserPreferenceView', params: {userPreferenceId: userPreference.id}}" tag="button" class="btn btn-info btn-sm details">
-                                <font-awesome-icon icon="eye"></font-awesome-icon>
-                                <span class="d-none d-md-inline" v-text="$t('entity.action.view')">View</span>
-                            </router-link>
-                            <router-link :to="{name: 'UserPreferenceEdit', params: {userPreferenceId: userPreference.id}}"  tag="button" class="btn btn-primary btn-sm edit">
-                                <font-awesome-icon icon="pencil-alt"></font-awesome-icon>
-                                <span class="d-none d-md-inline" v-text="$t('entity.action.edit')">Edit</span>
-                            </router-link>
-                            <b-button v-on:click="prepareRemove(userPreference)"
-                                   variant="danger"
-                                   class="btn btn-sm"
-                                   v-b-modal.removeEntity>
-                                <font-awesome-icon icon="times"></font-awesome-icon>
-                                <span class="d-none d-md-inline" v-text="$t('entity.action.delete')">Delete</span>
-                            </b-button>
+    <div class="row justify-content-center">
+        <div class="col-8">
+            <form name="editForm" role="form" novalidate v-on:submit.prevent="save()" >
+                <h2 id="ca3SApp.preference.home.createOrEditLabel" v-text="$t('ca3SApp.preference.home.createOrEditLabel')">Create or edit a Preference</h2>
+                <div>
+                    <div class="form-group" v-if="preference.id">
+                        <label for="id" v-text="$t('global.field.id')">ID</label>
+                        <input type="text" class="form-control" id="id" name="id"
+                               v-model="preference.id" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.preference.userId')" for="user-preference-userId">User Id</label>
+                        <input type="number" class="form-control" name="userId" id="user-preference-userId"
+                            :class="{'valid': !$v.preference.userId.$invalid, 'invalid': $v.preference.userId.$invalid }" v-model.number="$v.preference.userId.$model"  required/>
+                        <div v-if="$v.preference.userId.$anyDirty && $v.preference.userId.$invalid">
+                            <small class="form-text text-danger" v-if="!$v.preference.userId.required" v-text="$t('entity.validation.required')">
+                                This field is required.
+                            </small>
+                            <small class="form-text text-danger" v-if="!$v.preference.userId.numeric" v-text="$t('entity.validation.number')">
+                                This field should be a number.
+                            </small>
                         </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.preference.name')" for="user-preference-name">Name</label>
+                        <input type="text" class="form-control" name="name" id="user-preference-name"
+                            :class="{'valid': !$v.preference.name.$invalid, 'invalid': $v.preference.name.$invalid }" v-model="$v.preference.name.$model"  required/>
+                        <div v-if="$v.preference.name.$anyDirty && $v.preference.name.$invalid">
+                            <small class="form-text text-danger" v-if="!$v.preference.name.required" v-text="$t('entity.validation.required')">
+                                This field is required.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.preference.content')" for="user-preference-content">Content</label>
+                        <textarea class="form-control" name="content" id="user-preference-content"
+                            :class="{'valid': !$v.preference.content.$invalid, 'invalid': $v.preference.content.$invalid }" v-model="$v.preference.content.$model"  required></textarea>
+                        <div v-if="$v.preference.content.$anyDirty && $v.preference.content.$invalid">
+                            <small class="form-text text-danger" v-if="!$v.preference.content.required" v-text="$t('entity.validation.required')">
+                                This field is required.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <button type="button" id="cancel-save" class="btn btn-secondary" v-on:click="previousState()">
+                        <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.cancel')">Cancel</span>
+                    </button>
+                    <button type="submit" id="save-entity" :disabled="$v.preference.$invalid || isSaving" class="btn btn-primary">
+                        <font-awesome-icon icon="save"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.save')">Save</span>
+                    </button>
+                </div>
+            </form>
         </div>
-        <b-modal ref="removeEntity" id="removeEntity" >
-            <span slot="modal-title"><span id="ca3SApp.userPreference.delete.question" v-text="$t('entity.delete.title')">Confirm delete operation</span></span>
-            <div class="modal-body">
-                <p id="jhi-delete-userPreference-heading" v-text="$t('ca3SApp.userPreference.delete.question', {'id': removeId})">Are you sure you want to delete this User Preference?</p>
-            </div>
-            <div slot="modal-footer">
-                <button type="button" class="btn btn-secondary" v-text="$t('entity.action.cancel')" v-on:click="closeDialog()">Cancel</button>
-                <button type="button" class="btn btn-primary" id="jhi-confirm-delete-userPreference" v-text="$t('entity.action.delete')" v-on:click="removeUserPreference()">Delete</button>
-            </div>
-        </b-modal>
     </div>
 </template>
-
-<script lang="ts" src="./user-preference.component.ts">
+<script lang="ts" src="./preference.component.ts">
 </script>

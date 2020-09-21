@@ -8,6 +8,7 @@ Component.registerHooks([
 import Router from 'vue-router';
 const Home = () => import('../core/home/home.vue');
 const PkcsXX = () => import('../core/pkcsxx/pkcsxx.vue');
+const Preference = () => import('../core/preference/preference.vue');
 const CertList = () => import('../core/cert-list/cert-list.vue');
 const CertInfo = () => import('../core/cert-list/cert-info.vue');
 const CsrList = () => import('../core/csr-list/csr-list.vue');
@@ -252,6 +253,11 @@ export default new Router({
       path: '/pkcsxx',
       name: 'PkcsXX',
       component: PkcsXX
+    },
+    {
+      path: '/preference',
+      name: 'Preference',
+      component: Preference
     },
     {
       path: '/cert-list',

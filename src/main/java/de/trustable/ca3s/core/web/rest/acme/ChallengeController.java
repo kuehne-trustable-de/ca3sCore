@@ -215,6 +215,7 @@ public class ChallengeController extends ACMEController {
 		
 				// Just wait for two seconds
 				con.setConnectTimeout(2 * 1000);
+				con.setReadTimeout(2 * 1000);
 				
 				// optional default is GET
 				con.setRequestMethod("GET");

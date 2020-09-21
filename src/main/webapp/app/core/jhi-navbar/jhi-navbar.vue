@@ -183,6 +183,11 @@
                         <font-awesome-icon icon="user-plus" />
                         <span v-text="$t('global.menu.admin.main')">Administration</span>
                     </span>
+                    
+                    <b-dropdown-item to="/preference">
+                        <font-awesome-icon icon="list" />
+                        <span v-text="$t('global.menu.admin.preference')">Preference</span>
+                    </b-dropdown-item>
                     <b-dropdown-item to="/admin/user-management">
                         <font-awesome-icon icon="user" />
                         <span v-text="$t('global.menu.admin.userManagement')">User management</span>

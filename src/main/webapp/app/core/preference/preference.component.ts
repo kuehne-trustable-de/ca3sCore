@@ -7,30 +7,15 @@ import { numeric, required, minLength, maxLength, minValue, maxValue } from 'vue
 
 import AlertService from '@/shared/alert/alert.service';
 import { IUserPreference, UserPreference } from '@/shared/model/user-preference.model';
-import UserPreferenceService from './user-preference.service';
+import UserPreferenceService from '../../entities/user-preference/user-preference.service';
 
-const validations: any = {
-  userPreference: {
-    userId: {
-      required,
-      numeric
-    },
-    name: {
-      required
-    },
-    content: {
-      required
-    }
-  }
-};
 
-@Component({
-  validations
-})
-export default class UserPreferenceUpdate extends mixins(JhiDataUtils) {
+@Component
+export default class Preference extends mixins(JhiDataUtils) {
   @Inject('alertService') private alertService: () => AlertService;
   @Inject('userPreferenceService') private userPreferenceService: () => UserPreferenceService;
-  public userPreference: IUserPreference = new UserPreference();
+  public preference: IUserPreference = new UserPreference();
+
   public isSaving = false;
 
   beforeRouteEnter(to, from, next) {
@@ -43,9 +28,9 @@ export default class UserPreferenceUpdate extends mixins(JhiDataUtils) {
 
   public save(): void {
     this.isSaving = true;
-    if (this.userPreference.id) {
+    if (this.preference.id) {
       this.userPreferenceService()
-        .update(this.userPreference)
+        .update(this.preference)
         .then(param => {
           this.isSaving = false;
           this.$router.go(-1);
@@ -54,7 +39,7 @@ export default class UserPreferenceUpdate extends mixins(JhiDataUtils) {
         });
     } else {
       this.userPreferenceService()
-        .create(this.userPreference)
+        .create(this.preference)
         .then(param => {
           this.isSaving = false;
           this.$router.go(-1);
@@ -64,11 +49,11 @@ export default class UserPreferenceUpdate extends mixins(JhiDataUtils) {
     }
   }
 
-  public retrieveUserPreference(userPreferenceId): void {
+  public retrieveUserPreference(preferenceId): void {
     this.userPreferenceService()
-      .find(userPreferenceId)
+      .find(preferenceId)
       .then(res => {
-        this.userPreference = res;
+        this.preference = res;
       });
   }
 
