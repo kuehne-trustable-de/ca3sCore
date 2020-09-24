@@ -1,12 +1,13 @@
 import axios from 'axios';
 
-import { IUserPreference } from '@/shared/model/user-preference.model';
+import { IPreferences } from '@/shared/model/transfer-object.model';
 
-const baseApiUrl = 'api/user-preferences';
+const baseApiUrl = 'api/preference';
 
-export default class UserPreferenceService {
-  public find(id: number): Promise<IUserPreference> {
-    return new Promise<IUserPreference>((resolve, reject) => {
+export default class PreferenceService {
+
+  public find(id: number): Promise<IPreferences> {
+    return new Promise<IPreferences>((resolve, reject) => {
       axios
         .get(`${baseApiUrl}/${id}`)
         .then(function(res) {
@@ -44,8 +45,8 @@ export default class UserPreferenceService {
     });
   }
 
-  public create(entity: IUserPreference): Promise<IUserPreference> {
-    return new Promise<IUserPreference>((resolve, reject) => {
+  public create(entity: IPreferences): Promise<IPreferences> {
+    return new Promise<IPreferences>((resolve, reject) => {
       axios
         .post(`${baseApiUrl}`, entity)
         .then(function(res) {
@@ -57,8 +58,8 @@ export default class UserPreferenceService {
     });
   }
 
-  public update(entity: IUserPreference): Promise<IUserPreference> {
-    return new Promise<IUserPreference>((resolve, reject) => {
+  public update(entity: IPreferences): Promise<IPreferences> {
+    return new Promise<IPreferences>((resolve, reject) => {
       axios
         .put(`${baseApiUrl}`, entity)
         .then(function(res) {

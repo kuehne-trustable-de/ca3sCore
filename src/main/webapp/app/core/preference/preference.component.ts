@@ -1,64 +1,76 @@
-import { Component, Inject } from 'vue-property-decorator';
-
+import { Component, Vue, Inject } from 'vue-property-decorator';
 import { mixins } from 'vue-class-component';
-import JhiDataUtils from '@/shared/data/data-utils.service';
+import axios from 'axios';
 
-import { numeric, required, minLength, maxLength, minValue, maxValue } from 'vuelidate/lib/validators';
+import { IPreferences } from '@/shared/model/transfer-object.model';
 
 import AlertService from '@/shared/alert/alert.service';
-import { IUserPreference, UserPreference } from '@/shared/model/user-preference.model';
-import UserPreferenceService from '../../entities/user-preference/user-preference.service';
+import AlertMixin from '@/shared/alert/alert.mixin';
 
+const baseApiUrl = '/api/admin/preference';
 
 @Component
-export default class Preference extends mixins(JhiDataUtils) {
-  @Inject('alertService') private alertService: () => AlertService;
-  @Inject('userPreferenceService') private userPreferenceService: () => UserPreferenceService;
-  public preference: IUserPreference = new UserPreference();
+export default class Preference extends mixins(AlertMixin, Vue) {
+
+  @Inject('alertService') alertService: () => AlertService;
+
+  public preferences: IPreferences = {};
 
   public isSaving = false;
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
-      if (to.params.userPreferenceId) {
-        vm.retrieveUserPreference(to.params.userPreferenceId);
-      }
+      vm.retrievePreference();
     });
   }
 
   public save(): void {
     this.isSaving = true;
-    if (this.preference.id) {
-      this.userPreferenceService()
-        .update(this.preference)
-        .then(param => {
-          this.isSaving = false;
-          this.$router.go(-1);
-          const message = this.$t('ca3SApp.userPreference.updated', { param: param.id });
-          this.alertService().showAlert(message, 'info');
-        });
-    } else {
-      this.userPreferenceService()
-        .create(this.preference)
-        .then(param => {
-          this.isSaving = false;
-          this.$router.go(-1);
-          const message = this.$t('ca3SApp.userPreference.created', { param: param.id });
-          this.alertService().showAlert(message, 'success');
-        });
-    }
-  }
-
-  public retrieveUserPreference(preferenceId): void {
-    this.userPreferenceService()
-      .find(preferenceId)
-      .then(res => {
-        this.preference = res;
+    this.update(1, this.preferences)
+      .then(param => {
+        this.isSaving = false;
+        const message = this.$t('ca3SApp.preference.updated', { param: 1 });
+        this.alertService().showAlert(message, 'info');
       });
   }
 
+  public retrievePreference(): void {
+    this.find(1)
+      .then(res => {
+        this.preferences = res;
+      });
+  }
+
+  public find(id: number): Promise<IPreferences> {
+    return new Promise<IPreferences>((resolve, reject) => {
+      axios
+        .get(`${baseApiUrl}/${id}`)
+        .then(function(res) {
+          resolve(res.data);
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  }
+
+  public update(id: number, entity: IPreferences): Promise<IPreferences> {
+    return new Promise<IPreferences>((resolve, reject) => {
+      axios
+        .put(`${baseApiUrl}/${id}`, entity)
+        .then(function(res) {
+          resolve(res.data);
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  }
+
   public previousState(): void {
-    this.$router.go(-1);
+    this.retrievePreference();
+        const message = this.$t('ca3SApp.preference.changes.canceled');
+        this.alertService().showAlert(message, 'info');
   }
 
   public initRelationships(): void {}

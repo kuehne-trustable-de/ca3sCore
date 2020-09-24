@@ -5,6 +5,7 @@ import { IPipelineView } from '@/shared/model/transfer-object.model';
 const baseApiUrl = 'api/pipelineViews';
 
 export default class PipelineViewService {
+  
   public find(id: number): Promise<IPipelineView> {
     return new Promise<IPipelineView>((resolve, reject) => {
       axios

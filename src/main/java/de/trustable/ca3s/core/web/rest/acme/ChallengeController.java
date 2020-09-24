@@ -47,7 +47,6 @@ import org.jose4j.jwt.consumer.JwtContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -64,6 +63,7 @@ import de.trustable.ca3s.core.service.dto.acme.ChallengeResponse;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.ACMEUtil;
+import de.trustable.ca3s.core.service.util.PreferenceUtil;
 
 
 @Controller
@@ -75,10 +75,15 @@ public class ChallengeController extends ACMEController {
     @Autowired
     private AcmeChallengeRepository challengeRepository;
 
+    /*
 	@Value("${acmeClientPorts:80, 5544, 8800}")
 	private String portList;
+*/
+    
+	@Autowired
+	private PreferenceUtil preferenceUtil;
 
-
+	
     @RequestMapping(value = "/{challengeId}", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getChallenge(@PathVariable final long challengeId) {
   	  
@@ -183,6 +188,9 @@ public class ChallengeController extends ACMEController {
 
 		int[] ports = {80, 5544, 8800};
 
+		long timeoutMilliSec = preferenceUtil.getAcmeHTTP01TimeoutMilliSec();
+		String portList = preferenceUtil.getAcmeHTTP01CallbackPorts();
+		
 		if(portList != null && !portList.trim().isEmpty()) {
 			String[] parts = portList.split(",");
 			ports = new int[parts.length];
@@ -214,8 +222,8 @@ public class ChallengeController extends ACMEController {
 				HttpURLConnection con = (HttpURLConnection) url.openConnection();
 		
 				// Just wait for two seconds
-				con.setConnectTimeout(2 * 1000);
-				con.setReadTimeout(2 * 1000);
+				con.setConnectTimeout((int) timeoutMilliSec);
+				con.setReadTimeout((int) timeoutMilliSec);
 				
 				// optional default is GET
 				con.setRequestMethod("GET");

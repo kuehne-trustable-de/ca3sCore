@@ -224,6 +224,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers("/ca3sScep/**").denyAll()
 
             // to be checked
+//            .requestMatchers(forPortAndPath(adminPort, "/api/admin/preference/**")).hasAuthority(AuthoritiesConstants.ADMIN) 
+//            .antMatchers("/api/admin/preference/**").denyAll()
+            
+            // !!!
             .antMatchers("/api/admin/**").permitAll()
             .antMatchers("/api/cockpit/**").permitAll()
             .antMatchers("/api/tasklist/**").permitAll()

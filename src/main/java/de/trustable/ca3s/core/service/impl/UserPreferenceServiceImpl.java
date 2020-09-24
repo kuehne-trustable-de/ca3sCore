@@ -52,6 +52,30 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
     }
 
     /**
+     * Get all the userPreferences.
+     *
+     * @return the list of entities.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserPreference> findAllForUserId(Long id){
+	    log.debug("Request to get all UserPreferences for user id {}", id);
+	    return userPreferenceRepository.findByUser(id);
+	}
+
+    
+    /**
+     * Get a specific userPreferences for a user id.
+     *
+     * @return the list of entities.
+     */
+    @Override
+    public Optional<UserPreference> findPreferenceForUserId(String name, Long userId){
+        log.debug("Request to get UserPreference for name {} and user {}", name, userId);
+        return userPreferenceRepository.findByNameforUser(name, userId);
+    }
+
+    /**
      * Get one userPreference by id.
      *
      * @param id the id of the entity.

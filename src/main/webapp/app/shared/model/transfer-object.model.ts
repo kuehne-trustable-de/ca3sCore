@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2020-07-30 19:45:53.
+// Generated using typescript-generator version 2.19.577 on 2020-09-23 22:00:26.
 
 export interface IPipelineView extends ISerializable {
     id?: number;
@@ -95,6 +95,13 @@ export interface ICSRView extends ISerializable {
     signingAlgorithm?: string;
     publicKeyAlgorithm?: string;
     requestedOn?: Date;
+}
+
+export interface IPreferences extends ISerializable {
+    serverSideKeyCreationAllowed?: boolean;
+    checkCRL?: boolean;
+    acmeHTTP01TimeoutMilliSec?: number;
+    acmeHTTP01CallbackPorts?: string;
 }
 
 export interface ICSRAdministrationData extends ISerializable {

@@ -728,6 +728,8 @@
 						<class>de.trustable.ca3s.core.service.dto.CertificateView</class>
 						<class>de.trustable.ca3s.core.service.dto.CSRView</class>
 						<class>de.trustable.ca3s.core.service.dto.Selector</class>
+						<class>de.trustable.ca3s.core.service.dto.Preferences</class>
+						
 						
 						<class>de.trustable.ca3s.core.web.rest.data.CSRAdministrationData</class>
 						<class>de.trustable.ca3s.core.web.rest.data.CertificateAdministrationData</class>

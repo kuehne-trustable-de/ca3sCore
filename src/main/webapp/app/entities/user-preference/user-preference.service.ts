@@ -31,6 +31,19 @@ export default class UserPreferenceService {
     });
   }
 
+  public retrieveUserPreferences(user: string): Promise<any> {
+    return new Promise<any>((resolve, reject) => {
+      axios
+        .get(baseApiUrl,  { params: { user: user } })
+        .then(function(res) {
+          resolve(res);
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  }
+
   public delete(id: number): Promise<any> {
     return new Promise<any>((resolve, reject) => {
       axios

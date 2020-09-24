@@ -42,6 +42,7 @@ import de.trustable.ca3s.core.service.MailService;
 import de.trustable.ca3s.core.service.util.AuditUtil;
 import de.trustable.ca3s.core.service.util.CRLUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.ca3s.core.service.util.PreferenceUtil;
 import de.trustable.util.CryptoUtil;
 
 /**
@@ -81,6 +82,9 @@ public class CertExpiryScheduler {
 	@Autowired
 	private ApplicationEventPublisher applicationEventPublisher;
 	
+	@Autowired
+	private PreferenceUtil preferenceUtil;
+	
 
 	@Scheduled(fixedDelay = 3600000)
 	public void retrieveCertificates() {
@@ -118,9 +122,14 @@ public class CertExpiryScheduler {
 	}
 	
 	
-//	@Scheduled(fixedDelay = 3600000)
+	@Scheduled(fixedDelay = 3600000)
 	public void updateRevocationStatus() {
 
+		if( !preferenceUtil.isCheckCrl()){
+			LOG.info("Check of CRL status disabled");
+			return;
+		}
+		
 		long startTime = System.currentTimeMillis();
 		
 		List<Certificate> certWithURLList = certificateRepo.findActiveCertificateByCrlURL();

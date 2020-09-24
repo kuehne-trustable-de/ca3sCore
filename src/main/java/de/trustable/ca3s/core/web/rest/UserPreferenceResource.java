@@ -84,9 +84,14 @@ public class UserPreferenceResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of userPreferences in body.
      */
     @GetMapping("/user-preferences")
-    public List<UserPreference> getAllUserPreferences() {
-        log.debug("REST request to get all UserPreferences");
-        return userPreferenceService.findAll();
+    public List<UserPreference> getAllUserPreferences(@RequestParam("userId") Long id) {
+    	if( id == null) {
+	        log.debug("REST request to get all UserPreferences");
+	        return userPreferenceService.findAll();
+    	} else {
+	        log.debug("REST request to get UserPreferences for user {}", id);
+	        return userPreferenceService.findAllForUserId(id);
+    	}
     }
 
     /**

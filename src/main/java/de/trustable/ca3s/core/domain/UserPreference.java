@@ -1,12 +1,18 @@
 package de.trustable.ca3s.core.domain;
 
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
-import org.springframework.data.jpa.repository.Query;
-
 import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 /**
  * A UserPreference.
@@ -14,6 +20,10 @@ import java.io.Serializable;
 @Entity
 @Table(name = "user_preference")
 @NamedQueries({
+	@NamedQuery(name = "UserPreference.findByUserId",
+	query = "SELECT up FROM UserPreference up WHERE " +
+			"up.userId = :userId"
+    ),
 	@NamedQuery(name = "UserPreference.findByNameforUser",
 	query = "SELECT up FROM UserPreference up WHERE " +
 			"up.name = :name and " +

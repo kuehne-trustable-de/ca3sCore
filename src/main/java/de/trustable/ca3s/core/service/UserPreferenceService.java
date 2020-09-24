@@ -26,6 +26,20 @@ public interface UserPreferenceService {
     List<UserPreference> findAll();
 
     /**
+     * Get all the userPreferences for a user id.
+     *
+     * @return the list of entities.
+     */
+    List<UserPreference> findAllForUserId(Long userId);
+
+    /**
+     * Get a specific userPreferences for a user id.
+     *
+     * @return the list of entities.
+     */
+    Optional<UserPreference> findPreferenceForUserId(String name, Long userId);
+
+    /**
      * Get the "id" userPreference.
      *
      * @param id the id of the entity.
