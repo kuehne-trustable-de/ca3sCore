@@ -30,9 +30,22 @@
                             <input type="number" class="form-control" name="preferences-acmeHTTP01TimeoutMilliSec" id="preferences-acmeHTTP01TimeoutMilliSec"
                                 v-model.number="preferences.acmeHTTP01TimeoutMilliSec"  required/>
 
-                            <label for="preferences-acmeHTTP01CallbackPorts" v-text="$t('ca3SApp.preference.acmeHTTP01CallbackPorts')">ACME HTTP01 callback ports</label>
+                            <!--label for="preferences-acmeHTTP01CallbackPorts" v-text="$t('ca3SApp.preference.acmeHTTP01CallbackPorts')">ACME HTTP01 callback ports</label>
                             <input type="text" class="form-control" name="preferences-acmeHTTP01CallbackPorts" id="preferences-acmeHTTP01CallbackPorts"
-                                v-model.number="preferences.acmeHTTP01CallbackPorts"  required/>
+                                v-model.number="preferences.acmeHTTP01CallbackPorts"  required/-->
+
+							<div class="row">
+								<div class="col ">
+                                    <label for="preferences-acmeHTTP01CallbackPorts" v-text="$t('ca3SApp.preference.acmeHTTP01CallbackPorts')">ACME HTTP01 callback ports</label>
+								</div>
+								<div class="col colContent">
+									<input v-for="(port, portIndex) in portArr" :key="portIndex"
+										type="number" class="form-control form-check-inline valid" 
+                                        :name="'preferences-acmeHTTP01CallbackPort' + portIndex" :id="'preferences-acmeHTTP01CallbackPort' + portIndex"  
+										v-model="portArr[portIndex]"
+										v-on:input="alignPortArraySize(portIndex)"/>
+								</div>
+							</div>
 
                             <!--div v-if="$v.preference.userId.$anyDirty && $v.preference.userId.$invalid">
                                 <small class="form-text text-danger" v-if="!$v.preference.userId.required" v-text="$t('entity.validation.required')">

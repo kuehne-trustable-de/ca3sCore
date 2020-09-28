@@ -112,10 +112,10 @@ public class PreferenceResource {
         	return ResponseEntity.badRequest().build();
         }
         
-        String values = preferences.getAcmeHTTP01CallbackPorts();
-        String[] portsArr = values.split(",");
+        String portsCommaSeparatedList = preferences.getAcmeHTTP01CallbackPorts().trim();
+        String[] portsArr = portsCommaSeparatedList.split(",");
         if( portsArr.length == 0 || portsArr.length > 10) {
-	        log.warn("unexpected Preference value for ACME_HTTP01_CALLBACK_PORTS '{}'", values);
+	        log.warn("unexpected Preference value for ACME_HTTP01_CALLBACK_PORTS '{}'", portsCommaSeparatedList);
         	return ResponseEntity.badRequest().body(oldPrefs);
         }
         
@@ -141,7 +141,7 @@ public class PreferenceResource {
         
         updateValue(upMap, PreferenceUtil.CHECK_CRL, "" + preferences.isCheckCRL(), userId);
         updateValue(upMap, PreferenceUtil.SERVER_SIDE_KEY_CREATION_ALLOWED, "" + preferences.isServerSideKeyCreationAllowed(), userId);
-        updateValue(upMap, PreferenceUtil.ACME_HTTP01_CALLBACK_PORTS, preferences.getAcmeHTTP01CallbackPorts().trim(), userId);
+        updateValue(upMap, PreferenceUtil.ACME_HTTP01_CALLBACK_PORTS, portsCommaSeparatedList, userId);
         updateValue(upMap, PreferenceUtil.ACME_HTTP01_TIMEOUT_MILLI_SEC, "" + preferences.getAcmeHTTP01TimeoutMilliSec(), userId);
         
         return ResponseEntity.ok()

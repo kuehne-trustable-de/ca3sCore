@@ -64,6 +64,7 @@
     
     <include file="config/liquibase/changelog/20200120140000_added_indices.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200101000000_added_entitities_camunda.xml" relativeToChangelogFile="false"/>
-    
+
+    <include file="config/liquibase/changelog/20200927170110-1_added_values_UserPreferences.xml" relativeToChangelogFile="false"/>
             
 </databaseChangeLog>
