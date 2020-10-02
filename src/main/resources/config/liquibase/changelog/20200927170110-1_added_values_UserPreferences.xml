@@ -10,11 +10,39 @@
 
     <changeSet id="20200927170110-1" author="ak">
     
-    
-        <loadData
+        <!-- loadData
         	file="config/liquibase/data/user_preference.csv"
             separator=";"
             tableName="user_preference">
-        </loadData>
+        </loadData-->
+        
+		<insert tableName="user_preference"> 
+        	<!-- column name="id" valueSequenceNext="name_sequence"/--> 
+        	<column name="user_id" value="1"/> 
+        	<column name="name" value="CheckCRL"/> 
+        	<column name="value_id" value="false"/> 
+    	</insert>
+    	
+		<insert tableName="user_preference"> 
+        	<!-- column name="id" valueSequenceNext="name_sequence"/--> 
+        	<column name="user_id" value="1"/> 
+        	<column name="name" value="ServerSideKeyCreationAllowed"/> 
+        	<column name="value_id" value="false"/> 
+    	</insert>
+    	
+		<insert tableName="user_preference"> 
+        	<!-- column name="id" valueSequenceNext="name_sequence"/--> 
+        	<column name="user_id" value="1"/> 
+        	<column name="name" value="AcmeHTTP01CallbackPorts"/> 
+        	<column name="value_id" value="5544,8080,80"/> 
+    	</insert>
+    	
+		<insert tableName="user_preference"> 
+        	<!-- column name="id" valueSequenceNext="name_sequence"/--> 
+        	<column name="user_id" value="1"/> 
+        	<column name="name" value="AcmeHTTP01TimeoutMilliSec"/> 
+        	<column name="value_id" value="2000"/> 
+    	</insert>
+    	
     </changeSet>
 </databaseChangeLog>

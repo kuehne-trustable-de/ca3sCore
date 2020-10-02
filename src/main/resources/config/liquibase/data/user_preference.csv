@@ -1,5 +1,0 @@
-"id";"user_id";"name";"content"
-1;1;CheckCRL;"false"
-2;1;ServerSideKeyCreationAllowed;"false"
-3;1;AcmeHTTP01CallbackPorts;"5544,8080,80"
-4;1;AcmeHTTP01TimeoutMilliSec;"1999"
