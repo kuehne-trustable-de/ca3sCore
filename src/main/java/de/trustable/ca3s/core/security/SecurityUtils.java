@@ -1,9 +1,14 @@
 package de.trustable.ca3s.core.security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.ldap.userdetails.LdapUserDetails;
+
+import de.trustable.ca3s.core.config.SecurityConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +23,8 @@ import java.util.Optional;
  * 
  */
 public final class SecurityUtils {
+
+	private static final Logger LOG = LoggerFactory.getLogger(SecurityUtils.class);
 
 	// @todo check kerberos integration
 
@@ -38,6 +45,11 @@ public final class SecurityUtils {
                     return springSecurityUser.getUsername();
                 } else if (authentication.getPrincipal() instanceof String) {
                     return (String) authentication.getPrincipal();
+                } else if (authentication.getPrincipal() instanceof LdapUserDetails) {
+                	LdapUserDetails ldapUser = (LdapUserDetails) authentication.getPrincipal();
+                	return ldapUser.getUsername();
+                } else {
+                	LOG.warn("SecurityUtils getCurrentUserLogin found unsupported authentication object: " + authentication.toString());
                 }
                 return null;
             });

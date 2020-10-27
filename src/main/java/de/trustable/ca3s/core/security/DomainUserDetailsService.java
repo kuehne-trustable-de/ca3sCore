@@ -33,7 +33,7 @@ public class DomainUserDetailsService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(final String login) {
-        log.debug("Authenticating {}", login);
+        log.debug("loadUserByUsername {}", login);
 
         if (new EmailValidator().isValid(login, null)) {
             return userRepository.findOneWithAuthoritiesByEmailIgnoreCase(login)

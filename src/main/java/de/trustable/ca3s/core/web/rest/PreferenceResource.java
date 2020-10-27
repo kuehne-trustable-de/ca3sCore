@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.trustable.ca3s.core.domain.UserPreference;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.UserPreferenceService;
 import de.trustable.ca3s.core.service.dto.Preferences;
 import de.trustable.ca3s.core.service.util.PreferenceUtil;
@@ -56,6 +58,7 @@ public class PreferenceResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the certificate, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/preference/{userId}")
+    @Secured(AuthoritiesConstants.ADMIN)
     public ResponseEntity<Preferences> getPreference(@PathVariable Long userId) {
     	
     	Preferences prefs = getPrefs(userId);
@@ -101,6 +104,7 @@ public class PreferenceResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/preference/{userId}")
+    @Secured(AuthoritiesConstants.ADMIN)
     public ResponseEntity<Preferences> updatePreference(@Valid @RequestBody Preferences preferences, @PathVariable Long userId) throws URISyntaxException {
     	
         log.debug("REST request to update Preferences for user {} : {}", userId, preferences);

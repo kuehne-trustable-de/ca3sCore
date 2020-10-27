@@ -1,12 +1,14 @@
 package de.trustable.ca3s.core.config;
 
 import javax.annotation.Nonnull;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpMethod;
@@ -22,7 +24,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.kerberos.authentication.KerberosAuthenticationProvider;
 import org.springframework.security.kerberos.authentication.KerberosServiceAuthenticationProvider;
+import org.springframework.security.kerberos.authentication.sun.SunJaasKerberosClient;
 import org.springframework.security.kerberos.authentication.sun.SunJaasKerberosTicketValidator;
 import org.springframework.security.kerberos.client.config.SunJaasKrb5LoginConfig;
 import org.springframework.security.kerberos.client.ldap.KerberosLdapContextSource;
@@ -47,6 +51,7 @@ import de.trustable.ca3s.core.security.DomainUserDetailsService;
 import de.trustable.ca3s.core.security.jwt.JWTConfigurer;
 import de.trustable.ca3s.core.security.jwt.TokenProvider;
 
+@Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @Import(SecurityProblemSupport.class)
@@ -95,23 +100,43 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final CorsFilter corsFilter;
     private final SecurityProblemSupport problemSupport;
     private final DomainUserDetailsService userDetailsService;
-//    private final Ca3sAuthenticationProvider authProvider;
+    private final Ca3sAuthenticationProvider ca3sAuthProvider;
+    
     
     public SecurityConfiguration(TokenProvider tokenProvider, 
     		CorsFilter corsFilter, 
     		SecurityProblemSupport problemSupport, 
-    		DomainUserDetailsService userDetailsService) {
+    		DomainUserDetailsService userDetailsService,
+    		Ca3sAuthenticationProvider ca3sAuthProvider) {
         this.tokenProvider = tokenProvider;
         this.corsFilter = corsFilter;
         this.problemSupport = problemSupport;
         this.userDetailsService = userDetailsService;
+		LOG.info("SecurityConfiguration userDetailsService:" + userDetailsService.getClass().getName());
+		this.ca3sAuthProvider = ca3sAuthProvider;
     }
 
+    /*
+    @Inject
+    public void configureGlobal(AuthenticationManagerBuilder authBuilder) throws Exception {
+		LOG.info("SecurityConfiguration configureGlobal:" + authBuilder.getClass().getName());
+		
+		authBuilder.ldapAuthentication()
+	      	.userSearchBase(ldapSearchBase) 
+	      	.userSearchFilter(ldapSearchFilter)
+//	      	.groupSearchBase("ou=Groups") //don't add the base
+//	      	.groupSearchFilter("member={0}")
+	      	.contextSource(kerberosLdapContextSource());
+	      
+    }
+    */
+    
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    
+
+/*
     @Bean
     public AuthenticationProvider daoAuthenticationProvider(){
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
@@ -124,27 +149,31 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return new DaoAuthenticationProviderWrapper(daoAuthenticationProvider);
     }
 
+    
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
-		super.configure(auth);
+//		super.configure(auth);
 
 		LOG.info("SecurityConfiguration.configure (AuthenticationManagerBuilder) for adDomain '{}'", adDomain);
 
-//		auth.authenticationProvider(authProvider);
-		
 		if( !adDomain.isEmpty()) {
 			auth
 				.authenticationProvider(activeDirectoryLdapAuthenticationProvider())
-				.authenticationProvider(kerberosServiceAuthenticationProvider());
+				.authenticationProvider(kerberosServiceAuthenticationProvider())
+				.authenticationProvider(kerberosAuthenticationProvider());
 			
-			LOG.info("kerberosServiceAuthenticationProvider & activeDirectoryLdapAuthenticationProvider added");
+			LOG.info("kerberosAuthenticationProvider & kerberosServiceAuthenticationProvider & activeDirectoryLdapAuthenticationProvider added");
 		}
+
+		auth.authenticationProvider(ca3sAuthProvider);
+		LOG.info("SecurityConfiguration.configure (AuthenticationManagerBuilder) : ca3sAuthProvider '{}'", ca3sAuthProvider);
+	
 
 //		auth.authenticationProvider(daoAuthenticationProvider());
 		
 	}
-
+*/
 	
     @Override
     public void configure(WebSecurity web) {
@@ -185,8 +214,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
 			.addFilterBefore(spnegoAuthenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling()
-            .authenticationEntryPoint(spnegoEntryPoint())
-            .accessDeniedHandler(problemSupport)
+            	.authenticationEntryPoint(spnegoEntryPoint())
+//            .accessDeniedHandler(problemSupport)
         .and()
             .headers()
             .contentSecurityPolicy("default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:")
@@ -299,6 +328,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
  
 //	@Bean
 	public ActiveDirectoryLdapAuthenticationProvider activeDirectoryLdapAuthenticationProvider() {
+		LOG.info("instantiate activeDirectoryLdapAuthenticationProvider");
+
 		return new ActiveDirectoryLdapAuthenticationProvider(adDomain, adServer);
 	}
 
@@ -313,7 +344,19 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	}
 
 //	@Bean
+	public KerberosAuthenticationProvider kerberosAuthenticationProvider() {
+	    KerberosAuthenticationProvider provider = new KerberosAuthenticationProvider();
+	    SunJaasKerberosClient client = new SunJaasKerberosClient();
+	    provider.setKerberosClient(client);
+	    provider.setUserDetailsService(userDetailsService());
+	    return provider;
+	}
+	
+//	@Bean
 	public KerberosServiceAuthenticationProvider kerberosServiceAuthenticationProvider() throws Exception {
+		
+		LOG.info("instantiate kerberosServiceAuthenticationProvider");
+
 		KerberosServiceAuthenticationProvider provider = new KerberosServiceAuthenticationProvider();
 		provider.setTicketValidator(sunJaasKerberosTicketValidator());
 		provider.setUserDetailsService(ldapUserDetailsService());
@@ -323,6 +366,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Bean
 	public SunJaasKerberosTicketValidator sunJaasKerberosTicketValidator() {
 		SunJaasKerberosTicketValidator ticketValidator = new SunJaasKerberosTicketValidator();
+		ticketValidator.setDebug(true);
 		ticketValidator.setServicePrincipal(servicePrincipal);
 		ticketValidator.setKeyTabLocation(new FileSystemResource(keytabLocation));
 		ticketValidator.setDebug(true);
@@ -365,11 +409,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return new SpnegoEntryPoint("/login");
     }
 
-/*
+
 	@Bean
 	@Override
 	public AuthenticationManager authenticationManagerBean() throws Exception {
 		return super.authenticationManagerBean();
 	}
-*/
+
 }

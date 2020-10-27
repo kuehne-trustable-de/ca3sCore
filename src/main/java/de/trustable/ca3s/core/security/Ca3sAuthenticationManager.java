@@ -51,6 +51,4 @@ public class Ca3sAuthenticationManager implements AuthenticationManager {
             throw new AuthenticationServiceException("Failed to login", e);
         }
     }
-
-
 }

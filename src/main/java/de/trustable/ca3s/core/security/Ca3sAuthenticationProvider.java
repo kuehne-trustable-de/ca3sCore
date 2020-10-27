@@ -11,7 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
-// @Component
+@Component
 public class Ca3sAuthenticationProvider 
 	implements AuthenticationProvider {
 //	extends AbstractUserDetailsAuthenticationProvider {
@@ -22,7 +22,7 @@ public class Ca3sAuthenticationProvider
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		
-		LOG.debug("authenticate({})", authentication); 
+		LOG.debug("!!! authenticate({})", authentication); 
 
 		if (authentication.getCredentials() == null) {
 			LOG.debug("Authentication failed: no credentials provided");
