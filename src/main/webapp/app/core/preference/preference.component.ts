@@ -1,5 +1,7 @@
-import { Component, Vue, Inject } from 'vue-property-decorator';
+import { Component, Inject } from 'vue-property-decorator';
 import { mixins } from 'vue-class-component';
+import JhiDataUtils from '@/shared/data/data-utils.service';
+
 import axios from 'axios';
 
 import { IPreferences } from '@/shared/model/transfer-object.model';
@@ -7,11 +9,33 @@ import { IPreferences } from '@/shared/model/transfer-object.model';
 import AlertService from '@/shared/alert/alert.service';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
+import { integer, minValue, maxValue, required } from 'vuelidate/lib/validators';
+
 const baseApiUrl = '/api/admin/preference';
 
-@Component
-export default class Preference extends mixins(AlertMixin, Vue) {
+const validations: any = {
+  preferences: {
+    acmeHTTP01TimeoutMilliSec: {
+      required,
+      integer,
+      minValue: minValue(1),
+      maxValue: maxValue(65535)
+    },
+    acmeHTTP01CallbackPortArr: {
+      $each: {
+        required,
+        integer,
+        minValue: minValue(0),
+        maxValue: maxValue(65535)
+      }
+    }
+  }
+};
 
+@Component({
+  validations
+})
+export default class Preference extends mixins(AlertMixin, JhiDataUtils) {
   @Inject('alertService') alertService: () => AlertService;
 
   public preferences: IPreferences = {};
@@ -28,26 +52,26 @@ export default class Preference extends mixins(AlertMixin, Vue) {
 
   public save(): void {
     this.isSaving = true;
-    this.update(1, this.preferences)
-      .then(param => {
-        this.isSaving = false;
-        const message = this.$t('ca3SApp.preference.updated', { param: 1 });
-        this.alertService().showAlert(message, 'info');
-        console.log(message);
-      });
+    this.update(1, this.preferences).then(param => {
+      this.isSaving = false;
+      const message = this.$t('ca3SApp.preference.updated', { param: 1 });
+      this.alertService().showAlert(message, 'info');
+      console.log(message);
+    });
   }
 
   public retrievePreference(): void {
-    this.find(1)
-      .then(res => {
-        this.preferences = res;
+    this.find(1).then(res => {
+      this.preferences = res;
+      /*
         const parts = this.preferences.acmeHTTP01CallbackPorts.split(',');
         this.portArr = [];
         for (let i = 0; i < parts.length; i++) {
           this.portArr[i] = Number(parts[i]);
         }
         this.portArr.push(0);
-      });
+ */
+    });
   }
 
   public find(id: number): Promise<IPreferences> {
@@ -64,7 +88,7 @@ export default class Preference extends mixins(AlertMixin, Vue) {
   }
 
   public update(id: number, entity: IPreferences): Promise<IPreferences> {
-
+    /*
     this.preferences.acmeHTTP01CallbackPorts = '';
     for (let i = 0; i < this.portArr.length - 1; i++) {
       if ( this.portArr[i] > 0) {
@@ -74,6 +98,7 @@ export default class Preference extends mixins(AlertMixin, Vue) {
         this.preferences.acmeHTTP01CallbackPorts += this.portArr[i];
       }
     }
+*/
     window.console.info('acmeHTTP01TimeoutMilliSec: ' + this.preferences.acmeHTTP01TimeoutMilliSec);
     window.console.info('acmeHTTP01CallbackPorts: ' + this.preferences.acmeHTTP01CallbackPorts);
 
@@ -92,31 +117,40 @@ export default class Preference extends mixins(AlertMixin, Vue) {
 
   public previousState(): void {
     this.retrievePreference();
-        const message = this.$t('ca3SApp.preference.changes.canceled');
-        console.log(message );
-        this.alertService().showAlert(message, 'info');
+    const message = this.$t('ca3SApp.preference.changes.canceled');
+    console.log(message);
+    this.alertService().showAlert(message, 'info');
   }
 
-  public alignPortArraySize(valueIndex: number): void {
+  public alignCallbackPortArraySize(index: number): void {
+    const valueIndex = Number(index);
+    const currentSize = this.preferences.acmeHTTP01CallbackPortArr.length;
+    const currentValue = this.preferences.acmeHTTP01CallbackPortArr[valueIndex];
+    window.console.info(
+      'in alignCallbackPortArraySize(' +
+        valueIndex +
+        '), size: ' +
+        currentSize +
+        ' has value "' +
+        currentValue +
+        '", isNaN: ' +
+        isNaN(currentValue)
+    );
 
-    window.console.info('in alignPortArraySize(' + valueIndex + ')');
-    const currentSize = this.portArr.length;
-
-    const currentValue = this.portArr[valueIndex];
-
-    if ( currentValue === 0 ) {
-      if ( currentSize > 1 ) {
+    if (currentValue.toString().length === 0) {
+      if (currentSize > 1 && valueIndex < currentSize - 1) {
         // preserve last element
-        this.portArr.splice(valueIndex, 1);
-        window.console.info('in alignPortArraySize(' + valueIndex + '): dropped empty element');
+        this.preferences.acmeHTTP01CallbackPortArr.splice(valueIndex, 1);
+        window.console.info('in alignCallbackPortArraySize(' + valueIndex + '): dropped empty element');
       }
     } else {
-      if ( valueIndex + 1 === currentSize ) {
-        this.portArr.push(0);
-        window.console.info('in alignPortArraySize(' + valueIndex + '): appended one element');
+      window.console.info('value of ' + valueIndex + ' not empty, valueIndex + 1 === currentSize : ' + (valueIndex + 1 === currentSize));
+      if (valueIndex + 1 === currentSize) {
+        this.preferences.acmeHTTP01CallbackPortArr.push(0);
+        window.console.info('in alignCallbackPortArraySize(' + valueIndex + '): appended one element');
       }
     }
-
   }
 
+  acmeHTTP01CallbackPortArr;
 }

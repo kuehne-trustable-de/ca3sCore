@@ -44,14 +44,17 @@ public class PipelineViewServiceImpl implements PipelineViewService {
         log.debug("Request to save Pipeline : {}", pipelineView);
 
         Pipeline p = pvUtil.toPipeline(pipelineView);
-/*        
+/*
         log.debug("Saving #{} pipeline attributes", p.getPipelineAttributes().size());
         for( PipelineAttribute pa: p.getPipelineAttributes()) {
             log.debug("Request to save PipelineAttribute: {}", pa);
         }
-*/        
+*/
         pipelineRepository.save(p);
-        
+
+        // set id for new pipelines, redundant for existing ones
+        pipelineView.setId(p.getId());
+
         return pipelineView;
     }
 
@@ -64,7 +67,7 @@ public class PipelineViewServiceImpl implements PipelineViewService {
     @Transactional(readOnly = true)
     public List<PipelineView> findAll() {
         log.debug("Request to get all Pipelines");
-        
+
         ArrayList<PipelineView> pvList = new ArrayList<PipelineView>();
         for(Pipeline p: pipelineRepository.findAll()) {
         	PipelineView pv = pvUtil.from(p);
@@ -84,13 +87,13 @@ public class PipelineViewServiceImpl implements PipelineViewService {
     @Transactional(readOnly = true)
     public Optional<PipelineView> findOne(Long id) {
         log.debug("Request to get Pipeline : {}", id);
-        
+
        	Optional<Pipeline> optP = pipelineRepository.findById(id);
         if(optP.isPresent()) {
         	return Optional.of(pvUtil.from(optP.get()));
         }
         return Optional.empty();
-        
+
     }
 
     /**

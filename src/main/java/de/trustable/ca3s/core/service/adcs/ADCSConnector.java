@@ -1,23 +1,24 @@
 package de.trustable.ca3s.core.service.adcs;
 
 
-import java.io.IOException;
-import java.math.BigInteger;
-import java.net.ConnectException;
-import java.net.SocketTimeoutException;
-import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.TrustManager;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.MACSigner;
+import de.trustable.ca3s.adcsCertUtil.CertificateEnrollmentResponse;
+import de.trustable.ca3s.adcsCertUtil.GetCertificateResponse;
+import de.trustable.ca3s.adcsCertUtil.*;
+import de.trustable.ca3s.client.api.RemoteADCSClient;
+import de.trustable.ca3s.client.model.*;
+import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
+import de.trustable.ca3s.core.repository.CSRRepository;
+import de.trustable.ca3s.core.repository.CertificateRepository;
+import de.trustable.ca3s.core.security.provider.Ca3sTrustManager;
+import de.trustable.ca3s.core.service.util.CAStatus;
+import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.ca3s.core.service.util.CryptoService;
+import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
+import io.swagger.client.ApiException;
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
@@ -28,48 +29,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSObject;
-import com.nimbusds.jose.JWSSigner;
-import com.nimbusds.jose.Payload;
-import com.nimbusds.jose.crypto.MACSigner;
-
-import de.trustable.ca3s.adcsCertUtil.ADCSException;
-import de.trustable.ca3s.adcsCertUtil.ADCSInstanceDetails;
-import de.trustable.ca3s.adcsCertUtil.ADCSNativeImpl;
-import de.trustable.ca3s.adcsCertUtil.ADCSProxyTLSException;
-import de.trustable.ca3s.adcsCertUtil.ADCSProxyUnavailableException;
-import de.trustable.ca3s.adcsCertUtil.ADCSWinNativeConnector;
-import de.trustable.ca3s.adcsCertUtil.CertificateEnrollmentResponse;
-import de.trustable.ca3s.adcsCertUtil.GetCertificateResponse;
-import de.trustable.ca3s.adcsCertUtil.NoLocalADCSException;
-import de.trustable.ca3s.adcsCertUtil.OODBConnectionsADCSException;
-import de.trustable.ca3s.adcsCertUtil.SubmitStatus;
-import de.trustable.ca3s.adcsCertUtil.WinClassesUnavailableException;
-import de.trustable.ca3s.client.api.RemoteADCSClient;
-import de.trustable.ca3s.client.model.ADCSInstanceDetailsResponse;
-import de.trustable.ca3s.client.model.CertificateRequestElements;
-import de.trustable.ca3s.client.model.CertificateRequestElementsAttributes;
-import de.trustable.ca3s.client.model.CertificateRevocationRequest;
-import de.trustable.ca3s.client.model.GetCertificateResponseValues;
-import de.trustable.ca3s.client.model.JWSWrappedRequest;
-import de.trustable.ca3s.core.domain.CAConnectorConfig;
-import de.trustable.ca3s.core.domain.CSR;
-import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.CertificateAttribute;
-import de.trustable.ca3s.core.domain.CsrAttribute;
-import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
-import de.trustable.ca3s.core.repository.CSRRepository;
-import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.security.provider.Ca3sTrustManager;
-import de.trustable.ca3s.core.service.util.CAStatus;
-import de.trustable.ca3s.core.service.util.CertificateUtil;
-import de.trustable.ca3s.core.service.util.CryptoService;
-import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
-import io.swagger.client.ApiException;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.TrustManager;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+import java.security.GeneralSecurityException;
+import java.util.*;
 
 
 @Service
@@ -83,10 +52,10 @@ public class ADCSConnector {
 
 	@Autowired
 	CertificateUtil certUtil;
-	
+
 	@Autowired
 	private Ca3sTrustManager ca3sTrustManager;
-	
+
 	@Autowired
 	CSRRepository csrRepository;
 
@@ -95,7 +64,7 @@ public class ADCSConnector {
 
 	@Autowired
 	private ProtectedContentUtil protUtil;
-	
+
 
 	/**
 	 * Adapter class to connect to an ADCS server using the parameter given in a CaConnectorConfig
@@ -105,7 +74,7 @@ public class ADCSConnector {
 	}
 
 	ADCSWinNativeConnector getConnector(CAConnectorConfig config) throws ADCSProxyUnavailableException {
-		
+
 		LOGGER.debug("connector '"+config.getName()+"', Url configured as '" + config.getCaUrl() + "'");
 		if( "inProcess".equalsIgnoreCase(config.getCaUrl()) ) {
 			LOGGER.debug("ADCSConnector trying to load Windows connection classes...");
@@ -121,7 +90,7 @@ public class ADCSConnector {
 			if( config.getSecret() == null) {
 				throw new ADCSProxyUnavailableException("passphrase missing in ca configuration for ca '" + config.getName() + "' !");
 			}
-			
+
 			String plainSecret = protUtil.unprotectString( config.getSecret().getContentBase64());
 
 			try {
@@ -129,7 +98,7 @@ public class ADCSConnector {
 				LOGGER.debug("ADCSConnector trying to connect to remote ADCS proxy ...");
 				String info = adcsConnector.getInfo();
 				LOGGER.debug("info call returns '{}'", info);
-				
+
 				return adcsConnector;
 			} catch (ADCSProxyUnavailableException pue) {
 				LOGGER.info("info call for ADCS proxy did not succeeded! Trying later ...");
@@ -138,19 +107,19 @@ public class ADCSConnector {
 				LOGGER.warn("info call failed", e);
 			}
 		}
-		
+
 		return new EmptyADCSWinNativeConnectorAdapter();
 	}
-	
+
 	/**
 	 * Retrieve the current status of the ADCSProxy
-	 * 
+	 *
 	 * @param caConfig set of configuration items
-	 * 
+	 *
 	 * @return current status
 	 */
 	public CAStatus getStatus(final CAConnectorConfig caConfig) {
-	
+
 		try {
 			String adcsStatus = getConnector(caConfig).getInfo();
 			if((adcsStatus != null) && (adcsStatus.trim().length() > 0)) {
@@ -163,15 +132,15 @@ public class ADCSConnector {
 		return CAStatus.Deactivated;
 
 	}
-	
+
 	/**
 	 * Send a csr object to the ADCS and retrieve a created certificate
-	 * 
+	 *
 	 * @param csr 	 the CSR object, not just a P10 PEM string, holding e.g. a CRS status
 	 * @param config CAConnectorConfig
-	 * 
+	 *
 	 * @return the freshly created certificate, already stored in the database
-	 * 
+	 *
 	 * @throws GeneralSecurityException something went wrong, e.g. a rejection of the CSR. The status of the CSR is updated accordingly.
 	 */
 	public Certificate signCertificateRequest(CSR csr, CAConnectorConfig config) throws GeneralSecurityException {
@@ -179,7 +148,7 @@ public class ADCSConnector {
 		LOGGER.debug("incoming csr for ADCS");
 
 		Set<CsrAttribute> csrAttrs = csr.getCsrAttributes();
-		
+
 		csrAttrs.add(createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_STARTED_TIMESTAMP,"" + System.currentTimeMillis()));
 
 		csr.setStatus(CsrStatus.PROCESSING);
@@ -199,7 +168,7 @@ public class ADCSConnector {
 			}
 
 			Map<String, String> attrMap = new HashMap<String, String>();
-			
+
 			String template = config.getSelector();
 			if( (template != null) && (template.trim().length() > 0) ) {
 				LOGGER.debug("requesting certificate using template : " + template );
@@ -207,7 +176,7 @@ public class ADCSConnector {
 			}else {
 				LOGGER.debug("requesting certificate without template ");
 			}
-			
+
 			CertificateEnrollmentResponse certResponse = getConnector(config).submitRequest(normalizedCsrString, attrMap);
 
 			if (SubmitStatus.ISSUED.equals(certResponse.getStatus())) {
@@ -222,12 +191,13 @@ public class ADCSConnector {
 				certDao = certUtil.createCertificate(certResponse.getB64Cert(), csr, null);
 
 				certDao.setRevocationCA(config);
-				
+
 				// the Request ID is specific to ADCS
 				certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_CA_PROCESSING_ID,
 						certResponse.getReqId());
-				certificateRepository.save(certDao);
-				
+
+                certificateRepository.save(certDao);
+
 				csr.setCertificate(certDao);
 				csr.setStatus(CsrStatus.ISSUED);
 
@@ -239,7 +209,7 @@ public class ADCSConnector {
 					|| (SubmitStatus.ERROR.equals(certResponse.getStatus()))) {
 
 				csr.setStatus(CsrStatus.REJECTED);
-				
+
 				csrAttrs.add(createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_FINISHED_TIMESTAMP,"" + System.currentTimeMillis()));
 				csrAttrs.add(createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_ID,"" + certResponse.getReqId()));
 
@@ -251,7 +221,7 @@ public class ADCSConnector {
 			} else if ((SubmitStatus.UNDER_SUBMISSION.equals(certResponse.getStatus()))
 					|| (SubmitStatus.ISSUED_OUT_OF_BAND.equals(certResponse.getStatus()))) {
 				csr.setStatus(CsrStatus.PENDING);
-				
+
 				csrAttrs.add(createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_ID,"" + certResponse.getReqId()));
 
 			} else {
@@ -270,20 +240,20 @@ public class ADCSConnector {
 			// no local ADCS available ...
 			// reset the state back to pending
 			csr.setStatus(CsrStatus.PENDING);
-			
+
 			throw new GeneralSecurityException("adcs connector returned exception", adcsEx);
 
 		} catch (IOException ioex) {
 			// presumably a connection problem, reset the state back to pending
 			csr.setStatus(CsrStatus.PENDING);
-			
+
 			throw new GeneralSecurityException("adcs connector caused IOException", ioex);
-			
+
 		}finally {
 			csr.setCsrAttributes(csrAttrs);
 			csrRepository.save(csr);
 		}
-		
+
 		LOGGER.debug("returning certDao : " + certDao.getId());
 
 		return (certDao);
@@ -295,7 +265,7 @@ public class ADCSConnector {
 	 * @return
 	 */
 	private CsrAttribute createCsrAttribute(CSR csr, final String name, final String value) {
-		
+
 		CsrAttribute csrAttr = new CsrAttribute();
 		csrAttr.setCsr(csr);
 		csrAttr.setName(name);
@@ -305,12 +275,12 @@ public class ADCSConnector {
 
 	/**
 	 * Revoke (or reactivate) a given certificate created by the ADCS server identified by connector config
-	 * 
+	 *
 	 * @param certDao the certificate object to be revoked
 	 * @param crlReason the revocation reason. The reason 'removeFromCRL' reactivates a certificate that was put 'on hold' previously.
 	 * @param revocationDate the revocation date
 	 * @param config the connection data identifying an ADCS instance
-	 * 
+	 *
 	 * @throws GeneralSecurityException something went wrong, e.g. revocation reason is unknown
 	 */
 	public void revokeCertificate(Certificate certDao, final CRLReason crlReason, final Date revocationDate, CAConnectorConfig config)
@@ -322,12 +292,12 @@ public class ADCSConnector {
 		}else if( reasonIntValue > 6 ) {
 			throw new GeneralSecurityException("adcs connector supports revocation reasons 0..6, not " + reasonIntValue + " !");
 		}
-		
+
 		try {
 			BigInteger serial = new BigInteger(certDao.getSerial(), 10);
 			String serialAsHex = serial.toString(16);
 			LOGGER.debug("revoking certificate {} with serial '{}' with reason {}", certDao.getId(), serialAsHex, reasonIntValue);
-			
+
 			getConnector(config).revokeCertifcate(serialAsHex, reasonIntValue, revocationDate);
 
 		} catch (ADCSException adcsEx) {
@@ -341,14 +311,14 @@ public class ADCSConnector {
 	/**
 	 * Try to retrieve new certificates added since the last call. This method is usually called by a timer.
 	 * A chunk of certificates starting with a given offset will be requested. If there are new certificates available (with a ADCS request id greater than the offset)
-	 * the content of these new certificates will be retrieved in distinct calls and stored in the internal database. The highest request ID will be stored as starting 
-	 * offset for subsequent calls. 
-	 * The number of certificates is limited to avoid blocking the calling cron job.  
-	 *  
+	 * the content of these new certificates will be retrieved in distinct calls and stored in the internal database. The highest request ID will be stored as starting
+	 * offset for subsequent calls.
+	 * The number of certificates is limited to avoid blocking the calling cron job.
+	 *
 	 * @param config the connection data identifying an ADCS instance
-	 * 
+	 *
 	 * @return the number in imported certificates
-	 * 
+	 *
 	 * @throws OODBConnectionsADCSException		something went wrong
 	 * @throws ADCSProxyUnavailableException 	something went wrong, the adcsProxy is unavailable
 	 */
@@ -359,11 +329,11 @@ public class ADCSConnector {
 		int limit = 100;
 
 		int pollingOffset = config.getPollingOffset();
-		
+
 		ADCSWinNativeConnector adcsConnector = getConnector(config);
 
 		try {
-			
+
 			String info = adcsConnector.getInfo();
 
 			List<String> newReqIdList = adcsConnector.getRequesIdList(limit, pollingOffset, 0L, 0L);
@@ -399,7 +369,7 @@ public class ADCSConnector {
 		}
 
 		int nNewCerts = (pollingOffset - config.getPollingOffset());
-		
+
 		if( nNewCerts > 0 ) {
 			config.setPollingOffset(pollingOffset);
 		}
@@ -409,14 +379,14 @@ public class ADCSConnector {
 
 	/**
 	 * Try to retrieve new certificates resolved since the last call. This method is usually called by a timer.
-	 * A chunk of certificates with an resolved date after the timestamp of the last call will be requested. If there are new resolved certificates available 
-	 * the content of these new certificates will be retrieved in distinct calls and stored in the internal database.  
-	 * The number of certificates is limited to avoid blocking the calling cron job.  
-	 *  
+	 * A chunk of certificates with an resolved date after the timestamp of the last call will be requested. If there are new resolved certificates available
+	 * the content of these new certificates will be retrieved in distinct calls and stored in the internal database.
+	 * The number of certificates is limited to avoid blocking the calling cron job.
+	 *
 	 * @param config the connection data identifying an ADCS instance
-	 * 
+	 *
 	 * @return the number in imported certificates
-	 * 
+	 *
 	 * @throws OODBConnectionsADCSException		something went wrong
 	 * @throws ADCSProxyUnavailableException 	something went wrong, the adcsProxy is unavailable
 	 */
@@ -429,13 +399,13 @@ public class ADCSConnector {
 		ADCSWinNativeConnector adcsConnector = getConnector(config);
 
 		try {
-			
+
 			String info = adcsConnector.getInfo();
-			
-			
+
+
 			List<Certificate> certWithoutResolvedList =  certificateRepository.findTimestampNotExistForCA(info, CertificateAttribute.ATTRIBUTE_CA_RESOLVED_TIMESTAMP);
 			if( !certWithoutResolvedList.isEmpty()) {
-				
+
 				// ensure all certificates have a RESOLVED_AT timestamp. Should happen in migration scenarios only
 				for( int i = 0; i < limit; i++) {
 					try {
@@ -445,13 +415,13 @@ public class ADCSConnector {
 							LOGGER.warn("certificate #{} retrieved for ca '{}' but without CA_PROCESSING_ID", certWOResolved.getId(), info);
 						}else {
 							GetCertificateResponse certResponse = adcsConnector.getCertificateByRequestId(caProcessingId);
-							certUtil.setCertAttribute(certWOResolved, 
-									CertificateAttribute.ATTRIBUTE_CA_RESOLVED_TIMESTAMP, 
+							certUtil.setCertAttribute(certWOResolved,
+									CertificateAttribute.ATTRIBUTE_CA_RESOLVED_TIMESTAMP,
 									CertificateUtil.getPaddedTimestamp(certResponse.getResolvedDate()));
-							
-							LOGGER.warn("added resolved timestamp {} to certificate #{} retrieved for ca '{}' with CA_PROCESSING_ID '{}'", 
+
+							LOGGER.warn("added resolved timestamp {} to certificate #{} retrieved for ca '{}' with CA_PROCESSING_ID '{}'",
 									CertificateUtil.getPaddedTimestamp(certResponse.getResolvedDate()),
-									certWOResolved.getId(), 
+									certWOResolved.getId(),
 									info,
 									caProcessingId);
 						}
@@ -461,34 +431,34 @@ public class ADCSConnector {
 					}
 				}
 			}else {
-			
+
 				String maxTimestamp = certificateRepository.findMaxTimestampForCA(info, CertificateAttribute.ATTRIBUTE_CA_RESOLVED_TIMESTAMP);
 				LOGGER.debug("findMaxResolvedForCA at ca '{}' returned {}  / {}", info, maxTimestamp, dateFromTimestampString(maxTimestamp));
-	
+
 				long timestamp = Long.parseLong(maxTimestamp);
 				List<String> newReqIdList = adcsConnector.getRequesIdList(limit, 0, timestamp, 0L);
 				if (newReqIdList.isEmpty()) {
 					LOGGER.debug("no certificates retrieved with a resolved timestamp after {} at ca '{}'", new Date(timestamp), info);
 				}
-	
+
 				for (String reqId : newReqIdList) {
-	
+
 	//				LOGGER.debug("certRepository {}, info '{}', reqId {}", certRepository, info, reqId );
-	
+
 					List<Certificate> certDaoList = certificateRepository.findBySearchTermNamed2(
 							CertificateAttribute.ATTRIBUTE_PROCESSING_CA, info,
 							CertificateAttribute.ATTRIBUTE_CA_PROCESSING_ID, reqId);
-	
+
 					if (certDaoList.isEmpty()) {
 						Certificate certImported = importCertificate(adcsConnector, info, reqId, config);
 						if( certImported == null ) {
 							LOGGER.warn("import of certificate with requestID '{}' from ca '{}' failed", reqId, info);
 						}else {
 							LOGGER.info("certificate with requestID '{}' from ca '{}' imported, assigned to cert id {}", reqId, info, certImported.getId());
-							
+
 							String resolvedTimestampAttribute = certUtil.getCertAttribute(certImported, CertificateAttribute.ATTRIBUTE_CA_RESOLVED_TIMESTAMP);
 							LOGGER.info("certificate with requestID '{}' from ca '{}' set to resolved timestamp {} / {}", reqId, info, resolvedTimestampAttribute, dateFromTimestampString(resolvedTimestampAttribute) );
-							
+
 							nNewCerts++;
 						}
 					} else {
@@ -512,20 +482,20 @@ public class ADCSConnector {
 	public int retrieveCertificatesByRevokedDate(CAConnectorConfig config) throws OODBConnectionsADCSException, ADCSProxyUnavailableException {
 
 		LOGGER.debug("in retrieveCertificatesByRevokedDate");
-		
+
 		int nNewRevokedCerts = 0;
 		int limit = 100;
 
 		ADCSWinNativeConnector adcsConnector = getConnector(config);
 
 		try {
-			
+
 			String info = adcsConnector.getInfo();
-			
-			
+
+
 			List<Certificate> certWithoutRevokedList =  certificateRepository.findTimestampNotExistForCA(info, CertificateAttribute.ATTRIBUTE_CA_REVOKED_TIMESTAMP);
 			if( !certWithoutRevokedList.isEmpty()) {
-				
+
 				// ensure all certificates have a REVOKED_AT timestamp. Should happen in migration scenarios only
 				for( int i = 0; i < limit; i++) {
 					try {
@@ -535,13 +505,13 @@ public class ADCSConnector {
 							LOGGER.warn("certificate #{} retrieved for ca '{}' but without CA_PROCESSING_ID", certWORevoked.getId(), info);
 						}else {
 							GetCertificateResponse certResponse = adcsConnector.getCertificateByRequestId(caProcessingId);
-							certUtil.setCertAttribute(certWORevoked, 
-									CertificateAttribute.ATTRIBUTE_CA_REVOKED_TIMESTAMP, 
+							certUtil.setCertAttribute(certWORevoked,
+									CertificateAttribute.ATTRIBUTE_CA_REVOKED_TIMESTAMP,
 									CertificateUtil.getPaddedTimestamp(certResponse.getRevokedDate()));
-							
-							LOGGER.warn("added revoked timestamp {} to certificate #{} retrieved for ca '{}' with CA_PROCESSING_ID '{}'", 
+
+							LOGGER.warn("added revoked timestamp {} to certificate #{} retrieved for ca '{}' with CA_PROCESSING_ID '{}'",
 									CertificateUtil.getPaddedTimestamp(certResponse.getRevokedDate()),
-									certWORevoked.getId(), 
+									certWORevoked.getId(),
 									info,
 									caProcessingId);
 						}
@@ -551,22 +521,22 @@ public class ADCSConnector {
 					}
 				}
 			}else {
-			
+
 				String maxTimestamp = certificateRepository.findMaxTimestampForCA(info, CertificateAttribute.ATTRIBUTE_CA_REVOKED_TIMESTAMP);
 				LOGGER.debug("findMaxRevokedForCA at ca '{}' returned {}", info, dateFromTimestampString(maxTimestamp));
-	
+
 				long timestamp = Long.parseLong(maxTimestamp);
 				List<String> newReqIdList = adcsConnector.getRequesIdList(limit, 0, 0L, timestamp);
 				if (newReqIdList.isEmpty()) {
 					LOGGER.debug("no certificates retrieved with a revoked timestamp after {} at ca '{}'", new Date(timestamp), info);
 				}
-	
+
 				for (String reqId : newReqIdList) {
-	
+
 					List<Certificate> certDaoList = certificateRepository.findBySearchTermNamed2(
 							CertificateAttribute.ATTRIBUTE_PROCESSING_CA, info,
 							CertificateAttribute.ATTRIBUTE_CA_PROCESSING_ID, reqId);
-	
+
 					Certificate certRevoked = null;
 					if (certDaoList.isEmpty()) {
 						LOGGER.warn("certificate with revocation status to be updated with requestID '{}' from ca '{}' not present in database!", reqId, info);
@@ -580,7 +550,7 @@ public class ADCSConnector {
 						LOGGER.warn("retrieved more than one ({}) certificate found for requestID '{}' from ca '{}' in database!", certDaoList.size(), reqId, info);
 						certRevoked = certDaoList.get(0);
 					}
-					
+
 					if (certRevoked != null) {
 						GetCertificateResponse certResponse = adcsConnector.getCertificateByRequestId(reqId);
 
@@ -588,11 +558,11 @@ public class ADCSConnector {
 						String reason = cryptoUtil.crlReasonAsString(cryptoUtil.crlReasonFromString(certResponse.getRevokedReason()));
 						Date revocationDate = new Date(Long.parseLong(certResponse.getRevokedDate()));
 						certUtil.setRevocationStatus(certRevoked, reason, revocationDate);
-						
-						certUtil.setCertAttribute(certRevoked, 
-								CertificateAttribute.ATTRIBUTE_CA_REVOKED_TIMESTAMP, 
+
+						certUtil.setCertAttribute(certRevoked,
+								CertificateAttribute.ATTRIBUTE_CA_REVOKED_TIMESTAMP,
 								CertificateUtil.getPaddedTimestamp(certResponse.getRevokedDate()));
-						
+
 						if( alreadyRevoked ) {
 							LOGGER.info("certificate with requestID '{}' from ca '{}' with cert id {} is already revoked", reqId, info, certRevoked.getId());
 						} else {
@@ -622,12 +592,12 @@ public class ADCSConnector {
 
 	/**
 	 * Try to retrieve new certificates added since the last call. This method is usually called by a timer.
-	 * The number of certificates is limited to avoid blocking the calling cron job.  
-	 *  
+	 * The number of certificates is limited to avoid blocking the calling cron job.
+	 *
 	 * @param config the connection data identifying an ADCS instance
-	 * 
+	 *
 	 * @return the number in imported certificates
-	 * 
+	 *
 	 * @throws OODBConnectionsADCSException		something went wrong
 	 * @throws ADCSProxyUnavailableException 	something went wrong, the adcsProxy is unavailable
 	 */
@@ -638,57 +608,57 @@ public class ADCSConnector {
 /*
 		retrieveCertificatesByRevokedDate(config);
 		return retrieveCertificatesByResolvedDate(config) ;
-*/		
+*/
 	}
 
 	/**
 	 * retrieve a single certificate content and store it in the internal database
-	 * 
+	 *
 	 * @param adcsConnector the current connector
 	 * @param caName the textual description of the ADCS CA
 	 * @param reqId te ADCS request id of the certificate to be retrieved
 	 * @param config the connection data identifying an ADCS instance
-	 * 
-	 * @throws ACDSException something went wrong
+	 *
+	 * @throws ADCSException something went wrong
 	 */
 	@Transactional(propagation = Propagation.REQUIRED)
-	private Certificate importCertificate(ADCSWinNativeConnector adcsConnector, String caName, String reqId, CAConnectorConfig config)
+    Certificate importCertificate(ADCSWinNativeConnector adcsConnector, String caName, String reqId, CAConnectorConfig config)
 			throws ADCSException {
-		
+
 		GetCertificateResponse certResponse = adcsConnector.getCertificateByRequestId(reqId);
 
 		if( certResponse.getB64Cert() == null || certResponse.getB64Cert().trim().length() == 0) {
 			LOGGER.debug("reqId '{}' has not certificate, yet. Ignoring ...", reqId);
-			return null; 
+			return null;
 		}
-		
+
 		try {
 			Certificate certDao = certUtil.createCertificate(certResponse.getB64Cert(), null,
 					null, false);
 
 			// in this special of importing we know where to revoke this certificate
 			certDao.setRevocationCA(config);
-			
+
 			// @todo : implement more sophisticated strategies
 			if( certDao.isSelfsigned()) {
 				certDao.setTrusted(true);
 			}
-			
+
 			// the Request ID is specific to ADCS instance
 			certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_PROCESSING_CA, caName);
 			certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_CA_PROCESSING_ID, certResponse.getReqId());
 			certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_CA_RESOLVED_TIMESTAMP, CertificateUtil.getPaddedTimestamp(certResponse.getResolvedDate()));
-			
+
 			certificateRepository.save(certDao);
 
 			LOGGER.debug("certificate with reqId '{}' imported from ca '{}'", reqId, caName);
 
-			return certDao; 
+			return certDao;
 
 		} catch (GeneralSecurityException | IOException e) {
 			LOGGER.info("retrieving and importing certificate with reqId '{}' from ca '{}' causes {}",
 					reqId, caName, e.getLocalizedMessage());
-			
+
 			throw new ADCSException(e.getLocalizedMessage());
 		}
 	}
@@ -698,7 +668,7 @@ public class ADCSConnector {
 
 /**
  * Unify a local and a remote instance of ADCS connector
- * 
+ *
  * @author kuehn
  *
  */
@@ -712,35 +682,36 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 	private byte[] getSalt() {
 		return "ca3sSalt".getBytes();
 	}
-	
+
 	private int getIterations() {
 		return 4567;
 	}
-    
+
 	private byte[] getAPIKeySalt() {
 		return "apiKeySalt".getBytes();
 	}
-	
+
 	private int getAPIKeyIterations() {
 		return 3756;
 	}
-    
 
-	/**
-	 * 
-	 * @param remoteClient
-	 * @param secret
-	 * @throws GeneralSecurityException
-	 */
+
+    /**
+     *
+     * @param caUrl
+     * @param secret
+     * @param ca3sTrustManager
+     * @throws GeneralSecurityException
+     */
 	public ADCSWinNativeConnectorAdapter(String caUrl, String secret, TrustManager ca3sTrustManager) throws GeneralSecurityException {
 
 	    SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
 
 	    PBEKeySpec specApiKey = new PBEKeySpec(secret.toCharArray(), getAPIKeySalt(), getAPIKeyIterations(), 256);
         PBEKeySpec specSecKey = new PBEKeySpec(secret.toCharArray(), getSalt(), getIterations(), 256);
-        
+
         this.sharedSecret = skf.generateSecret(specSecKey).getEncoded();
-	    
+
 	    String apiKey = Base64.encodeBase64String(skf.generateSecret(specApiKey).getEncoded());
 
 		this.remoteClient = new RemoteADCSClient(caUrl, apiKey);
@@ -770,12 +741,12 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 		}
 		cre.setAttributes(attributes);
 
-		
+
 		try {
-			
+
 			ObjectMapper objectMapper = new ObjectMapper();
 			String payload = objectMapper.writeValueAsString(cre);
-			
+
 //	        LOGGER.debug("calculated secret as ({} bytes) : {} ", sharedSecret.length,  Base64.encodeBase64String(sharedSecret));
 
 			// Create HMAC signer
@@ -791,22 +762,22 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 			// eyJhbGciOiJIUzI1NiJ9.SGVsbG8sIHdvcmxkIQ.onO9Ihudz3WkiauDO2Uhyuz0Y18UASXlSc1eS0NkWyA
 			JWSWrappedRequest jwsRequest = new JWSWrappedRequest();
 			jwsRequest.setJws(jwsObject.serialize());
-			
+
 			LOGGER.debug("calling ADCSProxy with JWS: " + jwsRequest );
 			de.trustable.ca3s.client.model.CertificateEnrollmentResponse response = remoteClient.buildCertificate(jwsRequest);
-			
+
 			CertificateEnrollmentResponse resp = new CertificateEnrollmentResponse();
 			resp.setReqId(response.getReqId());
 			resp.setStatus(SubmitStatus.valueOf(response.getStatus()));
 			resp.setB64Cert(response.getCert());
 			resp.setB64CACert(response.getCertCA());
 			return resp;
-			
+
 		} catch (ApiException e) {
 			if( e.getCode() == 503) {
 				throw new ADCSProxyUnavailableException(e.getLocalizedMessage());
 			}
-			
+
 			LOGGER.warn("ADCSException : " + e.getCode() , e );
 			throw new ADCSException(e.getLocalizedMessage());
 		} catch (IOException e) {
@@ -821,18 +792,18 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 
 	@Override
 	public void revokeCertifcate(String serial, int reason, Date revocationDate) throws ADCSException {
-		
+
 		try {
-			
+
 			CertificateRevocationRequest crr = new CertificateRevocationRequest();
 			crr.serial(serial);
 			crr.setReason(reason);
-			
+
 			crr.setRevTime(revocationDate.getTime());
-			
+
 			ObjectMapper objectMapper = new ObjectMapper();
 			String payload = objectMapper.writeValueAsString(crr);
-			
+
 //	        LOGGER.debug("calculated secret as ({} bytes) : {} ", sharedSecret.length,  Base64.encodeBase64String(sharedSecret));
 
 			// Create HMAC signer
@@ -848,16 +819,16 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 			// eyJhbGciOiJIUzI1NiJ9.SGVsbG8sIHdvcmxkIQ.onO9Ihudz3WkiauDO2Uhyuz0Y18UASXlSc1eS0NkWyA
 			JWSWrappedRequest jwsRequest = new JWSWrappedRequest();
 			jwsRequest.setJws(jwsObject.serialize());
-			
+
 			LOGGER.debug("calling ADCSProxy with JWS: " + jwsRequest );
-			
+
 			remoteClient.revokeCertificate(jwsRequest);
 		} catch (ApiException e) {
 			if( e.getCode() == 503) {
 				throw new ADCSProxyUnavailableException(e.getLocalizedMessage());
 			}
 			LOGGER.warn("ACDSException : " + e.getCode() , e );
-			throw new ADCSException(e.getLocalizedMessage());	
+			throw new ADCSException(e.getLocalizedMessage());
 		} catch (IOException e) {
 			LOGGER.warn("IOException writing JSON object ", e );
 			throw new ADCSException(e.getLocalizedMessage());
@@ -879,7 +850,7 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 			}else if( e.getCause() instanceof SocketTimeoutException){
 				throw new ADCSProxyUnavailableException(e.getCause().getMessage());
 			}
-			
+
 			LOGGER.warn("ADCSException : " + e.getCode() , e );
 			throw new ADCSException(e.getLocalizedMessage());
 		}
@@ -890,7 +861,7 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 		try {
 			de.trustable.ca3s.client.model.GetCertificateResponse gcr = remoteClient.getRequestById(reqId);
 			GetCertificateResponse resp = new GetCertificateResponse();
-			
+
 			for( GetCertificateResponseValues value: gcr.getValues()) {
 				if( "ReqId".equals(value.getName())){
 					resp.setReqId(value.getValue());
@@ -932,12 +903,12 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 				LOGGER.info("info call for ADCS proxy did not succeeded! Trying later ...");
 				throw new ADCSProxyUnavailableException("connection problem accessing ca : " + e.getCause().getLocalizedMessage());
 			}
-			
+
 			if( e.getCause() instanceof ConnectException ) {
 				LOGGER.info("info call for ADCS proxy did not succeeded! Trying later ...");
 				throw new ADCSProxyUnavailableException("connection problem accessing ca : " + e.getCause().getLocalizedMessage());
 			}
-			
+
 			if( e.getCode() == 503) {
 				throw new ADCSProxyUnavailableException(e.getLocalizedMessage());
 			} else if( e.getCode() == 401) {
@@ -952,7 +923,7 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 				LOGGER.warn("TLS problem : configure trust anchor for ADCS proxy at " + remoteClient.getApiClient().getBasePath() );
 				throw new ADCSProxyTLSException(e.getCause().getMessage());
 			}
-			
+
 			LOGGER.warn("ADCSException : " + e.getCode() , e );
 			throw new ADCSException(e.getLocalizedMessage());
 		}
@@ -966,10 +937,11 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 
 	@Override
 	public ADCSInstanceDetails getCAInstanceDetails() throws ADCSException {
+        ADCSInstanceDetails details = new ADCSInstanceDetails();
+/*
 		try {
 			ADCSInstanceDetailsResponse detailsResp = remoteClient.getADCSInstanceDetails();
-			
-			ADCSInstanceDetails details = new ADCSInstanceDetails();
+
 			details.setCaName(detailsResp.getCaName());
 			details.setCaType(detailsResp.getCaType());
 			details.setDnsName(detailsResp.getDnsName());
@@ -978,11 +950,10 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 			details.setProductVersion(detailsResp.getProductVersion());
 			details.setSigningCertChains(fromList(detailsResp.getSigningCertChains()));
 			details.setSigningCerts(fromList(detailsResp.getSigningCerts()));
-			
+
 			details.setSubjectTemplateOIDs(fromList(detailsResp.getSubjectTemplateOIDs()));
 			details.setTemplates(fromList(detailsResp.getTemplates()));
-			
-			return details;
+
 		} catch (ApiException e) {
 			if( e.getCode() == 503) {
 				throw new ADCSProxyUnavailableException(e.getLocalizedMessage());
@@ -995,12 +966,15 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 				LOGGER.warn("TLS problem : configure trust anchor for ADCS proxy at " + remoteClient.getApiClient().getBasePath() );
 				throw new ADCSProxyTLSException(e.getCause().getMessage());
 			}
-			
+
 			LOGGER.warn("ADCSException : " + e.getCode() , e );
 			throw new ADCSException(e.getLocalizedMessage());
 		}
+
+ */
+        return details;
 	}
-	
+
 	String[] fromList(List<String> list) {
 		String[] retArr = new String[list.size()];
 		return list.toArray(retArr);
@@ -1009,7 +983,7 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 
 /**
  * dummy implementation just telling it's not a valid connector
- *  
+ *
  * @author kuehn
  *
  */

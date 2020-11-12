@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.web.rest;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,7 @@ import io.github.jhipster.web.util.HeaderUtil;
 /**
  * REST controller for reading {@link de.trustable.ca3s.core.domain.Certificate} using the convenient CertificateView object.
  * Just read-only access to this resource.
- * 
+ *
  */
 @RestController
 @RequestMapping("/api/admin")
@@ -48,7 +49,7 @@ public class PreferenceResource {
     }
 
 
-    
+
     /**
      * {@code GET  /preference/:id} : get the "id" certificate.
      *
@@ -57,9 +58,9 @@ public class PreferenceResource {
      */
     @GetMapping("/preference/{userId}")
     public ResponseEntity<Preferences> getPreference(@PathVariable Long userId) {
-    	
+
     	Preferences prefs = getPrefs(userId);
-        
+
    		return new ResponseEntity<Preferences>(prefs, HttpStatus.OK);
     }
 
@@ -67,16 +68,32 @@ public class PreferenceResource {
 
 	private Preferences getPrefs(Long userId) {
 		Preferences prefs = new Preferences();
-    	
+
         log.debug("REST request to get Preference for user {}", userId);
         List<UserPreference> upList = userPreferenceService.findAllForUserId(userId);
-        
+
         for(UserPreference up: upList) {
         	String name = up.getName();
         	if( PreferenceUtil.SERVER_SIDE_KEY_CREATION_ALLOWED.equals(name)) {
         		prefs.setServerSideKeyCreationAllowed(Boolean.valueOf(up.getContent()));
         	} else if( PreferenceUtil.ACME_HTTP01_CALLBACK_PORTS.equals(name)) {
-        		prefs.setAcmeHTTP01CallbackPorts(up.getContent());
+                String[] portArr = up.getContent().split(",");
+                ArrayList<Integer> portList = new ArrayList();
+                for( String port: portArr){
+                    if( "0".equals(port)){
+                        continue;
+                    }
+                    try {
+                        portList.add(Integer.parseInt(port));
+                    } catch(NumberFormatException nfe){
+                        log.info("unexpected value for ACME_HTTP01_CALLBACK_PORT '{}'", port);
+                    }
+                }
+                int[] portIntArr = new int[portList.size()];
+                for( int i =0; i < portList.size(); i++){
+                    portIntArr[i] = portList.get(i);
+                }
+        	    prefs.setAcmeHTTP01CallbackPortArr(portIntArr);
         	} else if( PreferenceUtil.ACME_HTTP01_TIMEOUT_MILLI_SEC.equals(name)) {
         		try {
         			prefs.setAcmeHTTP01TimeoutMilliSec(Long.parseLong(up.getContent()));
@@ -94,7 +111,7 @@ public class PreferenceResource {
     /**
      * {@code PUT  /preference} : Update the preference.
      *
-     * @param preference the preference
+     * @param preferences the preference
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated preference,
      * or with status {@code 400 (Bad Request)} if the preference is not valid,
      * or with status {@code 500 (Internal Server Error)} if the preference couldn't be updated.
@@ -102,7 +119,7 @@ public class PreferenceResource {
      */
     @PutMapping("/preference/{userId}")
     public ResponseEntity<Preferences> updatePreference(@Valid @RequestBody Preferences preferences, @PathVariable Long userId) throws URISyntaxException {
-    	
+
         log.debug("REST request to update Preferences for user {} : {}", userId, preferences);
 
     	Preferences oldPrefs = getPrefs(userId);
@@ -111,17 +128,17 @@ public class PreferenceResource {
 	        log.warn("unexpected Preference value for ACME_HTTP01_TIMEOUT_MILLI_SEC '{}'", preferences.getAcmeHTTP01TimeoutMilliSec());
         	return ResponseEntity.badRequest().build();
         }
-        
-        String portsCommaSeparatedList = preferences.getAcmeHTTP01CallbackPorts().trim();
-        String[] portsArr = portsCommaSeparatedList.split(",");
+
+
+        int[] portsArr = preferences.getAcmeHTTP01CallbackPortArr();
         if( portsArr.length == 0 || portsArr.length > 10) {
-	        log.warn("unexpected Preference value for ACME_HTTP01_CALLBACK_PORTS '{}'", portsCommaSeparatedList);
+	        log.warn("unexpected Preference number for ACME_HTTP01_CALLBACK_PORTS '{}'", portsArr.length);
         	return ResponseEntity.badRequest().body(oldPrefs);
         }
-        
-        for( String port: portsArr){
+
+        String portsCommaSeparatedList = "";
+        for( int nPort: portsArr){
     		try {
-    			long nPort = Long.parseLong(port);
     			if( nPort <= 0 || nPort > 65535) {
     		        log.warn("unexpected Preference value for port in ACME_HTTP01_CALLBACK_PORTS '{}'", nPort);
     	        	return ResponseEntity.badRequest().body(oldPrefs);
@@ -130,20 +147,25 @@ public class PreferenceResource {
     	        log.warn("unexpected Preference value for ACME_HTTP01_TIMEOUT_MILLI_SEC '{}'", nfe.getMessage());
             	return ResponseEntity.badRequest().body(oldPrefs);
     		}
+
+    		if( portsCommaSeparatedList.trim().length() > 0){
+                portsCommaSeparatedList += ",";
+            }
+            portsCommaSeparatedList += nPort;
         }
-        
+
         List<UserPreference> upList = userPreferenceService.findAllForUserId(userId);
-        
+
         Map<String, UserPreference> upMap = new HashMap<String, UserPreference>();
         for(UserPreference up: upList) {
         	upMap.put(up.getName(), up);
         }
-        
+
         updateValue(upMap, PreferenceUtil.CHECK_CRL, "" + preferences.isCheckCRL(), userId);
         updateValue(upMap, PreferenceUtil.SERVER_SIDE_KEY_CREATION_ALLOWED, "" + preferences.isServerSideKeyCreationAllowed(), userId);
         updateValue(upMap, PreferenceUtil.ACME_HTTP01_CALLBACK_PORTS, portsCommaSeparatedList, userId);
         updateValue(upMap, PreferenceUtil.ACME_HTTP01_TIMEOUT_MILLI_SEC, "" + preferences.getAcmeHTTP01TimeoutMilliSec(), userId);
-        
+
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, userId.toString()))
             .body(preferences);

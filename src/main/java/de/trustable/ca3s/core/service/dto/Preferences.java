@@ -5,18 +5,18 @@ import java.io.Serializable;
 public class Preferences implements Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 3936765448876549181L;
 
 	private boolean serverSideKeyCreationAllowed = false;
-	
+
 	private boolean checkCRL = false;
-	
+
 	private long acmeHTTP01TimeoutMilliSec = 2L * 1000L;
-	
-	private String acmeHTTP01CallbackPorts = "5544,8080,80";
-	
+
+	private int[] acmeHTTP01CallbackPortArr = {5544,8080,80};
+
 	public Preferences() {}
 
 	public boolean isServerSideKeyCreationAllowed() {
@@ -35,14 +35,6 @@ public class Preferences implements Serializable {
 		this.acmeHTTP01TimeoutMilliSec = acmeHTTP01TimeoutMilliSec;
 	}
 
-	public String getAcmeHTTP01CallbackPorts() {
-		return acmeHTTP01CallbackPorts;
-	}
-
-	public void setAcmeHTTP01CallbackPorts(String acmeHTTP01CallbackPorts) {
-		this.acmeHTTP01CallbackPorts = acmeHTTP01CallbackPorts;
-	}
-
 	public boolean isCheckCRL() {
 		return checkCRL;
 	}
@@ -51,5 +43,11 @@ public class Preferences implements Serializable {
 		this.checkCRL = checkCRL;
 	}
 
-	
+    public int[] getAcmeHTTP01CallbackPortArr() {
+        return acmeHTTP01CallbackPortArr;
+    }
+
+    public void setAcmeHTTP01CallbackPortArr(int[] acmeHTTP01CallbackPortArr) {
+        this.acmeHTTP01CallbackPortArr = acmeHTTP01CallbackPortArr;
+    }
 }

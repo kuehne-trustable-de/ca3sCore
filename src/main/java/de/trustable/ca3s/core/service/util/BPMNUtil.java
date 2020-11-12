@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
@@ -18,10 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import de.trustable.ca3s.core.domain.BPNMProcessInfo;
-import de.trustable.ca3s.core.domain.CAConnectorConfig;
-import de.trustable.ca3s.core.domain.CSR;
-import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.enumeration.BPNMProcessType;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.BPNMProcessInfoRepository;
@@ -37,12 +35,15 @@ public class BPMNUtil{
 	@Autowired
 	private ConfigUtil configUtil;
 
-	@Autowired
-	private CaConnectorAdapter caConnAdapter;
+    @Autowired
+    private CaConnectorAdapter caConnAdapter;
+
+    @Autowired
+    private CAConnectorConfigRepository caConnConRepo;
 
 	@Autowired
 	private CryptoUtil cryptoUtil;
-	
+
 	@Autowired
     private RuntimeService runtimeService;
 
@@ -54,18 +55,20 @@ public class BPMNUtil{
 
 	@Autowired
 	private CSRRepository csrRepository;
-	
+
 	@Autowired
 	private CertificateRepository certRepository;
-	
-	
+
+    @Autowired
+    private CertificateUtil certUtil;
+
 	public List<ProcessDefinition> getProcessDefinitions(){
-		
+
 		return repoService.createProcessDefinitionQuery().latestVersion().list();
 	}
 
 	public void updateProcessDefinitions(){
-		
+
 		List<ProcessDefinition> pdList = getProcessDefinitions();
 		for(ProcessDefinition pd: pdList ) {
 			Optional<BPNMProcessInfo> optBI = bpnmInfoRepo.findByName(pd.getKey());
@@ -74,24 +77,24 @@ public class BPMNUtil{
 				newBI.setAuthor("system");
 				newBI.setLastChange(Instant.now());
 				newBI.setName(pd.getKey());
-				
+
 				String version = pd.getVersionTag();
 				if( version == null) {
 					version = "0.0.1";
 				}
-				
+
 				newBI.setVersion(version);
-				
+
 				// @todo determine the type properly
 				newBI.setType(BPNMProcessType.CA_INVOCATION);
-				
+
 				// @todo calculate a signature
 				newBI.setSignatureBase64("");
-				
+
 				LOG.info("added new BPNMProcessInfo from camunda database: {}", newBI);
 
 				bpnmInfoRepo.save(newBI);
-								
+
 			}else {
 				// @todo check for updates
 				LOG.debug("BPNMProcessInfo {} already exists", pd.getKey());
@@ -120,14 +123,14 @@ public class BPMNUtil{
 
 		return startCertificateCreationProcess(csr, caConfig, pi);
 	}
-	
+
 	/**
 	 *
 	 * @param csr
 	 * @return
 	 */
 	public Certificate startCertificateCreationProcess(CSR csr, CAConnectorConfig caConfig, BPNMProcessInfo processInfo)  {
-		
+
 		String status = "Failed";
 		String certificateId = "";
 		Certificate certificate = null;
@@ -139,9 +142,9 @@ public class BPMNUtil{
 		if( processInfo != null) {
 			processName = processInfo.getName();
 		}
-		
+
 		if(caConfig != null ){
-			
+
 			if(processName != null && (processName.trim().length() > 0 )) {
 				// BPNM call
 				try {
@@ -152,19 +155,19 @@ public class BPMNUtil{
 					variables.put("status", "Failed");
 					variables.put("certificateId", certificateId);
 					variables.put("failureReason", failureReason);
-					
+
 		            ProcessInstanceWithVariables processInstance = runtimeService.createProcessInstanceByKey(processName).setVariables(variables).executeWithVariablesInReturn();
 		            processInstanceId = processInstance.getId();
 		            LOG.info("ProcessInstance: {}", processInstanceId);
-		
+
 		            certificateId = processInstance.getVariables().get("certificateId").toString();
 		            certificate = (Certificate)processInstance.getVariables().get("certificate");
 		            status = processInstance.getVariables().get("status").toString();
-		
+
 		            if( processInstance.getVariables().get("failureReason") != null) {
 		            	failureReason = processInstance.getVariables().get("failureReason").toString();
 		            }
-		
+
 					// catch all (runtime) Exception
 				} catch (Exception e) {
 					failureReason = e.getLocalizedMessage();
@@ -176,7 +179,7 @@ public class BPMNUtil{
 					certificate = caConnAdapter.signCertificateRequest(csr, caConfig);
 					status = "Created";
 				} catch (GeneralSecurityException e) {
-					
+
 					failureReason = e.getLocalizedMessage();
 					LOG.error(failureReason);
 				}
@@ -184,27 +187,31 @@ public class BPMNUtil{
 		} else {
 			failureReason = "no default and active CA configured";
 			LOG.error(failureReason);
-		} 
-		
+		}
+
 		// end of BPMN call
-		
+
 		if ("Created".equals(status)) {
 
 			if( certificate != null) {
-				
+
+			    // connect the certificate and its request
 				certificate.setCsr(csr);
+
+				// track which CA issued this certificate. Useful e.g. in case of revocation
+                certUtil.setCertAttribute(certificate, CertificateAttribute.ATTRIBUTE_CA_CONNECTOR_ID, caConfig.getId());
 				certRepository.save(certificate);
-				
+
 				csr.setCertificate(certificate);
 				csr.setStatus(CsrStatus.ISSUED);
 				csrRepository.save(csr);
-				
+
 				LOG.debug("new certificate id {} created by BPMN process {}", certificate.getId(), processInstanceId);
 				return certificate;
 			}else {
 				LOG.warn("creation of certificate by BPMN process {} failed, no certificate returned ", processInstanceId);
 			}
-			
+
 		} else {
 			LOG.warn("creation of certificate by BPMN process {} failed with reason '{}' ", processInstanceId, failureReason);
 		}
@@ -215,56 +222,65 @@ public class BPMNUtil{
 	 *
 	 * @param certificate
 	 *
-	 * @throws GeneralSecurityException 
+	 * @throws GeneralSecurityException
 	 */
 	public void startCertificateRevoctionProcess(Certificate certificate, final CRLReason crlReason, final Date revocationDate) throws GeneralSecurityException  {
-		
+
 		String status = "Failed";
 		String failureReason = "";
 		String processInstanceId = "";
 
 //		String processName = null;
 		String processName = "CAInvocationProcess";
-		
+
 		if( certificate == null) {
 			throw new GeneralSecurityException("certificate to be revoked MUST be provided");
 		}
-		
+
 		if( crlReason == null) {
 			throw new GeneralSecurityException("revocation reason for certificate "+certificate.getId()+" MUST be provided" );
 		}
-		
+
 		if( revocationDate == null) {
 			throw new GeneralSecurityException("revocation date for certificate "+certificate.getId()+" MUST be provided" );
 		}
-		
-		CAConnectorConfig caConfigDefault = configUtil.getDefaultConfig();
-		if(caConfigDefault != null ){
-			
+
+        String caConnectorId = certUtil.getCertAttribute(certificate, CertificateAttribute.ATTRIBUTE_CA_CONNECTOR_ID);
+        if( caConnectorId == null){
+            CAConnectorConfig caConfigDefault = configUtil.getDefaultConfig();
+            if(caConfigDefault != null ){
+                caConnectorId = caConfigDefault.getId().toString();
+            }
+        }
+
+		if(caConnectorId != null ){
+
+            LOG.debug("revoke certificate '{}' at CA with config '{}' ", certificate.getId(), caConnectorId);
+
 			if(processName != null && (processName.trim().length() > 0 )) {
 				// BPNM call
 				try {
 					Map<String, Object> variables = new HashMap<String,Object>();
 					variables.put("action", "Revoke");
-					variables.put("caConfigId", caConfigDefault.getId());
+					variables.put("caConfigId", caConnectorId);
 					variables.put("status", "Failed");
 					variables.put("certificateId", certificate.getId());
 					variables.put("certificate", certificate);
 					variables.put("revocationReason", cryptoUtil.crlReasonAsString(crlReason));
 					variables.put("revocationDate", revocationDate.getTime());
-					
+
 					variables.put("failureReason", failureReason);
-					
+
 		            ProcessInstanceWithVariables processInstance = runtimeService.createProcessInstanceByKey(processName).setVariables(variables).executeWithVariablesInReturn();
 		            processInstanceId = processInstance.getId();
 		            LOG.info("ProcessInstance: {}", processInstanceId);
-		
+
 		            status = processInstance.getVariables().get("status").toString();
-		
+
 		            if( processInstance.getVariables().get("failureReason") != null) {
 		            	failureReason = processInstance.getVariables().get("failureReason").toString();
 		            }
-		
+
 					// catch all (runtime) Exception
 				} catch (Exception e) {
 					failureReason = e.getLocalizedMessage();
@@ -273,8 +289,14 @@ public class BPMNUtil{
 			} else {
 				// direct call
 				try {
-					caConnAdapter.revokeCertificate(certificate, crlReason, revocationDate, caConfigDefault);
-					status = "Revoked";
+                    Optional<CAConnectorConfig> caConfigOpt = caConnConRepo.findById(Long.parseLong(caConnectorId));
+                    if( caConfigOpt.isPresent()) {
+                        caConnAdapter.revokeCertificate(certificate, crlReason, revocationDate, caConfigOpt.get());
+                        status = "Revoked";
+                    }else{
+                        failureReason = "caConnectorId '" + caConnectorId + "' is unknown";
+                        LOG.error(failureReason);
+                    }
 				} catch (GeneralSecurityException e) {
 					failureReason = e.getLocalizedMessage();
 					LOG.error(failureReason);
@@ -283,11 +305,11 @@ public class BPMNUtil{
 		} else {
 			failureReason = "no default and active CA configured";
 			LOG.error(failureReason);
-		} 
-		
+		}
+
 
 		// end of BPMN call
-		
+
 		if ("Revoked".equals(status)) {
 			LOG.debug("certificate id {} revoked by BPMN process {}", certificate.getId(), processInstanceId);
 		} else {

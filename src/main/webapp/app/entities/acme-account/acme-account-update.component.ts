@@ -65,6 +65,7 @@ export default class ACMEAccountUpdate extends mixins(JhiDataUtils) {
 
   public save(): void {
     this.isSaving = true;
+    console.info('saving ...');
     if (this.aCMEAccount.id) {
       this.aCMEAccountService()
         .update(this.aCMEAccount)

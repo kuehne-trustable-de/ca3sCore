@@ -28,7 +28,11 @@
                         <div class="form-group">
                             <label for="preferences-acmeHTTP01TimeoutMilliSec" v-text="$t('ca3SApp.preference.acmeHTTP01TimeoutMilliSec')">ACME HTTP01 callback timeout (milli sec)</label>
                             <input type="number" class="form-control" name="preferences-acmeHTTP01TimeoutMilliSec" id="preferences-acmeHTTP01TimeoutMilliSec"
-                                v-model.number="preferences.acmeHTTP01TimeoutMilliSec"  required/>
+                                   :class="{'valid': !$v.preferences.acmeHTTP01TimeoutMilliSec.$invalid, 'invalid': $v.preferences.acmeHTTP01TimeoutMilliSec.$invalid }"
+                                v-model.number="$v.preferences.acmeHTTP01TimeoutMilliSec.$model" required/>
+                            <small class="form-text text-danger" v-if="$v.preferences.acmeHTTP01TimeoutMilliSec.$invalid" v-text="$t('entity.validation.number')">
+                                This field should be a number.
+                            </small>
 
                             <!--label for="preferences-acmeHTTP01CallbackPorts" v-text="$t('ca3SApp.preference.acmeHTTP01CallbackPorts')">ACME HTTP01 callback ports</label>
                             <input type="text" class="form-control" name="preferences-acmeHTTP01CallbackPorts" id="preferences-acmeHTTP01CallbackPorts"
@@ -36,16 +40,36 @@
 
 							<div class="row">
 								<div class="col ">
-                                    <label for="preferences-acmeHTTP01CallbackPorts" v-text="$t('ca3SApp.preference.acmeHTTP01CallbackPorts')">ACME HTTP01 callback ports</label>
+                                    <label  v-text="$t('ca3SApp.preference.acmeHTTP01CallbackPorts')">ACME HTTP01 callback ports</label>
 								</div>
-								<div class="col colContent">
-									<input v-for="(port, portIndex) in portArr" :key="portIndex"
-										type="number" class="form-control form-check-inline valid" 
-                                        :name="'preferences-acmeHTTP01CallbackPort' + portIndex" :id="'preferences-acmeHTTP01CallbackPort' + portIndex"  
-										v-model="portArr[portIndex]"
-										v-on:input="alignPortArraySize(portIndex)"/>
-								</div>
+								<div class="col colContent" v-for="(v, portIndex) in $v.preferences.acmeHTTP01CallbackPortArr.$each.$iter">
+                                    <input
+                                           type="number" class="form-control form-check-inline valid"
+                                           v-model="v.$model"
+                                           v-on:input="alignCallbackPortArraySize(portIndex)"
+                                    />
+                                    <small class="form-text text-danger" v-if="v.$invalid" v-text="$t('entity.validation.number')">
+                                        This field should be a valid port number.
+                                    </small>
+
+                                </div>
 							</div>
+
+
+                            <div class="form-group">
+                                <label class="form__label">required</label>
+                                <input class="form__input" v-model.trim="$v.preferences.$required"/>
+                                <label class="form__label">$invalid</label>
+                                <input class="form__input" v-model.trim="$v.preferences.$invalid"/>
+                                <label class="form__label">$dirty</label>
+                                <input class="form__input" v-model.trim="$v.preferences.$dirty"/>
+                                <label class="form__label">$error</label>
+                                <input class="form__input" v-model.trim="$v.preferences.$error"/>
+                                <label class="form__label">$anyError</label>
+                                <input class="form__input" v-model.trim="$v.preferences.$anyError"/>
+                                <label class="form__label">$pending</label>
+                                <input class="form__input" v-model.trim="$v.preferences.$pending"/>
+                            </div>
 
                             <!--div v-if="$v.preference.userId.$anyDirty && $v.preference.userId.$invalid">
                                 <small class="form-text text-danger" v-if="!$v.preference.userId.required" v-text="$t('entity.validation.required')">
