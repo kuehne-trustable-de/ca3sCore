@@ -56,7 +56,7 @@
 							</div>
 
 
-                            <div class="form-group">
+                            <!--div class="form-group">
                                 <label class="form__label">required</label>
                                 <input class="form__input" v-model.trim="$v.preferences.$required"/>
                                 <label class="form__label">$invalid</label>
@@ -69,7 +69,7 @@
                                 <input class="form__input" v-model.trim="$v.preferences.$anyError"/>
                                 <label class="form__label">$pending</label>
                                 <input class="form__input" v-model.trim="$v.preferences.$pending"/>
-                            </div>
+                            </div-->
 
                             <!--div v-if="$v.preference.userId.$anyDirty && $v.preference.userId.$invalid">
                                 <small class="form-text text-danger" v-if="!$v.preference.userId.required" v-text="$t('entity.validation.required')">

@@ -8,7 +8,7 @@
 				{{alertMessage}}
 		</b-alert>
 		<br/>
- 
+
 		<div class="row justify-content-center" v-cloak @drop.prevent="catchDroppedFile" @dragover.prevent>
 			<div class="col-8">
 				<form name="editForm" role="form" novalidate >
@@ -40,7 +40,7 @@
 
 								<option value="CSR_AVAILABLE" v-text="$t('pkcsxx.upload.creationMode.csrAvailable')" selected="selected">csrAvailable</option>
 								<option value="COMMANDLINE_TOOL" v-text="$t('pkcsxx.upload.creationMode.commandLineTool')">csr generation command line</option>
-								<option value="SERVERSIDE_KEY_CREATION" v-text="$t('pkcsxx.upload.creationMode.serversideKeyCreation')">serverside key creation</option>
+								<option v-if="preferences.serverSideKeyCreationAllowed" value="SERVERSIDE_KEY_CREATION" v-text="$t('pkcsxx.upload.creationMode.serversideKeyCreation')">serverside key creation</option>
 							</select>
 						</div>
 
@@ -84,9 +84,9 @@
 								</div>
 								<div class="col colContent">
 									<input v-for="(val, valueIndex) in upload.certificateAttributes[index].values" :key="valueIndex"
-										type="text" class="form-control form-check-inline valid" :name="'pkcsxx.upload.' + rr.name" :id="'pkcsxx.upload.' + rr.name" 
+										type="text" class="form-control form-check-inline valid" :name="'pkcsxx.upload.' + rr.name" :id="'pkcsxx.upload.' + rr.name"
 										v-model="upload.certificateAttributes[index].values[valueIndex]"
-										:readonly="rr.readOnly" 
+										:readonly="rr.readOnly"
 										:required="rr.required"
 										v-on:input="alignRDNArraySize(index, valueIndex)"/>
 								</div>
@@ -102,7 +102,7 @@
 									<label class="form-control-label" :for="'pkcsxx.upload.ara.' + item.name">{{item.name}}</label>
 								</div>
 								<div class="col colContent">
-									<input type="text" class="form-control form-check-inline valid" :name="'pkcsxx.upload.ara.' + item.name" :id="'pkcsxx.upload.ara.' + item.name" 
+									<input type="text" class="form-control form-check-inline valid" :name="'pkcsxx.upload.ara.' + item.name" :id="'pkcsxx.upload.ara.' + item.name"
 										:readonly="item.readOnly"
 										:required="item.required"
 										v-model="upload.arAttributes[index].values[0]" />
@@ -110,7 +110,7 @@
 							</div>
 						</div>
 
-						<div class="form-group" v-if="creationMode === 'SERVERSIDE_KEY_CREATION'">						
+						<div class="form-group" v-if="creationMode === 'SERVERSIDE_KEY_CREATION'">
 							<div class="row" >
 								<div class="col">
 									<label class="form-control-label" v-text="$t('pkcsxx.upload.serversideCreation.secret')" for="upload-secret">Secret</label>
@@ -142,7 +142,7 @@
 						<div class="form-group" v-if="(creationMode === 'CSR_AVAILABLE') " >
 							<!--label class="form-control-label" v-text="$t('pkcsxx.upload.content')" for="upload-content">Content</label-->
 							<div>
-								<label v-if="(creationMode === 'CSR_AVAILABLE') " 
+								<label v-if="(creationMode === 'CSR_AVAILABLE') "
 									class="form-control-label" v-text="$t('pkcsxx.upload.fileSelectorCSR')" for="fileSelector">Select a CSR</label>
 								<label v-if="(creationMode === 'COMMANDLINE_TOOL') || (creationMode === 'SERVERSIDE_KEY_CREATION')"
 									class="form-control-label" v-text="$t('pkcsxx.upload.fileSelectorCertificate')" for="fileSelector">Select a certificate</label>
@@ -329,13 +329,13 @@
 							:disabled="precheckResponse.csrPublicKeyPresentInDB || precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE' || precheckResponse.certificatePresentInDB || precheckResponse.publicKeyPresentInDB"
 	-->
 						<button type="button" id="uploadContent"
-							v-if="precheckResponse.dataType === 'CSR' || (creationMode === 'SERVERSIDE_KEY_CREATION')" 
+							v-if="precheckResponse.dataType === 'CSR' || (creationMode === 'SERVERSIDE_KEY_CREATION')"
 							:disabled="disableCertificateRequest()"
 							class="btn btn-primary" v-on:click="uploadContent">
 							<font-awesome-icon icon="upload"></font-awesome-icon>&nbsp;<span v-text="$t('pkcsxx.upload.requestCertificate')">Request certificate</span>
 						</button>
-						<button type="button" id="uploadContent" 
-							v-if="showCertificateUpload()" 
+						<button type="button" id="uploadContent"
+							v-if="showCertificateUpload()"
 							:disabled="precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE' || precheckResponse.certificatePresentInDB || precheckResponse.publicKeyPresentInDB" class="btn btn-primary" v-on:click="uploadContent">
 							<font-awesome-icon icon="upload"></font-awesome-icon>&nbsp;<span v-text="$t('pkcsxx.upload.submit')">Upload</span>
 						</button>

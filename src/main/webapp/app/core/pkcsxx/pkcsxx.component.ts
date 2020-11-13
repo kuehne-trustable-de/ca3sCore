@@ -5,9 +5,17 @@ import AlertMixin from '@/shared/alert/alert.mixin';
 
 import axios from 'axios';
 
-import { required, minLength} from 'vuelidate/lib/validators';
+import { required, minLength } from 'vuelidate/lib/validators';
 
-import { IUploadPrecheckData, IPkcsXXData, INamedValues, ICreationMode, IKeyAlgoLength, IPipelineView } from '@/shared/model/transfer-object.model';
+import {
+  IUploadPrecheckData,
+  IPkcsXXData,
+  INamedValues,
+  ICreationMode,
+  IKeyAlgoLength,
+  IPipelineView,
+  IPreferences
+} from '@/shared/model/transfer-object.model';
 import { IPipelineRestrictions, PipelineRestrictions } from '@/shared/model/pipeline-restrictions';
 import { IPipelineRestriction, PipelineRestriction } from '@/shared/model/pipeline-restriction';
 
@@ -38,10 +46,10 @@ const validations: any = {
 
 @Component
 export default class PKCSXX extends mixins(AlertMixin, Vue) {
-
   public upload: IUploadPrecheckData = <IUploadPrecheckData>{};
   public precheckResponse: IPkcsXXData = <IPkcsXXData>{};
 
+  public preferences: IPreferences = {};
   public allWebPipelines: IPipelineView[] = [];
   public selectPipelineView: IPipelineView = {};
   public rdnRestrictions: IPipelineRestriction[] = [];
@@ -83,24 +91,24 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     const self = this;
 
     readerBase64.onloadend = function() {
-        const base64Text = readerBase64.result.toString();
+      const base64Text = readerBase64.result.toString();
 
-        if ( /^[\x00-\x7F]*$/.test(base64Text) ) {
-          self.upload.content = base64Text;
-          console.log('dropped ascii-only content : ' + base64Text);
-          self.$forceUpdate();
-          self.contentCall(precheckUrl);
-        } else {
-          readerBinary.readAsDataURL(blob);
-        }
+      if (/^[\x00-\x7F]*$/.test(base64Text)) {
+        self.upload.content = base64Text;
+        console.log('dropped ascii-only content : ' + base64Text);
+        self.$forceUpdate();
+        self.contentCall(precheckUrl);
+      } else {
+        readerBinary.readAsDataURL(blob);
+      }
     };
 
     readerBinary.onloadend = function() {
-        const base64Text = readerBinary.result.toString().split(',')[1];
-        self.upload.content = base64Text;
-        console.log('dropped binary content, base64 encoded : ' + base64Text);
-        self.$forceUpdate();
-        self.contentCall(precheckUrl);
+      const base64Text = readerBinary.result.toString().split(',')[1];
+      self.upload.content = base64Text;
+      console.log('dropped binary content, base64 encoded : ' + base64Text);
+      self.$forceUpdate();
+      self.contentCall(precheckUrl);
     };
 
     readerBase64.readAsText(blob);
@@ -110,20 +118,19 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     window.console.info('in alignRDNArraySize(' + restrictionIndex + ', ' + valueIndex + ')');
     const restriction = this.rdnRestrictions[restrictionIndex];
 
-    if ( restriction.multipleValues ) {
-
+    if (restriction.multipleValues) {
       const namedValue = this.upload.certificateAttributes[restrictionIndex];
       const currentSize = namedValue.values.length;
       const currentValue = namedValue.values[valueIndex] || '';
 
-      if ( currentValue.trim().length === 0 ) {
-        if ( currentSize > 1 ) {
+      if (currentValue.trim().length === 0) {
+        if (currentSize > 1) {
           // preserve last element
           namedValue.values.splice(valueIndex, 1);
           window.console.info('in alignRDNArraySize(' + valueIndex + '): dropped empty element');
         }
       } else {
-        if ( valueIndex + 1 === currentSize ) {
+        if (valueIndex + 1 === currentSize) {
           namedValue.values.push('');
           window.console.info('in alignRDNArraySize(' + valueIndex + '): appended one element');
         }
@@ -132,7 +139,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     this.updateCmdLine();
   }
 
-  public updateCmdLine(): void{
+  public updateCmdLine(): void {
     this.cmdline = this.buildCommandLine();
   }
 
@@ -142,17 +149,16 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   }
 
   public updatePipelineRestrictionsByPipelineInfo(pipeline: IPipelineView): void {
-
     this.selectPipelineView = pipeline;
     this.selectPipelineInfo = pipeline.description;
 
     this.rdnRestrictions = new Array<PipelineRestriction>();
 
     for (const rr of pipeline.rdnRestrictions) {
-      if ( rr.cardinalityRestriction === 'NOT_ALLOWED') {
+      if (rr.cardinalityRestriction === 'NOT_ALLOWED') {
         // ignore this
       } else {
-        this.rdnRestrictions.push( new PipelineRestriction(rr.rdnName, rr.cardinalityRestriction, rr.contentTemplate, rr.regExMatch));
+        this.rdnRestrictions.push(new PipelineRestriction(rr.rdnName, rr.cardinalityRestriction, rr.contentTemplate, rr.regExMatch));
       }
     }
 
@@ -173,7 +179,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     for (const rr of this.rdnRestrictions) {
       const nv: INamedValues = {};
       nv.name = rr.name;
-      if ( rr.readOnly) {
+      if (rr.readOnly) {
         nv.values = [rr.template];
       } else {
         nv.values = [''];
@@ -185,13 +191,13 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
     for (const rr of pipeline.araRestrictions) {
       const cardinalityRestriction = rr.required ? 'ONE' : 'ZERO_OR_ONE';
-      this.araRestrictions.push( new PipelineRestriction(rr.name, cardinalityRestriction, rr.contentTemplate, rr.regExMatch ));
+      this.araRestrictions.push(new PipelineRestriction(rr.name, cardinalityRestriction, rr.contentTemplate, rr.regExMatch));
     }
 
     for (const rr of this.araRestrictions) {
       const nv: INamedValues = {};
       nv.name = rr.name;
-      if ( rr.readOnly) {
+      if (rr.readOnly) {
         nv.values = [rr.template];
       } else {
         nv.values = [''];
@@ -199,36 +205,35 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       this.upload.arAttributes.push(nv);
     }
 
-//    this.creationMode = 'CSR_AVAILABLE';
+    //    this.creationMode = 'CSR_AVAILABLE';
     this.upload.containerType = 'PKCS_12';
     this.keyAlgoLength = 'RSA_2048';
   }
 
   public buildCommandLine(): string {
-
     let cmdline = '';
 
     let nvSAN: INamedValues;
 
     for (const nv of this.upload.certificateAttributes) {
-      if ( nv.name === 'SAN') {
+      if (nv.name === 'SAN') {
         nvSAN = nv;
         break;
       }
     }
 
     let algo = 'undefined';
-    if ( this.keyAlgoLength.startsWith('RSA')) {
-      algo =  'RSA';
+    if (this.keyAlgoLength.startsWith('RSA')) {
+      algo = 'RSA';
     }
     let keyLen = '2048';
-    if ( this.keyAlgoLength.endsWith('4096')) {
+    if (this.keyAlgoLength.endsWith('4096')) {
       keyLen = '4096';
     }
     //
     // java keytool
     //
-    if ( this.creationTool === 'keytool') {
+    if (this.creationTool === 'keytool') {
       cmdline = 'keytool -genkeypair -keyalg ' + algo;
       cmdline += ' -keysize ' + keyLen;
 
@@ -236,20 +241,20 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
       let dname = '';
       for (const nv of this.upload.certificateAttributes) {
-          const name = nv.name;
-          if ( name === 'SAN') {
-            // handle SANS specially, see below
-            continue;
-          }
+        const name = nv.name;
+        if (name === 'SAN') {
+          // handle SANS specially, see below
+          continue;
+        }
 
-          for (const value of nv.values) {
-            if ( value.length > 0) {
-              if ( dname.length > 0) {
-                dname += ', ';
-              }
-              dname += name + '=' + value;
+        for (const value of nv.values) {
+          if (value.length > 0) {
+            if (dname.length > 0) {
+              dname += ', ';
             }
+            dname += name + '=' + value;
           }
+        }
       }
       cmdline += ' -dname "' + dname + '"\n\n';
 
@@ -258,18 +263,18 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       if (nvSAN !== undefined && nvSAN.values.length > 0 && nvSAN.values[0].length > 0) {
         let sans = '';
         for (const san of nvSAN.values) {
-          if ( san.length > 0) {
-            if ( sans.length > 0) {
+          if (san.length > 0) {
+            if (sans.length > 0) {
               sans += ',';
             }
-            if ( san.includes(':')) {
+            if (san.includes(':')) {
               sans += san;
             } else {
               sans += 'dns:' + san;
             }
           }
         }
-        if ( sans.length > 0) {
+        if (sans.length > 0) {
           cmdline += ' -ext "SAN=' + sans + '"';
         }
       }
@@ -283,18 +288,18 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
       let subject = '';
       for (const nv of this.upload.certificateAttributes) {
-          const name = nv.name;
-          if ( name === 'SAN') {
-            // handle SANS specially, see below
-            continue;
+        const name = nv.name;
+        if (name === 'SAN') {
+          // handle SANS specially, see below
+          continue;
+        }
+        for (const value of nv.values) {
+          if (value.length > 0) {
+            subject += '/' + name.toUpperCase() + '=' + value;
           }
-          for (const value of nv.values) {
-            if ( value.length > 0) {
-              subject += '/' + name.toUpperCase() + '=' + value;
-            }
-          }
+        }
       }
-      if ( subject.length > 0) {
+      if (subject.length > 0) {
         cmdline += '"' + subject + '"';
       }
 
@@ -303,12 +308,12 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
         let sans = '';
         let idx = 1;
         for (const san of nvSAN.values) {
-          if ( san.length > 0) {
-            if ( sans.length > 0) {
+          if (san.length > 0) {
+            if (sans.length > 0) {
               sans += ',';
             }
             const parts = san.split(':', 2);
-            if ( parts.length < 2) {
+            if (parts.length < 2) {
               sans += 'DNS.' + idx + ':' + san;
             } else {
               sans += parts[0] + '.' + idx + ':' + parts[1];
@@ -320,49 +325,44 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       }
 
       cmdline += ' -keyout private_key.pem -out server.csr';
-
     }
 
     return cmdline;
   }
 
   public notifyChange(_evt: Event): void {
-      this.contentCall(precheckUrl);
+    this.contentCall(precheckUrl);
   }
 
   // handle the selection of a file
   public notifyFileChange(evt: any): void {
-
     const self = this;
     const selectedFile = evt.target.files[0];
     const readerBase64 = new FileReader();
-      readerBase64.onload =
-        function(_result) {
-          const base64Text = readerBase64.result.toString();
+    readerBase64.onload = function(_result) {
+      const base64Text = readerBase64.result.toString();
 
-          // check, whether this is base64 encoded content
-          if ( /^[\x00-\x7F]*$/.test(base64Text) ) {
-            self.upload.content = base64Text;
-            self.contentCall(precheckUrl);
-          } else {
-            // binary, start re-reading it as base64-encoded comntent
-            const readerBinary = new FileReader();
-            readerBinary.onload =
-              function(__result) {
-                const base64Bin = readerBinary.result.toString().split(',')[1];
-                self.upload.content = base64Bin;
-                self.contentCall(precheckUrl);
-              };
-            readerBinary.readAsDataURL(selectedFile);
-          }
+      // check, whether this is base64 encoded content
+      if (/^[\x00-\x7F]*$/.test(base64Text)) {
+        self.upload.content = base64Text;
+        self.contentCall(precheckUrl);
+      } else {
+        // binary, start re-reading it as base64-encoded comntent
+        const readerBinary = new FileReader();
+        readerBinary.onload = function(__result) {
+          const base64Bin = readerBinary.result.toString().split(',')[1];
+          self.upload.content = base64Bin;
+          self.contentCall(precheckUrl);
         };
-      readerBase64.readAsText(selectedFile);
-
+        readerBinary.readAsDataURL(selectedFile);
+      }
+    };
+    readerBase64.readAsText(selectedFile);
   }
 
   // handle any changes affecting the plain content
   public uploadContent(_evt: Event): void {
-      this.contentCall(uploadUrl);
+    this.contentCall(uploadUrl);
   }
 
   // run for the backend and tell about all the bytes to process
@@ -373,7 +373,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     this.upload.keyAlgoLength = this.keyAlgoLength;
     this.upload.secret = this.secret;
 
-    if ( this.creationMode === 'CSR_AVAILABLE' && this.upload.content.trim().length === 0) {
+    if (this.creationMode === 'CSR_AVAILABLE' && this.upload.content.trim().length === 0) {
       this.precheckResponse.dataType = 'UNKNOWN';
       return;
     }
@@ -386,27 +386,28 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       console.log(this.precheckResponse.dataType);
       document.body.style.cursor = 'default';
 
-      if ( this.precheckResponse && this.precheckResponse.dataType === 'CSR' &&
-           this.precheckResponse.csrPending ) {
-        this.$router.push({name: 'CsrInfo', params: {csrId: this.precheckResponse.createdCSRId}});
+      if (this.precheckResponse && this.precheckResponse.dataType === 'CSR' && this.precheckResponse.csrPending) {
+        this.$router.push({ name: 'CsrInfo', params: { csrId: this.precheckResponse.createdCSRId } });
       }
 
-      if ( this.precheckResponse && this.precheckResponse.dataType === 'X509_CERTIFICATE_CREATED' &&
-           this.precheckResponse.certificates[0]) {
-        this.$router.push({name: 'CertInfo', params: {certificateId: this.precheckResponse.certificates[0].certificateId.toString()}});
+      if (this.precheckResponse && this.precheckResponse.dataType === 'X509_CERTIFICATE_CREATED' && this.precheckResponse.certificates[0]) {
+        this.$router.push({ name: 'CertInfo', params: { certificateId: this.precheckResponse.certificates[0].certificateId.toString() } });
       }
 
-      if ( this.precheckResponse && this.precheckResponse.certificates &&
-           this.precheckResponse.dataType === 'X509_CERTIFICATE' &&
-           this.precheckResponse.certificates[0].pemCertrificate ) {
+      if (
+        this.precheckResponse &&
+        this.precheckResponse.certificates &&
+        this.precheckResponse.dataType === 'X509_CERTIFICATE' &&
+        this.precheckResponse.certificates[0].pemCertrificate
+      ) {
         this.upload.content = this.precheckResponse.certificates[0].pemCertrificate;
 
         for (const nv of this.upload.certificateAttributes) {
-          if ( nv.name === 'SAN') {
+          if (nv.name === 'SAN') {
             nv.values = this.precheckResponse.certificates[0].sans;
           } else {
             for (const subjectPart of this.precheckResponse.certificates[0].subjectParts) {
-              if ( subjectPart.name.toUpperCase() === nv.name.toUpperCase()) {
+              if (subjectPart.name.toUpperCase() === nv.name.toUpperCase()) {
                 nv.values = subjectPart.values;
               }
             }
@@ -421,11 +422,11 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       this.responseStatus = error.response.status;
       const message = this.$t('problem processing request: ' + error);
       this.alertService().showAlert(message, 'info');
-
     }
   }
 
   public mounted(): void {
+    this.getPreference();
     this.fillPipelineData();
   }
 
@@ -437,46 +438,51 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       method: 'get',
       url: 'api/pipeline/getWebPipelines',
       responseType: 'stream'
-    })
-    .then(function(response) {
-      window.console.info('getWebPipelines returns ' + response.data );
+    }).then(function(response) {
+      window.console.info('getWebPipelines returns ' + response.data);
       self.allWebPipelines = response.data;
-      if ( self.allWebPipelines.length > 0 ) {
+      if (self.allWebPipelines.length > 0) {
         self.upload.pipelineId = self.allWebPipelines[0].id;
         self.updatePipelineRestrictionsByPipelineInfo(self.allWebPipelines[0]);
       }
     });
   }
 
+  public getPreference(): void {
+    window.console.info('calling getPreference');
+    const self = this;
+
+    axios({
+      method: 'get',
+      url: 'api/admin/preference/1', // 1 represents system settings
+      responseType: 'stream'
+    }).then(function(response) {
+      window.console.info('getPreference returns ' + response.data);
+      self.preferences = response.data;
+    });
+  }
+
   public showCSRRelatedArea(): boolean {
-//    window.console.info('pipelineId : ' + this.upload.pipelineId );
-    if ( this.precheckResponse &&
-      this.precheckResponse.dataType === 'CSR' &&
-      this.authenticated ) {
-        return true;
-    }
-    return false;
+    //    window.console.info('pipelineId : ' + this.upload.pipelineId );
+    return this.precheckResponse && this.precheckResponse.dataType === 'CSR' && this.authenticated;
   }
 
   public showCertificateUpload(): boolean {
-    if ( this.precheckResponse &&
-         ( this.precheckResponse.dataType === 'X509_CERTIFICATE' || this.precheckResponse.dataType === 'CONTAINER' ) &&
-        (this.isRAOfficer() || this.isAdmin()) ) {
+    if (
+      this.precheckResponse &&
+      (this.precheckResponse.dataType === 'X509_CERTIFICATE' || this.precheckResponse.dataType === 'CONTAINER') &&
+      (this.isRAOfficer() || this.isAdmin())
+    ) {
       return !this.precheckResponse.certificates[0].certificatePresentInDB;
     }
     return false;
   }
 
   public disableCertificateRequest(): boolean {
-
     if (this.creationMode === 'CSR_AVAILABLE') {
-      if (this.precheckResponse.csrPublicKeyPresentInDB ) {
-        return true;
-      }
-      return false;
-
+      return this.precheckResponse.csrPublicKeyPresentInDB;
     } else if (this.creationMode === 'SERVERSIDE_KEY_CREATION') {
-      window.console.info('upload.secret : "' + this.secret + '" , secretRepeat : "' + this.secretRepeat + '"' );
+      window.console.info('upload.secret : "' + this.secret + '" , secretRepeat : "' + this.secretRepeat + '"');
       if (this.secret.trim() === this.secretRepeat.trim()) {
         return false;
       }
@@ -484,12 +490,12 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     return true;
   }
 
-  public currentPipelineInfo( pipelineId: number): string {
-    window.console.info('currentPipelineInfo : ' + pipelineId );
+  public currentPipelineInfo(pipelineId: number): string {
+    window.console.info('currentPipelineInfo : ' + pipelineId);
 
-    for ( let i = 0; i < this.allWebPipelines.length; i++ ) {
-      window.console.info('checking pipelineId : ' + pipelineId );
-      if ( pipelineId === this.allWebPipelines[i].id ) {
+    for (let i = 0; i < this.allWebPipelines.length; i++) {
+      window.console.info('checking pipelineId : ' + pipelineId);
+      if (pipelineId === this.allWebPipelines[i].id) {
         return this.allWebPipelines[i].description;
       }
     }
@@ -506,7 +512,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
   public hasRole(targetRole: string) {
     for (const role of this.$store.getters.account.authorities) {
-      if ( targetRole === role) {
+      if (targetRole === role) {
         return true;
       }
     }
@@ -518,7 +524,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   }
 
   public updateValue(key, value) {
-    window.console.info('updateValue for ' + key );
+    window.console.info('updateValue for ' + key);
     this.$emit('change', { ...this.upload, [key]: value });
   }
 }

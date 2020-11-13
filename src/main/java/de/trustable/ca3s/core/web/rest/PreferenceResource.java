@@ -10,6 +10,7 @@ import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +38,9 @@ public class PreferenceResource {
 
 	private final Logger log = LoggerFactory.getLogger(PreferenceResource.class);
 
+	@Autowired
+    private PreferenceUtil preferenceUtil;
+
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
@@ -59,54 +63,12 @@ public class PreferenceResource {
     @GetMapping("/preference/{userId}")
     public ResponseEntity<Preferences> getPreference(@PathVariable Long userId) {
 
-    	Preferences prefs = getPrefs(userId);
+    	Preferences prefs = preferenceUtil.getPrefs(userId);
 
    		return new ResponseEntity<Preferences>(prefs, HttpStatus.OK);
     }
 
 
-
-	private Preferences getPrefs(Long userId) {
-		Preferences prefs = new Preferences();
-
-        log.debug("REST request to get Preference for user {}", userId);
-        List<UserPreference> upList = userPreferenceService.findAllForUserId(userId);
-
-        for(UserPreference up: upList) {
-        	String name = up.getName();
-        	if( PreferenceUtil.SERVER_SIDE_KEY_CREATION_ALLOWED.equals(name)) {
-        		prefs.setServerSideKeyCreationAllowed(Boolean.valueOf(up.getContent()));
-        	} else if( PreferenceUtil.ACME_HTTP01_CALLBACK_PORTS.equals(name)) {
-                String[] portArr = up.getContent().split(",");
-                ArrayList<Integer> portList = new ArrayList();
-                for( String port: portArr){
-                    if( "0".equals(port)){
-                        continue;
-                    }
-                    try {
-                        portList.add(Integer.parseInt(port));
-                    } catch(NumberFormatException nfe){
-                        log.info("unexpected value for ACME_HTTP01_CALLBACK_PORT '{}'", port);
-                    }
-                }
-                int[] portIntArr = new int[portList.size()];
-                for( int i =0; i < portList.size(); i++){
-                    portIntArr[i] = portList.get(i);
-                }
-        	    prefs.setAcmeHTTP01CallbackPortArr(portIntArr);
-        	} else if( PreferenceUtil.ACME_HTTP01_TIMEOUT_MILLI_SEC.equals(name)) {
-        		try {
-        			prefs.setAcmeHTTP01TimeoutMilliSec(Long.parseLong(up.getContent()));
-        		} catch(NumberFormatException nfe) {
-        	        log.warn("unexpected Preference value for ACME_HTTP01_TIMEOUT_MILLI_SEC '{}'", nfe.getMessage());
-        			prefs.setAcmeHTTP01TimeoutMilliSec(2000);
-        		}
-        	} else if( PreferenceUtil.CHECK_CRL.equals(name)) {
-        		prefs.setCheckCRL(Boolean.valueOf(up.getContent()));
-        	}
-        }
-		return prefs;
-	}
 
     /**
      * {@code PUT  /preference} : Update the preference.
@@ -118,11 +80,11 @@ public class PreferenceResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/preference/{userId}")
-    public ResponseEntity<Preferences> updatePreference(@Valid @RequestBody Preferences preferences, @PathVariable Long userId) throws URISyntaxException {
+    public ResponseEntity<Preferences> updatePreference(@Valid @RequestBody Preferences preferences, @PathVariable Long userId) {
 
         log.debug("REST request to update Preferences for user {} : {}", userId, preferences);
 
-    	Preferences oldPrefs = getPrefs(userId);
+    	Preferences oldPrefs = preferenceUtil.getPrefs(userId);
 
         if(preferences.getAcmeHTTP01TimeoutMilliSec() < 100  || preferences.getAcmeHTTP01TimeoutMilliSec() > 60L * 1000L) {
 	        log.warn("unexpected Preference value for ACME_HTTP01_TIMEOUT_MILLI_SEC '{}'", preferences.getAcmeHTTP01TimeoutMilliSec());

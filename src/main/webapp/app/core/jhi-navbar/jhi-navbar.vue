@@ -8,10 +8,10 @@
                 <span v-text="$t('global.title')" class="navbar-title">ca3s</span> <span class="navbar-version">{{version}}</span>
             </b-navbar-brand>
              <b-navbar-brand class="logo float-left" b-link to="/" v-if="authenticated">
-                <span v-if="username" v-text="$t('home.logged.message', { 'username': username, 'roles': roles})" class="navbar-version">"{{username}}", You are logged in as "{{roles}}"</span> 
+                <span v-if="username" v-text="$t('home.logged.message', { 'username': username, 'roles': roles})" class="navbar-version">"{{username}}", You are logged in as "{{roles}}"</span>
             </b-navbar-brand>
         </div>
-        
+
         <b-collapse is-nav id="header-tabs">
             <b-navbar-nav class="ml-auto">
 
@@ -21,28 +21,28 @@
                         <span v-text="$t('global.menu.home')">Home</span>
                     </span>
                 </b-nav-item>
-                
+
                 <b-nav-item v-if="!authenticated" to="/pkcsxx" exact>
                     <span>
                         <font-awesome-icon icon="stethoscope" />
                         <span v-text="$t('global.menu.check')">Check</span>
                     </span>
                 </b-nav-item>
-                
+
                 <b-nav-item v-if="authenticated" to="/pkcsxx" exact>
                     <span>
                         <font-awesome-icon icon="cart-plus" />
                         <span v-text="$t('global.menu.request')">Request</span>
                     </span>
                 </b-nav-item>
-                
+
                 <b-nav-item v-if="authenticated" to="/cert-list" exact>
                     <span>
                         <font-awesome-icon icon="id-card" />
                         <span v-text="$t('global.menu.certificates')">Certificates</span>
                     </span>
                 </b-nav-item>
-                
+
                 <b-nav-item v-if="authenticated" to="/csr-list" exact>
                     <span>
                         <font-awesome-icon icon="gavel" />
@@ -52,8 +52,13 @@
 
                 <b-nav-item-dropdown
                     id="config-menu"
-                    v-if="authenticated"
+                    v-if="hasAnyAuthority('ROLE_ADMIN')"
                     active-class="active" class="pointer">
+
+                    <b-dropdown-item to="/preference">
+                        <font-awesome-icon icon="list" />
+                        <span v-text="$t('global.menu.admin.preference')">Preference</span>
+                    </b-dropdown-item>
 
                     <span slot="button-content" class="navbar-dropdown-menu">
                         <font-awesome-icon icon="th-list" />
@@ -69,16 +74,7 @@
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.config.pipeline')">Pipeline</span>
                     </b-dropdown-item>
-                </b-nav-item-dropdown>
 
-                <b-nav-item-dropdown
-                    id="entity-menu"
-                    v-if="authenticated"
-                    active-class="active" class="pointer">
-                    <span slot="button-content" class="navbar-dropdown-menu">
-                        <font-awesome-icon icon="th-list" />
-                        <span v-text="$t('global.menu.entities.main')">Entities</span>
-                    </span>
                     <!--b-dropdown-item to="/ca-connector-config">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.caConnectorConfig')">CAConnectorConfig</span>
@@ -183,11 +179,7 @@
                         <font-awesome-icon icon="user-plus" />
                         <span v-text="$t('global.menu.admin.main')">Administration</span>
                     </span>
-                    
-                    <b-dropdown-item to="/preference">
-                        <font-awesome-icon icon="list" />
-                        <span v-text="$t('global.menu.admin.preference')">Preference</span>
-                    </b-dropdown-item>
+
                     <b-dropdown-item to="/admin/user-management">
                         <font-awesome-icon icon="user" />
                         <span v-text="$t('global.menu.admin.userManagement')">User management</span>

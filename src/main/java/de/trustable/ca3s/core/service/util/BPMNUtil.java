@@ -104,13 +104,13 @@ public class BPMNUtil{
 
 
 	/**
-	 *
-	 * @param csr
-	 * @return
+	 * Build a certificate object from a CSR
+	 * @param csr the given CSR object
+	 * @return the created certificate
 	 */
 	public Certificate startCertificateCreationProcess(CSR csr)  {
 
-		CAConnectorConfig caConfig = null;
+		CAConnectorConfig caConfig;
 		BPNMProcessInfo pi = null;
 
 		if( csr.getPipeline() == null) {
@@ -124,11 +124,13 @@ public class BPMNUtil{
 		return startCertificateCreationProcess(csr, caConfig, pi);
 	}
 
-	/**
-	 *
-	 * @param csr
-	 * @return
-	 */
+    /**
+     *
+     * @param csr the given CSR object
+     * @param caConfig the ca and its configuration
+     * @param processInfo the BPMN process to be excecuted
+     * @return the created certificate
+     */
 	public Certificate startCertificateCreationProcess(CSR csr, CAConnectorConfig caConfig, BPNMProcessInfo processInfo)  {
 
 		String status = "Failed";
@@ -148,7 +150,7 @@ public class BPMNUtil{
 			if(processName != null && (processName.trim().length() > 0 )) {
 				// BPNM call
 				try {
-					Map<String, Object> variables = new HashMap<String,Object>();
+					Map<String, Object> variables = new HashMap<>();
 					variables.put("csrId", csr.getId());
 					variables.put("csr", csr);
 					variables.put("caConfigId", caConfig.getId());
@@ -160,7 +162,6 @@ public class BPMNUtil{
 		            processInstanceId = processInstance.getId();
 		            LOG.info("ProcessInstance: {}", processInstanceId);
 
-		            certificateId = processInstance.getVariables().get("certificateId").toString();
 		            certificate = (Certificate)processInstance.getVariables().get("certificate");
 		            status = processInstance.getVariables().get("status").toString();
 
@@ -260,7 +261,7 @@ public class BPMNUtil{
 			if(processName != null && (processName.trim().length() > 0 )) {
 				// BPNM call
 				try {
-					Map<String, Object> variables = new HashMap<String,Object>();
+					Map<String, Object> variables = new HashMap<>();
 					variables.put("action", "Revoke");
 					variables.put("caConfigId", caConnectorId);
 					variables.put("status", "Failed");
