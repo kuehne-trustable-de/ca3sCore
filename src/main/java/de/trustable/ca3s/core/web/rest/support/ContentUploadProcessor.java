@@ -147,6 +147,7 @@ public class ContentUploadProcessor {
 
         PkcsXXData p10ReqData = new PkcsXXData();
         try {
+            // try to read a DER encoded, non-PEM certificate and convert it to PEM
             try {
                 CertificateFactory factory = CertificateFactory.getInstance("X.509");
                 X509Certificate cert = (X509Certificate) factory.generateCertificate(new ByteArrayInputStream(Base64.decode(content)));
@@ -156,6 +157,7 @@ public class ContentUploadProcessor {
                 LOG.debug("certificate parsing from base64 (non-pem) content failed: " + gse.getMessage());
             }
 
+            // try to read the content as a PEM certificate
             X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(content);
             List<Certificate> certList = findCertificateByIssuerSerial(certHolder);
             if(!certList.isEmpty()){
@@ -164,6 +166,7 @@ public class ContentUploadProcessor {
                 return new ResponseEntity<>(HttpStatus.CONFLICT);
             }
 
+            // insert or read a certificate and return Certificate object
             Certificate cert = insertCertificate(content, requestorName);
 
             // certificate inserted into the db
@@ -195,7 +198,7 @@ public class ContentUploadProcessor {
                 if(csrList.isEmpty()) {
 
                     Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
-                    CSR csr = startCertificateCreationProcess(content, p10ReqData, requestorName, uploaded.getRequestorcomment(), optPipeline );
+                    CSR csr = startCertificateCreationProcess(content, p10ReqData, requestorName, uploaded.getRequestorcomment(), uploaded.getArAttributes(), optPipeline );
                     if( csr != null ){
                         Certificate cert = csr.getCertificate();
                         if( cert != null) {
@@ -378,7 +381,7 @@ public class ContentUploadProcessor {
             PkcsXXData p10ReqData = new PkcsXXData(p10ReqHolderShallow);
 
             Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
-            CSR csr = startCertificateCreationProcess(csrAsPem, p10ReqData, requestorName, uploaded.getRequestorcomment(), optPipeline );
+            CSR csr = startCertificateCreationProcess(csrAsPem, p10ReqData, requestorName, uploaded.getRequestorcomment(), uploaded.getArAttributes(), optPipeline );
             if( csr != null ){
                 csr.setServersideKeyGeneration(true);
                 csrRepository.save(csr);
@@ -427,7 +430,7 @@ public class ContentUploadProcessor {
 
 
 
-	private CSR startCertificateCreationProcess(final String csrAsPem, PkcsXXData p10ReqData, final String requestorName, String requestorComment, Optional<Pipeline> optPipeline )  {
+	private CSR startCertificateCreationProcess(final String csrAsPem, PkcsXXData p10ReqData, final String requestorName, String requestorComment, NamedValues[] nvArr, Optional<Pipeline> optPipeline )  {
 
 		if( optPipeline.isPresent()) {
 
@@ -435,7 +438,7 @@ public class ContentUploadProcessor {
 
 		    List<String> messageList = new ArrayList<>();
 
-			CSR csr = cpUtil.buildCSR(csrAsPem, requestorName, AuditUtil.AUDIT_WEB_CERTIFICATE_REQUESTED, requestorComment, pipeline, messageList );
+			CSR csr = cpUtil.buildCSR(csrAsPem, requestorName, AuditUtil.AUDIT_WEB_CERTIFICATE_REQUESTED, requestorComment, pipeline, nvArr, messageList );
 
 			p10ReqData.setMessages(messageList.toArray(new String[messageList.size()]));
 

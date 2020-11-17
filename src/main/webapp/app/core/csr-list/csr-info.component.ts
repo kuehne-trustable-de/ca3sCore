@@ -1,4 +1,5 @@
-import { Component, Inject } from 'vue-property-decorator';
+import { Component, Inject, Vue } from 'vue-property-decorator';
+import { Fragment } from 'vue-fragment';
 
 import axios from 'axios';
 
@@ -8,17 +9,26 @@ import AlertService from '@/shared/alert/alert.service';
 
 import { ICSRAdministrationData } from '@/shared/model/transfer-object.model';
 
+import ArItem from './ar-item.component';
+
 import { ICSR } from '@/shared/model/csr.model';
 import CSRService from '../../entities/csr/csr.service';
 import { ICsrAttribute } from '@/shared/model/csr-attribute.model';
 
-@Component
-export default class CsrInfo extends mixins(JhiDataUtils) {
+@Component({
+  components: {
+    ArItem,
+    Fragment
+  }
+})
+export default class CsrInfo extends mixins(JhiDataUtils, Vue) {
   @Inject('alertService') private alertService: () => AlertService;
   @Inject('cSRService') private cSRService: () => CSRService;
   public cSR: ICSR = {};
 
   public csrAdminData: ICSRAdministrationData = {};
+
+  public arAttributes: ICsrAttribute[] = [];
 
   public requestorComment = '';
 
@@ -47,7 +57,9 @@ export default class CsrInfo extends mixins(JhiDataUtils) {
       .find(csrId)
       .then(res => {
         this.cSR = res;
-        window.console.info('csr :' + this.cSR.status );
+        window.console.info('csr :' + this.cSR.status);
+        this.requestorComment = this.getRequestorComment();
+        this.arAttributes = this.getArAttributes();
       });
   }
 
@@ -56,22 +68,45 @@ export default class CsrInfo extends mixins(JhiDataUtils) {
   }
 
   public mounted(): void {
+    window.console.info('in mounted()) ');
     this.requestorComment = this.getRequestorComment();
+    this.arAttributes = this.getArAttributes();
   }
 
   public getRequestorComment(): string {
-
-    if ( this.cSR.csrAttributes === undefined) {
+    if (this.cSR.csrAttributes === undefined) {
       return '';
     }
 
-    for ( let i = 0; i < this.cSR.csrAttributes.length; i++ ) {
-      window.console.info('checking csrAttribute : ' + i );
-      if ( this.cSR.csrAttributes[i].name === 'REQUESTOR_COMMENT' ) {
+    for (let i = 0; i < this.cSR.csrAttributes.length; i++) {
+      window.console.info('checking csrAttribute : ' + i);
+      if (this.cSR.csrAttributes[i].name === 'REQUESTOR_COMMENT') {
         return this.cSR.csrAttributes[i].value;
       }
     }
     return '';
+  }
+
+  public getArAttributes(): ICsrAttribute[] {
+    let resultArr: ICsrAttribute[] = new Array<ICsrAttribute>();
+
+    if (this.cSR.csrAttributes === undefined) {
+      return resultArr;
+    }
+
+    const pas = this.cSR.pipeline.pipelineAttributes;
+    for (let i = 0; i < this.cSR.csrAttributes.length; i++) {
+      window.console.info('checking csrAttribute : ' + i);
+      const attr = this.cSR.csrAttributes[i];
+      for (let j = 0; j < pas.length; j++) {
+        if (pas[j].name.startsWith('RESTR_ARA_') && pas[j].value === attr.name) {
+          resultArr.push(attr);
+          window.console.info('AR attr.name : ' + attr.name);
+          break;
+        }
+      }
+    }
+    return resultArr;
   }
 
   public async withdrawCSR() {
@@ -107,26 +142,27 @@ export default class CsrInfo extends mixins(JhiDataUtils) {
     axios({
       method: 'post',
       url: adminUrl,
-      data : this.csrAdminData,
+      data: this.csrAdminData,
       responseType: 'stream'
     })
-    .then(function(response) {
-      console.log(response.status);
+      .then(function(response) {
+        console.log(response.status);
 
-      if ( response.status === 201) {
-        self.$router.push({name: 'CertInfo', params: {certificateId: response.data.toString()}});
-      } else {
+        if (response.status === 201) {
+          self.$router.push({ name: 'CertInfo', params: { certificateId: response.data.toString() } });
+        } else {
+          self.previousState();
+        }
+      })
+      .catch(function(error) {
+        console.log(error);
         self.previousState();
-      }
-    }).catch(function(error) {
-      console.log(error);
-      self.previousState();
-      const message = self.$t('problem processing request: ' + error);
-      self.alertService().showAlert(message, 'info');
-
-    }).then(function() {
-      // always executed
-      document.body.style.cursor = 'default';
-    });
+        const message = self.$t('problem processing request: ' + error);
+        self.alertService().showAlert(message, 'info');
+      })
+      .then(function() {
+        // always executed
+        document.body.style.cursor = 'default';
+      });
   }
 }

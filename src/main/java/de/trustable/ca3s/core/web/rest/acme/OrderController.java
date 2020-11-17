@@ -40,6 +40,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import de.trustable.ca3s.core.web.rest.data.NamedValues;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
@@ -108,19 +109,19 @@ public class OrderController extends ACMEController {
 
 	@Autowired
 	private CertificateProcessingUtil cpUtil;
-	
+
     @RequestMapping(value = "/{orderId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
     public ResponseEntity<?> postAsGetOrder(@RequestBody final String requestBody,
   		  @PathVariable final long orderId, @PathVariable final String realm) {
-  	  
+
     	LOG.info("Received read order request for orderId {}", orderId);
       	try {
       		JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
 
     		ACMEAccount acctDao = checkJWTSignatureForAccount(context, realm);
-    		
+
       	    final HttpHeaders additionalHeaders = buildNonceHeader();
-      	    
+
       		List<AcmeOrder> orderList = orderRepository.findByOrderId(orderId);
       		if(orderList.isEmpty()) {
       			LOG.debug("reading attempt for non-existing orderId {}", orderId);
@@ -128,10 +129,10 @@ public class OrderController extends ACMEController {
       		}else {
       			AcmeOrder orderDao = orderList.get(0);
       			if( !orderDao.getAccount().equals(acctDao) ) {
-      	      		LOG.error("Account idenfied by key (accound {}) does not match account of requested order", acctDao, orderDao.getAccount());
+      	      		LOG.error("Account idenfied by key (accound {}) does not match account {} of requested order", acctDao, orderDao.getAccount());
       		        return ResponseEntity.badRequest().build();
       			}
-      			
+
       			UriComponentsBuilder baseUriBuilder = fromCurrentRequestUri().path("/../..");
       			return buildOrderResponse(additionalHeaders, orderDao, baseUriBuilder, true);
       		}
@@ -139,13 +140,13 @@ public class OrderController extends ACMEController {
     	    return buildProblemResponseEntity(e);
       	}
     }
-    
+
     @RequestMapping(value = "/finalize/{orderId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
     public ResponseEntity<?> finalizeOrder(@RequestBody final String requestBody,
   		  @PathVariable final long orderId, @PathVariable final String realm) {
-  	  
+
   	LOG.info("Received finalize order request ");
-  	
+
 	// check for existence of a pipeline for the realm
   	Pipeline pipeline = getPipelineForRealm(realm);
 
@@ -154,28 +155,28 @@ public class OrderController extends ACMEController {
   		FinalizeRequest finalizeReq = jwtUtil.getFinalizeReq(context.getJwtClaims());
 
 		ACMEAccount acctDao = checkJWTSignatureForAccount(context, realm);
-  		
+
 		/*
 		 * parse the CSR included in the finalize request
 		 */
   		String csrAsString = finalizeReq.getCsr();
   	  	LOG.debug("csr received: " + csrAsString);
-  	  	
+
   	  	byte[] csrByte = Base64Url.decode(csrAsString);
   	  	Pkcs10RequestHolder p10Holder = cryptoUtil.parseCertificateRequest(csrByte);
 
   	  	LOG.debug("csr decoded: " + p10Holder);
-  	  
+
   	  	/*
   	  	 * retrieve all the requested SANs contained in the CSR
   	  	 */
   	  	Set<String> snSet = new HashSet<>();
-  	  
-  	  	// consider subject's CN as a possible source of names to verified 
+
+  	  	// consider subject's CN as a possible source of names to verified
   	  	for( RDN rdn: p10Holder.getSubjectRDNs()) {
 
   	  	  	for( AttributeTypeAndValue atv: rdn.getTypesAndValues()) {
-  	  	  		
+
   	  	  		if( BCStyle.CN.equals(atv.getType())) {
   	  	  			String cnValue = atv.getValue().toString();
   	  	  			LOG.debug("cn found in CSR: " + cnValue);
@@ -183,15 +184,15 @@ public class OrderController extends ACMEController {
   	  	  		}
   	  	  	}
   	  	}
-  	  	
-  	  	// add all SANs as source of names to verified 
+
+  	  	// add all SANs as source of names to verified
   	    for( Attribute csrAttr : p10Holder.getReqAttributes()) {
-  	    	
+
             String attrOid = csrAttr.getAttrType().getId();
             String attrReadableName = OidNameMapper.lookupOid(attrOid);
 
             if( PKCSObjectIdentifiers.pkcs_9_at_extensionRequest.equals(csrAttr.getAttrType()) ) {
-            	
+
             	LOG.debug("CSR contains extensionRequest");
                 retrieveSANFromCSRAttribute(snSet, csrAttr);
 
@@ -204,7 +205,7 @@ public class OrderController extends ACMEController {
             }
 
   	    }
-  	    
+
   	    /*
   	     * Prepare the response header, e.g. add a nonce
   	     */
@@ -223,7 +224,7 @@ public class OrderController extends ACMEController {
   			 * does the order correlate to the Account selected by the JWT
   			 */
   			if( !orderDao.getAccount().equals(acctDao) ) {
-  	      		LOG.error("Account idenfied by key (accound {}) does not match account of requested order", acctDao, orderDao.getAccount());
+  	      		LOG.error("Account idenfied by key (accound {}) does not match account {} of requested order", acctDao, orderDao.getAccount());
   		        return ResponseEntity.badRequest().build();
   			}
 
@@ -233,12 +234,12 @@ public class OrderController extends ACMEController {
   			 */
   			if( (orderDao.getStatus() == AcmeOrderStatus.PENDING) || (orderDao.getStatus() == AcmeOrderStatus.PROCESSING )) {
   				if( orderDao.getExpires().isBefore(Instant.now()) ) {
-					LOG.debug("pending order {} expired on ", orderDao.getOrderId(), orderDao.getExpires().toString());
+					LOG.debug("pending order {} expired on {}", orderDao.getOrderId(), orderDao.getExpires().toString());
   			  	  	orderDao.setStatus(AcmeOrderStatus.INVALID);
 				} else {
 
 					boolean orderReady = true;
-					
+
 					for(String san: snSet) {
 						boolean bSanFound = false;
 						for (AcmeAuthorization authDao : orderDao.getAcmeAuthorizations()) {
@@ -254,13 +255,13 @@ public class OrderController extends ACMEController {
 		  			  	  	break;
 						}
 					}
-					
+
 					if (orderReady) {
 						/*
 						 * check all authorizations having at least one successfully validated challenge
 						 */
 						for (AcmeAuthorization authDao : orderDao.getAcmeAuthorizations()) {
-	
+
 							boolean authReady = false;
 							for (AcmeChallenge challDao : authDao.getChallenges()) {
 								if (challDao.getStatus() == ChallengeStatus.VALID) {
@@ -279,11 +280,11 @@ public class OrderController extends ACMEController {
 							}
 						}
 					}
-					
+
 					if (orderReady) {
 						LOG.debug("order status {} changes to ready for order {}", orderDao.getStatus(), orderDao.getOrderId());
 						orderDao.setStatus(AcmeOrderStatus.READY);
-						
+
 					  	LOG.debug("order {} status 'ready', producing certificate", orderDao.getOrderId());
 				  	  	startCertificateCreationProcess(orderDao, pipeline, "ACME_ACCOUNT_" + acctDao.getAccountId(), CryptoUtil.pkcs10RequestToPem( p10Holder.getP10Req()));
 
@@ -302,13 +303,13 @@ public class OrderController extends ACMEController {
   	  		if((orderDao.getStatus() == AcmeOrderStatus.READY) && (orderDao.getCertificate() == null)){
 			  	LOG.debug("order {} status 'ready', producing certificate", orderDao.getOrderId());
   			}
-  			
+
   			boolean valid = true;
   			UriComponentsBuilder baseUriBuilder = fromCurrentRequestUri().path("../../../..");
-  			
+
   			return buildOrderResponse(additionalHeaders, orderDao, baseUriBuilder, valid);
   		}
-  		
+
 	} catch (AcmeProblemException e) {
 	    return buildProblemResponseEntity(e);
 	} catch (IOException | GeneralSecurityException e) {
@@ -323,19 +324,19 @@ public class OrderController extends ACMEController {
 			final UriComponentsBuilder baseUriBuilder,
 			boolean valid) {
 
-		
-		Set<String> authorizationsResp = new HashSet<String>();
+
+		Set<String> authorizationsResp = new HashSet<>();
 		for( AcmeAuthorization authDao: orderDao.getAcmeAuthorizations()) {
 			UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(baseUriBuilder.build().normalize().toUri());
 			authorizationsResp.add(locationUriOfAuth(authDao.getAcmeAuthorizationId(), uriBuilder).toString());
 		}
-		
+
 		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(baseUriBuilder.build().normalize().toUri());
 		LOG.debug("uriBuilder: {}", uriBuilder.toUriString());
-		
+
 		String finalizeUrl = uriBuilder.path(ORDER_RESOURCE_MAPPING).path("/finalize/").path(Long.toString(orderDao.getOrderId())).build().toUriString();
 		LOG.debug("order request finalize url: {}", finalizeUrl);
-		
+
 		String certificateUrl = null;
 		if( orderDao.getCertificate() != null) {
 			long certId = orderDao.getCertificate().getId();
@@ -347,9 +348,9 @@ public class OrderController extends ACMEController {
 		OrderResponse orderResp = new OrderResponse(orderDao, authorizationsResp, finalizeUrl, certificateUrl);
 
 		if( LOG.isDebugEnabled()) {
-			LOG.debug("order response for verified {} request: {}", jwtUtil.getOrderResponseAsJSON(orderResp));
+			LOG.debug("order response for verified request: {}", jwtUtil.getOrderResponseAsJSON(orderResp));
 		}
-		
+
 		if( valid ) {
 //  				URI authUri = locationUriOfAuthorization(challengeDao.getAuthorization().getAuthorizationId(), baseUriBuilder);
 //  			    additionalHeaders.set("Link", "<" + authUri.toASCIIString() + ">;rel=\"up\"");
@@ -359,12 +360,13 @@ public class OrderController extends ACMEController {
 		}
 	}
 
-	
+
 	private Certificate startCertificateCreationProcess(AcmeOrder orderDao, Pipeline pipeline, final String requestorName, final String csrAsPem)  {
 
-	    List<String> messageList = new ArrayList<String>();
-		CSR csr = cpUtil.buildCSR(csrAsPem, requestorName, AuditUtil.AUDIT_ACME_CERTIFICATE_REQUESTED, "", pipeline, messageList );
-		
+	    List<String> messageList = new ArrayList<>();
+        NamedValues[] nvArr = new NamedValues[0];
+		CSR csr = cpUtil.buildCSR(csrAsPem, requestorName, AuditUtil.AUDIT_ACME_CERTIFICATE_REQUESTED, "", pipeline, nvArr, messageList );
+
 		if( csr == null) {
 			LOG.info("building CSR failed");
 			String msg = "";
@@ -375,10 +377,10 @@ public class OrderController extends ACMEController {
 					BAD_REQUEST, "", ACMEController.NO_INSTANCE);
 			throw new AcmeProblemException(problem);
 		}
-		
+
 		Certificate cert = cpUtil.processCertificateRequest(csr, requestorName, AuditUtil.AUDIT_ACME_CERTIFICATE_CREATED, pipeline );
 
-		
+
 
 		if( cert == null) {
 			orderDao.setStatus(AcmeOrderStatus.INVALID);
@@ -387,17 +389,17 @@ public class OrderController extends ACMEController {
 			LOG.debug("updating order id {} with new certificate id {}", orderDao.getOrderId(), cert.getId());
 			orderDao.setCertificate(cert);
 			orderDao.setStatus(AcmeOrderStatus.VALID);
-			
+
 			LOG.debug("adding certificate attribute 'ACME_ACCOUNT_ID' {} for certificate id {}", orderDao.getAccount().getAccountId(), cert.getId());
 			certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ACME_ACCOUNT_ID, orderDao.getAccount().getAccountId());
 			certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ACME_ORDER_ID, orderDao.getOrderId());
 		}
-		
+
 		return cert;
 
 	}
 
-	
+
     private String getASN1ValueAsString(Attribute attr) {
         return  getASN1ValueAsString(attr.getAttrValues().toArray());
     }
@@ -414,11 +416,11 @@ public class OrderController extends ACMEController {
     }
 
     private void retrieveSANFromCSRAttribute(Set<String> sanSet, Attribute attrExtension ){
-    	
+
   	  	Set<GeneralName> generalNameSet = new HashSet<>();
 
 	    CSRUtil.retrieveSANFromCSRAttribute(generalNameSet, attrExtension );
-	    
+
         for (GeneralName gn : generalNameSet) {
         	sanSet.add(gn.getName().toString());
         }

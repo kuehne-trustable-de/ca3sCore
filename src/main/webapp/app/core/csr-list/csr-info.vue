@@ -117,6 +117,19 @@
                     <dd>
                         <span>{{cSR.subjectPublicKeyInfoBase64}}</span>
                     </dd-->
+
+                <!--ArItem v-for="attr in arAttributes" :key="attr.name" arAttribute="attr" /-->
+
+
+                    <Fragment v-for="attr in arAttributes" :key="attr.name">
+                        <dt>
+                            <span >{{attr.name}}</span>
+                        </dt>
+                        <dd >
+                            <span >{{attr.value}}</span>
+                        </dd>
+                    </Fragment>
+
                     <dt>
                         <span v-text="$t('ca3SApp.cSR.pipeline')">Pipeline</span>
                     </dt>
@@ -137,7 +150,7 @@
                     <dd>
                         <span>{{cSR.processInstanceId}}</span>
                     </dd-->
-                    
+
                     <dt>
                         <span v-text="$t('ca3SApp.cSR.csrBase64')">Csr Base64</span>
                     </dt>
@@ -190,7 +203,7 @@
                     </button>
                 </div>
             </form>
-            
+
         </div>
     </div>
 </template>
