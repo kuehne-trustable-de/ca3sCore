@@ -1592,17 +1592,14 @@
 				        </execution>
 				      </executions>
 				    </plugin>
-		            <plugin>
-		                <groupId>org.apache.maven.plugins</groupId>
-		                <artifactId>maven-javadoc-plugin</artifactId>
-		                <version>${maven-javadoc-plugin.version}</version>
-		                <configuration>
-		                    <source>${maven.compiler.source}</source>
-		                </configuration>
-		            </plugin>
 				    <plugin>
 				      <groupId>org.apache.maven.plugins</groupId>
 				      <artifactId>maven-javadoc-plugin</artifactId>
+		                      <version>${maven-javadoc-plugin.version}</version>
+				      <configuration>
+					 <detectJavaApiLink>false</detectJavaApiLink>
+		                         <source>${maven.compiler.source}</source>
+		                      </configuration>
 				      <executions>
 				        <execution>
 				          <id>attach-javadocs</id>
