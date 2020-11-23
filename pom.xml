@@ -7,15 +7,15 @@
     <artifactId>ca-3-s</artifactId>
     <version>0.1.6</version>
     <packaging>jar</packaging>
-    
-    
+
+
     <name>ca3s core</name>
-    <description>ca3s offers a unified view and administrative interface for your certificate landscape. 
+    <description>ca3s offers a unified view and administrative interface for your certificate landscape.
     It's a CA system with a flexible RA part based on BPM. backed by a CMP-connected CA or an ADCS. Offers automatic certificate distribution interfaces (like ACME and SCEP) for CAs that don't offer such interfaces.
     Brushed-up codebase of the sourceforge's ca3s-project ([https://sourceforge.net/projects/ca3s/]</description>
     <url>https://github.com/kuehne-trustable-de/ca3sCore</url>
 
-	
+
 	<licenses>
 		<license>
 			<name>European Union Public Licence (EUPL-1.2)</name>
@@ -43,7 +43,7 @@
 		<developerConnection>https://github.com/kuehne-trustable-de/ca3sCore.git</developerConnection>
 		<url>https://github.com/kuehne-trustable-de/ca3sCore.git</url>
 	</scm>
-    
+
     <repositories>
         <!-- jhipster-needle-maven-repository -->
     </repositories>
@@ -127,15 +127,15 @@
         <junit.utReportFolder>${project.testresult.directory}/test</junit.utReportFolder>
         <junit.itReportFolder>${project.testresult.directory}/integrationTest</junit.itReportFolder>
         <!-- jhipster-needle-maven-property -->
-        
+
         <cryptoUtilVersion>1.1.3</cryptoUtilVersion>
         <certBundleVersion>1.1.0</certBundleVersion>
     	<nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
     	<adcsUtilVersion>1.2.0</adcsUtilVersion>
 		<adcsProxyClientVersion>1.2.0</adcsProxyClientVersion>
-		
+
 		<webSocketDTOVersion>0.0.1-SNAPSHOT</webSocketDTOVersion>
-		
+
         <nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
        	<jose4jVersion>0.6.5</jose4jVersion>
        	<acme4jVersion>2.8</acme4jVersion>
@@ -149,24 +149,24 @@
 
 	    <springSecurityLdapVersion>5.3.1.RELEASE</springSecurityLdapVersion>
 		<commonsValidatorVersion>1.6</commonsValidatorVersion>
-		
+
 		<typescriptGeneratorVersion>2.19.577</typescriptGeneratorVersion>
-  
+
         <!-- start-class>camunda.transformation.pipeline.CamundaTransformationPipelineApp</start-class-->
         <camunda.version>7.12.0</camunda.version>
         <!-- camunda.spring-boot.version>3.4.0</camunda.spring-boot.version-->
         <camunda.spring-boot.version>3.2.0</camunda.spring-boot.version>
 
 		<crawler4jVersion>4.4.0</crawler4jVersion>
-       
+
        	<conductorVersion>3.0.1</conductorVersion>
-       
+
         <xml.maven.saxon.version>9.7.0-18</xml.maven.saxon.version>
         <xml.maven.plugin.version>1.0.2</xml.maven.plugin.version>
-        
+
         <dependencyCheck.version>5.3.1</dependencyCheck.version>
         <dependencyCheck.skip>true</dependencyCheck.skip>
-        
+
     </properties>
 
     <dependencyManagement>
@@ -278,7 +278,7 @@
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
@@ -288,12 +288,12 @@
             <groupId>com.github.sabomichal</groupId>
             <artifactId>liquibase-mssql</artifactId>
         </dependency>
-        
+
         <!-- dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
         </dependency-->
-        
+
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
@@ -444,7 +444,7 @@
             <version>${camunda.spring-boot.version}</version>
             <scope>test</scope>
         </dependency>
-        
+
 
 		<dependency>
   			<groupId>de.trustable.ca3s</groupId>
@@ -518,16 +518,16 @@
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-ldap -->
-		<dependency>
+		<!--dependency>
 		    <groupId>org.springframework.security</groupId>
 		    <artifactId>spring-security-ldap</artifactId>
-		</dependency>
+		</dependency-->
 
 		<!-- https://mvnrepository.com/artifact/org.springframework.ldap/spring-ldap-core -->
-		<dependency>
+		<!--dependency>
     		<groupId>org.springframework.ldap</groupId>
     		<artifactId>spring-ldap-core</artifactId>
-    	</dependency>
+    	</dependency-->
 
 	   <!-- https://mvnrepository.com/artifact/org.jasypt/jasypt -->
 		<dependency>
@@ -535,20 +535,20 @@
 		    <artifactId>jasypt</artifactId>
 		    <version>${jasyptVersion}</version>
 		</dependency>
-   
+
 		<!-- https://mvnrepository.com/artifact/commons-validator/commons-validator -->
 		<dependency>
 		    <groupId>commons-validator</groupId>
 		    <artifactId>commons-validator</artifactId>
 		    <version>${commonsValidatorVersion}</version>
 		</dependency>
-   
+
 		<dependency>
 			<groupId>edu.uci.ics</groupId>
 			<artifactId>crawler4j</artifactId>
 			<version>${crawler4jVersion}</version>
 		</dependency>
-		
+
    <!--  start of test dependencies -->
    		<dependency>
 			<groupId>junit</groupId>
@@ -723,23 +723,23 @@
 					<jsonLibrary>jackson2</jsonLibrary>
 					<classes>
 						<class>de.trustable.ca3s.core.service.util.CAStatus</class>
-											
+
 						<class>de.trustable.ca3s.core.service.dto.PipelineView</class>
 						<class>de.trustable.ca3s.core.service.dto.CertificateView</class>
 						<class>de.trustable.ca3s.core.service.dto.CSRView</class>
 						<class>de.trustable.ca3s.core.service.dto.Selector</class>
 						<class>de.trustable.ca3s.core.service.dto.Preferences</class>
-						
-						
+
+
 						<class>de.trustable.ca3s.core.web.rest.data.CSRAdministrationData</class>
 						<class>de.trustable.ca3s.core.web.rest.data.CertificateAdministrationData</class>
-						
+
 						<class>de.trustable.ca3s.core.web.rest.data.UploadPrecheckData</class>
 						<class>de.trustable.ca3s.core.web.rest.data.X509CertificateHolderShallow</class>
 						<class>de.trustable.ca3s.core.web.rest.data.CertificateFilter</class>
 						<class>de.trustable.ca3s.core.web.rest.data.CertificateOrder</class>
 						<class>de.trustable.ca3s.core.web.rest.data.CertificateFilterList</class>
-						
+
 						<class>de.trustable.ca3s.core.web.rest.data.CertificateSelectionData</class>
 						<class>de.trustable.ca3s.core.web.rest.data.PkcsXXData</class>
 						<class>de.trustable.ca3s.core.web.rest.data.DataCollection</class>
@@ -774,7 +774,7 @@
 					</execution>
 				</executions>
 			</plugin>
-		    
+
 		    <plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>xml-maven-plugin</artifactId>
@@ -790,7 +790,7 @@
 				</executions>
 				<configuration>
 					<transformationSets>
-					
+
 						<transformationSet>
 							<dir>./src/main/resources/config/liquibase</dir>
 							<stylesheet>./src/main/resources/stylesheet/alignLBSchemaVersion.xsl</stylesheet>
@@ -816,7 +816,7 @@
 							</parameters>
 						</transformationSet>
 
-					
+
 						<transformationSet>
 							<dir>./src/main/resources/config/liquibase</dir>
 							<stylesheet>./src/main/resources/stylesheet/adaptMasterLBForMSSQL.xsl</stylesheet>
@@ -850,7 +850,7 @@
 							<stylesheet>./src/main/resources/stylesheet/adaptChangelogLBForMSSQL.xsl</stylesheet>
 							<outputDir>${project.build.directory}/classes/config/liquibase-mssql/changelog</outputDir>
 							<includes>*_added_*.xml</includes>
-							
+
 							<parameters>
 								<parameter>
 									<name>MssqlLiquibaseTarget</name>
@@ -903,9 +903,9 @@
 	          </execution>
 	        </executions>
 	      </plugin-->
-	      
+
         </plugins>
-        
+
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -1204,9 +1204,9 @@
                     <version>${maven-failsafe-plugin.version}</version>
                     <configuration>
     					<argLine>-Xmx2048m -Dspring.test.context.cache.maxSize=1</argLine>
-    					
+
     					<forkCount>0</forkCount>
-    					
+
                         <!-- Due to spring-boot repackage, without adding this property test classes are not found
                              See https://github.com/spring-projects/spring-boot/issues/6254 -->
                         <classesDirectory>${project.build.outputDirectory}</classesDirectory>
@@ -1245,7 +1245,7 @@
                 </plugin>
                 <!-- jhipster-needle-maven-add-plugin-management -->
             </plugins>
-			</pluginManagement>                
+			</pluginManagement>
     	</build>
     <profiles>
         <profile>
@@ -1639,7 +1639,7 @@
 		                    </execution>
 		                </executions>
 		            </plugin>
-				    
+
 				</plugins>
 			</build>
         </profile>

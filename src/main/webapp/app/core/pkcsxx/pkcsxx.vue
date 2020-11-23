@@ -83,7 +83,7 @@
 									<label class="form-control-label" v-text="$t('pkcsxx.upload.' + rr.name)" :for="'pkcsxx.upload.' + rr.name">{{rr.name}}</label>
 								</div>
 								<div class="col colContent">
-									<input v-for="(val, valueIndex) in upload.certificateAttributes[index].values" :key="valueIndex"
+                                    <input v-for="(val, valueIndex) in upload.certificateAttributes[index].values" :key="valueIndex"
 										type="text" class="form-control form-check-inline valid" :name="'pkcsxx.upload.' + rr.name" :id="'pkcsxx.upload.' + rr.name"
 										v-model="upload.certificateAttributes[index].values[valueIndex]"
 										:readonly="rr.readOnly"
@@ -116,8 +116,9 @@
 									<label class="form-control-label" v-text="$t('pkcsxx.upload.serversideCreation.secret')" for="upload-secret">Secret</label>
 								</div>
 								<div class="col colContent">
-									<input type="password" class="form-control w-50" name="upload-secret" id="upload-secret"
+									<input type="password" class="form-control form-check-inline valid w-50" name="upload-secret" id="upload-secret"
 										autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                        required="true"
 										v-model="secret" />
 								</div>
 							</div>
@@ -126,9 +127,13 @@
 									<label class="form-control-label" v-text="$t('pkcsxx.upload.serversideCreation.repeat')" for="upload-secret-repeat">Repeat</label>
 								</div>
 								<div class="col colContent">
-									<input type="password" class="form-control w-50" name="upload-secret-repeat" id="upload-secret-repeat"
+									<input type="password" class="form-control form-check-inline valid w-50" name="upload-secret-repeat" id="upload-secret-repeat"
 										autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-										v-model="secretRepeat" />
+                                           required="true"
+                                           v-model="secretRepeat" />
+                                    <small class="form-text text-danger" v-if="secret !== secretRepeat" v-text="$t('entity.validation.secretRepeat')">
+                                        This field should be a valid port number.
+                                    </small>
 								</div>
 							</div>
 						</div>

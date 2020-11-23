@@ -18,7 +18,7 @@ logging:
     ROOT: INFO
     io.github.jhipster: INFO
     de.trustable.ca3s.core: DEBUG
-    org.springframework.security: DEBUG
+    org.springframework.security: INFO
 
 management:
   metrics:
@@ -93,7 +93,7 @@ spring:
 #        # The ciphers suite enforce the security by deactivating some old and deprecated SSL cipher, this list was tested against SSL Labs (https://www.ssllabs.com/ssltest/)
 #        ciphers: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 ,TLS_DHE_RSA_WITH_AES_128_GCM_SHA256 ,TLS_DHE_RSA_WITH_AES_256_GCM_SHA384 ,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,TLS_DHE_RSA_WITH_AES_128_CBC_SHA256,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_256_CBC_SHA256,TLS_DHE_RSA_WITH_AES_256_CBC_SHA,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_256_CBC_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_256_CBC_SHA,TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA,TLS_RSA_WITH_CAMELLIA_256_CBC_SHA,TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA,TLS_RSA_WITH_CAMELLIA_128_CBC_SHA
 # ===================================================================
-server:  
+server:
 #  port: 8443
   port: 8080
   compression:
@@ -154,12 +154,12 @@ jhipster:
 
 # ===================================================================
 # Kerberos configuration
-# 
-# 1. Define a Service Principal Name(SPN) for ca3s using HTTP and the server name ( e.g. 'ca3s.server') where ca3s is installed. 
+#
+# 1. Define a Service Principal Name(SPN) for ca3s using HTTP and the server name ( e.g. 'ca3s.server') where ca3s is installed.
 #    Provide the Windows domain user that is accociated with the service:
 #  setspn -A HTTP/ca3s.server ca3sUser
-# 
-# 2. Export the keytab to a file (e.g. ca3s.keytab) 
+#
+# 2. Export the keytab to a file (e.g. ca3s.keytab)
 #    Associate it with the user account ('ca3sUser')
 #    Provide the service principal and server ('HTTP/ca3sUser@ca3s.server')
 #    Provide the user's password
@@ -167,7 +167,7 @@ jhipster:
 #    limit the crypto parameter when required
 #  ktpass /out ca3s.keytab /mapuser ca3sUser /princ HTTP/ca3sUser@ca3s.server /pass ****** /ptype KRB5_NT_PRINCIPAL /crypto All
 #
-# 3. configure the relevant parameter for the Kerberos connection (Active Directory domain, LDAP access point, 
+# 3. configure the relevant parameter for the Kerberos connection (Active Directory domain, LDAP access point,
 #    the pricipal as defined above, the keytab file's path just created, the search base and search filter to identify the ca3s Windows user)
 #    using the corresponding properties below.
 # ===================================================================

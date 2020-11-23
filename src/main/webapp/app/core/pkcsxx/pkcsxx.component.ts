@@ -1,4 +1,4 @@
-import { Component, Inject } from 'vue-property-decorator';
+import { Component } from 'vue-property-decorator';
 import { Vue } from 'vue-property-decorator';
 import { mixins } from 'vue-class-component';
 import AlertMixin from '@/shared/alert/alert.mixin';
@@ -22,17 +22,23 @@ import { IPipelineRestriction, PipelineRestriction } from '@/shared/model/pipeli
 const precheckUrl = 'publicapi/describeContent';
 const uploadUrl = 'api/uploadContent';
 
-/*
 const validations: any = {
   upload: {
+    certificateAttributes: {
+      $each: {
+        certificateAttributes: {
+          $each: {
+            values: { required }
+          }
+        }
+      }
+    },
     pipelineId: {
-      id: {required},
-      name: {required}
+      id: { required },
+      name: { required }
     },
-    passphrase: {
-    },
-    requestorcomment: {
-    },
+    passphrase: {},
+    requestorcomment: {},
     content: {
       required
     }
@@ -42,9 +48,6 @@ const validations: any = {
 @Component({
   validations
 })
-*/
-
-@Component
 export default class PKCSXX extends mixins(AlertMixin, Vue) {
   public upload: IUploadPrecheckData = <IUploadPrecheckData>{};
   public precheckResponse: IPkcsXXData = <IPkcsXXData>{};
@@ -350,8 +353,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
         // binary, start re-reading it as base64-encoded comntent
         const readerBinary = new FileReader();
         readerBinary.onload = function(__result) {
-          const base64Bin = readerBinary.result.toString().split(',')[1];
-          self.upload.content = base64Bin;
+          self.upload.content = readerBinary.result.toString().split(',')[1];
           self.contentCall(precheckUrl);
         };
         readerBinary.readAsDataURL(selectedFile);

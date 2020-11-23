@@ -1,19 +1,18 @@
 package de.trustable.ca3s.core.config;
 
-import javax.annotation.Nonnull;
-import javax.servlet.http.HttpServletRequest;
-
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
+import de.trustable.ca3s.core.security.DaoAuthenticationProviderWrapper;
+import de.trustable.ca3s.core.security.DomainUserDetailsService;
+import de.trustable.ca3s.core.security.jwt.JWTConfigurer;
+import de.trustable.ca3s.core.security.jwt.TokenProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -22,16 +21,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.kerberos.authentication.KerberosServiceAuthenticationProvider;
-import org.springframework.security.kerberos.authentication.sun.SunJaasKerberosTicketValidator;
-import org.springframework.security.kerberos.client.config.SunJaasKrb5LoginConfig;
-import org.springframework.security.kerberos.client.ldap.KerberosLdapContextSource;
 import org.springframework.security.kerberos.web.authentication.SpnegoAuthenticationProcessingFilter;
 import org.springframework.security.kerberos.web.authentication.SpnegoEntryPoint;
-import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
-import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
-import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
-import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
@@ -40,12 +31,8 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.CorsFilter;
 import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 
-import de.trustable.ca3s.core.security.AuthoritiesConstants;
-import de.trustable.ca3s.core.security.Ca3sAuthenticationProvider;
-import de.trustable.ca3s.core.security.DaoAuthenticationProviderWrapper;
-import de.trustable.ca3s.core.security.DomainUserDetailsService;
-import de.trustable.ca3s.core.security.jwt.JWTConfigurer;
-import de.trustable.ca3s.core.security.jwt.TokenProvider;
+import javax.annotation.Nonnull;
+import javax.servlet.http.HttpServletRequest;
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
@@ -56,19 +43,19 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Value("${server.port:8080}")
 	int httpPort;
-	
+
 	@Value("${ca3s.tlsAccess.port:0}")
 	int tlsPort;
-	
+
 	@Value("${ca3s.adminAccess.port:0}")
 	int adminPort;
-	
+
 	@Value("${ca3s.raAccess.port:0}")
 	int raPort;
-	
+
 	@Value("${ca3s.acmeAccess.port:0}")
 	int acmePort;
-	
+
 	@Value("${ca3s.scepAccess.port:0}")
 	int scepPort;
 
@@ -96,10 +83,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final SecurityProblemSupport problemSupport;
     private final DomainUserDetailsService userDetailsService;
 //    private final Ca3sAuthenticationProvider authProvider;
-    
-    public SecurityConfiguration(TokenProvider tokenProvider, 
-    		CorsFilter corsFilter, 
-    		SecurityProblemSupport problemSupport, 
+
+    public SecurityConfiguration(TokenProvider tokenProvider,
+    		CorsFilter corsFilter,
+    		SecurityProblemSupport problemSupport,
     		DomainUserDetailsService userDetailsService) {
         this.tokenProvider = tokenProvider;
         this.corsFilter = corsFilter;
@@ -111,7 +98,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    
+
     @Bean
     public AuthenticationProvider daoAuthenticationProvider(){
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
@@ -123,7 +110,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 //        return daoAuthenticationProvider;
         return new DaoAuthenticationProviderWrapper(daoAuthenticationProvider);
     }
-
+/*
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
@@ -132,20 +119,20 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		LOG.info("SecurityConfiguration.configure (AuthenticationManagerBuilder) for adDomain '{}'", adDomain);
 
 //		auth.authenticationProvider(authProvider);
-		
+
 		if( !adDomain.isEmpty()) {
 			auth
 				.authenticationProvider(activeDirectoryLdapAuthenticationProvider())
 				.authenticationProvider(kerberosServiceAuthenticationProvider());
-			
+
 			LOG.info("kerberosServiceAuthenticationProvider & activeDirectoryLdapAuthenticationProvider added");
 		}
 
 //		auth.authenticationProvider(daoAuthenticationProvider());
-		
-	}
 
-	
+	}
+*/
+
     @Override
     public void configure(WebSecurity web) {
         web.ignoring()
@@ -160,25 +147,25 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-    	
+
     	LOG.info("SecurityConfiguration.configure ");
 
     	if(scepPort == 0 ) {
     		scepPort = httpPort;
     	}
-    	
+
     	if(adminPort == 0 ) {
     		adminPort = tlsPort;
     	}
-    	
+
     	if(raPort == 0 ) {
     		raPort = tlsPort;
     	}
-    	
+
     	if(acmePort == 0 ) {
     		acmePort = tlsPort;
     	}
-    	
+
         // @formatter:off
         http
             .csrf().disable()
@@ -207,26 +194,26 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers("/api/activate").permitAll()
             .antMatchers("/api/account/reset-password/init").permitAll()
             .antMatchers("/api/account/reset-password/finish").permitAll()
-            
+
             .antMatchers("/api/profile-info").permitAll()
 
             .antMatchers("/publicapi/**").permitAll()
 
-            .requestMatchers(forPortAndPath(raPort, "/api/administerRequest")).hasAuthority(AuthoritiesConstants.RA_OFFICER) 
+            .requestMatchers(forPortAndPath(raPort, "/api/administerRequest")).hasAuthority(AuthoritiesConstants.RA_OFFICER)
             .antMatchers("/api/administerRequest").denyAll()
-            .requestMatchers(forPortAndPath(raPort, "/api/administerCertificate")).hasAuthority(AuthoritiesConstants.RA_OFFICER) 
+            .requestMatchers(forPortAndPath(raPort, "/api/administerCertificate")).hasAuthority(AuthoritiesConstants.RA_OFFICER)
             .antMatchers("/api/administerCertificate").denyAll()
 
-            .requestMatchers(forPortAndPath(acmePort, "/acme/**")).permitAll() 
+            .requestMatchers(forPortAndPath(acmePort, "/acme/**")).permitAll()
             .antMatchers("/acme/**").denyAll()
 
-            .requestMatchers(forPortAndPath(scepPort, "/ca3sScep/**")).permitAll() 
+            .requestMatchers(forPortAndPath(scepPort, "/ca3sScep/**")).permitAll()
             .antMatchers("/ca3sScep/**").denyAll()
 
             // to be checked
-//            .requestMatchers(forPortAndPath(adminPort, "/api/admin/preference/**")).hasAuthority(AuthoritiesConstants.ADMIN) 
+//            .requestMatchers(forPortAndPath(adminPort, "/api/admin/preference/**")).hasAuthority(AuthoritiesConstants.ADMIN)
 //            .antMatchers("/api/admin/preference/**").denyAll()
-            
+
             // !!!
             .antMatchers("/api/admin/**").permitAll()
             .antMatchers("/api/cockpit/**").permitAll()
@@ -240,8 +227,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers("/management/health").permitAll()
             .antMatchers("/management/info").permitAll()
             .antMatchers("/management/prometheus").permitAll()
-            
-            .requestMatchers(forPortAndPath(adminPort, "/management/**")).hasAuthority(AuthoritiesConstants.ADMIN) 
+
+            .requestMatchers(forPortAndPath(adminPort, "/management/**")).hasAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/management/**").denyAll()
         .and()
             .httpBasic()
@@ -253,7 +240,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private JWTConfigurer securityConfigurerAdapter() {
         return new JWTConfigurer(tokenProvider);
     }
-    
+
     /**
      * Creates a request matcher which only matches requests for a specific local port and path (using an
      * {@link AntPathRequestMatcher} for the path part).
@@ -291,27 +278,28 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
      */
     private RequestMatcher forPort(final int port) {
         return (HttpServletRequest request) -> {
-        	boolean result =  (port == 0) || (port == request.getLocalPort()); 
+        	boolean result =  (port == 0) || (port == request.getLocalPort());
         	LOG.info("checking local port {} against target port {} evaluates to {}", request.getLocalPort(), port, result);
-        	return result; 
+        	return result;
         };
     }
- 
+
+/*
 //	@Bean
 	public ActiveDirectoryLdapAuthenticationProvider activeDirectoryLdapAuthenticationProvider() {
 		return new ActiveDirectoryLdapAuthenticationProvider(adDomain, adServer);
 	}
-
+*/
 
 	@Bean
 	public SpnegoAuthenticationProcessingFilter spnegoAuthenticationProcessingFilter() throws Exception {
 		SpnegoAuthenticationProcessingFilter filter = new SpnegoAuthenticationProcessingFilter();
-		
+
 		filter.setAuthenticationManager(super.authenticationManagerBean());
 //		filter.setAuthenticationManager(authenticationManagerBean());
 		return filter;
 	}
-
+/*
 //	@Bean
 	public KerberosServiceAuthenticationProvider kerberosServiceAuthenticationProvider() throws Exception {
 		KerberosServiceAuthenticationProvider provider = new KerberosServiceAuthenticationProvider();
@@ -359,7 +347,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		service.setUserDetailsMapper(new LdapUserDetailsMapper());
 		return service;
 	}
-	
+*/
+
     @Bean
     public SpnegoEntryPoint spnegoEntryPoint() {
         return new SpnegoEntryPoint("/login");

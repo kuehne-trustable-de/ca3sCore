@@ -7,7 +7,7 @@ import { mixins } from 'vue-class-component';
 import JhiDataUtils from '@/shared/data/data-utils.service';
 import AlertService from '@/shared/alert/alert.service';
 
-import { ICSRAdministrationData } from '@/shared/model/transfer-object.model';
+import { ICSRAdministrationData, INamedValue } from '@/shared/model/transfer-object.model';
 
 import ArItem from './ar-item.component';
 
@@ -28,7 +28,7 @@ export default class CsrInfo extends mixins(JhiDataUtils, Vue) {
 
   public csrAdminData: ICSRAdministrationData = {};
 
-  public arAttributes: ICsrAttribute[] = [];
+  public arAttributes: INamedValue[] = [];
 
   public requestorComment = '';
 
@@ -87,25 +87,44 @@ export default class CsrInfo extends mixins(JhiDataUtils, Vue) {
     return '';
   }
 
-  public getArAttributes(): ICsrAttribute[] {
-    let resultArr: ICsrAttribute[] = new Array<ICsrAttribute>();
+  public getArAttributes(): INamedValue[] {
+    let resultArr: INamedValue[] = new Array<INamedValue>();
 
     if (this.cSR.csrAttributes === undefined) {
       return resultArr;
     }
 
+    // retrieve all names
     const pas = this.cSR.pipeline.pipelineAttributes;
     for (let i = 0; i < this.cSR.csrAttributes.length; i++) {
       window.console.info('checking csrAttribute : ' + i);
       const attr = this.cSR.csrAttributes[i];
       for (let j = 0; j < pas.length; j++) {
         if (pas[j].name.startsWith('RESTR_ARA_') && pas[j].value === attr.name) {
-          resultArr.push(attr);
-          window.console.info('AR attr.name : ' + attr.name);
+          const nv: INamedValue = {};
+          nv.name = attr.name;
+          nv.value = '';
+          resultArr.push(nv);
           break;
         }
       }
     }
+
+    // insert all values
+    for (let i = 0; i < this.cSR.csrAttributes.length; i++) {
+      window.console.info('checking csrAttribute : ' + i);
+      const attr = this.cSR.csrAttributes[i];
+      for (let j = 0; j < resultArr.length; j++) {
+        const nv = resultArr[j];
+        if (nv.name === attr.name) {
+          if (nv.value.length > 0) {
+            nv.value += ',';
+          }
+          nv.value += attr.value;
+        }
+      }
+    }
+
     return resultArr;
   }
 
