@@ -40,7 +40,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import de.trustable.ca3s.core.web.rest.data.NamedValues;
+import de.trustable.ca3s.core.domain.dto.NamedValues;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
@@ -379,8 +379,6 @@ public class OrderController extends ACMEController {
 		}
 
 		Certificate cert = cpUtil.processCertificateRequest(csr, requestorName, AuditUtil.AUDIT_ACME_CERTIFICATE_CREATED, pipeline );
-
-
 
 		if( cert == null) {
 			orderDao.setStatus(AcmeOrderStatus.INVALID);

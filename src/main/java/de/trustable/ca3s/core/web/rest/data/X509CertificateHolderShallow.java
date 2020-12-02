@@ -11,6 +11,7 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
+import de.trustable.ca3s.core.domain.dto.NamedValues;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.Extensions;
@@ -23,19 +24,18 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.DateUtil;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
 
 public class X509CertificateHolderShallow {
-	
+
 	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(X509CertificateHolderShallow.class);
 
 	private long certificateId;
-	
+
     private String subject;
 
     private String issuer;
@@ -49,9 +49,9 @@ public class X509CertificateHolderShallow {
     private LocalDateTime validFrom;
 
     private LocalDateTime validTo;
-    
+
     private NamedValues[] subjectParts;
-    
+
 	@JsonProperty("sans")
 	private String[] sans;
 
@@ -60,34 +60,34 @@ public class X509CertificateHolderShallow {
     private boolean keyPresent;
 
 	private boolean certificatePresentInDB = false;
-	
+
 	private boolean publicKeyPresentInDB = false;
-	
+
 
     private String pemCertificate;
 
-    
+
     public X509CertificateHolderShallow(X509CertificateHolder holder) {
     	this.keyPresent = false;
-    	
+
     	this.subject = holder.getSubject().toString();
 
     	// split the subject into parts
-		HashMap<String, List<String>> rdnMap = new HashMap<String, List<String>>();
-		
+		HashMap<String, List<String>> rdnMap = new HashMap<>();
+
 		try {
 			List<Rdn> rdnList = new LdapName(subject).getRdns();
 			for( Rdn rdn: rdnList) {
 				String name = rdn.getType();
 				List<String> nameList;
 				if( !rdnMap.containsKey(name)) {
-					nameList = new ArrayList<String>();
+					nameList = new ArrayList<>();
 					rdnMap.put(name, nameList);
 				}
 				nameList = rdnMap.get(name);
 				nameList.add(rdn.getValue().toString());
 			}
-			
+
 			subjectParts = new NamedValues[rdnMap.size()];
 			Iterator<String> it = rdnMap.keySet().iterator();
 			for( int i = 0; i < rdnMap.size(); i++) {
@@ -104,7 +104,7 @@ public class X509CertificateHolderShallow {
 
     	this.issuer = holder.getIssuer().toString();
     	this.type = "V" + holder.getVersionNumber();
-    	
+
     	try {
 			this.fingerprint = Base64.toBase64String(CryptoUtil.generateSHA1Fingerprint(holder.getEncoded()));
 		} catch (IOException e) {
@@ -115,7 +115,7 @@ public class X509CertificateHolderShallow {
     	this.serial = holder.getSerialNumber().toString();
     	this.validFrom = DateUtil.asLocalDateTimeUTC(holder.getNotBefore());
     	this.validTo = DateUtil.asLocalDateTimeUTC(holder.getNotAfter());
-    	   	
+
     	// holder.getExtensions() does not return an empty list but 'null'
     	int nExtensions = 0;
 		Extensions exts = holder.getExtensions();
@@ -123,16 +123,16 @@ public class X509CertificateHolderShallow {
     		nExtensions = exts.getExtensionOIDs().length;
     	}
     	extensions = new String[nExtensions];
-    	
+
 		this.sans = new String[0];
     	if( nExtensions > 0) {
 			int i = 0;
 			for( ASN1ObjectIdentifier objId : exts.getExtensionOIDs()) {
 	    		extensions[i++] = OidNameMapper.lookupOid(objId.getId());
 	    	}
-			
+
 			GeneralNames namesSAN = GeneralNames.fromExtensions(exts, Extension.subjectAlternativeName);
-			
+
 			if( (namesSAN != null) && (namesSAN.getNames() != null)) {
 				int j = 0;
 				this.sans = new String[namesSAN.getNames().length];
@@ -199,7 +199,7 @@ public class X509CertificateHolderShallow {
 		this.validTo = validTo;
 	}
 
-	
+
 	public String[] getSans() {
 		return sans;
 	}
@@ -240,7 +240,7 @@ public class X509CertificateHolderShallow {
 		this.certificatePresentInDB = presentInDB;
 	}
 
-	
+
 	public boolean isPublicKeyPresentInDB() {
 		return publicKeyPresentInDB;
 	}
@@ -265,6 +265,6 @@ public class X509CertificateHolderShallow {
 		this.subjectParts = subjectParts;
 	}
 
-    
-    
+
+
 }

@@ -15,9 +15,9 @@
 
 logging:
   level:
-    ROOT: DEBUG
-    io.github.jhipster: DEBUG
-    de.trustable.ca3sjh: DEBUG
+    ROOT: INFO
+    de.trustable.ca3s: DEBUG
+    de.trustable.ca3s.core.config.SecurityConfiguration: INFO
 
 spring:
   profiles:

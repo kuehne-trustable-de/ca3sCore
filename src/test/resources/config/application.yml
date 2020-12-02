@@ -16,10 +16,12 @@
 logging:
   level:
     ROOT: INFO
-    io.github.jhipster: DEBUG
-    de.trustable.ca3sjh: DEBUG
+    de.trustable.ca3s: DEBUG
+    de.trustable.ca3s.core.config.SecurityConfiguration: INFO
 
 spring:
+  cache:
+    type: none
   application:
     name: ca3s
 #  datasource:
@@ -73,7 +75,7 @@ spring:
       hibernate.cache.use_query_cache: false
       hibernate.generate_statistics: false
       hibernate.jdbc.time_zone: UTC
-    
+
   liquibase:
     contexts: test
   mail:

@@ -730,7 +730,6 @@
 						<class>de.trustable.ca3s.core.service.dto.Selector</class>
 						<class>de.trustable.ca3s.core.service.dto.Preferences</class>
 
-
 						<class>de.trustable.ca3s.core.web.rest.data.CSRAdministrationData</class>
 						<class>de.trustable.ca3s.core.web.rest.data.CertificateAdministrationData</class>
 
@@ -1217,6 +1216,9 @@
                             <include>**/*IT*</include>
                             <include>**/*IntTest*</include>
                         </includes>
+                        <excludes>
+                            <exclude>**/ui/*IT*</exclude>
+                        </excludes>
                     </configuration>
                     <executions>
                         <execution>

@@ -43,19 +43,23 @@ public class CAConnectorConfigResource {
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
-	@Autowired
 	private ProtectedContentUtil protUtil;
-	
-	@Autowired
+
 	private ProtectedContentRepository protContentRepository;
-	
-	@Autowired
+
 	private CAConnectorConfigRepository caConfigRepository;
-	
+
 
     private final CAConnectorConfigService cAConnectorConfigService;
 
-    public CAConnectorConfigResource(CAConnectorConfigService cAConnectorConfigService) {
+    public CAConnectorConfigResource(CAConnectorConfigService cAConnectorConfigService,
+        ProtectedContentUtil protUtil,
+        ProtectedContentRepository protContentRepository,
+        CAConnectorConfigRepository caConfigRepository
+    ) {
+        this.protUtil = protUtil;
+        this.protContentRepository = protContentRepository;
+        this.caConfigRepository = caConfigRepository;
         this.cAConnectorConfigService = cAConnectorConfigService;
     }
 
@@ -72,22 +76,22 @@ public class CAConnectorConfigResource {
         if (cAConnectorConfig.getId() != null) {
             throw new BadRequestAlertException("A new cAConnectorConfig cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        
+
         if((cAConnectorConfig.getPlainSecret() == null) || (cAConnectorConfig.getPlainSecret().trim().length() == 0))  {
             log.debug("REST request to save CAConnectorConfig : cAConnectorConfig.getPlainSecret() == null");
 	        cAConnectorConfig.setSecret(null);
 	        cAConnectorConfig.setPlainSecret("");
-        }else {	
+        }else {
         	if( protUtil == null) {
-        		System.err.println("Autowired failed ...");
+                System.err.println("Autowired 'protUtil' failed ...");
         	}
-        	
+
 	        ProtectedContent protSecret = protUtil.createProtectedContent(cAConnectorConfig.getPlainSecret(), ProtectedContentType.PASSWORD, ContentRelationType.CONNECTION, -1L);
 	        protContentRepository.save(protSecret);
 	        cAConnectorConfig.setSecret(protSecret);
 	        cAConnectorConfig.setPlainSecret(PLAIN_SECRET_PLACEHOLDER);
         }
-        
+
         CAConnectorConfig result = cAConnectorConfigService.save(cAConnectorConfig);
         return ResponseEntity.created(new URI("/api/ca-connector-configs/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -110,10 +114,10 @@ public class CAConnectorConfigResource {
         if (cAConnectorConfig.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        
-        
+
+
         if((cAConnectorConfig.getPlainSecret() == null) || (cAConnectorConfig.getPlainSecret().trim().length() == 0))  {
-            
+
         	log.debug("REST request to update CAConnectorConfig : cAConnectorConfig.getPlainSecret() == null");
 
     		if(cAConnectorConfig.getSecret() != null ) {
@@ -126,27 +130,31 @@ public class CAConnectorConfigResource {
         } else {
         	if( PLAIN_SECRET_PLACEHOLDER.equals(cAConnectorConfig.getPlainSecret().trim())) {
 	        	log.debug("REST request to update CAConnectorConfig : PLAIN_SECRET_PLACEHOLDER.equals(cAConnectorConfig.getPlainSecret())");
-	        	
+
 	        	// no passphrase change received from the UI, just do nothing
 	        	// leave the secret unchanged
-	        	
+
 	        	cAConnectorConfig.setSecret(caConfigRepository.getOne(cAConnectorConfig.getId()).getSecret());
         	}else {
 	        	log.debug("REST request to update CAConnectorConfig : PlainSecret modified");
-	        	
+
         		if(cAConnectorConfig.getSecret() != null ) {
                 	log.debug("REST request to update CAConnectorConfig : protContentRepository.delete() ");
         			protContentRepository.delete(cAConnectorConfig.getSecret());
         		}
-        		
+
+                if( protUtil == null) {
+                    System.err.println("Autowired 'protUtil' failed ...");
+                }
+
                 ProtectedContent protSecret = protUtil.createProtectedContent(cAConnectorConfig.getPlainSecret(), ProtectedContentType.PASSWORD, ContentRelationType.CONNECTION, cAConnectorConfig.getId());
                 protContentRepository.save(protSecret);
-                
+
                 cAConnectorConfig.setSecret(protSecret);
     	        cAConnectorConfig.setPlainSecret(PLAIN_SECRET_PLACEHOLDER);
         	}
         }
-        
+
         if( cAConnectorConfig.isDefaultCA()) {
         	for( CAConnectorConfig other: caConfigRepository.findAll() ) {
         		if( other.getId() != cAConnectorConfig.getId() &&

@@ -3,7 +3,9 @@ package de.trustable.ca3s.core.web.rest;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
+import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 import de.trustable.ca3s.core.service.CAConnectorConfigService;
+import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
@@ -87,6 +90,15 @@ public class CAConnectorConfigResourceIT {
     @Autowired
     private Validator validator;
 
+    @Autowired
+    private ProtectedContentUtil protUtil;
+
+    @Autowired
+    private ProtectedContentRepository protContentRepository;
+
+    @Autowired
+    private CAConnectorConfigRepository caConfigRepository;
+
     private MockMvc restCAConnectorConfigMockMvc;
 
     private CAConnectorConfig cAConnectorConfig;
@@ -94,7 +106,8 @@ public class CAConnectorConfigResourceIT {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final CAConnectorConfigResource cAConnectorConfigResource = new CAConnectorConfigResource(cAConnectorConfigService);
+        final CAConnectorConfigResource cAConnectorConfigResource = new CAConnectorConfigResource(cAConnectorConfigService, protUtil, protContentRepository, caConfigRepository);
+
         this.restCAConnectorConfigMockMvc = MockMvcBuilders.standaloneSetup(cAConnectorConfigResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -170,7 +183,8 @@ public class CAConnectorConfigResourceIT {
         assertThat(testCAConnectorConfig.isActive()).isEqualTo(DEFAULT_ACTIVE);
         assertThat(testCAConnectorConfig.getSelector()).isEqualTo(DEFAULT_SELECTOR);
         assertThat(testCAConnectorConfig.getInterval()).isEqualTo(DEFAULT_INTERVAL);
-        assertThat(testCAConnectorConfig.getPlainSecret()).isEqualTo(DEFAULT_PLAIN_SECRET);
+
+        assertThat(testCAConnectorConfig.getPlainSecret()).isEqualTo(CAConnectorConfigResource.PLAIN_SECRET_PLACEHOLDER);
     }
 
     @Test
@@ -250,7 +264,7 @@ public class CAConnectorConfigResourceIT {
             .andExpect(jsonPath("$.[*].interval").value(hasItem(DEFAULT_INTERVAL.toString())))
             .andExpect(jsonPath("$.[*].plainSecret").value(hasItem(DEFAULT_PLAIN_SECRET)));
     }
-    
+
     @Test
     @Transactional
     public void getCAConnectorConfig() throws Exception {
@@ -321,7 +335,7 @@ public class CAConnectorConfigResourceIT {
         assertThat(testCAConnectorConfig.isActive()).isEqualTo(UPDATED_ACTIVE);
         assertThat(testCAConnectorConfig.getSelector()).isEqualTo(UPDATED_SELECTOR);
         assertThat(testCAConnectorConfig.getInterval()).isEqualTo(UPDATED_INTERVAL);
-        assertThat(testCAConnectorConfig.getPlainSecret()).isEqualTo(UPDATED_PLAIN_SECRET);
+        assertThat(testCAConnectorConfig.getPlainSecret()).isEqualTo(CAConnectorConfigResource.PLAIN_SECRET_PLACEHOLDER);
     }
 
     @Test

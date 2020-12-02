@@ -18,6 +18,8 @@ public class PreferenceUtil {
 
     private static final Logger log = LoggerFactory.getLogger(PreferenceUtil.class);
 
+    public static final Long SYSTEM_PREFERENCE_ID = 1L;
+
     public static final String CHECK_CRL = "CheckCRL";
 	public static final String ACME_HTTP01_TIMEOUT_MILLI_SEC = "AcmeHTTP01TimeoutMilliSec";
 	public static final String ACME_HTTP01_CALLBACK_PORTS = "AcmeHTTP01CallbackPorts";
@@ -27,22 +29,22 @@ public class PreferenceUtil {
     private UserPreferenceService userPreferenceService;
 
     public boolean isCheckCrl() {
-    	Optional<UserPreference> optBoolean = userPreferenceService.findPreferenceForUserId(CHECK_CRL, 1L);
+    	Optional<UserPreference> optBoolean = userPreferenceService.findPreferenceForUserId(CHECK_CRL, SYSTEM_PREFERENCE_ID);
         return optBoolean.filter(userPreference -> Boolean.parseBoolean(userPreference.getContent())).isPresent();
     }
 
     public boolean isServerSideKeyCreationAllowed() {
-    	Optional<UserPreference> optBoolean = userPreferenceService.findPreferenceForUserId(SERVER_SIDE_KEY_CREATION_ALLOWED, 1L);
+    	Optional<UserPreference> optBoolean = userPreferenceService.findPreferenceForUserId(SERVER_SIDE_KEY_CREATION_ALLOWED, SYSTEM_PREFERENCE_ID);
         return optBoolean.filter(userPreference -> Boolean.parseBoolean(userPreference.getContent())).isPresent();
     }
 
     public long getAcmeHTTP01TimeoutMilliSec() {
-    	Optional<UserPreference> optLong = userPreferenceService.findPreferenceForUserId(ACME_HTTP01_TIMEOUT_MILLI_SEC, 1L);
+    	Optional<UserPreference> optLong = userPreferenceService.findPreferenceForUserId(ACME_HTTP01_TIMEOUT_MILLI_SEC, SYSTEM_PREFERENCE_ID);
         return optLong.map(userPreference -> Long.parseLong(userPreference.getContent())).orElse(2000L);
     }
 
     public String getAcmeHTTP01CallbackPorts() {
-    	Optional<UserPreference> optString = userPreferenceService.findPreferenceForUserId(ACME_HTTP01_CALLBACK_PORTS, 1L);
+    	Optional<UserPreference> optString = userPreferenceService.findPreferenceForUserId(ACME_HTTP01_CALLBACK_PORTS, SYSTEM_PREFERENCE_ID);
     	if( optString.isPresent()) {
     		return optString.get().getContent();
     	}
@@ -51,7 +53,7 @@ public class PreferenceUtil {
 
 
     public Preferences getSystemPrefs() {
-        return getPrefs(1L);
+        return getPrefs(SYSTEM_PREFERENCE_ID);
     }
 
     public Preferences getPrefs(Long userId) {

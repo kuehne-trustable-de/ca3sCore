@@ -4,6 +4,7 @@ import javax.annotation.concurrent.Immutable;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.trustable.ca3s.core.domain.dto.NamedValues;
 
 @Immutable
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -11,13 +12,13 @@ public class UploadPrecheckData {
 
 	@JsonProperty("passphrase")
 	private String passphrase;
-	
+
 	@JsonProperty("secret")
 	private String secret;
-	
+
 	@JsonProperty("requestorcomment")
 	private String requestorcomment;
-	
+
 	@JsonProperty("pipelineId")
 	private Long pipelineId;
 
@@ -26,14 +27,14 @@ public class UploadPrecheckData {
 
 	@JsonProperty("creationMode")
 	private CreationMode creationMode = CreationMode.CSR_AVAILABLE;
-	
+
 	@JsonProperty("keyAlgoLength")
 	private KeyAlgoLength keyAlgoLength = KeyAlgoLength.RSA_2048;
 
 	@JsonProperty("containerType")
 	private ContainerType containerType = ContainerType.PKCS_12;
-	
-	
+
+
 	@JsonProperty("namedValues")
 	private NamedValue[] namedValues;
 
@@ -130,6 +131,6 @@ public class UploadPrecheckData {
 	public void setSecret(String secret) {
 		this.secret = secret;
 	}
-	
-	
+
+
 }

@@ -8,7 +8,7 @@ import java.util.List;
 
 import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.repository.CsrAttributeRepository;
-import de.trustable.ca3s.core.web.rest.data.NamedValues;
+import de.trustable.ca3s.core.domain.dto.NamedValues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

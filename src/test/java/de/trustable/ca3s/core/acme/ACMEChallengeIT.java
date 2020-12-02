@@ -12,6 +12,7 @@ import java.security.KeyPair;
 import java.time.Duration;
 import java.time.Instant;
 
+import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,54 +54,56 @@ public class ACMEChallengeIT {
 
 	@Autowired
 	PipelineTestConfiguration ptc;
-	
-	
-	@BeforeEach
+
+    @Autowired
+    PreferenceTestConfiguration prefTC;
+
+    @BeforeEach
 	void init() {
 		dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
 		ptc.getInternalACMETestPipelineLaxRestrictions();
-		
-	}
+        prefTC.getTestUserPreference();
+    }
 
 	@BeforeAll
-	public static void setUpBeforeClass() throws Exception {
+	public static void setUpBeforeClass() {
 		JCAManager.getInstance();
 	}
 
-	
+
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testAccountHandling() throws AcmeException, IOException, InterruptedException {
 
 		Session session = new Session(dirUrl);
 		Metadata meta = session.getMetadata();
-		
+
 		URI tos = meta.getTermsOfService();
 		URL website = meta.getWebsite();
 		LOG.debug("TermsOfService {}, website {}", tos, website);
-		
+
 		KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
-		
-		
+
+
 		Account account = new AccountBuilder()
 		        .addContact("mailto:acmeTest@ca3s.org")
 		        .agreeToTermsOfService()
 		        .useKeyPair(accountKeyPair)
 		        .create(session);
 		assertNotNull("created account MUST NOT be null", account);
-		
+
 		URL accountLocationUrl = account.getLocation();
 		LOG.debug("accountLocationUrl {}", accountLocationUrl);
-		
-		
+
+
 		Account retrievedAccount = new AccountBuilder()
 		        .onlyExisting()         // Do not create a new account
 		        .useKeyPair(accountKeyPair)
 		        .create(session);
-		
+
 		assertNotNull("created account MUST NOT be null", retrievedAccount);
 		assertEquals("expected to fimnd the smae account (URL)", accountLocationUrl, retrievedAccount.getLocation());
-		
+
 		// #########################
 		// unreachable http endpoint
 		// #########################
@@ -109,13 +112,14 @@ public class ACMEChallengeIT {
 		        .domains("never.seen.before")
 		        .notAfter(Instant.now().plus(Duration.ofDays(20L)))
 		        .create();
-		
+
 		// challenge an authorization that will not succeed
 		for (Authorization auth : order.getAuthorizations()) {
 			LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
 			if (auth.getStatus() == Status.PENDING) {
 
 				Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
+                assertNotNull("expected to find a challenge", challenge);
 
 //				provideAuthEndpoint(challenge, order);
 
@@ -128,7 +132,7 @@ public class ACMEChallengeIT {
 			}
 
 		}
-		
+
 		// #########################
 		// http endpoint serving wrong content
 		// #########################
@@ -137,16 +141,17 @@ public class ACMEChallengeIT {
 		        .domains("localhost")
 		        .notAfter(Instant.now().plus(Duration.ofDays(20L)))
 		        .create();
-		
+
 		// challenge an authorization that will not succeed
 		for (Authorization auth : order.getAuthorizations()) {
 			LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
 			if (auth.getStatus() == Status.PENDING) {
 
 				Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
+                assertNotNull("expected to find a challenge", challenge);
 
 				LOG.debug("correct response would be {}, but it's prepended with 'xxx' ...", challenge.getAuthorization());
-				
+
 				Boolean terminate = Boolean.FALSE;
 				Thread webThread = provideAuthEndpoint(challenge.getToken(), "xxx" + challenge.getAuthorization(), terminate);
 
@@ -158,18 +163,18 @@ public class ACMEChallengeIT {
 				}finally {
 					terminate = Boolean.TRUE;
 				}
-				
+
 				webThread.stop();
 			}
 
 		}
 
 		account.deactivate();
-		
+
 		assertEquals("account status 'deactivated' expected", Status.DEACTIVATED, account.getStatus() );
 	}
 
-	void buildOrder(Account account, int n) throws AcmeException { 
+	void buildOrder(Account account, int n) throws AcmeException {
 		account.newOrder()
 	        .domains("example_"+n+".org")
 	        .notAfter(Instant.now().plus(Duration.ofDays(20L)))
@@ -178,13 +183,13 @@ public class ACMEChallengeIT {
 
 	Thread provideAuthEndpoint(String fileName, String fileContent, Boolean terminate) throws IOException, InterruptedException {
 
-		int callbackPort = 8800;
+        int callbackPort = this.prefTC.getFreePort();
 		final String fileNameRegEx = "/\\.well-known/acme-challenge/" + fileName;
 
-		LOG.debug("Handling authorization for {}", fileNameRegEx);
+		LOG.debug("Handling authorization for {} on port {}", fileNameRegEx, callbackPort);
 
 		Take tk = new TkFork(new FkRegex(fileNameRegEx, fileContent));
-		
+
 		FtBasic webBasicTmp = null;
 		try {
 			webBasicTmp = new FtBasic(tk, callbackPort);
@@ -214,7 +219,7 @@ public class ACMEChallengeIT {
 				}
 			}
 		});
-		
+
 		webThread.start();
 
 		LOG.debug("started ACME callback webserver for {} on port {}", fileNameRegEx, callbackPort);

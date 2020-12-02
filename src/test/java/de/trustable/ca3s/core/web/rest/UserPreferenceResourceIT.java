@@ -191,22 +191,6 @@ public class UserPreferenceResourceIT {
 
     @Test
     @Transactional
-    public void getAllUserPreferences() throws Exception {
-        // Initialize the database
-        userPreferenceRepository.saveAndFlush(userPreference);
-
-        // Get all the userPreferenceList
-        restUserPreferenceMockMvc.perform(get("/api/user-preferences?sort=id,desc"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(userPreference.getId().intValue())))
-            .andExpect(jsonPath("$.[*].userId").value(hasItem(DEFAULT_USER_ID.intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
-            .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT.toString())));
-    }
-    
-    @Test
-    @Transactional
     public void getUserPreference() throws Exception {
         // Initialize the database
         userPreferenceRepository.saveAndFlush(userPreference);

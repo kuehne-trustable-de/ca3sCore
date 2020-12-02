@@ -24,10 +24,11 @@ public class ProtectedContentUtil {
 
 	@Autowired
 	private ProtectedContentRepository protContentRepository;
-	
+
 	public ProtectedContentUtil(@Value("${protectionSecret:S3cr3t}") String protectionSecret) {
 		textEncryptor = new BasicTextEncryptor();
 		if( (protectionSecret == null) || (protectionSecret.trim().length() == 0)) {
+            System.err.println("Configuration parameter 'protectionSecret' missing or invalid!!");
 			throw new UnsupportedOperationException("Configuration parameter 'protectionSecret' missing or invalid");
 		}
 		if( log.isDebugEnabled()) {
@@ -36,21 +37,21 @@ public class ProtectedContentUtil {
 		}
 		textEncryptor.setPassword(protectionSecret);
 	}
-	
-	
+
+
 	public String protectString(String content) {
 		return textEncryptor.encrypt(content);
 	}
-	
+
 	public String unprotectString(String protectedContent) {
 		return textEncryptor.decrypt(protectedContent);
 
 	}
 
 	/**
-	 * 	 
+	 *
 	 * create a new ProtectedContent object and save the given content
-	 * 
+	 *
 	 * @param plainText the plain text to be protected
 	 * @param pct the content type of the plainText
 	 * @param crt the related entity
@@ -58,20 +59,20 @@ public class ProtectedContentUtil {
 	 * @return
 	 */
 	public ProtectedContent createProtectedContent(final String plainText, ProtectedContentType pct, ContentRelationType crt, long connectionId) {
-		
+
 		ProtectedContent pc = new ProtectedContent();
 		pc.setContentBase64(protectString(plainText));
-		
+
 		pc.setType(pct);
 		pc.setRelationType(crt);
 		pc.setRelatedId(connectionId);
-		
+
 		protContentRepository.save(pc);
 		return pc;
 	}
 
 	/**
-	 * 
+	 *
 	 * @param type
 	 * @param crt
 	 * @param id

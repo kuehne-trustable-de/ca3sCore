@@ -4,7 +4,8 @@
 <configuration scan="true">
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
-    <logger name="de.trustable.ca3s.core" level="INFO"/>
+    <logger name="de.trustable.ca3s.core.SecurityConfiguration" level="WARN"/>
+    <logger name="de.trustable.ca3s.core" level="DEBUG"/>
 
     <logger name="io.github.jhipster" level="WARN"/>
 

@@ -13,6 +13,7 @@ import java.util.Random;
 
 import javax.security.auth.x500.X500Principal;
 
+import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -127,6 +128,8 @@ public class CSRSubmitIT extends WebTestBase{
 	@Autowired
 	PipelineTestConfiguration ptc;
 
+    @Autowired
+    PreferenceTestConfiguration prefTC;
 
 	@BeforeAll
 	public static void setUpBeforeClass() {
@@ -140,6 +143,7 @@ public class CSRSubmitIT extends WebTestBase{
 
 		ptc.getInternalWebDirectTestPipeline();
 		ptc.getInternalWebRACheckTestPipeline();
+        prefTC.getTestUserPreference();
 
 		if( driver == null) {
 		    super.startWebDriver();
@@ -206,11 +210,15 @@ public class CSRSubmitIT extends WebTestBase{
 
 	    assertTrue("Expecting request button enabled", isEnabled(LOC_BTN_REQUEST_CERTIFICATE));
 
-	    setText(LOC_INP_SECRET_REPEAT_VALUE, "aa"+secret+"zz");
-	    assertFalse("Expecting request button enabled", isEnabled(LOC_BTN_REQUEST_CERTIFICATE));
+	    // mismatch of secret
+        setText(LOC_INP_SECRET_REPEAT_VALUE, "aa"+secret+"zz");
+        assertFalse("Expecting request button disabled", isEnabled(LOC_BTN_REQUEST_CERTIFICATE));
+
+        setText(LOC_INP_SECRET_REPEAT_VALUE, secret);
+        assertTrue("Expecting request button enabled", isEnabled(LOC_BTN_REQUEST_CERTIFICATE));
 
 
-	    click(LOC_BTN_REQUEST_CERTIFICATE);
+        click(LOC_BTN_REQUEST_CERTIFICATE);
 
 
         waitForElement(LOC_TEXT_CERT_HEADER);
@@ -387,7 +395,9 @@ public class CSRSubmitIT extends WebTestBase{
 	    validatePresent(LOC_LNK_REQUESTS_MENUE);
 	    click(LOC_LNK_REQUESTS_MENUE);
 
-	    validatePresent(LOC_TEXT_REQUEST_LIST);
+        waitForElement(LOC_TEXT_REQUEST_LIST);
+
+        validatePresent(LOC_TEXT_REQUEST_LIST);
 
 		signIn(USER_NAME_USER, USER_PASSWORD_USER);
 

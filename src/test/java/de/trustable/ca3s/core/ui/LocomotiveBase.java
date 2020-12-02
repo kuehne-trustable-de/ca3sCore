@@ -5,10 +5,14 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -16,7 +20,10 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Capabilities;
@@ -27,6 +34,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.interactions.Actions;
@@ -47,6 +55,7 @@ import com.google.common.base.Strings;
 import io.ddavison.conductor.Browser;
 import io.ddavison.conductor.Conductor;
 import io.ddavison.conductor.Config;
+import org.springframework.util.ResourceUtils;
 
 public class LocomotiveBase implements Conductor<LocomotiveBase>{
 
@@ -75,8 +84,8 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
 
     @Value("${local.server.port}")
     int port; //random port chosen by spring test
-    
-    
+
+
     private Pattern p;
     private Matcher m;
 
@@ -105,7 +114,7 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
                 if (!StringUtils.isEmpty(getJvmProperty("CONDUCTOR_URL"))) url = getJvmProperty("CONDUCTOR_URL");
                 if (!StringUtils.isEmpty(props.getProperty("url"))) url = props.getProperty("url");
                 if (testConfiguration != null && (!StringUtils.isEmpty(testConfiguration.url()))) url = testConfiguration.url();
-                
+
                 if( url.contains("${local.server.port}") ){
                   url = url.replace("${local.server.port}", ""+port );
                 }
@@ -155,7 +164,7 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
 			        LOGGER.error("baseUrl() is not an URL", e );
 			        return "";
 				}
-				
+
 				String path = url.getPath();
 		        LOGGER.warn("returning path '"+ path +"' from baseUrl() : '" + url() + "'" );
 
@@ -164,14 +173,14 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
 			}
         };
     }
-    
+
     public void startWebDriver(){
-      
+
         Capabilities capabilities;
 
         baseUrl = configuration.url();
 
-        LOGGER.debug(String.format("\n=== Configuration ===\n" +
+        LOGGER.info(String.format("\n=== Configuration ===\n" +
         "\tURL:     %s\n" +
         "\tBrowser: %s\n" +
         "\tHub:     %s\n", configuration.url(), configuration.browser().name(), configuration.hub()));
@@ -179,15 +188,40 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
 
         switch (configuration.browser()) {
             case CHROME:
-                capabilities = DesiredCapabilities.chrome();
-                System.setProperty("webdriver.chrome.driver", "/tmp/chromedriver.exe");
-                if (isLocal) try {
-                	System.err.println("starting local Chrome using driver at : " + System.getProperty("webdriver.chrome.driver"));
+                capabilities = new ChromeOptions();
 
-                    driver = new ChromeDriver();
-                } catch (Exception x) {
-                	LOGGER.error("starting chrome driver", x);
-                    logFatal("chromedriver not found. See https://github.com/ddavison/conductor/wiki/WebDriver-Executables for more information.");
+                String driverName = "chromedriver";
+                if( SystemUtils.IS_OS_WINDOWS ){
+                    driverName = "chromedriver.exe";
+                }
+
+                try{
+                    URL resourceURL = ResourceUtils.getURL( "classpath:drivers/" + driverName);
+                    InputStream is = resourceURL.openStream();
+                    File tmpFile = File.createTempFile("ca3sTest", driverName);
+
+                    Files.copy( is,
+                        tmpFile.toPath(),
+                        StandardCopyOption.REPLACE_EXISTING);
+
+                    IOUtils.closeQuietly(is);
+
+                    System.setProperty("webdriver.chrome.driver", tmpFile.getAbsolutePath());
+                    System.err.println("starting local Chrome using driver at : " + System.getProperty("webdriver.chrome.driver"));
+
+                    if (isLocal) {
+                        try {
+                            driver = new ChromeDriver();
+                        } catch (Exception x) {
+                            x.printStackTrace();
+                            LOGGER.error("starting chrome driver, exiting ...", x);
+                            logFatal("chromedriver not found. See https://github.com/ddavison/conductor/wiki/WebDriver-Executables for more information.");
+                            System.exit(1);
+                        }
+                    }
+                }catch(IOException ioe){
+                    ioe.printStackTrace();
+                    System.err.println("problem installing chrome driver, exiting ...");
                     System.exit(1);
                 }
                 break;
@@ -309,7 +343,7 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
 
     public LocomotiveBase click(By by) {
         WebElement we = waitForElement(by);
-        
+
         try{
           we.click();
         }catch( ElementNotInteractableException enie){
@@ -317,7 +351,7 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
             ((org.openqa.selenium.JavascriptExecutor) driver).executeScript( "arguments[0].click();", we);
         }catch( WebDriverException wde){
           wde.printStackTrace();
-          
+
 //        	WebDriverWait wait = new WebDriverWait(driver, 10);
 //        	wait.until(ExpectedConditions.elementToBeClickable(by));
 //          we = waitForElement(by);
@@ -325,7 +359,7 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
                 try {Thread.sleep(200);}catch(Exception x) { x.printStackTrace(); }
                 ((org.openqa.selenium.JavascriptExecutor) driver).executeScript( "arguments[0].scrollIntoView(true);", we);
                 we = waitForElement(by);
-            } catch (Exception e) { // just ignore              
+            } catch (Exception e) { // just ignore
             }
           we.click();
         }
@@ -341,13 +375,13 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
         try{
             element.clear();
           }catch( WebDriverException wde){
-            
+
         	  element = waitForElement(by);
               try {
                   try {Thread.sleep(200);}catch(Exception x) { x.printStackTrace(); }
                   ((org.openqa.selenium.JavascriptExecutor) driver).executeScript( "arguments[0].scrollIntoView(true);", element);
                   element = waitForElement(by);
-              } catch (Exception e) { // just ignore              
+              } catch (Exception e) { // just ignore
               }
               element.clear();
           }
@@ -395,7 +429,7 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
             text = e.getText();
  //           System.out.println("reading text for " + e.getTagName() + " retrieves text '" + text +"'");
         }
-        
+
         return text;
     }
 
@@ -782,7 +816,7 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
         return this;
     }
 
-    
+
     public LocomotiveBase logInfo(String msg) {
         LOGGER.info(msg);
         return this;

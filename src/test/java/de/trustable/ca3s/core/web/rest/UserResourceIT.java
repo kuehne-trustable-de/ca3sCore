@@ -271,6 +271,9 @@ public class UserResourceIT {
             .andExpect(jsonPath("$.[*].imageUrl").value(hasItem(DEFAULT_IMAGEURL)))
             .andExpect(jsonPath("$.[*].langKey").value(hasItem(DEFAULT_LANGKEY)));
     }
+/*
+
+cache disabled ...
 
     @Test
     @Transactional
@@ -293,6 +296,7 @@ public class UserResourceIT {
 
         assertThat(cacheManager.getCache(UserRepository.USERS_BY_LOGIN_CACHE).get(user.getLogin())).isNotNull();
     }
+*/
 
     @Test
     @Transactional
