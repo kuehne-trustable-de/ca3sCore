@@ -13,10 +13,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -75,7 +73,7 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
 
     public Actions actions;
 
-    private Map<String, String> vars = new HashMap<String, String>();
+    private Map<String, String> vars = new HashMap<>();
 
     /**
      * The url that an automated test will be testing.
@@ -93,9 +91,9 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
         final Properties props = new Properties();
         try {
             props.load(getClass().getResourceAsStream("/default.properties"));
-        } catch (IOException e) {
-            logFatal("Couldn't load in default properties");
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            logFatal("Couldn't load default properties");
+        }
 
         /**
          * Order of overrides:
@@ -116,7 +114,7 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
                 if (testConfiguration != null && (!StringUtils.isEmpty(testConfiguration.url()))) url = testConfiguration.url();
 
                 if( url.contains("${local.server.port}") ){
-                  url = url.replace("${local.server.port}", ""+port );
+                    url = url.replace("${local.server.port}", ""+port );
                 }
                 return url;
             }
@@ -146,31 +144,31 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
                 return null;
             }
 
-			@Override
-			public String baseUrl() {
+            @Override
+            public String baseUrl() {
 
-				String url = url();
-		        LOGGER.warn("returning url() for baseUrl() : '" + url + "'" );
-				return url;
-			}
+                String url = url();
+                LOGGER.warn("returning url() for baseUrl() : '" + url + "'" );
+                return url;
+            }
 
-			@Override
-			public String path() {
+            @Override
+            public String path() {
 
-				URL url;
-				try {
-					url = new URL(url());
-				} catch (MalformedURLException e) {
-			        LOGGER.error("baseUrl() is not an URL", e );
-			        return "";
-				}
+                URL url;
+                try {
+                    url = new URL(url());
+                } catch (MalformedURLException e) {
+                    LOGGER.error("baseUrl() is not an URL", e );
+                    return "";
+                }
 
-				String path = url.getPath();
-		        LOGGER.warn("returning path '"+ path +"' from baseUrl() : '" + url() + "'" );
+                String path = url.getPath();
+                LOGGER.warn("returning path '"+ path +"' from baseUrl() : '" + url() + "'" );
 
-				// TODO Auto-generated method stub
-				return null;
-			}
+                // TODO Auto-generated method stub
+                return null;
+            }
         };
     }
 
@@ -181,9 +179,9 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
         baseUrl = configuration.url();
 
         LOGGER.info(String.format("\n=== Configuration ===\n" +
-        "\tURL:     %s\n" +
-        "\tBrowser: %s\n" +
-        "\tHub:     %s\n", configuration.url(), configuration.browser().name(), configuration.hub()));
+            "\tURL:     %s\n" +
+            "\tBrowser: %s\n" +
+            "\tHub:     %s\n", configuration.url(), configuration.browser().name(), configuration.hub()));
         boolean isLocal = StringUtils.isEmpty(configuration.hub());
 
         switch (configuration.browser()) {
@@ -197,21 +195,31 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
 
                 try{
                     URL resourceURL = ResourceUtils.getURL( "classpath:drivers/" + driverName);
-                    InputStream is = resourceURL.openStream();
                     File tmpFile = File.createTempFile("ca3sTest", driverName);
 
-                    Files.copy( is,
+                    Files.copy( resourceURL.openStream(),
                         tmpFile.toPath(),
                         StandardCopyOption.REPLACE_EXISTING);
 
-                    IOUtils.closeQuietly(is);
+                    if( SystemUtils.IS_OS_LINUX ) {
+                        Set<PosixFilePermission> perms = new HashSet<>();
+                        perms.add(PosixFilePermission.OWNER_READ);
+                        perms.add(PosixFilePermission.OWNER_WRITE);
+                        perms.add(PosixFilePermission.OWNER_EXECUTE);
+                        Files.setPosixFilePermissions(tmpFile.toPath(), perms);
+                    }
 
                     System.setProperty("webdriver.chrome.driver", tmpFile.getAbsolutePath());
                     System.err.println("starting local Chrome using driver at : " + System.getProperty("webdriver.chrome.driver"));
 
                     if (isLocal) {
                         try {
-                            driver = new ChromeDriver();
+                            ChromeOptions options = new ChromeOptions();
+                            options.addArguments("--no-sandbox");
+                            options.addArguments("--disable-dev-shm-usage");
+
+                            driver = new ChromeDriver(options);
+
                         } catch (Exception x) {
                             x.printStackTrace();
                             LOGGER.error("starting chrome driver, exiting ...", x);
@@ -285,8 +293,8 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
         if (getJvmProperty("os.name").toLowerCase().contains("mac")) {
             System.setProperty("webdriver.chrome.driver", findFile("chromedriver.mac"));
         } else if (getJvmProperty("os.name").toLowerCase().contains("nix") ||
-                   getJvmProperty("os.name").toLowerCase().contains("nux") ||
-                   getJvmProperty("os.name").toLowerCase().contains("aix")
+            getJvmProperty("os.name").toLowerCase().contains("nux") ||
+            getJvmProperty("os.name").toLowerCase().contains("aix")
         ) {
             System.setProperty("webdriver.chrome.driver", findFile("chromedriver.linux"));
         } else if (getJvmProperty("os.name").toLowerCase().contains("win")) {
@@ -298,7 +306,7 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
     }
 
     static public String findFile(String filename) {
-        String paths[] = {"", "bin/", "target/classes"}; // if you have chromedriver somewhere else on the path, then put it here.
+        String[] paths = {"", "bin/", "target/classes"}; // if you have chromedriver somewhere else on the path, then put it here.
         for (String path : paths) {
             if (new File(path + filename).exists())
                 return path + filename;
@@ -306,7 +314,7 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
         return "";
     }
 
-	@AfterAll
+    @AfterAll
     public static void teardown() {
         driver.quit();
     }
@@ -321,8 +329,8 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
         while (size == 0) {
             size = driver.findElements(by).size();
             if (attempts == MAX_ATTEMPTS) fail(String.format("Could not find %s after %d seconds",
-                                                             by.toString(),
-                                                             MAX_ATTEMPTS));
+                by.toString(),
+                MAX_ATTEMPTS));
             attempts++;
             try {
                 Thread.sleep(1000); // sleep for 1 second.
@@ -345,12 +353,12 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
         WebElement we = waitForElement(by);
 
         try{
-          we.click();
+            we.click();
         }catch( ElementNotInteractableException enie){
-        	System.out.println("NotInteractable, trying to execute script");
+            System.out.println("NotInteractable, trying to execute script");
             ((org.openqa.selenium.JavascriptExecutor) driver).executeScript( "arguments[0].click();", we);
         }catch( WebDriverException wde){
-          wde.printStackTrace();
+            wde.printStackTrace();
 
 //        	WebDriverWait wait = new WebDriverWait(driver, 10);
 //        	wait.until(ExpectedConditions.elementToBeClickable(by));
@@ -361,7 +369,7 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
                 we = waitForElement(by);
             } catch (Exception e) { // just ignore
             }
-          we.click();
+            we.click();
         }
         return this;
     }
@@ -374,17 +382,17 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
         WebElement element = waitForElement(by);
         try{
             element.clear();
-          }catch( WebDriverException wde){
+        }catch( WebDriverException wde){
 
-        	  element = waitForElement(by);
-              try {
-                  try {Thread.sleep(200);}catch(Exception x) { x.printStackTrace(); }
-                  ((org.openqa.selenium.JavascriptExecutor) driver).executeScript( "arguments[0].scrollIntoView(true);", element);
-                  element = waitForElement(by);
-              } catch (Exception e) { // just ignore
-              }
-              element.clear();
-          }
+            element = waitForElement(by);
+            try {
+                try {Thread.sleep(200);}catch(Exception x) { x.printStackTrace(); }
+                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript( "arguments[0].scrollIntoView(true);", element);
+                element = waitForElement(by);
+            } catch (Exception e) { // just ignore
+            }
+            element.clear();
+        }
         element.sendKeys(text);
         return this;
     }
@@ -424,10 +432,10 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
 
         if (e.getTagName().equalsIgnoreCase("input") || e.getTagName().equalsIgnoreCase("select") || e.getTagName().equalsIgnoreCase("textarea")) {
             text = e.getAttribute("value");
- //           System.out.println("reading attribute 'value' for " + e.getTagName() + " retrieves text '" + text +"'");
+            //           System.out.println("reading attribute 'value' for " + e.getTagName() + " retrieves text '" + text +"'");
         }else {
             text = e.getText();
- //           System.out.println("reading text for " + e.getTagName() + " retrieves text '" + text +"'");
+            //           System.out.println("reading text for " + e.getTagName() + " retrieves text '" + text +"'");
         }
 
         return text;
@@ -540,9 +548,9 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
 
         for (String window : windows) {
             driver.switchTo().window(window);
-            System.out.println(String.format("#switchToWindow() : title=%s ; url=%s",
-                    driver.getTitle(),
-                    driver.getCurrentUrl()));
+            System.out.printf("#switchToWindow() : title=%s ; url=%s%n",
+                driver.getTitle(),
+                driver.getCurrentUrl());
 
             p = Pattern.compile(regex);
             m = p.matcher(driver.getTitle());
@@ -638,7 +646,7 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
     public LocomotiveBase validatePresent(By by) {
         waitForElement(by);
         assertTrue("Element " + by.toString() + " does not exist!",
-                isPresent(by));
+            isPresent(by));
         return this;
     }
 
@@ -728,11 +736,11 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
         m = p.matcher(actual);
 
         assertTrue(String.format("Attribute doesn't match! [Selector: %s] [Attribute: %s] [Desired value: %s] [Actual value: %s]",
-                by.toString(),
-                attr,
-                regex,
-                actual
-                ), m.find());
+            by.toString(),
+            attr,
+            regex,
+            actual
+        ), m.find());
 
         return this;
     }
@@ -842,34 +850,34 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
         return this;
     }
 
-	@Override
-	public LocomotiveBase refresh() {
+    @Override
+    public LocomotiveBase refresh() {
         logFatal("Not implemented: refresh ");
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public LocomotiveBase selectOptionByIndex(String arg0, Integer arg1) {
+    @Override
+    public LocomotiveBase selectOptionByIndex(String arg0, Integer arg1) {
         logFatal("Not implemented: selectOptionByIndex ");
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public LocomotiveBase selectOptionByIndex(By arg0, Integer arg1) {
+    @Override
+    public LocomotiveBase selectOptionByIndex(By arg0, Integer arg1) {
         logFatal("Not implemented: selectOptionByIndex ");
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public LocomotiveBase switchToFrame(WebElement arg0) {
+    @Override
+    public LocomotiveBase switchToFrame(WebElement arg0) {
         logFatal("Not implemented: switchToFrame ");
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public LocomotiveBase waitForCondition(ExpectedCondition<?> arg0, long arg1, long arg2) {
+    @Override
+    public LocomotiveBase waitForCondition(ExpectedCondition<?> arg0, long arg1, long arg2) {
         logFatal("Not implemented: waitForCondition ");
-		return null;
-	}
+        return null;
+    }
 
 }
