@@ -40,10 +40,15 @@ spring:
       enabled: false
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-#    url: jdbc:mysql://10.0.2.2:3306/ca3s_jh_dev?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     url: jdbc:mysql://localhost:3306/ca3s_jh_dev?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: ca3s_jh_dev
     password: nYbA4Jm4rnQJ
+
+# connect to the database with user-only privileges
+#    url: jdbc:mysql://localhost:3306/ca3s_sep_roles?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+#    username: ca3s_sr_user
+#    password: o2Z3je8twZ5W
+
     hikari:
       poolName: Hikari
       auto-commit: false
@@ -66,6 +71,10 @@ spring:
   liquibase:
     contexts: prod
     changeLog: classpath:config/liquibase-3.5/master.xml
+# connect to the database with admin privileges
+#    default-schema: ca3s_sep_roles
+#    user: ca3s_sr_admin
+#    password: MLQ738PdLpio
   mail:
     host: localhost
     port: 25

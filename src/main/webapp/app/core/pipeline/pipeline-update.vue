@@ -4,11 +4,11 @@
             <form name="editForm" role="form" novalidate v-on:submit.prevent="save()" >
                 <h2 id="ca3SApp.pipeline.home.createOrEditLabel" v-text="$t('ca3SApp.pipeline.home.createOrEditLabel')">Create or edit a Pipeline</h2>
                 <div>
-                    <div class="form-group" v-if="pipeline.id">
+                    <!--div class="form-group" v-if="pipeline.id">
                         <label for="id" v-text="$t('global.field.id')">ID</label>
                         <input type="text" class="form-control" id="id" name="id"
                                v-model="pipeline.id" readonly />
-                    </div>
+                    </div-->
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.name')" for="pipeline-name">Name</label>
                         <input type="text" class="form-control" name="name" id="pipeline-name"
@@ -262,7 +262,7 @@
 <!--
                     <div class="form-group" v-if="$v.pipeline.approvalRequired.$model">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.approvalInfo')" for="pipeline-approvalInfo1">Approval Info</label>
-                        
+
                         <input type="text" class="form-control" name="urlPart" id="pipeline-approvalInfo1"
                             :class="{'valid': !$v.pipeline.approvalInfo1.$invalid, 'invalid': $v.pipeline.approvalInfo1.$invalid }" v-model="$v.pipeline.approvalInfo1.$model" />
                     </div>

@@ -164,8 +164,8 @@
         <xml.maven.saxon.version>9.7.0-18</xml.maven.saxon.version>
         <xml.maven.plugin.version>1.0.2</xml.maven.plugin.version>
 
-        <dependencyCheck.version>5.3.1</dependencyCheck.version>
-        <dependencyCheck.skip>true</dependencyCheck.skip>
+        <dependencyCheck.version>6.0.3</dependencyCheck.version>
+        <dependencyCheck.skip>false</dependencyCheck.skip>
 
     </properties>
 

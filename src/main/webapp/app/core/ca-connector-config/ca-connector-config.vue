@@ -24,9 +24,9 @@
             <table class="table table-striped">
                 <thead>
                 <tr>
-                    <th><span v-text="$t('global.field.id')">ID</span></th>
+                    <!--th><span v-text="$t('global.field.id')">ID</span></th-->
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.name')">Name</span></th>
-                    <th><span v-text="$t('ca3SApp.cAConnectorConfig.caConnectorType')">Ca Connector Type</span></th>                    
+                    <th><span v-text="$t('ca3SApp.cAConnectorConfig.caConnectorType')">Ca Connector Type</span></th>
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.caUrl')">Ca Url</span></th>
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.pollingOffset')">Polling Offset</span></th>
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.defaultCA')">Default CA</span></th>
@@ -39,9 +39,9 @@
                 <tbody>
                 <tr v-for="cAConnectorConfig in cAConnectorConfigs"
                     :key="cAConnectorConfig.id">
-                    <td>
+                    <!--td>
                         <router-link :to="{name: 'CAConnectorConfigView', params: {cAConnectorConfigId: cAConnectorConfig.id}}">{{cAConnectorConfig.id}}</router-link>
-                    </td>
+                    </td-->
                     <td>{{cAConnectorConfig.name}}</td>
                     <td v-text="$t('ca3SApp.CAConnectorType.' + cAConnectorConfig.caConnectorType)">{{cAConnectorConfig.caConnectorType}}</td>
                     <td>{{cAConnectorConfig.caUrl}}</td>

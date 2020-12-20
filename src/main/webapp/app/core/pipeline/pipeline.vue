@@ -24,7 +24,7 @@
             <table class="table table-striped">
                 <thead>
                 <tr>
-                    <th><span v-text="$t('global.field.id')">ID</span></th>
+                    <!--th><span v-text="$t('global.field.id')">ID</span></th-->
                     <th><span v-text="$t('ca3SApp.pipeline.name')">Name</span></th>
                     <th><span v-text="$t('ca3SApp.pipeline.type')">Type</span></th>
                     <th><span v-text="$t('ca3SApp.pipeline.urlPart')">Url Part</span></th>
@@ -37,9 +37,9 @@
                 <tbody>
                 <tr v-for="pipeline in pipelines"
                     :key="pipeline.id">
-                    <td>
+                    <!--td>
                         <router-link :to="{name: 'PipelineView', params: {pipelineId: pipeline.id}}">{{pipeline.id}}</router-link>
-                    </td>
+                    </td-->
                     <td>{{pipeline.name}}</td>
                     <td v-text="$t('ca3SApp.PipelineType.' + pipeline.type)">{{pipeline.type}}</td>
                     <td>{{pipeline.urlPart}}</td>

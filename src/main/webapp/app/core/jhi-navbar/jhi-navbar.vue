@@ -56,7 +56,7 @@
                     active-class="active" class="pointer">
 
                     <b-dropdown-item to="/preference">
-                        <font-awesome-icon icon="list" />
+                        <font-awesome-icon icon="edit" />
                         <span v-text="$t('global.menu.admin.preference')">Preference</span>
                     </b-dropdown-item>
 
@@ -66,12 +66,12 @@
                     </span>
 
                     <b-dropdown-item to="/confCaConnector">
-                        <font-awesome-icon icon="asterisk" />
+                        <font-awesome-icon icon="tools" />
                         <span v-text="$t('global.menu.config.caConnectorConfig')">CAConnectorConfig</span>
                     </b-dropdown-item>
 
                     <b-dropdown-item to="/confPipeline">
-                        <font-awesome-icon icon="asterisk" />
+                        <font-awesome-icon icon="train" />
                         <span v-text="$t('global.menu.config.pipeline')">Pipeline</span>
                     </b-dropdown-item>
 
@@ -156,17 +156,17 @@
                         <span v-text="$t('global.menu.entities.acmeNonce')">AcmeNonce</span>
                     </b-dropdown-item-->
                     <b-dropdown-item to="/bpnm-process-info">
-                        <font-awesome-icon icon="asterisk" />
+                        <font-awesome-icon icon="receipt" />
                         <span v-text="$t('global.menu.entities.bpnmProcessInfo')">BPNMProcessInfo</span>
                     </b-dropdown-item>
                     <b-dropdown-item to="/request-proxy-config">
-                        <font-awesome-icon icon="asterisk" />
+                        <font-awesome-icon icon="map" />
                         <span v-text="$t('global.menu.entities.requestProxyConfig')">RequestProxyConfig</span>
                     </b-dropdown-item>
-                    <b-dropdown-item to="/user-preference">
+                    <!--b-dropdown-item to="/user-preference">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.userPreference')">UserPreference</span>
-                    </b-dropdown-item>
+                    </b-dropdown-item-->
                     <!-- jhipster-needle-add-entity-to-menu - JHipster will add entities to the menu here -->
                 </b-nav-item-dropdown>
                 <b-nav-item-dropdown

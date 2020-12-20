@@ -38,12 +38,16 @@ import { faCloud } from '@fortawesome/free-solid-svg-icons/faCloud';
 import { faBars } from '@fortawesome/free-solid-svg-icons/faBars';
 import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes';
 import { faStethoscope } from '@fortawesome/free-solid-svg-icons/faStethoscope';
+import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
 import { faGavel } from '@fortawesome/free-solid-svg-icons/faGavel';
+import { faTools } from '@fortawesome/free-solid-svg-icons/faTools';
+import { faTrain } from '@fortawesome/free-solid-svg-icons/faTrain';
+import { faMap } from '@fortawesome/free-solid-svg-icons/faMap';
+import { faReceipt } from '@fortawesome/free-solid-svg-icons/faReceipt';
 import { faUpload } from '@fortawesome/free-solid-svg-icons/faUpload';
 import { faCartPlus } from '@fortawesome/free-solid-svg-icons/faCartPlus';
-import { faIdCard } from '@fortawesome/free-solid-svg-icons/faIdCard'; 
+import { faIdCard } from '@fortawesome/free-solid-svg-icons/faIdCard';
 import { faMinus } from '@fortawesome/free-solid-svg-icons/faMinus';
-
 
 import VueCookie from 'vue-cookie';
 import Vuelidate from 'vuelidate';
@@ -179,7 +183,12 @@ export function initFortAwesome(vue) {
     faTimes,
     faUpload,
     faStethoscope,
+    faEdit,
     faGavel,
+    faTools,
+    faTrain,
+    faMap,
+    faReceipt,
     faCartPlus,
     faIdCard
   );

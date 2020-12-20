@@ -13,8 +13,12 @@
 			<div class="col-8">
 				<form name="editForm" role="form" novalidate >
 
-					<h2 class="jh-entity-heading"><span v-text="$t('pkcsxx.subtitle')">Upload</span></h2>
-					<div >
+					<h2 class="jh-entity-heading">
+                        <span v-if="creationMode === 'CSR_AVAILABLE'" v-text="$t('pkcsxx.subtitle.csr')">Upload</span>
+                        <span v-if="creationMode === 'COMMANDLINE_TOOL'" v-text="$t('pkcsxx.subtitle.tooling')">Upload</span>
+                        <span v-if="creationMode === 'SERVERSIDE_KEY_CREATION'" v-text="$t('pkcsxx.subtitle.serverside')">Upload</span>
+                    </h2>
+					<div>
 
 						<div class="form-group">
 							<label class="form-control-label" v-text="$t('pkcsxx.upload.pipeline')" for="pkcsxx-pipeline">Pipeline</label>
@@ -39,8 +43,8 @@
 							<select class="form-control" id="pkcsxx-key-creation" name="pkcsxx-key-creation" v-model="creationMode">
 
 								<option value="CSR_AVAILABLE" v-text="$t('pkcsxx.upload.creationMode.csrAvailable')" selected="selected">csrAvailable</option>
+                                <option v-if="preferences.serverSideKeyCreationAllowed" value="SERVERSIDE_KEY_CREATION" v-text="$t('pkcsxx.upload.creationMode.serversideKeyCreation')">serverside key creation</option>
 								<option value="COMMANDLINE_TOOL" v-text="$t('pkcsxx.upload.creationMode.commandLineTool')">csr generation command line</option>
-								<option v-if="preferences.serverSideKeyCreationAllowed" value="SERVERSIDE_KEY_CREATION" v-text="$t('pkcsxx.upload.creationMode.serversideKeyCreation')">serverside key creation</option>
 							</select>
 						</div>
 
@@ -48,19 +52,10 @@
 							<label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.selection')" for="pkcsxx-key-tool">Creation tool</label>
 							<select class="form-control" id="pkcsxx-key-tool" name="pkcsxx-key-tool" v-model="creationTool" v-on:change="updateCmdLine()">
 								<option value="keytool" v-text="$t('pkcsxx.upload.creationTool.keytool')" selected="selected">keytool</option>
-								<option value="openssl" v-text="$t('pkcsxx.upload.creationTool.openssl')" >openssl</option>
+                                <option value="openssl_ge_1.1.1" v-text="$t('pkcsxx.upload.creationTool.openssl_ge_1.1.1')" >openssl (ver. >= 1.1.1)</option>
+                                <option value="openssl" v-text="$t('pkcsxx.upload.creationTool.openssl')" >openssl</option>
 							</select>
 						</div>
-
-	<!--
-						<div class="form-group" v-if="creationMode === 'SERVERSIDE_KEY_CREATION'">
-							<label class="form-control-label" v-text="$t('pkcsxx.upload.containerType.selection')" for="pkcsxx-container-type">Container type</label>
-							<select class="form-control" id="pkcsxx-key-tool" name="pkcsxx-container-type" v-model="upload.containerType" >
-								<option value="PKCS_12" v-text="$t('pkcsxx.upload.containerType.pkcs12')" selected="selected">PKCS-12</option>
-								<option value="JKS" v-text="$t('pkcsxx.upload.containerType.jks')" >JKS</option>
-							</select>
-						</div>
-	-->
 
 						<div class="form-group" v-if="(creationMode === 'COMMANDLINE_TOOL') || (creationMode === 'SERVERSIDE_KEY_CREATION')">
 							<label class="form-control-label" v-text="$t('pkcsxx.upload.certificateParams')" for="pkcsxx-pipeline">certificateParams</label>
@@ -339,7 +334,7 @@
 							class="btn btn-primary" v-on:click="uploadContent">
 							<font-awesome-icon icon="upload"></font-awesome-icon>&nbsp;<span v-text="$t('pkcsxx.upload.requestCertificate')">Request certificate</span>
 						</button>
-						<button type="button" id="uploadContent"
+						<button type="button" id="showCSRDetails"
 							v-if="showCertificateUpload()"
 							:disabled="precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE' || precheckResponse.certificatePresentInDB || precheckResponse.publicKeyPresentInDB" class="btn btn-primary" v-on:click="uploadContent">
 							<font-awesome-icon icon="upload"></font-awesome-icon>&nbsp;<span v-text="$t('pkcsxx.upload.submit')">Upload</span>

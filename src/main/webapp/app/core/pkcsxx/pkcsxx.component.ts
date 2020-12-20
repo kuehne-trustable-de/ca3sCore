@@ -282,29 +282,38 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
         }
       }
       cmdline += ' -file server.csr';
+    } else if (this.creationTool === 'openssl_ge_1.1.1') {
+      //
+      // openssl >= 1.1.1
+      //
+      cmdline = this.getOpensslGommon(cmdline, algo, keyLen);
+
+      if (nvSAN !== undefined && nvSAN.values.length > 0 && nvSAN.values[0].length > 0) {
+        cmdline += ' -addext "subjectAltName = ';
+        let sans = '';
+        let idx = 1;
+        for (const san of nvSAN.values) {
+          if (san.length > 0) {
+            if (sans.length > 0) {
+              sans += ',';
+            }
+            const parts = san.split(':', 2);
+            if (parts.length < 2) {
+              sans += 'DNS:' + san;
+            } else {
+              sans += parts[0] + ':' + parts[1];
+            }
+          }
+          idx++;
+        }
+        cmdline += sans + '"';
+      }
+      cmdline += ' -keyout private_key.pem -out server.csr';
     } else {
       //
       // openssl
       //
-      cmdline = 'openssl req -newkey ' + algo + ':' + keyLen;
-      cmdline += ' -days 365 -nodes -subj ';
-
-      let subject = '';
-      for (const nv of this.upload.certificateAttributes) {
-        const name = nv.name;
-        if (name === 'SAN') {
-          // handle SANS specially, see below
-          continue;
-        }
-        for (const value of nv.values) {
-          if (value.length > 0) {
-            subject += '/' + name.toUpperCase() + '=' + value;
-          }
-        }
-      }
-      if (subject.length > 0) {
-        cmdline += '"' + subject + '"';
-      }
+      cmdline = this.getOpensslGommon(cmdline, algo, keyLen);
 
       if (nvSAN !== undefined && nvSAN.values.length > 0 && nvSAN.values[0].length > 0) {
         cmdline += ' -extensions SAN -config <( cat $( echo /etc/ssl/openssl.cnf  ) <(printf "[SAN]\nsubjectAltName=\'';
@@ -330,6 +339,29 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       cmdline += ' -keyout private_key.pem -out server.csr';
     }
 
+    return cmdline;
+  }
+
+  private getOpensslGommon(cmdline: string, algo: string, keyLen: string) {
+    cmdline = 'openssl req -newkey ' + algo + ':' + keyLen;
+    cmdline += ' -nodes -subj ';
+
+    let subject = '';
+    for (const nv of this.upload.certificateAttributes) {
+      const name = nv.name;
+      if (name === 'SAN') {
+        // handle SANS specially, see below
+        continue;
+      }
+      for (const value of nv.values) {
+        if (value.length > 0) {
+          subject += '/' + name.toUpperCase() + '=' + value;
+        }
+      }
+    }
+    if (subject.length > 0) {
+      cmdline += '"' + subject + '"';
+    }
     return cmdline;
   }
 

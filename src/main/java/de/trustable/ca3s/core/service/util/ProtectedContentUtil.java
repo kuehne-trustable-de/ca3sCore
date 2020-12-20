@@ -33,7 +33,7 @@ public class ProtectedContentUtil {
 		}
 		if( log.isDebugEnabled()) {
 			String paddedSecret = "******" + protectionSecret;
-			log.debug("using protection  secret '{}'", "******" + paddedSecret.substring(paddedSecret.length() - 6));
+			log.debug("using protection  secret '{}'", "******" + paddedSecret.substring(paddedSecret.length() - 4));
 		}
 		textEncryptor.setPassword(protectionSecret);
 	}
@@ -56,7 +56,7 @@ public class ProtectedContentUtil {
 	 * @param pct the content type of the plainText
 	 * @param crt the related entity
 	 * @param connectionId the related entity
-	 * @return
+	 * @return the freshly created object
 	 */
 	public ProtectedContent createProtectedContent(final String plainText, ProtectedContentType pct, ContentRelationType crt, long connectionId) {
 
@@ -73,9 +73,9 @@ public class ProtectedContentUtil {
 
 	/**
 	 *
-	 * @param type
-	 * @param crt
-	 * @param id
+	 * @param type the type of object which is required
+     * @param crt the related entity
+	 * @param id the object id
 	 * @return
 	 */
 	public List<ProtectedContent> retrieveProtectedContent(ProtectedContentType type, ContentRelationType crt, long id) {

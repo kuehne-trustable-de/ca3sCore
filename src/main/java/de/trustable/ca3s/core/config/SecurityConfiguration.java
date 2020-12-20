@@ -279,7 +279,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private RequestMatcher forPort(final int port) {
         return (HttpServletRequest request) -> {
         	boolean result =  (port == 0) || (port == request.getLocalPort());
-        	LOG.info("checking local port {} against target port {} evaluates to {}", request.getLocalPort(), port, result);
+        	LOG.debug("checking local port {} against target port {} evaluates to {}", request.getLocalPort(), port, result);
         	return result;
         };
     }
