@@ -778,6 +778,7 @@
   "password.title": "Passwort für [<strong>{{username}}</strong>]",
   "pkcsxx.subtitle": "Eine Zertifikatsanfrage hochladen",
   "pkcsxx.subtitle.csr": "Eine Zertifikatsanfrage hochladen",
+  "pkcsxx.subtitle.check.csr": "Eine Zertifikatsanfrage prüfen",
   "pkcsxx.subtitle.serverside": "Zertifikats & Schlüssel erzeugen lassen",
   "pkcsxx.subtitle.tooling": "Tools zur CSR-Erzeugung",
   "pkcsxx.title": "Zertifikatantrag",

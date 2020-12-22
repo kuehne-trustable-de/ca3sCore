@@ -14,13 +14,13 @@
 				<form name="editForm" role="form" novalidate >
 
 					<h2 class="jh-entity-heading">
-                        <span v-if="creationMode === 'CSR_AVAILABLE'" v-text="$t('pkcsxx.subtitle.csr')">Upload</span>
-                        <span v-if="creationMode === 'COMMANDLINE_TOOL'" v-text="$t('pkcsxx.subtitle.tooling')">Upload</span>
-                        <span v-if="creationMode === 'SERVERSIDE_KEY_CREATION'" v-text="$t('pkcsxx.subtitle.serverside')">Upload</span>
+                        <span v-if="(authenticated === false) && (creationMode === 'CSR_AVAILABLE')" v-text="$t('pkcsxx.subtitle.check.csr')">Check</span>
+                        <span v-else-if="creationMode === 'CSR_AVAILABLE'" v-text="$t('pkcsxx.subtitle.csr')">Upload</span>
+                        <span v-else-if="creationMode === 'COMMANDLINE_TOOL'" v-text="$t('pkcsxx.subtitle.tooling')">Upload</span>
+                        <span v-else-if="creationMode === 'SERVERSIDE_KEY_CREATION'" v-text="$t('pkcsxx.subtitle.serverside')">Upload</span>
                     </h2>
 					<div>
-
-						<div class="form-group">
+						<div class="form-group" v-if="authenticated">
 							<label class="form-control-label" v-text="$t('pkcsxx.upload.pipeline')" for="pkcsxx-pipeline">Pipeline</label>
 							<!--select class="form-control" id="pkcsxx-pipeline" name="pkcsxx-pipeline" v-model="$v.upload.pipelineId.$model" required v-on:change="updatePipelineRestrictions($event)"-->
 							<select class="form-control" id="pkcsxx-pipeline" name="pkcsxx-pipeline" v-model="upload.pipelineId" required v-on:change="updatePipelineRestrictions($event)">
@@ -28,7 +28,6 @@
 							</select>
 
 							<span>{{selectPipelineInfo}}</span>
-
 							<!--span>upload.pipelineId.id  = {{upload.pipelineId.id}}</span>
 							<div v-if="upload.pipelineId.id < 1110">
 								<small class="form-text text-danger" v-text="$t('entity.validation.required')">
@@ -43,7 +42,7 @@
 							<select class="form-control" id="pkcsxx-key-creation" name="pkcsxx-key-creation" v-model="creationMode">
 
 								<option value="CSR_AVAILABLE" v-text="$t('pkcsxx.upload.creationMode.csrAvailable')" selected="selected">csrAvailable</option>
-                                <option v-if="preferences.serverSideKeyCreationAllowed" value="SERVERSIDE_KEY_CREATION" v-text="$t('pkcsxx.upload.creationMode.serversideKeyCreation')">serverside key creation</option>
+                                <option v-if="preferences.serverSideKeyCreationAllowed && authenticated" value="SERVERSIDE_KEY_CREATION" v-text="$t('pkcsxx.upload.creationMode.serversideKeyCreation')">serverside key creation</option>
 								<option value="COMMANDLINE_TOOL" v-text="$t('pkcsxx.upload.creationMode.commandLineTool')">csr generation command line</option>
 							</select>
 						</div>
@@ -184,9 +183,9 @@
 								<span v-text="$t('pkcsxx.upload.result.error')">Error</span>
 							</dt>
 							<dd>
-								<span v-if="responseStatus == 400" v-text="$t('pkcsxx.upload.result.content.not.parseable')">Ccontent not parseable</span>
-								<span v-else-if="responseStatus == 409" v-text="$t('pkcsxx.upload.result.certificate.already.exists')">Certificate already exists</span>
-								<span v-else-if="responseStatus == 201" v-text="$t('pkcsxx.upload.result.upload.successful')">Upload successful</span>
+								<span v-if="responseStatus === 400" v-text="$t('pkcsxx.upload.result.content.not.parseable')">Ccontent not parseable</span>
+								<span v-else-if="responseStatus === 409" v-text="$t('pkcsxx.upload.result.certificate.already.exists')">Certificate already exists</span>
+								<span v-else-if="responseStatus === 201" v-text="$t('pkcsxx.upload.result.upload.successful')">Upload successful</span>
 								<span v-else v-text="$t('pkcsxx.upload.result.general error')">General error</span>
 							</dd>
 						</dl>

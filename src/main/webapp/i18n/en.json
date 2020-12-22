@@ -784,6 +784,7 @@
   "password.title": "Password for [<strong>{{username}}</strong>]",
   "pkcsxx.subtitle": "Upload a certificate request",
   "pkcsxx.subtitle.csr": "Upload a certificate request",
+  "pkcsxx.subtitle.check.csr": "Check a certificate request",
   "pkcsxx.subtitle.serverside": "Key & certificate creation",
   "pkcsxx.subtitle.tooling": "Tools for csr creation",
   "pkcsxx.title": "Certificate Request",
