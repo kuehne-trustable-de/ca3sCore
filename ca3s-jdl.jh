@@ -8,7 +8,7 @@ entity CAConnectorConfig{
 	name String required
 	caConnectorType CAConnectorType required
 	caUrl String
-	pollingOffset Integer 
+	pollingOffset Integer
 	defaultCA Boolean
 	active Boolean
 	selector String
@@ -38,7 +38,7 @@ entity Certificate {
 
   tbsDigest String required
   subject String required
-  sans String 
+  sans String
   issuer String required
   root String
   type String required
@@ -48,7 +48,7 @@ entity Certificate {
   validFrom Instant required
   validTo Instant required
   keyAlgorithm String
-  keyLength Integer 
+  keyLength Integer
   curveName String
   hashingAlgorithm String
   paddingAlgorithm String
@@ -59,7 +59,7 @@ entity Certificate {
   revocationReason String
   revoked Boolean
   revocationExecutionId String
-  administrationComment TextBlob 
+  administrationComment TextBlob
   endEntity Boolean
   selfsigned Boolean
   trusted Boolean
@@ -72,10 +72,10 @@ enum CsrStatus {
 }
 
 entity CSR{
-	
+
    	csrBase64 TextBlob required
   	subject String required
-  	sans String 
+  	sans String
   	requestedOn Instant required
   	requestedBy String required
   	pipelineType PipelineType required
@@ -90,12 +90,12 @@ entity CSR{
 	x509KeySpec String
 	publicKeyAlgorithm String
 	keyAlgorithm String
-  	keyLength Integer 
+  	keyLength Integer
 	publicKeyHash String
   	serversideKeyGeneration Boolean
 	subjectPublicKeyInfoBase64 TextBlob required
-	requestorComment TextBlob 
-	administrationComment TextBlob 
+	requestorComment TextBlob
+	administrationComment TextBlob
 }
 
 entity CsrAttribute{
@@ -112,11 +112,15 @@ enum ContentRelationType {
     CERTIFICATE, CONNECTION
 }
 
+@skipClient(true)
 entity ProtectedContent{
 
    	contentBase64 TextBlob required
   	type ProtectedContentType required
-  	relationType ContentRelationType 
+  	leftUsages Integer
+  	validTo Instant
+
+  	relationType ContentRelationType
   	relatedId Long
 }
 
@@ -166,7 +170,7 @@ entity Pipeline{
 }
 
 entity PipelineAttribute{
-	
+
   	name String required
   	value String required
 }
@@ -205,7 +209,7 @@ entity ACMEAccount {
   	accountId Long required
   	realm String required
 	status AccountStatus
-    
+
 //  termsOfServiceAgreed (optional, boolean):  Including this field in a
 //  new-account request, with a value of true, indicates the client's
 //  agreement with the terms of service.  This field is not updateable
@@ -273,7 +277,7 @@ entity AcmeOrder{
 }
 
 entity AcmeIdentifier {
-	
+
 	acmeIdentifierId Long required
 
 // type (required, string): The type of AcmeIdentifier. This document defines the
@@ -281,7 +285,7 @@ entity AcmeIdentifier {
 // others.
 	type String required
 	value String required
-    
+
 }
 
 entity AcmeAuthorization {
@@ -289,11 +293,11 @@ entity AcmeAuthorization {
 //	@GenericGenerator(name="RandomGenerator.generatorName", strategy="de.trustable.ca3s.acme.server.entity.RandomGenerator")
 //	@GeneratedValue(generator="RandomGenerator.generatorName")
 	AcmeAuthorizationId Long required
-	
+
 	type String required
 
 	value String required
-	
+
 }
 
 enum ChallengeStatus {
@@ -309,7 +313,7 @@ entity AcmeChallenge {
 	token String required
 	validated Instant
 	status ChallengeStatus required
-	
+
 }
 
 entity AcmeNonce {
@@ -319,7 +323,7 @@ entity AcmeNonce {
 
 
 entity UserPreference{
-	
+
 	userId Long required
   	name String required
 	content TextBlob required
@@ -335,7 +339,7 @@ relationship OneToMany {
 	CSR{ras} to RequestAttribute{csr}
 
 	CSR{csrAttributes} to CsrAttribute{csr}
-	
+
 	RDN{rdnAttributes} to RDNAttribute{rdn}
 
 	RequestAttribute{requestAttributeValues} to RequestAttributeValue{reqAttr}
@@ -394,7 +398,7 @@ relationship OneToOne{
   Certificate{csr} to CSR{certificate}
 
   RequestProxyConfig{secret} to ProtectedContent
-  
+
   CAConnectorConfig{secret} to ProtectedContent
 }
 
