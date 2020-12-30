@@ -1,64 +1,65 @@
 {
-    "name": "Pipeline",
-    "fields": [
-        {
-            "fieldName": "name",
-            "fieldType": "String",
-            "fieldValidateRules": [
-                "required"
-            ]
-        },
-        {
-            "fieldName": "type",
-            "fieldType": "PipelineType",
-            "fieldValues": "ACME,SCEP,WEB,INTERNAL",
-            "fieldValidateRules": [
-                "required"
-            ]
-        },
-        {
-            "fieldName": "urlPart",
-            "fieldType": "String"
-        },
-        {
-            "fieldName": "description",
-            "fieldType": "String"
-        },
-        {
-            "fieldName": "approvalRequired",
-            "fieldType": "Boolean"
-        }
-    ],
-    "relationships": [
-        {
-            "relationshipType": "one-to-many",
-            "otherEntityName": "pipelineAttribute",
-            "otherEntityRelationshipName": "pipeline",
-            "relationshipName": "pipelineAttributes"
-        },
-        {
-            "relationshipType": "many-to-one",
-            "otherEntityName": "cAConnectorConfig",
-            "otherEntityRelationshipName": "pipeline",
-            "relationshipName": "caConnector",
-            "otherEntityField": "id"
-        },
-        {
-            "relationshipType": "many-to-one",
-            "otherEntityName": "bPNMProcessInfo",
-            "otherEntityRelationshipName": "pipeline",
-            "relationshipName": "processInfo",
-            "otherEntityField": "id"
-        }
-    ],
-    "changelogDate": "20200110170119",
-    "entityTableName": "pipeline",
-    "dto": "no",
-    "pagination": "no",
-    "service": "serviceImpl",
-    "jpaMetamodelFiltering": false,
-    "fluentMethods": true,
-    "readOnly": false,
-    "clientRootFolder": "",
-    "applications": "*"
+  "name": "Pipeline",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "String",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "type",
+      "fieldType": "PipelineType",
+      "fieldValues": "ACME,SCEP,WEB,INTERNAL",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "urlPart",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "approvalRequired",
+      "fieldType": "Boolean"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "pipelineAttribute",
+      "otherEntityRelationshipName": "pipeline",
+      "relationshipName": "pipelineAttributes"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "cAConnectorConfig",
+      "otherEntityRelationshipName": "pipeline",
+      "relationshipName": "caConnector",
+      "otherEntityField": "id"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "bPNMProcessInfo",
+      "otherEntityRelationshipName": "pipeline",
+      "relationshipName": "processInfo",
+      "otherEntityField": "id"
+    }
+  ],
+  "changelogDate": "20200110170119",
+  "entityTableName": "pipeline",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "embedded": false
 }

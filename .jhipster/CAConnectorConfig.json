@@ -1,69 +1,70 @@
 {
-    "name": "CAConnectorConfig",
-    "fields": [
-        {
-            "fieldName": "name",
-            "fieldType": "String",
-            "fieldValidateRules": [
-                "required"
-            ]
-        },
-        {
-            "fieldName": "caConnectorType",
-            "fieldType": "CAConnectorType",
-            "fieldValues": "INTERNAL,CMP,ADCS,ADCS_CERTIFICATE_INVENTORY,DIRECTORY",
-            "fieldValidateRules": [
-                "required"
-            ]
-        },
-        {
-            "fieldName": "caUrl",
-            "fieldType": "String"
-        },
-        {
-            "fieldName": "pollingOffset",
-            "fieldType": "Integer"
-        },
-        {
-            "fieldName": "defaultCA",
-            "fieldType": "Boolean"
-        },
-        {
-            "fieldName": "active",
-            "fieldType": "Boolean"
-        },
-        {
-            "fieldName": "selector",
-            "fieldType": "String"
-        },
-        {
-            "fieldName": "interval",
-            "fieldType": "Interval",
-            "fieldValues": "MINUTE,HOUR,DAY,WEEK,MONTH"
-        },
-        {
-            "fieldName": "plainSecret",
-            "fieldType": "String"
-        }
-    ],
-    "relationships": [
-        {
-            "relationshipType": "one-to-one",
-            "otherEntityName": "protectedContent",
-            "otherEntityRelationshipName": "cAConnectorConfig",
-            "relationshipName": "secret",
-            "otherEntityField": "id",
-            "ownerSide": true
-        }
-    ],
-    "changelogDate": "20200110170110",
-    "entityTableName": "ca_connector_config",
-    "dto": "no",
-    "pagination": "no",
-    "service": "serviceImpl",
-    "jpaMetamodelFiltering": false,
-    "fluentMethods": true,
-    "readOnly": false,
-    "clientRootFolder": "",
-    "applications": "*"
+  "name": "CAConnectorConfig",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "String",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "caConnectorType",
+      "fieldType": "CAConnectorType",
+      "fieldValues": "INTERNAL,CMP,ADCS,ADCS_CERTIFICATE_INVENTORY,DIRECTORY",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "caUrl",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "pollingOffset",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "defaultCA",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "active",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "selector",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "interval",
+      "fieldType": "Interval",
+      "fieldValues": "MINUTE,HOUR,DAY,WEEK,MONTH"
+    },
+    {
+      "fieldName": "plainSecret",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-one",
+      "otherEntityName": "protectedContent",
+      "otherEntityRelationshipName": "cAConnectorConfig",
+      "relationshipName": "secret",
+      "otherEntityField": "id",
+      "ownerSide": true
+    }
+  ],
+  "changelogDate": "20200110170110",
+  "entityTableName": "ca_connector_config",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "embedded": false
 }

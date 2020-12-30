@@ -1,44 +1,45 @@
 {
-    "name": "RequestAttribute",
-    "fields": [
-        {
-            "fieldName": "attributeType",
-            "fieldType": "String",
-            "fieldValidateRules": [
-                "required"
-            ]
-        }
-    ],
-    "relationships": [
-        {
-            "relationshipType": "one-to-many",
-            "otherEntityName": "requestAttributeValue",
-            "otherEntityRelationshipName": "reqAttr",
-            "relationshipName": "requestAttributeValues"
-        },
-        {
-            "relationshipType": "many-to-one",
-            "otherEntityName": "requestAttributeValue",
-            "otherEntityRelationshipName": "requestAttribute",
-            "relationshipName": "holdingRequestAttribute",
-            "otherEntityField": "id"
-        },
-        {
-            "relationshipType": "many-to-one",
-            "otherEntityName": "cSR",
-            "otherEntityRelationshipName": "ras",
-            "relationshipName": "csr",
-            "otherEntityField": "id"
-        }
-    ],
-    "changelogDate": "20200110170117",
-    "entityTableName": "request_attribute",
-    "dto": "no",
-    "pagination": "no",
-    "service": "serviceImpl",
-    "jpaMetamodelFiltering": false,
-    "fluentMethods": true,
-    "readOnly": false,
-    "clientRootFolder": "",
-    "applications": "*"
+  "name": "RequestAttribute",
+  "fields": [
+    {
+      "fieldName": "attributeType",
+      "fieldType": "String",
+      "fieldValidateRules": [
+        "required"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "requestAttributeValue",
+      "otherEntityRelationshipName": "reqAttr",
+      "relationshipName": "requestAttributeValues"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "requestAttributeValue",
+      "otherEntityRelationshipName": "requestAttribute",
+      "relationshipName": "holdingRequestAttribute",
+      "otherEntityField": "id"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "cSR",
+      "otherEntityRelationshipName": "ras",
+      "relationshipName": "csr",
+      "otherEntityField": "id"
+    }
+  ],
+  "changelogDate": "20200110170117",
+  "entityTableName": "request_attribute",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "embedded": false
 }
