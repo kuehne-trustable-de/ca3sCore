@@ -1,0 +1,25 @@
+{
+  "ca3SApp": {
+    "identifier": {
+      "home": {
+        "title": "Identifier",
+        "createLabel": "Dodaj Identifier",
+        "createOrEditLabel": "Dodaj lub edytuj: Identifier",
+        "notFound": "No Identifiers found"
+      },
+      "created": "Utworzono nowy obiekt typu Identifier z identyfikatorem {{ param }}",
+      "updated": "Uaktualniono obiekt typu Identifier z identyfikatorem {{ param }}",
+      "deleted": "Usunięto obiekt typu Identifier z identyfikatorem {{ param }}",
+      "delete": {
+        "question": "Czy na pewno chcesz usunąć Identifier {{ id }}?"
+      },
+      "detail": {
+        "title": "Identifier"
+      },
+      "identifierId": "Identifier Id",
+      "type": "Type",
+      "value": "Value",
+      "order": "Order"
+    }
+  }
+}

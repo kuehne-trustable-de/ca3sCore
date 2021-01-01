@@ -1,0 +1,195 @@
+{
+  "name": "Certificate",
+  "fields": [
+    {
+      "fieldName": "tbsDigest",
+      "fieldType": "String",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "subject",
+      "fieldType": "String",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "sans",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "issuer",
+      "fieldType": "String",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "root",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "type",
+      "fieldType": "String",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "fingerprint",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "serial",
+      "fieldType": "String",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "validFrom",
+      "fieldType": "Instant",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "validTo",
+      "fieldType": "Instant",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "keyAlgorithm",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "keyLength",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "curveName",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "hashingAlgorithm",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "paddingAlgorithm",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "signingAlgorithm",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "creationExecutionId",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "contentAddedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "revokedSince",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "revocationReason",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "revoked",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "revocationExecutionId",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "administrationComment",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
+    },
+    {
+      "fieldName": "endEntity",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "selfsigned",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "trusted",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "active",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "content",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text",
+      "fieldValidateRules": [
+        "required"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-one",
+      "otherEntityName": "cSR",
+      "otherEntityRelationshipName": "certificate",
+      "relationshipName": "csr",
+      "otherEntityField": "id",
+      "ownerSide": true
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "certificateAttribute",
+      "otherEntityRelationshipName": "certificate",
+      "relationshipName": "certificateAttributes"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "certificate",
+      "otherEntityRelationshipName": "certificate",
+      "relationshipName": "issuingCertificate",
+      "otherEntityField": "id"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "certificate",
+      "otherEntityRelationshipName": "certificate",
+      "relationshipName": "rootCertificate",
+      "otherEntityField": "id"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "cAConnectorConfig",
+      "otherEntityRelationshipName": "certificate",
+      "relationshipName": "revocationCA",
+      "otherEntityField": "id"
+    }
+  ],
+  "changelogDate": "20200110170112",
+  "entityTableName": "certificate",
+  "dto": "no",
+  "pagination": "infinite-scroll",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "embedded": false
+}

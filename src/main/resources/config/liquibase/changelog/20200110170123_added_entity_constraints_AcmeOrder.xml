@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <!--
+        Added the constraints for entity AcmeOrder.
+    -->
+    <changeSet id="20200110170123-2" author="jhipster">
+        
+        <addForeignKeyConstraint baseColumnNames="csr_id"
+                                 baseTableName="acme_order"
+                                 constraintName="fk_acme_order_csr_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="csr"/>
+
+        <addForeignKeyConstraint baseColumnNames="certificate_id"
+                                 baseTableName="acme_order"
+                                 constraintName="fk_acme_order_certificate_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="certificate"/>
+
+        <addForeignKeyConstraint baseColumnNames="account_id"
+                                 baseTableName="acme_order"
+                                 constraintName="fk_acme_order_account_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="acme_account"/>
+
+    </changeSet>
+</databaseChangeLog>

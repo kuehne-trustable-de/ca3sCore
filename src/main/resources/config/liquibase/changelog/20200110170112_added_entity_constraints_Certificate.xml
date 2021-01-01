@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <!--
+        Added the constraints for entity Certificate.
+    -->
+    <changeSet id="20200110170112-2" author="jhipster">
+        
+        <addForeignKeyConstraint baseColumnNames="csr_id"
+                                 baseTableName="certificate"
+                                 constraintName="fk_certificate_csr_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="csr"/>
+
+        <addForeignKeyConstraint baseColumnNames="issuing_certificate_id"
+                                 baseTableName="certificate"
+                                 constraintName="fk_certificate_issuing_certificate_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="certificate"/>
+
+        <addForeignKeyConstraint baseColumnNames="root_certificate_id"
+                                 baseTableName="certificate"
+                                 constraintName="fk_certificate_root_certificate_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="certificate"/>
+
+        <addForeignKeyConstraint baseColumnNames="revocationca_id"
+                                 baseTableName="certificate"
+                                 constraintName="fk_certificate_revocationca_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="ca_connector_config"/>
+
+    </changeSet>
+</databaseChangeLog>

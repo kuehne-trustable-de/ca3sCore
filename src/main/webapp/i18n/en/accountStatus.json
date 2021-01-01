@@ -1,0 +1,10 @@
+{
+  "ca3SApp": {
+    "AccountStatus": {
+      "null": "",
+      "VALID": "VALID",
+      "DEACTIVATED": "DEACTIVATED",
+      "REVOKED": "REVOKED"
+    }
+  }
+}

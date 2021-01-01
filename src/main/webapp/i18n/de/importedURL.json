@@ -1,0 +1,23 @@
+{
+  "ca3SApp": {
+    "importedURL": {
+      "home": {
+        "title": "Imported URLS",
+        "createLabel": "Imported URL erstellen",
+        "createOrEditLabel": "Imported URL erstellen oder bearbeiten",
+        "notFound": "No Imported URLS found"
+      },
+      "created": "Imported URL erstellt mit ID {{ param }}",
+      "updated": "Imported URL aktualisiert mit ID {{ param }}",
+      "deleted": "Imported URL gelöscht mit ID {{ param }}",
+      "delete": {
+        "question": "Soll Imported URL {{ id }} wirklich dauerhaft gelöscht werden?"
+      },
+      "detail": {
+        "title": "Imported URL"
+      },
+      "name": "Name",
+      "importDate": "Import Date"
+    }
+  }
+}

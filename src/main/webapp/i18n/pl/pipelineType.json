@@ -1,0 +1,11 @@
+{
+  "ca3SApp": {
+    "PipelineType": {
+      "null": "",
+      "ACME": "ACME",
+      "SCEP": "SCEP",
+      "WEB": "WEB",
+      "INTERNAL": "INTERNAL"
+    }
+  }
+}

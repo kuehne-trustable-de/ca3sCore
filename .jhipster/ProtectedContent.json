@@ -1,0 +1,51 @@
+{
+  "name": "ProtectedContent",
+  "fields": [
+    {
+      "fieldName": "contentBase64",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "type",
+      "fieldType": "ProtectedContentType",
+      "fieldValues": "KEY,SECRET,PASSWORD",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "leftUsages",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "validTo",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "relationType",
+      "fieldType": "ContentRelationType",
+      "fieldValues": "CERTIFICATE,CONNECTION"
+    },
+    {
+      "fieldName": "relatedId",
+      "fieldType": "Long"
+    }
+  ],
+  "relationships": [],
+  "changelogDate": "20200123182225",
+  "entityTableName": "protected_content",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "embedded": false,
+  "skipClient": true
+}

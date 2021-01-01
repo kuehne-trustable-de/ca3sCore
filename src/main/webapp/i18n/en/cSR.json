@@ -1,0 +1,49 @@
+{
+  "ca3SApp": {
+    "cSR": {
+      "home": {
+        "title": "CSRS",
+        "createLabel": "Create a new CSR",
+        "createOrEditLabel": "Create or edit a CSR",
+        "notFound": "No CSRS found"
+      },
+      "created": "A new CSR is created with identifier {{ param }}",
+      "updated": "A CSR is updated with identifier {{ param }}",
+      "deleted": "A CSR is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete CSR {{ id }}?"
+      },
+      "detail": {
+        "title": "CSR"
+      },
+      "csrBase64": "Csr Base 64",
+      "subject": "Subject",
+      "sans": "Sans",
+      "requestedOn": "Requested On",
+      "requestedBy": "Requested By",
+      "pipelineType": "Pipeline Type",
+      "status": "Status",
+      "administeredBy": "Administered By",
+      "approvedOn": "Approved On",
+      "rejectedOn": "Rejected On",
+      "rejectionReason": "Rejection Reason",
+      "processInstanceId": "Process Instance Id",
+      "signingAlgorithm": "Signing Algorithm",
+      "isCSRValid": "Is CSR Valid",
+      "x509KeySpec": "X 509 Key Spec",
+      "publicKeyAlgorithm": "Public Key Algorithm",
+      "keyAlgorithm": "Key Algorithm",
+      "keyLength": "Key Length",
+      "publicKeyHash": "Public Key Hash",
+      "serversideKeyGeneration": "Serverside Key Generation",
+      "subjectPublicKeyInfoBase64": "Subject Public Key Info Base 64",
+      "requestorComment": "Requestor Comment",
+      "administrationComment": "Administration Comment",
+      "rdns": "Rdns",
+      "ras": "Ras",
+      "csrAttributes": "Csr Attributes",
+      "pipeline": "Pipeline",
+      "certificate": "Certificate"
+    }
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "name": "AcmeOrder",
+  "fields": [
+    {
+      "fieldName": "orderId",
+      "fieldType": "Long",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "AcmeOrderStatus",
+      "fieldValues": "PENDING,READY,PROCESSING,VALID,INVALID",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "expires",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "notBefore",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "notAfter",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "error",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "finalizeUrl",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "certificateUrl",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "acmeAuthorization",
+      "otherEntityRelationshipName": "order",
+      "relationshipName": "acmeAuthorizations"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "acmeIdentifier",
+      "otherEntityRelationshipName": "order",
+      "relationshipName": "acmeIdentifiers"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "cSR",
+      "otherEntityRelationshipName": "acmeOrder",
+      "relationshipName": "csr",
+      "otherEntityField": "id"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "certificate",
+      "otherEntityRelationshipName": "acmeOrder",
+      "relationshipName": "certificate",
+      "otherEntityField": "id"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "aCMEAccount",
+      "otherEntityRelationshipName": "orders",
+      "relationshipName": "account",
+      "otherEntityField": "id"
+    }
+  ],
+  "changelogDate": "20200110170123",
+  "entityTableName": "acme_order",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "embedded": false
+}

@@ -1,0 +1,26 @@
+{
+  "ca3SApp": {
+    "acmeAuthorization": {
+      "home": {
+        "title": "Acme Authorizations",
+        "createLabel": "Create a new Acme Authorization",
+        "createOrEditLabel": "Create or edit a Acme Authorization",
+        "notFound": "No Acme Authorizations found"
+      },
+      "created": "A new Acme Authorization is created with identifier {{ param }}",
+      "updated": "A Acme Authorization is updated with identifier {{ param }}",
+      "deleted": "A Acme Authorization is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Acme Authorization {{ id }}?"
+      },
+      "detail": {
+        "title": "Acme Authorization"
+      },
+      "acmeAuthorizationId": "Acme Authorization Id",
+      "type": "Type",
+      "value": "Value",
+      "challenges": "Challenges",
+      "order": "Order"
+    }
+  }
+}

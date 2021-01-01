@@ -1,0 +1,23 @@
+{
+  "ca3SApp": {
+    "rDN": {
+      "home": {
+        "title": "RDNS",
+        "createLabel": "RDN erstellen",
+        "createOrEditLabel": "RDN erstellen oder bearbeiten",
+        "notFound": "No RDNS found"
+      },
+      "created": "RDN erstellt mit ID {{ param }}",
+      "updated": "RDN aktualisiert mit ID {{ param }}",
+      "deleted": "RDN gelöscht mit ID {{ param }}",
+      "delete": {
+        "question": "Soll RDN {{ id }} wirklich dauerhaft gelöscht werden?"
+      },
+      "detail": {
+        "title": "RDN"
+      },
+      "rdnAttributes": "Rdn Attributes",
+      "csr": "Csr"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "RDN",
+  "fields": [],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "rDNAttribute",
+      "otherEntityRelationshipName": "rdn",
+      "relationshipName": "rdnAttributes"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "cSR",
+      "otherEntityRelationshipName": "rdns",
+      "relationshipName": "csr",
+      "otherEntityField": "id"
+    }
+  ],
+  "changelogDate": "20200110170115",
+  "entityTableName": "rdn",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "embedded": false
+}

@@ -1,0 +1,25 @@
+{
+  "name": "AcmeNonce",
+  "fields": [
+    {
+      "fieldName": "nonceValue",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "expiresAt",
+      "fieldType": "Instant"
+    }
+  ],
+  "relationships": [],
+  "changelogDate": "20200129162421",
+  "entityTableName": "acme_nonce",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "embedded": false
+}

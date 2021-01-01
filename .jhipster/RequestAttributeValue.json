@@ -1,0 +1,32 @@
+{
+  "name": "RequestAttributeValue",
+  "fields": [
+    {
+      "fieldName": "attributeValue",
+      "fieldType": "String",
+      "fieldValidateRules": [
+        "required"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "requestAttribute",
+      "otherEntityRelationshipName": "requestAttributeValues",
+      "relationshipName": "reqAttr",
+      "otherEntityField": "id"
+    }
+  ],
+  "changelogDate": "20200110170118",
+  "entityTableName": "request_attribute_value",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "embedded": false
+}

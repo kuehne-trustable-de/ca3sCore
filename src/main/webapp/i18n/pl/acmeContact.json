@@ -1,0 +1,24 @@
+{
+  "ca3SApp": {
+    "acmeContact": {
+      "home": {
+        "title": "Acme Contact",
+        "createLabel": "Dodaj Acme Contact",
+        "createOrEditLabel": "Dodaj lub edytuj: Acme Contact",
+        "notFound": "No Acme Contacts found"
+      },
+      "created": "Utworzono nowy obiekt typu Acme Contact z identyfikatorem {{ param }}",
+      "updated": "Uaktualniono obiekt typu Acme Contact z identyfikatorem {{ param }}",
+      "deleted": "Usunięto obiekt typu Acme Contact z identyfikatorem {{ param }}",
+      "delete": {
+        "question": "Czy na pewno chcesz usunąć Acme Contact {{ id }}?"
+      },
+      "detail": {
+        "title": "Acme Contact"
+      },
+      "contactId": "Contact Id",
+      "contactUrl": "Contact Url",
+      "account": "Account"
+    }
+  }
+}

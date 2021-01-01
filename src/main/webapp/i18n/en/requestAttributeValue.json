@@ -1,0 +1,23 @@
+{
+  "ca3SApp": {
+    "requestAttributeValue": {
+      "home": {
+        "title": "Request Attribute Values",
+        "createLabel": "Create a new Request Attribute Value",
+        "createOrEditLabel": "Create or edit a Request Attribute Value",
+        "notFound": "No Request Attribute Values found"
+      },
+      "created": "A new Request Attribute Value is created with identifier {{ param }}",
+      "updated": "A Request Attribute Value is updated with identifier {{ param }}",
+      "deleted": "A Request Attribute Value is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Request Attribute Value {{ id }}?"
+      },
+      "detail": {
+        "title": "Request Attribute Value"
+      },
+      "attributeValue": "Attribute Value",
+      "reqAttr": "Req Attr"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "ca3SApp": {
+    "userPreference": {
+      "home": {
+        "title": "User Preferences",
+        "createLabel": "User Preference erstellen",
+        "createOrEditLabel": "User Preference erstellen oder bearbeiten",
+        "notFound": "No User Preferences found"
+      },
+      "created": "User Preference erstellt mit ID {{ param }}",
+      "updated": "User Preference aktualisiert mit ID {{ param }}",
+      "deleted": "User Preference gelöscht mit ID {{ param }}",
+      "delete": {
+        "question": "Soll User Preference {{ id }} wirklich dauerhaft gelöscht werden?"
+      },
+      "detail": {
+        "title": "User Preference"
+      },
+      "userId": "User Id",
+      "name": "Name",
+      "content": "Content"
+    }
+  }
+}

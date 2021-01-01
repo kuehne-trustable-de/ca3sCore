@@ -1,0 +1,13 @@
+{
+  "ca3SApp": {
+    "ChallengeStatus": {
+      "null": "",
+      "PENDING": "PENDING",
+      "VALID": "VALID",
+      "INVALID": "INVALID",
+      "DEACTIVATED": "DEACTIVATED",
+      "EXPIRED": "EXPIRED",
+      "REVOKED": "REVOKED"
+    }
+  }
+}

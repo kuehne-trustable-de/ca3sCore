@@ -1,0 +1,25 @@
+{
+  "ca3SApp": {
+    "acmeIdentifier": {
+      "home": {
+        "title": "Acme Identifiers",
+        "createLabel": "Acme Identifier erstellen",
+        "createOrEditLabel": "Acme Identifier erstellen oder bearbeiten",
+        "notFound": "No Acme Identifiers found"
+      },
+      "created": "Acme Identifier erstellt mit ID {{ param }}",
+      "updated": "Acme Identifier aktualisiert mit ID {{ param }}",
+      "deleted": "Acme Identifier gelöscht mit ID {{ param }}",
+      "delete": {
+        "question": "Soll Acme Identifier {{ id }} wirklich dauerhaft gelöscht werden?"
+      },
+      "detail": {
+        "title": "Acme Identifier"
+      },
+      "acmeIdentifierId": "Acme Identifier Id",
+      "type": "Type",
+      "value": "Value",
+      "order": "Order"
+    }
+  }
+}

@@ -1,0 +1,169 @@
+{
+  "name": "CSR",
+  "fields": [
+    {
+      "fieldName": "csrBase64",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "subject",
+      "fieldType": "String",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "sans",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "requestedOn",
+      "fieldType": "Instant",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "requestedBy",
+      "fieldType": "String",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "pipelineType",
+      "fieldType": "PipelineType",
+      "fieldValues": "ACME,SCEP,WEB,INTERNAL",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "CsrStatus",
+      "fieldValues": "PROCESSING,ISSUED,REJECTED,PENDING",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "administeredBy",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "approvedOn",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "rejectedOn",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "rejectionReason",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "processInstanceId",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "signingAlgorithm",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "isCSRValid",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "x509KeySpec",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "publicKeyAlgorithm",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "keyAlgorithm",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "keyLength",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "publicKeyHash",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "serversideKeyGeneration",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "subjectPublicKeyInfoBase64",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "requestorComment",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
+    },
+    {
+      "fieldName": "administrationComment",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "rDN",
+      "otherEntityRelationshipName": "csr",
+      "relationshipName": "rdns"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "requestAttribute",
+      "otherEntityRelationshipName": "csr",
+      "relationshipName": "ras"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "csrAttribute",
+      "otherEntityRelationshipName": "csr",
+      "relationshipName": "csrAttributes"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "pipeline",
+      "otherEntityRelationshipName": "cSR",
+      "relationshipName": "pipeline",
+      "otherEntityField": "id"
+    },
+    {
+      "relationshipType": "one-to-one",
+      "otherEntityName": "certificate",
+      "otherEntityRelationshipName": "csr",
+      "relationshipName": "certificate",
+      "ownerSide": false
+    }
+  ],
+  "changelogDate": "20200110170113",
+  "entityTableName": "csr",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "embedded": false
+}

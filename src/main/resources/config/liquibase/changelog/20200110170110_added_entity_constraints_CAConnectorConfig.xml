@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <!--
+        Added the constraints for entity CAConnectorConfig.
+    -->
+    <changeSet id="20200110170110-2" author="jhipster">
+        
+        <addForeignKeyConstraint baseColumnNames="secret_id"
+                                 baseTableName="ca_connector_config"
+                                 constraintName="fk_ca_connector_config_secret_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="protected_content"/>
+
+    </changeSet>
+</databaseChangeLog>

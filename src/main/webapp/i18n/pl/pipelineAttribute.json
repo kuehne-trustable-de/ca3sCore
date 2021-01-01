@@ -1,0 +1,24 @@
+{
+  "ca3SApp": {
+    "pipelineAttribute": {
+      "home": {
+        "title": "Pipeline Attribute",
+        "createLabel": "Dodaj Pipeline Attribute",
+        "createOrEditLabel": "Dodaj lub edytuj: Pipeline Attribute",
+        "notFound": "No Pipeline Attributes found"
+      },
+      "created": "Utworzono nowy obiekt typu Pipeline Attribute z identyfikatorem {{ param }}",
+      "updated": "Uaktualniono obiekt typu Pipeline Attribute z identyfikatorem {{ param }}",
+      "deleted": "Usunięto obiekt typu Pipeline Attribute z identyfikatorem {{ param }}",
+      "delete": {
+        "question": "Czy na pewno chcesz usunąć Pipeline Attribute {{ id }}?"
+      },
+      "detail": {
+        "title": "Pipeline Attribute"
+      },
+      "name": "Name",
+      "value": "Value",
+      "pipeline": "Pipeline"
+    }
+  }
+}

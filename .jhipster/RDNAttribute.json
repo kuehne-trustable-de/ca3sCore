@@ -1,0 +1,39 @@
+{
+  "name": "RDNAttribute",
+  "fields": [
+    {
+      "fieldName": "attributeType",
+      "fieldType": "String",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "attributeValue",
+      "fieldType": "String",
+      "fieldValidateRules": [
+        "required"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "rDN",
+      "otherEntityRelationshipName": "rdnAttributes",
+      "relationshipName": "rdn",
+      "otherEntityField": "id"
+    }
+  ],
+  "changelogDate": "20200110170116",
+  "entityTableName": "rdn_attribute",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "clientRootFolder": "",
+  "applications": "*",
+  "embedded": false
+}

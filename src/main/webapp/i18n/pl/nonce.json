@@ -1,0 +1,23 @@
+{
+  "ca3SApp": {
+    "nonce": {
+      "home": {
+        "title": "Nonce",
+        "createLabel": "Dodaj Nonce",
+        "createOrEditLabel": "Dodaj lub edytuj: Nonce",
+        "notFound": "No Nonces found"
+      },
+      "created": "Utworzono nowy obiekt typu Nonce z identyfikatorem {{ param }}",
+      "updated": "Uaktualniono obiekt typu Nonce z identyfikatorem {{ param }}",
+      "deleted": "Usunięto obiekt typu Nonce z identyfikatorem {{ param }}",
+      "delete": {
+        "question": "Czy na pewno chcesz usunąć Nonce {{ id }}?"
+      },
+      "detail": {
+        "title": "Nonce"
+      },
+      "nonceValue": "Nonce Value",
+      "expiresAt": "Expires At"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "ca3SApp": {
+    "rDN": {
+      "home": {
+        "title": "RDN",
+        "createLabel": "Dodaj RDN",
+        "createOrEditLabel": "Dodaj lub edytuj: RDN",
+        "notFound": "No RDNS found"
+      },
+      "created": "Utworzono nowy obiekt typu RDN z identyfikatorem {{ param }}",
+      "updated": "Uaktualniono obiekt typu RDN z identyfikatorem {{ param }}",
+      "deleted": "Usunięto obiekt typu RDN z identyfikatorem {{ param }}",
+      "delete": {
+        "question": "Czy na pewno chcesz usunąć RDN {{ id }}?"
+      },
+      "detail": {
+        "title": "RDN"
+      },
+      "rdnAttributes": "Rdn Attributes",
+      "csr": "Csr"
+    }
+  }
+}

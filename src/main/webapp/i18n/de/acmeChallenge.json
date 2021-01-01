@@ -1,0 +1,28 @@
+{
+  "ca3SApp": {
+    "acmeChallenge": {
+      "home": {
+        "title": "Acme Challenges",
+        "createLabel": "Acme Challenge erstellen",
+        "createOrEditLabel": "Acme Challenge erstellen oder bearbeiten",
+        "notFound": "No Acme Challenges found"
+      },
+      "created": "Acme Challenge erstellt mit ID {{ param }}",
+      "updated": "Acme Challenge aktualisiert mit ID {{ param }}",
+      "deleted": "Acme Challenge gelöscht mit ID {{ param }}",
+      "delete": {
+        "question": "Soll Acme Challenge {{ id }} wirklich dauerhaft gelöscht werden?"
+      },
+      "detail": {
+        "title": "Acme Challenge"
+      },
+      "challengeId": "Challenge Id",
+      "type": "Type",
+      "value": "Value",
+      "token": "Token",
+      "validated": "Validated",
+      "status": "Status",
+      "acmeAuthorization": "Acme Authorization"
+    }
+  }
+}

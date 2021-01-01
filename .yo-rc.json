@@ -1,0 +1,65 @@
+{
+  "generator-jhipster": {
+    "promptValues": {
+      "packageName": "de.trustable.ca3s.core",
+      "nativeLanguage": "de"
+    },
+    "jhipsterVersion": "6.8.0",
+    "applicationType": "monolith",
+    "baseName": "ca3s",
+    "packageName": "de.trustable.ca3s.core",
+    "packageFolder": "de/trustable/ca3s/core",
+    "serverPort": "8080",
+    "authenticationType": "jwt",
+    "cacheProvider": "ehcache",
+    "enableHibernateCache": false,
+    "websocket": "spring-websocket",
+    "databaseType": "sql",
+    "devDatabaseType": "h2Disk",
+    "prodDatabaseType": "mysql",
+    "searchEngine": false,
+    "messageBroker": false,
+    "serviceDiscoveryType": false,
+    "buildTool": "maven",
+    "enableSwaggerCodegen": false,
+    "jwtSecretKey": "NDkyZWMyYTljNmZiOGQwMWFlMDUyM2ViYmIyNGFlNDEyMzE4NTM0MTA0NjhjMTFkNWViMmYzODRkNzEwNWZmMzQwN2MyNDA4N2UzNzZmZDEzYjVkZjIzYmY3Njg2NDVjZThkZGQyMzA4NTYyYjk0YzRmZGU4NmQwMWM2MDM3MWE=",
+    "embeddableLaunchScript": false,
+    "testFrameworks": [],
+    "jhiPrefix": "jhi",
+    "entitySuffix": "",
+    "dtoSuffix": "DTO",
+    "otherModules": [
+      {
+        "name": "generator-jhipster-vuejs",
+        "version": "1.7.0"
+      }
+    ],
+    "enableTranslation": true,
+    "clientPackageManager": "npm",
+    "nativeLanguage": "en",
+    "languages": ["de", "en", "pl"],
+    "blueprints": [
+      {
+        "name": "generator-jhipster-vuejs",
+        "version": "1.7.0"
+      }
+    ],
+    "creationTimestamp": 1578670205962,
+    "useSass": true,
+    "clientFramework": "vue",
+    "clientTheme": "none",
+    "clientThemeVariant": ""
+  },
+  "generator-jhipster-vuejs": {
+    "jhipsterVersion": "6.5.1",
+    "applicationType": "monolith",
+    "baseName": "ca3s",
+    "useSass": true,
+    "clientPackageManager": "npm",
+    "clientFramework": "vue",
+    "clientTheme": "none",
+    "clientThemeVariant": "",
+    "enableTranslation": true,
+    "languages": ["de", "en", "pl"]
+  }
+}

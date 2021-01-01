@@ -1,0 +1,24 @@
+{
+  "ca3SApp": {
+    "rDNAttribute": {
+      "home": {
+        "title": "RDN Attributes",
+        "createLabel": "Create a new RDN Attribute",
+        "createOrEditLabel": "Create or edit a RDN Attribute",
+        "notFound": "No RDN Attributes found"
+      },
+      "created": "A new RDN Attribute is created with identifier {{ param }}",
+      "updated": "A RDN Attribute is updated with identifier {{ param }}",
+      "deleted": "A RDN Attribute is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete RDN Attribute {{ id }}?"
+      },
+      "detail": {
+        "title": "RDN Attribute"
+      },
+      "attributeType": "Attribute Type",
+      "attributeValue": "Attribute Value",
+      "rdn": "Rdn"
+    }
+  }
+}
