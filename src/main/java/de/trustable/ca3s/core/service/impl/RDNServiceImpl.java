@@ -51,7 +51,6 @@ public class RDNServiceImpl implements RDNService {
         return rDNRepository.findAll();
     }
 
-
     /**
      * Get one rDN by id.
      *

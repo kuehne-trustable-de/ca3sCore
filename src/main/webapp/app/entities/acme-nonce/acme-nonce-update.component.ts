@@ -13,18 +13,19 @@ import AcmeNonceService from './acme-nonce.service';
 const validations: any = {
   acmeNonce: {
     nonceValue: {},
-    expiresAt: {}
-  }
+    expiresAt: {},
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class AcmeNonceUpdate extends Vue {
   @Inject('alertService') private alertService: () => AlertService;
   @Inject('acmeNonceService') private acmeNonceService: () => AcmeNonceService;
   public acmeNonce: IAcmeNonce = new AcmeNonce();
   public isSaving = false;
+  public currentLanguage = '';
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -32,6 +33,16 @@ export default class AcmeNonceUpdate extends Vue {
         vm.retrieveAcmeNonce(to.params.acmeNonceId);
       }
     });
+  }
+
+  created(): void {
+    this.currentLanguage = this.$store.getters.currentLanguage;
+    this.$store.watch(
+      () => this.$store.getters.currentLanguage,
+      () => {
+        this.currentLanguage = this.$store.getters.currentLanguage;
+      }
+    );
   }
 
   public save(): void {

@@ -13,16 +13,16 @@ const validations: any = {
   acmeContact: {
     contactId: {
       required,
-      numeric
+      numeric,
     },
     contactUrl: {
-      required
-    }
-  }
+      required,
+    },
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class AcmeContactUpdate extends Vue {
   @Inject('alertService') private alertService: () => AlertService;
@@ -33,6 +33,7 @@ export default class AcmeContactUpdate extends Vue {
 
   public aCMEAccounts: IACMEAccount[] = [];
   public isSaving = false;
+  public currentLanguage = '';
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -41,6 +42,16 @@ export default class AcmeContactUpdate extends Vue {
       }
       vm.initRelationships();
     });
+  }
+
+  created(): void {
+    this.currentLanguage = this.$store.getters.currentLanguage;
+    this.$store.watch(
+      () => this.$store.getters.currentLanguage,
+      () => {
+        this.currentLanguage = this.$store.getters.currentLanguage;
+      }
+    );
   }
 
   public save(): void {

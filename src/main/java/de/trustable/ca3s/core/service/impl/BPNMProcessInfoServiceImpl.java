@@ -51,7 +51,6 @@ public class BPNMProcessInfoServiceImpl implements BPNMProcessInfoService {
         return bPNMProcessInfoRepository.findAll();
     }
 
-
     /**
      * Get one bPNMProcessInfo by id.
      *

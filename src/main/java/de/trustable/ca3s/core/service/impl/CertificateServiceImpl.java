@@ -53,7 +53,6 @@ public class CertificateServiceImpl implements CertificateService {
         return certificateRepository.findAll(pageable);
     }
 
-
     /**
      * Get one certificate by id.
      *

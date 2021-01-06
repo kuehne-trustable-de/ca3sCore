@@ -25,6 +25,7 @@ public interface UserPreferenceService {
      */
     List<UserPreference> findAll();
 
+
     /**
      * Get all the userPreferences for a user id.
      *

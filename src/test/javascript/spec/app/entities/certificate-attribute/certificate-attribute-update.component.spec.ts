@@ -38,8 +38,8 @@ describe('Component Tests', () => {
           alertService: () => new AlertService(store),
           certificateAttributeService: () => certificateAttributeServiceStub,
 
-          certificateService: () => new CertificateService()
-        }
+          certificateService: () => new CertificateService(),
+        },
       });
       comp = wrapper.vm;
     });

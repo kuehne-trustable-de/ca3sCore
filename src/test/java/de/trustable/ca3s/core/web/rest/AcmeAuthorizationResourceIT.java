@@ -4,25 +4,19 @@ import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.AcmeAuthorization;
 import de.trustable.ca3s.core.repository.AcmeAuthorizationRepository;
 import de.trustable.ca3s.core.service.AcmeAuthorizationService;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Validator;
-
 import javax.persistence.EntityManager;
 import java.util.List;
 
-import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -32,6 +26,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for the {@link AcmeAuthorizationResource} REST controller.
  */
 @SpringBootTest(classes = Ca3SApp.class)
+
+@AutoConfigureMockMvc
+@WithMockUser
 public class AcmeAuthorizationResourceIT {
 
     private static final Long DEFAULT_ACME_AUTHORIZATION_ID = 1L;
@@ -50,35 +47,12 @@ public class AcmeAuthorizationResourceIT {
     private AcmeAuthorizationService acmeAuthorizationService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restAcmeAuthorizationMockMvc;
 
     private AcmeAuthorization acmeAuthorization;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final AcmeAuthorizationResource acmeAuthorizationResource = new AcmeAuthorizationResource(acmeAuthorizationService);
-        this.restAcmeAuthorizationMockMvc = MockMvcBuilders.standaloneSetup(acmeAuthorizationResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -119,7 +93,7 @@ public class AcmeAuthorizationResourceIT {
 
         // Create the AcmeAuthorization
         restAcmeAuthorizationMockMvc.perform(post("/api/acme-authorizations")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(acmeAuthorization)))
             .andExpect(status().isCreated());
 
@@ -142,7 +116,7 @@ public class AcmeAuthorizationResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restAcmeAuthorizationMockMvc.perform(post("/api/acme-authorizations")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(acmeAuthorization)))
             .andExpect(status().isBadRequest());
 
@@ -162,7 +136,7 @@ public class AcmeAuthorizationResourceIT {
         // Create the AcmeAuthorization, which fails.
 
         restAcmeAuthorizationMockMvc.perform(post("/api/acme-authorizations")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(acmeAuthorization)))
             .andExpect(status().isBadRequest());
 
@@ -180,7 +154,7 @@ public class AcmeAuthorizationResourceIT {
         // Create the AcmeAuthorization, which fails.
 
         restAcmeAuthorizationMockMvc.perform(post("/api/acme-authorizations")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(acmeAuthorization)))
             .andExpect(status().isBadRequest());
 
@@ -198,7 +172,7 @@ public class AcmeAuthorizationResourceIT {
         // Create the AcmeAuthorization, which fails.
 
         restAcmeAuthorizationMockMvc.perform(post("/api/acme-authorizations")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(acmeAuthorization)))
             .andExpect(status().isBadRequest());
 
@@ -215,13 +189,13 @@ public class AcmeAuthorizationResourceIT {
         // Get all the acmeAuthorizationList
         restAcmeAuthorizationMockMvc.perform(get("/api/acme-authorizations?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(acmeAuthorization.getId().intValue())))
             .andExpect(jsonPath("$.[*].acmeAuthorizationId").value(hasItem(DEFAULT_ACME_AUTHORIZATION_ID.intValue())))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
             .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE)));
     }
-    
+
     @Test
     @Transactional
     public void getAcmeAuthorization() throws Exception {
@@ -231,7 +205,7 @@ public class AcmeAuthorizationResourceIT {
         // Get the acmeAuthorization
         restAcmeAuthorizationMockMvc.perform(get("/api/acme-authorizations/{id}", acmeAuthorization.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(acmeAuthorization.getId().intValue()))
             .andExpect(jsonPath("$.acmeAuthorizationId").value(DEFAULT_ACME_AUTHORIZATION_ID.intValue()))
             .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))
@@ -264,7 +238,7 @@ public class AcmeAuthorizationResourceIT {
             .value(UPDATED_VALUE);
 
         restAcmeAuthorizationMockMvc.perform(put("/api/acme-authorizations")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedAcmeAuthorization)))
             .andExpect(status().isOk());
 
@@ -286,7 +260,7 @@ public class AcmeAuthorizationResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restAcmeAuthorizationMockMvc.perform(put("/api/acme-authorizations")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(acmeAuthorization)))
             .andExpect(status().isBadRequest());
 
@@ -305,7 +279,7 @@ public class AcmeAuthorizationResourceIT {
 
         // Delete the acmeAuthorization
         restAcmeAuthorizationMockMvc.perform(delete("/api/acme-authorizations/{id}", acmeAuthorization.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

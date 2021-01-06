@@ -1,14 +1,16 @@
 import { mixins } from 'vue-class-component';
 
-import { Component, Inject } from 'vue-property-decorator';
+import { Component, Vue, Inject } from 'vue-property-decorator';
 import Vue2Filters from 'vue2-filters';
 import { IAcmeChallenge } from '@/shared/model/acme-challenge.model';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
 import AcmeChallengeService from './acme-challenge.service';
 
-@Component
-export default class AcmeChallenge extends mixins(Vue2Filters.mixin, AlertMixin) {
+@Component({
+  mixins: [Vue2Filters.mixin],
+})
+export default class AcmeChallenge extends mixins(AlertMixin) {
   @Inject('acmeChallengeService') private acmeChallengeService: () => AcmeChallengeService;
   private removeId: number = null;
   public acmeChallenges: IAcmeChallenge[] = [];

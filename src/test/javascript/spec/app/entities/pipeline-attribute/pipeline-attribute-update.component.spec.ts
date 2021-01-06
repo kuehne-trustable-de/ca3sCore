@@ -38,8 +38,8 @@ describe('Component Tests', () => {
           alertService: () => new AlertService(store),
           pipelineAttributeService: () => pipelineAttributeServiceStub,
 
-          pipelineService: () => new PipelineService()
-        }
+          pipelineService: () => new PipelineService(),
+        },
       });
       comp = wrapper.vm;
     });

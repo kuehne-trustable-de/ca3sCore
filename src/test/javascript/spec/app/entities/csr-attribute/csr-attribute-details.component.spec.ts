@@ -28,7 +28,7 @@ describe('Component Tests', () => {
         store,
         i18n,
         localVue,
-        provide: { csrAttributeService: () => csrAttributeServiceStub }
+        provide: { csrAttributeService: () => csrAttributeServiceStub },
       });
       comp = wrapper.vm;
     });

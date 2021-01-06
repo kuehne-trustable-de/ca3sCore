@@ -58,8 +58,8 @@ describe('Component Tests', () => {
 
           certificateService: () => new CertificateService(),
 
-          aCMEAccountService: () => new ACMEAccountService()
-        }
+          aCMEAccountService: () => new ACMEAccountService(),
+        },
       });
       comp = wrapper.vm;
     });

@@ -4,26 +4,20 @@ import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.UserPreference;
 import de.trustable.ca3s.core.repository.UserPreferenceRepository;
 import de.trustable.ca3s.core.service.UserPreferenceService;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Base64Utils;
-import org.springframework.validation.Validator;
-
 import javax.persistence.EntityManager;
 import java.util.List;
 
-import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -33,6 +27,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for the {@link UserPreferenceResource} REST controller.
  */
 @SpringBootTest(classes = Ca3SApp.class)
+
+@AutoConfigureMockMvc
+@WithMockUser
 public class UserPreferenceResourceIT {
 
     private static final Long DEFAULT_USER_ID = 1L;
@@ -51,35 +48,12 @@ public class UserPreferenceResourceIT {
     private UserPreferenceService userPreferenceService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restUserPreferenceMockMvc;
 
     private UserPreference userPreference;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final UserPreferenceResource userPreferenceResource = new UserPreferenceResource(userPreferenceService);
-        this.restUserPreferenceMockMvc = MockMvcBuilders.standaloneSetup(userPreferenceResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -120,7 +94,7 @@ public class UserPreferenceResourceIT {
 
         // Create the UserPreference
         restUserPreferenceMockMvc.perform(post("/api/user-preferences")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(userPreference)))
             .andExpect(status().isCreated());
 
@@ -143,7 +117,7 @@ public class UserPreferenceResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restUserPreferenceMockMvc.perform(post("/api/user-preferences")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(userPreference)))
             .andExpect(status().isBadRequest());
 
@@ -163,7 +137,7 @@ public class UserPreferenceResourceIT {
         // Create the UserPreference, which fails.
 
         restUserPreferenceMockMvc.perform(post("/api/user-preferences")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(userPreference)))
             .andExpect(status().isBadRequest());
 
@@ -181,12 +155,28 @@ public class UserPreferenceResourceIT {
         // Create the UserPreference, which fails.
 
         restUserPreferenceMockMvc.perform(post("/api/user-preferences")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(userPreference)))
             .andExpect(status().isBadRequest());
 
         List<UserPreference> userPreferenceList = userPreferenceRepository.findAll();
         assertThat(userPreferenceList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    public void getAllUserPreferences() throws Exception {
+        // Initialize the database
+        userPreferenceRepository.saveAndFlush(userPreference);
+
+        // Get all the userPreferenceList
+        restUserPreferenceMockMvc.perform(get("/api/user-preferences?sort=id,desc"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(userPreference.getId().intValue())))
+            .andExpect(jsonPath("$.[*].userId").value(hasItem(DEFAULT_USER_ID.intValue())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+            .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT.toString())));
     }
 
     @Test
@@ -198,7 +188,7 @@ public class UserPreferenceResourceIT {
         // Get the userPreference
         restUserPreferenceMockMvc.perform(get("/api/user-preferences/{id}", userPreference.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(userPreference.getId().intValue()))
             .andExpect(jsonPath("$.userId").value(DEFAULT_USER_ID.intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
@@ -231,7 +221,7 @@ public class UserPreferenceResourceIT {
             .content(UPDATED_CONTENT);
 
         restUserPreferenceMockMvc.perform(put("/api/user-preferences")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedUserPreference)))
             .andExpect(status().isOk());
 
@@ -253,7 +243,7 @@ public class UserPreferenceResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restUserPreferenceMockMvc.perform(put("/api/user-preferences")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(userPreference)))
             .andExpect(status().isBadRequest());
 
@@ -272,7 +262,7 @@ public class UserPreferenceResourceIT {
 
         // Delete the userPreference
         restUserPreferenceMockMvc.perform(delete("/api/user-preferences/{id}", userPreference.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

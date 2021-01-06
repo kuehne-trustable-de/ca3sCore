@@ -32,10 +32,10 @@ public class AcmeIdentifier implements Serializable {
     private String value;
 
     @ManyToOne
-    @JsonIgnoreProperties("acmeIdentifiers")
+    @JsonIgnoreProperties(value = "acmeIdentifiers", allowSetters = true)
     private AcmeOrder order;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
         return id;
     }
@@ -95,7 +95,7 @@ public class AcmeIdentifier implements Serializable {
     public void setOrder(AcmeOrder acmeOrder) {
         this.order = acmeOrder;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -113,6 +113,7 @@ public class AcmeIdentifier implements Serializable {
         return 31;
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "AcmeIdentifier{" +

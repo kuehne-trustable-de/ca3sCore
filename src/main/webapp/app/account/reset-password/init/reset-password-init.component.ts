@@ -9,9 +9,9 @@ const validations = {
       required,
       minLength: minLength(5),
       maxLength: maxLength(254),
-      email
-    }
-  }
+      email,
+    },
+  },
 };
 
 interface ResetAccount {
@@ -19,14 +19,14 @@ interface ResetAccount {
 }
 
 @Component({
-  validations
+  validations,
 })
 export default class ResetPasswordInit extends Vue {
   public success: boolean = null;
   public error: string = null;
   public errorEmailNotExists: string = null;
   public resetAccount: ResetAccount = {
-    email: null
+    email: null,
   };
 
   public requestReset(): void {
@@ -35,8 +35,8 @@ export default class ResetPasswordInit extends Vue {
     axios
       .post('api/account/reset-password/init', this.resetAccount.email, {
         headers: {
-          'content-type': 'text/plain'
-        }
+          'content-type': 'text/plain',
+        },
       })
       .then(() => {
         this.success = true;

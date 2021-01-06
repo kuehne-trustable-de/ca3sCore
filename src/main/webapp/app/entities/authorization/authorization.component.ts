@@ -1,14 +1,16 @@
 import { mixins } from 'vue-class-component';
 
-import { Component, Inject } from 'vue-property-decorator';
+import { Component, Vue, Inject } from 'vue-property-decorator';
 import Vue2Filters from 'vue2-filters';
 import { IAuthorization } from '@/shared/model/authorization.model';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
 import AuthorizationService from './authorization.service';
 
-@Component
-export default class Authorization extends mixins(Vue2Filters.mixin, AlertMixin) {
+@Component({
+  mixins: [Vue2Filters.mixin],
+})
+export default class Authorization extends mixins(AlertMixin) {
   @Inject('authorizationService') private authorizationService: () => AuthorizationService;
   private removeId: number = null;
   public authorizations: IAuthorization[] = [];

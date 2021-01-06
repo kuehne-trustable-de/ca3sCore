@@ -1,7 +1,7 @@
 version: '2'
 services:
-  ca3s_jh-prometheus:
-    image: prom/prometheus:v2.12.0
+  ca3s-prometheus:
+    image: prom/prometheus:v2.16.0
     volumes:
       - ./prometheus/:/etc/prometheus/
     command:
@@ -11,8 +11,8 @@ services:
     # On MacOS, remove next line and replace localhost by host.docker.internal in prometheus/prometheus.yml and
     # grafana/provisioning/datasources/datasource.yml
     network_mode: 'host' # to test locally running service
-  ca3s_jh-grafana:
-    image: grafana/grafana:6.3.5
+  ca3s-grafana:
+    image: grafana/grafana:6.6.2
     volumes:
       - ./grafana/provisioning/:/etc/grafana/provisioning/
     environment:

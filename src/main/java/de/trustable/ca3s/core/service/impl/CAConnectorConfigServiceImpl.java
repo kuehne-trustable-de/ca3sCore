@@ -51,7 +51,6 @@ public class CAConnectorConfigServiceImpl implements CAConnectorConfigService {
         return cAConnectorConfigRepository.findAll();
     }
 
-
     /**
      * Get one cAConnectorConfig by id.
      *

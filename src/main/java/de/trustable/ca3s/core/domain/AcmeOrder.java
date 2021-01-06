@@ -64,18 +64,18 @@ public class AcmeOrder implements Serializable {
     private Set<AcmeIdentifier> acmeIdentifiers = new HashSet<>();
 
     @ManyToOne
-    @JsonIgnoreProperties("acmeOrders")
+    @JsonIgnoreProperties(value = "acmeOrders", allowSetters = true)
     private CSR csr;
 
     @ManyToOne
-    @JsonIgnoreProperties("acmeOrders")
+    @JsonIgnoreProperties(value = "acmeOrders", allowSetters = true)
     private Certificate certificate;
 
     @ManyToOne
-    @JsonIgnoreProperties("orders")
+    @JsonIgnoreProperties(value = "orders", allowSetters = true)
     private ACMEAccount account;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
         return id;
     }
@@ -276,7 +276,7 @@ public class AcmeOrder implements Serializable {
     public void setAccount(ACMEAccount aCMEAccount) {
         this.account = aCMEAccount;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -294,6 +294,7 @@ public class AcmeOrder implements Serializable {
         return 31;
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "AcmeOrder{" +

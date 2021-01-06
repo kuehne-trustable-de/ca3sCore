@@ -51,7 +51,6 @@ public class RequestAttributeServiceImpl implements RequestAttributeService {
         return requestAttributeRepository.findAll();
     }
 
-
     /**
      * Get one requestAttribute by id.
      *

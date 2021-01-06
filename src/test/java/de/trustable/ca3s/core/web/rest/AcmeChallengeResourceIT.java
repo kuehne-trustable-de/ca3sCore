@@ -4,27 +4,21 @@ import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.AcmeChallenge;
 import de.trustable.ca3s.core.repository.AcmeChallengeRepository;
 import de.trustable.ca3s.core.service.AcmeChallengeService;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Validator;
-
 import javax.persistence.EntityManager;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -35,6 +29,9 @@ import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
  * Integration tests for the {@link AcmeChallengeResource} REST controller.
  */
 @SpringBootTest(classes = Ca3SApp.class)
+
+@AutoConfigureMockMvc
+@WithMockUser
 public class AcmeChallengeResourceIT {
 
     private static final Long DEFAULT_CHALLENGE_ID = 1L;
@@ -62,35 +59,12 @@ public class AcmeChallengeResourceIT {
     private AcmeChallengeService acmeChallengeService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restAcmeChallengeMockMvc;
 
     private AcmeChallenge acmeChallenge;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final AcmeChallengeResource acmeChallengeResource = new AcmeChallengeResource(acmeChallengeService);
-        this.restAcmeChallengeMockMvc = MockMvcBuilders.standaloneSetup(acmeChallengeResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -137,7 +111,7 @@ public class AcmeChallengeResourceIT {
 
         // Create the AcmeChallenge
         restAcmeChallengeMockMvc.perform(post("/api/acme-challenges")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(acmeChallenge)))
             .andExpect(status().isCreated());
 
@@ -163,7 +137,7 @@ public class AcmeChallengeResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restAcmeChallengeMockMvc.perform(post("/api/acme-challenges")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(acmeChallenge)))
             .andExpect(status().isBadRequest());
 
@@ -183,7 +157,7 @@ public class AcmeChallengeResourceIT {
         // Create the AcmeChallenge, which fails.
 
         restAcmeChallengeMockMvc.perform(post("/api/acme-challenges")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(acmeChallenge)))
             .andExpect(status().isBadRequest());
 
@@ -201,7 +175,7 @@ public class AcmeChallengeResourceIT {
         // Create the AcmeChallenge, which fails.
 
         restAcmeChallengeMockMvc.perform(post("/api/acme-challenges")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(acmeChallenge)))
             .andExpect(status().isBadRequest());
 
@@ -219,7 +193,7 @@ public class AcmeChallengeResourceIT {
         // Create the AcmeChallenge, which fails.
 
         restAcmeChallengeMockMvc.perform(post("/api/acme-challenges")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(acmeChallenge)))
             .andExpect(status().isBadRequest());
 
@@ -237,7 +211,7 @@ public class AcmeChallengeResourceIT {
         // Create the AcmeChallenge, which fails.
 
         restAcmeChallengeMockMvc.perform(post("/api/acme-challenges")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(acmeChallenge)))
             .andExpect(status().isBadRequest());
 
@@ -255,7 +229,7 @@ public class AcmeChallengeResourceIT {
         // Create the AcmeChallenge, which fails.
 
         restAcmeChallengeMockMvc.perform(post("/api/acme-challenges")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(acmeChallenge)))
             .andExpect(status().isBadRequest());
 
@@ -272,16 +246,16 @@ public class AcmeChallengeResourceIT {
         // Get all the acmeChallengeList
         restAcmeChallengeMockMvc.perform(get("/api/acme-challenges?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(acmeChallenge.getId().intValue())))
             .andExpect(jsonPath("$.[*].challengeId").value(hasItem(DEFAULT_CHALLENGE_ID.intValue())))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
             .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE)))
             .andExpect(jsonPath("$.[*].token").value(hasItem(DEFAULT_TOKEN)))
             .andExpect(jsonPath("$.[*].validated").value(hasItem(DEFAULT_VALIDATED.toString())))
-            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString().toLowerCase())));
+            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())));
     }
-    
+
     @Test
     @Transactional
     public void getAcmeChallenge() throws Exception {
@@ -291,14 +265,14 @@ public class AcmeChallengeResourceIT {
         // Get the acmeChallenge
         restAcmeChallengeMockMvc.perform(get("/api/acme-challenges/{id}", acmeChallenge.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(acmeChallenge.getId().intValue()))
             .andExpect(jsonPath("$.challengeId").value(DEFAULT_CHALLENGE_ID.intValue()))
             .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))
             .andExpect(jsonPath("$.value").value(DEFAULT_VALUE))
             .andExpect(jsonPath("$.token").value(DEFAULT_TOKEN))
             .andExpect(jsonPath("$.validated").value(DEFAULT_VALIDATED.toString()))
-            .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString().toLowerCase()));
+            .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()));
     }
 
     @Test
@@ -330,7 +304,7 @@ public class AcmeChallengeResourceIT {
             .status(UPDATED_STATUS);
 
         restAcmeChallengeMockMvc.perform(put("/api/acme-challenges")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedAcmeChallenge)))
             .andExpect(status().isOk());
 
@@ -355,7 +329,7 @@ public class AcmeChallengeResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restAcmeChallengeMockMvc.perform(put("/api/acme-challenges")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(acmeChallenge)))
             .andExpect(status().isBadRequest());
 
@@ -374,7 +348,7 @@ public class AcmeChallengeResourceIT {
 
         // Delete the acmeChallenge
         restAcmeChallengeMockMvc.perform(delete("/api/acme-challenges/{id}", acmeChallenge.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

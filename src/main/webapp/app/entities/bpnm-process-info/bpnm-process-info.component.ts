@@ -1,6 +1,6 @@
 import { mixins } from 'vue-class-component';
 
-import { Component, Inject } from 'vue-property-decorator';
+import { Component, Vue, Inject } from 'vue-property-decorator';
 import Vue2Filters from 'vue2-filters';
 import { IBPNMProcessInfo } from '@/shared/model/bpnm-process-info.model';
 import AlertMixin from '@/shared/alert/alert.mixin';
@@ -9,8 +9,10 @@ import JhiDataUtils from '@/shared/data/data-utils.service';
 
 import BPNMProcessInfoService from './bpnm-process-info.service';
 
-@Component
-export default class BPNMProcessInfo extends mixins(JhiDataUtils, Vue2Filters.mixin, AlertMixin) {
+@Component({
+  mixins: [Vue2Filters.mixin],
+})
+export default class BPNMProcessInfo extends mixins(JhiDataUtils, AlertMixin) {
   @Inject('bPNMProcessInfoService') private bPNMProcessInfoService: () => BPNMProcessInfoService;
   private removeId: number = null;
   public bPNMProcessInfos: IBPNMProcessInfo[] = [];

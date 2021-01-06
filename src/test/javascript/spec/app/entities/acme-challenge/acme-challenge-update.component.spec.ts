@@ -42,8 +42,8 @@ describe('Component Tests', () => {
           alertService: () => new AlertService(store),
           acmeChallengeService: () => acmeChallengeServiceStub,
 
-          acmeAuthorizationService: () => new AcmeAuthorizationService()
-        }
+          acmeAuthorizationService: () => new AcmeAuthorizationService(),
+        },
       });
       comp = wrapper.vm;
     });

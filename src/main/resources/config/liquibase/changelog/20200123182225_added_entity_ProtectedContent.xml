@@ -22,6 +22,12 @@
             <column name="type" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
+            <column name="left_usages" type="integer">
+                <constraints nullable="true" />
+            </column>
+            <column name="valid_to" type="datetime">
+                <constraints nullable="true" />
+            </column>
             <column name="relation_type" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
@@ -30,6 +36,7 @@
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
+        <dropDefaultValue tableName="protected_content" columnName="valid_to" columnDataType="datetime"/>
     </changeSet>
 
     <changeSet id="20200123182225-1-relations" author="jhipster">
@@ -53,6 +60,8 @@
             <column name="id" type="numeric"/>
             <column name="content_base_64" type="clob"/>
             <column name="type" type="string"/>
+            <column name="left_usages" type="numeric"/>
+            <column name="valid_to" type="datetime"/>
             <column name="relation_type" type="string"/>
             <column name="related_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->

@@ -1,43 +1,36 @@
 package de.trustable.ca3s.core.web.rest;
 
-import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.List;
-
-import javax.persistence.EntityManager;
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.domain.ACMEAccount;
+import de.trustable.ca3s.core.repository.ACMEAccountRepository;
+import de.trustable.ca3s.core.service.ACMEAccountService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Validator;
+import org.springframework.util.Base64Utils;
+import javax.persistence.EntityManager;
+import java.util.List;
 
-import de.trustable.ca3s.core.Ca3SApp;
-import de.trustable.ca3s.core.domain.ACMEAccount;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
-import de.trustable.ca3s.core.repository.ACMEAccountRepository;
-import de.trustable.ca3s.core.service.ACMEAccountService;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 /**
  * Integration tests for the {@link ACMEAccountResource} REST controller.
  */
 @SpringBootTest(classes = Ca3SApp.class)
+
+@AutoConfigureMockMvc
+@WithMockUser
 public class ACMEAccountResourceIT {
 
     private static final Long DEFAULT_ACCOUNT_ID = 1L;
@@ -65,35 +58,12 @@ public class ACMEAccountResourceIT {
     private ACMEAccountService aCMEAccountService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restACMEAccountMockMvc;
 
     private ACMEAccount aCMEAccount;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final ACMEAccountResource aCMEAccountResource = new ACMEAccountResource(aCMEAccountService);
-        this.restACMEAccountMockMvc = MockMvcBuilders.standaloneSetup(aCMEAccountResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -140,7 +110,7 @@ public class ACMEAccountResourceIT {
 
         // Create the ACMEAccount
         restACMEAccountMockMvc.perform(post("/api/acme-accounts")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(aCMEAccount)))
             .andExpect(status().isCreated());
 
@@ -166,7 +136,7 @@ public class ACMEAccountResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restACMEAccountMockMvc.perform(post("/api/acme-accounts")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(aCMEAccount)))
             .andExpect(status().isBadRequest());
 
@@ -186,7 +156,7 @@ public class ACMEAccountResourceIT {
         // Create the ACMEAccount, which fails.
 
         restACMEAccountMockMvc.perform(post("/api/acme-accounts")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(aCMEAccount)))
             .andExpect(status().isBadRequest());
 
@@ -204,7 +174,7 @@ public class ACMEAccountResourceIT {
         // Create the ACMEAccount, which fails.
 
         restACMEAccountMockMvc.perform(post("/api/acme-accounts")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(aCMEAccount)))
             .andExpect(status().isBadRequest());
 
@@ -222,7 +192,7 @@ public class ACMEAccountResourceIT {
         // Create the ACMEAccount, which fails.
 
         restACMEAccountMockMvc.perform(post("/api/acme-accounts")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(aCMEAccount)))
             .andExpect(status().isBadRequest());
 
@@ -240,7 +210,7 @@ public class ACMEAccountResourceIT {
         // Create the ACMEAccount, which fails.
 
         restACMEAccountMockMvc.perform(post("/api/acme-accounts")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(aCMEAccount)))
             .andExpect(status().isBadRequest());
 
@@ -257,16 +227,16 @@ public class ACMEAccountResourceIT {
         // Get all the aCMEAccountList
         restACMEAccountMockMvc.perform(get("/api/acme-accounts?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(aCMEAccount.getId().intValue())))
             .andExpect(jsonPath("$.[*].accountId").value(hasItem(DEFAULT_ACCOUNT_ID.intValue())))
             .andExpect(jsonPath("$.[*].realm").value(hasItem(DEFAULT_REALM)))
-            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.getValue())))
+            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())))
             .andExpect(jsonPath("$.[*].termsOfServiceAgreed").value(hasItem(DEFAULT_TERMS_OF_SERVICE_AGREED.booleanValue())))
             .andExpect(jsonPath("$.[*].publicKeyHash").value(hasItem(DEFAULT_PUBLIC_KEY_HASH)))
             .andExpect(jsonPath("$.[*].publicKey").value(hasItem(DEFAULT_PUBLIC_KEY.toString())));
     }
-    
+
     @Test
     @Transactional
     public void getACMEAccount() throws Exception {
@@ -276,11 +246,11 @@ public class ACMEAccountResourceIT {
         // Get the aCMEAccount
         restACMEAccountMockMvc.perform(get("/api/acme-accounts/{id}", aCMEAccount.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(aCMEAccount.getId().intValue()))
             .andExpect(jsonPath("$.accountId").value(DEFAULT_ACCOUNT_ID.intValue()))
             .andExpect(jsonPath("$.realm").value(DEFAULT_REALM))
-            .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.getValue()))
+            .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()))
             .andExpect(jsonPath("$.termsOfServiceAgreed").value(DEFAULT_TERMS_OF_SERVICE_AGREED.booleanValue()))
             .andExpect(jsonPath("$.publicKeyHash").value(DEFAULT_PUBLIC_KEY_HASH))
             .andExpect(jsonPath("$.publicKey").value(DEFAULT_PUBLIC_KEY.toString()));
@@ -315,7 +285,7 @@ public class ACMEAccountResourceIT {
             .publicKey(UPDATED_PUBLIC_KEY);
 
         restACMEAccountMockMvc.perform(put("/api/acme-accounts")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedACMEAccount)))
             .andExpect(status().isOk());
 
@@ -340,7 +310,7 @@ public class ACMEAccountResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restACMEAccountMockMvc.perform(put("/api/acme-accounts")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(aCMEAccount)))
             .andExpect(status().isBadRequest());
 
@@ -359,7 +329,7 @@ public class ACMEAccountResourceIT {
 
         // Delete the aCMEAccount
         restACMEAccountMockMvc.perform(delete("/api/acme-accounts/{id}", aCMEAccount.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

@@ -7,7 +7,7 @@
         Added the constraints for entity CAConnectorConfig.
     -->
     <changeSet id="20200110170110-2" author="jhipster">
-        
+
         <addForeignKeyConstraint baseColumnNames="secret_id"
                                  baseTableName="ca_connector_config"
                                  constraintName="fk_ca_connector_config_secret_id"

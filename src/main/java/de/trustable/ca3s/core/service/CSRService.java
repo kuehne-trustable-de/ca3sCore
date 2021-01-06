@@ -27,7 +27,7 @@ public interface CSRService {
     /**
      * Get all the CSRDTO where Certificate is {@code null}.
      *
-     * @return the list of entities.
+     * @return the {@link List} of entities.
      */
     List<CSR> findAllWhereCertificateIsNull();
 

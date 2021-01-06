@@ -8,11 +8,20 @@ import AcmeChallengeService from '@/entities/acme-challenge/acme-challenge.servi
 import { AcmeChallenge, ChallengeStatus } from '@/shared/model/acme-challenge.model';
 
 const mockedAxios: any = axios;
+const error = {
+  response: {
+    status: null,
+    data: {
+      type: null,
+    },
+  },
+};
+
 jest.mock('axios', () => ({
   get: jest.fn(),
   post: jest.fn(),
   put: jest.fn(),
-  delete: jest.fn()
+  delete: jest.fn(),
 }));
 
 describe('Service Tests', () => {
@@ -31,7 +40,7 @@ describe('Service Tests', () => {
       it('should find an element', async () => {
         const returnedFromService = Object.assign(
           {
-            validated: format(currentDate, DATE_TIME_FORMAT)
+            validated: format(currentDate, DATE_TIME_FORMAT),
           },
           elemDefault
         );
@@ -41,17 +50,28 @@ describe('Service Tests', () => {
           expect(res).toMatchObject(elemDefault);
         });
       });
+
+      it('should not find an element', async () => {
+        mockedAxios.get.mockReturnValue(Promise.reject(error));
+        return service
+          .find(123)
+          .then()
+          .catch(err => {
+            expect(err).toMatchObject(error);
+          });
+      });
+
       it('should create a AcmeChallenge', async () => {
         const returnedFromService = Object.assign(
           {
             id: 0,
-            validated: format(currentDate, DATE_TIME_FORMAT)
+            validated: format(currentDate, DATE_TIME_FORMAT),
           },
           elemDefault
         );
         const expected = Object.assign(
           {
-            validated: currentDate
+            validated: currentDate,
           },
           returnedFromService
         );
@@ -62,6 +82,17 @@ describe('Service Tests', () => {
         });
       });
 
+      it('should not create a AcmeChallenge', async () => {
+        mockedAxios.post.mockReturnValue(Promise.reject(error));
+
+        return service
+          .create({})
+          .then()
+          .catch(err => {
+            expect(err).toMatchObject(error);
+          });
+      });
+
       it('should update a AcmeChallenge', async () => {
         const returnedFromService = Object.assign(
           {
@@ -70,14 +101,14 @@ describe('Service Tests', () => {
             value: 'BBBBBB',
             token: 'BBBBBB',
             validated: format(currentDate, DATE_TIME_FORMAT),
-            status: 'BBBBBB'
+            status: 'BBBBBB',
           },
           elemDefault
         );
 
         const expected = Object.assign(
           {
-            validated: currentDate
+            validated: currentDate,
           },
           returnedFromService
         );
@@ -87,6 +118,18 @@ describe('Service Tests', () => {
           expect(res).toMatchObject(expected);
         });
       });
+
+      it('should not update a AcmeChallenge', async () => {
+        mockedAxios.put.mockReturnValue(Promise.reject(error));
+
+        return service
+          .update({})
+          .then()
+          .catch(err => {
+            expect(err).toMatchObject(error);
+          });
+      });
+
       it('should return a list of AcmeChallenge', async () => {
         const returnedFromService = Object.assign(
           {
@@ -95,13 +138,13 @@ describe('Service Tests', () => {
             value: 'BBBBBB',
             token: 'BBBBBB',
             validated: format(currentDate, DATE_TIME_FORMAT),
-            status: 'BBBBBB'
+            status: 'BBBBBB',
           },
           elemDefault
         );
         const expected = Object.assign(
           {
-            validated: currentDate
+            validated: currentDate,
           },
           returnedFromService
         );
@@ -110,11 +153,34 @@ describe('Service Tests', () => {
           expect(res).toContainEqual(expected);
         });
       });
+
+      it('should not return a list of AcmeChallenge', async () => {
+        mockedAxios.get.mockReturnValue(Promise.reject(error));
+
+        return service
+          .retrieve()
+          .then()
+          .catch(err => {
+            expect(err).toMatchObject(error);
+          });
+      });
+
       it('should delete a AcmeChallenge', async () => {
         mockedAxios.delete.mockReturnValue(Promise.resolve({ ok: true }));
         return service.delete(123).then(res => {
           expect(res.ok).toBeTruthy();
         });
+      });
+
+      it('should not delete a AcmeChallenge', async () => {
+        mockedAxios.delete.mockReturnValue(Promise.reject(error));
+
+        return service
+          .delete(123)
+          .then()
+          .catch(err => {
+            expect(err).toMatchObject(error);
+          });
       });
     });
   });

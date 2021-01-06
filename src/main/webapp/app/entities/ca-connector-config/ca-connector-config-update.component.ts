@@ -13,10 +13,10 @@ import { ICAStatus } from '@/shared/model/transfer-object.model';
 const validations: any = {
   cAConnectorConfig: {
     name: {
-      required
+      required,
     },
     caConnectorType: {
-      required
+      required,
     },
     caUrl: {},
     pollingOffset: {},
@@ -24,12 +24,12 @@ const validations: any = {
     active: {},
     selector: {},
     interval: {},
-    plainSecret: {}
-  }
+    plainSecret: {},
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class CAConnectorConfigUpdate extends Vue {
   @Inject('alertService') private alertService: () => AlertService;
@@ -38,6 +38,7 @@ export default class CAConnectorConfigUpdate extends Vue {
   public caStatus: ICAStatus = 'Unknown';
 
   public isSaving = false;
+  public currentLanguage = '';
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -46,6 +47,16 @@ export default class CAConnectorConfigUpdate extends Vue {
       }
       vm.initRelationships();
     });
+  }
+
+  created(): void {
+    this.currentLanguage = this.$store.getters.currentLanguage;
+    this.$store.watch(
+      () => this.$store.getters.currentLanguage,
+      () => {
+        this.currentLanguage = this.$store.getters.currentLanguage;
+      }
+    );
   }
 
   public save(): void {
@@ -83,8 +94,7 @@ export default class CAConnectorConfigUpdate extends Vue {
     this.$router.go(-1);
   }
 
-  public initRelationships(): void {
-  }
+  public initRelationships(): void {}
 
   public testCaConnectorConfig(): void {
     window.console.info('calling checkCaConnectorConfig ');
@@ -94,12 +104,10 @@ export default class CAConnectorConfigUpdate extends Vue {
       method: 'post',
       url: 'api/ca-connector-configs/getStatus',
       data: self.cAConnectorConfig,
-      responseType: 'stream'
-    })
-    .then(function(response) {
-      window.console.info('testCaConnectorConfig returns ' + response.data );
+      responseType: 'stream',
+    }).then(function (response) {
+      window.console.info('testCaConnectorConfig returns ' + response.data);
       self.caStatus = response.data;
     });
   }
-
 }

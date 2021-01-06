@@ -4,28 +4,30 @@ import JhiFormatter from './formatter';
 import { setupAxiosInterceptors } from '@/shared/config/axios-interceptor';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faSort } from '@fortawesome/free-solid-svg-icons/faSort';
-import { faEye } from '@fortawesome/free-solid-svg-icons/faEye';
 import { faClone } from '@fortawesome/free-solid-svg-icons/faClone';
-import { faSync } from '@fortawesome/free-solid-svg-icons/faSync';
 import { faBan } from '@fortawesome/free-solid-svg-icons/faBan';
-import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft';
-import { faSave } from '@fortawesome/free-solid-svg-icons/faSave';
-import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
-import { faPencilAlt } from '@fortawesome/free-solid-svg-icons/faPencilAlt';
-import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
+import { faEye } from '@fortawesome/free-solid-svg-icons/faEye';
 import { faHdd } from '@fortawesome/free-solid-svg-icons/faHdd';
-import { faTachometerAlt } from '@fortawesome/free-solid-svg-icons/faTachometerAlt';
 import { faHeart } from '@fortawesome/free-solid-svg-icons/faHeart';
 import { faList } from '@fortawesome/free-solid-svg-icons/faList';
-import { faTasks } from '@fortawesome/free-solid-svg-icons/faTasks';
 import { faBook } from '@fortawesome/free-solid-svg-icons/faBook';
 import { faLock } from '@fortawesome/free-solid-svg-icons/faLock';
+import { faPencilAlt } from '@fortawesome/free-solid-svg-icons/faPencilAlt';
+import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
+import { faSave } from '@fortawesome/free-solid-svg-icons/faSave';
 import { faSignInAlt } from '@fortawesome/free-solid-svg-icons/faSignInAlt';
 import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons/faSignOutAlt';
+import { faSort } from '@fortawesome/free-solid-svg-icons/faSort';
+import { faSortDown } from '@fortawesome/free-solid-svg-icons/faSortDown';
+import { faSortUp } from '@fortawesome/free-solid-svg-icons/faSortUp';
+import { faSync } from '@fortawesome/free-solid-svg-icons/faSync';
+import { faTachometerAlt } from '@fortawesome/free-solid-svg-icons/faTachometerAlt';
+import { faTasks } from '@fortawesome/free-solid-svg-icons/faTasks';
 import { faThList } from '@fortawesome/free-solid-svg-icons/faThList';
+import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft';
 import { faUserPlus } from '@fortawesome/free-solid-svg-icons/faUserPlus';
+import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
 import { faWrench } from '@fortawesome/free-solid-svg-icons/faWrench';
 import { faAsterisk } from '@fortawesome/free-solid-svg-icons/faAsterisk';
 import { faFlag } from '@fortawesome/free-solid-svg-icons/faFlag';
@@ -65,7 +67,7 @@ const dateTimeFormats = {
       month: 'short',
       day: 'numeric',
       hour: 'numeric',
-      minute: 'numeric'
+      minute: 'numeric',
     },
     medium: {
       year: 'numeric',
@@ -73,7 +75,7 @@ const dateTimeFormats = {
       day: 'numeric',
       weekday: 'short',
       hour: 'numeric',
-      minute: 'numeric'
+      minute: 'numeric',
     },
     long: {
       year: 'numeric',
@@ -81,8 +83,8 @@ const dateTimeFormats = {
       day: 'numeric',
       weekday: 'long',
       hour: 'numeric',
-      minute: 'numeric'
-    }
+      minute: 'numeric',
+    },
   },
   en: {
     short: {
@@ -90,7 +92,7 @@ const dateTimeFormats = {
       month: 'short',
       day: 'numeric',
       hour: 'numeric',
-      minute: 'numeric'
+      minute: 'numeric',
     },
     medium: {
       year: 'numeric',
@@ -98,7 +100,7 @@ const dateTimeFormats = {
       day: 'numeric',
       weekday: 'short',
       hour: 'numeric',
-      minute: 'numeric'
+      minute: 'numeric',
     },
     long: {
       year: 'numeric',
@@ -106,8 +108,8 @@ const dateTimeFormats = {
       day: 'numeric',
       weekday: 'long',
       hour: 'numeric',
-      minute: 'numeric'
-    }
+      minute: 'numeric',
+    },
   },
   pl: {
     short: {
@@ -115,7 +117,7 @@ const dateTimeFormats = {
       month: 'short',
       day: 'numeric',
       hour: 'numeric',
-      minute: 'numeric'
+      minute: 'numeric',
     },
     medium: {
       year: 'numeric',
@@ -123,7 +125,7 @@ const dateTimeFormats = {
       day: 'numeric',
       weekday: 'short',
       hour: 'numeric',
-      minute: 'numeric'
+      minute: 'numeric',
     },
     long: {
       year: 'numeric',
@@ -131,9 +133,9 @@ const dateTimeFormats = {
       day: 'numeric',
       weekday: 'long',
       hour: 'numeric',
-      minute: 'numeric'
-    }
-  }
+      minute: 'numeric',
+    },
+  },
   // jhipster-needle-i18n-language-date-time-format - JHipster will add/remove format options in this object
 };
 
@@ -170,6 +172,10 @@ export function initFortAwesome(vue) {
     faSignOutAlt,
     faWrench,
     faThList,
+    faTimes,
+    faTimesCircle,
+    faTrash,
+    faUser,
     faUserPlus,
     faAsterisk,
     faFlag,
@@ -199,7 +205,7 @@ export function initI18N(vue) {
   return new VueI18n({
     dateTimeFormats,
     silentTranslationWarn: true,
-    formatter: new JhiFormatter()
+    formatter: new JhiFormatter(),
   });
 }
 
@@ -209,7 +215,7 @@ export function initVueXStore(vue) {
     modules: {
       accountStore,
       alertStore,
-      translationStore
-    }
+      translationStore,
+    },
   });
 }

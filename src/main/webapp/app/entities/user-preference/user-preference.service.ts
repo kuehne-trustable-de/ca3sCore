@@ -9,7 +9,7 @@ export default class UserPreferenceService {
     return new Promise<IUserPreference>((resolve, reject) => {
       axios
         .get(`${baseApiUrl}/${id}`)
-        .then(function(res) {
+        .then(res => {
           resolve(res.data);
         })
         .catch(err => {
@@ -22,7 +22,7 @@ export default class UserPreferenceService {
     return new Promise<any>((resolve, reject) => {
       axios
         .get(baseApiUrl)
-        .then(function(res) {
+        .then(res => {
           resolve(res);
         })
         .catch(err => {
@@ -34,8 +34,8 @@ export default class UserPreferenceService {
   public retrieveUserPreferences(user: string): Promise<any> {
     return new Promise<any>((resolve, reject) => {
       axios
-        .get(baseApiUrl,  { params: { user: user } })
-        .then(function(res) {
+        .get(baseApiUrl, { params: { user: user } })
+        .then(function (res) {
           resolve(res);
         })
         .catch(err => {
@@ -48,7 +48,7 @@ export default class UserPreferenceService {
     return new Promise<any>((resolve, reject) => {
       axios
         .delete(`${baseApiUrl}/${id}`)
-        .then(function(res) {
+        .then(res => {
           resolve(res);
         })
         .catch(err => {
@@ -61,7 +61,7 @@ export default class UserPreferenceService {
     return new Promise<IUserPreference>((resolve, reject) => {
       axios
         .post(`${baseApiUrl}`, entity)
-        .then(function(res) {
+        .then(res => {
           resolve(res.data);
         })
         .catch(err => {
@@ -74,7 +74,7 @@ export default class UserPreferenceService {
     return new Promise<IUserPreference>((resolve, reject) => {
       axios
         .put(`${baseApiUrl}`, entity)
-        .then(function(res) {
+        .then(res => {
           resolve(res.data);
         })
         .catch(err => {

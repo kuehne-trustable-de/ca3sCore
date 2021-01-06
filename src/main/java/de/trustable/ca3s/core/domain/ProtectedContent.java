@@ -1,9 +1,12 @@
 package de.trustable.ca3s.core.domain;
 
+
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
 import java.io.Serializable;
+import java.util.Objects;
+import java.time.Instant;
 
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 
@@ -34,15 +37,13 @@ import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 })
 public class ProtectedContent implements Serializable {
 
-	
-	
     private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    
+
     @Lob
     @Column(name = "content_base_64", nullable = false)
     private String contentBase64;
@@ -51,6 +52,12 @@ public class ProtectedContent implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     private ProtectedContentType type;
+
+    @Column(name = "left_usages")
+    private Integer leftUsages;
+
+    @Column(name = "valid_to")
+    private Instant validTo;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "relation_type")
@@ -92,6 +99,32 @@ public class ProtectedContent implements Serializable {
 
     public void setType(ProtectedContentType type) {
         this.type = type;
+    }
+
+    public Integer getLeftUsages() {
+        return leftUsages;
+    }
+
+    public ProtectedContent leftUsages(Integer leftUsages) {
+        this.leftUsages = leftUsages;
+        return this;
+    }
+
+    public void setLeftUsages(Integer leftUsages) {
+        this.leftUsages = leftUsages;
+    }
+
+    public Instant getValidTo() {
+        return validTo;
+    }
+
+    public ProtectedContent validTo(Instant validTo) {
+        this.validTo = validTo;
+        return this;
+    }
+
+    public void setValidTo(Instant validTo) {
+        this.validTo = validTo;
     }
 
     public ContentRelationType getRelationType() {
@@ -143,6 +176,8 @@ public class ProtectedContent implements Serializable {
             "id=" + getId() +
             ", contentBase64='" + getContentBase64() + "'" +
             ", type='" + getType() + "'" +
+            ", leftUsages=" + getLeftUsages() +
+            ", validTo='" + getValidTo() + "'" +
             ", relationType='" + getRelationType() + "'" +
             ", relatedId=" + getRelatedId() +
             "}";

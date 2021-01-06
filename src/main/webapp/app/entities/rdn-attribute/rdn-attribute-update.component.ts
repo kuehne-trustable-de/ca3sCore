@@ -12,16 +12,16 @@ import RDNAttributeService from './rdn-attribute.service';
 const validations: any = {
   rDNAttribute: {
     attributeType: {
-      required
+      required,
     },
     attributeValue: {
-      required
-    }
-  }
+      required,
+    },
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class RDNAttributeUpdate extends Vue {
   @Inject('alertService') private alertService: () => AlertService;
@@ -32,6 +32,7 @@ export default class RDNAttributeUpdate extends Vue {
 
   public rDNS: IRDN[] = [];
   public isSaving = false;
+  public currentLanguage = '';
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -40,6 +41,16 @@ export default class RDNAttributeUpdate extends Vue {
       }
       vm.initRelationships();
     });
+  }
+
+  created(): void {
+    this.currentLanguage = this.$store.getters.currentLanguage;
+    this.$store.watch(
+      () => this.$store.getters.currentLanguage,
+      () => {
+        this.currentLanguage = this.$store.getters.currentLanguage;
+      }
+    );
   }
 
   public save(): void {

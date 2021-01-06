@@ -8,14 +8,14 @@ export const enum PipelineType {
   ACME = 'ACME',
   SCEP = 'SCEP',
   WEB = 'WEB',
-  INTERNAL = 'INTERNAL'
+  INTERNAL = 'INTERNAL',
 }
 
 export const enum CsrStatus {
   PROCESSING = 'PROCESSING',
   ISSUED = 'ISSUED',
   REJECTED = 'REJECTED',
-  PENDING = 'PENDING'
+  PENDING = 'PENDING',
 }
 
 export interface ICSR {

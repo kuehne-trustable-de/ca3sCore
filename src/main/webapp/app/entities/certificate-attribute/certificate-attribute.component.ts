@@ -1,14 +1,16 @@
 import { mixins } from 'vue-class-component';
 
-import { Component, Inject } from 'vue-property-decorator';
+import { Component, Vue, Inject } from 'vue-property-decorator';
 import Vue2Filters from 'vue2-filters';
 import { ICertificateAttribute } from '@/shared/model/certificate-attribute.model';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
 import CertificateAttributeService from './certificate-attribute.service';
 
-@Component
-export default class CertificateAttribute extends mixins(Vue2Filters.mixin, AlertMixin) {
+@Component({
+  mixins: [Vue2Filters.mixin],
+})
+export default class CertificateAttribute extends mixins(AlertMixin) {
   @Inject('certificateAttributeService') private certificateAttributeService: () => CertificateAttributeService;
   private removeId: number = null;
 

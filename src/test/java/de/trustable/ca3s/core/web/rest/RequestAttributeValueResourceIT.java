@@ -4,25 +4,19 @@ import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.RequestAttributeValue;
 import de.trustable.ca3s.core.repository.RequestAttributeValueRepository;
 import de.trustable.ca3s.core.service.RequestAttributeValueService;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Validator;
-
 import javax.persistence.EntityManager;
 import java.util.List;
 
-import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -32,6 +26,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for the {@link RequestAttributeValueResource} REST controller.
  */
 @SpringBootTest(classes = Ca3SApp.class)
+
+@AutoConfigureMockMvc
+@WithMockUser
 public class RequestAttributeValueResourceIT {
 
     private static final String DEFAULT_ATTRIBUTE_VALUE = "AAAAAAAAAA";
@@ -44,35 +41,12 @@ public class RequestAttributeValueResourceIT {
     private RequestAttributeValueService requestAttributeValueService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restRequestAttributeValueMockMvc;
 
     private RequestAttributeValue requestAttributeValue;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final RequestAttributeValueResource requestAttributeValueResource = new RequestAttributeValueResource(requestAttributeValueService);
-        this.restRequestAttributeValueMockMvc = MockMvcBuilders.standaloneSetup(requestAttributeValueResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -109,7 +83,7 @@ public class RequestAttributeValueResourceIT {
 
         // Create the RequestAttributeValue
         restRequestAttributeValueMockMvc.perform(post("/api/request-attribute-values")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(requestAttributeValue)))
             .andExpect(status().isCreated());
 
@@ -130,7 +104,7 @@ public class RequestAttributeValueResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restRequestAttributeValueMockMvc.perform(post("/api/request-attribute-values")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(requestAttributeValue)))
             .andExpect(status().isBadRequest());
 
@@ -150,7 +124,7 @@ public class RequestAttributeValueResourceIT {
         // Create the RequestAttributeValue, which fails.
 
         restRequestAttributeValueMockMvc.perform(post("/api/request-attribute-values")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(requestAttributeValue)))
             .andExpect(status().isBadRequest());
 
@@ -167,11 +141,11 @@ public class RequestAttributeValueResourceIT {
         // Get all the requestAttributeValueList
         restRequestAttributeValueMockMvc.perform(get("/api/request-attribute-values?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(requestAttributeValue.getId().intValue())))
             .andExpect(jsonPath("$.[*].attributeValue").value(hasItem(DEFAULT_ATTRIBUTE_VALUE)));
     }
-    
+
     @Test
     @Transactional
     public void getRequestAttributeValue() throws Exception {
@@ -181,7 +155,7 @@ public class RequestAttributeValueResourceIT {
         // Get the requestAttributeValue
         restRequestAttributeValueMockMvc.perform(get("/api/request-attribute-values/{id}", requestAttributeValue.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(requestAttributeValue.getId().intValue()))
             .andExpect(jsonPath("$.attributeValue").value(DEFAULT_ATTRIBUTE_VALUE));
     }
@@ -210,7 +184,7 @@ public class RequestAttributeValueResourceIT {
             .attributeValue(UPDATED_ATTRIBUTE_VALUE);
 
         restRequestAttributeValueMockMvc.perform(put("/api/request-attribute-values")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedRequestAttributeValue)))
             .andExpect(status().isOk());
 
@@ -230,7 +204,7 @@ public class RequestAttributeValueResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restRequestAttributeValueMockMvc.perform(put("/api/request-attribute-values")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(requestAttributeValue)))
             .andExpect(status().isBadRequest());
 
@@ -249,7 +223,7 @@ public class RequestAttributeValueResourceIT {
 
         // Delete the requestAttributeValue
         restRequestAttributeValueMockMvc.perform(delete("/api/request-attribute-values/{id}", requestAttributeValue.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

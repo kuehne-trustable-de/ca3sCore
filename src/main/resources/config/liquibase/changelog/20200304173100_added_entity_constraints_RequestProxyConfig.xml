@@ -7,7 +7,7 @@
         Added the constraints for entity RequestProxyConfig.
     -->
     <changeSet id="20200304173100-2" author="jhipster">
-        
+
         <addForeignKeyConstraint baseColumnNames="secret_id"
                                  baseTableName="request_proxy_config"
                                  constraintName="fk_request_proxy_config_secret_id"

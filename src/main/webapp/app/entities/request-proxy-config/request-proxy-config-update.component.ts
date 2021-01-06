@@ -12,17 +12,17 @@ import RequestProxyConfigService from './request-proxy-config.service';
 const validations: any = {
   requestProxyConfig: {
     name: {
-      required
+      required,
     },
     requestProxyUrl: {
-      required
+      required,
     },
-    active: {}
-  }
+    active: {},
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class RequestProxyConfigUpdate extends Vue {
   @Inject('alertService') private alertService: () => AlertService;
@@ -33,6 +33,7 @@ export default class RequestProxyConfigUpdate extends Vue {
 
   public protectedContents: IProtectedContent[] = [];
   public isSaving = false;
+  public currentLanguage = '';
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -41,6 +42,16 @@ export default class RequestProxyConfigUpdate extends Vue {
       }
       vm.initRelationships();
     });
+  }
+
+  created(): void {
+    this.currentLanguage = this.$store.getters.currentLanguage;
+    this.$store.watch(
+      () => this.$store.getters.currentLanguage,
+      () => {
+        this.currentLanguage = this.$store.getters.currentLanguage;
+      }
+    );
   }
 
   public save(): void {

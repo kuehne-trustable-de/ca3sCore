@@ -9,18 +9,19 @@ import NonceService from './nonce.service';
 const validations: any = {
   nonce: {
     nonceValue: {},
-    expiresAt: {}
-  }
+    expiresAt: {},
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class NonceUpdate extends Vue {
   @Inject('alertService') private alertService: () => AlertService;
   @Inject('nonceService') private nonceService: () => NonceService;
   public nonce: INonce = new Nonce();
   public isSaving = false;
+  public currentLanguage = '';
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -28,6 +29,16 @@ export default class NonceUpdate extends Vue {
         vm.retrieveNonce(to.params.nonceId);
       }
     });
+  }
+
+  created(): void {
+    this.currentLanguage = this.$store.getters.currentLanguage;
+    this.$store.watch(
+      () => this.$store.getters.currentLanguage,
+      () => {
+        this.currentLanguage = this.$store.getters.currentLanguage;
+      }
+    );
   }
 
   public save(): void {

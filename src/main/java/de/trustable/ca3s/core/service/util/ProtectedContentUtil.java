@@ -1,6 +1,9 @@
 package de.trustable.ca3s.core.service.util;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.jasypt.util.text.BasicTextEncryptor;
 import org.slf4j.Logger;
@@ -21,6 +24,9 @@ public class ProtectedContentUtil {
     private final Logger log = LoggerFactory.getLogger(ProtectedContentUtil.class);
 
 	private BasicTextEncryptor textEncryptor;
+
+	// defining our own max instant, as Instant.MAX is out f the range hibernate supports :-(
+	public static final Instant MAX_INSTANT = Instant.parse("9999-12-31T23:59:59Z");
 
 	@Autowired
 	private ProtectedContentRepository protContentRepository;
@@ -44,42 +50,76 @@ public class ProtectedContentUtil {
 	}
 
 	public String unprotectString(String protectedContent) {
-		return textEncryptor.decrypt(protectedContent);
 
+        return textEncryptor.decrypt(protectedContent);
 	}
 
-	/**
-	 *
-	 * create a new ProtectedContent object and save the given content
-	 *
-	 * @param plainText the plain text to be protected
-	 * @param pct the content type of the plainText
-	 * @param crt the related entity
-	 * @param connectionId the related entity
-	 * @return the freshly created object
-	 */
-	public ProtectedContent createProtectedContent(final String plainText, ProtectedContentType pct, ContentRelationType crt, long connectionId) {
+    /**
+     *
+     * create a new ProtectedContent object and save the given content
+     *
+     * @param plainText the plain text to be protected
+     * @param pct the content type of the plainText
+     * @param crt the related entity
+     * @param connectionId the related entity
+     * @return the freshly created object
+     */
+    public ProtectedContent createProtectedContent(final String plainText, ProtectedContentType pct, ContentRelationType crt, long connectionId) {
 
-		ProtectedContent pc = new ProtectedContent();
-		pc.setContentBase64(protectString(plainText));
+        return createProtectedContent(plainText,
+            pct,
+            crt,
+            connectionId,
+            -1,
+            MAX_INSTANT);
+    }
 
-		pc.setType(pct);
-		pc.setRelationType(crt);
-		pc.setRelatedId(connectionId);
+    /**
+     *
+     * create a new ProtectedContent object and save the given content
+     *
+     * @param plainText the plain text to be protected
+     * @param pct the content type of the plainText
+     * @param crt the related entity
+     * @param connectionId the related entity
+     * @param leftUsages number of left usages for this element
+     * @param validTo element usable until 'validTo'
+     * @return the freshly created object
+     */
+    public ProtectedContent createProtectedContent(final String plainText,
+                                                   ProtectedContentType pct,
+                                                   ContentRelationType crt,
+                                                   long connectionId,
+                                                   int leftUsages,
+                                                   Instant validTo) {
 
-		protContentRepository.save(pc);
-		return pc;
-	}
+        ProtectedContent pc = new ProtectedContent();
+        pc.setContentBase64(protectString(plainText));
 
-	/**
+        pc.setType(pct);
+        pc.setRelationType(crt);
+        pc.setRelatedId(connectionId);
+        pc.setLeftUsages(leftUsages);
+        pc.setValidTo(validTo);
+
+        protContentRepository.save(pc);
+        return pc;
+    }
+
+    /**
 	 *
 	 * @param type the type of object which is required
      * @param crt the related entity
 	 * @param id the object id
-	 * @return
+	 * @return list of
 	 */
 	public List<ProtectedContent> retrieveProtectedContent(ProtectedContentType type, ContentRelationType crt, long id) {
-		return protContentRepository.findByTypeRelationId(type, crt, id);
+
+        List<ProtectedContent> pcList = protContentRepository.findByTypeRelationId(type, crt, id);
+
+        Instant now = Instant.now();
+        Predicate<ProtectedContent> usableItem = pc -> ((pc.getLeftUsages() == -1) || (pc.getLeftUsages() > 0)) && pc.getValidTo().isAfter(now);
+        return pcList.stream().filter(usableItem).collect(Collectors.toList());
 	}
 
 }

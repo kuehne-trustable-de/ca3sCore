@@ -5,7 +5,8 @@ import { IBPNMProcessInfo } from '@/shared/model/bpnm-process-info.model';
 export const enum PipelineType {
   ACME = 'ACME',
   SCEP = 'SCEP',
-  WEB = 'WEB'
+  WEB = 'WEB',
+  INTERNAL = 'INTERNAL',
 }
 
 export interface IPipeline {

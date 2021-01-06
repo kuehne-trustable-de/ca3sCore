@@ -20,7 +20,7 @@
                 <constraints nullable="false" />
             </column>
             <column name="request_proxy_url" type="varchar(255)">
-                <constraints nullable="true" />
+                <constraints nullable="false" />
             </column>
             <column name="active" type="boolean">
                 <constraints nullable="true" />

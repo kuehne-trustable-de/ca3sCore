@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core.web.rest;
 
-
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.security.SecurityUtils;
@@ -30,13 +29,7 @@ import java.util.*;
 public class AccountResource {
 
     private static class AccountResourceException extends RuntimeException {
-    	
-        /**
-		 * 
-		 */
-		private static final long serialVersionUID = -1468055116849177353L;
-
-		private AccountResourceException(String message) {
+        private AccountResourceException(String message) {
             super(message);
         }
     }
@@ -153,14 +146,17 @@ public class AccountResource {
      * {@code POST   /account/reset-password/init} : Send an email to reset the password of the user.
      *
      * @param mail the mail of the user.
-     * @throws EmailNotFoundException {@code 400 (Bad Request)} if the email address is not registered.
      */
     @PostMapping(path = "/account/reset-password/init")
     public void requestPasswordReset(@RequestBody String mail) {
-       mailService.sendPasswordResetMail(
-           userService.requestPasswordReset(mail)
-               .orElseThrow(EmailNotFoundException::new)
-       );
+        Optional<User> user = userService.requestPasswordReset(mail);
+        if (user.isPresent()) {
+            mailService.sendPasswordResetMail(user.get());
+        } else {
+            // Pretend the request has been successful to prevent checking which emails really exist
+            // but log that an invalid attempt has been made
+            log.warn("Password reset requested for non existing mail");
+        }
     }
 
     /**

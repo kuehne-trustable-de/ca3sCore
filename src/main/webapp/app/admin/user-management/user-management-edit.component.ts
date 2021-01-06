@@ -4,12 +4,12 @@ import UserManagementService from './user-management.service';
 import { IUser, User } from '@/shared/model/user.model';
 import AlertService from '@/shared/alert/alert.service';
 
-function loginValidator(value) {
-  if (typeof value === 'undefined' || value === null || value === '') {
+const loginValidator = (value: string) => {
+  if (!value) {
     return true;
   }
-  return /^[_.@A-Za-z0-9-]*$/.test(value);
-}
+  return /^[a-zA-Z0-9!$&*+=?^_`{|}~.-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$|^[_.@A-Za-z0-9-]+$/.test(value);
+};
 
 const validations: any = {
   userAccount: {
@@ -17,25 +17,25 @@ const validations: any = {
       required,
       minLength: minLength(1),
       maxLength: maxLength(254),
-      loginValidator
+      pattern: loginValidator,
     },
     firstName: {
-      maxLength: maxLength(50)
+      maxLength: maxLength(50),
     },
     lastName: {
-      maxLength: maxLength(50)
+      maxLength: maxLength(50),
     },
     email: {
       required,
       email,
       minLength: minLength(5),
-      maxLength: maxLength(254)
-    }
-  }
+      maxLength: maxLength(50),
+    },
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class JhiUserManagementEdit extends Vue {
   @Inject('alertService') private alertService: () => AlertService;
@@ -105,6 +105,6 @@ export default class JhiUserManagementEdit extends Vue {
   }
 
   private getMessageFromHeader(res: any): any {
-    return this.$t(res.headers['x-ca3sapp-alert'], { param: res.headers['x-ca3sapp-params'] });
+    return this.$t(res.headers['x-ca3sapp-alert'], { param: decodeURIComponent(res.headers['x-ca3sapp-params'].replace(/\+/g, ' ')) });
   }
 }

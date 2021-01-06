@@ -25,6 +25,7 @@ public interface RequestProxyConfigService {
      */
     List<RequestProxyConfig> findAll();
 
+
     /**
      * Get the "id" requestProxyConfig.
      *

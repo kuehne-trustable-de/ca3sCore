@@ -31,23 +31,23 @@ import CSRService from './csr.service';
 const validations: any = {
   cSR: {
     csrBase64: {
-      required
+      required,
     },
     subject: {
-      required
+      required,
     },
     sans: {},
     requestedOn: {
-      required
+      required,
     },
     requestedBy: {
-      required
+      required,
     },
     pipelineType: {
-      required
+      required,
     },
     status: {
-      required
+      required,
     },
     administeredBy: {},
     approvedOn: {},
@@ -63,15 +63,15 @@ const validations: any = {
     publicKeyHash: {},
     serversideKeyGeneration: {},
     subjectPublicKeyInfoBase64: {
-      required
+      required,
     },
     requestorComment: {},
-    administrationComment: {}
-  }
+    administrationComment: {},
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class CSRUpdate extends mixins(JhiDataUtils) {
   @Inject('alertService') private alertService: () => AlertService;
@@ -98,6 +98,7 @@ export default class CSRUpdate extends mixins(JhiDataUtils) {
 
   public certificates: ICertificate[] = [];
   public isSaving = false;
+  public currentLanguage = '';
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -106,6 +107,16 @@ export default class CSRUpdate extends mixins(JhiDataUtils) {
       }
       vm.initRelationships();
     });
+  }
+
+  created(): void {
+    this.currentLanguage = this.$store.getters.currentLanguage;
+    this.$store.watch(
+      () => this.$store.getters.currentLanguage,
+      () => {
+        this.currentLanguage = this.$store.getters.currentLanguage;
+      }
+    );
   }
 
   public save(): void {

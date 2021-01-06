@@ -51,7 +51,6 @@ public class AcmeNonceServiceImpl implements AcmeNonceService {
         return acmeNonceRepository.findAll();
     }
 
-
     /**
      * Get one acmeNonce by id.
      *

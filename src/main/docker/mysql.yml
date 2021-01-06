@@ -1,7 +1,7 @@
 version: '2'
 services:
-  ca3s_jh-mysql:
-    image: mysql:8.0.17
+  ca3s-mysql:
+    image: mysql:8.0.19
     # volumes:
     #     - ~/volumes/jhipster/ca3s_jh/mysql/:/var/lib/mysql/
     environment:

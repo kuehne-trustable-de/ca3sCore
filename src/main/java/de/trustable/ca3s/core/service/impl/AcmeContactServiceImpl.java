@@ -51,7 +51,6 @@ public class AcmeContactServiceImpl implements AcmeContactService {
         return acmeContactRepository.findAll();
     }
 
-
     /**
      * Get one acmeContact by id.
      *

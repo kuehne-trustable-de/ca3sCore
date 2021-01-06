@@ -20,7 +20,7 @@ const store = config.initVueXStore(localVue);
 localVue.component('font-awesome-icon', FontAwesomeIcon);
 
 jest.mock('axios', () => ({
-  get: jest.fn()
+  get: jest.fn(),
 }));
 
 describe('JhiTracker', () => {
@@ -36,14 +36,13 @@ describe('JhiTracker', () => {
       i18n,
       localVue,
       provide: {
-        trackerService: () => trackerServiceStub
-      }
+        trackerService: () => trackerServiceStub,
+      },
     });
     jhiTracker = wrapper.vm;
   });
 
-  it('should be a Vue instance', () => {
-    expect(wrapper.isVueInstance()).toBeTruthy();
+  it('should subscribe', () => {
     expect(trackerServiceStub.subscribe.called).toBeTruthy();
   });
 

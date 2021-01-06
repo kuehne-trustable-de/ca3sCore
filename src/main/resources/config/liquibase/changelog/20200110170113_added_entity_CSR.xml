@@ -88,7 +88,7 @@
             <column name="pipeline_id" type="bigint">
                 <constraints nullable="true" />
             </column>
-            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
         <dropDefaultValue tableName="csr" columnName="requested_on" columnDataType="datetime"/>
         <dropDefaultValue tableName="csr" columnName="approved_on" columnDataType="datetime"/>
@@ -98,7 +98,7 @@
     <changeSet id="20200110170113-1-relations" author="jhipster">
 
     </changeSet>
-    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
 
     <!--
         Load sample data generated with Faker.js
@@ -137,7 +137,7 @@
             <column name="subject_public_key_info_base_64" type="clob"/>
             <column name="requestor_comment" type="clob"/>
             <column name="administration_comment" type="clob"/>
-            <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
+            <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>
 

@@ -4,25 +4,19 @@ import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.RDNAttribute;
 import de.trustable.ca3s.core.repository.RDNAttributeRepository;
 import de.trustable.ca3s.core.service.RDNAttributeService;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Validator;
-
 import javax.persistence.EntityManager;
 import java.util.List;
 
-import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -32,6 +26,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for the {@link RDNAttributeResource} REST controller.
  */
 @SpringBootTest(classes = Ca3SApp.class)
+
+@AutoConfigureMockMvc
+@WithMockUser
 public class RDNAttributeResourceIT {
 
     private static final String DEFAULT_ATTRIBUTE_TYPE = "AAAAAAAAAA";
@@ -47,35 +44,12 @@ public class RDNAttributeResourceIT {
     private RDNAttributeService rDNAttributeService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restRDNAttributeMockMvc;
 
     private RDNAttribute rDNAttribute;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final RDNAttributeResource rDNAttributeResource = new RDNAttributeResource(rDNAttributeService);
-        this.restRDNAttributeMockMvc = MockMvcBuilders.standaloneSetup(rDNAttributeResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -114,7 +88,7 @@ public class RDNAttributeResourceIT {
 
         // Create the RDNAttribute
         restRDNAttributeMockMvc.perform(post("/api/rdn-attributes")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(rDNAttribute)))
             .andExpect(status().isCreated());
 
@@ -136,7 +110,7 @@ public class RDNAttributeResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restRDNAttributeMockMvc.perform(post("/api/rdn-attributes")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(rDNAttribute)))
             .andExpect(status().isBadRequest());
 
@@ -156,7 +130,7 @@ public class RDNAttributeResourceIT {
         // Create the RDNAttribute, which fails.
 
         restRDNAttributeMockMvc.perform(post("/api/rdn-attributes")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(rDNAttribute)))
             .andExpect(status().isBadRequest());
 
@@ -174,7 +148,7 @@ public class RDNAttributeResourceIT {
         // Create the RDNAttribute, which fails.
 
         restRDNAttributeMockMvc.perform(post("/api/rdn-attributes")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(rDNAttribute)))
             .andExpect(status().isBadRequest());
 
@@ -191,12 +165,12 @@ public class RDNAttributeResourceIT {
         // Get all the rDNAttributeList
         restRDNAttributeMockMvc.perform(get("/api/rdn-attributes?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(rDNAttribute.getId().intValue())))
             .andExpect(jsonPath("$.[*].attributeType").value(hasItem(DEFAULT_ATTRIBUTE_TYPE)))
             .andExpect(jsonPath("$.[*].attributeValue").value(hasItem(DEFAULT_ATTRIBUTE_VALUE)));
     }
-    
+
     @Test
     @Transactional
     public void getRDNAttribute() throws Exception {
@@ -206,7 +180,7 @@ public class RDNAttributeResourceIT {
         // Get the rDNAttribute
         restRDNAttributeMockMvc.perform(get("/api/rdn-attributes/{id}", rDNAttribute.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(rDNAttribute.getId().intValue()))
             .andExpect(jsonPath("$.attributeType").value(DEFAULT_ATTRIBUTE_TYPE))
             .andExpect(jsonPath("$.attributeValue").value(DEFAULT_ATTRIBUTE_VALUE));
@@ -237,7 +211,7 @@ public class RDNAttributeResourceIT {
             .attributeValue(UPDATED_ATTRIBUTE_VALUE);
 
         restRDNAttributeMockMvc.perform(put("/api/rdn-attributes")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedRDNAttribute)))
             .andExpect(status().isOk());
 
@@ -258,7 +232,7 @@ public class RDNAttributeResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restRDNAttributeMockMvc.perform(put("/api/rdn-attributes")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(rDNAttribute)))
             .andExpect(status().isBadRequest());
 
@@ -277,7 +251,7 @@ public class RDNAttributeResourceIT {
 
         // Delete the rDNAttribute
         restRDNAttributeMockMvc.perform(delete("/api/rdn-attributes/{id}", rDNAttribute.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

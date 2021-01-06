@@ -28,7 +28,7 @@ describe('Component Tests', () => {
         store,
         i18n,
         localVue,
-        provide: { identifierService: () => identifierServiceStub }
+        provide: { identifierService: () => identifierServiceStub },
       });
       comp = wrapper.vm;
     });

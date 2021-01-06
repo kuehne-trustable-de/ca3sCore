@@ -1,14 +1,16 @@
 import { mixins } from 'vue-class-component';
 
-import { Component, Inject } from 'vue-property-decorator';
+import { Component, Vue, Inject } from 'vue-property-decorator';
 import Vue2Filters from 'vue2-filters';
 import { IAcmeOrder } from '@/shared/model/acme-order.model';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
 import AcmeOrderService from './acme-order.service';
 
-@Component
-export default class AcmeOrder extends mixins(Vue2Filters.mixin, AlertMixin) {
+@Component({
+  mixins: [Vue2Filters.mixin],
+})
+export default class AcmeOrder extends mixins(AlertMixin) {
   @Inject('acmeOrderService') private acmeOrderService: () => AcmeOrderService;
   private removeId: number = null;
   public acmeOrders: IAcmeOrder[] = [];

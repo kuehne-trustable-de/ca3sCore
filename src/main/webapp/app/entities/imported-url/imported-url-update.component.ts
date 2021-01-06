@@ -13,22 +13,23 @@ import ImportedURLService from './imported-url.service';
 const validations: any = {
   importedURL: {
     name: {
-      required
+      required,
     },
     importDate: {
-      required
-    }
-  }
+      required,
+    },
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class ImportedURLUpdate extends Vue {
   @Inject('alertService') private alertService: () => AlertService;
   @Inject('importedURLService') private importedURLService: () => ImportedURLService;
   public importedURL: IImportedURL = new ImportedURL();
   public isSaving = false;
+  public currentLanguage = '';
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -36,6 +37,16 @@ export default class ImportedURLUpdate extends Vue {
         vm.retrieveImportedURL(to.params.importedURLId);
       }
     });
+  }
+
+  created(): void {
+    this.currentLanguage = this.$store.getters.currentLanguage;
+    this.$store.watch(
+      () => this.$store.getters.currentLanguage,
+      () => {
+        this.currentLanguage = this.$store.getters.currentLanguage;
+      }
+    );
   }
 
   public save(): void {

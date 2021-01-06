@@ -143,14 +143,14 @@ public class CSR implements Serializable {
     private Set<CsrAttribute> csrAttributes = new HashSet<>();
 
     @ManyToOne
-    @JsonIgnoreProperties("cSRS")
+    @JsonIgnoreProperties(value = "cSRS", allowSetters = true)
     private Pipeline pipeline;
 
     @OneToOne(mappedBy = "csr")
     @JsonIgnore
     private Certificate certificate;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
         return id;
     }
@@ -558,7 +558,7 @@ public class CSR implements Serializable {
     public void setCertificate(Certificate certificate) {
         this.certificate = certificate;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -576,6 +576,7 @@ public class CSR implements Serializable {
         return 31;
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "CSR{" +

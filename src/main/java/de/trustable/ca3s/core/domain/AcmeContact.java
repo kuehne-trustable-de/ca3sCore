@@ -28,10 +28,10 @@ public class AcmeContact implements Serializable {
     private String contactUrl;
 
     @ManyToOne
-    @JsonIgnoreProperties("contacts")
+    @JsonIgnoreProperties(value = "contacts", allowSetters = true)
     private ACMEAccount account;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
         return id;
     }
@@ -78,7 +78,7 @@ public class AcmeContact implements Serializable {
     public void setAccount(ACMEAccount aCMEAccount) {
         this.account = aCMEAccount;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -96,6 +96,7 @@ public class AcmeContact implements Serializable {
         return 31;
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "AcmeContact{" +

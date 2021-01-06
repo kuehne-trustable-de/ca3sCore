@@ -28,7 +28,7 @@ describe('Component Tests', () => {
         store,
         i18n,
         localVue,
-        provide: { userPreferenceService: () => userPreferenceServiceStub }
+        provide: { userPreferenceService: () => userPreferenceServiceStub },
       });
       comp = wrapper.vm;
     });

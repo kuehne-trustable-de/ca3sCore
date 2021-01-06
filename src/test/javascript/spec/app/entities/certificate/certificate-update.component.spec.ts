@@ -50,8 +50,8 @@ describe('Component Tests', () => {
 
           certificateAttributeService: () => new CertificateAttributeService(),
 
-          cAConnectorConfigService: () => new CAConnectorConfigService()
-        }
+          cAConnectorConfigService: () => new CAConnectorConfigService(),
+        },
       });
       comp = wrapper.vm;
     });

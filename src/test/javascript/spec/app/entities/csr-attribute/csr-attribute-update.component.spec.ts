@@ -38,8 +38,8 @@ describe('Component Tests', () => {
           alertService: () => new AlertService(store),
           csrAttributeService: () => csrAttributeServiceStub,
 
-          cSRService: () => new CSRService()
-        }
+          cSRService: () => new CSRService(),
+        },
       });
       comp = wrapper.vm;
     });

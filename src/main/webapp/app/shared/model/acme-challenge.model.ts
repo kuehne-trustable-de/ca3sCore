@@ -6,7 +6,7 @@ export const enum ChallengeStatus {
   INVALID = 'INVALID',
   DEACTIVATED = 'DEACTIVATED',
   EXPIRED = 'EXPIRED',
-  REVOKED = 'REVOKED'
+  REVOKED = 'REVOKED',
 }
 
 export interface IAcmeChallenge {

@@ -3,31 +3,20 @@ package de.trustable.ca3s.core.web.rest;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
-import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 import de.trustable.ca3s.core.service.CAConnectorConfigService;
-import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Validator;
-
 import javax.persistence.EntityManager;
 import java.util.List;
 
-import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -39,7 +28,9 @@ import de.trustable.ca3s.core.domain.enumeration.Interval;
  * Integration tests for the {@link CAConnectorConfigResource} REST controller.
  */
 @SpringBootTest(classes = Ca3SApp.class)
-@ExtendWith(SpringExtension.class)
+
+@AutoConfigureMockMvc
+@WithMockUser
 public class CAConnectorConfigResourceIT {
 
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
@@ -76,45 +67,12 @@ public class CAConnectorConfigResourceIT {
     private CAConnectorConfigService cAConnectorConfigService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
-    @Autowired
-    private ProtectedContentUtil protUtil;
-
-    @Autowired
-    private ProtectedContentRepository protContentRepository;
-
-    @Autowired
-    private CAConnectorConfigRepository caConfigRepository;
-
     private MockMvc restCAConnectorConfigMockMvc;
 
     private CAConnectorConfig cAConnectorConfig;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final CAConnectorConfigResource cAConnectorConfigResource = new CAConnectorConfigResource(cAConnectorConfigService, protUtil, protContentRepository, caConfigRepository);
-
-        this.restCAConnectorConfigMockMvc = MockMvcBuilders.standaloneSetup(cAConnectorConfigResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -167,7 +125,7 @@ public class CAConnectorConfigResourceIT {
 
         // Create the CAConnectorConfig
         restCAConnectorConfigMockMvc.perform(post("/api/ca-connector-configs")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(cAConnectorConfig)))
             .andExpect(status().isCreated());
 
@@ -183,8 +141,7 @@ public class CAConnectorConfigResourceIT {
         assertThat(testCAConnectorConfig.isActive()).isEqualTo(DEFAULT_ACTIVE);
         assertThat(testCAConnectorConfig.getSelector()).isEqualTo(DEFAULT_SELECTOR);
         assertThat(testCAConnectorConfig.getInterval()).isEqualTo(DEFAULT_INTERVAL);
-
-        assertThat(testCAConnectorConfig.getPlainSecret()).isEqualTo(CAConnectorConfigResource.PLAIN_SECRET_PLACEHOLDER);
+        assertThat(testCAConnectorConfig.getPlainSecret()).isEqualTo(DEFAULT_PLAIN_SECRET);
     }
 
     @Test
@@ -197,7 +154,7 @@ public class CAConnectorConfigResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restCAConnectorConfigMockMvc.perform(post("/api/ca-connector-configs")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(cAConnectorConfig)))
             .andExpect(status().isBadRequest());
 
@@ -217,7 +174,7 @@ public class CAConnectorConfigResourceIT {
         // Create the CAConnectorConfig, which fails.
 
         restCAConnectorConfigMockMvc.perform(post("/api/ca-connector-configs")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(cAConnectorConfig)))
             .andExpect(status().isBadRequest());
 
@@ -235,7 +192,7 @@ public class CAConnectorConfigResourceIT {
         // Create the CAConnectorConfig, which fails.
 
         restCAConnectorConfigMockMvc.perform(post("/api/ca-connector-configs")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(cAConnectorConfig)))
             .andExpect(status().isBadRequest());
 
@@ -252,7 +209,7 @@ public class CAConnectorConfigResourceIT {
         // Get all the cAConnectorConfigList
         restCAConnectorConfigMockMvc.perform(get("/api/ca-connector-configs?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(cAConnectorConfig.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].caConnectorType").value(hasItem(DEFAULT_CA_CONNECTOR_TYPE.toString())))
@@ -274,7 +231,7 @@ public class CAConnectorConfigResourceIT {
         // Get the cAConnectorConfig
         restCAConnectorConfigMockMvc.perform(get("/api/ca-connector-configs/{id}", cAConnectorConfig.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(cAConnectorConfig.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.caConnectorType").value(DEFAULT_CA_CONNECTOR_TYPE.toString()))
@@ -319,7 +276,7 @@ public class CAConnectorConfigResourceIT {
             .plainSecret(UPDATED_PLAIN_SECRET);
 
         restCAConnectorConfigMockMvc.perform(put("/api/ca-connector-configs")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedCAConnectorConfig)))
             .andExpect(status().isOk());
 
@@ -335,7 +292,7 @@ public class CAConnectorConfigResourceIT {
         assertThat(testCAConnectorConfig.isActive()).isEqualTo(UPDATED_ACTIVE);
         assertThat(testCAConnectorConfig.getSelector()).isEqualTo(UPDATED_SELECTOR);
         assertThat(testCAConnectorConfig.getInterval()).isEqualTo(UPDATED_INTERVAL);
-        assertThat(testCAConnectorConfig.getPlainSecret()).isEqualTo(CAConnectorConfigResource.PLAIN_SECRET_PLACEHOLDER);
+        assertThat(testCAConnectorConfig.getPlainSecret()).isEqualTo(UPDATED_PLAIN_SECRET);
     }
 
     @Test
@@ -347,7 +304,7 @@ public class CAConnectorConfigResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restCAConnectorConfigMockMvc.perform(put("/api/ca-connector-configs")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(cAConnectorConfig)))
             .andExpect(status().isBadRequest());
 
@@ -366,7 +323,7 @@ public class CAConnectorConfigResourceIT {
 
         // Delete the cAConnectorConfig
         restCAConnectorConfigMockMvc.perform(delete("/api/ca-connector-configs/{id}", cAConnectorConfig.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

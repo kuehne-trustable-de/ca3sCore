@@ -51,7 +51,6 @@ public class ProtectedContentServiceImpl implements ProtectedContentService {
         return protectedContentRepository.findAll();
     }
 
-
     /**
      * Get one protectedContent by id.
      *

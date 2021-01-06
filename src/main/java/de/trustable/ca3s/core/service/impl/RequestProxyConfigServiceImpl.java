@@ -27,23 +27,12 @@ public class RequestProxyConfigServiceImpl implements RequestProxyConfigService 
         this.requestProxyConfigRepository = requestProxyConfigRepository;
     }
 
-    /**
-     * Save a requestProxyConfig.
-     *
-     * @param requestProxyConfig the entity to save.
-     * @return the persisted entity.
-     */
     @Override
     public RequestProxyConfig save(RequestProxyConfig requestProxyConfig) {
         log.debug("Request to save RequestProxyConfig : {}", requestProxyConfig);
         return requestProxyConfigRepository.save(requestProxyConfig);
     }
 
-    /**
-     * Get all the requestProxyConfigs.
-     *
-     * @return the list of entities.
-     */
     @Override
     @Transactional(readOnly = true)
     public List<RequestProxyConfig> findAll() {
@@ -51,12 +40,7 @@ public class RequestProxyConfigServiceImpl implements RequestProxyConfigService 
         return requestProxyConfigRepository.findAll();
     }
 
-    /**
-     * Get one requestProxyConfig by id.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
+
     @Override
     @Transactional(readOnly = true)
     public Optional<RequestProxyConfig> findOne(Long id) {
@@ -64,11 +48,6 @@ public class RequestProxyConfigServiceImpl implements RequestProxyConfigService 
         return requestProxyConfigRepository.findById(id);
     }
 
-    /**
-     * Delete the requestProxyConfig by id.
-     *
-     * @param id the id of the entity.
-     */
     @Override
     public void delete(Long id) {
         log.debug("Request to delete RequestProxyConfig : {}", id);

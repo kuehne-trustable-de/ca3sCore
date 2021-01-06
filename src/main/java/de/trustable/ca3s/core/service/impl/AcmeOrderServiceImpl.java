@@ -51,7 +51,6 @@ public class AcmeOrderServiceImpl implements AcmeOrderService {
         return acmeOrderRepository.findAll();
     }
 
-
     /**
      * Get one acmeOrder by id.
      *

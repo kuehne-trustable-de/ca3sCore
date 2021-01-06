@@ -28,7 +28,7 @@ describe('Component Tests', () => {
         store,
         i18n,
         localVue,
-        provide: { rDNAttributeService: () => rDNAttributeServiceStub }
+        provide: { rDNAttributeService: () => rDNAttributeServiceStub },
       });
       comp = wrapper.vm;
     });

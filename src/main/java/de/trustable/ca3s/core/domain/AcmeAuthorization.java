@@ -43,10 +43,10 @@ public class AcmeAuthorization implements Serializable {
     private Set<AcmeChallenge> challenges = new HashSet<>();
 
     @ManyToOne
-    @JsonIgnoreProperties("acmeAuthorizations")
+    @JsonIgnoreProperties(value = "acmeAuthorizations", allowSetters = true)
     private AcmeOrder order;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
         return id;
     }
@@ -131,7 +131,7 @@ public class AcmeAuthorization implements Serializable {
     public void setOrder(AcmeOrder acmeOrder) {
         this.order = acmeOrder;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -149,6 +149,7 @@ public class AcmeAuthorization implements Serializable {
         return 31;
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "AcmeAuthorization{" +

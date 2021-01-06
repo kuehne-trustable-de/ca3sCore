@@ -1,6 +1,12 @@
 package de.trustable.ca3s.core.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import javax.persistence.*;
+import javax.validation.constraints.*;
+
 import java.io.Serializable;
+import java.util.Objects;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,7 +39,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 	@NamedQuery(name = "Certificate.findByTBSDigest",
 	query = "SELECT c FROM Certificate c WHERE " +
 			"c.tbsDigest = :tbsDigest"
-    ),    
+    ),
     @NamedQuery(name = "Certificate.findByIssuerSerial",
     query = "SELECT c FROM Certificate c WHERE " +
             "LOWER(c.issuer) = LOWER( :issuer ) AND " +
@@ -42,7 +48,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
     @NamedQuery(name = "Certificate.findCACertByIssuer",
     query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes att1 WHERE " +
     	"c.subject = :issuer AND " +
-        " att1.name = 'CA3S:CA' and LOWER(att1.value) = 'true' " 
+        " att1.name = 'CA3S:CA' and LOWER(att1.value) = 'true' "
     ),
     @NamedQuery(name = "Certificate.findBySearchTermNamed",
     query = "SELECT c FROM Certificate c WHERE " +
@@ -51,7 +57,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
     ),
     @NamedQuery(name = "Certificate.findByAttributeValue",
     query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes att1 WHERE " +
-        " att1.name = :name and att1.value = :value " 
+        " att1.name = :name and att1.value = :value "
     ),
     @NamedQuery(name = "Certificate.findByAttributeValue_",
     query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes att1 WHERE " +
@@ -126,7 +132,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
         " group by c " +
         " order by count(certAtt) desc"
     ),
-    
+
     @NamedQuery(name = "Certificate.findInactiveCertificatesByValidFrom",
     query = "SELECT c FROM Certificate c WHERE " +
         "c.validFrom >= :now and " +
@@ -141,7 +147,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
     ),
     @NamedQuery(name = "Certificate.findActiveCertificateByCrlURL",
     query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes certAtt WHERE " +
-        " certAtt.name = 'CRL_URL' and " + 
+        " certAtt.name = 'CRL_URL' and " +
         " c.active = TRUE " +
         " order by certAtt.value "
     ),
@@ -257,7 +263,7 @@ public class Certificate implements Serializable {
     @Column(name = "active")
     private Boolean active;
 
-    
+
     @Lob
     @Column(name = "content", nullable = false)
     private String content;
@@ -270,15 +276,15 @@ public class Certificate implements Serializable {
     private Set<CertificateAttribute> certificateAttributes = new HashSet<>();
 
     @ManyToOne
-    @JsonIgnoreProperties({"rootCertificate", "issuingCertificate", "certificateAttributes"})
+    @JsonIgnoreProperties(value = {"rootCertificate", "issuingCertificate", "certificateAttributes", "certificates"}, allowSetters = true)
     private Certificate issuingCertificate;
 
     @ManyToOne
-    @JsonIgnoreProperties({"rootCertificate", "issuingCertificate", "certificateAttributes"})
+    @JsonIgnoreProperties(value = {"rootCertificate", "issuingCertificate", "certificateAttributes", "certificates"}, allowSetters = true)
     private Certificate rootCertificate;
 
     @ManyToOne
-    @JsonIgnoreProperties("certificates")
+    @JsonIgnoreProperties(value = "certificates", allowSetters = true)
     private CAConnectorConfig revocationCA;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove

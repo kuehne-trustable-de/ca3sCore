@@ -51,7 +51,6 @@ public class AcmeAuthorizationServiceImpl implements AcmeAuthorizationService {
         return acmeAuthorizationRepository.findAll();
     }
 
-
     /**
      * Get one acmeAuthorization by id.
      *

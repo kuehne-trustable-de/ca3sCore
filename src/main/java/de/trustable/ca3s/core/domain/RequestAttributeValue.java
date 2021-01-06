@@ -24,10 +24,10 @@ public class RequestAttributeValue implements Serializable {
     private String attributeValue;
 
     @ManyToOne
-    @JsonIgnoreProperties("requestAttributeValues")
+    @JsonIgnoreProperties(value = "requestAttributeValues", allowSetters = true)
     private RequestAttribute reqAttr;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
         return id;
     }
@@ -61,7 +61,7 @@ public class RequestAttributeValue implements Serializable {
     public void setReqAttr(RequestAttribute requestAttribute) {
         this.reqAttr = requestAttribute;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -79,6 +79,7 @@ public class RequestAttributeValue implements Serializable {
         return 31;
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "RequestAttributeValue{" +

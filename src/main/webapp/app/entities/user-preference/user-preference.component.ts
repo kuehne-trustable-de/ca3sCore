@@ -1,6 +1,6 @@
 import { mixins } from 'vue-class-component';
 
-import { Component, Inject } from 'vue-property-decorator';
+import { Component, Vue, Inject } from 'vue-property-decorator';
 import Vue2Filters from 'vue2-filters';
 import { IUserPreference } from '@/shared/model/user-preference.model';
 import AlertMixin from '@/shared/alert/alert.mixin';
@@ -9,8 +9,10 @@ import JhiDataUtils from '@/shared/data/data-utils.service';
 
 import UserPreferenceService from './user-preference.service';
 
-@Component
-export default class UserPreference extends mixins(JhiDataUtils, Vue2Filters.mixin, AlertMixin) {
+@Component({
+  mixins: [Vue2Filters.mixin],
+})
+export default class UserPreference extends mixins(JhiDataUtils, AlertMixin) {
   @Inject('userPreferenceService') private userPreferenceService: () => UserPreferenceService;
   private removeId: number = null;
 

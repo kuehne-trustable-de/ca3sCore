@@ -5,7 +5,7 @@ export const enum CAConnectorType {
   CMP = 'CMP',
   ADCS = 'ADCS',
   ADCS_CERTIFICATE_INVENTORY = 'ADCS_CERTIFICATE_INVENTORY',
-  DIRECTORY = 'DIRECTORY'
+  DIRECTORY = 'DIRECTORY',
 }
 
 export const enum Interval {
@@ -13,7 +13,7 @@ export const enum Interval {
   HOUR = 'HOUR',
   DAY = 'DAY',
   WEEK = 'WEEK',
-  MONTH = 'MONTH'
+  MONTH = 'MONTH',
 }
 
 export interface ICAConnectorConfig {

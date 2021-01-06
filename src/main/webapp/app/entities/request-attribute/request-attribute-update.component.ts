@@ -15,13 +15,13 @@ import RequestAttributeService from './request-attribute.service';
 const validations: any = {
   requestAttribute: {
     attributeType: {
-      required
-    }
-  }
+      required,
+    },
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class RequestAttributeUpdate extends Vue {
   @Inject('alertService') private alertService: () => AlertService;
@@ -36,6 +36,7 @@ export default class RequestAttributeUpdate extends Vue {
 
   public cSRS: ICSR[] = [];
   public isSaving = false;
+  public currentLanguage = '';
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -44,6 +45,16 @@ export default class RequestAttributeUpdate extends Vue {
       }
       vm.initRelationships();
     });
+  }
+
+  created(): void {
+    this.currentLanguage = this.$store.getters.currentLanguage;
+    this.$store.watch(
+      () => this.$store.getters.currentLanguage,
+      () => {
+        this.currentLanguage = this.$store.getters.currentLanguage;
+      }
+    );
   }
 
   public save(): void {

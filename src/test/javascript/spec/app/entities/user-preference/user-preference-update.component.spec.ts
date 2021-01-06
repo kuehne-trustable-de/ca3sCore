@@ -34,8 +34,8 @@ describe('Component Tests', () => {
         router,
         provide: {
           alertService: () => new AlertService(store),
-          userPreferenceService: () => userPreferenceServiceStub
-        }
+          userPreferenceService: () => userPreferenceServiceStub,
+        },
       });
       comp = wrapper.vm;
     });

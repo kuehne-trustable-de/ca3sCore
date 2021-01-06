@@ -58,8 +58,8 @@ describe('Component Tests', () => {
 
           pipelineService: () => new PipelineService(),
 
-          certificateService: () => new CertificateService()
-        }
+          certificateService: () => new CertificateService(),
+        },
       });
       comp = wrapper.vm;
     });

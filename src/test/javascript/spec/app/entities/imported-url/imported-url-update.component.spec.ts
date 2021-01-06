@@ -38,8 +38,8 @@ describe('Component Tests', () => {
         router,
         provide: {
           alertService: () => new AlertService(store),
-          importedURLService: () => importedURLServiceStub
-        }
+          importedURLService: () => importedURLServiceStub,
+        },
       });
       comp = wrapper.vm;
     });

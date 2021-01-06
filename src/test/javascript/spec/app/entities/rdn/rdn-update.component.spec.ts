@@ -42,8 +42,8 @@ describe('Component Tests', () => {
 
           rDNAttributeService: () => new RDNAttributeService(),
 
-          cSRService: () => new CSRService()
-        }
+          cSRService: () => new CSRService(),
+        },
       });
       comp = wrapper.vm;
     });

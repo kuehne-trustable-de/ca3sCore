@@ -38,8 +38,8 @@ describe('Component Tests', () => {
           alertService: () => new AlertService(store),
           acmeIdentifierService: () => acmeIdentifierServiceStub,
 
-          acmeOrderService: () => new AcmeOrderService()
-        }
+          acmeOrderService: () => new AcmeOrderService(),
+        },
       });
       comp = wrapper.vm;
     });

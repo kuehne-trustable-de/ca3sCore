@@ -42,8 +42,8 @@ describe('Component Tests', () => {
 
           requestAttributeValueService: () => new RequestAttributeValueService(),
 
-          cSRService: () => new CSRService()
-        }
+          cSRService: () => new CSRService(),
+        },
       });
       comp = wrapper.vm;
     });

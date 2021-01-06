@@ -7,7 +7,7 @@
         Added the constraints for entity AcmeIdentifier.
     -->
     <changeSet id="20200129162418-2" author="jhipster">
-        
+
         <addForeignKeyConstraint baseColumnNames="order_id"
                                  baseTableName="acme_identifier"
                                  constraintName="fk_acme_identifier_order_id"

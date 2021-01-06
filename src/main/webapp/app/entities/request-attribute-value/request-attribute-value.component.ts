@@ -1,14 +1,16 @@
 import { mixins } from 'vue-class-component';
 
-import { Component, Inject } from 'vue-property-decorator';
+import { Component, Vue, Inject } from 'vue-property-decorator';
 import Vue2Filters from 'vue2-filters';
 import { IRequestAttributeValue } from '@/shared/model/request-attribute-value.model';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
 import RequestAttributeValueService from './request-attribute-value.service';
 
-@Component
-export default class RequestAttributeValue extends mixins(Vue2Filters.mixin, AlertMixin) {
+@Component({
+  mixins: [Vue2Filters.mixin],
+})
+export default class RequestAttributeValue extends mixins(AlertMixin) {
   @Inject('requestAttributeValueService') private requestAttributeValueService: () => RequestAttributeValueService;
   private removeId: number = null;
   public requestAttributeValues: IRequestAttributeValue[] = [];

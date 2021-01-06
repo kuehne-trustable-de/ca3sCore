@@ -12,14 +12,14 @@ import CsrAttributeService from './csr-attribute.service';
 const validations: any = {
   csrAttribute: {
     name: {
-      required
+      required,
     },
-    value: {}
-  }
+    value: {},
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class CsrAttributeUpdate extends Vue {
   @Inject('alertService') private alertService: () => AlertService;
@@ -30,6 +30,7 @@ export default class CsrAttributeUpdate extends Vue {
 
   public cSRS: ICSR[] = [];
   public isSaving = false;
+  public currentLanguage = '';
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -38,6 +39,16 @@ export default class CsrAttributeUpdate extends Vue {
       }
       vm.initRelationships();
     });
+  }
+
+  created(): void {
+    this.currentLanguage = this.$store.getters.currentLanguage;
+    this.$store.watch(
+      () => this.$store.getters.currentLanguage,
+      () => {
+        this.currentLanguage = this.$store.getters.currentLanguage;
+      }
+    );
   }
 
   public save(): void {

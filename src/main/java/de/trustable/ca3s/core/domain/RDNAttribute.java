@@ -28,10 +28,10 @@ public class RDNAttribute implements Serializable {
     private String attributeValue;
 
     @ManyToOne
-    @JsonIgnoreProperties("rdnAttributes")
+    @JsonIgnoreProperties(value = "rdnAttributes", allowSetters = true)
     private RDN rdn;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
         return id;
     }
@@ -78,7 +78,7 @@ public class RDNAttribute implements Serializable {
     public void setRdn(RDN rDN) {
         this.rdn = rDN;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -96,6 +96,7 @@ public class RDNAttribute implements Serializable {
         return 31;
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "RDNAttribute{" +

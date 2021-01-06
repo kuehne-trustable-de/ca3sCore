@@ -42,8 +42,8 @@ describe('Component Tests', () => {
 
           acmeChallengeService: () => new AcmeChallengeService(),
 
-          acmeOrderService: () => new AcmeOrderService()
-        }
+          acmeOrderService: () => new AcmeOrderService(),
+        },
       });
       comp = wrapper.vm;
     });

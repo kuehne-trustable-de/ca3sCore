@@ -28,7 +28,7 @@ describe('Component Tests', () => {
         store,
         i18n,
         localVue,
-        provide: { requestAttributeValueService: () => requestAttributeValueServiceStub }
+        provide: { requestAttributeValueService: () => requestAttributeValueServiceStub },
       });
       comp = wrapper.vm;
     });

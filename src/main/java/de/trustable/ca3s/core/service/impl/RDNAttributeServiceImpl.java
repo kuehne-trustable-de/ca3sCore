@@ -51,7 +51,6 @@ public class RDNAttributeServiceImpl implements RDNAttributeService {
         return rDNAttributeRepository.findAll();
     }
 
-
     /**
      * Get one rDNAttribute by id.
      *

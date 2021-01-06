@@ -1,5 +1,5 @@
 /*
-Copyright 2013-2017 the original author or authors from the JHipster project.
+Copyright 2013-2020 the original author or authors from the JHipster project.
 This file is part of the JHipster project, see https://jhipster.github.io/
 for more information.
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,7 +49,7 @@ export default class JhiDataUtils extends Vue {
       }
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], {
-        type: contentType
+        type: contentType,
       });
       window.navigator.msSaveOrOpenBlob(blob);
     } else {
@@ -70,7 +70,7 @@ export default class JhiDataUtils extends Vue {
   toBase64(file, cb) {
     const fileReader = new FileReader();
     fileReader.readAsDataURL(file);
-    fileReader.onload = function(e: any) {
+    fileReader.onload = function (e: any) {
       const base64Data = e.target.result.substr(e.target.result.indexOf('base64,') + 'base64,'.length);
       cb(base64Data);
     };
@@ -139,12 +139,45 @@ export default class JhiDataUtils extends Vue {
     }
     const byteArray = new Uint8Array(byteNumbers);
     const blob = new Blob([byteArray], {
-      type: contentType
+      type: contentType,
     });
     const tempLink = document.createElement('a');
     tempLink.href = window.URL.createObjectURL(blob);
     tempLink.download = fileName;
     tempLink.target = '_blank';
     tempLink.click();
+  }
+
+  /**
+   * Method to parse header links
+   */
+  parseLinks(header) {
+    const links = {};
+
+    if (header === null || header.indexOf(',') === -1) {
+      return links;
+    }
+    // Split parts by comma
+    const parts = header.split(',');
+
+    // Parse each part into a named link
+    parts.forEach(p => {
+      if (p.indexOf('>;') === -1) {
+        return;
+      }
+      const section = p.split('>;');
+      const url = section[0].replace(/<(.*)/, '$1').trim();
+      const queryString = { page: null };
+      url.replace(new RegExp('([^?=&]+)(=([^&]*))?', 'g'), function ($0, $1, $2, $3) {
+        queryString[$1] = $3;
+      });
+      let page = queryString.page;
+      if (typeof page === 'string') {
+        page = parseInt(page, 10);
+      }
+      const name = section[1].replace(/rel="(.*)"/, '$1').trim();
+      links[name] = page;
+    });
+    return links;
   }
 }

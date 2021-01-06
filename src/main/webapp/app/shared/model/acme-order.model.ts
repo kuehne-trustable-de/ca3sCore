@@ -9,7 +9,7 @@ export const enum AcmeOrderStatus {
   READY = 'READY',
   PROCESSING = 'PROCESSING',
   VALID = 'VALID',
-  INVALID = 'INVALID'
+  INVALID = 'INVALID',
 }
 
 export interface IAcmeOrder {

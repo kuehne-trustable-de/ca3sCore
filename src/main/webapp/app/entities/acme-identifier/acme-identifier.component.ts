@@ -1,14 +1,16 @@
 import { mixins } from 'vue-class-component';
 
-import { Component, Inject } from 'vue-property-decorator';
+import { Component, Vue, Inject } from 'vue-property-decorator';
 import Vue2Filters from 'vue2-filters';
 import { IAcmeIdentifier } from '@/shared/model/acme-identifier.model';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
 import AcmeIdentifierService from './acme-identifier.service';
 
-@Component
-export default class AcmeIdentifier extends mixins(Vue2Filters.mixin, AlertMixin) {
+@Component({
+  mixins: [Vue2Filters.mixin],
+})
+export default class AcmeIdentifier extends mixins(AlertMixin) {
   @Inject('acmeIdentifierService') private acmeIdentifierService: () => AcmeIdentifierService;
   private removeId: number = null;
   public acmeIdentifiers: IAcmeIdentifier[] = [];

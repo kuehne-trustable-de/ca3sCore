@@ -1,14 +1,16 @@
 import { mixins } from 'vue-class-component';
 
-import { Component, Inject } from 'vue-property-decorator';
+import { Component, Vue, Inject } from 'vue-property-decorator';
 import Vue2Filters from 'vue2-filters';
 import { IAcmeNonce } from '@/shared/model/acme-nonce.model';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
 import AcmeNonceService from './acme-nonce.service';
 
-@Component
-export default class AcmeNonce extends mixins(Vue2Filters.mixin, AlertMixin) {
+@Component({
+  mixins: [Vue2Filters.mixin],
+})
+export default class AcmeNonce extends mixins(AlertMixin) {
   @Inject('acmeNonceService') private acmeNonceService: () => AcmeNonceService;
   private removeId: number = null;
   public acmeNonces: IAcmeNonce[] = [];

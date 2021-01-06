@@ -12,16 +12,16 @@ const error = {
   response: {
     status: null,
     data: {
-      type: null
-    }
-  }
+      type: null,
+    },
+  },
 };
 
 jest.mock('axios', () => ({
   get: jest.fn(),
   post: jest.fn(),
   put: jest.fn(),
-  delete: jest.fn()
+  delete: jest.fn(),
 }));
 
 describe('Service Tests', () => {
@@ -67,7 +67,7 @@ describe('Service Tests', () => {
           {
             requestedOn: format(currentDate, DATE_TIME_FORMAT),
             approvedOn: format(currentDate, DATE_TIME_FORMAT),
-            rejectedOn: format(currentDate, DATE_TIME_FORMAT)
+            rejectedOn: format(currentDate, DATE_TIME_FORMAT),
           },
           elemDefault
         );
@@ -94,7 +94,7 @@ describe('Service Tests', () => {
             id: 0,
             requestedOn: format(currentDate, DATE_TIME_FORMAT),
             approvedOn: format(currentDate, DATE_TIME_FORMAT),
-            rejectedOn: format(currentDate, DATE_TIME_FORMAT)
+            rejectedOn: format(currentDate, DATE_TIME_FORMAT),
           },
           elemDefault
         );
@@ -102,7 +102,7 @@ describe('Service Tests', () => {
           {
             requestedOn: currentDate,
             approvedOn: currentDate,
-            rejectedOn: currentDate
+            rejectedOn: currentDate,
           },
           returnedFromService
         );
@@ -149,7 +149,7 @@ describe('Service Tests', () => {
             serversideKeyGeneration: true,
             subjectPublicKeyInfoBase64: 'BBBBBB',
             requestorComment: 'BBBBBB',
-            administrationComment: 'BBBBBB'
+            administrationComment: 'BBBBBB',
           },
           elemDefault
         );
@@ -158,7 +158,7 @@ describe('Service Tests', () => {
           {
             requestedOn: currentDate,
             approvedOn: currentDate,
-            rejectedOn: currentDate
+            rejectedOn: currentDate,
           },
           returnedFromService
         );
@@ -205,7 +205,7 @@ describe('Service Tests', () => {
             serversideKeyGeneration: true,
             subjectPublicKeyInfoBase64: 'BBBBBB',
             requestorComment: 'BBBBBB',
-            administrationComment: 'BBBBBB'
+            administrationComment: 'BBBBBB',
           },
           elemDefault
         );
@@ -213,7 +213,7 @@ describe('Service Tests', () => {
           {
             requestedOn: currentDate,
             approvedOn: currentDate,
-            rejectedOn: currentDate
+            rejectedOn: currentDate,
           },
           returnedFromService
         );

@@ -13,11 +13,11 @@ import { IRDN, RDN } from '@/shared/model/rdn.model';
 import RDNService from './rdn.service';
 
 const validations: any = {
-  rDN: {}
+  rDN: {},
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class RDNUpdate extends Vue {
   @Inject('alertService') private alertService: () => AlertService;
@@ -32,6 +32,7 @@ export default class RDNUpdate extends Vue {
 
   public cSRS: ICSR[] = [];
   public isSaving = false;
+  public currentLanguage = '';
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -40,6 +41,16 @@ export default class RDNUpdate extends Vue {
       }
       vm.initRelationships();
     });
+  }
+
+  created(): void {
+    this.currentLanguage = this.$store.getters.currentLanguage;
+    this.$store.watch(
+      () => this.$store.getters.currentLanguage,
+      () => {
+        this.currentLanguage = this.$store.getters.currentLanguage;
+      }
+    );
   }
 
   public save(): void {

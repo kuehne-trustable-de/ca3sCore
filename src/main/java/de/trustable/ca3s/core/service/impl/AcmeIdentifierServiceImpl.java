@@ -51,7 +51,6 @@ public class AcmeIdentifierServiceImpl implements AcmeIdentifierService {
         return acmeIdentifierRepository.findAll();
     }
 
-
     /**
      * Get one acmeIdentifier by id.
      *

@@ -29,22 +29,22 @@ const validations: any = {
   acmeOrder: {
     orderId: {
       required,
-      numeric
+      numeric,
     },
     status: {
-      required
+      required,
     },
     expires: {},
     notBefore: {},
     notAfter: {},
     error: {},
     finalizeUrl: {},
-    certificateUrl: {}
-  }
+    certificateUrl: {},
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class AcmeOrderUpdate extends Vue {
   @Inject('alertService') private alertService: () => AlertService;
@@ -71,6 +71,7 @@ export default class AcmeOrderUpdate extends Vue {
 
   public aCMEAccounts: IACMEAccount[] = [];
   public isSaving = false;
+  public currentLanguage = '';
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -79,6 +80,16 @@ export default class AcmeOrderUpdate extends Vue {
       }
       vm.initRelationships();
     });
+  }
+
+  created(): void {
+    this.currentLanguage = this.$store.getters.currentLanguage;
+    this.$store.watch(
+      () => this.$store.getters.currentLanguage,
+      () => {
+        this.currentLanguage = this.$store.getters.currentLanguage;
+      }
+    );
   }
 
   public save(): void {

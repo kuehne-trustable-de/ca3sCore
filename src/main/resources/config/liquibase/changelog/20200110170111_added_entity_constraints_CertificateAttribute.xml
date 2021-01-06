@@ -7,7 +7,7 @@
         Added the constraints for entity CertificateAttribute.
     -->
     <changeSet id="20200110170111-2" author="jhipster">
-        
+
         <addForeignKeyConstraint baseColumnNames="certificate_id"
                                  baseTableName="certificate_attribute"
                                  constraintName="fk_certificate_attribute_certificate_id"

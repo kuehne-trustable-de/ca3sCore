@@ -51,7 +51,6 @@ public class ACMEAccountServiceImpl implements ACMEAccountService {
         return aCMEAccountRepository.findAll();
     }
 
-
     /**
      * Get one aCMEAccount by id.
      *

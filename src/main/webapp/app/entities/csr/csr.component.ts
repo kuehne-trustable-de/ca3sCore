@@ -1,6 +1,6 @@
 import { mixins } from 'vue-class-component';
 
-import { Component, Inject } from 'vue-property-decorator';
+import { Component, Vue, Inject } from 'vue-property-decorator';
 import Vue2Filters from 'vue2-filters';
 import { ICSR } from '@/shared/model/csr.model';
 import AlertMixin from '@/shared/alert/alert.mixin';
@@ -9,8 +9,10 @@ import JhiDataUtils from '@/shared/data/data-utils.service';
 
 import CSRService from './csr.service';
 
-@Component
-export default class CSR extends mixins(JhiDataUtils, Vue2Filters.mixin, AlertMixin) {
+@Component({
+  mixins: [Vue2Filters.mixin],
+})
+export default class CSR extends mixins(JhiDataUtils, AlertMixin) {
   @Inject('cSRService') private cSRService: () => CSRService;
   private removeId: number = null;
 

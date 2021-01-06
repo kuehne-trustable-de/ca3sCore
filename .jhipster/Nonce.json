@@ -1,24 +1,24 @@
 {
-    "name": "Nonce",
-    "fields": [
-        {
-            "fieldName": "nonceValue",
-            "fieldType": "String"
-        },
-        {
-            "fieldName": "expiresAt",
-            "fieldType": "LocalDate"
-        }
-    ],
-    "relationships": [],
-    "changelogDate": "20200110170127",
-    "entityTableName": "nonce",
-    "dto": "no",
-    "pagination": "no",
-    "service": "serviceImpl",
-    "jpaMetamodelFiltering": false,
-    "fluentMethods": true,
-    "readOnly": false,
-    "clientRootFolder": "",
-    "applications": "*"
+  "name": "Nonce",
+  "fields": [
+    {
+      "fieldName": "nonceValue",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "expiresAt",
+      "fieldType": "LocalDate"
+    }
+  ],
+  "relationships": [],
+  "changelogDate": "20200110170127",
+  "entityTableName": "nonce",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "clientRootFolder": "",
+  "applications": "*"
 }

@@ -38,8 +38,8 @@ describe('Component Tests', () => {
         router,
         provide: {
           alertService: () => new AlertService(store),
-          bPNMProcessInfoService: () => bPNMProcessInfoServiceStub
-        }
+          bPNMProcessInfoService: () => bPNMProcessInfoServiceStub,
+        },
       });
       comp = wrapper.vm;
     });

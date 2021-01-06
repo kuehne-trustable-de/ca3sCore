@@ -16,19 +16,19 @@ const validations: any = {
   acmeAuthorization: {
     acmeAuthorizationId: {
       required,
-      numeric
+      numeric,
     },
     type: {
-      required
+      required,
     },
     value: {
-      required
-    }
-  }
+      required,
+    },
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class AcmeAuthorizationUpdate extends Vue {
   @Inject('alertService') private alertService: () => AlertService;
@@ -43,6 +43,7 @@ export default class AcmeAuthorizationUpdate extends Vue {
 
   public acmeOrders: IAcmeOrder[] = [];
   public isSaving = false;
+  public currentLanguage = '';
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -51,6 +52,16 @@ export default class AcmeAuthorizationUpdate extends Vue {
       }
       vm.initRelationships();
     });
+  }
+
+  created(): void {
+    this.currentLanguage = this.$store.getters.currentLanguage;
+    this.$store.watch(
+      () => this.$store.getters.currentLanguage,
+      () => {
+        this.currentLanguage = this.$store.getters.currentLanguage;
+      }
+    );
   }
 
   public save(): void {

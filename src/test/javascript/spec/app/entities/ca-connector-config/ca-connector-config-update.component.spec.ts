@@ -38,8 +38,8 @@ describe('Component Tests', () => {
           alertService: () => new AlertService(store),
           cAConnectorConfigService: () => cAConnectorConfigServiceStub,
 
-          protectedContentService: () => new ProtectedContentService()
-        }
+          protectedContentService: () => new ProtectedContentService(),
+        },
       });
       comp = wrapper.vm;
     });

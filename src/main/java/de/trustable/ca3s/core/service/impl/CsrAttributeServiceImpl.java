@@ -51,7 +51,6 @@ public class CsrAttributeServiceImpl implements CsrAttributeService {
         return csrAttributeRepository.findAll();
     }
 
-
     /**
      * Get one csrAttribute by id.
      *

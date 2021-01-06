@@ -5,17 +5,13 @@
       "fieldName": "contentBase64",
       "fieldType": "byte[]",
       "fieldTypeBlobContent": "text",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "type",
       "fieldType": "ProtectedContentType",
       "fieldValues": "KEY,SECRET,PASSWORD",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "leftUsages",

@@ -1,8 +1,6 @@
 import { Component, Vue, Inject } from 'vue-property-decorator';
 
-import axios from 'axios';
-
-import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
+import { numeric, required, minLength, maxLength, minValue, maxValue } from 'vuelidate/lib/validators';
 
 import PipelineAttributeService from '../pipeline-attribute/pipeline-attribute.service';
 import { IPipelineAttribute } from '@/shared/model/pipeline-attribute.model';
@@ -20,20 +18,20 @@ import PipelineService from './pipeline.service';
 const validations: any = {
   pipeline: {
     name: {
-      required
+      required,
     },
     type: {
-      required
+      required,
     },
     urlPart: {},
     description: {},
     approvalRequired: {},
-    approvalInfo1: {}
-  }
+    approvalInfo1: {},
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class PipelineUpdate extends Vue {
   @Inject('alertService') private alertService: () => AlertService;
@@ -50,11 +48,11 @@ export default class PipelineUpdate extends Vue {
 
   @Inject('bPNMProcessInfoService') private bPNMProcessInfoService: () => BPNMProcessInfoService;
 
-
   public allCertGenerators: CAConnectorConfigService[] = [];
 
   public bPNMProcessInfos: IBPNMProcessInfo[] = [];
   public isSaving = false;
+  public currentLanguage = '';
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -63,6 +61,16 @@ export default class PipelineUpdate extends Vue {
       }
       vm.initRelationships();
     });
+  }
+
+  created(): void {
+    this.currentLanguage = this.$store.getters.currentLanguage;
+    this.$store.watch(
+      () => this.$store.getters.currentLanguage,
+      () => {
+        this.currentLanguage = this.$store.getters.currentLanguage;
+      }
+    );
   }
 
   public save(): void {
@@ -116,25 +124,5 @@ export default class PipelineUpdate extends Vue {
       .then(res => {
         this.bPNMProcessInfos = res.data;
       });
-
-  }
-
-  public mounted(): void {
-    this.fillData();
-  }
-
-  public fillData(): void {
-    window.console.info('calling fillData ');
-    const self = this;
-
-    axios({
-      method: 'get',
-      url: 'api/ca-connector-configs/cert-generators',
-      responseType: 'stream'
-    })
-    .then(function(response) {
-      window.console.info('allCertGenerators returns ' + response.data );
-      self.allCertGenerators = response.data;
-    });
   }
 }

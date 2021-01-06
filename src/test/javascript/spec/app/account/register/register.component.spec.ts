@@ -17,7 +17,7 @@ const store = config.initVueXStore(localVue);
 
 jest.mock('axios', () => ({
   get: jest.fn(),
-  post: jest.fn()
+  post: jest.fn(),
 }));
 
 describe('Register Component', () => {
@@ -36,19 +36,14 @@ describe('Register Component', () => {
       localVue,
       provide: {
         registerService: () => new RegisterService(),
-        loginService: () => new LoginService()
-      }
+        loginService: () => new LoginService(),
+      },
     });
     register = wrapper.vm;
   });
 
-  it('should be a Vue instance', () => {
-    expect(wrapper.isVueInstance()).toBeTruthy();
-  });
-
   it('should set all default values correctly', () => {
     expect(register.success).toBe(false);
-    expect(register.doNotMatch).toBe('');
     expect(register.error).toBe('');
     expect(register.errorEmailExists).toBe('');
     expect(register.errorUserExists).toBe('');
@@ -60,19 +55,11 @@ describe('Register Component', () => {
 
   it('should open login modal when asked to', () => {
     let called = false;
-    register.$root.$on('bv::show::modal', function() {
+    register.$root.$on('bv::show::modal', () => {
       called = true;
     });
     register.openLogin();
     expect(called).toBe(true);
-  });
-
-  it('should set error when passwords do no match', () => {
-    register.registerAccount.password = filledRegisterAccount.password;
-    register.confirmPassword = 'not-jhipster';
-    register.register();
-
-    expect(register.doNotMatch).toBe('ERROR');
   });
 
   it('should register when password match', async () => {
@@ -86,10 +73,9 @@ describe('Register Component', () => {
       email: 'jhi@pster.net',
       langKey: 'en',
       login: 'jhi',
-      password: 'jhipster'
+      password: 'jhipster',
     });
     expect(register.success).toBe(true);
-    expect(register.doNotMatch).toBe(null);
     expect(register.error).toBe(null);
     expect(register.errorEmailExists).toBe(null);
     expect(register.errorUserExists).toBe(null);
@@ -107,10 +93,10 @@ describe('Register Component', () => {
       email: 'jhi@pster.net',
       langKey: 'en',
       login: 'jhi',
-      password: 'jhipster'
+      password: 'jhipster',
     });
+    await register.$nextTick();
     expect(register.success).toBe(null);
-    expect(register.doNotMatch).toBe(null);
     expect(register.error).toBe(null);
     expect(register.errorEmailExists).toBe(null);
     expect(register.errorUserExists).toBe('ERROR');
@@ -128,10 +114,10 @@ describe('Register Component', () => {
       email: 'jhi@pster.net',
       langKey: 'en',
       login: 'jhi',
-      password: 'jhipster'
+      password: 'jhipster',
     });
+    await register.$nextTick();
     expect(register.success).toBe(null);
-    expect(register.doNotMatch).toBe(null);
     expect(register.error).toBe(null);
     expect(register.errorEmailExists).toBe('ERROR');
     expect(register.errorUserExists).toBe(null);
@@ -149,10 +135,10 @@ describe('Register Component', () => {
       email: 'jhi@pster.net',
       langKey: 'en',
       login: 'jhi',
-      password: 'jhipster'
+      password: 'jhipster',
     });
+    await register.$nextTick();
     expect(register.success).toBe(null);
-    expect(register.doNotMatch).toBe(null);
     expect(register.errorEmailExists).toBe(null);
     expect(register.errorUserExists).toBe(null);
     expect(register.error).toBe('ERROR');

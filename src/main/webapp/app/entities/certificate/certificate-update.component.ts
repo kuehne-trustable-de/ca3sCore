@@ -25,29 +25,29 @@ import CertificateService from './certificate.service';
 const validations: any = {
   certificate: {
     tbsDigest: {
-      required
+      required,
     },
     subject: {
-      required
+      required,
     },
     sans: {},
     issuer: {
-      required
+      required,
     },
     root: {},
     type: {
-      required
+      required,
     },
     description: {},
     fingerprint: {},
     serial: {
-      required
+      required,
     },
     validFrom: {
-      required
+      required,
     },
     validTo: {
-      required
+      required,
     },
     keyAlgorithm: {},
     keyLength: {},
@@ -67,13 +67,13 @@ const validations: any = {
     trusted: {},
     active: {},
     content: {
-      required
-    }
-  }
+      required,
+    },
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class CertificateUpdate extends mixins(JhiDataUtils) {
   @Inject('alertService') private alertService: () => AlertService;
@@ -94,6 +94,7 @@ export default class CertificateUpdate extends mixins(JhiDataUtils) {
 
   public cAConnectorConfigs: ICAConnectorConfig[] = [];
   public isSaving = false;
+  public currentLanguage = '';
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -102,6 +103,16 @@ export default class CertificateUpdate extends mixins(JhiDataUtils) {
       }
       vm.initRelationships();
     });
+  }
+
+  created(): void {
+    this.currentLanguage = this.$store.getters.currentLanguage;
+    this.$store.watch(
+      () => this.$store.getters.currentLanguage,
+      () => {
+        this.currentLanguage = this.$store.getters.currentLanguage;
+      }
+    );
   }
 
   public save(): void {

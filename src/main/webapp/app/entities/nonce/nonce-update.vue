@@ -16,10 +16,24 @@
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.nonce.expiresAt')" for="nonce-expiresAt">Expires At</label>
-                        <div class="input-group">
-                            <input id="nonce-expiresAt" type="date" class="form-control" name="expiresAt"  :class="{'valid': !$v.nonce.expiresAt.$invalid, 'invalid': $v.nonce.expiresAt.$invalid }"
+                        <b-input-group class="mb-3">
+                            <b-input-group-prepend>
+                                <b-form-datepicker
+                                    aria-controls="nonce-expiresAt"
+                                    v-model="$v.nonce.expiresAt.$model"
+                                    name="expiresAt"
+                                    class="form-control"
+                                    :locale="currentLanguage"
+                                    button-only
+                                    today-button
+                                    reset-button
+                                    close-button
+                                >
+                                </b-form-datepicker>
+                            </b-input-group-prepend>
+                            <b-form-input id="nonce-expiresAt" type="text" class="form-control" name="expiresAt"  :class="{'valid': !$v.nonce.expiresAt.$invalid, 'invalid': $v.nonce.expiresAt.$invalid }"
                             v-model="$v.nonce.expiresAt.$model"  />
-                        </div>
+                        </b-input-group>
                     </div>
                 </div>
                 <div>

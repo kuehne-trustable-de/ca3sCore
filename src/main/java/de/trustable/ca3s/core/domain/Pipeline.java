@@ -15,7 +15,7 @@ import de.trustable.ca3s.core.domain.enumeration.PipelineType;
  * A Pipeline.
  */
 @Entity
-@Table(name = "pipeline")
+@Table(name = "Pipeline")
 @NamedQueries({
 	@NamedQuery(name = "Pipeline.findByTypeUrl",
 	query = "SELECT p FROM Pipeline p WHERE " +
@@ -59,11 +59,11 @@ public class Pipeline implements Serializable {
     private Set<PipelineAttribute> pipelineAttributes = new HashSet<>();
 
     @ManyToOne
-    @JsonIgnoreProperties({"pipelines", "secret"})
+    @JsonIgnoreProperties(value = {"pipelines", "secret"}, allowSetters = true)
     private CAConnectorConfig caConnector;
 
     @ManyToOne
-    @JsonIgnoreProperties({"pipelines", "secret"})
+    @JsonIgnoreProperties(value = {"pipelines", "secret"}, allowSetters = true)
     private BPNMProcessInfo processInfo;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
@@ -208,6 +208,7 @@ public class Pipeline implements Serializable {
         return 31;
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "Pipeline{" +

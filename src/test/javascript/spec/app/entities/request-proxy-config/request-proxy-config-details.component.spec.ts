@@ -28,7 +28,7 @@ describe('Component Tests', () => {
         store,
         i18n,
         localVue,
-        provide: { requestProxyConfigService: () => requestProxyConfigServiceStub }
+        provide: { requestProxyConfigService: () => requestProxyConfigServiceStub },
       });
       comp = wrapper.vm;
     });

@@ -38,8 +38,8 @@ describe('Component Tests', () => {
           alertService: () => new AlertService(store),
           requestAttributeValueService: () => requestAttributeValueServiceStub,
 
-          requestAttributeService: () => new RequestAttributeService()
-        }
+          requestAttributeService: () => new RequestAttributeService(),
+        },
       });
       comp = wrapper.vm;
     });

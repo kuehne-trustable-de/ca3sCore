@@ -1,14 +1,16 @@
 import { mixins } from 'vue-class-component';
 
-import { Component, Inject } from 'vue-property-decorator';
+import { Component, Vue, Inject } from 'vue-property-decorator';
 import Vue2Filters from 'vue2-filters';
 import { IImportedURL } from '@/shared/model/imported-url.model';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
 import ImportedURLService from './imported-url.service';
 
-@Component
-export default class ImportedURL extends mixins(Vue2Filters.mixin, AlertMixin) {
+@Component({
+  mixins: [Vue2Filters.mixin],
+})
+export default class ImportedURL extends mixins(AlertMixin) {
   @Inject('importedURLService') private importedURLService: () => ImportedURLService;
   private removeId: number = null;
   public importedURLS: IImportedURL[] = [];

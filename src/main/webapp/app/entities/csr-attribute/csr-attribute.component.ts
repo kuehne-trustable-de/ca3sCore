@@ -1,14 +1,16 @@
 import { mixins } from 'vue-class-component';
 
-import { Component, Inject } from 'vue-property-decorator';
+import { Component, Vue, Inject } from 'vue-property-decorator';
 import Vue2Filters from 'vue2-filters';
 import { ICsrAttribute } from '@/shared/model/csr-attribute.model';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
 import CsrAttributeService from './csr-attribute.service';
 
-@Component
-export default class CsrAttribute extends mixins(Vue2Filters.mixin, AlertMixin) {
+@Component({
+  mixins: [Vue2Filters.mixin],
+})
+export default class CsrAttribute extends mixins(AlertMixin) {
   @Inject('csrAttributeService') private csrAttributeService: () => CsrAttributeService;
   private removeId: number = null;
 

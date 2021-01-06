@@ -6,18 +6,18 @@ export const translationStore: Module<any, any> = {
     languages: {
       en: { name: 'English' },
       de: { name: 'Deutsch' },
-      pl: { name: 'Polski' }
+      pl: { name: 'Polski' },
       // jhipster-needle-i18n-language-key-pipe - JHipster will add/remove languages in this object
-    }
+    },
   },
   getters: {
     currentLanguage: state => state.currentLanguage,
-    languages: state => state.languages
+    languages: state => state.languages,
   },
   mutations: {
     currentLanguage(state, newLanguage) {
       state.currentLanguage = newLanguage;
       localStorage.setItem('currentLanguage', newLanguage);
-    }
-  }
+    },
+  },
 };

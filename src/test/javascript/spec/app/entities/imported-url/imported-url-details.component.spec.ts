@@ -28,7 +28,7 @@ describe('Component Tests', () => {
         store,
         i18n,
         localVue,
-        provide: { importedURLService: () => importedURLServiceStub }
+        provide: { importedURLService: () => importedURLServiceStub },
       });
       comp = wrapper.vm;
     });

@@ -7,7 +7,7 @@
         Added the constraints for entity RDN.
     -->
     <changeSet id="20200110170115-2" author="jhipster">
-        
+
         <addForeignKeyConstraint baseColumnNames="csr_id"
                                  baseTableName="rdn"
                                  constraintName="fk_rdn_csr_id"

@@ -29,23 +29,12 @@ public class CSRServiceImpl implements CSRService {
         this.cSRRepository = cSRRepository;
     }
 
-    /**
-     * Save a cSR.
-     *
-     * @param cSR the entity to save.
-     * @return the persisted entity.
-     */
     @Override
     public CSR save(CSR cSR) {
         log.debug("Request to save CSR : {}", cSR);
         return cSRRepository.save(cSR);
     }
 
-    /**
-     * Get all the cSRS.
-     *
-     * @return the list of entities.
-     */
     @Override
     @Transactional(readOnly = true)
     public List<CSR> findAll() {
@@ -68,12 +57,6 @@ public class CSRServiceImpl implements CSRService {
             .collect(Collectors.toList());
     }
 
-    /**
-     * Get one cSR by id.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
     @Override
     @Transactional(readOnly = true)
     public Optional<CSR> findOne(Long id) {
@@ -81,11 +64,6 @@ public class CSRServiceImpl implements CSRService {
         return cSRRepository.findById(id);
     }
 
-    /**
-     * Delete the cSR by id.
-     *
-     * @param id the id of the entity.
-     */
     @Override
     public void delete(Long id) {
         log.debug("Request to delete CSR : {}", id);

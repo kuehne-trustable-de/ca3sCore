@@ -46,8 +46,8 @@ describe('Component Tests', () => {
 
           cAConnectorConfigService: () => new CAConnectorConfigService(),
 
-          bPNMProcessInfoService: () => new BPNMProcessInfoService()
-        }
+          bPNMProcessInfoService: () => new BPNMProcessInfoService(),
+        },
       });
       comp = wrapper.vm;
     });

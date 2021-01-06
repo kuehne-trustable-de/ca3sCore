@@ -51,7 +51,6 @@ public class PipelineServiceImpl implements PipelineService {
         return pipelineRepository.findAll();
     }
 
-
     /**
      * Get one pipeline by id.
      *

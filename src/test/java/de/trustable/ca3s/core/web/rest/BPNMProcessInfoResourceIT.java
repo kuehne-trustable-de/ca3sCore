@@ -4,28 +4,22 @@ import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.BPNMProcessInfo;
 import de.trustable.ca3s.core.repository.BPNMProcessInfoRepository;
 import de.trustable.ca3s.core.service.BPNMProcessInfoService;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Base64Utils;
-import org.springframework.validation.Validator;
-
 import javax.persistence.EntityManager;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -36,6 +30,9 @@ import de.trustable.ca3s.core.domain.enumeration.BPNMProcessType;
  * Integration tests for the {@link BPNMProcessInfoResource} REST controller.
  */
 @SpringBootTest(classes = Ca3SApp.class)
+
+@AutoConfigureMockMvc
+@WithMockUser
 public class BPNMProcessInfoResourceIT {
 
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
@@ -63,35 +60,12 @@ public class BPNMProcessInfoResourceIT {
     private BPNMProcessInfoService bPNMProcessInfoService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restBPNMProcessInfoMockMvc;
 
     private BPNMProcessInfo bPNMProcessInfo;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final BPNMProcessInfoResource bPNMProcessInfoResource = new BPNMProcessInfoResource(bPNMProcessInfoService);
-        this.restBPNMProcessInfoMockMvc = MockMvcBuilders.standaloneSetup(bPNMProcessInfoResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -138,7 +112,7 @@ public class BPNMProcessInfoResourceIT {
 
         // Create the BPNMProcessInfo
         restBPNMProcessInfoMockMvc.perform(post("/api/bpnm-process-infos")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(bPNMProcessInfo)))
             .andExpect(status().isCreated());
 
@@ -164,7 +138,7 @@ public class BPNMProcessInfoResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restBPNMProcessInfoMockMvc.perform(post("/api/bpnm-process-infos")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(bPNMProcessInfo)))
             .andExpect(status().isBadRequest());
 
@@ -184,7 +158,7 @@ public class BPNMProcessInfoResourceIT {
         // Create the BPNMProcessInfo, which fails.
 
         restBPNMProcessInfoMockMvc.perform(post("/api/bpnm-process-infos")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(bPNMProcessInfo)))
             .andExpect(status().isBadRequest());
 
@@ -202,7 +176,7 @@ public class BPNMProcessInfoResourceIT {
         // Create the BPNMProcessInfo, which fails.
 
         restBPNMProcessInfoMockMvc.perform(post("/api/bpnm-process-infos")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(bPNMProcessInfo)))
             .andExpect(status().isBadRequest());
 
@@ -220,7 +194,7 @@ public class BPNMProcessInfoResourceIT {
         // Create the BPNMProcessInfo, which fails.
 
         restBPNMProcessInfoMockMvc.perform(post("/api/bpnm-process-infos")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(bPNMProcessInfo)))
             .andExpect(status().isBadRequest());
 
@@ -238,7 +212,7 @@ public class BPNMProcessInfoResourceIT {
         // Create the BPNMProcessInfo, which fails.
 
         restBPNMProcessInfoMockMvc.perform(post("/api/bpnm-process-infos")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(bPNMProcessInfo)))
             .andExpect(status().isBadRequest());
 
@@ -256,7 +230,7 @@ public class BPNMProcessInfoResourceIT {
         // Create the BPNMProcessInfo, which fails.
 
         restBPNMProcessInfoMockMvc.perform(post("/api/bpnm-process-infos")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(bPNMProcessInfo)))
             .andExpect(status().isBadRequest());
 
@@ -273,7 +247,7 @@ public class BPNMProcessInfoResourceIT {
         // Get all the bPNMProcessInfoList
         restBPNMProcessInfoMockMvc.perform(get("/api/bpnm-process-infos?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(bPNMProcessInfo.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].version").value(hasItem(DEFAULT_VERSION)))
@@ -282,7 +256,7 @@ public class BPNMProcessInfoResourceIT {
             .andExpect(jsonPath("$.[*].lastChange").value(hasItem(DEFAULT_LAST_CHANGE.toString())))
             .andExpect(jsonPath("$.[*].signatureBase64").value(hasItem(DEFAULT_SIGNATURE_BASE_64.toString())));
     }
-    
+
     @Test
     @Transactional
     public void getBPNMProcessInfo() throws Exception {
@@ -292,7 +266,7 @@ public class BPNMProcessInfoResourceIT {
         // Get the bPNMProcessInfo
         restBPNMProcessInfoMockMvc.perform(get("/api/bpnm-process-infos/{id}", bPNMProcessInfo.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(bPNMProcessInfo.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.version").value(DEFAULT_VERSION))
@@ -331,7 +305,7 @@ public class BPNMProcessInfoResourceIT {
             .signatureBase64(UPDATED_SIGNATURE_BASE_64);
 
         restBPNMProcessInfoMockMvc.perform(put("/api/bpnm-process-infos")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedBPNMProcessInfo)))
             .andExpect(status().isOk());
 
@@ -356,7 +330,7 @@ public class BPNMProcessInfoResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restBPNMProcessInfoMockMvc.perform(put("/api/bpnm-process-infos")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(bPNMProcessInfo)))
             .andExpect(status().isBadRequest());
 
@@ -375,7 +349,7 @@ public class BPNMProcessInfoResourceIT {
 
         // Delete the bPNMProcessInfo
         restBPNMProcessInfoMockMvc.perform(delete("/api/bpnm-process-infos/{id}", bPNMProcessInfo.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

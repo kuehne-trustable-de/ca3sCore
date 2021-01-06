@@ -4,7 +4,7 @@ import { IAcmeOrder } from '@/shared/model/acme-order.model';
 export const enum AccountStatus {
   VALID = 'VALID',
   DEACTIVATED = 'DEACTIVATED',
-  REVOKED = 'REVOKED'
+  REVOKED = 'REVOKED',
 }
 
 export interface IACMEAccount {

@@ -193,7 +193,7 @@
                         <div class="row">
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.san.cardinality')" for="pipeline-san-cardinality">Cardinality SAN</label>
-                                <select class="form-control" id="pipeline-s-cardinality" name="pipeline-san-cardinality" v-model="pipeline.restriction_SAN.cardinalityRestriction">
+                                <select class="form-control" id="pipeline-san-cardinality" name="pipeline-san-cardinality" v-model="pipeline.restriction_SAN.cardinalityRestriction">
                                     <option value="NOT_ALLOWED">NOT_ALLOWED</option>
                                     <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
                                     <option value="ONE">ONE</option>

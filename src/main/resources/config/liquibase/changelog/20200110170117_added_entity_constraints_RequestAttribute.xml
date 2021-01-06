@@ -7,7 +7,7 @@
         Added the constraints for entity RequestAttribute.
     -->
     <changeSet id="20200110170117-2" author="jhipster">
-        
+
         <addForeignKeyConstraint baseColumnNames="holding_request_attribute_id"
                                  baseTableName="request_attribute"
                                  constraintName="fk_request_attribute_holding_request_attribute_id"

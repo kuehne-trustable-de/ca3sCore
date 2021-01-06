@@ -23,8 +23,9 @@ localVue.component('router-link', {});
 const bModalStub = {
   render: () => {},
   methods: {
-    hide: () => {}
-  }
+    hide: () => {},
+    show: () => {},
+  },
 };
 
 describe('Component Tests', () => {
@@ -44,8 +45,8 @@ describe('Component Tests', () => {
         stubs: { bModal: bModalStub as any },
         provide: {
           alertService: () => new AlertService(store),
-          requestAttributeService: () => requestAttributeServiceStub
-        }
+          requestAttributeService: () => requestAttributeServiceStub,
+        },
       });
       comp = wrapper.vm;
     });

@@ -51,7 +51,6 @@ public class PipelineAttributeServiceImpl implements PipelineAttributeService {
         return pipelineAttributeRepository.findAll();
     }
 
-
     /**
      * Get one pipelineAttribute by id.
      *

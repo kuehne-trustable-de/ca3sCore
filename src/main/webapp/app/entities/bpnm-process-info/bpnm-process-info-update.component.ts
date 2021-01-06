@@ -16,34 +16,35 @@ import BPNMProcessInfoService from './bpnm-process-info.service';
 const validations: any = {
   bPNMProcessInfo: {
     name: {
-      required
+      required,
     },
     version: {
-      required
+      required,
     },
     type: {
-      required
+      required,
     },
     author: {
-      required
+      required,
     },
     lastChange: {
-      required
+      required,
     },
     signatureBase64: {
-      required
-    }
-  }
+      required,
+    },
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class BPNMProcessInfoUpdate extends mixins(JhiDataUtils) {
   @Inject('alertService') private alertService: () => AlertService;
   @Inject('bPNMProcessInfoService') private bPNMProcessInfoService: () => BPNMProcessInfoService;
   public bPNMProcessInfo: IBPNMProcessInfo = new BPNMProcessInfo();
   public isSaving = false;
+  public currentLanguage = '';
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -51,6 +52,16 @@ export default class BPNMProcessInfoUpdate extends mixins(JhiDataUtils) {
         vm.retrieveBPNMProcessInfo(to.params.bPNMProcessInfoId);
       }
     });
+  }
+
+  created(): void {
+    this.currentLanguage = this.$store.getters.currentLanguage;
+    this.$store.watch(
+      () => this.$store.getters.currentLanguage,
+      () => {
+        this.currentLanguage = this.$store.getters.currentLanguage;
+      }
+    );
   }
 
   public save(): void {

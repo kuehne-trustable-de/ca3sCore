@@ -38,8 +38,8 @@ describe('Component Tests', () => {
           alertService: () => new AlertService(store),
           requestProxyConfigService: () => requestProxyConfigServiceStub,
 
-          protectedContentService: () => new ProtectedContentService()
-        }
+          protectedContentService: () => new ProtectedContentService(),
+        },
       });
       comp = wrapper.vm;
     });

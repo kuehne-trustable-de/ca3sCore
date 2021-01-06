@@ -13,25 +13,26 @@ const validations: any = {
   userPreference: {
     userId: {
       required,
-      numeric
+      numeric,
     },
     name: {
-      required
+      required,
     },
     content: {
-      required
-    }
-  }
+      required,
+    },
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class UserPreferenceUpdate extends mixins(JhiDataUtils) {
   @Inject('alertService') private alertService: () => AlertService;
   @Inject('userPreferenceService') private userPreferenceService: () => UserPreferenceService;
   public userPreference: IUserPreference = new UserPreference();
   public isSaving = false;
+  public currentLanguage = '';
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -39,6 +40,16 @@ export default class UserPreferenceUpdate extends mixins(JhiDataUtils) {
         vm.retrieveUserPreference(to.params.userPreferenceId);
       }
     });
+  }
+
+  created(): void {
+    this.currentLanguage = this.$store.getters.currentLanguage;
+    this.$store.watch(
+      () => this.$store.getters.currentLanguage,
+      () => {
+        this.currentLanguage = this.$store.getters.currentLanguage;
+      }
+    );
   }
 
   public save(): void {

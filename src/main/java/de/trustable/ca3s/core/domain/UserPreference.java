@@ -46,7 +46,7 @@ public class UserPreference implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
 
-    
+
     @Lob
     @Column(name = "content", nullable = false)
     private String content;
@@ -116,6 +116,7 @@ public class UserPreference implements Serializable {
         return 31;
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "UserPreference{" +

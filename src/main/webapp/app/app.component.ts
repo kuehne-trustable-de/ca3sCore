@@ -12,7 +12,7 @@ import LoginForm from '@/account/login-form/login-form.vue';
     'jhi-navbar': JhiNavbar,
     'login-form': LoginForm,
 
-    'jhi-footer': JhiFooter
-  }
+    'jhi-footer': JhiFooter,
+  },
 })
 export default class App extends Vue {}

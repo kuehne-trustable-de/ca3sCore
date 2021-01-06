@@ -4,25 +4,19 @@ import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.PipelineAttribute;
 import de.trustable.ca3s.core.repository.PipelineAttributeRepository;
 import de.trustable.ca3s.core.service.PipelineAttributeService;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Validator;
-
 import javax.persistence.EntityManager;
 import java.util.List;
 
-import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -32,6 +26,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for the {@link PipelineAttributeResource} REST controller.
  */
 @SpringBootTest(classes = Ca3SApp.class)
+
+@AutoConfigureMockMvc
+@WithMockUser
 public class PipelineAttributeResourceIT {
 
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
@@ -47,35 +44,12 @@ public class PipelineAttributeResourceIT {
     private PipelineAttributeService pipelineAttributeService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restPipelineAttributeMockMvc;
 
     private PipelineAttribute pipelineAttribute;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final PipelineAttributeResource pipelineAttributeResource = new PipelineAttributeResource(pipelineAttributeService);
-        this.restPipelineAttributeMockMvc = MockMvcBuilders.standaloneSetup(pipelineAttributeResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -114,7 +88,7 @@ public class PipelineAttributeResourceIT {
 
         // Create the PipelineAttribute
         restPipelineAttributeMockMvc.perform(post("/api/pipeline-attributes")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(pipelineAttribute)))
             .andExpect(status().isCreated());
 
@@ -136,7 +110,7 @@ public class PipelineAttributeResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restPipelineAttributeMockMvc.perform(post("/api/pipeline-attributes")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(pipelineAttribute)))
             .andExpect(status().isBadRequest());
 
@@ -156,7 +130,7 @@ public class PipelineAttributeResourceIT {
         // Create the PipelineAttribute, which fails.
 
         restPipelineAttributeMockMvc.perform(post("/api/pipeline-attributes")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(pipelineAttribute)))
             .andExpect(status().isBadRequest());
 
@@ -174,7 +148,7 @@ public class PipelineAttributeResourceIT {
         // Create the PipelineAttribute, which fails.
 
         restPipelineAttributeMockMvc.perform(post("/api/pipeline-attributes")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(pipelineAttribute)))
             .andExpect(status().isBadRequest());
 
@@ -191,12 +165,12 @@ public class PipelineAttributeResourceIT {
         // Get all the pipelineAttributeList
         restPipelineAttributeMockMvc.perform(get("/api/pipeline-attributes?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(pipelineAttribute.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE)));
     }
-    
+
     @Test
     @Transactional
     public void getPipelineAttribute() throws Exception {
@@ -206,7 +180,7 @@ public class PipelineAttributeResourceIT {
         // Get the pipelineAttribute
         restPipelineAttributeMockMvc.perform(get("/api/pipeline-attributes/{id}", pipelineAttribute.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(pipelineAttribute.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.value").value(DEFAULT_VALUE));
@@ -237,7 +211,7 @@ public class PipelineAttributeResourceIT {
             .value(UPDATED_VALUE);
 
         restPipelineAttributeMockMvc.perform(put("/api/pipeline-attributes")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedPipelineAttribute)))
             .andExpect(status().isOk());
 
@@ -258,7 +232,7 @@ public class PipelineAttributeResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restPipelineAttributeMockMvc.perform(put("/api/pipeline-attributes")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(pipelineAttribute)))
             .andExpect(status().isBadRequest());
 
@@ -277,7 +251,7 @@ public class PipelineAttributeResourceIT {
 
         // Delete the pipelineAttribute
         restPipelineAttributeMockMvc.perform(delete("/api/pipeline-attributes/{id}", pipelineAttribute.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

@@ -3,9 +3,13 @@ import Component from 'vue-class-component';
 Component.registerHooks([
   'beforeRouteEnter',
   'beforeRouteLeave',
-  'beforeRouteUpdate' // for vue-router 2.2+
+  'beforeRouteUpdate', // for vue-router 2.2+
 ]);
 import Router from 'vue-router';
+import account from '@/router/account';
+import admin from '@/router/admin';
+import entities from '@/router/entities';
+import pages from '@/router/pages';
 const Home = () => import('../core/home/home.vue');
 const PkcsXX = () => import('../core/pkcsxx/pkcsxx.vue');
 const Preference = () => import('../core/preference/preference.vue');
@@ -45,8 +49,6 @@ const ConfCaConnector = () => import('../core/ca-connector-config/ca-connector-c
 const ConfCaConnectorUpdate = () => import('../core/ca-connector-config/ca-connector-config-update.vue');
 // prettier-ignore
 const ConfCaConnectorDetails = () => import('../core/ca-connector-config/ca-connector-config-details.vue');
-
-
 
 // prettier-ignore
 const CAConnectorConfig = () => import('../entities/ca-connector-config/ca-connector-config.vue');
@@ -1056,7 +1058,11 @@ export default new Router({
       name: 'RequestProxyConfigView',
       component: RequestProxyConfigDetails,
       meta: { authorities: ['ROLE_USER'] }
-    }
+    },
     // jhipster-needle-add-entity-to-router - JHipster will add entities to the router here
+    ...account,
+    ...admin,
+    ...entities,
+    ...pages
   ]
 });

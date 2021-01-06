@@ -1,14 +1,16 @@
 import { mixins } from 'vue-class-component';
 
-import { Component, Inject } from 'vue-property-decorator';
+import { Component, Vue, Inject } from 'vue-property-decorator';
 import Vue2Filters from 'vue2-filters';
 import { IAcmeContact } from '@/shared/model/acme-contact.model';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
 import AcmeContactService from './acme-contact.service';
 
-@Component
-export default class AcmeContact extends mixins(Vue2Filters.mixin, AlertMixin) {
+@Component({
+  mixins: [Vue2Filters.mixin],
+})
+export default class AcmeContact extends mixins(AlertMixin) {
   @Inject('acmeContactService') private acmeContactService: () => AcmeContactService;
   private removeId: number = null;
   public acmeContacts: IAcmeContact[] = [];

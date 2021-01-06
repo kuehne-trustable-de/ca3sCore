@@ -4,17 +4,13 @@
     {
       "fieldName": "orderId",
       "fieldType": "Long",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "status",
       "fieldType": "AcmeOrderStatus",
       "fieldValues": "PENDING,READY,PROCESSING,VALID,INVALID",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "expires",

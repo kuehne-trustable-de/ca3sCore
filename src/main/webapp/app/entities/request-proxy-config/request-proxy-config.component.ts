@@ -1,14 +1,16 @@
 import { mixins } from 'vue-class-component';
 
-import { Component, Inject } from 'vue-property-decorator';
+import { Component, Vue, Inject } from 'vue-property-decorator';
 import Vue2Filters from 'vue2-filters';
 import { IRequestProxyConfig } from '@/shared/model/request-proxy-config.model';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
 import RequestProxyConfigService from './request-proxy-config.service';
 
-@Component
-export default class RequestProxyConfig extends mixins(Vue2Filters.mixin, AlertMixin) {
+@Component({
+  mixins: [Vue2Filters.mixin],
+})
+export default class RequestProxyConfig extends mixins(AlertMixin) {
   @Inject('requestProxyConfigService') private requestProxyConfigService: () => RequestProxyConfigService;
   private removeId: number = null;
   public requestProxyConfigs: IRequestProxyConfig[] = [];

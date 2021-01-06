@@ -4,27 +4,21 @@ import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.ImportedURL;
 import de.trustable.ca3s.core.repository.ImportedURLRepository;
 import de.trustable.ca3s.core.service.ImportedURLService;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Validator;
-
 import javax.persistence.EntityManager;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -34,6 +28,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for the {@link ImportedURLResource} REST controller.
  */
 @SpringBootTest(classes = Ca3SApp.class)
+
+@AutoConfigureMockMvc
+@WithMockUser
 public class ImportedURLResourceIT {
 
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
@@ -49,35 +46,12 @@ public class ImportedURLResourceIT {
     private ImportedURLService importedURLService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restImportedURLMockMvc;
 
     private ImportedURL importedURL;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final ImportedURLResource importedURLResource = new ImportedURLResource(importedURLService);
-        this.restImportedURLMockMvc = MockMvcBuilders.standaloneSetup(importedURLResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -116,7 +90,7 @@ public class ImportedURLResourceIT {
 
         // Create the ImportedURL
         restImportedURLMockMvc.perform(post("/api/imported-urls")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(importedURL)))
             .andExpect(status().isCreated());
 
@@ -138,7 +112,7 @@ public class ImportedURLResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restImportedURLMockMvc.perform(post("/api/imported-urls")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(importedURL)))
             .andExpect(status().isBadRequest());
 
@@ -158,7 +132,7 @@ public class ImportedURLResourceIT {
         // Create the ImportedURL, which fails.
 
         restImportedURLMockMvc.perform(post("/api/imported-urls")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(importedURL)))
             .andExpect(status().isBadRequest());
 
@@ -176,7 +150,7 @@ public class ImportedURLResourceIT {
         // Create the ImportedURL, which fails.
 
         restImportedURLMockMvc.perform(post("/api/imported-urls")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(importedURL)))
             .andExpect(status().isBadRequest());
 
@@ -193,12 +167,12 @@ public class ImportedURLResourceIT {
         // Get all the importedURLList
         restImportedURLMockMvc.perform(get("/api/imported-urls?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(importedURL.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].importDate").value(hasItem(DEFAULT_IMPORT_DATE.toString())));
     }
-    
+
     @Test
     @Transactional
     public void getImportedURL() throws Exception {
@@ -208,7 +182,7 @@ public class ImportedURLResourceIT {
         // Get the importedURL
         restImportedURLMockMvc.perform(get("/api/imported-urls/{id}", importedURL.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(importedURL.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.importDate").value(DEFAULT_IMPORT_DATE.toString()));
@@ -239,7 +213,7 @@ public class ImportedURLResourceIT {
             .importDate(UPDATED_IMPORT_DATE);
 
         restImportedURLMockMvc.perform(put("/api/imported-urls")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedImportedURL)))
             .andExpect(status().isOk());
 
@@ -260,7 +234,7 @@ public class ImportedURLResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restImportedURLMockMvc.perform(put("/api/imported-urls")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(importedURL)))
             .andExpect(status().isBadRequest());
 
@@ -279,7 +253,7 @@ public class ImportedURLResourceIT {
 
         // Delete the importedURL
         restImportedURLMockMvc.perform(delete("/api/imported-urls/{id}", importedURL.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

@@ -51,7 +51,6 @@ public class RequestAttributeValueServiceImpl implements RequestAttributeValueSe
         return requestAttributeValueRepository.findAll();
     }
 
-
     /**
      * Get one requestAttributeValue by id.
      *

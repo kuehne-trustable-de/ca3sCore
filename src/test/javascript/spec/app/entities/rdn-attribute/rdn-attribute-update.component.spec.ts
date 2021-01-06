@@ -38,8 +38,8 @@ describe('Component Tests', () => {
           alertService: () => new AlertService(store),
           rDNAttributeService: () => rDNAttributeServiceStub,
 
-          rDNService: () => new RDNService()
-        }
+          rDNService: () => new RDNService(),
+        },
       });
       comp = wrapper.vm;
     });

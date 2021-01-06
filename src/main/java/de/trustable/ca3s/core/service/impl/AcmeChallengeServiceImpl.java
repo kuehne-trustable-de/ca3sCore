@@ -51,7 +51,6 @@ public class AcmeChallengeServiceImpl implements AcmeChallengeService {
         return acmeChallengeRepository.findAll();
     }
 
-
     /**
      * Get one acmeChallenge by id.
      *

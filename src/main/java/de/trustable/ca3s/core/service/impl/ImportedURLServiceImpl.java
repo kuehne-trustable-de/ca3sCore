@@ -51,7 +51,6 @@ public class ImportedURLServiceImpl implements ImportedURLService {
         return importedURLRepository.findAll();
     }
 
-
     /**
      * Get one importedURL by id.
      *

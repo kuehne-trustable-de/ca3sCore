@@ -4,28 +4,22 @@ import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.service.CertificateService;
-import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Base64Utils;
-import org.springframework.validation.Validator;
-
 import javax.persistence.EntityManager;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -35,6 +29,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for the {@link CertificateResource} REST controller.
  */
 @SpringBootTest(classes = Ca3SApp.class)
+
+@AutoConfigureMockMvc
+@WithMockUser
 public class CertificateResourceIT {
 
     private static final String DEFAULT_TBS_DIGEST = "AAAAAAAAAA";
@@ -131,35 +128,12 @@ public class CertificateResourceIT {
     private CertificateService certificateService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restCertificateMockMvc;
 
     private Certificate certificate;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final CertificateResource certificateResource = new CertificateResource(certificateService);
-        this.restCertificateMockMvc = MockMvcBuilders.standaloneSetup(certificateResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -252,7 +226,7 @@ public class CertificateResourceIT {
 
         // Create the Certificate
         restCertificateMockMvc.perform(post("/api/certificates")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(certificate)))
             .andExpect(status().isCreated());
 
@@ -301,7 +275,7 @@ public class CertificateResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restCertificateMockMvc.perform(post("/api/certificates")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(certificate)))
             .andExpect(status().isBadRequest());
 
@@ -321,7 +295,7 @@ public class CertificateResourceIT {
         // Create the Certificate, which fails.
 
         restCertificateMockMvc.perform(post("/api/certificates")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(certificate)))
             .andExpect(status().isBadRequest());
 
@@ -339,7 +313,7 @@ public class CertificateResourceIT {
         // Create the Certificate, which fails.
 
         restCertificateMockMvc.perform(post("/api/certificates")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(certificate)))
             .andExpect(status().isBadRequest());
 
@@ -357,7 +331,7 @@ public class CertificateResourceIT {
         // Create the Certificate, which fails.
 
         restCertificateMockMvc.perform(post("/api/certificates")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(certificate)))
             .andExpect(status().isBadRequest());
 
@@ -375,7 +349,7 @@ public class CertificateResourceIT {
         // Create the Certificate, which fails.
 
         restCertificateMockMvc.perform(post("/api/certificates")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(certificate)))
             .andExpect(status().isBadRequest());
 
@@ -393,7 +367,7 @@ public class CertificateResourceIT {
         // Create the Certificate, which fails.
 
         restCertificateMockMvc.perform(post("/api/certificates")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(certificate)))
             .andExpect(status().isBadRequest());
 
@@ -411,7 +385,7 @@ public class CertificateResourceIT {
         // Create the Certificate, which fails.
 
         restCertificateMockMvc.perform(post("/api/certificates")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(certificate)))
             .andExpect(status().isBadRequest());
 
@@ -429,7 +403,7 @@ public class CertificateResourceIT {
         // Create the Certificate, which fails.
 
         restCertificateMockMvc.perform(post("/api/certificates")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(certificate)))
             .andExpect(status().isBadRequest());
 
@@ -446,7 +420,7 @@ public class CertificateResourceIT {
         // Get all the certificateList
         restCertificateMockMvc.perform(get("/api/certificates?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(certificate.getId().intValue())))
             .andExpect(jsonPath("$.[*].tbsDigest").value(hasItem(DEFAULT_TBS_DIGEST)))
             .andExpect(jsonPath("$.[*].subject").value(hasItem(DEFAULT_SUBJECT)))
@@ -478,7 +452,7 @@ public class CertificateResourceIT {
             .andExpect(jsonPath("$.[*].active").value(hasItem(DEFAULT_ACTIVE.booleanValue())))
             .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT.toString())));
     }
-    
+
     @Test
     @Transactional
     public void getCertificate() throws Exception {
@@ -488,7 +462,7 @@ public class CertificateResourceIT {
         // Get the certificate
         restCertificateMockMvc.perform(get("/api/certificates/{id}", certificate.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(certificate.getId().intValue()))
             .andExpect(jsonPath("$.tbsDigest").value(DEFAULT_TBS_DIGEST))
             .andExpect(jsonPath("$.subject").value(DEFAULT_SUBJECT))
@@ -573,7 +547,7 @@ public class CertificateResourceIT {
             .content(UPDATED_CONTENT);
 
         restCertificateMockMvc.perform(put("/api/certificates")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedCertificate)))
             .andExpect(status().isOk());
 
@@ -621,7 +595,7 @@ public class CertificateResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restCertificateMockMvc.perform(put("/api/certificates")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(certificate)))
             .andExpect(status().isBadRequest());
 
@@ -640,7 +614,7 @@ public class CertificateResourceIT {
 
         // Delete the certificate
         restCertificateMockMvc.perform(delete("/api/certificates/{id}", certificate.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

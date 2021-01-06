@@ -12,14 +12,14 @@ import CertificateAttributeService from './certificate-attribute.service';
 const validations: any = {
   certificateAttribute: {
     name: {
-      required
+      required,
     },
-    value: {}
-  }
+    value: {},
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class CertificateAttributeUpdate extends Vue {
   @Inject('alertService') private alertService: () => AlertService;
@@ -30,6 +30,7 @@ export default class CertificateAttributeUpdate extends Vue {
 
   public certificates: ICertificate[] = [];
   public isSaving = false;
+  public currentLanguage = '';
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -38,6 +39,16 @@ export default class CertificateAttributeUpdate extends Vue {
       }
       vm.initRelationships();
     });
+  }
+
+  created(): void {
+    this.currentLanguage = this.$store.getters.currentLanguage;
+    this.$store.watch(
+      () => this.$store.getters.currentLanguage,
+      () => {
+        this.currentLanguage = this.$store.getters.currentLanguage;
+      }
+    );
   }
 
   public save(): void {

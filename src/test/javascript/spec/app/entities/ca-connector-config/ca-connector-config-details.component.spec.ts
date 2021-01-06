@@ -28,7 +28,7 @@ describe('Component Tests', () => {
         store,
         i18n,
         localVue,
-        provide: { cAConnectorConfigService: () => cAConnectorConfigServiceStub }
+        provide: { cAConnectorConfigService: () => cAConnectorConfigServiceStub },
       });
       comp = wrapper.vm;
     });
