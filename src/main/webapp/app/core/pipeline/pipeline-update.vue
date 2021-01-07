@@ -53,6 +53,12 @@
                         </select>
                     </div>
 
+                    <div class="form-group" v-if="$v.pipeline.type.$model === 'SCEP'">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.scepSecret')" for="pipeline-scepSecret">SCEP Secret</label>
+                        <input type="text" class="form-control" name="scepSecret" id="pipeline-scepSecret"
+                               :class="{'valid': !$v.pipeline.scepSecret.$invalid, 'invalid': $v.pipeline.scepSecret.$invalid }" v-model="$v.pipeline.scepSecret.$model" />
+                    </div>
+
                     <div class="container">
                         <div class="row">
                             <div class="col">
