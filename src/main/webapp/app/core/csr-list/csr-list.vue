@@ -8,25 +8,25 @@
 				{{alertMessage}}
 		</b-alert>
 		<br/>
- 
+
   	<div class="row">
 
 			<div class="col-xs-12 table-responsive">
-
+                <h2 class="jh-entity-heading">
+                    <span v-text="$t('ca3SApp.cSR.subtitle.request.list')">Request List</span>
+                </h2>
 				<div>
-					<div>Request List</div>
-
 					<div v-for="(filter, index) in filters.filterList" :key="index">
 						<select float="left" class="smallSelector fa-1x" v-model="filter.attributeName" name="csrSelectionAttribute">
-							<option v-for="csrSelectionItem in csrSelectionItems" :key="csrSelectionItem.itemName">{{csrSelectionItem.itemName}}</option>
+							<option v-for="csrSelectionItem in csrSelectionItems" :key="csrSelectionItem.itemName" :value="csrSelectionItem.itemName">{{$t(csrSelectionItem.itemName)}}</option>
 						</select>
 
 						<select float="left" class="smallSelector fa-1x" v-model="filter.selector" name="csrSelectionChoice">
-							<option v-for="item in getSelectorChoices(filter.attributeName)" :key="item">{{item}}</option>
+							<option v-for="item in getSelectorChoices(filter.attributeName)" :key="item" :value="item">{{$t(item)}}</option>
 						</select>
 
 						<select v-if="getInputType(filter.attributeName) == 'set'" float="left" class="smallSelector fa-1x" v-model="filter.attributeValue" name="csrSelectionSet">
-							<option v-for="item in getValueChoices(filter.attributeName)" :key="item">{{item}}</option>
+							<option v-for="item in getValueChoices(filter.attributeName)" :key="item" :value="item">{{$t(item)}}</option>
 						</select>
 						<input type="date" v-else-if="getInputType(filter.attributeName) == 'date'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="csrSelectionValueDate" v-on:keydown.enter="updateTable"/>
 						<input type="hidden" v-else-if="getInputType(filter.attributeName) == 'boolean'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="csrSelectionValueBoolean" v-on:keydown.enter="updateTable"/>
@@ -65,9 +65,9 @@
 						<div v-text="$t('list.noContent')">no content</div>
 					</template>
 				</requests-table>
-				
+
 				<section class="pagers-table">
-					<requests-table-pager type="abbreviated" table="requests"></requests-table-pager>	    	
+					<requests-table-pager type="abbreviated" table="requests"></requests-table-pager>
 				</section>
 			</div>
   	</div>

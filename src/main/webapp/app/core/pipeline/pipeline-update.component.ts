@@ -17,23 +17,27 @@ import PipelineViewService from './pipelineview.service';
 const validations: any = {
   pipeline: {
     name: {
-      required,
+      required
     },
     type: {
-      required,
+      required
     },
     urlPart: {},
-    scepSecret: {},
     description: {},
     approvalRequired: {},
     approvalInfo1: {},
     ipAsSubjectAllowed: {},
     ipAsSanAllowed: {},
-  },
+    scepConfigItems: {
+      scepSecretPCId: {},
+      scepSecret: {},
+      scepSecretValidTo: {}
+    }
+  }
 };
 
 @Component({
-  validations,
+  validations
 })
 export default class PipelineUpdate extends Vue {
   @Inject('alertService') private alertService: () => AlertService;
@@ -157,8 +161,8 @@ export default class PipelineUpdate extends Vue {
     axios({
       method: 'get',
       url: 'api/ca-connector-configs/cert-generators',
-      responseType: 'stream',
-    }).then(function (response) {
+      responseType: 'stream'
+    }).then(function(response) {
       window.console.info('allCertGenerators returns ' + response.data);
       self.allCertGenerators = response.data;
     });

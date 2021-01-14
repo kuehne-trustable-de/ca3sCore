@@ -56,7 +56,17 @@
                     <div class="form-group" v-if="$v.pipeline.type.$model === 'SCEP'">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.scepSecret')" for="pipeline-scepSecret">SCEP Secret</label>
                         <input type="text" class="form-control" name="scepSecret" id="pipeline-scepSecret"
-                               :class="{'valid': !$v.pipeline.scepSecret.$invalid, 'invalid': $v.pipeline.scepSecret.$invalid }" v-model="$v.pipeline.scepSecret.$model" />
+                               :class="{'valid': !$v.pipeline.scepConfigItems.scepSecret.$invalid, 'invalid': $v.pipeline.scepConfigItems.scepSecret.$invalid }" v-model="$v.pipeline.scepConfigItems.scepSecret.$model" />
+
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.scepSecretValidTo')" for="pipeline-scepSecretValidTo">SCEP Secret valid until</label>
+
+                        <datetime type="datetime" input-class="form-control" name="scepSecretValidTo" input-id="pipeline-scepSecretValidTo"
+                                  v-model="$v.pipeline.scepConfigItems.scepSecretValidTo.$model"/>
+
+                        <!--input type="datetime-local"  class="form-control" name="scepSecretValidTo" id="pipeline-scepSecretValidTo"
+                               :class="{'valid': !$v.pipeline.scepConfigItems.scepSecretValidTo.$invalid, 'invalid': $v.pipeline.scepConfigItems.scepSecretValidTo.$invalid }"
+                               v-model="$v.pipeline.scepConfigItems.scepSecretValidTo.$model" /-->
+
                     </div>
 
                     <div class="container">

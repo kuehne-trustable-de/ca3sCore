@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2020-11-03 22:38:50.
+// Generated using typescript-generator version 2.19.577 on 2021-01-07 22:15:52.
 
 export interface IPipelineView extends ISerializable {
   id?: number;
@@ -101,7 +101,6 @@ export interface IPreferences extends ISerializable {
   serverSideKeyCreationAllowed?: boolean;
   checkCRL?: boolean;
   acmeHTTP01TimeoutMilliSec?: number;
-  acmeHTTP01CallbackPorts?: string;
   acmeHTTP01CallbackPortArr?: number[];
 }
 
@@ -226,6 +225,9 @@ export interface IACMEConfigItems extends ISerializable {
 export interface ISCEPConfigItems extends ISerializable {
   capabilityRenewal?: boolean;
   capabilityPostPKIOperation?: boolean;
+  scepSecretPCId?: string;
+  scepSecret?: string;
+  scepSecretValidTo?: Date;
 }
 
 export interface IWebConfigItems extends ISerializable {}

@@ -100,7 +100,7 @@ export default class Preference extends mixins(AlertMixin, JhiDataUtils) {
     }
 */
     window.console.info('acmeHTTP01TimeoutMilliSec: ' + this.preferences.acmeHTTP01TimeoutMilliSec);
-    window.console.info('acmeHTTP01CallbackPorts: ' + this.preferences.acmeHTTP01CallbackPorts);
+    window.console.info('acmeHTTP01CallbackPortArr: ' + this.preferences.acmeHTTP01CallbackPortArr);
 
     return new Promise<IPreferences>((resolve, reject) => {
       axios

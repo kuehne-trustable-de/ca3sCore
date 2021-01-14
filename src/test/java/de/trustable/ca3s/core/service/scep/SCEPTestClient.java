@@ -36,8 +36,9 @@ public class SCEPTestClient {
 
 	public static void main(String[] args) throws GeneralSecurityException, IOException, ClientException, TransactionException {
 
-		char[] password = "password".toCharArray();
-		
+        char[] password = "password".toCharArray();
+//        char[] password = "foofoofoxy".toCharArray();
+
 		CertificateVerifier acceptAllVerifier = new AcceptAllVerifier();
 
 
@@ -50,22 +51,25 @@ public class SCEPTestClient {
 		X509Certificate ephemeralCert = X509Certificates.createEphemeral(enrollingPrincipal, keyPair);
 
 
-//		URL serverUrl = new URL("http://localhost:8080/ca3sScep/test");
-		URL serverUrl = new URL("http://localhost:8080/ca3sScep/ejbca");
+		URL serverUrl = new URL("http://localhost:8080/ca3sScep/test");
+//		URL serverUrl = new URL("http://localhost:8080/ca3sScep/ejbca");
 		LOG.debug("scep serverUrl : " + serverUrl.toString());
 
 		Client client = new Client(serverUrl, acceptAllVerifier);
 
 		LOG.info("ephemeralCert : " + ephemeralCert);
 
-		PKCS10CertificationRequest csr = CryptoUtil.getCsr(enrollingPrincipal, 
-				keyPair.getPublic(), 
+		PKCS10CertificationRequest csr = CryptoUtil.getCsr(enrollingPrincipal,
+				keyPair.getPublic(),
 				keyPair.getPrivate(),
 				password);
 
 		EnrollmentResponse resp = client.enrol(ephemeralCert, keyPair.getPrivate(), csr);
 		assertNotNull(resp);
-		assertFalse(resp.isFailure());
+
+        if(resp.isFailure()) {
+            LOG.info("request failed: " + resp.getFailInfo() );
+        }
 		if (resp.isSuccess()) {
 
 			CertStore certStore = resp.getCertStore();

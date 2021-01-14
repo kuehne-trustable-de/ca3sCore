@@ -110,6 +110,7 @@ enum ProtectedContentType {
 
 enum ContentRelationType {
     CERTIFICATE, CONNECTION
+    CSR, ACME_PW;
 }
 
 @skipClient(true)

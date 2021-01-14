@@ -8,25 +8,26 @@
 				{{alertMessage}}
 		</b-alert>
 		<br/>
- 
+
 		<div class="row">
 
 			<div class="col-xs-12 table-responsive">
+                <h2 class="jh-entity-heading">
+                    <span v-text="$t('ca3SApp.certificate.subtitle.cert.list')">Certificate List</span>
+                </h2>
 
 				<div>
-					<div>Certificate list</div>
-
 					<div v-for="(filter, index) in filters.filterList" :key="index">
 						<select float="left" class="smallSelector fa-1x" v-model="filter.attributeName" name="certSelectionAttribute">
-							<option v-for="certSelectionItem in certSelectionItems" :key="certSelectionItem.itemName">{{certSelectionItem.itemName}}</option>
+							<option v-for="certSelectionItem in certSelectionItems" :key="certSelectionItem.itemName" :value="certSelectionItem.itemName">{{$t(certSelectionItem.itemName)}}</option>
 						</select>
 
 						<select float="left" class="smallSelector fa-1x" v-model="filter.selector" name="certSelectionChoice">
-							<option v-for="item in getSelectorChoices(filter.attributeName)" :key="item">{{item}}</option>
+							<option v-for="item in getSelectorChoices(filter.attributeName)" :key="item" :value="item">{{$t(item)}}</option>
 						</select>
 
 						<select v-if="getInputType(filter.attributeName) == 'set'" float="left" class="smallSelector fa-1x" v-model="filter.attributeValue" name="certSelectionSet">
-							<option v-for="item in getValueChoices(filter.attributeName)" :key="item">{{item}}</option>
+							<option v-for="item in getValueChoices(filter.attributeName)" :key="item" :value="item">{{$t(item)}}</option>
 						</select>
 						<input type="date" v-else-if="getInputType(filter.attributeName) == 'date'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueDate" v-on:keydown.enter="updateTable"/>
 						<input type="hidden" v-else-if="getInputType(filter.attributeName) == 'boolean'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueBoolean" v-on:keydown.enter="updateTable"/>
@@ -73,7 +74,7 @@
 				</certificate>
 
 				<section class="pagers-table">
-					<certificate-pager type="abbreviated" table="certificates"></certificate-pager>	    	
+					<certificate-pager type="abbreviated" table="certificates"></certificate-pager>
 				</section>
 			</div>
 		</div>

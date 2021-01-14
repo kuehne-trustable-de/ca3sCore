@@ -27,14 +27,7 @@
 								<option v-bind:value="upload && webPipeline.id === upload.pipelineId ? upload.pipelineId : webPipeline.id" v-for="webPipeline in allWebPipelines" :key="webPipeline.id">{{webPipeline.name}}</option>
 							</select>
 
-							<span>{{selectPipelineInfo}}</span>
-							<!--span>upload.pipelineId.id  = {{upload.pipelineId.id}}</span>
-							<div v-if="upload.pipelineId.id < 1110">
-								<small class="form-text text-danger" v-text="$t('entity.validation.required')">
-									This field is required.
-								</small>
-							</div-->
-							<!--label class="form-control-label" >__ {{currentPipelineInfo(upload.pipelineId)}} __</label-->
+							<div class="readonly_comment">{{selectPipelineInfo}}</div>
 						</div>
 
 						<div class="form-group">
@@ -371,5 +364,12 @@
 	background: url("../../../content/images/uploadIcon.png") no-repeat center
 		center;
 	background-size: 80px 80px;
+}
+
+
+.readonly_comment {
+    background-color: #eee;
+    opacity: 1;
+    margin-top: 5px;
 }
 </style>

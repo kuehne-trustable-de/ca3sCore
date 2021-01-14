@@ -4,5 +4,5 @@ package de.trustable.ca3s.core.domain.enumeration;
  * The ContentRelationType enumeration.
  */
 public enum ContentRelationType {
-    CERTIFICATE, CONNECTION, CSR
+    CERTIFICATE, CONNECTION, CSR, SCEP_PW
 }

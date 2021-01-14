@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import de.trustable.ca3s.core.service.dto.SCEPConfigItems;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,30 +43,32 @@ public class PipelineTestConfiguration {
 	public static final String SCEP_REALM = "scepTest";
 	public static final String SCEP1CN_REALM = "scepTest1CN";
 
-	@Autowired
+    public static final String SCEP_PASSWORD = "abc123#*/";
+
+    @Autowired
 	CAConnectorConfigRepository cacRepo;
-	
+
 	@Autowired
 	PipelineRepository pipelineRepo;
-	
+
 	@Autowired
 	PipelineUtil pipelineUtil;
-	
+
 
 	public CAConnectorConfig internalTestCAC() {
-		
+
 		CAConnectorConfig exampleCCC = new CAConnectorConfig();
 		exampleCCC.setName(INTERNAL_TEST_CA);
 		Example<CAConnectorConfig> example = Example.of(exampleCCC);
-		
+
 		List<CAConnectorConfig> existingConfigList = cacRepo.findAll(example);
-		
+
 		if( !existingConfigList.isEmpty()) {
 			LOGGER.info("CAConnectorConfig for 'Internal' already present");
 
 			return existingConfigList.get(0);
 		}
-		
+
 		CAConnectorConfig newCAC = new CAConnectorConfig();
 //		newCAC.setId(CONFIG_ID);
 		newCAC.setName(INTERNAL_TEST_CA);
@@ -75,10 +78,10 @@ public class PipelineTestConfiguration {
 		cacRepo.save(newCAC);
 		LOGGER.info("CAConnectorConfig for 'Internal' created");
 		return newCAC;
-		
-		
+
+
 	}
-	
+
 	@Transactional
 	public Pipeline getInternalACMETestPipelineLaxRestrictions() {
 
@@ -86,13 +89,13 @@ public class PipelineTestConfiguration {
 		examplePipeline.setName(PIPELINE_NAME_ACME);
 		Example<Pipeline> example = Example.of(examplePipeline);
 		List<Pipeline> existingPLList = pipelineRepo.findAll(example);
-		
+
 		if( !existingPLList.isEmpty()) {
 			LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_ACME);
 
 			return existingPLList.get(0);
 		}
-		
+
 
 		PipelineView pv_LaxRestrictions = new PipelineView();
     	pv_LaxRestrictions.setRestriction_C(new RDNRestriction());
@@ -110,9 +113,9 @@ public class PipelineTestConfiguration {
 
     	pv_LaxRestrictions.setRestriction_SAN(new RDNRestriction());
 		pv_LaxRestrictions.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
-		
+
 		pv_LaxRestrictions.setApprovalRequired(false);
-		
+
 		pv_LaxRestrictions.setCaConnectorName(internalTestCAC().getName());
 		pv_LaxRestrictions.setName(PIPELINE_NAME_ACME);
 		pv_LaxRestrictions.setType(PipelineType.ACME);
@@ -130,13 +133,13 @@ public class PipelineTestConfiguration {
 		examplePipeline.setName(PIPELINE_NAME_ACME1CN);
 		Example<Pipeline> example = Example.of(examplePipeline);
 		List<Pipeline> existingPLList = pipelineRepo.findAll(example);
-		
+
 		if( !existingPLList.isEmpty()) {
 			LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_ACME1CN);
 
 			return existingPLList.get(0);
 		}
-		
+
 
 		PipelineView pv_1CNRestrictions = new PipelineView();
     	pv_1CNRestrictions.setRestriction_C(new RDNRestriction());
@@ -154,10 +157,10 @@ public class PipelineTestConfiguration {
 
 		pv_1CNRestrictions.setRestriction_SAN(new RDNRestriction());
 		pv_1CNRestrictions.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
-		
-		
+
+
 		pv_1CNRestrictions.setApprovalRequired(false);
-		
+
 		pv_1CNRestrictions.setCaConnectorName(internalTestCAC().getName());
 		pv_1CNRestrictions.setName(PIPELINE_NAME_ACME1CN);
 		pv_1CNRestrictions.setType(PipelineType.ACME);
@@ -167,7 +170,7 @@ public class PipelineTestConfiguration {
 		pipelineRepo.save(pipelineLaxRestrictions);
 		return pipelineLaxRestrictions;
 	}
-	
+
 
 	@Transactional
 	public Pipeline getInternalWebDirectTestPipeline() {
@@ -176,17 +179,17 @@ public class PipelineTestConfiguration {
 		examplePipeline.setName(PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
 		Example<Pipeline> example = Example.of(examplePipeline);
 		List<Pipeline> existingPLList = pipelineRepo.findAll(example);
-		
+
 		if( !existingPLList.isEmpty()) {
 			LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
 
 			return existingPLList.get(0);
 		}
-		
+
 
 		Pipeline pipelineWeb = new Pipeline();
 		pipelineWeb.setApprovalRequired(false);
-		
+
 		pipelineWeb.setCaConnector(internalTestCAC());
 		pipelineWeb.setName(PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
 		pipelineWeb.setType(PipelineType.WEB);
@@ -194,7 +197,7 @@ public class PipelineTestConfiguration {
 		pipelineRepo.save(pipelineWeb);
 		return pipelineWeb;
 	}
-	
+
 	@Transactional
 	public Pipeline getInternalWebRACheckTestPipeline() {
 
@@ -202,17 +205,17 @@ public class PipelineTestConfiguration {
 		examplePipeline.setName(PIPELINE_NAME_WEB_RA_ISSUANCE);
 		Example<Pipeline> example = Example.of(examplePipeline);
 		List<Pipeline> existingPLList = pipelineRepo.findAll(example);
-		
+
 		if( !existingPLList.isEmpty()) {
 			LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_WEB_RA_ISSUANCE);
 
 			return existingPLList.get(0);
 		}
-		
+
 
 		Pipeline pipelineWeb = new Pipeline();
 		pipelineWeb.setApprovalRequired(true);
-		
+
 		pipelineWeb.setCaConnector(internalTestCAC());
 		pipelineWeb.setName(PIPELINE_NAME_WEB_RA_ISSUANCE);
 		pipelineWeb.setType(PipelineType.WEB);
@@ -220,7 +223,7 @@ public class PipelineTestConfiguration {
 		pipelineRepo.save(pipelineWeb);
 		return pipelineWeb;
 	}
-	
+
 	@Transactional
 	public Pipeline getInternalWebRATestPipeline() {
 
@@ -228,17 +231,17 @@ public class PipelineTestConfiguration {
 		examplePipeline.setName(PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
 		Example<Pipeline> example = Example.of(examplePipeline);
 		List<Pipeline> existingPLList = pipelineRepo.findAll(example);
-		
+
 		if( !existingPLList.isEmpty()) {
 			LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
 
 			return existingPLList.get(0);
 		}
-		
+
 
 		Pipeline pipelineWeb = new Pipeline();
 		pipelineWeb.setApprovalRequired(false);
-		
+
 		pipelineWeb.setCaConnector(internalTestCAC());
 		pipelineWeb.setName(PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
 		pipelineWeb.setType(PipelineType.WEB);
@@ -250,18 +253,18 @@ public class PipelineTestConfiguration {
 
 	@Transactional
 	public Pipeline getInternalSCEPTestPipelineLaxRestrictions() {
-		
+
 		Pipeline examplePipeline = new Pipeline();
 		examplePipeline.setName(PIPELINE_NAME_SCEP);
 		Example<Pipeline> example = Example.of(examplePipeline);
 		List<Pipeline> existingPLList = pipelineRepo.findAll(example);
-		
+
 		if( !existingPLList.isEmpty()) {
 			LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_SCEP);
 
 			return existingPLList.get(0);
 		}
-		
+
 		PipelineView pv_LaxRestrictions = new PipelineView();
     	pv_LaxRestrictions.setRestriction_C(new RDNRestriction());
 		pv_LaxRestrictions.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
@@ -280,32 +283,36 @@ public class PipelineTestConfiguration {
 		pv_LaxRestrictions.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
 
 		pv_LaxRestrictions.setApprovalRequired(false);
-		
+
 		pv_LaxRestrictions.setCaConnectorName(internalTestCAC().getName());
 		pv_LaxRestrictions.setName(PIPELINE_NAME_SCEP);
 		pv_LaxRestrictions.setType(PipelineType.SCEP);
 		pv_LaxRestrictions.setUrlPart(SCEP_REALM);
+
+        SCEPConfigItems scepConfigItems = new SCEPConfigItems();
+        scepConfigItems.setScepSecret(SCEP_PASSWORD);
+        pv_LaxRestrictions.setScepConfigItems(scepConfigItems);
 
 		Pipeline pipelineLaxRestrictions = pipelineUtil.toPipeline(pv_LaxRestrictions);
 		pipelineRepo.save(pipelineLaxRestrictions);
 		return pipelineLaxRestrictions;
 
 	}
-	
+
 	@Transactional
 	public Pipeline getInternalSCEPTestPipelineCN1Restrictions() {
-		
+
 		Pipeline examplePipeline = new Pipeline();
 		examplePipeline.setName(PIPELINE_NAME_SCEP1CN);
 		Example<Pipeline> example = Example.of(examplePipeline);
 		List<Pipeline> existingPLList = pipelineRepo.findAll(example);
-		
+
 		if( !existingPLList.isEmpty()) {
 			LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_SCEP1CN);
 
 			return existingPLList.get(0);
 		}
-		
+
 		PipelineView pv_1CNRestrictions = new PipelineView();
     	pv_1CNRestrictions.setRestriction_C(new RDNRestriction());
 		pv_1CNRestrictions.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
@@ -324,13 +331,17 @@ public class PipelineTestConfiguration {
 		pv_1CNRestrictions.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
 
 		pv_1CNRestrictions.setApprovalRequired(false);
-		
+
 		pv_1CNRestrictions.setCaConnectorName(internalTestCAC().getName());
 		pv_1CNRestrictions.setName(PIPELINE_NAME_SCEP1CN);
 		pv_1CNRestrictions.setType(PipelineType.SCEP);
 		pv_1CNRestrictions.setUrlPart(SCEP1CN_REALM);
 
-		Pipeline pipelineLaxRestrictions = pipelineUtil.toPipeline(pv_1CNRestrictions);
+        SCEPConfigItems scepConfigItems = new SCEPConfigItems();
+        scepConfigItems.setScepSecret(SCEP_PASSWORD);
+        pv_1CNRestrictions.setScepConfigItems(scepConfigItems);
+
+        Pipeline pipelineLaxRestrictions = pipelineUtil.toPipeline(pv_1CNRestrictions);
 		pipelineRepo.save(pipelineLaxRestrictions);
 		return pipelineLaxRestrictions;
 

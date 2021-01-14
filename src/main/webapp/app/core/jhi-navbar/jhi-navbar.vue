@@ -184,7 +184,7 @@
                         <font-awesome-icon icon="user" />
                         <span v-text="$t('global.menu.admin.userManagement')">User management</span>
                     </b-dropdown-item>
-                    <b-dropdown-item to="/admin/jhi-tracker">
+                    <!--b-dropdown-item to="/admin/jhi-tracker">
                         <font-awesome-icon icon="eye" />
                         <span v-text="$t('global.menu.admin.tracker')">User tracker</span>
                     </b-dropdown-item>
@@ -199,7 +199,7 @@
                     <b-dropdown-item  to="/admin/jhi-configuration">
                         <font-awesome-icon icon="list" />
                         <span v-text="$t('global.menu.admin.configuration')">Configuration</span>
-                    </b-dropdown-item>
+                    </b-dropdown-item-->
                     <b-dropdown-item  to="/admin/audits">
                         <font-awesome-icon icon="bell" />
                         <span v-text="$t('global.menu.admin.audits')">Audits</span>

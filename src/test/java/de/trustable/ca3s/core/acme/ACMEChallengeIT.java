@@ -61,8 +61,13 @@ public class ACMEChallengeIT {
     @BeforeEach
 	void init() {
 		dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
-		ptc.getInternalACMETestPipelineLaxRestrictions();
-        prefTC.getTestUserPreference();
+        LOG.info("ptc: {}", ptc);
+        try {
+            ptc.getInternalACMETestPipelineLaxRestrictions();
+            prefTC.getTestUserPreference();
+        }catch( Exception ex ){
+            ex.printStackTrace();
+        }
     }
 
 	@BeforeAll

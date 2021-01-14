@@ -1,6 +1,7 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.common with an alias.
 import Vue from 'vue';
+import { Datetime } from 'vue-datetime';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import App from './app.vue';
 import Vue2Filters from 'vue2-filters';
@@ -66,6 +67,9 @@ Vue.use(Vue2Filters);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 Vue.component('jhi-item-count', JhiItemCountComponent);
 Vue.component('zingchart', zingchartVue);
+
+Vue.component('datetime', Datetime);
+import 'vue-datetime/dist/vue-datetime.css';
 
 const i18n = config.initI18N(Vue);
 const store = config.initVueXStore(Vue);

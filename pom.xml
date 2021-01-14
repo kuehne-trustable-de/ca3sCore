@@ -166,7 +166,7 @@
         <xml.maven.plugin.version>1.0.2</xml.maven.plugin.version>
 
         <dependencyCheck.version>6.0.3</dependencyCheck.version>
-        <dependencyCheck.skip>false</dependencyCheck.skip>
+        <dependencyCheck.skip>true</dependencyCheck.skip>
 
     </properties>
 
@@ -605,6 +605,10 @@
 			<scope>test</scope>
 		</dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-undertow</artifactId>
+        </dependency>
 
     </dependencies>
 
@@ -1223,6 +1227,8 @@
                         <!-- Force alphabetical order to have a reproducible build -->
                         <runOrder>alphabetical</runOrder>
                         <reportsDirectory>${junit.utReportFolder}</reportsDirectory>
+                        <forkMode>once</forkMode>
+                        <argLine>-Xmx2048m</argLine>
                         <excludes>
                             <exclude>**/*IT*</exclude>
                             <exclude>**/*IntTest*</exclude>
