@@ -69,6 +69,8 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   public keyAlgoLength: IKeyAlgoLength = 'RSA_2048';
 
   public cmdline = '';
+  public reqConf = '';
+  public reqConfRequired = false;
 
   public responseStatus = 0;
   public isChecked = false;
@@ -215,6 +217,8 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
   public buildCommandLine(): string {
     let cmdline = '';
+    let reqConf = '';
+    this.reqConfRequired = false;
 
     let nvSAN: INamedValues;
 
@@ -286,7 +290,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       //
       // openssl >= 1.1.1
       //
-      cmdline = this.getOpensslGommon(cmdline, algo, keyLen);
+      cmdline = this.getOpensslGommon(cmdline, algo, keyLen, true);
 
       if (nvSAN !== undefined && nvSAN.values.length > 0 && nvSAN.values[0].length > 0) {
         cmdline += ' -addext "subjectAltName = ';
@@ -313,55 +317,81 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       //
       // openssl
       //
-      cmdline = this.getOpensslGommon(cmdline, algo, keyLen);
+      cmdline = this.getOpensslGommon(cmdline, algo, keyLen, false);
 
-      if (nvSAN !== undefined && nvSAN.values.length > 0 && nvSAN.values[0].length > 0) {
-        cmdline += ' -extensions SAN -config <( cat $( echo /etc/ssl/openssl.cnf  ) <(printf "[SAN]\nsubjectAltName=\'';
-        let sans = '';
-        let idx = 1;
-        for (const san of nvSAN.values) {
-          if (san.length > 0) {
-            if (sans.length > 0) {
-              sans += ',';
+      cmdline += ' -config request.conf -keyout private_key.pem -out server.csr';
+
+      this.reqConfRequired = true;
+
+      reqConf = '[req]\n';
+      reqConf += 'distinguished_name = req_distinguished_name\n';
+      reqConf += 'req_extensions = v3_req\n';
+      reqConf += 'prompt = no\n';
+      reqConf += '[req_distinguished_name]\n';
+
+      let hasSAN = false;
+      for (const nv of this.upload.certificateAttributes) {
+        const name = nv.name;
+
+        for (const value of nv.values) {
+          if (value.length > 0) {
+            if (name === 'SAN') {
+              // handle SANS specially, see below
+              hasSAN = true;
+              continue;
             }
-            const parts = san.split(':', 2);
-            if (parts.length < 2) {
-              sans += 'DNS.' + idx + ':' + san;
-            } else {
-              sans += parts[0] + '.' + idx + ':' + parts[1];
+            reqConf += name + '=' + value + '\n';
+          }
+        }
+      }
+      if (hasSAN) {
+        reqConf += '[v3_req]\n';
+        reqConf += 'subjectAltName = @alt_names\n';
+        reqConf += '[alt_names]\n';
+
+        let dnsNo = 1;
+        for (const nv of this.upload.certificateAttributes) {
+          const name = nv.name;
+          if (name === 'SAN') {
+            for (const value of nv.values) {
+              if (value.length > 0) {
+                reqConf += 'DNS.' + dnsNo + ' = ' + value + '\n';
+                dnsNo++;
+              }
             }
           }
-          idx++;
         }
-        cmdline += sans + '\'"))';
       }
-
-      cmdline += ' -keyout private_key.pem -out server.csr';
     }
 
+    this.reqConf = reqConf;
     return cmdline;
   }
 
-  private getOpensslGommon(cmdline: string, algo: string, keyLen: string) {
+  private getOpensslGommon(cmdline: string, algo: string, keyLen: string, addSubject: boolean) {
     cmdline = 'openssl req -newkey ' + algo + ':' + keyLen;
-    cmdline += ' -nodes -subj ';
+    cmdline += ' -nodes ';
 
-    let subject = '';
-    for (const nv of this.upload.certificateAttributes) {
-      const name = nv.name;
-      if (name === 'SAN') {
-        // handle SANS specially, see below
-        continue;
-      }
-      for (const value of nv.values) {
-        if (value.length > 0) {
-          subject += '/' + name.toUpperCase() + '=' + value;
+    if (addSubject) {
+      cmdline += ' -subj ';
+      let subject = '';
+      for (const nv of this.upload.certificateAttributes) {
+        const name = nv.name;
+        if (name === 'SAN') {
+          // handle SANS specially, see below
+          continue;
+        }
+        for (const value of nv.values) {
+          if (value.length > 0) {
+            subject += '/' + name.toUpperCase() + '=' + value;
+          }
         }
       }
+      if (subject.length > 0) {
+        cmdline += '"' + subject + '"';
+      }
     }
-    if (subject.length > 0) {
-      cmdline += '"' + subject + '"';
-    }
+
     return cmdline;
   }
 
@@ -560,5 +590,16 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   public updateValue(key, value) {
     window.console.info('updateValue for ' + key);
     this.$emit('change', { ...this.upload, [key]: value });
+  }
+  public copyToClipboard(elementId) {
+    /* Get the text field */
+    const copyText = document.getElementById(elementId) as HTMLInputElement;
+
+    /* Select the text field */
+    copyText.select();
+    copyText.setSelectionRange(0, 99999); /* For mobile devices */
+
+    /* Copy the text inside the text field */
+    document.execCommand('copy');
   }
 }

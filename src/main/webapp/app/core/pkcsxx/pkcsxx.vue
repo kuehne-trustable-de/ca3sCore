@@ -125,10 +125,42 @@
 							</div>
 						</div>
 
-						<div class="form-group" v-if="creationMode === 'COMMANDLINE_TOOL'">
-							<label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.cmdline')" for="pkcsxx-cmdline">Command line</label>
-							<textarea class="form-control cmd-content" name="certContent" id="pkcsxx-cmdline"
-								autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly v-model="cmdline" />
+
+                        <div class="row" v-if="creationMode === 'COMMANDLINE_TOOL' && reqConfRequired">
+                            <div class="col ">
+                                <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.req.conf')" for="pkcsxx-reqConf">Request config file</label>
+                            </div>
+                            <div class="col colContent">
+                                <textarea class="form-control cmd-content" name="pkcsxx-reqConf" id="pkcsxx-reqConf"
+                                      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly v-model="reqConf" />
+                            </div>
+                            <div class="col">
+                                <b-button v-on:click="copyToClipboard('pkcsxx-reqConf')"
+                                      class="btn btn-sm copy" >
+                                    <font-awesome-icon icon="clone"></font-awesome-icon>
+                                    <span class="d-none d-md-inline" v-text="$t('entity.action.copy')">Copy</span>
+                                </b-button>
+                            </div>
+                        </div>
+                        <div v-if="creationMode === 'COMMANDLINE_TOOL' && reqConfRequired">
+                            <label></label>
+                        </div>
+
+                       <div class="row" v-if="creationMode === 'COMMANDLINE_TOOL'">
+                           <div class="col ">
+                               <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.cmdline')" for="pkcsxx-cmdline">Command line</label>
+                           </div>
+                           <div class="col colContent">
+                                <textarea class="form-control cmd-content" name="pkcsxx-cmdline" id="pkcsxx-cmdline"
+                                      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly v-model="cmdline" />
+                           </div>
+                           <div class="col">
+                               <b-button v-on:click="copyToClipboard('pkcsxx-cmdline')"
+                                         class="btn btn-sm copy" >
+                                   <font-awesome-icon icon="clone"></font-awesome-icon>
+                                   <span class="d-none d-md-inline" v-text="$t('entity.action.copy')">Copy</span>
+                               </b-button>
+                           </div>
 						</div>
 
 						<div class="form-group" v-if="(creationMode === 'CSR_AVAILABLE') " >
