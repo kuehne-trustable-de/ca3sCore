@@ -21,7 +21,7 @@
                     </h2>
 					<div>
 						<div class="form-group" v-if="authenticated">
-							<label class="form-control-label" v-text="$t('pkcsxx.upload.pipeline')" for="pkcsxx-pipeline">Pipeline</label>
+							<label class="form-control-label" v-text="$t('pkcsxx.upload.pipeline')" for="pkcsxx-pipeline">Pipeline</label> <help-tag :target="'pkcsxx.upload.pipeline'"/>
 							<!--select class="form-control" id="pkcsxx-pipeline" name="pkcsxx-pipeline" v-model="$v.upload.pipelineId.$model" required v-on:change="updatePipelineRestrictions($event)"-->
 							<select class="form-control" id="pkcsxx-pipeline" name="pkcsxx-pipeline" v-model="upload.pipelineId" required v-on:change="updatePipelineRestrictions($event)">
 								<option v-bind:value="upload && webPipeline.id === upload.pipelineId ? upload.pipelineId : webPipeline.id" v-for="webPipeline in allWebPipelines" :key="webPipeline.id">{{webPipeline.name}}</option>
@@ -31,7 +31,7 @@
 						</div>
 
 						<div class="form-group">
-							<label class="form-control-label" v-text="$t('pkcsxx.upload.creationMode.selection')" for="pkcsxx-key-creation">Creation mode</label>
+							<label class="form-control-label" v-text="$t('pkcsxx.upload.creationMode.selection')" for="pkcsxx-key-creation">Creation mode</label> <help-tag :target="'pkcsxx.upload.creationMode.selection'"/>
 							<select class="form-control" id="pkcsxx-key-creation" name="pkcsxx-key-creation" v-model="creationMode">
 
 								<option value="CSR_AVAILABLE" v-text="$t('pkcsxx.upload.creationMode.csrAvailable')" selected="selected">csrAvailable</option>
@@ -41,7 +41,7 @@
 						</div>
 
 						<div class="form-group" v-if="creationMode === 'COMMANDLINE_TOOL'">
-							<label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.selection')" for="pkcsxx-key-tool">Creation tool</label>
+							<label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.selection')" for="pkcsxx-key-tool">Creation tool</label>  <help-tag :target="'pkcsxx.upload.creationTool.selection'"/>
 							<select class="form-control" id="pkcsxx-key-tool" name="pkcsxx-key-tool" v-model="creationTool" v-on:change="updateCmdLine()">
 								<option value="keytool" v-text="$t('pkcsxx.upload.creationTool.keytool')" selected="selected">keytool</option>
                                 <option value="openssl_ge_1.1.1" v-text="$t('pkcsxx.upload.creationTool.openssl_ge_1.1.1')" >openssl (ver. >= 1.1.1)</option>
@@ -50,7 +50,7 @@
 						</div>
 
 						<div class="form-group" v-if="(creationMode === 'COMMANDLINE_TOOL') || (creationMode === 'SERVERSIDE_KEY_CREATION')">
-							<label class="form-control-label" v-text="$t('pkcsxx.upload.certificateParams')" for="pkcsxx-pipeline">certificateParams</label>
+							<label class="form-control-label" v-text="$t('pkcsxx.upload.certificateParams')" >certificateParams</label>
 
 							<div class="row">
 								<div class="col">
@@ -82,7 +82,7 @@
 
 						<!-- Additional Request Attributes -->
 						<div class="form-group" v-if="(araRestrictions.length > 0 ) && ( creationMode === 'CSR_AVAILABLE' || creationMode === 'SERVERSIDE_KEY_CREATION')">
-							<label class="form-control-label" v-text="$t('pkcsxx.upload.requestParams')" for="pkcsxx-pipeline">certificateParams</label>
+							<label class="form-control-label" v-text="$t('pkcsxx.upload.requestParams')" >certificateParams</label>
 
 							<div class="row" v-for="(item, index) in araRestrictions" :key="index" >
 								<div class="col">
@@ -128,7 +128,7 @@
 
                         <div class="row" v-if="creationMode === 'COMMANDLINE_TOOL' && reqConfRequired">
                             <div class="col ">
-                                <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.req.conf')" for="pkcsxx-reqConf">Request config file</label>
+                                <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.req.conf')" for="pkcsxx-reqConf">Request config file</label> <help-tag :target="'pkcsxx.upload.creationTool.req.conf'"/>
                             </div>
                             <div class="col colContent">
                                 <textarea class="form-control cmd-content" name="pkcsxx-reqConf" id="pkcsxx-reqConf"
@@ -137,7 +137,7 @@
                             <div class="col">
                                 <b-button v-on:click="copyToClipboard('pkcsxx-reqConf')"
                                       class="btn btn-sm copy" >
-                                    <font-awesome-icon icon="clone"></font-awesome-icon>
+                                    <font-awesome-icon icon="clipboard"></font-awesome-icon>
                                     <span class="d-none d-md-inline" v-text="$t('entity.action.copy')">Copy</span>
                                 </b-button>
                             </div>
@@ -148,7 +148,7 @@
 
                        <div class="row" v-if="creationMode === 'COMMANDLINE_TOOL'">
                            <div class="col ">
-                               <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.cmdline')" for="pkcsxx-cmdline">Command line</label>
+                               <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.cmdline')" for="pkcsxx-cmdline">Command line</label>   <help-tag :target="'pkcsxx.upload.creationTool.cmdline'"/>
                            </div>
                            <div class="col colContent">
                                 <textarea class="form-control cmd-content" name="pkcsxx-cmdline" id="pkcsxx-cmdline"
@@ -157,7 +157,7 @@
                            <div class="col">
                                <b-button v-on:click="copyToClipboard('pkcsxx-cmdline')"
                                          class="btn btn-sm copy" >
-                                   <font-awesome-icon icon="clone"></font-awesome-icon>
+                                   <font-awesome-icon icon="clipboard"></font-awesome-icon>
                                    <span class="d-none d-md-inline" v-text="$t('entity.action.copy')">Copy</span>
                                </b-button>
                            </div>

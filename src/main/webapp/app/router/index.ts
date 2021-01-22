@@ -7,6 +7,7 @@ Component.registerHooks([
 ]);
 import Router from 'vue-router';
 const Home = () => import('../core/home/home.vue');
+const Help = () => import('../core/help/help.vue');
 const PkcsXX = () => import('../core/pkcsxx/pkcsxx.vue');
 const Preference = () => import('../core/preference/preference.vue');
 const CertList = () => import('../core/cert-list/cert-list.vue');
@@ -45,8 +46,6 @@ const ConfCaConnector = () => import('../core/ca-connector-config/ca-connector-c
 const ConfCaConnectorUpdate = () => import('../core/ca-connector-config/ca-connector-config-update.vue');
 // prettier-ignore
 const ConfCaConnectorDetails = () => import('../core/ca-connector-config/ca-connector-config-details.vue');
-
-
 
 // prettier-ignore
 const CAConnectorConfig = () => import('../entities/ca-connector-config/ca-connector-config.vue');
@@ -218,6 +217,20 @@ export default new Router({
       component: Home
     },
     {
+      path: '/helpTarget',
+      name: 'HelpTarget',
+      component: Help,
+      beforeEnter() {
+        window.open("Help",
+          'ca3sHelp');
+      }
+    },
+    {
+      path: '/help',
+      name: 'Help',
+      component: Help
+    },
+    {
       path: '/forbidden',
       name: 'Forbidden',
       component: Error,
@@ -281,15 +294,6 @@ export default new Router({
       component: CsrInfo,
       meta: { authorities: ['ROLE_USER', 'ROLE_RA', 'ROLE_ADMIN'] }
     },
-
-
-    {
-      path: '/csr-info',
-      name: 'CsrInfo',
-      component: CsrInfo,
-      meta: { authorities: ['ROLE_USER', 'ROLE_RA', 'ROLE_ADMIN'] }
-    },
-
     {
       path: '/confPipeline',
       name: 'ConfPipeline',
@@ -1058,5 +1062,15 @@ export default new Router({
       meta: { authorities: ['ROLE_USER'] }
     }
     // jhipster-needle-add-entity-to-router - JHipster will add entities to the router here
-  ]
+  ],
+
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition;
+    }
+    if (to.hash) {
+      return { selector: to.hash };
+    }
+    return { x: 0, y: 0 };
+  },
 });

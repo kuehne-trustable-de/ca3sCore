@@ -3,6 +3,8 @@ import { Vue } from 'vue-property-decorator';
 import { mixins } from 'vue-class-component';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
+import HelpTag from '@/core/help/help-tag.vue';
+
 import axios from 'axios';
 
 import { required, minLength } from 'vuelidate/lib/validators';
@@ -46,7 +48,10 @@ const validations: any = {
 };
 
 @Component({
-  validations
+  validations,
+  components: {
+    HelpTag
+  }
 })
 export default class PKCSXX extends mixins(AlertMixin, Vue) {
   public upload: IUploadPrecheckData = <IUploadPrecheckData>{};
@@ -137,7 +142,6 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       } else {
         if (valueIndex + 1 === currentSize) {
           namedValue.values.push('');
-          window.console.info('in alignRDNArraySize(' + valueIndex + '): appended one element');
         }
       }
     }
