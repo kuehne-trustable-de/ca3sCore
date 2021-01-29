@@ -5,6 +5,7 @@ import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 import de.trustable.ca3s.core.service.CAConnectorConfigService;
+import de.trustable.ca3s.core.service.util.CaConnectorAdapter;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
@@ -99,6 +100,9 @@ public class CAConnectorConfigResourceIT {
     @Autowired
     private CAConnectorConfigRepository caConfigRepository;
 
+    @Autowired
+    private CaConnectorAdapter caConnectorAdapter;
+
     private MockMvc restCAConnectorConfigMockMvc;
 
     private CAConnectorConfig cAConnectorConfig;
@@ -106,7 +110,7 @@ public class CAConnectorConfigResourceIT {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final CAConnectorConfigResource cAConnectorConfigResource = new CAConnectorConfigResource(cAConnectorConfigService, protUtil, protContentRepository, caConfigRepository);
+        final CAConnectorConfigResource cAConnectorConfigResource = new CAConnectorConfigResource(cAConnectorConfigService, protUtil, protContentRepository, caConfigRepository, caConnectorAdapter);
 
         this.restCAConnectorConfigMockMvc = MockMvcBuilders.standaloneSetup(cAConnectorConfigResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)

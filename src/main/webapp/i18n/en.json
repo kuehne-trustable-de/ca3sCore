@@ -196,6 +196,7 @@
   "ca3SApp.bPNMProcessInfo.updated": "A BPNM Process Info is updated with identifier {{ param }}",
   "ca3SApp.bPNMProcessInfo.version": "Version",
   "ca3SApp.cAConnectorConfig.active": "Active",
+  "ca3SApp.cAConnectorConfig.status": "Status",
   "ca3SApp.cAConnectorConfig.caConnectorType": "Ca Connector Type",
   "ca3SApp.cAConnectorConfig.caUrl": "Ca Url",
   "ca3SApp.cAConnectorConfig.created": "A new CA Connector Config is created with identifier {{ param }}",

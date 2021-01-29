@@ -52,7 +52,7 @@ import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.domain.RDNAttribute;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.service.util.CAStatus;
+import de.trustable.ca3s.core.service.dto.CAStatus;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
@@ -82,7 +82,7 @@ public class CaCmpConnector {
 	private CertificateRepository certificateRepository;
 
 	/**
-	 * 
+	 *
 	 */
 	public CaCmpConnector() {
 
@@ -90,12 +90,12 @@ public class CaCmpConnector {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param csr			csr as CSR object
 	 * @param caConnConfig	CAConnectorConfig
-	 * 
+	 *
 	 * @return the created certificate, pem encoded
-	 * 
+	 *
 	 * @throws GeneralSecurityException something went wrong, e.g. no CSM format
 	 */
 	public de.trustable.ca3s.core.domain.Certificate signCertificateRequest(CSR csr, CAConnectorConfig caConnConfig)
@@ -115,7 +115,7 @@ public class CaCmpConnector {
 			byte[] requestBytes = pkiRequest.getEncoded();
 
 			LOGGER.debug("requestBytes : " + java.util.Base64.getEncoder().encodeToString(requestBytes));
-			
+
 			LOGGER.debug("cmp connector '{}' has url '{}' with alias '{}' ", caConnConfig.getName(), caConnConfig.getCaUrl(), caConnConfig.getSelector());
 
 			// send and receive ..
@@ -149,7 +149,7 @@ public class CaCmpConnector {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param x509Cert
 	 * @param crlReason
 	 * @param hmacSecret
@@ -166,7 +166,7 @@ public class CaCmpConnector {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param certDao
 	 * @param crlReason
 	 * @param revocationDate
@@ -184,7 +184,7 @@ public class CaCmpConnector {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param issuerDN
 	 * @param subjectDN
 	 * @param serial
@@ -231,7 +231,7 @@ public class CaCmpConnector {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param certReqId
 	 * @param csr
 	 * @param hmacSecret
@@ -278,7 +278,7 @@ public class CaCmpConnector {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param certReqId
 	 * @param p10Req
 	 * @param hmacSecret
@@ -316,41 +316,41 @@ public class CaCmpConnector {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param caConnConfig
 	 * @return
 	 */
 	public CAStatus getStatus(final CAConnectorConfig caConnConfig) {
-		
+
 		try {
 			if( caConnConfig.getSecret() == null) {
 				LOGGER.error("CMP instance requires 'secret' to be present");
 				return CAStatus.Deactivated;
 			}
-			
+
 			String plainSecret = protUtil.unprotectString( caConnConfig.getSecret().getContentBase64());
 			GenMsgContent infoContent = getGeneralInfo(plainSecret, caConnConfig.getCaUrl(), caConnConfig.getSelector());
-			
+
 			InfoTypeAndValue[] infoTypeAndValueArr = infoContent.toInfoTypeAndValueArray();
-	
+
 			for (InfoTypeAndValue infoTypeAndValue : infoTypeAndValueArr) {
 				LOGGER.debug("CMP instance {} returns {}: {}", caConnConfig.getName(), infoTypeAndValue.getInfoType().getId(), infoTypeAndValue.getInfoValue().toString());
 			}
 			return CAStatus.Active;
-			
+
 		} catch( UnrecoverableEntryException ree ) {
 			// the CA responded with a proper CMP message but does not support the 'Status' request
 			return CAStatus.Active;
-			
+
 		} catch( GeneralSecurityException gse) {
 			LOGGER.error("status call to CMP instance '" + caConnConfig.getName() + "' failed", gse);
 		}
-		
+
 		return CAStatus.Deactivated;
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public GenMsgContent getGeneralInfo(String hmacSecret, String cmpEndpoint, String alias)
 			throws GeneralSecurityException {
@@ -382,8 +382,8 @@ public class CaCmpConnector {
 	}
 
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 * @param responseBytes
 	 * @param pkiMessageReq
 	 * @param csr
@@ -394,8 +394,8 @@ public class CaCmpConnector {
 	 * @throws GeneralSecurityException
 	 */
 	public de.trustable.ca3s.core.domain.Certificate readCertResponse(final byte[] responseBytes,
-			final PKIMessage pkiMessageReq, 
-			final CSR csr, 
+			final PKIMessage pkiMessageReq,
+			final CSR csr,
 			final CAConnectorConfig config)
 			throws IOException, CRMFException, CMPException, GeneralSecurityException {
 
@@ -428,7 +428,7 @@ public class CaCmpConnector {
 		 * Base64.encodeBase64String( pkiHeaderReq.getSenderKID().getOctets() ) +
 		 * " != recip kid " + Base64.encodeBase64String( asn1Oct.getOctets() )); } //
 		 * throw new GeneralSecurityException( "Sender / Recip Key Id mismatch");
-		 * 
+		 *
 		 * asn1Oct = pkiHeaderResp.getSenderKID(); if( asn1Oct == null ){
 		 * LOGGER.info("sender kid  == null"); }else{ LOGGER.info("sender kid " +
 		 * Base64.encodeBase64String( pkiHeaderReq.getSenderKID().getOctets() ) + " != "
@@ -537,7 +537,7 @@ public class CaCmpConnector {
 							LOGGER.info("#" + i + ": " + cert);
 						}
 
-						de.trustable.ca3s.core.domain.Certificate certDao = 
+						de.trustable.ca3s.core.domain.Certificate certDao =
 								certUtil.createCertificate(cert.getEncoded(), csr, null, false);
 						certDao.setRevocationCA(config);
 						certificateRepository.save(certDao);

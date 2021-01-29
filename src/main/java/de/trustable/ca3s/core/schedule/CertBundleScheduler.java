@@ -13,12 +13,12 @@ import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.security.provider.Ca3sBundleFactory;
 import de.trustable.ca3s.core.security.provider.TimedRenewalCertMapHolder;
-import de.trustable.ca3s.core.service.util.CAStatus;
+import de.trustable.ca3s.core.service.dto.CAStatus;
 import de.trustable.ca3s.core.service.util.CaConnectorAdapter;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 
 /**
- * 
+ *
  * @author kuehn
  *
  */
@@ -33,10 +33,10 @@ public class CertBundleScheduler {
 
 	@Autowired
 	private CaConnectorAdapter caConnAd;
-	
+
 	@Autowired
 	private CertificateUtil certUtil;
-	
+
 	@Autowired
 	private TimedRenewalCertMapHolder timedRenewalCertMapHolder;
 
@@ -47,7 +47,7 @@ public class CertBundleScheduler {
 
 			if (caConfigDao.isActive() && caConfigDao.isDefaultCA()) {
 				if( CAStatus.Active.equals(caConnAd.getStatus(caConfigDao))) {
-					
+
 					if( timedRenewalCertMapHolder.getCertMap().getBundleFactory() == null) {
 						timedRenewalCertMapHolder.getCertMap().setBundleFactory( new Ca3sBundleFactory(caConfigDao, caConnAd, certUtil));
 						LOG.info("Ca3sBundleFactory registered for TLS certificate poduction");
@@ -55,7 +55,7 @@ public class CertBundleScheduler {
 				}else {
 					LOG.info("CA default connector not active");
 				}
-			}						
+			}
 		}
 	}
 }

@@ -1,6 +1,11 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2021-01-07 22:15:52.
+// Generated using typescript-generator version 2.19.577 on 2021-01-26 16:58:13.
+
+export interface ICAConnectorStatus extends ISerializable {
+  connectorId?: number;
+  status?: ICAStatus;
+}
 
 export interface IPipelineView extends ISerializable {
   id?: number;
@@ -197,6 +202,8 @@ export interface IDataSet {
   backgroundColor?: string[];
 }
 
+export interface ISerializable {}
+
 export interface IRDNRestriction {
   rdnName?: string;
   cardinalityRestriction?: IRDNCardinalityRestriction;
@@ -231,8 +238,6 @@ export interface ISCEPConfigItems extends ISerializable {
 }
 
 export interface IWebConfigItems extends ISerializable {}
-
-export interface ISerializable {}
 
 export interface INamedValue {
   name?: string;

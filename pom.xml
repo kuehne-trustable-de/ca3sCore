@@ -741,7 +741,8 @@
 				<configuration>
 					<jsonLibrary>jackson2</jsonLibrary>
 					<classes>
-						<class>de.trustable.ca3s.core.service.util.CAStatus</class>
+                        <class>de.trustable.ca3s.core.service.dto.CAStatus</class>
+                        <class>de.trustable.ca3s.core.service.dto.CAConnectorStatus</class>
 
 						<class>de.trustable.ca3s.core.service.dto.PipelineView</class>
 						<class>de.trustable.ca3s.core.service.dto.CertificateView</class>

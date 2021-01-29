@@ -14,7 +14,7 @@ import de.trustable.ca3s.core.security.SecurityUtils;
 import de.trustable.ca3s.core.service.UserService;
 import de.trustable.ca3s.core.service.dto.PipelineView;
 import de.trustable.ca3s.core.service.dto.RDNRestriction;
-import de.trustable.ca3s.core.service.util.CAStatus;
+import de.trustable.ca3s.core.service.dto.CAStatus;
 import de.trustable.ca3s.core.service.util.CaConnectorAdapter;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;

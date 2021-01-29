@@ -30,7 +30,7 @@
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.caUrl')">Ca Url</span></th>
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.pollingOffset')">Polling Offset</span></th>
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.defaultCA')">Default CA</span></th>
-                    <th><span v-text="$t('ca3SApp.cAConnectorConfig.active')">Active</span></th>
+                    <th><span v-text="$t('ca3SApp.cAConnectorConfig.active')">Status</span></th>
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.selector')">Selector</span></th>
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.interval')">Interval</span></th>
                     <th></th>
@@ -47,7 +47,7 @@
                     <td>{{cAConnectorConfig.caUrl}}</td>
                     <td>{{cAConnectorConfig.pollingOffset}}</td>
                     <td>{{cAConnectorConfig.defaultCA}}</td>
-                    <td>{{cAConnectorConfig.active}}</td>
+                    <td>{{$t(getStatus(cAConnectorConfig.id))}}</td>
                     <td>{{cAConnectorConfig.selector}}</td>
                     <td v-text="$t('ca3SApp.Interval.' + cAConnectorConfig.interval)">{{cAConnectorConfig.interval}}</td>
                     <td class="text-right">

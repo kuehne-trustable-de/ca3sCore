@@ -7,6 +7,9 @@ import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 import de.trustable.ca3s.core.service.CAConnectorConfigService;
+import de.trustable.ca3s.core.service.dto.CAConnectorStatus;
+import de.trustable.ca3s.core.service.dto.CAStatus;
+import de.trustable.ca3s.core.service.util.CaConnectorAdapter;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
 
@@ -17,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +28,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,18 +54,23 @@ public class CAConnectorConfigResource {
 
 	private CAConnectorConfigRepository caConfigRepository;
 
+    private CaConnectorAdapter caConnectorAdapter;
+
+
 
     private final CAConnectorConfigService cAConnectorConfigService;
 
     public CAConnectorConfigResource(CAConnectorConfigService cAConnectorConfigService,
         ProtectedContentUtil protUtil,
         ProtectedContentRepository protContentRepository,
-        CAConnectorConfigRepository caConfigRepository
+        CAConnectorConfigRepository caConfigRepository,
+        CaConnectorAdapter caConnectorAdapter
     ) {
         this.protUtil = protUtil;
         this.protContentRepository = protContentRepository;
         this.caConfigRepository = caConfigRepository;
         this.cAConnectorConfigService = cAConnectorConfigService;
+        this.caConnectorAdapter = caConnectorAdapter;
     }
 
     /**
@@ -133,7 +143,6 @@ public class CAConnectorConfigResource {
 
 	        	// no passphrase change received from the UI, just do nothing
 	        	// leave the secret unchanged
-
 	        	cAConnectorConfig.setSecret(caConfigRepository.getOne(cAConnectorConfig.getId()).getSecret());
         	}else {
 	        	log.debug("REST request to update CAConnectorConfig : PlainSecret modified");
@@ -173,9 +182,20 @@ public class CAConnectorConfigResource {
     }
 
     /**
+     * {@code GET  /ca-connector-configs/status} : get all elements able to create a certificate.
+     *
+     * @return list of {@link CAStatus} .
+     */
+    @GetMapping("/ca-connector-configs/status")
+    @PreAuthorize("isAuthenticated()")
+    public List<CAConnectorStatus> getCAConnectorStatus() {
+        return caConnectorAdapter.getCAConnectorStatus();
+    }
+
+
+    /**
      * {@code GET  /ca-connector-configs} : get all the cAConnectorConfigs.
      *
-
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of cAConnectorConfigs in body.
      */
     @GetMapping("/ca-connector-configs")

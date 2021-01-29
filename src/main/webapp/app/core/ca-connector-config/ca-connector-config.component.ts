@@ -3,9 +3,14 @@ import { mixins } from 'vue-class-component';
 import { Component, Inject } from 'vue-property-decorator';
 import Vue2Filters from 'vue2-filters';
 import { ICAConnectorConfig } from '@/shared/model/ca-connector-config.model';
+import { ICAConnectorStatus, ICAStatus } from '@/shared/model/transfer-object.model';
+
 import AlertMixin from '@/shared/alert/alert.mixin';
 
 import CAConnectorConfigService from './ca-connector-config.service';
+import axios from 'axios';
+
+const statusApiUrl = 'api/ca-connector-configs/status';
 
 @Component
 export default class CAConnectorConfig extends mixins(Vue2Filters.mixin, AlertMixin) {
@@ -14,10 +19,19 @@ export default class CAConnectorConfig extends mixins(Vue2Filters.mixin, AlertMi
 
   public cAConnectorConfigs: ICAConnectorConfig[] = [];
 
+  public cAConnectorStatus: ICAConnectorStatus[] = [];
+
   public isFetching = false;
+
+  public timer;
 
   public mounted(): void {
     this.retrieveAllCAConnectorConfigs();
+    this.timer = setInterval(this.updateCAConnectorConfigs, 10000);
+  }
+
+  public beforeDestroy() {
+    clearInterval(this.timer);
   }
 
   public clear(): void {
@@ -38,6 +52,33 @@ export default class CAConnectorConfig extends mixins(Vue2Filters.mixin, AlertMi
           this.isFetching = false;
         }
       );
+
+    this.retrieveAllCAConnectorStatus();
+  }
+
+  public updateCAConnectorConfigs(): void {
+    this.retrieveAllCAConnectorStatus();
+  }
+
+  public retrieveAllCAConnectorStatus(): void {
+    const self = this;
+    axios
+      .get(statusApiUrl)
+      .then(function(res) {
+        self.cAConnectorStatus = res.data;
+      })
+      .catch(err => {
+        window.console.info(err);
+      });
+  }
+
+  public getStatus(connectorId: number): ICAStatus {
+    for (let ccs of this.cAConnectorStatus) {
+      if (connectorId === ccs.connectorId) {
+        return ccs.status;
+      }
+    }
+    return 'Unknown';
   }
 
   public prepareRemove(instance: ICAConnectorConfig): void {

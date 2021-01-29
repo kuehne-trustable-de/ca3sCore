@@ -14,7 +14,7 @@ import {Component, Vue, Prop} from 'vue-property-decorator';
 export default class HelpTag extends Vue{
 
     @Prop({required: true})
-    public target: string = 'help';
+    public target: string;
 
     public targetHash: string = '#' + this.target;
 
