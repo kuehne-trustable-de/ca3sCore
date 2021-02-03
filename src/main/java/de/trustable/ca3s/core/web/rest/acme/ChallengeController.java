@@ -47,7 +47,9 @@ import org.jose4j.jwt.consumer.JwtContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -72,36 +74,37 @@ public class ChallengeController extends ACMEController {
 
     private static final Logger LOG = LoggerFactory.getLogger(ChallengeController.class);
 
+    @Value("${ca3s.acme.reject.get:true}")
+    boolean rejectGet;
+
     @Autowired
     private AcmeChallengeRepository challengeRepository;
 
-    /*
-	@Value("${acmeClientPorts:80, 5544, 8800}")
-	private String portList;
-*/
-    
-	@Autowired
+    @Autowired
 	private PreferenceUtil preferenceUtil;
 
-	
+
     @RequestMapping(value = "/{challengeId}", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getChallenge(@PathVariable final long challengeId) {
-  	  
+
 	  	LOG.debug("Received Challenge request ");
 
 	    final HttpHeaders additionalHeaders = buildNonceHeader();
-		
 
-		Optional<AcmeChallenge> challengeOpt = challengeRepository.findById(challengeId);
+        if( rejectGet ){
+            return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).headers(additionalHeaders).build();
+        }
+
+        Optional<AcmeChallenge> challengeOpt = challengeRepository.findById(challengeId);
 		if(!challengeOpt.isPresent()) {
-		    return ResponseEntity.notFound().headers(additionalHeaders).build();   
+		    return ResponseEntity.notFound().headers(additionalHeaders).build();
 		}else {
 			AcmeChallenge challengeDao = challengeOpt.get();
-	
+
 			LOG.debug( "returning challenge {}", challengeDao.getId());
-	
+
 			ChallengeResponse challenge = buildChallengeResponse(challengeDao);
-	
+
 			if(challengeDao.getStatus() == ChallengeStatus.VALID ) {
 				URI authUri = locationUriOfAuthorization(challengeDao.getAcmeAuthorization().getAcmeAuthorizationId(), fromCurrentRequestUri());
 			    additionalHeaders.set("Link", "<" + authUri.toASCIIString() + ">;rel=\"up\"");
@@ -110,26 +113,26 @@ public class ChallengeController extends ACMEController {
 			    return ok().headers(additionalHeaders).body(challenge);
 			}
 		}
-	
+
     }
-    
+
   @RequestMapping(value = "/{challengeId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
   public ResponseEntity<?> postChallenge(@RequestBody final String requestBody,
 		  @PathVariable final long challengeId) {
-	  
+
 	LOG.debug("Received Challenge request ");
-	
+
 	try {
 		JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
-	   
+
 		ACMEAccount acctDao = checkJWTSignatureForAccount(context);
-	
+
 	    final HttpHeaders additionalHeaders = buildNonceHeader();
 
 		Optional<AcmeChallenge> challengeOpt = challengeRepository.findById(challengeId);
 		if(!challengeOpt.isPresent()) {
 		    return ResponseEntity.notFound().headers(additionalHeaders).build();
-		    
+
 		}else {
 			AcmeChallenge challengeDao = challengeOpt.get();
 
@@ -139,7 +142,7 @@ public class ChallengeController extends ACMEController {
 						BAD_REQUEST, "", ACMEController.NO_INSTANCE);
 				throw new AcmeProblemException(problem);
 			}
-			
+
 			LOG.debug( "checking challenge {}", challengeDao.getId());
 
 			boolean solved = false;
@@ -151,7 +154,7 @@ public class ChallengeController extends ACMEController {
 				}else {
 					challengeDao.setStatus(ChallengeStatus.INVALID);
 				}
-				
+
 //				solved = true;
 //				LOG.error("!!! ignoring callback outcome !!!");
 
@@ -174,11 +177,11 @@ public class ChallengeController extends ACMEController {
 			    return ok().headers(additionalHeaders).body(challenge);
 			}else {
 				LOG.warn("validation of challenge{} of type '{}' failed", challengeId, challengeDao.getType());
-				
+
 				return ResponseEntity.badRequest().headers(additionalHeaders).body(challenge);
 			}
 		}
-		
+
 	} catch (AcmeProblemException e) {
 	    return buildProblemResponseEntity(e);
 	}
@@ -190,7 +193,7 @@ public class ChallengeController extends ACMEController {
 
 		long timeoutMilliSec = preferenceUtil.getAcmeHTTP01TimeoutMilliSec();
 		String portList = preferenceUtil.getAcmeHTTP01CallbackPorts();
-		
+
 		if(portList != null && !portList.trim().isEmpty()) {
 			String[] parts = portList.split(",");
 			ports = new int[parts.length];
@@ -203,58 +206,58 @@ public class ChallengeController extends ACMEController {
 					LOG.warn("checkChallengeHttp port number parsing fails for '" + ports[i] + "', ignoring", nfe);
 		    	}
 		    }
-			
+
 		}
-		
+
 	    String token = challengeDao.getToken();
 	    String pkThumbprint = challengeDao.getAcmeAuthorization().getOrder().getAccount().getPublicKeyHash();
         String expectedContent = token + '.' + pkThumbprint;
 
 	    String fileNamePath = "/.well-known/acme-challenge/" + token;
 	    String host = challengeDao.getAcmeAuthorization().getValue();
-	    
+
 	    for( int port: ports) {
 
 		    try {
 				URL url = new URL("http", host, port, fileNamePath);
 				LOG.debug("Opening connection to  : " + url);
-	
+
 				HttpURLConnection con = (HttpURLConnection) url.openConnection();
-		
+
 				// Just wait for two seconds
 				con.setConnectTimeout((int) timeoutMilliSec);
 				con.setReadTimeout((int) timeoutMilliSec);
-				
+
 				// optional default is GET
 				con.setRequestMethod("GET");
-		
+
 				// add request header
 				con.setRequestProperty("User-Agent", "CA3S_ACME");
-		
+
 				int responseCode = con.getResponseCode();
 				LOG.debug("\nSending 'GET' request to URL : " + url.toString());
 				LOG.debug("Response Code : " + responseCode);
-		
+
 				if( responseCode != 200) {
 					LOG.info("read challenge responded with unexpected code : " + responseCode);
 					return false;
 				}
-				
+
 				BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 				String inputLine;
 				StringBuffer response = new StringBuffer();
-		
+
 				while ((inputLine = in.readLine()) != null) {
 					response.append(inputLine);
 				}
 				in.close();
-	
+
 				String actualContent = response.toString().trim();
 				LOG.debug("read challenge response: " + actualContent);
 				LOG.debug("expected content: '{}'", expectedContent);
-				
+
 				return ( expectedContent.equals( actualContent));
-	
+
 		    } catch(UnknownHostException uhe) {
 				LOG.debug("unable to resolve hostname ", uhe);
 				return false;
@@ -267,10 +270,10 @@ public class ChallengeController extends ACMEController {
 
 	ChallengeResponse buildChallengeResponse(final AcmeChallenge challengeDao){
 		ChallengeResponse challenge = new ChallengeResponse(challengeDao, locationUriOfChallenge(challengeDao.getId(), fromCurrentRequestUri()).toString());
-		
+
 		return challenge;
   }
-  
+
   private URI locationUriOfChallenge(final long challengeId, final UriComponentsBuilder uriBuilder) {
 	    return challengeResourceUriBuilderFrom(uriBuilder.path("../..")).path("/").path(Long.toString(challengeId)).build().normalize().toUri();
 	  }

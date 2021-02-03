@@ -44,7 +44,9 @@ import org.jose4j.jwt.consumer.JwtContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,52 +78,59 @@ public class AuthorizationController extends ACMEController {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthorizationController.class);
 
-   @Autowired
+    @Value("${ca3s.acme.reject.get:true}")
+    boolean rejectGet;
+
+    @Autowired
     private AcmeAuthorizationRepository authorizationRepository;
 
    @Autowired
 	private HttpServletRequest request;
 
-   @RequestMapping(value = "/{authorizationId}", method = GET, produces = APPLICATION_JSON_VALUE)
-   public ResponseEntity<?> getAuthorization(@PathVariable final long authorizationId) {
- 	  
-	 	LOG.info("Received Authorization request 'get' ");
+    @RequestMapping(value = "/{authorizationId}", method = GET, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getAuthorization(@PathVariable final long authorizationId) {
 
-       Enumeration<String> headerNames = request.getHeaderNames();
-       while (headerNames.hasMoreElements()) {
-           String key = (String) headerNames.nextElement();
-           String value = request.getHeader(key);
-           LOG.debug("header {} : {} ",key, value);
-       }
+        LOG.info("Received Authorization request 'get' ");
 
-	    final HttpHeaders additionalHeaders = buildNonceHeader();
-	    
-		List<AcmeAuthorization> authList = authorizationRepository.findByAcmeAuthorizationId(authorizationId);
-		if(authList.isEmpty()) {
-		    return ResponseEntity.notFound().headers(additionalHeaders).build();
-		}else {
-			
-			AcmeAuthorization authDao = authList.get(0);
-			
-			// No authentication and check against an account!!! 
-			AuthorizationResponse authResp = buildAuthResponse(authDao);
-			
-		    return ResponseEntity.ok().headers(additionalHeaders).body(authResp);
-		}
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String key = (String) headerNames.nextElement();
+            String value = request.getHeader(key);
+            LOG.debug("header {} : {} ",key, value);
+        }
 
-   }
-   
-  @RequestMapping(value = "/{authorizationId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
+        final HttpHeaders additionalHeaders = buildNonceHeader();
+
+        if( rejectGet ){
+            return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).headers(additionalHeaders).build();
+        }
+
+        List<AcmeAuthorization> authList = authorizationRepository.findByAcmeAuthorizationId(authorizationId);
+        if(authList.isEmpty()) {
+            return ResponseEntity.notFound().headers(additionalHeaders).build();
+        }else {
+
+            AcmeAuthorization authDao = authList.get(0);
+
+            // No authentication and check against an account!!!
+            AuthorizationResponse authResp = buildAuthResponse(authDao);
+
+            return ResponseEntity.ok().headers(additionalHeaders).body(authResp);
+        }
+
+    }
+
+    @RequestMapping(value = "/{authorizationId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
   public ResponseEntity<?> postAuthorization(@RequestBody final String requestBody,
 		  @PathVariable final long authorizationId) {
-	  
+
 	LOG.debug("Received Authorization request ");
-	
+
 	try {
 		JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
-	   
+
 		ACMEAccount acctDao = checkJWTSignatureForAccount(context);
-				
+
 	    final HttpHeaders additionalHeaders = buildNonceHeader();
 
 		LOG.debug("Looking for Authorization id '{}'", authorizationId);
@@ -129,9 +138,9 @@ public class AuthorizationController extends ACMEController {
 		if(authList.isEmpty()) {
 			LOG.debug("Authorization id '{}' unknown", authorizationId);
 		    return ResponseEntity.notFound().headers(additionalHeaders).build();
-		    
+
 		}else {
-			
+
 			AcmeAuthorization authDao = authList.get(0);
 
 			LOG.debug("Authorization id '{}' found", authorizationId);
@@ -141,30 +150,30 @@ public class AuthorizationController extends ACMEController {
 				final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "Account / Auth mismatch",
 						BAD_REQUEST, "", ACMEController.NO_INSTANCE);
 				throw new AcmeProblemException(problem);
-				
+
 			}
 
 			AuthorizationResponse authResp = buildAuthResponse(authDao);
-			
+
 		    return ResponseEntity.ok().headers(additionalHeaders).body(authResp);
 		}
-		
+
 	} catch (AcmeProblemException e) {
 	    return buildProblemResponseEntity(e);
 	} catch (Exception e) {
 		LOG.warn("unexpected problem", e);
 		throw e;
 	}
-	
+
   }
 
 private AuthorizationResponse buildAuthResponse(final AcmeAuthorization authDao) throws AcmeProblemException {
-	
+
 	AuthorizationResponse authResp = new AuthorizationResponse();
-	
+
 	AcmeOrder order = authDao.getOrder();
 	authResp.setExpires(DateUtil.asDate( order.getExpires()));
-	
+
 	AcmeOrderStatus authStatus = AcmeOrderStatus.PENDING;
 	for( AcmeChallenge challDao: authDao.getChallenges()) {
 		if( challDao.getStatus() == ChallengeStatus.VALID) {
@@ -172,22 +181,22 @@ private AuthorizationResponse buildAuthResponse(final AcmeAuthorization authDao)
 		}
 	}
 	authResp.setStatus(authStatus);
-	
+
 	Set<ChallengeResponse> challResp = new HashSet<ChallengeResponse>();
 	for( AcmeChallenge challengeDao: authDao.getChallenges()) {
 		ChallengeResponse challenge = new ChallengeResponse(challengeDao, locationUriOfChallenge(challengeDao.getId(), fromCurrentRequestUri()).toString());
 		challResp.add(challenge );
 	}
 	authResp.setChallenges(challResp);
-	
+
 	IdentifierResponse identResp = new IdentifierResponse();
 	identResp.setType(authDao.getType());
 	identResp.setValue(authDao.getValue());
-	
+
 	authResp.setIdentifier(identResp);
 	return authResp;
 }
-  
+
   private URI locationUriOfChallenge(final long challengeId, final UriComponentsBuilder uriBuilder) {
 	    return challengeResourceUriBuilderFrom(uriBuilder.path("../..")).path("/").path(Long.toString(challengeId)).build().normalize().toUri();
 	  }
