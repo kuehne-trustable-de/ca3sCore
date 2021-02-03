@@ -50,31 +50,24 @@
 
         <h4>Request Adapter (top section)</h4>
         <div>
-          Certificate requests can be delivered according to the ACME and SCEP protocol and via a web user interface. Addditional protocols can be added easily.
+          Certificate requests can be delivered according to the ACME and SCEP protocol and via a web user interface. Additional protocols can be added easily.
         </div>
         <p/>
         <h4>CA Adapter (bottom section)</h4>
         <div>
-        Different CA instances maybe connected to ca3s. A quite common protocol for CAs is CMP, supperted e.g. by the ejbca and many other. In addition thre is a separate project (adcsCert) to conect to the Microsoft ADCS CA.
+        Different CA instances maybe connected to ca3s. A quite common protocol for CAs is CMP, supported e.g. by the ejbca and many other. In addition there is a separate project (<a href="https://github.com/kuehne-trustable-de/adcsCert">adcsCert</a>) to connect to a Microsoft ADCS CA.
         </div>
         <p/>
         <h4>Certificate database</h4>
         <div>
-        A central certificate store holds isuued and certificates retrieved otherwise to have a one-stop-shop for cerificate status and reporrting, e.g. expiry reports.
+        A central certificate store holds issued and certificates retrieved otherwise to have a one-stop-shop for certificate status and reporting, e.g. expiry reports.
         </div>
         <p/>
         <h4>Issuance workflow</h4>
         <div>
-        Depending on the configuration certificate requests maybe admitted by a human registration officer. Complementary automated worklfows can be configured to unload registration officer from tedious tasks and to perform even complex processes. The processes acn be defined in BPMN and assigned fleixible to specific processing pipelines.
+        Depending on the configuration certificate requests maybe admitted by a human registration officer. Complementary automated workflows can be configured to unload registration officer from tedious tasks and to perform even complex processes. The processes can be defined in BPMN and assigned to specific processing pipelines.
         </div>
         <p/>
-
-
-
-
-
-
-
 
 
         <h2>Forms explainations</h2>
@@ -84,7 +77,7 @@
         </h3>
 
         <div>
-            Certificates maybe issued for a broad variety of use cases. These use cases may require different issuing CAs, different trust levels, different usages and validities and issuance requirements.
+            Certificates maybe issued for a broad variety of use cases. These use cases may require different issuing CAs, different trust levels, different usages, validities and issuance requirements.
             Different processing pipelines are offered in the following selection box. Additional information maybe displayed beneath the selection. Please be sure you select the right item for needs. A wrong
             pipeline will cause a rejection of your request.
         </div>
@@ -147,11 +140,11 @@
             The 'tool selection' chooses the different tools:
             <ul>
                 <li>Java keytool</li>
-                Java's keytool needs two commands to create the key and the CSR.
+                Java's keytool requires two commands to create the key and the CSR.
                 <li>OpenSSL > 1.1.0</li>
-                This recent version creates all required files in on e command..
+                This recent version creates all required files in one command.
                 <li>OpenSSL</li>
-                The old vaersions of OpenSSL requires a configuration file and a shell command.
+                The old versions of OpenSSL requires a configuration file and a shell command.
             </ul>
 
             Copy the generated value from the text box to your input shell.
@@ -166,7 +159,7 @@
           The first command generates a new keypair with the selected key length in a PKCS12 keystore ('test.p12') with the alias 'keyAlias'.
           Consult your application documentation regarding the required keystore file name and the expected alias. Make sure existing files
           may not be overridden.<br><br>
-          The second command creates a certificate signing request (CSR). This file (named 'server.csr' in the generated command) can be
+          The second command creates a certificate signing request (CSR). This file (named 'server.csr' in the generated command) will be
           uploaded to the CA.<br><br>
         </div>
         <p/>

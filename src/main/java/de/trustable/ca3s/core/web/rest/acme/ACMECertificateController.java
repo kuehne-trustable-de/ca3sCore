@@ -26,23 +26,16 @@
 
 package de.trustable.ca3s.core.web.rest.acme;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.UNSUPPORTED_MEDIA_TYPE;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
-
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
-import java.time.Instant;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-
+import de.trustable.ca3s.core.domain.ACMEAccount;
+import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.CertificateAttribute;
+import de.trustable.ca3s.core.repository.CertificateRepository;
+import de.trustable.ca3s.core.service.dto.acme.RevokeRequest;
+import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
+import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
+import de.trustable.ca3s.core.service.util.ACMEUtil;
+import de.trustable.ca3s.core.service.util.BPMNUtil;
+import de.trustable.ca3s.core.service.util.CertificateUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.cryptacular.util.CertUtil;
@@ -60,16 +53,19 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.HttpClientErrorException;
 
-import de.trustable.ca3s.core.domain.ACMEAccount;
-import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.CertificateAttribute;
-import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.service.dto.acme.RevokeRequest;
-import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
-import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
-import de.trustable.ca3s.core.service.util.ACMEUtil;
-import de.trustable.ca3s.core.service.util.BPMNUtil;
-import de.trustable.ca3s.core.service.util.CertificateUtil;
+import java.security.GeneralSecurityException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
+import java.time.Instant;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+
+import static org.springframework.http.HttpStatus.*;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @Controller
 @RequestMapping("/acme/{realm}/cert")
@@ -78,30 +74,30 @@ public class ACMECertificateController extends ACMEController {
     private static final Logger LOG = LoggerFactory.getLogger(ACMECertificateController.class);
 
     private boolean chainIncludeRoot = true;
-    
+
   	@Autowired
   	private CertificateRepository certificateRepository;
-  	
+
 	@Autowired
 	private BPMNUtil bpmnUtil;
-	
+
   	@Autowired
   	private CertificateUtil certUtil;
 
-    
+
     @RequestMapping(value = "/{certId}", method = GET)
-    public ResponseEntity<?> getCertificatePKIX(@PathVariable final long certId, 
+    public ResponseEntity<?> getCertificatePKIX(@PathVariable final long certId,
     		@RequestHeader(name="Accept",  defaultValue=APPLICATION_PEM_CERT_CHAIN_VALUE)  final String accept) {
 
 		LOG.info("Received certificate request for id {}", certId);
-		
-    	return buildCertResponseForId(certId, accept);  			
+
+    	return buildCertResponseForId(certId, accept);
     }
 
 	public ResponseEntity<?> buildCertResponseForId(final long certId, final String accept)
 			throws HttpClientErrorException, AcmeProblemException {
 		Optional<Certificate> certOpt = certificateRepository.findById(certId);
-    	
+
   		if(!certOpt.isPresent()) {
   		  throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
   		}else {
@@ -110,7 +106,7 @@ public class ACMECertificateController extends ACMEController {
 			final HttpHeaders headers = buildNonceHeader();
 
 			ResponseEntity<?> resp = buildCertifcateResponse(accept, certDao, headers);
-  			
+
 			if( resp == null) {
 				String msg = "problem returning certificate with accepting type " + accept;
 				LOG.info(msg);
@@ -118,7 +114,7 @@ public class ACMECertificateController extends ACMEController {
 						UNSUPPORTED_MEDIA_TYPE, "", ACMEController.NO_INSTANCE);
 				throw new AcmeProblemException(problem);
 			}
-			
+
 			return resp;
   		}
 	}
@@ -126,14 +122,14 @@ public class ACMECertificateController extends ACMEController {
 	public ResponseEntity<?> buildCertifcateResponse(final String accept, Certificate certDao) {
 		return buildCertifcateResponse(accept, certDao, new HttpHeaders());
 	}
-	
+
 	/**
-	 * @param accept
-	 * @param certDao
-	 * @param headers
+	 * @param accept what mime type to beserved
+	 * @param certDao the certificate to serve
+	 * @param headers the list of response headers, completed with the certificate's mime type
 	 */
 	public ResponseEntity<?> buildCertifcateResponse(final String accept, Certificate certDao, final HttpHeaders headers) {
-		
+
 		if("*/*".equalsIgnoreCase(accept)){
 			return buildPEMResponse(certDao, headers);
 		}else if("application/pkix-cert".equalsIgnoreCase(accept)){
@@ -143,7 +139,7 @@ public class ACMECertificateController extends ACMEController {
 		}else if("application/pem-certificate".equalsIgnoreCase(accept)){
 			return buildPEMResponse(certDao, headers, false);
 		}
-		
+
 		LOG.info("unexpected accept type {}", accept);
 
 		return null;
@@ -158,10 +154,11 @@ public class ACMECertificateController extends ACMEController {
 			JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
 
 			RevokeRequest revokeReq = jwtUtil.getRevokeReq(context.getJwtClaims());
-			
+
 			ACMEAccount acctDao = checkJWTSignatureForAccount(context);
 
 			String certB64 = revokeReq.getCertificate();
+
 			X509Certificate x509Cert = CertUtil.decodeCertificate(Base64.decodeBase64(certB64));
 
 			LOG.info("Revoke request for certificate {} ", x509Cert.getSubjectDN().toString() );
@@ -175,7 +172,7 @@ public class ACMECertificateController extends ACMEController {
 						BAD_REQUEST, "", ACMEController.NO_INSTANCE);
 				throw new AcmeProblemException(problem);
 			}
-			
+
 			List<Certificate> certList = certificateRepository.findByTBSDigest(tbsDigestBase64);
 
 			if (certList.isEmpty()) {
@@ -190,11 +187,11 @@ public class ACMECertificateController extends ACMEController {
 				if( acctDao.getAccountId() == Long.parseLong(certUtil.getCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_ACME_ACCOUNT_ID))) {
 
 					revokeCertificate(certDao, Integer.toString(revokeReq.getReason()));
-					
+
 		  	        return ResponseEntity.ok().headers(headers).build();
 				}else {
-					LOG.warn("Revoke request for certificate {} identified by account {} does not match cert's associated account {}", 
-							x509Cert.getSubjectDN().toString(), 
+					LOG.warn("Revoke request for certificate {} identified by account {} does not match cert's associated account {}",
+							x509Cert.getSubjectDN().toString(),
 							acctDao.getAccountId(),
 							certUtil.getCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_ACME_ACCOUNT_ID));
 		  	        return ResponseEntity.status(HttpStatus.FORBIDDEN).headers(headers).build();
@@ -215,13 +212,13 @@ public class ACMECertificateController extends ACMEController {
     /**
      * Retrieve a certificate as a PEM structure containing the complete chain
      * Bug in certbot: content type set to 'application/pkix-cert' despite containing a JWT in the request body, as usual.
-     * 
-     * 
+     *
+     *
      */
 	@RequestMapping(value = "/{certId}", method = POST, consumes = {APPLICATION_JOSE_JSON_VALUE, APPLICATION_PKIX_CERT_VALUE})
 	public ResponseEntity<?>  retrieveCertificate(@RequestBody final String requestBody,
-			@RequestHeader(name="Accept",  defaultValue=APPLICATION_PEM_CERT_CHAIN_VALUE) final String accept, 
-			@RequestHeader("Content-Type") final String contentType, 
+			@RequestHeader(name="Accept",  defaultValue=APPLICATION_PEM_CERT_CHAIN_VALUE) final String accept,
+			@RequestHeader("Content-Type") final String contentType,
 			@PathVariable final long certId) {
 
 		try {
@@ -233,7 +230,7 @@ public class ACMECertificateController extends ACMEController {
 
 			LOG.info("Received certificate request for certifacte id {} of content-type {}, identified by account id {} ", certId, contentType, acctDao.getAccountId());
 
-	    	return buildCertResponseForId(certId, accept);  			
+	    	return buildCertResponseForId(certId, accept);
 /*
 			List<Certificate> certList = certificateRepository.findByCertificateId(certId);
 
@@ -241,10 +238,10 @@ public class ACMECertificateController extends ACMEController {
 	  		    return ResponseEntity.notFound().build();
 			} else {
 				Certificate certDao = certList.get(0);
-				
+
 				final HttpHeaders headers = buildNonceHeader();
 
-				if ("application/pkix-cert".equalsIgnoreCase(accept) ) { 
+				if ("application/pkix-cert".equalsIgnoreCase(accept) ) {
 					LOG.debug("application/pkix-cert requested");
 					return buildPkixCertResponse(certDao, headers);
 				}else {
@@ -253,7 +250,7 @@ public class ACMECertificateController extends ACMEController {
 				}
 			}
 */
-	    	
+
 		} catch (AcmeProblemException e) {
 		    return buildProblemResponseEntity(e);
 		}
@@ -264,25 +261,25 @@ public class ACMECertificateController extends ACMEController {
 		LOG.info("building PKIX certificate response");
 
 		byte[] certBytes = Base64.decodeBase64(certDao.getContent());
-		
+
 //		headers.setContentType(APPLICATION_PKIX_CERT);
 //		ResponseEntity<byte[]> responseEntity = new ResponseEntity<byte[]>(certBytes, headers, HttpStatus.OK);
-		
+
 		return ResponseEntity.ok().contentType(APPLICATION_PKIX_CERT).headers(headers).body(certBytes);
 	}
 
 	private ResponseEntity<?> buildPEMResponse(Certificate certDao, final HttpHeaders headers) {
 		return buildPEMResponse(certDao, headers, true);
 	}
-	
+
 	private ResponseEntity<?> buildPEMResponse(Certificate certDao, final HttpHeaders headers, boolean includeChain) {
 		LOG.info("building PEM certificate response");
-		
+
 		try {
 			String resultPem = "";
 			if( includeChain) {
 				List<Certificate> chain = certUtil.getCertificateChain(certDao);
-	
+
 				for( Iterator<Certificate> it = chain.iterator(); it.hasNext(); ) {
 					Certificate chainCertDao = it.next();
 					// skip the last cert, the root
@@ -293,10 +290,10 @@ public class ACMECertificateController extends ACMEController {
 			} else {
 				resultPem += certDao.getContent();
 			}
-			
+
 			LOG.debug("returning cert and issuer : \n" + resultPem );
 			return ResponseEntity.ok().contentType(APPLICATION_PEM_CERT_CHAIN).headers(headers).body(resultPem.getBytes());
-			
+
 		} catch (GeneralSecurityException ge) {
 			String msg = "problem building certificate chain";
 			LOG.info(msg, ge);
@@ -304,12 +301,12 @@ public class ACMECertificateController extends ACMEController {
 					INTERNAL_SERVER_ERROR, msg, ACMEController.NO_INSTANCE);
 			throw new AcmeProblemException(problem);
 		}
-			
+
 	}
 
-	
+
 	private void revokeCertificate(Certificate certDao, final String reason) throws Exception {
-		
+
 
 		if (certDao.isRevoked()) {
 			LOG.warn("failureReason: " +
@@ -322,14 +319,14 @@ public class ACMECertificateController extends ACMEController {
 		LOG.debug("crlReason : " + crlReasonStr);
 
 		Date revocationDate = new Date();
-		
+
 		bpmnUtil.startCertificateRevoctionProcess(certDao, crlReason, revocationDate);
 
 		certDao.setActive(false);
 		certDao.setRevoked(true);
 		certDao.setRevokedSince(Instant.now());
 		certDao.setRevocationReason(crlReasonStr);
-		
+
 		/*
 		 * @ todo
 		 */
