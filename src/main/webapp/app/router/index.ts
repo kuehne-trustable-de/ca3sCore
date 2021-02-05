@@ -7,7 +7,9 @@ Component.registerHooks([
 ]);
 import Router from 'vue-router';
 const Home = () => import('../core/home/home.vue');
-const Help = () => import('../core/help/help.vue');
+const Help = () => import('../core/help/help.en.vue');
+const HelpEn = () => import('../core/help/help.en.vue');
+const HelpDe = () => import('../core/help/help.de.vue');
 const PkcsXX = () => import('../core/pkcsxx/pkcsxx.vue');
 const Preference = () => import('../core/preference/preference.vue');
 const CertList = () => import('../core/cert-list/cert-list.vue');
@@ -220,8 +222,11 @@ export default new Router({
       path: '/helpTarget',
       name: 'HelpTarget',
       component: Help,
-      beforeEnter() {
-        window.open("Help",
+      beforeEnter: (to, from, next) => {
+
+        const url = 'help-' + to.params.lang + to.params.hash;
+        console.info("help url: " + url);
+        window.open(url,
           'ca3sHelp');
       }
     },
@@ -229,6 +234,21 @@ export default new Router({
       path: '/help',
       name: 'Help',
       component: Help
+    },
+    {
+      path: '/help-en',
+      name: 'Help-en',
+      component: HelpEn
+    },
+    {
+      path: '/help-de',
+      name: 'Help-de',
+      component: HelpDe
+    },
+    {
+      path: '/help-pl',
+      name: 'Help-pl',
+      component: HelpEn
     },
     {
       path: '/forbidden',

@@ -1,6 +1,6 @@
 <template>
 
-    <router-link :to="{ name: 'HelpTarget', params: {hash: targetHash, showNavBar: 'false'}}" >
+    <router-link :to="{ name: 'HelpTarget', params: {hash: targetHash, showNavBar: 'false', lang: lang}}" >
         <font-awesome-icon icon="question-circle"></font-awesome-icon>
     </router-link>
 
@@ -17,6 +17,8 @@ export default class HelpTag extends Vue{
     public target: string;
 
     public targetHash: string = '#' + this.target;
+
+    public lang: string = this.$store.getters.currentLanguage;
 
     public mounted(): void {
         this.targetHash = '#' + this.target;
