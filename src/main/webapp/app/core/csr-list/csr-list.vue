@@ -42,7 +42,7 @@
 				</div>
 
 				<requests-table :columns="columns" :data="csrApiUrl" :per-page="20" name="requests">
-					<template scope="{ row }">
+					<template slot-scope="{ row }">
 						<tr>
 							<td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})">{{ row.id }}</td>
 							<td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ row.status }} <router-link v-if="row.certificateId" :to="{name: 'CertInfo', params: {certificateId: row.certificateId}}" >&nbsp;<font-awesome-icon icon="id-card" /></router-link></td>

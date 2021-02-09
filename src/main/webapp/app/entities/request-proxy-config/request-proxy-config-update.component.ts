@@ -2,7 +2,6 @@ import { Component, Vue, Inject } from 'vue-property-decorator';
 
 import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
 
-import ProtectedContentService from '../protected-content/protected-content.service';
 import { IProtectedContent } from '@/shared/model/protected-content.model';
 
 import AlertService from '@/shared/alert/alert.service';
@@ -28,8 +27,6 @@ export default class RequestProxyConfigUpdate extends Vue {
   @Inject('alertService') private alertService: () => AlertService;
   @Inject('requestProxyConfigService') private requestProxyConfigService: () => RequestProxyConfigService;
   public requestProxyConfig: IRequestProxyConfig = new RequestProxyConfig();
-
-  @Inject('protectedContentService') private protectedContentService: () => ProtectedContentService;
 
   public protectedContents: IProtectedContent[] = [];
   public isSaving = false;
@@ -78,11 +75,5 @@ export default class RequestProxyConfigUpdate extends Vue {
     this.$router.go(-1);
   }
 
-  public initRelationships(): void {
-    this.protectedContentService()
-      .retrieve()
-      .then(res => {
-        this.protectedContents = res.data;
-      });
-  }
+  public initRelationships(): void {}
 }

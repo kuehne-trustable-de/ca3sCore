@@ -9,8 +9,6 @@ import RequestProxyConfigUpdateComponent from '@/entities/request-proxy-config/r
 import RequestProxyConfigClass from '@/entities/request-proxy-config/request-proxy-config-update.component';
 import RequestProxyConfigService from '@/entities/request-proxy-config/request-proxy-config.service';
 
-import ProtectedContentService from '@/entities/protected-content/protected-content.service';
-
 const localVue = createLocalVue();
 
 config.initVueApp(localVue);
@@ -36,9 +34,7 @@ describe('Component Tests', () => {
         router,
         provide: {
           alertService: () => new AlertService(store),
-          requestProxyConfigService: () => requestProxyConfigServiceStub,
-
-          protectedContentService: () => new ProtectedContentService()
+          requestProxyConfigService: () => requestProxyConfigServiceStub
         }
       });
       comp = wrapper.vm;

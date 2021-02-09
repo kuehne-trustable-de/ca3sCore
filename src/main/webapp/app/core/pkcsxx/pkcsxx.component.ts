@@ -163,11 +163,13 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
     this.rdnRestrictions = new Array<PipelineRestriction>();
 
-    for (const rr of pipeline.rdnRestrictions) {
-      if (rr.cardinalityRestriction === 'NOT_ALLOWED') {
-        // ignore this
-      } else {
-        this.rdnRestrictions.push(new PipelineRestriction(rr.rdnName, rr.cardinalityRestriction, rr.contentTemplate, rr.regExMatch));
+    if (pipeline.rdnRestrictions) {
+      for (const rr of pipeline.rdnRestrictions) {
+        if (rr.cardinalityRestriction === 'NOT_ALLOWED') {
+          // ignore this
+        } else {
+          this.rdnRestrictions.push(new PipelineRestriction(rr.rdnName, rr.cardinalityRestriction, rr.contentTemplate, rr.regExMatch));
+        }
       }
     }
 

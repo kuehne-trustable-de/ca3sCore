@@ -43,7 +43,7 @@
 				</div>
 
 				<certificate :columns="columns" :data="certApiUrl" :per-page="20" name="certificates">
-					<template scope="{ row }">
+					<template slot-scope="{ row }">
 						<tr>
 							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.id }}</td>
 							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" :style="getRevocationStyle(row.revoked)">{{ row.subject }}</td>

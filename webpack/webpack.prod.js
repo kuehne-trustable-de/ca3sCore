@@ -31,23 +31,12 @@ const webpackConfig = merge(baseWebpackConfig, {
     filename: 'app/[name].[hash].bundle.js',
     chunkFilename: 'app/[id].[hash].chunk.js'
   },
-  optimization: {
-    splitChunks: {
-      cacheGroups: {
-        commons: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
-          chunks: 'all'
-        }
-      }
-    }
-  },
   plugins: [
     // http://vuejs.github.io/vue-loader/en/workflow/production.html
     new webpack.DefinePlugin({
       'process.env': env
     }),
-/*
+    /*
     new UglifyJsPlugin({
       uglifyOptions: {
         compress: {
@@ -72,7 +61,7 @@ const webpackConfig = merge(baseWebpackConfig, {
     new HtmlWebpackPlugin({
       template: './src/main/webapp/index.html',
       chunks: ['vendors', 'main', 'global'],
-      chunksSortMode: 'manual',
+      //      chunksSortMode: 'manual',
       inject: true,
       minify: {
         removeComments: true,

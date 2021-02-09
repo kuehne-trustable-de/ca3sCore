@@ -15,6 +15,14 @@ export default class JhiNavbar extends Vue {
   private currentLanguage = this.$store.getters.currentLanguage;
   private languages: any = this.$store.getters.languages;
 
+  public beforeRouteEnter(to, from, next) {
+    next(vm => {
+      console.log('JhiNavbar beforeRouteEnter : ' + to.params.showNavBar);
+      if (to.params.showNavBar) {
+      }
+    });
+  }
+
   created() {
     this.translationService().refreshTranslation(this.currentLanguage);
   }
@@ -54,7 +62,6 @@ export default class JhiNavbar extends Vue {
   }
 
   public get roles(): string {
-
     let roles = '';
     if (this.$store.getters.account) {
       for (const role of this.$store.getters.account.authorities) {

@@ -164,12 +164,6 @@ const ImportedURLUpdate = () => import('../entities/imported-url/imported-url-up
 // prettier-ignore
 const ImportedURLDetails = () => import('../entities/imported-url/imported-url-details.vue');
 // prettier-ignore
-const ProtectedContent = () => import('../entities/protected-content/protected-content.vue');
-// prettier-ignore
-const ProtectedContentUpdate = () => import('../entities/protected-content/protected-content-update.vue');
-// prettier-ignore
-const ProtectedContentDetails = () => import('../entities/protected-content/protected-content-details.vue');
-// prettier-ignore
 const AcmeIdentifier = () => import('../entities/acme-identifier/acme-identifier.vue');
 // prettier-ignore
 const AcmeIdentifierUpdate = () => import('../entities/acme-identifier/acme-identifier-update.vue');
@@ -929,31 +923,6 @@ export default new Router({
       path: '/imported-url/:importedURLId/view',
       name: 'ImportedURLView',
       component: ImportedURLDetails,
-      meta: { authorities: ['ROLE_USER'] }
-    }
-    ,
-    {
-      path: '/protected-content',
-      name: 'ProtectedContent',
-      component: ProtectedContent,
-      meta: { authorities: ['ROLE_USER'] }
-    },
-    {
-      path: '/protected-content/new',
-      name: 'ProtectedContentCreate',
-      component: ProtectedContentUpdate,
-      meta: { authorities: ['ROLE_USER'] }
-    },
-    {
-      path: '/protected-content/:protectedContentId/edit',
-      name: 'ProtectedContentEdit',
-      component: ProtectedContentUpdate,
-      meta: { authorities: ['ROLE_USER'] }
-    },
-    {
-      path: '/protected-content/:protectedContentId/view',
-      name: 'ProtectedContentView',
-      component: ProtectedContentDetails,
       meta: { authorities: ['ROLE_USER'] }
     }
     ,

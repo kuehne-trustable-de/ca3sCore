@@ -22,7 +22,7 @@ export default class HelpTag extends Vue{
 
     public mounted(): void {
         this.targetHash = '#' + this.target;
-        console.log('targeting focus on  : ' + this.targetHash);
+        console.log('targeting focus on  : ' + this.targetHash + ', lang : ' + this.$store.getters.currentLanguage);
     }
 }
 </script>
