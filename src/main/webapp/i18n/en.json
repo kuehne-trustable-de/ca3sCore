@@ -553,6 +553,7 @@
   "entity.validation.pattern": "This field should follow pattern for {{ pattern }}.",
   "entity.validation.patternLogin": "This field can only contain letters, digits and e-mail addresses.",
   "entity.validation.required": "This field is required.",
+  "entity.validation.secretRepeat": "Repeated secret must match!",
   "error.NotNull": "Field {{ fieldName }} cannot be empty!",
   "error.Size": "Field {{ fieldName }} does not meet min/max size requirements!",
   "error.concurrencyFailure": "Another user modified this data at the same time as you. Your changes were rejected.",

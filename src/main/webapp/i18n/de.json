@@ -548,6 +548,7 @@
   "entity.validation.pattern": "Dieses Feld muss das Muster {{pattern}} erfüllen.",
   "entity.validation.patternLogin": "Dieses Feld darf nur Buchstaben, Ziffern und E-Mail-Adressen enthalten.",
   "entity.validation.required": "Dieses Feld wird benötigt.",
+  "entity.validation.secretRepeat": "Passwort-Wiederholung muss übereinstimmen!",
   "error.NotNull": "Feld {{fieldName}} kann nicht leer sein!",
   "error.Size": "Feld {{fieldName}} erfüllt nicht die minimalen/maximalen Voraussetzungen!",
   "error.concurrencyFailure": "Ein anderer Benutzer hat diese Daten zeitgleich mit Ihnen geändert. Ihre Änderungen wurden abgelehnt.",
