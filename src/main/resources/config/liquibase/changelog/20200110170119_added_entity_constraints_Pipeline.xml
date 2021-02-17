@@ -7,7 +7,7 @@
         Added the constraints for entity Pipeline.
     -->
     <changeSet id="20200110170119-2" author="jhipster">
-        
+
         <addForeignKeyConstraint baseColumnNames="ca_connector_id"
                                  baseTableName="pipeline"
                                  constraintName="fk_pipeline_ca_connector_id"
@@ -18,7 +18,7 @@
                                  baseTableName="pipeline"
                                  constraintName="fk_pipeline_process_info_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="bpnm_process_info"/>
+                                 referencedTableName="bpmn_process_info"/>
 
     </changeSet>
 </databaseChangeLog>
