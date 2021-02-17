@@ -104,7 +104,7 @@ public class PipelineUtil {
 	private PipelineAttributeRepository pipelineAttRepository;
 
     @Autowired
-    private BPNMProcessInfoRepository bpmnPIRepository;
+    private BPMNProcessInfoRepository bpmnPIRepository;
 
     @Autowired
     private ProtectedContentRepository protectedContentRepository;
@@ -373,7 +373,7 @@ public class PipelineUtil {
 			p.setCaConnector(ccc.get(0));
 		}
 
-		Optional<BPNMProcessInfo> bpiOpt = bpmnPIRepository.findByName(pv.getProcessInfoName());
+		Optional<BPMNProcessInfo> bpiOpt = bpmnPIRepository.findByName(pv.getProcessInfoName());
 		if( bpiOpt.isPresent()) {
 			p.setProcessInfo(bpiOpt.get());
 		}else {

@@ -1,16 +1,20 @@
 package de.trustable.ca3s.core.web.rest.support;
 
-import java.time.Instant;
-import java.util.Locale;
-import java.util.Optional;
-
-import javax.validation.Valid;
-
+import de.trustable.ca3s.core.domain.CSR;
+import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
+import de.trustable.ca3s.core.repository.CSRRepository;
+import de.trustable.ca3s.core.repository.UserRepository;
+import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.MailService;
+import de.trustable.ca3s.core.service.util.BPMNUtil;
+import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.ca3s.core.web.rest.data.AdministrationType;
+import de.trustable.ca3s.core.web.rest.data.CSRAdministrationData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.audit.listener.AuditApplicationEvent;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -22,19 +26,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.thymeleaf.context.Context;
 
-import de.trustable.ca3s.core.domain.CSR;
-import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.User;
-import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
-import de.trustable.ca3s.core.repository.CSRRepository;
-import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.repository.UserRepository;
-import de.trustable.ca3s.core.service.MailService;
-import de.trustable.ca3s.core.service.util.AuditUtil;
-import de.trustable.ca3s.core.service.util.BPMNUtil;
-import de.trustable.ca3s.core.service.util.CertificateUtil;
-import de.trustable.ca3s.core.web.rest.data.AdministrationType;
-import de.trustable.ca3s.core.web.rest.data.CSRAdministrationData;
+import javax.validation.Valid;
+import java.time.Instant;
+import java.util.Locale;
+import java.util.Optional;
 
 /**
  * REST controller for processing PKCS10 requests and Certificates.
@@ -53,14 +48,14 @@ public class CSRAdministration {
 
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Autowired
 	private MailService mailService;
-	
+
 	@Autowired
-	private ApplicationEventPublisher applicationEventPublisher;
-	
-	
+	private AuditService auditService;
+
+
     /**
      * {@code POST  /administerRequest} : Process a PKCSXX-object encoded as PEM.
      *
@@ -70,53 +65,42 @@ public class CSRAdministration {
     @PostMapping("/administerRequest")
 	@Transactional
     public ResponseEntity<Long> administerRequest(@Valid @RequestBody CSRAdministrationData adminData) {
-    	
+
     	LOG.debug("REST request to reject / accept CSR : {}", adminData);
-        
+
     	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     	String raOfficerName = auth.getName();
 
     	Optional<CSR> optCSR = csrRepository.findById(adminData.getCsrId());
     	if( optCSR.isPresent()) {
-    		
+
     		CSR csr = optCSR.get();
 			csr.setAdministeredBy(raOfficerName);
 			if( adminData.getComment() != null && !adminData.getComment().trim().isEmpty()) {
 				csr.setAdministrationComment(adminData.getComment());
 			}
-    		
+
     		if(AdministrationType.ACCEPT.equals(adminData.getAdministrationType())){
     			csr.setApprovedOn(Instant.now());
     			csrRepository.save(csr);
 
-    			applicationEventPublisher.publishEvent(
-    			        new AuditApplicationEvent(
-    			        		raOfficerName, AuditUtil.AUDIT_CSR_ACCEPTED, "csr " + csr.getId() + " accepted by RA Officer"));
-    			
+                auditService.createAuditTraceCsrAccepted(raOfficerName, "RA Officer", csr);
 
     			Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
     			if(cert != null) {
-/* 
- * refactored to  CaBackendTask
- * 
-    				certificateRepository.save(cert);
-        			
-    				csr.setCertificate(cert);
-    				csr.setStatus(CsrStatus.ISSUED);
-        			csrRepository.save(csr);
- */       			
+
         			Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());
         			if( optUser.isPresent()) {
         				User requestor = optUser.get();
 	    		        if (requestor.getEmail() == null) {
 	    		        	LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
 	    		        }else {
-	    		        
+
 		    		        Locale locale = Locale.forLanguageTag(requestor.getLangKey());
 		    		        Context context = new Context(locale);
 		    		        context.setVariable("certId", cert.getId());
 		    		        context.setVariable("subject", cert.getSubject());
-		    		        
+
 		    		    	String downloadFilename = CertificateUtil.getDownloadFilename(cert);
 
 		    		    	boolean isServersideKeyGeneration = false;
@@ -124,10 +108,10 @@ public class CSRAdministration {
 		    		    		isServersideKeyGeneration = cert.getCsr().isServersideKeyGeneration();
 		    		    	}
 		    		        context.setVariable("isServersideKeyGeneration", isServersideKeyGeneration);
-		    		        
+
 		    		        context.setVariable("filenameCrt", downloadFilename + ".crt");
 		    		        context.setVariable("filenamePem", downloadFilename + ".pem");
-		    		        
+
 		    		        mailService.sendEmailFromTemplate(context, requestor, "mail/acceptedRequestEmail", "email.acceptedRequest.title");
 	    		        }
         			} else {
@@ -145,14 +129,14 @@ public class CSRAdministration {
     			csr.setRejectedOn(Instant.now());
     			csr.setStatus(CsrStatus.REJECTED);
     			csrRepository.save(csr);
-    			
+
     			Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());
     			if( optUser.isPresent()) {
     				User requestor = optUser.get();
     		        if (requestor.getEmail() == null) {
     		        	LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
     		        }else {
-    		        
+
 	    		        Locale locale = Locale.forLanguageTag(requestor.getLangKey());
 	    		        Context context = new Context(locale);
 	    		        context.setVariable("csr", csr);
@@ -162,16 +146,14 @@ public class CSRAdministration {
     				LOG.warn("certificate requestor '{}' unknown!", csr.getRequestedBy());
     			}
 
-    			applicationEventPublisher.publishEvent(
-    			        new AuditApplicationEvent(
-    			        		raOfficerName, AuditUtil.AUDIT_CSR_REJECTED, "csr " + csr.getId() + " rejected by RA Officer"));
-    			
+                auditService.createAuditTraceCsrRejected(raOfficerName, "RA Officer", csr);
+
         		return new ResponseEntity<Long>(adminData.getCsrId(), HttpStatus.OK);
     		}
     	}else {
     		return ResponseEntity.notFound().build();
     	}
-    	
+
 	}
 
 
@@ -184,43 +166,41 @@ public class CSRAdministration {
     @PostMapping("/withdrawOwnRequest")
 	@Transactional
     public ResponseEntity<Long> withdrawOwnRequest(@Valid @RequestBody CSRAdministrationData adminData) {
-    	
+
     	LOG.debug("REST request to withdraw CSR : {}", adminData);
-        
+
     	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     	String userName = auth.getName();
 
     	Optional<CSR> optCSR = csrRepository.findById(adminData.getCsrId());
     	if( optCSR.isPresent()) {
-    		
+
     		CSR csr = optCSR.get();
     		if( userName == null ||
     				!userName.equals(csr.getRequestedBy()) ){
-    			
+
     	    	LOG.debug("REST request by '{}' to withdraw CSR '{}' rejected ", userName, adminData.getCsrId());
         		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     		}
-    		
+
 			csr.setAdministeredBy(userName);
 			if( adminData.getComment() != null && !adminData.getComment().trim().isEmpty()) {
 				csr.setAdministrationComment(adminData.getComment());
 			}
-    		
+
 			csr.setRejectionReason(adminData.getRejectionReason());
 			csr.setRejectedOn(Instant.now());
 			csr.setStatus(CsrStatus.REJECTED);
 			csrRepository.save(csr);
-			
-			applicationEventPublisher.publishEvent(
-			        new AuditApplicationEvent(
-			        		userName, AuditUtil.AUDIT_CSR_REJECTED, "csr " + csr.getId() + " withdrawn by user"));
-			
+
+            auditService.createAuditTraceCsrRejected(userName, "Requestor", csr);
+
     		return new ResponseEntity<Long>(adminData.getCsrId(), HttpStatus.OK);
-    		
+
     	}else {
     		return ResponseEntity.notFound().build();
     	}
-    	
+
 	}
 
 

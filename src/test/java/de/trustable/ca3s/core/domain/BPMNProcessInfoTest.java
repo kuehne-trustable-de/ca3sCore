@@ -4,14 +4,14 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import de.trustable.ca3s.core.web.rest.TestUtil;
 
-public class BPNMProcessInfoTest {
+public class BPMNProcessInfoTest {
 
     @Test
     public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(BPNMProcessInfo.class);
-        BPNMProcessInfo bPNMProcessInfo1 = new BPNMProcessInfo();
+        TestUtil.equalsVerifier(BPMNProcessInfo.class);
+        BPMNProcessInfo bPNMProcessInfo1 = new BPMNProcessInfo();
         bPNMProcessInfo1.setId(1L);
-        BPNMProcessInfo bPNMProcessInfo2 = new BPNMProcessInfo();
+        BPMNProcessInfo bPNMProcessInfo2 = new BPMNProcessInfo();
         bPNMProcessInfo2.setId(bPNMProcessInfo1.getId());
         assertThat(bPNMProcessInfo1).isEqualTo(bPNMProcessInfo2);
         bPNMProcessInfo2.setId(2L);

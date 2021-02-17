@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+    <!--
+        Added the constraints for entity AuditTrace.
+    -->
+    <changeSet id="20210214223911-2" author="jhipster">
+        
+        <addForeignKeyConstraint baseColumnNames="csr_id"
+                                 baseTableName="audit_trace"
+                                 constraintName="fk_audit_trace_csr_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="csr"/>
+
+        <addForeignKeyConstraint baseColumnNames="certificate_id"
+                                 baseTableName="audit_trace"
+                                 constraintName="fk_audit_trace_certificate_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="certificate"/>
+
+        <addForeignKeyConstraint baseColumnNames="pipeline_id"
+                                 baseTableName="audit_trace"
+                                 constraintName="fk_audit_trace_pipeline_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="pipeline"/>
+
+        <addForeignKeyConstraint baseColumnNames="ca_connector_id"
+                                 baseTableName="audit_trace"
+                                 constraintName="fk_audit_trace_ca_connector_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="ca_connector_config"/>
+
+        <addForeignKeyConstraint baseColumnNames="process_info_id"
+                                 baseTableName="audit_trace"
+                                 constraintName="fk_audit_trace_process_info_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="bpmn_process_info"/>
+
+    </changeSet>
+</databaseChangeLog>

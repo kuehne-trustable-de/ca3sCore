@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+        <property name="autoIncrement" value="true"/>
+
+    <!--
+        Added the entity AuditTrace.
+    -->
+    <changeSet id="20210214223911-1" author="jhipster">
+        <createTable tableName="audit_trace">
+            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="actor_name" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="actor_role" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="plain_content" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="content_template" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="created_on" type="datetime">
+                <constraints nullable="false" />
+            </column>
+            <column name="csr_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="certificate_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="pipeline_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="ca_connector_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="process_info_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
+        </createTable>
+        <dropDefaultValue tableName="audit_trace" columnName="created_on" columnDataType="datetime"/>
+    </changeSet>
+
+    <changeSet id="20210214223911-1-relations" author="jhipster">
+
+    </changeSet>
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
+
+    <changeSet author="kuehn (generated)" id="20210214223911-1-indices">
+        <createIndex indexName="index_audit_created-on" tableName="audit_trace">
+            <column name="created_on"/>
+        </createIndex>
+        <createIndex indexName="index_audit_csr_id" tableName="audit_trace">
+            <column name="csr_id"/>
+        </createIndex>
+        <createIndex indexName="index_audit_certificate_id" tableName="audit_trace">
+            <column name="certificate_id"/>
+        </createIndex>
+        <createIndex indexName="index_audit_pipeline_id" tableName="audit_trace">
+            <column name="pipeline_id"/>
+        </createIndex>
+        <createIndex indexName="index_audit_ca_connector_id" tableName="audit_trace">
+            <column name="ca_connector_id"/>
+        </createIndex>
+        <createIndex indexName="index_audit_process_info_id" tableName="audit_trace">
+            <column name="process_info_id"/>
+        </createIndex>
+
+
+    </changeSet>
+
+
+</databaseChangeLog>

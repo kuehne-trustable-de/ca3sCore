@@ -9,6 +9,7 @@ import java.util.List;
 import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.repository.CsrAttributeRepository;
 import de.trustable.ca3s.core.domain.dto.NamedValues;
+import de.trustable.ca3s.core.service.AuditService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,8 +53,8 @@ public class CertificateProcessingUtil {
 	@Autowired
 	private PipelineUtil pvUtil;
 
-	@Autowired
-	private ApplicationEventPublisher applicationEventPublisher;
+    @Autowired
+    private AuditService auditService;
 
 
 	/**
@@ -133,9 +134,7 @@ public class CertificateProcessingUtil {
 
             csrAttRepository.saveAll(csr.getCsrAttributes());
 
-			applicationEventPublisher.publishEvent(
-			        new AuditApplicationEvent(
-			        		CryptoUtil.limitLength(requestorName, 50), requestAuditType, "certificate requested, csr " + csr.getId() + " created"));
+            auditService.createAuditTraceRequest(CryptoUtil.limitLength(requestorName, 50), "User",requestAuditType, csr);
 
 			LOG.debug("csr contains #{} CsrAttributes, #{} RequestAttributes and #{} RDN", csr.getCsrAttributes().size(), csr.getRas().size(), csr.getRdns().size());
 			for(de.trustable.ca3s.core.domain.RDN rdn:csr.getRdns()) {
@@ -165,9 +164,7 @@ public class CertificateProcessingUtil {
 				messageMap.put("RequestRestriction", CryptoUtil.limitLength(msgItem, 250) );
 			}
 
-			applicationEventPublisher.publishEvent(
-			        new AuditApplicationEvent(
-			        		CryptoUtil.limitLength(requestorName, 50), AuditUtil.AUDIT_REQUEST_RESTRICTIONS_FAILED, messageMap));
+            auditService.createAuditTraceCsrRestrictionFailed(CryptoUtil.limitLength(requestorName, 50), "User",csr);
 		}
 
 		return null;
@@ -201,9 +198,9 @@ public class CertificateProcessingUtil {
 			Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
 			if(cert != null) {
 				certificateRepository.save(cert);
-				applicationEventPublisher.publishEvent(
-				        new AuditApplicationEvent(
-				        		CryptoUtil.limitLength(requestorName, 50), certificateAuditType, "certificate " +cert.getId()+ " created"));
+
+                auditService.createAuditTraceCertificateCreated(CryptoUtil.limitLength(requestorName, 50), "",
+                    certificateAuditType, cert);
 
 				return cert;
 			} else {

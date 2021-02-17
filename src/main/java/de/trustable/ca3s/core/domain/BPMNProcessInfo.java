@@ -6,21 +6,21 @@ import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.time.Instant;
 
-import de.trustable.ca3s.core.domain.enumeration.BPNMProcessType;
+import de.trustable.ca3s.core.domain.enumeration.BPMNProcessType;
 
 /**
  * A BPNMProcessInfo.
  */
 @Entity
-@Table(name = "bpnm_process_info")
+@Table(name = "bpmn_process_info")
 @NamedQueries({
-	@NamedQuery(name = "BPNMProcessInfo.findByName",
-	query = "SELECT bi FROM BPNMProcessInfo bi WHERE " +
+	@NamedQuery(name = "BPMNProcessInfo.findByName",
+	query = "SELECT bi FROM BPMNProcessInfo bi WHERE " +
 			"bi.name = :name"
-    ),    
-         
+    ),
+
 })
-public class BPNMProcessInfo implements Serializable {
+public class BPMNProcessInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,7 +39,7 @@ public class BPNMProcessInfo implements Serializable {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
-    private BPNMProcessType type;
+    private BPMNProcessType type;
 
     @NotNull
     @Column(name = "author", nullable = false)
@@ -49,7 +49,7 @@ public class BPNMProcessInfo implements Serializable {
     @Column(name = "last_change", nullable = false)
     private Instant lastChange;
 
-    
+
     @Lob
     @Column(name = "signature_base_64", nullable = false)
     private String signatureBase64;
@@ -67,7 +67,7 @@ public class BPNMProcessInfo implements Serializable {
         return name;
     }
 
-    public BPNMProcessInfo name(String name) {
+    public BPMNProcessInfo name(String name) {
         this.name = name;
         return this;
     }
@@ -80,7 +80,7 @@ public class BPNMProcessInfo implements Serializable {
         return version;
     }
 
-    public BPNMProcessInfo version(String version) {
+    public BPMNProcessInfo version(String version) {
         this.version = version;
         return this;
     }
@@ -89,16 +89,16 @@ public class BPNMProcessInfo implements Serializable {
         this.version = version;
     }
 
-    public BPNMProcessType getType() {
+    public BPMNProcessType getType() {
         return type;
     }
 
-    public BPNMProcessInfo type(BPNMProcessType type) {
+    public BPMNProcessInfo type(BPMNProcessType type) {
         this.type = type;
         return this;
     }
 
-    public void setType(BPNMProcessType type) {
+    public void setType(BPMNProcessType type) {
         this.type = type;
     }
 
@@ -106,7 +106,7 @@ public class BPNMProcessInfo implements Serializable {
         return author;
     }
 
-    public BPNMProcessInfo author(String author) {
+    public BPMNProcessInfo author(String author) {
         this.author = author;
         return this;
     }
@@ -119,7 +119,7 @@ public class BPNMProcessInfo implements Serializable {
         return lastChange;
     }
 
-    public BPNMProcessInfo lastChange(Instant lastChange) {
+    public BPMNProcessInfo lastChange(Instant lastChange) {
         this.lastChange = lastChange;
         return this;
     }
@@ -132,7 +132,7 @@ public class BPNMProcessInfo implements Serializable {
         return signatureBase64;
     }
 
-    public BPNMProcessInfo signatureBase64(String signatureBase64) {
+    public BPMNProcessInfo signatureBase64(String signatureBase64) {
         this.signatureBase64 = signatureBase64;
         return this;
     }
@@ -147,10 +147,10 @@ public class BPNMProcessInfo implements Serializable {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof BPNMProcessInfo)) {
+        if (!(o instanceof BPMNProcessInfo)) {
             return false;
         }
-        return id != null && id.equals(((BPNMProcessInfo) o).id);
+        return id != null && id.equals(((BPMNProcessInfo) o).id);
     }
 
     @Override

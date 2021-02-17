@@ -82,18 +82,19 @@ module.exports = {
     tls: 'empty',
     child_process: 'empty'
   },
-  optimization: {
-    concatenateModules: false,
-    splitChunks: {
-      cacheGroups: {
-        commons: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
-          chunks: 'all'
-        }
-      }
-    }
-  },
+  //
+  //optimization: {
+  //  concatenateModules: false,
+  //  splitChunks: {
+  //    cacheGroups: {
+  //     commons: {
+  //        test: /[\\/]node_modules[\\/]/,
+  //        name: 'vendors',
+  //        chunks: 'all'
+  //      }
+  //    }
+  //  }
+  //},
   plugins: [
     new VueLoaderPlugin(),
     new CopyWebpackPlugin([

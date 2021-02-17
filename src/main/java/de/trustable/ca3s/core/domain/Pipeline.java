@@ -64,7 +64,7 @@ public class Pipeline implements Serializable {
 
     @ManyToOne
     @JsonIgnoreProperties({"pipelines", "secret"})
-    private BPNMProcessInfo processInfo;
+    private BPMNProcessInfo processInfo;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -178,16 +178,16 @@ public class Pipeline implements Serializable {
         this.caConnector = cAConnectorConfig;
     }
 
-    public BPNMProcessInfo getProcessInfo() {
+    public BPMNProcessInfo getProcessInfo() {
         return processInfo;
     }
 
-    public Pipeline processInfo(BPNMProcessInfo bPNMProcessInfo) {
+    public Pipeline processInfo(BPMNProcessInfo bPNMProcessInfo) {
         this.processInfo = bPNMProcessInfo;
         return this;
     }
 
-    public void setProcessInfo(BPNMProcessInfo bPNMProcessInfo) {
+    public void setProcessInfo(BPMNProcessInfo bPNMProcessInfo) {
         this.processInfo = bPNMProcessInfo;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove

@@ -1,8 +1,8 @@
 package de.trustable.ca3s.core.domain.enumeration;
 
 /**
- * The BPNMProcessType enumeration.
+ * The BPMNProcessType enumeration.
  */
-public enum BPNMProcessType {
+public enum BPMNProcessType {
     CA_INVOCATION, REQUEST_AUTHORIZATION
 }

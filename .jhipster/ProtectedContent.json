@@ -28,7 +28,7 @@
     {
       "fieldName": "relationType",
       "fieldType": "ContentRelationType",
-      "fieldValues": "CERTIFICATE,CONNECTION"
+      "fieldValues": "CERTIFICATE,CONNECTION,CSR,ACME_PW"
     },
     {
       "fieldName": "relatedId",

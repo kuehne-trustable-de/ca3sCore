@@ -2,6 +2,16 @@ enum Interval {
     MINUTE, HOUR, DAY, WEEK, MONTH
 }
 
+@skipClient
+entity AuditTrace{
+
+	actorName String required
+	actorRole String required
+	plainContent String required
+	contentTemplate String required
+	createdOn Instant required
+}
+
 
 entity CAConnectorConfig{
 
@@ -109,23 +119,20 @@ enum ProtectedContentType {
 }
 
 enum ContentRelationType {
-    CERTIFICATE, CONNECTION
-    CSR, ACME_PW;
+    CERTIFICATE, CONNECTION, CSR
 }
 
-@skipClient(true)
+@skipClient
 entity ProtectedContent{
 
    	contentBase64 TextBlob required
   	type ProtectedContentType required
-  	leftUsages Integer
-  	validTo Instant
-
   	relationType ContentRelationType
   	relatedId Long
 }
 
 
+@skipClient
 entity RDN{
 
 //	@GeneratedValue
@@ -133,24 +140,28 @@ entity RDN{
 
 }
 
+@skipClient
 entity RDNAttribute{
 
   	attributeType String required
   	attributeValue String required
 }
 
+@skipClient
 entity RequestAttribute{
 
   	attributeType String required
 
 }
 
+@skipClient
 entity RequestAttributeValue{
 
   	attributeValue String required
 
 }
 
+@skipClient
 entity ImportedURL{
 
   	name String required
@@ -176,15 +187,15 @@ entity PipelineAttribute{
   	value String required
 }
 
-enum BPNMProcessType {
+enum BPMNProcessType {
     CA_INVOCATION, REQUEST_AUTHORIZATION
 }
 
-entity BPNMProcessInfo{
+entity BPMNProcessInfo{
 
   	name String required
   	version String required
-  	type BPNMProcessType required
+  	type BPMNProcessType required
   	author String required
   	lastChange Instant required
   	signatureBase64 TextBlob required
@@ -289,6 +300,7 @@ entity AcmeIdentifier {
 
 }
 
+@skipClient
 entity AcmeAuthorization {
 
 //	@GenericGenerator(name="RandomGenerator.generatorName", strategy="de.trustable.ca3s.acme.server.entity.RandomGenerator")
@@ -306,6 +318,7 @@ enum ChallengeStatus {
 	PENDING, VALID, INVALID, DEACTIVATED, EXPIRED, REVOKED
 }
 
+@skipClient
 entity AcmeChallenge {
 
 	challengeId Long required
@@ -336,9 +349,7 @@ relationship OneToMany {
 	Certificate{certificateAttributes} to CertificateAttribute{certificate}
 
 	CSR{rdns} to RDN{csr}
-
 	CSR{ras} to RequestAttribute{csr}
-
 	CSR{csrAttributes} to CsrAttribute{csr}
 
 	RDN{rdnAttributes} to RDNAttribute{rdn}
@@ -379,6 +390,14 @@ relationship OneToMany {
 
 relationship ManyToOne {
 
+	AuditTrace{csr} to CSR
+	AuditTrace{certificate} to Certificate
+	AuditTrace{pipeline} to Pipeline
+	AuditTrace{caConnector} to CAConnectorConfig
+	AuditTrace{caConnector} to CAConnectorConfig
+	AuditTrace{processInfo} to BPMNProcessInfo
+
+
 	AcmeOrder{csr} to CSR
 	AcmeOrder{certificate} to Certificate
 
@@ -391,7 +410,7 @@ relationship ManyToOne {
 	CSR{pipeline} to Pipeline
 
 	Pipeline{caConnector} to CAConnectorConfig
-	Pipeline{processInfo} to BPNMProcessInfo
+	Pipeline{processInfo} to BPMNProcessInfo
 }
 
 relationship OneToOne{

@@ -39,10 +39,9 @@
     <include file="config/liquibase/changelog/20200129162418_added_entity_AcmeIdentifier.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200129162419_added_entity_AcmeAuthorization.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200129162421_added_entity_AcmeNonce.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20200217073825_added_entity_BPNMProcessInfo.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210214225411_added_entity_BPMNProcessInfo.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200304173100_added_entity_RequestProxyConfig.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200408094600_added_entity_UserPreference.xml" relativeToChangelogFile="false"/>
-    <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <include file="config/liquibase/changelog/20200110170111_added_entity_constraints_CertificateAttribute.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170112_added_entity_constraints_Certificate.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170114_added_entity_constraints_CsrAttribute.xml" relativeToChangelogFile="false"/>
@@ -63,8 +62,9 @@
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
 
     <include file="config/liquibase/changelog/20200120140000_added_indices.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20200101000000_added_entitities_camunda.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200101000000_added_entities_camunda.xml" relativeToChangelogFile="false"/>
 
-    <include file="config/liquibase/changelog/20210111173425_added_columns_ProtectedContent.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210214223911_added_entity_AuditTrace.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210214223911_added_entity_constraints_AuditTrace.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>

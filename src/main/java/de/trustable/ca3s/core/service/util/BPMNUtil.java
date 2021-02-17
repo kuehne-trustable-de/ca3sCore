@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.domain.enumeration.BPMNProcessType;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.camunda.bpm.engine.RepositoryService;
@@ -20,9 +21,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import de.trustable.ca3s.core.domain.enumeration.BPNMProcessType;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
-import de.trustable.ca3s.core.repository.BPNMProcessInfoRepository;
+import de.trustable.ca3s.core.repository.BPMNProcessInfoRepository;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.util.CryptoUtil;
@@ -51,7 +51,7 @@ public class BPMNUtil{
     private RepositoryService repoService;
 
 	@Autowired
-    private BPNMProcessInfoRepository bpnmInfoRepo;
+    private BPMNProcessInfoRepository bpnmInfoRepo;
 
 	@Autowired
 	private CSRRepository csrRepository;
@@ -71,9 +71,9 @@ public class BPMNUtil{
 
 		List<ProcessDefinition> pdList = getProcessDefinitions();
 		for(ProcessDefinition pd: pdList ) {
-			Optional<BPNMProcessInfo> optBI = bpnmInfoRepo.findByName(pd.getKey());
+			Optional<BPMNProcessInfo> optBI = bpnmInfoRepo.findByName(pd.getKey());
 			if( !optBI.isPresent() ) {
-				BPNMProcessInfo newBI = new BPNMProcessInfo();
+				BPMNProcessInfo newBI = new BPMNProcessInfo();
 				newBI.setAuthor("system");
 				newBI.setLastChange(Instant.now());
 				newBI.setName(pd.getKey());
@@ -86,7 +86,7 @@ public class BPMNUtil{
 				newBI.setVersion(version);
 
 				// @todo determine the type properly
-				newBI.setType(BPNMProcessType.CA_INVOCATION);
+				newBI.setType(BPMNProcessType.CA_INVOCATION);
 
 				// @todo calculate a signature
 				newBI.setSignatureBase64("");
@@ -111,7 +111,7 @@ public class BPMNUtil{
 	public Certificate startCertificateCreationProcess(CSR csr)  {
 
 		CAConnectorConfig caConfig;
-		BPNMProcessInfo pi = null;
+		BPMNProcessInfo pi = null;
 
 		if( csr.getPipeline() == null) {
 			LOG.warn("No pipeline information in CSR #{}", csr.getId());
@@ -131,7 +131,7 @@ public class BPMNUtil{
      * @param processInfo the BPMN process to be excecuted
      * @return the created certificate
      */
-	public Certificate startCertificateCreationProcess(CSR csr, CAConnectorConfig caConfig, BPNMProcessInfo processInfo)  {
+	public Certificate startCertificateCreationProcess(CSR csr, CAConnectorConfig caConfig, BPMNProcessInfo processInfo)  {
 
 		String status = "Failed";
 		String certificateId = "";

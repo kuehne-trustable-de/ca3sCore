@@ -1,9 +1,10 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.Ca3SApp;
-import de.trustable.ca3s.core.domain.BPNMProcessInfo;
-import de.trustable.ca3s.core.repository.BPNMProcessInfoRepository;
-import de.trustable.ca3s.core.service.BPNMProcessInfoService;
+import de.trustable.ca3s.core.domain.BPMNProcessInfo;
+import de.trustable.ca3s.core.domain.enumeration.BPMNProcessType;
+import de.trustable.ca3s.core.repository.BPMNProcessInfoRepository;
+import de.trustable.ca3s.core.service.BPMNProcessInfoService;
 import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +18,6 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Base64Utils;
 import org.springframework.validation.Validator;
 
 import javax.persistence.EntityManager;
@@ -31,12 +31,11 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import de.trustable.ca3s.core.domain.enumeration.BPNMProcessType;
 /**
- * Integration tests for the {@link BPNMProcessInfoResource} REST controller.
+ * Integration tests for the {@link BPMNProcessInfoResource} REST controller.
  */
 @SpringBootTest(classes = Ca3SApp.class)
-public class BPNMProcessInfoResourceIT {
+public class BPMNProcessInfoResourceIT {
 
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
     private static final String UPDATED_NAME = "BBBBBBBBBB";
@@ -44,8 +43,8 @@ public class BPNMProcessInfoResourceIT {
     private static final String DEFAULT_VERSION = "AAAAAAAAAA";
     private static final String UPDATED_VERSION = "BBBBBBBBBB";
 
-    private static final BPNMProcessType DEFAULT_TYPE = BPNMProcessType.CA_INVOCATION;
-    private static final BPNMProcessType UPDATED_TYPE = BPNMProcessType.REQUEST_AUTHORIZATION;
+    private static final BPMNProcessType DEFAULT_TYPE = BPMNProcessType.CA_INVOCATION;
+    private static final BPMNProcessType UPDATED_TYPE = BPMNProcessType.REQUEST_AUTHORIZATION;
 
     private static final String DEFAULT_AUTHOR = "AAAAAAAAAA";
     private static final String UPDATED_AUTHOR = "BBBBBBBBBB";
@@ -57,10 +56,10 @@ public class BPNMProcessInfoResourceIT {
     private static final String UPDATED_SIGNATURE_BASE_64 = "BBBBBBBBBB";
 
     @Autowired
-    private BPNMProcessInfoRepository bPNMProcessInfoRepository;
+    private BPMNProcessInfoRepository bPMNProcessInfoRepository;
 
     @Autowired
-    private BPNMProcessInfoService bPNMProcessInfoService;
+    private BPMNProcessInfoService bPMNProcessInfoService;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -79,13 +78,13 @@ public class BPNMProcessInfoResourceIT {
 
     private MockMvc restBPNMProcessInfoMockMvc;
 
-    private BPNMProcessInfo bPNMProcessInfo;
+    private BPMNProcessInfo bPMNProcessInfo;
 
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final BPNMProcessInfoResource bPNMProcessInfoResource = new BPNMProcessInfoResource(bPNMProcessInfoService);
-        this.restBPNMProcessInfoMockMvc = MockMvcBuilders.standaloneSetup(bPNMProcessInfoResource)
+        final BPMNProcessInfoResource bPMNProcessInfoResource = new BPMNProcessInfoResource(bPMNProcessInfoService);
+        this.restBPNMProcessInfoMockMvc = MockMvcBuilders.standaloneSetup(bPMNProcessInfoResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
             .setConversionService(createFormattingConversionService())
@@ -99,15 +98,15 @@ public class BPNMProcessInfoResourceIT {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static BPNMProcessInfo createEntity(EntityManager em) {
-        BPNMProcessInfo bPNMProcessInfo = new BPNMProcessInfo()
+    public static BPMNProcessInfo createEntity(EntityManager em) {
+        BPMNProcessInfo bPMNProcessInfo = new BPMNProcessInfo()
             .name(DEFAULT_NAME)
             .version(DEFAULT_VERSION)
             .type(DEFAULT_TYPE)
             .author(DEFAULT_AUTHOR)
             .lastChange(DEFAULT_LAST_CHANGE)
             .signatureBase64(DEFAULT_SIGNATURE_BASE_64);
-        return bPNMProcessInfo;
+        return bPMNProcessInfo;
     }
     /**
      * Create an updated entity for this test.
@@ -115,166 +114,166 @@ public class BPNMProcessInfoResourceIT {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static BPNMProcessInfo createUpdatedEntity(EntityManager em) {
-        BPNMProcessInfo bPNMProcessInfo = new BPNMProcessInfo()
+    public static BPMNProcessInfo createUpdatedEntity(EntityManager em) {
+        BPMNProcessInfo bPMNProcessInfo = new BPMNProcessInfo()
             .name(UPDATED_NAME)
             .version(UPDATED_VERSION)
             .type(UPDATED_TYPE)
             .author(UPDATED_AUTHOR)
             .lastChange(UPDATED_LAST_CHANGE)
             .signatureBase64(UPDATED_SIGNATURE_BASE_64);
-        return bPNMProcessInfo;
+        return bPMNProcessInfo;
     }
 
     @BeforeEach
     public void initTest() {
-        bPNMProcessInfo = createEntity(em);
+        bPMNProcessInfo = createEntity(em);
     }
 
     @Test
     @Transactional
     public void createBPNMProcessInfo() throws Exception {
-        int databaseSizeBeforeCreate = bPNMProcessInfoRepository.findAll().size();
+        int databaseSizeBeforeCreate = bPMNProcessInfoRepository.findAll().size();
 
         // Create the BPNMProcessInfo
         restBPNMProcessInfoMockMvc.perform(post("/api/bpnm-process-infos")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(bPNMProcessInfo)))
+            .content(TestUtil.convertObjectToJsonBytes(bPMNProcessInfo)))
             .andExpect(status().isCreated());
 
         // Validate the BPNMProcessInfo in the database
-        List<BPNMProcessInfo> bPNMProcessInfoList = bPNMProcessInfoRepository.findAll();
-        assertThat(bPNMProcessInfoList).hasSize(databaseSizeBeforeCreate + 1);
-        BPNMProcessInfo testBPNMProcessInfo = bPNMProcessInfoList.get(bPNMProcessInfoList.size() - 1);
-        assertThat(testBPNMProcessInfo.getName()).isEqualTo(DEFAULT_NAME);
-        assertThat(testBPNMProcessInfo.getVersion()).isEqualTo(DEFAULT_VERSION);
-        assertThat(testBPNMProcessInfo.getType()).isEqualTo(DEFAULT_TYPE);
-        assertThat(testBPNMProcessInfo.getAuthor()).isEqualTo(DEFAULT_AUTHOR);
-        assertThat(testBPNMProcessInfo.getLastChange()).isEqualTo(DEFAULT_LAST_CHANGE);
-        assertThat(testBPNMProcessInfo.getSignatureBase64()).isEqualTo(DEFAULT_SIGNATURE_BASE_64);
+        List<BPMNProcessInfo> bPMNProcessInfoList = bPMNProcessInfoRepository.findAll();
+        assertThat(bPMNProcessInfoList).hasSize(databaseSizeBeforeCreate + 1);
+        BPMNProcessInfo testBPMNProcessInfo = bPMNProcessInfoList.get(bPMNProcessInfoList.size() - 1);
+        assertThat(testBPMNProcessInfo.getName()).isEqualTo(DEFAULT_NAME);
+        assertThat(testBPMNProcessInfo.getVersion()).isEqualTo(DEFAULT_VERSION);
+        assertThat(testBPMNProcessInfo.getType()).isEqualTo(DEFAULT_TYPE);
+        assertThat(testBPMNProcessInfo.getAuthor()).isEqualTo(DEFAULT_AUTHOR);
+        assertThat(testBPMNProcessInfo.getLastChange()).isEqualTo(DEFAULT_LAST_CHANGE);
+        assertThat(testBPMNProcessInfo.getSignatureBase64()).isEqualTo(DEFAULT_SIGNATURE_BASE_64);
     }
 
     @Test
     @Transactional
     public void createBPNMProcessInfoWithExistingId() throws Exception {
-        int databaseSizeBeforeCreate = bPNMProcessInfoRepository.findAll().size();
+        int databaseSizeBeforeCreate = bPMNProcessInfoRepository.findAll().size();
 
         // Create the BPNMProcessInfo with an existing ID
-        bPNMProcessInfo.setId(1L);
+        bPMNProcessInfo.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restBPNMProcessInfoMockMvc.perform(post("/api/bpnm-process-infos")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(bPNMProcessInfo)))
+            .content(TestUtil.convertObjectToJsonBytes(bPMNProcessInfo)))
             .andExpect(status().isBadRequest());
 
         // Validate the BPNMProcessInfo in the database
-        List<BPNMProcessInfo> bPNMProcessInfoList = bPNMProcessInfoRepository.findAll();
-        assertThat(bPNMProcessInfoList).hasSize(databaseSizeBeforeCreate);
+        List<BPMNProcessInfo> bPMNProcessInfoList = bPMNProcessInfoRepository.findAll();
+        assertThat(bPMNProcessInfoList).hasSize(databaseSizeBeforeCreate);
     }
 
 
     @Test
     @Transactional
     public void checkNameIsRequired() throws Exception {
-        int databaseSizeBeforeTest = bPNMProcessInfoRepository.findAll().size();
+        int databaseSizeBeforeTest = bPMNProcessInfoRepository.findAll().size();
         // set the field null
-        bPNMProcessInfo.setName(null);
+        bPMNProcessInfo.setName(null);
 
         // Create the BPNMProcessInfo, which fails.
 
         restBPNMProcessInfoMockMvc.perform(post("/api/bpnm-process-infos")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(bPNMProcessInfo)))
+            .content(TestUtil.convertObjectToJsonBytes(bPMNProcessInfo)))
             .andExpect(status().isBadRequest());
 
-        List<BPNMProcessInfo> bPNMProcessInfoList = bPNMProcessInfoRepository.findAll();
-        assertThat(bPNMProcessInfoList).hasSize(databaseSizeBeforeTest);
+        List<BPMNProcessInfo> bPMNProcessInfoList = bPMNProcessInfoRepository.findAll();
+        assertThat(bPMNProcessInfoList).hasSize(databaseSizeBeforeTest);
     }
 
     @Test
     @Transactional
     public void checkVersionIsRequired() throws Exception {
-        int databaseSizeBeforeTest = bPNMProcessInfoRepository.findAll().size();
+        int databaseSizeBeforeTest = bPMNProcessInfoRepository.findAll().size();
         // set the field null
-        bPNMProcessInfo.setVersion(null);
+        bPMNProcessInfo.setVersion(null);
 
         // Create the BPNMProcessInfo, which fails.
 
         restBPNMProcessInfoMockMvc.perform(post("/api/bpnm-process-infos")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(bPNMProcessInfo)))
+            .content(TestUtil.convertObjectToJsonBytes(bPMNProcessInfo)))
             .andExpect(status().isBadRequest());
 
-        List<BPNMProcessInfo> bPNMProcessInfoList = bPNMProcessInfoRepository.findAll();
-        assertThat(bPNMProcessInfoList).hasSize(databaseSizeBeforeTest);
+        List<BPMNProcessInfo> bPMNProcessInfoList = bPMNProcessInfoRepository.findAll();
+        assertThat(bPMNProcessInfoList).hasSize(databaseSizeBeforeTest);
     }
 
     @Test
     @Transactional
     public void checkTypeIsRequired() throws Exception {
-        int databaseSizeBeforeTest = bPNMProcessInfoRepository.findAll().size();
+        int databaseSizeBeforeTest = bPMNProcessInfoRepository.findAll().size();
         // set the field null
-        bPNMProcessInfo.setType(null);
+        bPMNProcessInfo.setType(null);
 
         // Create the BPNMProcessInfo, which fails.
 
         restBPNMProcessInfoMockMvc.perform(post("/api/bpnm-process-infos")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(bPNMProcessInfo)))
+            .content(TestUtil.convertObjectToJsonBytes(bPMNProcessInfo)))
             .andExpect(status().isBadRequest());
 
-        List<BPNMProcessInfo> bPNMProcessInfoList = bPNMProcessInfoRepository.findAll();
-        assertThat(bPNMProcessInfoList).hasSize(databaseSizeBeforeTest);
+        List<BPMNProcessInfo> bPMNProcessInfoList = bPMNProcessInfoRepository.findAll();
+        assertThat(bPMNProcessInfoList).hasSize(databaseSizeBeforeTest);
     }
 
     @Test
     @Transactional
     public void checkAuthorIsRequired() throws Exception {
-        int databaseSizeBeforeTest = bPNMProcessInfoRepository.findAll().size();
+        int databaseSizeBeforeTest = bPMNProcessInfoRepository.findAll().size();
         // set the field null
-        bPNMProcessInfo.setAuthor(null);
+        bPMNProcessInfo.setAuthor(null);
 
         // Create the BPNMProcessInfo, which fails.
 
         restBPNMProcessInfoMockMvc.perform(post("/api/bpnm-process-infos")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(bPNMProcessInfo)))
+            .content(TestUtil.convertObjectToJsonBytes(bPMNProcessInfo)))
             .andExpect(status().isBadRequest());
 
-        List<BPNMProcessInfo> bPNMProcessInfoList = bPNMProcessInfoRepository.findAll();
-        assertThat(bPNMProcessInfoList).hasSize(databaseSizeBeforeTest);
+        List<BPMNProcessInfo> bPMNProcessInfoList = bPMNProcessInfoRepository.findAll();
+        assertThat(bPMNProcessInfoList).hasSize(databaseSizeBeforeTest);
     }
 
     @Test
     @Transactional
     public void checkLastChangeIsRequired() throws Exception {
-        int databaseSizeBeforeTest = bPNMProcessInfoRepository.findAll().size();
+        int databaseSizeBeforeTest = bPMNProcessInfoRepository.findAll().size();
         // set the field null
-        bPNMProcessInfo.setLastChange(null);
+        bPMNProcessInfo.setLastChange(null);
 
         // Create the BPNMProcessInfo, which fails.
 
         restBPNMProcessInfoMockMvc.perform(post("/api/bpnm-process-infos")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(bPNMProcessInfo)))
+            .content(TestUtil.convertObjectToJsonBytes(bPMNProcessInfo)))
             .andExpect(status().isBadRequest());
 
-        List<BPNMProcessInfo> bPNMProcessInfoList = bPNMProcessInfoRepository.findAll();
-        assertThat(bPNMProcessInfoList).hasSize(databaseSizeBeforeTest);
+        List<BPMNProcessInfo> bPMNProcessInfoList = bPMNProcessInfoRepository.findAll();
+        assertThat(bPMNProcessInfoList).hasSize(databaseSizeBeforeTest);
     }
 
     @Test
     @Transactional
     public void getAllBPNMProcessInfos() throws Exception {
         // Initialize the database
-        bPNMProcessInfoRepository.saveAndFlush(bPNMProcessInfo);
+        bPMNProcessInfoRepository.saveAndFlush(bPMNProcessInfo);
 
-        // Get all the bPNMProcessInfoList
+        // Get all the bPMNProcessInfoList
         restBPNMProcessInfoMockMvc.perform(get("/api/bpnm-process-infos?sort=id,desc"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(bPNMProcessInfo.getId().intValue())))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(bPMNProcessInfo.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].version").value(hasItem(DEFAULT_VERSION)))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
@@ -282,18 +281,18 @@ public class BPNMProcessInfoResourceIT {
             .andExpect(jsonPath("$.[*].lastChange").value(hasItem(DEFAULT_LAST_CHANGE.toString())))
             .andExpect(jsonPath("$.[*].signatureBase64").value(hasItem(DEFAULT_SIGNATURE_BASE_64.toString())));
     }
-    
+
     @Test
     @Transactional
     public void getBPNMProcessInfo() throws Exception {
         // Initialize the database
-        bPNMProcessInfoRepository.saveAndFlush(bPNMProcessInfo);
+        bPMNProcessInfoRepository.saveAndFlush(bPMNProcessInfo);
 
-        // Get the bPNMProcessInfo
-        restBPNMProcessInfoMockMvc.perform(get("/api/bpnm-process-infos/{id}", bPNMProcessInfo.getId()))
+        // Get the bPMNProcessInfo
+        restBPNMProcessInfoMockMvc.perform(get("/api/bpnm-process-infos/{id}", bPMNProcessInfo.getId()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.id").value(bPNMProcessInfo.getId().intValue()))
+            .andExpect(jsonPath("$.id").value(bPMNProcessInfo.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.version").value(DEFAULT_VERSION))
             .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))
@@ -305,7 +304,7 @@ public class BPNMProcessInfoResourceIT {
     @Test
     @Transactional
     public void getNonExistingBPNMProcessInfo() throws Exception {
-        // Get the bPNMProcessInfo
+        // Get the bPMNProcessInfo
         restBPNMProcessInfoMockMvc.perform(get("/api/bpnm-process-infos/{id}", Long.MAX_VALUE))
             .andExpect(status().isNotFound());
     }
@@ -314,15 +313,15 @@ public class BPNMProcessInfoResourceIT {
     @Transactional
     public void updateBPNMProcessInfo() throws Exception {
         // Initialize the database
-        bPNMProcessInfoService.save(bPNMProcessInfo);
+        bPMNProcessInfoService.save(bPMNProcessInfo);
 
-        int databaseSizeBeforeUpdate = bPNMProcessInfoRepository.findAll().size();
+        int databaseSizeBeforeUpdate = bPMNProcessInfoRepository.findAll().size();
 
-        // Update the bPNMProcessInfo
-        BPNMProcessInfo updatedBPNMProcessInfo = bPNMProcessInfoRepository.findById(bPNMProcessInfo.getId()).get();
+        // Update the bPMNProcessInfo
+        BPMNProcessInfo updatedBPMNProcessInfo = bPMNProcessInfoRepository.findById(bPMNProcessInfo.getId()).get();
         // Disconnect from session so that the updates on updatedBPNMProcessInfo are not directly saved in db
-        em.detach(updatedBPNMProcessInfo);
-        updatedBPNMProcessInfo
+        em.detach(updatedBPMNProcessInfo);
+        updatedBPMNProcessInfo
             .name(UPDATED_NAME)
             .version(UPDATED_VERSION)
             .type(UPDATED_TYPE)
@@ -332,54 +331,54 @@ public class BPNMProcessInfoResourceIT {
 
         restBPNMProcessInfoMockMvc.perform(put("/api/bpnm-process-infos")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(updatedBPNMProcessInfo)))
+            .content(TestUtil.convertObjectToJsonBytes(updatedBPMNProcessInfo)))
             .andExpect(status().isOk());
 
         // Validate the BPNMProcessInfo in the database
-        List<BPNMProcessInfo> bPNMProcessInfoList = bPNMProcessInfoRepository.findAll();
-        assertThat(bPNMProcessInfoList).hasSize(databaseSizeBeforeUpdate);
-        BPNMProcessInfo testBPNMProcessInfo = bPNMProcessInfoList.get(bPNMProcessInfoList.size() - 1);
-        assertThat(testBPNMProcessInfo.getName()).isEqualTo(UPDATED_NAME);
-        assertThat(testBPNMProcessInfo.getVersion()).isEqualTo(UPDATED_VERSION);
-        assertThat(testBPNMProcessInfo.getType()).isEqualTo(UPDATED_TYPE);
-        assertThat(testBPNMProcessInfo.getAuthor()).isEqualTo(UPDATED_AUTHOR);
-        assertThat(testBPNMProcessInfo.getLastChange()).isEqualTo(UPDATED_LAST_CHANGE);
-        assertThat(testBPNMProcessInfo.getSignatureBase64()).isEqualTo(UPDATED_SIGNATURE_BASE_64);
+        List<BPMNProcessInfo> bPMNProcessInfoList = bPMNProcessInfoRepository.findAll();
+        assertThat(bPMNProcessInfoList).hasSize(databaseSizeBeforeUpdate);
+        BPMNProcessInfo testBPMNProcessInfo = bPMNProcessInfoList.get(bPMNProcessInfoList.size() - 1);
+        assertThat(testBPMNProcessInfo.getName()).isEqualTo(UPDATED_NAME);
+        assertThat(testBPMNProcessInfo.getVersion()).isEqualTo(UPDATED_VERSION);
+        assertThat(testBPMNProcessInfo.getType()).isEqualTo(UPDATED_TYPE);
+        assertThat(testBPMNProcessInfo.getAuthor()).isEqualTo(UPDATED_AUTHOR);
+        assertThat(testBPMNProcessInfo.getLastChange()).isEqualTo(UPDATED_LAST_CHANGE);
+        assertThat(testBPMNProcessInfo.getSignatureBase64()).isEqualTo(UPDATED_SIGNATURE_BASE_64);
     }
 
     @Test
     @Transactional
     public void updateNonExistingBPNMProcessInfo() throws Exception {
-        int databaseSizeBeforeUpdate = bPNMProcessInfoRepository.findAll().size();
+        int databaseSizeBeforeUpdate = bPMNProcessInfoRepository.findAll().size();
 
         // Create the BPNMProcessInfo
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restBPNMProcessInfoMockMvc.perform(put("/api/bpnm-process-infos")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(bPNMProcessInfo)))
+            .content(TestUtil.convertObjectToJsonBytes(bPMNProcessInfo)))
             .andExpect(status().isBadRequest());
 
         // Validate the BPNMProcessInfo in the database
-        List<BPNMProcessInfo> bPNMProcessInfoList = bPNMProcessInfoRepository.findAll();
-        assertThat(bPNMProcessInfoList).hasSize(databaseSizeBeforeUpdate);
+        List<BPMNProcessInfo> bPMNProcessInfoList = bPMNProcessInfoRepository.findAll();
+        assertThat(bPMNProcessInfoList).hasSize(databaseSizeBeforeUpdate);
     }
 
     @Test
     @Transactional
     public void deleteBPNMProcessInfo() throws Exception {
         // Initialize the database
-        bPNMProcessInfoService.save(bPNMProcessInfo);
+        bPMNProcessInfoService.save(bPMNProcessInfo);
 
-        int databaseSizeBeforeDelete = bPNMProcessInfoRepository.findAll().size();
+        int databaseSizeBeforeDelete = bPMNProcessInfoRepository.findAll().size();
 
-        // Delete the bPNMProcessInfo
-        restBPNMProcessInfoMockMvc.perform(delete("/api/bpnm-process-infos/{id}", bPNMProcessInfo.getId())
+        // Delete the bPMNProcessInfo
+        restBPNMProcessInfoMockMvc.perform(delete("/api/bpnm-process-infos/{id}", bPMNProcessInfo.getId())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item
-        List<BPNMProcessInfo> bPNMProcessInfoList = bPNMProcessInfoRepository.findAll();
-        assertThat(bPNMProcessInfoList).hasSize(databaseSizeBeforeDelete - 1);
+        List<BPMNProcessInfo> bPMNProcessInfoList = bPMNProcessInfoRepository.findAll();
+        assertThat(bPMNProcessInfoList).hasSize(databaseSizeBeforeDelete - 1);
     }
 }

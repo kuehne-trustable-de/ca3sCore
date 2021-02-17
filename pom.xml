@@ -92,7 +92,7 @@
 
         <!-- The liquibase version should match the one managed by
         https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
-        <liquibase.version>3.5.5</liquibase.version>
+        <liquibase.version>3.9.0</liquibase.version>
         <liquibase-hibernate5.version>3.8</liquibase-hibernate5.version>
 
         <h2.version>1.4.200</h2.version>
@@ -180,61 +180,59 @@
                 <scope>import</scope>
             </dependency>
             <!-- jhipster-needle-maven-add-dependency-management -->
+            <!--
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>8.0.23</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.mybatis/mybatis -->
+            -->
             <dependency>
                 <groupId>org.mybatis</groupId>
                 <artifactId>mybatis</artifactId>
                 <version>3.5.6</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
                 <version>4.5.13</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-core</artifactId>
-                <version>5.4.28.Final</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-core</artifactId>
                 <version>2.14.0</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.yaml/snakeyaml -->
             <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>1.27</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.springframework/spring-core -->
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-core</artifactId>
+                <version>5.4.28.Final</version>
+            </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
                 <version>5.2.12.RELEASE</version>
             </dependency>
-
-            <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-core -->
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-core</artifactId>
                 <version>5.2.8.RELEASE</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.apache.tika/tika-core -->
             <dependency>
                 <groupId>org.apache.tika</groupId>
                 <artifactId>tika-core</artifactId>
                 <version>1.25</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk15on</artifactId>
+                <version>1.68</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
