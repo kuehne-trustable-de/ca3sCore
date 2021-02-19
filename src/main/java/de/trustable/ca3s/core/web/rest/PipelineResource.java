@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.Pipeline;
+import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.PipelineService;
 import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
 
@@ -8,6 +9,7 @@ import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -114,6 +116,7 @@ public class PipelineResource {
     public ResponseEntity<Void> deletePipeline(@PathVariable Long id) {
         log.debug("REST request to delete Pipeline : {}", id);
         pipelineService.delete(id);
+
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
 }

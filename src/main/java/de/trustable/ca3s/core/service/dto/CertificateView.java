@@ -40,7 +40,7 @@ public class CertificateView implements Serializable {
     private String signingAlgorithm;
     private String paddingAlgorithm;
     private String hashAlgorithm;
-    
+
     private String description;
 
     private String serial;
@@ -66,13 +66,13 @@ public class CertificateView implements Serializable {
     private Long acmeOrderId;
     private Long scepTransId;
     private String scepRecipient;
-    
+
     private String fileSource;
     private String uploadedBy;
     private String revokedBy;
     private String requestedBy;
     private String crlUrl;
-    private Instant crlNextUpdate;    
+    private Instant crlNextUpdate;
 
     private String certB64;
     private String downloadFilename;
@@ -80,7 +80,7 @@ public class CertificateView implements Serializable {
 	private Boolean isServersideKeyGeneration = false;
 
     public CertificateView() {}
-    
+
     public CertificateView(final Certificate cert) {
     	this.id = cert.getId();
     	this.tbsDigest = cert.getTbsDigest();
@@ -103,7 +103,7 @@ public class CertificateView implements Serializable {
     	this.revocationReason = cert.getRevocationReason();
     	this.revoked = cert.isRevoked();
     	this.certB64 = cert.getContent();
-    	
+
     	if( cert.getCsr() != null) {
     		this.requestedBy = cert.getCsr().getRequestedBy();
     		this.csrId = cert.getCsr().getId();
@@ -111,14 +111,14 @@ public class CertificateView implements Serializable {
     	} else {
     		this.requestedBy =  "";
     	}
-    	
+
     	if( cert.getIssuingCertificate() != null) {
     		this.issuerId = cert.getIssuingCertificate().getId();
     	}
-    	
+
     	List<String> usageList = new ArrayList<String>();
     	List<String> extUsageList = new ArrayList<String>();
-    	
+
     	for( CertificateAttribute certAttr: cert.getCertificateAttributes()) {
     		if( CertificateAttribute.ATTRIBUTE_CA_CONNECTOR_ID.equalsIgnoreCase(certAttr.getName())) {
     			this.caConnectorId = Long.parseLong(certAttr.getValue());
@@ -160,13 +160,13 @@ public class CertificateView implements Serializable {
     		} else if(CertificateAttribute.ATTRIBUTE_EXTENDED_USAGE.equalsIgnoreCase(certAttr.getName())) {
     			extUsageList.add(certAttr.getValue());
     		}else {
-    			LOG.debug("Unexpected certificate attribute '{}' with value '{}'", certAttr.getName(), certAttr.getValue());
-    			
+    			LOG.debug("Irrelevant certificate attribute '{}' with value '{}'", certAttr.getName(), certAttr.getValue());
+
     		}
     	}
     	this.usage = usageList.toArray(new String[usageList.size()]);
     	this.extUsage = extUsageList.toArray(new String[extUsageList.size()]);
-    	
+
     	this.downloadFilename = CertificateUtil.getDownloadFilename(cert);
     }
 
@@ -544,7 +544,7 @@ public class CertificateView implements Serializable {
 
 	public void setIsServersideKeyGeneration(Boolean isServersideKeyGeneration) {
 		this.isServersideKeyGeneration = isServersideKeyGeneration;
-	}	
-	
-	
+	}
+
+
 }

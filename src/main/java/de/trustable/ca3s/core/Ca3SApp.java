@@ -1,19 +1,15 @@
 package de.trustable.ca3s.core;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.security.GeneralSecurityException;
-import java.security.KeyStore;
-import java.security.Security;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-
+import de.trustable.ca3s.cert.bundle.TimedRenewalCertMap;
+import de.trustable.ca3s.core.config.ApplicationProperties;
+import de.trustable.ca3s.core.config.DefaultProfileUtil;
+import de.trustable.ca3s.core.security.provider.Ca3sFallbackBundleFactory;
+import de.trustable.ca3s.core.security.provider.Ca3sKeyManagerProvider;
+import de.trustable.ca3s.core.security.provider.Ca3sKeyStoreProvider;
+import de.trustable.ca3s.core.security.provider.TimedRenewalCertMapHolder;
+import de.trustable.util.JCAManager;
+import io.github.jhipster.config.JHipsterConstants;
+import io.undertow.Undertow;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,18 +23,20 @@ import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFa
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.Environment;
-
-import de.trustable.ca3s.cert.bundle.TimedRenewalCertMap;
-import de.trustable.ca3s.core.config.ApplicationProperties;
-import de.trustable.ca3s.core.config.DefaultProfileUtil;
-import de.trustable.ca3s.core.security.provider.Ca3sFallbackBundleFactory;
-import de.trustable.ca3s.core.security.provider.Ca3sKeyManagerProvider;
-import de.trustable.ca3s.core.security.provider.Ca3sKeyStoreProvider;
-import de.trustable.ca3s.core.security.provider.TimedRenewalCertMapHolder;
-import de.trustable.util.JCAManager;
-import io.github.jhipster.config.JHipsterConstants;
-import io.undertow.Undertow;
 import org.springframework.core.io.ClassPathResource;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
+import java.security.Security;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 
 @SpringBootApplication
 @EnableConfigurationProperties({LiquibaseProperties.class, ApplicationProperties.class})
@@ -132,7 +130,20 @@ public class Ca3SApp implements InitializingBean {
         propsConfig.setIgnoreUnresolvablePlaceholders(true);
         return propsConfig;
     }
+/*
+    @Bean
+    public AnnotatedHibernateEventListenerInvoker annotatedHibernateEventHandlerInvoker() {
+        AnnotatedHibernateEventListenerInvoker invoker = new AnnotatedHibernateEventListenerInvoker();
+        SessionFactoryImplementor sessionFactory = entityManagerFactory.unwrap(SessionFactoryImplementor.class);
+        EventListenerRegistry registry = sessionFactory.getServiceRegistry().getService(EventListenerRegistry.class);
+        registry.prependListeners(EventType.PRE_UPDATE, invoker);
+        registry.prependListeners(EventType.PRE_DELETE, invoker);
+        registry.prependListeners(EventType.PRE_INSERT, invoker);
 
+        return invoker;
+    }
+
+ */
     @Bean
     public TimedRenewalCertMapHolder registerJCEProvider() {
 		JCAManager.getInstance();

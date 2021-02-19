@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Set;
 
 import de.trustable.ca3s.core.domain.dto.NamedValues;
+import de.trustable.ca3s.core.service.AuditService;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
@@ -78,7 +79,6 @@ import de.trustable.ca3s.core.service.dto.acme.OrderResponse;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.ACMEUtil;
-import de.trustable.ca3s.core.service.util.AuditUtil;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateProcessingUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
@@ -365,7 +365,7 @@ public class OrderController extends ACMEController {
 
 	    List<String> messageList = new ArrayList<>();
         NamedValues[] nvArr = new NamedValues[0];
-		CSR csr = cpUtil.buildCSR(csrAsPem, requestorName, AuditUtil.AUDIT_ACME_CERTIFICATE_REQUESTED, "", pipeline, nvArr, messageList );
+		CSR csr = cpUtil.buildCSR(csrAsPem, requestorName, AuditService.AUDIT_ACME_CERTIFICATE_REQUESTED, "", pipeline, nvArr, messageList );
 
 		if( csr == null) {
 			LOG.info("building CSR failed");
@@ -378,7 +378,7 @@ public class OrderController extends ACMEController {
 			throw new AcmeProblemException(problem);
 		}
 
-		Certificate cert = cpUtil.processCertificateRequest(csr, requestorName, AuditUtil.AUDIT_ACME_CERTIFICATE_CREATED, pipeline );
+		Certificate cert = cpUtil.processCertificateRequest(csr, requestorName, AuditService.AUDIT_ACME_CERTIFICATE_CREATED, pipeline );
 
 		if( cert == null) {
 			orderDao.setStatus(AcmeOrderStatus.INVALID);

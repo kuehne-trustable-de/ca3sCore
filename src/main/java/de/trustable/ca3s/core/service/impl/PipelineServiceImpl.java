@@ -1,11 +1,13 @@
 package de.trustable.ca3s.core.service.impl;
 
+import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.PipelineService;
 import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,9 @@ public class PipelineServiceImpl implements PipelineService {
     private final Logger log = LoggerFactory.getLogger(PipelineServiceImpl.class);
 
     private final PipelineRepository pipelineRepository;
+
+    @Autowired
+    private AuditService auditService;
 
     public PipelineServiceImpl(PipelineRepository pipelineRepository) {
         this.pipelineRepository = pipelineRepository;
@@ -73,6 +78,7 @@ public class PipelineServiceImpl implements PipelineService {
     @Override
     public void delete(Long id) {
         log.debug("Request to delete Pipeline : {}", id);
+        auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_DELETED, null);
         pipelineRepository.deleteById(id);
     }
 }

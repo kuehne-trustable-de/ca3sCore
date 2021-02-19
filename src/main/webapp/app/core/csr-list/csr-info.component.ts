@@ -6,6 +6,8 @@ import axios from 'axios';
 import { mixins } from 'vue-class-component';
 import JhiDataUtils from '@/shared/data/data-utils.service';
 import AlertService from '@/shared/alert/alert.service';
+import CopyClipboardButton from '@/shared/clipboard/clipboard.vue';
+import HelpTag from '@/core/help/help-tag.vue';
 
 import { ICSRAdministrationData, INamedValue } from '@/shared/model/transfer-object.model';
 
@@ -18,7 +20,9 @@ import { ICsrAttribute } from '@/shared/model/csr-attribute.model';
 @Component({
   components: {
     ArItem,
-    Fragment
+    Fragment,
+    CopyClipboardButton,
+    HelpTag
   }
 })
 export default class CsrInfo extends mixins(JhiDataUtils, Vue) {

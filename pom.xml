@@ -160,7 +160,7 @@
 
 		<crawler4jVersion>4.4.0</crawler4jVersion>
 
-       	<conductorVersion>3.0.1</conductorVersion>
+         <conductorVersion>3.0.1</conductorVersion>
 
         <xml.maven.saxon.version>9.7.0-18</xml.maven.saxon.version>
         <xml.maven.plugin.version>1.0.2</xml.maven.plugin.version>

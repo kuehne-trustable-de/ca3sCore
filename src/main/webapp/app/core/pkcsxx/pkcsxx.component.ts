@@ -3,6 +3,7 @@ import { Vue } from 'vue-property-decorator';
 import { mixins } from 'vue-class-component';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
+import CopyClipboardButton from '@/shared/clipboard/clipboard.vue';
 import HelpTag from '@/core/help/help-tag.vue';
 
 import axios from 'axios';
@@ -50,6 +51,7 @@ const validations: any = {
 @Component({
   validations,
   components: {
+    CopyClipboardButton,
     HelpTag
   }
 })

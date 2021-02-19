@@ -22,6 +22,7 @@ import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
+import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.util.*;
 import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
@@ -170,7 +171,7 @@ public class ScepServletImpl extends ScepServlet {
 		String requestorName = "SCEP-transId-" + transId.toString();
         LOGGER.debug("doEnrol: processing request by {} using pipeline {}", requestorName, pipeline.getName());
 
-		CSR csr = cpUtil.buildCSR(csrAsPem, requestorName, AuditUtil.AUDIT_SCEP_CERTIFICATE_REQUESTED, "", pipeline );
+		CSR csr = cpUtil.buildCSR(csrAsPem, requestorName, AuditService.AUDIT_SCEP_CERTIFICATE_REQUESTED, "", pipeline );
 
 		CsrAttribute csrAttributeTransId = new CsrAttribute();
 		csrAttributeTransId.setName(CertificateAttribute.ATTRIBUTE_SCEP_TRANS_ID);
@@ -178,7 +179,7 @@ public class ScepServletImpl extends ScepServlet {
 		csr.addCsrAttributes(csrAttributeTransId);
 		csrRepository.save(csr);
 
-		Certificate cert = cpUtil.processCertificateRequest(csr, requestorName,  AuditUtil.AUDIT_SCEP_CERTIFICATE_CREATED, pipeline );
+		Certificate cert = cpUtil.processCertificateRequest(csr, requestorName,  AuditService.AUDIT_SCEP_CERTIFICATE_CREATED, pipeline );
 
 		if( cert == null) {
 			LOGGER.warn("creation of certificate by SCEP transaction id '{}' failed ", transId.toString());

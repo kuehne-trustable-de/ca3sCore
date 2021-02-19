@@ -2,10 +2,7 @@ package de.trustable.ca3s.core.service.util;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -14,7 +11,9 @@ import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.*;
+import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.*;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
@@ -112,6 +111,8 @@ public class PipelineUtil {
     @Autowired
     private ProtectedContentUtil protectedContentUtil;
 
+    @Autowired
+    private AuditService auditService;
 
     public PipelineView from(Pipeline pipeline) {
 
@@ -352,35 +353,70 @@ public class PipelineUtil {
 	        	pipelineAttRepository.deleteAll(p.getPipelineAttributes());
 	        }else {
 	        	p = new Pipeline();
+                auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_CREATED, p);
 	        }
         }else {
         	p = new Pipeline();
+            auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_CREATED, p);
         }
 
 		p.setId(pv.getId());
-		p.setName(pv.getName());
-		p.setDescription(pv.getDescription());
-		p.setType(pv.getType());
-		p.setUrlPart(pv.getUrlPart());
-		p.setApprovalRequired(pv.getApprovalRequired());
+        if(!Objects.equals(pv.getName(), p.getName())) {
+            auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_NAME_CHANGED, p.getName(), pv.getName(), p);
+            p.setName(pv.getName());
+        }
+        if(!Objects.equals(pv.getDescription(), p.getDescription())) {
+            auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_DESCRIPTION_CHANGED, p.getDescription(), pv.getDescription(), p);
+            p.setDescription(pv.getDescription());
+        }
+        if(!pv.getType().equals(p.getType())) {
+            auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_TYPE_CHANGED, p.getType().toString(), pv.getType().toString(), p);
+            p.setType(pv.getType());
+        }
+        if(!Objects.equals(pv.getUrlPart(), p.getUrlPart())) {
+            auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_URLPART_CHANGED, p.getUrlPart(), pv.getUrlPart(), p);
+            p.setUrlPart(pv.getUrlPart());
+        }
+        if(pv.getApprovalRequired() != p.isApprovalRequired()){
+            auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_APPROVAL_REQUIRED_CHANGED, p.isApprovalRequired().toString(), pv.getApprovalRequired().toString(), p);
+            p.setApprovalRequired(pv.getApprovalRequired());
+        }
 
         pipelineRepository.save(p);
+
+        String oldCaConnectorName = "";
+        if( p.getCaConnector() != null){
+            oldCaConnectorName = p.getCaConnector().getName();
+        }
 
         List<CAConnectorConfig> ccc = caConnRepository.findByName(pv.getCaConnectorName());
 		if( ccc.isEmpty()) {
 			p.setCaConnector(null);
-		}else {
+            auditService.createAuditTracePipelineAttribute( "CA_CONNECTOR", oldCaConnectorName, "", p);
+
+        }else {
 			p.setCaConnector(ccc.get(0));
+            auditService.createAuditTracePipelineAttribute( "CA_CONNECTOR", oldCaConnectorName, ccc.get(0).getName(), p);
 		}
+
+
+        String oldProcessName = "";
+        if( p.getProcessInfo() != null){
+            oldProcessName = p.getProcessInfo().getName();
+        }
 
 		Optional<BPMNProcessInfo> bpiOpt = bpmnPIRepository.findByName(pv.getProcessInfoName());
 		if( bpiOpt.isPresent()) {
 			p.setProcessInfo(bpiOpt.get());
+            auditService.createAuditTracePipelineAttribute( "ISSUANCE_PROCESS", oldProcessName, bpiOpt.get().getName(), p);
 		}else {
 			p.setProcessInfo(null);
+            auditService.createAuditTracePipelineAttribute( "ISSUANCE_PROCESS", oldProcessName, "", p);
 		}
 
-		Set<PipelineAttribute> pipelineAttributes = new HashSet<PipelineAttribute>();
+        Set<PipelineAttribute> pipelineOldAttributes = new HashSet<PipelineAttribute>(p.getPipelineAttributes());
+
+        Set<PipelineAttribute> pipelineAttributes = new HashSet<PipelineAttribute>();
 
 		addPipelineAttribute(pipelineAttributes, p, RESTR_C_CARDINALITY, pv.getRestriction_C().getCardinalityRestriction().name());
 		addPipelineAttribute(pipelineAttributes, p, RESTR_C_TEMPLATE, pv.getRestriction_C().getContentTemplate());
@@ -448,6 +484,7 @@ public class PipelineUtil {
             pc.setDeleteAfter(validTo.plus(1, ChronoUnit.DAYS));
             protectedContentRepository.save(pc);
             LOG.debug("SCEP password updated");
+            auditService.createAuditTracePipelineAttribute( "SCEP_SECRET", "#######", "******", p);
         }
 
         addPipelineAttribute(pipelineAttributes, p, SCEP_SECRET_PC_ID,pc.getId().toString());
@@ -476,14 +513,49 @@ public class PipelineUtil {
 			}
 		}
 
-    	pipelineAttRepository.saveAll(p.getPipelineAttributes());
+
+        auditTraceForAttributes(p, pipelineOldAttributes);
+
+        pipelineAttRepository.saveAll(p.getPipelineAttributes());
 		pipelineRepository.save(p);
 
 		return p;
 	}
 
+    private void auditTraceForAttributes(Pipeline p, Set<PipelineAttribute> pipelineOldAttributes) {
+        for( PipelineAttribute pOld: pipelineOldAttributes) {
 
-	public void addPipelineAttribute(Set<PipelineAttribute> pipelineAttributes, Pipeline p, String name, Boolean value) {
+            boolean bFound = false;
+            for (PipelineAttribute pNew : p.getPipelineAttributes()) {
+                if( pNew.getName().equals(pOld.getName())){
+                    if(!Objects.equals(pNew.getValue(), pOld.getValue())){
+                        auditService.createAuditTracePipelineAttribute( pOld.getName(), pOld.getValue(), pNew.getValue(), p);
+                    }
+                    bFound = true;
+                    break;
+                }
+            }
+            if(!bFound){
+                auditService.createAuditTracePipelineAttribute( pOld.getName(), pOld.getValue(), "", p);
+            }
+        }
+
+        for (PipelineAttribute pNew : p.getPipelineAttributes()) {
+            boolean bFound = false;
+            for( PipelineAttribute pOld: pipelineOldAttributes) {
+                if( pNew.getName().equals(pOld.getName())){
+                    bFound = true;
+                    break;
+                }
+            }
+            if(!bFound){
+                auditService.createAuditTracePipelineAttribute( pNew.getName(), "", pNew.getValue(), p);
+            }
+        }
+    }
+
+
+    public void addPipelineAttribute(Set<PipelineAttribute> pipelineAttributes, Pipeline p, String name, Boolean value) {
 		addPipelineAttribute(pipelineAttributes, p, name, value.toString());
 
 	}

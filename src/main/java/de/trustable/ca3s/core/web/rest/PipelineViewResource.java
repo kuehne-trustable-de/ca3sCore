@@ -1,30 +1,25 @@
 package de.trustable.ca3s.core.web.rest;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
-
-import javax.validation.Valid;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import de.trustable.ca3s.core.service.PipelineViewService;
+import de.trustable.ca3s.core.domain.Pipeline;
+import de.trustable.ca3s.core.service.PipelineService;
 import de.trustable.ca3s.core.service.dto.PipelineView;
+import de.trustable.ca3s.core.service.util.PipelineUtil;
 import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * REST controller for managing {@link de.trustable.ca3s.core.domain.Pipeline}.
@@ -40,10 +35,13 @@ public class PipelineViewResource {
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
-    private final PipelineViewService pipelineViewService;
+    private final PipelineService pipelineService;
 
-    public PipelineViewResource(PipelineViewService pipelineService) {
-        this.pipelineViewService = pipelineService;
+    @Autowired
+    private PipelineUtil pipelineUtil;
+
+    public PipelineViewResource(PipelineService pipelineService) {
+        this.pipelineService = pipelineService;
     }
 
     /**
@@ -59,10 +57,10 @@ public class PipelineViewResource {
         if (pipelineView.getId() != null) {
             throw new BadRequestAlertException("A new pipeline cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        PipelineView result = pipelineViewService.save(pipelineView);
-        return ResponseEntity.created(new URI("/api/pipelineViews/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+        Pipeline p = pipelineUtil.toPipeline(pipelineView);
+        return ResponseEntity.created(new URI("/api/pipelineViews/" + p.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, p.getId().toString()))
+            .body(pipelineView);
     }
 
     /**
@@ -80,11 +78,11 @@ public class PipelineViewResource {
         if (pipelineView.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        
-        PipelineView result = pipelineViewService.save(pipelineView);
+
+        Pipeline p = pipelineUtil.toPipeline(pipelineView);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, pipelineView.getId().toString()))
-            .body(result);
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, p.getId().toString()))
+            .body(pipelineView);
     }
 
     /**
@@ -96,7 +94,11 @@ public class PipelineViewResource {
     @GetMapping("/pipelineViews")
     public List<PipelineView> getAllPipelines() {
         log.debug("REST request to get all PipelineViews");
-        return pipelineViewService.findAll();
+        List<PipelineView> pvList = new ArrayList<PipelineView>();
+        for( Pipeline p: pipelineService.findAll()){
+            pvList.add(pipelineUtil.from(p));
+        }
+        return pvList;
     }
 
     /**
@@ -108,8 +110,12 @@ public class PipelineViewResource {
     @GetMapping("/pipelineViews/{id}")
     public ResponseEntity<PipelineView> getPipeline(@PathVariable Long id) {
         log.debug("REST request to get PipelineView : {}", id);
-        Optional<PipelineView> pipeline = pipelineViewService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(pipeline);
+        Optional<Pipeline> pipelineOpt = pipelineService.findOne(id);
+        Optional<PipelineView> pvOpt = Optional.empty();
+        if( pipelineOpt.isPresent()){
+            pvOpt = Optional.of( pipelineUtil.from(pipelineOpt.get()));
+        }
+        return ResponseUtil.wrapOrNotFound(pvOpt);
     }
 
     /**
@@ -121,7 +127,7 @@ public class PipelineViewResource {
     @DeleteMapping("/pipelineViews/{id}")
     public ResponseEntity<Void> deletePipeline(@PathVariable Long id) {
         log.debug("REST request to delete Pipeline : {}", id);
-        pipelineViewService.delete(id);
+        pipelineService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
 }

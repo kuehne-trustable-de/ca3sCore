@@ -68,14 +68,13 @@ public class CSRAdministration {
 
     	LOG.debug("REST request to reject / accept CSR : {}", adminData);
 
-    	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    	String raOfficerName = auth.getName();
 
     	Optional<CSR> optCSR = csrRepository.findById(adminData.getCsrId());
     	if( optCSR.isPresent()) {
+            CSR csr = optCSR.get();
 
-    		CSR csr = optCSR.get();
-			csr.setAdministeredBy(raOfficerName);
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			csr.setAdministeredBy(auth.getName());
 			if( adminData.getComment() != null && !adminData.getComment().trim().isEmpty()) {
 				csr.setAdministrationComment(adminData.getComment());
 			}
@@ -84,7 +83,7 @@ public class CSRAdministration {
     			csr.setApprovedOn(Instant.now());
     			csrRepository.save(csr);
 
-                auditService.createAuditTraceCsrAccepted(raOfficerName, "RA Officer", csr);
+                auditService.createAuditTraceCsrAccepted(csr);
 
     			Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
     			if(cert != null) {
@@ -146,7 +145,7 @@ public class CSRAdministration {
     				LOG.warn("certificate requestor '{}' unknown!", csr.getRequestedBy());
     			}
 
-                auditService.createAuditTraceCsrRejected(raOfficerName, "RA Officer", csr);
+                auditService.createAuditTraceCsrRejected(csr);
 
         		return new ResponseEntity<Long>(adminData.getCsrId(), HttpStatus.OK);
     		}
@@ -193,7 +192,7 @@ public class CSRAdministration {
 			csr.setStatus(CsrStatus.REJECTED);
 			csrRepository.save(csr);
 
-            auditService.createAuditTraceCsrRejected(userName, "Requestor", csr);
+            auditService.createAuditTraceCsrRejected(csr);
 
     		return new ResponseEntity<Long>(adminData.getCsrId(), HttpStatus.OK);
 

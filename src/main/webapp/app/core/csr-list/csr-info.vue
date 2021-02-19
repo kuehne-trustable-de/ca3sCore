@@ -93,33 +93,13 @@
                     <dd>
                         <span>{{cSR.signingAlgorithm}}</span>
                     </dd>
-                    <dt>
-                        <span v-text="$t('ca3SApp.cSR.publicKeyAlgorithm')">Public Key Algorithm</span>
-                    </dt>
-                    <dd>
-                        <span>{{cSR.publicKeyAlgorithm}}</span>
-                    </dd>
-                    <dt>
-                        <span v-text="$t('ca3SApp.cSR.keyLength')">Key Length</span>
-                    </dt>
-                    <dd>
-                        <span>{{cSR.keyLength}}</span>
-                    </dd>
-                    <!--dt>
-                        <span v-text="$t('ca3SApp.cSR.publicKeyHash')">Public Key Hash</span>
-                    </dt>
-                    <dd>
-                        <span>{{cSR.publicKeyHash}}</span>
-                    </dd-->
-                    <!--dt>
-                        <span v-text="$t('ca3SApp.cSR.subjectPublicKeyInfoBase64')">Subject Public Key Info Base 64</span>
-                    </dt>
-                    <dd>
-                        <span>{{cSR.subjectPublicKeyInfoBase64}}</span>
-                    </dd-->
 
-                <!--ArItem v-for="attr in arAttributes" :key="attr.name" arAttribute="attr" /-->
-
+                    <dt>
+                        <span v-text="$t('ca3SApp.cSR.keyDetails')">Key Details</span>
+                    </dt>
+                    <dd>
+                        <span>{{cSR.publicKeyAlgorithm}} / {{cSR.keyLength}} bits</span>
+                    </dd>
 
                     <Fragment v-for="attr in arAttributes" :key="attr.name">
                         <dt>
@@ -155,9 +135,17 @@
                         <span v-text="$t('ca3SApp.cSR.csrBase64')">Csr Base64</span>
                     </dt>
                     <dd>
-                        <span><textarea class="form-control pem-content" name="csrContent" id="comment"
+                        <!--span><textarea class="form-control pem-content" name="csrContent" id="comment"
 							autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly
-                            v-model="cSR.csrBase64" /></span>
+                            v-model="cSR.csrBase64" /></span-->
+
+                        <div class="form-group wrap">
+                            <textarea class="form-control pem-content" name="certContent" id="csrContent"
+                                      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly
+                                      v-model="cSR.csrBase64" />
+
+                            <CopyClipboardButton contentElementId="csrContent"/>
+                        </div>
 
                     </dd>
                 </dl>
@@ -170,7 +158,7 @@
             <form name="editForm" role="form" novalidate>
                 <div>
                     <div v-if="cSR.status === 'PENDING' && ((roles === 'ROLE_RA') || (getUsername() === cSR.requestedBy))" class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.cSR.rejectionReason')" for="rejectionReason">rejection reason</label>
+                        <label class="form-control-label" v-text="$t('ca3SApp.cSR.rejectionReason')" for="csr-rejectionReason">rejection reason</label>
                         <input type="text" class="form-control" name="rejectionReason" id="csr-rejectionReason" v-model="csrAdminData.rejectionReason" />
                     </div>
 

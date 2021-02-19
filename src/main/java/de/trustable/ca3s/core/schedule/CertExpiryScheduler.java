@@ -17,6 +17,7 @@ import java.util.Locale;
 
 import javax.naming.NamingException;
 
+import de.trustable.ca3s.core.service.AuditService;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,14 +40,13 @@ import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.MailService;
-import de.trustable.ca3s.core.service.util.AuditUtil;
 import de.trustable.ca3s.core.service.util.CRLUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.PreferenceUtil;
 import de.trustable.util.CryptoUtil;
 
 /**
- * 
+ *
  * @author kuehn
  *
  */
@@ -57,40 +57,40 @@ public class CertExpiryScheduler {
 	transient Logger LOG = LoggerFactory.getLogger(CertExpiryScheduler.class);
 
 	final static int MAX_RECORDS_PER_TRANSACTION = 1000;
-	
+
 	@Autowired
 	private CertificateRepository certificateRepo;
-	
+
 	@Autowired
 	private CSRRepository csrRepo;
-	
+
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Autowired
 	private CRLUtil crlUtil;
-	
+
 	@Autowired
 	private CertificateUtil certUtil;
-	
+
 	@Autowired
 	private CryptoUtil cryptoUtil;
-	
+
 	@Autowired
 	private MailService mailService;
 
 	@Autowired
 	private ApplicationEventPublisher applicationEventPublisher;
-	
+
 	@Autowired
 	private PreferenceUtil preferenceUtil;
-	
+
 
 	@Scheduled(fixedDelay = 3600000)
 	public void retrieveCertificates() {
 
 		Instant now = Instant.now();
-		
+
 		List<Certificate> becomingValidList = certificateRepo.findInactiveCertificatesByValidFrom(now);
 
 		int count = 0;
@@ -98,7 +98,7 @@ public class CertExpiryScheduler {
 			cert.setActive(true);
 			certificateRepo.save(cert);
 			LOG.info("Certificate {} becoming active passing 'validFrom'", cert.getId());
-			
+
 			if( count++ > MAX_RECORDS_PER_TRANSACTION) {
 				LOG.info("limited certificate validity processing to {} per call", MAX_RECORDS_PER_TRANSACTION);
 				break;
@@ -106,22 +106,22 @@ public class CertExpiryScheduler {
 		}
 
 		List<Certificate> becomingInvalidList = certificateRepo.findActiveCertificatesByValidTo(now);
-		  
+
 		count = 0;
 		for (Certificate cert : becomingInvalidList) {
 			cert.setActive(false);
 			certificateRepo.save(cert);
 			LOG.info("Certificate {} becoming inactive due to expiry", cert.getId());
-			
+
 			if( count++ > MAX_RECORDS_PER_TRANSACTION) {
 				LOG.info("limited certificate validity processing to {} per call", MAX_RECORDS_PER_TRANSACTION);
 				break;
 			}
 		}
-		
+
 	}
-	
-	
+
+
 	@Scheduled(fixedDelay = 3600000)
 	public void updateRevocationStatus() {
 
@@ -129,15 +129,15 @@ public class CertExpiryScheduler {
 			LOG.info("Check of CRL status disabled");
 			return;
 		}
-		
+
 		long startTime = System.currentTimeMillis();
-		
+
 		List<Certificate> certWithURLList = certificateRepo.findActiveCertificateByCrlURL();
 
 		int count = 0;
 		for (Certificate cert : certWithURLList) {
 			LOG.debug("Checking certificate {} for CRL status", cert.getId());
-			boolean bCRLDownloadSuccess = false; 
+			boolean bCRLDownloadSuccess = false;
 			int crlUrlCount = 0;
 			for( CertificateAttribute certAtt: cert.getCertificateAttributes()) {
 				String nextUpdate = certUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE);
@@ -153,7 +153,7 @@ public class CertExpiryScheduler {
 					}
 				}
 
-				
+
 				try {
 					X509Certificate x509Cert = certUtil.convertPemToCertificate(cert.getContent());
 					if( CertificateAttribute.ATTRIBUTE_CRL_URL.equals(certAtt.getName())) {
@@ -167,28 +167,28 @@ public class CertExpiryScheduler {
 							X509CRLEntry crlItem = crl.getRevokedCertificate(new BigInteger(cert.getSerial()));
 
 							if( (crlItem != null) && (crl.isRevoked(x509Cert) ) ) {
-								
+
 								String revocationReason = "unspecified";
 								if( crlItem.getRevocationReason() != null ) {
 									if( cryptoUtil.crlReasonAsString(CRLReason.lookup(crlItem.getRevocationReason().ordinal())) != null ) {
 										revocationReason = cryptoUtil.crlReasonAsString(CRLReason.lookup(crlItem.getRevocationReason().ordinal()));
 									}
 								}
-								
+
 								Date revocationDate = new Date();
 								if( crlItem.getRevocationDate() != null) {
 									revocationDate = crlItem.getRevocationDate();
 								}else {
 									LOG.debug("Checking certificate {}: no RevocationDate present for reason {}!", cert.getId(), revocationReason);
 								}
-								
+
 							    certUtil.setRevocationStatus(cert, revocationReason, revocationDate);
 
 							    certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE, crl.getNextUpdate().getTime());
-							    
+
 								applicationEventPublisher.publishEvent(
 								        new AuditApplicationEvent(
-								        		"SYSTEM", AuditUtil.AUDIT_CERTIFICATE_REVOKED, "certificate " + cert.getId() + " revocation detected in CRL"));
+								        		"SYSTEM", AuditService.AUDIT_CERTIFICATE_REVOKED, "certificate " + cert.getId() + " revocation detected in CRL"));
 							}
 							bCRLDownloadSuccess = true;
 							break;
@@ -199,18 +199,18 @@ public class CertExpiryScheduler {
 				} catch (GeneralSecurityException e) {
 					LOG.info("Problem reading X509 content of certificate {} " + cert.getId(), e);
 				}
-				
+
 			}
 			if( !bCRLDownloadSuccess ) {
 				LOG.info("Downloading all CRL #{} for certificate {} failed", crlUrlCount, cert.getId());
 			}
 
-			
+
 			if( count++ > MAX_RECORDS_PER_TRANSACTION) {
 				LOG.info("limited certificate revocation check to {} per call", MAX_RECORDS_PER_TRANSACTION);
 				break;
 			}
-			
+
 		}
 
 		LOG.info("#{} certificate revocation checks in {} mSec", count, System.currentTimeMillis() - startTime );
@@ -249,11 +249,11 @@ public class CertExpiryScheduler {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	private List<User> findAllRAOfficer(){
-		
+
 		List<User> raOfficerList = new ArrayList<User>();
     	for( User user: userRepository.findAll()) {
     		for( Authority auth: user.getAuthorities()) {

@@ -8,6 +8,7 @@ import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
+import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.Preferences;
 import de.trustable.ca3s.core.service.util.*;
 import de.trustable.ca3s.core.web.rest.data.*;
@@ -439,7 +440,7 @@ public class ContentUploadProcessor {
 
 		    List<String> messageList = new ArrayList<>();
 
-			CSR csr = cpUtil.buildCSR(csrAsPem, requestorName, AuditUtil.AUDIT_WEB_CERTIFICATE_REQUESTED, requestorComment, pipeline, nvArr, messageList );
+			CSR csr = cpUtil.buildCSR(csrAsPem, requestorName, AuditService.AUDIT_WEB_CERTIFICATE_REQUESTED, requestorComment, pipeline, nvArr, messageList );
 
 			p10ReqData.setMessages(messageList.toArray(new String[messageList.size()]));
 
@@ -449,7 +450,7 @@ public class ContentUploadProcessor {
 					p10ReqData.setCsrPending(true);
 					p10ReqData.setCreatedCSRId(csr.getId().toString());
 				}else {
-					cpUtil.processCertificateRequest(csr, requestorName, AuditUtil.AUDIT_WEB_CERTIFICATE_CREATED, pipeline);
+					cpUtil.processCertificateRequest(csr, requestorName, AuditService.AUDIT_WEB_CERTIFICATE_CREATED, pipeline);
 				}
 				return csr;
             }else {

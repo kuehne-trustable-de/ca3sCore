@@ -53,7 +53,8 @@
                     <dd>
                         <span v-if="certificateView.validTo">{{$d(Date.parse(certificateView.validTo), 'long') }}</span>
                     </dd>
-                    <dt>
+
+                    <!--dt>
                         <span v-text="$t('ca3SApp.certificate.keyAlgorithm')">Key Algorithm</span>
                     </dt>
                     <dd>
@@ -64,7 +65,15 @@
                     </dt>
                     <dd>
                         <span>{{certificateView.keyLength}}</span>
+                    </dd-->
+
+                    <dt>
+                        <span v-text="$t('ca3SApp.certificate.keyDetails')">Key Details</span>
+                    </dt>
+                    <dd>
+                        <span>{{certificateView.keyAlgorithm}} / {{certificateView.keyLength}} bits</span>
                     </dd>
+
                     <dt v-if="certificateView.curveName && certificateView.curveName.length > 0">
                         <span v-text="$t('ca3SApp.certificate.curveName')">Curve Name</span>
                     </dt>
@@ -75,9 +84,9 @@
                         <span v-text="$t('ca3SApp.certificate.signingAlgorithm')">Signing Algorithm</span>
                     </dt>
                     <dd>
-                        <span>{{certificateView.signingAlgorithm}}</span>
+                        <span>{{certificateView.signingAlgorithm}} / {{certificateView.hashAlgorithm}} / {{certificateView.paddingAlgorithm}}</span>
                     </dd>
-                    <dt>
+                    <!--dt>
                         <span v-text="$t('ca3SApp.certificate.hashingAlgorithm')">Hashing Algorithm</span>
                     </dt>
                     <dd>
@@ -88,8 +97,8 @@
                     </dt>
                     <dd>
                         <span>{{certificateView.paddingAlgorithm}}</span>
-                    </dd>
-                    
+                    </dd-->
+
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.usage')">Usage</span>
                     </dt>
@@ -193,9 +202,13 @@
                         <span v-text="$t('ca3SApp.certificate.csrBase64')">Certificate as PEM</span>
                     </dt>
                     <dd>
-                        <span><textarea class="form-control pem-content" name="certContent" id="comment"
-							autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly
-                            v-model="certificateView.certB64" /></span>
+                        <div class="form-group wrap">
+                            <textarea class="form-control pem-content" name="certContent" id="certContent"
+                                      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly
+                                      v-model="certificateView.certB64" />
+
+                            <CopyClipboardButton contentElementId="certContent"/>
+                        </div>
 
                     </dd>
 
@@ -207,8 +220,8 @@
             <form name="editForm" role="form" novalidate>
                 <div>
                     <div v-if="isRevocable()" class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.revocationReason')" for="revocationReason">Revocation reason</label>
-                        <select class="form-control" id="cert-revocationReason" name="revocationReason" v-model="certificateAdminData.revocationReason">
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.revocationReason')" for="cert-revocationReason">Revocation reason</label>
+                        <select class="form-control" id="cert-revocationReason" name="revocationReason"  v-model="certificateAdminData.revocationReason">
                             <option v-bind:value="'certificateHold'">certificateHold</option>
                             <option v-bind:value="'keyCompromise'">keyCompromise</option>
                             <option v-bind:value="'cACompromise'">cACompromise</option>
@@ -252,6 +265,9 @@
         </div>
     </div>
 </template>
+
+<style scoped>
+</style>
 
 <script lang="ts" src="./cert-info.component.ts">
 </script>

@@ -3,6 +3,8 @@ import { Component, Inject } from 'vue-property-decorator';
 import { mixins } from 'vue-class-component';
 import JhiDataUtils from '@/shared/data/data-utils.service';
 import AlertService from '@/shared/alert/alert.service';
+import CopyClipboardButton from '@/shared/clipboard/clipboard.vue';
+import HelpTag from '@/core/help/help-tag.vue';
 
 import { ICertificateView } from '@/shared/model/transfer-object.model';
 import CertificateViewService from '../../entities/certificate/certificate-view.service';
@@ -10,7 +12,12 @@ import CertificateViewService from '../../entities/certificate/certificate-view.
 import axios from 'axios';
 import { ICertificateAdministrationData } from '@/shared/model/transfer-object.model';
 
-@Component
+@Component({
+  components: {
+    CopyClipboardButton,
+    HelpTag
+  }
+})
 export default class CertificateDetails extends mixins(JhiDataUtils) {
   @Inject('certificateViewService') private certificateViewService: () => CertificateViewService;
   @Inject('alertService') private alertService: () => AlertService;
@@ -51,14 +58,28 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
 
   public downloadKeystore(extension: string, mimetype: string) {
     const filename = this.certificateView.downloadFilename + extension;
-    const url = '/publicapi/keystore/' + this.certificateView.id + '/' + encodeURIComponent(filename) + '/' + encodeURIComponent(this.p12Alias);
+    const url =
+      '/publicapi/keystore/' + this.certificateView.id + '/' + encodeURIComponent(filename) + '/' + encodeURIComponent(this.p12Alias);
     this.download(url, filename, mimetype);
   }
 
+  public copyToClipboard(elementId) {
+    /* Get the text field */
+    const copyText = document.getElementById(elementId) as HTMLInputElement;
+
+    /* Select the text field */
+    copyText.select();
+    copyText.setSelectionRange(0, 99999); /* For mobile devices */
+
+    /* Copy the text inside the text field */
+    document.execCommand('copy');
+  }
+
   public download(url: string, filename: string, mimetype: string) {
-    axios.get(url, { responseType: 'blob', headers: { 'Accept': mimetype } })
+    axios
+      .get(url, { responseType: 'blob', headers: { Accept: mimetype } })
       .then(response => {
-        const blob = new Blob([response.data], { type: mimetype, endings: 'transparent'});
+        const blob = new Blob([response.data], { type: mimetype, endings: 'transparent' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = filename;
@@ -68,7 +89,8 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
 
         link.click();
         URL.revokeObjectURL(link.href);
-      }).catch(console.error);
+      })
+      .catch(console.error);
   }
 
   beforeRouteEnter(to, from, next) {
@@ -100,25 +122,29 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
   }
 
   public isRevocable() {
-    return !(this.certificateView.revoked) &&
-      ( this.certificateView.validTo ) &&
-//      ( this.certificate.validTo.getMilliseconds() < Date.now()) &&
-      ( this.isRAOfficer() || this.isOwnCertificate() );
+    return (
+      !this.certificateView.revoked &&
+      this.certificateView.validTo &&
+      //      ( this.certificate.validTo.getMilliseconds() < Date.now()) &&
+      (this.isRAOfficer() || this.isOwnCertificate())
+    );
   }
 
   public isRemovableFromCRL() {
-    return (this.certificateView.revocationReason	=== 'certificateHold') &&
-      ( this.certificateView.validTo ) &&
-//      ( this.certificate.validTo.getMilliseconds() < Date.now()) &&
-      ( this.isRAOfficer() || this.isOwnCertificate() );
+    return (
+      this.certificateView.revocationReason === 'certificateHold' &&
+      this.certificateView.validTo &&
+      //      ( this.certificate.validTo.getMilliseconds() < Date.now()) &&
+      (this.isRAOfficer() || this.isOwnCertificate())
+    );
   }
 
   public isRAOfficer() {
-      return this.roles === 'ROLE_RA';
+    return this.roles === 'ROLE_RA';
   }
 
   public isOwnCertificate() {
-      return this.getUsername() === this.certificateView.requestedBy;
+    return this.getUsername() === this.certificateView.requestedBy;
   }
 
   public removeCertificateFromCRL() {
@@ -144,26 +170,27 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
     axios({
       method: 'post',
       url: adminUrl,
-      data : this.certificateAdminData,
+      data: this.certificateAdminData,
       responseType: 'stream'
     })
-    .then(function(response) {
-      console.log(response.status);
+      .then(function(response) {
+        console.log(response.status);
 
-      if ( response.status === 201) {
-        self.$router.push({name: 'CertInfo', params: {certificateId: response.data.toString()}});
-      } else {
+        if (response.status === 201) {
+          self.$router.push({ name: 'CertInfo', params: { certificateId: response.data.toString() } });
+        } else {
+          self.previousState();
+        }
+      })
+      .catch(function(error) {
+        console.log(error);
         self.previousState();
-      }
-    }).catch(function(error) {
-      console.log(error);
-      self.previousState();
-      const message = self.$t('problem processing request: ' + error);
-      self.alertService().showAlert(message, 'info');
-    }).then(function() {
-      // always executed
-      document.body.style.cursor = 'default';
-    });
+        const message = self.$t('problem processing request: ' + error);
+        self.alertService().showAlert(message, 'info');
+      })
+      .then(function() {
+        // always executed
+        document.body.style.cursor = 'default';
+      });
   }
-
 }

@@ -164,7 +164,7 @@ public class CertificateProcessingUtil {
 				messageMap.put("RequestRestriction", CryptoUtil.limitLength(msgItem, 250) );
 			}
 
-            auditService.createAuditTraceCsrRestrictionFailed(CryptoUtil.limitLength(requestorName, 50), "User",csr);
+            auditService.createAuditTraceCsrRestrictionFailed(csr);
 		}
 
 		return null;
@@ -199,8 +199,7 @@ public class CertificateProcessingUtil {
 			if(cert != null) {
 				certificateRepository.save(cert);
 
-                auditService.createAuditTraceCertificateCreated(CryptoUtil.limitLength(requestorName, 50), "",
-                    certificateAuditType, cert);
+                auditService.createAuditTraceCertificateCreated(certificateAuditType, cert);
 
 				return cert;
 			} else {

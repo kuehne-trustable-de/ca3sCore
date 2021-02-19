@@ -1,0 +1,88 @@
+{
+  "name": "AuditEvent",
+  "fields": [
+    {
+      "fieldName": "actorName",
+      "fieldType": "String",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "actorRole",
+      "fieldType": "String",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "action",
+      "fieldType": "String",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldName": "timestamp",
+      "fieldType": "Instant",
+      "fieldValidateRules": [
+        "required"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "certificate",
+      "otherEntityRelationshipName": "auditEvent",
+      "relationshipName": "certificate",
+      "otherEntityField": "id"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "cSR",
+      "otherEntityRelationshipName": "auditEvent",
+      "relationshipName": "csr",
+      "otherEntityField": "id"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "cAConnectorConfig",
+      "otherEntityRelationshipName": "auditEvent",
+      "relationshipName": "caConnector",
+      "otherEntityField": "id"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "pipeline",
+      "otherEntityRelationshipName": "auditEvent",
+      "relationshipName": "pipeline",
+      "otherEntityField": "id"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "aCMEAccount",
+      "otherEntityRelationshipName": "auditEvent",
+      "relationshipName": "acmeAccount",
+      "otherEntityField": "id"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "acmeOrder",
+      "otherEntityRelationshipName": "auditEvent",
+      "relationshipName": "acmeOrder",
+      "otherEntityField": "id"
+    }
+  ],
+  "changelogDate": "20210212175934",
+  "entityTableName": "audit_event",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "",
+  "applications": "*"
+}

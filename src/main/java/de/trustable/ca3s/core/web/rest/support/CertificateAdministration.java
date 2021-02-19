@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import de.trustable.ca3s.core.service.AuditService;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,6 @@ import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.schedule.CertExpiryScheduler;
 import de.trustable.ca3s.core.service.MailService;
-import de.trustable.ca3s.core.service.util.AuditUtil;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.web.rest.data.CertificateAdministrationData;
@@ -56,23 +56,23 @@ public class CertificateAdministration {
 
 	@Autowired
 	private CryptoUtil cryptoUtil;
-	
+
   	@Autowired
   	private CertificateUtil certUtil;
 
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Autowired
 	private MailService mailService;
-	
+
 	@Autowired
 	private CertExpiryScheduler certExpiryScheduler;
-	
+
 	@Autowired
 	private ApplicationEventPublisher applicationEventPublisher;
-	
-	
+
+
     /**
      * {@code POST  /administerCertificate} : revoke a certificate.
      *
@@ -82,15 +82,15 @@ public class CertificateAdministration {
     @PostMapping("/administerCertificate")
 	@Transactional
     public ResponseEntity<Long> administerCertificate(@Valid @RequestBody CertificateAdministrationData adminData) {
-    	
+
     	LOG.debug("REST request to revoke certificate : {}", adminData);
-        
+
     	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     	String raOfficerName = auth.getName();
 
     	Optional<Certificate> optCert = certificateRepository.findById(adminData.getCertificateId());
     	if( optCert.isPresent()) {
-    		
+
     		Certificate cert = optCert.get();
 
     		try {
@@ -98,8 +98,8 @@ public class CertificateAdministration {
 
 				applicationEventPublisher.publishEvent(
 				        new AuditApplicationEvent(
-				        		raOfficerName, AuditUtil.AUDIT_CERTIFICATE_REVOKED, "certificate " + cert.getId() + " revoked by RA Officer  '" + raOfficerName + "'"));
-	
+				        		raOfficerName, AuditService.AUDIT_CERTIFICATE_REVOKED, "certificate " + cert.getId() + " revoked by RA Officer  '" + raOfficerName + "'"));
+
 				CSR csr = cert.getCsr();
 				if( csr != null) {
 					Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());
@@ -108,7 +108,7 @@ public class CertificateAdministration {
 				        if (requestor.getEmail() == null) {
 				        	LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
 				        }else {
-				        
+
 					        Locale locale = Locale.forLanguageTag(requestor.getLangKey());
 					        Context context = new Context(locale);
 					        context.setVariable("csr", csr);
@@ -124,7 +124,7 @@ public class CertificateAdministration {
 						LOG.info("certificate requestor '{}' unknown!", csr.getRequestedBy());
 					}
 				}
-	
+
 	    		return new ResponseEntity<Long>(adminData.getCertificateId(), HttpStatus.OK);
 
 			} catch (GeneralSecurityException e) {
@@ -134,7 +134,7 @@ public class CertificateAdministration {
     	}else {
     		return ResponseEntity.notFound().build();
     	}
-    	
+
 	}
 
 
@@ -147,35 +147,35 @@ public class CertificateAdministration {
     @PostMapping("/withdrawOwnCertificate")
 	@Transactional
     public ResponseEntity<Long> withdrawOwnCertificate(@Valid @RequestBody CertificateAdministrationData adminData) {
-    	
+
     	LOG.debug("REST request to withdraw Certificate : {}", adminData);
-        
+
     	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     	String userName = auth.getName();
 
     	Optional<Certificate> optCert = certificateRepository.findById(adminData.getCertificateId());
     	if( optCert.isPresent()) {
-    		
+
     		Certificate certificate = optCert.get();
 
     		String requestedBy = certificate.getCsr().getRequestedBy();
     		if( userName == null ||
     				requestedBy == null ||
     				!userName.equals(requestedBy) ){
-    			
+
     	    	LOG.debug("REST request by '{}' to revoke certificate '{}' rejected ", userName, adminData.getCertificateId());
         		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     		}
 
     		try {
 	    		revokeCertificate(certificate, adminData, userName);
-	
+
 				applicationEventPublisher.publishEvent(
 				        new AuditApplicationEvent(
-				        		userName, AuditUtil.AUDIT_CERTIFICATE_REVOKED, "certificate " + certificate.getId() + " revoked by owner '" + userName + "'"));
-				
+				        		userName, AuditService.AUDIT_CERTIFICATE_REVOKED, "certificate " + certificate.getId() + " revoked by owner '" + userName + "'"));
+
 	    		return new ResponseEntity<Long>(adminData.getCertificateId(), HttpStatus.OK);
-	    		
+
 			} catch (GeneralSecurityException e) {
 	    		return ResponseEntity.badRequest().build();
 			}
@@ -183,18 +183,18 @@ public class CertificateAdministration {
     	}else {
     		return ResponseEntity.notFound().build();
     	}
-    	
+
 	}
 
     /**
-     * 
+     *
      * @param certDao
      * @param adminData
      * @param revokingUser
-     * @throws GeneralSecurityException 
+     * @throws GeneralSecurityException
      */
 	private void revokeCertificate(Certificate certDao, final CertificateAdministrationData adminData, final String revokingUser) throws GeneralSecurityException {
-		
+
 
 		if (certDao.isRevoked()) {
 			LOG.warn("failureReason: " +
@@ -207,7 +207,7 @@ public class CertificateAdministration {
 		LOG.debug("crlReason : " + crlReasonStr + " from " + adminData.getRevocationReason());
 
 		Date revocationDate = new Date();
-		
+
 		bpmnUtil.startCertificateRevoctionProcess(certDao, crlReason, revocationDate);
 
 		// @todo isn't this already done in the process?
@@ -215,12 +215,12 @@ public class CertificateAdministration {
 		certDao.setRevoked(true);
 		certDao.setRevokedSince(Instant.now());
 		certDao.setRevocationReason(crlReasonStr);
-		
+
 		if( adminData.getComment() != null && adminData.getComment().trim().length() > 0) {
 			certDao.setAdministrationComment(adminData.getComment());
 		}
 		certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_REVOKED_BY, revokingUser);
-		
+
 		/*
 		 * @ todo
 		 */
