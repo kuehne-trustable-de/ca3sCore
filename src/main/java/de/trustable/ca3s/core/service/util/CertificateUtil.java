@@ -106,53 +106,62 @@ import de.trustable.util.Pkcs10RequestHolder;
 @Service
 public class CertificateUtil {
 
-	private static final String SERIAL_PADDING_PATTERN = "000000000000000000000000000000000000000000000000000000000000000";
-	private static final String TIMESTAMP_PADDING_PATTERN = "000000000000000000";
-	
-	static HashSet<Integer> lenSet = new HashSet<Integer>();
-	static {
-		lenSet.add(256);
-		lenSet.add(512);
-		lenSet.add(1024);
-		lenSet.add(2048);
-		lenSet.add(3072);
-		lenSet.add(4096);
-		lenSet.add(6144);
-		lenSet.add(8192);
-	}
+    private static final String SERIAL_PADDING_PATTERN = "000000000000000000000000000000000000000000000000000000000000000";
+    private static final String TIMESTAMP_PADDING_PATTERN = "000000000000000000";
+
+    static HashSet<Integer> lenSet = new HashSet<Integer>();
+
+    static {
+        lenSet.add(256);
+        lenSet.add(512);
+        lenSet.add(1024);
+        lenSet.add(2048);
+        lenSet.add(3072);
+        lenSet.add(4096);
+        lenSet.add(6144);
+        lenSet.add(8192);
+    }
 
 
-	private static final Logger LOG = LoggerFactory.getLogger(CertificateUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CertificateUtil.class);
 
-	@Autowired
-	private CertificateRepository certificateRepository;
+    @Autowired
+    private CertificateRepository certificateRepository;
 
-	@Autowired
-	private CertificateAttributeRepository certificateAttributeRepository;
+    @Autowired
+    private CertificateAttributeRepository certificateAttributeRepository;
 
-	@Autowired
-	private ProtectedContentRepository protContentRepository;
-	
-	@Autowired
-	private ProtectedContentUtil protUtil;
-	
-	@Autowired
-	private CryptoService cryptoUtil;
+    @Autowired
+    private ProtectedContentRepository protContentRepository;
 
-	
+    @Autowired
+    private ProtectedContentUtil protUtil;
+
+    @Autowired
+    private CryptoService cryptoUtil;
+
+
+    X509Certificate getCertifcateFromBase64(String base64Cert) throws CertificateException {
+        return getCertifcateFromBytes( Base64.decodeBase64(base64Cert));
+    }
+
+    X509Certificate getCertifcateFromBytes(byte[] encodedCert) throws CertificateException {
+        CertificateFactory factory = CertificateFactory.getInstance("X.509");
+        return (X509Certificate) factory.generateCertificate(new ByteArrayInputStream(encodedCert));
+    }
 
     public Certificate createCertificate(final byte[] encodedCert, final CSR csr, final String executionId, final boolean reimport) throws GeneralSecurityException, IOException {
     	return createCertificate(encodedCert, csr, executionId, reimport, null);
-    	
+
     }
   	public Certificate createCertificate(final byte[] encodedCert, final CSR csr, final String executionId, final boolean reimport, final String importUrl) throws GeneralSecurityException, IOException {
 
     	try {
 	    	CertificateFactory factory = CertificateFactory.getInstance("X.509");
 	    	X509Certificate cert = (X509Certificate) factory.generateCertificate(new ByteArrayInputStream(encodedCert));
-	    	
+
 	    	String pemCert = cryptoUtil.x509CertToPem(cert);
-	
+
 	        return createCertificate(pemCert, csr, executionId, reimport, importUrl);
     	} catch (GeneralSecurityException | IOException e) {
     		throw e;
@@ -162,7 +171,7 @@ public class CertificateUtil {
     }
 
 	/**
-	 * 
+	 *
 	 * @param pemCert
 	 * @param csr
 	 * @param executionId
@@ -170,14 +179,14 @@ public class CertificateUtil {
 	 * @throws GeneralSecurityException
 	 * @throws IOException
 	 */
-	public Certificate createCertificate(final String pemCert, final CSR csr, 
+	public Certificate createCertificate(final String pemCert, final CSR csr,
 			final String executionId) throws GeneralSecurityException, IOException {
-		
+
 		return createCertificate(pemCert, csr, executionId, false, null);
 	}
 
 	/**
-	 * 
+	 *
 	 * @param pemCert
 	 * @param csr
 	 * @param executionId
@@ -186,27 +195,39 @@ public class CertificateUtil {
 	 * @throws GeneralSecurityException
 	 * @throws IOException
 	 */
-	public Certificate createCertificate(final String pemCert, final CSR csr, 
+	public Certificate createCertificate(final String pemCert, final CSR csr,
 			final String executionId, final boolean reimport) throws GeneralSecurityException, IOException {
-		
+
 		return createCertificate(pemCert, csr, executionId, false, null);
 	}
 
+    /**
+     *
+     * @param b64Cert
+     * @return
+     * @throws GeneralSecurityException
+     * @throws IOException
+     */
+    public Certificate getCertificateByBase64(final String b64Cert) throws GeneralSecurityException, IOException {
+        X509Certificate x509Cert = getCertifcateFromBase64(b64Cert);
+        return getCertificateByX509(x509Cert);
+    }
+
+    /**
+     *
+     * @param pemCert
+     * @return
+     * @throws GeneralSecurityException
+     * @throws IOException
+     */
+    public Certificate getCertificateByPEM(final String pemCert) throws GeneralSecurityException, IOException {
+        X509Certificate x509Cert = CryptoService.convertPemToCertificate(pemCert);
+        return getCertificateByX509(x509Cert);
+
+    }
+
 	/**
-	 * 
-	 * @param pemCert
-	 * @return
-	 * @throws GeneralSecurityException
-	 * @throws IOException
-	 */
-	public Certificate getCertificateByPEM(final String pemCert) throws GeneralSecurityException, IOException {
-		X509Certificate x509Cert = CryptoService.convertPemToCertificate(pemCert);
-		return getCertificateByX509(x509Cert);
-		
-	}
-	
-	/**
-	 * 
+	 *
 	 * @param x509Cert
 	 * @return
 	 * @throws GeneralSecurityException
@@ -216,7 +237,7 @@ public class CertificateUtil {
 
 		String tbsDigestBase64 = Base64.encodeBase64String(cryptoUtil.getSHA256Digest(x509Cert.getTBSCertificate())).toLowerCase();
 		LOG.debug("looking for TBS hash '" + tbsDigestBase64 +"' in certificate store");
-		
+
 		List<Certificate> certList = certificateRepository.findByTBSDigest(tbsDigestBase64);
 
 		if (certList.isEmpty()) {
@@ -228,9 +249,9 @@ public class CertificateUtil {
 			return certList.get(0);
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param pemCert
 	 * @param csr
 	 * @param executionId
@@ -239,7 +260,7 @@ public class CertificateUtil {
 	 * @throws GeneralSecurityException
 	 * @throws IOException
 	 */
-	public Certificate createCertificate(final String pemCert, final CSR csr, 
+	public Certificate createCertificate(final String pemCert, final CSR csr,
 			final String executionId,
 			final boolean reimport, final String importUrl) throws GeneralSecurityException, IOException {
 
@@ -250,7 +271,7 @@ public class CertificateUtil {
 		if (cert == null) {
 			String tbsDigestBase64 = Base64.encodeBase64String(cryptoUtil.getSHA256Digest(x509Cert.getTBSCertificate())).toLowerCase();
 			cert = createCertificate(pemCert, csr, executionId, x509Cert, tbsDigestBase64);
-			
+
 			// save the source of the certificate
 			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SOURCE, importUrl);
 
@@ -285,13 +306,13 @@ public class CertificateUtil {
 			X509Certificate x509Cert, String tbsDigestBase64)
 			throws CertificateEncodingException, IOException, NoSuchAlgorithmException, CertificateParsingException,
 			CertificateException, InvalidKeyException, NoSuchProviderException, SignatureException {
-		
+
 		Certificate cert;
 		LOG.debug("creating new certificate '" + x509Cert.getSubjectDN().getName() +"'");
-		
+
 		byte[] certBytes = x509Cert.getEncoded();
 		X509CertificateHolder x509CertHolder = new X509CertificateHolder(certBytes);
-		
+
 		cert = new Certificate();
 		cert.setCertificateAttributes(new HashSet<CertificateAttribute>());
 
@@ -307,7 +328,7 @@ public class CertificateUtil {
 			// do not overwrite an existing CSR
 			cert.setCsr(csr);
 		}
-		
+
 		// indexed key for searching
 		cert.setTbsDigest(tbsDigestBase64);
 
@@ -357,7 +378,7 @@ public class CertificateUtil {
 		//
 		// write certificate attributes
 		//
-		
+
 		// guess some details from basic constraint
 		int basicConstraint = x509Cert.getBasicConstraints();
 		if (Integer.MAX_VALUE == basicConstraint) {
@@ -375,7 +396,7 @@ public class CertificateUtil {
 
 		// add the basic key usages a attributes
 		usageAsCertAttributes( x509Cert.getKeyUsage(), cert );
-		
+
 		// add the extended key usages a attributes
 		List<String> extKeyUsageList = x509Cert.getExtendedKeyUsage();
 		if (extKeyUsageList != null) {
@@ -399,19 +420,19 @@ public class CertificateUtil {
 
 
 		JcaX509ExtensionUtils util = new JcaX509ExtensionUtils();
-		
+
 		// build two SKI variants for cert identification
 		SubjectKeyIdentifier ski = util.createSubjectKeyIdentifier(x509Cert.getPublicKey());
 		String b46Ski = Base64.encodeBase64String(ski.getKeyIdentifier());
-		
+
 		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SKI,b46Ski);
-		
+
 		SubjectKeyIdentifier skiTruncated = util.createTruncatedSubjectKeyIdentifier(x509Cert.getPublicKey());
 		if( !ski.equals(skiTruncated)){
 			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SKI,
 					Base64.encodeBase64String(skiTruncated.getKeyIdentifier()));
 		}
-		
+
 		// add two serial variants
 		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SERIAL, serial);
 		setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SERIAL_PADDED, getPaddedSerial(serial));
@@ -428,38 +449,38 @@ public class CertificateUtil {
 		long validityPeriod = ( x509Cert.getNotAfter().getTime() - x509Cert.getNotBefore().getTime() ) / 1000L;
 		setCertAttribute(cert,
 				CertificateAttribute.ATTRIBUTE_VALIDITY_PERIOD, "" + validityPeriod);
-		
+
 		addAdditionalCertificateAttributes(x509Cert, cert);
 
 		certificateRepository.save(cert);
 		certificateAttributeRepository.saveAll(cert.getCertificateAttributes());
 
 		if( x500NameIssuer.equals(x500NameSubject) ){
-			
-			// check whether is really selfsigned 
+
+			// check whether is really selfsigned
 			x509Cert.verify(x509Cert.getPublicKey());
 
-			// don't insert the self-reference. This leads to no good when JSON-serializing the object 
+			// don't insert the self-reference. This leads to no good when JSON-serializing the object
 			// The selfsigned-attribute will mark the fact!
 			// cert.setIssuingCertificate(cert);
-			
+
 			// mark it as self signed
 			cert.setSelfsigned(true);
 			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SELFSIGNED, "true");
-			
+
 			cert.setIssuingCertificate(null); // don't build a self reference here
 			cert.setRootCertificate(null);
-			
+
 			cert.setRoot(cert.getSubject());
 			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ROOT, cert.getSubject().toLowerCase());
 
 			LOG.debug("certificate '" + x509Cert.getSubjectDN().getName() +"' is selfsigned");
-			
+
 		}else{
 			// try to build cert chain
 			try{
 				Certificate issuingCert = findIssuingCertificate(x509CertHolder);
-				
+
 				if( issuingCert == null ) {
 					LOG.info("unable to find issuer for non-self-signed certificate '" + x509Cert.getSubjectDN().getName() +"' right now ...");
 				}else {
@@ -481,7 +502,7 @@ public class CertificateUtil {
 			}
 		}
 
-		
+
 		certificateRepository.save(cert);
 //		LOG.debug("certificate id '" + cert.getId() +"' post-save");
 		certificateAttributeRepository.saveAll(cert.getCertificateAttributes());
@@ -498,17 +519,17 @@ public class CertificateUtil {
 	 * @param x509Cert
 	 * @param cert
 	 * @throws CertificateParsingException
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	private void addAdditionalCertificateAttributes(X509Certificate x509Cert, Certificate cert)
 			throws CertificateParsingException, IOException {
-		
+
 		// extract signature algo
 		String sigAlgName = x509Cert.getSigAlgName().toLowerCase();
 		String keyAlgName = x509Cert.getPublicKey().getAlgorithm();
 		String hashAlgName = "undefined";
 		String paddingAlgName = "PKCS1"; // assume a common default padding
-		
+
 		if( sigAlgName.contains("with")) {
 			String[] parts = sigAlgName.split("with");
 			if(parts.length > 1) {
@@ -529,13 +550,13 @@ public class CertificateUtil {
 		cert.setHashingAlgorithm(hashAlgName.toLowerCase());
 		cert.setPaddingAlgorithm(paddingAlgName.toLowerCase());
 		cert.setSigningAlgorithm(sigAlgName.toLowerCase());
-		
+
 		try {
 			String curveName = deriveCurveName(x509Cert.getPublicKey());
 			LOG.info("found curve name "+ curveName +" for certificate '" + x509Cert.getSubjectDN().getName() +"' with key algo " + keyAlgName);
-			
+
 			cert.setCurveName(curveName.toLowerCase());
-			
+
 		} catch (GeneralSecurityException e) {
 			if( keyAlgName.contains("ec")) {
 				LOG.info("unable to derive curve name for certificate '" + x509Cert.getSubjectDN().getName() +"' with key algo " + keyAlgName);
@@ -544,7 +565,7 @@ public class CertificateUtil {
 
 		String subject = x509Cert.getSubjectDN().getName();
 		if( subject != null && subject.trim().length() > 0) {
-		
+
 			try {
 				InetAddressValidator inv = InetAddressValidator.getInstance();
 
@@ -567,13 +588,13 @@ public class CertificateUtil {
 			}
 
 		}
-		
+
 		String allSans = "";
 
 		// list all SANs
 		if (x509Cert.getSubjectAlternativeNames() != null) {
 			Collection<List<?>> altNames = x509Cert.getSubjectAlternativeNames();
-			
+
 			if( altNames != null) {
 				for (List<?> altName : altNames) {
 	                int altNameType = (Integer) altName.get(0);
@@ -588,7 +609,7 @@ public class CertificateUtil {
 					}else {
 	    				LOG.info("unexpected content type in SANS : {}", altName.get(1).toString());
 					}
-					
+
 					if( allSans.length() > 0) {
 						allSans += ";";
 					}
@@ -602,20 +623,20 @@ public class CertificateUtil {
 		}
 
 		cert.setSans(CryptoUtil.limitLength(allSans, 250));
-		
+
 		int keyLength = getAlignedKeyLength(x509Cert.getPublicKey());
 		cert.setKeyLength(keyLength);
-		
+
 		List<String> crlUrls = getCrlDistributionPoints(x509Cert);
 		for( String crlUrl : crlUrls) {
 			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_URL, crlUrl);
 		}
-		
+
 		String ocspUrl = getOCSPUrl(x509Cert);
 		if( ocspUrl != null) {
 			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_OCSP_URL, ocspUrl);
 		}
-		
+
 		List<String> certificatePolicyIds = getCertificatePolicies(x509Cert);
 		for(String polId: certificatePolicyIds) {
 			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_POLICY_ID, polId);
@@ -639,11 +660,11 @@ public class CertificateUtil {
 		} catch (IOException ex) {
 			LOG.error("Failed to get OCSP URL for certificate '" + x509Cert.getSubjectDN().getName() + "'", ex);
 		}
-		
+
 		return certificatePolicyIds;
 	}
-	
-	
+
+
 	private String getOCSPUrl(X509Certificate x509Cert) {
 		ASN1Primitive obj;
 		try {
@@ -678,7 +699,7 @@ public class CertificateUtil {
 		return null;
 
 	}
-	
+
 	/**
 	 * @param x509Cert
 	 *            the certificate from which we need the ExtensionValue
@@ -700,7 +721,7 @@ public class CertificateUtil {
 
 
 	public static String getTypedSAN(int altNameType, String sanValue) {
-		
+
 		if (GeneralName.dNSName == altNameType) {
 			return( "DNS:" + sanValue);
 		} else if (GeneralName.iPAddress == altNameType) {
@@ -732,7 +753,7 @@ public class CertificateUtil {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param pk
 	 * @return
 	 */
@@ -745,7 +766,7 @@ public class CertificateUtil {
 			return keyLength + 2;
 		}
 		return keyLength;
-	}	
+	}
 	/**
 	 * Gets the key length of supported keys
 	 * @param pk PublicKey used to derive the keysize
@@ -761,7 +782,7 @@ public class CertificateUtil {
 	        final JCEECPublicKey ecpriv = (JCEECPublicKey) pk;
 	        final org.bouncycastle.jce.spec.ECParameterSpec spec = ecpriv.getParameters();
 	        if (spec != null) {
-	            len = spec.getN().bitLength();              
+	            len = spec.getN().bitLength();
 	        } else {
 	            // We support the key, but we don't know the key length
 	            len = 0;
@@ -782,13 +803,13 @@ public class CertificateUtil {
 	        } else {
 	            len = dsapub.getY().bitLength();
 	        }
-	    } 
+	    }
 	    return len;
 	}
-	
+
 	/**
 	 * derive the curve name
-	 * 
+	 *
 	 * @param ecParameterSpec
 	 * @return
 	 * @throws GeneralSecurityException
@@ -835,14 +856,14 @@ public class CertificateUtil {
 
 
 	/**
-	 * 
+	 *
 	 * @param cert
 	 * @param attributeName
 	 * @param x500NameSubject
 	 */
 	public void insertNameAttributes(Certificate cert, String attributeName, X500Name x500NameSubject) {
-		
-		
+
+
 		try {
 			List<Rdn> rdnList = new LdapName(x500NameSubject.toString()).getRdns();
 			for( Rdn rdn: rdnList) {
@@ -852,14 +873,14 @@ public class CertificateUtil {
 		} catch (InvalidNameException e) {
 			LOG.info("problem parsing RDN for {}", x500NameSubject.toString());
 		}
-		
+
 		for( RDN rdn: x500NameSubject.getRDNs() ){
 			for( org.bouncycastle.asn1.x500.AttributeTypeAndValue atv: rdn.getTypesAndValues()){
 				String value = atv.getValue().toString().toLowerCase().trim();
 				setCertMultiValueAttribute(cert, attributeName, value);
 				String oid = atv.getType().getId().toLowerCase();
 				setCertMultiValueAttribute(cert, attributeName, oid +"="+ value);
-				
+
 				if( !oid.equals(atv.getType().toString().toLowerCase())) {
 					setCertMultiValueAttribute(cert, attributeName, atv.getType().toString().toLowerCase() +"="+ value);
 				}
@@ -877,7 +898,7 @@ public class CertificateUtil {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param certDao
 	 * @param name
 	 * @param value
@@ -887,7 +908,7 @@ public class CertificateUtil {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param cert
 	 * @param name
 	 * @param value
@@ -895,9 +916,9 @@ public class CertificateUtil {
 	public void setCertMultiValueAttribute(Certificate cert, String name, String value) {
 		setCertAttribute(cert, name, value, true);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param cert
 	 * @param name
 	 * @param value
@@ -905,16 +926,16 @@ public class CertificateUtil {
 	public void setCertAttribute(Certificate cert, String name, String value) {
 		setCertAttribute(cert, name, value, true);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param cert
 	 * @param name
 	 * @param value
 	 * @param multiValue
 	 */
 	public void setCertAttribute(Certificate cert, String name, String value, boolean multiValue) {
-		
+
 		if( name == null) {
 			LOG.warn("no use to insert attribute with name 'null'", new Exception());
 			return;
@@ -922,9 +943,9 @@ public class CertificateUtil {
 		if( value == null) {
 			value= "";
 		}
-		
+
 		value = CryptoUtil.limitLength(value, 250);
-		
+
 		Collection<CertificateAttribute> certAttrList = cert.getCertificateAttributes();
 		for( CertificateAttribute certAttr : certAttrList) {
 
@@ -942,42 +963,42 @@ public class CertificateUtil {
 				}
 			}
 		}
-		
+
 		CertificateAttribute cAtt = new CertificateAttribute();
 		cAtt.setCertificate(cert);
 		cAtt.setName(name);
 		cAtt.setValue(value);
-		
+
 		cert.getCertificateAttributes().add(cAtt);
-		
+
 		certificateAttributeRepository.save(cAtt);
 
 	}
 
-	
+
 	/**
-	 * 
+	 *
 	 * @param startCertDao
 	 * @return
 	 * @throws GeneralSecurityException
 	 */
 	public List<Certificate> getCertificateChain(final Certificate startCertDao) throws GeneralSecurityException {
-		
+
 		int MAX_CHAIN_LENGTH = 10;
 		ArrayList<Certificate> certChain = new ArrayList<Certificate>();
-		
+
 		Certificate certDao = startCertDao;
 		LOG.debug("added end entity cert id {} to the chain", certDao.getId());
 		certChain.add(certDao);
-		
+
 		for( int i = 0; i <= MAX_CHAIN_LENGTH; i++ ) {
-			
+
 			if( i == MAX_CHAIN_LENGTH) {
 				String msg = "maximum chain length ecxeeded for  cert id : " + startCertDao.getId();
 				LOG.info(msg);
 				throw new GeneralSecurityException(msg);
 			}
-			
+
 			// walk up the certificate chain
 			Certificate issuingCertDao;
 			try {
@@ -1010,7 +1031,7 @@ public class CertificateUtil {
 					break;
 				}
 			}
-			
+
 			certDao = issuingCertDao;
 		}
 
@@ -1018,15 +1039,15 @@ public class CertificateUtil {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param startCert end entity certificate for chain search
 	 * @return X509Certificate Array
 	 * @throws GeneralSecurityException
 	 */
 	public X509Certificate[] getX509CertificateChain(final Certificate startCert) throws GeneralSecurityException {
-		
+
 		List<Certificate> certList = getCertificateChain(startCert);
-		
+
 		X509Certificate[] chainArr = new X509Certificate[certList.size()];
 		for( int i = 0; i < certList.size(); i++) {
 
@@ -1036,17 +1057,17 @@ public class CertificateUtil {
 
 		return chainArr;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param startCert end entity certificate for chain search
 	 * @return X509Certificate List
 	 * @throws GeneralSecurityException
 	 */
 	public List<X509Certificate> getX509CertificateChainAsList(final Certificate startCert) throws GeneralSecurityException {
-		
+
 		List<Certificate> certList = getCertificateChain(startCert);
-		
+
 		List<X509Certificate> x509chainList = new ArrayList<X509Certificate>();
 		for( int i = 0; i < certList.size(); i++) {
 
@@ -1059,12 +1080,12 @@ public class CertificateUtil {
 
 	/**
 	 * bloat the string-typed serial to a defined length to ensure ordering works out fine. The length of serials has a wide range (1 .. 50 cahrs)
-	 * 
+	 *
 	 * @param serial a serial (e.g.'1' or '2586886443079766545651298663063516315029340169') encoded as a string.
 	 * @return the padded serial string. If serial is null, return max number of zeroes
 	 */
 	public static String getPaddedSerial(final String serial){
-	
+
 		if( serial == null) {
 			return SERIAL_PADDING_PATTERN;
 		}
@@ -1072,28 +1093,28 @@ public class CertificateUtil {
 		if( len >= SERIAL_PADDING_PATTERN.length() ){
 			return serial;
 		}
-		return SERIAL_PADDING_PATTERN.substring(serial.length()) + serial; 
+		return SERIAL_PADDING_PATTERN.substring(serial.length()) + serial;
 	}
-	
+
 	/**
-	 * bloat the string-typed timestamp to a defined length to ensure ordering works out fine 
-	 * 
+	 * bloat the string-typed timestamp to a defined length to ensure ordering works out fine
+	 *
 	 * @param timestamp a timestamp (e.g.'1593080183000') encoded as a string
 	 * @return the padded timestamp string. If timestamp is null, return max number of zeroes
 	 */
 	public static String getPaddedTimestamp(final String timestamp){
-	
+
 		if( timestamp == null) {
 			return TIMESTAMP_PADDING_PATTERN;
 		}
-		
+
 		int len = timestamp.length();
 		if( len >= TIMESTAMP_PADDING_PATTERN.length() ){
 			return timestamp;
 		}
-		return TIMESTAMP_PADDING_PATTERN.substring(timestamp.length()) + timestamp; 
+		return TIMESTAMP_PADDING_PATTERN.substring(timestamp.length()) + timestamp;
 	}
-	
+
     /**
      * Generate a SHA1 fingerprint from a byte array containing a X.509 certificate
      *
@@ -1178,14 +1199,14 @@ public class CertificateUtil {
 
 	}
 
-	
+
 	public Certificate findIssuingCertificate(Certificate cert) throws GeneralSecurityException {
-		
+
 		if( cert.isSelfsigned()) {
 			// no need for lengthy calculations, we do know the issuer, yet
 			return cert;
 		}
-		
+
 		Certificate issuingCert = cert.getIssuingCertificate();
 		if( issuingCert == null){
 			issuingCert = findIssuingCertificate(convertPemToCertificateHolder(cert.getContent()));
@@ -1204,24 +1225,24 @@ public class CertificateUtil {
 	}
 
 	  /**
-	   * 
+	   *
 	   * @param pem string that will be converted to X509Certificate
 	   * @return X509CertificateHolder converted from PEM String
 	   * @throws GeneralSecurityException
 	   */
 	  public X509CertificateHolder convertPemToCertificateHolder (final String pem) throws GeneralSecurityException {
-		  
+
 		X509Certificate x509Cert = convertPemToCertificate (pem);
 		try {
 			return new X509CertificateHolder(x509Cert.getEncoded());
 		} catch (IOException e) {
 			throw new GeneralSecurityException(e);
 		}
-		
+
 	  }
-	  
+
 		/**
-		 * 
+		 *
 		 * @param pem string that will be converted to X509Certificate
 		 * @return X509Certificate converted from PEM String
 		 * @throws GeneralSecurityException
@@ -1279,7 +1300,7 @@ public class CertificateUtil {
 		}
 
 		/**
-		 * 
+		 *
 		 * @param pem string that will be converted to PrivateKey
 		 * @return PrivateKey converted from PEM String
 		 * @throws GeneralSecurityException
@@ -1334,9 +1355,9 @@ public class CertificateUtil {
 
 			return privKey;
 		}
- 
+
 	/**
-	 * 
+	 *
 	 * @param x509CertHolder certificate to search issuning certificate
 	 * @return issuing certificate from input certificate
 	 * @throws GeneralSecurityException
@@ -1355,7 +1376,7 @@ public class CertificateUtil {
 			}
 		}
 
-		if( issuingCertList.isEmpty()){			
+		if( issuingCertList.isEmpty()){
 			LOG.debug("AKI from crt extension failed, trying to find issuer name");
 			issuingCertList = certificateRepository.findCACertByIssuer(x509CertHolder.getIssuer().toString());
 			if( issuingCertList.size() > 1){
@@ -1363,15 +1384,15 @@ public class CertificateUtil {
 			}
 		}
 /*
-		if( issuingCertList.isEmpty()){			
+		if( issuingCertList.isEmpty()){
 			LOG.debug("AKI from issuer name, trying RDN matching");
 			// @todo
 		}
 */
-		// no issuing certificate found 
+		// no issuing certificate found
 		//  @todo
 		// may not be a reason for a GeneralSecurityException
-		if( issuingCertList.isEmpty()){			
+		if( issuingCertList.isEmpty()){
 			throw new GeneralSecurityException("no issuing certificate for '" + x509CertHolder.getSubject().toString() +"' in certificate store.");
 		}
 
@@ -1401,28 +1422,28 @@ public class CertificateUtil {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param cert certificate to search root certificate
 	 * @return root certificate from input certificate
 	 * @throws GeneralSecurityException
 	 */
 	private Certificate findRootCertificate(Certificate cert) throws GeneralSecurityException {
-		
+
 		for(int i = 0; i < 10; i++) {
-			
+
 			// end of chain?
 			if( cert.isSelfsigned()) {
-				
+
 				// hurrah, terminate ...
 				return cert;
 			}
-			
+
 			// step up one level
 			Certificate issuingCert = cert.getIssuingCertificate();
-			
+
 			// is the issuer already known?
 			if( issuingCert == null) {
-				
+
 				// no, try to find it
 				issuingCert = findIssuingCertificate(cert);
 				if(issuingCert != null) {
@@ -1433,7 +1454,7 @@ public class CertificateUtil {
 					break;
 				}
 			}
-			
+
 			cert = issuingCert;
 		}
 
@@ -1448,7 +1469,7 @@ public class CertificateUtil {
 	 * @return list of certificates
 	 */
 	private List<Certificate> findCertsByAKI(X509CertificateHolder x509CertHolder, AuthorityKeyIdentifier aki) {
-		
+
 		String aKIBase64 = Base64.encodeBase64String(aki.getKeyIdentifier());
 		LOG.debug("looking for issuer of certificate '" + x509CertHolder.getSubject().toString() +"', issuer selected by its SKI '" + aKIBase64 + "'");
 		List<Certificate> issuingCertList = certificateRepository.findByAttributeValue(CertificateAttribute.ATTRIBUTE_SKI, aKIBase64);
@@ -1461,22 +1482,22 @@ public class CertificateUtil {
 
 
 	public Set<GeneralName> getSANList(X509CertificateHolder x509CertHolder){
-		
+
 		Set<GeneralName> generalNameSet = new HashSet<GeneralName>();
-		
+
 		Extensions exts = x509CertHolder.getExtensions();
 		for( ASN1ObjectIdentifier objId : exts.getExtensionOIDs()) {
 			if( Extension.subjectAlternativeName.equals(objId)) {
-				
+
 				ASN1OctetString octString = exts.getExtension(objId).getExtnValue();
 				GeneralNames names = GeneralNames.getInstance(octString);
 				LOG.debug("Attribute value SAN" + names);
 				LOG.debug("SAN values #" + names.getNames().length);
-				
+
 				for (GeneralName gnSAN : names.getNames()) {
 					LOG.debug("GN " + gnSAN.toString());
 					generalNameSet.add(gnSAN);
-					
+
 				}
 			}
 		}
@@ -1484,9 +1505,9 @@ public class CertificateUtil {
 	}
 
 	public Set<GeneralName> getSANList(Pkcs10RequestHolder p10ReqHolder){
-		
+
 		Set<GeneralName> generalNameSet = new HashSet<GeneralName>();
-		
+
 		for( Attribute attr : p10ReqHolder.getReqAttributes()) {
 			if( PKCSObjectIdentifiers.pkcs_9_at_extensionRequest.equals(attr.getAttrType())){
 
@@ -1509,24 +1530,24 @@ public class CertificateUtil {
 						GeneralNames names = GeneralNames.getInstance(derStr.getOctets());
 						LOG.debug("Attribute value SAN" + names);
 						LOG.debug("SAN values #" + names.getNames().length);
-						
+
 						for (GeneralName gnSAN : names.getNames()) {
 							LOG.debug("GN " + gnSAN.toString());
 							generalNameSet.add(gnSAN);
-							
+
 						}
 					} else {
 						LOG.info("Unexpected Extensions Attribute value " + objId.getId());
 					}
 				}
-				
+
 			}
 		}
 		return generalNameSet;
 	}
 
 	public void storePrivateKey(CSR csr, KeyPair keyPair) throws IOException {
-		
+
 		StringWriter sw = keyToPEM(keyPair);
 
 		ProtectedContent pt = protUtil.createProtectedContent(sw.toString(), ProtectedContentType.KEY, ContentRelationType.CSR, csr.getId());
@@ -1534,13 +1555,13 @@ public class CertificateUtil {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param cert		certificate that needs to be stored in PEM format
 	 * @param keyPair	keypair that needs to be stored in PEM format
 	 * @throws IOException
-*/	 
+*/
 	public void storePrivateKey(Certificate cert, KeyPair keyPair) throws IOException {
-		
+
 		StringWriter sw = keyToPEM(keyPair);
 
 		ProtectedContent pt = protUtil.createProtectedContent(sw.toString(), ProtectedContentType.KEY, ContentRelationType.CERTIFICATE, cert.getId());
@@ -1563,29 +1584,29 @@ public class CertificateUtil {
 
 
 	/**
-	 * 
+	 *
 	 * @param csr
 	 * @return
 	 */
     public PrivateKey getPrivateKey(CSR csr) {
-        
+
         PrivateKey priKey = null;
-        
+
 		try {
 			List<ProtectedContent> pcList = protContentRepository.findByCertificateId(csr.getId());
-			
+
 			if( pcList.isEmpty()) {
 	            LOG.error("retrieval of private key for csr '{}' returns not key!", csr.getId());
 			} else {
 				if( pcList.size() > 1) {
 		            LOG.warn("retrieval of private key for certificate '{}' returns more than one key ({}) !", csr.getId(), pcList.size());
 				}
-				
+
 				String content = protUtil.unprotectString( pcList.get(0).getContentBase64());
 				priKey = cryptoUtil.convertPemToPrivateKey (content);
 		        LOG.debug("getPrivateKey() returns " + priKey.toString());
 			}
-			
+
 		} catch (GeneralSecurityException e) {
             LOG.warn("getPrivateKey", e);
 		}
@@ -1594,29 +1615,29 @@ public class CertificateUtil {
     }
 
 	/**
-	 * 
+	 *
 	 * @param cert
 	 * @return
 	 */
     public PrivateKey getPrivateKey(Certificate cert) {
-        
+
         PrivateKey priKey = null;
-        
+
 		try {
 			List<ProtectedContent> pcList = protContentRepository.findByCertificateId(cert.getId());
-			
+
 			if( pcList.isEmpty()) {
 	            LOG.error("retrieval of private key for certificate '{}' returns not key!", cert.getId());
 			} else {
 				if( pcList.size() > 1) {
 		            LOG.warn("retrieval of private key for certificate '{}' returns more than one key ({}) !", cert.getId(), pcList.size());
 				}
-				
+
 				String content = protUtil.unprotectString( pcList.get(0).getContentBase64());
 				priKey = cryptoUtil.convertPemToPrivateKey (content);
 		        LOG.debug("getPrivateKey() returns " + priKey.toString());
 			}
-			
+
 		} catch (GeneralSecurityException e) {
             LOG.warn("getPrivateKey", e);
 		}
@@ -1625,31 +1646,31 @@ public class CertificateUtil {
     }
 
     /**
-     * 
+     *
      * @param type
      * @param relationType
      * @param id
      * @return
      */
     public PrivateKey getPrivateKey(ProtectedContentType type, ContentRelationType relationType, Long id) {
-        
+
         PrivateKey priKey = null;
-        
+
 		try {
 			List<ProtectedContent> pcList = protContentRepository.findByTypeRelationId(type, relationType, id);
-			
+
 			if( pcList.isEmpty()) {
 	            LOG.error("retrieval of private key for element with id '{}' returns not key!", id);
 			} else {
 				if( pcList.size() > 1) {
 		            LOG.warn("retrieval of private key for element with id '{}' returns more than one key ({}) !", id, pcList.size());
 				}
-				
+
 				String content = protUtil.unprotectString( pcList.get(0).getContentBase64());
 				priKey = cryptoUtil.convertPemToPrivateKey (content);
 		        LOG.debug("getPrivateKey() returns " + priKey.toString());
 			}
-			
+
 		} catch (GeneralSecurityException e) {
             LOG.warn("getPrivateKey", e);
 		}
@@ -1660,7 +1681,7 @@ public class CertificateUtil {
     /**
      * Extracts all CRL distribution point URLs from the "CRL Distribution Point"
      * extension in a X.509 certificate. If CRL distribution point extension is
-     * unavailable, returns an empty list. 
+     * unavailable, returns an empty list.
      */
     public List<String> getCrlDistributionPoints(X509Certificate cert) throws CertificateParsingException, IOException {
 
@@ -1668,15 +1689,15 @@ public class CertificateUtil {
 
     	byte[] crldpExt = cert.getExtensionValue(X509Extensions.CRLDistributionPoints.getId());
     	if( crldpExt != null && crldpExt.length > 0) {
-	    		
+
 	    	ASN1InputStream oAsnInStream = new ASN1InputStream(new ByteArrayInputStream(crldpExt));
-	    	
+
 	    	ASN1Primitive derObjCrlDP = oAsnInStream.readObject();
 	    	DEROctetString dosCrlDP = (DEROctetString) derObjCrlDP;
 	    	byte[] crldpExtOctets = dosCrlDP.getOctets();
-	    	
+
 	    	ASN1InputStream oAsnInStream2 = new ASN1InputStream(new ByteArrayInputStream(crldpExtOctets));
-	    	
+
 	    	ASN1Primitive derObj2 = oAsnInStream2.readObject();
 	    	CRLDistPoint distPoint = CRLDistPoint.getInstance(derObj2);
 	    	for (DistributionPoint dp : distPoint.getDistributionPoints()) {
@@ -1697,20 +1718,20 @@ public class CertificateUtil {
 	                   }
 	               }
 	    	}
-	    	
+
 	    	oAsnInStream.close();
 	    	oAsnInStream2.close();
     	}
-    	
+
     	return crlUrls;
     }
 
     public void setRevocationStatus(final Certificate cert, final String revocationReason, final Date revocationDate) {
     	setRevocationStatus(cert, revocationReason, DateUtil.asInstant(revocationDate));
     }
-    
+
     public void setRevocationStatus(final Certificate cert, final String revocationReason, final Instant revocationDate) {
-    	
+
 		cert.setActive(false);
 		cert.setRevoked(true);
 		if( revocationReason == null || revocationReason.trim().isEmpty()) {
@@ -1718,13 +1739,13 @@ public class CertificateUtil {
 		}else {
 			cert.setRevocationReason(revocationReason);
 		}
-		
+
 		cert.setRevokedSince(revocationDate);
 	}
-    
-    
+
+
 	/**
-	 * 
+	 *
 	 * @param sanArr SAN array
 	 * @return list of certificates
 	 */
@@ -1735,13 +1756,13 @@ public class CertificateUtil {
 			LOG.debug("SAN present: {} ", san);
 			sans.add(san);
 		}
-		
+
 		return findReplaceCandidates(sans);
-		
+
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param sans SANs as List
 	 * @return list of certificates
 	 */
@@ -1750,20 +1771,20 @@ public class CertificateUtil {
 		LOG.debug("sans list contains {} elements", sans.size());
 
 		List<Certificate> candidateList = new ArrayList<Certificate>();
-		
+
 		if( sans.size() == 0) {
 			return candidateList;
 		}
-		
+
 		List<Certificate> matchingCertList = certificateRepository.findActiveCertificatesBySANs(Instant.now(), sans);
 		LOG.debug("objArrList contains {} elements", matchingCertList.size());
-		
+
 		for (Certificate cert : matchingCertList) {
 			LOG.debug("replacement candidate {}: {} ", cert.getId(), cert.getSubject());
 
 			boolean matches = true;
 			for( CertificateAttribute certAttr:cert.getCertificateAttributes()) {
-				
+
 				if( certAttr.getName().equals(CsrAttribute.ATTRIBUTE_TYPED_SAN) || certAttr.getName().equals(CsrAttribute.ATTRIBUTE_TYPED_VSAN)) {
 					String san = certAttr.getValue();
 					if( !sans.contains(san)) {
@@ -1779,7 +1800,7 @@ public class CertificateUtil {
 			}
 
 		}
-		
+
 		return candidateList;
 
 	}

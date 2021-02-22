@@ -14,6 +14,7 @@ import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.security.provider.Ca3sTrustManager;
+import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.CAStatus;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.CryptoService;
@@ -65,8 +66,11 @@ public class ADCSConnector {
 	@Autowired
 	private ProtectedContentUtil protUtil;
 
+    @Autowired
+    private AuditService auditService;
 
-	/**
+
+    /**
 	 * Adapter class to connect to an ADCS server using the parameter given in a CaConnectorConfig
 	 */
 	public ADCSConnector() {
@@ -633,10 +637,15 @@ public class ADCSConnector {
 		}
 
 		try {
-			Certificate certDao = certUtil.createCertificate(certResponse.getB64Cert(), null,
-					null, false);
 
-			// in this special of importing we know where to revoke this certificate
+            Certificate certDao = certUtil.getCertificateByPEM(certResponse.getB64Cert());
+            if( certDao == null) {
+                certDao = certUtil.createCertificate(certResponse.getB64Cert(), null,
+                    null, false);
+                auditService.createAuditTraceCertificateCreated(AuditService.AUDIT_ADCS_CERTIFICATE_IMPORTED, certDao);
+            }
+
+            // in this special of importing we know where to revoke this certificate
 			certDao.setRevocationCA(config);
 
 			// @todo : implement more sophisticated strategies
@@ -920,8 +929,9 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 				LOGGER.warn("Connection problem", e );
 				throw new ADCSProxyUnavailableException(e.getCause().getMessage());
 			}else if( e.getCause() instanceof SSLHandshakeException){
-				LOGGER.warn("TLS problem : configure trust anchor for ADCS proxy at " + remoteClient.getApiClient().getBasePath() );
-				throw new ADCSProxyTLSException(e.getCause().getMessage());
+			    String msg = "TLS problem : configure trust anchor for ADCS proxy at " + remoteClient.getApiClient().getBasePath();
+				LOGGER.warn( msg );
+				throw new ADCSProxyTLSException(msg);
 			}
 
 			LOGGER.warn("ADCSException : " + e.getCode() , e );

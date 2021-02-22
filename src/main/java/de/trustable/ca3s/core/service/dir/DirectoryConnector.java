@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.service.AuditService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +67,10 @@ public class DirectoryConnector {
     @Autowired
     private TransactionHandler transactionHandler;
 
-	/**
+    @Autowired
+    private AuditService auditService;
+
+    /**
 	 *
 	 */
 	public DirectoryConnector() {
@@ -81,17 +86,14 @@ public class DirectoryConnector {
 	public CAStatus getStatus(final CAConnectorConfig caConfig) {
 
 		File dir = new File(getFilename(caConfig));
-		if( dir.exists() && dir.canRead()) {
+        LOGGER.warn("in getStatus: filename '{}', exists {}, can read {}", getFilename(caConfig), dir.exists(), dir.canRead() );
+
+        if( dir.exists() && dir.canRead()) {
 			return CAStatus.Active;
 		}
 		return CAStatus.Deactivated;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see de.trustable.ca3s.adcs.CertificateSource#retrieveCertificates()
-	 */
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public int retrieveCertificates(CAConnectorConfig caConfig) throws IOException {
 
@@ -137,7 +139,7 @@ public class DirectoryConnector {
 		            controller.addSeed(domain);
 		        }
 
-		        CrawlController.WebCrawlerFactory<CertificateCrawler> factory = () -> new CertificateCrawler(crawlDomains, regEx, certUtil, importInfo);
+		        CrawlController.WebCrawlerFactory<CertificateCrawler> factory = () -> new CertificateCrawler(crawlDomains, regEx, certUtil, auditService, importInfo);
 		        controller.start(factory, numberOfCrawlers);
 			} catch (Exception e) {
 				LOGGER.info("problem building crawler for '{}'", caConfig.getCaUrl());
@@ -186,7 +188,8 @@ public class DirectoryConnector {
 					LOGGER.debug("new certificate '{}' found, importing ...", filename);
 
 					byte[] content = Files.readAllBytes(Paths.get(filename));
-					certUtil.createCertificate(content, null, null, false, filename);
+                    Certificate certificate = certUtil.createCertificate(content, null, null, false, filename);
+                    auditService.createAuditTraceCertificateCreated(AuditService.AUDIT_DIRECTORY_CERTIFICATE_IMPORTED, certificate);
 
 				} catch (GeneralSecurityException | IOException e) {
 					LOGGER.info("reading and importing certificate from '{}' causes {}",

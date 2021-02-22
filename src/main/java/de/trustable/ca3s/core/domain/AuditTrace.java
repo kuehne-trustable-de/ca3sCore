@@ -13,6 +13,24 @@ import java.time.Instant;
  */
 @Entity
 @Table(name = "audit_trace")
+@NamedQueries({
+    @NamedQuery(name = "AuditTrace.findByCsrAndCert",
+        query = "SELECT a FROM AuditTrace a WHERE " +
+            "(a.certificate = :certificate) or " +
+            "(a.csr = :csr) "+
+            "order by a.createdOn asc"
+    ),
+    @NamedQuery(name = "AuditTrace.findByCsr",
+        query = "SELECT a FROM AuditTrace a WHERE " +
+            "a.csr = :csr "+
+            "order by a.createdOn asc"
+    ),
+    @NamedQuery(name = "AuditTrace.findByPipeline",
+        query = "SELECT a FROM AuditTrace a WHERE " +
+            "a.pipeline = :pipeline "+
+            "order by a.createdOn asc"
+    )
+})
 public class AuditTrace implements Serializable {
 
     private static final long serialVersionUID = 1L;

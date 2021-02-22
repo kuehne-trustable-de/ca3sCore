@@ -20,7 +20,7 @@ public class CSRView implements Serializable {
     private Long id;
 
     private Long certificateId;
-    
+
     private CsrStatus status;
 
     private String subject;
@@ -30,29 +30,31 @@ public class CSRView implements Serializable {
   	private PipelineType pipelineType;
 
     private Instant rejectedOn;
-    
+
     private String rejectionReason;
 
     private String requestedBy;
 
     private String processingCA;
-    
+
     private String pipelineName;
-    
+
     private String x509KeySpec;
-    
+
     private String keyLength;
 
     private String signingAlgorithm;
-    
+
     private String publicKeyAlgorithm;
-    
+
     private Instant requestedOn;
 
+    private AuditView[] auditViewArr;
+
     public CSRView() {}
-    
+
     public CSRView(final CSRUtil csrUtil, final CSR csr) {
-    	
+
     	this.id = csr.getId();
     	this.certificateId = csr.getCertificate().getId();
     	this.subject = csr.getSubject();
@@ -61,17 +63,17 @@ public class CSRView implements Serializable {
     	this.publicKeyAlgorithm = csr.getPublicKeyAlgorithm();
     	this.signingAlgorithm = csr.getSigningAlgorithm();
     	this.x509KeySpec = csr.getx509KeySpec();
-    	
+
     	Set<CsrAttribute> attributes = csr.getCsrAttributes();
-    	
+
     	this.requestedBy = csrUtil.getCSRAttribute(csr, CsrAttribute.ATTRIBUTE_REQUESTED_BY);
     	this.processingCA = csrUtil.getCSRAttribute(csr, CsrAttribute.ATTRIBUTE_PROCESSING_CA);
 
     	this.pipelineName = csr.getPipeline().getName();
-    	
+
 //   		this.keyLength = cert.getKeyLength().toString();
 
-    	
+
     	this.requestedOn = csr.getRequestedOn();
     }
 
@@ -202,5 +204,12 @@ public class CSRView implements Serializable {
 	public void setSans(String sans) {
 		this.sans = sans;
 	}
-  
+
+    public AuditView[] getAuditViewArr() {
+        return auditViewArr;
+    }
+
+    public void setAuditViewArr(AuditView[] auditViewArr) {
+        this.auditViewArr = auditViewArr;
+    }
 }

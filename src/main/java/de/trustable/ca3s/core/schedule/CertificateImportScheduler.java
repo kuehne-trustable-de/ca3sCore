@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.schedule;
 
+import de.trustable.ca3s.core.service.AuditService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ import de.trustable.ca3s.core.service.adcs.ADCSConnector;
 import de.trustable.ca3s.core.service.dir.DirectoryConnector;
 
 /**
- * 
+ *
  * @author kuehn
  *
  */
@@ -34,9 +35,12 @@ public class CertificateImportScheduler {
 
 	@Autowired
 	private DirectoryConnector dirConnector;
-	
 
-	@Value("${certificate.import.active:true}")
+    @Autowired
+    private AuditService auditService;
+
+
+    @Value("${certificate.import.active:true}")
 	private String certificateImportActive;
 
 	@Scheduled(fixedDelay = 30000)
@@ -45,6 +49,7 @@ public class CertificateImportScheduler {
 		if ("true".equalsIgnoreCase(certificateImportActive) ) {
 			for (CAConnectorConfig caConfig : caConfigRepo.findAll()) {
 
+//                LOG.debug("--------- runMinute for {}, interval {}, active {}", caConfig.getName(), caConfig.getInterval(), caConfig.isActive());
 				if( Interval.MINUTE.equals(caConfig.getInterval()) && caConfig.isActive()){
 					runImporter(caConfig);
 				}
@@ -123,7 +128,7 @@ public class CertificateImportScheduler {
 		CAConnectorType conType = caConfig.getCaConnectorType();
 		if (CAConnectorType.ADCS_CERTIFICATE_INVENTORY.equals(conType)) {
 			if (caConfig.isActive()) {
-				
+
 				try {
 
 					int nNewCerts = adcsController.retrieveCertificates(caConfig);
@@ -150,7 +155,7 @@ public class CertificateImportScheduler {
 			} else {
 				LOG.info("ADCS proxy '{}' disabled", caConfig.getName());
 			}
-			
+
 		} else if (CAConnectorType.DIRECTORY.equals(caConfig.getCaConnectorType())) {
 			LOG.debug("CAConnectorType DIRECTORY for " + caConfig.getCaUrl());
 

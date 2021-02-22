@@ -1,10 +1,20 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2021-01-26 16:58:13.
+// Generated using typescript-generator version 2.19.577 on 2021-02-21 18:56:34.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
+  name?: string;
   status?: ICAStatus;
+}
+
+export interface IAuditView extends ISerializable {
+  id?: number;
+  actorName?: string;
+  actorRole?: string;
+  plainContent?: string;
+  contentTemplate?: string;
+  createdOn?: Date;
 }
 
 export interface IPipelineView extends ISerializable {
@@ -31,6 +41,7 @@ export interface IPipelineView extends ISerializable {
   acmeConfigItems?: IACMEConfigItems;
   scepConfigItems?: ISCEPConfigItems;
   webConfigItems?: IWebConfigItems;
+  auditViewArr?: IAuditView[];
 }
 
 export interface ICertificateView extends ISerializable {
@@ -81,6 +92,7 @@ export interface ICertificateView extends ISerializable {
   certB64?: string;
   downloadFilename?: string;
   isServersideKeyGeneration?: boolean;
+  auditViewArr?: IAuditView[];
 }
 
 export interface ICSRView extends ISerializable {
@@ -100,6 +112,7 @@ export interface ICSRView extends ISerializable {
   signingAlgorithm?: string;
   publicKeyAlgorithm?: string;
   requestedOn?: Date;
+  auditViewArr?: IAuditView[];
 }
 
 export interface IPreferences extends ISerializable {
@@ -264,7 +277,7 @@ export interface ICertificateNameId extends ISerializable {
   name?: string;
 }
 
-export type ICAStatus = 'Active' | 'Deactivated' | 'Unknown';
+export type ICAStatus = 'Active' | 'Deactivated' | 'Problem' | 'Unknown';
 
 export type ISelector =
   | 'EQUAL'

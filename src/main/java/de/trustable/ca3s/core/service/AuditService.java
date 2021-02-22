@@ -35,6 +35,10 @@ public class AuditService {
     public static final String AUDIT_REQUEST_RESTRICTIONS_FAILED = "REQUEST_RESTRICTIONS_FAILED";
     public static final String AUDIT_WEB_CERTIFICATE_CREATED = "WEB_CERTIFICATE_CREATED";
     public static final String AUDIT_CERTIFICATE_REVOKED = "CERTIFICATE_REVOKED";
+    public static final String AUDIT_MANUAL_CERTIFICATE_IMPORTED = "MANUAL_CERTIFICATE_IMPORTED";
+    public static final String AUDIT_ADCS_CERTIFICATE_IMPORTED = "ADCS_CERTIFICATE_IMPORTED";
+    public static final String AUDIT_TLS_CERTIFICATE_IMPORTED = "TLS_CERTIFICATE_IMPORTED";
+    public static final String AUDIT_TLS_INTERMEDIATE_CERTIFICATE_IMPORTED = "TLS_INTERMEDIATE_CERTIFICATE_IMPORTED";
 
     public static final String AUDIT_PIPELINE = "PIPELINE_";
     public static final String AUDIT_CHANGED = "_CHANGED";
@@ -46,6 +50,8 @@ public class AuditService {
     public static final String AUDIT_PIPELINE_TYPE_CHANGED = "PIPELINE_TYPE_CHANGED";
     public static final String AUDIT_PIPELINE_URLPART_CHANGED = "PIPELINE_URLPART_CHANGED";
     public static final String AUDIT_PIPELINE_APPROVAL_REQUIRED_CHANGED = "PIPELINE_APPROVAL_REQUIRED_CHANGED";
+    public static final String AUDIT_CRAWLER_CERTIFICATE_IMPORTED = "CRAWLER_CERTIFICATE_IMPORTED";
+    public static final String AUDIT_DIRECTORY_CERTIFICATE_IMPORTED = "DIRECTORY_CERTIFICATE_IMPORTED";
 
 
     private final Logger log = LoggerFactory.getLogger(AuditService.class);
@@ -84,28 +90,28 @@ public class AuditService {
     }
 
     public void createAuditTraceCsrAccepted(final CSR csr){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        createAuditTraceRequest(auth.getName(), getRole(auth), AUDIT_CSR_ACCEPTED, csr);
+        NameAndRole nar = getNameAndRole();
+        createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_CSR_ACCEPTED, csr);
     }
 
     public void createAuditTraceCsrRejected(final CSR csr){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        createAuditTraceRequest(auth.getName(), getRole(auth), AUDIT_CSR_REJECTED, csr);
+        NameAndRole nar = getNameAndRole();
+        createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_CSR_REJECTED, csr);
     }
 
     public void createAuditTraceACMERequest(final CSR csr){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        createAuditTraceRequest(auth.getName(), getRole(auth), AUDIT_ACME_CERTIFICATE_REQUESTED, csr);
+        NameAndRole nar = getNameAndRole();
+        createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_ACME_CERTIFICATE_REQUESTED, csr);
     }
 
     public void createAuditTraceWebRequest(final CSR csr){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        createAuditTraceRequest(auth.getName(), getRole(auth), AUDIT_WEB_CERTIFICATE_REQUESTED, csr);
+        NameAndRole nar = getNameAndRole();
+        createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_WEB_CERTIFICATE_REQUESTED, csr);
     }
 
     public void createAuditTraceCsrRestrictionFailed( final CSR csr){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        createAuditTraceRequest(auth.getName(), getRole(auth), AUDIT_REQUEST_RESTRICTIONS_FAILED, csr);
+        NameAndRole nar = getNameAndRole();
+        createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_REQUEST_RESTRICTIONS_FAILED, csr);
     }
 
 
@@ -121,9 +127,9 @@ public class AuditService {
 
     public void createAuditTraceRequest(final String template, final CSR csr){
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        createAuditTrace(auth.getName(), getRole(auth), template,
+        NameAndRole nar = getNameAndRole();
+        createAuditTrace(nar.getName(), nar.getRole(),
+            template,
             csr,
             null,
             null,
@@ -133,9 +139,9 @@ public class AuditService {
 
     public void createAuditTraceCertificateCreated(final String template, final Certificate certificate){
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        createAuditTrace(auth.getName(), getRole(auth), template,
+        NameAndRole nar = getNameAndRole();
+        createAuditTrace(nar.getName(), nar.getRole(),
+            template,
             null,
             certificate,
             null,
@@ -145,9 +151,9 @@ public class AuditService {
 
     public void createAuditTracePipeline(final String template, final Pipeline pipeline){
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        createAuditTrace(auth.getName(), getRole(auth), template,
+        NameAndRole nar = getNameAndRole();
+        createAuditTrace(nar.getName(), nar.getRole(),
+            template,
             null,
             null,
             pipeline,
@@ -157,9 +163,9 @@ public class AuditService {
 
     public void createAuditTracePipeline(final String template, final String oldVal, final String newVal, final Pipeline pipeline){
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        createAuditTrace(auth.getName(), getRole(auth), template,
+        NameAndRole nar = getNameAndRole();
+        createAuditTrace(nar.getName(), nar.getRole(),
+            template,
             oldVal, newVal,
             null,
             null,
@@ -170,9 +176,8 @@ public class AuditService {
 
     public void createAuditTracePipelineAttribute(final String attributeName, final String oldVal, final String newVal, final Pipeline pipeline){
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        createAuditTrace(auth.getName(), getRole(auth),
+        NameAndRole nar = getNameAndRole();
+        createAuditTrace(nar.getName(), nar.getRole(),
             AUDIT_PIPELINE + attributeName + AUDIT_CHANGED,
             oldVal, newVal,
             null,
@@ -231,4 +236,30 @@ public class AuditService {
 
     }
 
+    NameAndRole getNameAndRole(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if( auth != null ){
+            String role = getRole(auth);
+            return new NameAndRole(auth.getName(), role);
+        }
+        return new NameAndRole("System","System");
+    }
+
+    class NameAndRole{
+        private String name;
+        private String role;
+
+        public NameAndRole(final String name, final String role){
+            this.name = name;
+            this.role = role;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getRole() {
+            return role;
+        }
+    }
 }

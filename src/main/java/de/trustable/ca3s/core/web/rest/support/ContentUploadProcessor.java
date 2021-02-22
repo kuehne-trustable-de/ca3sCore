@@ -88,8 +88,8 @@ public class ContentUploadProcessor {
     @Autowired
 	private CertificateProcessingUtil cpUtil;
 
-	@Autowired
-	private ApplicationEventPublisher applicationEventPublisher;
+    @Autowired
+    private AuditService auditService;
 
     private static final String SIGNATURE_ALG = "SHA256withRSA";
     private static final String EC_SIGNATURE_ALG = "SHA256withECDSA";
@@ -420,6 +420,7 @@ public class ContentUploadProcessor {
 			throws GeneralSecurityException, IOException {
 		// insert certificate
 		Certificate cert = certUtil.createCertificate(content, null, null, false);
+        auditService.createAuditTraceCertificateCreated(AuditService.AUDIT_MANUAL_CERTIFICATE_IMPORTED, cert);
 
 		// save the source of the certificate
 		certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_UPLOADED_BY, requestorName);

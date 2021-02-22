@@ -164,7 +164,32 @@
                         <span>{{certificateView.requestedOn}}</span>
                     </dd>
 
+                    <dt v-if="certificateView.auditViewArr.length > 0">
+                        <span v-text="$t('ca3SApp.certificate.audit')">Audit</span>
+                    </dt>
+                    <dd v-if="certificateView.auditViewArr.length > 0">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th><span v-text="$t('ca3SApp.audit.createdOn')">Ceated On</span></th>
+                                <th><span v-text="$t('ca3SApp.audit.actorRole')">Role</span></th>
+                                <th><span v-text="$t('ca3SApp.audit.actorName')">Name</span></th>
+                                <th><span v-text="$t('ca3SApp.audit.plainContent')">Description</span></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="audit in certificateView.auditViewArr" :key="audit.id">
+                                <td>{{$d(Date.parse(audit.createdOn), 'long') }}</td>
+                                <td>{{audit.actorRole}}</td>
+                                <td>{{audit.actorName}}</td>
+                                <td>{{audit.plainContent}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
 
+                    </dd>
+
+                    <!-- donwload section -->
                     <dt v-if="certificateView.isServersideKeyGeneration">
                         <span v-text="$t('ca3SApp.certificate.download.PKCS12')">PKCS12 keystore</span>
                     </dt>

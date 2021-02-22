@@ -5,6 +5,7 @@ import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import de.trustable.ca3s.core.service.AuditService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,14 +34,16 @@ public class CertificateCrawler extends WebCrawler {
     private final List<String> crawlDomains;
     private final Pattern certPatterns;
     private final CertificateUtil certUtil;
+    private final AuditService auditService;
     private final ImportInfo importInfo;
-    
-    public CertificateCrawler(List<String> crawlDomains, String regEx, CertificateUtil certUtil, ImportInfo importInfo) {
+
+    public CertificateCrawler(List<String> crawlDomains, String regEx, CertificateUtil certUtil, AuditService auditService, ImportInfo importInfo) {
         this.crawlDomains = ImmutableList.copyOf(crawlDomains);
         this.certPatterns = Pattern.compile(regEx);
         this.certUtil = certUtil;
+        this.auditService = auditService;
         this.importInfo = importInfo;
-        
+
     }
 
     /**
@@ -48,9 +51,9 @@ public class CertificateCrawler extends WebCrawler {
      */
     @Override
     public boolean shouldVisit(Page referringPage, WebURL url) {
-    	
+
         String href = url.getURL().toLowerCase();
-    	
+
         if (filters.matcher(href).matches()) {
 //        	LOGGER.debug("not visiting filtered page {}", href);
             return false;
@@ -83,10 +86,12 @@ public class CertificateCrawler extends WebCrawler {
         }
 
 		try {
-			
+
 			LOGGER.debug("new certificate at '{}' found, importing ...", url);
 
-			certUtil.createCertificate(page.getContentData(), null, null, false, url);
+            Certificate certificate =certUtil.createCertificate(page.getContentData(), null, null, false, url);
+            auditService.createAuditTraceCertificateCreated(AuditService.AUDIT_CRAWLER_CERTIFICATE_IMPORTED, certificate);
+
 			importInfo.incImported();
 
 		} catch (GeneralSecurityException | IOException e) {

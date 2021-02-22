@@ -1,17 +1,15 @@
 package de.trustable.ca3s.core.service.dto;
 
+import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.CertificateAttribute;
+import de.trustable.ca3s.core.service.util.CertificateUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.CertificateAttribute;
-import de.trustable.ca3s.core.service.util.CertificateUtil;
-import de.trustable.ca3s.core.web.rest.support.CertificateAdministration;
 
 /**
  * A certificate view from a given certificate and its attributes
@@ -78,6 +76,8 @@ public class CertificateView implements Serializable {
     private String downloadFilename;
 
 	private Boolean isServersideKeyGeneration = false;
+
+	private AuditView[] auditViewArr;
 
     public CertificateView() {}
 
@@ -546,5 +546,11 @@ public class CertificateView implements Serializable {
 		this.isServersideKeyGeneration = isServersideKeyGeneration;
 	}
 
+    public AuditView[] getAuditViewArr() {
+        return auditViewArr;
+    }
 
+    public void setAuditViewArr(AuditView[] auditViewArr) {
+        this.auditViewArr = auditViewArr;
+    }
 }

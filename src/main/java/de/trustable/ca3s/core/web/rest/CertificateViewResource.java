@@ -1,7 +1,12 @@
 package de.trustable.ca3s.core.web.rest;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
+import de.trustable.ca3s.core.domain.AuditTrace;
+import de.trustable.ca3s.core.repository.AuditTraceRepository;
+import de.trustable.ca3s.core.service.dto.AuditView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +24,7 @@ import de.trustable.ca3s.core.service.dto.CertificateView;
 /**
  * REST controller for reading {@link de.trustable.ca3s.core.domain.Certificate} using the convenient CertificateView object.
  * Just read-only access to this resource.
- * 
+ *
  */
 @RestController
 @RequestMapping("/api")
@@ -32,8 +37,11 @@ public class CertificateViewResource {
 
     private final CertificateService certificateService;
 
-    public CertificateViewResource(CertificateService certificateService) {
+    private final  AuditTraceRepository auditTraceRepository;
+
+    public CertificateViewResource(CertificateService certificateService, AuditTraceRepository auditTraceRepository) {
         this.certificateService = certificateService;
+        this.auditTraceRepository = auditTraceRepository;
     }
 
 
@@ -45,7 +53,7 @@ public class CertificateViewResource {
 
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of certificates in body.
      */
-/*    
+/*
     @GetMapping("/certificateViews")
     public ResponseEntity<List<Certificate>> getAllCertificates(Pageable pageable) {
         log.debug("REST request to get a page of Certificates");
@@ -54,7 +62,7 @@ public class CertificateViewResource {
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 */
-    
+
     /**
      * {@code GET  /certificates/:id} : get the "id" certificate.
      *
@@ -65,11 +73,19 @@ public class CertificateViewResource {
     public ResponseEntity<CertificateView> getCertificate(@PathVariable Long id) {
         log.debug("REST request to get CertificateView : {}", id);
         Optional<Certificate> certificateOpt = certificateService.findOne(id);
-        
+
         if( certificateOpt.isPresent() ) {
-    		return new ResponseEntity<CertificateView>(new CertificateView(certificateOpt.get()), HttpStatus.OK);
+            Certificate cert = certificateOpt.get();
+            CertificateView certView = new CertificateView(cert);
+
+            List<AuditView> auditList = new ArrayList<>();
+            for(AuditTrace at :auditTraceRepository.findByCsrAndCert(cert, cert.getCsr())){
+                auditList.add(new AuditView(at));
+            }
+            certView.setAuditViewArr(auditList.toArray(new AuditView[auditList.size()]));
+    		return new ResponseEntity<CertificateView>(certView, HttpStatus.OK);
         }
-        
+
 		return ResponseEntity.notFound().build();
     }
 

@@ -361,6 +361,8 @@ public class PipelineUtil {
         }
 
 		p.setId(pv.getId());
+        pipelineRepository.save(p);
+
         if(!Objects.equals(pv.getName(), p.getName())) {
             auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_NAME_CHANGED, p.getName(), pv.getName(), p);
             p.setName(pv.getName());
@@ -396,7 +398,9 @@ public class PipelineUtil {
 
         }else {
 			p.setCaConnector(ccc.get(0));
-            auditService.createAuditTracePipelineAttribute( "CA_CONNECTOR", oldCaConnectorName, ccc.get(0).getName(), p);
+			if( !ccc.get(0).getName().equals(oldCaConnectorName) ) {
+                auditService.createAuditTracePipelineAttribute("CA_CONNECTOR", oldCaConnectorName, ccc.get(0).getName(), p);
+            }
 		}
 
 
@@ -408,7 +412,9 @@ public class PipelineUtil {
 		Optional<BPMNProcessInfo> bpiOpt = bpmnPIRepository.findByName(pv.getProcessInfoName());
 		if( bpiOpt.isPresent()) {
 			p.setProcessInfo(bpiOpt.get());
-            auditService.createAuditTracePipelineAttribute( "ISSUANCE_PROCESS", oldProcessName, bpiOpt.get().getName(), p);
+            if( !bpiOpt.get().getName().equals(oldProcessName) ) {
+                auditService.createAuditTracePipelineAttribute("ISSUANCE_PROCESS", oldProcessName, bpiOpt.get().getName(), p);
+            }
 		}else {
 			p.setProcessInfo(null);
             auditService.createAuditTracePipelineAttribute( "ISSUANCE_PROCESS", oldProcessName, "", p);
@@ -523,6 +529,8 @@ public class PipelineUtil {
 	}
 
     private void auditTraceForAttributes(Pipeline p, Set<PipelineAttribute> pipelineOldAttributes) {
+        LOG.debug("matching PipelineAttributes : old #{}, new {}", pipelineOldAttributes.size(), p.getPipelineAttributes().size());
+
         for( PipelineAttribute pOld: pipelineOldAttributes) {
 
             boolean bFound = false;

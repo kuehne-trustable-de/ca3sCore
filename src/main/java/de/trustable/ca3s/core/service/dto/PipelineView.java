@@ -6,9 +6,9 @@ import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 
 public class PipelineView implements Serializable {
 
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 3936438948802709288L;
 
@@ -34,24 +34,26 @@ public class PipelineView implements Serializable {
     private RDNRestriction restriction_O;
     private RDNRestriction restriction_OU;
     private RDNRestriction restriction_S;
-    
+
     private RDNRestriction restriction_SAN;
 
     private RDNRestriction[] rdnRestrictions;
-    
+
     private ARARestriction[] araRestrictions;
-    
+
     private boolean toPendingOnFailedRestrictions = false;
 
     private boolean ipAsSubjectAllowed = false;
     private boolean ipAsSANAllowed = false ;
-    
+
     private ACMEConfigItems acmeConfigItems;
-    
+
     private SCEPConfigItems scepConfigItems;
-    
+
     private WebConfigItems webConfigItems;
-    
+
+    private AuditView[] auditViewArr;
+
 
     public PipelineView() {}
 
@@ -276,6 +278,11 @@ public class PipelineView implements Serializable {
 		this.rdnRestrictions = rdnRestrictions;
 	}
 
-	
+    public AuditView[] getAuditViewArr() {
+        return auditViewArr;
+    }
 
+    public void setAuditViewArr(AuditView[] auditViewArr) {
+        this.auditViewArr = auditViewArr;
+    }
 }

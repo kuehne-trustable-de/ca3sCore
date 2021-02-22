@@ -73,16 +73,16 @@ public class CSRContentProcessor {
      */
     @PostMapping("/describeContent")
     public ResponseEntity<PkcsXXData> describeContent(@Valid @RequestBody UploadPrecheckData uploaded) {
-    	
+
     	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    	
+
     	String content = uploaded.getContent();
     	LOG.debug("REST request to describe a PEM clob : {}", content);
-        
+
 		PkcsXXData p10ReqData = new PkcsXXData();
-    	
+
 		try {
-			
+
 	    	try {
 		    	CertificateFactory factory = CertificateFactory.getInstance("X.509");
 		    	X509Certificate cert = (X509Certificate) factory.generateCertificate(new ByteArrayInputStream(Base64.decode(content)));
@@ -100,27 +100,28 @@ public class CSRContentProcessor {
 				// no information leakage to the outside if not authenticated
 				p10ReqData = new PkcsXXData(certHolder, content, false);
 			}
-		} catch (org.bouncycastle.util.encoders.DecoderException de){	
+            LOG.debug("certificate parsed from uploaded PEM content : " + certHolder.getSubject());
+		} catch (org.bouncycastle.util.encoders.DecoderException de){
 			// no parseable ...
 			p10ReqData.setDataType(PKCSDataType.UNKNOWN);
 			LOG.debug("certificate parsing problem of uploaded content: " + de.getMessage());
 		} catch (GeneralSecurityException e) {
 			LOG.debug("not a certificate, trying to parse it as CSR ");
-			
+
 			try {
-				
+
 				Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(cryptoUtil.convertPemToPKCS10CertificationRequest(content));
-				
+
 				Pkcs10RequestHolderShallow p10ReqHolderShallow = new Pkcs10RequestHolderShallow( p10ReqHolder);
-				
+
 				p10ReqData = new PkcsXXData(p10ReqHolderShallow);
 				// no information leakage to the outside: check authentication
 				if( auth.isAuthenticated()) {
 					List<CSR> csrList = csrRepository.findByPublicKeyHash(p10ReqHolder.getPublicKeyHash());
 					LOG.debug("public key with hash '{}' used in #{} csrs, yet", p10ReqHolder.getPublicKeyHash(), csrList.size());
 					p10ReqData.setCsrPublicKeyPresentInDB(!csrList.isEmpty());
-					
-					
+
+
 					List<Certificate> candidates = certUtil.findReplaceCandidates(p10ReqData.getP10Holder().getSans());
 					p10ReqData.setReplacementCandidates(candidates);
 				}
@@ -129,16 +130,16 @@ public class CSRContentProcessor {
 				LOG.debug("describeCSR : " + e2.getMessage());
 				LOG.debug("not a certificate, not a CSR, trying to parse it as a P12 container");
 				try {
-					
+
 			        KeyStore pkcs12Store = KeyStore.getInstance("PKCS12", "BC");
 
 			        ByteArrayInputStream bais = new ByteArrayInputStream( Base64.decode(content));
-			        
+
 			        char[] passphrase = new char[0];
 			        if( ( uploaded.getPassphrase() != null ) && (uploaded.getPassphrase().trim().length() > 0)) {
 			        	passphrase = uploaded.getPassphrase().toCharArray();
 			        }
-			        
+
 			        pkcs12Store.load(bais, passphrase);
 					LOG.debug("keystore loaded successfully!");
 
@@ -157,7 +158,7 @@ public class CSRContentProcessor {
 			            		continue;
 			            	}
 							LOG.debug("certificate {} found in PKCS12 for alias {}", x509cert.getSubjectDN().getName(), alias);
-			            	
+
 					    	String b64Content = cryptoUtil.x509CertToPem(x509cert);
 			    			X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(b64Content);
 			    			X509CertificateHolderShallow x509Holder = new X509CertificateHolderShallow(certHolder);
@@ -168,7 +169,7 @@ public class CSRContentProcessor {
 				            	x509Holder.setKeyPresent(true);
 								LOG.debug("key {} found alongside certificate in PKCS12 for alias {}", key, alias);
 				            }
-				            
+
 			    			certList.add(x509Holder);
 			            }
 			        }
@@ -185,7 +186,7 @@ public class CSRContentProcessor {
 					p10ReqData.setPassphraseRequired(true);
 					p10ReqData.setDataType(PKCSDataType.CONTAINER_REQUIRING_PASSPHRASE);
 					LOG.debug("p12 missing a passphrase:", ioe);
-				} catch (org.bouncycastle.util.encoders.DecoderException de){	
+				} catch (org.bouncycastle.util.encoders.DecoderException de){
 					// not parseable ...
 					p10ReqData.setDataType(PKCSDataType.UNKNOWN);
 					LOG.debug("p12 parsing problem of uploaded content: " + de.getMessage());

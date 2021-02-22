@@ -67,18 +67,19 @@ public class CaConnectorAdapter {
 			LOGGER.debug("CAConnectorType ADCS at " + caConfig.getCaUrl());
 			return adcsConnector.getStatus(caConfig);
 
-		} else if (CAConnectorType.CMP.equals(caConfig.getCaConnectorType())) {
+        } else if (CAConnectorType.ADCS_CERTIFICATE_INVENTORY.equals(caConfig.getCaConnectorType())) {
+            LOGGER.debug("CAConnectorType ADCS_CERTIFICATE_INVENTORY at " + caConfig.getCaUrl());
+            return adcsConnector.getStatus(caConfig);
+
+        } else if (CAConnectorType.CMP.equals(caConfig.getCaConnectorType())) {
 			LOGGER.debug("CAConnectorType CMP at " + caConfig.getCaUrl());
-
 			return cmpConnector.getStatus(caConfig);
-
 		} else if (CAConnectorType.INTERNAL.equals(caConfig.getCaConnectorType())) {
 			LOGGER.debug("CAConnectorType INTERNAL is Active" );
 			return CAStatus.Active;
 
 		} else if (CAConnectorType.DIRECTORY.equals(caConfig.getCaConnectorType())) {
 			LOGGER.debug("CAConnectorType DIRECTORY for " + caConfig.getCaUrl());
-
 			return dirConnector.getStatus(caConfig);
 		} else {
 			LOGGER.warn("unexpected ca connector type '" + caConfig.getCaConnectorType() + "' !");
@@ -199,7 +200,7 @@ public class CaConnectorAdapter {
             CAConnectorStatus stat = new CAConnectorStatus(cAConnectorConfig.getId(), cAConnectorConfig.getName(), status);
             caStatusList.add(stat);
 
-            LOGGER.debug("CA status for {} is {}", cAConnectorConfig.getName(), status);
+            LOGGER.debug("CA status for {} is {}, is active {}", cAConnectorConfig.getName(), status, cAConnectorConfig.isActive());
         }
 
         this.caConnectorStatus = caStatusList;

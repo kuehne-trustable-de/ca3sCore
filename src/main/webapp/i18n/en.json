@@ -309,6 +309,12 @@
   "ca3SApp.certificate.usage": "Usage",
   "ca3SApp.certificate.validFrom": "Valid From",
   "ca3SApp.certificate.validTo": "Valid To",
+  "ca3SApp.certificate.audit": "Audit Log",
+  "ca3SApp.audit.createdOn": "Created on",
+  "ca3SApp.audit.actorRole": "Role",
+  "ca3SApp.audit.actorName": "User",
+  "ca3SApp.audit.plainContent": "Description",
+
   "ca3SApp.certificateAttribute.certificate": "Certificate",
   "ca3SApp.certificateAttribute.created": "A new Certificate Attribute is created with identifier {{ param }}",
   "ca3SApp.certificateAttribute.delete.question": "Are you sure you want to delete Certificate Attribute {{ id }}?",

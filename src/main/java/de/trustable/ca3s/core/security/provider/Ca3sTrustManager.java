@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.net.ssl.X509TrustManager;
 
+import de.trustable.ca3s.core.service.AuditService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +35,13 @@ public class Ca3sTrustManager implements X509TrustManager {
 	@Autowired
 	private CryptoService cryptoUtil;
 
-	@Autowired
-	private CertificateUtil certUtil;
+    @Autowired
+    private CertificateUtil certUtil;
 
-	@Override
+    @Autowired
+    private AuditService auditService;
+
+    @Override
 	public void checkClientTrusted(X509Certificate[] cert, String authType) throws CertificateException {
 		if( cert.length == 0) {
 			throw new CertificateException();
@@ -52,84 +56,53 @@ public class Ca3sTrustManager implements X509TrustManager {
 		}
 		X509Certificate serverCert = chain[0];
 		LOGGER.debug("checkServerTrusted called for authType '{}' with certificate subject '{}'",authType, serverCert.getSubjectDN().getName());
-		
+
 		Date now = new Date();
 		if( now.after(serverCert.getNotAfter()) ) {
 			LOGGER.debug("checkServerTrusted:  certificate with subject '" + serverCert.getSubjectDN().getName() + "' not valid anymore (now > " + serverCert.getNotAfter());
 			throw new CertificateException();
 		}
-		
+
 		if(now.before(serverCert.getNotBefore()) ) {
 			LOGGER.debug("checkServerTrusted:  certificate with subject '" + serverCert.getSubjectDN().getName() + "' not valid yet (now < " + serverCert.getNotBefore());
 			throw new CertificateException();
 		}
-		
+
 		try {
-			Certificate serverCertDao = certUtil.createCertificate(cryptoUtil.x509CertToPem(serverCert), null, 
-					null,
-					false);
 
-			LOGGER.debug("checkServerTrusted : server certificate found in database  '" + serverCertDao.getSubject() + "' with id  '" + serverCertDao.getId() + "'" );
+            Certificate issuingCACertDao = getCertificateObject(chain, serverCert);
 
-			if( serverCertDao.isRevoked()) {
-				LOGGER.debug("checkServerTrusted : certificate for subject '" + serverCert.getSubjectDN().getName() + "', revoked '" + serverCertDao.getRevocationReason() + "' on " + serverCertDao.getRevokedSince());
-				throw new CertificateException();
-			}
-			
-			Certificate issuingCACertDao = certUtil.findIssuingCertificate(serverCertDao);
-			if( issuingCACertDao == null && (chain.length > 1)) {
-				LOGGER.debug("checkServerTrusted : no issuing certificate found for certificate subject '" + serverCertDao.getSubject() + "',  : chain has " + chain.length + " elements");
-				
-				issuingCACertDao = certUtil.createCertificate(cryptoUtil.x509CertToPem(chain[1]), null, 
-						null,
-						false);
-				LOGGER.debug("checkServerTrusted importing issuing CA cert '" + chain[1].getSubjectDN().getName() + "'");
-				
-				serverCertDao = certUtil.createCertificate(cryptoUtil.x509CertToPem(serverCert), null, 
-						null,
-						false);
-			}
-			if( issuingCACertDao == null){
-				LOGGER.debug("checkServerTrusted : no issuing certificate found for certificate subject '" + serverCert.getSubjectDN().getName() + "', issuer : '" + serverCert .getIssuerDN().getName() + "'");
-				throw new CertificateException();
-			}
-			
-			if( issuingCACertDao.isRevoked()) {
-				LOGGER.debug("checkServerTrusted : certificate forsubject '" + issuingCACertDao.getSubject() + "', revoked '" + issuingCACertDao.getRevocationReason() + "' on " + issuingCACertDao.getRevokedSince());
-				throw new CertificateException();
-			}
-
-			ArrayList<X509Certificate> certList = new ArrayList<X509Certificate>();
+            ArrayList<X509Certificate> certList = new ArrayList<X509Certificate>();
 			certList.add(serverCert);
 			certList.add(serverCert);
 			certList.add(CryptoService.convertPemToCertificate(issuingCACertDao.getContent()));
-			
+
 			for( int i = 0; i < 8; i++) {
 				Certificate nextCACertDao = certUtil.findIssuingCertificate(issuingCACertDao);
 				if( nextCACertDao == null){
 					LOGGER.debug("checkServerTrusted : no issuing certificate found for certificate subject '" + issuingCACertDao.getSubject() + "', issuer : '" + issuingCACertDao.getIssuer() + "'");
 					throw new CertificateException();
 				}
-				
+
 				issuingCACertDao = nextCACertDao;
 				if( issuingCACertDao.isRevoked()) {
 					LOGGER.debug("checkServerTrusted : certificate forsubject '" + issuingCACertDao.getSubject() + "', revoked '" + issuingCACertDao.getRevocationReason() + "' on " + issuingCACertDao.getRevokedSince());
 					throw new CertificateException();
 				}
 				certList.add(CryptoService.convertPemToCertificate( issuingCACertDao.getContent()));
-				
+
 				if( "true".equalsIgnoreCase(certUtil.getCertAttribute(issuingCACertDao, CertificateAttribute.ATTRIBUTE_SELFSIGNED))) {
 					LOGGER.debug("certificate chain complete, cert id '{}' is selfsigned", issuingCACertDao.getId());
 					break;
 				}
 			}
-			
+
 			/**
 			 * @todo
-			 * 
+			 *
 			 * check chain with standard trust manager
 			 */
-			
+
 		} catch (GeneralSecurityException | IOException e) {
 			LOGGER.debug("checkServerTrusted exception for certificate subject '" + serverCert.getSubjectDN().getName() + "'", e);
 			throw new CertificateException();
@@ -142,10 +115,56 @@ public class Ca3sTrustManager implements X509TrustManager {
 
 	}
 
-	@Override
+    private synchronized Certificate getCertificateObject(X509Certificate[] chain, X509Certificate serverCert) throws GeneralSecurityException, IOException {
+        LOGGER.info("checkServerTrusted : entering synchronized block!" );
+        Certificate serverCertDao = certUtil.getCertificateByX509(serverCert);
+        if( serverCertDao!= null){
+            LOGGER.debug("checkServerTrusted : server certificate found in database  '" + serverCertDao.getSubject() + "' with id  '" + serverCertDao.getId() + "'" );
+        }else {
+            serverCertDao = certUtil.createCertificate(cryptoUtil.x509CertToPem(serverCert), null,
+                null,
+                false);
+            auditService.createAuditTraceCertificateCreated(AuditService.AUDIT_TLS_CERTIFICATE_IMPORTED, serverCertDao);
+        }
+
+        if( serverCertDao.isRevoked()) {
+            LOGGER.debug("checkServerTrusted : certificate for subject '" + serverCert.getSubjectDN().getName() + "', revoked '" + serverCertDao.getRevocationReason() + "' on " + serverCertDao.getRevokedSince());
+            throw new CertificateException();
+        }
+
+        Certificate issuingCACertDao = null;
+        try {
+            issuingCACertDao = certUtil.findIssuingCertificate(serverCertDao);
+        }catch( GeneralSecurityException gse){
+            LOGGER.debug("checkServerTrusted : issuing certificate not available for certificate subject '" + serverCertDao.getSubject() + "', checking TLS chain with " + chain.length + " elements");
+        }
+
+        if( issuingCACertDao == null && (chain.length > 1)) {
+            LOGGER.debug("checkServerTrusted : no issuing certificate found in database for certificate subject '" + serverCertDao.getSubject() + "',  : chain has " + chain.length + " elements");
+
+            issuingCACertDao = certUtil.createCertificate(cryptoUtil.x509CertToPem(chain[1]), null,
+                    null,
+                    false);
+            auditService.createAuditTraceCertificateCreated(AuditService.AUDIT_TLS_INTERMEDIATE_CERTIFICATE_IMPORTED, serverCertDao);
+            LOGGER.debug("checkServerTrusted importing issuing CA cert '" + chain[1].getSubjectDN().getName() + "'");
+
+        }
+        if( issuingCACertDao == null){
+            LOGGER.debug("checkServerTrusted : no issuing certificate found for certificate subject '" + serverCert.getSubjectDN().getName() + "', issuer : '" + serverCert.getIssuerDN().getName() + "'");
+            throw new CertificateException();
+        }
+
+        if( issuingCACertDao.isRevoked()) {
+            LOGGER.debug("checkServerTrusted : certificate forsubject '" + issuingCACertDao.getSubject() + "', revoked '" + issuingCACertDao.getRevocationReason() + "' on " + issuingCACertDao.getRevokedSince());
+            throw new CertificateException();
+        }
+        return issuingCACertDao;
+    }
+
+    @Override
 	public X509Certificate[] getAcceptedIssuers() {
 		LOGGER.debug("getAcceptedIssuers call !");
-		
+
 		List<Certificate> acceptedIssuerList = certificateRepository.findBySearchTermNamed1(CertificateAttribute.ATTRIBUTE_CA, "true");
 		X509Certificate[] certArray = new X509Certificate[acceptedIssuerList.size()];
 		for( int i = 0; i < acceptedIssuerList.size(); i++) {
@@ -155,7 +174,7 @@ public class Ca3sTrustManager implements X509TrustManager {
 				LOGGER.debug("getAcceptedIssuers exception processing certificate dao with id  '" + acceptedIssuerList.get(i).getId() + "'", e);
 			}
 		}
-		
+
 		LOGGER.debug("getAcceptedIssuers returns {} elements", certArray.length);
 		return certArray;
 	}

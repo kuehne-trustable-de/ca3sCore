@@ -1,7 +1,10 @@
 package de.trustable.ca3s.core.web.rest;
 
+import de.trustable.ca3s.core.domain.AuditTrace;
 import de.trustable.ca3s.core.domain.Pipeline;
+import de.trustable.ca3s.core.repository.AuditTraceRepository;
 import de.trustable.ca3s.core.service.PipelineService;
+import de.trustable.ca3s.core.service.dto.AuditView;
 import de.trustable.ca3s.core.service.dto.PipelineView;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
 import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
@@ -39,6 +42,9 @@ public class PipelineViewResource {
 
     @Autowired
     private PipelineUtil pipelineUtil;
+
+    @Autowired
+    private AuditTraceRepository auditTraceRepository;
 
     public PipelineViewResource(PipelineService pipelineService) {
         this.pipelineService = pipelineService;
@@ -113,7 +119,16 @@ public class PipelineViewResource {
         Optional<Pipeline> pipelineOpt = pipelineService.findOne(id);
         Optional<PipelineView> pvOpt = Optional.empty();
         if( pipelineOpt.isPresent()){
-            pvOpt = Optional.of( pipelineUtil.from(pipelineOpt.get()));
+            Pipeline p = pipelineOpt.get();
+            PipelineView pv = pipelineUtil.from(p);
+
+            List<AuditView> auditList = new ArrayList<>();
+            for(AuditTrace at :auditTraceRepository.findByPipeline(p)){
+                auditList.add(new AuditView(at));
+            }
+            pv.setAuditViewArr(auditList.toArray(new AuditView[auditList.size()]));
+
+            pvOpt = Optional.of(pv);
         }
         return ResponseUtil.wrapOrNotFound(pvOpt);
     }

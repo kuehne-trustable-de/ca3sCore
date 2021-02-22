@@ -130,7 +130,7 @@
         <!-- jhipster-needle-maven-property -->
 
         <cryptoUtilVersion>1.1.5</cryptoUtilVersion>
-        <certBundleVersion>1.1.0</certBundleVersion>
+        <certBundleVersion>1.1.1</certBundleVersion>
     	<nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
     	<adcsUtilVersion>1.2.0</adcsUtilVersion>
 		<adcsProxyClientVersion>1.2.1</adcsProxyClientVersion>
@@ -829,6 +829,7 @@
                         <class>de.trustable.ca3s.core.service.dto.CAStatus</class>
                         <class>de.trustable.ca3s.core.service.dto.CAConnectorStatus</class>
 
+                        <class>de.trustable.ca3s.core.service.dto.AuditView</class>
 						<class>de.trustable.ca3s.core.service.dto.PipelineView</class>
 						<class>de.trustable.ca3s.core.service.dto.CertificateView</class>
 						<class>de.trustable.ca3s.core.service.dto.CSRView</class>
