@@ -270,7 +270,7 @@ If the server is willing to issue the requested certificate, it
 public class NewOrderController extends ACMEController {
 
   private static final Logger LOG = LoggerFactory.getLogger(NewOrderController.class);
-  
+
   private static final long DEFAULT_ORDER_VALID_DAYS = 5L;
 
   @Autowired
@@ -281,7 +281,7 @@ public class NewOrderController extends ACMEController {
 
   @Autowired
   private AcmeChallengeRepository challengeRepository;
-  
+
   @Autowired
   private AcmeIdentifierRepository identRepository;
 
@@ -301,7 +301,7 @@ public class NewOrderController extends ACMEController {
 
   public ResponseEntity<?> consumeWithConverter(@RequestBody final String requestBody, final String realm) {
 	LOG.info("Received NewOrder request for realm {}", realm);
-	
+
 	try {
 		JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
 	    IdentifiersResponse newIdentifiers = jwtUtil.getIdentifiers(context.getJwtClaims());
@@ -311,9 +311,9 @@ public class NewOrderController extends ACMEController {
 
 		AcmeOrder orderDao = new AcmeOrder();
 		orderDao.setOrderId(generateId());
-		
+
 		orderDao.setAccount(acctDao);
-		
+
 		orderDao.setStatus(AcmeOrderStatus.PENDING);
 
 		Instant now = Instant.now();
@@ -334,9 +334,9 @@ public class NewOrderController extends ACMEController {
 		}
 		identRepository.saveAll(identifiers);
 		orderDao.setAcmeIdentifiers(identifiers);
-		
+
 		orderRepository.save(orderDao);
-		
+
 		Set<AcmeAuthorization> authorizations = new HashSet<AcmeAuthorization>();
 		Set<String> authorizationsResp = new HashSet<String>();;
 
@@ -352,42 +352,45 @@ public class NewOrderController extends ACMEController {
 			AcmeChallenge challengeDao = new AcmeChallenge();
 			challengeDao.setChallengeId(generateId());
 			challengeDao.setAcmeAuthorization(authorizationDao);
-			
+
 			// @todo expand to arbitrary types
 			challengeDao.setType( "http-01");
 			challengeDao.setValue(identDao.getValue());
 			challengeDao.setToken( getNewChallenge());
 			challengeDao.setStatus(ChallengeStatus.PENDING);
 			challengeRepository.save(challengeDao);
-			
+
 			authorizationDao.setChallenges(challenges);
 			authorizationRepository.save(authorizationDao);
-			
+
 			authorizations.add(authorizationDao);
-			
-			authorizationsResp.add(locationUriOfAuth(authorizationDao.getAcmeAuthorizationId(), fromCurrentRequestUri()).toString());
+
+            URI authUri = authorizationResourceUriBuilderFrom(fromCurrentRequestUri()).path("/").path(Long.toString(authorizationDao.getAcmeAuthorizationId())).build().normalize().toUri();
+            authorizationsResp.add(authUri.toString());
+
+//            authorizationsResp.add(locationUriOfAuth(authorizationDao.getAcmeAuthorizationId(), fromCurrentRequestUri()).toString());
 		}
 
 		orderDao.setAcmeAuthorizations(authorizations);
 		orderRepository.save(orderDao);
-		
+
 		String finalizeUrl = locationUriOfOrderFinalize(orderDao.getOrderId(), fromCurrentRequestUri()).toString();
 		NewOrderResponse newOrderResp = new NewOrderResponse(orderDao, authorizationsResp, finalizeUrl);
 
 //		newOrderResp.setStatus(orderDao.getStatus());
 //		newOrderResp.setExpires(orderDao.getExpires());
-//		
+//
 //		Set<Identifier> identifiersResp = new HashSet<Identifier>();
 //		for( Identifier ident: newIdentifiers.getIdentifiers()) {
 //			identifiersResp.add(ident);
 //		}
 //		newOrderResp.setIdentifiers(identifiersResp );
-//		
+//
 //		newOrderResp.setAuthorizations(authorizationsResp);
 //		newOrderResp.setFinalize("http://finalize.foo.com");
-		
-		URI locationUri = locationUriOfOrder(orderDao.getOrderId(), fromCurrentRequestUri()); 
-		
+
+		URI locationUri = locationUriOfOrder(orderDao.getOrderId(), fromCurrentRequestUri());
+
 		final HttpHeaders additionalHeaders = buildNonceHeader();
 		additionalHeaders.set("Link", "<" + directoryResourceUriBuilderFrom(fromCurrentRequestUri()).build().normalize() + ">;rel=\"index\"");
 
@@ -400,24 +403,24 @@ public class NewOrderController extends ACMEController {
 	}
 }
 
-/*  
+/*
   @RequestMapping(method = POST, consumes = APPLICATION_JWS_VALUE)
   public ResponseEntity<Authorization> consumingPostedJws(@RequestBody final String requestBody) {
 		LOG.info("Received consumingPostedJws request ");
     return consumeWithConverter(requestBody, compactJwsNewAuthorizationRequest);
   }
 */
-  
-/*  
+
+/*
   private ResponseEntity<Authorization> consumeWithConverter(final String requestBody, final NewAuthorizationRequest
           newAuthorizationRequest) {
-          
+
     LOG.info("New AUTHORIZATION requested");
     final Context<Payload> context = newAuthorizationRequest.convert(requestBody);
-    
+
     final PublicKey publicKey = accountDAO.getPublicKeyWith(context.mustHave(JOSEkid.INSTANCE)).orElseThrow
             (() -> new RuntimeException("Missing required key ID"));
-            
+
     final Builder<Dns01Challenge> challengeBuilder = Dns01Challenge.builder(pending).randomToken();
     final UriComponentsBuilder authorizationBaseUriBuilder = newOrderResourceUriBuilderFrom(fromCurrentRequestUri());
     final Payload payload = context.getPayload();
@@ -442,5 +445,5 @@ public class NewOrderController extends ACMEController {
     throw new RuntimeException("Internal error");
   }
 */
-  
+
 }

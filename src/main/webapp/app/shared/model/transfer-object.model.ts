@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2021-02-21 18:56:34.
+// Generated using typescript-generator version 2.19.577 on 2021-02-22 22:26:57.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -24,6 +24,7 @@ export interface IPipelineView extends ISerializable {
   urlPart?: string;
   description?: string;
   approvalRequired?: boolean;
+  active?: boolean;
   caConnectorName?: string;
   processInfoName?: string;
   restriction_C?: IRDNRestriction;

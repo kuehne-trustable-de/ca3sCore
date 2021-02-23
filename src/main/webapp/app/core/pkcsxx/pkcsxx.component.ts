@@ -508,7 +508,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
     axios({
       method: 'get',
-      url: 'api/pipeline/getWebPipelines',
+      url: 'api/pipeline/getActiveWebPipelines',
       responseType: 'stream'
     }).then(function(response) {
       window.console.info('getWebPipelines returns ' + response.data);

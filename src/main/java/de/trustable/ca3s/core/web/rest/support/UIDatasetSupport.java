@@ -72,25 +72,52 @@ public class UIDatasetSupport {
      * @return the {@link Pipeline} .
      */
     @GetMapping("/pipeline/getWebPipelines")
-	@Transactional
-	public List<PipelineView> getWebPipelines() {
+    @Transactional
+    public List<PipelineView> getWebPipelines() {
 
         List<PipelineView> pvList = new ArrayList<>();
         if(SecurityUtils.isAuthenticated()){
             List<Pipeline> pipelineList = pipelineRepo.findByType(PipelineType.WEB);
-            pipelineList.forEach(new Consumer<Pipeline>() {
-                @Override
-                public void accept(Pipeline p) {
-                    LOG.debug("pipeline {} has #{} attributes", p.getName(), p.getPipelineAttributes().size());
-                    pvList.add(pipelineUtil.from(p));
-                }
-            });
+            pvList = pipelinesToPipelineViews( pipelineList);
         }else{
             LOG.debug("returning dummy pipeline view");
             pvList.add(getDummyPipelineView());
         }
         return pvList;
-	}
+    }
+
+    /**
+     * {@code GET  /pipeline/getActiveWebPipelines} : get all active pipelines for web upload.
+     *
+     * @return the {@link Pipeline} .
+     */
+    @GetMapping("/pipeline/getActiveWebPipelines")
+    @Transactional
+    public List<PipelineView> getActiveWebPipelines() {
+
+        List<PipelineView> pvList = new ArrayList<>();
+        if(SecurityUtils.isAuthenticated()){
+            List<Pipeline> pipelineList = pipelineRepo.findActiveByType(PipelineType.WEB);
+            pvList = pipelinesToPipelineViews( pipelineList);
+        }else{
+            LOG.debug("returning dummy pipeline view");
+            pvList.add(getDummyPipelineView());
+        }
+        return pvList;
+    }
+
+    List<PipelineView> pipelinesToPipelineViews( List<Pipeline> pipelineList) {
+
+        List<PipelineView> pvList = new ArrayList<>();
+        pipelineList.forEach(new Consumer<Pipeline>() {
+            @Override
+            public void accept(Pipeline p) {
+                LOG.debug("pipeline {} has #{} attributes", p.getName(), p.getPipelineAttributes().size());
+                pvList.add(pipelineUtil.from(p));
+            }
+        });
+        return pvList;
+    }
 
     private PipelineView getDummyPipelineView() {
 

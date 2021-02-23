@@ -22,9 +22,14 @@ import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 			"p.type = :type and " +
 			"p.urlPart = :urlPart"
     ),
-	@NamedQuery(name = "Pipeline.findByType",
-	query = "SELECT p FROM Pipeline p WHERE " +
-			"p.type = :type "
+    @NamedQuery(name = "Pipeline.findByType",
+        query = "SELECT p FROM Pipeline p WHERE " +
+            "p.type = :type "
+    ),
+    @NamedQuery(name = "Pipeline.findActiveByType",
+        query = "SELECT p FROM Pipeline p WHERE " +
+            "p.active = true and " +
+            "p.type = :type "
     )
 
 })
@@ -53,6 +58,9 @@ public class Pipeline implements Serializable {
 
     @Column(name = "approval_required")
     private Boolean approvalRequired;
+
+    @Column(name = "active")
+    private Boolean active;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "pipeline")
     @JsonIgnoreProperties({"pipeline"})
@@ -139,6 +147,20 @@ public class Pipeline implements Serializable {
     public void setApprovalRequired(Boolean approvalRequired) {
         this.approvalRequired = approvalRequired;
     }
+
+    public Boolean isActive() {
+        return active;
+    }
+
+    public Pipeline active(Boolean active) {
+        this.active = active;
+        return this;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
 
     public Set<PipelineAttribute> getPipelineAttributes() {
         return pipelineAttributes;

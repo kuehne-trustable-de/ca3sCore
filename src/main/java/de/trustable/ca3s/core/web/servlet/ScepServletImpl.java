@@ -191,7 +191,6 @@ public class ScepServletImpl extends ScepServlet {
 		}
 
 		return cert;
-
 	}
 
     @Override

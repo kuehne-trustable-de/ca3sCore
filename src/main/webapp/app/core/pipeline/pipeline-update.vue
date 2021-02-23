@@ -19,6 +19,13 @@
                             </small>
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.active')" for="pipeline-active">Type</label>
+                        <input type="checkbox" class="form-check-inline" name="active" id="pipeline-active"
+                               v-model="$v.pipeline.active.$model" />
+                    </div>
+
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.type')" for="pipeline-type">Type</label>
                         <select class="form-control" name="type" :class="{'valid': !$v.pipeline.type.$invalid, 'invalid': $v.pipeline.type.$invalid }" v-model="$v.pipeline.type.$model" id="pipeline-type"  required>
@@ -60,12 +67,8 @@
 
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.scepSecretValidTo')" for="pipeline-scepSecretValidTo">SCEP Secret valid until</label>
 
-                        <datetime type="datetime" input-class="form-control" name="scepSecretValidTo" input-id="pipeline-scepSecretValidTo"
+                        <datetime type="datetime" input-class="form-control" name="scepSecretValidTo" input-id="pipeline-scepSecretValidTo" id="pipeline-scepSecretValidTo"
                                   v-model="$v.pipeline.scepConfigItems.scepSecretValidTo.$model"/>
-
-                        <!--input type="datetime-local"  class="form-control" name="scepSecretValidTo" id="pipeline-scepSecretValidTo"
-                               :class="{'valid': !$v.pipeline.scepConfigItems.scepSecretValidTo.$invalid, 'invalid': $v.pipeline.scepConfigItems.scepSecretValidTo.$invalid }"
-                               v-model="$v.pipeline.scepConfigItems.scepSecretValidTo.$model" /-->
 
                     </div>
 
@@ -209,7 +212,7 @@
                         <div class="row">
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.san.cardinality')" for="pipeline-san-cardinality">Cardinality SAN</label>
-                                <select class="form-control" id="pipeline-s-cardinality" name="pipeline-san-cardinality" v-model="pipeline.restriction_SAN.cardinalityRestriction">
+                                <select class="form-control" id="pipeline-san-cardinality" name="pipeline-san-cardinality" v-model="pipeline.restriction_SAN.cardinalityRestriction">
                                     <option value="NOT_ALLOWED">NOT_ALLOWED</option>
                                     <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
                                     <option value="ONE">ONE</option>

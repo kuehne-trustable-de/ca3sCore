@@ -24,6 +24,7 @@ const validations: any = {
     },
     urlPart: {},
     description: {},
+    active: {},
     approvalRequired: {},
     approvalInfo1: {},
     ipAsSubjectAllowed: {},

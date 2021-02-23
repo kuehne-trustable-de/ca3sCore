@@ -420,7 +420,7 @@ public class ContentUploadProcessor {
 			throws GeneralSecurityException, IOException {
 		// insert certificate
 		Certificate cert = certUtil.createCertificate(content, null, null, false);
-        auditService.createAuditTraceCertificateCreated(AuditService.AUDIT_MANUAL_CERTIFICATE_IMPORTED, cert);
+        auditService.saveAuditTrace(auditService.createAuditTraceCertificateCreated(AuditService.AUDIT_MANUAL_CERTIFICATE_IMPORTED, cert));
 
 		// save the source of the certificate
 		certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_UPLOADED_BY, requestorName);

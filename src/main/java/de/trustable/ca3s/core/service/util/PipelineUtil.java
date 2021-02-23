@@ -114,15 +114,19 @@ public class PipelineUtil {
     @Autowired
     private AuditService auditService;
 
+    @Autowired
+    private AuditTraceRepository auditTraceRepository;
+
     public PipelineView from(Pipeline pipeline) {
 
     	PipelineView pv = new PipelineView();
 
     	pv.setId(pipeline.getId());
     	pv.setName(pipeline.getName());
-    	pv.setType( pipeline.getType());
-    	pv.setDescription( pipeline.getDescription());
-    	pv.setApprovalRequired( pipeline.isApprovalRequired());
+    	pv.setType(pipeline.getType());
+    	pv.setActive(pipeline.isActive());
+    	pv.setDescription(pipeline.getDescription());
+    	pv.setApprovalRequired(pipeline.isApprovalRequired());
     	pv.setUrlPart(pipeline.getUrlPart());
 
     	if( pipeline.getCaConnector()!= null) {
@@ -345,6 +349,7 @@ public class PipelineUtil {
 	 */
 	public Pipeline toPipeline(PipelineView pv) {
 
+	    List<AuditTrace> auditList = new ArrayList<>();
         Pipeline p;
         if( pv.getId() != null) {
 	       	Optional<Pipeline> optP = pipelineRepository.findById(pv.getId());
@@ -353,38 +358,54 @@ public class PipelineUtil {
 	        	pipelineAttRepository.deleteAll(p.getPipelineAttributes());
 	        }else {
 	        	p = new Pipeline();
-                auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_CREATED, p);
+                auditList.add(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_CREATED, p));
 	        }
         }else {
         	p = new Pipeline();
-            auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_CREATED, p);
+            auditList.add(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_COPIED, p));
         }
 
-		p.setId(pv.getId());
-        pipelineRepository.save(p);
+//        p.setId(pv.getId());
+//        pipelineRepository.save(p);
 
         if(!Objects.equals(pv.getName(), p.getName())) {
-            auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_NAME_CHANGED, p.getName(), pv.getName(), p);
+            auditList.add(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_NAME_CHANGED, p.getName(), pv.getName(), p));
             p.setName(pv.getName());
         }
         if(!Objects.equals(pv.getDescription(), p.getDescription())) {
-            auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_DESCRIPTION_CHANGED, p.getDescription(), pv.getDescription(), p);
+            auditList.add(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_DESCRIPTION_CHANGED, p.getDescription(), pv.getDescription(), p));
             p.setDescription(pv.getDescription());
         }
         if(!pv.getType().equals(p.getType())) {
-            auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_TYPE_CHANGED, p.getType().toString(), pv.getType().toString(), p);
+            String oldType = "";
+            if( p.getType() != null){
+                oldType = p.getType().toString();
+            }
+            auditList.add(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_TYPE_CHANGED, oldType, pv.getType().toString(), p));
             p.setType(pv.getType());
         }
         if(!Objects.equals(pv.getUrlPart(), p.getUrlPart())) {
-            auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_URLPART_CHANGED, p.getUrlPart(), pv.getUrlPart(), p);
+            auditList.add(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_URLPART_CHANGED, p.getUrlPart(), pv.getUrlPart(), p));
             p.setUrlPart(pv.getUrlPart());
         }
+
         if(pv.getApprovalRequired() != p.isApprovalRequired()){
-            auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_APPROVAL_REQUIRED_CHANGED, p.isApprovalRequired().toString(), pv.getApprovalRequired().toString(), p);
+            String isApprovalRequired = "";
+            if( p.isApprovalRequired() != null){
+                isApprovalRequired = p.isApprovalRequired().toString();
+            }
+            auditList.add(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_APPROVAL_REQUIRED_CHANGED, isApprovalRequired, pv.getApprovalRequired().toString(), p));
             p.setApprovalRequired(pv.getApprovalRequired());
         }
 
-        pipelineRepository.save(p);
+        if(pv.getActive()!= p.isActive()){
+            String isActive = "";
+            if( p.isActive() != null){
+                isActive = p.isActive().toString();
+            }
+            auditList.add(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_ACTIVE_CHANGED, isActive, pv.getActive().toString(), p));
+            p.setActive(pv.getActive());
+        }
 
         String oldCaConnectorName = "";
         if( p.getCaConnector() != null){
@@ -394,15 +415,16 @@ public class PipelineUtil {
         List<CAConnectorConfig> ccc = caConnRepository.findByName(pv.getCaConnectorName());
 		if( ccc.isEmpty()) {
 			p.setCaConnector(null);
-            auditService.createAuditTracePipelineAttribute( "CA_CONNECTOR", oldCaConnectorName, "", p);
+            auditList.add(auditService.createAuditTracePipelineAttribute( "CA_CONNECTOR", oldCaConnectorName, "", p));
 
         }else {
 			p.setCaConnector(ccc.get(0));
 			if( !ccc.get(0).getName().equals(oldCaConnectorName) ) {
-                auditService.createAuditTracePipelineAttribute("CA_CONNECTOR", oldCaConnectorName, ccc.get(0).getName(), p);
+                auditList.add(auditService.createAuditTracePipelineAttribute("CA_CONNECTOR", oldCaConnectorName, ccc.get(0).getName(), p));
             }
 		}
 
+        pipelineRepository.save(p);
 
         String oldProcessName = "";
         if( p.getProcessInfo() != null){
@@ -413,63 +435,64 @@ public class PipelineUtil {
 		if( bpiOpt.isPresent()) {
 			p.setProcessInfo(bpiOpt.get());
             if( !bpiOpt.get().getName().equals(oldProcessName) ) {
-                auditService.createAuditTracePipelineAttribute("ISSUANCE_PROCESS", oldProcessName, bpiOpt.get().getName(), p);
+                auditList.add(auditService.createAuditTracePipelineAttribute("ISSUANCE_PROCESS", oldProcessName, bpiOpt.get().getName(), p));
             }
 		}else {
 			p.setProcessInfo(null);
-            auditService.createAuditTracePipelineAttribute( "ISSUANCE_PROCESS", oldProcessName, "", p);
+            auditList.add(auditService.createAuditTracePipelineAttribute( "ISSUANCE_PROCESS", oldProcessName, "", p));
 		}
 
         Set<PipelineAttribute> pipelineOldAttributes = new HashSet<PipelineAttribute>(p.getPipelineAttributes());
+        LOG.debug("PipelineAttributes : coned old #{}, new {}", pipelineOldAttributes.size(), p.getPipelineAttributes().size());
 
         Set<PipelineAttribute> pipelineAttributes = new HashSet<PipelineAttribute>();
 
-		addPipelineAttribute(pipelineAttributes, p, RESTR_C_CARDINALITY, pv.getRestriction_C().getCardinalityRestriction().name());
-		addPipelineAttribute(pipelineAttributes, p, RESTR_C_TEMPLATE, pv.getRestriction_C().getContentTemplate());
-		addPipelineAttribute(pipelineAttributes, p, RESTR_C_REGEXMATCH, pv.getRestriction_C().isRegExMatch());
-		addPipelineAttribute(pipelineAttributes, p, RESTR_CN_CARDINALITY, pv.getRestriction_CN().getCardinalityRestriction().name());
-		addPipelineAttribute(pipelineAttributes, p, RESTR_CN_TEMPLATE, pv.getRestriction_CN().getContentTemplate());
-		addPipelineAttribute(pipelineAttributes, p, RESTR_CN_REGEXMATCH, pv.getRestriction_CN().isRegExMatch());
+		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_C_CARDINALITY, pv.getRestriction_C().getCardinalityRestriction().name());
+		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_C_TEMPLATE, pv.getRestriction_C().getContentTemplate());
+		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_C_REGEXMATCH, pv.getRestriction_C().isRegExMatch());
+		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_CN_CARDINALITY, pv.getRestriction_CN().getCardinalityRestriction().name());
+		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_CN_TEMPLATE, pv.getRestriction_CN().getContentTemplate());
+		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_CN_REGEXMATCH, pv.getRestriction_CN().isRegExMatch());
 
-		addPipelineAttribute(pipelineAttributes, p, RESTR_O_CARDINALITY, pv.getRestriction_O().getCardinalityRestriction().name());
-		addPipelineAttribute(pipelineAttributes, p, RESTR_O_TEMPLATE, pv.getRestriction_O().getContentTemplate());
-		addPipelineAttribute(pipelineAttributes, p, RESTR_O_REGEXMATCH, pv.getRestriction_O().isRegExMatch());
-		addPipelineAttribute(pipelineAttributes, p, RESTR_OU_CARDINALITY, pv.getRestriction_OU().getCardinalityRestriction().name());
-		addPipelineAttribute(pipelineAttributes, p, RESTR_OU_TEMPLATE, pv.getRestriction_OU().getContentTemplate());
-		addPipelineAttribute(pipelineAttributes, p, RESTR_OU_REGEXMATCH, pv.getRestriction_OU().isRegExMatch());
+		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_O_CARDINALITY, pv.getRestriction_O().getCardinalityRestriction().name());
+		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_O_TEMPLATE, pv.getRestriction_O().getContentTemplate());
+		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_O_REGEXMATCH, pv.getRestriction_O().isRegExMatch());
+		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_OU_CARDINALITY, pv.getRestriction_OU().getCardinalityRestriction().name());
+		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_OU_TEMPLATE, pv.getRestriction_OU().getContentTemplate());
+		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_OU_REGEXMATCH, pv.getRestriction_OU().isRegExMatch());
 
-		addPipelineAttribute(pipelineAttributes, p, RESTR_L_CARDINALITY, pv.getRestriction_L().getCardinalityRestriction().name());
-		addPipelineAttribute(pipelineAttributes, p, RESTR_L_TEMPLATE, pv.getRestriction_L().getContentTemplate());
-		addPipelineAttribute(pipelineAttributes, p, RESTR_L_REGEXMATCH, pv.getRestriction_L().isRegExMatch());
-		addPipelineAttribute(pipelineAttributes, p, RESTR_S_CARDINALITY, pv.getRestriction_S().getCardinalityRestriction().name());
-		addPipelineAttribute(pipelineAttributes, p, RESTR_S_TEMPLATE, pv.getRestriction_S().getContentTemplate());
-		addPipelineAttribute(pipelineAttributes, p, RESTR_S_REGEXMATCH, pv.getRestriction_S().isRegExMatch());
+		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_L_CARDINALITY, pv.getRestriction_L().getCardinalityRestriction().name());
+		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_L_TEMPLATE, pv.getRestriction_L().getContentTemplate());
+		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_L_REGEXMATCH, pv.getRestriction_L().isRegExMatch());
+		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_CARDINALITY, pv.getRestriction_S().getCardinalityRestriction().name());
+		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_TEMPLATE, pv.getRestriction_S().getContentTemplate());
+		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_REGEXMATCH, pv.getRestriction_S().isRegExMatch());
 
-		addPipelineAttribute(pipelineAttributes, p, RESTR_SAN_CARDINALITY, pv.getRestriction_SAN().getCardinalityRestriction().name());
-		addPipelineAttribute(pipelineAttributes, p, RESTR_SAN_TEMPLATE, pv.getRestriction_SAN().getContentTemplate());
-		addPipelineAttribute(pipelineAttributes, p, RESTR_SAN_REGEXMATCH, pv.getRestriction_SAN().isRegExMatch());
+		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_CARDINALITY, pv.getRestriction_SAN().getCardinalityRestriction().name());
+		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_TEMPLATE, pv.getRestriction_SAN().getContentTemplate());
+		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_REGEXMATCH, pv.getRestriction_SAN().isRegExMatch());
 
-		addPipelineAttribute(pipelineAttributes, p, ALLOW_IP_AS_SUBJECT,pv.isIpAsSubjectAllowed());
-		addPipelineAttribute(pipelineAttributes, p, ALLOW_IP_AS_SAN,pv.isIpAsSANAllowed());
-		addPipelineAttribute(pipelineAttributes, p, TO_PENDIND_ON_FAILED_RESTRICTIONS,pv.isToPendingOnFailedRestrictions());
+		addPipelineAttribute(pipelineAttributes, p, auditList, ALLOW_IP_AS_SUBJECT,pv.isIpAsSubjectAllowed());
+		addPipelineAttribute(pipelineAttributes, p, auditList, ALLOW_IP_AS_SAN,pv.isIpAsSANAllowed());
+		addPipelineAttribute(pipelineAttributes, p, auditList, TO_PENDIND_ON_FAILED_RESTRICTIONS,pv.isToPendingOnFailedRestrictions());
 
 
 		if( pv.getAcmeConfigItems() == null) {
 			ACMEConfigItems acmeConfigItems = new ACMEConfigItems();
 			pv.setAcmeConfigItems(acmeConfigItems );
 		}
-		addPipelineAttribute(pipelineAttributes, p, ACME_ALLOW_CHALLENGE_HTTP01,pv.getAcmeConfigItems().isAllowChallengeHTTP01());
-		addPipelineAttribute(pipelineAttributes, p, ACME_ALLOW_CHALLENGE_DNS,pv.getAcmeConfigItems().isAllowChallengeDNS());
-		addPipelineAttribute(pipelineAttributes, p, ACME_ALLOW_CHALLENGE_WILDCARDS,pv.getAcmeConfigItems().isAllowWildcards());
-		addPipelineAttribute(pipelineAttributes, p, ACME_CHECK_CAA,pv.getAcmeConfigItems().isCheckCAA());
-		addPipelineAttribute(pipelineAttributes, p, ACME_NAME_CAA,pv.getAcmeConfigItems().getCaNameCAA());
+		addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_HTTP01,pv.getAcmeConfigItems().isAllowChallengeHTTP01());
+		addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_DNS,pv.getAcmeConfigItems().isAllowChallengeDNS());
+		addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_WILDCARDS,pv.getAcmeConfigItems().isAllowWildcards());
+		addPipelineAttribute(pipelineAttributes, p, auditList, ACME_CHECK_CAA,pv.getAcmeConfigItems().isCheckCAA());
+		addPipelineAttribute(pipelineAttributes, p, auditList, ACME_NAME_CAA,pv.getAcmeConfigItems().getCaNameCAA());
 
         if( pv.getScepConfigItems() == null) {
             SCEPConfigItems scepConfigItems = new SCEPConfigItems();
             pv.setScepConfigItems(scepConfigItems );
         }
-        addPipelineAttribute(pipelineAttributes, p, SCEP_CAPABILITY_RENEWAL,pv.getScepConfigItems().isCapabilityRenewal());
-        addPipelineAttribute(pipelineAttributes, p, SCEP_CAPABILITY_POST,pv.getScepConfigItems().isCapabilityPostPKIOperation());
+        addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_CAPABILITY_RENEWAL,pv.getScepConfigItems().isCapabilityRenewal());
+        addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_CAPABILITY_POST,pv.getScepConfigItems().isCapabilityPostPKIOperation());
 
         ProtectedContent pc;
         List<ProtectedContent> listPC = protectedContentRepository.findByTypeRelationId(ProtectedContentType.PASSWORD, ContentRelationType.SCEP_PW,p.getId());
@@ -490,10 +513,10 @@ public class PipelineUtil {
             pc.setDeleteAfter(validTo.plus(1, ChronoUnit.DAYS));
             protectedContentRepository.save(pc);
             LOG.debug("SCEP password updated");
-            auditService.createAuditTracePipelineAttribute( "SCEP_SECRET", "#######", "******", p);
+            auditList.add(auditService.createAuditTracePipelineAttribute( "SCEP_SECRET", "#######", "******", p));
         }
 
-        addPipelineAttribute(pipelineAttributes, p, SCEP_SECRET_PC_ID,pc.getId().toString());
+        addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_SECRET_PC_ID, pc.getId().toString());
 
         p.setPipelineAttributes(pipelineAttributes);
 
@@ -510,25 +533,26 @@ public class PipelineUtil {
 				ARARestriction araRestriction = araRestrictions[i];
 				String araName = araRestriction.getName();
 				if(araName != null && !araName.trim().isEmpty()) {
-					addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_NAME,araName.trim());
-					addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_REQUIRED,araRestriction.isRequired());
-					addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_TEMPLATE,araRestriction.getContentTemplate());
-					addPipelineAttribute(pipelineAttributes, p, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_REGEXMATCH,araRestriction.isRegExMatch());
+					addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_NAME,araName.trim());
+					addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_REQUIRED,araRestriction.isRequired());
+					addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_TEMPLATE,araRestriction.getContentTemplate());
+					addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_REGEXMATCH,araRestriction.isRegExMatch());
 					j++;
 				}
 			}
 		}
 
 
-        auditTraceForAttributes(p, pipelineOldAttributes);
+        auditTraceForAttributes(p, auditList, pipelineOldAttributes);
 
         pipelineAttRepository.saveAll(p.getPipelineAttributes());
 		pipelineRepository.save(p);
+        auditTraceRepository.saveAll(auditList);
 
 		return p;
 	}
 
-    private void auditTraceForAttributes(Pipeline p, Set<PipelineAttribute> pipelineOldAttributes) {
+    private void auditTraceForAttributes(Pipeline p, List<AuditTrace> auditList, Set<PipelineAttribute> pipelineOldAttributes) {
         LOG.debug("matching PipelineAttributes : old #{}, new {}", pipelineOldAttributes.size(), p.getPipelineAttributes().size());
 
         for( PipelineAttribute pOld: pipelineOldAttributes) {
@@ -537,14 +561,14 @@ public class PipelineUtil {
             for (PipelineAttribute pNew : p.getPipelineAttributes()) {
                 if( pNew.getName().equals(pOld.getName())){
                     if(!Objects.equals(pNew.getValue(), pOld.getValue())){
-                        auditService.createAuditTracePipelineAttribute( pOld.getName(), pOld.getValue(), pNew.getValue(), p);
+                        auditList.add(auditService.createAuditTracePipelineAttribute( pOld.getName(), pOld.getValue(), pNew.getValue(), p));
                     }
                     bFound = true;
                     break;
                 }
             }
             if(!bFound){
-                auditService.createAuditTracePipelineAttribute( pOld.getName(), pOld.getValue(), "", p);
+                auditList.add(auditService.createAuditTracePipelineAttribute( pOld.getName(), pOld.getValue(), "", p));
             }
         }
 
@@ -557,18 +581,18 @@ public class PipelineUtil {
                 }
             }
             if(!bFound){
-                auditService.createAuditTracePipelineAttribute( pNew.getName(), "", pNew.getValue(), p);
+                auditList.add(auditService.createAuditTracePipelineAttribute( pNew.getName(), "", pNew.getValue(), p));
             }
         }
     }
 
 
-    public void addPipelineAttribute(Set<PipelineAttribute> pipelineAttributes, Pipeline p, String name, Boolean value) {
-		addPipelineAttribute(pipelineAttributes, p, name, value.toString());
+    public void addPipelineAttribute(Set<PipelineAttribute> pipelineAttributes, Pipeline p, List<AuditTrace> auditList, String name, Boolean value) {
+		addPipelineAttribute(pipelineAttributes, p, auditList, name, value.toString());
 
 	}
 
-	public void addPipelineAttribute(Set<PipelineAttribute> pipelineAttributes, Pipeline p, String name, String value) {
+	public void addPipelineAttribute(Set<PipelineAttribute> pipelineAttributes, Pipeline p, List<AuditTrace> auditList, String name, String value) {
 
 
 		if( name == null || name.trim().isEmpty()) {

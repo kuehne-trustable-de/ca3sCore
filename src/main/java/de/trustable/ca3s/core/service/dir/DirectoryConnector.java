@@ -189,7 +189,7 @@ public class DirectoryConnector {
 
 					byte[] content = Files.readAllBytes(Paths.get(filename));
                     Certificate certificate = certUtil.createCertificate(content, null, null, false, filename);
-                    auditService.createAuditTraceCertificateCreated(AuditService.AUDIT_DIRECTORY_CERTIFICATE_IMPORTED, certificate);
+                    auditService.saveAuditTrace(auditService.createAuditTraceCertificateCreated(AuditService.AUDIT_DIRECTORY_CERTIFICATE_IMPORTED, certificate));
 
 				} catch (GeneralSecurityException | IOException e) {
 					LOGGER.info("reading and importing certificate from '{}' causes {}",

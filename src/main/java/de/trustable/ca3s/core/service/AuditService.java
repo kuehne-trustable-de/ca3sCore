@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
 
 /**
  * Service for managing audit events.
@@ -44,12 +45,14 @@ public class AuditService {
     public static final String AUDIT_CHANGED = "_CHANGED";
 
     public static final String AUDIT_PIPELINE_CREATED = "PIPELINE_CREATED";
+    public static final String AUDIT_PIPELINE_COPIED = "PIPELINE_COPIED";
     public static final String AUDIT_PIPELINE_DELETED = "PIPELINE_DELETED";
     public static final String AUDIT_PIPELINE_NAME_CHANGED = "PIPELINE_NAME_CHANGED";
     public static final String AUDIT_PIPELINE_DESCRIPTION_CHANGED = "PIPELINE_DESCRIPTION_CHANGED";
     public static final String AUDIT_PIPELINE_TYPE_CHANGED = "PIPELINE_TYPE_CHANGED";
     public static final String AUDIT_PIPELINE_URLPART_CHANGED = "PIPELINE_URLPART_CHANGED";
     public static final String AUDIT_PIPELINE_APPROVAL_REQUIRED_CHANGED = "PIPELINE_APPROVAL_REQUIRED_CHANGED";
+    public static final String AUDIT_PIPELINE_ACTIVE_CHANGED = "PIPELINE_ACTIVE_CHANGED";
     public static final String AUDIT_CRAWLER_CERTIFICATE_IMPORTED = "CRAWLER_CERTIFICATE_IMPORTED";
     public static final String AUDIT_DIRECTORY_CERTIFICATE_IMPORTED = "DIRECTORY_CERTIFICATE_IMPORTED";
 
@@ -89,35 +92,35 @@ public class AuditService {
         return "ANON";
     }
 
-    public void createAuditTraceCsrAccepted(final CSR csr){
+    public AuditTrace createAuditTraceCsrAccepted(final CSR csr){
         NameAndRole nar = getNameAndRole();
-        createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_CSR_ACCEPTED, csr);
+        return createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_CSR_ACCEPTED, csr);
     }
 
-    public void createAuditTraceCsrRejected(final CSR csr){
+    public AuditTrace createAuditTraceCsrRejected(final CSR csr){
         NameAndRole nar = getNameAndRole();
-        createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_CSR_REJECTED, csr);
+        return createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_CSR_REJECTED, csr);
     }
 
-    public void createAuditTraceACMERequest(final CSR csr){
+    public AuditTrace createAuditTraceACMERequest(final CSR csr){
         NameAndRole nar = getNameAndRole();
-        createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_ACME_CERTIFICATE_REQUESTED, csr);
+        return createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_ACME_CERTIFICATE_REQUESTED, csr);
     }
 
-    public void createAuditTraceWebRequest(final CSR csr){
+    public AuditTrace createAuditTraceWebRequest(final CSR csr){
         NameAndRole nar = getNameAndRole();
-        createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_WEB_CERTIFICATE_REQUESTED, csr);
+        return createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_WEB_CERTIFICATE_REQUESTED, csr);
     }
 
-    public void createAuditTraceCsrRestrictionFailed( final CSR csr){
+    public AuditTrace createAuditTraceCsrRestrictionFailed( final CSR csr){
         NameAndRole nar = getNameAndRole();
-        createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_REQUEST_RESTRICTIONS_FAILED, csr);
+        return createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_REQUEST_RESTRICTIONS_FAILED, csr);
     }
 
 
-    public void createAuditTraceRequest(final String actor, final String actorRole, final String template, final CSR csr){
+    public AuditTrace createAuditTraceRequest(final String actor, final String actorRole, final String template, final CSR csr){
 
-        createAuditTrace(actor, actorRole, template,
+        return createAuditTrace(actor, actorRole, template,
             csr,
             null,
             null,
@@ -125,10 +128,10 @@ public class AuditService {
             null );
     }
 
-    public void createAuditTraceRequest(final String template, final CSR csr){
+    public AuditTrace createAuditTraceRequest(final String template, final CSR csr){
 
         NameAndRole nar = getNameAndRole();
-        createAuditTrace(nar.getName(), nar.getRole(),
+        return createAuditTrace(nar.getName(), nar.getRole(),
             template,
             csr,
             null,
@@ -137,10 +140,10 @@ public class AuditService {
             null );
     }
 
-    public void createAuditTraceCertificateCreated(final String template, final Certificate certificate){
+    public AuditTrace createAuditTraceCertificateCreated(final String template, final Certificate certificate){
 
         NameAndRole nar = getNameAndRole();
-        createAuditTrace(nar.getName(), nar.getRole(),
+        return createAuditTrace(nar.getName(), nar.getRole(),
             template,
             null,
             certificate,
@@ -149,10 +152,10 @@ public class AuditService {
             null );
     }
 
-    public void createAuditTracePipeline(final String template, final Pipeline pipeline){
+    public AuditTrace createAuditTracePipeline(final String template, final Pipeline pipeline){
 
         NameAndRole nar = getNameAndRole();
-        createAuditTrace(nar.getName(), nar.getRole(),
+        return createAuditTrace(nar.getName(), nar.getRole(),
             template,
             null,
             null,
@@ -161,10 +164,10 @@ public class AuditService {
             null );
     }
 
-    public void createAuditTracePipeline(final String template, final String oldVal, final String newVal, final Pipeline pipeline){
+    public AuditTrace createAuditTracePipeline(final String template, final String oldVal, final String newVal, final Pipeline pipeline){
 
         NameAndRole nar = getNameAndRole();
-        createAuditTrace(nar.getName(), nar.getRole(),
+        return createAuditTrace(nar.getName(), nar.getRole(),
             template,
             oldVal, newVal,
             null,
@@ -174,10 +177,10 @@ public class AuditService {
             null );
     }
 
-    public void createAuditTracePipelineAttribute(final String attributeName, final String oldVal, final String newVal, final Pipeline pipeline){
+    public AuditTrace createAuditTracePipelineAttribute(final String attributeName, final String oldVal, final String newVal, final Pipeline pipeline){
 
         NameAndRole nar = getNameAndRole();
-        createAuditTrace(nar.getName(), nar.getRole(),
+        return createAuditTrace(nar.getName(), nar.getRole(),
             AUDIT_PIPELINE + attributeName + AUDIT_CHANGED,
             oldVal, newVal,
             null,
@@ -188,14 +191,14 @@ public class AuditService {
     }
 
 
-    public void createAuditTrace(final String actor, final String actorRole, final String template,
+    public AuditTrace createAuditTrace(final String actor, final String actorRole, final String template,
                             final CSR csr,
                             final Certificate certificate,
                             final Pipeline pipeline,
                             final CAConnectorConfig caConnector,
                             final BPMNProcessInfo processInfo ) {
 
-        createAuditTrace(actor, actorRole, template,
+        return createAuditTrace(actor, actorRole, template,
         null, null,
         csr,
         certificate,
@@ -204,7 +207,7 @@ public class AuditService {
         processInfo );
     }
 
-    public void createAuditTrace(final String actor, final String actorRole, final String template,
+    public AuditTrace createAuditTrace(final String actor, final String actorRole, final String template,
                                  final String oldVal, final String newVal,
                                  final CSR csr,
                                  final Certificate certificate,
@@ -232,8 +235,15 @@ public class AuditService {
         auditTrace.setCaConnector(caConnector);
         auditTrace.setProcessInfo(processInfo);
 
-        auditTraceRepository.save(auditTrace);
+        return auditTrace;
+    }
 
+    public void saveAuditTrace(final AuditTrace auditTrace){
+        auditTraceRepository.save(auditTrace);
+    }
+
+    public void saveAuditTrace(final List<AuditTrace> auditTraceList){
+        auditTraceRepository.saveAll(auditTraceList);
     }
 
     NameAndRole getNameAndRole(){

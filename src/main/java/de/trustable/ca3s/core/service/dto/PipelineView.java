@@ -24,6 +24,8 @@ public class PipelineView implements Serializable {
 
     private Boolean approvalRequired;
 
+    private Boolean active;
+
     private String caConnectorName;
 
     private String processInfoName;
@@ -86,8 +88,9 @@ public class PipelineView implements Serializable {
 		return approvalRequired;
 	}
 
+    public Boolean getActive() { return active; }
 
-	public String getCaConnectorName() {
+    public String getCaConnectorName() {
 		return caConnectorName;
 	}
 
@@ -181,8 +184,9 @@ public class PipelineView implements Serializable {
 		this.approvalRequired = approvalRequired;
 	}
 
+    public void setActive(Boolean active) {this.active = active;}
 
-	public void setCaConnectorName(String caConnectorName) {
+    public void setCaConnectorName(String caConnectorName) {
 		this.caConnectorName = caConnectorName;
 	}
 

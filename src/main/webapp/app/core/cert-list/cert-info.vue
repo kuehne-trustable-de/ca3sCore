@@ -164,10 +164,10 @@
                         <span>{{certificateView.requestedOn}}</span>
                     </dd>
 
-                    <dt v-if="certificateView.auditViewArr.length > 0">
+                    <dt v-if="certificateView.auditViewArr && certificateView.auditViewArr.length > 0">
                         <span v-text="$t('ca3SApp.certificate.audit')">Audit</span>
                     </dt>
-                    <dd v-if="certificateView.auditViewArr.length > 0">
+                    <dd v-if="certificateView.auditViewArr && certificateView.auditViewArr.length > 0">
                         <table class="table table-striped">
                             <thead>
                             <tr>
@@ -191,7 +191,7 @@
 
                     <!-- donwload section -->
                     <dt v-if="certificateView.isServersideKeyGeneration">
-                        <span v-text="$t('ca3SApp.certificate.download.PKCS12')">PKCS12 keystore</span>
+                        <span v-text="$t('ca3SApp.certificate.download.PKCS12')">PKCS12 keystore</span> <help-tag target="ca3SApp.certificate.download.PKCS12"/>
                     </dt>
                     <dd v-if="certificateView.isServersideKeyGeneration">
                     	<div class="row">
@@ -207,7 +207,7 @@
                     </dd>
 
                     <dt v-if="certificateView.subject">
-                        <span v-text="$t('ca3SApp.certificate.download.pkix')">Pkix</span>
+                        <span v-text="$t('ca3SApp.certificate.download.pkix')">Pkix</span> <help-tag target="ca3SApp.certificate.download.PKIX"/>
                     </dt>
                     <dd v-if="certificateView.subject">
                         <div>
@@ -215,7 +215,7 @@
                         </div>
                     </dd>
                     <dt v-if="certificateView.subject">
-                        <span v-text="$t('ca3SApp.certificate.download.pem')">PEM</span>
+                        <span v-text="$t('ca3SApp.certificate.download.pem')">PEM</span> <help-tag target="ca3SApp.certificate.download.PEM"/>
                     </dt>
                     <dd v-if="certificateView.subject">
                         <div>
@@ -245,7 +245,7 @@
             <form name="editForm" role="form" novalidate>
                 <div>
                     <div v-if="isRevocable()" class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.revocationReason')" for="cert-revocationReason">Revocation reason</label>
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.revocationReason')" for="cert-revocationReason">Revocation reason</label> <help-tag target="ca3SApp.certificate.download.revocationReason"/>
                         <select class="form-control" id="cert-revocationReason" name="revocationReason"  v-model="certificateAdminData.revocationReason">
                             <option v-bind:value="'certificateHold'">certificateHold</option>
                             <option v-bind:value="'keyCompromise'">keyCompromise</option>
@@ -259,7 +259,7 @@
                     </div>
 
                     <div v-if="isRevocable()" class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.comment')" for="comment">Comment</label>
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.comment')" for="comment">Comment</label> <help-tag target="ca3SApp.certificate.comment"/>
                         <textarea class="form-control" name="content" id="comment"
 							autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                             v-model="certificateAdminData.comment" />

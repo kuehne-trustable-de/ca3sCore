@@ -69,4 +69,6 @@
     <include file="config/liquibase/changelog/20210214223911_added_entity_AuditTrace.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20210214223911_added_entity_constraints_AuditTrace.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/20210222214921_added_columns_Pipeline.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>

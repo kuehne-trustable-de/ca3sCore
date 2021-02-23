@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.service.impl;
 
+import de.trustable.ca3s.core.repository.PipelineAttributeRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.PipelineService;
 import de.trustable.ca3s.core.domain.Pipeline;
@@ -24,6 +25,9 @@ public class PipelineServiceImpl implements PipelineService {
     private final Logger log = LoggerFactory.getLogger(PipelineServiceImpl.class);
 
     private final PipelineRepository pipelineRepository;
+
+    @Autowired
+    private PipelineAttributeRepository pipelineAttributeRepository;
 
     @Autowired
     private AuditService auditService;
@@ -78,7 +82,12 @@ public class PipelineServiceImpl implements PipelineService {
     @Override
     public void delete(Long id) {
         log.debug("Request to delete Pipeline : {}", id);
-        auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_DELETED, null);
-        pipelineRepository.deleteById(id);
+
+        Optional<Pipeline> pipelineOpt = pipelineRepository.findById(id);
+        if(pipelineOpt.isPresent()) {
+            auditService.saveAuditTrace(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_DELETED, null));
+            pipelineAttributeRepository.deleteAll(pipelineOpt.get().getPipelineAttributes());
+            pipelineRepository.deleteById(id);
+        }
     }
 }

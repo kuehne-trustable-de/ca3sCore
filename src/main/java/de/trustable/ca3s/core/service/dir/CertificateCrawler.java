@@ -90,7 +90,7 @@ public class CertificateCrawler extends WebCrawler {
 			LOGGER.debug("new certificate at '{}' found, importing ...", url);
 
             Certificate certificate =certUtil.createCertificate(page.getContentData(), null, null, false, url);
-            auditService.createAuditTraceCertificateCreated(AuditService.AUDIT_CRAWLER_CERTIFICATE_IMPORTED, certificate);
+            auditService.saveAuditTrace(auditService.createAuditTraceCertificateCreated(AuditService.AUDIT_CRAWLER_CERTIFICATE_IMPORTED, certificate));
 
 			importInfo.incImported();
 

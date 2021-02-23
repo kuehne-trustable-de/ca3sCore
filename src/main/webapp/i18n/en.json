@@ -422,6 +422,7 @@
   "ca3SApp.pipeline.template": "Template",
   "ca3SApp.pipeline.toPendingOnFailedRestrictions": "Forward failed req. to 'Pending'",
   "ca3SApp.pipeline.type": "Type",
+  "ca3SApp.pipeline.active": "Active",
   "ca3SApp.pipeline.updated": "A Pipeline is updated with identifier {{ param }}",
   "ca3SApp.pipeline.urlPart": "Url Part",
   "ca3SApp.pipeline.scepSecret": "Secret",
