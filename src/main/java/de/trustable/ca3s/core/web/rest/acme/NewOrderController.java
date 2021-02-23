@@ -365,10 +365,7 @@ public class NewOrderController extends ACMEController {
 
 			authorizations.add(authorizationDao);
 
-            URI authUri = authorizationResourceUriBuilderFrom(fromCurrentRequestUri()).path("/").path(Long.toString(authorizationDao.getAcmeAuthorizationId())).build().normalize().toUri();
-            authorizationsResp.add(authUri.toString());
-
-//            authorizationsResp.add(locationUriOfAuth(authorizationDao.getAcmeAuthorizationId(), fromCurrentRequestUri()).toString());
+            authorizationsResp.add(locationUriOfAuth(authorizationDao.getAcmeAuthorizationId(), fromCurrentRequestUri()).toString());
 		}
 
 		orderDao.setAcmeAuthorizations(authorizations);

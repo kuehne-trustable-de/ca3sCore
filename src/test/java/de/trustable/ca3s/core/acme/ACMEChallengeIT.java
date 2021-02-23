@@ -118,6 +118,8 @@ public class ACMEChallengeIT {
 		        .notAfter(Instant.now().plus(Duration.ofDays(20L)))
 		        .create();
 
+		System.out.println("Auth: " + order.getAuthorizations().get(0).toString() );
+
 		// challenge an authorization that will not succeed
 		for (Authorization auth : order.getAuthorizations()) {
 			LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());

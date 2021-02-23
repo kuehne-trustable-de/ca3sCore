@@ -62,7 +62,7 @@ public class ACMEController {
 	public static final String APPLICATION_PEM_CERT_VALUE = "application/pem-certificate";
 	public static final String APPLICATION_PEM_FILE_VALUE = "application/x-pem-file";
 	public static final String APPLICATION_PKCS12_VALUE = "application/x-pkcs12";
-	
+
 	public static final MediaType APPLICATION_PROBLEM_JSON = new MediaType("application", "problem+json");
 	public static final MediaType APPLICATION_JOSE_JSON = MediaType.parseMediaType(APPLICATION_JOSE_JSON_VALUE);
 	public static final MediaType APPLICATION_JWS = MediaType.parseMediaType(APPLICATION_JWS_VALUE);
@@ -196,20 +196,20 @@ public class ACMEController {
 	}
 
 	public URI locationUriOfAuth(final long authId, final UriComponentsBuilder uriBuilder) {
-		return authorizationResourceUriBuilderFrom(uriBuilder.path("..")).path("/").path(Long.toString(authId)).build()
+		return authorizationResourceUriBuilderFrom(uriBuilder).path("/").path(Long.toString(authId)).build()
 				.normalize().toUri();
 	}
 
 	/**
 	 * get the pipeline for a given realm
-	 * 
+	 *
 	 * @param realm
 	 * @return
 	 */
 	public Pipeline getPipelineForRealm(final String realm) {
-		
+
 		List<Pipeline> pipelineList = pipeRepo.findByTypeUrl(PipelineType.ACME, realm);
-		
+
 		if(pipelineList.isEmpty()) {
 			LOG.warn("realm {} is not known", realm);
 			final ProblemDetail problem = new ProblemDetail(ACMEUtil.REALM_DOES_NOT_EXIST, "realm not found",
@@ -225,10 +225,10 @@ public class ACMEController {
 		}
 
 		return pipelineList.get(0);
-		
+
 	}
 	/**
-	 * 
+	 *
 	 * @param acctDao
 	 * @param updatedAcct
 	 */
@@ -284,7 +284,7 @@ public class ACMEController {
 
 	/**
 	 * retrieve Account and check given JWT
-	 * 
+	 *
 	 * @param context
 	 * @return
 	 * @throws IOException
@@ -411,7 +411,7 @@ public class ACMEController {
 
 	/**
 	 * generate new random identifiers
-	 * 
+	 *
 	 * @return
 	 */
 	public long generateId() {

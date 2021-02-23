@@ -328,8 +328,8 @@ public class OrderController extends ACMEController {
 		Set<String> authorizationsResp = new HashSet<>();
 		for( AcmeAuthorization authDao: orderDao.getAcmeAuthorizations()) {
 			UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(baseUriBuilder.build().normalize().toUri());
-			authorizationsResp.add(locationUriOfAuth(authDao.getAcmeAuthorizationId(), uriBuilder).toString());
-		}
+            authorizationsResp.add(locationUriOfAuth(authDao.getAcmeAuthorizationId(), uriBuilder).toString());
+        }
 
 		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(baseUriBuilder.build().normalize().toUri());
 		LOG.debug("uriBuilder: {}", uriBuilder.toUriString());
