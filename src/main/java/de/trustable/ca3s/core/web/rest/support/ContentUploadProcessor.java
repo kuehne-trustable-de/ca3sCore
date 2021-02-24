@@ -35,7 +35,6 @@ import org.bouncycastle.util.encoders.DecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -420,7 +419,7 @@ public class ContentUploadProcessor {
 			throws GeneralSecurityException, IOException {
 		// insert certificate
 		Certificate cert = certUtil.createCertificate(content, null, null, false);
-        auditService.saveAuditTrace(auditService.createAuditTraceCertificateCreated(AuditService.AUDIT_MANUAL_CERTIFICATE_IMPORTED, cert));
+        auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_MANUAL_CERTIFICATE_IMPORTED, cert));
 
 		// save the source of the certificate
 		certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_UPLOADED_BY, requestorName);

@@ -358,10 +358,12 @@ public class PipelineUtil {
 	        	pipelineAttRepository.deleteAll(p.getPipelineAttributes());
 	        }else {
 	        	p = new Pipeline();
+                pipelineRepository.save(p);
                 auditList.add(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_CREATED, p));
 	        }
         }else {
         	p = new Pipeline();
+            pipelineRepository.save(p);
             auditList.add(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_COPIED, p));
         }
 
@@ -423,8 +425,6 @@ public class PipelineUtil {
                 auditList.add(auditService.createAuditTracePipelineAttribute("CA_CONNECTOR", oldCaConnectorName, ccc.get(0).getName(), p));
             }
 		}
-
-        pipelineRepository.save(p);
 
         String oldProcessName = "";
         if( p.getProcessInfo() != null){
@@ -512,7 +512,7 @@ public class PipelineUtil {
             pc.setValidTo(validTo);
             pc.setDeleteAfter(validTo.plus(1, ChronoUnit.DAYS));
             protectedContentRepository.save(pc);
-            LOG.debug("SCEP password updated");
+            LOG.debug("SCEP password updated {} -> {}, {} -> {}", oldContent, pv.getScepConfigItems().getScepSecret(), validTo, pc.getValidTo());
             auditList.add(auditService.createAuditTracePipelineAttribute( "SCEP_SECRET", "#######", "******", p));
         }
 
@@ -545,6 +545,7 @@ public class PipelineUtil {
 
         auditTraceForAttributes(p, auditList, pipelineOldAttributes);
 
+        p.setPipelineAttributes(pipelineAttributes);
         pipelineAttRepository.saveAll(p.getPipelineAttributes());
 		pipelineRepository.save(p);
         auditTraceRepository.saveAll(auditList);

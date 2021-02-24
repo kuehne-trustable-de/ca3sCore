@@ -196,7 +196,7 @@ public class CertificateAdministration {
 					"certificate with id '" + cert.getId() + "' already revoked.");
 		}
 
-        auditService.saveAuditTrace(auditService.createAuditTraceCertificateCreated(AuditService.AUDIT_CERTIFICATE_REVOKED, cert));
+        auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_CERTIFICATE_REVOKED, cert));
 
         CRLReason crlReason = cryptoUtil.crlReasonFromString(adminData.getRevocationReason());
 

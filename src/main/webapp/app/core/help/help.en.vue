@@ -165,13 +165,57 @@
         <p/>
 
         <h4 class="jh-entity-heading">
-          <span v-text="$t('ca3SApp.help.subtitle.request.conf')" id="pkcsxx.upload.creationTool.req.conf">OpenSSL request config</span>
+            <span v-text="$t('ca3SApp.help.subtitle.request.conf')" id="pkcsxx.upload.creationTool.req.conf">OpenSSL request config</span>
         </h4>
         <div>Open a text editor on your system.
-          Copy the generated value from the text box into your editor.
-          Save the file in the directory where the key should be created.
+            Copy the generated value from the text box into your editor.
+            Save the file in the directory where the key should be created.
         </div>
         <p/>
+
+        <h4 class="jh-entity-heading">
+            <span v-text="$t('ca3SApp.help.subtitle.request.conf')" id="ca3SApp.certificate.download.PKCS12">Download PKCS12 Container</span>
+        </h4>
+        <div>The PKCS12 container format contains both certificates and the private keys. To identify the end entity certificate
+            in the container please provide an alias. The correct value may depend on the settings of your application. Please consult
+            the manual regarding alias values.
+            Using the link on the right you may download the PKCS12 container. The filename maybe adopted to application requirements.
+            To access the private key it is necessary to know the 'secret' provided when requesting the key & certificate pair. There is no way to
+            recover the secret value. If it is lost, please revoke this certificate and request an additional certificate.
+        </div>
+        <p/>
+
+        <h4 class="jh-entity-heading">
+            <span v-text="$t('ca3SApp.certificate.download.PKIX')" id="ca3SApp.certificate.download.PKIX">Download of the certificate in the binary form (PKIX)</span>
+        </h4>
+        <div>Download the created certificate in the binary form (aka PKIX / DER form).
+            Consult the documentation of your application whether this format is understood.
+        </div>
+        <p/>
+
+        <h4 class="jh-entity-heading">
+            <span v-text="$t('ca3SApp.certificate.download.PEM')" id="ca3SApp.certificate.download.PEM">Download of the certificate in the textual form (PEM)</span>
+        </h4>
+        <div>Download the created certificate in the textual form (aka PEM form).
+            Consult the documentation of your application whether this format is understood.
+        </div>
+        <p/>
+
+        <h4 class="jh-entity-heading">
+            <span v-text="$t('ca3SApp.certificate.download.revocationReason')" id="ca3SApp.certificate.download.revocationReason">Select a revocation reason</span>
+        </h4>
+        <div>In case a certificate needs to be revoked lase select an appropriate reason for revocation.
+        </div>
+        <p/>
+
+        <h4 class="jh-entity-heading">
+            <span v-text="$t('ca3SApp.certificate.comment')" id="ca3SApp.certificate.comment">Provide a commment regarding the revocation (optional)</span>
+        </h4>
+        <div>Provide additional information for the reasoning of the certificate revocation. This maybe useful for the RA officers and for later analysis.
+        </div>
+        <p/>
+
+
     </div>
 </template>
 

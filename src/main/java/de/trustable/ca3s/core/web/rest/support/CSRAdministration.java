@@ -83,7 +83,7 @@ public class CSRAdministration {
     			csr.setApprovedOn(Instant.now());
     			csrRepository.save(csr);
 
-                auditService.createAuditTraceCsrAccepted(csr);
+                auditService.saveAuditTrace(auditService.createAuditTraceCsrAccepted(csr));
 
     			Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
     			if(cert != null) {
@@ -145,7 +145,7 @@ public class CSRAdministration {
     				LOG.warn("certificate requestor '{}' unknown!", csr.getRequestedBy());
     			}
 
-                auditService.createAuditTraceCsrRejected(csr);
+                auditService.saveAuditTrace(auditService.createAuditTraceCsrRejected(csr));
 
         		return new ResponseEntity<Long>(adminData.getCsrId(), HttpStatus.OK);
     		}
@@ -192,7 +192,7 @@ public class CSRAdministration {
 			csr.setStatus(CsrStatus.REJECTED);
 			csrRepository.save(csr);
 
-            auditService.createAuditTraceCsrRejected(csr);
+            auditService.saveAuditTrace(auditService.createAuditTraceCsrRejected(csr));
 
     		return new ResponseEntity<Long>(adminData.getCsrId(), HttpStatus.OK);
 

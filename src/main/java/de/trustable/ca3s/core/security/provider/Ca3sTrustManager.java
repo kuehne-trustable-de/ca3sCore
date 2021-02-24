@@ -10,7 +10,6 @@ import java.util.List;
 
 import javax.net.ssl.X509TrustManager;
 
-import de.trustable.ca3s.core.domain.AuditTrace;
 import de.trustable.ca3s.core.service.AuditService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,7 +124,7 @@ public class Ca3sTrustManager implements X509TrustManager {
             serverCertDao = certUtil.createCertificate(cryptoUtil.x509CertToPem(serverCert), null,
                 null,
                 false);
-            auditService.saveAuditTrace(auditService.createAuditTraceCertificateCreated(AuditService.AUDIT_TLS_CERTIFICATE_IMPORTED, serverCertDao));
+            auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_TLS_CERTIFICATE_IMPORTED, serverCertDao));
         }
 
         if( serverCertDao.isRevoked()) {
@@ -146,7 +145,7 @@ public class Ca3sTrustManager implements X509TrustManager {
             issuingCACertDao = certUtil.createCertificate(cryptoUtil.x509CertToPem(chain[1]), null,
                     null,
                     false);
-            auditService.saveAuditTrace(auditService.createAuditTraceCertificateCreated(AuditService.AUDIT_TLS_INTERMEDIATE_CERTIFICATE_IMPORTED, serverCertDao));
+            auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_TLS_INTERMEDIATE_CERTIFICATE_IMPORTED, serverCertDao));
             LOGGER.debug("checkServerTrusted importing issuing CA cert '" + chain[1].getSubjectDN().getName() + "'");
 
         }

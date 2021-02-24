@@ -642,7 +642,7 @@ public class ADCSConnector {
             if( certDao == null) {
                 certDao = certUtil.createCertificate(certResponse.getB64Cert(), null,
                     null, false);
-                auditService.saveAuditTrace(auditService.createAuditTraceCertificateCreated(AuditService.AUDIT_ADCS_CERTIFICATE_IMPORTED, certDao));
+                auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_ADCS_CERTIFICATE_IMPORTED, certDao));
             }
 
             // in this special of importing we know where to revoke this certificate

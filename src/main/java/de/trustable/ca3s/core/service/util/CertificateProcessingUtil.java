@@ -13,8 +13,6 @@ import de.trustable.ca3s.core.service.AuditService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.audit.listener.AuditApplicationEvent;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import de.trustable.ca3s.core.domain.CSR;
@@ -134,7 +132,7 @@ public class CertificateProcessingUtil {
 
             csrAttRepository.saveAll(csr.getCsrAttributes());
 
-            auditService.createAuditTraceRequest(CryptoUtil.limitLength(requestorName, 50), "User",requestAuditType, csr);
+            auditService.saveAuditTrace(auditService.createAuditTraceRequest(requestAuditType, csr));
 
 			LOG.debug("csr contains #{} CsrAttributes, #{} RequestAttributes and #{} RDN", csr.getCsrAttributes().size(), csr.getRas().size(), csr.getRdns().size());
 			for(de.trustable.ca3s.core.domain.RDN rdn:csr.getRdns()) {
@@ -164,7 +162,7 @@ public class CertificateProcessingUtil {
 				messageMap.put("RequestRestriction", CryptoUtil.limitLength(msgItem, 250) );
 			}
 
-            auditService.createAuditTraceCsrRestrictionFailed(csr);
+            auditService.saveAuditTrace(auditService.createAuditTraceCsrRestrictionFailed(csr));
 		}
 
 		return null;
@@ -199,7 +197,7 @@ public class CertificateProcessingUtil {
 			if(cert != null) {
 				certificateRepository.save(cert);
 
-                auditService.createAuditTraceCertificateCreated(certificateAuditType, cert);
+                auditService.saveAuditTrace(auditService.createAuditTraceCertificate(certificateAuditType, cert));
 
 				return cert;
 			} else {

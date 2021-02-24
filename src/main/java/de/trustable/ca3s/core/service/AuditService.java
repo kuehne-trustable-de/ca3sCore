@@ -36,6 +36,7 @@ public class AuditService {
     public static final String AUDIT_REQUEST_RESTRICTIONS_FAILED = "REQUEST_RESTRICTIONS_FAILED";
     public static final String AUDIT_WEB_CERTIFICATE_CREATED = "WEB_CERTIFICATE_CREATED";
     public static final String AUDIT_CERTIFICATE_REVOKED = "CERTIFICATE_REVOKED";
+    public static final String AUDIT_CERTIFICATE_REVOKED_BY_CRL = "CERTIFICATE_REVOKED_BY_CRL";
     public static final String AUDIT_MANUAL_CERTIFICATE_IMPORTED = "MANUAL_CERTIFICATE_IMPORTED";
     public static final String AUDIT_ADCS_CERTIFICATE_IMPORTED = "ADCS_CERTIFICATE_IMPORTED";
     public static final String AUDIT_TLS_CERTIFICATE_IMPORTED = "TLS_CERTIFICATE_IMPORTED";
@@ -140,7 +141,7 @@ public class AuditService {
             null );
     }
 
-    public AuditTrace createAuditTraceCertificateCreated(final String template, final Certificate certificate){
+    public AuditTrace createAuditTraceCertificate(final String template, final Certificate certificate){
 
         NameAndRole nar = getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),
@@ -222,6 +223,8 @@ public class AuditService {
         }
 
         applicationEventPublisher.publishEvent(new AuditApplicationEvent( actor, template, msg));
+
+        log.debug("Audit trace for {}, oldVAl {}, newVal {} ", template, oldVal, newVal);
 
 		AuditTrace auditTrace = new AuditTrace();
         auditTrace.setActorName(CryptoUtil.limitLength(actor, 50));

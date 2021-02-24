@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 
 import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.schedule.ImportInfo;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import edu.uci.ics.crawler4j.crawler.Page;
@@ -90,7 +89,7 @@ public class CertificateCrawler extends WebCrawler {
 			LOGGER.debug("new certificate at '{}' found, importing ...", url);
 
             Certificate certificate =certUtil.createCertificate(page.getContentData(), null, null, false, url);
-            auditService.saveAuditTrace(auditService.createAuditTraceCertificateCreated(AuditService.AUDIT_CRAWLER_CERTIFICATE_IMPORTED, certificate));
+            auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_CRAWLER_CERTIFICATE_IMPORTED, certificate));
 
 			importInfo.incImported();
 

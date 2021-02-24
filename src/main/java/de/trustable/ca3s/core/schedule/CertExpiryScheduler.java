@@ -82,7 +82,10 @@ public class CertExpiryScheduler {
 	@Autowired
 	private ApplicationEventPublisher applicationEventPublisher;
 
-	@Autowired
+    @Autowired
+    private AuditService auditService;
+
+    @Autowired
 	private PreferenceUtil preferenceUtil;
 
 
@@ -186,9 +189,7 @@ public class CertExpiryScheduler {
 
 							    certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE, crl.getNextUpdate().getTime());
 
-								applicationEventPublisher.publishEvent(
-								        new AuditApplicationEvent(
-								        		"SYSTEM", AuditService.AUDIT_CERTIFICATE_REVOKED, "certificate " + cert.getId() + " revocation detected in CRL"));
+                                auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_CERTIFICATE_REVOKED_BY_CRL, cert));
 							}
 							bCRLDownloadSuccess = true;
 							break;
