@@ -1042,11 +1042,11 @@
                         <failOnNoGitDirectory>false</failOnNoGitDirectory>
                         <failOnUnableToExtractRepoInfo>false</failOnUnableToExtractRepoInfo>
                         <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                        <includeOnlyProperties>
+                        <!--includeOnlyProperties>
                             <includeOnlyProperty>^git.commit.id.abbrev$</includeOnlyProperty>
                             <includeOnlyProperty>^git.commit.id.describe$</includeOnlyProperty>
                             <includeOnlyProperty>^git.branch$</includeOnlyProperty>
-                        </includeOnlyProperties>
+                        </includeOnlyProperties-->
                     </configuration>
                 </plugin>
                 <plugin>

@@ -583,6 +583,7 @@ public class PipelineUtil {
             }
             if(!bFound){
                 auditList.add(auditService.createAuditTracePipelineAttribute( pNew.getName(), "", pNew.getValue(), p));
+                LOG.debug("matching PipelineAttributes : new name {} not found in old list", pNew.getName());
             }
         }
     }

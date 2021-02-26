@@ -50,6 +50,7 @@ import { faIdCard } from '@fortawesome/free-solid-svg-icons/faIdCard';
 import { faMinus } from '@fortawesome/free-solid-svg-icons/faMinus';
 import { faClipboard } from '@fortawesome/free-solid-svg-icons/faClipboard';
 import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons/faQuestionCircle';
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle';
 
 import VueCookie from 'vue-cookie';
 import Vuelidate from 'vuelidate';
@@ -194,7 +195,8 @@ export function initFortAwesome(vue) {
     faCartPlus,
     faIdCard,
     faClipboard,
-    faQuestionCircle
+    faQuestionCircle,
+    faInfoCircle
   );
 }
 

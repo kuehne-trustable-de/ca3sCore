@@ -10,7 +10,7 @@
 		<br/>
 
 		<div class="row justify-content-center" v-cloak @drop.prevent="catchDroppedFile" @dragover.prevent>
-			<div class="col-8">
+			<div class="col-8" >
 				<form name="editForm" role="form" novalidate >
 
 					<h2 class="jh-entity-heading">
@@ -49,11 +49,12 @@
 							</select>
 						</div>
 
-						<div class="form-group" v-if="(creationMode === 'COMMANDLINE_TOOL') || (creationMode === 'SERVERSIDE_KEY_CREATION')">
+						<div class="form-group" v-if="(creationMode === 'COMMANDLINE_TOOL') || (creationMode === 'SERVERSIDE_KEY_CREATION')" >
 							<label class="form-control-label" v-text="$t('pkcsxx.upload.certificateParams')" >certificateParams</label>
 
 							<div class="row">
-								<div class="col">
+                                <!-- update counter is a hack to re-render the complex list -->
+								<div class="col" :key="updateCounter">
 									<label class="form-control-label" v-text="$t('pkcsxx.upload.key-length')" for="pkcsxx.upload.key-length">Key length</label>
 								</div>
 								<div class="col colContent">

@@ -84,6 +84,8 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   public isChecking = false;
   public isSaving = false;
 
+  public updateCounter = 1;
+
   public get authenticated(): boolean {
     return this.$store.getters.authenticated;
   }
@@ -152,6 +154,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
   public updateCmdLine(): void {
     this.cmdline = this.buildCommandLine();
+    this.updateCounter += 1;
   }
 
   public updatePipelineRestrictions(evt: any): void {
