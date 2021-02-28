@@ -363,6 +363,8 @@ public class PipelineUtil {
 	        }
         }else {
         	p = new Pipeline();
+            p.setName(pv.getName());
+            p.setType(pv.getType());
             pipelineRepository.save(p);
             auditList.add(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_COPIED, p));
         }

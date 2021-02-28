@@ -174,7 +174,7 @@
         <p/>
 
         <h4 class="jh-entity-heading">
-            <span v-text="$t('ca3SApp.help.subtitle.request.conf')" id="ca3SApp.certificate.download.PKCS12">Download PKCS12 Container</span>
+            <span v-text="$t('ca3SApp.certificate.download.PKCS12')" id="ca3SApp.certificate.download.PKCS12">Download PKCS12 Container</span>
         </h4>
         <div>The PKCS12 container format contains both certificates and the private keys. To identify the end entity certificate
             in the container please provide an alias. The correct value may depend on the settings of your application. Please consult
@@ -202,9 +202,9 @@
         <p/>
 
         <h4 class="jh-entity-heading">
-            <span v-text="$t('ca3SApp.certificate.download.revocationReason')" id="ca3SApp.certificate.download.revocationReason">Select a revocation reason</span>
+            <span v-text="$t('ca3SApp.certificate.revocationReason')" id="ca3SApp.certificate.download.revocationReason">Select a revocation reason</span>
         </h4>
-        <div>In case a certificate needs to be revoked lase select an appropriate reason for revocation.
+        <div>In case a certificate needs to be revoked please select an appropriate reason for revocation.
         </div>
         <p/>
 

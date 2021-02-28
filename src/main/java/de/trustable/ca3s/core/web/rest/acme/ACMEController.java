@@ -208,7 +208,7 @@ public class ACMEController {
 	 */
 	public Pipeline getPipelineForRealm(final String realm) {
 
-		List<Pipeline> pipelineList = pipeRepo.findByTypeUrl(PipelineType.ACME, realm);
+		List<Pipeline> pipelineList = pipeRepo.findActiveByTypeUrl(PipelineType.ACME, realm);
 
 		if(pipelineList.isEmpty()) {
 			LOG.warn("realm {} is not known", realm);

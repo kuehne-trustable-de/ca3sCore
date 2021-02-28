@@ -17,10 +17,16 @@ import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 @Entity
 @Table(name = "pipeline")
 @NamedQueries({
-	@NamedQuery(name = "Pipeline.findByTypeUrl",
-	query = "SELECT p FROM Pipeline p WHERE " +
-			"p.type = :type and " +
-			"p.urlPart = :urlPart"
+    @NamedQuery(name = "Pipeline.findByTypeUrl",
+        query = "SELECT p FROM Pipeline p WHERE " +
+            "p.type = :type and " +
+            "p.urlPart = :urlPart"
+    ),
+    @NamedQuery(name = "Pipeline.findActiveByTypeUrl",
+        query = "SELECT p FROM Pipeline p WHERE " +
+            "p.active = true and " +
+            "p.type = :type and " +
+            "p.urlPart = :urlPart"
     ),
     @NamedQuery(name = "Pipeline.findByType",
         query = "SELECT p FROM Pipeline p WHERE " +

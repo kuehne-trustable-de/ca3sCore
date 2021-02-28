@@ -3,6 +3,7 @@ package de.trustable.ca3s.core.acme;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.net.BindException;
@@ -187,6 +188,9 @@ public class ACMEHappyPathIT {
 
 		for (Authorization auth : order.getAuthorizations()) {
 			LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
+            String realmPart = "/" + PipelineTestConfiguration.ACME_REALM + "/";
+            assertTrue( auth.getLocation().toString().contains(realmPart));
+
 			if (auth.getStatus() == Status.PENDING) {
 
 				Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);

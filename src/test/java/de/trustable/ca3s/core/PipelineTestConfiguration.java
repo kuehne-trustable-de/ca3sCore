@@ -87,6 +87,7 @@ public class PipelineTestConfiguration {
 
 		Pipeline examplePipeline = new Pipeline();
 		examplePipeline.setName(PIPELINE_NAME_ACME);
+        examplePipeline.setActive(true);
 		Example<Pipeline> example = Example.of(examplePipeline);
 		List<Pipeline> existingPLList = pipelineRepo.findAll(example);
 
@@ -118,6 +119,7 @@ public class PipelineTestConfiguration {
 
 		pv_LaxRestrictions.setCaConnectorName(internalTestCAC().getName());
 		pv_LaxRestrictions.setName(PIPELINE_NAME_ACME);
+        pv_LaxRestrictions.setActive(true);
 		pv_LaxRestrictions.setType(PipelineType.ACME);
 		pv_LaxRestrictions.setUrlPart(ACME_REALM);
 
@@ -131,6 +133,7 @@ public class PipelineTestConfiguration {
 
 		Pipeline examplePipeline = new Pipeline();
 		examplePipeline.setName(PIPELINE_NAME_ACME1CN);
+        examplePipeline.setActive(true);
 		Example<Pipeline> example = Example.of(examplePipeline);
 		List<Pipeline> existingPLList = pipelineRepo.findAll(example);
 
@@ -163,6 +166,7 @@ public class PipelineTestConfiguration {
 
 		pv_1CNRestrictions.setCaConnectorName(internalTestCAC().getName());
 		pv_1CNRestrictions.setName(PIPELINE_NAME_ACME1CN);
+        pv_1CNRestrictions.setActive(true);
 		pv_1CNRestrictions.setType(PipelineType.ACME);
 		pv_1CNRestrictions.setUrlPart(ACME1CN_REALM);
 
@@ -177,6 +181,7 @@ public class PipelineTestConfiguration {
 
 		Pipeline examplePipeline = new Pipeline();
 		examplePipeline.setName(PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
+        examplePipeline.setActive(true);
 		Example<Pipeline> example = Example.of(examplePipeline);
 		List<Pipeline> existingPLList = pipelineRepo.findAll(example);
 
@@ -188,6 +193,7 @@ public class PipelineTestConfiguration {
 
 
 		Pipeline pipelineWeb = new Pipeline();
+        pipelineWeb.setActive(true);
 		pipelineWeb.setApprovalRequired(false);
 
 		pipelineWeb.setCaConnector(internalTestCAC());
@@ -203,6 +209,7 @@ public class PipelineTestConfiguration {
 
 		Pipeline examplePipeline = new Pipeline();
 		examplePipeline.setName(PIPELINE_NAME_WEB_RA_ISSUANCE);
+        examplePipeline.setActive(true);
 		Example<Pipeline> example = Example.of(examplePipeline);
 		List<Pipeline> existingPLList = pipelineRepo.findAll(example);
 
@@ -215,6 +222,7 @@ public class PipelineTestConfiguration {
 
 		Pipeline pipelineWeb = new Pipeline();
 		pipelineWeb.setApprovalRequired(true);
+        pipelineWeb.setActive(true);
 
 		pipelineWeb.setCaConnector(internalTestCAC());
 		pipelineWeb.setName(PIPELINE_NAME_WEB_RA_ISSUANCE);
@@ -229,6 +237,7 @@ public class PipelineTestConfiguration {
 
 		Pipeline examplePipeline = new Pipeline();
 		examplePipeline.setName(PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
+        examplePipeline.setActive(true);
 		Example<Pipeline> example = Example.of(examplePipeline);
 		List<Pipeline> existingPLList = pipelineRepo.findAll(example);
 
@@ -241,6 +250,7 @@ public class PipelineTestConfiguration {
 
 		Pipeline pipelineWeb = new Pipeline();
 		pipelineWeb.setApprovalRequired(false);
+        pipelineWeb.setActive(true);
 
 		pipelineWeb.setCaConnector(internalTestCAC());
 		pipelineWeb.setName(PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
@@ -256,7 +266,9 @@ public class PipelineTestConfiguration {
 
 		Pipeline examplePipeline = new Pipeline();
 		examplePipeline.setName(PIPELINE_NAME_SCEP);
-		Example<Pipeline> example = Example.of(examplePipeline);
+        examplePipeline.setActive(true);
+
+        Example<Pipeline> example = Example.of(examplePipeline);
 		List<Pipeline> existingPLList = pipelineRepo.findAll(example);
 
 		if( !existingPLList.isEmpty()) {
@@ -287,6 +299,7 @@ public class PipelineTestConfiguration {
 		pv_LaxRestrictions.setCaConnectorName(internalTestCAC().getName());
 		pv_LaxRestrictions.setName(PIPELINE_NAME_SCEP);
 		pv_LaxRestrictions.setType(PipelineType.SCEP);
+        pv_LaxRestrictions.setActive(true);
 		pv_LaxRestrictions.setUrlPart(SCEP_REALM);
 
         SCEPConfigItems scepConfigItems = new SCEPConfigItems();
@@ -304,7 +317,9 @@ public class PipelineTestConfiguration {
 
 		Pipeline examplePipeline = new Pipeline();
 		examplePipeline.setName(PIPELINE_NAME_SCEP1CN);
-		Example<Pipeline> example = Example.of(examplePipeline);
+        examplePipeline.setActive(true);
+
+        Example<Pipeline> example = Example.of(examplePipeline);
 		List<Pipeline> existingPLList = pipelineRepo.findAll(example);
 
 		if( !existingPLList.isEmpty()) {
@@ -335,6 +350,7 @@ public class PipelineTestConfiguration {
 		pv_1CNRestrictions.setCaConnectorName(internalTestCAC().getName());
 		pv_1CNRestrictions.setName(PIPELINE_NAME_SCEP1CN);
 		pv_1CNRestrictions.setType(PipelineType.SCEP);
+        pv_1CNRestrictions.setActive(true);
 		pv_1CNRestrictions.setUrlPart(SCEP1CN_REALM);
 
         SCEPConfigItems scepConfigItems = new SCEPConfigItems();

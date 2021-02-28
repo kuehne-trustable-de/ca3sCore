@@ -18,9 +18,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PipelineRepository extends JpaRepository<Pipeline, Long> {
 
-	  @Query(name = "Pipeline.findByTypeUrl")
-	  List<Pipeline> findByTypeUrl(@Param("type") PipelineType type,
-		      @Param("urlPart") String urlPart);
+    @Query(name = "Pipeline.findByTypeUrl")
+    List<Pipeline> findByTypeUrl(@Param("type") PipelineType type,
+                                 @Param("urlPart") String urlPart);
+
+    @Query(name = "Pipeline.findActiveByTypeUrl")
+    List<Pipeline> findActiveByTypeUrl(@Param("type") PipelineType type,
+                                 @Param("urlPart") String urlPart);
 
     @Query(name = "Pipeline.findByType")
     List<Pipeline> findByType(@Param("type") PipelineType type);

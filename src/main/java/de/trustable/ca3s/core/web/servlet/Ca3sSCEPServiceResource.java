@@ -43,22 +43,22 @@ public class Ca3sSCEPServiceResource {
 
 		long startTime = System.currentTimeMillis();
 
-		List<Pipeline> pipelineList = pipeRepo.findByTypeUrl(PipelineType.SCEP, realm);
+		List<Pipeline> pipelineList = pipeRepo.findActiveByTypeUrl(PipelineType.SCEP, realm);
 		if( pipelineList.isEmpty() ) {
 			LOGGER.info("no matching pipeline for scep request realm {}", realm);
 			throw new ServletException("Request URL not found");
 		}
-		
-		// transfer additional information thru the given servlet implementation into the callbacks 
+
+		// transfer additional information thru the given servlet implementation into the callbacks
 		scepServlet.requestPipeline.set(pipelineList.get(0));
-		
+
 		try {
 			scepServlet.service(request, response);
 		}finally {
-			// make absolutely sure that the pipeline is dis-connected from the current thread an may not be used in subsequent calls! 
+			// make absolutely sure that the pipeline is dis-connected from the current thread an may not be used in subsequent calls!
 			scepServlet.requestPipeline.remove();
 		}
-		
+
 		LOGGER.info("duration of scep processing " + (System.currentTimeMillis() - startTime));
 
 	}

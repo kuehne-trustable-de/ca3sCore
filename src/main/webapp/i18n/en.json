@@ -310,6 +310,9 @@
   "ca3SApp.certificate.validFrom": "Valid From",
   "ca3SApp.certificate.validTo": "Valid To",
   "ca3SApp.certificate.audit": "Audit Log",
+  "ca3SApp.certificate.download.PKIX": "Download certificate as Binary",
+  "ca3SApp.certificate.download.PEM": "Download certificate as PEM",
+
   "ca3SApp.audit.createdOn": "Created on",
   "ca3SApp.audit.actorRole": "Role",
   "ca3SApp.audit.actorName": "User",

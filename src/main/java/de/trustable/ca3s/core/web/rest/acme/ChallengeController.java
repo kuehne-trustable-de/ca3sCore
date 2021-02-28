@@ -262,7 +262,8 @@ public class ChallengeController extends ACMEController {
 				LOG.debug("unable to resolve hostname ", uhe);
 				return false;
 		    } catch(IOException ioe) {
-				LOG.debug("exception occured reading challenge response on {}:{} for {}", host, port, challengeDao.getId(), ioe.getLocalizedMessage());
+				LOG.info("problem reading challenge response on on {}:{} for {}", host, port, challengeDao.getId(), ioe.getMessage());
+				LOG.debug("exception occured reading challenge response", ioe);
 		    }
 	    }
 		return false;

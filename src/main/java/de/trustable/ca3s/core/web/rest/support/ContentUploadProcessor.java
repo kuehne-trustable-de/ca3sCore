@@ -437,24 +437,27 @@ public class ContentUploadProcessor {
 		if( optPipeline.isPresent()) {
 
 			Pipeline pipeline  = optPipeline.get();
+            if( pipeline.isActive()) {
+                List<String> messageList = new ArrayList<>();
 
-		    List<String> messageList = new ArrayList<>();
+                CSR csr = cpUtil.buildCSR(csrAsPem, requestorName, AuditService.AUDIT_WEB_CERTIFICATE_REQUESTED, requestorComment, pipeline, nvArr, messageList);
 
-			CSR csr = cpUtil.buildCSR(csrAsPem, requestorName, AuditService.AUDIT_WEB_CERTIFICATE_REQUESTED, requestorComment, pipeline, nvArr, messageList );
+                p10ReqData.setMessages(messageList.toArray(new String[messageList.size()]));
 
-			p10ReqData.setMessages(messageList.toArray(new String[messageList.size()]));
-
-			if( csr != null) {
-				if( pipeline.isApprovalRequired() ) {
-					LOG.debug("deferring certificate creation for csr #{}", csr.getId());
-					p10ReqData.setCsrPending(true);
-					p10ReqData.setCreatedCSRId(csr.getId().toString());
-				}else {
-					cpUtil.processCertificateRequest(csr, requestorName, AuditService.AUDIT_WEB_CERTIFICATE_CREATED, pipeline);
-				}
-				return csr;
-            }else {
-                LOG.warn("startCertificateCreationProcess: creation of CSR failed");
+                if (csr != null) {
+                    if (pipeline.isApprovalRequired()) {
+                        LOG.debug("deferring certificate creation for csr #{}", csr.getId());
+                        p10ReqData.setCsrPending(true);
+                        p10ReqData.setCreatedCSRId(csr.getId().toString());
+                    } else {
+                        cpUtil.processCertificateRequest(csr, requestorName, AuditService.AUDIT_WEB_CERTIFICATE_CREATED, pipeline);
+                    }
+                    return csr;
+                } else {
+                    LOG.warn("startCertificateCreationProcess: creation of CSR failed");
+                }
+            } else {
+                LOG.warn("startCertificateCreationProcess: pipeline {} not active");
             }
 		}else {
             LOG.warn("startCertificateCreationProcess: no processing pipeline defined");

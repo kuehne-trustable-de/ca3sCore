@@ -930,6 +930,7 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 				throw new ADCSProxyUnavailableException(e.getCause().getMessage());
 			}else if( e.getCause() instanceof SSLHandshakeException){
 			    String msg = "TLS problem : configure trust anchor for ADCS proxy at " + remoteClient.getApiClient().getBasePath();
+			    LOGGER.debug(msg, e);
 				LOGGER.warn( msg );
 				throw new ADCSProxyTLSException(msg);
 			}

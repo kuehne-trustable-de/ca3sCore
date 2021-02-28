@@ -133,8 +133,10 @@ public class OrderController extends ACMEController {
       		        return ResponseEntity.badRequest().build();
       			}
 
-      			UriComponentsBuilder baseUriBuilder = fromCurrentRequestUri().path("/../..");
-      			return buildOrderResponse(additionalHeaders, orderDao, baseUriBuilder, true);
+      			UriComponentsBuilder baseUriBuilder = fromCurrentRequestUri().path("../../..");
+                LOG.debug("postAsGetOrder: baseUriBuilder : " + baseUriBuilder.toUriString());
+
+                return buildOrderResponse(additionalHeaders, orderDao, baseUriBuilder, true);
       		}
     	} catch (AcmeProblemException e) {
     	    return buildProblemResponseEntity(e);
@@ -306,6 +308,7 @@ public class OrderController extends ACMEController {
 
   			boolean valid = true;
   			UriComponentsBuilder baseUriBuilder = fromCurrentRequestUri().path("../../../..");
+            LOG.debug("finalize: baseUriBuilder : " + baseUriBuilder.toUriString());
 
   			return buildOrderResponse(additionalHeaders, orderDao, baseUriBuilder, valid);
   		}
@@ -327,21 +330,25 @@ public class OrderController extends ACMEController {
 
 		Set<String> authorizationsResp = new HashSet<>();
 		for( AcmeAuthorization authDao: orderDao.getAcmeAuthorizations()) {
-			UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(baseUriBuilder.build().normalize().toUri());
-            authorizationsResp.add(locationUriOfAuth(authDao.getAcmeAuthorizationId(), uriBuilder).toString());
+            UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(baseUriBuilder.build().normalize().toUri());
+            LOG.debug("uriBuilder: {}", uriBuilder.toUriString());
+            UriComponentsBuilder uriBuilderOrder = uriBuilder.path(ORDER_RESOURCE_MAPPING);
+            LOG.debug("uriBuilderOrder: {}", uriBuilderOrder.toUriString());
+
+            String authUrl = locationUriOfAuth(authDao.getAcmeAuthorizationId(), uriBuilderOrder).toString();
+            authorizationsResp.add(authUrl);
+            LOG.debug("authUrl: {}", authUrl);
         }
 
-		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(baseUriBuilder.build().normalize().toUri());
-		LOG.debug("uriBuilder: {}", uriBuilder.toUriString());
-
-		String finalizeUrl = uriBuilder.path(ORDER_RESOURCE_MAPPING).path("/finalize/").path(Long.toString(orderDao.getOrderId())).build().toUriString();
-		LOG.debug("order request finalize url: {}", finalizeUrl);
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(baseUriBuilder.build().normalize().toUri());
+//		String finalizeUrl = uriBuilderOrder.path("/finalize/").path(Long.toString(orderDao.getOrderId())).build().toUriString();
+        String finalizeUrl = uriBuilder.path(ORDER_RESOURCE_MAPPING).path("/finalize/").path(Long.toString(orderDao.getOrderId())).build().toUriString();
+        LOG.debug("order request finalize url: {}", finalizeUrl);
 
 		String certificateUrl = null;
 		if( orderDao.getCertificate() != null) {
 			long certId = orderDao.getCertificate().getId();
-
-			uriBuilder = UriComponentsBuilder.fromUri(baseUriBuilder.build().normalize().toUri());
+            uriBuilder = UriComponentsBuilder.fromUri(baseUriBuilder.build().normalize().toUri());
 			certificateUrl = uriBuilder.path(CERTIFICATE_RESOURCE_MAPPING).path("/").path(Long.toString(certId)).build().toUriString();
 			LOG.debug("order request cert url: {}", certificateUrl);
 		}

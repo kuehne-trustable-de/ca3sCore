@@ -169,6 +169,51 @@
             Speichern Sie die Datei in dem Verzeichnis, in dem der Schlüssel erstellt werden soll.
         </div>
         <p/>
+
+        <h4 class="jh-entity-heading">
+            <span v-text="$t('ca3SApp.certificate.download.PKCS12')" id="ca3SApp.certificate.download.PKCS12">Download eines PKCS12 Containers</span>
+        </h4>
+        <div>Ein PKCS12 Container enthält sowohl Zertifikate als auch private Schlüssel. Um Ihr erzeugtes Zertifikat auszuwählen,
+            müssen Sie hier im Eingabefeld eine Bezeichnung ('Alias') eingeben. Abhängig von Ihrer Anwendung können Sie die Bezeichnung
+            frei wählen oder müssen einen vordefinierten Wert angeben
+
+            Mit dem Link rechts können Sie den PKCS12 Container herunterladen. Der Dateiname muss ggf. an Applikationsvorhgaben angepasst werden.
+            Um auf den privaten Schlüssel innerhalb des Containers zugeifen zu können, müssen Sie das Passwort angeben, das Sie bei der
+            Zertifikats-Anforderungen festgelegt haben. Es gibt keine Möglichkeit, das Passwort wieder anzuzeigen. Sollten Sie es vergessen haben,
+            rufen Sie das aktuelle Zertifikat zurück und fordern Sie ein Neues an.
+        </div>
+        <p/>
+
+        <h4 class="jh-entity-heading">
+            <span v-text="$t('ca3SApp.certificate.download.PKIX')" id="ca3SApp.certificate.download.PKIX">Download eines Zertifikats im Binärformat (PKIX)</span>
+        </h4>
+        <div>Download des angeforderten Zertifikats im Binärformat (aka PKIX / DER form).
+            Schauen Sie in die Dokumentation ihrer Anwendung, ob dieses Format unterstützt wird.
+        </div>
+        <p/>
+
+        <h4 class="jh-entity-heading">
+            <span v-text="$t('ca3SApp.certificate.download.PEM')" id="ca3SApp.certificate.download.PEM">Download eines Zertifikats im Textformat (PEM)</span>
+        </h4>
+        <div>Download des erzeugten Zertifikats im Textformat (PEM).
+            Schauen Sie in die Dokumentation ihrer Anwendung, ob dieses Format unterstützt wird.
+        </div>
+        <p/>
+
+        <h4 class="jh-entity-heading">
+            <span v-text="$t('ca3SApp.certificate.revocationReason')" id="ca3SApp.certificate.download.revocationReason">Auswahl eines Rückrufgrundes</span>
+        </h4>
+        <div>Falls diese Zertifikat zurückgerufen werden muss, wählen Sie hier den passenden Grund.
+        </div>
+        <p/>
+
+        <h4 class="jh-entity-heading">
+            <span v-text="$t('ca3SApp.certificate.comment')" id="ca3SApp.certificate.comment">Provide a commment regarding the revocation (optional)</span>
+        </h4>
+        <div>Geben Sie hier zusätzlich Informationen zum Zertifikatsrückruf an. Das kann nützlich für den RA Officer sein und / oder bei eines späteren Analyse helfen.
+        </div>
+        <p/>
+
     </div>
 </template>
 

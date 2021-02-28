@@ -52,7 +52,7 @@ public class Ca3sTrustManager implements X509TrustManager {
 	@Override
 	public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
 		if( chain.length == 0) {
-			throw new CertificateException();
+			throw new CertificateException("chain.length == 0");
 		}
 		X509Certificate serverCert = chain[0];
 		LOGGER.debug("checkServerTrusted called for authType '{}' with certificate subject '{}'",authType, serverCert.getSubjectDN().getName());
@@ -60,12 +60,12 @@ public class Ca3sTrustManager implements X509TrustManager {
 		Date now = new Date();
 		if( now.after(serverCert.getNotAfter()) ) {
 			LOGGER.debug("checkServerTrusted:  certificate with subject '" + serverCert.getSubjectDN().getName() + "' not valid anymore (now > " + serverCert.getNotAfter());
-			throw new CertificateException();
+			throw new CertificateException( "certificate '" + serverCert.getSubjectDN().getName() + "' expired!");
 		}
 
 		if(now.before(serverCert.getNotBefore()) ) {
 			LOGGER.debug("checkServerTrusted:  certificate with subject '" + serverCert.getSubjectDN().getName() + "' not valid yet (now < " + serverCert.getNotBefore());
-			throw new CertificateException();
+			throw new CertificateException("certificate '" + serverCert.getSubjectDN().getName() + "' not valid yet!");
 		}
 
 		try {
