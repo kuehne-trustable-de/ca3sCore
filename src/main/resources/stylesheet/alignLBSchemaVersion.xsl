@@ -5,13 +5,18 @@
 	xmlns:dbcl="http://www.liquibase.org/xml/ns/dbchangelog"
 	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext">
 
-	<xsl:param name="LiquibaseTarget">http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd</xsl:param>
+    <xsl:param name="LiquibasePathPrefix">config/liquibase-3.5</xsl:param>
+    <xsl:param name="LiquibaseTarget">http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd</xsl:param>
 
 	<xsl:template match="@xsi:schemaLocation">
 		<xsl:attribute name="xsi:schemaLocation" select="$LiquibaseTarget" />
 	</xsl:template>
 
-	
+    <xsl:template match="dbcl:include/@file">
+        <xsl:variable name="path_part" select="substring-after(., 'config/liquibase')"/>
+        <xsl:attribute name="file" select="concat($LiquibasePathPrefix, $path_part)"/>
+    </xsl:template>
+
 	<xsl:template match="@* | node()">
 		<xsl:copy>
 			<xsl:apply-templates select="@* | node()" />
