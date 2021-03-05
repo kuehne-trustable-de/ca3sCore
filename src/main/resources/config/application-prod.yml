@@ -70,7 +70,7 @@ spring:
   # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
   liquibase:
     contexts: prod
-    changeLog: classpath:config/liquibase-3.5/master.xml
+#    changeLog: classpath:config/liquibase-3.5/master.xml
 # connect to the database with admin privileges
 #    default-schema: ca3s_sep_roles
 #    user: ca3s_sr_admin
