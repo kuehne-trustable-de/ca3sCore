@@ -399,7 +399,7 @@ public class ContentUploadProcessor {
                 return new ResponseEntity<>(p10ReqData, HttpStatus.CREATED);
             }
             LOG.warn("problem creating serverside csr object from CSR PEM: \n{}", csrAsPem );
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(p10ReqData, HttpStatus.OK);
 
         }catch(IOException | OperatorCreationException | GeneralSecurityException ex) {
             LOG.warn("problem creating serverside csr: " + ex.getMessage());

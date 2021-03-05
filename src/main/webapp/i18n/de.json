@@ -843,6 +843,7 @@
   "pkcsxx.upload.result.label": "Ergebnis",
   "pkcsxx.upload.result.type": "Inhaltsart",
   "pkcsxx.upload.result.unknown": "Unbekannter Inhalt",
+  "pkcsxx.upload.result.message": "Hinweis",
   "pkcsxx.upload.sans": "SAN",
   "pkcsxx.upload.serial": "Seriennummer",
   "pkcsxx.upload.serversideCreation.repeat": "Passwort wiederholen",

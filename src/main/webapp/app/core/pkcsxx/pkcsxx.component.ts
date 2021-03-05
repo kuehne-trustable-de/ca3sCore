@@ -85,6 +85,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   public isChecked = false;
   public isChecking = false;
   public isSaving = false;
+  public messages: string[] = [];
 
   public updateCounter = 1;
 
@@ -476,6 +477,8 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
         this.$router.push({ name: 'CertInfo', params: { certificateId: this.precheckResponse.certificates[0].certificateId.toString() } });
       }
 
+      this.messages = this.precheckResponse.messages;
+
       if (
         this.precheckResponse &&
         this.precheckResponse.certificates &&
@@ -498,7 +501,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       }
       this.isChecked = true;
     } catch (error) {
-      console.error(error);
+      console.error('####################' + error);
       document.body.style.cursor = 'default';
       this.isChecked = false;
       this.responseStatus = error.response.status;
@@ -564,6 +567,10 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     if (this.creationMode === 'CSR_AVAILABLE') {
       return this.precheckResponse.csrPublicKeyPresentInDB;
     } else if (this.creationMode === 'SERVERSIDE_KEY_CREATION') {
+      if (this.secret.trim().length === 0) {
+        return true;
+      }
+
       window.console.info('upload.secret : "' + this.secret + '" , secretRepeat : "' + this.secretRepeat + '"');
       if (this.secret.trim() === this.secretRepeat.trim()) {
         return false;

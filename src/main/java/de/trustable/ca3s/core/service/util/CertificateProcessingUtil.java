@@ -5,8 +5,9 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
-import de.trustable.ca3s.core.domain.CsrAttribute;
+import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.repository.CsrAttributeRepository;
 import de.trustable.ca3s.core.domain.dto.NamedValues;
 import de.trustable.ca3s.core.service.AuditService;
@@ -15,9 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import de.trustable.ca3s.core.domain.CSR;
-import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
@@ -143,7 +141,7 @@ public class CertificateProcessingUtil {
 			return null;
 		}
 
-		if( pvUtil.isPipelineRestrictionsResolved(pipeline, p10ReqHolder, messageList)) {
+		if( pvUtil.isPipelineRestrictionsResolved(pipeline, p10ReqHolder, nvArr, messageList)) {
 			return csr;
 		} else{
 			String msg = "certificate request " + csr.getId() + " rejected";

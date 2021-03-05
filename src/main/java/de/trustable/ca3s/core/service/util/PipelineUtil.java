@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.domain.dto.NamedValues;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.*;
@@ -616,12 +617,37 @@ public class PipelineUtil {
 
 	}
 
-	public boolean isPipelineRestrictionsResolved(Pipeline p, Pkcs10RequestHolder p10ReqHolder, List<String> messageList) {
+    public boolean isPipelineRestrictionsResolved(Pipeline p, Pkcs10RequestHolder p10ReqHolder, NamedValues[] nvARArr, List<String> messageList) {
 
-		return isPipelineRestrictionsResolved(from(p), p10ReqHolder, messageList);
-	}
+        PipelineView pv = from(p);
+        if(!isPipelineAdditionalRestrictionsResolved(pv, nvARArr, messageList)){
+            return false;
+        }
+        return isPipelineRestrictionsResolved(pv, p10ReqHolder, messageList);
+    }
 
-	public boolean isPipelineRestrictionsResolved(PipelineView pv, Pkcs10RequestHolder p10ReqHolder, List<String> messageList) {
+    public boolean isPipelineRestrictionsResolved(Pipeline p, Pkcs10RequestHolder p10ReqHolder, List<String> messageList) {
+
+        return isPipelineRestrictionsResolved(from(p), p10ReqHolder, messageList);
+    }
+
+    public boolean isPipelineAdditionalRestrictionsResolved(PipelineView pv, NamedValues[] nvARArr, List<String> messageList) {
+
+        boolean outcome = true;
+
+        for(NamedValues nvAR: nvARArr){
+            for(ARARestriction araRestriction:pv.getAraRestrictions()){
+                if( araRestriction.getName().equals(nvAR.getName())){
+                    if(!checkAdditionalRestrictions(araRestriction, nvAR, messageList)){
+                        outcome = false;
+                    }
+                }
+            }
+        }
+        return outcome;
+    }
+
+    public boolean isPipelineRestrictionsResolved(PipelineView pv, Pkcs10RequestHolder p10ReqHolder, List<String> messageList) {
 
 		boolean outcome = true;
 
@@ -671,94 +697,138 @@ public class PipelineUtil {
 	}
 
 
-	private boolean checkRestrictions(RDNRestriction restriction, Set<GeneralName> gNameSet, List<String> messageList) {
+    private boolean checkRestrictions(RDNRestriction restriction, Set<GeneralName> gNameSet, List<String> messageList) {
 
-		if( restriction == null) {
-			return true; // no restrictions present!!
-		}
+        if( restriction == null) {
+            return true; // no restrictions present!!
+        }
 
-		boolean outcome = true;
+        boolean outcome = true;
 
-		String template = "";
-		LOG.debug("checking SANs");
+        String template = "";
+        LOG.debug("checking SANs");
 
-		boolean hasTemplate = false;
-		if( restriction.getContentTemplate() != null) {
-			template = restriction.getContentTemplate().trim();
-			hasTemplate = !template.isEmpty();
-		}
-		int n = 0;
+        boolean hasTemplate = false;
+        if( restriction.getContentTemplate() != null) {
+            template = restriction.getContentTemplate().trim();
+            hasTemplate = !template.isEmpty();
+        }
+        int n = 0;
 
-    	for( GeneralName gn: gNameSet) {
-			n++;
-			if( hasTemplate) {
-				String value = gn.getName().toString().trim();
-				if( restriction.isRegExMatch()) {
-					boolean evalResult = false;
-					try {
-						evalResult = value.matches(template);
-					}catch(PatternSyntaxException pse) {
-						LOG.warn("pattern '"+template+"' is not valid");
-					}
-					if( !evalResult ) {
-						String msg = "restriction mismatch: SAN '"+value +"' does not match regular expression '"+template+"' !";
-						messageList.add(msg);
-						LOG.debug(msg);
-						outcome = false;
-					}
-				}else{
-					if( !template.equalsIgnoreCase(value) ) {
-						String msg = "restriction mismatch: SAN '"+value +"' does not match expected value '"+template+"' !";
-						messageList.add(msg);
-						LOG.debug(msg);
-						outcome = false;
-					}
-				}
-			}
+        for( GeneralName gn: gNameSet) {
+            n++;
+            if( hasTemplate) {
+                String value = gn.getName().toString().trim();
+                if( restriction.isRegExMatch()) {
+                    boolean evalResult = false;
+                    try {
+                        evalResult = value.matches(template);
+                    }catch(PatternSyntaxException pse) {
+                        LOG.warn("pattern '"+template+"' is not valid");
+                    }
+                    if( !evalResult ) {
+                        String msg = "restriction mismatch: SAN '"+value +"' does not match regular expression '"+template+"' !";
+                        messageList.add(msg);
+                        LOG.debug(msg);
+                        outcome = false;
+                    }
+                }else{
+                    if( !template.equalsIgnoreCase(value) ) {
+                        String msg = "restriction mismatch: SAN '"+value +"' does not match expected value '"+template+"' !";
+                        messageList.add(msg);
+                        LOG.debug(msg);
+                        outcome = false;
+                    }
+                }
+            }
 
-		}
+        }
 
-		RDNCardinalityRestriction cardinality = restriction.getCardinalityRestriction();
-		if( RDNCardinalityRestriction.NOT_ALLOWED.equals(cardinality)) {
-			if( n > 0) {
-				String msg = "restriction mismatch: A SAN MUST NOT occur!";
-				messageList.add(msg);
-				LOG.debug(msg);
-				outcome = false;
-			}
-		} else if( RDNCardinalityRestriction.ONE.equals(cardinality)) {
-			if( n ==  0) {
-				String msg = "restriction mismatch: SAN MUST occur once, missing here!";
-				messageList.add(msg);
-				LOG.debug(msg);
-				outcome = false;
-			}
-			if( n != 1) {
-				String msg = "restriction mismatch: SAN MUST occur exactly once, found "+n+" times!";
-				messageList.add(msg);
-				LOG.debug(msg);
-				outcome = false;
-			}
-		} else if( RDNCardinalityRestriction.ONE_OR_MANY.equals(cardinality)) {
-			if( n == 0) {
-				String msg = "restriction mismatch: SAns MUST occur once or more, missing here!";
-				messageList.add(msg);
-				LOG.debug(msg);
-				outcome = false;
-			}
-		} else if( RDNCardinalityRestriction.ZERO_OR_ONE.equals(cardinality)) {
-			if( n > 1) {
-				String msg = "restriction mismatch: SANs MUST occur zero or once, found "+n+" times!";
-				messageList.add(msg);
-				LOG.debug(msg);
-				outcome = false;
-			}
-		}
-		return outcome;
-	}
+        RDNCardinalityRestriction cardinality = restriction.getCardinalityRestriction();
+        if( RDNCardinalityRestriction.NOT_ALLOWED.equals(cardinality)) {
+            if( n > 0) {
+                String msg = "restriction mismatch: A SAN MUST NOT occur!";
+                messageList.add(msg);
+                LOG.debug(msg);
+                outcome = false;
+            }
+        } else if( RDNCardinalityRestriction.ONE.equals(cardinality)) {
+            if( n ==  0) {
+                String msg = "restriction mismatch: SAN MUST occur once, missing here!";
+                messageList.add(msg);
+                LOG.debug(msg);
+                outcome = false;
+            }
+            if( n != 1) {
+                String msg = "restriction mismatch: SAN MUST occur exactly once, found "+n+" times!";
+                messageList.add(msg);
+                LOG.debug(msg);
+                outcome = false;
+            }
+        } else if( RDNCardinalityRestriction.ONE_OR_MANY.equals(cardinality)) {
+            if( n == 0) {
+                String msg = "restriction mismatch: SAns MUST occur once or more, missing here!";
+                messageList.add(msg);
+                LOG.debug(msg);
+                outcome = false;
+            }
+        } else if( RDNCardinalityRestriction.ZERO_OR_ONE.equals(cardinality)) {
+            if( n > 1) {
+                String msg = "restriction mismatch: SANs MUST occur zero or once, found "+n+" times!";
+                messageList.add(msg);
+                LOG.debug(msg);
+                outcome = false;
+            }
+        }
+        return outcome;
+    }
+
+    private boolean checkAdditionalRestrictions(ARARestriction araRestriction, NamedValues nvAR, List<String> messageList) {
+
+        if( araRestriction == null) {
+            return true; // no restrictions present!!
+        }
+
+        boolean outcome = true;
+
+        String template = "";
+        LOG.debug("checking AdditionalRestrictions");
+
+        boolean hasTemplate = false;
+        if( araRestriction.getContentTemplate() != null) {
+            template = araRestriction.getContentTemplate().trim();
+            hasTemplate = !template.isEmpty();
+        }
+
+        if( araRestriction.isRequired() ){
+            if( nvAR.getValues().length == 0 ){
+                String msg = "additional restriction mismatch: An value for '"+nvAR.getName()+"' MUST be present!";
+                messageList.add(msg);
+                LOG.debug(msg);
+                outcome = false;
+            }else{
+                boolean bFirst = true;
+                for( String value: nvAR.getValues()){
+                    if( bFirst && value.isEmpty()) {
+                        String msg = "additional restriction mismatch: An value for '" + nvAR.getName() + "' MUST be present!";
+                        messageList.add(msg);
+                        LOG.debug(msg);
+                        outcome = false;
+                    }
+                    if( hasTemplate ) {
+                        if (!checkTemplate(araRestriction, value, messageList)) {
+                            outcome = false;
+                        }
+                    }
+                }
+            }
+
+        }
+        return outcome;
+    }
 
 
-	private boolean checkRestrictions(ASN1ObjectIdentifier restricted, RDNRestriction restriction, RDN[] rdnArr, List<String> messageList) {
+    private boolean checkRestrictions(ASN1ObjectIdentifier restricted, RDNRestriction restriction, RDN[] rdnArr, List<String> messageList) {
 
 		if( restriction == null) {
 			return true; // no restrictions present!!
@@ -813,34 +883,34 @@ public class PipelineUtil {
 		RDNCardinalityRestriction cardinality = restriction.getCardinalityRestriction();
 		if( RDNCardinalityRestriction.NOT_ALLOWED.equals(cardinality)) {
 			if( n > 0) {
-				String msg = "restrcition mismatch: '"+restrictedName+"' MUST NOT occur!";
+				String msg = "restricition mismatch: '"+restrictedName+"' MUST NOT occur!";
 				messageList.add(msg);
 				LOG.debug(msg);
 				outcome = false;
 			}
 		} else if( RDNCardinalityRestriction.ONE.equals(cardinality)) {
 			if( n ==  0) {
-				String msg = "restrcition mismatch: '"+restrictedName+"' MUST occur once, missing here!";
+				String msg = "restricition mismatch: '"+restrictedName+"' MUST occur once, missing here!";
 				messageList.add(msg);
 				LOG.debug(msg);
 				outcome = false;
 			}
 			if( n != 1) {
-				String msg = "restrcition mismatch: '"+restrictedName+"' MUST occur exactly once, found "+n+" times!";
+				String msg = "restricition mismatch: '"+restrictedName+"' MUST occur exactly once, found "+n+" times!";
 				messageList.add(msg);
 				LOG.debug(msg);
 				outcome = false;
 			}
 		} else if( RDNCardinalityRestriction.ONE_OR_MANY.equals(cardinality)) {
 			if( n == 0) {
-				String msg = "restrcition mismatch: '"+restrictedName+"' MUST occur once or more, missing here!";
+				String msg = "restricition mismatch: '"+restrictedName+"' MUST occur once or more, missing here!";
 				messageList.add(msg);
 				LOG.debug(msg);
 				outcome = false;
 			}
 		} else if( RDNCardinalityRestriction.ZERO_OR_ONE.equals(cardinality)) {
 			if( n > 1) {
-				String msg = "restrcition mismatch: '"+restrictedName+"' MUST occur zero or once, found "+n+" times!";
+				String msg = "restricition mismatch: '"+restrictedName+"' MUST occur zero or once, found "+n+" times!";
 				messageList.add(msg);
 				LOG.debug(msg);
 				outcome = false;
@@ -848,6 +918,35 @@ public class PipelineUtil {
 		}
 		return outcome;
 	}
+
+	private boolean checkTemplate(ARARestriction araRestriction, String value, List<String> messageList){
+
+        boolean outcome = true;
+        String template = araRestriction.getContentTemplate().trim();
+
+        if( araRestriction.isRegExMatch()) {
+            boolean evalResult = false;
+            try {
+                evalResult = value.matches(template);
+            }catch(PatternSyntaxException pse) {
+                LOG.warn("pattern '"+template+"' is not valid");
+            }
+            if( !evalResult ) {
+                String msg = "restriction mismatch: '"+value +"' does not match regular expression '"+template+"' !";
+                messageList.add(msg);
+                LOG.debug(msg);
+                outcome = false;
+            }
+        }else{
+            if( !template.equalsIgnoreCase(value) ) {
+                String msg = "restriction mismatch: '"+value +"' does not match expected value '"+template+"' !";
+                messageList.add(msg);
+                LOG.debug(msg);
+                outcome = false;
+            }
+        }
+        return outcome;
+    }
 
 	private boolean isSubjectIP(RDN[] rdnArr, List<String> messageList) {
 

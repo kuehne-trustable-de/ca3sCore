@@ -146,7 +146,22 @@
                 Die alten Versionen von OpenSSL erfordern eine Konfigurationsdatei und einen Shell-Befehl.
             </ul>
 
-            Kopieren Sie den generierten Wert aus dem Textfeld in Ihre Eingabeshell.
+            Kopieren Sie den generierten Wert aus dem Textfeld in Ihre Kommandozeile:
+
+            <p/>
+            <h4>Linux</h4>
+            <img class="box" src="../../../content/images/stop_sign.png" />
+
+            <p/>
+            <h4>Windows</h4>
+            <img class="box" src="../../../content/images/stop_sign.png" />
+
+            <p/>
+            <h4>Kopieren</h4>
+            Die Felder mit den generierten Kommandozeilen haben einen 'Copy'-Buttom. Alternativ kann der Text selektiert und kopiert werden.
+            <img class="box" src="../../../content/images/stop_sign.png" />
+
+
         </div>
         <p/>
 
@@ -157,10 +172,13 @@
             Die generierte Java-Keytool-Befehlszeile besteht aus zwei Teilen: <br><br>
             Der erste Befehl generiert ein neues Schlüsselpaar mit der ausgewählten Schlüssellänge in einem PKCS12-Schlüsselspeicher ('test.p12') mit dem Alias 'keyAlias'.
             <p/>
-            <img class="box" src="../../../content/images/birds_view.jpg" />
+            <img class="box" src="../../../content/images/stop_sign.png" />
 
             Informationen zum erforderlichen Keystore-Dateinamen und zum erwarteten Alias finden Sie in Ihrer Anwendungsdokumentation. Stellen Sie sicher, dass vorhandene Dateien nicht überschrieben werden.<br><br>
+
             Der zweite Befehl erstellt eine CSR (Certificate Signing Request). Diese Datei (im generierten Befehl 'server.csr' genannt) wird auf die Zertifizierungsstelle hochgeladen.<br><br>
+            <p/>
+            <img class="box" src="../../../content/images/stop_sign.png" />
         </div>
         <p/>
 
@@ -170,6 +188,8 @@
         <div>Öffnen Sie einen Texteditor auf Ihrem System.
             Kopieren Sie den generierten Wert aus dem Textfeld in Ihren Editor.
             Speichern Sie die Datei in dem Verzeichnis, in dem der Schlüssel erstellt werden soll.
+            <p/>
+            <img class="box" src="../../../content/images/stop_sign.png" />
         </div>
         <p/>
 

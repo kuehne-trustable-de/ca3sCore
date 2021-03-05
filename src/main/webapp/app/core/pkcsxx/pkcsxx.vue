@@ -206,19 +206,32 @@
 								<!-- v-model="$v.upload.passphrase.$model" v-on:input="notifyChange"/-->
 						</div>
 
-						<dl class="row jh-entity-details" v-if="responseStatus > 0">
-							<dt>
-								<span v-text="$t('pkcsxx.upload.result.error')">Error</span>
-							</dt>
-							<dd>
-								<span v-if="responseStatus === 400" v-text="$t('pkcsxx.upload.result.content.not.parseable')">Ccontent not parseable</span>
-								<span v-else-if="responseStatus === 409" v-text="$t('pkcsxx.upload.result.certificate.already.exists')">Certificate already exists</span>
-								<span v-else-if="responseStatus === 201" v-text="$t('pkcsxx.upload.result.upload.successful')">Upload successful</span>
-								<span v-else v-text="$t('pkcsxx.upload.result.general error')">General error</span>
-							</dd>
-						</dl>
+                        <dl class="row jh-entity-details" v-if="precheckResponse && precheckResponse.messages && precheckResponse.messages.length > 0">
+                            <dt>
+                                <span v-text="$t('pkcsxx.upload.result.message')">Message</span>
+                            </dt>
+                            <dd>
+                                <div>
+                                    <ul>
+                                        <li v-for="message in precheckResponse.messages" >{{message}}</li>
+                                    </ul>
+                                </div>
+                            </dd>
+                        </dl>
 
-						<dl class="row jh-entity-details" v-if="isChecked === true && precheckResponse.dataType === 'UNKNOWN'">
+                        <dl class="row jh-entity-details" v-if="responseStatus > 0">
+                            <dt>
+                                <span v-text="$t('pkcsxx.upload.result.error')">Error</span>
+                            </dt>
+                            <dd>
+                                <span v-if="responseStatus === 400" v-text="$t('pkcsxx.upload.result.content.not.parseable')">Content not parseable</span>
+                                <span v-else-if="responseStatus === 409" v-text="$t('pkcsxx.upload.result.certificate.already.exists')">Certificate already exists</span>
+                                <span v-else-if="responseStatus === 201" v-text="$t('pkcsxx.upload.result.upload.successful')">Upload successful</span>
+                                <span v-else v-text="$t('pkcsxx.upload.result.general error')">General error</span>
+                            </dd>
+                        </dl>
+
+                        <dl class="row jh-entity-details" v-if="isChecked === true && precheckResponse.dataType === 'UNKNOWN'">
 							<dt>
 								<span v-text="$t('pkcsxx.upload.result.label')">Result</span>
 							</dt>

@@ -852,6 +852,7 @@
   "pkcsxx.upload.result.label": "Result",
   "pkcsxx.upload.result.type": "Content type",
   "pkcsxx.upload.result.unknown": "Unknown content",
+  "pkcsxx.upload.result.message": "Message",
   "pkcsxx.upload.sans": "Subject alternative names",
   "pkcsxx.upload.serial": "Serial no.",
   "pkcsxx.upload.serversideCreation.repeat": "Repeat secret",
