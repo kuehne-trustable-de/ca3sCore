@@ -822,6 +822,7 @@
   "pkcsxx.upload.creationMode.csrAvailable": "CSR verfügbar",
   "pkcsxx.upload.creationMode.selection": "Erzeugungsmodus",
   "pkcsxx.upload.creationMode.serversideKeyCreation": "Serverseitige Schlüsselerzeugung",
+  "pkcsxx.upload.creationTool.cmdline0": "Kommandozeile",
   "pkcsxx.upload.creationTool.cmdline": "Kommandozeile",
   "pkcsxx.upload.creationTool.keytool": "Java keytool",
   "pkcsxx.upload.creationTool.openssl": "OpenSSL",

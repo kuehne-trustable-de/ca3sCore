@@ -211,6 +211,10 @@ public class ACMEHappyPathIT {
 		csrb.sign(domainKeyPair);
 		byte[] csr = csrb.getEncoded();
 
+		for(Authorization auth: order.getAuthorizations()){
+		    System.out.println( " ################ "  + auth.getIdentifier().toString() + "" + auth.getLocation() );
+        }
+
 		order.execute(csr);
 		Certificate acmeCert = order.getCertificate();
 		assertNotNull("Expected to receive a certificate", acmeCert);

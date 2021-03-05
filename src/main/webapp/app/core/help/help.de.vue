@@ -155,7 +155,10 @@
         </h4>
         <div>
             Die generierte Java-Keytool-Befehlszeile besteht aus zwei Teilen: <br><br>
-            Der erste Befehl generiert ein neues Schlüsselpaar mit der ausgewählten Schlüssellänge in einem PKCS12-Schlüsselspeicher ('test.p12') mit dem Alias 0'keyAlias'.
+            Der erste Befehl generiert ein neues Schlüsselpaar mit der ausgewählten Schlüssellänge in einem PKCS12-Schlüsselspeicher ('test.p12') mit dem Alias 'keyAlias'.
+            <p/>
+            <img class="box" src="../../../content/images/birds_view.jpg" />
+
             Informationen zum erforderlichen Keystore-Dateinamen und zum erwarteten Alias finden Sie in Ihrer Anwendungsdokumentation. Stellen Sie sicher, dass vorhandene Dateien nicht überschrieben werden.<br><br>
             Der zweite Befehl erstellt eine CSR (Certificate Signing Request). Diese Datei (im generierten Befehl 'server.csr' genannt) wird auf die Zertifizierungsstelle hochgeladen.<br><br>
         </div>

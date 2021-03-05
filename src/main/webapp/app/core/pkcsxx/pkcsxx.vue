@@ -127,13 +127,27 @@
 						</div>
 
 
+                        <div class="row wrap" v-if="creationMode === 'COMMANDLINE_TOOL' && cmdline0Required">
+                            <div class="col ">
+                                <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.cmdline0')" for="pkcsxx-reqConf">Command line</label> <help-tag target="pkcsxx.upload.creationTool.cmdline"/>
+                            </div>
+                            <div class="col colContent">
+                                <textarea class="form-control cmd0-content" name="pkcsxx-cmdline0" id="pkcsxx-cmdline0"
+                                          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly v-model="cmdline0" />
+                                <CopyClipboardButton contentElementId="cmdline0"/>
+                            </div>
+                        </div>
+                        <div v-if="creationMode === 'COMMANDLINE_TOOL' && cmdline0Required">
+                            <label></label>
+                        </div>
+
                         <div class="row wrap" v-if="creationMode === 'COMMANDLINE_TOOL' && reqConfRequired">
                             <div class="col ">
                                 <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.req.conf')" for="pkcsxx-reqConf">Request config file</label> <help-tag target="pkcsxx.upload.creationTool.req.conf"/>
                             </div>
                             <div class="col colContent">
                                 <textarea class="form-control cmd-content" name="pkcsxx-reqConf" id="pkcsxx-reqConf"
-                                      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly v-model="reqConf" />
+                                          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly v-model="reqConf" />
                                 <CopyClipboardButton contentElementId="reqConf"/>
                             </div>
                         </div>
@@ -141,7 +155,7 @@
                             <label></label>
                         </div>
 
-                       <div class="row wrap" v-if="creationMode === 'COMMANDLINE_TOOL'">
+                        <div class="row wrap" v-if="creationMode === 'COMMANDLINE_TOOL'">
                            <div class="col ">
                                <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.cmdline')" for="pkcsxx-cmdline">Command line</label>   <help-tag target="pkcsxx.upload.creationTool.cmdline"/>
                            </div>
@@ -376,9 +390,15 @@
 }
 
 .cmd-content {
-	height: 100px;
-	font-family: monospace;
-	font-size: 0.8rem;
+    height: 100px;
+    font-family: monospace;
+    font-size: 0.8rem;
+}
+
+.cmd0-content {
+    height: 50px;
+    font-family: monospace;
+    font-size: 0.8rem;
 }
 
 .draggable {

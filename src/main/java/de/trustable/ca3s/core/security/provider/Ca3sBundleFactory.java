@@ -25,9 +25,9 @@ public class Ca3sBundleFactory implements BundleFactory {
     private static final Logger LOG = LoggerFactory.getLogger(Ca3sBundleFactory.class);
 
 	private CAConnectorConfig caConfigDao;
-	
+
 	private CaConnectorAdapter cacAdapt;
-	
+
 	private CertificateUtil certUtil;
 
 	public Ca3sBundleFactory(CAConnectorConfig caConfigDao, CaConnectorAdapter cacAdapt, CertificateUtil certUtil) {
@@ -35,24 +35,24 @@ public class Ca3sBundleFactory implements BundleFactory {
 		this.cacAdapt = cacAdapt;
 		this.certUtil = certUtil;
 	}
-	
-	
+
+
 	@Override
 	public KeyCertBundle newKeyBundle(final String bundleName, long minValiditySeconds) throws GeneralSecurityException {
-		
-		
+
+
 		KeyPair localKeyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
-		
+
 		try {
 			InetAddress ip = InetAddress.getLocalHost();
 			String hostname = ip.getCanonicalHostName();
-			X500Principal subject = new X500Principal("CN=" + hostname + ", OU=ca3s " + System.currentTimeMillis() + ", O=trustable Ltd, C=DE");
+			X500Principal subject = new X500Principal("CN=" + hostname + ", OU=ca3s " + System.currentTimeMillis() + ", O=trustable solutione, C=DE");
 			LOG.debug("requesting certificate for subject : " + subject.getName() );
 
 			String csrBase64 = CryptoUtil.getCsrAsPEM(subject, localKeyPair.getPublic(), localKeyPair.getPrivate(), null);
-			
+
 			Certificate cert = cacAdapt.signCertificateRequest(csrBase64, caConfigDao);
-			
+
 			// build the chain
 			X509Certificate[] certificateChain = certUtil.getX509CertificateChain(cert);
 

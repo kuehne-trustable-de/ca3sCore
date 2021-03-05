@@ -75,7 +75,7 @@ public class ScepServiceIT{
 		JCAManager.getInstance();
 
 		keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
-		enrollingPrincipal = new X500Principal("CN=SCEPRequested_" + System.currentTimeMillis() + ",O=trustable Ltd,C=DE");
+		enrollingPrincipal = new X500Principal("CN=SCEPRequested_" + System.currentTimeMillis() + ",O=trustable solutione,C=DE");
 		ephemeralCert = X509Certificates.createEphemeral(enrollingPrincipal, keyPair);
 	}
 

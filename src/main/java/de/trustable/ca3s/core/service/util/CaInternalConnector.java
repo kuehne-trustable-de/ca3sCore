@@ -35,15 +35,15 @@ import de.trustable.util.PKILevel;
 @Service
 public class CaInternalConnector {
 
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(ScepServletImpl.class);
 
     @Autowired
     CertificateRepository certRepository;
-    
+
     @Autowired
     CSRRepository csrRepository;
-    
+
     @Autowired
     CryptoUtil cryptoUtil;
 
@@ -55,66 +55,66 @@ public class CaInternalConnector {
 
 
     /**
-     * 
+     *
      * @return
      * @throws GeneralSecurityException
      * @throws IOException
      */
 	Certificate getRoot() throws GeneralSecurityException, IOException {
-		
+
 		List<Certificate> certList = certRepository.findByAttributeValue( CertificateAttribute.ATTRIBUTE_CAS3_ROOT, "true");
-		
+
 		Certificate certRoot = getLongestValidCertificate(certList);
 		if( certRoot == null ) {
 			certRoot = createNewRoot();
 		}
-		
+
 		return certRoot;
-		
+
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 * @throws GeneralSecurityException
 	 * @throws IOException
 	 */
 	Certificate getIntermediate() throws GeneralSecurityException, IOException {
-		
+
 		List<Certificate> certList = certRepository.findByAttributeValue( CertificateAttribute.ATTRIBUTE_CAS3_INTERMEDIATE, "true");
-		
+
 		Certificate certIntermediate = getLongestValidCertificate(certList);
 		if( certIntermediate == null ) {
 			certIntermediate = createNewIntermediate( getRoot() );
 		}
-		
+
 		return certIntermediate;
-		
+
 	}
 
 	/**
-	 * 
+	 *
 	 * @param root
 	 * @return
 	 * @throws GeneralSecurityException
 	 * @throws IOException
 	 */
 	private Certificate createNewIntermediate(Certificate root) throws GeneralSecurityException, IOException {
-		
+
 		KeyPair keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
 
 		X500Name subject = new X500Name("CN=CA3S-Intermediate"
 				+ System.currentTimeMillis()
-				+ ", OU=Internal Only, OU=Dev/Test Only, O=trustable Ltd, C=DE");
-		
+				+ ", OU=Internal Only, OU=Dev/Test Only, O=trustable solutione, C=DE");
+
 		PrivateKey privKeyRoot = certUtil.getPrivateKey(root);
 		KeyPair kpRoot = new KeyPair(certUtil.convertPemToCertificate(root.getContent()).getPublicKey(), privKeyRoot);
-		
+
 		X509Certificate x509Cert = cryptoUtil.issueCertificate(new X500Name(root.getSubject()), kpRoot, subject, keyPair.getPublic().getEncoded(), Calendar.YEAR, 1, PKILevel.INTERMEDIATE);
 
 		Certificate intermediateCert = certUtil.createCertificate(x509Cert.getEncoded(), null, "", false);
 
-		certUtil.storePrivateKey(intermediateCert, keyPair);			
+		certUtil.storePrivateKey(intermediateCert, keyPair);
 
 		certUtil.setCertAttribute(intermediateCert, CertificateAttribute.ATTRIBUTE_CAS3_INTERMEDIATE, "true");
 
@@ -124,7 +124,7 @@ public class CaInternalConnector {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 * @throws GeneralSecurityException
 	 * @throws IOException
@@ -135,30 +135,30 @@ public class CaInternalConnector {
 
 		X500Name subject = new X500Name("CN=CA3S-InternalRoot"
 				+ System.currentTimeMillis()
-				+ ", OU=Internal Only, OU=Dev/Test Only, O=trustable Ltd, C=DE");
-		
+				+ ", OU=Internal Only, OU=Dev/Test Only, O=trustable solutione, C=DE");
+
 		X509Certificate x509Cert = cryptoUtil.issueCertificate(subject, keyPair, subject, keyPair.getPublic().getEncoded(), Calendar.YEAR, 1, PKILevel.ROOT);
 
 		Certificate rootCert = certUtil.createCertificate(x509Cert.getEncoded(), null, "", false);
-		
-		certUtil.storePrivateKey(rootCert, keyPair);			
+
+		certUtil.storePrivateKey(rootCert, keyPair);
 
 		certUtil.setCertAttribute(rootCert, CertificateAttribute.ATTRIBUTE_CAS3_ROOT, "true");
 
 		certRepository.save(rootCert);
-		
+
 		return rootCert;
 	}
 
 	/**
-	 * 
+	 *
 	 * @param certList
 	 * @return
 	 */
 	private Certificate getLongestValidCertificate(List<Certificate> certList) {
 		Instant now = Instant.now();
 		Certificate certLongestValid = null;
-		
+
 		for( Certificate cert:certList) {
 			if( now.isAfter(cert.getValidFrom()) && now.isBefore(cert.getValidTo())){
 				if( certLongestValid == null ) {
@@ -172,35 +172,35 @@ public class CaInternalConnector {
 		}
 		return certLongestValid;
 	}
-	
+
 	public Certificate signCertificateRequest(CSR csr, CAConnectorConfig caConfig) throws GeneralSecurityException {
 
 		try {
-			
+
 			csrUtil.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_CA_PROCESSING_STARTED_TIMESTAMP,"" + System.currentTimeMillis(), false);
 
 			csr.setStatus(CsrStatus.PROCESSING);
 
 			Certificate intermediate = getIntermediate();
-		
+
 			PrivateKey privKeyIntermediate = certUtil.getPrivateKey(intermediate);
 			KeyPair kpIntermediate = new KeyPair(certUtil.convertPemToCertificate(intermediate.getContent()).getPublicKey(), privKeyIntermediate);
-	
+
 			PKCS10CertificationRequest p10 = cryptoUtil.convertPemToPKCS10CertificationRequest(csr.getCsrBase64());
-			
-			
+
+
 			X509Certificate x509Cert = cryptoUtil.issueCertificate(new X500Name(intermediate.getSubject()), kpIntermediate, p10.getSubject(), p10.getSubjectPublicKeyInfo(), Calendar.YEAR, 1, PKILevel.END_ENTITY);
-	
+
 			Certificate cert = certUtil.createCertificate(x509Cert.getEncoded(), null, "", false);
 			cert.setRevocationCA(caConfig);
-			
+
 			certRepository.save(cert);
-			
+
 			csrUtil.setCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_FINISHED_TIMESTAMP,"" + System.currentTimeMillis(), true);
 
 			csr.setStatus(CsrStatus.ISSUED);
 			csrRepository.save(csr);
-			
+
 			return cert;
 
 		} catch (IOException e) {
@@ -211,7 +211,7 @@ public class CaInternalConnector {
 
 		/*
 		RDN[] rdnArr = new RDN[csr.getRdns().size()];
-		
+
 		int i = 0;
 		for(de.trustable.ca3s.core.domain.RDN rdn:csr.getRdns()) {
 			LOG.debug("RDN contains #{}", rdn.getRdnAttributes().size());
@@ -225,12 +225,12 @@ public class CaInternalConnector {
 		}
 		X500Name subject = new X500Name(csr.getRdns());
 */
-		
+
 	}
 
 	public void revokeCertificate(Certificate cert, CRLReason crlReason, Date revocationDate,
 			CAConnectorConfig caConfig) {
-		
+
 		if (cert.isRevoked()) {
 			LOG.warn("failureReason: " +
 					"certificate with id '" + cert.getId() + "' already revoked.");

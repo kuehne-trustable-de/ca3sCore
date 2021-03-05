@@ -76,6 +76,8 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   public keyAlgoLength: IKeyAlgoLength = 'RSA_2048';
 
   public cmdline = '';
+  public cmdline0 = '';
+  public cmdline0Required = false;
   public reqConf = '';
   public reqConfRequired = false;
 
@@ -229,7 +231,9 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   public buildCommandLine(): string {
     let cmdline = '';
     let reqConf = '';
+    let cmdline0 = '';
     this.reqConfRequired = false;
+    this.cmdline0Required = false;
 
     let nvSAN: INamedValues;
 
@@ -252,10 +256,10 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     // java keytool
     //
     if (this.creationTool === 'keytool') {
-      cmdline = 'keytool -genkeypair -keyalg ' + algo;
-      cmdline += ' -keysize ' + keyLen;
+      cmdline0 = 'keytool -genkeypair -keyalg ' + algo;
+      cmdline0 += ' -keysize ' + keyLen;
 
-      cmdline += ' -alias keyAlias -keystore test.p12 -storetype pkcs12';
+      cmdline0 += ' -alias keyAlias -keystore test.p12 -storetype pkcs12';
 
       let dname = '';
       for (const nv of this.upload.certificateAttributes) {
@@ -274,7 +278,10 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
           }
         }
       }
-      cmdline += ' -dname "' + dname + '"\n\n';
+      cmdline0 += ' -dname "' + dname + '"\n\n';
+
+      this.cmdline0 = cmdline0;
+      this.cmdline0Required = true;
 
       cmdline += 'keytool -certreq -keystore test.p12 -alias keyAlias';
 
