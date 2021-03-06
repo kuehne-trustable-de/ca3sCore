@@ -44,7 +44,10 @@
         <div>
             Die folgende Abbildung gibt einen groben Überblick über die ca3s Architektur. Oben sind die verschiedenen Typen von Clients, die sich mit dem ca3s-Server verbinden, abgebildet. Unten sind die externen Dienste, mit denen sich ca3s vebindet, gezeigt.
             <p/>
-            <img class="box" src="../../../content/images/birds_view.jpg" />
+            <figure>
+                <img src="../../../content/images/birds_view.jpg" alt="Architekturübersicht">
+                <figcaption>Architekturübersicht</figcaption>
+            </figure>
         </div>
         <p/>
 
@@ -134,6 +137,12 @@
             </ul>
             Wechseln Sie in das Verzeichnis, in dem der Schlüssel erstellt werden soll. In der Produktdokumentation Ihrer Anwendung finden Sie das entsprechende Verzeichnis.
             Füllen Sie die erforderlichen Felder im ca3s-Webformular aus (Betreff, Organisation, SAN, ...).<br><br>
+
+            <figure>
+                <img src="../../../content/images/java2 parameter.png" alt="Zertifikatsparameter">
+                <figcaption>Zertifikatsparameter</figcaption>
+            </figure>
+
             Überprüfen Sie anhand Ihrer Dokumentation, welche Art von "store" erwartet wird. Java-Anwendungen erwarten normalerweise einen PKCS12-Keystore. Apache-Webserver verarbeiten möglicherweise separate PEM-Dateien.<br><br>
 
             Mit Hilfe 'Werkzeugauswahl' wählen Sie zwischen den verschiedenen Werkzeuge aus:
@@ -150,17 +159,25 @@
 
             <p/>
             <h4>Linux</h4>
-            <img class="box" src="../../../content/images/stop_sign.png" />
+            <figure>
+                <img src="../../../content/images/sslnew4.png" alt="Zertifikatsparameter">
+                <figcaption>Zertifikatsparameter</figcaption>
+            </figure>
 
             <p/>
             <h4>Windows</h4>
-            <img class="box" src="../../../content/images/stop_sign.png" />
+            <figure>
+                <img src="../../../content/images/java4shell.png" alt="Zertifikatsparameter">
+                <figcaption>Zertifikatsparameter</figcaption>
+            </figure>
 
             <p/>
             <h4>Kopieren</h4>
             Die Felder mit den generierten Kommandozeilen haben einen 'Copy'-Buttom. Alternativ kann der Text selektiert und kopiert werden.
-            <img class="box" src="../../../content/images/stop_sign.png" />
-
+            <figure>
+                <img src="../../../content/images/sslold3.png" alt="Copy-Button">
+                <figcaption>Copy-Button</figcaption>
+            </figure>
 
         </div>
         <p/>

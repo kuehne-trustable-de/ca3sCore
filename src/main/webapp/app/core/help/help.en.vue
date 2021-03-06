@@ -44,7 +44,11 @@
         <div>
             The following picture gives a coarse overview of the ca3s architecture. On top there are the different types of clients that connect to the ca3s server. On the bottom the external services ca3s connects to are shown.
             <p/>
-            <img class="box" src="../../../content/images/birds_view.jpg" />
+            <figure>
+                <img src="../../../content/images/birds_view.jpg" alt="ca3s architecture overview">
+                <figcaption>ca3s architecture overview</figcaption>
+            </figure>
+            <!--img class="box" src="../../../content/images/birds_view.jpg" /-->
         </div>
         <p/>
 
@@ -136,6 +140,11 @@
             Change to the directory where the key should be created. Consult the product documentation of your application for the appropriate dirctory.
             Fill out the required fields in the ca3s web form (subject, organization, SAN, ...).<br><br>
             Check with your documentation which type of 'store' is expected. Java applications usually expect a PKCS12 keystore, Apache web servers may process separate PEM files.<br><br>
+            <figure>
+                <img src="../../../content/images/java2 parameter.png" alt="Certificate parameter">
+                <figcaption>Certificate parameter</figcaption>
+            </figure>
+            <p/>
 
             The 'tool selection' chooses the different tools:
             <ul>
@@ -147,7 +156,28 @@
                 The old versions of OpenSSL requires a configuration file and a shell command.
             </ul>
 
-            Copy the generated value from the text box to your input shell.
+            <p/>
+            <h4>Linux</h4>
+            <figure>
+                <img src="../../../content/images/sslnew4.png" alt="Linux command shell">
+                <figcaption>Linux command shell</figcaption>
+            </figure>
+
+            <p/>
+            <h4>Windows</h4>
+            <figure>
+                <img src="../../../content/images/java4shell.png" alt="Windows command prompt">
+                <figcaption>Windows command prompt</figcaption>
+            </figure>
+
+            <p/>
+            <h4>Copy</h4>
+            Copy the generated value from the text box to your input shell. The text boxes got a 'Copy'-button but of course it's possible to select and copy the texts manually.
+            <figure>
+                <img src="../../../content/images/sslold3.png" alt="Copy-Button">
+                <figcaption>Copy-Button</figcaption>
+            </figure>
+
         </div>
         <p/>
 
