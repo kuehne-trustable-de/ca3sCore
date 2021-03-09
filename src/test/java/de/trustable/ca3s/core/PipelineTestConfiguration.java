@@ -330,9 +330,9 @@ public class PipelineTestConfiguration {
 
 		PipelineView pv_1CNRestrictions = new PipelineView();
     	pv_1CNRestrictions.setRestriction_C(new RDNRestriction());
-		pv_1CNRestrictions.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
+		pv_1CNRestrictions.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
     	pv_1CNRestrictions.setRestriction_CN(new RDNRestriction());
-		pv_1CNRestrictions.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+		pv_1CNRestrictions.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
     	pv_1CNRestrictions.setRestriction_L(new RDNRestriction());
 		pv_1CNRestrictions.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
     	pv_1CNRestrictions.setRestriction_O(new RDNRestriction());

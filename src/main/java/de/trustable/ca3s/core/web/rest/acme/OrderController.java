@@ -42,6 +42,7 @@ import java.util.Set;
 
 import de.trustable.ca3s.core.domain.dto.NamedValues;
 import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.util.*;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
@@ -78,11 +79,6 @@ import de.trustable.ca3s.core.service.dto.acme.FinalizeRequest;
 import de.trustable.ca3s.core.service.dto.acme.OrderResponse;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
-import de.trustable.ca3s.core.service.util.ACMEUtil;
-import de.trustable.ca3s.core.service.util.CSRUtil;
-import de.trustable.ca3s.core.service.util.CertificateProcessingUtil;
-import de.trustable.ca3s.core.service.util.CertificateUtil;
-import de.trustable.ca3s.core.service.util.JwtUtil;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
@@ -109,6 +105,9 @@ public class OrderController extends ACMEController {
 
 	@Autowired
 	private CertificateProcessingUtil cpUtil;
+
+    @Autowired
+    private PipelineUtil pipelineUtil;
 
     @RequestMapping(value = "/{orderId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
     public ResponseEntity<?> postAsGetOrder(@RequestBody final String requestBody,
@@ -208,6 +207,7 @@ public class OrderController extends ACMEController {
 
   	    }
 
+
   	    /*
   	     * Prepare the response header, e.g. add a nonce
   	     */
@@ -284,7 +284,20 @@ public class OrderController extends ACMEController {
 					}
 
 					if (orderReady) {
-						LOG.debug("order status {} changes to ready for order {}", orderDao.getStatus(), orderDao.getOrderId());
+
+                        List<String> messageList = new ArrayList<>();
+                        if( !pipelineUtil.isPipelineRestrictionsResolved(pipeline, p10Holder, messageList)){
+
+                            String detail = NO_DETAIL;
+                            if( !messageList.isEmpty()){
+                                detail = messageList.get(0);
+                            }
+                            final ProblemDetail problem = new ProblemDetail(ACMEUtil.BAD_CSR, "Restriction check failed.",
+                                BAD_REQUEST, detail, NO_INSTANCE);
+                            throw new AcmeProblemException(problem);
+                        }
+
+                        LOG.debug("order status {} changes to ready for order {}", orderDao.getStatus(), orderDao.getOrderId());
 						orderDao.setStatus(AcmeOrderStatus.READY);
 
 					  	LOG.debug("order {} status 'ready', producing certificate", orderDao.getOrderId());

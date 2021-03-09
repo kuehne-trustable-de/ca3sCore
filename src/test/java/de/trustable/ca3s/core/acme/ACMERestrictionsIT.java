@@ -4,6 +4,7 @@ import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import de.trustable.util.JCAManager;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,7 +67,6 @@ public class ACMERestrictionsIT {
 	}
 
 
-	@SuppressWarnings("deprecation")
 	@Test
 	public void testAccountHandling() throws AcmeException, IOException, InterruptedException {
 
@@ -85,7 +85,7 @@ public class ACMERestrictionsIT {
 		        .agreeToTermsOfService()
 		        .useKeyPair(accountKeyPair)
 		        .create(session);
-		assertNotNull("created account MUST NOT be null", account);
+		Assertions.assertNotNull(account, "created account MUST NOT be null");
 
 		URL accountLocationUrl = account.getLocation();
 		LOG.debug("accountLocationUrl {}", accountLocationUrl);
@@ -96,8 +96,8 @@ public class ACMERestrictionsIT {
 		        .useKeyPair(accountKeyPair)
 		        .create(session);
 
-		assertNotNull("created account MUST NOT be null", retrievedAccount);
-		assertEquals("expected to fimnd the smae account (URL)", accountLocationUrl, retrievedAccount.getLocation());
+		Assertions.assertNotNull(retrievedAccount, "created account MUST NOT be null");
+		Assertions.assertEquals(accountLocationUrl, retrievedAccount.getLocation(), "expected to fimnd the smae account (URL)");
 
 		// #########################
 		// request mismatching restrictions
@@ -149,7 +149,7 @@ public class ACMERestrictionsIT {
 
 			try {
 				order.execute(csr);
-				fail("AceException due to restricion violation expected");
+				Assertions.fail("AceException due to restriction violation expected");
 			}catch(AcmeServerException ase) {
 				// as expected
 			}
@@ -159,7 +159,7 @@ public class ACMERestrictionsIT {
 
 		account.deactivate();
 
-		assertEquals("account status 'deactivated' expected", Status.DEACTIVATED, account.getStatus() );
+		Assertions.assertEquals(Status.DEACTIVATED, account.getStatus(), "account status 'deactivated' expected");
 	}
 
 	void buildOrder(Account account, int n) throws AcmeException {
@@ -203,27 +203,21 @@ public class ACMERestrictionsIT {
 		}
 		final FtBasic webBasic = webBasicTmp;
 
-		final Exit exitOnValid = new Exit() {
-			@Override
-			public boolean ready() {
-				boolean bTerminate = !(challenge.getStatus().equals( Status.PENDING));
-				LOG.info("exitOnValid {}", challenge.getStatus().toString());
-				return (bTerminate);
-			}
-		};
+		final Exit exitOnValid = () -> {
+            boolean bTerminate = !(challenge.getStatus().equals( Status.PENDING));
+            LOG.info("exitOnValid {}", challenge.getStatus().toString());
+            return (bTerminate);
+        };
 
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					LOG.debug("ACME callback webserver started for {}", fileNameRegEx);
-					webBasic.start(exitOnValid);
-					LOG.debug("ACME callback webserver finished for {}", fileNameRegEx);
-				} catch (IOException ioe) {
-					LOG.warn("exception occur running webserver in extra thread", ioe);
-				}
-			}
-		}).start();
+		new Thread(() -> {
+            try {
+                LOG.debug("ACME callback webserver started for {}", fileNameRegEx);
+                webBasic.start(exitOnValid);
+                LOG.debug("ACME callback webserver finished for {}", fileNameRegEx);
+            } catch (IOException ioe) {
+                LOG.warn("exception occur running webserver in extra thread", ioe);
+            }
+        }).start();
 
 		LOG.debug("started ACME callback webserver for {} on port {}", fileNameRegEx, callbackPort);
 

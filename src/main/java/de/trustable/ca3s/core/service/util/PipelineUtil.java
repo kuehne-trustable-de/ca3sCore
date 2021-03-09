@@ -619,6 +619,11 @@ public class PipelineUtil {
 
     public boolean isPipelineRestrictionsResolved(Pipeline p, Pkcs10RequestHolder p10ReqHolder, NamedValues[] nvARArr, List<String> messageList) {
 
+	    // null pipeline means internal requests without an associated pipeline and no restrictions
+        if(p == null){
+            return true;
+        }
+
         PipelineView pv = from(p);
         if(!isPipelineAdditionalRestrictionsResolved(pv, nvARArr, messageList)){
             return false;
@@ -627,6 +632,10 @@ public class PipelineUtil {
     }
 
     public boolean isPipelineRestrictionsResolved(Pipeline p, Pkcs10RequestHolder p10ReqHolder, List<String> messageList) {
+
+	    if(p == null){
+	        return true;
+        }
 
         return isPipelineRestrictionsResolved(from(p), p10ReqHolder, messageList);
     }
@@ -641,6 +650,16 @@ public class PipelineUtil {
                     if(!checkAdditionalRestrictions(araRestriction, nvAR, messageList)){
                         outcome = false;
                     }
+                }
+            }
+        }
+        for(ARARestriction araRestriction:pv.getAraRestrictions()){
+            if(araRestriction.isRequired()){
+                if(!Arrays.stream(nvARArr).anyMatch( nv -> (araRestriction.getName().equals(nv.getName())))){
+                    String msg = "additional restriction mismatch: An value for '" + araRestriction.getName() + "' MUST be present!";
+                    messageList.add(msg);
+                    LOG.debug(msg);
+                    outcome = false;
                 }
             }
         }

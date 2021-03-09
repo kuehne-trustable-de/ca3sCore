@@ -23,7 +23,10 @@ import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
+import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.*;
+import de.trustable.util.Pkcs10RequestHolder;
 import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -44,6 +47,8 @@ import org.springframework.stereotype.Controller;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.util.CryptoUtil;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 
 /**
@@ -90,6 +95,9 @@ public class ScepServletImpl extends ScepServlet {
 
     @Autowired
     private ProtectedContentUtil protectedContentUtil;
+
+    @Autowired
+    private PipelineUtil pipelineUtil;
 
     @Autowired
 	private ApplicationEventPublisher applicationEventPublisher;
@@ -142,7 +150,7 @@ public class ScepServletImpl extends ScepServlet {
 
 				TransactionId tid = new TransactionId(new byte[] {1});
 
-				currentRecepientCert = startCertificateCreationProcess(p10ReqPem, tid);
+				currentRecepientCert = startCertificateCreationProcess(p10ReqPem, tid, null);
 
 				certUtil.storePrivateKey(currentRecepientCert, keyPair);
 
@@ -160,16 +168,16 @@ public class ScepServletImpl extends ScepServlet {
     }
 
 
-	private Certificate startCertificateCreationProcess(final String csrAsPem, TransactionId transId) throws OperationFailureException  {
+	private Certificate startCertificateCreationProcess(final String csrAsPem, TransactionId transId, Pipeline pipeline) throws OperationFailureException, IOException, GeneralSecurityException {
 
-        Pipeline pipeline = requestPipeline.get();
-        if( pipeline == null ) {
-            LOGGER.warn("doEnrol: no processing pipeline defined");
-			throw new OperationFailureException(FailInfo.badRequest);
+        Pkcs10RequestHolder p10Holder = cryptoUtil.parseCertificateRequest(csrAsPem);
+        if( !pipelineUtil.isPipelineRestrictionsResolved(pipeline, p10Holder, new ArrayList<>())){
+            throw new OperationFailureException(FailInfo.badRequest);
         }
 
-		String requestorName = "SCEP-transId-" + transId.toString();
-        LOGGER.debug("doEnrol: processing request by {} using pipeline {}", requestorName, pipeline.getName());
+        String pipelineName = ( pipeline == null) ? "NoPipeline":pipeline.getName();
+        String requestorName = "SCEP-transId-" + transId.toString();
+        LOGGER.debug("doEnrol: processing request by {} using pipeline {}", requestorName,pipelineName);
 
 		CSR csr = cpUtil.buildCSR(csrAsPem, requestorName, AuditService.AUDIT_SCEP_CERTIFICATE_REQUESTED, "", pipeline );
 
@@ -218,7 +226,7 @@ public class ScepServletImpl extends ScepServlet {
             checkPassword(pipeline, password);
 
             String p10ReqPem = CryptoUtil.pkcs10RequestToPem(csr);
-        	Certificate newCertDao = startCertificateCreationProcess(p10ReqPem, transId);
+        	Certificate newCertDao = startCertificateCreationProcess(p10ReqPem, transId, pipeline);
         	if( newCertDao == null ){
                 LOGGER.debug("creation of certificate failed");
                 throw new OperationFailureException(FailInfo.badRequest);
@@ -244,10 +252,10 @@ public class ScepServletImpl extends ScepServlet {
         for(ProtectedContent pc: listPC){
             String expectedPassword = protectedContentUtil.unprotectString(pc.getContentBase64()).trim();
             if( password.trim().equals(expectedPassword)) {
-                LOGGER.debug("Protected Content found matching SCEP password '{}'", password);
-                return;
+                LOGGER.debug("Protected Content found matching SCEP password");
+                return; // the only successful exit !!
             } else {
-                LOGGER.debug("Protected Content password '{}' does not match SCEP password '{}'", password);
+                LOGGER.debug("Protected Content password does not match SCEP password");
             }
         }
 
@@ -259,7 +267,7 @@ public class ScepServletImpl extends ScepServlet {
     protected List<X509Certificate> doGetCaCertificate(String identifier) {
         LOGGER.debug("doGetCaCertificate(" + identifier +")");
 
-        List<X509Certificate> caList = new ArrayList<X509Certificate>();
+        List<X509Certificate> caList = new ArrayList<>();
         try {
 			Certificate recepCert = getCurrentRecepientCert();
 			caList = certUtil.getX509CertificateChainAsList(recepCert);
@@ -319,7 +327,7 @@ public class ScepServletImpl extends ScepServlet {
         	}
     	}
 
-        List<X509Certificate> certList = new ArrayList<X509Certificate>();
+        List<X509Certificate> certList = new ArrayList<>();
 
         for(Certificate certDao: certDaoList ){
         	try {
@@ -339,8 +347,7 @@ public class ScepServletImpl extends ScepServlet {
 
     @Override
     protected List<X509Certificate> doGetCertInitial(X500Name issuer,
-            X500Name subject, TransactionId transId)
-            throws OperationFailureException {
+            X500Name subject, TransactionId transId){
 
         LOGGER.debug("doGetCertInitial(" + issuer.toString() +", "+ subject.toString() + ", " + transId.toString() +")");
 

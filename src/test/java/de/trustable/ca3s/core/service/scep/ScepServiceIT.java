@@ -30,10 +30,7 @@ import org.jscep.transaction.FailInfo;
 import org.jscep.transaction.TransactionException;
 import org.jscep.transport.response.Capabilities;
 import org.jscep.transport.response.Capability;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -77,6 +74,7 @@ public class ScepServiceIT{
 		keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
 		enrollingPrincipal = new X500Principal("CN=SCEPRequested_" + System.currentTimeMillis() + ",O=trustable solutione,C=DE");
 		ephemeralCert = X509Certificates.createEphemeral(enrollingPrincipal, keyPair);
+
 	}
 
 
@@ -101,34 +99,72 @@ public class ScepServiceIT{
 
 		client1CN = new Client(serverUrl1CN, acceptAllVerifier);
 
+		System.out.println("########## url: " + serverUrl1CN);
 	}
 
-	@Test
-	public void testScepEnrol() throws GeneralSecurityException, IOException, ClientException, TransactionException {
+    @Test
+    public void testScepEnrol() throws GeneralSecurityException, IOException, ClientException, TransactionException {
 
 
-		LOG.info("ephemeralCert : " + ephemeralCert);
+        LOG.info("ephemeralCert : " + ephemeralCert);
 
-		PKCS10CertificationRequest csr = CryptoUtil.getCsr(enrollingPrincipal,
-				keyPair.getPublic(),
-				keyPair.getPrivate(),
-				password);
+        PKCS10CertificationRequest csr = CryptoUtil.getCsr(enrollingPrincipal,
+            keyPair.getPublic(),
+            keyPair.getPrivate(),
+            password);
 
-		EnrollmentResponse resp = client.enrol(ephemeralCert, keyPair.getPrivate(), csr);
-		assertNotNull(resp);
-		assertFalse(resp.isFailure());
-		if (resp.isSuccess()) {
+        EnrollmentResponse resp = client.enrol(ephemeralCert, keyPair.getPrivate(), csr);
+        Assertions.assertNotNull(resp);
+        Assertions.assertFalse(resp.isFailure());
+        if (resp.isSuccess()) {
 
-			CertStore certStore = resp.getCertStore();
-			Collection<? extends Certificate> collCerts = certStore.getCertificates(new AcceptAllCertSelector());
+            CertStore certStore = resp.getCertStore();
+            Collection<? extends Certificate> collCerts = certStore.getCertificates(new AcceptAllCertSelector());
 
-			for (Certificate cert : collCerts) {
-				LOG.debug("returned certificate : " + cert.toString());
-			}
+            for (Certificate cert : collCerts) {
+                LOG.debug("returned certificate : " + cert.toString());
+            }
 
-		}
+        }
 
-	}
+    }
+
+    @Test
+    public void testScepEnrolFailedRestrictionCPresent() throws GeneralSecurityException, IOException, ClientException, TransactionException {
+
+        PKCS10CertificationRequest csr = CryptoUtil.getCsr(enrollingPrincipal,
+            keyPair.getPublic(),
+            keyPair.getPrivate(),
+            password);
+
+        EnrollmentResponse resp = client1CN.enrol(ephemeralCert, keyPair.getPrivate(), csr);
+        Assertions.assertNotNull(resp);
+        Assertions.assertTrue(resp.isFailure());
+
+        Assertions.assertEquals(FailInfo.badRequest, resp.getFailInfo(), "Expecting FailInfo.badRequest");
+
+    }
+
+    @Test
+    public void testScepEnrolFailedRestriction2CN() throws GeneralSecurityException, IOException, ClientException, TransactionException {
+
+
+        X500Principal doubleCNPrincipal = new X500Principal("CN=FirstCN, CN=SCEPRequested_" + System.currentTimeMillis() + ",O=trustable solutione,C=DE");
+        LOG.info("doubleCNPrincipal : " + doubleCNPrincipal);
+
+        PKCS10CertificationRequest csr = CryptoUtil.getCsr(doubleCNPrincipal,
+            keyPair.getPublic(),
+            keyPair.getPrivate(),
+            password);
+
+        EnrollmentResponse resp = client1CN.enrol(ephemeralCert, keyPair.getPrivate(), csr);
+        Assertions.assertNotNull(resp);
+        Assertions.assertTrue(resp.isFailure());
+
+        Assertions.assertEquals(FailInfo.badRequest, resp.getFailInfo(), "Expecting FailInfo.badRequest");
+
+
+    }
 
     @Test
     public void testScepEnrolInvalidPassword() throws GeneralSecurityException, IOException, ClientException, TransactionException {
@@ -140,10 +176,10 @@ public class ScepServiceIT{
             "wrong_password".toCharArray());
 
         EnrollmentResponse resp = client.enrol(ephemeralCert, keyPair.getPrivate(), csr);
-        assertNotNull(resp);
-        assertTrue(resp.isFailure());
+        Assertions.assertNotNull(resp);
+        Assertions.assertTrue(resp.isFailure());
 
-        assertEquals("Expecting FailInfo.badRequest", FailInfo.badRequest, resp.getFailInfo());
+        Assertions.assertEquals(FailInfo.badRequest, resp.getFailInfo(), "Expecting FailInfo.badRequest");
 
     }
 
@@ -157,10 +193,10 @@ public class ScepServiceIT{
             password);
 
         EnrollmentResponse resp = client1CN.enrol(ephemeralCert, keyPair.getPrivate(), csr);
-        assertNotNull(resp);
-        assertTrue(resp.isFailure());
+        Assertions.assertNotNull(resp);
+        Assertions.assertTrue(resp.isFailure());
 
-        assertEquals("Expecting FailInfo.badRequest", FailInfo.badRequest, resp.getFailInfo());
+        Assertions.assertEquals(FailInfo.badRequest, resp.getFailInfo(), "Expecting FailInfo.badRequest");
 
     }
 
@@ -171,9 +207,9 @@ public class ScepServiceIT{
 
 		// Invoke operations on the client.
 		Capabilities caps = client.getCaCapabilities();
-		assertNotNull(caps);
+		Assertions.assertNotNull(caps);
 		LOG.debug("caps : " + caps);
-		assertTrue("Expecting support for SHA-256", caps.contains(Capability.SHA_256));
+		Assertions.assertTrue(caps.contains(Capability.SHA_256), "Expecting support for SHA-256");
 	}
 
 	@Test
@@ -181,10 +217,10 @@ public class ScepServiceIT{
 
 		CertStore certStore = client.getCaCertificate();
 
-		assertNotNull(certStore);
+		Assertions.assertNotNull(certStore);
 		Collection<? extends Certificate> collCerts = certStore.getCertificates(new AcceptAllCertSelector());
 
-		assertTrue("Expecting getCaCertificate to return a certificate", !collCerts.isEmpty());
+		Assertions.assertTrue(!collCerts.isEmpty(), "Expecting getCaCertificate to return a certificate");
 		Certificate caCert = collCerts.iterator().next();
 		LOG.debug("caCert : " + caCert.toString());
 		LOG.debug("collCerts.size() : " + collCerts.size());
@@ -209,7 +245,7 @@ public class ScepServiceIT{
         		keyPair.getPrivate(),
                 issued.getSerialNumber()).getCertificates(null).iterator().next();
 
-        assertEquals(issued, retrieved);
+        Assertions.assertEquals(issued, retrieved);
 	}
 
 	@Test
@@ -221,19 +257,20 @@ public class ScepServiceIT{
 		try{
 			CertStore certStore = client.getRolloverCertificate();
 
-			assertTrue("only when the capabilities contain the GET_NEXT_CA_CERT bit ...", hasNextCA);
+			Assertions.assertTrue(hasNextCA, "only when the capabilities contain the GET_NEXT_CA_CERT bit ...");
 
-			assertNotNull(certStore);
+			Assertions.assertNotNull(certStore);
 			Collection<? extends Certificate> collCerts = certStore.getCertificates(new AcceptAllCertSelector());
 
-			assertTrue("Expecting getRolloverCertificate to return a certificate", !collCerts.isEmpty());
+			Assertions.assertTrue(!collCerts.isEmpty(), "Expecting getRolloverCertificate to return a certificate");
 			Certificate caCert = collCerts.iterator().next();
 			LOG.debug("caCert : " + caCert.toString());
 			LOG.debug("collCerts.size() : " + collCerts.size());
 
 		} catch( UnsupportedOperationException uoe){
-			assertFalse("expected when the capabilities do NOT contain the GET_NEXT_CA_CERT bit ...", hasNextCA);
+			Assertions.assertFalse(hasNextCA, "expected when the capabilities do NOT contain the GET_NEXT_CA_CERT bit ...");
 		}
 	}
+
 
 }
