@@ -2,15 +2,14 @@ package de.trustable.ca3s.core.service.util;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.repository.CsrAttributeRepository;
 import de.trustable.ca3s.core.domain.dto.NamedValues;
 import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.dto.ARARestriction;
+import de.trustable.ca3s.core.service.dto.PipelineView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,7 +98,7 @@ public class CertificateProcessingUtil {
 	 * @param messageList			messageList
 	 * @return csr
 	 */
-	public CSR buildCSR(final String csrAsPem, final String requestorName, final String requestAuditType, String requestorComment, Pipeline pipeline, NamedValues[] nvArr, List<String> messageList )  {
+	public CSR buildCSR(final String csrAsPem, final String requestorName, final String requestAuditType, String requestorComment, Pipeline pipeline, NamedValues[] araArr, List<String> messageList )  {
 
 		CSR csr;
 		Pkcs10RequestHolder p10ReqHolder;
@@ -107,24 +106,32 @@ public class CertificateProcessingUtil {
 		try {
 			p10ReqHolder = cryptoUtil.parseCertificateRequest(csrAsPem);
 
+            ARARestriction[] restrictionArr = new ARARestriction[0];
 			if( pipeline == null) {
 				LOG.debug("CSR requested without pipeline given!", new Exception());
 				csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, PipelineType.WEB, null);
 			}else {
 				csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, pipeline);
+                PipelineView pv = pvUtil.from(pipeline);
+                restrictionArr = pv.getAraRestrictions();
 			}
 
 
 			csr.setRequestorComment(requestorComment);
 			csrRepository.save(csr);
 
-			for( NamedValues nvs: nvArr){
-			    for( String value: nvs.getValues()){
-                    CsrAttribute csrAttr = new CsrAttribute();
-                    csrAttr.setCsr(csr);
-                    csrAttr.setName(nvs.getName());
-                    csrAttr.setValue(value);
-                    csr.getCsrAttributes().add(csrAttr);
+			for( NamedValues nvs: araArr){
+			    // insert expected elements, only
+                if( Arrays.stream(restrictionArr).anyMatch(r->(r.getName().equals(nvs.getName())))) {
+                    for (String value : nvs.getValues()) {
+                        CsrAttribute csrAttr = new CsrAttribute();
+                        csrAttr.setCsr(csr);
+                        csrAttr.setName(CsrAttribute.ARA_PREFIX + nvs.getName());
+                        csrAttr.setValue(value);
+                        csr.getCsrAttributes().add(csrAttr);
+                    }
+                }else{
+                    LOG.warn("unexpected attribute in ar array: '{}'", nvs.getName());
                 }
             }
 
@@ -141,7 +148,7 @@ public class CertificateProcessingUtil {
 			return null;
 		}
 
-		if( pvUtil.isPipelineRestrictionsResolved(pipeline, p10ReqHolder, nvArr, messageList)) {
+		if( pvUtil.isPipelineRestrictionsResolved(pipeline, p10ReqHolder, araArr, messageList)) {
 			return csr;
 		} else{
 			String msg = "certificate request " + csr.getId() + " rejected";

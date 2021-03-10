@@ -105,7 +105,7 @@ public class CsrAttribute implements Serializable {
             "}";
     }
 
-    
+
 	public static final String ATTRIBUTE_REQUESTED_BY = "REQUESTOR_NAME";
 	public static final String ATTRIBUTE_PROCESSING_CA = "PROCESSING_CA";
 	public static final String ATTRIBUTE_CA_PROCESSING_ID = "CA_PROCESSING_ID";
@@ -122,8 +122,8 @@ public class CsrAttribute implements Serializable {
 	public static final String ATTRIBUTE_TYPED_SAN = "TYPED_SAN";
 	public static final String ATTRIBUTE_TYPED_VSAN = "TYPED_VSAN";
 
-
 	public static final String ATTRIBUTE_FAILURE_INFO = "REJECTION_INFO";
 
+    public static final String ARA_PREFIX = "_ARA_";
 
 }

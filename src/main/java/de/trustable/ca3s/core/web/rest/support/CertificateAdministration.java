@@ -91,10 +91,6 @@ public class CertificateAdministration {
     		try {
 				revokeCertificate(cert, adminData, raOfficerName);
 
-//                applicationEventPublisher.publishEvent(
-//				        new AuditApplicationEvent(
-//				        		raOfficerName, AuditService.AUDIT_CERTIFICATE_REVOKED, "certificate " + cert.getId() + " revoked by RA Officer  '" + raOfficerName + "'"));
-
 				CSR csr = cert.getCsr();
 				if( csr != null) {
 					Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());
