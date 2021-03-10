@@ -2,9 +2,11 @@ package de.trustable.ca3s.core.web.rest.support;
 
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.CSRRepository;
+import de.trustable.ca3s.core.repository.CsrAttributeRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.MailService;
@@ -12,6 +14,7 @@ import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.web.rest.data.AdministrationType;
 import de.trustable.ca3s.core.web.rest.data.CSRAdministrationData;
+import de.trustable.ca3s.core.web.rest.data.NamedValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +43,13 @@ public class CSRAdministration {
 
 	private final Logger LOG = LoggerFactory.getLogger(CSRAdministration.class);
 
-	@Autowired
-	private CSRRepository csrRepository;
+    @Autowired
+    private CSRRepository csrRepository;
 
-	@Autowired
+    @Autowired
+    private CsrAttributeRepository csrAttributeRepository;
+
+    @Autowired
 	private BPMNUtil bpmnUtil;
 
 	@Autowired
@@ -79,7 +85,23 @@ public class CSRAdministration {
 				csr.setAdministrationComment(adminData.getComment());
 			}
 
-    		if(AdministrationType.ACCEPT.equals(adminData.getAdministrationType())){
+            if(AdministrationType.ACCEPT.equals(adminData.getAdministrationType()) ||
+                AdministrationType.UPDATE.equals(adminData.getAdministrationType())) {
+
+                for(CsrAttribute csrAttr: csr.getCsrAttributes()){
+                    if(csrAttr.getName().startsWith(CsrAttribute.ARA_PREFIX) ){
+                        for(NamedValue nv: adminData.getArAttributeArr()){
+                            if( csrAttr.getName().equals(CsrAttribute.ARA_PREFIX + nv.getName())){
+                                csrAttr.setValue(nv.getValue());
+                                LOG.debug("CSR attribute {} updated to {}", csrAttr.getName(), csrAttr.getValue());
+                            }
+                        }
+                    }
+                }
+                csrAttributeRepository.saveAll(csr.getCsrAttributes());
+            }
+
+            if(AdministrationType.ACCEPT.equals(adminData.getAdministrationType())){
     			csr.setApprovedOn(Instant.now());
     			csrRepository.save(csr);
 

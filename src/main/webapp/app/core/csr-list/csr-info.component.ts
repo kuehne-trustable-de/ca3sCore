@@ -36,18 +36,6 @@ export default class CsrInfo extends mixins(JhiDataUtils, Vue) {
 
   public requestorComment = '';
 
-  public get authenticated(): boolean {
-    return this.$store.getters.authenticated;
-  }
-
-  public get roles(): string {
-    return this.$store.getters.account ? this.$store.getters.account.authorities[0] : '';
-  }
-
-  public getUsername(): string {
-    return this.$store.getters.account ? this.$store.getters.account.login : '';
-  }
-
   beforeRouteEnter(to, from, next) {
     next(vm => {
       if (to.params.csrId) {
@@ -64,6 +52,7 @@ export default class CsrInfo extends mixins(JhiDataUtils, Vue) {
         window.console.info('csr :' + this.cSR.status);
         this.requestorComment = this.getRequestorComment();
         this.arAttributes = this.getArAttributes();
+        this.csrAdminData.arAttributes = this.getArAttributes();
       });
   }
 
@@ -98,6 +87,16 @@ export default class CsrInfo extends mixins(JhiDataUtils, Vue) {
       return resultArr;
     }
 
+    for (let i = 0; i < this.cSR.csrAttributes.length; i++) {
+      const attr = this.cSR.csrAttributes[i];
+      if (attr.name.startsWith('_ARA_')) {
+        const nv: INamedValue = {};
+        nv.name = attr.name.substr(5);
+        nv.value = attr.value;
+        resultArr.push(nv);
+      }
+    }
+    /*
     // retrieve all names
     const pas = this.cSR.pipeline.pipelineAttributes;
     for (let i = 0; i < this.cSR.csrAttributes.length; i++) {
@@ -128,7 +127,7 @@ export default class CsrInfo extends mixins(JhiDataUtils, Vue) {
         }
       }
     }
-
+*/
     return resultArr;
   }
 
@@ -149,6 +148,13 @@ export default class CsrInfo extends mixins(JhiDataUtils, Vue) {
   public confirmCSR() {
     this.csrAdminData.csrId = this.cSR.id;
     this.csrAdminData.administrationType = 'ACCEPT';
+
+    this.sendAdministrationAction('api/administerRequest');
+  }
+
+  public updateCSR() {
+    this.csrAdminData.csrId = this.cSR.id;
+    this.csrAdminData.administrationType = 'UPDATE';
 
     this.sendAdministrationAction('api/administerRequest');
   }
@@ -187,5 +193,34 @@ export default class CsrInfo extends mixins(JhiDataUtils, Vue) {
         // always executed
         document.body.style.cursor = 'default';
       });
+  }
+
+  public get authenticated(): boolean {
+    return this.$store.getters.authenticated;
+  }
+
+  public isRAOfficer() {
+    return this.hasRole('ROLE_RA');
+  }
+
+  public isAdmin() {
+    return this.hasRole('ROLE_ADMIN');
+  }
+
+  public hasRole(targetRole: string) {
+    for (const role of this.$store.getters.account.authorities) {
+      if (targetRole === role) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public get roles(): string {
+    return this.$store.getters.account ? this.$store.getters.account.authorities[0] : '';
+  }
+
+  public getUsername(): string {
+    return this.$store.getters.account ? this.$store.getters.account.login : '';
   }
 }

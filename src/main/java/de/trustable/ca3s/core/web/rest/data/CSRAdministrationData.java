@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class CSRAdministrationData implements Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -1062400568494856660L;
 
@@ -20,12 +20,15 @@ public class CSRAdministrationData implements Serializable {
 	@NotNull
 	@JsonProperty("administrationType")
 	private AdministrationType administrationType;
-		
+
 	@JsonProperty("rejectionReason")
 	private String rejectionReason;
-	
+
 	@JsonProperty("comment")
 	private String comment;
+
+    @JsonProperty("arAttributes")
+	private NamedValue[] arAttributeArr;
 
 	public Long getCsrId() {
 		return csrId;
@@ -58,7 +61,12 @@ public class CSRAdministrationData implements Serializable {
 	public void setAdministrationType(AdministrationType administrationType) {
 		this.administrationType = administrationType;
 	}
-	
-	
-	
+
+    public NamedValue[] getArAttributeArr() {
+        return arAttributeArr;
+    }
+
+    public void setArAttributeArr(NamedValue[] arAttributeArr) {
+        this.arAttributeArr = arAttributeArr;
+    }
 }

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2021-02-22 22:26:57.
+// Generated using typescript-generator version 2.19.577 on 2021-03-10 18:47:49.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -128,6 +128,7 @@ export interface ICSRAdministrationData extends ISerializable {
   administrationType?: IAdministrationType;
   rejectionReason?: string;
   comment?: string;
+  arAttributes?: INamedValue[];
 }
 
 export interface ICertificateAdministrationData extends ISerializable {
@@ -297,7 +298,7 @@ export type IPipelineType = 'ACME' | 'SCEP' | 'WEB' | 'INTERNAL';
 
 export type ICsrStatus = 'PROCESSING' | 'ISSUED' | 'REJECTED' | 'PENDING';
 
-export type IAdministrationType = 'ACCEPT' | 'REJECT';
+export type IAdministrationType = 'ACCEPT' | 'REJECT' | 'UPDATE';
 
 export type ICreationMode = 'CSR_AVAILABLE' | 'COMMANDLINE_TOOL' | 'SERVERSIDE_KEY_CREATION';
 

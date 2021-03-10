@@ -101,7 +101,8 @@
                         <span>{{cSR.publicKeyAlgorithm}} / {{cSR.keyLength}} bits</span>
                     </dd>
 
-                    <Fragment v-for="attr in arAttributes" :key="attr.name">
+                    <Fragment v-for="attr in arAttributes" :key="attr.name" v-if="!(cSR.status === 'PENDING' && ((roles === 'ROLE_RA') || (getUsername() === cSR.requestedBy)))">
+
                         <dt>
                             <span >{{attr.name}}</span>
                         </dt>
@@ -157,17 +158,26 @@
 -->
             <form name="editForm" role="form" novalidate>
                 <div>
-                    <div v-if="cSR.status === 'PENDING' && ((roles === 'ROLE_RA') || (getUsername() === cSR.requestedBy))" class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.cSR.rejectionReason')" for="csr-rejectionReason">rejection reason</label>
-                        <input type="text" class="form-control" name="rejectionReason" id="csr-rejectionReason" v-model="csrAdminData.rejectionReason" />
-                    </div>
 
-                    <div v-if="cSR.status === 'PENDING' && ((roles === 'ROLE_RA') || (getUsername() === cSR.requestedBy))" class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.comment')" for="comment">Comment</label>
-                        <textarea class="form-control" name="content" id="comment"
-							autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                            v-model="csrAdminData.comment" />
-                    </div>
+                    <Fragment v-if="cSR.status === 'PENDING' && ((roles === 'ROLE_RA') || (getUsername() === cSR.requestedBy))">
+
+                        <div v-for="attr in csrAdminData.arAttributes" :key="attr.name" class="form-group">
+                            <label class="form-control-label"  for="csr-ar-{attr.name}">{{attr.name}}</label>
+                            <input type="text" class="form-control" name="rejectionReason" id="csr-ar-{attr.name}" v-model="attr.value" />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-control-label" v-text="$t('ca3SApp.cSR.rejectionReason')" for="csr-rejectionReason">rejection reason</label>
+                            <input type="text" class="form-control" name="rejectionReason" id="csr-rejectionReason" v-model="csrAdminData.rejectionReason" />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-control-label" v-text="$t('ca3SApp.certificate.comment')" for="comment">Comment</label>
+                            <textarea class="form-control" name="content" id="comment"
+                                autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                v-model="csrAdminData.comment" />
+                        </div>
+                    </Fragment>
 
 
                     <button type="submit"
@@ -182,6 +192,10 @@
 
                     <button type="button" id="withdraw" v-if="cSR.status === 'PENDING' && getUsername() === cSR.requestedBy" class="btn btn-secondary" v-on:click="withdrawCSR()">
                         <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.withdraw')">Withdraw</span>
+                    </button>
+
+                    <button type="button" id="withdraw" v-if="cSR.status === 'PENDING' && getUsername() === cSR.requestedBy" class="btn btn-secondary" v-on:click="updateCSR()">
+                        <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.update')">Update</span>
                     </button>
 
 
