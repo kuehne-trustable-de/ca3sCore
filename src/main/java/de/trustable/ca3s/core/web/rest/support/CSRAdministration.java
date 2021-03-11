@@ -81,24 +81,12 @@ public class CSRAdministration {
 
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			csr.setAdministeredBy(auth.getName());
-			if( adminData.getComment() != null && !adminData.getComment().trim().isEmpty()) {
-				csr.setAdministrationComment(adminData.getComment());
-			}
+            updateComment(adminData, csr);
 
             if(AdministrationType.ACCEPT.equals(adminData.getAdministrationType()) ||
                 AdministrationType.UPDATE.equals(adminData.getAdministrationType())) {
 
-                for(CsrAttribute csrAttr: csr.getCsrAttributes()){
-                    if(csrAttr.getName().startsWith(CsrAttribute.ARA_PREFIX) ){
-                        for(NamedValue nv: adminData.getArAttributeArr()){
-                            if( csrAttr.getName().equals(CsrAttribute.ARA_PREFIX + nv.getName())){
-                                csrAttr.setValue(nv.getValue());
-                                LOG.debug("CSR attribute {} updated to {}", csrAttr.getName(), csrAttr.getValue());
-                            }
-                        }
-                    }
-                }
-                csrAttributeRepository.saveAll(csr.getCsrAttributes());
+                updateARAttributes(adminData, csr);
             }
 
             if(AdministrationType.ACCEPT.equals(adminData.getAdministrationType())){
@@ -177,7 +165,6 @@ public class CSRAdministration {
 
 	}
 
-
     /**
      * {@code POST  /withdrawOwnRequest} : Withdraw own request .
      *
@@ -185,44 +172,113 @@ public class CSRAdministration {
      * @return the {@link ResponseEntity} .
      */
     @PostMapping("/withdrawOwnRequest")
-	@Transactional
+    @Transactional
     public ResponseEntity<Long> withdrawOwnRequest(@Valid @RequestBody CSRAdministrationData adminData) {
 
-    	LOG.debug("REST request to withdraw CSR : {}", adminData);
+        LOG.debug("REST request to withdraw CSR : {}", adminData);
 
-    	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    	String userName = auth.getName();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String userName = auth.getName();
 
-    	Optional<CSR> optCSR = csrRepository.findById(adminData.getCsrId());
-    	if( optCSR.isPresent()) {
+        Optional<CSR> optCSR = csrRepository.findById(adminData.getCsrId());
+        if( optCSR.isPresent()) {
 
-    		CSR csr = optCSR.get();
-    		if( userName == null ||
-    				!userName.equals(csr.getRequestedBy()) ){
+            CSR csr = optCSR.get();
+            if( userName == null ||
+                !userName.equals(csr.getRequestedBy()) ){
 
-    	    	LOG.debug("REST request by '{}' to withdraw CSR '{}' rejected ", userName, adminData.getCsrId());
-        		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-    		}
+                LOG.debug("REST request by '{}' to withdraw CSR '{}' rejected ", userName, adminData.getCsrId());
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
 
-			csr.setAdministeredBy(userName);
-			if( adminData.getComment() != null && !adminData.getComment().trim().isEmpty()) {
-				csr.setAdministrationComment(adminData.getComment());
-			}
+            csr.setAdministeredBy(userName);
+            updateComment(adminData, csr);
 
-			csr.setRejectionReason(adminData.getRejectionReason());
-			csr.setRejectedOn(Instant.now());
-			csr.setStatus(CsrStatus.REJECTED);
-			csrRepository.save(csr);
+            csr.setRejectionReason(adminData.getRejectionReason());
+            csr.setRejectedOn(Instant.now());
+            csr.setStatus(CsrStatus.REJECTED);
+            csrRepository.save(csr);
 
             auditService.saveAuditTrace(auditService.createAuditTraceCsrRejected(csr));
 
-    		return new ResponseEntity<Long>(adminData.getCsrId(), HttpStatus.OK);
+            return new ResponseEntity<Long>(adminData.getCsrId(), HttpStatus.OK);
 
-    	}else {
-    		return ResponseEntity.notFound().build();
-    	}
+        }else {
+            return ResponseEntity.notFound().build();
+        }
 
-	}
+    }
+
+
+    /**
+     * {@code POST  /selfAdministerRequest} : update own request .
+     *
+     * @param adminData a structure holding some crypto-related content, e.g. CSR, certificate, P12 container
+     * @return the {@link ResponseEntity} .
+     */
+    @PostMapping("/selfAdministerRequest")
+    @Transactional
+    public ResponseEntity<Long> selfAdministerRequest(@Valid @RequestBody CSRAdministrationData adminData) {
+
+        LOG.debug("REST request to update CSR : {}", adminData);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String userName = auth.getName();
+
+        Optional<CSR> optCSR = csrRepository.findById(adminData.getCsrId());
+        if( optCSR.isPresent()) {
+
+            CSR csr = optCSR.get();
+            if( userName == null ||
+                !userName.equals(csr.getRequestedBy()) ){
+
+                LOG.debug("REST request by '{}' to update CSR '{}' rejected ", userName, adminData.getCsrId());
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            csr.setAdministeredBy(userName);
+            updateComment(adminData, csr);
+
+            updateARAttributes(adminData, csr);
+
+            csrRepository.save(csr);
+
+            return new ResponseEntity<Long>(adminData.getCsrId(), HttpStatus.OK);
+
+        }else {
+            return ResponseEntity.notFound().build();
+        }
+
+    }
+
+    private void updateComment(CSRAdministrationData adminData, CSR csr) {
+        if( adminData.getComment() != null && !adminData.getComment().trim().isEmpty()) {
+            auditService.saveAuditTrace(
+                auditService.createAuditTraceCsrAttribute("Comment", csr.getAdministrationComment(), adminData.getComment(), csr));
+            csr.setAdministrationComment(adminData.getComment());
+        }
+    }
+
+
+    private void updateARAttributes(CSRAdministrationData adminData, CSR csr) {
+
+        for(CsrAttribute csrAttr: csr.getCsrAttributes()){
+            if(csrAttr.getName().startsWith(CsrAttribute.ARA_PREFIX) ){
+                for(NamedValue nv: adminData.getArAttributeArr()){
+                    if( csrAttr.getName().equals(CsrAttribute.ARA_PREFIX + nv.getName())){
+                        if( !csrAttr.getValue().equals(nv.getValue())) {
+                            auditService.saveAuditTrace(
+                                auditService.createAuditTraceCsrAttribute(csrAttr.getName(), csrAttr.getValue(), nv.getValue(), csr));
+
+                            csrAttr.setValue(nv.getValue());
+                            LOG.debug("CSR attribute {} updated to {}", csrAttr.getName(), csrAttr.getValue());
+                        }
+                    }
+                }
+            }
+        }
+        csrAttributeRepository.saveAll(csr.getCsrAttributes());
+    }
 
 
 }

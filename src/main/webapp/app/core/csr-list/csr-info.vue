@@ -111,11 +111,11 @@
                         </dd>
                     </Fragment>
 
-                    <dt>
+                    <dt v-if="cSR.pipeline && cSR.pipeline.name && cSR.pipeline.name.length > 0">
                         <span v-text="$t('ca3SApp.cSR.pipeline')">Pipeline</span>
                     </dt>
-                    <dd>
-                        <div v-if="cSR.pipeline">
+                    <dd v-if="cSR.pipeline && cSR.pipeline.name && cSR.pipeline.name.length > 0">
+                        <div>
                             <router-link :to="{name: 'PipelineView', params: {pipelineId: cSR.pipeline.id}}">{{cSR.pipeline.name}}</router-link>
                         </div>
                     </dd>
@@ -194,10 +194,14 @@
                         <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.withdraw')">Withdraw</span>
                     </button>
 
-                    <button type="button" id="withdraw" v-if="cSR.status === 'PENDING' && getUsername() === cSR.requestedBy" class="btn btn-secondary" v-on:click="updateCSR()">
+                    <button type="button" id="update" v-if="cSR.status === 'PENDING' && roles === 'ROLE_RA'" class="btn btn-secondary" v-on:click="updateCSR()">
                         <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.update')">Update</span>
                     </button>
 
+                    <button type="button" id="selfAdminister" v-if="cSR.status === 'PENDING' && getUsername() === cSR.requestedBy && roles !== 'ROLE_RA'"
+                            class="btn btn-secondary" v-on:click="selfAdministerRequest()">
+                        <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.update')">Update</span>
+                    </button>
 
                     <button type="button" id="confirm" v-if="cSR.status === 'PENDING' && roles === 'ROLE_RA'" class="btn btn-primary"
                         v-on:click="confirmCSR()">

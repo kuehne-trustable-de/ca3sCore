@@ -191,6 +191,19 @@ public class AuditService {
             null );
     }
 
+    public AuditTrace createAuditTraceCsrAttribute(final String attributeName, final String oldVal, final String newVal, final CSR csr){
+
+        NameAndRole nar = getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_PIPELINE + attributeName + AUDIT_CHANGED,
+            oldVal, newVal,
+            csr,
+            null,
+            null,
+            null,
+            null );
+    }
+
 
     public AuditTrace createAuditTrace(final String actor, final String actorRole, final String template,
                             final CSR csr,

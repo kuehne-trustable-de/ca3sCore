@@ -159,6 +159,13 @@ export default class CsrInfo extends mixins(JhiDataUtils, Vue) {
     this.sendAdministrationAction('api/administerRequest');
   }
 
+  public selfAdministerRequest() {
+    this.csrAdminData.csrId = this.cSR.id;
+    this.csrAdminData.administrationType = 'UPDATE';
+
+    this.sendAdministrationAction('api/selfAdministerRequest');
+  }
+
   public sansOnly(attArr: ICsrAttribute[]) {
     return attArr.filter(function(att) {
       return att.name === 'SAN';
