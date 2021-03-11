@@ -396,8 +396,9 @@
             <version>${liquibase.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.sabomichal</groupId>
+            <groupId>org.liquibase.ext</groupId>
             <artifactId>liquibase-mssql</artifactId>
+            <version>${liquibase.version}</version>
         </dependency>
         <dependency>
             <groupId>net.logstash.logback</groupId>
