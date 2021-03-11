@@ -8,12 +8,6 @@
     <property name="now" value="now()" dbms="mysql"/>
 	<property name="now" value="GETDATE()" dbms="mssql"/>
 
-    <property name="identity-on" value="SET IDENTITY_INSERT jhi_user ON" dbms="mssql"/>
-    <property name="identity-on" value="select '1'" dbms="h2, mysql, oracle, mssql, mariadb"/> <!-- do nothing ... -->
-
-    <property name="identity-off" value="SET IDENTITY_INSERT jhi_user OFF" dbms="mssql"/>
-    <property name="identity-off" value="select '1'" dbms="h2, mysql, oracle, mssql, mariadb"/>
-
     <property name="floatType" value="float4" dbms="postgresql, h2"/>
     <property name="floatType" value="float" dbms="mysql, oracle, mssql, mariadb"/>
     <property name="clobType" value="clob" dbms="h2"/>

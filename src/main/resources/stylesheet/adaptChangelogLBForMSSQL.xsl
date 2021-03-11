@@ -18,35 +18,37 @@
 			<xsl:apply-templates select="@*" />
 
         	<dbcl:property name="autoIncrement" value="true"/>
-        	
+
         	<xsl:if test="$InsertSequence = 'true'">
 	        	<dbcl:changeSet id="00000000000000" author="jhipster">
 	        		<dbcl:createSequence sequenceName="sequence_generator" startValue="1050" incrementBy="50"/>
 	    		</dbcl:changeSet>
         	</xsl:if>
-        	
+
 			<xsl:apply-templates select="node()" />
 		</xsl:copy>
 	</xsl:template>
 
-	<xsl:template match="dbcl:loadData">
-		<ext:loadData>
+	<xsl:template match="dbcl:loadData[@tableName = 'jhi_user']">
+        <sql>SET IDENTITY_INSERT jhi_user ON</sql>
+        <ext:loadData>
 			<xsl:apply-templates select="@*" />
 			<xsl:attribute name="identityInsertEnabled" select="'true'" />
-			
+
 			<xsl:apply-templates select="node()" />
 		</ext:loadData>
+        <sql>SET IDENTITY_INSERT jhi_user OFF</sql>
 	</xsl:template>
 
 
 	<xsl:template match="dbcl:changeSet [@id='1580410283605-305']"/>
-	
+
 	<xsl:template match="dbcl:databaseChangeLog/dbcl:property [@name='autoIncrement']"/>
-	
+
 	<xsl:template match="dbcl:constraints/@unique">
 		<xsl:attribute name="unique" select="'false'" />
 	</xsl:template>
-	
+
 	<xsl:template match="@* | node()">
 		<xsl:copy>
 			<xsl:apply-templates select="@* | node()" />

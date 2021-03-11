@@ -77,7 +77,6 @@
                                 columnDataType="varchar(60)"
                                 tableName="jhi_user"/>
 
-        <sql>${identity-on}</sql>
         <loadData
                   file="config/liquibase/data/user.csv"
                   separator=";"
@@ -85,7 +84,6 @@
             <column name="activated" type="boolean"/>
             <column name="created_date" type="timestamp"/>
         </loadData>
-        <sql>${identity-off}</sql>
 
         <dropDefaultValue tableName="jhi_user" columnName="created_date" columnDataType="datetime"/>
         <loadData
