@@ -30,14 +30,14 @@
 	</xsl:template>
 
 	<xsl:template match="dbcl:loadData[@tableName = 'jhi_user']">
-        <sql>SET IDENTITY_INSERT jhi_user ON</sql>
+        <ext:sql>SET IDENTITY_INSERT jhi_user ON</ext:sql>
         <ext:loadData>
 			<xsl:apply-templates select="@*" />
 			<xsl:attribute name="identityInsertEnabled" select="'true'" />
 
 			<xsl:apply-templates select="node()" />
 		</ext:loadData>
-        <sql>SET IDENTITY_INSERT jhi_user OFF</sql>
+        <ext:sql>SET IDENTITY_INSERT jhi_user OFF</ext:sql>
 	</xsl:template>
 
 
