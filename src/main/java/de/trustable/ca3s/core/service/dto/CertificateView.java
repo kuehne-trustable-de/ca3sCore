@@ -2,7 +2,9 @@ package de.trustable.ca3s.core.service.dto;
 
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
+import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.ca3s.core.web.rest.data.NamedValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,7 +79,11 @@ public class CertificateView implements Serializable {
 
 	private Boolean isServersideKeyGeneration = false;
 
-	private AuditView[] auditViewArr;
+	private String comment;
+
+    private AuditView[] auditViewArr;
+
+    private NamedValue[] arArr;
 
     public CertificateView() {}
 
@@ -157,8 +163,10 @@ public class CertificateView implements Serializable {
     			this.chainLength = Long.parseLong(certAttr.getValue());
     		} else if( CertificateAttribute.ATTRIBUTE_USAGE.equalsIgnoreCase(certAttr.getName())) {
     			usageList.add(certAttr.getValue());
-    		} else if(CertificateAttribute.ATTRIBUTE_EXTENDED_USAGE.equalsIgnoreCase(certAttr.getName())) {
-    			extUsageList.add(certAttr.getValue());
+            } else if(CertificateAttribute.ATTRIBUTE_EXTENDED_USAGE.equalsIgnoreCase(certAttr.getName())) {
+                extUsageList.add(certAttr.getValue());
+            } else if(CertificateAttribute.ATTRIBUTE_COMMENT.equalsIgnoreCase(certAttr.getName())) {
+                this.setComment(certAttr.getValue());
     		}else {
     			LOG.debug("Irrelevant certificate attribute '{}' with value '{}'", certAttr.getName(), certAttr.getValue());
 
@@ -168,6 +176,9 @@ public class CertificateView implements Serializable {
     	this.extUsage = extUsageList.toArray(new String[extUsageList.size()]);
 
     	this.downloadFilename = CertificateUtil.getDownloadFilename(cert);
+
+    	this.arArr = copyArAttributes(cert);
+
     }
 
 	public Long getId() {
@@ -546,6 +557,14 @@ public class CertificateView implements Serializable {
 		this.isServersideKeyGeneration = isServersideKeyGeneration;
 	}
 
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
     public AuditView[] getAuditViewArr() {
         return auditViewArr;
     }
@@ -553,4 +572,27 @@ public class CertificateView implements Serializable {
     public void setAuditViewArr(AuditView[] auditViewArr) {
         this.auditViewArr = auditViewArr;
     }
+
+    public NamedValue[] getArArr() {
+        return arArr;
+    }
+
+    public void setArArr(NamedValue[] arArr) {
+        this.arArr = arArr;
+    }
+
+    private NamedValue[] copyArAttributes(final Certificate cert) {
+
+        List<NamedValue> nvList = new ArrayList<>();
+        for(CertificateAttribute certAttr: cert.getCertificateAttributes()){
+            if(certAttr.getName().startsWith(CsrAttribute.ARA_PREFIX) ){
+                NamedValue nv = new NamedValue();
+                nv.setName(certAttr.getName().substring(CsrAttribute.ARA_PREFIX.length()));
+                nv.setValue(certAttr.getValue());
+                nvList.add(nv);
+            }
+        }
+        return nvList.toArray(new NamedValue[nvList.size()]);
+    }
+
 }

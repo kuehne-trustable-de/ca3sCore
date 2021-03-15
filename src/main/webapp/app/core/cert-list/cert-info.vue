@@ -54,20 +54,7 @@
                         <span v-if="certificateView.validTo">{{$d(Date.parse(certificateView.validTo), 'long') }}</span>
                     </dd>
 
-                    <!--dt>
-                        <span v-text="$t('ca3SApp.certificate.keyAlgorithm')">Key Algorithm</span>
-                    </dt>
-                    <dd>
-                        <span>{{certificateView.keyAlgorithm}}</span>
-                    </dd>
-                    <dt>
-                        <span v-text="$t('ca3SApp.certificate.keyLength')">Key Length</span>
-                    </dt>
-                    <dd>
-                        <span>{{certificateView.keyLength}}</span>
-                    </dd-->
-
-                    <dt>
+                     <dt>
                         <span v-text="$t('ca3SApp.certificate.keyDetails')">Key Details</span>
                     </dt>
                     <dd>
@@ -86,18 +73,6 @@
                     <dd>
                         <span>{{certificateView.signingAlgorithm}} / {{certificateView.hashAlgorithm}} / {{certificateView.paddingAlgorithm}}</span>
                     </dd>
-                    <!--dt>
-                        <span v-text="$t('ca3SApp.certificate.hashingAlgorithm')">Hashing Algorithm</span>
-                    </dt>
-                    <dd>
-                        <span>{{certificateView.hashAlgorithm}}</span>
-                    </dd>
-                    <dt>
-                        <span v-text="$t('ca3SApp.certificate.paddingAlgorithm')">Padding Algorithm</span>
-                    </dt>
-                    <dd>
-                        <span>{{certificateView.paddingAlgorithm}}</span>
-                    </dd-->
 
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.usage')">Usage</span>
@@ -163,6 +138,16 @@
                     <dd v-if="certificateView.requestedOn">
                         <span>{{certificateView.requestedOn}}</span>
                     </dd>
+
+                    <Fragment v-for="attr in certificateView.arArr" :key="attr.name" v-if="!isEditable()">
+                        <dt>
+                            <span >{{attr.name}}</span>
+                        </dt>
+                        <dd >
+                            <span >{{attr.value}}</span>
+                        </dd>
+                    </Fragment>
+
 
                     <dt v-if="certificateView.auditViewArr && certificateView.auditViewArr.length > 0">
                         <span v-text="$t('ca3SApp.certificate.audit')">Audit</span>
@@ -244,6 +229,14 @@
 -->
             <form name="editForm" role="form" novalidate>
                 <div>
+
+                    <Fragment v-if="isEditable()">
+                        <div v-for="attr in certificateView.arArr" :key="attr.name" class="form-group">
+                            <label class="form-control-label"  for="cert-ar-{attr.name}">{{attr.name}}</label>
+                            <input type="text" class="form-control" name="rejectionReason" id="cert-ar-{attr.name}" v-model="attr.value" />
+                        </div>
+                    </Fragment>
+
                     <div v-if="isRevocable()" class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.certificate.revocationReason')" for="cert-revocationReason">Revocation reason</label> <help-tag target="ca3SApp.certificate.download.revocationReason"/>
                         <select class="form-control" id="cert-revocationReason" name="revocationReason"  v-model="certificateAdminData.revocationReason">
@@ -270,6 +263,14 @@
                             v-on:click.prevent="previousState()"
                             class="btn btn-info">
                         <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.back')"> Back</span>
+                    </button>
+
+                    <button type="button" id="edit" v-if="isOwnCertificate()" class="btn btn-secondary" v-on:click="selfAdministerCertificate()">
+                        <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.edit')">Update</span>
+                    </button>
+
+                    <button type="button" id="update" v-if="isRAOfficer()" class="btn btn-secondary" v-on:click="updateCertificate()">
+                        <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.edit')">Update</span>
                     </button>
 
                     <button type="button" id="removeFromCRL" v-if="isRemovableFromCRL()" class="btn btn-secondary" v-on:click="removeCertificateFromCRL()">

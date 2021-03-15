@@ -115,7 +115,7 @@ public class CertificateAttribute implements Serializable {
 	public static final String ATTRIBUTE_CAS3_INTERMEDIATE = "CA3S:INTERMEDIATE";
 	public static final String ATTRIBUTE_END_ENTITY = "CA3S:END_ENTITY";
 	public static final String ATTRIBUTE_CHAIN_LENGTH = "CA3S:CHAIN_LENGTH";
-	
+
 	public static final String ATTRIBUTE_SUBJECT = "SUBJECT";
 	public static final String ATTRIBUTE_SAN = "SAN";
 	public static final String ATTRIBUTE_SUBJECT_RDN_PART = "SUBJECT_RDN_PART";
@@ -142,14 +142,14 @@ public class CertificateAttribute implements Serializable {
 	public static final String ATTRIBUTE_VALID_TO = "VALID_TO";
 	public static final String ATTRIBUTE_VALID_TO_TIMESTAMP = "VALID_TO_TIMESTAMP";
 	public static final String ATTRIBUTE_VALIDITY_PERIOD = "VALIDITY_PERIOD";
-	
+
 	public static final String ATTRIBUTE_CA_CONNECTOR_ID = "CA_CONNECTOR_ID";
 	public static final String ATTRIBUTE_CA_RESOLVED_TIMESTAMP = "CA_RESOLVED_TIMESTAMP";
 	public static final String ATTRIBUTE_CA_REVOKED_TIMESTAMP = "CA_REVOKED_TIMESTAMP";
 
 	public static final String ATTRIBUTE_CA_PROCESSING_ID = CsrAttribute.ATTRIBUTE_CA_PROCESSING_ID;
 	public static final String ATTRIBUTE_PROCESSING_CA = CsrAttribute.ATTRIBUTE_PROCESSING_CA;
-	
+
 	public static final String ATTRIBUTE_SOURCE = "SOURCE";
 
 	public static final String ATTRIBUTE_UPLOADED_BY = "UPLOADED_BY";
@@ -164,5 +164,6 @@ public class CertificateAttribute implements Serializable {
 
 	public static final String ATTRIBUTE_POLICY_ID = "POLICY_ID";
 
-    
+    public static final String ATTRIBUTE_COMMENT = "COMMENT";
+
 }

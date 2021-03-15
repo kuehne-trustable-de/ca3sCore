@@ -118,24 +118,31 @@ public class CaConnectorAdapter {
 			throw new GeneralSecurityException("CA connector not selected !");
 		}
 
-		if (CAConnectorType.ADCS.equals(caConfig.getCaConnectorType())) {
-			LOGGER.debug("CAConnectorType ADCS at " + caConfig.getCaUrl());
-			return adcsConnector.signCertificateRequest(csr, caConfig);
+        Certificate cert = signCSR(csr, caConfig);
 
-		} else if (CAConnectorType.CMP.equals(caConfig.getCaConnectorType())) {
-			LOGGER.debug("CAConnectorType CMP at " + caConfig.getCaUrl());
-			return cmpConnector.signCertificateRequest(csr, caConfig);
 
-		} else if (CAConnectorType.INTERNAL.equals(caConfig.getCaConnectorType())) {
-			LOGGER.debug("CAConnectorType INTERNAL ");
-			return internalConnector.signCertificateRequest(csr, caConfig);
+        return cert;
+    }
 
-		} else {
-			throw new GeneralSecurityException("unexpected ca connector type '" + caConfig.getCaConnectorType() + "' !");
-		}
-	}
+    private Certificate signCSR(CSR csr, CAConnectorConfig caConfig) throws GeneralSecurityException {
+        if (CAConnectorType.ADCS.equals(caConfig.getCaConnectorType())) {
+            LOGGER.debug("CAConnectorType ADCS at " + caConfig.getCaUrl());
+            return adcsConnector.signCertificateRequest(csr, caConfig);
 
-	/**
+        } else if (CAConnectorType.CMP.equals(caConfig.getCaConnectorType())) {
+            LOGGER.debug("CAConnectorType CMP at " + caConfig.getCaUrl());
+            return cmpConnector.signCertificateRequest(csr, caConfig);
+
+        } else if (CAConnectorType.INTERNAL.equals(caConfig.getCaConnectorType())) {
+            LOGGER.debug("CAConnectorType INTERNAL ");
+            return internalConnector.signCertificateRequest(csr, caConfig);
+
+        } else {
+            throw new GeneralSecurityException("unexpected ca connector type '" + caConfig.getCaConnectorType() + "' !");
+        }
+    }
+
+    /**
 	 *
 	 * @param certificateDao	certificateDao for revocation
 	 * @param crlReason			crl reason for revocation

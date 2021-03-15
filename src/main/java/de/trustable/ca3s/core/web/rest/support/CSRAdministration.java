@@ -83,15 +83,10 @@ public class CSRAdministration {
 			csr.setAdministeredBy(auth.getName());
             updateComment(adminData, csr);
 
-            if(AdministrationType.ACCEPT.equals(adminData.getAdministrationType()) ||
-                AdministrationType.UPDATE.equals(adminData.getAdministrationType())) {
-
-                updateARAttributes(adminData, csr);
-            }
-
             if(AdministrationType.ACCEPT.equals(adminData.getAdministrationType())){
     			csr.setApprovedOn(Instant.now());
-    			csrRepository.save(csr);
+                updateARAttributes(adminData, csr);
+                csrRepository.save(csr);
 
                 auditService.saveAuditTrace(auditService.createAuditTraceCsrAccepted(csr));
 
@@ -133,7 +128,8 @@ public class CSRAdministration {
     	    		return new ResponseEntity<Long>(adminData.getCsrId(), HttpStatus.BAD_REQUEST);
     			}
 
-    		}else {
+    		}else if(AdministrationType.REJECT.equals(adminData.getAdministrationType())){
+
     			csr.setRejectionReason(adminData.getRejectionReason());
     			csr.setRejectedOn(Instant.now());
     			csr.setStatus(CsrStatus.REJECTED);
@@ -158,6 +154,13 @@ public class CSRAdministration {
                 auditService.saveAuditTrace(auditService.createAuditTraceCsrRejected(csr));
 
         		return new ResponseEntity<Long>(adminData.getCsrId(), HttpStatus.OK);
+
+            }else if(AdministrationType.UPDATE.equals(adminData.getAdministrationType())){
+                updateARAttributes(adminData, csr);
+                return new ResponseEntity<Long>(adminData.getCsrId(), HttpStatus.OK);
+            } else {
+                LOG.info("administration type '{}' unexpected!", adminData.getAdministrationType());
+                return ResponseEntity.badRequest().build();
     		}
     	}else {
     		return ResponseEntity.notFound().build();

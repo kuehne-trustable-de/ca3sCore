@@ -42,8 +42,9 @@ public class AuditService {
     public static final String AUDIT_TLS_CERTIFICATE_IMPORTED = "TLS_CERTIFICATE_IMPORTED";
     public static final String AUDIT_TLS_INTERMEDIATE_CERTIFICATE_IMPORTED = "TLS_INTERMEDIATE_CERTIFICATE_IMPORTED";
 
-    public static final String AUDIT_PIPELINE = "PIPELINE_";
-    public static final String AUDIT_CHANGED = "_CHANGED";
+    public static final String AUDIT_PIPELINE_ATTRIBUTE_CHANGED = "PIPELINE_ATTRIBUTE_CHANGED";
+    public static final String AUDIT_CSR_ATTRIBUTE_CHANGED = "CSR_ATTRIBUTE_CHANGED";
+    public static final String AUDIT_CERTIFICATE_ATTRIBUTE_CHANGED = "CERTIFICATE_ATTRIBUTE_CHANGED";
 
     public static final String AUDIT_PIPELINE_CREATED = "PIPELINE_CREATED";
     public static final String AUDIT_PIPELINE_COPIED = "PIPELINE_COPIED";
@@ -182,7 +183,8 @@ public class AuditService {
 
         NameAndRole nar = getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),
-            AUDIT_PIPELINE + attributeName + AUDIT_CHANGED,
+            AUDIT_PIPELINE_ATTRIBUTE_CHANGED,
+            attributeName,
             oldVal, newVal,
             null,
             null,
@@ -195,10 +197,25 @@ public class AuditService {
 
         NameAndRole nar = getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),
-            AUDIT_PIPELINE + attributeName + AUDIT_CHANGED,
+            AUDIT_CSR_ATTRIBUTE_CHANGED,
+            attributeName,
             oldVal, newVal,
             csr,
             null,
+            null,
+            null,
+            null );
+    }
+
+    public AuditTrace createAuditTraceCertificateAttribute(final String attributeName, final String oldVal, final String newVal, final Certificate certificate){
+
+        NameAndRole nar = getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_CERTIFICATE_ATTRIBUTE_CHANGED,
+            attributeName,
+            oldVal, newVal,
+            null,
+            certificate,
             null,
             null,
             null );
@@ -222,17 +239,40 @@ public class AuditService {
     }
 
     public AuditTrace createAuditTrace(final String actor, final String actorRole, final String template,
-                                 final String oldVal, final String newVal,
-                                 final CSR csr,
-                                 final Certificate certificate,
-                                 final Pipeline pipeline,
-                                 final CAConnectorConfig caConnector,
-                                 final BPMNProcessInfo processInfo ){
+                                       final String oldVal, final String newVal,
+                                       final CSR csr,
+                                       final Certificate certificate,
+                                       final Pipeline pipeline,
+                                       final CAConnectorConfig caConnector,
+                                       final BPMNProcessInfo processInfo ){
+
+        return createAuditTrace(actor, actorRole, template,
+        null,
+        oldVal, newVal,
+        csr,
+        certificate,
+        pipeline,
+        caConnector,
+        processInfo );
+    }
+
+    public AuditTrace createAuditTrace(final String actor, final String actorRole, final String template,
+       final String attributeName,
+       final String oldVal, final String newVal,
+        final CSR csr,
+        final Certificate certificate,
+        final Pipeline pipeline,
+        final CAConnectorConfig caConnector,
+        final BPMNProcessInfo processInfo ){
 
         String msg = template;
 
-        if( oldVal != null || newVal != null) {
-            msg = template + ",'" + CryptoUtil.limitLength(oldVal, 100) + "', '" + CryptoUtil.limitLength(newVal, 100) + "'";
+        if(attributeName != null) {
+            msg = template + ",'" + CryptoUtil.limitLength(attributeName, 30) + "'";
+        }
+
+        if(oldVal != null || newVal != null) {
+            msg += ",'" + CryptoUtil.limitLength(oldVal, 100) + "', '" + CryptoUtil.limitLength(newVal, 100) + "'";
         }
 
         applicationEventPublisher.publishEvent(new AuditApplicationEvent( actor, template, msg));

@@ -1,9 +1,7 @@
 package de.trustable.ca3s.core.web.rest.support;
 
-import de.trustable.ca3s.core.domain.CSR;
-import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.CertificateAttribute;
-import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.repository.CertificateAttributeRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.schedule.CertExpiryScheduler;
@@ -11,7 +9,10 @@ import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.MailService;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.ca3s.core.web.rest.data.AdministrationType;
+import de.trustable.ca3s.core.web.rest.data.CSRAdministrationData;
 import de.trustable.ca3s.core.web.rest.data.CertificateAdministrationData;
+import de.trustable.ca3s.core.web.rest.data.NamedValue;
 import de.trustable.util.CryptoUtil;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.slf4j.Logger;
@@ -47,7 +48,10 @@ public class CertificateAdministration {
     @Autowired
     private CertificateRepository certificateRepository;
 
-	@Autowired
+    @Autowired
+    private CertificateAttributeRepository certificateAttributeRepository;
+
+    @Autowired
 	private BPMNUtil bpmnUtil;
 
 	@Autowired
@@ -88,36 +92,41 @@ public class CertificateAdministration {
 
     		Certificate cert = optCert.get();
 
-    		try {
-				revokeCertificate(cert, adminData, raOfficerName);
+            try {
+                if(AdministrationType.REVOKE.equals(adminData.getAdministrationType())){
+                    revokeCertificate(cert, adminData, raOfficerName);
 
-				CSR csr = cert.getCsr();
-				if( csr != null) {
-					Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());
-					if( optUser.isPresent()) {
-						User requestor = optUser.get();
-				        if (requestor.getEmail() == null) {
-				        	LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
-				        }else {
+                    CSR csr = cert.getCsr();
+                    if (csr != null) {
+                        Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());
+                        if (optUser.isPresent()) {
+                            User requestor = optUser.get();
+                            if (requestor.getEmail() == null) {
+                                LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
+                            } else {
 
-					        Locale locale = Locale.forLanguageTag(requestor.getLangKey());
-					        Context context = new Context(locale);
-					        context.setVariable("csr", csr);
-					        context.setVariable("cert", cert);
-					        String subject = cert.getSubject();
-					        if( subject == null ) {
-					        	subject =  "";
-					        }
-					        String[] args = {subject, cert.getSerial(), cert.getIssuer()};
-					        mailService.sendEmailFromTemplate(context, requestor, "mail/revokedCertificateEmail", "email.revokedCertificate.title", args);
-				        }
-					} else {
-						LOG.info("certificate requestor '{}' unknown!", csr.getRequestedBy());
-					}
-				}
-
-	    		return new ResponseEntity<Long>(adminData.getCertificateId(), HttpStatus.OK);
-
+                                Locale locale = Locale.forLanguageTag(requestor.getLangKey());
+                                Context context = new Context(locale);
+                                context.setVariable("csr", csr);
+                                context.setVariable("cert", cert);
+                                String subject = cert.getSubject();
+                                if (subject == null) {
+                                    subject = "";
+                                }
+                                String[] args = {subject, cert.getSerial(), cert.getIssuer()};
+                                mailService.sendEmailFromTemplate(context, requestor, "mail/revokedCertificateEmail", "email.revokedCertificate.title", args);
+                            }
+                        } else {
+                            LOG.info("certificate requestor '{}' unknown!", csr.getRequestedBy());
+                        }
+                    }
+                } else if(AdministrationType.UPDATE.equals(adminData.getAdministrationType())){
+                    updateARAttributes(adminData, cert);
+                } else {
+                    LOG.info("administration type '{}' unexpected!", adminData.getAdministrationType());
+                    return ResponseEntity.badRequest().build();
+                }
+                return new ResponseEntity<Long>(adminData.getCertificateId(), HttpStatus.OK);
 			} catch (GeneralSecurityException e) {
 	    		return ResponseEntity.badRequest().build();
 			}
@@ -160,10 +169,6 @@ public class CertificateAdministration {
 
     		try {
 	    		revokeCertificate(certificate, adminData, userName);
-
-//				applicationEventPublisher.publishEvent(
-//				        new AuditApplicationEvent(
-//				        		userName, AuditService.AUDIT_CERTIFICATE_REVOKED, "certificate " + certificate.getId() + " revoked by owner '" + userName + "'"));
 
 	    		return new ResponseEntity<Long>(adminData.getCertificateId(), HttpStatus.OK);
 
@@ -234,4 +239,89 @@ public class CertificateAdministration {
     	int nExpiringCerts = certExpiryScheduler.notifyRAOfficerHolderOnExpiry();
 		return new ResponseEntity<Integer>(nExpiringCerts, HttpStatus.OK);
     }
+
+//    selfAdministerCertificate
+
+    /**
+     * {@code POST  /selfAdministerCertificate} : update own certificate's attributes .
+     *
+     * @param adminData a structure holding certificate specific data
+     * @return the {@link ResponseEntity} .
+     */
+    @PostMapping("/selfAdministerCertificate")
+    @Transactional
+    public ResponseEntity<Long> selfAdministerCertificate(@Valid @RequestBody CertificateAdministrationData adminData) {
+
+        LOG.debug("REST request to update certificate : {}", adminData);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String userName = auth.getName();
+
+        Optional<Certificate> optCert = certificateRepository.findById(adminData.getCertificateId());
+        if( optCert.isPresent()) {
+
+            Certificate certificate = optCert.get();
+
+            String requestedBy = null;
+            if( certificate.getCsr() != null){
+                requestedBy = certificate.getCsr().getRequestedBy();
+            }
+            if( userName == null ||
+                !userName.equals(requestedBy) ){
+
+                LOG.debug("REST request by '{}' to update certificate '{}' rejected ", userName, adminData.getCertificateId());
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+
+            updateARAttributes(adminData, certificate);
+            updateComment(adminData, certificate);
+
+            certificateRepository.save(certificate);
+
+            return new ResponseEntity<Long>(adminData.getCertificateId(), HttpStatus.OK);
+
+        }else {
+            return ResponseEntity.notFound().build();
+        }
+
+    }
+
+    private void updateComment(CertificateAdministrationData adminData, Certificate cert) {
+        String currentComment = certUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_COMMENT);
+
+        if( adminData.getComment() == null ) {
+            adminData.setComment("");
+        }
+
+        if( !adminData.getComment().trim().equals(currentComment) ) {
+            auditService.saveAuditTrace(
+                auditService.createAuditTraceCertificateAttribute("Comment", currentComment, adminData.getComment(), cert));
+            certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_COMMENT, adminData.getComment());
+        }
+    }
+
+
+    private void updateARAttributes(CertificateAdministrationData adminData, Certificate cert ) {
+
+        for(CertificateAttribute certAttr: cert.getCertificateAttributes()){
+            if(certAttr.getName().startsWith(CsrAttribute.ARA_PREFIX) ){
+                for(NamedValue nv: adminData.getArAttributeArr()){
+                    if( certAttr.getName().equals(CsrAttribute.ARA_PREFIX + nv.getName())){
+                        if( !certAttr.getValue().equals(nv.getValue())) {
+                            auditService.saveAuditTrace(
+                                auditService.createAuditTraceCertificateAttribute(certAttr.getName(), certAttr.getValue(), nv.getValue(), cert));
+
+                            certAttr.setValue(nv.getValue());
+                            LOG.debug("certificate attribute {} updated to {}", certAttr.getName(), certAttr.getValue());
+                        }
+                    }
+                }
+            }
+        }
+        certificateAttributeRepository.saveAll(cert.getCertificateAttributes());
+    }
+
+
+
 }

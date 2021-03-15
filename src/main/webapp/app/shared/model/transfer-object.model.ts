@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2021-03-10 18:47:49.
+// Generated using typescript-generator version 2.19.577 on 2021-03-15 22:37:20.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -93,7 +93,9 @@ export interface ICertificateView extends ISerializable {
   certB64?: string;
   downloadFilename?: string;
   isServersideKeyGeneration?: boolean;
+  comment?: string;
   auditViewArr?: IAuditView[];
+  arArr?: INamedValue[];
 }
 
 export interface ICSRView extends ISerializable {
@@ -135,6 +137,8 @@ export interface ICertificateAdministrationData extends ISerializable {
   certificateId?: number;
   revocationReason?: string;
   comment?: string;
+  administrationType?: IAdministrationType;
+  arAttributes?: INamedValue[];
 }
 
 export interface IUploadPrecheckData {
@@ -298,7 +302,7 @@ export type IPipelineType = 'ACME' | 'SCEP' | 'WEB' | 'INTERNAL';
 
 export type ICsrStatus = 'PROCESSING' | 'ISSUED' | 'REJECTED' | 'PENDING';
 
-export type IAdministrationType = 'ACCEPT' | 'REJECT' | 'UPDATE';
+export type IAdministrationType = 'ACCEPT' | 'REJECT' | 'REVOKE' | 'UPDATE';
 
 export type ICreationMode = 'CSR_AVAILABLE' | 'COMMANDLINE_TOOL' | 'SERVERSIDE_KEY_CREATION';
 

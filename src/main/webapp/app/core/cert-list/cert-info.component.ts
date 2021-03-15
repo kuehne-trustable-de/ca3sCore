@@ -1,4 +1,5 @@
 import { Component, Inject } from 'vue-property-decorator';
+import { Fragment } from 'vue-fragment';
 
 import { mixins } from 'vue-class-component';
 import JhiDataUtils from '@/shared/data/data-utils.service';
@@ -6,7 +7,7 @@ import AlertService from '@/shared/alert/alert.service';
 import CopyClipboardButton from '@/shared/clipboard/clipboard.vue';
 import HelpTag from '@/core/help/help-tag.vue';
 
-import { ICertificateView } from '@/shared/model/transfer-object.model';
+import { ICertificateView, INamedValue } from '@/shared/model/transfer-object.model';
 import CertificateViewService from '../../entities/certificate/certificate-view.service';
 
 import axios from 'axios';
@@ -14,6 +15,7 @@ import { ICertificateAdministrationData } from '@/shared/model/transfer-object.m
 
 @Component({
   components: {
+    Fragment,
     CopyClipboardButton,
     HelpTag
   }
@@ -106,6 +108,8 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
       .find(certificateId)
       .then(res => {
         this.certificateView = res;
+        this.certificateAdminData.arAttributes = this.certificateView.arArr;
+        this.certificateAdminData.comment = this.certificateView.comment;
       });
   }
 
@@ -119,6 +123,10 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
 
   public getUsername(): string {
     return this.$store.getters.account ? this.$store.getters.account.login : '';
+  }
+
+  public isEditable() {
+    return this.isRAOfficer() || this.isOwnCertificate();
   }
 
   public isRevocable() {
@@ -147,19 +155,34 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
     return this.getUsername() === this.certificateView.requestedBy;
   }
 
+  public updateCertificate() {
+    this.certificateAdminData.certificateId = this.certificateView.id;
+    this.certificateAdminData.administrationType = 'UPDATE';
+    this.sendAdministrationAction('api/administerCertificate');
+  }
+
   public removeCertificateFromCRL() {
     this.certificateAdminData.certificateId = this.certificateView.id;
     this.certificateAdminData.revocationReason = 'removeFromCRL';
+    this.certificateAdminData.administrationType = 'REVOKE';
     this.sendAdministrationAction('api/administerCertificate');
   }
 
   public revokeCertificate() {
     this.certificateAdminData.certificateId = this.certificateView.id;
+    this.certificateAdminData.administrationType = 'REVOKE';
     this.sendAdministrationAction('api/administerCertificate');
+  }
+
+  public selfAdministerCertificate() {
+    this.certificateAdminData.certificateId = this.certificateView.id;
+    this.certificateAdminData.administrationType = 'UPDATE';
+    this.sendAdministrationAction('api/selfAdministerCertificate');
   }
 
   public withdrawCertificate() {
     this.certificateAdminData.certificateId = this.certificateView.id;
+    this.certificateAdminData.administrationType = 'REVOKE';
     this.sendAdministrationAction('api/withdrawOwnCertificate');
   }
 

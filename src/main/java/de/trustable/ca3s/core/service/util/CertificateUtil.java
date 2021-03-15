@@ -40,6 +40,7 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
+import de.trustable.ca3s.core.web.rest.data.NamedValue;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.bouncycastle.asn1.ASN1Encodable;
@@ -164,8 +165,10 @@ public class CertificateUtil {
 
 	        return createCertificate(pemCert, csr, executionId, reimport, importUrl);
     	} catch (GeneralSecurityException | IOException e) {
+            LOG.debug("problem importing certificate: " + e.getMessage(), e);
     		throw e;
     	} catch (Throwable th) {
+            LOG.debug("problem importing certificate: " + th.getMessage(), th);
     		throw new GeneralSecurityException("problem importing certificate: " + th.getMessage());
     	}
     }
@@ -452,6 +455,8 @@ public class CertificateUtil {
 
 		addAdditionalCertificateAttributes(x509Cert, cert);
 
+		copyArAttributes(csr, cert);
+
 		certificateRepository.save(cert);
 		certificateAttributeRepository.saveAll(cert.getCertificateAttributes());
 
@@ -514,8 +519,21 @@ public class CertificateUtil {
 		return cert;
 	}
 
+    private void copyArAttributes(final CSR csr, final Certificate cert) {
 
-	/**
+	    if( csr == null || cert == null ){
+	        return;
+        }
+
+        for(CsrAttribute csrAttr: csr.getCsrAttributes()){
+            if(csrAttr.getName().startsWith(CsrAttribute.ARA_PREFIX) ){
+                setCertAttribute(cert, csrAttr.getName(), csrAttr.getValue());
+            }
+        }
+    }
+
+
+    /**
 	 * @param x509Cert
 	 * @param cert
 	 * @throws CertificateParsingException

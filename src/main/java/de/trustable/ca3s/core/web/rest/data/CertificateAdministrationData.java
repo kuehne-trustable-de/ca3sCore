@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class CertificateAdministrationData implements Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -106242086994826660L;
 
@@ -19,11 +19,19 @@ public class CertificateAdministrationData implements Serializable {
 
 	@JsonProperty("revocationReason")
 	private String revocationReason;
-	
+
 	@JsonProperty("comment")
 	private String comment;
 
-	public Long getCertificateId() {
+    @NotNull
+    @JsonProperty("administrationType")
+    private AdministrationType administrationType;
+
+    @JsonProperty("arAttributes")
+    private NamedValue[] arAttributeArr;
+
+
+    public Long getCertificateId() {
 		return certificateId;
 	}
 
@@ -49,5 +57,20 @@ public class CertificateAdministrationData implements Serializable {
 	public void setRevocationReason(String revovationReason) {
 		this.revocationReason = revovationReason;
 	}
-	
+
+    public AdministrationType getAdministrationType() {
+        return administrationType;
+    }
+
+    public void setAdministrationType(AdministrationType administrationType) {
+        this.administrationType = administrationType;
+    }
+
+    public NamedValue[] getArAttributeArr() {
+        return arAttributeArr;
+    }
+
+    public void setArAttributeArr(NamedValue[] arAttributeArr) {
+        this.arAttributeArr = arAttributeArr;
+    }
 }

@@ -41,7 +41,7 @@ public class CaBackendTask implements JavaDelegate {
 
 	@Autowired
 	private ConfigUtil configUtil;
-	
+
 	@Autowired
 	private CaConnectorAdapter caConnAdapter;
 
@@ -67,18 +67,18 @@ public class CaBackendTask implements JavaDelegate {
 
 		String caConfigIdStr = execution.getVariable("caConfigId").toString();
 		long caConfigId = Long.parseLong(caConfigIdStr);
-		
+
 		Optional<CAConnectorConfig> caConnOpt = caccRepo.findById(caConfigId);
 		if (!caConnOpt.isPresent()) {
 			execution.setVariable("failureReason", "certificate Id '" + caConfigId + "' not found.");
 			return;
 		}
-		
+
 		CAConnectorConfig caConfig = caConnOpt.get();
-		
+
 		if(caConfig == null) {
 			LOGGER.debug("caName NOT set by calling BPNM process");
-			
+
 			caConfig = configUtil.getDefaultConfig();
 			if(caConfig == null) {
 				LOGGER.error("no default CA available");
@@ -87,22 +87,22 @@ public class CaBackendTask implements JavaDelegate {
 				LOGGER.debug("using '{}' as the default CA ", caConfig.getName());
 			}
 		}
-		
-		
+
+
 		try {
 
 			if ("Revoke".equals(action)) {
 
 				Certificate revokeCert = (Certificate)execution.getVariable("certificate");
-				
+
 				if( revokeCert == null ) {
 					String revokeCertIdStr = execution.getVariable("certificateId").toString();
-					
+
 					long certificateId = -1;
 					try {
 						certificateId = Long.parseLong(revokeCertIdStr);
 						LOGGER.debug("execution.getVariable('certificateId') : " + certificateId);
-						
+
 						Optional<Certificate> certificateOpt = certificateRepository.findById(certificateId);
 
 						if (!certificateOpt.isPresent()) {
@@ -119,7 +119,7 @@ public class CaBackendTask implements JavaDelegate {
 						return;
 					}
 				}
-				
+
 				String revocationReasonStr = (String) execution.getVariable("revocationReason");
 				if (revocationReasonStr != null) {
 					revocationReasonStr = revocationReasonStr.trim();
@@ -158,27 +158,28 @@ public class CaBackendTask implements JavaDelegate {
 				if( csr == null) {
 					String csrIdString = execution.getVariable("csrId").toString();
 					long csrId = Long.parseLong(csrIdString);
-	
-	
+
+
 					Optional<CSR> csrOpt = csrRepository.findById(csrId);
 					if (!csrOpt.isPresent()) {
 						execution.setVariable("failureReason", "csr Id '" + csrId + "' not found.");
 						return;
 					}
-	
+
 					csr = csrOpt.get();
 				}
-				
+
 				Certificate cert = caConnAdapter.signCertificateRequest(csr, caConfig);
-				
+
     			if(cert != null) {
     				cert.setCreationExecutionId(execution.getProcessInstanceId());
-    				certificateRepository.save(cert);       			
+
+    				certificateRepository.save(cert);
     				LOGGER.debug("certificateId " + cert.getId());
     			}else {
     				LOGGER.warn("ceated certificate for csr #" + csr.getId() + " == null!");
     			}
-    			
+
 
 				execution.setVariable("certificateId", cert.getId());
 				execution.setVariable("certificate", cert);
