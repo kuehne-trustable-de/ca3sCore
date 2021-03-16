@@ -67,8 +67,8 @@ public class CSRSubmitIT extends WebTestBase{
 
     public static final By LOC_TEXT_CSR_HEADER = By.xpath("//div/h2/span [text() = 'CSR']");
 
-    public static final By LOC_TEXT_REQUEST_LIST = By.xpath("//div [text() = 'Request List']");
-    public static final By LOC_TEXT_CERTIFICATE_LIST = By.xpath("//div [text() = 'Certificate list']");
+    public static final By LOC_TEXT_REQUEST_LIST = By.xpath("//div/h2/span [text() = 'Request List']");
+    public static final By LOC_TEXT_CERTIFICATE_LIST = By.xpath("//div/h2/span [text() = 'Certificate List']");
 
     public static final By LOC_SEL_CSR_ATTRIBUTE = By.xpath("//div/select [@name = 'csrSelectionAttribute']");
     public static final By LOC_SEL_CSR_CHOICE = By.xpath("//div/select [@name = 'csrSelectionChoice']");
@@ -86,7 +86,7 @@ public class CSRSubmitIT extends WebTestBase{
 
     public static final By LOC_TD_CSR_ITEM_PENDING = By.xpath("//table//td [starts-with(text(), 'PENDING')]");
 
-    public static final By LOC_TA_DOWNLOAD_CERT_CONTENT = By.xpath("//dd/span/textarea [@name = 'certContent']");
+    public static final By LOC_TA_DOWNLOAD_CERT_CONTENT = By.xpath("//dd/div/textarea [@name = 'certContent']");
     public static final By LOC_TEXT_CERT_REVOCATION_REASON = By.xpath("//div//dd/span[@name = 'revocationReason']");
 
 
@@ -250,11 +250,11 @@ public class CSRSubmitIT extends WebTestBase{
 
 	    // select the certificate in the cert list
 	    validatePresent(LOC_SEL_CERT_ATTRIBUTE);
-	    selectOptionByText(LOC_SEL_CERT_ATTRIBUTE, "subject");
+	    selectOptionByText(LOC_SEL_CERT_ATTRIBUTE, "Subject");
 
 	    validatePresent(LOC_SEL_CERT_CHOICE);
 
-	    selectOptionByText(LOC_SEL_CERT_CHOICE, "EQUAL");
+	    selectOptionByText(LOC_SEL_CERT_CHOICE, "equals");
 
 	    validatePresent(LOC_INP_CERT_VALUE);
 	    setText(LOC_INP_CERT_VALUE, cn);
@@ -320,11 +320,11 @@ public class CSRSubmitIT extends WebTestBase{
 
 	    // select the certificate in the cert list
 	    validatePresent(LOC_SEL_CERT_ATTRIBUTE);
-	    selectOptionByText(LOC_SEL_CERT_ATTRIBUTE, "subject");
+	    selectOptionByText(LOC_SEL_CERT_ATTRIBUTE, "Subject");
 
 	    validatePresent(LOC_SEL_CERT_CHOICE);
 
-	    selectOptionByText(LOC_SEL_CERT_CHOICE, "EQUAL");
+	    selectOptionByText(LOC_SEL_CERT_CHOICE, "equals");
 
 	    validatePresent(LOC_INP_CERT_VALUE);
 	    setText(LOC_INP_CERT_VALUE, cn);
@@ -372,11 +372,11 @@ public class CSRSubmitIT extends WebTestBase{
 	    validatePresent(LOC_TEXT_REQUEST_LIST);
 
 	    validatePresent(LOC_SEL_CSR_ATTRIBUTE);
-	    selectOptionByText(LOC_SEL_CSR_ATTRIBUTE, "subject");
+	    selectOptionByText(LOC_SEL_CSR_ATTRIBUTE, "Subject");
 
 	    validatePresent(LOC_SEL_CSR_CHOICE);
 
-	    selectOptionByText(LOC_SEL_CSR_CHOICE, "EQUAL");
+	    selectOptionByText(LOC_SEL_CSR_CHOICE, "equals");
 
 	    validatePresent(LOC_INP_CSR_VALUE);
 	    setText(LOC_INP_CSR_VALUE, cn);
@@ -407,11 +407,11 @@ public class CSRSubmitIT extends WebTestBase{
 
 
 	    validatePresent(LOC_SEL_CERT_ATTRIBUTE);
-	    selectOptionByText(LOC_SEL_CERT_ATTRIBUTE, "subject");
+	    selectOptionByText(LOC_SEL_CERT_ATTRIBUTE, "Subject");
 
 	    validatePresent(LOC_SEL_CERT_CHOICE);
 
-	    selectOptionByText(LOC_SEL_CERT_CHOICE, "EQUAL");
+	    selectOptionByText(LOC_SEL_CERT_CHOICE, "equals");
 
 	    validatePresent(LOC_INP_CERT_VALUE);
 	    setText(LOC_INP_CERT_VALUE, cn);
