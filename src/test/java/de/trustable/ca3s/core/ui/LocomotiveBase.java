@@ -1,9 +1,5 @@
 package de.trustable.ca3s.core.ui;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -54,6 +50,8 @@ import io.ddavison.conductor.Browser;
 import io.ddavison.conductor.Conductor;
 import io.ddavison.conductor.Config;
 import org.springframework.util.ResourceUtils;
+
+import static org.junit.Assert.*;
 
 public class LocomotiveBase implements Conductor<LocomotiveBase>{
 
@@ -301,7 +299,7 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
             System.setProperty("webdriver.chrome.driver", findFile("chromedriver.exe"));
             System.setProperty("webdriver.ie.driver", findFile("iedriver.exe"));
         } else {
-
+            System.err.println("Unexpected OS name '" + getJvmProperty("os.name") + "' !");
         }
     }
 
@@ -324,6 +322,14 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
      */
     public WebElement waitForElement(By by) {
         int attempts = 0;
+
+        try {
+            Thread.sleep(500); // sleep for 1 second.
+        } catch (Exception x) {
+            fail("Failed due to an exception during Thread.sleep!");
+            x.printStackTrace();
+        }
+
         int size = driver.findElements(by).size();
 
         while (size == 0) {
@@ -666,7 +672,7 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
     public LocomotiveBase validateText(By by, String text) {
         String actual = getText(by);
 
-        assertTrue(String.format("Text does not match! [expected: %s] [actual: %s]", text, actual), text.equals(actual));
+        assertEquals(String.format("Text does not match! [expected: %s] [actual: %s]", text, actual), text, actual);
         return this;
     }
 
@@ -685,7 +691,7 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
     public LocomotiveBase validateTextNot(By by, String text) {
         String actual = getText(by);
 
-        assertFalse(String.format("Text matches! [expected: %s] [actual: %s]", text, actual), text.equals(actual));
+        assertNotEquals(String.format("Text matches! [expected: %s] [actual: %s]", text, actual), text, actual);
         return this;
     }
 

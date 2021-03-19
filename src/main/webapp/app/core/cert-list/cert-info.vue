@@ -164,7 +164,7 @@
                             </thead>
                             <tbody>
                             <tr v-for="audit in certificateView.auditViewArr" :key="audit.id">
-                                <td>{{$d(Date.parse(audit.createdOn), 'long') }}</td>
+                                <td>{{$d(Date.parse(audit.createdOn), 'short') }}</td>
                                 <td>{{audit.actorRole}}</td>
                                 <td>{{audit.actorName}}</td>
                                 <td>{{audit.plainContent}}</td>

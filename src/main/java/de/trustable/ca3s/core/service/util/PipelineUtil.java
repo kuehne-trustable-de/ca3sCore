@@ -436,17 +436,20 @@ public class PipelineUtil {
 
 		Optional<BPMNProcessInfo> bpiOpt = bpmnPIRepository.findByName(pv.getProcessInfoName());
 		if( bpiOpt.isPresent()) {
-			p.setProcessInfo(bpiOpt.get());
-            if( !bpiOpt.get().getName().equals(oldProcessName) ) {
-                auditList.add(auditService.createAuditTracePipelineAttribute("ISSUANCE_PROCESS", oldProcessName, bpiOpt.get().getName(), p));
+            BPMNProcessInfo bpi = bpiOpt.get();
+			p.setProcessInfo(bpi);
+            if( !bpi.getName().equals(oldProcessName) ) {
+                auditList.add(auditService.createAuditTracePipelineAttribute("ISSUANCE_PROCESS", oldProcessName, bpi.getName(), p));
             }
 		}else {
 			p.setProcessInfo(null);
-            auditList.add(auditService.createAuditTracePipelineAttribute( "ISSUANCE_PROCESS", oldProcessName, "", p));
+			if( !oldProcessName.equals("")) {
+                auditList.add(auditService.createAuditTracePipelineAttribute("ISSUANCE_PROCESS", oldProcessName, "", p));
+            }
 		}
 
         Set<PipelineAttribute> pipelineOldAttributes = new HashSet<PipelineAttribute>(p.getPipelineAttributes());
-        LOG.debug("PipelineAttributes : coned old #{}, new {}", pipelineOldAttributes.size(), p.getPipelineAttributes().size());
+        LOG.debug("PipelineAttributes : cloned old #{}, new {}", pipelineOldAttributes.size(), p.getPipelineAttributes().size());
 
         Set<PipelineAttribute> pipelineAttributes = new HashSet<PipelineAttribute>();
 

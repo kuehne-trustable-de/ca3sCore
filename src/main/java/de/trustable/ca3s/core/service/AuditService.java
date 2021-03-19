@@ -277,7 +277,7 @@ public class AuditService {
 
         applicationEventPublisher.publishEvent(new AuditApplicationEvent( actor, template, msg));
 
-        log.debug("Audit trace for {}, oldVAl {}, newVal {} ", template, oldVal, newVal);
+        log.debug("Audit trace for {}, oldVal {}, newVal {} ", template, oldVal, newVal);
 
 		AuditTrace auditTrace = new AuditTrace();
         auditTrace.setActorName(CryptoUtil.limitLength(actor, 50));
