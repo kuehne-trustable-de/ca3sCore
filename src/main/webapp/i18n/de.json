@@ -981,5 +981,8 @@
   "PROCESSING": "In Bearbeitung",
   "ISSUED": "Ausgestellt",
   "REJECTED": "Abgelehnt",
-  "PENDING": "Auf Freigabe wartend"
+  "PENDING": "Auf Freigabe wartend",
+  "ROLE_USER": "User",
+  "ROLE_RA": "RA Mitarbeiter",
+  "ROLE_ADMIN": "Administrator"
 }

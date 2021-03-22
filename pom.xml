@@ -159,8 +159,9 @@
         <camunda.spring-boot.version>3.2.0</camunda.spring-boot.version>
 
 		<crawler4jVersion>4.4.0</crawler4jVersion>
+        <commonmarkVersion>0.17.1</commonmarkVersion>
 
-         <conductorVersion>3.0.1</conductorVersion>
+        <conductorVersion>3.0.1</conductorVersion>
 
         <xml.maven.saxon.version>9.7.0-18</xml.maven.saxon.version>
         <xml.maven.plugin.version>1.0.2</xml.maven.plugin.version>
@@ -733,6 +734,11 @@
 			<version>${crawler4jVersion}</version>
 		</dependency>
 
+        <dependency>
+            <groupId>org.commonmark</groupId>
+            <artifactId>commonmark</artifactId>
+            <version>${commonmarkVersion}</version>
+        </dependency>
    <!--  start of test dependencies -->
    		<dependency>
 			<groupId>junit</groupId>
@@ -1112,7 +1118,7 @@
                 </executions>
             </plugin>
 
-	      <!-- plugin>
+	      <plugin>
 	        <groupId>org.codehaus.mojo</groupId>
 	        <artifactId>license-maven-plugin</artifactId>
 	        <version>2.0.0</version>
@@ -1124,7 +1130,7 @@
 	            </goals>
 	          </execution>
 	        </executions>
-	      </plugin-->
+	      </plugin>
 
         </plugins>
 

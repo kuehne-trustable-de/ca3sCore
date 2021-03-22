@@ -983,5 +983,8 @@
   "PROCESSING": "Processing",
   "ISSUED": "Issued",
   "REJECTED": "Rejected",
-  "PENDING": "Pending"
+  "PENDING": "Pending",
+  "ROLE_USER": "User",
+  "ROLE_RA": "RA officer",
+  "ROLE_ADMIN": "Administrator"
 }

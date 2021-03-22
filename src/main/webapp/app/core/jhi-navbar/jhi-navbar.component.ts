@@ -68,7 +68,7 @@ export default class JhiNavbar extends Vue {
         if (roles.length > 0) {
           roles += ', ';
         }
-        roles += role;
+        roles += this.$t(role);
       }
     }
     return roles;
