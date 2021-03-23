@@ -186,6 +186,21 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
     this.sendAdministrationAction('api/withdrawOwnCertificate');
   }
 
+  public localizedContent(template: string, contentParts: string[]) {
+    const len = contentParts.length;
+    console.log('localizedContent: ' + template + ',  #' + len);
+
+    if (len === 0) {
+      return this.$t(template);
+    } else if (len === 1) {
+      return this.$t(template, { val: contentParts[0] });
+    } else if (len === 2) {
+      return this.$t(template, { oldVal: contentParts[0], newVal: contentParts[1] });
+    } else {
+      return this.$t(template, { attribute: contentParts[0], oldVal: contentParts[1], newVal: contentParts[2] });
+    }
+  }
+
   sendAdministrationAction(adminUrl: string) {
     document.body.style.cursor = 'wait';
     const self = this;

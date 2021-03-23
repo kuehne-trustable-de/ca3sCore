@@ -265,19 +265,19 @@ public class AuditService {
         final CAConnectorConfig caConnector,
         final BPMNProcessInfo processInfo ){
 
-        String msg = template;
+        String msg = "";
 
         if(attributeName != null) {
-            msg = template + ",'" + CryptoUtil.limitLength(attributeName, 30) + "'";
+            msg = limitAndEscapeContent(attributeName, 30) + ",";
         }
 
         if(oldVal != null || newVal != null) {
-            msg += ",'" + CryptoUtil.limitLength(oldVal, 100) + "', '" + CryptoUtil.limitLength(newVal, 100) + "'";
+            msg += limitAndEscapeContent(oldVal, 100) + "," + limitAndEscapeContent(newVal, 100);
         }
 
         applicationEventPublisher.publishEvent(new AuditApplicationEvent( actor, template, msg));
 
-        log.debug("Audit trace for {}, oldVal {}, newVal {} ", template, oldVal, newVal);
+        log.debug("Audit trace for {}, attribute {}, oldVal {}, newVal {} ", template, attributeName, oldVal, newVal);
 
 		AuditTrace auditTrace = new AuditTrace();
         auditTrace.setActorName(CryptoUtil.limitLength(actor, 50));
@@ -292,6 +292,10 @@ public class AuditService {
         auditTrace.setProcessInfo(processInfo);
 
         return auditTrace;
+    }
+
+    private String limitAndEscapeContent(String in, int maxLen){
+        return CryptoUtil.limitLength(in, maxLen).replace("%", "%25").replace(",", "%2C");
     }
 
     public void saveAuditTrace(final AuditTrace auditTrace){

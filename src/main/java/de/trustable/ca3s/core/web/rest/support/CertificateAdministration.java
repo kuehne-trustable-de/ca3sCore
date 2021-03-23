@@ -217,7 +217,7 @@ public class CertificateAdministration {
 		if( adminData.getComment() != null && adminData.getComment().trim().length() > 0) {
 			cert.setAdministrationComment(adminData.getComment());
 		}
-		certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_REVOKED_BY, revokingUser);
+		certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_REVOKED_BY, revokingUser, false);
 
 		/*
 		 * @ todo
@@ -297,7 +297,7 @@ public class CertificateAdministration {
         if( !adminData.getComment().trim().equals(currentComment) ) {
             auditService.saveAuditTrace(
                 auditService.createAuditTraceCertificateAttribute("Comment", currentComment, adminData.getComment(), cert));
-            certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_COMMENT, adminData.getComment());
+            certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_COMMENT, adminData.getComment(), false);
         }
     }
 

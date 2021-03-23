@@ -167,7 +167,7 @@
                                 <td>{{$d(Date.parse(audit.createdOn), 'short') }}</td>
                                 <td>{{audit.actorRole}}</td>
                                 <td>{{audit.actorName}}</td>
-                                <td>{{audit.plainContent}}</td>
+                                <td>{{localizedContent(audit.contentTemplate, audit.contentParts)}}</td>
                             </tr>
                             </tbody>
                         </table>

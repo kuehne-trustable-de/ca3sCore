@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2021-03-15 22:37:20.
+// Generated using typescript-generator version 2.19.577 on 2021-03-22 13:25:38.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -13,6 +13,7 @@ export interface IAuditView extends ISerializable {
   actorName?: string;
   actorRole?: string;
   plainContent?: string;
+  contentParts?: string[];
   contentTemplate?: string;
   createdOn?: Date;
 }

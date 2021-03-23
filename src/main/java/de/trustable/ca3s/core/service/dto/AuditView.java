@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.service.dto;
 
 import de.trustable.ca3s.core.domain.AuditTrace;
+import de.trustable.util.CryptoUtil;
 
 import javax.persistence.Column;
 import javax.validation.constraints.NotNull;
@@ -17,12 +18,13 @@ public class AuditView implements Serializable {
 
     private String plainContent;
 
+    private String[] contentParts;
+
     private String contentTemplate;
 
     private Instant createdOn;
 
     public AuditView(){}
-
 
     public AuditView(final AuditTrace auditTrace){
 
@@ -33,6 +35,12 @@ public class AuditView implements Serializable {
         this.plainContent = auditTrace.getPlainContent();
         this.contentTemplate = auditTrace.getContentTemplate();
         this.createdOn = auditTrace.getCreatedOn();
+
+        this.contentParts = this.plainContent.split(",");
+        for( int i = 0; i < this.contentParts.length; i++ ){
+            this.contentParts[i] = this.contentParts[i].replace("%2C", ",").replace("%25", "%");
+        }
+
     }
 
     public Long getId() {
@@ -49,6 +57,10 @@ public class AuditView implements Serializable {
 
     public String getPlainContent() {
         return plainContent;
+    }
+
+    public String[] getContentParts() {
+        return contentParts;
     }
 
     public String getContentTemplate() {
