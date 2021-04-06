@@ -949,6 +949,7 @@
                         <class>de.trustable.ca3s.core.service.dto.CAConnectorStatus</class>
 
                         <class>de.trustable.ca3s.core.service.dto.AuditView</class>
+                        <class>de.trustable.ca3s.core.service.dto.AuditTraceView</class>
 						<class>de.trustable.ca3s.core.service.dto.PipelineView</class>
 						<class>de.trustable.ca3s.core.service.dto.CertificateView</class>
 						<class>de.trustable.ca3s.core.service.dto.CSRView</class>

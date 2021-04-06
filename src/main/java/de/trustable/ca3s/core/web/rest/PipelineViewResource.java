@@ -123,9 +123,11 @@ public class PipelineViewResource {
             PipelineView pv = pipelineUtil.from(p);
 
             List<AuditView> auditList = new ArrayList<>();
+/*
             for(AuditTrace at :auditTraceRepository.findByPipeline(p)){
                 auditList.add(new AuditView(at));
             }
+ */
             pv.setAuditViewArr(auditList.toArray(new AuditView[auditList.size()]));
 
             pvOpt = Optional.of(pv);

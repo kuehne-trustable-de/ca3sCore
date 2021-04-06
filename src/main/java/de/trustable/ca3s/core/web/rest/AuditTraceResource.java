@@ -9,12 +9,16 @@ import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -83,11 +87,19 @@ public class AuditTraceResource {
      *
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of auditTraces in body.
      */
-    @GetMapping("/audit-traces")
-    public List<AuditTrace> getAllAuditTraces() {
-        log.debug("REST request to get all AuditTraces");
-        return auditTraceService.findAll();
+    @GetMapping(value = "/audit-traces")
+    public Page<AuditTrace> getAllAuditTraces(
+        Pageable pageable,
+        @RequestParam(value = "certificate", required = false) Long certificateId,
+        @RequestParam(value = "csr", required = false) Long csrId,
+        @RequestParam(value = "pipeline", required = false) Long pipelineId,
+        @RequestParam(value = "caConnector", required = false) Long caConnectorId,
+        @RequestParam(value = "processInfo", required = false) Long processInfoId
+        ) {
+        log.debug("REST request to get AuditTraces");
+        return auditTraceService.findBy( pageable, certificateId, csrId, pipelineId, caConnectorId, processInfoId);
     }
+
 
     /**
      * {@code GET  /audit-traces/:id} : get the "id" auditTrace.

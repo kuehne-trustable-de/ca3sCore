@@ -6,6 +6,7 @@ import JhiDataUtils from '@/shared/data/data-utils.service';
 import AlertService from '@/shared/alert/alert.service';
 import CopyClipboardButton from '@/shared/clipboard/clipboard.vue';
 import HelpTag from '@/core/help/help-tag.vue';
+import AuditTag from '@/core/audit/audit-tag.vue';
 
 import { ICertificateView, INamedValue } from '@/shared/model/transfer-object.model';
 import CertificateViewService from '../../entities/certificate/certificate-view.service';
@@ -17,7 +18,8 @@ import { ICertificateAdministrationData } from '@/shared/model/transfer-object.m
   components: {
     Fragment,
     CopyClipboardButton,
-    HelpTag
+    HelpTag,
+    AuditTag
   }
 })
 export default class CertificateDetails extends mixins(JhiDataUtils) {

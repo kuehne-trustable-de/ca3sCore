@@ -19,15 +19,12 @@ public class CSRViewRepository {
 	@Autowired
     private EntityManager entityManager;
 
-//	@Autowired
-//	private CertificateJPQLSpecifications spec;
-	
 	public Page<CSRView> findSelection(Map<String, String[]> parameterMap){
-		
+
 		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-		
-		return CSRSpecifications.handleQueryParamsCertificateView(entityManager, 
-				cb, 
+
+		return CSRSpecifications.handleQueryParamsCertificateView(entityManager,
+				cb,
 				parameterMap);
 
 //	    public List<Object[]>  getCertificateList(Map<String, String[]> parameterMap) {

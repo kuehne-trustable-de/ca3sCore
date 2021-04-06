@@ -6,6 +6,7 @@ import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
+import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.CAConnectorConfigService;
 import de.trustable.ca3s.core.service.dto.CAConnectorStatus;
 import de.trustable.ca3s.core.service.dto.CAStatus;
@@ -56,6 +57,7 @@ public class CAConnectorConfigResource {
 
     private CaConnectorAdapter caConnectorAdapter;
 
+    private AuditService auditService;
 
 
     private final CAConnectorConfigService cAConnectorConfigService;
@@ -64,13 +66,15 @@ public class CAConnectorConfigResource {
         ProtectedContentUtil protUtil,
         ProtectedContentRepository protContentRepository,
         CAConnectorConfigRepository caConfigRepository,
-        CaConnectorAdapter caConnectorAdapter
+        CaConnectorAdapter caConnectorAdapter,
+        AuditService auditService
     ) {
         this.protUtil = protUtil;
         this.protContentRepository = protContentRepository;
         this.caConfigRepository = caConfigRepository;
         this.cAConnectorConfigService = cAConnectorConfigService;
         this.caConnectorAdapter = caConnectorAdapter;
+        this.auditService = auditService;
     }
 
     /**
@@ -102,7 +106,11 @@ public class CAConnectorConfigResource {
 	        cAConnectorConfig.setPlainSecret(PLAIN_SECRET_PLACEHOLDER);
         }
 
+
         CAConnectorConfig result = cAConnectorConfigService.save(cAConnectorConfig);
+
+        auditService.saveAuditTrace( auditService.createAuditTraceCAConfigCreated(cAConnectorConfig));
+
         return ResponseEntity.created(new URI("/api/ca-connector-configs/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -131,8 +139,11 @@ public class CAConnectorConfigResource {
         	log.debug("REST request to update CAConnectorConfig : cAConnectorConfig.getPlainSecret() == null");
 
     		if(cAConnectorConfig.getSecret() != null ) {
+
             	log.debug("REST request to update CAConnectorConfig : protContentRepository.delete() ");
-    			protContentRepository.delete(cAConnectorConfig.getSecret());
+                auditService.saveAuditTrace( auditService.createAuditTraceCAConfigSecretChanged(cAConnectorConfig));
+
+                protContentRepository.delete(cAConnectorConfig.getSecret());
     		}
 
 	        cAConnectorConfig.setSecret(null);
@@ -146,6 +157,7 @@ public class CAConnectorConfigResource {
 	        	cAConnectorConfig.setSecret(caConfigRepository.getOne(cAConnectorConfig.getId()).getSecret());
         	}else {
 	        	log.debug("REST request to update CAConnectorConfig : PlainSecret modified");
+                auditService.saveAuditTrace( auditService.createAuditTraceCAConfigSecretChanged(cAConnectorConfig));
 
         		if(cAConnectorConfig.getSecret() != null ) {
                 	log.debug("REST request to update CAConnectorConfig : protContentRepository.delete() ");
@@ -169,12 +181,15 @@ public class CAConnectorConfigResource {
         		if( other.getId() != cAConnectorConfig.getId() &&
         				other.isDefaultCA()) {
 
-                	log.debug("REST request to update CAConnectorConfig : remove 'deaultCA' flag from caConfig {} ", other.getId());
+                	log.debug("REST request to update CAConnectorConfig : remove 'defaultCA' flag from caConfig {} ", other.getId());
         			other.setDefaultCA(false);
         			caConfigRepository.save(other);
         		}
         	}
         }
+
+        logChangesCAConnectorConfig(cAConnectorConfig);
+
         CAConnectorConfig result = cAConnectorConfigService.save(cAConnectorConfig);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, cAConnectorConfig.getId().toString()))
@@ -226,7 +241,40 @@ public class CAConnectorConfigResource {
     @DeleteMapping("/ca-connector-configs/{id}")
     public ResponseEntity<Void> deleteCAConnectorConfig(@PathVariable Long id) {
         log.debug("REST request to delete CAConnectorConfig : {}", id);
+        Optional<CAConnectorConfig> optConnector = cAConnectorConfigService.findOne(id);
+        if( optConnector.isPresent()){
+            auditService.saveAuditTrace( auditService.createAuditTraceCAConfigDeleted(optConnector.get()));
+        }
+
         cAConnectorConfigService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
+
+    void logChangesCAConnectorConfig(CAConnectorConfig cAConnectorConfig) {
+
+        Optional<CAConnectorConfig> optConnector = cAConnectorConfigService.findOne(cAConnectorConfig.getId());
+        if (optConnector.isPresent()) {
+            CAConnectorConfig oldConnector = optConnector.get();
+            logDiff("Name", oldConnector.getName(), cAConnectorConfig.getName(), cAConnectorConfig);
+            logDiff("CaConnectorType", oldConnector.getCaConnectorType().name(), cAConnectorConfig.getCaConnectorType().name(), cAConnectorConfig);
+            logDiff("CaUrl", oldConnector.getCaUrl(), cAConnectorConfig.getCaUrl(), cAConnectorConfig);
+            logDiff("Interval", oldConnector.getInterval().toString(), cAConnectorConfig.getInterval().toString(), cAConnectorConfig);
+            logDiff("PollingOffset", "" + oldConnector.getPollingOffset(), "" + cAConnectorConfig.getPollingOffset(), cAConnectorConfig);
+            logDiff("Selector", oldConnector.getSelector(), cAConnectorConfig.getSelector(), cAConnectorConfig);
+        }
+    }
+
+    void logDiff( final String attributeName, final String oldVal, final String newVal, final CAConnectorConfig cAConnectorConfig){
+        if( oldVal != null ){
+            if( !oldVal.equals(newVal)) {
+                auditService.saveAuditTrace(auditService.createAuditTraceCAConfigCreatedChange(attributeName, oldVal, newVal, cAConnectorConfig));
+            }
+        }else{
+            if( newVal != null) {
+                auditService.saveAuditTrace(auditService.createAuditTraceCAConfigCreatedChange(attributeName, "", newVal, cAConnectorConfig));
+            }
+
+        }
+    }
+
 }

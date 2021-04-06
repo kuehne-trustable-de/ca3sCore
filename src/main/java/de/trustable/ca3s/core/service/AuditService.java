@@ -58,6 +58,11 @@ public class AuditService {
     public static final String AUDIT_CRAWLER_CERTIFICATE_IMPORTED = "CRAWLER_CERTIFICATE_IMPORTED";
     public static final String AUDIT_DIRECTORY_CERTIFICATE_IMPORTED = "DIRECTORY_CERTIFICATE_IMPORTED";
 
+    public static final String AUDIT_CA_CONNECTOR_CREATED = "CA_CONNECTOR_CREATED";
+    public static final String AUDIT_CA_CONNECTOR_COPIED = "CA_CONNECTOR_COPIED";
+    public static final String AUDIT_CA_CONNECTOR_DELETED = "CA_CONNECTOR_DELETED";
+    public static final String AUDIT_CA_CONNECTOR_ATTRIBUTE_CHANGED = "CA_CONNECTOR_ATTRIBUTE_CHANGED";
+
 
     private final Logger log = LoggerFactory.getLogger(AuditService.class);
 
@@ -152,6 +157,63 @@ public class AuditService {
             null,
             null,
             null );
+    }
+
+    public AuditTrace createAuditTraceCAConfigCreated(final CAConnectorConfig caConnectorConfig){
+
+        NameAndRole nar = getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_CA_CONNECTOR_CREATED,
+            null,
+            caConnectorConfig.getName(),
+            null,
+            null,
+            null,
+            caConnectorConfig,
+            null );
+    }
+
+
+    public AuditTrace createAuditTraceCAConfigDeleted(final CAConnectorConfig caConnectorConfig){
+
+        NameAndRole nar = getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_CA_CONNECTOR_DELETED,
+            null,
+            caConnectorConfig.getName(),
+            null,
+            null,
+            null,
+            caConnectorConfig,
+            null );
+    }
+
+
+    public AuditTrace createAuditTraceCAConfigSecretChanged(final CAConnectorConfig caConnectorConfig){
+
+        NameAndRole nar = getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            caConnectorConfig.getName(),
+            null,
+            null,
+            null,
+            caConnectorConfig,
+            null );
+    }
+
+    public AuditTrace  createAuditTraceCAConfigCreatedChange(final String attributeName, final String oldVal, final String newVal, final CAConnectorConfig caConnectorConfig){
+
+        NameAndRole nar = getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_CA_CONNECTOR_ATTRIBUTE_CHANGED,
+            attributeName,
+            oldVal, newVal,
+            null,
+            null,
+            null,
+            caConnectorConfig,
+            null );
+
     }
 
     public AuditTrace createAuditTracePipeline(final String template, final Pipeline pipeline){

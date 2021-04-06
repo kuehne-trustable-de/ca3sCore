@@ -70,7 +70,7 @@
 					<requests-table-pager type="abbreviated" table="requests"></requests-table-pager>
 				</section>
 			</div>
-  	</div>
+  	    </div>
 	</div>
 </template>
 

@@ -220,7 +220,8 @@ export default new Router({
       component: Help,
       beforeEnter: (to, from, next) => {
 
-        const url = 'help-' + to.params.lang + to.params.hash;
+//        const url = 'help-' + to.params.lang + to.params.hash;
+        const url = '/app/help/help-' + to.params.lang + '.html' + to.params.hash;
         console.info("help url: " + url);
         window.open(url,
           'ca3sHelp');

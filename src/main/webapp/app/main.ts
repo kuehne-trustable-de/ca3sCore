@@ -5,7 +5,6 @@ import { Datetime } from 'vue-datetime';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import App from './app.vue';
 import Vue2Filters from 'vue2-filters';
-import zingchartVue from 'zingchart-vue';
 
 import router from './router';
 import * as config from './shared/config/config';
@@ -65,7 +64,6 @@ bootstrapVueConfig.initBootstrapVue(Vue);
 Vue.use(Vue2Filters);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 Vue.component('jhi-item-count', JhiItemCountComponent);
-Vue.component('zingchart', zingchartVue);
 
 Vue.component('datetime', Datetime);
 import 'vue-datetime/dist/vue-datetime.css';

@@ -1,6 +1,8 @@
 package de.trustable.ca3s.core.service;
 
 import de.trustable.ca3s.core.domain.AuditTrace;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +25,7 @@ public interface AuditTraceService {
      *
      * @return the list of entities.
      */
-    List<AuditTrace> findAll();
+    Page<AuditTrace> findAll(Pageable pageable);
 
 
     /**
@@ -40,4 +42,6 @@ public interface AuditTraceService {
      * @param id the id of the entity.
      */
     void delete(Long id);
+
+    Page<AuditTrace> findBy(Pageable pageable, Long certificateId, Long csrId, Long pipelineId, Long caConnectorId, Long processInfoId);
 }

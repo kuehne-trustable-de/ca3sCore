@@ -8,6 +8,7 @@ import JhiDataUtils from '@/shared/data/data-utils.service';
 import AlertService from '@/shared/alert/alert.service';
 import CopyClipboardButton from '@/shared/clipboard/clipboard.vue';
 import HelpTag from '@/core/help/help-tag.vue';
+import AuditTag from '@/core/audit/audit-tag.vue';
 
 import { ICSRAdministrationData, INamedValue } from '@/shared/model/transfer-object.model';
 
@@ -22,7 +23,8 @@ import { ICsrAttribute } from '@/shared/model/csr-attribute.model';
     ArItem,
     Fragment,
     CopyClipboardButton,
-    HelpTag
+    HelpTag,
+    AuditTag
   }
 })
 export default class CsrInfo extends mixins(JhiDataUtils, Vue) {

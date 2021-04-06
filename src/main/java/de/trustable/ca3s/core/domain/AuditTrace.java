@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import javax.xml.bind.annotation.XmlTransient;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -28,6 +29,16 @@ import java.time.Instant;
     @NamedQuery(name = "AuditTrace.findByPipeline",
         query = "SELECT a FROM AuditTrace a WHERE " +
             "a.pipeline = :pipeline "+
+            "order by a.createdOn asc"
+    ),
+    @NamedQuery(name = "AuditTrace.findByCaConnector",
+        query = "SELECT a FROM AuditTrace a WHERE " +
+            "a.caConnector = :caConnector "+
+            "order by a.createdOn asc"
+    ),
+    @NamedQuery(name = "AuditTrace.findByProcessInfo",
+        query = "SELECT a FROM AuditTrace a WHERE " +
+            "a.processInfo = :processInfo "+
             "order by a.createdOn asc"
     )
 })

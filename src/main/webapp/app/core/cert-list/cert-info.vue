@@ -149,7 +149,7 @@
                     </Fragment>
 
 
-                    <dt v-if="certificateView.auditViewArr && certificateView.auditViewArr.length > 0">
+                    <!--dt v-if="certificateView.auditViewArr && certificateView.auditViewArr.length > 0">
                         <span v-text="$t('ca3SApp.certificate.audit')">Audit</span>
                     </dt>
                     <dd v-if="certificateView.auditViewArr && certificateView.auditViewArr.length > 0">
@@ -172,6 +172,12 @@
                             </tbody>
                         </table>
 
+                    </dd-->
+                    <dt>
+                        <span v-text="$t('ca3SApp.certificate.audit')">Audit</span>
+                    </dt>
+                    <dd>
+                        <audit-tag :certificateId="certificateView.id" showLinks="false"></audit-tag>
                     </dd>
 
                     <!-- donwload section -->
