@@ -1,11 +1,12 @@
 <template>
-    <b-navbar toggleable="md" type="dark" class="jh-navbar">
+    <b-navbar toggleable="md" type="light" class="jh-navbar">
         <div class="jh-logo-container float-left">
             <b-navbar-toggle right class="jh-navbar-toggler d-lg-none float-right" href="javascript:void(0);"  data-toggle="collapse" target="header-tabs" aria-expanded="false" aria-label="Toggle navigation">
                 <font-awesome-icon icon="bars" />
             </b-navbar-toggle>
             <b-navbar-brand class="logo float-left" b-link to="/">
-                <span v-text="$t('global.title')" class="navbar-title">ca3s</span> <span class="navbar-version">{{version}}</span>
+                <img src='../../../content/images/android-chrome-36x36.png'/>
+                <!--span v-text="$t('global.title')" class="navbar-title">ca3s</span--> <span class="navbar-version">{{version}}</span>
             </b-navbar-brand>
              <b-navbar-brand class="logo float-left" b-link to="/" v-if="authenticated">
                 <span v-if="username" v-text="$t('home.logged.message', { 'username': username, 'roles': roles})" class="navbar-version">"{{username}}", You are logged in as "{{roles}}"</span>
@@ -223,7 +224,7 @@
                         <span v-text="$t('global.menu.admin.database')">Database</span>
                     </b-dropdown-item>
                 </b-nav-item-dropdown>
-                <b-nav-item-dropdown id="languagesnavBarDropdown" right v-if="languages && Object.keys(languages).length > 1">
+                <!--b-nav-item-dropdown id="languagesnavBarDropdown" right v-if="languages && Object.keys(languages).length > 1">
                     <span slot="button-content">
                         <font-awesome-icon icon="flag" />
                         <span v-text="$t('global.menu.language')">Language</span>
@@ -232,7 +233,8 @@
                         :class="{ active: isActiveLanguage(key)}">
                         {{value.name}}
                     </b-dropdown-item>
-                </b-nav-item-dropdown>
+                </b-nav-item-dropdown-->
+
                 <b-nav-item-dropdown
                     right
                     href="javascript:void(0);"
@@ -246,6 +248,12 @@
                             Account
                         </span>
                     </span>
+
+                    <b-dropdown-item v-for="(value, key) in languages" :key="`lang-${key}`" v-on:click="changeLanguage(key);"
+                                     :class="{ active: isActiveLanguage(key)}">
+                        {{value.name}}
+                    </b-dropdown-item>
+
                     <b-dropdown-item to="/account/settings" tag="b-dropdown-item" v-if="authenticated">
                         <font-awesome-icon icon="wrench" />
                         <span v-text="$t('global.menu.account.settings')">Settings</span>
@@ -266,6 +274,10 @@
                         <font-awesome-icon icon="user-plus" />
                         <span v-text="$t('global.menu.account.register')">Register</span>
                     </b-dropdown-item>
+                    <b-dropdown-item :to="{ name: 'HelpTarget', params: {hash: '', showNavBar: 'false', lang: $store.getters.currentLanguage}}" tag="b-dropdown-item" id="help" >
+                        <font-awesome-icon icon="question-circle"/>
+                        <span v-text="$t('ca3SApp.help.title')">Help</span>
+                    </b-dropdown-item>
                 </b-nav-item-dropdown>
             </b-navbar-nav>
         </b-collapse>
@@ -282,11 +294,13 @@
     ========================================================================== */
 .navbar-version {
   font-size: 10px;
-  color: #ccc;
+/*    color: #ccc; */
+    color: #777;
 }
 
 .jh-navbar {
-  background-color: #353d47;
+/*    background-color: #353d47; */
+    background-color: #e6e6ff;
   padding: 0.2em 1em;
 }
 
@@ -300,7 +314,8 @@
 .jh-navbar .dropdown-item.active,
 .jh-navbar .dropdown-item.active:focus,
 .jh-navbar .dropdown-item.active:hover {
-  background-color: #353d47;
+/*    background-color: #353d47; */
+    background-color: #353d47;
 }
 
 .jh-navbar .dropdown-toggle::after {
