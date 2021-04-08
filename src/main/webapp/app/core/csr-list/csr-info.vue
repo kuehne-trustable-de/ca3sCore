@@ -150,7 +150,7 @@
 
                     </dd>
                     <dt>
-                        <span v-text="$t('ca3SApp.cSR.audits')">Audits</span>
+                        <span v-text="$t('ca3SApp.certificate.audit')">Audits</span>
                     </dt>
                     <dd>
                         <audit-tag :csrId="cSR.id" showLinks="false"></audit-tag>

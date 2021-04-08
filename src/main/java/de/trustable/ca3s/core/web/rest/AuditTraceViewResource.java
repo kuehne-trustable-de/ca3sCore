@@ -54,11 +54,11 @@ public class AuditTraceViewResource {
     @GetMapping(value = "/audit-trace-views")
     public ResponseEntity<Page<AuditTraceView>> getAllAuditTraces(
         Pageable pageable, HttpServletRequest request,
-        @RequestParam(value = "certificate", required = false) Long certificateId,
-        @RequestParam(value = "csr", required = false) Long csrId,
-        @RequestParam(value = "pipeline", required = false) Long pipelineId,
-        @RequestParam(value = "caConnector", required = false) Long caConnectorId,
-        @RequestParam(value = "processInfo", required = false) Long processInfoId
+        @RequestParam(value = "certificateId", required = false) Long certificateId,
+        @RequestParam(value = "csrId", required = false) Long csrId,
+        @RequestParam(value = "pipelineId", required = false) Long pipelineId,
+        @RequestParam(value = "caConnectorId", required = false) Long caConnectorId,
+        @RequestParam(value = "processInfoId", required = false) Long processInfoId
         ) {
         log.debug("REST request to get AuditTraceViews");
 

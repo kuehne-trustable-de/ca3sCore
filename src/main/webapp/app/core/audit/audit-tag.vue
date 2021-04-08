@@ -5,7 +5,6 @@
         <audits-table :columns="columns" :data="auditApiUrl" :per-page="20" name="audits">
             <template slot-scope="{ row }">
                 <tr>
-                    <td>{{ row.id }}</td>
                     <td>{{ row.actorName }}</td>
                     <td>{{ row.actorRole }}</td>
                     <td>{{ row.plainContent }}</td>

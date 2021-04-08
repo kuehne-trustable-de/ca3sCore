@@ -49,9 +49,11 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('audits-table',
         headers: { 'x-total-count': totalCount }
       } = await axios.get(url);
 
+      window.console.info('audit data : ' + totalCount + ' -> ' + data.content);
+
       return {
-        rows: data,
-        totalRowCount: parseInt(totalCount, 10)
+        rows: data.content,
+        totalRowCount: data.numberOfElements
       } as ITableContentParam<IAuditTraceView>;
     })
     .mergeSettings({
@@ -98,32 +100,9 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
     return this.$store.getters.account ? this.$store.getters.account.login : '';
   }
 
-  public getValidToStyle(validFromString: string, validToString: string, revoked: boolean): string {
-    if (revoked) {
-      return '';
-    }
-
-    const validTo = new Date(validToString);
-    const validFrom = new Date(validFromString);
-
-    const dateNow = new Date();
-    const dateWarn = new Date();
-    dateWarn.setDate(dateNow.getDate() + 35);
-    const dateAlarm = new Date();
-    dateAlarm.setDate(dateNow.getDate() + 10);
-
-    if (validTo > dateNow && validTo < dateAlarm) {
-      //      window.console.info('getValidToStyle(' + validTo + '), dateNow: ' + dateNow + ' , dateWarn: ' + dateWarn + ' -> ' + (validTo > dateNow) + ' - ' + (validTo < dateWarn));
-      return 'color:red;font-weight: bold;';
-    } else if (validTo > dateNow && validTo < dateWarn) {
-      return 'color:yellow; font-weight: bold;';
-    } else if (validTo > dateNow && validFrom <= dateNow) {
-      return 'color:green; font-weight: bold;';
-    }
-    return '';
-  }
-
   public toLocalDate(dateAsString: string): string {
+    window.console.info('toLocalDate: ' + dateAsString);
+
     if (dateAsString && dateAsString.length > 8) {
       const dateObj = new Date(dateAsString);
       return dateObj.toLocaleDateString();
@@ -144,7 +123,7 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
   }
 
   el() {
-    return '#vue-certificates';
+    return '#audits-table';
   }
 
   data() {
@@ -152,14 +131,14 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
 
     return {
       columns: [
-        { label: 'id', field: 'id' },
+        { label: 'id', field: 'id', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
         { label: this.$t('actor'), field: 'actorName' },
         { label: this.$t('role'), field: 'actorRole' },
         { label: this.$t('plainContent'), field: 'plainContent' },
         { label: this.$t('createdOn'), field: 'createdOn' },
-        { label: this.$t('certificateId'), field: 'certificateId' },
-        { label: this.$t('csrId'), field: 'csrId' }
-        //        { label: this.$t('links'), field: 'links' }
+        { label: this.$t('certificateId'), field: 'certificateId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
+        { label: this.$t('csrId'), field: 'csrId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
+        { label: this.$t('links'), field: 'links', headerClass: 'hiddenColumn', class: 'hiddenColumn' }
       ] as TColumnsDefinition<IAuditTraceView>,
 
       get auditApiUrl() {
@@ -182,14 +161,37 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
   }
 
   public buildContentAccessUrl(): string {
-    const defaultFilter: ICertificateFilter = { attributeName: 'csrId', attributeValue: '123', selector: 'EQUAL' };
+    const baseApiUrl = 'api/audit-trace-views';
+
+    window.console.info('buildContentAccessUrl: csrId : ' + this.csrId + ', certificateId : ' + this.certificateId);
+
+    let url = baseApiUrl + '?';
     if (this.csrId !== undefined) {
-      defaultFilter.attributeValue = this.csrId;
-    } else if (this.certificateId !== undefined) {
-      defaultFilter.attributeName = 'certificateId';
-      defaultFilter.attributeValue = this.certificateId;
+      url += 'csrId=' + this.csrId + '&';
     }
-    const filters: ICertificateFilterList = { filterList: [defaultFilter] };
+    if (this.certificateId !== undefined) {
+      url += 'certificateId=' + this.certificateId + '&';
+    }
+
+    if (this.tmpContentAccessUrl !== url) {
+      this.tmpContentAccessUrl = url;
+      window.console.info('buildContentAccessUrl: change detected: ' + url);
+    } else if (this.contentAccessUrl !== url) {
+      this.contentAccessUrl = url;
+      window.console.info('buildContentAccessUrl: change propagated: ' + url);
+    }
+    return url;
+  }
+
+  public _buildContentAccessUrl(): string {
+    const filters: ICertificateFilterList = { filterList: [] };
+
+    if (this.csrId !== undefined) {
+      filters.filterList.push({ attributeName: 'csrId', attributeValue: this.csrId, selector: 'EQUAL' });
+    }
+    if (this.certificateId !== undefined) {
+      filters.filterList.push({ attributeName: 'certificateId', attributeValue: this.certificateId, selector: 'EQUAL' });
+    }
 
     const filterLen = filters.filterList.length;
 

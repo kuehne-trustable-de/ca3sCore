@@ -106,6 +106,7 @@ public final class SpecificationsHelper {
                     selectorMap.put(attribute, selectorList);
                 }
             } else {
+                logger.debug("paramNameAttribute '{}' not contained in parameterMap ", paramNameAttribute);
                 break;
             }
         }

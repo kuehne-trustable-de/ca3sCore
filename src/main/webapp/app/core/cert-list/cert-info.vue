@@ -177,7 +177,7 @@
                         <span v-text="$t('ca3SApp.certificate.audit')">Audit</span>
                     </dt>
                     <dd>
-                        <audit-tag :certificateId="certificateView.id" showLinks="false"></audit-tag>
+                        <audit-tag :certificateId="certificateView.id" :csrId="certificateView.csrId" showLinks="false"></audit-tag>
                     </dd>
 
                     <!-- donwload section -->
