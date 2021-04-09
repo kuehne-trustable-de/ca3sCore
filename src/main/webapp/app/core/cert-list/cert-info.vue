@@ -149,36 +149,14 @@
                     </Fragment>
 
 
-                    <!--dt v-if="certificateView.auditViewArr && certificateView.auditViewArr.length > 0">
-                        <span v-text="$t('ca3SApp.certificate.audit')">Audit</span>
-                    </dt>
-                    <dd v-if="certificateView.auditViewArr && certificateView.auditViewArr.length > 0">
-                        <table class="table table-striped">
-                            <thead>
-                            <tr>
-                                <th><span v-text="$t('ca3SApp.audit.createdOn')">Ceated On</span></th>
-                                <th><span v-text="$t('ca3SApp.audit.actorRole')">Role</span></th>
-                                <th><span v-text="$t('ca3SApp.audit.actorName')">Name</span></th>
-                                <th><span v-text="$t('ca3SApp.audit.plainContent')">Description</span></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr v-for="audit in certificateView.auditViewArr" :key="audit.id">
-                                <td>{{$d(Date.parse(audit.createdOn), 'short') }}</td>
-                                <td>{{audit.actorRole}}</td>
-                                <td>{{audit.actorName}}</td>
-                                <td>{{localizedContent(audit.contentTemplate, audit.contentParts)}}</td>
-                            </tr>
-                            </tbody>
-                        </table>
-
-                    </dd-->
-                    <dt>
-                        <span v-text="$t('ca3SApp.certificate.audit')">Audit</span>
-                    </dt>
-                    <dd>
-                        <audit-tag :certificateId="certificateView.id" :csrId="certificateView.csrId" showLinks="false"></audit-tag>
-                    </dd>
+                    <Fragment  v-if="certificateView.auditPresent">
+                        <dt>
+                            <span v-text="$t('ca3SApp.certificate.audit')">Audit</span>
+                        </dt>
+                        <dd>
+                            <audit-tag :certificateId="certificateView.id" :csrId="certificateView.csrId" showLinks="false"></audit-tag>
+                        </dd>
+                    </Fragment>
 
                     <!-- donwload section -->
                     <dt v-if="certificateView.isServersideKeyGeneration">

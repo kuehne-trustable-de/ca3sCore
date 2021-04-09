@@ -78,13 +78,8 @@ public class CertificateViewResource {
             Certificate cert = certificateOpt.get();
             CertificateView certView = new CertificateView(cert);
 
-            List<AuditView> auditList = new ArrayList<>();
-/*
-            for(AuditTrace at :auditTraceRepository.findByCsrAndCert(cert, cert.getCsr())){
-                auditList.add(new AuditView(at));
-            }
- */
-            certView.setAuditViewArr(auditList.toArray(new AuditView[auditList.size()]));
+            certView.setAuditPresent( !auditTraceRepository.findByCsrAndCert(cert, cert.getCsr()).isEmpty());
+
     		return new ResponseEntity<CertificateView>(certView, HttpStatus.OK);
         }
 

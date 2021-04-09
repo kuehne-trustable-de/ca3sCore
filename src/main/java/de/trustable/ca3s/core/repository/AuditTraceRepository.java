@@ -18,6 +18,10 @@ import java.util.List;
 public interface AuditTraceRepository extends PagingAndSortingRepository<AuditTrace, Long> {
 
     @Query(name = "AuditTrace.findByCsrAndCert")
+    List<AuditTrace> findByCsrAndCert(@Param("certificate") Certificate certificate,
+                                      @Param("csr") CSR csr);
+
+    @Query(name = "AuditTrace.findByCsrAndCert")
     Page<AuditTrace> findByCsrAndCert(Pageable pageable,
                                       @Param("certificate") Certificate certificate,
                                       @Param("csr") CSR csr);

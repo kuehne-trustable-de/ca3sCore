@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2021-03-29 22:57:43.
+// Generated using typescript-generator version 2.19.577 on 2021-04-09 23:13:36.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -109,8 +109,8 @@ export interface ICertificateView extends ISerializable {
   downloadFilename?: string;
   isServersideKeyGeneration?: boolean;
   comment?: string;
-  auditViewArr?: IAuditView[];
   arArr?: INamedValue[];
+  auditPresent?: boolean;
 }
 
 export interface ICSRView extends ISerializable {

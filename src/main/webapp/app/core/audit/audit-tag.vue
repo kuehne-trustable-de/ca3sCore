@@ -7,7 +7,7 @@
                 <tr>
                     <td>{{ row.actorName }}</td>
                     <td>{{ row.actorRole }}</td>
-                    <td>{{ row.plainContent }}</td>
+                    <td>{{ localizedContent(row.plainContent) }}</td>
                     <td>{{ toLocalDate(row.createdOn) }}</td>
                     <td v-if="showLinks">{{ row.links }}</td>
                 </tr>

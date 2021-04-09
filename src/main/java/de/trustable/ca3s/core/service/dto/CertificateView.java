@@ -81,7 +81,7 @@ public class CertificateView implements Serializable {
 
 	private String comment;
 
-    private AuditView[] auditViewArr;
+    private Boolean isAuditPresent = false;
 
     private NamedValue[] arArr;
 
@@ -565,14 +565,6 @@ public class CertificateView implements Serializable {
         this.comment = comment;
     }
 
-    public AuditView[] getAuditViewArr() {
-        return auditViewArr;
-    }
-
-    public void setAuditViewArr(AuditView[] auditViewArr) {
-        this.auditViewArr = auditViewArr;
-    }
-
     public NamedValue[] getArArr() {
         return arArr;
     }
@@ -595,4 +587,11 @@ public class CertificateView implements Serializable {
         return nvList.toArray(new NamedValue[nvList.size()]);
     }
 
+    public Boolean getAuditPresent() {
+        return isAuditPresent;
+    }
+
+    public void setAuditPresent(Boolean auditPresent) {
+        isAuditPresent = auditPresent;
+    }
 }
