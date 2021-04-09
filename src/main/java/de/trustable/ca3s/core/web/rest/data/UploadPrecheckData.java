@@ -4,7 +4,6 @@ import javax.annotation.concurrent.Immutable;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import de.trustable.ca3s.core.domain.dto.NamedValues;
 
 @Immutable
 @JsonIgnoreProperties(ignoreUnknown = true)

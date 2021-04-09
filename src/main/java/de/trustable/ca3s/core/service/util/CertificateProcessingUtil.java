@@ -6,10 +6,10 @@ import java.util.*;
 
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.repository.CsrAttributeRepository;
-import de.trustable.ca3s.core.domain.dto.NamedValues;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.ARARestriction;
 import de.trustable.ca3s.core.service.dto.PipelineView;
+import de.trustable.ca3s.core.web.rest.data.NamedValues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

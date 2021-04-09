@@ -1,5 +1,7 @@
 # ![Hilfe](../../images/ca3s-72x72.png) Hilfe
 
+[Download as Markdown](./help-de.md)
+
 ## **C**ertificate **A**utomation, **A**uthorization and **A**dministration **S**ervice (_ca3s_)
 
 ca3s ist ein CA Unterstützungssystem mit einem flexiblen RA Teil, welcher BPMN benutzt, mit dem Ziel so viel wie möglich zu automatisieren. Zu diesem Zweck, werden zusätzlich zur normalen Web-Variante, ACME und SCEP Schnittstellen bereitgestellt. Außerdem werden Zertifikatsbestände aus verschiedenen Quellen aggregiert und es werden CMP-angebundene CAs oder ADCS-Instanzen für die Zertifikatserstellung benutzt.

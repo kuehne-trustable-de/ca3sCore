@@ -40,9 +40,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import de.trustable.ca3s.core.domain.dto.NamedValues;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.util.*;
+import de.trustable.ca3s.core.web.rest.data.NamedValues;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;

@@ -159,7 +159,7 @@
         <camunda.spring-boot.version>3.2.0</camunda.spring-boot.version>
 
 		<crawler4jVersion>4.4.0</crawler4jVersion>
-        <commonmarkVersion>0.17.1</commonmarkVersion>
+        <flexmarkVersion>0.62.2</flexmarkVersion>
 
         <conductorVersion>3.0.1</conductorVersion>
 
@@ -735,9 +735,9 @@
 		</dependency>
 
         <dependency>
-            <groupId>org.commonmark</groupId>
-            <artifactId>commonmark</artifactId>
-            <version>${commonmarkVersion}</version>
+            <groupId>com.vladsch.flexmark</groupId>
+            <artifactId>flexmark-all</artifactId>
+            <version>${flexmarkVersion}</version>
         </dependency>
    <!--  start of test dependencies -->
    		<dependency>

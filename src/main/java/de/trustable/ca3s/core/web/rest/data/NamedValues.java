@@ -1,4 +1,4 @@
-package de.trustable.ca3s.core.domain.dto;
+package de.trustable.ca3s.core.web.rest.data;
 
 import javax.annotation.concurrent.Immutable;
 

@@ -77,7 +77,6 @@ public class PreferenceResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated preference,
      * or with status {@code 400 (Bad Request)} if the preference is not valid,
      * or with status {@code 500 (Internal Server Error)} if the preference couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/preference/{userId}")
     public ResponseEntity<Preferences> updatePreference(@Valid @RequestBody Preferences preferences, @PathVariable Long userId) {
@@ -152,6 +151,5 @@ public class PreferenceResource {
     		userPreferenceService.save(up);
         }
 	}
-
 
 }

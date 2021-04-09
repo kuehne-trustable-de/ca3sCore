@@ -8,12 +8,12 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import de.trustable.ca3s.core.domain.*;
-import de.trustable.ca3s.core.domain.dto.NamedValues;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.*;
+import de.trustable.ca3s.core.web.rest.data.NamedValues;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;

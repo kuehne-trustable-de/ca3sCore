@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.web.html;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -9,9 +10,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import org.commonmark.node.*;
-import org.commonmark.parser.Parser;
-import org.commonmark.renderer.html.HtmlRenderer;
+import com.vladsch.flexmark.util.ast.Node;
+import com.vladsch.flexmark.html.HtmlRenderer;
+import com.vladsch.flexmark.parser.Parser;
+import com.vladsch.flexmark.util.data.MutableDataSet;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -44,9 +46,33 @@ public class HelpController {
         if( "de".equalsIgnoreCase(lang)){
             helpResource = helpResourceDe;
         }
-        Parser parser = Parser.builder().build();
+
+        MutableDataSet options = new MutableDataSet();
+
+        // uncomment to set optional extensions
+        //options.set(Parser.EXTENSIONS, Arrays.asList(TablesExtension.create(), StrikethroughExtension.create()));
+
+        // uncomment to convert soft-breaks to hard breaks
+        //options.set(HtmlRenderer.SOFT_BREAK, "<br />\n");
+
+        Parser parser = Parser.builder(options).build();
+        HtmlRenderer renderer = HtmlRenderer.builder(options).build();
+
+        // You can re-use parser and renderer instances
         Node document = parser.parseReader(new InputStreamReader(helpResource.getInputStream(),"UTF-8"));
-        HtmlRenderer renderer = HtmlRenderer.builder().build();
+
         return prefixHTML + renderer.render(document) + postfixHTML;
+    }
+
+    @GetMapping(value = "/help-{lang}.md", produces = "text/markdown; charset=UTF-8")
+    @ResponseBody
+    public String helpAsMD(@PathVariable String lang) throws IOException {
+
+        Resource helpResource = helpResourceEn;
+        if( "de".equalsIgnoreCase(lang)){
+            helpResource = helpResourceDe;
+        }
+
+        return IOUtils.toString(new InputStreamReader(helpResource.getInputStream(),"UTF-8"));
     }
 }
