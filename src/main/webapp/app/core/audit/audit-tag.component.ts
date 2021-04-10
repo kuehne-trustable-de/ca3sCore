@@ -160,26 +160,20 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
     this.buildContentAccessUrl();
   }
 
-  public localizedContent(auditContent: string) {
+  public localizedContent(template: string, auditContent: string) {
     const contentParts = auditContent.split(',');
 
     const len = contentParts.length;
     console.log('localizedContent: ' + auditContent + ',  #' + len);
 
     if (len === 0) {
-      return '';
+      return this.$t(template);
     } else if (len === 1) {
-      return this.$t(contentParts[0]);
+      return this.$t(template, { val: contentParts[0] });
     } else if (len === 2) {
-      return this.$t(contentParts[0], { val: this.unescapeComma(contentParts[1]) });
-    } else if (len === 3) {
-      return this.$t(contentParts[0], { oldVal: this.unescapeComma(contentParts[1]), newVal: this.unescapeComma(contentParts[2]) });
+      return this.$t(template, { oldVal: contentParts[0], newVal: contentParts[1] });
     } else {
-      return this.$t(contentParts[0], {
-        attribute: this.unescapeComma(contentParts[1]),
-        oldVal: this.unescapeComma(contentParts[2]),
-        newVal: this.unescapeComma(contentParts[3])
-      });
+      return this.$t(template, { attribute: contentParts[0], oldVal: contentParts[1], newVal: contentParts[2] });
     }
   }
 
