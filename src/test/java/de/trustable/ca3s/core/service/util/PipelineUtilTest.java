@@ -53,7 +53,7 @@ class PipelineUtilTest {
 		List<String> messageList = new ArrayList<String>();;
 //		Pkcs10RequestHolder p10ReqHolder;
 
-		X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, O=trustable solutione, C=DE");
+		X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, O=trustable solutions, C=DE");
 
 	    PKCS10CertificationRequest p10Req = CryptoUtil.getCsr(subject,
 	    		keyPair.getPublic(),
@@ -191,7 +191,7 @@ class PipelineUtilTest {
 		List<String> messageList = new ArrayList<String>();;
 //		Pkcs10RequestHolder p10ReqHolder;
 
-		X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, OU=foo, OU=bar, O=trustable solutione, C=DE");
+		X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
 
 	    PKCS10CertificationRequest p10Req = CryptoUtil.getCsr(subject,
 	    		keyPair.getPublic(),
@@ -352,7 +352,7 @@ class PipelineUtilTest {
 		PipelineUtil pu = new PipelineUtil();
 
 		List<String> messageList = new ArrayList<String>();;
-		X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, OU=foo, OU=bar, O=trustable solutione, C=DE");
+		X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
 
 	    PKCS10CertificationRequest p10Req = CryptoUtil.getCsr(subject,
 	    		keyPair.getPublic(),
@@ -470,7 +470,7 @@ class PipelineUtilTest {
 		PipelineUtil pu = new PipelineUtil();
 
 		List<String> messageList = new ArrayList<String>();;
-		X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, OU=foo, OU=bar, O=trustable solutione, C=DE");
+		X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
 
 	    PKCS10CertificationRequest p10Req = CryptoUtil.getCsr(subject,
 	    		keyPair.getPublic(),

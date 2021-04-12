@@ -9,6 +9,7 @@
                         <input type="text" class="form-control" id="id" name="id"
                                v-model="cAConnectorConfig.id" readonly />
                     </div-->
+
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.name')" for="ca-connector-config-name">Name</label>
                         <input type="text" class="form-control" name="name" id="ca-connector-config-name"
@@ -74,6 +75,12 @@
                         <input type="password" class="form-control" name="plainSecret" id="ca-connector-config-plainSecret"
                             :class="{'valid': !$v.cAConnectorConfig.plainSecret.$invalid, 'invalid': $v.cAConnectorConfig.plainSecret.$invalid }" v-model="$v.cAConnectorConfig.plainSecret.$model" />
                     </div>
+
+                    <!--div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.audit')" >Audit</label>
+                        <audit-tag :caConnectorId="cAConnectorConfig.id" showLinks="false"></audit-tag>
+                    </div-->
+
                 </div>
                 <div>
                     <!--button type="button" id="test" class="btn btn-secondary" v-on:click="testCaConnectorConfig()">

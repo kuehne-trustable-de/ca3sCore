@@ -89,6 +89,15 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
   @Prop()
   public certificateId: string;
 
+  @Prop()
+  public pipelineId: string;
+
+  @Prop()
+  public caConnectorId: string;
+
+  @Prop()
+  public processInfoId: string;
+
   public get authenticated(): boolean {
     return this.$store.getters.authenticated;
   }
@@ -142,9 +151,7 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
       ] as TColumnsDefinition<IAuditTraceView>,
 
       get auditApiUrl() {
-        let apiUrl = self.buildContentAccessUrl();
-        window.console.info('csrApiUrl returns : ' + apiUrl);
-        return apiUrl;
+        return self.buildContentAccessUrl();
       },
 
       page: 1,
@@ -180,10 +187,9 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
   unescapeComma(content: string): string {
     return content.replace('%2C', ',').replace('%25', '%');
   }
+
   public buildContentAccessUrl(): string {
     const baseApiUrl = 'api/audit-trace-views';
-
-    window.console.info('buildContentAccessUrl: csrId : ' + this.csrId + ', certificateId : ' + this.certificateId);
 
     let url = baseApiUrl + '?';
     if (this.csrId !== undefined) {
@@ -192,6 +198,17 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
     if (this.certificateId !== undefined) {
       url += 'certificateId=' + this.certificateId + '&';
     }
+    if (this.pipelineId !== undefined) {
+      url += 'pipelineId=' + this.pipelineId + '&';
+    }
+    if (this.caConnectorId !== undefined) {
+      url += 'caConnectorId=' + this.caConnectorId + '&';
+    }
+    if (this.processInfoId !== undefined) {
+      url += 'processInfoId=' + this.processInfoId + '&';
+    }
+
+    window.console.info('buildContentAccessUrl: url : ' + url);
 
     if (this.tmpContentAccessUrl !== url) {
       this.tmpContentAccessUrl = url;

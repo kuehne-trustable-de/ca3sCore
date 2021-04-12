@@ -3,6 +3,8 @@ package de.trustable.ca3s.core.service.dir;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -85,13 +87,36 @@ public class DirectoryConnector {
 	 */
 	public CAStatus getStatus(final CAConnectorConfig caConfig) {
 
-		File dir = new File(getFilename(caConfig));
-        LOGGER.warn("in getStatus: filename '{}', exists {}, can read {}", getFilename(caConfig), dir.exists(), dir.canRead() );
+        if( caConfig.getCaUrl() == null) {
+            LOGGER.warn("in retrieveCertificates: url missing");
+            return CAStatus.Deactivated;
+        }
 
-        if( dir.exists() && dir.canRead()) {
-			return CAStatus.Active;
-		}
-		return CAStatus.Deactivated;
+        String url = caConfig.getCaUrl().toLowerCase();
+        if( url.startsWith("http://") ||
+            url.startsWith("https://") ) {
+
+            // check access
+            try {
+                int status = getHTTPResponseStatusCode(url);
+                if( status >= 200 && status < 400 ) {
+                    return CAStatus.Active;
+                }else{
+                    LOGGER.info("getStatus for url '{}' returns status  {}", url, status );
+                }
+            } catch (Exception e) {
+                LOGGER.warn("in getStatus for url '{}' failed with message {}", url, e.getMessage() );
+            }
+        }else {
+            File dir = new File(getFilename(caConfig));
+
+            if (dir.exists() && dir.canRead()) {
+                return CAStatus.Active;
+            }else{
+                LOGGER.warn("in getStatus: filename '{}', exists {}, can read {}", getFilename(caConfig), dir.exists(), dir.canRead());
+            }
+        }
+        return CAStatus.Problem;
 	}
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -301,6 +326,11 @@ public class DirectoryConnector {
 		return filename;
 	}
 
+    private int getHTTPResponseStatusCode(String urlString) throws IOException {
 
+        URL url = new URL(urlString);
+        HttpURLConnection http = (HttpURLConnection)url.openConnection();
+        return http.getResponseCode();
+    }
 
 }

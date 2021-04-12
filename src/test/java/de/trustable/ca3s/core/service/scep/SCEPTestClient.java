@@ -46,7 +46,7 @@ public class SCEPTestClient {
 
 		KeyPair keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
 
-		X500Principal enrollingPrincipal = new X500Principal("CN=SCEPRequested_" + System.currentTimeMillis() + ",O=trustable solutione,C=DE");
+		X500Principal enrollingPrincipal = new X500Principal("CN=SCEPRequested_" + System.currentTimeMillis() + ",O=trustable solutions,C=DE");
 
 		X509Certificate ephemeralCert = X509Certificates.createEphemeral(enrollingPrincipal, keyPair);
 

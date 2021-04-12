@@ -139,7 +139,7 @@ public class ScepServletImpl extends ScepServlet {
 
 				X500Principal subject = new X500Principal("CN=SCEPRecepient"
 						+ System.currentTimeMillis()
-						+ ", O=trustable solutione, C=DE");
+						+ ", O=trustable solutions, C=DE");
 
 				String p10ReqPem = CryptoUtil.getCsrAsPEM(subject,
 						keyPair.getPublic(),

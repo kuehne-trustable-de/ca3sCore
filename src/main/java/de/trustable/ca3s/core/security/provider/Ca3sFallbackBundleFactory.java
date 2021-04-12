@@ -34,10 +34,10 @@ public class Ca3sFallbackBundleFactory implements BundleFactory {
 
 	public Ca3sFallbackBundleFactory() {
 		try{
-			x500Issuer = new X500Name("CN=RootOn" + InetAddress.getLocalHost().getCanonicalHostName() + ", OU=temporary bootstrap root " + System.currentTimeMillis() + ", O=trustable solutione, C=DE");
+			x500Issuer = new X500Name("CN=RootOn" + InetAddress.getLocalHost().getCanonicalHostName() + ", OU=temporary bootstrap root " + System.currentTimeMillis() + ", O=trustable solutions, C=DE");
 		} catch(UnknownHostException uhe) {
 			LOG.debug("problem retrieving hostname", uhe);
-			x500Issuer = new X500Name("CN=CA3SHost, OU=temporary bootstrap root " + System.currentTimeMillis() + ", O=trustable solutione, C=DE");
+			x500Issuer = new X500Name("CN=CA3SHost, OU=temporary bootstrap root " + System.currentTimeMillis() + ", O=trustable solutions, C=DE");
 		}
 	}
 

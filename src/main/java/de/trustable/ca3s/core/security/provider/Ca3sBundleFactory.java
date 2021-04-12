@@ -46,7 +46,7 @@ public class Ca3sBundleFactory implements BundleFactory {
 		try {
 			InetAddress ip = InetAddress.getLocalHost();
 			String hostname = ip.getCanonicalHostName();
-			X500Principal subject = new X500Principal("CN=" + hostname + ", OU=ca3s " + System.currentTimeMillis() + ", O=trustable solutione, C=DE");
+			X500Principal subject = new X500Principal("CN=" + hostname + ", OU=ca3s " + System.currentTimeMillis() + ", O=trustable solutions, C=DE");
 			LOG.debug("requesting certificate for subject : " + subject.getName() );
 
 			String csrBase64 = CryptoUtil.getCsrAsPEM(subject, localKeyPair.getPublic(), localKeyPair.getPrivate(), null);

@@ -105,7 +105,7 @@ public class CaInternalConnector {
 
 		X500Name subject = new X500Name("CN=CA3S-Intermediate"
 				+ System.currentTimeMillis()
-				+ ", OU=Internal Only, OU=Dev/Test Only, O=trustable solutione, C=DE");
+				+ ", OU=Internal Only, OU=Dev/Test Only, O=trustable solutions, C=DE");
 
 		PrivateKey privKeyRoot = certUtil.getPrivateKey(root);
 		KeyPair kpRoot = new KeyPair(certUtil.convertPemToCertificate(root.getContent()).getPublicKey(), privKeyRoot);
@@ -135,7 +135,7 @@ public class CaInternalConnector {
 
 		X500Name subject = new X500Name("CN=CA3S-InternalRoot"
 				+ System.currentTimeMillis()
-				+ ", OU=Internal Only, OU=Dev/Test Only, O=trustable solutione, C=DE");
+				+ ", OU=Internal Only, OU=Dev/Test Only, O=trustable solutions, C=DE");
 
 		X509Certificate x509Cert = cryptoUtil.issueCertificate(subject, keyPair, subject, keyPair.getPublic().getEncoded(), Calendar.YEAR, 1, PKILevel.ROOT);
 

@@ -72,7 +72,7 @@ public class ScepServiceIT{
 		JCAManager.getInstance();
 
 		keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
-		enrollingPrincipal = new X500Principal("CN=SCEPRequested_" + System.currentTimeMillis() + ",O=trustable solutione,C=DE");
+		enrollingPrincipal = new X500Principal("CN=SCEPRequested_" + System.currentTimeMillis() + ",O=trustable solutions,C=DE");
 		ephemeralCert = X509Certificates.createEphemeral(enrollingPrincipal, keyPair);
 
 	}
@@ -149,7 +149,7 @@ public class ScepServiceIT{
     public void testScepEnrolFailedRestriction2CN() throws GeneralSecurityException, IOException, ClientException, TransactionException {
 
 
-        X500Principal doubleCNPrincipal = new X500Principal("CN=FirstCN, CN=SCEPRequested_" + System.currentTimeMillis() + ",O=trustable solutione,C=DE");
+        X500Principal doubleCNPrincipal = new X500Principal("CN=FirstCN, CN=SCEPRequested_" + System.currentTimeMillis() + ",O=trustable solutions,C=DE");
         LOG.info("doubleCNPrincipal : " + doubleCNPrincipal);
 
         PKCS10CertificationRequest csr = CryptoUtil.getCsr(doubleCNPrincipal,

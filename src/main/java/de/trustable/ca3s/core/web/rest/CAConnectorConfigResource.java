@@ -3,6 +3,7 @@ package de.trustable.ca3s.core.web.rest;
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.ProtectedContent;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
+import de.trustable.ca3s.core.domain.enumeration.Interval;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
@@ -258,10 +259,20 @@ public class CAConnectorConfigResource {
             logDiff("Name", oldConnector.getName(), cAConnectorConfig.getName(), cAConnectorConfig);
             logDiff("CaConnectorType", oldConnector.getCaConnectorType().name(), cAConnectorConfig.getCaConnectorType().name(), cAConnectorConfig);
             logDiff("CaUrl", oldConnector.getCaUrl(), cAConnectorConfig.getCaUrl(), cAConnectorConfig);
-            logDiff("Interval", oldConnector.getInterval().toString(), cAConnectorConfig.getInterval().toString(), cAConnectorConfig);
+            logDiff("Interval", oldConnector.getInterval(), cAConnectorConfig.getInterval(), cAConnectorConfig);
             logDiff("PollingOffset", "" + oldConnector.getPollingOffset(), "" + cAConnectorConfig.getPollingOffset(), cAConnectorConfig);
             logDiff("Selector", oldConnector.getSelector(), cAConnectorConfig.getSelector(), cAConnectorConfig);
         }
+    }
+
+    void logDiff(final String attributeName, final Interval oldVal, final Interval newVal, final CAConnectorConfig cAConnectorConfig){
+        if(( oldVal == null ) && ( newVal == null)){
+            return;
+        }
+        String oldString = (oldVal == null) ?"":oldVal.toString();
+        String newString = (newVal == null) ?"":newVal.toString();
+
+        logDiff( attributeName, oldString, newString, cAConnectorConfig);
     }
 
     void logDiff( final String attributeName, final String oldVal, final String newVal, final CAConnectorConfig cAConnectorConfig){

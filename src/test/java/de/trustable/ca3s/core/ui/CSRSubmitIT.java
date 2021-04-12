@@ -156,7 +156,7 @@ public class CSRSubmitIT extends WebTestBase{
 
 		String c = "GB";
 		String cn = "reqTest" + System.currentTimeMillis();
-		String o = "trustable solutione";
+		String o = "trustable solutions";
 		String ou = "nuclear research";
 		String l = "Birmingham";
 		String st = "West Midlands";
@@ -278,7 +278,7 @@ public class CSRSubmitIT extends WebTestBase{
 		validatePresent(LOC_TA_UPLOAD_CONTENT);
 
 		String cn = "reqTest" + System.currentTimeMillis();
-	    String subject = "CN=" + cn + ", O=trustable solutione, C=DE";
+	    String subject = "CN=" + cn + ", O=trustable solutions, C=DE";
 	    X500Principal subjectPrincipal = new X500Principal(subject);
 	    String csr = buildCSRAsPEM(subjectPrincipal);
         setLongText(LOC_TA_UPLOAD_CONTENT, csr);
@@ -347,7 +347,7 @@ public class CSRSubmitIT extends WebTestBase{
 		validatePresent(LOC_TA_UPLOAD_CONTENT);
 
 		String cn = "reqTest" + System.currentTimeMillis();
-	    String subject = "CN=" + cn + ", O=trustable solutione, C=DE";
+	    String subject = "CN=" + cn + ", O=trustable solutions, C=DE";
 	    X500Principal subjectPrincipal = new X500Principal(subject);
 	    String csr = buildCSRAsPEM(subjectPrincipal);
         setLongText(LOC_TA_UPLOAD_CONTENT, csr);

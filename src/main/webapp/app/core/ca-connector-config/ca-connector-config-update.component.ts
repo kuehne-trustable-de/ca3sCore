@@ -1,4 +1,4 @@
-import { Component, Vue, Inject } from 'vue-property-decorator';
+import { Component, Inject } from 'vue-property-decorator';
 
 import axios from 'axios';
 
@@ -9,6 +9,11 @@ import { ICAConnectorConfig, CAConnectorConfig } from '@/shared/model/ca-connect
 import CAConnectorConfigService from './ca-connector-config.service';
 
 import { ICAStatus } from '@/shared/model/transfer-object.model';
+import { mixins } from 'vue-class-component';
+import JhiDataUtils from '@/shared/data/data-utils.service';
+
+import HelpTag from '@/core/help/help-tag.vue';
+import AuditTag from '@/core/audit/audit-tag.vue';
 
 const validations: any = {
   cAConnectorConfig: {
@@ -29,9 +34,13 @@ const validations: any = {
 };
 
 @Component({
-  validations
+  validations,
+  components: {
+    HelpTag,
+    AuditTag
+  }
 })
-export default class CAConnectorConfigUpdate extends Vue {
+export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
   @Inject('alertService') private alertService: () => AlertService;
   @Inject('cAConnectorConfigService') private cAConnectorConfigService: () => CAConnectorConfigService;
   public cAConnectorConfig: ICAConnectorConfig = new CAConnectorConfig();
@@ -46,7 +55,6 @@ export default class CAConnectorConfigUpdate extends Vue {
         vm.retrieveCAConnectorConfig(to.params.cAConnectorConfigId, to.params.mode);
       }
       vm.initRelationships();
-
     });
   }
 
@@ -74,7 +82,6 @@ export default class CAConnectorConfigUpdate extends Vue {
   }
 
   public retrieveCAConnectorConfig(cAConnectorConfigId, mode): void {
-
     this.cAConnectorConfigService()
       .find(cAConnectorConfigId)
       .then(res => {
@@ -90,9 +97,7 @@ export default class CAConnectorConfigUpdate extends Vue {
     this.$router.go(-1);
   }
 
-  public initRelationships(): void {
-
-  }
+  public initRelationships(): void {}
 
   public testCaConnectorConfig(): void {
     window.console.info('calling checkCaConnectorConfig ');
@@ -103,11 +108,9 @@ export default class CAConnectorConfigUpdate extends Vue {
       url: 'api/ca-connector-configs/getStatus',
       data: self.cAConnectorConfig,
       responseType: 'stream'
-    })
-    .then(function(response) {
-      window.console.info('testCaConnectorConfig returns ' + response.data );
+    }).then(function(response) {
+      window.console.info('testCaConnectorConfig returns ' + response.data);
       self.caStatus = response.data;
     });
   }
-
 }

@@ -63,6 +63,12 @@ public class CaConnectorAdapter {
 			return CAStatus.Unknown;
 		}
 
+		if( !caConfig.isActive()){
+            LOGGER.debug("CAConnector '" + caConfig.getName() + "' is deactivated");
+		    // not active, no need for a check running into a timeout ....
+            return CAStatus.Deactivated;
+        }
+
 		if (CAConnectorType.ADCS.equals(caConfig.getCaConnectorType())) {
 			LOGGER.debug("CAConnectorType ADCS at " + caConfig.getCaUrl());
 			return adcsConnector.getStatus(caConfig);

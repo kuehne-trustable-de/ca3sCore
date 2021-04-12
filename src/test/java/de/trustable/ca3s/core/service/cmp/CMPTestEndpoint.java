@@ -47,7 +47,7 @@ public class CMPTestEndpoint {
 
 		keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
 
-		issuer = new X500Name("CN=test root " + System.currentTimeMillis() + ", O=trustable solutione, C=DE");
+		issuer = new X500Name("CN=test root " + System.currentTimeMillis() + ", O=trustable solutions, C=DE");
 		issuingCertificate = cryptoUtil.issueCertificate(issuer, keyPair, issuer, keyPair.getPublic().getEncoded(), Calendar.MONTH, 1, PKILevel.ROOT);
 
 	}
