@@ -92,7 +92,7 @@ public class CertificateView implements Serializable {
     	this.tbsDigest = cert.getTbsDigest();
     	this.subject = cert.getSubject();
     	this.sans = cert.getSans();
-    	this.issuer = cert.getIssuer();
+        this.issuer = cert.getIssuer();
     	this.type = cert.getType();
     	this.fingerprint = cert.getFingerprint();
    		this.keyLength = cert.getKeyLength().toString();
@@ -122,8 +122,9 @@ public class CertificateView implements Serializable {
     		this.issuerId = cert.getIssuingCertificate().getId();
     	}
 
-    	List<String> usageList = new ArrayList<String>();
-    	List<String> extUsageList = new ArrayList<String>();
+    	List<String> usageList = new ArrayList<>();
+        List<String> extUsageList = new ArrayList<>();
+        List<String> sanList = new ArrayList<>();
 
     	for( CertificateAttribute certAttr: cert.getCertificateAttributes()) {
     		if( CertificateAttribute.ATTRIBUTE_CA_CONNECTOR_ID.equalsIgnoreCase(certAttr.getName())) {
@@ -165,6 +166,8 @@ public class CertificateView implements Serializable {
     			usageList.add(certAttr.getValue());
             } else if(CertificateAttribute.ATTRIBUTE_EXTENDED_USAGE.equalsIgnoreCase(certAttr.getName())) {
                 extUsageList.add(certAttr.getValue());
+            } else if(CertificateAttribute.ATTRIBUTE_SAN.equalsIgnoreCase(certAttr.getName())) {
+                sanList.add(certAttr.getValue());
             } else if(CertificateAttribute.ATTRIBUTE_COMMENT.equalsIgnoreCase(certAttr.getName())) {
                 this.setComment(certAttr.getValue());
     		}else {
@@ -172,8 +175,9 @@ public class CertificateView implements Serializable {
 
     		}
     	}
-    	this.usage = usageList.toArray(new String[usageList.size()]);
-    	this.extUsage = extUsageList.toArray(new String[extUsageList.size()]);
+    	this.usage = usageList.toArray(new String[0]);
+        this.extUsage = extUsageList.toArray(new String[0]);
+        this.sanArr = sanList.toArray(new String[0]);
 
     	this.downloadFilename = CertificateUtil.getDownloadFilename(cert);
 
@@ -584,7 +588,7 @@ public class CertificateView implements Serializable {
                 nvList.add(nv);
             }
         }
-        return nvList.toArray(new NamedValue[nvList.size()]);
+        return nvList.toArray(new NamedValue[0]);
     }
 
     public Boolean getAuditPresent() {

@@ -62,6 +62,22 @@ public class AuditTraceViewResource {
         ) {
         log.debug("REST request to get AuditTraceViews");
 
+        if( certificateId == null){
+            certificateId = Long.MIN_VALUE;
+        }
+        if( csrId == null){
+            csrId = Long.MIN_VALUE;
+        }
+        if( pipelineId == null){
+            pipelineId = Long.MIN_VALUE;
+        }
+        if( caConnectorId == null){
+            caConnectorId = Long.MIN_VALUE;
+        }
+        if( processInfoId == null){
+            processInfoId = Long.MIN_VALUE;
+        }
+
         Page<AuditTrace> page = auditTraceService.findBy( pageable,certificateId, csrId, pipelineId, caConnectorId, processInfoId);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
 

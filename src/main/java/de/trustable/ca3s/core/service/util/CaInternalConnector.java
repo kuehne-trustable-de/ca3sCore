@@ -12,8 +12,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.CRLReason;
+import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.Extensions;
+import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,12 +58,6 @@ public class CaInternalConnector {
     CSRUtil csrUtil;
 
 
-    /**
-     *
-     * @return
-     * @throws GeneralSecurityException
-     * @throws IOException
-     */
 	Certificate getRoot() throws GeneralSecurityException, IOException {
 
 		List<Certificate> certList = certRepository.findByAttributeValue( CertificateAttribute.ATTRIBUTE_CAS3_ROOT, "true");
@@ -73,12 +71,6 @@ public class CaInternalConnector {
 
 	}
 
-	/**
-	 *
-	 * @return
-	 * @throws GeneralSecurityException
-	 * @throws IOException
-	 */
 	Certificate getIntermediate() throws GeneralSecurityException, IOException {
 
 		List<Certificate> certList = certRepository.findByAttributeValue( CertificateAttribute.ATTRIBUTE_CAS3_INTERMEDIATE, "true");
@@ -92,13 +84,6 @@ public class CaInternalConnector {
 
 	}
 
-	/**
-	 *
-	 * @param root
-	 * @return
-	 * @throws GeneralSecurityException
-	 * @throws IOException
-	 */
 	private Certificate createNewIntermediate(Certificate root) throws GeneralSecurityException, IOException {
 
 		KeyPair keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
@@ -188,8 +173,16 @@ public class CaInternalConnector {
 
 			PKCS10CertificationRequest p10 = cryptoUtil.convertPemToPKCS10CertificationRequest(csr.getCsrBase64());
 
+            GeneralNames gns = null;
+            org.bouncycastle.asn1.pkcs.Attribute[] certAttributes = p10.getAttributes();
+            for (org.bouncycastle.asn1.pkcs.Attribute attribute : certAttributes) {
+                if (attribute.getAttrType().equals(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest)) {
+                    Extensions extensions = Extensions.getInstance(attribute.getAttrValues().getObjectAt(0));
+                    gns = GeneralNames.fromExtensions(extensions, Extension.subjectAlternativeName);
+                }
+            }
 
-			X509Certificate x509Cert = cryptoUtil.issueCertificate(new X500Name(intermediate.getSubject()), kpIntermediate, p10.getSubject(), p10.getSubjectPublicKeyInfo(), Calendar.YEAR, 1, PKILevel.END_ENTITY);
+            X509Certificate x509Cert = cryptoUtil.issueCertificate(new X500Name(intermediate.getSubject()), kpIntermediate, p10.getSubject(), p10.getSubjectPublicKeyInfo(), Calendar.YEAR, 1, gns, PKILevel.END_ENTITY);
 
 			Certificate cert = certUtil.createCertificate(x509Cert.getEncoded(), csr, "", false);
 			cert.setRevocationCA(caConfig);

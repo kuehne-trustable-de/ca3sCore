@@ -5,7 +5,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>0.1.11</version>
+    <version>0.1.12</version>
     <packaging>jar</packaging>
 
 
@@ -129,7 +129,7 @@
         <junit.itReportFolder>${project.testresult.directory}/integrationTest</junit.itReportFolder>
         <!-- jhipster-needle-maven-property -->
 
-        <cryptoUtilVersion>1.1.8</cryptoUtilVersion>
+        <cryptoUtilVersion>1.1.9</cryptoUtilVersion>
         <certBundleVersion>1.1.1</certBundleVersion>
     	<nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
     	<adcsUtilVersion>1.2.0</adcsUtilVersion>
@@ -364,6 +364,34 @@
                 <groupId>org.jetbrains</groupId>
                 <artifactId>annotations</artifactId>
                 <version>20.1.0</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.apache.tika/tika-core -->
+            <dependency>
+                <groupId>org.apache.tika</groupId>
+                <artifactId>tika-core</artifactId>
+                <version>1.26</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox -->
+            <dependency>
+                <groupId>org.apache.pdfbox</groupId>
+                <artifactId>pdfbox</artifactId>
+                <version>2.0.23</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.apache.pdfbox/preflight -->
+            <dependency>
+                <groupId>org.apache.pdfbox</groupId>
+                <artifactId>preflight</artifactId>
+                <version>2.0.23</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-to-slf4j -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-to-slf4j</artifactId>
+                <version>2.14.1</version>
             </dependency>
 
         </dependencies>
