@@ -8,6 +8,8 @@ import { IAuditTraceView, ICertificateFilter, ICertificateFilterList } from '@/s
 import { mixins } from 'vue-class-component';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
+Vue.use(VuejsDatatableFactory);
+
 VuejsDatatableFactory.registerTableType<any, any, any, any, any>('audits-table', tableType =>
   tableType
     .setFilterHandler((source, filter, columns) => ({
@@ -141,13 +143,13 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
     return {
       columns: [
         { label: 'id', field: 'id', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
-        { label: this.$t('actor'), field: 'actorName' },
-        { label: this.$t('role'), field: 'actorRole' },
-        { label: this.$t('plainContent'), field: 'plainContent' },
-        { label: this.$t('createdOn'), field: 'createdOn' },
-        { label: this.$t('certificateId'), field: 'certificateId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
-        { label: this.$t('csrId'), field: 'csrId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
-        { label: this.$t('links'), field: 'links', headerClass: 'hiddenColumn', class: 'hiddenColumn' }
+        { label: this.$t('audits.actor'), field: 'actorName' },
+        { label: this.$t('audits.role'), field: 'actorRole' },
+        { label: this.$t('audits.plainContent'), field: 'plainContent' },
+        { label: this.$t('audits.createdOn'), field: 'createdOn' },
+        { label: 'certificateId', field: 'certificateId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
+        { label: 'csrId', field: 'csrId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
+        { label: this.$t('audits.links'), field: 'links', headerClass: 'hiddenColumn', class: 'hiddenColumn' }
       ] as TColumnsDefinition<IAuditTraceView>,
 
       get auditApiUrl() {
@@ -192,21 +194,11 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
     const baseApiUrl = 'api/audit-trace-views';
 
     let url = baseApiUrl + '?';
-    if (this.csrId !== undefined) {
-      url += 'csrId=' + this.csrId + '&';
-    }
-    if (this.certificateId !== undefined) {
-      url += 'certificateId=' + this.certificateId + '&';
-    }
-    if (this.pipelineId !== undefined) {
-      url += 'pipelineId=' + this.pipelineId + '&';
-    }
-    if (this.caConnectorId !== undefined) {
-      url += 'caConnectorId=' + this.caConnectorId + '&';
-    }
-    if (this.processInfoId !== undefined) {
-      url += 'processInfoId=' + this.processInfoId + '&';
-    }
+    url += 'csrId=' + this.processParamForURL(this.csrId);
+    url += 'certificateId=' + this.processParamForURL(this.certificateId);
+    url += 'pipelineId=' + this.processParamForURL(this.pipelineId);
+    url += 'caConnectorId=' + this.processParamForURL(this.caConnectorId);
+    url += 'processInfoId=' + this.processParamForURL(this.processInfoId);
 
     window.console.info('buildContentAccessUrl: url : ' + url);
 
@@ -218,6 +210,16 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
       window.console.info('buildContentAccessUrl: change propagated: ' + url);
     }
     return url;
+  }
+
+  processParamForURL(id): string {
+    if (id === null) {
+      return '-1&';
+    } else if (id !== undefined) {
+      return id + '&';
+    } else {
+      return '-1&';
+    }
   }
 
   public _buildContentAccessUrl(): string {

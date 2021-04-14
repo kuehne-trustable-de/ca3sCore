@@ -309,6 +309,10 @@
 
 
 
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.audit')" >Audit</label>
+                        <audit-tag :pipelineId="pipeline.id" showLinks="false"></audit-tag>
+                    </div>
 
                     <!--div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.processInfo')" for="pipeline-processInfo">Process Info</label>

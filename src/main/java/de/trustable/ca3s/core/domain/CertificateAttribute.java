@@ -111,8 +111,8 @@ public class CertificateAttribute implements Serializable {
 	public static final String ATTRIBUTE_SCEP_TRANS_ID = "CA3S:SCEP_TRANS_ID";
 	public static final String ATTRIBUTE_SELFSIGNED = "CA3S:SELFSIGNED";
 	public static final String ATTRIBUTE_CA = "CA3S:CA";
-	public static final String ATTRIBUTE_CAS3_ROOT = "CA3S:ROOT";
-	public static final String ATTRIBUTE_CAS3_INTERMEDIATE = "CA3S:INTERMEDIATE";
+	public static final String ATTRIBUTE_CA3S_ROOT = "CA3S:ROOT";
+	public static final String ATTRIBUTE_CA3S_INTERMEDIATE = "CA3S:INTERMEDIATE";
 	public static final String ATTRIBUTE_END_ENTITY = "CA3S:END_ENTITY";
 	public static final String ATTRIBUTE_CHAIN_LENGTH = "CA3S:CHAIN_LENGTH";
 

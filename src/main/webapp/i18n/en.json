@@ -16,6 +16,13 @@
   "audits.table.header.principal": "",
   "audits.table.header.status": "",
   "audits.title": "",
+
+  "audits.actor": "User",
+  "audits.role": "Role",
+  "audits.plainContent": "Info",
+  "audits.createdOn": "On",
+  "audits.links": "Links",
+
   "ca3SApp.AccountStatus.DEACTIVATED": "DEACTIVATED",
   "ca3SApp.AccountStatus.REVOKED": "REVOKED",
   "ca3SApp.AccountStatus.VALID": "VALID",
@@ -1021,5 +1028,7 @@
   "PIPELINE_TYPE_CHANGED": "Pipeline type updated from '{{oldVal}}' to '{{newVal}}'",
   "PIPELINE_URLPART_CHANGED": "Pipeline URL part updated from '{{oldVal}}' to '{{newVal}}'",
   "PIPELINE_APPROVAL_REQUIRED_CHANGED": "Pipeline 'approval required' updated from '{{oldVal}}' to '{{newVal}}'",
-  "PIPELINE_ACTIVE_CHANGED": "Pipeline 'active' state updated from '{{oldVal}}' to '{{newVal}}'"
+  "PIPELINE_ACTIVE_CHANGED": "Pipeline 'active' state updated from '{{oldVal}}' to '{{newVal}}'",
+
+  "CA_CONNECTOR_ATTRIBUTE_CHANGED": "Connector attribute '{{attribute}}' updated from '{{oldVal}}' to '{{newVal}}'"
 }

@@ -17,9 +17,6 @@ import { VuejsDatatableFactory, TColumnsDefinition, ITableContentParam } from 'v
 import axios from 'axios';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
-// import VueAxios from 'vue-axios'
-// Vue.use(VueAxios, axios)
-
 Vue.use(VuejsDatatableFactory);
 
 interface ISelectionChoices {

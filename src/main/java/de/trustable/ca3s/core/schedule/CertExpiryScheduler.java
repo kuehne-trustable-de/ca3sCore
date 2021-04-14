@@ -10,10 +10,7 @@ import java.security.cert.X509CRLEntry;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import javax.naming.NamingException;
 
@@ -135,87 +132,116 @@ public class CertExpiryScheduler {
 
 		long startTime = System.currentTimeMillis();
 
-		List<Certificate> certWithURLList = certificateRepo.findActiveCertificateByCrlURL();
+		HashSet<String> brokenCrlUrlList = new HashSet<>();
+
+		List<Object[]> certWithURLList = certificateRepo.findActiveCertificateOrderedByCrlURL();
 
 		int count = 0;
-		for (Certificate cert : certWithURLList) {
+		for (Object[] resultArr : certWithURLList) {
+            Certificate cert = (Certificate) resultArr[0];
+
 			LOG.debug("Checking certificate {} for CRL status", cert.getId());
-			boolean bCRLDownloadSuccess = false;
-			int crlUrlCount = 0;
-			for( CertificateAttribute certAtt: cert.getCertificateAttributes()) {
-				String nextUpdate = certUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE);
-				if( nextUpdate != null ) {
-					try {
-					long nextUpdateMilliSec = Long.parseLong(nextUpdate);
-					if( startTime < nextUpdateMilliSec) {
-						LOG.debug("No CRL check for certificate {}, {} sec left ...", cert.getId(), (nextUpdateMilliSec - startTime) / 1000L);
-						continue;
-					}
-					} catch(NumberFormatException nfe) {
-						LOG.warn("unexpected value for 'next update' in ATTRIBUTE_CRL_NEXT_UPDATE: {} in cert {}", nextUpdate, cert.getId());
-					}
-				}
 
+            String nextUpdate = certUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE);
+            if( nextUpdate != null ) {
+                try {
+                    long nextUpdateMilliSec = Long.parseLong(nextUpdate);
+                    if( startTime < nextUpdateMilliSec) {
+                        LOG.debug("No CRL check for certificate {}, {} sec left ...", cert.getId(), (nextUpdateMilliSec - startTime) / 1000L);
+                        continue;
+                    }
+                } catch(NumberFormatException nfe) {
+                    LOG.warn("unexpected value for 'next update' in ATTRIBUTE_CRL_NEXT_UPDATE: {} in cert {}", nextUpdate, cert.getId());
+                }
+            }
 
-				try {
-					X509Certificate x509Cert = certUtil.convertPemToCertificate(cert.getContent());
-					if( CertificateAttribute.ATTRIBUTE_CRL_URL.equals(certAtt.getName())) {
-						crlUrlCount++;
-						try {
-							X509CRL crl = crlUtil.downloadCRL(certAtt.getValue());
-							if( crl == null) {
-								continue;
-							}
+            try {
+                CRLUpdateInfo crlInfo = checkAllCRLsForCertificate( cert,
+                    certUtil.convertPemToCertificate(cert.getContent()),
+                    brokenCrlUrlList);
 
-							X509CRLEntry crlItem = crl.getRevokedCertificate(new BigInteger(cert.getSerial()));
+                if( !crlInfo.isbCRLDownloadSuccess() ) {
+                    LOG.info("Downloading all CRL #{} for certificate {} failed", crlInfo.getCrlUrlCount(), cert.getId());
+                }
 
-							if( (crlItem != null) && (crl.isRevoked(x509Cert) ) ) {
+            }catch(GeneralSecurityException gse){
+                LOG.debug("problem converting certificate id '"+ cert.getId()+"' to X509",gse);
+                continue;
+            }
 
-								String revocationReason = "unspecified";
-								if( crlItem.getRevocationReason() != null ) {
-									if( cryptoUtil.crlReasonAsString(CRLReason.lookup(crlItem.getRevocationReason().ordinal())) != null ) {
-										revocationReason = cryptoUtil.crlReasonAsString(CRLReason.lookup(crlItem.getRevocationReason().ordinal()));
-									}
-								}
-
-								Date revocationDate = new Date();
-								if( crlItem.getRevocationDate() != null) {
-									revocationDate = crlItem.getRevocationDate();
-								}else {
-									LOG.debug("Checking certificate {}: no RevocationDate present for reason {}!", cert.getId(), revocationReason);
-								}
-
-							    certUtil.setRevocationStatus(cert, revocationReason, revocationDate);
-
-							    certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE, crl.getNextUpdate().getTime());
-
-                                auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_CERTIFICATE_REVOKED_BY_CRL, cert));
-							}
-							bCRLDownloadSuccess = true;
-							break;
-						} catch (CertificateException | CRLException | IOException | NamingException e2) {
-							LOG.info("Problem retrieving CRL for certificate "+ cert.getId(), e2);
-						}
-					}
-				} catch (GeneralSecurityException e) {
-					LOG.info("Problem reading X509 content of certificate {} " + cert.getId(), e);
-				}
-
-			}
-			if( !bCRLDownloadSuccess ) {
-				LOG.info("Downloading all CRL #{} for certificate {} failed", crlUrlCount, cert.getId());
-			}
-
-
-			if( count++ > MAX_RECORDS_PER_TRANSACTION) {
-				LOG.info("limited certificate revocation check to {} per call", MAX_RECORDS_PER_TRANSACTION);
-				break;
-			}
+            if( count++ > MAX_RECORDS_PER_TRANSACTION) {
+                LOG.info("limited certificate revocation check to {} per call", MAX_RECORDS_PER_TRANSACTION);
+                break;
+            }
 
 		}
 
-		LOG.info("#{} certificate revocation checks in {} mSec", count, System.currentTimeMillis() - startTime );
+		if( !brokenCrlUrlList.isEmpty()) {
+            LOG.info("#{} CRL URLs marked as inacessable / broken", brokenCrlUrlList.size());
+        }
+        LOG.info("#{} certificate revocation checks in {} mSec", count, System.currentTimeMillis() - startTime );
 	}
+
+    CRLUpdateInfo checkAllCRLsForCertificate(Certificate cert, X509Certificate x509Cert, HashSet<String> brokenCrlUrlList){
+
+        CRLUpdateInfo info = new CRLUpdateInfo();
+
+        for( CertificateAttribute certAtt: cert.getCertificateAttributes()) {
+
+
+            // iterate all CRL URLs
+            if( CertificateAttribute.ATTRIBUTE_CRL_URL.equals(certAtt.getName())) {
+                String crlUrl = certAtt.getValue();
+
+                if(brokenCrlUrlList.contains(crlUrl)){
+                    LOG.debug("CRL URL'{}' already marked as broken / inaccessable", crlUrl);
+                    continue;
+                }
+
+                info.incUrlCount();
+                try {
+                    LOG.debug("downloading CRL '{}'", crlUrl);
+                    X509CRL crl = crlUtil.downloadCRL(crlUrl);
+                    if( crl == null) {
+                        continue;
+                    }
+
+                    // set the crl's 'next update' timestamp to the certificate
+                    certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE, crl.getNextUpdate().getTime());
+
+                    X509CRLEntry crlItem = crl.getRevokedCertificate(new BigInteger(cert.getSerial()));
+
+                    if( (crlItem != null) && (crl.isRevoked(x509Cert) ) ) {
+
+                        String revocationReason = "unspecified";
+                        if( crlItem.getRevocationReason() != null ) {
+                            if( cryptoUtil.crlReasonAsString(CRLReason.lookup(crlItem.getRevocationReason().ordinal())) != null ) {
+                                revocationReason = cryptoUtil.crlReasonAsString(CRLReason.lookup(crlItem.getRevocationReason().ordinal()));
+                            }
+                        }
+
+                        Date revocationDate = new Date();
+                        if( crlItem.getRevocationDate() != null) {
+                            revocationDate = crlItem.getRevocationDate();
+                        }else {
+                            LOG.debug("Checking certificate {}: no RevocationDate present for reason {}!", cert.getId(), revocationReason);
+                        }
+
+                        certUtil.setRevocationStatus(cert, revocationReason, revocationDate);
+
+                        auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_CERTIFICATE_REVOKED_BY_CRL, cert));
+                    }
+                    info.setSuccess();
+                    break;
+                } catch (CertificateException | CRLException | IOException | NamingException e2) {
+                    LOG.info("Problem retrieving CRL for certificate "+ cert.getId(), e2);
+                    brokenCrlUrlList.add(crlUrl);
+                }
+            }
+        }
+
+        return info;
+    }
 
 	/**
 	 * @return number of expiring certificates
@@ -268,4 +294,23 @@ public class CertExpiryScheduler {
     	}
 		return raOfficerList;
 	}
+
+	class CRLUpdateInfo{
+        boolean bCRLDownloadSuccess = false;
+        int crlUrlCount = 0;
+
+        public CRLUpdateInfo(){}
+
+        public void setSuccess(){ bCRLDownloadSuccess = true;}
+
+        public void incUrlCount(){ crlUrlCount++;}
+
+        public boolean isbCRLDownloadSuccess() {
+            return bCRLDownloadSuccess;
+        }
+
+        public int getCrlUrlCount() {
+            return crlUrlCount;
+        }
+    }
 }

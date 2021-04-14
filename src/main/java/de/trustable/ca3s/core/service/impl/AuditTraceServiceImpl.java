@@ -74,18 +74,19 @@ public class AuditTraceServiceImpl implements AuditTraceService {
     @Override
     @Transactional(readOnly = true)
     public Page<AuditTrace> findBy(Pageable pageable, Long certificateId, Long csrId, Long pipelineId, Long caConnectorId, Long processInfoId){
-        if( (certificateId != null) || (csrId != null)) {
+
+        if( (certificateId != -1 ) || (csrId != -1 )) {
             log.debug("Request to select AuditTrace by certificate id '{}' or csr id '{}'", certificateId, csrId);
 
             Certificate cert = null;
             CSR csr = null;
-            if( certificateId!= null) {
+            if( certificateId!= -1) {
                 Optional<Certificate> optCert = certificateRepository.findById(certificateId);
                 if (optCert.isPresent()) {
                     cert = optCert.get();
                 }
             }
-            if( csrId!= null) {
+            if( csrId!= -1) {
                 Optional<CSR> optCsr = csrRepository.findById(csrId);
                 if (optCsr.isPresent()) {
                     csr = optCsr.get();
@@ -93,19 +94,19 @@ public class AuditTraceServiceImpl implements AuditTraceService {
             }
             return auditTraceRepository.findByCsrAndCert(pageable, cert, csr);
 
-        } else if( pipelineId != null){
+        } else if( pipelineId != -1){
             log.debug("Request to select AuditTrace by pipeline id '{}'", pipelineId);
             Optional<Pipeline> optPipeline = pipelineRepository.findById(pipelineId);
             if(optPipeline.isPresent()){
                 return auditTraceRepository.findByPipeline(pageable, optPipeline.get());
             }
-        } else if( caConnectorId != null){
+        } else if( caConnectorId != -1){
             log.debug("Request to select AuditTrace by caConnector id '{}'", caConnectorId);
             Optional<CAConnectorConfig> optCaConfig = caConnectorConfigRepository.findById(caConnectorId);
             if(optCaConfig.isPresent()){
                 return auditTraceRepository.findByCaConnector(pageable, optCaConfig.get());
             }
-        } else if( processInfoId != null){
+        } else if( processInfoId != -1){
             log.debug("Request to select AuditTrace by processInfo id '{}'", processInfoId);
             Optional<BPMNProcessInfo> optProcessInfo = bpmnProcessInfoRepository.findById(processInfoId);
             if(optProcessInfo.isPresent()){

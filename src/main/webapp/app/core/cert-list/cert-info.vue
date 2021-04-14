@@ -216,8 +216,8 @@
 
                     <Fragment v-if="isEditable()">
                         <div v-for="attr in certificateView.arArr" :key="attr.name" class="form-group">
-                            <label class="form-control-label"  for="cert-ar-{attr.name}">{{attr.name}}</label>
-                            <input type="text" class="form-control" name="rejectionReason" id="cert-ar-{attr.name}" v-model="attr.value" />
+                            <label class="form-control-label"  :for="'cert-ar-'+attr.name">{{attr.name}}</label>
+                            <input type="text" class="form-control" name="rejectionReason" :id="'cert-ar-'+attr.name" v-model="attr.value" />
                         </div>
                     </Fragment>
 

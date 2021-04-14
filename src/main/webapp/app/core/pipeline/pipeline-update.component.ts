@@ -14,6 +14,9 @@ import { IPipelineView, IARARestriction } from '@/shared/model/transfer-object.m
 import AlertService from '@/shared/alert/alert.service';
 import PipelineViewService from './pipelineview.service';
 
+import HelpTag from '@/core/help/help-tag.vue';
+import AuditTag from '@/core/audit/audit-tag.vue';
+
 const validations: any = {
   pipeline: {
     name: {
@@ -38,7 +41,11 @@ const validations: any = {
 };
 
 @Component({
-  validations
+  validations,
+  components: {
+    HelpTag,
+    AuditTag
+  }
 })
 export default class PipelineUpdate extends Vue {
   @Inject('alertService') private alertService: () => AlertService;

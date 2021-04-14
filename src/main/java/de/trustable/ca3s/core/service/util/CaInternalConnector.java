@@ -10,7 +10,6 @@ import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -60,7 +59,7 @@ public class CaInternalConnector {
 
 	Certificate getRoot() throws GeneralSecurityException, IOException {
 
-		List<Certificate> certList = certRepository.findByAttributeValue( CertificateAttribute.ATTRIBUTE_CAS3_ROOT, "true");
+		List<Certificate> certList = certRepository.findByAttributeValue( CertificateAttribute.ATTRIBUTE_CA3S_ROOT, "true");
 
 		Certificate certRoot = getLongestValidCertificate(certList);
 		if( certRoot == null ) {
@@ -73,7 +72,7 @@ public class CaInternalConnector {
 
 	Certificate getIntermediate() throws GeneralSecurityException, IOException {
 
-		List<Certificate> certList = certRepository.findByAttributeValue( CertificateAttribute.ATTRIBUTE_CAS3_INTERMEDIATE, "true");
+		List<Certificate> certList = certRepository.findByAttributeValue( CertificateAttribute.ATTRIBUTE_CA3S_INTERMEDIATE, "true");
 
 		Certificate certIntermediate = getLongestValidCertificate(certList);
 		if( certIntermediate == null ) {
@@ -101,7 +100,7 @@ public class CaInternalConnector {
 
 		certUtil.storePrivateKey(intermediateCert, keyPair);
 
-		certUtil.setCertAttribute(intermediateCert, CertificateAttribute.ATTRIBUTE_CAS3_INTERMEDIATE, "true");
+		certUtil.setCertAttribute(intermediateCert, CertificateAttribute.ATTRIBUTE_CA3S_INTERMEDIATE, "true");
 
 		certRepository.save(intermediateCert);
 
@@ -128,7 +127,7 @@ public class CaInternalConnector {
 
 		certUtil.storePrivateKey(rootCert, keyPair);
 
-		certUtil.setCertAttribute(rootCert, CertificateAttribute.ATTRIBUTE_CAS3_ROOT, "true");
+		certUtil.setCertAttribute(rootCert, CertificateAttribute.ATTRIBUTE_CA3S_ROOT, "true");
 
 		certRepository.save(rootCert);
 

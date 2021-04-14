@@ -155,9 +155,9 @@ public class CertificateView implements Serializable {
     			this.selfsigned = Boolean.valueOf(certAttr.getValue());
     		} else if( CertificateAttribute.ATTRIBUTE_CA.equalsIgnoreCase(certAttr.getName())) {
     			this.ca = Boolean.valueOf(certAttr.getValue());
-    		} else if( CertificateAttribute.ATTRIBUTE_CAS3_ROOT.equalsIgnoreCase(certAttr.getName())) {
+    		} else if( CertificateAttribute.ATTRIBUTE_CA3S_ROOT.equalsIgnoreCase(certAttr.getName())) {
     		} else if( CertificateAttribute.ATTRIBUTE_ROOT.equalsIgnoreCase(certAttr.getName())) {
-    		} else if( CertificateAttribute.ATTRIBUTE_CAS3_INTERMEDIATE.equalsIgnoreCase(certAttr.getName())) {
+    		} else if( CertificateAttribute.ATTRIBUTE_CA3S_INTERMEDIATE.equalsIgnoreCase(certAttr.getName())) {
     		} else if( CertificateAttribute.ATTRIBUTE_END_ENTITY.equalsIgnoreCase(certAttr.getName())) {
     			this.endEntity = Boolean.valueOf(certAttr.getValue());
     		} else if( CertificateAttribute.ATTRIBUTE_CHAIN_LENGTH.equalsIgnoreCase(certAttr.getName())) {
