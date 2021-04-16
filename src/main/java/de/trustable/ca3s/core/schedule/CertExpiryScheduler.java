@@ -140,7 +140,7 @@ public class CertExpiryScheduler {
 		for (Object[] resultArr : certWithURLList) {
             Certificate cert = (Certificate) resultArr[0];
 
-			LOG.debug("Checking certificate {} for CRL status", cert.getId());
+			LOG.debug("Checking certificate {} for CRL status, URL '{}'", cert.getId(), resultArr[1]);
 
             String nextUpdate = certUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE);
             if( nextUpdate != null ) {

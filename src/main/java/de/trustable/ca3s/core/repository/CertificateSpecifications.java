@@ -22,6 +22,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 import javax.persistence.criteria.Subquery;
 
+import de.trustable.ca3s.core.service.util.CertificateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -643,14 +644,20 @@ public final class CertificateSpecifications {
 			String decSerial = attributeValue;
 			if( attributeValue.startsWith("#")){
 				decSerial = attributeValue.substring(1);
-			} else if( attributeValue.startsWith("$")){
-				BigInteger serialBI = new BigInteger( attributeValue.substring(1).replaceAll(" ", ""), 16);
-				decSerial = serialBI.toString();
+            } else if( attributeValue.startsWith("$")){
+                BigInteger serialBI = new BigInteger( attributeValue.substring(1).replaceAll(" ", ""), 16);
+                decSerial = serialBI.toString();
+            } else if( attributeValue.toLowerCase().startsWith("0x")){
+                BigInteger serialBI = new BigInteger( attributeValue.substring(2).replaceAll(" ", ""), 16);
+                decSerial = serialBI.toString();
 			}
+
+            String paddedSerial = CertificateUtil.getPaddedSerial(decSerial);
+            logger.debug("serial used for search {} ", paddedSerial);
 
 			Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
 			pred = cb.and( cb.equal(attJoin.<String>get(CertificateAttribute_.name), CertificateAttribute.ATTRIBUTE_SERIAL_PADDED),
-					buildPredicate( attributeSelector, cb, attJoin.<String>get(CertificateAttribute_.value), de.trustable.util.CryptoUtil.getPaddedSerial(decSerial)));
+					buildPredicate( attributeSelector, cb, attJoin.<String>get(CertificateAttribute_.value), paddedSerial));
 
 		}else if( "validFrom".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.validFrom));

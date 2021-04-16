@@ -108,6 +108,7 @@ import de.trustable.util.Pkcs10RequestHolder;
 public class CertificateUtil {
 
     private static final String SERIAL_PADDING_PATTERN = "000000000000000000000000000000000000000000000000000000000000000";
+
     private static final String TIMESTAMP_PADDING_PATTERN = "000000000000000000";
 
     static HashSet<Integer> lenSet = new HashSet<Integer>();
@@ -1111,8 +1112,10 @@ public class CertificateUtil {
 		if( len >= SERIAL_PADDING_PATTERN.length() ){
 			return serial;
 		}
+
 		return SERIAL_PADDING_PATTERN.substring(serial.length()) + serial;
-	}
+
+    }
 
 	/**
 	 * bloat the string-typed timestamp to a defined length to ensure ordering works out fine

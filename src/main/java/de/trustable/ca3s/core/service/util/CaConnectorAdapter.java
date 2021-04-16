@@ -213,7 +213,7 @@ public class CaConnectorAdapter {
             CAConnectorStatus stat = new CAConnectorStatus(cAConnectorConfig.getId(), cAConnectorConfig.getName(), status);
             caStatusList.add(stat);
 
-            LOGGER.debug("CA status for {} is {}, is active {}", cAConnectorConfig.getName(), status, cAConnectorConfig.isActive());
+            LOGGER.debug("CA status for {} is {}, actived: {}", cAConnectorConfig.getName(), status, cAConnectorConfig.isActive());
         }
 
         this.caConnectorStatus = caStatusList;
