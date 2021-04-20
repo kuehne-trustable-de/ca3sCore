@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import * as config from '@/shared/config/config';
 import { DATE_TIME_FORMAT } from '@/shared/date/filters';
 import BPNMProcessInfoService from '@/entities/bpnm-process-info/bpnm-process-info.service';
-import { BPNMProcessInfo, BPNMProcessType } from '@/shared/model/bpnm-process-info.model';
+import { BPNMProcessInfo, BPNMProcessType } from '@/shared/model/bpmn-process-info.model';
 
 const mockedAxios: any = axios;
 jest.mock('axios', () => ({

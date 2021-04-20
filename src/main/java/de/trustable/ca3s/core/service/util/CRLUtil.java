@@ -16,11 +16,11 @@ package de.trustable.ca3s.core.service.util;
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- * 
- * original package was 
- * 
+ *
+ * original package was
+ *
  * package demo.sts.provider.cert;
- * 
+ *
  */
 
 
@@ -69,7 +69,7 @@ public class CRLUtil {
 
 	@Autowired
 	private CertificateUtil certUtil;
-	
+
 
     /**
      * Downloads CRL from given URL. Supports http, https, ftp and ldap based
@@ -78,7 +78,7 @@ public class CRLUtil {
 	@Cacheable("CRLs")
     public X509CRL downloadCRL(String crlURL) throws IOException,
             CertificateException, CRLException, NamingException {
-		
+
 		long startTime = System.currentTimeMillis();
 
 		X509CRL crl = null;
@@ -88,13 +88,13 @@ public class CRLUtil {
         } else if (crlURL.startsWith("ldap://")) {
         	crl = downloadCRLFromLDAP(crlURL);
         }
-        
+
         if(crl == null) {
             throw new IOException(
                     "Can not download CRL from certificate "
                             + "distribution point: " + crlURL);
         }
-        
+
         int nRevCerts = 0;
         if( crl.getRevokedCertificates() != null ) {
         	nRevCerts = crl.getRevokedCertificates().size();
@@ -102,19 +102,18 @@ public class CRLUtil {
 		LOG.info("download from '{}' with #{} items took {} mSec", crlURL, nRevCerts, System.currentTimeMillis() - startTime );
 
         X500Principal principal = crl.getIssuerX500Principal();
-        
-        
-    	List<Certificate> certList = CertificateSpecifications.findCertificatesBySubject(entityManager, 
-    			entityManager.getCriteriaBuilder(), 
+
+    	List<Certificate> certList = CertificateSpecifications.findCertificatesBySubject(entityManager,
+    			entityManager.getCriteriaBuilder(),
     			new LdapName(principal.getName()).getRdns());
 
 //        List<Certificate> certList = certificateRepository.findCACertByIssuer(principal.getName());
-    	
+
         if( certList.size() == 0) {
         	LOG.debug("principal '{}' not found to verify CRL '{}'", principal.getName(), crlURL);
         	return null;
         }
-        
+
         for( Certificate cert: certList) {
         	try {
 	        	X509Certificate x509cert = certUtil.convertPemToCertificate(cert.getContent());
@@ -131,13 +130,13 @@ public class CRLUtil {
     /**
      * Downloads a CRL from given LDAP url, e.g.
      * ldap://ldap.infonotary.com/dc=identity-ca,dc=infonotary,dc=com
-     * @throws IOException 
+     * @throws IOException
      */
-    private X509CRL downloadCRLFromLDAP(String ldapURL) throws CertificateException, 
+    private X509CRL downloadCRLFromLDAP(String ldapURL) throws CertificateException,
     NamingException, CRLException, IOException {
-    	
+
     	LOG.debug("loading CRL from LDAP {}", ldapURL);
-    	
+
         Map<String, String> env = new Hashtable<String, String>();
         env.put(Context.INITIAL_CONTEXT_FACTORY,
                 "com.sun.jndi.ldap.LdapCtxFactory");
@@ -168,9 +167,9 @@ public class CRLUtil {
     private X509CRL downloadCRLFromWeb(String crlURL) throws MalformedURLException,
     IOException, CertificateException,
             CRLException {
-    	
+
     	LOG.debug("loading CRL from URL {}", crlURL);
-    	
+
         URL url = new URL(crlURL);
         InputStream crlStream = url.openStream();
         try {
@@ -187,13 +186,13 @@ public class CRLUtil {
 
 //	@Autowired
 //	private CertificateJPQLSpecifications spec;
-	
+
 	public Page<CertificateView> findSelection(Map<String, String[]> parameterMap){
-		
+
 		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-		
-		return CertificateSpecifications.handleQueryParamsCertificateView(entityManager, 
-				cb, 
+
+		return CertificateSpecifications.handleQueryParamsCertificateView(entityManager,
+				cb,
 				parameterMap);
 
 //	    public List<Object[]>  getCertificateList(Map<String, String[]> parameterMap) {

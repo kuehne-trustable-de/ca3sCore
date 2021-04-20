@@ -53,7 +53,7 @@ public class CertExpiryScheduler {
 
 	transient Logger LOG = LoggerFactory.getLogger(CertExpiryScheduler.class);
 
-	final static int MAX_RECORDS_PER_TRANSACTION = 1000;
+	final static int MAX_RECORDS_PER_TRANSACTION = 10000;
 
 	@Autowired
 	private CertificateRepository certificateRepo;
@@ -203,6 +203,7 @@ public class CertExpiryScheduler {
                     LOG.debug("downloading CRL '{}'", crlUrl);
                     X509CRL crl = crlUtil.downloadCRL(crlUrl);
                     if( crl == null) {
+                        LOG.debug("downloaded CRL == null ");
                         continue;
                     }
 

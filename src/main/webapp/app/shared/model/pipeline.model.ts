@@ -1,6 +1,6 @@
 import { IPipelineAttribute } from '@/shared/model/pipeline-attribute.model';
 import { ICAConnectorConfig } from '@/shared/model/ca-connector-config.model';
-import { IBPNMProcessInfo } from '@/shared/model/bpnm-process-info.model';
+import { IBPNMProcessInfo } from '@/shared/model/bpmn-process-info.model';
 
 export const enum PipelineType {
   ACME = 'ACME',

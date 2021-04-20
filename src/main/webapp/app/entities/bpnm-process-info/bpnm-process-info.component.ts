@@ -2,7 +2,7 @@ import { mixins } from 'vue-class-component';
 
 import { Component, Inject } from 'vue-property-decorator';
 import Vue2Filters from 'vue2-filters';
-import { IBPNMProcessInfo } from '@/shared/model/bpnm-process-info.model';
+import { IBPNMProcessInfo } from '@/shared/model/bpmn-process-info.model';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
 import JhiDataUtils from '@/shared/data/data-utils.service';

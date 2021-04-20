@@ -2,13 +2,9 @@ import Component from 'vue-class-component';
 import { Vue } from 'vue-property-decorator';
 import { mixins } from 'vue-class-component';
 
-import {
-  ICertificateFilter,
-  ICertificateFilterList,
-  ISelector,
-  ICertificateSelectionData,
-  IAuditTraceView
-} from '@/shared/model/transfer-object.model';
+import { ICertificateFilter, ICertificateFilterList, ISelector, ICertificateSelectionData } from '@/shared/model/transfer-object.model';
+
+import { IBPNMProcessInfo } from '@/shared/model/bpmn-process-info.model';
 
 import { colFieldToStr, makeQueryStringFromObj } from '@/shared/utils';
 
@@ -25,7 +21,7 @@ interface ISelectionChoices {
   choices?: ISelector[];
 }
 
-VuejsDatatableFactory.useDefaultType(false).registerTableType<any, any, any, any, any>('certificate', tableType =>
+VuejsDatatableFactory.registerTableType<any, any, any, any, any>('bpmn-table', tableType =>
   tableType
     .setFilterHandler((source, filter, columns) => ({
       // See https://documenter.getpostman.com/view/2025350/RWaEzAiG#json-field-masking
@@ -69,7 +65,7 @@ VuejsDatatableFactory.useDefaultType(false).registerTableType<any, any, any, any
       return {
         rows: data,
         totalRowCount: parseInt(totalCount, 10)
-      } as ITableContentParam<IAuditTraceView>;
+      } as ITableContentParam<IBPNMProcessInfo>;
     })
     .mergeSettings({
       table: {
@@ -94,22 +90,23 @@ VuejsDatatableFactory.useDefaultType(false).registerTableType<any, any, any, any
 );
 
 @Component
-export default class CertList extends mixins(AlertMixin, Vue) {
+export default class CsrList extends mixins(AlertMixin, Vue) {
   public get authenticated(): boolean {
     return this.$store.getters.authenticated;
   }
 
-  public certSelectionItems: ICertificateSelectionData[] = [
-    { itemName: 'actorName', itemType: 'string', itemDefaultSelector: 'EQUAL', itemDefaultValue: '{user}' },
+  public csrSelectionItems: ICertificateSelectionData[] = [
+    { itemName: 'name', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'ISSUE' },
+    { itemName: 'version', itemType: 'string', itemDefaultSelector: 'GREATERTHAN', itemDefaultValue: null },
     {
-      itemName: 'actorRole',
+      itemName: 'type',
       itemType: 'set',
       itemDefaultSelector: 'EQUAL',
-      itemDefaultValue: 'USER',
-      values: ['USER', 'RA', 'ADMIN', 'SYSTEM']
+      itemDefaultValue: 'ISSUANCE',
+      values: ['ISSUANCE', 'REVOCATION', 'ACME_ACCOUNT']
     },
-    { itemName: 'contentTemplate', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable' },
-    { itemName: 'createdOn', itemType: 'date', itemDefaultSelector: 'BEFORE', itemDefaultValue: '{now}' }
+    { itemName: 'author', itemType: 'string', itemDefaultSelector: 'EQUAL', itemDefaultValue: '{user}' },
+    { itemName: 'lastChange', itemType: 'date', itemDefaultSelector: 'BEFORE', itemDefaultValue: '{now}' }
   ];
 
   public selectionChoices: ISelectionChoices[] = [
@@ -120,12 +117,16 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     { itemType: 'set', hasValue: false, choices: ['EQUAL', 'NOT_EQUAL'] }
   ];
 
-  public defaultFilter: ICertificateFilter = { attributeName: 'subject', attributeValue: 'trust', selector: 'LIKE' };
+  public contentAccessUrl: string;
+  public tmpContentAccessUrl: string;
+
+  public defaultFilter: ICertificateFilter = { attributeName: 'type', attributeValue: 'ISSUANCE', selector: 'EQUAL' };
   public filters: ICertificateFilterList = { filterList: [this.defaultFilter] };
   public lastFilters: string = JSON.stringify({ filterList: [this.defaultFilter] });
 
-  public contentAccessUrl: string;
-  public tmpContentAccessUrl: string;
+  public get username(): string {
+    return this.$store.getters.account ? this.$store.getters.account.login : '';
+  }
 
   public addSelector() {
     const newFilter = { ...this.defaultFilter };
@@ -136,7 +137,7 @@ export default class CertList extends mixins(AlertMixin, Vue) {
   }
 
   public getInputType(itemName: string): string {
-    const selectionItem = this.certSelectionItems.find(selections => selections.itemName === itemName);
+    const selectionItem = this.csrSelectionItems.find(selections => selections.itemName === itemName);
     if (selectionItem) {
       return selectionItem.itemType;
     }
@@ -156,7 +157,7 @@ export default class CertList extends mixins(AlertMixin, Vue) {
   }
 
   public getValueChoices(itemName: string): string[] {
-    const selectionItem = this.certSelectionItems.find(selections => selections.itemName === itemName);
+    const selectionItem = this.csrSelectionItems.find(selections => selections.itemName === itemName);
     if (selectionItem) {
       return selectionItem.values;
     }
@@ -184,22 +185,18 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     return {
       columns: [
         { label: 'id', field: 'id' },
-        { label: this.$t('actorName'), field: 'actorName' },
-        { label: this.$t('actorRole'), field: 'actorRole' },
-        { label: this.$t('content'), field: 'actorName' },
-        { label: this.$t('createdOn'), field: 'createdOn', align: 'right' },
-        { label: 'csrId', field: 'csrId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
-        { label: 'certificateId', field: 'certificateId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
-        { label: 'pipelineId', field: 'pipelineId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
-        { label: 'caConnectorId', field: 'caConnectorId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
-        { label: 'processInfoId', field: 'processInfoId', headerClass: 'hiddenColumn', class: 'hiddenColumn' }
-      ] as TColumnsDefinition<IAuditTraceView>,
+        { label: this.$t('bpmn.name'), field: 'name' },
+        { label: this.$t('type'), field: 'type' },
+        { label: this.$t('version'), field: 'version' },
+        { label: this.$t('author'), field: 'author' },
+        { label: this.$t('lastChange'), field: 'lastChange' }
+      ] as TColumnsDefinition<IBPNMProcessInfo>,
       page: 1,
       filter: '',
       contentAccessUrl: '',
 
-      get auditApiUrl() {
-        window.console.info('auditApiUrl returns : ' + self.contentAccessUrl);
+      get bpmnApiUrl() {
+        window.console.info('bpmnApiUrl returns : ' + self.contentAccessUrl);
         return self.contentAccessUrl;
       }
     };
@@ -224,15 +221,15 @@ export default class CertList extends mixins(AlertMixin, Vue) {
       params['attributeSelector_' + idx] = filter.selector;
     }
 
-    const baseApiUrl = 'api/auditTraceList';
+    const baseApiUrl = 'api/csrList';
     const url = `${baseApiUrl}?${makeQueryStringFromObj(params)}`;
 
     if (this.tmpContentAccessUrl !== url) {
       this.tmpContentAccessUrl = url;
-      window.console.info('buildContentAccessUrl: change detected');
+      window.console.info('buildContentAccessUrl: change detected: ' + url);
     } else if (this.contentAccessUrl !== url) {
       this.contentAccessUrl = url;
-      window.console.info('buildContentAccessUrl: change propagated');
+      window.console.info('buildContentAccessUrl: change propagated: ' + url);
     }
   }
 
@@ -248,7 +245,7 @@ export default class CertList extends mixins(AlertMixin, Vue) {
 
     axios({
       method: 'get',
-      url: 'api/userProperties/filterList/AuditList',
+      url: 'api/userProperties/filterList/CSRList',
       responseType: 'stream'
     }).then(function(response) {
       //      window.console.debug('getUsersFilterList returns ' + response.data );
@@ -269,7 +266,7 @@ export default class CertList extends mixins(AlertMixin, Vue) {
       window.console.debug('putUsersFilterList: change detected ...');
       axios({
         method: 'put',
-        url: 'api/userProperties/filterList/AuditList',
+        url: 'api/userProperties/filterList/CSRList',
         data: self.filters,
         responseType: 'stream'
       }).then(function(response) {

@@ -10,7 +10,7 @@ import parseISO from 'date-fns/parseISO';
 import { DATE_TIME_LONG_FORMAT } from '@/shared/date/filters';
 
 import AlertService from '@/shared/alert/alert.service';
-import { IBPNMProcessInfo, BPNMProcessInfo } from '@/shared/model/bpnm-process-info.model';
+import { IBPNMProcessInfo, BPNMProcessInfo } from '@/shared/model/bpmn-process-info.model';
 import BPNMProcessInfoService from './bpnm-process-info.service';
 
 const validations: any = {

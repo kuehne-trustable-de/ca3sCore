@@ -11,7 +11,7 @@ import CAConnectorConfigService from '../ca-connector-config/ca-connector-config
 import { ICAConnectorConfig } from '@/shared/model/ca-connector-config.model';
 
 import BPNMProcessInfoService from '../bpnm-process-info/bpnm-process-info.service';
-import { IBPNMProcessInfo } from '@/shared/model/bpnm-process-info.model';
+import { IBPNMProcessInfo } from '@/shared/model/bpmn-process-info.model';
 
 import AlertService from '@/shared/alert/alert.service';
 import { IPipeline, Pipeline } from '@/shared/model/pipeline.model';
@@ -49,7 +49,6 @@ export default class PipelineUpdate extends Vue {
   public cAConnectorConfigs: ICAConnectorConfig[] = [];
 
   @Inject('bPNMProcessInfoService') private bPNMProcessInfoService: () => BPNMProcessInfoService;
-
 
   public allCertGenerators: CAConnectorConfigService[] = [];
 
@@ -116,7 +115,6 @@ export default class PipelineUpdate extends Vue {
       .then(res => {
         this.bPNMProcessInfos = res.data;
       });
-
   }
 
   public mounted(): void {
@@ -131,9 +129,8 @@ export default class PipelineUpdate extends Vue {
       method: 'get',
       url: 'api/ca-connector-configs/cert-generators',
       responseType: 'stream'
-    })
-    .then(function(response) {
-      window.console.info('allCertGenerators returns ' + response.data );
+    }).then(function(response) {
+      window.console.info('allCertGenerators returns ' + response.data);
       self.allCertGenerators = response.data;
     });
   }

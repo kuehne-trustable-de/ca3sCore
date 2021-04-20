@@ -142,7 +142,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
     @NamedQuery(name = "Certificate.findActiveCertificateOrderedByCrlURL",
         query = "SELECT distinct c, certAtt.value FROM Certificate c JOIN c.certificateAttributes certAtt WHERE " +
             " certAtt.name = 'CRL_URL' and " +
-            " c.active = TRUE " +
+            " c.active = TRUE and" +
+            " certAtt.value not like 'ldap%'" +
             " order by certAtt.value "
     ),
     @NamedQuery(name = "Certificate.findActiveCertificateBySerial",

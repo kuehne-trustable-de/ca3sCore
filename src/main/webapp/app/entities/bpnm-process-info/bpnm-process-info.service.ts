@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { IBPNMProcessInfo } from '@/shared/model/bpnm-process-info.model';
+import { IBPNMProcessInfo } from '@/shared/model/bpmn-process-info.model';
 
 const baseApiUrl = 'api/bpnm-process-infos';
 

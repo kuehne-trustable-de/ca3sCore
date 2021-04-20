@@ -89,6 +89,10 @@ public class CSRSubmitIT extends WebTestBase{
     public static final By LOC_TA_DOWNLOAD_CERT_CONTENT = By.xpath("//dd/div/textarea [@name = 'certContent']");
     public static final By LOC_TEXT_CERT_REVOCATION_REASON = By.xpath("//div//dd/span[@name = 'revocationReason']");
 
+//    public static final By LOC_TABLE_AUDIT = By.xpath("//div/table [thead/tr/th/span[text() = 'Role']] [tbody/tr]");
+    public static final By LOC_TABLE_AUDIT = By.xpath("//div/table [thead/tr/th/span [contains(text(), 'Role')] ] [tbody/tr]");
+
+    public static final By LOC_TABLE_AUDIT_REVOCATION_PRESENT = By.xpath("//div/table [thead/tr/th/span [contains(text(), 'Role')] ] [tbody/tr/td [contains(text(), 'Certificate revoked')]]");
 
     public static final By LOC_BTN_WITHDRAW_CERTIFICATE = By.xpath("//form/div/button [@type='button'][span [text() = 'Withdraw']]");
     public static final By LOC_BTN_CONFIRM_REQUEST = By.xpath("//form/div/button [@type='button'][span [text() = 'Confirm Request']]");
@@ -244,28 +248,65 @@ public class CSRSubmitIT extends WebTestBase{
 	    // waiting for the form to rebuild ...
 		validatePresent(LOC_TA_UPLOAD_CONTENT);
 
-		waitForElement(LOC_LNK_CERTIFICATES_MENUE);
-		validatePresent(LOC_LNK_CERTIFICATES_MENUE);
-		click(LOC_LNK_CERTIFICATES_MENUE);
+        waitForElement(LOC_LNK_CERTIFICATES_MENUE);
+        validatePresent(LOC_LNK_CERTIFICATES_MENUE);
+        click(LOC_LNK_CERTIFICATES_MENUE);
 
-	    // select the certificate in the cert list
-	    validatePresent(LOC_SEL_CERT_ATTRIBUTE);
-	    selectOptionByText(LOC_SEL_CERT_ATTRIBUTE, "Subject");
+        // select the certificate in the cert list
+        validatePresent(LOC_SEL_CERT_ATTRIBUTE);
+        selectOptionByText(LOC_SEL_CERT_ATTRIBUTE, "Subject");
 
-	    validatePresent(LOC_SEL_CERT_CHOICE);
+        validatePresent(LOC_SEL_CERT_CHOICE);
 
-	    selectOptionByText(LOC_SEL_CERT_CHOICE, "equals");
+        selectOptionByText(LOC_SEL_CERT_CHOICE, "equals");
 
-	    validatePresent(LOC_INP_CERT_VALUE);
-	    setText(LOC_INP_CERT_VALUE, cn);
+        validatePresent(LOC_INP_CERT_VALUE);
+        setText(LOC_INP_CERT_VALUE, cn);
 
-	    By byCertSubject = By.xpath("//table//td [contains(text(), '"+cn+"')]");
-	    validatePresent(byCertSubject);
-	    click(byCertSubject);
+        By byCertSubject = By.xpath("//table//td [contains(text(), '"+cn+"')]");
+        validatePresent(byCertSubject);
+        click(byCertSubject);
 
-	    validatePresent(LOC_TEXT_CERT_REVOCATION_REASON);
+        validatePresent(LOC_TEXT_CERT_REVOCATION_REASON);
 
-	}
+        validatePresent(LOC_TABLE_AUDIT);
+
+        // ensure a revocation item regarding revocation is present
+        validatePresent(LOC_TABLE_AUDIT_REVOCATION_PRESENT);
+
+        // search by serial no
+        waitForElement(LOC_LNK_CERTIFICATES_MENUE);
+        validatePresent(LOC_LNK_CERTIFICATES_MENUE);
+        click(LOC_LNK_CERTIFICATES_MENUE);
+
+        // select the certificate in the cert list
+        validatePresent(LOC_SEL_CERT_ATTRIBUTE);
+        selectOptionByText(LOC_SEL_CERT_ATTRIBUTE, "Serial");
+
+        validatePresent(LOC_SEL_CERT_CHOICE);
+
+        selectOptionByText(LOC_SEL_CERT_CHOICE, "equals");
+
+        // set the serial number, decimal
+        validatePresent(LOC_INP_CERT_VALUE);
+        setText(LOC_INP_CERT_VALUE, newCert.getSerialNumber().toString());
+
+        validatePresent(byCertSubject);
+
+        // set the serial number, decimal with leading zeros
+        validatePresent(LOC_INP_CERT_VALUE);
+        setText(LOC_INP_CERT_VALUE, "00" + newCert.getSerialNumber().toString());
+
+        validatePresent(byCertSubject);
+
+        // set the serial number, hex
+        validatePresent(LOC_INP_CERT_VALUE);
+        setText(LOC_INP_CERT_VALUE, "0x" + newCert.getSerialNumber().toString(16));
+
+        validatePresent(byCertSubject);
+
+
+    }
 
 	@Test
 	public void testCSRSubmitDirect() throws GeneralSecurityException, IOException {
