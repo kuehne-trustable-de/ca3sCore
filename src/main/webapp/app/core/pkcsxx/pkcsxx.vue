@@ -71,13 +71,20 @@
 									<label class="form-control-label" v-text="$t('pkcsxx.upload.' + rr.name)" :for="'pkcsxx.upload.' + rr.name">{{rr.name}}</label>
 								</div>
 								<div class="col colContent">
-                                    <input v-for="(val, valueIndex) in upload.certificateAttributes[index].values" :key="valueIndex"
-										type="text" class="form-control form-check-inline valid" :name="'pkcsxx.upload.' + rr.name" :id="'pkcsxx.upload.' + rr.name"
-										v-model="upload.certificateAttributes[index].values[valueIndex]"
-										:readonly="rr.readOnly"
-										:required="rr.required"
-										v-on:input="alignRDNArraySize(index, valueIndex)"/>
-								</div>
+                                    <Fragment v-for="(val, valueIndex) in upload.certificateAttributes[index].values" :key="valueIndex">
+                                        <input
+                                            type="text" class="form-control form-check-inline valid" :name="'pkcsxx.upload.' + rr.name" :id="'pkcsxx.upload.' + rr.name"
+                                            v-model="upload.certificateAttributes[index].values[valueIndex]"
+                                            :readonly="rr.readOnly"
+                                            :required="rr.required"
+                                            v-on:input="alignRDNArraySize(index, valueIndex)"/>
+
+                                        <small class="form-text text-danger" v-if="secret !== secretRepeat" v-text="$t('entity.validation.secretRepeat')">
+                                            Repeated secret must match!
+                                        </small>
+                                    </Fragment>
+
+                                </div>
 							</div>
 						</div>
 
@@ -120,7 +127,7 @@
                                            required="true"
                                            v-model="secretRepeat" />
                                     <small class="form-text text-danger" v-if="secret !== secretRepeat" v-text="$t('entity.validation.secretRepeat')">
-                                        This field should be a valid port number.
+                                        Repeated secret must match!
                                     </small>
 								</div>
 							</div>

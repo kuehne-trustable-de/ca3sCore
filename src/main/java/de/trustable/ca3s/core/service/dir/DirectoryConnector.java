@@ -1,10 +1,12 @@
 package de.trustable.ca3s.core.service.dir;
 
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,8 +21,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import de.trustable.ca3s.core.domain.AuditTrace;
 import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.schedule.spider.Spider;
 import de.trustable.ca3s.core.service.AuditService;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +53,7 @@ public class DirectoryConnector {
 
 
 	private static final String FILE_PREFIX = "file://";
-	private static final String IMPORT_SELECTOR_REGEX = ".*\\.(cer|cert|crt|pem)";
+	private static final String IMPORT_SELECTOR_REGEX = ".*\\.(cer|cert|crt|pem|der)";
 
 	private static final long MAX_IMPORTS_MILLISECONDS = 300L * 1000L;
 
@@ -136,6 +141,9 @@ public class DirectoryConnector {
 		if( url.startsWith("http://") ||
 				url.startsWith("https://") ) {
 
+            List<String> crawlDomains = Arrays.asList(caConfig.getCaUrl());
+
+/*
 			CrawlConfig config = new CrawlConfig();
 
 	        // Set the folder where intermediate crawl data is stored (e.g. list of urls that are extracted from previously
@@ -152,7 +160,6 @@ public class DirectoryConnector {
 	        // true to make sure they are included in the crawl.
 	        config.setIncludeBinaryContentInCrawling(true);
 
-	        List<String> crawlDomains = Arrays.asList(caConfig.getCaUrl());
 
 	        PageFetcher pageFetcher = new PageFetcher(config);
 	        RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
@@ -169,7 +176,17 @@ public class DirectoryConnector {
 			} catch (Exception e) {
 				LOGGER.info("problem building crawler for '{}'", caConfig.getCaUrl());
 			}
-		}else {
+*/
+            Spider spider = new Spider();
+
+			for( String domain: crawlDomains) {
+                Set<String> certificateSet = spider.search(domain, regEx);
+                for( String certUrl: certificateSet) {
+                    importCertifiateFromURL(certUrl, importInfo);
+                }
+            }
+
+        }else {
 
 			File dir = new File(getFilename(caConfig));
 
@@ -197,46 +214,45 @@ public class DirectoryConnector {
 	 *
 	 * @param filename
 	 */
-	public ImportInfo importCertifiateFromFile(String filename, ImportInfo importInfo) {
+    public ImportInfo importCertifiateFromFile(String filename, ImportInfo importInfo) {
 
-		try {
-			File certFile = new File(filename);
+        try {
+            File certFile = new File(filename);
 
-			// discard the milliseconds
-			Instant lastChangeDate = Instant.ofEpochMilli((certFile.lastModified() / 1000L) * 1000L);
+            // discard the milliseconds
+            Instant lastChangeDate = Instant.ofEpochMilli((certFile.lastModified() / 1000L) * 1000L);
 
-			List<ImportedURL> impUrlList = importedURLRepository.findEntityByUrl(certFile.toURI().toString());
-			if( impUrlList.isEmpty()) {
-				// new item found
-				try {
+            List<ImportedURL> impUrlList = importedURLRepository.findEntityByUrl(certFile.toURI().toString());
+            if( impUrlList.isEmpty()) {
+                // new item found
+                try {
+                    LOGGER.debug("new certificate '{}' found, importing ...", filename);
 
-					LOGGER.debug("new certificate '{}' found, importing ...", filename);
-
-					byte[] content = Files.readAllBytes(Paths.get(filename));
+                    byte[] content = Files.readAllBytes(Paths.get(filename));
                     Certificate certificate = certUtil.createCertificate(content, null, null, false, filename);
-                    auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_DIRECTORY_CERTIFICATE_IMPORTED, certificate));
+                    auditService.saveAuditTrace(auditService.createAuditTraceCertificateImported(filename, certificate));
 
-				} catch (GeneralSecurityException | IOException e) {
-					LOGGER.info("reading and importing certificate from '{}' causes {}",
-							filename, e.getLocalizedMessage());
-				}
+                } catch (GeneralSecurityException | IOException e) {
+                    LOGGER.info("reading and importing certificate from '{}' causes {}",
+                        filename, e.getLocalizedMessage());
+                }
 
-				// the import does not necessarily succeed, but we should mark the file as imported
-				ImportedURL impUrl = new ImportedURL();
-				impUrl.setName(certFile.toURI().toString());
-				impUrl.setImportDate(lastChangeDate);
-				importedURLRepository.save(impUrl);
+                // the import does not necessarily succeed, but we should mark the file as imported
+                ImportedURL impUrl = new ImportedURL();
+                impUrl.setName(certFile.toURI().toString());
+                impUrl.setImportDate(lastChangeDate);
+                importedURLRepository.save(impUrl);
 
-				LOGGER.debug("certificate imported from '{}'", filename);
+                LOGGER.debug("certificate imported from '{}'", filename);
 
-				importInfo.incImported();
-				return importInfo;
+                importInfo.incImported();
+                return importInfo;
 
-			}else {
-				ImportedURL impUrl = impUrlList.get(0);
-				if( impUrl.getImportDate().getEpochSecond() != lastChangeDate.getEpochSecond()) {
-					LOGGER.debug("ImportedURL for '{}' has a different import date {} compared to the files lastChangeDate {}",
-							impUrl.getName(), impUrl.getImportDate().getEpochSecond(), lastChangeDate.getEpochSecond());
+            }else {
+                ImportedURL impUrl = impUrlList.get(0);
+                if( impUrl.getImportDate().getEpochSecond() != lastChangeDate.getEpochSecond()) {
+                    LOGGER.debug("ImportedURL for '{}' has a different import date {} compared to the files lastChangeDate {}",
+                        impUrl.getName(), impUrl.getImportDate().getEpochSecond(), lastChangeDate.getEpochSecond());
 	/*
 					try {
 						byte[] content = Files.readAllBytes(Paths.get(filename));
@@ -259,20 +275,72 @@ public class DirectoryConnector {
 					}
 	*/
 
-				}else {
-	//				LOGGER.debug("certificate unchanged at '{}'", filename);
-				}
-			}
+                }else {
+                    //				LOGGER.debug("certificate unchanged at '{}'", filename);
+                }
+            }
 
-			importInfo.incRejected();
-			return importInfo;
-		} catch (Throwable th) {
-			LOGGER.debug("certificate import failed", th);
-			return null;
-		}
-	}
+            importInfo.incRejected();
+        } catch (Throwable th) {
+            LOGGER.debug("certificate import failed", th);
+        }
+        return importInfo;
+    }
 
-	/**
+    public ImportInfo importCertifiateFromURL(String url, ImportInfo importInfo) {
+
+        try {
+
+            Instant lastChangeDate = Instant.now();
+
+            List<ImportedURL> impUrlList = importedURLRepository.findEntityByUrl(url);
+            if( impUrlList.isEmpty()) {
+                // new item found
+                try {
+
+                    LOGGER.debug("new certificate '{}' found, importing ...", url);
+
+                    DownloadedContent downloadedContent = downloadFile(url);
+                    lastChangeDate = Instant.ofEpochMilli(downloadedContent.getDate());
+
+                    Certificate certificate = certUtil.createCertificate(downloadedContent.getContent(), null, null, false, url);
+                    auditService.saveAuditTrace(auditService.createAuditTraceCertificateImported( url, certificate));
+
+                    LOGGER.debug("certificate imported from '{}'", url);
+
+                } catch (GeneralSecurityException | IOException e) {
+                    LOGGER.info("reading and importing certificate from '{}' causes {}",
+                        url, e.getLocalizedMessage());
+                }
+
+                // the import does not necessarily succeed, but we should mark the file as imported
+                ImportedURL impUrl = new ImportedURL();
+                impUrl.setName(url);
+                impUrl.setImportDate(lastChangeDate);
+                importedURLRepository.save(impUrl);
+
+                importInfo.incImported();
+                return importInfo;
+
+            }else {
+                ImportedURL impUrl = impUrlList.get(0);
+                if( impUrl.getImportDate().getEpochSecond() != lastChangeDate.getEpochSecond()) {
+                    LOGGER.debug("ImportedURL for '{}' has a different import date {} compared to the files lastChangeDate {}",
+                        impUrl.getName(), impUrl.getImportDate().getEpochSecond(), lastChangeDate.getEpochSecond());
+
+                }else {
+                    //				LOGGER.debug("certificate unchanged at '{}'", filename);
+                }
+            }
+
+            importInfo.incRejected();
+        } catch (Throwable th) {
+            LOGGER.debug("certificate import failed", th);
+        }
+        return importInfo;
+    }
+
+    /**
 	 *
 	 * @param dir
 	 * @return
@@ -333,4 +401,41 @@ public class DirectoryConnector {
         return http.getResponseCode();
     }
 
+    private DownloadedContent downloadFile(String urlString) {
+        try {
+            URL url = new URL(urlString);
+            URLConnection conn = url.openConnection();
+            conn.setConnectTimeout(5000);
+            conn.setReadTimeout(5000);
+            conn.connect();
+
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            IOUtils.copy(conn.getInputStream(), baos);
+
+            return new DownloadedContent(baos.toByteArray(), conn.getDate());
+        } catch (IOException e) {
+            LOGGER.debug("problem reading certificate from url {}", urlString);
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    class DownloadedContent{
+	    private byte[] content;
+	    private long date;
+
+        public DownloadedContent(byte[] content, long date){
+            this.content = content;
+            this.date = date;
+        }
+
+        public byte[] getContent() {
+            return content;
+        }
+
+        public long getDate() {
+            return date;
+        }
+    }
 }

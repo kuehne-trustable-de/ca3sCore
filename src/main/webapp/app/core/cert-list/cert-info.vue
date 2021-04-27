@@ -29,6 +29,13 @@
                         <span v-else>{{certificateView.issuer}}</span>
                     </dd>
 
+                    <dt v-if="!certificateView.selfsigned && certificateView.root">
+                        <span v-text="$t('ca3SApp.certificate.root')">Root</span>
+                    </dt>
+                    <dd v-if="!certificateView.selfsigned && certificateView.root">
+                        <span >{{certificateView.root}}</span>
+                    </dd>
+
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.type')">Type</span>
                     </dt>
@@ -110,6 +117,14 @@
                     <dd v-if="certificateView.revoked">
                         <span name="revocationReason">{{certificateView.revocationReason}}</span>
                     </dd>
+
+                    <dt v-if="certificateView.crlUrl">
+                        <span v-text="$t('ca3SApp.certificate.crlUrl')">CRL Uri</span>
+                    </dt>
+                    <dd v-if="certificateView.crlUrl">
+                        <span name="crlUrl">{{certificateView.crlUrl}}</span>
+                    </dd>
+
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.fingerprint')">Fingerprint</span>
                     </dt>
@@ -121,7 +136,7 @@
                     </dt>
                     <dd v-if="certificateView.csrId">
                         <div>
-                            <router-link :to="{name: 'CsrInfo', params: {cSRId: certificateView.csrId}}">{{certificateView.csrId}}</router-link>
+                            <router-link :to="{name: 'CsrInfo', params: {csrId: certificateView.csrId}}">{{certificateView.csrId}}</router-link>
                         </div>
                     </dd>
 

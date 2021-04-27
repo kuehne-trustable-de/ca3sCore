@@ -5,6 +5,7 @@ import java.security.GeneralSecurityException;
 import java.util.*;
 
 import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.CsrAttributeRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.ARARestriction;
@@ -167,6 +168,7 @@ public class CertificateProcessingUtil {
 				messageMap.put("RequestRestriction", CryptoUtil.limitLength(msgItem, 250) );
 			}
 
+            csr.setStatus(CsrStatus.REJECTED);
             auditService.saveAuditTrace(auditService.createAuditTraceCsrRestrictionFailed(csr));
 		}
 

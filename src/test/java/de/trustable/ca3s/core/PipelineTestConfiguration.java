@@ -1,9 +1,13 @@
 package de.trustable.ca3s.core;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.transaction.Transactional;
 
+import de.trustable.ca3s.core.domain.AuditTrace;
+import de.trustable.ca3s.core.domain.PipelineAttribute;
 import de.trustable.ca3s.core.service.dto.SCEPConfigItems;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -200,11 +204,29 @@ public class PipelineTestConfiguration {
 		pipelineWeb.setName(PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
 		pipelineWeb.setType(PipelineType.WEB);
 		pipelineWeb.setUrlPart("test");
-		pipelineRepo.save(pipelineWeb);
+
+        addPipelineAttribute(pipelineWeb, PipelineUtil.ALLOW_IP_AS_SAN, "false");
+
+        pipelineRepo.save(pipelineWeb);
+
 		return pipelineWeb;
 	}
 
-	@Transactional
+    public void addPipelineAttribute(Pipeline p, String name, String value) {
+
+        PipelineAttribute pAtt = new PipelineAttribute();
+        pAtt.setPipeline(p);
+        pAtt.setName(name);
+        pAtt.setValue(value);
+
+        if( p.getPipelineAttributes() == null){
+            p.setPipelineAttributes( new HashSet<PipelineAttribute>() );
+        }
+        p.getPipelineAttributes().add(pAtt);
+
+    }
+
+    @Transactional
 	public Pipeline getInternalWebRACheckTestPipeline() {
 
 		Pipeline examplePipeline = new Pipeline();

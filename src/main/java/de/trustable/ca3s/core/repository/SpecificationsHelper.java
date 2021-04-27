@@ -28,7 +28,7 @@ public final class SpecificationsHelper {
     private SpecificationsHelper() {
     }
 
-    private static String getContainsLikePattern(String searchTerm) {
+    static String getContainsLikePattern(String searchTerm) {
         if (searchTerm == null || searchTerm.isEmpty()) {
             return "%";
         } else {
@@ -167,17 +167,17 @@ public final class SpecificationsHelper {
 
         long lValue = Long.parseLong(value.trim());
 
-        if (Selector.EQUAL.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicate equal ('{}') for value '{}'", attributeSelector, lValue);
-            return cb.equal(expression, lValue);
+        if (Selector.NOT_EQUAL.toString().equals(attributeSelector)) {
+            logger.debug("buildPredicateLong not equal ('{}') for value '{}'", attributeSelector, lValue);
+            return cb.notEqual(expression, lValue);
         } else if (Selector.LESSTHAN.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicate lessThan ('{}') for value '{}'", attributeSelector, lValue);
+            logger.debug("buildPredicateLong lessThan ('{}') for value '{}'", attributeSelector, lValue);
             return cb.lessThan(expression, lValue);
         } else if (Selector.GREATERTHAN.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicate greaterThan ('{}') for value '{}'", attributeSelector, lValue);
+            logger.debug("buildPredicateLong greaterThan ('{}') for value '{}'", attributeSelector, lValue);
             return cb.greaterThan(expression, lValue);
         } else {
-            logger.debug("buildPredicate defaults to equals ('{}') for value '{}'", attributeSelector, lValue);
+            logger.debug("buildPredicateLong defaults to equals ('{}') for value '{}'", attributeSelector, lValue);
             return cb.equal(expression, lValue);
         }
     }
@@ -190,17 +190,17 @@ public final class SpecificationsHelper {
 
         int lValue = Integer.parseInt(value.trim());
 
-        if (Selector.EQUAL.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicate equal ('{}') for value '{}'", attributeSelector, lValue);
-            return cb.equal(expression, lValue);
+        if (Selector.NOT_EQUAL.toString().equals(attributeSelector)) {
+            logger.debug("buildPredicateInteger not equal ('{}') for value '{}'", attributeSelector, lValue);
+            return cb.notEqual(expression, lValue);
         } else if (Selector.LESSTHAN.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicate lessThan ('{}') for value '{}'", attributeSelector, lValue);
+            logger.debug("buildPredicateInteger lessThan ('{}') for value '{}'", attributeSelector, lValue);
             return cb.lessThan(expression, lValue);
         } else if (Selector.GREATERTHAN.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicate greaterThan ('{}') for value '{}'", attributeSelector, lValue);
+            logger.debug("buildPredicateInteger greaterThan ('{}') for value '{}'", attributeSelector, lValue);
             return cb.greaterThan(expression, lValue);
         } else {
-            logger.debug("buildPredicate defaults to equals ('{}') for value '{}'", attributeSelector, lValue);
+            logger.debug("buildPredicateInteger defaults to equals ('{}') for value '{}'", attributeSelector, lValue);
             return cb.equal(expression, lValue);
         }
     }
@@ -211,7 +211,7 @@ public final class SpecificationsHelper {
             return cb.conjunction();
         }
 
-        logger.debug("buildBooleanPredicatedefaults to equals ('{}') ", attributeSelector);
+        logger.debug("buildBooleanPredicate defaults to equals ('{}') ", attributeSelector);
 
         if (Selector.ISTRUE.toString().equals(attributeSelector)) {
             return cb.equal(expression, Boolean.TRUE);
@@ -221,7 +221,7 @@ public final class SpecificationsHelper {
     }
 
 
-    private static Predicate buildDatePredicate(String attributeSelector, CriteriaBuilder cb, Expression<Instant> expression, String value) {
+    static Predicate buildDatePredicate(String attributeSelector, CriteriaBuilder cb, Expression<Instant> expression, String value) {
 
         if (attributeSelector == null) {
             return cb.conjunction();

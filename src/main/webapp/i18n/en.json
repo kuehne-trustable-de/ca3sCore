@@ -302,6 +302,7 @@
   "ca3SApp.certificate.revocationReason": "Revocation Reason",
   "ca3SApp.certificate.revoked": "Revoked",
   "ca3SApp.certificate.revokedSince": "Revoked Since",
+  "ca3SApp.certificate.crlUrl": "CRL Url",
   "ca3SApp.certificate.root": "Root",
   "ca3SApp.certificate.rootCertificate": "Root Certificate",
   "ca3SApp.certificate.sans": "Sans",
@@ -320,6 +321,7 @@
   "ca3SApp.certificate.download.PKIX": "Download certificate as Binary",
   "ca3SApp.certificate.download.PEM": "Download certificate as PEM",
 
+  "ca3SApp.audit.subtitle.audit.list": "Audit List",
   "ca3SApp.audit.createdOn": "Created on",
   "ca3SApp.audit.actorRole": "Role",
   "ca3SApp.audit.actorName": "User",
@@ -1000,6 +1002,7 @@
   "ROLE_RA": "RA officer",
   "ROLE_ADMIN": "Administrator",
 
+  "CERTIFICATE_IMPORTED": "Certificate imported from '{{val}}'",
   "CSR_ACCEPTED": "Certificate request accepted",
   "CSR_REJECTED": "Certificate request rejected",
   "WEB_CERTIFICATE_REQUESTED": "Certificate requested at web interface",

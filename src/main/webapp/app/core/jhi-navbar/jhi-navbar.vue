@@ -201,10 +201,17 @@
                         <font-awesome-icon icon="list" />
                         <span v-text="$t('global.menu.admin.configuration')">Configuration</span>
                     </b-dropdown-item-->
-                    <b-dropdown-item  to="/admin/audits">
+
+                    <b-dropdown-item  to="/audit-list">
+                        <font-awesome-icon icon="bell" />
+                        <span v-text="$t('global.menu.admin.audits')">Audit List</span>
+                    </b-dropdown-item>
+
+                    <!--b-dropdown-item  to="/admin/audits">
                         <font-awesome-icon icon="bell" />
                         <span v-text="$t('global.menu.admin.audits')">Audits</span>
-                    </b-dropdown-item>
+                    </b-dropdown-item-->
+
                     <b-dropdown-item  to="/admin/logs">
                         <font-awesome-icon icon="tasks" />
                         <span v-text="$t('global.menu.admin.logs')">Logs</span>

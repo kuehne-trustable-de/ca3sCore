@@ -1,46 +1,26 @@
 package de.trustable.ca3s.core.repository;
 
+import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.service.dto.CertificateView;
+import de.trustable.ca3s.core.service.dto.Selector;
+import de.trustable.ca3s.core.service.util.CertificateUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
+
+import javax.naming.ldap.Rdn;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.*;
 import java.math.BigInteger;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.naming.ldap.Rdn;
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Selection;
-import javax.persistence.criteria.Subquery;
-
-import de.trustable.ca3s.core.service.util.CertificateUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-
-import de.trustable.ca3s.core.domain.CSR;
-import de.trustable.ca3s.core.domain.CSR_;
-import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.CertificateAttribute;
-import de.trustable.ca3s.core.domain.CertificateAttribute_;
-import de.trustable.ca3s.core.domain.Certificate_;
-import de.trustable.ca3s.core.service.dto.CertificateView;
-import de.trustable.ca3s.core.service.dto.Selector;
-import de.trustable.ca3s.core.service.util.DateUtil;
+import static de.trustable.ca3s.core.repository.SpecificationsHelper.*;
 
 
 public final class CertificateSpecifications {
@@ -60,15 +40,6 @@ public final class CertificateSpecifications {
                     cb.like(cb.lower(root.<String>get(Certificate_.issuer)), containsLikePattern)
             );
         };
-    }
-
-    private static String getContainsLikePattern(String searchTerm) {
-        if (searchTerm == null || searchTerm.isEmpty()) {
-            return "%";
-        }
-        else {
-            return searchTerm.toLowerCase() + "%";
-        }
     }
 
     public static String getStringValue(final String[] inArr){
@@ -117,7 +88,7 @@ public final class CertificateSpecifications {
 		    Predicate predPart = cb.exists(certAttSubquery.select(certAttRoot)//subquery selection
                      .where(cb.and( cb.equal(certAttRoot.get(CertificateAttribute_.CERTIFICATE), root.get(Certificate_.ID)),
                     		 cb.equal(certAttRoot.get(CertificateAttribute_.NAME), CertificateAttribute.ATTRIBUTE_SUBJECT),
-                    		 buildPredicate( Selector.EQUAL.toString(), cb, certAttRoot.<String>get(CertificateAttribute_.value), rdnExpression))));
+                         buildPredicateString( Selector.EQUAL.toString(), cb, certAttRoot.<String>get(CertificateAttribute_.value), rdnExpression))));
 
 			pred = cb.and(pred, predPart);
 
@@ -539,7 +510,7 @@ public final class CertificateSpecifications {
 
 		if( "id".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.id));
-			pred = buildPredicateLong( attributeSelector, cb, root.<Long>get(Certificate_.id), attributeValue);
+			pred = SpecificationsHelper.buildPredicateLong( attributeSelector, cb, root.<Long>get(Certificate_.id), attributeValue);
 
 		}else if( "subject".equals(attribute)){
 //			Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes);
@@ -552,7 +523,7 @@ public final class CertificateSpecifications {
 			    pred = cb.exists(certAttSubquery.select(certAttRoot)//subquery selection
 	                     .where(cb.and( cb.equal(certAttRoot.get(CertificateAttribute_.CERTIFICATE), root.get(Certificate_.ID)),
 	                    		 cb.equal(certAttRoot.get(CertificateAttribute_.NAME), CertificateAttribute.ATTRIBUTE_SUBJECT),
-	                    		 buildPredicate( attributeSelector, cb, certAttRoot.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()) )));
+                             buildPredicateString( attributeSelector, cb, certAttRoot.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()) )));
 			}
 		}else if( "sans".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.sans));
@@ -564,7 +535,7 @@ public final class CertificateSpecifications {
 			    pred = cb.exists(certAttSubquery.select(certAttRoot)//subquery selection
 	                     .where(cb.and( cb.equal(certAttRoot.get(CertificateAttribute_.CERTIFICATE), root.get(Certificate_.ID)),
 	                    		 cb.equal(certAttRoot.get(CertificateAttribute_.NAME), CertificateAttribute.ATTRIBUTE_SAN),
-	                    		 buildPredicate( attributeSelector, cb, certAttRoot.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()) )));
+                             buildPredicateString( attributeSelector, cb, certAttRoot.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()) )));
 			}
 		}else if( "issuer".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.issuer));
@@ -576,7 +547,7 @@ public final class CertificateSpecifications {
 			    pred = cb.exists(certAttSubquery.select(certAttRoot)//subquery selection
 	                     .where(cb.and( cb.equal(certAttRoot.get(CertificateAttribute_.CERTIFICATE), root.get(Certificate_.ID)),
 	                    		 cb.equal(certAttRoot.get(CertificateAttribute_.NAME), CertificateAttribute.ATTRIBUTE_ISSUER),
-	                    		 buildPredicate( attributeSelector, cb, certAttRoot.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()) )));
+                             buildPredicateString( attributeSelector, cb, certAttRoot.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()) )));
 			}
 		}else if( "root".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.root));
@@ -588,54 +559,54 @@ public final class CertificateSpecifications {
 			    pred = cb.exists(certAttSubquery.select(certAttRoot)//subquery selection
 	                     .where(cb.and( cb.equal(certAttRoot.get(CertificateAttribute_.CERTIFICATE), root.get(Certificate_.ID)),
 	                    		 cb.equal(certAttRoot.get(CertificateAttribute_.NAME), CertificateAttribute.ATTRIBUTE_ROOT),
-	                    		 buildPredicate( attributeSelector, cb, certAttRoot.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()) )));
+                             buildPredicateString( attributeSelector, cb, certAttRoot.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()) )));
 			}
 		}else if( "san".equals(attribute)){
 			Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
 			addNewColumn(selectionList,attJoin.get(CertificateAttribute_.value));
 
 			pred = cb.and( cb.equal(attJoin.<String>get(CertificateAttribute_.name), CertificateAttribute.ATTRIBUTE_SAN),
-			buildPredicate( attributeSelector, cb, attJoin.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()));
+                buildPredicateString( attributeSelector, cb, attJoin.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()));
 		}else if( "usage".equals(attribute)){
 			Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
 			addNewColumn(selectionList,attJoin.get(CertificateAttribute_.value));
 
 			pred = cb.and( cb.equal(attJoin.<String>get(CertificateAttribute_.name), CertificateAttribute.ATTRIBUTE_USAGE),
-			buildPredicate( attributeSelector, cb, attJoin.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()));
+                buildPredicateString( attributeSelector, cb, attJoin.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()));
 		}else if( "ski".equals(attribute)){
 			Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
 			addNewColumn(selectionList,attJoin.get(CertificateAttribute_.value));
 
 			pred = cb.and( cb.equal(attJoin.<String>get(CertificateAttribute_.name), CertificateAttribute.ATTRIBUTE_SKI),
-			buildPredicate( attributeSelector, cb, attJoin.<String>get(CertificateAttribute_.value), attributeValue));
+                buildPredicateString( attributeSelector, cb, attJoin.<String>get(CertificateAttribute_.value), attributeValue));
 
 		}else if( "fingerprint".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.fingerprint));
-			pred = buildPredicate( attributeSelector, cb, root.<String>get(Certificate_.fingerprint), attributeValue);
+			pred = buildPredicateString( attributeSelector, cb, root.<String>get(Certificate_.fingerprint), attributeValue);
 
 		}else if( "hashAlgorithm".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.hashingAlgorithm));
-			pred = buildPredicate( attributeSelector, cb, root.<String>get(Certificate_.hashingAlgorithm), attributeValue);
+			pred = buildPredicateString( attributeSelector, cb, root.<String>get(Certificate_.hashingAlgorithm), attributeValue);
 
 		}else if( "type".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.type));
-			pred = buildPredicate( attributeSelector, cb, root.<String>get(Certificate_.type), attributeValue);
+			pred = buildPredicateString( attributeSelector, cb, root.<String>get(Certificate_.type), attributeValue);
 
 		}else if( "signingAlgorithm".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.signingAlgorithm));
-			pred = buildPredicate( attributeSelector, cb, root.<String>get(Certificate_.signingAlgorithm), attributeValue);
+			pred = buildPredicateString( attributeSelector, cb, root.<String>get(Certificate_.signingAlgorithm), attributeValue);
 
 		}else if( "paddingAlgorithm".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.paddingAlgorithm));
-			pred = buildPredicate( attributeSelector, cb, root.<String>get(Certificate_.paddingAlgorithm), attributeValue);
+			pred = buildPredicateString( attributeSelector, cb, root.<String>get(Certificate_.paddingAlgorithm), attributeValue);
 
 		}else if( "keyAlgorithm".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.keyAlgorithm));
-			pred = buildPredicate( attributeSelector, cb, root.<String>get(Certificate_.keyAlgorithm), attributeValue);
+			pred = buildPredicateString( attributeSelector, cb, root.<String>get(Certificate_.keyAlgorithm), attributeValue);
 
 		}else if( "keyLength".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.keyLength));
-			pred = buildPredicateInteger( attributeSelector, cb, root.<Integer>get(Certificate_.keyLength), attributeValue);
+			pred = SpecificationsHelper.buildPredicateInteger( attributeSelector, cb, root.<Integer>get(Certificate_.keyLength), attributeValue);
 
 		}else if( "serial".equals(attribute)){
 
@@ -657,28 +628,28 @@ public final class CertificateSpecifications {
 
 			Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
 			pred = cb.and( cb.equal(attJoin.<String>get(CertificateAttribute_.name), CertificateAttribute.ATTRIBUTE_SERIAL_PADDED),
-					buildPredicate( attributeSelector, cb, attJoin.<String>get(CertificateAttribute_.value), paddedSerial));
+                buildPredicateString( attributeSelector, cb, attJoin.<String>get(CertificateAttribute_.value), paddedSerial));
 
 		}else if( "validFrom".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.validFrom));
-			pred = buildDatePredicate( attributeSelector, cb, root.<Instant>get(Certificate_.validFrom), attributeValue);
+			pred = SpecificationsHelper.buildDatePredicate( attributeSelector, cb, root.<Instant>get(Certificate_.validFrom), attributeValue);
 		}else if( "validTo".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.validTo));
-			pred = buildDatePredicate( attributeSelector, cb, root.<Instant>get(Certificate_.validTo), attributeValue);
+			pred = SpecificationsHelper.buildDatePredicate( attributeSelector, cb, root.<Instant>get(Certificate_.validTo), attributeValue);
 		}else if( "active".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.active));
-			pred = buildBooleanPredicate( attributeSelector, cb, root.<Boolean>get(Certificate_.active), attributeValue);
+			pred = SpecificationsHelper.buildBooleanPredicate( attributeSelector, cb, root.<Boolean>get(Certificate_.active), attributeValue);
 		}else if( "revoked".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.revoked));
-			pred = buildBooleanPredicate( attributeSelector, cb, root.<Boolean>get(Certificate_.revoked), attributeValue);
+			pred = SpecificationsHelper.buildBooleanPredicate( attributeSelector, cb, root.<Boolean>get(Certificate_.revoked), attributeValue);
 
 		}else if( "revokedSince".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.revokedSince));
-			pred = buildDatePredicate( attributeSelector, cb, root.<Instant>get(Certificate_.revokedSince), attributeValue);
+			pred = SpecificationsHelper.buildDatePredicate( attributeSelector, cb, root.<Instant>get(Certificate_.revokedSince), attributeValue);
 
 		}else if( "revocationReason".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.revocationReason));
-			pred = buildPredicate( attributeSelector, cb, root.<String>get(Certificate_.revocationReason), attributeValue);
+			pred = buildPredicateString( attributeSelector, cb, root.<String>get(Certificate_.revocationReason), attributeValue);
 
 		}else if( "requestedBy".equals(attribute)){
 
@@ -686,167 +657,13 @@ public final class CertificateSpecifications {
 				Join<Certificate,CSR> attJoin = root.join(Certificate_.csr, JoinType.LEFT);
 				addNewColumn(selectionList,attJoin.get(CSR_.requestedBy));
 
-				pred = buildPredicate( attributeSelector, cb, attJoin.<String>get(CSR_.requestedBy), attributeValue);
+				pred = buildPredicateString( attributeSelector, cb, attJoin.<String>get(CSR_.requestedBy), attributeValue);
 			}
 
 		}else{
 			logger.warn("fall-thru clause adding 'true' condition for {} ", attribute);
 		}
 		return pred;
-	}
-
-	private static void addNewColumn(List<Selection<?>> selectionList, Selection<?> sel) {
-		if( !selectionList.contains(sel)) {
-			selectionList.add(sel);
-		}
-	}
-
-	private static Predicate buildPredicate(String attributeSelector, CriteriaBuilder cb, Expression<String> expression, String value) {
-
-		if( attributeSelector == null) {
-			return cb.conjunction();
-		}
-
-		if( Selector.EQUAL.toString().equals(attributeSelector)){
-			logger.debug("buildPredicate equal ('{}') for value '{}'", attributeSelector, value);
-			return cb.equal(expression, value);
-		}else if( Selector.NOT_EQUAL.toString().equals(attributeSelector)){
-			logger.debug("buildPredicate not equal ('{}') for value '{}'", attributeSelector, value);
-			return cb.notEqual(expression, value);
-		}else if( Selector.ON.toString().equals(attributeSelector)){
-			logger.debug("buildPredicate on ('{}') for value '{}'", attributeSelector, value);
-			return cb.equal(expression, value);
-		}else if( Selector.LIKE.toString().equals(attributeSelector)){
-			logger.debug("buildPredicate like ('{}') for value '{}'", attributeSelector, getContainsLikePattern(value));
-			return cb.like(expression, getContainsLikePattern(value));
-		}else if( Selector.NOTLIKE.toString().equals(attributeSelector)){
-			logger.debug("buildPredicate not like ('{}') for value '{}'", attributeSelector, getContainsLikePattern(value));
-			return cb.like(expression, getContainsLikePattern(value)).not();
-		}else if( Selector.LESSTHAN.toString().equals(attributeSelector)){
-			logger.debug("buildPredicate lessThan ('{}') for value '{}'", attributeSelector, value);
-				return cb.lessThan(expression, value);
-		}else if( Selector.BEFORE.toString().equals(attributeSelector)){
-			logger.debug("buildPredicate before ('{}') for value '{}'", attributeSelector, value);
-				return cb.lessThan(expression, value);
-		}else if( Selector.GREATERTHAN.toString().equals(attributeSelector)){
-			logger.debug("buildPredicate greaterThan ('{}') for value '{}'", attributeSelector, value);
-				return cb.greaterThan(expression, value);
-		}else if( Selector.AFTER.toString().equals(attributeSelector)){
-			logger.debug("buildPredicate after ('{}') for value '{}'", attributeSelector, value);
-				return cb.greaterThan(expression, value);
-		}else{
-			logger.debug("buildPredicate defaults to equals ('{}') for value '{}'", attributeSelector, value);
-			return cb.equal(expression, value);
-		}
-	}
-
-	private static Predicate buildPredicateLong(String attributeSelector, CriteriaBuilder cb, Expression<Long> expression, String value) {
-
-		if( attributeSelector == null) {
-			return cb.conjunction();
-		}
-
-		long lValue = Long.parseLong(value.trim());
-
-		if( Selector.EQUAL.toString().equals(attributeSelector)){
-			logger.debug("buildPredicate equal ('{}') for value '{}'", attributeSelector, lValue);
-			return cb.equal(expression, lValue);
-		}else if( Selector.LESSTHAN.toString().equals(attributeSelector)){
-			logger.debug("buildPredicate lessThan ('{}') for value '{}'", attributeSelector, lValue);
-				return cb.lessThan(expression, lValue);
-		}else if( Selector.GREATERTHAN.toString().equals(attributeSelector)){
-			logger.debug("buildPredicate greaterThan ('{}') for value '{}'", attributeSelector, lValue);
-				return cb.greaterThan(expression, lValue);
-		}else{
-			logger.debug("buildPredicate defaults to equals ('{}') for value '{}'", attributeSelector, lValue);
-			return cb.equal(expression, lValue);
-		}
-	}
-
-	private static Predicate buildPredicateInteger(String attributeSelector, CriteriaBuilder cb, Expression<Integer> expression, String value) {
-
-		if( attributeSelector == null) {
-			return cb.conjunction();
-		}
-
-		int lValue = Integer.parseInt(value.trim());
-
-		if( Selector.EQUAL.toString().equals(attributeSelector)){
-			logger.debug("buildPredicate equal ('{}') for value '{}'", attributeSelector, lValue);
-			return cb.equal(expression, lValue);
-		}else if( Selector.LESSTHAN.toString().equals(attributeSelector)){
-			logger.debug("buildPredicate lessThan ('{}') for value '{}'", attributeSelector, lValue);
-				return cb.lessThan(expression, lValue);
-		}else if( Selector.GREATERTHAN.toString().equals(attributeSelector)){
-			logger.debug("buildPredicate greaterThan ('{}') for value '{}'", attributeSelector, lValue);
-				return cb.greaterThan(expression, lValue);
-		}else{
-			logger.debug("buildPredicate defaults to equals ('{}') for value '{}'", attributeSelector, lValue);
-			return cb.equal(expression, lValue);
-		}
-	}
-
-	private static Predicate buildBooleanPredicate(String attributeSelector, CriteriaBuilder cb, Expression<Boolean> expression, String value) {
-
-		if( attributeSelector == null) {
-			return cb.conjunction();
-		}
-
-		logger.debug("buildBooleanPredicatedefaults to equals ('{}') ", attributeSelector);
-
-		if( Selector.ISTRUE.toString().equals(attributeSelector) ) {
-			return cb.equal(expression, Boolean.TRUE);
-		} else {
-			return cb.equal(expression, Boolean.FALSE);
-		}
-	}
-
-
-	private static Predicate buildDatePredicate(String attributeSelector, CriteriaBuilder cb, Expression<Instant> expression, String value) {
-
-		if( attributeSelector == null) {
-			return cb.conjunction();
-		}
-
-		Instant dateTime;
-		try{
-
-			try {
-				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-				dateTime = DateUtil.asInstant(dateFormat.parse(value));
-			} catch(Exception ex ){
-				dateTime = Instant.ofEpochMilli(Long.parseLong(value));
-			}
-
-			if( Selector.ON.toString().equals(attributeSelector)){
-
-			    // truncate isn't idempotent, so ensure the date isn't already truncated by adding an hour
-                Instant dateTimeStart = dateTime.plus(1, ChronoUnit.HOURS).truncatedTo(ChronoUnit.DAYS);
-                //add exactly one day
-                Instant dateTimeEnd = dateTimeStart.plus(1, ChronoUnit.DAYS);
-
-                logger.debug("buildDatePredicate on ('{}') for value > {} and < {}", attributeSelector, dateTimeStart, dateTimeEnd);
-
-                // find all elements within the given day
-                return cb.and( cb.lessThanOrEqualTo(expression, dateTimeEnd), cb.greaterThanOrEqualTo(expression, dateTimeStart));
-
-            }else if( Selector.BEFORE.toString().equals(attributeSelector)){
-				logger.debug("buildDatePredicate before ('{}') for value {}", attributeSelector, dateTime);
-				return cb.lessThanOrEqualTo(expression, dateTime);
-			}else if( Selector.AFTER.toString().equals(attributeSelector)){
-				logger.debug("buildDatePredicate after ('{}') for value {}", attributeSelector, dateTime);
-				return cb.greaterThanOrEqualTo(expression, dateTime);
-			}else{
-				logger.debug("buildDatePredicate defaults to equals ('{}') for value {}", attributeSelector, dateTime);
-				return cb.equal(expression, dateTime);
-			}
-		} catch(Exception ex ){
-			logger.debug("parsing date ... ", ex);
-//			throw ex;
-		}
-
-		return cb.conjunction();
-
 	}
 
 }

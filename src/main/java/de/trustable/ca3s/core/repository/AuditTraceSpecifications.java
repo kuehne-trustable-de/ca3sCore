@@ -294,7 +294,9 @@ public final class AuditTraceSpecifications {
             }
         } else if ("createdOn".equals(attribute)) {
             addNewColumn(selectionList, root.get(AuditTrace_.createdOn));
-
+            if (attributeValue.trim().length() > 0) {
+                pred = buildDatePredicate(attributeSelector, cb, root.<Instant>get(AuditTrace_.createdOn), attributeValue);
+            }
         } else if ("links".equals(attribute)) {
             addNewColumn(selectionList, root.get(AuditTrace_.certificate));
 
@@ -310,21 +312,7 @@ public final class AuditTraceSpecifications {
             if (attributeValue.trim().length() > 0) {
                 pred = buildPredicateLong(attributeSelector, cb, csrJoin.<Long>get(CSR_.id), attributeValue);
             }
-/*
-        } else if ("subject".equals(attribute)) {
-            addNewColumn(selectionList, root.get(AuditTrace_.subject));
 
-            if (attributeValue.trim().length() > 0) {
-                //subquery
-                Subquery<CsrAttribute> csrAttSubquery = csrQuery.subquery(CsrAttribute.class);
-                Root<CsrAttribute> csrAttRoot = csrAttSubquery.from(CsrAttribute.class);
-                pred = cb.exists(csrAttSubquery.select(csrAttRoot)//subquery selection
-                    .where(cb.and(cb.equal(csrAttRoot.get(CsrAttribute_.CSR), root.get(AuditTrace_.ID)),
-                        cb.equal(csrAttRoot.get(CsrAttribute_.NAME), CsrAttribute.ATTRIBUTE_SUBJECT),
-                        buildPredicate(attributeSelector, cb, csrAttRoot.<String>get(CsrAttribute_.value), attributeValue.toLowerCase()))));
-            }
-
- */
         } else if ("contentTemplate".equals(attribute)) {
             addNewColumn(selectionList, root.get(AuditTrace_.contentTemplate));
             if (attributeValue.trim().length() > 0) {

@@ -1,47 +1,24 @@
 package de.trustable.ca3s.core.repository;
 
-import java.text.SimpleDateFormat;
+import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
+import de.trustable.ca3s.core.domain.enumeration.PipelineType;
+import de.trustable.ca3s.core.service.dto.CSRView;
+import de.trustable.ca3s.core.service.dto.Selector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.*;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.*;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Selection;
-import javax.persistence.criteria.Subquery;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-
-import de.trustable.ca3s.core.domain.CSR;
-import de.trustable.ca3s.core.domain.CSR_;
-import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.Certificate_;
-import de.trustable.ca3s.core.domain.CsrAttribute;
-import de.trustable.ca3s.core.domain.CsrAttribute_;
-import de.trustable.ca3s.core.domain.Pipeline;
-import de.trustable.ca3s.core.domain.Pipeline_;
-import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
-import de.trustable.ca3s.core.domain.enumeration.PipelineType;
-import de.trustable.ca3s.core.service.dto.CSRView;
-import de.trustable.ca3s.core.service.dto.Selector;
-import de.trustable.ca3s.core.service.util.DateUtil;
+import static de.trustable.ca3s.core.repository.SpecificationsHelper.*;
 
 
 public final class CSRSpecifications {
@@ -54,33 +31,6 @@ public final class CSRSpecifications {
     private CSRSpecifications() {
     }
 
-    private static String getContainsLikePattern(String searchTerm) {
-        if (searchTerm == null || searchTerm.isEmpty()) {
-            return "%";
-        } else {
-            return searchTerm.toLowerCase() + "%";
-        }
-    }
-
-    public static String getStringValue(final String[] inArr) {
-        return getStringValue(inArr, "");
-    }
-
-    public static String getStringValue(final String[] inArr, String defaultValue) {
-        if (inArr == null || inArr.length == 0) {
-            return defaultValue;
-        } else {
-            return inArr[0];
-        }
-    }
-
-    public static int getIntValue(final String[] inArr, int defaultValue) {
-        if (inArr == null || inArr.length == 0) {
-            return defaultValue;
-        } else {
-            return Integer.parseInt(inArr[0]);
-        }
-    }
 
     public static Page<CSRView> handleQueryParamsCertificateView(EntityManager entityManager,
                                                                  CriteriaBuilder cb,
@@ -420,7 +370,7 @@ public final class CSRSpecifications {
                 pred = cb.exists(csrAttSubquery.select(csrAttRoot)//subquery selection
                     .where(cb.and(cb.equal(csrAttRoot.get(CsrAttribute_.CSR), root.get(CSR_.ID)),
                         cb.equal(csrAttRoot.get(CsrAttribute_.NAME), CsrAttribute.ATTRIBUTE_SUBJECT),
-                        buildPredicate(attributeSelector, cb, csrAttRoot.<String>get(CsrAttribute_.value), attributeValue.toLowerCase()))));
+                        buildPredicateString(attributeSelector, cb, csrAttRoot.<String>get(CsrAttribute_.value), attributeValue.toLowerCase()))));
             }
         } else if ("sans".equals(attribute)) {
             addNewColumn(selectionList, root.get(CSR_.sans));
@@ -432,30 +382,30 @@ public final class CSRSpecifications {
                 pred = cb.exists(csrAttSubquery.select(csrAttRoot)//subquery selection
                     .where(cb.and(cb.equal(csrAttRoot.get(CsrAttribute_.CSR), root.get(CSR_.ID)),
                         cb.equal(csrAttRoot.get(CsrAttribute_.NAME), CsrAttribute.ATTRIBUTE_SAN),
-                        buildPredicate(attributeSelector, cb, csrAttRoot.<String>get(CsrAttribute_.value), attributeValue.toLowerCase()))));
+                        buildPredicateString(attributeSelector, cb, csrAttRoot.<String>get(CsrAttribute_.value), attributeValue.toLowerCase()))));
             }
         } else if ("publicKeyAlgorithm".equals(attribute)) {
             addNewColumn(selectionList, root.get(CSR_.publicKeyAlgorithm));
             if (attributeValue.trim().length() > 0) {
-                pred = buildPredicate(attributeSelector, cb, root.<String>get(CSR_.publicKeyAlgorithm), attributeValue);
+                pred = buildPredicateString(attributeSelector, cb, root.<String>get(CSR_.publicKeyAlgorithm), attributeValue);
             }
 
         } else if ("signingAlgorithm".equals(attribute)) {
             addNewColumn(selectionList, root.get(CSR_.signingAlgorithm));
             if (attributeValue.trim().length() > 0) {
-                pred = buildPredicate(attributeSelector, cb, root.<String>get(CSR_.signingAlgorithm), attributeValue);
+                pred = buildPredicateString(attributeSelector, cb, root.<String>get(CSR_.signingAlgorithm), attributeValue);
             }
 
         } else if ("x509KeySpec".equals(attribute)) {
             addNewColumn(selectionList, root.get(CSR_.x509KeySpec));
             if (attributeValue.trim().length() > 0) {
-                pred = buildPredicate(attributeSelector, cb, root.<String>get(CSR_.x509KeySpec), attributeValue);
+                pred = buildPredicateString(attributeSelector, cb, root.<String>get(CSR_.x509KeySpec), attributeValue);
             }
 
         } else if ("requestedBy".equals(attribute)) {
             addNewColumn(selectionList, root.get(CSR_.requestedBy));
             if (attributeValue.trim().length() > 0) {
-                pred = buildPredicate(attributeSelector, cb, root.<String>get(CSR_.requestedBy), attributeValue);
+                pred = buildPredicateString(attributeSelector, cb, root.<String>get(CSR_.requestedBy), attributeValue);
             }
 
 /*
@@ -485,7 +435,7 @@ public final class CSRSpecifications {
         } else if ("rejectionReason".equals(attribute)) {
             addNewColumn(selectionList, root.get(CSR_.rejectionReason));
             if (attributeValue.trim().length() > 0) {
-                pred = buildPredicate(attributeSelector, cb, root.<String>get(CSR_.rejectionReason), attributeValue);
+                pred = buildPredicateString(attributeSelector, cb, root.<String>get(CSR_.rejectionReason), attributeValue);
             }
         } else {
             logger.warn("fall-thru clause adding 'true' condition for {} ", attribute);
@@ -510,160 +460,6 @@ public final class CSRSpecifications {
             logger.debug("buildPredicateCsrStatus defaults to equals ('{}') for value '{}'", attributeSelector, csrStatus);
             return cb.equal(path, csrStatus);
         }
-
-    }
-
-    private static void addNewColumn(List<Selection<?>> selectionList, Selection<?> sel) {
-        if (!selectionList.contains(sel)) {
-            selectionList.add(sel);
-        }
-    }
-
-    private static Predicate buildPredicate(String attributeSelector, CriteriaBuilder cb, Expression<String> expression, String value) {
-
-        if (attributeSelector == null) {
-            return cb.conjunction();
-        }
-
-        if (Selector.EQUAL.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicate equal ('{}') for value '{}'", attributeSelector, value);
-            return cb.equal(expression, value);
-        } else if (Selector.NOT_EQUAL.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicate not equal ('{}') for value '{}'", attributeSelector, value);
-            return cb.notEqual(expression, value);
-        } else if (Selector.ON.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicate on ('{}') for value '{}'", attributeSelector, value);
-            return cb.equal(expression, value);
-        } else if (Selector.LIKE.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicate like ('{}') for value '{}'", attributeSelector, getContainsLikePattern(value));
-            return cb.like(expression, getContainsLikePattern(value));
-        } else if (Selector.NOTLIKE.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicate not like ('{}') for value '{}'", attributeSelector, getContainsLikePattern(value));
-            return cb.like(expression, getContainsLikePattern(value)).not();
-        } else if (Selector.LESSTHAN.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicate lessThan ('{}') for value '{}'", attributeSelector, value);
-            return cb.lessThan(expression, value);
-        } else if (Selector.BEFORE.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicate before ('{}') for value '{}'", attributeSelector, value);
-            return cb.lessThan(expression, value);
-        } else if (Selector.GREATERTHAN.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicate greaterThan ('{}') for value '{}'", attributeSelector, value);
-            return cb.greaterThan(expression, value);
-        } else if (Selector.AFTER.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicate after ('{}') for value '{}'", attributeSelector, value);
-            return cb.greaterThan(expression, value);
-        } else {
-            logger.debug("buildPredicate defaults to equals ('{}') for value '{}'", attributeSelector, value);
-            return cb.equal(expression, value);
-        }
-    }
-
-    private static Predicate buildPredicateLong(String attributeSelector, CriteriaBuilder cb, Expression<Long> expression, String value) {
-
-        if (attributeSelector == null) {
-            return cb.conjunction();
-        }
-
-        long lValue = Long.parseLong(value.trim());
-
-        if (Selector.EQUAL.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicate equal ('{}') for value '{}'", attributeSelector, lValue);
-            return cb.equal(expression, lValue);
-        } else if (Selector.LESSTHAN.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicate lessThan ('{}') for value '{}'", attributeSelector, lValue);
-            return cb.lessThan(expression, lValue);
-        } else if (Selector.GREATERTHAN.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicate greaterThan ('{}') for value '{}'", attributeSelector, lValue);
-            return cb.greaterThan(expression, lValue);
-        } else {
-            logger.debug("buildPredicate defaults to equals ('{}') for value '{}'", attributeSelector, lValue);
-            return cb.equal(expression, lValue);
-        }
-    }
-
-    private static Predicate buildPredicateInteger(String attributeSelector, CriteriaBuilder cb, Expression<Integer> expression, String value) {
-
-        if (attributeSelector == null) {
-            return cb.conjunction();
-        }
-
-        int lValue = Integer.parseInt(value.trim());
-
-        if (Selector.EQUAL.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicate equal ('{}') for value '{}'", attributeSelector, lValue);
-            return cb.equal(expression, lValue);
-        } else if (Selector.LESSTHAN.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicate lessThan ('{}') for value '{}'", attributeSelector, lValue);
-            return cb.lessThan(expression, lValue);
-        } else if (Selector.GREATERTHAN.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicate greaterThan ('{}') for value '{}'", attributeSelector, lValue);
-            return cb.greaterThan(expression, lValue);
-        } else {
-            logger.debug("buildPredicate defaults to equals ('{}') for value '{}'", attributeSelector, lValue);
-            return cb.equal(expression, lValue);
-        }
-    }
-
-    private static Predicate buildBooleanPredicate(String attributeSelector, CriteriaBuilder cb, Expression<Boolean> expression, String value) {
-
-        if (attributeSelector == null) {
-            return cb.conjunction();
-        }
-
-        logger.debug("buildBooleanPredicatedefaults to equals ('{}') ", attributeSelector);
-
-        if (Selector.ISTRUE.toString().equals(attributeSelector)) {
-            return cb.equal(expression, Boolean.TRUE);
-        } else {
-            return cb.equal(expression, Boolean.FALSE);
-        }
-    }
-
-
-    private static Predicate buildDatePredicate(String attributeSelector, CriteriaBuilder cb, Expression<Instant> expression, String value) {
-
-        if (attributeSelector == null) {
-            return cb.conjunction();
-        }
-
-        Instant dateTime;
-        try {
-
-            try {
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                dateTime = DateUtil.asInstant(dateFormat.parse(value));
-            } catch (Exception ex) {
-                dateTime = Instant.ofEpochMilli(Long.parseLong(value));
-            }
-
-            if (Selector.ON.toString().equals(attributeSelector)) {
-
-                // truncate isn't idempotent, so ensure the date isn't already truncated by adding an hour
-                Instant dateTimeStart = dateTime.plus(1, ChronoUnit.HOURS).truncatedTo(ChronoUnit.DAYS);
-                //add exactly one day
-                Instant dateTimeEnd = dateTimeStart.plus(1, ChronoUnit.DAYS);
-
-                logger.debug("buildDatePredicate on ('{}') for value > {} and < {}", attributeSelector, dateTimeStart, dateTimeEnd);
-
-                // find all elements within the given day
-                return cb.and(cb.lessThanOrEqualTo(expression, dateTimeEnd), cb.greaterThanOrEqualTo(expression, dateTimeStart));
-
-            } else if (Selector.BEFORE.toString().equals(attributeSelector)) {
-                logger.debug("buildDatePredicate before ('{}') for value {}", attributeSelector, dateTime);
-                return cb.lessThanOrEqualTo(expression, dateTime);
-            } else if (Selector.AFTER.toString().equals(attributeSelector)) {
-                logger.debug("buildDatePredicate after ('{}') for value {}", attributeSelector, dateTime);
-                return cb.greaterThanOrEqualTo(expression, dateTime);
-            } else {
-                logger.debug("buildDatePredicate defaults to equals ('{}') for value {}", attributeSelector, dateTime);
-                return cb.equal(expression, dateTime);
-            }
-        } catch (Exception ex) {
-            logger.debug("parsing date ... ", ex);
-//			throw ex;
-        }
-
-        return cb.conjunction();
 
     }
 }

@@ -711,7 +711,7 @@ public class PipelineUtil {
     	for( GeneralName gn: gNameSet) {
 			if (GeneralName.iPAddress == gn.getTagNo()) {
 				String sanValue = gn.getName().toString();
-				messageList.add("SAN '"+sanValue+"' is an IP address");
+				messageList.add("SAN '"+sanValue+"' is an IP address, not allowed.");
 				outcome = true;
 			}
     	}

@@ -13,7 +13,7 @@
 
 			<div class="col-xs-12 table-responsive">
                 <h2 class="jh-entity-heading">
-                    <span v-text="$t('ca3SApp.certificate.subtitle.audit.list')">Audit Trace List</span>
+                    <span v-text="$t('ca3SApp.audit.subtitle.audit.list')">Audit Trace List</span>
                 </h2>
 
 				<div>
@@ -43,19 +43,14 @@
 				</div>
 
 
-                <requests-table :columns="columns" :data="auditApiUrl" :per-page="20" name="bpmn-table">
+                <audit-table :columns="columns" :data="auditListUrl" :per-page="20" name="audit-table">
                     <template slot-scope="{ row }">
                         <tr>
-                            <td >{{ row.id }}</td>
+                            <td >{{ toLocalDate(row.createdOn) }}</td>
                             <td >{{ row.actorName }}</td>
                             <td >{{ row.actorRole }}</td>
-                            <td >content</td>
-                            <td >{{ toLocalDate(row.createdOn) }}</td>
-                            <td >{{row.csrId}}</td>
-                            <td >{{row.certificateId}}</td>
-                            <td >{{row.pipelineId}}</td>
-                            <td >{{row.caConnectorId}}</td>
-                            <td >{{row.processInfoId}}</td>
+                            <td>{{ localizedContent(row.contentTemplate, row.plainContent) }}</td>
+                            <td >{{ links(row.csrId, row.certificateId, row.pipelineId, row.caConnectorId, row.processInfoId) }}</td>
 
                         </tr>
                     </template>
@@ -63,10 +58,10 @@
                     <template name="no-result">
                         <div v-text="$t('list.noContent')">no content</div>
                     </template>
-                </requests-table>
+                </audit-table>
 
                 <section class="pagers-table">
-                    <requests-table-pager type="abbreviated" table="requests"></requests-table-pager>
+                    <audit-table-pager type="abbreviated" table="audit-table"></audit-table-pager>
                 </section>
 
 			</div>

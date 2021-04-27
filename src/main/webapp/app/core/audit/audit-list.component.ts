@@ -25,7 +25,7 @@ interface ISelectionChoices {
   choices?: ISelector[];
 }
 
-VuejsDatatableFactory.useDefaultType(false).registerTableType<any, any, any, any, any>('certificate', tableType =>
+VuejsDatatableFactory.useDefaultType(false).registerTableType<any, any, any, any, any>('audit-table', tableType =>
   tableType
     .setFilterHandler((source, filter, columns) => ({
       // See https://documenter.getpostman.com/view/2025350/RWaEzAiG#json-field-masking
@@ -58,6 +58,8 @@ VuejsDatatableFactory.useDefaultType(false).registerTableType<any, any, any, any
     .setDisplayHandler(async ({ source: baseEndPoint, paged: endpointDesc }) => {
       const delimit = baseEndPoint.includes('?') ? '&' : '?';
       const url = `${baseEndPoint}${delimit}${makeQueryStringFromObj(endpointDesc)}`;
+
+      window.console.info('setDisplayHandler url(' + url + ')');
 
       const {
         // Data to display
@@ -163,6 +165,19 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     return [];
   }
 
+  public getSelectorChoices(itemName: string): string[] {
+    const selectionItem = this.certSelectionItems.find(selections => selections.itemName === itemName);
+
+    if (selectionItem) {
+      const found = this.selectionChoices.find(choices => choices.itemType === selectionItem.itemType);
+      window.console.info('getChoices returns ' + found);
+      if (found) {
+        return found.choices;
+      }
+    }
+    return [];
+  }
+
   public getLoading(): boolean {
     return true;
   }
@@ -183,11 +198,12 @@ export default class CertList extends mixins(AlertMixin, Vue) {
 
     return {
       columns: [
-        { label: 'id', field: 'id' },
+        { label: this.$t('createdOn'), field: 'createdOn', align: 'right' },
         { label: this.$t('actorName'), field: 'actorName' },
         { label: this.$t('actorRole'), field: 'actorRole' },
-        { label: this.$t('content'), field: 'actorName' },
-        { label: this.$t('createdOn'), field: 'createdOn', align: 'right' },
+        { label: this.$t('content'), field: 'contentTemplate' },
+        { label: this.$t('links'), field: 'id' },
+        { label: 'plainCcontent', field: 'plainContent', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
         { label: 'csrId', field: 'csrId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
         { label: 'certificateId', field: 'certificateId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
         { label: 'pipelineId', field: 'pipelineId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
@@ -198,11 +214,38 @@ export default class CertList extends mixins(AlertMixin, Vue) {
       filter: '',
       contentAccessUrl: '',
 
-      get auditApiUrl() {
-        window.console.info('auditApiUrl returns : ' + self.contentAccessUrl);
+      get auditListUrl() {
+        window.console.info('auditListUrl returns : ' + self.contentAccessUrl);
         return self.contentAccessUrl;
       }
     };
+  }
+
+  public localizedContent(template: string, auditContent: string) {
+    const contentParts = auditContent.split(',');
+
+    const len = contentParts.length;
+    console.log('localizedContent: ' + auditContent + ',  #' + len);
+
+    if (len === 0) {
+      return this.$t(template);
+    } else if (len === 1) {
+      return this.$t(template, { val: this.unescapeComma(contentParts[0]) });
+    } else if (len === 2) {
+      return this.$t(template, { oldVal: this.unescapeComma(contentParts[0]), newVal: this.unescapeComma(contentParts[1]) });
+    } else {
+      return this.$t(template, {
+        attribute: this.unescapeComma(contentParts[0]),
+        oldVal: this.unescapeComma(contentParts[1]),
+        newVal: this.unescapeComma(contentParts[2])
+      });
+    }
+  }
+
+  public links(csrId: string, certificateId: string, pipelineId: string, caConnectorId: string, processInfoId: string) {}
+
+  unescapeComma(content: string): string {
+    return content.replace('%2C', ',').replace('%25', '%');
   }
 
   // refesh table by pressing 'enter'

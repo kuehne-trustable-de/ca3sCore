@@ -4,16 +4,18 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
+import java.security.*;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import javax.security.auth.x500.X500Principal;
 
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -83,6 +85,8 @@ public class CSRSubmitIT extends WebTestBase{
     public static final By LOC_SEL_CERT_VALUE_SET = By.xpath("//div/select [@name = 'certSelectionSet']");
     public static final By LOC_INP_CERT_DATE = By.xpath("//div/input [@name = 'certSelectionValueDate']");
     public static final By LOC_INP_CERT_BOOLEAN = By.xpath("//div/input [@name = 'certSelectionValueBoolean']");
+
+    public static final By LOC_TEXT_MESSAGE_NO_IP = By.xpath("//form//dl [dt[span [text() = 'Message']]]/dd/div[ul/li [contains(text(), 'is an IP address, not allowed')]]");
 
     public static final By LOC_TD_CSR_ITEM_PENDING = By.xpath("//table//td [starts-with(text(), 'PENDING')]");
 
@@ -377,7 +381,41 @@ public class CSRSubmitIT extends WebTestBase{
 	    validatePresent(LOC_TEXT_CERT_REVOCATION_REASON);
 	}
 
-	@Test
+    @Test
+    public void testCSRSubmitDirectRestrictionViolated() throws GeneralSecurityException, IOException {
+
+        signIn(USER_NAME_USER, USER_PASSWORD_USER);
+
+        validatePresent(LOC_LNK_REQ_CERT_MENUE);
+        click(LOC_LNK_REQ_CERT_MENUE);
+
+        validatePresent(LOC_TA_UPLOAD_CONTENT);
+
+        String cn = "reqTestRestrictionViolated" + System.currentTimeMillis();
+        String subject = "CN=" + cn + ", O=trustable solutions, C=DE";
+        X500Principal subjectPrincipal = new X500Principal(subject);
+
+//        GeneralName gn = new GeneralName(GeneralName.dNSName, "foo.bar.com");
+        GeneralName gn = new GeneralName(GeneralName.iPAddress, "8.8.8.8");
+        String csr = buildCSRAsPEM( subjectPrincipal, new GeneralName[]{gn});
+
+        setLongText(LOC_TA_UPLOAD_CONTENT, csr);
+
+        validatePresent(LOC_TEXT_CONTENT_TYPE);
+
+        validatePresent(LOC_SEL_PIPELINE);
+
+        selectOptionByText(LOC_SEL_PIPELINE, PipelineTestConfiguration.PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
+
+        validatePresent(LOC_BTN_REQUEST_CERTIFICATE);
+        click(LOC_BTN_REQUEST_CERTIFICATE);
+
+
+        validatePresent(LOC_TEXT_MESSAGE_NO_IP );
+    }
+
+
+    @Test
 	public void testCSRSubmitRACheck() throws GeneralSecurityException, IOException {
 
 		signIn(USER_NAME_USER, USER_PASSWORD_USER);
@@ -514,13 +552,26 @@ public class CSRSubmitIT extends WebTestBase{
 		}
 	}
 
-	  public String buildCSRAsPEM( final X500Principal subjectPrincipal ) throws GeneralSecurityException, IOException{
-		    KeyPair keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+    public String buildCSRAsPEM( final X500Principal subjectPrincipal ) throws GeneralSecurityException, IOException{
+        KeyPair keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
 
-          return CryptoUtil.getCsrAsPEM(subjectPrincipal,
-		          keyPair.getPublic(),
-		              keyPair.getPrivate(),
-		              "password".toCharArray());
-	  }
+        return CryptoUtil.getCsrAsPEM(subjectPrincipal,
+              keyPair.getPublic(),
+                  keyPair.getPrivate(),
+                  "password".toCharArray());
+    }
+
+    public String buildCSRAsPEM( final X500Principal subjectPrincipal, GeneralName[] sanArray ) throws GeneralSecurityException, IOException{
+        KeyPair keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+
+        PKCS10CertificationRequest req= CryptoUtil.getCsr(subjectPrincipal,
+                keyPair.getPublic(),
+                keyPair.getPrivate(),
+                "password".toCharArray(),
+                null,
+                sanArray);
+            return CryptoUtil.pkcs10RequestToPem(req);
+
+        }
 
 }

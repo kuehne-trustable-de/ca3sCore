@@ -153,6 +153,7 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
       ] as TColumnsDefinition<IAuditTraceView>,
 
       get auditApiUrl() {
+        console.log('in auditApiUrl ... ');
         return self.buildContentAccessUrl();
       },
 
@@ -178,11 +179,15 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
     if (len === 0) {
       return this.$t(template);
     } else if (len === 1) {
-      return this.$t(template, { val: contentParts[0] });
+      return this.$t(template, { val: this.unescapeComma(contentParts[0]) });
     } else if (len === 2) {
-      return this.$t(template, { oldVal: contentParts[0], newVal: contentParts[1] });
+      return this.$t(template, { oldVal: this.unescapeComma(contentParts[0]), newVal: this.unescapeComma(contentParts[1]) });
     } else {
-      return this.$t(template, { attribute: contentParts[0], oldVal: contentParts[1], newVal: contentParts[2] });
+      return this.$t(template, {
+        attribute: this.unescapeComma(contentParts[0]),
+        oldVal: this.unescapeComma(contentParts[1]),
+        newVal: this.unescapeComma(contentParts[2])
+      });
     }
   }
 
@@ -220,43 +225,6 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
     } else {
       return '-1&';
     }
-  }
-
-  public _buildContentAccessUrl(): string {
-    const filters: ICertificateFilterList = { filterList: [] };
-
-    if (this.csrId !== undefined) {
-      filters.filterList.push({ attributeName: 'csrId', attributeValue: this.csrId, selector: 'EQUAL' });
-    }
-    if (this.certificateId !== undefined) {
-      filters.filterList.push({ attributeName: 'certificateId', attributeValue: this.certificateId, selector: 'EQUAL' });
-    }
-
-    const filterLen = filters.filterList.length;
-
-    const params = {};
-    for (let i = 0; i < filterLen; i++) {
-      const filter = filters.filterList[i];
-      const idx = i + 1;
-      params['attributeName_' + idx] = filter.attributeName;
-      params['attributeValue_' + idx] = filter.attributeValue;
-      params['attributeSelector_' + idx] = filter.selector;
-    }
-
-    const baseApiUrl = 'api/auditTraceList';
-
-    window.console.info('buildContentAccessUrl: csrId : ' + this.csrId + ', certificateId : ' + this.certificateId);
-
-    const url = `${baseApiUrl}?${makeQueryStringFromObj(params)}`;
-
-    if (this.tmpContentAccessUrl !== url) {
-      this.tmpContentAccessUrl = url;
-      window.console.info('buildContentAccessUrl: change detected: ' + url);
-    } else if (this.contentAccessUrl !== url) {
-      this.contentAccessUrl = url;
-      window.console.info('buildContentAccessUrl: change propagated: ' + url);
-    }
-    return url;
   }
 
   public mounted(): void {}

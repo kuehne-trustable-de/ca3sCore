@@ -44,6 +44,8 @@ public class AuditService {
 
     public static final String AUDIT_PIPELINE_ATTRIBUTE_CHANGED = "PIPELINE_ATTRIBUTE_CHANGED";
     public static final String AUDIT_CSR_ATTRIBUTE_CHANGED = "CSR_ATTRIBUTE_CHANGED";
+
+    public static final String AUDIT_CERTIFICATE_IMPORTED = "CERTIFICATE_IMPORTED";
     public static final String AUDIT_CERTIFICATE_ATTRIBUTE_CHANGED = "CERTIFICATE_ATTRIBUTE_CHANGED";
 
     public static final String AUDIT_PIPELINE_CREATED = "PIPELINE_CREATED";
@@ -283,6 +285,20 @@ public class AuditService {
             null );
     }
 
+    public AuditTrace createAuditTraceCertificateImported(final String source, final Certificate certificate){
+
+        NameAndRole nar = getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_CERTIFICATE_IMPORTED,
+            source,
+            null, null,
+            null,
+            certificate,
+            null,
+            null,
+            null );
+    }
+
 
     public AuditTrace createAuditTrace(final String actor, final String actorRole, final String template,
                             final CSR csr,
@@ -330,11 +346,11 @@ public class AuditService {
         String msg = "";
 
         if(attributeName != null) {
-            msg = limitAndEscapeContent(attributeName, 30) + ",";
+            msg = limitAndEscapeContent(attributeName, 30) ;
         }
 
         if(oldVal != null || newVal != null) {
-            msg += limitAndEscapeContent(oldVal, 100) + "," + limitAndEscapeContent(newVal, 100);
+            msg += "," + limitAndEscapeContent(oldVal, 100) + "," + limitAndEscapeContent(newVal, 100);
         }
 
         applicationEventPublisher.publishEvent(new AuditApplicationEvent( actor, template, msg));
@@ -357,7 +373,14 @@ public class AuditService {
     }
 
     private String limitAndEscapeContent(String in, int maxLen){
-        return CryptoUtil.limitLength(in, maxLen).replace("%", "%25").replace(",", "%2C");
+        if( in == null){
+            return "";
+        }
+
+        if( in.length() > maxLen){
+            in = CryptoUtil.limitLength(in, maxLen -3 ) + "...";
+        }
+        return in.replace("%", "%25").replace(",", "%2C");
     }
 
     public void saveAuditTrace(final AuditTrace auditTrace){

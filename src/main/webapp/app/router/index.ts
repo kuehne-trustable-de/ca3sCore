@@ -10,6 +10,7 @@ const Home = () => import('../core/home/home.vue');
 const HelpTag = () => import('../core/help/help-tag.vue');
 const PkcsXX = () => import('../core/pkcsxx/pkcsxx.vue');
 const Preference = () => import('../core/preference/preference.vue');
+const AuditList = () => import('../core/audit/audit-list.vue');
 const CertList = () => import('../core/cert-list/cert-list.vue');
 const CertInfo = () => import('../core/cert-list/cert-info.vue');
 const CsrList = () => import('../core/csr-list/csr-list.vue');
@@ -265,6 +266,11 @@ export default new Router({
       path: '/preference',
       name: 'Preference',
       component: Preference
+    },
+    {
+      path: '/audit-list',
+      name: 'AuditList',
+      component: AuditList
     },
     {
       path: '/cert-list',
