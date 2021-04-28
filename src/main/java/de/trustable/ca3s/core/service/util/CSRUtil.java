@@ -58,20 +58,20 @@ public class CSRUtil {
 
 	@Autowired
 	private CSRRepository csrRepository;
-	
+
 	@Autowired
 	private RDNRepository rdnRepository;
-	
+
 	@Autowired
 	private RequestAttributeRepository rasRepository;
-	
+
 	@Autowired
 	private RequestAttributeValueRepository rasvRepository;
-	
-	
+
+
 	@Autowired
 	private RDNAttributeRepository rdnAttRepository;
-	
+
 	@Autowired
 	private CsrAttributeRepository csrAttRepository;
 
@@ -79,7 +79,7 @@ public class CSRUtil {
 	private CryptoService cryptoUtil;
 
 	/**
-	 * 
+	 *
 	 * @param csrBase64
 	 * @return
 	 * @throws IOException
@@ -88,39 +88,39 @@ public class CSRUtil {
 	public Pkcs10RequestHolder parseBase64CSR(final String csrBase64) throws IOException, GeneralSecurityException {
 
 	      Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(csrBase64);
-	      
+
 	      // @ToDo perform some checks
 
 	      return p10ReqHolder;
 	}
 
 	public CSR buildCSR(final String csrBase64, String requestorName, final Pkcs10RequestHolder p10ReqHolder, Pipeline pipeline) throws IOException {
-		
+
 		return buildCSR(csrBase64, requestorName, p10ReqHolder, pipeline.getType(), pipeline);
 	}
 	/**
-	 * 
+	 *
 	 * @param csrBase64
 	 * @param p10ReqHolder
-	 * @param pipelineType 
+	 * @param pipelineType
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public CSR buildCSR(final String csrBase64, String requestorName, final Pkcs10RequestHolder p10ReqHolder, PipelineType pipelineType, Pipeline pipeline) throws IOException {
 
 		CSR csr = new CSR();
 
 		csr.setStatus(CsrStatus.PENDING);
-		
+
 		csr.setPipeline(pipeline);
-		
+
 		csr.setPipelineType(pipelineType);
-		
-		// avoid to forward the initial CSR text: don't store accidentially included private keys or XSS attacks 
+
+		// avoid to forward the initial CSR text: don't store accidentially included private keys or XSS attacks
 //		csr.setCsrBase64(csrBase64);
-		
+
 		csr.setCsrBase64(CryptoUtil.pkcs10RequestToPem(p10ReqHolder.getP10Req()));
-		
+
 		csr.setSubject(p10ReqHolder.getSubject());
 
 
@@ -152,7 +152,7 @@ public class CSRUtil {
 		csr.setPublicKeyHash(p10ReqHolder.getPublicKeyHash());
 
 		csr.setKeyLength( CertificateUtil.getAlignedKeyLength(p10ReqHolder.getPublicSigningKey()));
-		
+
 		csr.setServersideKeyGeneration(false);
 
 		csr.setSubjectPublicKeyInfoBase64(p10ReqHolder.getSubjectPublicKeyInfoBase64());
@@ -172,10 +172,10 @@ public class CSRUtil {
 
 		csrRepository.save(csr);
 
-		
+
 		LOG.debug("RDN arr #" + p10ReqHolder.getSubjectRDNs().length);
 
-		Set<RDN> newRdns = new HashSet<RDN>();
+		Set<RDN> newRdns = new HashSet<>();
 
 		for (org.bouncycastle.asn1.x500.RDN currentRdn : p10ReqHolder.getSubjectRDNs()) {
 
@@ -183,7 +183,7 @@ public class CSRUtil {
 			rdn.csr(csr);
 
 			LOG.debug("AttributeTypeAndValue arr #" + currentRdn.size());
-			Set<RDNAttribute> rdnAttributes = new HashSet<RDNAttribute>();
+			Set<RDNAttribute> rdnAttributes = new HashSet<>();
 
 			AttributeTypeAndValue[] attrTVArr = currentRdn.getTypesAndValues();
 			for (AttributeTypeAndValue attrTV : attrTVArr) {
@@ -204,7 +204,7 @@ public class CSRUtil {
 		} catch (InvalidNameException e) {
 			LOG.info("problem parsing RDN for {}", p10ReqHolder.getSubject());
 		}
-		
+
 		insertNameAttributes(csr, CsrAttribute.ATTRIBUTE_SUBJECT, p10ReqHolder.getSubjectRDNs());
 
 		Set<GeneralName> gNameSet = getSANList(p10ReqHolder);
@@ -212,17 +212,17 @@ public class CSRUtil {
 		String allSans = "";
 		LOG.debug("putting SANs into CSRAttributes");
 		for (GeneralName gName : gNameSet) {
-			
+
 			String sanValue = gName.getName().toString();
 			if (GeneralName.otherName == gName.getTagNo()) {
 				sanValue = "--other value--";
 			}
-			
+
 			if( allSans.length() > 0) {
 				allSans += ";";
 			}
 			allSans += sanValue;
-			
+
 			this.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_SAN, sanValue, true);
 			if (GeneralName.dNSName == gName.getTagNo()) {
 				this.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_TYPED_SAN, "DNS:" + sanValue, true);
@@ -257,7 +257,7 @@ public class CSRUtil {
 					RDN rdn = new RDN();
 					rdn.csr(csr);
 
-					Set<RDNAttribute> rdnAttributes = new HashSet<RDNAttribute>();
+					Set<RDNAttribute> rdnAttributes = new HashSet<>();
 
 					RDNAttribute rdnAttr = new RDNAttribute();
 					rdnAttr.setRdn(rdn);
@@ -277,7 +277,7 @@ public class CSRUtil {
 
 		csr.setRdns(newRdns);
 
-		Set<RequestAttribute> newRas = new HashSet<RequestAttribute>();
+		Set<RequestAttribute> newRas = new HashSet<>();
 
 		for (Attribute attr : p10ReqHolder.getReqAttributes()) {
 
@@ -285,7 +285,7 @@ public class CSRUtil {
 			reqAttrs.setCsr(csr);
 			reqAttrs.setAttributeType(attr.getAttrType().toString());
 
-			Set<RequestAttributeValue> requestAttributes = new HashSet<RequestAttributeValue>();
+			Set<RequestAttributeValue> requestAttributes = new HashSet<>();
 			String type = attr.getAttrType().toString();
 			ASN1Set valueSet = attr.getAttrValues();
 			LOG.debug("AttributeSet type " + type + " #" + valueSet.size());
@@ -310,19 +310,19 @@ public class CSRUtil {
 		csrAttRequestorName.setName(CsrAttribute.ATTRIBUTE_REQUESTED_BY);
 		csrAttRequestorName.setValue(requestorName);
 		csr.getCsrAttributes().add(csrAttRequestorName);
-		
+
 		rdnRepository.saveAll(csr.getRdns());
-		
+
 		for( RDN rdn: csr.getRdns()) {
 			rdnAttRepository.saveAll(rdn.getRdnAttributes());
 		}
-		
+		/*
 		rasRepository.saveAll(csr.getRas());
-		
+
 		for( RequestAttribute ras: csr.getRas()) {
 			rasvRepository.saveAll(ras.getRequestAttributeValues());
 		}
-		
+		*/
 		csrAttRepository.saveAll(csr.getCsrAttributes());
 
 		csrRepository.save(csr);
@@ -333,23 +333,23 @@ public class CSRUtil {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param p10ReqHolder
 	 * @return
 	 */
 	Set<GeneralName> getSANList(Pkcs10RequestHolder p10ReqHolder){
-		
+
 		return(getSANList(p10ReqHolder.getReqAttributes() ) );
-		
+
 	}
-	
-	
+
+
     public static void retrieveSANFromCSRAttribute(Set<GeneralName> sanSet, Attribute attrExtension ){
-    	
+
         ASN1Set valueSet = attrExtension.getAttrValues();
         LOG.info( "ExtensionRequest / AttrValues has " + valueSet.size() + " elements" );
         for (ASN1Encodable asn1Enc : valueSet) {
-        	
+
             if( asn1Enc instanceof DERSequence ) {
 	            DERSequence derSeq = (DERSequence)asn1Enc;
 	            LOG.debug( "ExtensionRequest / DERSequence has "+derSeq.size()+" elements" );
@@ -367,7 +367,7 @@ public class CSRUtil {
 
     /**
      * Extract all SANs from an ASN1Encodable
-     * 
+     *
      * @param sanSet
      * @param asn1Array
      */
@@ -376,21 +376,21 @@ public class CSRUtil {
 
 			LOG.debug( "ExtensionRequest / asn1Enc2 is a " + asn1Enc.getClass().getName());
 
-		    ASN1Encodable asn1EncValue = null;
-		    ASN1ObjectIdentifier objId = null;
+		    ASN1Encodable asn1EncValue;
+		    ASN1ObjectIdentifier objId;
 
             if( asn1Enc instanceof DERSequence ) {
     		    DERSequence derSeq2 = (DERSequence) asn1Enc;
     		    LOG.debug( "ExtensionRequest / DERSequence2 has " + derSeq2.size() + " elements");
     		    LOG.debug( "ExtensionRequest / DERSequence2[0] is a " + derSeq2.getObjectAt(0).getClass().getName());
-    		    
+
     		    objId = (ASN1ObjectIdentifier) (derSeq2.getObjectAt(0));
     		    asn1EncValue = derSeq2.getObjectAt(1);
 
             }else if( asn1Enc instanceof DLSequence ) {
             	DLSequence dlSeq = (DLSequence)asn1Enc;
 	            LOG.debug( "DLSequence has "+dlSeq.size()+" elements" );
-	            
+
     		    objId = (ASN1ObjectIdentifier) (dlSeq.getObjectAt(0));
     		    asn1EncValue = dlSeq.getObjectAt(1);
 
@@ -398,7 +398,7 @@ public class CSRUtil {
                 LOG.info( "asn1Enc in asn1Array is of an unexpected type " + asn1Enc.getClass().getName());
                 continue;
             }
-		    
+
 		    LOG.debug("ExtensionRequest / DERSequence2[1] (asn1EncValue)is a " + asn1EncValue.getClass().getName());
 
 
@@ -454,14 +454,14 @@ public class CSRUtil {
 
 
 	/**
-	 * 
+	 *
 	 * @param reqAttributes
 	 * @return
 	 */
 	public static Set<GeneralName> getSANList(Attribute[] reqAttributes) {
-		
-		Set<GeneralName> generalNameSet = new HashSet<GeneralName>();
-		
+
+		Set<GeneralName> generalNameSet = new HashSet<>();
+
 		for( Attribute attr : reqAttributes) {
 			if( PKCSObjectIdentifiers.pkcs_9_at_extensionRequest.equals(attr.getAttrType())){
 
@@ -472,24 +472,24 @@ public class CSRUtil {
 				for (ASN1Encodable asn1Enc : valueSet) {
 					if( asn1Enc instanceof DERSequence) {
 						DERSequence derSeq = (DERSequence)asn1Enc;
-	
+
 						LOG.debug("ExtensionRequest / DERSequence has {} elements", derSeq.size());
 						if( derSeq.size() > 0 ) {
 							LOG.debug("ExtensionRequest / DERSequence[0] is a  {}", derSeq.getObjectAt(0).getClass().getName());
-		
+
 							DERSequence derSeq2 = (DERSequence)derSeq.getObjectAt(0);
 							LOG.debug("ExtensionRequest / DERSequence2 has {} elements", derSeq2.size());
 							LOG.debug("ExtensionRequest / DERSequence2[0] is a  {}", derSeq2.getObjectAt(0).getClass().getName());
-		
-		
+
+
 							ASN1ObjectIdentifier objId = (ASN1ObjectIdentifier)(derSeq2.getObjectAt(0));
 							if( Extension.subjectAlternativeName.equals(objId)) {
 								DEROctetString derStr = (DEROctetString)derSeq2.getObjectAt(1);
 								GeneralNames names = GeneralNames.getInstance(derStr.getOctets());
 								LOG.debug("Attribute value SAN" + names);
 								LOG.debug("SAN values #" + names.getNames().length);
-								
-								for (GeneralName gnSAN : names.getNames()) {									
+
+								for (GeneralName gnSAN : names.getNames()) {
 									LOG.debug("GN " + gnSAN.toString());
 									generalNameSet.add(gnSAN);
 								}
@@ -501,15 +501,15 @@ public class CSRUtil {
 						}
 					}
 				}
-*/				
+*/
 			}
 		}
 		return generalNameSet;
 
 	}
-	
+
 /**
- * 
+ *
  * @param gName
  * @return
  */
@@ -534,15 +534,15 @@ public class CSRUtil {
 			return "unexpected identifier '" + gName.getTagNo() + "'";
 		}
 	}
-	
+
 	public static String getGeneralNameDescription(GeneralName gName) {
-		
+
 		return CertificateUtil.getTypedSAN(gName.getTagNo(), gName.getName().toString());
 
 	}
 
 	/**
-	 * 
+	 *
 	 * @param csrDao
 	 * @param status
 	 */
@@ -550,10 +550,10 @@ public class CSRUtil {
 		csrDao.setStatus(status);
 		csrRepository.save(csrDao);
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 * @param csrDao
 	 * @param name
 	 * @return
@@ -567,8 +567,8 @@ public class CSRUtil {
 		return null;
 	}
 
-	
-	
+
+
 	public void insertNameAttributes(CSR csr, String attributeName, LdapName ldapName) {
 		List<Rdn> rdnList = ldapName.getRdns();
 		for( Rdn rdn: rdnList) {
@@ -578,12 +578,12 @@ public class CSRUtil {
 	}
 
 	public void insertNameAttributes(CSR csr, String attributeName, org.bouncycastle.asn1.x500.RDN[] rdns) {
-		
+
 		for( org.bouncycastle.asn1.x500.RDN rdn: rdns ){
 			for( org.bouncycastle.asn1.x500.AttributeTypeAndValue atv: rdn.getTypesAndValues()){
 				String value = atv.getValue().toString().toLowerCase().trim();
 				setCsrAttribute(csr, attributeName, value, true);
-				
+
 				String oid = atv.getType().getId().toLowerCase();
 				setCsrAttribute(csr, attributeName, oid +"="+ value, true);
 
@@ -591,7 +591,7 @@ public class CSRUtil {
 					setCsrAttribute(csr, attributeName, atv.getType().toString().toLowerCase() +"="+ value, true);
 				}
 /*
- * long text form				
+ * long text form
 				String oidName = OidNameMapper.lookupOid(oid);
 				if( !oid.equals(oidName.toLowerCase())) {
 					setCsrAttribute(csr, attributeName, oidName +"="+ value, true);
@@ -602,7 +602,7 @@ public class CSRUtil {
 	}
 
 	public void setCsrAttribute(CSR csr, String name, String value, boolean multiValue) {
-		
+
 		if( name == null) {
 			LOG.warn("no use to insert attribute with name 'null'", new Exception());
 			return;
@@ -610,9 +610,9 @@ public class CSRUtil {
 		if( value == null) {
 			value= "";
 		}
-		
-		
-		
+
+
+
 		Collection<CsrAttribute> csrAttrList = csr.getCsrAttributes();
 		for( CsrAttribute csrAttr : csrAttrList) {
 
@@ -630,14 +630,14 @@ public class CSRUtil {
 				}
 			}
 		}
-		
+
 		CsrAttribute cAtt = new CsrAttribute();
 		cAtt.setCsr(csr);
 		cAtt.setName(name);
 		cAtt.setValue(value);
-		
+
 		csr.getCsrAttributes().add(cAtt);
-		
+
 		csrAttRepository.save(cAtt);
 
 	}
