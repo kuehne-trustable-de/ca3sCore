@@ -21,9 +21,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import de.trustable.ca3s.core.domain.AuditTrace;
 import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.schedule.spider.Spider;
+import de.trustable.ca3s.core.schedule.spider.Crawler;
 import de.trustable.ca3s.core.service.AuditService;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -42,11 +41,6 @@ import de.trustable.ca3s.core.schedule.ImportInfo;
 import de.trustable.ca3s.core.service.dto.CAStatus;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.TransactionHandler;
-import edu.uci.ics.crawler4j.crawler.CrawlConfig;
-import edu.uci.ics.crawler4j.crawler.CrawlController;
-import edu.uci.ics.crawler4j.fetcher.PageFetcher;
-import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig;
-import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
 
 @Service
 public class DirectoryConnector {
@@ -141,46 +135,11 @@ public class DirectoryConnector {
 		if( url.startsWith("http://") ||
 				url.startsWith("https://") ) {
 
+            Crawler crawler = new Crawler();
+
             List<String> crawlDomains = Arrays.asList(caConfig.getCaUrl());
-
-/*
-			CrawlConfig config = new CrawlConfig();
-
-	        // Set the folder where intermediate crawl data is stored (e.g. list of urls that are extracted from previously
-	        // fetched pages and need to be crawled later).
-			Path tmpFolder = Files.createTempDirectory("crawler4j");
-	        config.setCrawlStorageFolder(tmpFolder.toString());
-
-	        // Number of threads to use during crawling. Increasing this typically makes crawling faster. But crawling
-	        // speed depends on many other factors as well. You can experiment with this to figure out what number of
-	        // threads works best for you.
-	        int numberOfCrawlers = 1;
-
-	        // Since certificates and CRLs maybe binary content, we need to set this parameter to
-	        // true to make sure they are included in the crawl.
-	        config.setIncludeBinaryContentInCrawling(true);
-
-
-	        PageFetcher pageFetcher = new PageFetcher(config);
-	        RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
-	        RobotstxtServer robotstxtServer = new RobotstxtServer(robotstxtConfig, pageFetcher);
-
-			try {
-				CrawlController controller = new CrawlController(config, pageFetcher, robotstxtServer);
-		        for (String domain : crawlDomains) {
-		            controller.addSeed(domain);
-		        }
-
-		        CrawlController.WebCrawlerFactory<CertificateCrawler> factory = () -> new CertificateCrawler(crawlDomains, regEx, certUtil, auditService, importInfo);
-		        controller.start(factory, numberOfCrawlers);
-			} catch (Exception e) {
-				LOGGER.info("problem building crawler for '{}'", caConfig.getCaUrl());
-			}
-*/
-            Spider spider = new Spider();
-
 			for( String domain: crawlDomains) {
-                Set<String> certificateSet = spider.search(domain, regEx);
+                Set<String> certificateSet = crawler.search(domain, regEx);
                 for( String certUrl: certificateSet) {
                     importCertifiateFromURL(certUrl, importInfo);
                 }

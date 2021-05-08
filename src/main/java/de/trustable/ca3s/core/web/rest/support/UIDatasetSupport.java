@@ -8,6 +8,7 @@ import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.domain.enumeration.RDNCardinalityRestriction;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
+import de.trustable.ca3s.core.repository.PipelineAttributeRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.repository.UserPreferenceRepository;
 import de.trustable.ca3s.core.security.SecurityUtils;
@@ -16,6 +17,7 @@ import de.trustable.ca3s.core.service.dto.PipelineView;
 import de.trustable.ca3s.core.service.dto.RDNRestriction;
 import de.trustable.ca3s.core.service.dto.CAStatus;
 import de.trustable.ca3s.core.service.util.CaConnectorAdapter;
+import de.trustable.ca3s.core.service.util.CertificateSelectionUtil;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import de.trustable.ca3s.core.web.rest.CAConnectorConfigResource;
@@ -23,6 +25,7 @@ import de.trustable.ca3s.core.web.rest.data.CertificateFilterList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,9 +33,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -65,6 +66,8 @@ public class UIDatasetSupport {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private CertificateSelectionUtil certificateSelectionAttributeList;
 
     /**
      * {@code GET  /pipeline/getWebPipelines} : get all pipelines for web upload.
@@ -217,6 +220,10 @@ public class UIDatasetSupport {
 		return ResponseEntity.noContent().build();
 	}
 
+    @GetMapping("/certificateSelectionAttributes")
+    public ResponseEntity<List<String>> getCertificateSelectionAttributes() {
+        return ResponseEntity.ok(certificateSelectionAttributeList.getCertificateSelectionAttributes());
+    }
 
     /**
      * {@code GET  userProperties/{name} } : get user properties for the given name and the logged-in user.

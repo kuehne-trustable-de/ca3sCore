@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 
+import de.trustable.ca3s.core.service.util.CertificateSelectionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -19,15 +20,17 @@ public class CSRViewRepository {
 	@Autowired
     private EntityManager entityManager;
 
-	public Page<CSRView> findSelection(Map<String, String[]> parameterMap){
+    @Autowired
+    private CertificateSelectionUtil certificateSelectionAttributeList;
+
+    public Page<CSRView> findSelection(Map<String, String[]> parameterMap){
 
 		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
 		return CSRSpecifications.handleQueryParamsCertificateView(entityManager,
 				cb,
-				parameterMap);
-
-//	    public List<Object[]>  getCertificateList(Map<String, String[]> parameterMap) {
+				parameterMap,
+            certificateSelectionAttributeList.getCertificateSelectionAttributes());
 
 	}
 

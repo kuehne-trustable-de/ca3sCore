@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 
+import de.trustable.ca3s.core.service.util.CertificateSelectionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -18,18 +19,17 @@ public class CertificateViewRepository {
 	@Autowired
     private EntityManager entityManager;
 
-//	@Autowired
-//	private CertificateJPQLSpecifications spec;
-	
-	public Page<CertificateView> findSelection(Map<String, String[]> parameterMap){
-		
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-		
-		return CertificateSpecifications.handleQueryParamsCertificateView(entityManager, 
-				cb, 
-				parameterMap);
+    @Autowired
+    private CertificateSelectionUtil certificateSelectionAttributeList;
 
-//	    public List<Object[]>  getCertificateList(Map<String, String[]> parameterMap) {
+    public Page<CertificateView> findSelection(Map<String, String[]> parameterMap){
+
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+
+		return CertificateSpecifications.handleQueryParamsCertificateView(entityManager,
+				cb,
+				parameterMap,
+            certificateSelectionAttributeList.getCertificateSelectionAttributes());
 
 	}
 

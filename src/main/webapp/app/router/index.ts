@@ -11,6 +11,8 @@ const HelpTag = () => import('../core/help/help-tag.vue');
 const PkcsXX = () => import('../core/pkcsxx/pkcsxx.vue');
 const Preference = () => import('../core/preference/preference.vue');
 const AuditList = () => import('../core/audit/audit-list.vue');
+const BpmnList = () => import('../core/bpmn/bpmn-list.vue');
+const BpmnInfo = () => import('../core/bpmn/bpmn-info.vue');
 const CertList = () => import('../core/cert-list/cert-list.vue');
 const CertInfo = () => import('../core/cert-list/cert-info.vue');
 const CsrList = () => import('../core/csr-list/csr-list.vue');
@@ -272,6 +274,22 @@ export default new Router({
       name: 'AuditList',
       component: AuditList
     },
+    {
+      path: '/bpmn-list',
+      name: 'BpmnList',
+      component: BpmnList
+    },
+    {
+      path: '/bpmn-info',
+      name: 'BpmnInfo',
+      component: BpmnInfo
+    },
+    {
+      path: '/bpnm-info/new',
+      name: 'BpmnInfoCreate',
+      component: BpmnInfo,
+    },
+
     {
       path: '/cert-list',
       name: 'CertList',

@@ -16,7 +16,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BPMNProcessInfoRepository extends JpaRepository<BPMNProcessInfo, Long> {
 
-
 	@Query(name = "BPMNProcessInfo.findByName")
 	public Optional<BPMNProcessInfo> findByName(@Param("name")  String name);
 

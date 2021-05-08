@@ -199,6 +199,8 @@ entity BPMNProcessInfo{
   	author String required
   	lastChange Instant required
   	signatureBase64 TextBlob required
+  	bpmnHashBase64 String required
+  	processId String required
 }
 
 

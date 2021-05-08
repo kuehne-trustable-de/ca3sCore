@@ -26,6 +26,9 @@ import java.util.List;
 @Transactional
 public class AuditService {
 
+    public static final String AUDIT_CA3S_STARTED = "CA3S_STARTED";
+    public static final String AUDIT_CA3S_STOPPED = "CA3S_STOPPED";
+
     public static final String AUDIT_CSR_ACCEPTED = "CSR_ACCEPTED";
     public static final String AUDIT_CSR_REJECTED = "CSR_REJECTED";
     public static final String AUDIT_WEB_CERTIFICATE_REQUESTED = "WEB_CERTIFICATE_REQUESTED";
@@ -99,6 +102,29 @@ public class AuditService {
             log.debug( "Authority: {}", ga.getAuthority());
         }
         return "ANON";
+    }
+
+
+    public AuditTrace createAuditTraceStarted(){
+        NameAndRole nar = getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(), AUDIT_CA3S_STARTED,
+            null,
+            null,
+            null,
+            null,
+            null );
+
+    }
+
+    public AuditTrace createAuditTraceStopped(){
+        NameAndRole nar = getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(), AUDIT_CA3S_STOPPED,
+            null,
+            null,
+            null,
+            null,
+            null );
+
     }
 
     public AuditTrace createAuditTraceCsrAccepted(final CSR csr){

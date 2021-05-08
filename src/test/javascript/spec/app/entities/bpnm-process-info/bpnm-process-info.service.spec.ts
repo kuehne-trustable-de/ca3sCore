@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import * as config from '@/shared/config/config';
 import { DATE_TIME_FORMAT } from '@/shared/date/filters';
 import BPNMProcessInfoService from '@/entities/bpnm-process-info/bpnm-process-info.service';
-import { BPNMProcessInfo, BPNMProcessType } from '@/shared/model/bpmn-process-info.model';
+import { BPMNProcessInfo, BPMNProcessType } from '@/shared/model/bpmn-process-info.model';
 
 const mockedAxios: any = axios;
 jest.mock('axios', () => ({
@@ -24,7 +24,7 @@ describe('Service Tests', () => {
       service = new BPNMProcessInfoService();
       currentDate = new Date();
 
-      elemDefault = new BPNMProcessInfo(0, 'AAAAAAA', 'AAAAAAA', BPNMProcessType.CA_INVOCATION, 'AAAAAAA', currentDate, 'AAAAAAA');
+      elemDefault = new BPMNProcessInfo(0, 'AAAAAAA', 'AAAAAAA', BPMNProcessType.CA_INVOCATION, 'AAAAAAA', currentDate, 'AAAAAAA');
     });
 
     describe('Service methods', () => {

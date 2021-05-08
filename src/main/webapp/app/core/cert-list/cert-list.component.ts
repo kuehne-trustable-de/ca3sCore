@@ -99,6 +99,8 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     return this.$store.getters.authenticated;
   }
 
+  public certificateSelectionAttributes: string[] = [];
+
   public certSelectionItems: ICertificateSelectionData[] = [
     { itemName: 'subject', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable' },
     { itemName: 'sans', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable' },
@@ -332,9 +334,35 @@ export default class CertList extends mixins(AlertMixin, Vue) {
   }
 
   public mounted(): void {
+    this.getCertificateSelectionAttributes();
     this.getUsersFilterList();
     setInterval(() => this.putUsersFilterList(this), 3000);
     setInterval(() => this.buildContentAccessUrl(), 1000);
+  }
+
+  public getCertificateSelectionAttributes(): void {
+    window.console.info('calling getCertificateSelectionAttributes ');
+    const self = this;
+
+    axios({
+      method: 'get',
+      url: 'api/certificateSelectionAttributes',
+      responseType: 'stream'
+    }).then(function(response) {
+      //      window.console.debug('getUsersFilterList returns ' + response.data );
+      if (response.status === 200) {
+        self.certificateSelectionAttributes = response.data;
+
+        for (let i = 0; i < self.certificateSelectionAttributes.length; i++) {
+          self.certSelectionItems.push({
+            itemName: self.certificateSelectionAttributes[i],
+            itemType: 'string',
+            itemDefaultSelector: 'EQUAL',
+            itemDefaultValue: 'X'
+          });
+        }
+      }
+    });
   }
 
   public getUsersFilterList(): void {

@@ -119,14 +119,16 @@ public final class CertificateSpecifications {
 
     /**
      *
-     * @param entityManager	EntityManager
+     * @param entityManager    EntityManager
      * @param cb CriteriaBuilder
      * @param parameterMap map of parameters
+     * @param certificateSelectionAttributes
      * @return page
      */
 	public static Page<CertificateView> handleQueryParamsCertificateView(EntityManager entityManager,
-			CriteriaBuilder cb,
-			Map<String, String[]> parameterMap) {
+                                                                         CriteriaBuilder cb,
+                                                                         Map<String, String[]> parameterMap,
+                                                                         List<String> certificateSelectionAttributes) {
 
 		long startTime = System.currentTimeMillis();
 
@@ -173,7 +175,8 @@ public final class CertificateSpecifications {
 							col,
 							selDataItem.selector,
 							selDataItem.value,
-							selectionList));
+							selectionList,
+                        certificateSelectionAttributes));
 				}
 			}else {
 				logger.debug("buildPredicate for '{}' without selector ", col );
@@ -183,7 +186,7 @@ public final class CertificateSpecifications {
 					col,
 					null,
 					"",
-					selectionList));
+					selectionList, certificateSelectionAttributes));
 			}
 
 
@@ -211,7 +214,7 @@ public final class CertificateSpecifications {
 							selection,
 							selDataItem.selector,
 							selDataItem.value,
-							selectionListDummy));
+							selectionListDummy, certificateSelectionAttributes));
 				}
 			}
 		}
@@ -301,7 +304,7 @@ public final class CertificateSpecifications {
 							col,
 							selDataItem.selector,
 							selDataItem.value,
-							selectionListCount));
+							selectionListCount, certificateSelectionAttributes));
 				}
 			}else {
 				logger.debug("buildPredicate for '{}' without selector ", col );
@@ -311,7 +314,7 @@ public final class CertificateSpecifications {
 					col,
 					null,
 					"",
-					selectionListCount));
+					selectionListCount, certificateSelectionAttributes));
 			}
 
 		}
@@ -334,7 +337,7 @@ public final class CertificateSpecifications {
 							selection,
 							selDataItem.selector,
 							selDataItem.value,
-							selectionListDummy));
+							selectionListDummy, certificateSelectionAttributes));
 				}
 			}
 		}
@@ -495,16 +498,17 @@ public final class CertificateSpecifications {
 	 * @param attributeSelector
 	 * @param attributeValue
 	 * @param selectionList
-	 * @return
+	 * @param certificateSelectionAttributes
+     * @return
 	 */
 	private static Predicate buildPredicate(
-			Root<Certificate> root,
-			CriteriaBuilder cb,
-			CriteriaQuery<?> certQuery,
-			final String attribute,
-			final String attributeSelector,
-			final String attributeValue,
-			List<Selection<?>> selectionList) {
+        Root<Certificate> root,
+        CriteriaBuilder cb,
+        CriteriaQuery<?> certQuery,
+        final String attribute,
+        final String attributeSelector,
+        final String attributeValue,
+        List<Selection<?>> selectionList, List<String> certificateSelectionAttributes) {
 
 		Predicate pred = cb.conjunction();
 
@@ -661,7 +665,16 @@ public final class CertificateSpecifications {
 			}
 
 		}else{
-			logger.warn("fall-thru clause adding 'true' condition for {} ", attribute);
+
+            if( certificateSelectionAttributes.contains(attribute) ){
+                // handle ARAs
+                Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
+                pred = cb.and( cb.equal(attJoin.<String>get(CertificateAttribute_.name), CsrAttribute.ARA_PREFIX + attribute),
+                    buildPredicateString( attributeSelector, cb, attJoin.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()));
+
+            }else {
+                logger.warn("fall-thru clause adding 'true' condition for {} ", attribute);
+            }
 		}
 		return pred;
 	}

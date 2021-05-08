@@ -50,7 +50,12 @@
                             <td >{{ row.actorName }}</td>
                             <td >{{ row.actorRole }}</td>
                             <td>{{ localizedContent(row.contentTemplate, row.plainContent) }}</td>
-                            <td >{{ links(row.csrId, row.certificateId, row.pipelineId, row.caConnectorId, row.processInfoId) }}</td>
+                            <td >
+                                <router-link v-if="row.csrId" :to="{name: 'CsrInfo', params: {csrId: row.csrId}}" >&nbsp;<font-awesome-icon icon="gavel" /></router-link>
+                                <router-link v-if="row.certificateId" :to="{name: 'CertInfo', params: {certificateId: row.certificateId}}" >&nbsp;<font-awesome-icon icon="id-card" /></router-link>
+                                <router-link v-if="row.pipelineId" :to="{name: 'ConfPipelineEdit', params: {pipelineId: row.pipelineId}}" ><font-awesome-icon icon="train"/></router-link>
+                                <router-link v-if="row.caConnectorId" :to="{name: 'ConfCaConnectorEdit', params: {cAConnectorConfigId: row.caConnectorId, mode: 'edit'}}" ><font-awesome-icon icon="pencil-alt"></font-awesome-icon></router-link>
+                            </td>
 
                         </tr>
                     </template>

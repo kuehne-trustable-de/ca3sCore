@@ -1,12 +1,12 @@
 import axios from 'axios';
 
-import { IBPNMProcessInfo } from '@/shared/model/bpmn-process-info.model';
+import { IBPMNProcessInfo } from '@/shared/model/bpmn-process-info.model';
 
-const baseApiUrl = 'api/bpnm-process-infos';
+const baseApiUrl = 'api/bpmn-process-infos';
 
 export default class BPNMProcessInfoService {
-  public find(id: number): Promise<IBPNMProcessInfo> {
-    return new Promise<IBPNMProcessInfo>(resolve => {
+  public find(id: number): Promise<IBPMNProcessInfo> {
+    return new Promise<IBPMNProcessInfo>(resolve => {
       axios.get(`${baseApiUrl}/${id}`).then(function(res) {
         resolve(res.data);
       });
@@ -29,16 +29,16 @@ export default class BPNMProcessInfoService {
     });
   }
 
-  public create(entity: IBPNMProcessInfo): Promise<IBPNMProcessInfo> {
-    return new Promise<IBPNMProcessInfo>(resolve => {
+  public create(entity: IBPMNProcessInfo): Promise<IBPMNProcessInfo> {
+    return new Promise<IBPMNProcessInfo>(resolve => {
       axios.post(`${baseApiUrl}`, entity).then(function(res) {
         resolve(res.data);
       });
     });
   }
 
-  public update(entity: IBPNMProcessInfo): Promise<IBPNMProcessInfo> {
-    return new Promise<IBPNMProcessInfo>(resolve => {
+  public update(entity: IBPMNProcessInfo): Promise<IBPMNProcessInfo> {
+    return new Promise<IBPMNProcessInfo>(resolve => {
       axios.put(`${baseApiUrl}`, entity).then(function(res) {
         resolve(res.data);
       });

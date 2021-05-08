@@ -9,13 +9,22 @@
 		</b-alert>
 		<br/>
 
-  	<div class="row">
+  	    <div class="row">
 
 			<div class="col-xs-12 table-responsive">
                 <h2 class="jh-entity-heading">
                     <span v-text="$t('ca3SApp.cSR.subtitle.bpmn.process.list')">BPMN Process List</span>
+
+                     <router-link :to="{name: 'BpmnInfoCreate'}" tag="button" id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-bpnm-process-info">
+                        <font-awesome-icon icon="plus"></font-awesome-icon>
+                        <span  v-text="$t('ca3SApp.bPNMProcessInfo.home.createLabel')">
+                    Create a new BPNM Process Info
+                </span>
+                    </router-link>
+
                 </h2>
 				<div>
+                    <!--
 					<div v-for="(filter, index) in filters.filterList" :key="index">
 						<select float="left" class="smallSelector fa-1x" v-model="filter.attributeName" name="csrSelectionAttribute">
 							<option v-for="csrSelectionItem in csrSelectionItems" :key="csrSelectionItem.itemName" :value="csrSelectionItem.itemName">{{$t(csrSelectionItem.itemName)}}</option>
@@ -38,10 +47,11 @@
 						<button class="addRemoveSelector" float="right" v-if="index > 0" v-on:click="removeSelector(index)">
 							<font-awesome-icon icon="minus"></font-awesome-icon>
 						</button>
+					-->
 					</div>
 				</div>
 
-                <requests-table :columns="columns" :data="bpmnApiUrl" :per-page="20" name="bpmn-table">
+                <bpmn-table :columns="columns" :data="bpmnApiUrl" :per-page="20" name="bpmn-table">
 					<template slot-scope="{ row }">
 						<tr>
 							<td @click="$router.push({name: 'BpmnInfo', params: {bpmnId: row.id}})">{{ row.id }}</td>
@@ -56,10 +66,10 @@
 					<template name="no-result">
 						<div v-text="$t('list.noContent')">no content</div>
 					</template>
-				</requests-table>
+				</bpmn-table>
 
 				<section class="pagers-table">
-					<requests-table-pager type="abbreviated" table="requests"></requests-table-pager>
+					<bpmn-table-pager type="abbreviated" table="bpmn-table"></bpmn-table-pager>
 				</section>
 			</div>
   	    </div>

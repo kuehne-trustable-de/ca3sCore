@@ -11,6 +11,12 @@ import java.io.Serializable;
  */
 @Entity
 @Table(name = "pipeline_attribute")
+@NamedQueries({
+    @NamedQuery(name = "PipelineAttribute.findDistinctByName",
+        query = "SELECT distinct pa.value FROM PipelineAttribute pa WHERE " +
+            "pa.name like :name"
+    )
+})
 public class PipelineAttribute implements Serializable {
 
     private static final long serialVersionUID = 1L;

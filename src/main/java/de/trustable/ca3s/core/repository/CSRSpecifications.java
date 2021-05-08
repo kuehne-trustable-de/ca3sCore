@@ -34,7 +34,8 @@ public final class CSRSpecifications {
 
     public static Page<CSRView> handleQueryParamsCertificateView(EntityManager entityManager,
                                                                  CriteriaBuilder cb,
-                                                                 Map<String, String[]> parameterMap) {
+                                                                 Map<String, String[]> parameterMap,
+                                                                 List<String> csrSelectionAttributes) {
 
         CriteriaQuery<Object[]> query = cb.createQuery(Object[].class);
         Root<CSR> root = query.from(CSR.class);
@@ -80,7 +81,8 @@ public final class CSRSpecifications {
                         col,
                         selDataItem.selector,
                         selDataItem.value,
-                        selectionList));
+                        selectionList,
+                        csrSelectionAttributes));
                 }
             } else {
                 logger.debug("buildPredicate for '{}' without selector ", col);
@@ -90,7 +92,8 @@ public final class CSRSpecifications {
                     col,
                     null,
                     "",
-                    selectionList));
+                    selectionList,
+                    csrSelectionAttributes));
             }
 
 
@@ -179,7 +182,8 @@ public final class CSRSpecifications {
                         col,
                         selDataItem.selector,
                         selDataItem.value,
-                        selectionListCount));
+                        selectionListCount,
+                        csrSelectionAttributes));
                 }
             } else {
                 logger.debug("buildPredicate for '{}' without selector ", col);
@@ -189,7 +193,8 @@ public final class CSRSpecifications {
                     col,
                     null,
                     "",
-                    selectionListCount));
+                    selectionListCount,
+                    csrSelectionAttributes));
             }
 
         }
@@ -343,7 +348,8 @@ public final class CSRSpecifications {
         final String attribute,
         final String attributeSelector,
         final String attributeValue,
-        List<Selection<?>> selectionList) {
+        List<Selection<?>> selectionList,
+        List<String> csrSelectionAttributes) {
 
         Predicate pred = cb.conjunction();
 
@@ -438,6 +444,16 @@ public final class CSRSpecifications {
                 pred = buildPredicateString(attributeSelector, cb, root.<String>get(CSR_.rejectionReason), attributeValue);
             }
         } else {
+            if( csrSelectionAttributes.contains(attribute) ){
+                // handle ARAs
+                Join<CSR, CsrAttribute> attJoin = root.join(CSR_.csrAttributes, JoinType.LEFT);
+                pred = cb.and( cb.equal(attJoin.<String>get(CsrAttribute_.name), CsrAttribute.ARA_PREFIX + attribute),
+                    buildPredicateString( attributeSelector, cb, attJoin.<String>get(CsrAttribute_.value), attributeValue.toLowerCase()));
+
+            }else {
+                logger.warn("fall-thru clause adding 'true' condition for {} ", attribute);
+            }
+
             logger.warn("fall-thru clause adding 'true' condition for {} ", attribute);
         }
         return pred;

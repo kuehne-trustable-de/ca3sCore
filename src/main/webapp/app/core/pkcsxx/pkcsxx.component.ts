@@ -131,6 +131,15 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     readerBase64.readAsText(blob);
   }
 
+  public showRequiredWarning(required: boolean, value: string): boolean {
+    if (required) {
+      if (value.trim().length === 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public alignRDNArraySize(restrictionIndex: number, valueIndex: number): void {
     window.console.info('in alignRDNArraySize(' + restrictionIndex + ', ' + valueIndex + ')');
     const restriction = this.rdnRestrictions[restrictionIndex];

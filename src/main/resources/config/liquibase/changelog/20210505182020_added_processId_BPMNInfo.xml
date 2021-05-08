@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Add the BPMN blob flag to bpmn_process_info.
+    -->
+    <changeSet id="20210505182020-1" author="ak">
+
+        <addColumn tableName="bpmn_process_info">
+            <column name="bpmn_hash_base_64" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="process_id" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+
+        <createIndex indexName="bpmn_hash" tableName="bpmn_process_info">
+            <column name="bpmn_hash_base_64"/>
+        </createIndex>
+
+    </changeSet>
+
+
+</databaseChangeLog>

@@ -4,7 +4,7 @@ import { mixins } from 'vue-class-component';
 
 import { ICertificateFilter, ICertificateFilterList, ISelector, ICertificateSelectionData } from '@/shared/model/transfer-object.model';
 
-import { IBPNMProcessInfo } from '@/shared/model/bpmn-process-info.model';
+import { IBPMNProcessInfo } from '@/shared/model/bpmn-process-info.model';
 
 import { colFieldToStr, makeQueryStringFromObj } from '@/shared/utils';
 
@@ -65,7 +65,7 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('bpmn-table', t
       return {
         rows: data,
         totalRowCount: parseInt(totalCount, 10)
-      } as ITableContentParam<IBPNMProcessInfo>;
+      } as ITableContentParam<IBPMNProcessInfo>;
     })
     .mergeSettings({
       table: {
@@ -90,7 +90,7 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('bpmn-table', t
 );
 
 @Component
-export default class CsrList extends mixins(AlertMixin, Vue) {
+export default class BpmnList extends mixins(AlertMixin, Vue) {
   public get authenticated(): boolean {
     return this.$store.getters.authenticated;
   }
@@ -190,7 +190,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
         { label: this.$t('version'), field: 'version' },
         { label: this.$t('author'), field: 'author' },
         { label: this.$t('lastChange'), field: 'lastChange' }
-      ] as TColumnsDefinition<IBPNMProcessInfo>,
+      ] as TColumnsDefinition<IBPMNProcessInfo>,
       page: 1,
       filter: '',
       contentAccessUrl: '',
@@ -221,7 +221,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
       params['attributeSelector_' + idx] = filter.selector;
     }
 
-    const baseApiUrl = 'api/csrList';
+    const baseApiUrl = 'api/bpmn-process-infos';
     const url = `${baseApiUrl}?${makeQueryStringFromObj(params)}`;
 
     if (this.tmpContentAccessUrl !== url) {
@@ -245,7 +245,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
 
     axios({
       method: 'get',
-      url: 'api/userProperties/filterList/CSRList',
+      url: 'api/userProperties/filterList/BPMNList',
       responseType: 'stream'
     }).then(function(response) {
       //      window.console.debug('getUsersFilterList returns ' + response.data );
@@ -266,7 +266,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
       window.console.debug('putUsersFilterList: change detected ...');
       axios({
         method: 'put',
-        url: 'api/userProperties/filterList/CSRList',
+        url: 'api/userProperties/filterList/BPMNList',
         data: self.filters,
         responseType: 'stream'
       }).then(function(response) {

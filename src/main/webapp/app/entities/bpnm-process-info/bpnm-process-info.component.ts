@@ -2,7 +2,7 @@ import { mixins } from 'vue-class-component';
 
 import { Component, Inject } from 'vue-property-decorator';
 import Vue2Filters from 'vue2-filters';
-import { IBPNMProcessInfo } from '@/shared/model/bpmn-process-info.model';
+import { IBPMNProcessInfo } from '@/shared/model/bpmn-process-info.model';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
 import JhiDataUtils from '@/shared/data/data-utils.service';
@@ -13,7 +13,7 @@ import BPNMProcessInfoService from './bpnm-process-info.service';
 export default class BPNMProcessInfo extends mixins(JhiDataUtils, Vue2Filters.mixin, AlertMixin) {
   @Inject('bPNMProcessInfoService') private bPNMProcessInfoService: () => BPNMProcessInfoService;
   private removeId: number = null;
-  public bPNMProcessInfos: IBPNMProcessInfo[] = [];
+  public bPNMProcessInfos: IBPMNProcessInfo[] = [];
 
   public isFetching = false;
 
@@ -41,7 +41,7 @@ export default class BPNMProcessInfo extends mixins(JhiDataUtils, Vue2Filters.mi
       );
   }
 
-  public prepareRemove(instance: IBPNMProcessInfo): void {
+  public prepareRemove(instance: IBPMNProcessInfo): void {
     this.removeId = instance.id;
   }
 

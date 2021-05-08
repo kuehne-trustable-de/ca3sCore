@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.service.util;
 
+import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.Date;
@@ -67,7 +68,12 @@ public class BPMNUtil{
 		return repoService.createProcessDefinitionQuery().latestVersion().list();
 	}
 
-	public void updateProcessDefinitions(){
+    public InputStream getProcessContent(final String processId){
+
+        return repoService.getProcessModel(processId);
+    }
+
+    public void updateProcessDefinitions(){
 
 		List<ProcessDefinition> pdList = getProcessDefinitions();
 		for(ProcessDefinition pd: pdList ) {
@@ -89,8 +95,11 @@ public class BPMNUtil{
 				newBI.setType(BPMNProcessType.CA_INVOCATION);
 
 				// @todo calculate a signature
-				newBI.setSignatureBase64("");
+				newBI.setSignatureBase64("1234");
 
+                newBI.setBpmnHashBase64("bpmnHash");
+
+                newBI.setProcessId(pd.getId());
 				LOG.info("added new BPNMProcessInfo from camunda database: {}", newBI);
 
 				bpnmInfoRepo.save(newBI);

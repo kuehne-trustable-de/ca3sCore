@@ -8,7 +8,7 @@ import CAConnectorConfigService from '../../entities/ca-connector-config/ca-conn
 import { ICAConnectorConfig } from '@/shared/model/ca-connector-config.model';
 
 import BPNMProcessInfoService from '../../entities/bpnm-process-info/bpnm-process-info.service';
-import { IBPNMProcessInfo } from '@/shared/model/bpmn-process-info.model';
+import { IBPMNProcessInfo } from '@/shared/model/bpmn-process-info.model';
 import { IPipelineView, IARARestriction } from '@/shared/model/transfer-object.model';
 
 import AlertService from '@/shared/alert/alert.service';
@@ -60,7 +60,7 @@ export default class PipelineUpdate extends Vue {
 
   public allCertGenerators: CAConnectorConfigService[] = [];
 
-  public bPNMProcessInfos: IBPNMProcessInfo[] = [];
+  public bPNMProcessInfos: IBPMNProcessInfo[] = [];
   public isSaving = false;
 
   public alignARAArraySize(index: number): void {

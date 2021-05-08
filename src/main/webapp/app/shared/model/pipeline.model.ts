@@ -1,6 +1,6 @@
 import { IPipelineAttribute } from '@/shared/model/pipeline-attribute.model';
 import { ICAConnectorConfig } from '@/shared/model/ca-connector-config.model';
-import { IBPNMProcessInfo } from '@/shared/model/bpmn-process-info.model';
+import { IBPMNProcessInfo } from '@/shared/model/bpmn-process-info.model';
 
 export const enum PipelineType {
   ACME = 'ACME',
@@ -17,7 +17,7 @@ export interface IPipeline {
   approvalRequired?: boolean;
   pipelineAttributes?: IPipelineAttribute[];
   caConnector?: ICAConnectorConfig;
-  processInfo?: IBPNMProcessInfo;
+  processInfo?: IBPMNProcessInfo;
 }
 
 export class Pipeline implements IPipeline {
@@ -30,7 +30,7 @@ export class Pipeline implements IPipeline {
     public approvalRequired?: boolean,
     public pipelineAttributes?: IPipelineAttribute[],
     public caConnector?: ICAConnectorConfig,
-    public processInfo?: IBPNMProcessInfo
+    public processInfo?: IBPMNProcessInfo
   ) {
     this.approvalRequired = this.approvalRequired || false;
   }

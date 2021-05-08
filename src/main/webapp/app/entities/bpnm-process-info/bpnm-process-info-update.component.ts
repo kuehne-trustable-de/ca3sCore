@@ -10,7 +10,7 @@ import parseISO from 'date-fns/parseISO';
 import { DATE_TIME_LONG_FORMAT } from '@/shared/date/filters';
 
 import AlertService from '@/shared/alert/alert.service';
-import { IBPNMProcessInfo, BPNMProcessInfo } from '@/shared/model/bpmn-process-info.model';
+import { IBPMNProcessInfo, BPMNProcessInfo } from '@/shared/model/bpmn-process-info.model';
 import BPNMProcessInfoService from './bpnm-process-info.service';
 
 const validations: any = {
@@ -42,7 +42,7 @@ const validations: any = {
 export default class BPNMProcessInfoUpdate extends mixins(JhiDataUtils) {
   @Inject('alertService') private alertService: () => AlertService;
   @Inject('bPNMProcessInfoService') private bPNMProcessInfoService: () => BPNMProcessInfoService;
-  public bPNMProcessInfo: IBPNMProcessInfo = new BPNMProcessInfo();
+  public bPNMProcessInfo: IBPMNProcessInfo = new BPMNProcessInfo();
   public isSaving = false;
 
   beforeRouteEnter(to, from, next) {

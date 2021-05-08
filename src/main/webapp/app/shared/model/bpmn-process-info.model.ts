@@ -1,26 +1,30 @@
-export const enum BPNMProcessType {
+export const enum BPMNProcessType {
   CA_INVOCATION = 'CA_INVOCATION',
   REQUEST_AUTHORIZATION = 'REQUEST_AUTHORIZATION'
 }
 
-export interface IBPNMProcessInfo {
+export interface IBPMNProcessInfo {
   id?: number;
   name?: string;
   version?: string;
-  type?: BPNMProcessType;
+  type?: BPMNProcessType;
   author?: string;
   lastChange?: Date;
-  signatureBase64?: any;
+  signatureBase64?: string;
+  bpmnHashBase64?: string;
+  processId?: string;
 }
 
-export class BPNMProcessInfo implements IBPNMProcessInfo {
+export class BPMNProcessInfo implements IBPMNProcessInfo {
   constructor(
     public id?: number,
     public name?: string,
     public version?: string,
-    public type?: BPNMProcessType,
+    public type?: BPMNProcessType,
     public author?: string,
     public lastChange?: Date,
-    public signatureBase64?: any
+    public signatureBase64?: string,
+    public bpmnHashBase64?: string,
+    public processId?: string
   ) {}
 }

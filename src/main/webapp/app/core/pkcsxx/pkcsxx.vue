@@ -79,11 +79,10 @@
                                             :required="rr.required"
                                             v-on:input="alignRDNArraySize(index, valueIndex)"/>
 
-                                        <small class="form-text text-danger" v-if="secret !== secretRepeat" v-text="$t('entity.validation.secretRepeat')">
-                                            Repeated secret must match!
+                                        <small class="form-text text-danger" v-if="showRequiredWarning(rr.required, upload.certificateAttributes[index].values[valueIndex])" v-text="$t('entity.validation.required')">
+                                            Element required!
                                         </small>
                                     </Fragment>
-
                                 </div>
 							</div>
 						</div>

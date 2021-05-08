@@ -1,15 +1,13 @@
 package de.trustable.ca3s.core.domain;
 
+import de.trustable.ca3s.core.domain.enumeration.BPMNProcessType;
+import java.io.Serializable;
+import java.time.Instant;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
-import java.io.Serializable;
-import java.time.Instant;
-
-import de.trustable.ca3s.core.domain.enumeration.BPMNProcessType;
-
 /**
- * A BPNMProcessInfo.
+ * A BPMNProcessInfo.
  */
 @Entity
 @Table(name = "bpmn_process_info")
@@ -49,12 +47,19 @@ public class BPMNProcessInfo implements Serializable {
     @Column(name = "last_change", nullable = false)
     private Instant lastChange;
 
-
     @Lob
     @Column(name = "signature_base_64", nullable = false)
     private String signatureBase64;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    @NotNull
+    @Column(name = "bpmn_hash_base_64", nullable = false)
+    private String bpmnHashBase64;
+
+    @Lob
+    @Column(name = "process_id", nullable = false)
+    private String processId;
+
+    // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
         return id;
     }
@@ -63,8 +68,13 @@ public class BPMNProcessInfo implements Serializable {
         this.id = id;
     }
 
+    public BPMNProcessInfo id(Long id) {
+        this.id = id;
+        return this;
+    }
+
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public BPMNProcessInfo name(String name) {
@@ -77,7 +87,7 @@ public class BPMNProcessInfo implements Serializable {
     }
 
     public String getVersion() {
-        return version;
+        return this.version;
     }
 
     public BPMNProcessInfo version(String version) {
@@ -90,7 +100,7 @@ public class BPMNProcessInfo implements Serializable {
     }
 
     public BPMNProcessType getType() {
-        return type;
+        return this.type;
     }
 
     public BPMNProcessInfo type(BPMNProcessType type) {
@@ -103,7 +113,7 @@ public class BPMNProcessInfo implements Serializable {
     }
 
     public String getAuthor() {
-        return author;
+        return this.author;
     }
 
     public BPMNProcessInfo author(String author) {
@@ -116,7 +126,7 @@ public class BPMNProcessInfo implements Serializable {
     }
 
     public Instant getLastChange() {
-        return lastChange;
+        return this.lastChange;
     }
 
     public BPMNProcessInfo lastChange(Instant lastChange) {
@@ -129,7 +139,7 @@ public class BPMNProcessInfo implements Serializable {
     }
 
     public String getSignatureBase64() {
-        return signatureBase64;
+        return this.signatureBase64;
     }
 
     public BPMNProcessInfo signatureBase64(String signatureBase64) {
@@ -140,7 +150,34 @@ public class BPMNProcessInfo implements Serializable {
     public void setSignatureBase64(String signatureBase64) {
         this.signatureBase64 = signatureBase64;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+
+    public String getBpmnHashBase64() {
+        return this.bpmnHashBase64;
+    }
+
+    public BPMNProcessInfo bpmnHashBase64(String bpmnHashBase64) {
+        this.bpmnHashBase64 = bpmnHashBase64;
+        return this;
+    }
+
+    public void setBpmnHashBase64(String bpmnHashBase64) {
+        this.bpmnHashBase64 = bpmnHashBase64;
+    }
+
+    public String getProcessId() {
+        return this.processId;
+    }
+
+    public BPMNProcessInfo processId(String processId) {
+        this.processId = processId;
+        return this;
+    }
+
+    public void setProcessId(String processId) {
+        this.processId = processId;
+    }
+
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -155,12 +192,14 @@ public class BPMNProcessInfo implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
-        return "BPNMProcessInfo{" +
+        return "BPMNProcessInfo{" +
             "id=" + getId() +
             ", name='" + getName() + "'" +
             ", version='" + getVersion() + "'" +
@@ -168,6 +207,8 @@ public class BPMNProcessInfo implements Serializable {
             ", author='" + getAuthor() + "'" +
             ", lastChange='" + getLastChange() + "'" +
             ", signatureBase64='" + getSignatureBase64() + "'" +
+            ", bpmnHashBase64='" + getBpmnHashBase64() + "'" +
+            ", processId='" + getProcessId() + "'" +
             "}";
     }
 }

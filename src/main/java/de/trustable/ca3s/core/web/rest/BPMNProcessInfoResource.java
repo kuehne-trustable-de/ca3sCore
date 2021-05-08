@@ -104,6 +104,7 @@ public class BPMNProcessInfoResource {
         return ResponseUtil.wrapOrNotFound(bPMNProcessInfo);
     }
 
+
     /**
      * {@code DELETE  /bpmn-process-infos/:id} : delete the "id" bPMNProcessInfo.
      *

@@ -156,7 +156,7 @@
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.acmeNonce')">AcmeNonce</span>
                     </b-dropdown-item-->
-                    <b-dropdown-item to="/bpnm-process-info">
+                    <b-dropdown-item to="/bpmn-list">
                         <font-awesome-icon icon="receipt" />
                         <span v-text="$t('global.menu.entities.bpnmProcessInfo')">BPNMProcessInfo</span>
                     </b-dropdown-item>

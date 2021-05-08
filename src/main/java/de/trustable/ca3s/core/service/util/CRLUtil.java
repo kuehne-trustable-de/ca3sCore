@@ -35,6 +35,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -184,16 +185,13 @@ public class CRLUtil {
 	@Autowired
     private EntityManager entityManager;
 
-//	@Autowired
-//	private CertificateJPQLSpecifications spec;
-
 	public Page<CertificateView> findSelection(Map<String, String[]> parameterMap){
 
 		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
 		return CertificateSpecifications.handleQueryParamsCertificateView(entityManager,
 				cb,
-				parameterMap);
+				parameterMap, new ArrayList<String>());
 
 //	    public List<Object[]>  getCertificateList(Map<String, String[]> parameterMap) {
 
