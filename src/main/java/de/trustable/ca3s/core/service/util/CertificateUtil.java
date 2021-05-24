@@ -40,8 +40,10 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
+import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.web.rest.data.NamedValue;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1InputStream;
@@ -56,8 +58,10 @@ import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.style.BCStrictStyle;
 import org.bouncycastle.asn1.x509.AccessDescription;
 import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
 import org.bouncycastle.asn1.x509.AuthorityKeyIdentifier;
@@ -89,11 +93,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import de.trustable.ca3s.core.domain.CSR;
-import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.CertificateAttribute;
-import de.trustable.ca3s.core.domain.CsrAttribute;
-import de.trustable.ca3s.core.domain.ProtectedContent;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.CertificateAttributeRepository;
@@ -110,6 +109,7 @@ public class CertificateUtil {
     private static final String SERIAL_PADDING_PATTERN = "000000000000000000000000000000000000000000000000000000000000000";
 
     private static final String TIMESTAMP_PADDING_PATTERN = "000000000000000000";
+    public static final int CURRENT_ATTRIBUTES_VERSION = 2;
 
     static HashSet<Integer> lenSet = new HashSet<Integer>();
 
@@ -143,6 +143,15 @@ public class CertificateUtil {
     private CryptoService cryptoUtil;
 
 
+    public String getNormalizedName(final String inputName) throws InvalidNameException {
+        try {
+            X500Name x500Name = new X500Name(BCStrictStyle.INSTANCE, inputName);
+            return new LdapName(x500Name.toString()).toString();
+        }catch (Exception ex){
+            LOG.error("problem normalizing name : '" + inputName+ "'", ex);
+        }
+        return inputName;
+    }
     X509Certificate getCertifcateFromBase64(String base64Cert) throws CertificateException {
         return getCertifcateFromBytes( Base64.decodeBase64(base64Cert));
     }
@@ -540,127 +549,180 @@ public class CertificateUtil {
 	 * @throws CertificateParsingException
 	 * @throws IOException
 	 */
-	private void addAdditionalCertificateAttributes(X509Certificate x509Cert, Certificate cert)
+	public void addAdditionalCertificateAttributes(X509Certificate x509Cert, Certificate cert)
 			throws CertificateParsingException, IOException {
 
-		// extract signature algo
-		String sigAlgName = x509Cert.getSigAlgName().toLowerCase();
-		String keyAlgName = x509Cert.getPublicKey().getAlgorithm();
-		String hashAlgName = "undefined";
-		String paddingAlgName = "PKCS1"; // assume a common default padding
+        int version = Integer.parseInt( getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION, "0"));
 
-		if( sigAlgName.contains("with")) {
-			String[] parts = sigAlgName.split("with");
-			if(parts.length > 1) {
-				hashAlgName = parts[0];
-				if(parts[1].contains("and")) {
-					String[] parts2 = parts[1].split("and");
-					sigAlgName = parts2[0];
-					if(parts2.length > 1) {
-						paddingAlgName = parts2[1];
-					}
-				}else {
-					sigAlgName = parts[1];
-				}
-			}
-		}
+        if( version == 0) {
 
-		cert.setKeyAlgorithm(keyAlgName.toLowerCase());
-		cert.setHashingAlgorithm(hashAlgName.toLowerCase());
-		cert.setPaddingAlgorithm(paddingAlgName.toLowerCase());
-		cert.setSigningAlgorithm(sigAlgName.toLowerCase());
+            // extract signature algo
+            String sigAlgName = x509Cert.getSigAlgName().toLowerCase();
+            String keyAlgName = x509Cert.getPublicKey().getAlgorithm();
+            String hashAlgName = "undefined";
+            String paddingAlgName = "PKCS1"; // assume a common default padding
 
-		try {
-			String curveName = deriveCurveName(x509Cert.getPublicKey());
-			LOG.info("found curve name "+ curveName +" for certificate '" + x509Cert.getSubjectDN().getName() +"' with key algo " + keyAlgName);
+            if (sigAlgName.contains("with")) {
+                String[] parts = sigAlgName.split("with");
+                if (parts.length > 1) {
+                    hashAlgName = parts[0];
+                    if (parts[1].contains("and")) {
+                        String[] parts2 = parts[1].split("and");
+                        sigAlgName = parts2[0];
+                        if (parts2.length > 1) {
+                            paddingAlgName = parts2[1];
+                        }
+                    } else {
+                        sigAlgName = parts[1];
+                    }
+                }
+            }
 
-			cert.setCurveName(curveName.toLowerCase());
+            cert.setKeyAlgorithm(keyAlgName.toLowerCase());
+            cert.setHashingAlgorithm(hashAlgName.toLowerCase());
+            cert.setPaddingAlgorithm(paddingAlgName.toLowerCase());
+            cert.setSigningAlgorithm(sigAlgName.toLowerCase());
 
-		} catch (GeneralSecurityException e) {
-			if( keyAlgName.contains("ec")) {
-				LOG.info("unable to derive curve name for certificate '" + x509Cert.getSubjectDN().getName() +"' with key algo " + keyAlgName);
-			}
-		}
+            try {
+                String curveName = deriveCurveName(x509Cert.getPublicKey());
+                LOG.info("found curve name " + curveName + " for certificate '" + x509Cert.getSubjectDN().getName() + "' with key algo " + keyAlgName);
 
-		String subject = x509Cert.getSubjectDN().getName();
-		if( subject != null && subject.trim().length() > 0) {
+                cert.setCurveName(curveName.toLowerCase());
 
-			try {
-				InetAddressValidator inv = InetAddressValidator.getInstance();
+            } catch (GeneralSecurityException e) {
+                if (keyAlgName.contains("ec")) {
+                    LOG.info("unable to derive curve name for certificate '" + x509Cert.getSubjectDN().getName() + "' with key algo " + keyAlgName);
+                }
+            }
 
-				List<Rdn> rdnList = new LdapName(subject).getRdns();
-				for( Rdn rdn: rdnList) {
-					 if("CN".equalsIgnoreCase(rdn.getType())) {
-						 String cn = rdn.getValue().toString();
-						 if( inv.isValid(cn)) {
-							 LOG.debug("CN found IP in subject: '{}'", cn);
-		    				setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_VSAN, "IP:" + cn);
-						 }else {
-							 LOG.debug("CN found DNS name in subject: '{}'", cn);
-		    				setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_VSAN, "DNS:" + cn);
-						 }
-					 }
-				}
-			} catch (InvalidNameException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+            String subject = x509Cert.getSubjectDN().getName();
+            if (subject != null && subject.trim().length() > 0) {
 
-		}
+                try {
+                    InetAddressValidator inv = InetAddressValidator.getInstance();
 
-		String allSans = "";
+                    List<Rdn> rdnList = new LdapName(subject).getRdns();
+                    for (Rdn rdn : rdnList) {
+                        if ("CN".equalsIgnoreCase(rdn.getType())) {
+                            String cn = rdn.getValue().toString();
+                            if (inv.isValid(cn)) {
+                                LOG.debug("CN found IP in subject: '{}'", cn);
+                                setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_VSAN, "IP:" + cn);
+                            } else {
+                                LOG.debug("CN found DNS name in subject: '{}'", cn);
+                                setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_VSAN, "DNS:" + cn);
+                            }
+                        }
+                    }
+                } catch (InvalidNameException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
 
-		// list all SANs
-		if (x509Cert.getSubjectAlternativeNames() != null) {
-			Collection<List<?>> altNames = x509Cert.getSubjectAlternativeNames();
+            }
 
-			if( altNames != null) {
-				for (List<?> altName : altNames) {
-	                int altNameType = (Integer) altName.get(0);
+            String allSans = "";
 
-					String sanValue = "";
-					if(altName.get(1) instanceof String) {
-						sanValue = ((String)altName.get(1)).toLowerCase();
-	    			}else if (GeneralName.otherName == altNameType) {
-//	    				sanValue = "--other value--";
-					}else if (altName.get(1) instanceof byte[]) {
-						sanValue = new String((byte[])(altName.get(1))).toLowerCase();
-					}else {
-	    				LOG.info("unexpected content type in SANS : {}", altName.get(1).toString());
-					}
+            // list all SANs
+            if (x509Cert.getSubjectAlternativeNames() != null) {
+                Collection<List<?>> altNames = x509Cert.getSubjectAlternativeNames();
 
-					if( allSans.length() > 0) {
-						allSans += ";";
-					}
-					allSans += sanValue;
+                if (altNames != null) {
+                    for (List<?> altName : altNames) {
+                        int altNameType = (Integer) altName.get(0);
 
-	                setCertMultiValueAttribute(cert, CertificateAttribute.ATTRIBUTE_SAN, sanValue);
-	    			setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN, getTypedSAN(altNameType, sanValue));
+                        String sanValue = "";
+                        if (altName.get(1) instanceof String) {
+                            sanValue = ((String) altName.get(1)).toLowerCase();
+                        } else if (GeneralName.otherName == altNameType) {
+                            //	    				sanValue = "--other value--";
+                        } else if (altName.get(1) instanceof byte[]) {
+                            sanValue = new String((byte[]) (altName.get(1))).toLowerCase();
+                        } else {
+                            LOG.info("unexpected content type in SANS : {}", altName.get(1).toString());
+                        }
 
-				}
-			}
-		}
+                        if (allSans.length() > 0) {
+                            allSans += ";";
+                        }
+                        allSans += sanValue;
 
-		cert.setSans(CryptoUtil.limitLength(allSans, 250));
+                        setCertMultiValueAttribute(cert, CertificateAttribute.ATTRIBUTE_SAN, sanValue);
+                        setCertMultiValueAttribute(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN, getTypedSAN(altNameType, sanValue));
 
-		int keyLength = getAlignedKeyLength(x509Cert.getPublicKey());
-		cert.setKeyLength(keyLength);
+                    }
+                }
+            }
 
-		List<String> crlUrls = getCrlDistributionPoints(x509Cert);
-		for( String crlUrl : crlUrls) {
-			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_URL, crlUrl);
-		}
+            cert.setSans(CryptoUtil.limitLength(allSans, 250));
 
-		String ocspUrl = getOCSPUrl(x509Cert);
-		if( ocspUrl != null) {
-			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_OCSP_URL, ocspUrl);
-		}
+            int keyLength = getAlignedKeyLength(x509Cert.getPublicKey());
+            cert.setKeyLength(keyLength);
 
-		List<String> certificatePolicyIds = getCertificatePolicies(x509Cert);
-		for(String polId: certificatePolicyIds) {
-			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_POLICY_ID, polId);
-		}
-	}
+            List<String> crlUrls = getCrlDistributionPoints(x509Cert);
+            for (String crlUrl : crlUrls) {
+                setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_URL, crlUrl);
+            }
+
+            String ocspUrl = getOCSPUrl(x509Cert);
+            if (ocspUrl != null) {
+                setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_OCSP_URL, ocspUrl);
+            }
+
+            List<String> certificatePolicyIds = getCertificatePolicies(x509Cert);
+            for (String polId : certificatePolicyIds) {
+                setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_POLICY_ID, polId);
+            }
+        }
+
+        if( version < 2) {
+
+            try {
+                setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_FINGERPRINT_SHA1,
+                    DigestUtils.sha1Hex(x509Cert.getEncoded()).toLowerCase());
+                setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_FINGERPRINT_SHA256,
+                    DigestUtils.sha3_256Hex(x509Cert.getEncoded()).toLowerCase());
+            } catch (CertificateEncodingException e) {
+                LOG.error("Problem getting encoded certificate '" + x509Cert.getSubjectDN().getName() + "'", e);
+            }
+
+            try {
+                X500Name x500Name = new X500Name(cert.getSubject());
+                for (RDN rdn : x500Name.getRDNs()) {
+
+                    AttributeTypeAndValue[] attrTVArr = rdn.getTypesAndValues();
+                    for (AttributeTypeAndValue attrTV : attrTVArr) {
+
+                        String rdnReadableName = OidNameMapper.lookupOid(attrTV.getType().toString());
+
+                        setCertAttribute(cert,
+                            CertificateAttribute.ATTRIBUTE_RDN_PREFIX + rdnReadableName.toUpperCase(),
+                            attrTV.getValue().toString());
+                    }
+                }
+            } catch (IllegalArgumentException iae) {
+                LOG.error("Problem building X500Name for subject for certificate '" + x509Cert.getSubjectDN().getName() + "'", iae);
+            }
+        }
+
+        if( version < CURRENT_ATTRIBUTES_VERSION) {
+
+            try {
+                String subjectRfc2253 = getNormalizedName(cert.getSubject());
+
+                setCertAttribute(cert,
+                    CertificateAttribute.ATTRIBUTE_SUBJECT_RFC_2253,
+                    subjectRfc2253,
+                    false);
+            } catch (InvalidNameException e) {
+                LOG.error("Problem building RFC 2253-styled subject for  certificate '" + x509Cert.getSubjectDN().getName() + "'", e);
+            }
+
+            setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION, "" + CURRENT_ATTRIBUTES_VERSION, false);
+
+        }
+
+    }
 
 	public List<String> getCertificatePolicies(X509Certificate x509Cert) {
 		ArrayList<String> certificatePolicyIds = new ArrayList<String>();
@@ -907,7 +969,15 @@ public class CertificateUtil {
 		}
 	}
 
-	public String getCertAttribute(Certificate certDao, String name) {
+    public String getCertAttribute(Certificate certDao, String name, String defaultValue) {
+	    String value = getCertAttribute(certDao, name);
+	    if( value == null ){
+	        return defaultValue;
+        }
+	    return value;
+    }
+
+    public String getCertAttribute(Certificate certDao, String name) {
 		for( CertificateAttribute certAttr:certDao.getCertificateAttributes()) {
 			if( certAttr.getName().equals(name)) {
 				return certAttr.getValue();
@@ -1489,20 +1559,30 @@ public class CertificateUtil {
 	 * @param aki				Authority Key Information
 	 * @return list of certificates
 	 */
-	private List<Certificate> findCertsByAKI(X509CertificateHolder x509CertHolder, AuthorityKeyIdentifier aki) {
+    private List<Certificate> findCertsByAKI(X509CertificateHolder x509CertHolder, AuthorityKeyIdentifier aki) {
 
-		String aKIBase64 = Base64.encodeBase64String(aki.getKeyIdentifier());
-		LOG.debug("looking for issuer of certificate '" + x509CertHolder.getSubject().toString() +"', issuer selected by its SKI '" + aKIBase64 + "'");
-		List<Certificate> issuingCertList = certificateRepository.findByAttributeValue(CertificateAttribute.ATTRIBUTE_SKI, aKIBase64);
-		if( issuingCertList.isEmpty()) {
-			LOG.debug("no certificate found for AKI {}", aKIBase64);
-		}
-		return issuingCertList;
-	}
+        String aKIBase64 = Base64.encodeBase64String(aki.getKeyIdentifier());
+        LOG.debug("looking for issuer of certificate '" + x509CertHolder.getSubject().toString() +"', issuer selected by its SKI '" + aKIBase64 + "'");
+        List<Certificate> issuingCertList = certificateRepository.findByAttributeValue(CertificateAttribute.ATTRIBUTE_SKI, aKIBase64);
+        if( issuingCertList.isEmpty()) {
+            LOG.debug("no certificate found for AKI {}", aKIBase64);
+        }
+        return issuingCertList;
+    }
+
+    public List<Certificate> findCertsBySubjectRFC2253(final String subject) {
+
+        LOG.debug("looking for certificate by subject (by RFC 2253) '" + subject + "'");
+        List<Certificate> issuingCertList = certificateRepository.findByAttributeValue(CertificateAttribute.ATTRIBUTE_SUBJECT_RFC_2253, subject);
+        if( issuingCertList.isEmpty()) {
+            LOG.debug("no certificate found for subject '{}'", subject);
+        }
+        return issuingCertList;
+    }
 
 
 
-	public Set<GeneralName> getSANList(X509CertificateHolder x509CertHolder){
+    public Set<GeneralName> getSANList(X509CertificateHolder x509CertHolder){
 
 		Set<GeneralName> generalNameSet = new HashSet<GeneralName>();
 

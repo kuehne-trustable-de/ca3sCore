@@ -2,15 +2,13 @@ package de.trustable.ca3s.core.service;
 
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.repository.AuditTraceRepository;
-import de.trustable.ca3s.core.security.AuthoritiesConstants;
+import de.trustable.ca3s.core.service.util.NameAndRole;
+import de.trustable.ca3s.core.service.util.NameAndRoleUtil;
 import de.trustable.util.CryptoUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.audit.listener.AuditApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,42 +69,22 @@ public class AuditService {
 
     private final Logger log = LoggerFactory.getLogger(AuditService.class);
 
-    private AuditTraceRepository auditTraceRepository;
+    private final AuditTraceRepository auditTraceRepository;
 
-    private ApplicationEventPublisher applicationEventPublisher;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
-    public AuditService( AuditTraceRepository auditTraceRepository, ApplicationEventPublisher applicationEventPublisher) {
+    private final NameAndRoleUtil nameAndRoleUtil;
+
+    public AuditService(AuditTraceRepository auditTraceRepository, ApplicationEventPublisher applicationEventPublisher, NameAndRoleUtil nameAndRoleUtil) {
 
         this.auditTraceRepository = auditTraceRepository;
         this.applicationEventPublisher = applicationEventPublisher;
-    }
-
-
-    String getRole(Authentication auth){
-
-        log.debug( "Authorities #{} present", auth.getAuthorities().size());
-
-        if( auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(AuthoritiesConstants.ADMIN))){
-            return "ADMIN";
-        }
-
-        if( auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(AuthoritiesConstants.RA_OFFICER))){
-            return "RA";
-        }
-
-        if( auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(AuthoritiesConstants.USER))){
-            return "USER";
-        }
-
-        for( GrantedAuthority ga: auth.getAuthorities()){
-            log.debug( "Authority: {}", ga.getAuthority());
-        }
-        return "ANON";
+        this.nameAndRoleUtil = nameAndRoleUtil;
     }
 
 
     public AuditTrace createAuditTraceStarted(){
-        NameAndRole nar = getNameAndRole();
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(), AUDIT_CA3S_STARTED,
             null,
             null,
@@ -117,7 +95,7 @@ public class AuditService {
     }
 
     public AuditTrace createAuditTraceStopped(){
-        NameAndRole nar = getNameAndRole();
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(), AUDIT_CA3S_STOPPED,
             null,
             null,
@@ -128,27 +106,27 @@ public class AuditService {
     }
 
     public AuditTrace createAuditTraceCsrAccepted(final CSR csr){
-        NameAndRole nar = getNameAndRole();
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_CSR_ACCEPTED, csr);
     }
 
     public AuditTrace createAuditTraceCsrRejected(final CSR csr){
-        NameAndRole nar = getNameAndRole();
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_CSR_REJECTED, csr);
     }
 
     public AuditTrace createAuditTraceACMERequest(final CSR csr){
-        NameAndRole nar = getNameAndRole();
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_ACME_CERTIFICATE_REQUESTED, csr);
     }
 
     public AuditTrace createAuditTraceWebRequest(final CSR csr){
-        NameAndRole nar = getNameAndRole();
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_WEB_CERTIFICATE_REQUESTED, csr);
     }
 
     public AuditTrace createAuditTraceCsrRestrictionFailed( final CSR csr){
-        NameAndRole nar = getNameAndRole();
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_REQUEST_RESTRICTIONS_FAILED, csr);
     }
 
@@ -165,7 +143,7 @@ public class AuditService {
 
     public AuditTrace createAuditTraceRequest(final String template, final CSR csr){
 
-        NameAndRole nar = getNameAndRole();
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),
             template,
             csr,
@@ -177,7 +155,7 @@ public class AuditService {
 
     public AuditTrace createAuditTraceCertificate(final String template, final Certificate certificate){
 
-        NameAndRole nar = getNameAndRole();
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),
             template,
             null,
@@ -189,7 +167,7 @@ public class AuditService {
 
     public AuditTrace createAuditTraceCAConfigCreated(final CAConnectorConfig caConnectorConfig){
 
-        NameAndRole nar = getNameAndRole();
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),
             AUDIT_CA_CONNECTOR_CREATED,
             null,
@@ -204,7 +182,7 @@ public class AuditService {
 
     public AuditTrace createAuditTraceCAConfigDeleted(final CAConnectorConfig caConnectorConfig){
 
-        NameAndRole nar = getNameAndRole();
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),
             AUDIT_CA_CONNECTOR_DELETED,
             null,
@@ -219,7 +197,7 @@ public class AuditService {
 
     public AuditTrace createAuditTraceCAConfigSecretChanged(final CAConnectorConfig caConnectorConfig){
 
-        NameAndRole nar = getNameAndRole();
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),
             caConnectorConfig.getName(),
             null,
@@ -231,7 +209,7 @@ public class AuditService {
 
     public AuditTrace  createAuditTraceCAConfigCreatedChange(final String attributeName, final String oldVal, final String newVal, final CAConnectorConfig caConnectorConfig){
 
-        NameAndRole nar = getNameAndRole();
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),
             AUDIT_CA_CONNECTOR_ATTRIBUTE_CHANGED,
             attributeName,
@@ -246,7 +224,7 @@ public class AuditService {
 
     public AuditTrace createAuditTracePipeline(final String template, final Pipeline pipeline){
 
-        NameAndRole nar = getNameAndRole();
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),
             template,
             null,
@@ -258,7 +236,7 @@ public class AuditService {
 
     public AuditTrace createAuditTracePipeline(final String template, final String oldVal, final String newVal, final Pipeline pipeline){
 
-        NameAndRole nar = getNameAndRole();
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),
             template,
             oldVal, newVal,
@@ -271,7 +249,7 @@ public class AuditService {
 
     public AuditTrace createAuditTracePipelineAttribute(final String attributeName, final String oldVal, final String newVal, final Pipeline pipeline){
 
-        NameAndRole nar = getNameAndRole();
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),
             AUDIT_PIPELINE_ATTRIBUTE_CHANGED,
             attributeName,
@@ -285,7 +263,7 @@ public class AuditService {
 
     public AuditTrace createAuditTraceCsrAttribute(final String attributeName, final String oldVal, final String newVal, final CSR csr){
 
-        NameAndRole nar = getNameAndRole();
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),
             AUDIT_CSR_ATTRIBUTE_CHANGED,
             attributeName,
@@ -299,7 +277,7 @@ public class AuditService {
 
     public AuditTrace createAuditTraceCertificateAttribute(final String attributeName, final String oldVal, final String newVal, final Certificate certificate){
 
-        NameAndRole nar = getNameAndRole();
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),
             AUDIT_CERTIFICATE_ATTRIBUTE_CHANGED,
             attributeName,
@@ -313,7 +291,7 @@ public class AuditService {
 
     public AuditTrace createAuditTraceCertificateImported(final String source, final Certificate certificate){
 
-        NameAndRole nar = getNameAndRole();
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),
             AUDIT_CERTIFICATE_IMPORTED,
             source,
@@ -417,30 +395,4 @@ public class AuditService {
         auditTraceRepository.saveAll(auditTraceList);
     }
 
-    NameAndRole getNameAndRole(){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if( auth != null ){
-            String role = getRole(auth);
-            return new NameAndRole(auth.getName(), role);
-        }
-        return new NameAndRole("System","System");
-    }
-
-    class NameAndRole{
-        private String name;
-        private String role;
-
-        public NameAndRole(final String name, final String role){
-            this.name = name;
-            this.role = role;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getRole() {
-            return role;
-        }
-    }
 }

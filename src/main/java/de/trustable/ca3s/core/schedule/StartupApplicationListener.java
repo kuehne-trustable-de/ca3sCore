@@ -27,11 +27,11 @@ public class StartupApplicationListener implements
 
     @Override public void onApplicationEvent(ContextRefreshedEvent event) {
 
-        LOG.info("\n\n\n\n\n##############################################\n" +
-            "Basic application startup finished. Starting ca3s startup tasks"+
-            "\n##############################################\n\n");
+//        LOG.info("\n\n\n\n\n##############################################\n" +
+//            "Basic application startup finished. Starting ca3s startup tasks"+
+//            "\n##############################################\n\n");
 
-        auditService.createAuditTraceStarted();
+        auditService.saveAuditTrace(auditService.createAuditTraceStarted());
 
         bpmnUtil.updateProcessDefinitions();
     }

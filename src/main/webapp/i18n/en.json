@@ -187,7 +187,17 @@
   "ca3SApp.authorization.type": "",
   "ca3SApp.authorization.updated": "",
   "ca3SApp.authorization.value": "",
+
+  "ca3SApp.bPNMProcessInfo.new.title": "Upload process",
+  "ca3SApp.bPNMProcessInfo.new.fileSelectorBPMN": "Select BPMN file",
+  "ca3SApp.bPNMProcessInfo.new.name": "process name",
+  "ca3SApp.bPNMProcessInfo.new.type": "process type",
+  "ca3SApp.bPNMProcessInfo.type.CA_INVOCATION": "Certificate creation",
+  "ca3SApp.bPNMProcessInfo.type.REQUEST_AUTHORIZATION": "Request authorization",
+
+  "ca3SApp.bPNMProcessInfo.subtitle.process.list": "Process list",
   "ca3SApp.bPNMProcessInfo.author": "Author",
+  "ca3SApp.bPNMProcessInfo.createdOn": "created on",
   "ca3SApp.bPNMProcessInfo.created": "A new BPNM Process Info is created with identifier {{ param }}",
   "ca3SApp.bPNMProcessInfo.delete.question": "Are you sure you want to delete BPNM Process Info {{ id }}?",
   "ca3SApp.bPNMProcessInfo.deleted": "A BPNM Process Info is deleted with identifier {{ param }}",

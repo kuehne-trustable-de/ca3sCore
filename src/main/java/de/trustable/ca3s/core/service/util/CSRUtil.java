@@ -404,7 +404,6 @@ public class CSRUtil {
 
 		    String attrReadableName = OidNameMapper.lookupOid(objId.getId());
 
-
 		    if (Extension.subjectAlternativeName.equals(objId)) {
 		        DEROctetString derStr = (DEROctetString) asn1EncValue;
 		        byte[] valBytes = derStr.getOctets();

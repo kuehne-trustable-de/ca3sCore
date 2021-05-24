@@ -14,7 +14,9 @@
                         <span v-text="$t('ca3SApp.bPNMProcessInfo.version')">Version</span>
                     </dt>
                     <dd>
-                        <span>{{bPNMProcessInfo.version}}</span>
+                        <span>{{bPNMProcessInfo.version}}</span>&nbsp;
+                        <span v-if="bPNMProcessInfo.lastChange" v-text="$t('ca3SApp.bPNMProcessInfo.createdOn')">created on</span>&nbsp;
+                        <span v-if="bPNMProcessInfo.lastChange">{{$d(Date.parse(bPNMProcessInfo.lastChange), 'long') }}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.bPNMProcessInfo.type')">Type</span>
@@ -34,17 +36,18 @@
                     <dd>
                         <span v-if="bPNMProcessInfo.lastChange">{{$d(Date.parse(bPNMProcessInfo.lastChange), 'long') }}</span>
                     </dd>
-                    <dt>
+                    <!--dt>
                         <span v-text="$t('ca3SApp.bPNMProcessInfo.signatureBase64')">Signature Base 64</span>
                     </dt>
                     <dd>
                         <span>{{bPNMProcessInfo.signatureBase64}}</span>
-                    </dd>
+                    </dd-->
                 </dl>
             </div>
 
             <vue-bpmn
-                url="/api/bpmn/CAInvocationProcess:2:bca343e4-7ace-11eb-b7db-0a0027000005"
+                :url="getBpmnUrl()"
+                :options="getOptions()"
                 v-on:error="handleError"
                 v-on:shown="handleShown"
                 v-on:loading="handleLoading"
@@ -52,7 +55,6 @@
 
             <form name="editForm" role="form" novalidate>
                 <div>
-
 
                     <button type="submit"
                             v-on:click.prevent="previousState()"

@@ -26,6 +26,8 @@ import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.JCAManager;
 
+import javax.naming.InvalidNameException;
+
 @SpringBootTest(classes = Ca3SApp.class)
 public class CertificateUtilTest {
 
@@ -482,6 +484,11 @@ public class CertificateUtilTest {
 
 	}
 
+	public void testNameNormalization() throws InvalidNameException {
 
+        String a = certificateUtil.getNormalizedName("C=DE,O=T-Systems International GmbH,OU=T-Systems Trust Center,CN=TeleSec Business CA 1");
+        String b = certificateUtil.getNormalizedName("CN=TeleSec Business CA 1,OU=T-Systems Trust Center,O=T-Systems International GmbH,C=DE");
+        assertEquals("normalizing names expected to be identical ", a, b);
+	}
 
 }

@@ -85,6 +85,18 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
     return this.$store.getters.account ? this.$store.getters.account.login : '';
   }
 
+  public getBpmnUrl(): string {
+    return '/api/bpmn/' + this.bPNMProcessInfo.processId;
+  }
+
+  public getOptions() {
+    return {
+      propertiesPanel: {},
+      additionalModules: [],
+      moddleExtensions: []
+    };
+  }
+
   public handleError(err) {
     console.error('failed to show diagram', err);
   }

@@ -103,9 +103,11 @@ export default class CertList extends mixins(AlertMixin, Vue) {
 
   public certSelectionItems: ICertificateSelectionData[] = [
     { itemName: 'subject', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable' },
+    { itemName: 'cn', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable' },
     { itemName: 'sans', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable' },
     { itemName: 'issuer', itemType: 'string', itemDefaultSelector: null, itemDefaultValue: null },
     { itemName: 'serial', itemType: 'number', itemDefaultSelector: null, itemDefaultValue: null },
+    { itemName: 'fingerprint', itemType: 'number', itemDefaultSelector: null, itemDefaultValue: null },
     { itemName: 'id', itemType: 'number', itemDefaultSelector: null, itemDefaultValue: null },
     { itemName: 'validTo', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}' },
     { itemName: 'active', itemType: 'boolean', itemDefaultSelector: 'ISTRUE', itemDefaultValue: 'true' },

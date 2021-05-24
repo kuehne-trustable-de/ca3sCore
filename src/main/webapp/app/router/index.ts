@@ -13,6 +13,7 @@ const Preference = () => import('../core/preference/preference.vue');
 const AuditList = () => import('../core/audit/audit-list.vue');
 const BpmnList = () => import('../core/bpmn/bpmn-list.vue');
 const BpmnInfo = () => import('../core/bpmn/bpmn-info.vue');
+const BpmnNew = () => import('../core/bpmn/bpmn-new.vue');
 const CertList = () => import('../core/cert-list/cert-list.vue');
 const CertInfo = () => import('../core/cert-list/cert-info.vue');
 const CsrList = () => import('../core/csr-list/csr-list.vue');
@@ -286,8 +287,8 @@ export default new Router({
     },
     {
       path: '/bpnm-info/new',
-      name: 'BpmnInfoCreate',
-      component: BpmnInfo,
+      name: 'BpmnNew',
+      component: BpmnNew,
     },
 
     {

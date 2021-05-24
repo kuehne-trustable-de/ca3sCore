@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2021-04-09 23:13:36.
+// Generated using typescript-generator version 2.19.577 on 2021-05-23 16:53:30.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -30,6 +30,12 @@ export interface IAuditTraceView extends ISerializable {
   pipelineId?: number;
   caConnectorId?: number;
   processInfoId?: number;
+}
+
+export interface IBPMNUpload {
+  name?: string;
+  type?: IBPMNProcessType;
+  contentXML?: string;
 }
 
 export interface IPipelineView extends ISerializable {
@@ -66,10 +72,17 @@ export interface ICertificateView extends ISerializable {
   issuerId?: number;
   tbsDigest?: string;
   subject?: string;
+  rdn_c?: string;
+  rdn_cn?: string;
+  rdn_o?: string;
+  rdn_ou?: string;
+  rdn_s?: string;
+  rdn_l?: string;
   sans?: string;
   issuer?: string;
   root?: string;
-  fingerprint?: string;
+  fingerprintSha1?: string;
+  fingerprintSha256?: string;
   type?: string;
   keyLength?: string;
   keyAlgorithm?: string;
@@ -312,6 +325,8 @@ export type ISelector =
   | 'AFTER'
   | 'ISTRUE'
   | 'ISFALSE';
+
+export type IBPMNProcessType = 'CA_INVOCATION' | 'REQUEST_AUTHORIZATION';
 
 export type IPipelineType = 'ACME' | 'SCEP' | 'WEB' | 'INTERNAL';
 

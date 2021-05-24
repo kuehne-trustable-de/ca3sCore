@@ -25,7 +25,7 @@ public class ShutdownApplicationListener implements
 
     @Override public void onApplicationEvent(ContextStoppedEvent event) {
 
-        auditService.createAuditTraceStopped();
+        auditService.saveAuditTrace(auditService.createAuditTraceStopped());
 
     }
 }

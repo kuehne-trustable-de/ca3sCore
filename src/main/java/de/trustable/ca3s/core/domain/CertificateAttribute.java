@@ -105,7 +105,9 @@ public class CertificateAttribute implements Serializable {
             "}";
     }
 
-	public static final String ATTRIBUTE_ACME_ACCOUNT_ID = "ACME:ACCOUNT_ID";
+    public static final String ATTRIBUTE_ATTRIBUTES_VERSION = "ATTRIBUTES_VERSION";
+
+    public static final String ATTRIBUTE_ACME_ACCOUNT_ID = "ACME:ACCOUNT_ID";
 	public static final String ATTRIBUTE_ACME_ORDER_ID = "ACME:ORDER_ID";
 	public static final String ATTRIBUTE_SCEP_RECIPIENT = "CA3S:SCEP_RECIPIENT";
 	public static final String ATTRIBUTE_SCEP_TRANS_ID = "CA3S:SCEP_TRANS_ID";
@@ -116,7 +118,15 @@ public class CertificateAttribute implements Serializable {
 	public static final String ATTRIBUTE_END_ENTITY = "CA3S:END_ENTITY";
 	public static final String ATTRIBUTE_CHAIN_LENGTH = "CA3S:CHAIN_LENGTH";
 
-	public static final String ATTRIBUTE_SUBJECT = "SUBJECT";
+    public static final String ATTRIBUTE_SUBJECT = "SUBJECT";
+    public static final String ATTRIBUTE_RDN_PREFIX = "RDN_";
+    public static final String ATTRIBUTE_RDN_C = "RDN_COUNTRYNAME";
+    public static final String ATTRIBUTE_RDN_CN = "RDN_COMMONNAME";
+    public static final String ATTRIBUTE_RDN_O = "RDN_ORGANIZATIONNAME";
+    public static final String ATTRIBUTE_RDN_OU = "RDN_ORGANIZATIONALUNITNAME";
+    public static final String ATTRIBUTE_RDN_S = "RDN_STATEORPROVINCENAME";
+    public static final String ATTRIBUTE_RDN_L = "RDN_LOCALITYNAME";
+
 	public static final String ATTRIBUTE_SAN = "SAN";
 	public static final String ATTRIBUTE_SUBJECT_RDN_PART = "SUBJECT_RDN_PART";
 	public static final String ATTRIBUTE_ISSUER = "ISSUER";
@@ -143,7 +153,12 @@ public class CertificateAttribute implements Serializable {
 	public static final String ATTRIBUTE_VALID_TO_TIMESTAMP = "VALID_TO_TIMESTAMP";
 	public static final String ATTRIBUTE_VALIDITY_PERIOD = "VALIDITY_PERIOD";
 
-	public static final String ATTRIBUTE_CA_CONNECTOR_ID = "CA_CONNECTOR_ID";
+    public static final String ATTRIBUTE_FINGERPRINT_SHA1 = "FINGERPRINT_SHA1";
+    public static final String ATTRIBUTE_FINGERPRINT_SHA256 = "FINGERPRINT_SHA256";
+
+    public static final String ATTRIBUTE_SUBJECT_RFC_2253 = "SUBJECT_RFC_2253";
+
+    public static final String ATTRIBUTE_CA_CONNECTOR_ID = "CA_CONNECTOR_ID";
 	public static final String ATTRIBUTE_CA_RESOLVED_TIMESTAMP = "CA_RESOLVED_TIMESTAMP";
 	public static final String ATTRIBUTE_CA_REVOKED_TIMESTAMP = "CA_REVOKED_TIMESTAMP";
 

@@ -31,9 +31,15 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
 	  Page<Certificate> findBySearchTermNamed1(Pageable pageable, @Param("name") String name,
 		      @Param("value") String value);
 
-	  @Query(name = "Certificate.findBySearchTermNamed1")
-	  List<Certificate> findBySearchTermNamed1(@Param("name") String name,
-		      @Param("value") String value);
+    @Query(name = "Certificate.findBySearchTermNamed1")
+    List<Certificate> findBySearchTermNamed1(@Param("name") String name,
+                                             @Param("value") String value);
+
+    @Query(name = "Certificate.findByAttributeValueLowerThan")
+    List<Certificate> findByAttributeValueLowerThan(@Param("name") String name,
+                                             @Param("value") String value);
+
+
 
 	  @Query(name = "Certificate.findBySearchTermNamed2")
 	  Page<Certificate> findBySearchTermNamed2(

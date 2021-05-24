@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.naming.Context;
+import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -88,6 +89,9 @@ public class CRLUtil {
         	crl = downloadCRLFromWeb(crlURL);
         } else if (crlURL.startsWith("ldap://")) {
         	crl = downloadCRLFromLDAP(crlURL);
+        }else{
+            throw new IOException(
+                "Unexpected CRL download protocol : " + crlURL);
         }
 
         if(crl == null) {
@@ -104,14 +108,16 @@ public class CRLUtil {
 
         X500Principal principal = crl.getIssuerX500Principal();
 
-    	List<Certificate> certList = CertificateSpecifications.findCertificatesBySubject(entityManager,
-    			entityManager.getCriteriaBuilder(),
-    			new LdapName(principal.getName()).getRdns());
+//    	List<Certificate> certList = CertificateSpecifications.findCertificatesBySubject(entityManager,
+//    			entityManager.getCriteriaBuilder(),
+//    			new LdapName(principal.getName()).getRdns());
 
-//        List<Certificate> certList = certificateRepository.findCACertByIssuer(principal.getName());
+        String subjectRfc2253 = certUtil.getNormalizedName(principal.getName());
+        LOG.debug("CRL principal '{}', \nnormalized to '{}'", principal.getName(), subjectRfc2253);
 
+        List<Certificate> certList = certUtil.findCertsBySubjectRFC2253(subjectRfc2253);
         if( certList.size() == 0) {
-        	LOG.debug("principal '{}' not found to verify CRL '{}'", principal.getName(), crlURL);
+        	LOG.debug("principal '{}' not found to verify CRL '{}'", subjectRfc2253, crlURL);
         	return null;
         }
 

@@ -1,6 +1,8 @@
 package de.trustable.ca3s.core.service.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.Date;
@@ -17,6 +19,8 @@ import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
+import org.camunda.bpm.model.bpmn.Bpmn;
+import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +67,21 @@ public class BPMNUtil{
     @Autowired
     private CertificateUtil certUtil;
 
-	public List<ProcessDefinition> getProcessDefinitions(){
+    private final NameAndRoleUtil nameAndRoleUtil;
+
+    public BPMNUtil(NameAndRoleUtil nameAndRoleUtil) {
+        this.nameAndRoleUtil = nameAndRoleUtil;
+    }
+
+    public String addModel(final String bpmnString, final String name){
+
+        BpmnModelInstance modelInstance = Bpmn.readModelFromStream(
+            new ByteArrayInputStream(bpmnString.getBytes(StandardCharsets.UTF_8)));
+
+        return repoService.createDeployment().addModelInstance(name + ".bpmn20.xml", modelInstance).deploy().getId();
+    }
+
+    public List<ProcessDefinition> getProcessDefinitions(){
 
 		return repoService.createProcessDefinitionQuery().latestVersion().list();
 	}
@@ -79,40 +97,59 @@ public class BPMNUtil{
 		for(ProcessDefinition pd: pdList ) {
 			Optional<BPMNProcessInfo> optBI = bpnmInfoRepo.findByName(pd.getKey());
 			if( !optBI.isPresent() ) {
-				BPMNProcessInfo newBI = new BPMNProcessInfo();
-				newBI.setAuthor("system");
-				newBI.setLastChange(Instant.now());
-				newBI.setName(pd.getKey());
+                buildBPMNProcessInfo(pd, pd.getKey(), BPMNProcessType.CA_INVOCATION);
 
-				String version = pd.getVersionTag();
-				if( version == null) {
-					version = "0.0.1";
-				}
-
-				newBI.setVersion(version);
-
-				// @todo determine the type properly
-				newBI.setType(BPMNProcessType.CA_INVOCATION);
-
-				// @todo calculate a signature
-				newBI.setSignatureBase64("1234");
-
-                newBI.setBpmnHashBase64("bpmnHash");
-
-                newBI.setProcessId(pd.getId());
-				LOG.info("added new BPNMProcessInfo from camunda database: {}", newBI);
-
-				bpnmInfoRepo.save(newBI);
-
-			}else {
+            }else {
 				// @todo check for updates
 				LOG.debug("BPNMProcessInfo {} already exists", pd.getKey());
 			}
 		}
 	}
 
+    public BPMNProcessInfo buildBPMNProcessInfo(final String id,
+                                                final String name,
+                                                final BPMNProcessType bpmnProcessType) {
+        return buildBPMNProcessInfo(
+            repoService.getProcessDefinition(id), name, bpmnProcessType);
+    }
 
-	/**
+    public BPMNProcessInfo buildBPMNProcessInfo(final ProcessDefinition pd,
+                                                 final String name,
+                                                 final BPMNProcessType bpmnProcessType) {
+        BPMNProcessInfo newBI = new BPMNProcessInfo();
+
+        newBI.setAuthor(nameAndRoleUtil.getNameAndRole().getName());
+
+        newBI.setLastChange(Instant.now());
+        newBI.setName(name);
+
+        String version = pd.getVersionTag();
+        if( version == null) {
+            version = "0.0.1";
+        }
+        newBI.setVersion(version);
+
+        newBI.setType(bpmnProcessType);
+
+        // @todo calculate a signature
+        newBI.setSignatureBase64("1234");
+
+        newBI.setBpmnHashBase64("bpmnHash");
+
+        newBI.setProcessId(pd.getId());
+        LOG.info("added new BPNMProcessInfo from camunda database: {}", newBI);
+
+        bpnmInfoRepo.save(newBI);
+
+        return newBI;
+    }
+
+    public void deleteProcessDefinitions(String processId) {
+        repoService.deleteProcessDefinitions().byIds(processId).delete();
+    }
+
+
+    /**
 	 * Build a certificate object from a CSR
 	 * @param csr the given CSR object
 	 * @return the created certificate
@@ -328,5 +365,4 @@ public class BPMNUtil{
 		}
 
 	}
-
 }

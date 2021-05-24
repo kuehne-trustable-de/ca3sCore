@@ -129,7 +129,14 @@
                         <span v-text="$t('ca3SApp.certificate.fingerprint')">Fingerprint</span>
                     </dt>
                     <dd>
-                        <span>{{certificateView.fingerprint}}</span>
+                        <ul>
+                            <li>
+                                <span>{{certificateView.fingerprintSha1}}</span>
+                            </li>
+                            <li>
+                                <span>{{certificateView.fingerprintSha256}}</span>
+                            </li>
+                        </ul>
                     </dd>
                     <dt v-if="certificateView.csrId">
                         <span v-text="$t('ca3SApp.certificate.csr')">Csr</span>

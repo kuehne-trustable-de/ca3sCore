@@ -29,10 +29,18 @@ public class CertificateView implements Serializable {
     private String tbsDigest;
 
     private String subject;
+    private String rdn_c;
+    private String rdn_cn;
+    private String rdn_o;
+    private String rdn_ou;
+    private String rdn_s;
+    private String rdn_l;
+
     private String sans;
     private String issuer;
     private String root;
-    private String fingerprint;
+    private String fingerprintSha1;
+    private String fingerprintSha256;
 
     private String type;
     private String keyLength;
@@ -94,7 +102,6 @@ public class CertificateView implements Serializable {
     	this.sans = cert.getSans();
         this.issuer = cert.getIssuer();
     	this.type = cert.getType();
-    	this.fingerprint = cert.getFingerprint();
    		this.keyLength = cert.getKeyLength().toString();
    		this.keyAlgorithm = cert.getKeyAlgorithm();
 		this.signingAlgorithm = cert.getSigningAlgorithm();
@@ -139,9 +146,26 @@ public class CertificateView implements Serializable {
     			this.uploadedBy = certAttr.getValue();
     		} else if( CertificateAttribute.ATTRIBUTE_REVOKED_BY.equalsIgnoreCase(certAttr.getName())) {
     			this.revokedBy = certAttr.getValue();
-    		} else if( CertificateAttribute.ATTRIBUTE_CRL_URL.equalsIgnoreCase(certAttr.getName())) {
-    			this.crlUrl= certAttr.getValue();
-    		} else if( CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE.equalsIgnoreCase(certAttr.getName())) {
+            } else if( CertificateAttribute.ATTRIBUTE_CRL_URL.equalsIgnoreCase(certAttr.getName())) {
+                this.crlUrl= certAttr.getValue();
+            } else if( CertificateAttribute.ATTRIBUTE_FINGERPRINT_SHA1.equalsIgnoreCase(certAttr.getName())) {
+                this.fingerprintSha1 = certAttr.getValue();
+            } else if( CertificateAttribute.ATTRIBUTE_FINGERPRINT_SHA256.equalsIgnoreCase(certAttr.getName())) {
+                this.fingerprintSha256 = certAttr.getValue();
+            } else if( CertificateAttribute.ATTRIBUTE_RDN_CN.equalsIgnoreCase(certAttr.getName())) {
+                this.rdn_cn = certAttr.getValue();
+            } else if( CertificateAttribute.ATTRIBUTE_RDN_C.equalsIgnoreCase(certAttr.getName())) {
+                this.rdn_c = certAttr.getValue();
+            } else if( CertificateAttribute.ATTRIBUTE_RDN_O.equalsIgnoreCase(certAttr.getName())) {
+                this.rdn_o = certAttr.getValue();
+            } else if( CertificateAttribute.ATTRIBUTE_RDN_OU.equalsIgnoreCase(certAttr.getName())) {
+                this.rdn_ou = certAttr.getValue();
+            } else if( CertificateAttribute.ATTRIBUTE_RDN_L.equalsIgnoreCase(certAttr.getName())) {
+                this.rdn_l = certAttr.getValue();
+            } else if( CertificateAttribute.ATTRIBUTE_RDN_S.equalsIgnoreCase(certAttr.getName())) {
+                this.rdn_s = certAttr.getValue();
+
+            } else if( CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE.equalsIgnoreCase(certAttr.getName())) {
     			this.crlNextUpdate = Instant.ofEpochMilli(Long.parseLong(certAttr.getValue()));
     		} else if( CertificateAttribute.ATTRIBUTE_ACME_ACCOUNT_ID.equalsIgnoreCase(certAttr.getName())) {
     			this.acmeAccountId = Long.parseLong(certAttr.getValue());
@@ -529,15 +553,23 @@ public class CertificateView implements Serializable {
 		this.issuerId = issuerId;
 	}
 
-	public String getFingerprint() {
-		return fingerprint;
-	}
+    public String getFingerprintSha1() {
+        return fingerprintSha1;
+    }
 
-	public void setFingerprint(String fingerprint) {
-		this.fingerprint = fingerprint;
-	}
+    public void setFingerprintSha1(String fingerprint) {
+        this.fingerprintSha1 = fingerprint;
+    }
 
-	public String getProcessingCa() {
+    public String getFingerprintSha256() {
+        return fingerprintSha256;
+    }
+
+    public void setFingerprintSha256(String fingerprint) {
+        this.fingerprintSha256 = fingerprint;
+    }
+
+    public String getProcessingCa() {
 		return processingCa;
 	}
 
@@ -560,6 +592,54 @@ public class CertificateView implements Serializable {
 	public void setIsServersideKeyGeneration(Boolean isServersideKeyGeneration) {
 		this.isServersideKeyGeneration = isServersideKeyGeneration;
 	}
+
+    public String getRdn_c() {
+        return rdn_c;
+    }
+
+    public void setRdn_c(String rdn_c) {
+        this.rdn_c = rdn_c;
+    }
+
+    public String getRdn_cn() {
+        return rdn_cn;
+    }
+
+    public void setRdn_cn(String rdn_cn) {
+        this.rdn_cn = rdn_cn;
+    }
+
+    public String getRdn_o() {
+        return rdn_o;
+    }
+
+    public void setRdn_o(String rdn_o) {
+        this.rdn_o = rdn_o;
+    }
+
+    public String getRdn_ou() {
+        return rdn_ou;
+    }
+
+    public void setRdn_ou(String rdn_ou) {
+        this.rdn_ou = rdn_ou;
+    }
+
+    public String getRdn_s() {
+        return rdn_s;
+    }
+
+    public void setRdn_s(String rdn_s) {
+        this.rdn_s = rdn_s;
+    }
+
+    public String getRdn_l() {
+        return rdn_l;
+    }
+
+    public void setRdn_l(String rdn_l) {
+        this.rdn_l = rdn_l;
+    }
 
     public String getComment() {
         return comment;

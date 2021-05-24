@@ -1,14 +1,22 @@
 import Component from 'vue-class-component';
-import { Vue } from 'vue-property-decorator';
+import { Inject, Vue } from 'vue-property-decorator';
 import { mixins } from 'vue-class-component';
 
-import { ICertificateFilter, ICertificateFilterList, ISelector, ICertificateSelectionData } from '@/shared/model/transfer-object.model';
+import {
+  ICertificateFilter,
+  ICertificateFilterList,
+  ISelector,
+  ICertificateSelectionData,
+  IPipelineView
+} from '@/shared/model/transfer-object.model';
 
 import { IBPMNProcessInfo } from '@/shared/model/bpmn-process-info.model';
 
 import { colFieldToStr, makeQueryStringFromObj } from '@/shared/utils';
 
 import { VuejsDatatableFactory, TColumnsDefinition, ITableContentParam } from 'vuejs-datatable';
+
+import BPNMProcessInfoService from '../../entities/bpnm-process-info/bpnm-process-info.service';
 
 import axios from 'axios';
 import AlertMixin from '@/shared/alert/alert.mixin';
@@ -91,6 +99,8 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('bpmn-table', t
 
 @Component
 export default class BpmnList extends mixins(AlertMixin, Vue) {
+  @Inject('bPNMProcessInfoService') private bPNMProcessInfoService: () => BPNMProcessInfoService;
+
   public get authenticated(): boolean {
     return this.$store.getters.authenticated;
   }
@@ -123,6 +133,8 @@ export default class BpmnList extends mixins(AlertMixin, Vue) {
   public defaultFilter: ICertificateFilter = { attributeName: 'type', attributeValue: 'ISSUANCE', selector: 'EQUAL' };
   public filters: ICertificateFilterList = { filterList: [this.defaultFilter] };
   public lastFilters: string = JSON.stringify({ filterList: [this.defaultFilter] });
+
+  public removeId: number = null;
 
   public get username(): string {
     return this.$store.getters.account ? this.$store.getters.account.login : '';
@@ -189,7 +201,8 @@ export default class BpmnList extends mixins(AlertMixin, Vue) {
         { label: this.$t('type'), field: 'type' },
         { label: this.$t('version'), field: 'version' },
         { label: this.$t('author'), field: 'author' },
-        { label: this.$t('lastChange'), field: 'lastChange' }
+        { label: this.$t('lastChange'), field: 'lastChange' },
+        { label: this.$t('action'), field: 'lastChange' }
       ] as TColumnsDefinition<IBPMNProcessInfo>,
       page: 1,
       filter: '',
@@ -207,6 +220,28 @@ export default class BpmnList extends mixins(AlertMixin, Vue) {
     //    window.console.debug('updateTable: enter pressed ...');
     this.buildContentAccessUrl();
     this.buildContentAccessUrl();
+  }
+
+  public prepareRemove(instance: IBPMNProcessInfo): void {
+    this.removeId = instance.id;
+  }
+
+  public removeBPMNProcess(): void {
+    this.bPNMProcessInfoService()
+      .delete(this.removeId)
+      .then(() => {
+        const message = this.$t('ca3SApp.bpmn.deleted', { param: this.removeId });
+        this.alertService().showAlert(message, 'danger');
+        this.getAlertFromStore();
+
+        this.removeId = null;
+        //        this.retrieveAllPipelines();
+        this.closeDialog();
+      });
+  }
+
+  public closeDialog(): void {
+    (<any>this.$refs.removeEntity).hide();
   }
 
   public buildContentAccessUrl() {

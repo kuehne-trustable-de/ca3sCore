@@ -50,8 +50,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
         " c.serial = :serial"
     ),
     @NamedQuery(name = "Certificate.findByAttributeValue",
-    query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes att1 WHERE " +
-        " att1.name = :name and att1.value = :value "
+        query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes att1 WHERE " +
+            " att1.name = :name and att1.value = :value "
+    ),
+    @NamedQuery(name = "Certificate.findByAttributeValueLowerThan",
+        query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes att1 WHERE " +
+            " att1.name = :name and att1.value < :value "
     ),
     @NamedQuery(name = "Certificate.findByAttributeValue_",
     query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes att1 WHERE " +

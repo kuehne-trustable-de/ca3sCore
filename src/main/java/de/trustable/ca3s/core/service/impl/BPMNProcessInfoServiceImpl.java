@@ -3,6 +3,7 @@ package de.trustable.ca3s.core.service.impl;
 import de.trustable.ca3s.core.service.BPMNProcessInfoService;
 import de.trustable.ca3s.core.domain.BPMNProcessInfo;
 import de.trustable.ca3s.core.repository.BPMNProcessInfoRepository;
+import de.trustable.ca3s.core.service.util.BPMNUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +23,11 @@ public class BPMNProcessInfoServiceImpl implements BPMNProcessInfoService {
     private final Logger log = LoggerFactory.getLogger(BPMNProcessInfoServiceImpl.class);
 
     private final BPMNProcessInfoRepository bPMNProcessInfoRepository;
+    private final BPMNUtil bpmnUtil;
 
-    public BPMNProcessInfoServiceImpl(BPMNProcessInfoRepository bPMNProcessInfoRepository) {
+    public BPMNProcessInfoServiceImpl(BPMNProcessInfoRepository bPMNProcessInfoRepository, BPMNUtil bpmnUtil) {
         this.bPMNProcessInfoRepository = bPMNProcessInfoRepository;
+        this.bpmnUtil = bpmnUtil;
     }
 
     /**
@@ -71,8 +74,13 @@ public class BPMNProcessInfoServiceImpl implements BPMNProcessInfoService {
      * @param id the id of the entity.
      */
     @Override
+    @Transactional
     public void delete(Long id) {
         log.debug("Request to delete BPMNProcessInfo : {}", id);
-        bPMNProcessInfoRepository.deleteById(id);
+        Optional<BPMNProcessInfo> optionalBPMNProcessInfo = bPMNProcessInfoRepository.findById(id);
+        if(optionalBPMNProcessInfo.isPresent()) {
+            bpmnUtil.deleteProcessDefinitions(optionalBPMNProcessInfo.get().getProcessId());
+            bPMNProcessInfoRepository.deleteById(id);
+        }
     }
 }
