@@ -360,24 +360,18 @@ public class DirectoryConnector {
         return http.getResponseCode();
     }
 
-    private DownloadedContent downloadFile(String urlString) {
-        try {
-            URL url = new URL(urlString);
-            URLConnection conn = url.openConnection();
-            conn.setConnectTimeout(5000);
-            conn.setReadTimeout(5000);
-            conn.connect();
+    private DownloadedContent downloadFile(String urlString) throws IOException {
+        URL url = new URL(urlString);
+        URLConnection conn = url.openConnection();
+        conn.setConnectTimeout(5000);
+        conn.setReadTimeout(5000);
+        conn.connect();
 
 
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            IOUtils.copy(conn.getInputStream(), baos);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        IOUtils.copy(conn.getInputStream(), baos);
 
-            return new DownloadedContent(baos.toByteArray(), conn.getDate());
-        } catch (IOException e) {
-            LOGGER.debug("problem reading certificate from url {}", urlString);
-            e.printStackTrace();
-        }
-        return null;
+        return new DownloadedContent(baos.toByteArray(), conn.getDate());
     }
 
     class DownloadedContent{

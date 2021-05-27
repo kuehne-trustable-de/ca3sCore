@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.service.dto;
 
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
+import de.trustable.ca3s.core.domain.CertificateComment;
 import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.web.rest.data.NamedValue;
@@ -50,6 +51,7 @@ public class CertificateView implements Serializable {
     private String hashAlgorithm;
 
     private String description;
+    private String comment;
 
     private String serial;
     private Instant validFrom;
@@ -86,8 +88,6 @@ public class CertificateView implements Serializable {
     private String downloadFilename;
 
 	private Boolean isServersideKeyGeneration = false;
-
-	private String comment;
 
     private Boolean isAuditPresent = false;
 
@@ -192,8 +192,6 @@ public class CertificateView implements Serializable {
                 extUsageList.add(certAttr.getValue());
             } else if(CertificateAttribute.ATTRIBUTE_SAN.equalsIgnoreCase(certAttr.getName())) {
                 sanList.add(certAttr.getValue());
-            } else if(CertificateAttribute.ATTRIBUTE_COMMENT.equalsIgnoreCase(certAttr.getName())) {
-                this.setComment(certAttr.getValue());
     		}else {
     			LOG.debug("Irrelevant certificate attribute '{}' with value '{}'", certAttr.getName(), certAttr.getValue());
 
@@ -206,6 +204,9 @@ public class CertificateView implements Serializable {
     	this.downloadFilename = CertificateUtil.getDownloadFilename(cert);
 
     	this.arArr = copyArAttributes(cert);
+
+        CertificateComment comment = (cert.getComment() == null)? new CertificateComment() : cert.getComment();
+        this.setComment( (comment.getComment()==null) ? "": comment.getComment());
 
     }
 

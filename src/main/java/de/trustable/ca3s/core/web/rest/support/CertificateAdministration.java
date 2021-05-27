@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.web.rest.support;
 
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.repository.CertificateAttributeRepository;
+import de.trustable.ca3s.core.repository.CertificateCommentRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.schedule.CertExpiryScheduler;
@@ -47,6 +48,9 @@ public class CertificateAdministration {
 
     @Autowired
     private CertificateRepository certificateRepository;
+
+    @Autowired
+    private CertificateCommentRepository certificateCommentRepository;
 
     @Autowired
     private CertificateAttributeRepository certificateAttributeRepository;
@@ -125,6 +129,17 @@ public class CertificateAdministration {
                 } else {
                     LOG.info("administration type '{}' unexpected!", adminData.getAdministrationType());
                     return ResponseEntity.badRequest().build();
+                }
+
+                CertificateComment comment = (cert.getComment() == null)? new CertificateComment() : cert.getComment();
+                String commentText = (comment.getComment()==null) ? "": comment.getComment();
+                if( !commentText.trim().equals(adminData.getComment().trim())){
+                    comment.setCertificate(cert);
+                    comment.setComment(adminData.getComment());
+                    certificateCommentRepository.save(comment);
+
+                    auditService.saveAuditTrace(auditService.createAuditTraceCertificateAttribute(CertificateAttribute.ATTRIBUTE_COMMENT,
+                        commentText, adminData.getComment(), cert));
                 }
                 return new ResponseEntity<Long>(adminData.getCertificateId(), HttpStatus.OK);
 			} catch (GeneralSecurityException e) {

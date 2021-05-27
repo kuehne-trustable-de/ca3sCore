@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Added the entity CSRComment.
+    -->
+    <changeSet id="20210526170458-1" author="jhipster">
+        <createTable tableName="csr_comment">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="comment" type="${clobType}">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+
+        <addColumn tableName="csr">
+            <column name="comment_id" type="bigint">
+                <constraints nullable="true" unique="true" uniqueConstraintName="ux_csr__comment_id" />
+            </column>
+        </addColumn>
+
+        <addForeignKeyConstraint baseColumnNames="comment_id"
+                                 baseTableName="csr"
+                                 constraintName="fk_csr__comment_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="csr_comment"/>
+    </changeSet>
+
+
+</databaseChangeLog>

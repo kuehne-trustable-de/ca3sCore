@@ -84,5 +84,8 @@ public class SchemaUpdateScheduler {
 				break;
 			}
 		}
+		if( count > 0){
+            auditService.saveAuditTrace(auditService.createAuditTraceCertificateSchemaUpdated(count, CertificateUtil.CURRENT_ATTRIBUTES_VERSION ));
+        }
 	}
 }

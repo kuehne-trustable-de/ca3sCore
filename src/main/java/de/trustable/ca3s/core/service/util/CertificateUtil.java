@@ -27,14 +27,7 @@ import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.ECParameterSpec;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
@@ -62,6 +55,7 @@ import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStrictStyle;
+import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.AccessDescription;
 import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
 import org.bouncycastle.asn1.x509.AuthorityKeyIdentifier;
@@ -109,7 +103,7 @@ public class CertificateUtil {
     private static final String SERIAL_PADDING_PATTERN = "000000000000000000000000000000000000000000000000000000000000000";
 
     private static final String TIMESTAMP_PADDING_PATTERN = "000000000000000000";
-    public static final int CURRENT_ATTRIBUTES_VERSION = 2;
+    public static final int CURRENT_ATTRIBUTES_VERSION = 3;
 
     static HashSet<Integer> lenSet = new HashSet<Integer>();
 
@@ -124,6 +118,7 @@ public class CertificateUtil {
         lenSet.add(8192);
     }
 
+    private static final Map<ASN1ObjectIdentifier, Integer> dnOrderMap = createDnOrderMap();
 
     private static final Logger LOG = LoggerFactory.getLogger(CertificateUtil.class);
 
@@ -142,16 +137,89 @@ public class CertificateUtil {
     @Autowired
     private CryptoService cryptoUtil;
 
+    private static Map<ASN1ObjectIdentifier, Integer> createDnOrderMap() {
+        Map<ASN1ObjectIdentifier, Integer> orderMap = new HashMap<>();
+        int count = 0;
+        orderMap.put(BCStyle.C, count++);
+        orderMap.put(BCStyle.O, count++);
+        orderMap.put(BCStyle.OU, count++);
+        orderMap.put(BCStyle.CN, count++);
+        orderMap.put(BCStyle.L, count++);
+        orderMap.put(BCStyle.ST, count++);
+        orderMap.put(BCStyle.STREET, count++);
+        orderMap.put(BCStyle.DC, count++);
+        orderMap.put(BCStyle.UID, count++);
+        orderMap.put(BCStyle.E, count++);
+        orderMap.put(BCStyle.BUSINESS_CATEGORY, count++);
+        orderMap.put(BCStyle.COUNTRY_OF_CITIZENSHIP, count++);
+        orderMap.put(BCStyle.COUNTRY_OF_RESIDENCE, count++);
+        orderMap.put(BCStyle.DATE_OF_BIRTH, count++);
+        orderMap.put(BCStyle.DESCRIPTION, count++);
+        orderMap.put(BCStyle.DMD_NAME, count++);
+        orderMap.put(BCStyle.DN_QUALIFIER, count++);
+        orderMap.put(BCStyle.EmailAddress, count++);
+        orderMap.put(BCStyle.GENDER, count++);
+        orderMap.put(BCStyle.GENERATION, count++);
+        orderMap.put(BCStyle.GIVENNAME, count++);
+        orderMap.put(BCStyle.INITIALS, count++);
+        orderMap.put(BCStyle.NAME, count++);
+        orderMap.put(BCStyle.NAME_AT_BIRTH, count++);
+        orderMap.put(BCStyle.ORGANIZATION_IDENTIFIER, count++);
+        orderMap.put(BCStyle.PLACE_OF_BIRTH, count++);
+        orderMap.put(BCStyle.POSTAL_ADDRESS, count++);
+        orderMap.put(BCStyle.POSTAL_CODE, count++);
+        orderMap.put(BCStyle.PSEUDONYM, count++);
+        orderMap.put(BCStyle.ROLE, count++);
+        orderMap.put(BCStyle.SERIALNUMBER, count++);
+        orderMap.put(BCStyle.STREET, count++);
+        orderMap.put(BCStyle.SURNAME, count++);
+        orderMap.put(BCStyle.T, count++);
+        orderMap.put(BCStyle.TELEPHONE_NUMBER, count++);
+        orderMap.put(BCStyle.UNIQUE_IDENTIFIER, count++);
+        orderMap.put(BCStyle.UnstructuredAddress, count++);
+        orderMap.put(BCStyle.UnstructuredAddress, count++);
+        return Collections.unmodifiableMap(orderMap);
+    }
 
     public String getNormalizedName(final String inputName) throws InvalidNameException {
         try {
             X500Name x500Name = new X500Name(BCStrictStyle.INSTANCE, inputName);
-            return new LdapName(x500Name.toString()).toString();
+
+            RDN[] rdNs = x500Name.getRDNs();
+            Arrays.sort(rdNs, new Comparator<RDN>() {
+                @Override
+                public int compare(RDN o1, RDN o2) {
+                    AttributeTypeAndValue o1First = o1.getFirst();
+                    AttributeTypeAndValue o2First = o2.getFirst();
+
+                    ASN1ObjectIdentifier o1Type = o1First.getType();
+                    ASN1ObjectIdentifier o2Type = o2First.getType();
+
+                    Integer o1Rank = dnOrderMap.get(o1Type);
+                    Integer o2Rank = dnOrderMap.get(o2Type);
+                    if (o1Rank == null) {
+                        if (o2Rank == null) {
+                            int idComparison = o1Type.getId().compareTo(o2Type.getId());
+                            if (idComparison != 0) {
+                                return idComparison;
+                            }
+                            return String.valueOf(o1Type).compareTo(String.valueOf(o2Type));
+                        }
+                        return 1;
+                    } else if (o2Rank == null) {
+                        return -1;
+                    }
+                    return o1Rank - o2Rank;
+                }
+            });
+
+            return new LdapName(new X500Name(rdNs).toString()).toString();
         }catch (Exception ex){
             LOG.error("problem normalizing name : '" + inputName+ "'", ex);
         }
         return inputName;
     }
+
     X509Certificate getCertifcateFromBase64(String base64Cert) throws CertificateException {
         return getCertifcateFromBytes( Base64.decodeBase64(base64Cert));
     }

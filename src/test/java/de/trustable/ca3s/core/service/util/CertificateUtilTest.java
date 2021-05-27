@@ -484,10 +484,15 @@ public class CertificateUtilTest {
 
 	}
 
+    @Test
 	public void testNameNormalization() throws InvalidNameException {
 
         String a = certificateUtil.getNormalizedName("C=DE,O=T-Systems International GmbH,OU=T-Systems Trust Center,CN=TeleSec Business CA 1");
         String b = certificateUtil.getNormalizedName("CN=TeleSec Business CA 1,OU=T-Systems Trust Center,O=T-Systems International GmbH,C=DE");
+
+//        System.out.println("Normalized name: " + a);
+//        System.out.println("Normalized name: " + b);
+
         assertEquals("normalizing names expected to be identical ", a, b);
 	}
 

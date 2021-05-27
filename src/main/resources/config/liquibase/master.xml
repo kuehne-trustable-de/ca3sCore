@@ -72,4 +72,7 @@
     <include file="config/liquibase/changelog/20210222214921_added_columns_Pipeline.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20210505182020_added_processId_BPMNInfo.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/20210526170457_added_entity_CertificateComment.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210526170458_added_entity_CSRComment.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>

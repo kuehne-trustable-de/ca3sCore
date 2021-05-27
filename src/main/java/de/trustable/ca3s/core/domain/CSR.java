@@ -50,7 +50,7 @@ public class CSR implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    
+
     @Lob
     @Column(name = "csr_base_64", nullable = false)
     private String csrBase64;
@@ -119,7 +119,7 @@ public class CSR implements Serializable {
     @Column(name = "serverside_key_generation")
     private Boolean serversideKeyGeneration;
 
-    
+
     @Lob
     @Column(name = "subject_public_key_info_base_64", nullable = false)
     private String subjectPublicKeyInfoBase64;
@@ -131,6 +131,11 @@ public class CSR implements Serializable {
     @Lob
     @Column(name = "administration_comment")
     private String administrationComment;
+
+    @JsonIgnoreProperties(value = { "csr" }, allowSetters = true)
+    @OneToOne
+    @JoinColumn(unique = true)
+    private CSRComment comment;
 
     @OneToMany(mappedBy = "csr")
     private Set<RDN> rdns = new HashSet<>();
@@ -456,6 +461,20 @@ public class CSR implements Serializable {
 
     public void setAdministrationComment(String administrationComment) {
         this.administrationComment = administrationComment;
+    }
+
+
+    public CSRComment getComment() {
+        return this.comment;
+    }
+
+    public CSR comment(CSRComment cSRComment) {
+        this.setComment(cSRComment);
+        return this;
+    }
+
+    public void setComment(CSRComment cSRComment) {
+        this.comment = cSRComment;
     }
 
     public Set<RDN> getRdns() {

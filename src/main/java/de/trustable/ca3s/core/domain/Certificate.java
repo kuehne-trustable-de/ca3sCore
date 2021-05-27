@@ -282,6 +282,11 @@ public class Certificate implements Serializable {
     @JoinColumn(unique = true)
     private CSR csr;
 
+    @JsonIgnoreProperties(value = { "certificate" }, allowSetters = true)
+    @OneToOne
+    @JoinColumn(unique = true)
+    private CertificateComment comment;
+
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "certificate", cascade = {CascadeType.ALL})
     private Set<CertificateAttribute> certificateAttributes = new HashSet<>();
 
@@ -695,6 +700,20 @@ public class Certificate implements Serializable {
     public void setCsr(CSR cSR) {
         this.csr = cSR;
     }
+
+    public CertificateComment getComment() {
+        return this.comment;
+    }
+
+    public Certificate comment(CertificateComment certificateComment) {
+        this.setComment(certificateComment);
+        return this;
+    }
+
+    public void setComment(CertificateComment certificateComment) {
+        this.comment = certificateComment;
+    }
+
 
     public Set<CertificateAttribute> getCertificateAttributes() {
         return certificateAttributes;

@@ -65,6 +65,7 @@ public class AuditService {
     public static final String AUDIT_CA_CONNECTOR_COPIED = "CA_CONNECTOR_COPIED";
     public static final String AUDIT_CA_CONNECTOR_DELETED = "CA_CONNECTOR_DELETED";
     public static final String AUDIT_CA_CONNECTOR_ATTRIBUTE_CHANGED = "CA_CONNECTOR_ATTRIBUTE_CHANGED";
+    public static final String AUDIT_CERTIFICATE_SCHEMA_UPDATED = "CERTIFICATE_SCHEMA_UPDATED";
 
 
     private final Logger log = LoggerFactory.getLogger(AuditService.class);
@@ -298,6 +299,20 @@ public class AuditService {
             null, null,
             null,
             certificate,
+            null,
+            null,
+            null );
+    }
+
+    public AuditTrace createAuditTraceCertificateSchemaUpdated(final int nUpdated, final int version){
+
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_CERTIFICATE_SCHEMA_UPDATED,
+            "" + nUpdated,
+            null, "" + version,
+            null,
+            null,
             null,
             null,
             null );
