@@ -131,16 +131,8 @@ public class CertificateAdministration {
                     return ResponseEntity.badRequest().build();
                 }
 
-                CertificateComment comment = (cert.getComment() == null)? new CertificateComment() : cert.getComment();
-                String commentText = (comment.getComment()==null) ? "": comment.getComment();
-                if( !commentText.trim().equals(adminData.getComment().trim())){
-                    comment.setCertificate(cert);
-                    comment.setComment(adminData.getComment());
-                    certificateCommentRepository.save(comment);
+                certUtil.setCertificateComment(cert, adminData.getComment());
 
-                    auditService.saveAuditTrace(auditService.createAuditTraceCertificateAttribute(CertificateAttribute.ATTRIBUTE_COMMENT,
-                        commentText, adminData.getComment(), cert));
-                }
                 return new ResponseEntity<Long>(adminData.getCertificateId(), HttpStatus.OK);
 			} catch (GeneralSecurityException e) {
 	    		return ResponseEntity.badRequest().build();

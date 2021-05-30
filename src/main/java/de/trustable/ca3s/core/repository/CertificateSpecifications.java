@@ -422,9 +422,12 @@ public final class CertificateSpecifications {
 		    	cv.setPaddingAlgorithm((String) objArr[i]);
 			}else if( "hashAlgorithm".equalsIgnoreCase(attribute)) {
 		    	cv.setHashAlgorithm((String) objArr[i]);
-			}else if( "revocationReason".equalsIgnoreCase(attribute)) {
-		    	cv.setRevocationReason((String) objArr[i]);
-
+            }else if( "revocationReason".equalsIgnoreCase(attribute)) {
+                cv.setRevocationReason((String) objArr[i]);
+            }else if( "comment".equalsIgnoreCase(attribute)) {
+                cv.setComment((String) objArr[i]);
+            }else if( "csrComment".equalsIgnoreCase(attribute)) {
+                cv.setCsrComment((String) objArr[i]);
 
 			}else {
 				logger.warn("unexpected attribute '{}' from query", attribute);
@@ -672,7 +675,12 @@ public final class CertificateSpecifications {
 				pred = buildPredicateString( attributeSelector, cb, attJoin.<String>get(CSR_.requestedBy), attributeValue);
 			}
 
-		}else{
+        }else if( "comment".equals(attribute)){
+            Join<Certificate, CertificateComment> attJoin = root.join(Certificate_.comment, JoinType.LEFT);
+            addNewColumn(selectionList,attJoin.get(CertificateComment_.comment));
+
+            pred = buildPredicateString( attributeSelector, cb, attJoin.<String>get(CertificateComment_.comment), attributeValue.toLowerCase());
+        }else{
 
             if( certificateSelectionAttributes.contains(attribute) ){
                 // handle ARAs

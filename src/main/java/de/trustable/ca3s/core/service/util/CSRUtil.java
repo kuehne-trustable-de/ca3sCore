@@ -14,6 +14,9 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
+import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.repository.*;
+import de.trustable.ca3s.core.service.AuditService;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1Set;
@@ -32,21 +35,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import de.trustable.ca3s.core.domain.CSR;
-import de.trustable.ca3s.core.domain.CsrAttribute;
-import de.trustable.ca3s.core.domain.Pipeline;
-import de.trustable.ca3s.core.domain.RDN;
-import de.trustable.ca3s.core.domain.RDNAttribute;
-import de.trustable.ca3s.core.domain.RequestAttribute;
-import de.trustable.ca3s.core.domain.RequestAttributeValue;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
-import de.trustable.ca3s.core.repository.CSRRepository;
-import de.trustable.ca3s.core.repository.CsrAttributeRepository;
-import de.trustable.ca3s.core.repository.RDNAttributeRepository;
-import de.trustable.ca3s.core.repository.RDNRepository;
-import de.trustable.ca3s.core.repository.RequestAttributeRepository;
-import de.trustable.ca3s.core.repository.RequestAttributeValueRepository;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
@@ -59,10 +49,13 @@ public class CSRUtil {
 	@Autowired
 	private CSRRepository csrRepository;
 
-	@Autowired
-	private RDNRepository rdnRepository;
+    @Autowired
+    private RDNRepository rdnRepository;
 
-	@Autowired
+    @Autowired
+    private CSRCommentRepository csrCommentRepository;
+
+    @Autowired
 	private RequestAttributeRepository rasRepository;
 
 	@Autowired
@@ -78,7 +71,11 @@ public class CSRUtil {
 	@Autowired
 	private CryptoService cryptoUtil;
 
-	/**
+    @Autowired
+    private AuditService auditService;
+
+
+    /**
 	 *
 	 * @param csrBase64
 	 * @return
@@ -338,10 +335,22 @@ public class CSRUtil {
 	 * @return
 	 */
 	Set<GeneralName> getSANList(Pkcs10RequestHolder p10ReqHolder){
-
 		return(getSANList(p10ReqHolder.getReqAttributes() ) );
-
 	}
+
+    public void setCSRComment(CSR csr, String comment) {
+
+        CSRComment oldCcomment = (csr.getComment() == null) ? new CSRComment() : csr.getComment();
+        String oldCommentText = (oldCcomment.getComment() == null) ? "" : oldCcomment.getComment();
+        if (!oldCommentText.trim().equals(comment.trim())) {
+            oldCcomment.setCsr(csr);
+            oldCcomment.setComment(comment);
+            csrCommentRepository.save(oldCcomment);
+
+            auditService.saveAuditTrace(auditService.createAuditTraceCsrAttribute(CertificateAttribute.ATTRIBUTE_COMMENT,
+                oldCommentText, comment, csr));
+        }
+    }
 
 
     public static void retrieveSANFromCSRAttribute(Set<GeneralName> sanSet, Attribute attrExtension ){

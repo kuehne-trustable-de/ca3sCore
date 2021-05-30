@@ -105,6 +105,8 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     { itemName: 'subject', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable' },
     { itemName: 'cn', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable' },
     { itemName: 'sans', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable' },
+    { itemName: 'comment', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable' },
+
     { itemName: 'issuer', itemType: 'string', itemDefaultSelector: null, itemDefaultValue: null },
     { itemName: 'serial', itemType: 'number', itemDefaultSelector: null, itemDefaultValue: null },
     { itemName: 'fingerprint', itemType: 'number', itemDefaultSelector: null, itemDefaultValue: null },

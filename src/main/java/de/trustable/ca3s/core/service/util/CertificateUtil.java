@@ -34,6 +34,8 @@ import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
 import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.repository.CertificateCommentRepository;
+import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.web.rest.data.NamedValue;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -129,6 +131,9 @@ public class CertificateUtil {
     private CertificateAttributeRepository certificateAttributeRepository;
 
     @Autowired
+    private CertificateCommentRepository certificateCommentRepository;
+
+    @Autowired
     private ProtectedContentRepository protContentRepository;
 
     @Autowired
@@ -136,6 +141,10 @@ public class CertificateUtil {
 
     @Autowired
     private CryptoService cryptoUtil;
+
+    @Autowired
+    private AuditService auditService;
+
 
     private static Map<ASN1ObjectIdentifier, Integer> createDnOrderMap() {
         Map<ASN1ObjectIdentifier, Integer> orderMap = new HashMap<>();
@@ -218,6 +227,20 @@ public class CertificateUtil {
             LOG.error("problem normalizing name : '" + inputName+ "'", ex);
         }
         return inputName;
+    }
+
+    public void setCertificateComment(Certificate cert, String comment) {
+
+        CertificateComment oldCcomment = (cert.getComment() == null) ? new CertificateComment() : cert.getComment();
+        String oldCommentText = (oldCcomment.getComment() == null) ? "" : oldCcomment.getComment();
+        if (!oldCommentText.trim().equals(comment.trim())) {
+            oldCcomment.setCertificate(cert);
+            oldCcomment.setComment(comment);
+            certificateCommentRepository.save(oldCcomment);
+
+            auditService.saveAuditTrace(auditService.createAuditTraceCertificateAttribute(CertificateAttribute.ATTRIBUTE_COMMENT,
+                oldCommentText, comment, cert));
+        }
     }
 
     X509Certificate getCertifcateFromBase64(String base64Cert) throws CertificateException {

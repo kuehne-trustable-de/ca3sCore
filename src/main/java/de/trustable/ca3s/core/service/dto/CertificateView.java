@@ -1,9 +1,6 @@
 package de.trustable.ca3s.core.service.dto;
 
-import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.CertificateAttribute;
-import de.trustable.ca3s.core.domain.CertificateComment;
-import de.trustable.ca3s.core.domain.CsrAttribute;
+import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.web.rest.data.NamedValue;
 import org.slf4j.Logger;
@@ -52,6 +49,7 @@ public class CertificateView implements Serializable {
 
     private String description;
     private String comment;
+    private String csrComment;
 
     private String serial;
     private Instant validFrom;
@@ -117,12 +115,17 @@ public class CertificateView implements Serializable {
     	this.revoked = cert.isRevoked();
     	this.certB64 = cert.getContent();
 
-    	if( cert.getCsr() != null) {
-    		this.requestedBy = cert.getCsr().getRequestedBy();
-    		this.csrId = cert.getCsr().getId();
-    		this.isServersideKeyGeneration  = cert.getCsr().isServersideKeyGeneration();
+        this.csrComment = "";
+        CSR csr = cert.getCsr();
+    	if( csr != null) {
+    		this.requestedBy = csr.getRequestedBy();
+    		this.csrId = csr.getId();
+    		this.isServersideKeyGeneration = csr.isServersideKeyGeneration();
+    		if(csr.getComment() != null) {
+                this.csrComment = csr.getComment().getComment();
+            }
     	} else {
-    		this.requestedBy =  "";
+    		this.requestedBy = "";
     	}
 
     	if( cert.getIssuingCertificate() != null) {
@@ -648,6 +651,14 @@ public class CertificateView implements Serializable {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public String getCsrComment() {
+        return csrComment;
+    }
+
+    public void setCsrComment(String csrComment) {
+        this.csrComment = csrComment;
     }
 
     public NamedValue[] getArArr() {

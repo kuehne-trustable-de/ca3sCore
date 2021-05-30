@@ -82,10 +82,12 @@
         <!-- The hibernate version should match the one managed by
         https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
 
-        <spring.version>5.1.12.RELEASE</spring.version>
+        <spring.version>5.2.13.RELEASE</spring.version>
+        <spring.security.version>5.3.8.RELEASE</spring.security.version>
+        <springSecurityLdapVersion>5.3.1.RELEASE</springSecurityLdapVersion>
 
         <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core/${hibernate.version} -->
-        <hibernate.version>5.4.27.Final</hibernate.version>
+        <hibernate.version>5.4.32.Final</hibernate.version>
         <hibernate-core.version>${hibernate.version}</hibernate-core.version>
 
         <javassist.version>3.24.0-GA</javassist.version>
@@ -148,13 +150,14 @@
 	    <kerberosWebVersion>1.0.1.RELEASE</kerberosWebVersion>
 	    <kerberosClientVersion>1.0.1.RELEASE</kerberosClientVersion>
 
-	    <springSecurityLdapVersion>5.3.1.RELEASE</springSecurityLdapVersion>
 		<commonsValidatorVersion>1.7</commonsValidatorVersion>
 
 		<typescriptGeneratorVersion>2.19.577</typescriptGeneratorVersion>
 
         <!-- start-class>camunda.transformation.pipeline.CamundaTransformationPipelineApp</start-class-->
         <camunda.version>7.12.0</camunda.version>
+        <camunda.commons.version>1.6.1</camunda.commons.version>
+
         <!-- camunda.spring-boot.version>3.4.0</camunda.spring-boot.version-->
         <camunda.spring-boot.version>3.2.0</camunda.spring-boot.version>
 
@@ -166,7 +169,7 @@
         <xml.maven.saxon.version>9.7.0-18</xml.maven.saxon.version>
         <xml.maven.plugin.version>1.0.2</xml.maven.plugin.version>
 
-        <dependencyCheck.version>6.1.2</dependencyCheck.version>
+        <dependencyCheck.version>6.1.6</dependencyCheck.version>
         <dependencyCheck.skip>true</dependencyCheck.skip>
 
     </properties>
@@ -226,27 +229,40 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
-                <version>5.2.13.RELEASE</version>
+                <version>${spring.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-core</artifactId>
-                <version>5.3.8.RELEASE</version>
+                <version>${spring.security.version}</version>
             </dependency>
+            <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-data -->
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-data</artifactId>
+                <version>${spring.security.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-config -->
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-config</artifactId>
+                <version>${spring.security.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-web</artifactId>
-                <version>5.3.8.RELEASE</version>
+                <version>${spring.security.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-tx</artifactId>
-                <version>5.2.13.RELEASE</version>
+                <version>${spring.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-aop</artifactId>
-                <version>5.2.13.RELEASE</version>
+                <version>${spring.version}</version>
             </dependency>
 
             <dependency>
@@ -321,21 +337,21 @@
             <dependency>
                 <groupId>org.camunda.commons</groupId>
                 <artifactId>camunda-commons-typed-values</artifactId>
-                <version>1.6.1</version>
+                <version>${camunda.commons.version}</version>
             </dependency>
 
-            <!-- https://mvnrepository.com/artifact/commons-lang/commons-lang -->
+            <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
             <dependency>
-                <groupId>commons-lang</groupId>
-                <artifactId>commons-lang</artifactId>
-                <version>2.6</version>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.9.0</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.camunda.commons/camunda-commons-utils -->
             <dependency>
                 <groupId>org.camunda.commons</groupId>
                 <artifactId>camunda-commons-utils</artifactId>
-                <version>1.6.1</version>
+                <version>${camunda.commons.version}</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.bitbucket.b_c/jose4j -->
@@ -394,6 +410,12 @@
                 <version>2.14.1</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-core</artifactId>
+                <version>${hibernate-core.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -431,6 +453,21 @@
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-afterburner</artifactId>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.13.1</version>
+        </dependency>
+
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
@@ -777,17 +814,18 @@
 		    <version>${commonsValidatorVersion}</version>
 		</dependency>
 
-		<dependency>
+		<!--dependency>
 			<groupId>edu.uci.ics</groupId>
 			<artifactId>crawler4j</artifactId>
 			<version>${crawler4jVersion}</version>
-		</dependency>
+		</dependency-->
 
         <dependency>
             <groupId>com.vladsch.flexmark</groupId>
             <artifactId>flexmark-all</artifactId>
             <version>${flexmarkVersion}</version>
         </dependency>
+
    <!--  start of test dependencies -->
    		<dependency>
 			<groupId>junit</groupId>
@@ -1158,6 +1196,7 @@
                     <skip>${dependencyCheck.skip}</skip>
                     <suppressionFiles>
                         <suppressionFile>${project.basedir}/src/main/resources/config/dependency-suppression/suppression.xml</suppressionFile>
+                        <suppressionFile>${project.basedir}/src/main/resources/config/dependency-suppression/suppression_flexmark.xml</suppressionFile>
                     </suppressionFiles>
                 </configuration>
                 <executions>

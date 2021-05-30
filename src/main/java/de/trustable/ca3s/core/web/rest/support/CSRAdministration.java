@@ -11,6 +11,7 @@ import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.MailService;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
+import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.web.rest.data.AdministrationType;
 import de.trustable.ca3s.core.web.rest.data.CSRAdministrationData;
@@ -52,7 +53,10 @@ public class CSRAdministration {
     @Autowired
 	private BPMNUtil bpmnUtil;
 
-	@Autowired
+    @Autowired
+    private CSRUtil csrUtil;
+
+    @Autowired
 	private UserRepository userRepository;
 
 	@Autowired
@@ -86,6 +90,7 @@ public class CSRAdministration {
             if(AdministrationType.ACCEPT.equals(adminData.getAdministrationType())){
     			csr.setApprovedOn(Instant.now());
                 updateARAttributes(adminData, csr);
+                csrUtil.setCSRComment(csr, adminData.getComment());
                 csrRepository.save(csr);
 
                 auditService.saveAuditTrace(auditService.createAuditTraceCsrAccepted(csr));
@@ -151,12 +156,17 @@ public class CSRAdministration {
     				LOG.warn("certificate requestor '{}' unknown!", csr.getRequestedBy());
     			}
 
+                updateARAttributes(adminData, csr);
+                csrUtil.setCSRComment(csr, adminData.getComment());
+
                 auditService.saveAuditTrace(auditService.createAuditTraceCsrRejected(csr));
 
         		return new ResponseEntity<Long>(adminData.getCsrId(), HttpStatus.OK);
 
             }else if(AdministrationType.UPDATE.equals(adminData.getAdministrationType())){
                 updateARAttributes(adminData, csr);
+                csrUtil.setCSRComment(csr, adminData.getComment());
+
                 return new ResponseEntity<Long>(adminData.getCsrId(), HttpStatus.OK);
             } else {
                 LOG.info("administration type '{}' unexpected!", adminData.getAdministrationType());
