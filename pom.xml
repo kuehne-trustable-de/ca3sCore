@@ -5,7 +5,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>0.1.17</version>
+    <version>0.1.18</version>
     <packaging>jar</packaging>
 
 
