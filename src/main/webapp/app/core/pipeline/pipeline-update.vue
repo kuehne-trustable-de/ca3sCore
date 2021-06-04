@@ -307,6 +307,15 @@
 
                     </div>
 
+                    <div class="form-inline">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.csr.usage')" for="pipeline-csrUsage">Csr usage</label>
+                        <select class="form-control" id="pipeline-csrUsage" name="pipeline-csrUsage" v-model="pipeline.csrUsage">
+                            <option value="TLS_SERVER">TLS Server</option>
+                            <option value="TLS_CLIENT">TLS Client</option>
+                            <option value="DOC_SIGNING">Document Signing</option>
+                            <option value="CODE_SIGNING">Code  Signing</option>
+                        </select>
+                    </div>
 
 
                     <div class="form-group">

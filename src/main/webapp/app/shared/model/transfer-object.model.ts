@@ -1,11 +1,19 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2021-05-23 16:53:30.
+// Generated using typescript-generator version 2.19.577 on 2021-06-04 20:09:37.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
   name?: string;
   status?: ICAStatus;
+}
+
+export interface IProblemDetail {
+  type?: IURI;
+  instance?: IURI;
+  title?: string;
+  detail?: string;
+  status?: number;
 }
 
 export interface IAuditView extends ISerializable {
@@ -64,6 +72,7 @@ export interface IPipelineView extends ISerializable {
   scepConfigItems?: ISCEPConfigItems;
   webConfigItems?: IWebConfigItems;
   auditViewArr?: IAuditView[];
+  csrUsage?: ICsrUsage;
 }
 
 export interface ICertificateView extends ISerializable {
@@ -90,6 +99,8 @@ export interface ICertificateView extends ISerializable {
   paddingAlgorithm?: string;
   hashAlgorithm?: string;
   description?: string;
+  comment?: string;
+  csrComment?: string;
   serial?: string;
   validFrom?: Date;
   validTo?: Date;
@@ -121,7 +132,6 @@ export interface ICertificateView extends ISerializable {
   certB64?: string;
   downloadFilename?: string;
   isServersideKeyGeneration?: boolean;
-  comment?: string;
   arArr?: INamedValue[];
   auditPresent?: boolean;
 }
@@ -251,6 +261,8 @@ export interface IDataSet {
 
 export interface ISerializable {}
 
+export interface IURI extends IComparable<IURI>, ISerializable {}
+
 export interface IRDNRestriction {
   rdnName?: string;
   cardinalityRestriction?: IRDNCardinalityRestriction;
@@ -311,6 +323,8 @@ export interface ICertificateNameId extends ISerializable {
   name?: string;
 }
 
+export interface IComparable<T> {}
+
 export type ICAStatus = 'Active' | 'Deactivated' | 'Problem' | 'Unknown';
 
 export type ISelector =
@@ -329,6 +343,8 @@ export type ISelector =
 export type IBPMNProcessType = 'CA_INVOCATION' | 'REQUEST_AUTHORIZATION';
 
 export type IPipelineType = 'ACME' | 'SCEP' | 'WEB' | 'INTERNAL';
+
+export type ICsrUsage = 'TLS_SERVER' | 'TLS_CLIENT' | 'DOC_SIGNING' | 'CODE_SIGNING';
 
 export type ICsrStatus = 'PROCESSING' | 'ISSUED' | 'REJECTED' | 'PENDING';
 

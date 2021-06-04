@@ -113,6 +113,13 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     { itemName: 'id', itemType: 'number', itemDefaultSelector: null, itemDefaultValue: null },
     { itemName: 'validTo', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}' },
     { itemName: 'active', itemType: 'boolean', itemDefaultSelector: 'ISTRUE', itemDefaultValue: 'true' },
+    {
+      itemName: 'pkiLevel',
+      itemType: 'set',
+      itemDefaultSelector: 'EQUAL',
+      itemDefaultValue: 'root',
+      values: ['root', 'intermediate', 'endEntity']
+    },
     { itemName: 'revoked', itemType: 'boolean', itemDefaultSelector: 'ISTRUE', itemDefaultValue: 'true' },
     {
       itemName: 'revocationReason',
@@ -406,5 +413,10 @@ export default class CertList extends mixins(AlertMixin, Vue) {
         }
       });
     }
+  }
+
+  public printObject(object): string {
+    window.console.info('printObject : ' + object);
+    return '###';
   }
 }

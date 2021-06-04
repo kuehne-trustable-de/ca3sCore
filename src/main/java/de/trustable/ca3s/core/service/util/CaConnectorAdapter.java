@@ -59,12 +59,12 @@ public class CaConnectorAdapter {
 	public CAStatus getStatus(CAConnectorConfig caConfig ) {
 
 		if (caConfig == null) {
-			LOGGER.debug("CAConnectorType need caConfig != null ");
+			LOGGER.debug("CAConnectorType caConfig == null !");
 			return CAStatus.Unknown;
 		}
 
 		if( !caConfig.isActive()){
-            LOGGER.debug("CAConnector '" + caConfig.getName() + "' is deactivated");
+            LOGGER.debug("CAConnector '" + caConfig.getName() + "' is disabled");
 		    // not active, no need for a check running into a timeout ....
             return CAStatus.Deactivated;
         }
@@ -81,7 +81,7 @@ public class CaConnectorAdapter {
 			LOGGER.debug("CAConnectorType CMP at " + caConfig.getCaUrl());
 			return cmpConnector.getStatus(caConfig);
 		} else if (CAConnectorType.INTERNAL.equals(caConfig.getCaConnectorType())) {
-			LOGGER.debug("CAConnectorType INTERNAL is Active" );
+			LOGGER.debug("CAConnectorType INTERNAL is enabled" );
 			return CAStatus.Active;
 
 		} else if (CAConnectorType.DIRECTORY.equals(caConfig.getCaConnectorType())) {
@@ -132,15 +132,15 @@ public class CaConnectorAdapter {
 
     private Certificate signCSR(CSR csr, CAConnectorConfig caConfig) throws GeneralSecurityException {
         if (CAConnectorType.ADCS.equals(caConfig.getCaConnectorType())) {
-            LOGGER.debug("CAConnectorType ADCS at " + caConfig.getCaUrl());
+            LOGGER.debug("CAConnectorType ADCS at {} signs CSR", caConfig.getCaUrl());
             return adcsConnector.signCertificateRequest(csr, caConfig);
 
         } else if (CAConnectorType.CMP.equals(caConfig.getCaConnectorType())) {
-            LOGGER.debug("CAConnectorType CMP at " + caConfig.getCaUrl());
+            LOGGER.debug("CAConnectorType CMP at {} signs CSR", caConfig.getCaUrl());
             return cmpConnector.signCertificateRequest(csr, caConfig);
 
         } else if (CAConnectorType.INTERNAL.equals(caConfig.getCaConnectorType())) {
-            LOGGER.debug("CAConnectorType INTERNAL ");
+            LOGGER.debug("CAConnectorType INTERNAL signs CSR");
             return internalConnector.signCertificateRequest(csr, caConfig);
 
         } else {
@@ -165,15 +165,15 @@ public class CaConnectorAdapter {
 		}
 
 		if (CAConnectorType.ADCS.equals(caConfig.getCaConnectorType())) {
-			LOGGER.debug("CAConnectorType ADCS at " + caConfig.getCaUrl());
+			LOGGER.debug("CAConnectorType ADCS at {} revokes certificate id {}", caConfig.getCaUrl(), certificateDao.getId());
 			adcsConnector.revokeCertificate(certificateDao, crlReason, revocationDate, caConfig);
 
 		} else if (CAConnectorType.CMP.equals(caConfig.getCaConnectorType())) {
-			LOGGER.debug("CAConnectorType CMP at " + caConfig.getCaUrl());
+			LOGGER.debug("CAConnectorType CMP at {} revokes certificate id {}", caConfig.getCaUrl(), certificateDao.getId());
 			cmpConnector.revokeCertificate(certificateDao, crlReason, revocationDate, caConfig);
 
 		} else if (CAConnectorType.INTERNAL.equals(caConfig.getCaConnectorType())) {
-			LOGGER.debug("CAConnectorType INTERNAL ");
+			LOGGER.debug("CAConnectorType INTERNAL revokes certificate id {}", certificateDao.getId());
 			internalConnector.revokeCertificate(certificateDao, crlReason, revocationDate, caConfig);
 
 		} else {
@@ -213,7 +213,9 @@ public class CaConnectorAdapter {
             CAConnectorStatus stat = new CAConnectorStatus(cAConnectorConfig.getId(), cAConnectorConfig.getName(), status);
             caStatusList.add(stat);
 
-            LOGGER.debug("CA status for {} is {}, actived: {}", cAConnectorConfig.getName(), status, cAConnectorConfig.isActive());
+            LOGGER.debug("Connector {} is {}, status: {}", cAConnectorConfig.getName(),
+                cAConnectorConfig.isActive() ? "enabled": "disabled",
+                status );
         }
 
         this.caConnectorStatus = caStatusList;

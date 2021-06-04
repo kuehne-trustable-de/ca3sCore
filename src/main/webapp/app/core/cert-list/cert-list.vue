@@ -61,21 +61,18 @@
 							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.sans }}</td>
 						</tr>
 					</template>
-					<!--template name="footer" scope="{ rows, columns, pagination }">
-						<tr>
-							<td :colspan="columns.length">Showing rows {{pagination.from}} to {{pagination.to}} of {{pagination.of}} items.</td>
-						</tr>
-					</template-->
-					<!--template name="footer" scope="{ page }">
-						<tr>
-							<td :colspan="columns.length">Showing rows {{page.from}} to {{page.to}} of {{page.of}} items.</td>
-						</tr>
-					</template-->
 				</certificate>
 
-				<section class="pagers-table">
-					<certificate-pager type="abbreviated" table="certificates"></certificate-pager>
-				</section>
+                <div>
+                    <section float="leftt" class="pagers-table">
+                        <certificate-pager type="abbreviated" table="certificates" v-model="page"></certificate-pager>
+                    </section>
+                    <select float="right" class="smallSelector fa-1x" name="pageSize">
+                        <option key="10" value="10">10</option>
+                        <option key="20" value="20" selected="selected">20</option>
+                        <option key="50" value="50">50</option>
+                    </select>
+                </div>
 			</div>
 		</div>
 	</div>

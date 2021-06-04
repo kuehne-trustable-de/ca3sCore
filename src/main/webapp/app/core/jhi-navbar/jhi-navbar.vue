@@ -222,6 +222,11 @@
                         <span v-text="$t('global.menu.admin.info')">Info</span>
                     </b-dropdown-item>
 
+                    <b-dropdown-item  to="/admin/notification">
+                        <font-awesome-icon icon="info-circle" />
+                        <span v-text="$t('global.menu.admin.notification')">Notification</span>
+                    </b-dropdown-item>
+
                     <b-dropdown-item v-if="swaggerEnabled"  to="/admin/docs">
                         <font-awesome-icon icon="book" />
                         <span v-text="$t('global.menu.admin.apidocs')">API</span>

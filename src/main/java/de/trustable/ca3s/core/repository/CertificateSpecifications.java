@@ -592,14 +592,27 @@ public final class CertificateSpecifications {
 			pred = cb.and( cb.equal(attJoin.<String>get(CertificateAttribute_.name), CertificateAttribute.ATTRIBUTE_SKI),
                 buildPredicateString( attributeSelector, cb, attJoin.<String>get(CertificateAttribute_.value), attributeValue));
 
-		}else if( "fingerprint".equals(attribute)){
+        }else if( "fingerprint".equals(attribute)){
             Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
             addNewColumn(selectionList,attJoin.get(CertificateAttribute_.value));
 
             pred = cb.and( cb.equal(attJoin.<String>get(CertificateAttribute_.name), CertificateAttribute.ATTRIBUTE_FINGERPRINT_SHA1),
                 buildPredicateString( attributeSelector, cb, attJoin.<String>get(CertificateAttribute_.value), attributeValue.toLowerCase()));
 
-		}else if( "hashAlgorithm".equals(attribute)){
+        }else if( "pkiLevel".equals(attribute)){
+            Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
+            addNewColumn(selectionList,attJoin.get(CertificateAttribute_.value));
+            String attrName = CertificateAttribute.ATTRIBUTE_END_ENTITY;
+            if( "root".equalsIgnoreCase(attributeValue)){
+                attrName = CertificateAttribute.ATTRIBUTE_SELFSIGNED;
+            }else if( "intermediate".equalsIgnoreCase(attributeValue)) {
+                attrName = CertificateAttribute.ATTRIBUTE_CA;
+            }
+
+            pred = cb.and( cb.equal(attJoin.<String>get(CertificateAttribute_.name), attrName),
+            buildPredicateString( attributeSelector, cb, attJoin.<String>get(CertificateAttribute_.value), "true"));
+
+        }else if( "hashAlgorithm".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.hashingAlgorithm));
 			pred = buildPredicateString( attributeSelector, cb, root.<String>get(Certificate_.hashingAlgorithm), attributeValue);
 

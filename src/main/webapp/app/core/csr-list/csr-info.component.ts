@@ -66,6 +66,11 @@ export default class CsrInfo extends mixins(JhiDataUtils, Vue) {
     window.console.info('in mounted()) ');
     this.requestorComment = this.getRequestorComment();
     this.arAttributes = this.getArAttributes();
+
+    window.console.info('++++++++++++++++++ route.query : ' + this.$route.query.csrId);
+    if (this.$route.query.csrId) {
+      this.retrieveCsr(this.$route.query.csrId);
+    }
   }
 
   public getRequestorComment(): string {

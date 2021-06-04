@@ -14,9 +14,9 @@
         <p>
             <table>
                 <tr>
-                    <th>NAME</th>
-                    <th>PRICE</th>
-                    <th>IN STOCK</th>
+                    <th>Subject</th>
+                    <th>SAN</th>
+                    <th>validTo</th>
                 </tr>
                 <tr th:each="cert : ${expiringCertList}">
                     <td th:text="${cert.subject}">foo.com</td>
@@ -24,7 +24,7 @@
                     <td th:text="${cert.validTo}">2.41</td>
                 </tr>
             </table>
-        </p> 
+        </p>
 
         <p>
             <span th:text="#{email.activation.text2}">Regards, </span>

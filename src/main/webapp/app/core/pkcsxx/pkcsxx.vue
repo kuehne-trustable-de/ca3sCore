@@ -52,7 +52,7 @@
 						<div class="form-group" v-if="(creationMode === 'COMMANDLINE_TOOL') || (creationMode === 'SERVERSIDE_KEY_CREATION')" >
 							<label class="form-control-label" v-text="$t('pkcsxx.upload.certificateParams')" >certificateParams</label>
 
-							<div class="row">
+                            <div class="row">
                                 <!-- update counter is a hack to re-render the complex list -->
 								<div class="col" :key="updateCounter">
 									<label class="form-control-label" v-text="$t('pkcsxx.upload.key-length')" for="pkcsxx.upload.key-length">Key length</label>
@@ -64,7 +64,6 @@
 									</select>
 								</div>
 							</div>
-
 
 							<div class="row" v-for="(rr, index) in rdnRestrictions" :key="index" >
 								<div class="col ">
@@ -105,7 +104,17 @@
 						</div>
 
 						<div class="form-group" v-if="creationMode === 'SERVERSIDE_KEY_CREATION'">
-							<div class="row" >
+
+                            <div class="row">
+                                <div class="col">
+                                    <label class="form-control-label" v-text="$t('pkcsxx.upload.csr.usage')" for="pkcsxx.upload.csr.usage">csr usage</label>
+                                </div>
+                                <div class="col colContent">
+                                    <span>{{selectPipelineView.csrUsage}}</span>
+                                </div>
+                            </div>
+
+                            <div class="row" >
 								<div class="col">
 									<label class="form-control-label" v-text="$t('pkcsxx.upload.serversideCreation.secret')" for="upload-secret">Secret</label>
 								</div>

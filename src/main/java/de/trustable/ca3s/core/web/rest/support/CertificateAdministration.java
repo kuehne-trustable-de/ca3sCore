@@ -8,6 +8,7 @@ import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.schedule.CertExpiryScheduler;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.MailService;
+import de.trustable.ca3s.core.service.NotificationService;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.web.rest.data.AdministrationType;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.thymeleaf.context.Context;
 
+import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
@@ -68,10 +70,10 @@ public class CertificateAdministration {
 	private UserRepository userRepository;
 
 	@Autowired
-	private MailService mailService;
-
-	@Autowired
 	private CertExpiryScheduler certExpiryScheduler;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @Autowired
     private AuditService auditService;
@@ -84,7 +86,7 @@ public class CertificateAdministration {
      */
     @PostMapping("/administerCertificate")
 	@Transactional
-    public ResponseEntity<Long> administerCertificate(@Valid @RequestBody CertificateAdministrationData adminData) {
+    public ResponseEntity<Long> administerCertificate(@Valid @RequestBody CertificateAdministrationData adminData) throws MessagingException {
 
     	LOG.debug("REST request to revoke certificate : {}", adminData);
 
@@ -108,17 +110,7 @@ public class CertificateAdministration {
                             if (requestor.getEmail() == null) {
                                 LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
                             } else {
-
-                                Locale locale = Locale.forLanguageTag(requestor.getLangKey());
-                                Context context = new Context(locale);
-                                context.setVariable("csr", csr);
-                                context.setVariable("cert", cert);
-                                String subject = cert.getSubject();
-                                if (subject == null) {
-                                    subject = "";
-                                }
-                                String[] args = {subject, cert.getSerial(), cert.getIssuer()};
-                                mailService.sendEmailFromTemplate(context, requestor, "mail/revokedCertificateEmail", "email.revokedCertificate.title", args);
+                                notificationService.notifyUserCerificateRevokedAsync(requestor, cert, csr );
                             }
                         } else {
                             LOG.info("certificate requestor '{}' unknown!", csr.getRequestedBy());

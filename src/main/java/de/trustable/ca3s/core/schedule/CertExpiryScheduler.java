@@ -12,9 +12,11 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
+import javax.mail.MessagingException;
 import javax.naming.NamingException;
 
 import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.NotificationService;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,8 +87,12 @@ public class CertExpiryScheduler {
     @Autowired
 	private PreferenceUtil preferenceUtil;
 
+    @Autowired
+    private NotificationService notificationService;
 
-	@Scheduled(fixedDelay = 3600000)
+
+
+    @Scheduled(fixedDelay = 3600000)
 	public void retrieveCertificates() {
 
 		Instant now = Instant.now();
@@ -208,7 +214,7 @@ public class CertExpiryScheduler {
                     }
 
                     // set the crl's 'next update' timestamp to the certificate
-                    certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE, crl.getNextUpdate().getTime());
+                    certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE, Long.toString(crl.getNextUpdate().getTime()), false);
 
                     X509CRLEntry crlItem = crl.getRevokedCertificate(new BigInteger(cert.getSerial()));
 
@@ -252,49 +258,14 @@ public class CertExpiryScheduler {
 //	@Scheduled(fixedDelay = 60000)
 	public int notifyRAOfficerHolderOnExpiry() {
 
-		Instant now = Instant.now();
-    	int nDays = 30;
-    	Instant after = now;
-    	Instant before = now.plus(nDays, ChronoUnit.DAYS);
-    	Instant relevantPendingStart = now.minus(nDays, ChronoUnit.DAYS);
-    	List<Certificate> expiringCertList = certificateRepo.findByValidTo(after, before);
+        try {
+            return notificationService.notifyRAOfficerHolderOnExpiry();
+        } catch (MessagingException e) {
+            LOG.info("Problem sending notification email", e);
+        }
+        return 0;
+    }
 
-    	List<CSR> pendingCsrList = csrRepo.findPendingByDay(relevantPendingStart, now);
-
-    	if( expiringCertList.isEmpty() && pendingCsrList.isEmpty()) {
-			LOG.info("No expiring certificates in the next {} days / no pending requests. No need to send a notificaton eMail to RA officers", nDays);
-    	}else {
-			LOG.info("#{} expiring certificate in the next {} days, #{} pending requests", expiringCertList.size(), nDays, pendingCsrList.size());
-	    	for( User raOfficer: findAllRAOfficer()) {
-		        Locale locale = Locale.forLanguageTag(raOfficer.getLangKey());
-		        Context context = new Context(locale);
-		        context.setVariable("expiringCertList", expiringCertList);
-		        context.setVariable("pendingCsrList", pendingCsrList);
-		        mailService.sendEmailFromTemplate(context, raOfficer, "mail/pendingReqExpiringCertificateEmail", "email.allExpiringCertificate.subject");
-	    	}
-    	}
-    	return expiringCertList.size();
-	}
-
-	/**
-	 *
-	 * @return
-	 */
-	private List<User> findAllRAOfficer(){
-
-		List<User> raOfficerList = new ArrayList<User>();
-    	for( User user: userRepository.findAll()) {
-    		for( Authority auth: user.getAuthorities()) {
-				LOG.debug("user {} {} has role {}", user.getFirstName(), user.getLastName(), auth.getName());
-    			if( AuthoritiesConstants.RA_OFFICER.equalsIgnoreCase(auth.getName())) {
-    				raOfficerList.add(user);
-    				LOG.debug("found user {} {} having the role of a RA officers", user.getFirstName(), user.getLastName());
-    				break;
-    			}
-    		}
-    	}
-		return raOfficerList;
-	}
 
 	class CRLUpdateInfo{
         boolean bCRLDownloadSuccess = false;

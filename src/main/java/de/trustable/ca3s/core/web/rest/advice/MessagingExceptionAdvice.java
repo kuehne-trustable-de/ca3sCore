@@ -24,34 +24,37 @@
   ===========================================================================
 */
 
-package de.trustable.ca3s.core.web.rest.acme.advice;
+package de.trustable.ca3s.core.web.rest.advice;
 
-import javax.annotation.concurrent.Immutable;
-
+import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
+import de.trustable.ca3s.core.service.util.ACMEUtil;
+import de.trustable.ca3s.core.web.rest.acme.ACMEController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
-import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
-import de.trustable.ca3s.core.web.rest.acme.ACMEController;
+import javax.annotation.concurrent.Immutable;
+import javax.mail.MessagingException;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 /**
- * Handle the restification of ACME exception centrally
+ * Handle the restification of a MessagingException
  *
  * @author kuehn
  *
  */
 @ControllerAdvice
 @Immutable
-public final class AcmeProblemAdvice {
+public final class MessagingExceptionAdvice {
 
-	@ExceptionHandler(value = AcmeProblemException.class)
-	public ResponseEntity<ProblemDetail> respondTo(final AcmeProblemException exception) {
+	@ExceptionHandler(value = MessagingException.class)
+	public ResponseEntity<ProblemDetail> respondTo(final MessagingException exception) {
 
-		final ProblemDetail problem = exception.getProblem();
-		final HttpStatus status = problem.getStatus();
+        final ProblemDetail problem = new ProblemDetail(ACMEUtil.SERVER_INTERNAL, "Thymeleaf processing / email delivery problem",
+            BAD_REQUEST, exception.getMessage(), ACMEUtil.NO_INSTANCE);
+        final HttpStatus status = problem.getStatus();
 		return ResponseEntity.status(status).contentType(ACMEController.APPLICATION_PROBLEM_JSON).body(problem);
 	}
 }

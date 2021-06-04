@@ -36,6 +36,7 @@ const JhiAuditsComponent = () => import('../admin/audits/audits.vue');
 const JhiMetricsComponent = () => import('../admin/metrics/metrics.vue');
 const JhiTrackerComponent = () => import('../admin/tracker/tracker.vue');
 const Info = () => import('../admin/info/info.vue');
+const Notification = () => import('../admin/notification/notification.vue');
 
 /* tslint:disable */
 
@@ -290,7 +291,6 @@ export default new Router({
       name: 'BpmnNew',
       component: BpmnNew,
     },
-
     {
       path: '/cert-list',
       name: 'CertList',
@@ -447,22 +447,26 @@ export default new Router({
       name: 'JhiConfigurationComponent',
       component: JhiConfigurationComponent,
       meta: { authorities: ['ROLE_ADMIN'] }
-    }
-,
+    },
     {
       path: '/admin/jhi-tracker',
       name: 'JhiTrackerComponent',
       component: JhiTrackerComponent,
       meta: { authorities: ['ROLE_ADMIN'] }
-    }
-    ,
+    },
     {
       path: '/admin/info',
       name: 'Info',
       component: Info,
       meta: { authorities: ['ROLE_ADMIN'] }
-    }
-    ,
+    },
+    {
+      path: '/admin/notification',
+      name: 'Notification',
+      component: Notification,
+      meta: { authorities: ['ROLE_ADMIN'] }
+    },
+
     {
       path: '/ca-connector-config',
       name: 'CAConnectorConfig',

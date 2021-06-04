@@ -30,6 +30,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.mail.MessagingException;
 import java.time.Instant;
 import java.util.*;
 
@@ -75,7 +76,7 @@ public class AccountResourceIT {
     private MockMvc restUserMockMvc;
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws MessagingException {
         MockitoAnnotations.initMocks(this);
         doNothing().when(mockMailService).sendActivationEmail(any());
         AccountResource accountResource =

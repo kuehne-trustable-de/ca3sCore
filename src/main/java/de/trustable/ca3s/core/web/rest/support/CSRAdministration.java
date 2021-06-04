@@ -10,6 +10,7 @@ import de.trustable.ca3s.core.repository.CsrAttributeRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.MailService;
+import de.trustable.ca3s.core.service.NotificationService;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.thymeleaf.context.Context;
 
+import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.time.Instant;
 import java.util.Locale;
@@ -60,11 +62,10 @@ public class CSRAdministration {
 	private UserRepository userRepository;
 
 	@Autowired
-	private MailService mailService;
-
-	@Autowired
 	private AuditService auditService;
 
+    @Autowired
+    private NotificationService notificationService;
 
     /**
      * {@code POST  /administerRequest} : Process a PKCSXX-object encoded as PEM.
@@ -74,7 +75,7 @@ public class CSRAdministration {
      */
     @PostMapping("/administerRequest")
 	@Transactional
-    public ResponseEntity<Long> administerRequest(@Valid @RequestBody CSRAdministrationData adminData) {
+    public ResponseEntity<Long> administerRequest(@Valid @RequestBody CSRAdministrationData adminData) throws MessagingException {
 
     	LOG.debug("REST request to reject / accept CSR : {}", adminData);
 
@@ -104,24 +105,7 @@ public class CSRAdministration {
 	    		        if (requestor.getEmail() == null) {
 	    		        	LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
 	    		        }else {
-
-		    		        Locale locale = Locale.forLanguageTag(requestor.getLangKey());
-		    		        Context context = new Context(locale);
-		    		        context.setVariable("certId", cert.getId());
-		    		        context.setVariable("subject", cert.getSubject());
-
-		    		    	String downloadFilename = CertificateUtil.getDownloadFilename(cert);
-
-		    		    	boolean isServersideKeyGeneration = false;
-		    		    	if(cert.getCsr() != null) {
-		    		    		isServersideKeyGeneration = cert.getCsr().isServersideKeyGeneration();
-		    		    	}
-		    		        context.setVariable("isServersideKeyGeneration", isServersideKeyGeneration);
-
-		    		        context.setVariable("filenameCrt", downloadFilename + ".crt");
-		    		        context.setVariable("filenamePem", downloadFilename + ".pem");
-
-		    		        mailService.sendEmailFromTemplate(context, requestor, "mail/acceptedRequestEmail", "email.acceptedRequest.title");
+                            notificationService.notifyUserCerificateIssuedAsync(requestor, cert);
 	    		        }
         			} else {
         				LOG.warn("certificate requestor '{}' unknown!", csr.getRequestedBy());
@@ -146,11 +130,7 @@ public class CSRAdministration {
     		        if (requestor.getEmail() == null) {
     		        	LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
     		        }else {
-
-	    		        Locale locale = Locale.forLanguageTag(requestor.getLangKey());
-	    		        Context context = new Context(locale);
-	    		        context.setVariable("csr", csr);
-	    		        mailService.sendEmailFromTemplate(context, requestor, "mail/rejectedRequestEmail", "email.request.rejection.title");
+                        notificationService.notifyUserCerificateRejectedAsync(requestor, csr );
     		        }
     			} else {
     				LOG.warn("certificate requestor '{}' unknown!", csr.getRequestedBy());

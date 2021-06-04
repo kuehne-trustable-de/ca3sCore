@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.service.dto;
 
 import java.io.Serializable;
 
+import de.trustable.ca3s.core.domain.enumeration.CsrUsage;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 
 public class PipelineView implements Serializable {
@@ -55,6 +56,8 @@ public class PipelineView implements Serializable {
     private WebConfigItems webConfigItems;
 
     private AuditView[] auditViewArr;
+
+    private CsrUsage csrUsage;
 
 
     public PipelineView() {}
@@ -288,5 +291,13 @@ public class PipelineView implements Serializable {
 
     public void setAuditViewArr(AuditView[] auditViewArr) {
         this.auditViewArr = auditViewArr;
+    }
+
+    public CsrUsage getCsrUsage() {
+        return csrUsage;
+    }
+
+    public void setCsrUsage(CsrUsage csrUsage) {
+        this.csrUsage = csrUsage;
     }
 }

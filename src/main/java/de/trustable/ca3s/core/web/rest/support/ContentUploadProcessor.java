@@ -3,11 +3,13 @@ package de.trustable.ca3s.core.web.rest.support;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
+import de.trustable.ca3s.core.domain.enumeration.CsrUsage;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.dto.PipelineView;
 import de.trustable.ca3s.core.service.dto.Preferences;
 import de.trustable.ca3s.core.service.util.*;
 import de.trustable.ca3s.core.web.rest.data.*;
@@ -18,10 +20,7 @@ import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.asn1.x509.Extension;
-import org.bouncycastle.asn1.x509.ExtensionsGenerator;
-import org.bouncycastle.asn1.x509.GeneralName;
-import org.bouncycastle.asn1.x509.GeneralNames;
+import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
@@ -79,6 +78,9 @@ public class ContentUploadProcessor {
 
     @Autowired
     private PipelineRepository pipelineRepository;
+
+    @Autowired
+    private PipelineUtil pipelineUtil;
 
     @Autowired
     private PreferenceUtil preferenceUtil;
@@ -309,6 +311,8 @@ public class ContentUploadProcessor {
     private ResponseEntity<PkcsXXData> buildServerSideKeyAndRequest(UploadPrecheckData uploaded, String requestorName) {
 
         try{
+            Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
+
             KeyAlgoLength keyAlgoLength = uploaded.getKeyAlgoLength();
             KeyPair keypair = generateKeyPair(keyAlgoLength);
 
@@ -364,8 +368,28 @@ public class ContentUploadProcessor {
                 GeneralNames subjectAltName = new GeneralNames(gns);
                 ExtensionsGenerator extensionsGenerator = new ExtensionsGenerator();
                 extensionsGenerator.addExtension(Extension.subjectAlternativeName, false, subjectAltName);
+
+                if(optPipeline.isPresent()){
+                    Pipeline p = optPipeline.get();
+                    PipelineView pv = pipelineUtil.from(p);
+                    if(CsrUsage.TLS_SERVER.equals(pv.getCsrUsage())) {
+                        extensionsGenerator.addExtension(Extension.keyUsage, true, new KeyUsage(KeyUsage.digitalSignature | KeyUsage.keyEncipherment));
+                        extensionsGenerator.addExtension(Extension.extendedKeyUsage, false, new ExtendedKeyUsage(KeyPurposeId.id_kp_serverAuth));
+                    } else if(CsrUsage.TLS_CLIENT.equals(pv.getCsrUsage())){
+                        extensionsGenerator.addExtension(Extension.keyUsage, true, new KeyUsage(KeyUsage.digitalSignature));
+                        extensionsGenerator.addExtension(Extension.extendedKeyUsage, false, new ExtendedKeyUsage(KeyPurposeId.id_kp_clientAuth));
+                    } else if(CsrUsage.DOC_SIGNING.equals(pv.getCsrUsage())){
+                        extensionsGenerator.addExtension(Extension.keyUsage, true, new KeyUsage(KeyUsage.digitalSignature | KeyUsage.nonRepudiation));
+                    } else if(CsrUsage.CODE_SIGNING.equals(pv.getCsrUsage())){
+                        extensionsGenerator.addExtension(Extension.keyUsage, true, new KeyUsage(KeyUsage.digitalSignature));
+                        extensionsGenerator.addExtension(Extension.extendedKeyUsage, false, new ExtendedKeyUsage(KeyPurposeId.id_kp_codeSigning));
+                    }else{
+                        LOG.warn("unexpected CsrUsage found '{}'", pv.getCsrUsage());
+                    }
+                }
                 p10Builder.addAttribute(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest, extensionsGenerator.generate());
             }
+
 
             PrivateKey pk = keypair.getPrivate();
             JcaContentSignerBuilder csBuilder = new JcaContentSignerBuilder(pk instanceof ECKey ? EC_SIGNATURE_ALG : SIGNATURE_ALG);
@@ -380,7 +404,6 @@ public class ContentUploadProcessor {
             Pkcs10RequestHolderShallow p10ReqHolderShallow = new Pkcs10RequestHolderShallow( p10ReqHolder);
             PkcsXXData p10ReqData = new PkcsXXData(p10ReqHolderShallow);
 
-            Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
             CSR csr = startCertificateCreationProcess(csrAsPem, p10ReqData, requestorName, uploaded.getRequestorcomment(), uploaded.getArAttributes(), optPipeline );
             if( csr != null ){
                 csr.setServersideKeyGeneration(true);

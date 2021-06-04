@@ -99,10 +99,18 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
+      window.console.info('################ to.params : ' + to.params.certificateId);
       if (to.params.certificateId) {
         vm.retrieveCertificate(to.params.certificateId);
       }
     });
+  }
+
+  public mounted(): void {
+    window.console.info('++++++++++++++++++ route.query : ' + this.$route.query.certificateId);
+    if (this.$route.query.certificateId) {
+      this.retrieveCertificate(this.$route.query.certificateId);
+    }
   }
 
   public retrieveCertificate(certificateId) {

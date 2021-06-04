@@ -9,6 +9,7 @@ import java.util.regex.PatternSyntaxException;
 
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
+import de.trustable.ca3s.core.domain.enumeration.CsrUsage;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.service.AuditService;
@@ -79,9 +80,11 @@ public class PipelineUtil {
 
 	public static final String ACME_CHECK_CAA = "ACME_CHECK_CAA";
 
-	public static final String ACME_NAME_CAA = "ACME_NAME_CAA";
+    public static final String ACME_NAME_CAA = "ACME_NAME_CAA";
 
-	public static final String ACME_PROCESS_ACCOUNT_VALIDATION = "ACME_PROCESS_ACCOUNT_VALIDATION";
+    public static final String CSR_USAGE = "CSR_USAGE";
+
+    public static final String ACME_PROCESS_ACCOUNT_VALIDATION = "ACME_PROCESS_ACCOUNT_VALIDATION";
 	public static final String ACME_PROCESS_ORDER_VALIDATION = "ACME_PROCESS_ORDER_VALIDATION";
 	public static final String ACME_PROCESS_CHALLENGE_VALIDATION = "ACME_PROCESS_CHALLENGE_VALIDATION";
 
@@ -190,6 +193,8 @@ public class PipelineUtil {
     	ACMEConfigItems acmeConfigItems = new ACMEConfigItems();
         SCEPConfigItems scepConfigItems = new SCEPConfigItems();
 
+        pv.setCsrUsage(CsrUsage.TLS_SERVER);
+
 //    	acmeConfigItems.setProcessInfoNameAccountValidation(processInfoNameAccountValidation);
 
     	for( PipelineAttribute plAtt: pipeline.getPipelineAttributes()) {
@@ -260,6 +265,10 @@ public class PipelineUtil {
     			pv.getRestriction_SAN().setContentTemplate(plAtt.getValue());
     		}else if( RESTR_SAN_REGEXMATCH.equals(plAtt.getName())) {
     			pv.getRestriction_SAN().setRegExMatch(Boolean.valueOf(plAtt.getValue()));
+
+
+            }else if( CSR_USAGE.equals(plAtt.getName())) {
+                pv.setCsrUsage(CsrUsage.valueOf(plAtt.getValue()));
 
             }else if( TO_PENDIND_ON_FAILED_RESTRICTIONS.equals(plAtt.getName())) {
                 pv.setToPendingOnFailedRestrictions(Boolean.valueOf(plAtt.getValue()));
@@ -492,6 +501,8 @@ public class PipelineUtil {
 		addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_WILDCARDS,pv.getAcmeConfigItems().isAllowWildcards());
 		addPipelineAttribute(pipelineAttributes, p, auditList, ACME_CHECK_CAA,pv.getAcmeConfigItems().isCheckCAA());
 		addPipelineAttribute(pipelineAttributes, p, auditList, ACME_NAME_CAA,pv.getAcmeConfigItems().getCaNameCAA());
+
+        addPipelineAttribute(pipelineAttributes, p, auditList, CSR_USAGE,pv.getCsrUsage().toString());
 
         if( pv.getScepConfigItems() == null) {
             SCEPConfigItems scepConfigItems = new SCEPConfigItems();

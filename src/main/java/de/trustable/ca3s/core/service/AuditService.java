@@ -27,6 +27,8 @@ public class AuditService {
     public static final String AUDIT_CA3S_STARTED = "CA3S_STARTED";
     public static final String AUDIT_CA3S_STOPPED = "CA3S_STOPPED";
 
+    public static final String AUDIT_EXPIRY_NOTIFICATION_SENT = "EXPIRY_NOTIFICATION_SENT";
+
     public static final String AUDIT_CSR_ACCEPTED = "CSR_ACCEPTED";
     public static final String AUDIT_CSR_REJECTED = "CSR_REJECTED";
     public static final String AUDIT_WEB_CERTIFICATE_REQUESTED = "WEB_CERTIFICATE_REQUESTED";
@@ -98,6 +100,21 @@ public class AuditService {
     public AuditTrace createAuditTraceStopped(){
         NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(), AUDIT_CA3S_STOPPED,
+            null,
+            null,
+            null,
+            null,
+            null );
+
+    }
+
+    public AuditTrace createAuditTraceExpiryNotificationSent(int nExpiringCertificates){
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_EXPIRY_NOTIFICATION_SENT,
+            null,
+            null, "" + nExpiringCertificates,
             null,
             null,
             null,
