@@ -196,7 +196,7 @@
   "ca3SApp.bPNMProcessInfo.new.name": "Prozessname",
   "ca3SApp.bPNMProcessInfo.new.type": "Prozesstyp",
   "ca3SApp.bPNMProcessInfo.type.CA_INVOCATION": "Zertifikatserstellung",
-  "ca3SApp.bPNMProcessInfo.type.REQUEST_AUTHORIZATION": "Anfrgae-Authorisierung",
+  "ca3SApp.bPNMProcessInfo.type.REQUEST_AUTHORIZATION": "Anfrage-Authorisierung",
 
   "ca3SApp.bPNMProcessInfo.subtitle.process.list": "Prozess Liste",
   "ca3SApp.bPNMProcessInfo.author": "Autor",

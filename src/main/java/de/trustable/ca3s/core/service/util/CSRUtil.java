@@ -338,7 +338,9 @@ public class CSRUtil {
 		return(getSANList(p10ReqHolder.getReqAttributes() ) );
 	}
 
-    public void setCSRComment(CSR csr, String comment) {
+    public void setCSRComment(CSR csr, String commentIn) {
+
+	    String comment = (commentIn == null)?"":commentIn;
 
         CSRComment oldCcomment = (csr.getComment() == null) ? new CSRComment() : csr.getComment();
         String oldCommentText = (oldCcomment.getComment() == null) ? "" : oldCcomment.getComment();

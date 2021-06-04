@@ -28,7 +28,7 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
   @Inject('alertService') private alertService: () => AlertService;
   @Inject('bPNMProcessInfoService') private bPNMProcessInfoService: () => BPNMProcessInfoService;
 
-  public bpmnUpload: IBPMNUpload = {};
+  public bpmnUpload: IBPMNUpload = { type: 'CA_INVOCATION' };
 
   public bpmnUrl: string;
   public bpmnFileUploaded: boolean = false;
@@ -83,6 +83,11 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
     const readerContent = new FileReader();
     readerContent.onload = function(_result) {
       console.log('uploaded bpmn content read');
+      self.bpmnFileUploaded = false;
+      self.bpmnUpload.contentXML = '';
+      self.bpmnUrl = '';
+      self.warningMessage = '';
+
       if (typeof readerContent.result === 'string') {
         self.bpmnUpload.contentXML = readerContent.result;
         console.log('uploaded bpmn read as XML: ' + readerContent.result);
