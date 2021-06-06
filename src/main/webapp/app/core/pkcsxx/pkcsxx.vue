@@ -11,7 +11,7 @@
 
 		<div class="row justify-content-center" v-cloak @drop.prevent="catchDroppedFile" @dragover.prevent>
 			<div class="col-8" >
-				<form name="editForm" role="form" novalidate >
+				<form name="editForm" role="form" autocomplete="off" novalidate >
 
 					<h2 class="jh-entity-heading">
                         <span v-if="(authenticated === false) && (creationMode === 'CSR_AVAILABLE')" v-text="$t('pkcsxx.subtitle.check.csr')">Check</span>
@@ -72,7 +72,9 @@
 								<div class="col colContent">
                                     <Fragment v-for="(val, valueIndex) in upload.certificateAttributes[index].values" :key="valueIndex">
                                         <input
-                                            type="text" class="form-control form-check-inline valid" :name="'pkcsxx.upload.' + rr.name" :id="'pkcsxx.upload.' + rr.name"
+                                            type="text" class="form-control form-check-inline valid"
+                                            autocomplete="false"
+                                            :name="'pkcsxx.upload.' + rr.name" :id="'pkcsxx.upload.' + rr.name"
                                             v-model="upload.certificateAttributes[index].values[valueIndex]"
                                             :readonly="rr.readOnly"
                                             :required="rr.required"
