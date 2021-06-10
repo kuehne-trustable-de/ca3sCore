@@ -147,7 +147,9 @@
    		<jscepVersion>2.5.4</jscepVersion>
    		<jasyptVersion>1.9.3</jasyptVersion>
 
-	    <kerberosCoreVersion>1.0.1.RELEASE</kerberosCoreVersion>
+        <opencsvVersion>5.4</opencsvVersion>
+
+        <kerberosCoreVersion>1.0.1.RELEASE</kerberosCoreVersion>
 	    <kerberosWebVersion>1.0.1.RELEASE</kerberosWebVersion>
 	    <kerberosClientVersion>1.0.1.RELEASE</kerberosClientVersion>
 
@@ -216,11 +218,6 @@
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>1.28</version>
-            </dependency>
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-core</artifactId>
-                <version>5.4.28.Final</version>
             </dependency>
             <!--dependency>
                 <groupId>org.hibernate</groupId>
@@ -295,12 +292,12 @@
             <dependency>
                 <groupId>org.apache.tika</groupId>
                 <artifactId>tika-core</artifactId>
-                <version>1.25</version>
+                <version>1.26</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.tika</groupId>
                 <artifactId>tika-parsers</artifactId>
-                <version>1.25</version>
+                <version>1.26</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
@@ -407,13 +404,6 @@
                 <groupId>org.jetbrains</groupId>
                 <artifactId>annotations</artifactId>
                 <version>20.1.0</version>
-            </dependency>
-
-            <!-- https://mvnrepository.com/artifact/org.apache.tika/tika-core -->
-            <dependency>
-                <groupId>org.apache.tika</groupId>
-                <artifactId>tika-core</artifactId>
-                <version>1.26</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox -->
@@ -814,6 +804,12 @@
 		    <artifactId>jscep</artifactId>
 		    <version>${jscepVersion}</version>
 		</dependency>
+
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>${opencsvVersion}</version>
+        </dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.springframework.security.kerberos/spring-security-kerberos-core -->
 		<dependency>

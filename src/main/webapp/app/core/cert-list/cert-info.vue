@@ -41,6 +41,9 @@
                     </dt>
                     <dd>
                         <span>{{certificateView.type}}</span>
+                        <span v-if="certificateView.ca"><b>CA</b></span>
+                        <span v-if="certificateView.selfsigned"><b>Selfsigned</b></span>
+
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.serial')">Serial</span>

@@ -1,5 +1,7 @@
 package de.trustable.ca3s.core.service.dto;
 
+import com.opencsv.bean.CsvBindByName;
+import com.opencsv.bean.CsvIgnore;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.web.rest.data.NamedValue;
@@ -20,75 +22,177 @@ public class CertificateView implements Serializable {
 
 	private final Logger LOG = LoggerFactory.getLogger(CertificateView.class);
 
+    @CsvBindByName
     private Long id;
+
+    @CsvIgnore
     private Long csrId;
+
+    @CsvIgnore
     private Long issuerId;
 
+    @CsvIgnore
     private String tbsDigest;
 
+    @CsvBindByName
     private String subject;
+
+    @CsvIgnore
     private String rdn_c;
+
+    @CsvIgnore
     private String rdn_cn;
+
+    @CsvIgnore
     private String rdn_o;
+
+    @CsvIgnore
     private String rdn_ou;
+
+    @CsvIgnore
     private String rdn_s;
+
+    @CsvIgnore
     private String rdn_l;
 
+    @CsvBindByName
     private String sans;
+
+    @CsvBindByName
     private String issuer;
+
+    @CsvBindByName
     private String root;
+
+    @CsvIgnore
     private String fingerprintSha1;
+
+    @CsvIgnore
     private String fingerprintSha256;
 
+    @CsvBindByName
     private String type;
+
+    @CsvBindByName
     private String keyLength;
+
+    @CsvBindByName
     private String keyAlgorithm;
+
+    @CsvIgnore
     private String signingAlgorithm;
+
+    @CsvIgnore
     private String paddingAlgorithm;
+
+    @CsvIgnore
     private String hashAlgorithm;
 
+    @CsvIgnore
     private String description;
+
+    @CsvBindByName
     private String comment;
+
+    @CsvBindByName
     private String csrComment;
 
+    @CsvBindByName
     private String serial;
+
+    @CsvBindByName
     private Instant validFrom;
+
+    @CsvBindByName
     private Instant validTo;
+
     private Instant contentAddedAt;
+
+    @CsvBindByName
     private Instant revokedSince;
+
+    @CsvBindByName
     private String revocationReason;
+
+    @CsvBindByName
     private Boolean revoked;
 
+    @CsvBindByName
     private Boolean selfsigned;
+
+    @CsvBindByName
     private Boolean ca;
+
+    @CsvBindByName
     private Boolean intermediate;
+
+    @CsvBindByName
     private Boolean endEntity;
+
+    @CsvBindByName
     private Long chainLength;
+
+    @CsvBindByName
     private String[] usage;
+
+    @CsvBindByName
     private String[] extUsage;
+
+    @CsvIgnore
     private String[] sanArr;
+
+    @CsvIgnore
     private Long caConnectorId;
+
+    @CsvIgnore
     private Long caProcessingId;
+
+    @CsvBindByName
     private String processingCa;
+
+    @CsvIgnore
     private Long acmeAccountId;
+
+    @CsvIgnore
     private Long acmeOrderId;
+
+    @CsvIgnore
     private Long scepTransId;
+
+    @CsvIgnore
     private String scepRecipient;
 
+    @CsvIgnore
     private String fileSource;
+
+    @CsvBindByName
     private String uploadedBy;
+
+    @CsvBindByName
     private String revokedBy;
+
+    @CsvBindByName
     private String requestedBy;
+
+    @CsvBindByName
     private String crlUrl;
+
+    @CsvIgnore
     private Instant crlNextUpdate;
 
+    @CsvIgnore
     private String certB64;
+
+    @CsvIgnore
     private String downloadFilename;
 
-	private Boolean isServersideKeyGeneration = false;
+    @CsvIgnore
+    private Boolean isServersideKeyGeneration = false;
 
+    @CsvIgnore
     private Boolean isAuditPresent = false;
 
+    @CsvIgnore
     private NamedValue[] arArr;
 
     public CertificateView() {}

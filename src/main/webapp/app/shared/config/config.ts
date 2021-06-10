@@ -40,7 +40,6 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes';
 import { faStethoscope } from '@fortawesome/free-solid-svg-icons/faStethoscope';
 import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
 import { faGavel } from '@fortawesome/free-solid-svg-icons/faGavel';
-import { faTools } from '@fortawesome/free-solid-svg-icons/faTools';
 import { faTrain } from '@fortawesome/free-solid-svg-icons/faTrain';
 import { faMap } from '@fortawesome/free-solid-svg-icons/faMap';
 import { faReceipt } from '@fortawesome/free-solid-svg-icons/faReceipt';
@@ -53,6 +52,7 @@ import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons/faQuestionCi
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons/faInfoCircle';
 import { faSortAmountUp } from '@fortawesome/free-solid-svg-icons/faSortAmountUp';
 import { faSortAmountDown } from '@fortawesome/free-solid-svg-icons/faSortAmountDown';
+import { faFileCsv } from '@fortawesome/free-solid-svg-icons/faFileCsv';
 
 import VueCookie from 'vue-cookie';
 import Vuelidate from 'vuelidate';
@@ -190,7 +190,6 @@ export function initFortAwesome(vue) {
     faStethoscope,
     faEdit,
     faGavel,
-    faTools,
     faTrain,
     faMap,
     faReceipt,
@@ -200,7 +199,8 @@ export function initFortAwesome(vue) {
     faQuestionCircle,
     faInfoCircle,
     faSortAmountUp,
-    faSortAmountDown
+    faSortAmountDown,
+    faFileCsv
   );
 }
 

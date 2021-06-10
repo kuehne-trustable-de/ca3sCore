@@ -16,7 +16,8 @@
                     <span v-text="$t('ca3SApp.certificate.subtitle.cert.list')">Certificate List</span>
                 </h2>
 
-				<div>
+
+                <div>
 					<div v-for="(filter, index) in filters.filterList" :key="index">
 						<select float="left" class="smallSelector fa-1x" v-model="filter.attributeName" name="certSelectionAttribute">
 							<option v-for="certSelectionItem in certSelectionItems" :key="certSelectionItem.itemName" :value="certSelectionItem.itemName">{{$t(certSelectionItem.itemName)}}</option>
@@ -26,20 +27,21 @@
 							<option v-for="item in getSelectorChoices(filter.attributeName)" :key="item" :value="item">{{$t(item)}}</option>
 						</select>
 
-						<select v-if="getInputType(filter.attributeName) == 'set'" float="left" class="smallSelector fa-1x" v-model="filter.attributeValue" name="certSelectionSet">
+						<select v-if="getInputType(filter.attributeName) === 'set'" float="left" class="smallSelector fa-1x" v-model="filter.attributeValue" name="certSelectionSet">
 							<option v-for="item in getValueChoices(filter.attributeName)" :key="item" :value="item">{{$t(item)}}</option>
 						</select>
-						<input type="date" v-else-if="getInputType(filter.attributeName) == 'date'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueDate" v-on:keydown.enter="updateTable"/>
-						<input type="hidden" v-else-if="getInputType(filter.attributeName) == 'boolean'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueBoolean" v-on:keydown.enter="updateTable"/>
+						<input type="date" v-else-if="getInputType(filter.attributeName) === 'date'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueDate" v-on:keydown.enter="updateTable"/>
+						<input type="hidden" v-else-if="getInputType(filter.attributeName) === 'boolean'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueBoolean" v-on:keydown.enter="updateTable"/>
 						<input v-else float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValue" v-on:keydown.enter="updateTable"/>
 
-						<button class="addRemoveSelector" float="right" v-if="index == 0" v-on:click="addSelector()">
+						<button class="addRemoveSelector" float="right" v-if="index === 0" v-on:click="addSelector()">
 							<font-awesome-icon icon="plus"></font-awesome-icon>
 						</button>
-						<button class="addRemoveSelector" float="right" v-if="index > 0" v-on:click="removeSelector(index)">
-							<font-awesome-icon icon="minus"></font-awesome-icon>
-						</button>
-					</div>
+                        <button class="addRemoveSelector" float="right" v-if="index > 0" v-on:click="removeSelector(index)">
+                            <font-awesome-icon icon="minus"></font-awesome-icon>
+                        </button>
+                        <a v-if="index === 0" href="downloadCSV" @click.prevent="downloadCSV()" float="right"><font-awesome-icon icon="file-csv"></font-awesome-icon></a>
+                    </div>
 				</div>
 
 				<certificate :columns="columns" :data="certApiUrl" :per-page="20" name="certificates">
@@ -67,11 +69,11 @@
                     <section float="leftt" class="pagers-table">
                         <certificate-pager type="abbreviated" table="certificates" v-model="page"></certificate-pager>
                     </section>
-                    <select float="right" class="smallSelector fa-1x" name="pageSize">
+                    <!--select float="right" class="smallSelector fa-1x" name="pageSize">
                         <option key="10" value="10">10</option>
                         <option key="20" value="20" selected="selected">20</option>
                         <option key="50" value="50">50</option>
-                    </select>
+                    </select-->
                 </div>
 			</div>
 		</div>

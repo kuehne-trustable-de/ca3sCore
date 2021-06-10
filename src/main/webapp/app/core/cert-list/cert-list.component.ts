@@ -95,9 +95,11 @@ VuejsDatatableFactory.useDefaultType(false).registerTableType<any, any, any, any
 
 @Component
 export default class CertList extends mixins(AlertMixin, Vue) {
-  public get authenticated(): boolean {
-    return this.$store.getters.authenticated;
-  }
+  public now: Date = new Date();
+  public soon: Date = new Date();
+  public recently: Date = new Date();
+  public dateWarn = new Date();
+  public dateAlarm = new Date();
 
   public certificateSelectionAttributes: string[] = [];
 
@@ -181,6 +183,10 @@ export default class CertList extends mixins(AlertMixin, Vue) {
   public contentAccessUrl: string;
   public tmpContentAccessUrl: string;
 
+  public get authenticated(): boolean {
+    return this.$store.getters.authenticated;
+  }
+
   public addSelector() {
     const newFilter = { ...this.defaultFilter };
     this.filters.filterList.push(newFilter);
@@ -209,18 +215,12 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     const validTo = new Date(validToString);
     const validFrom = new Date(validFromString);
 
-    const dateNow = new Date();
-    const dateWarn = new Date();
-    dateWarn.setDate(dateNow.getDate() + 35);
-    const dateAlarm = new Date();
-    dateAlarm.setDate(dateNow.getDate() + 10);
-
-    if (validTo > dateNow && validTo < dateAlarm) {
+    if (validTo > this.now && validTo < this.dateAlarm) {
       //      window.console.info('getValidToStyle(' + validTo + '), dateNow: ' + dateNow + ' , dateWarn: ' + dateWarn + ' -> ' + (validTo > dateNow) + ' - ' + (validTo < dateWarn));
       return 'color:red;font-weight: bold;';
-    } else if (validTo > dateNow && validTo < dateWarn) {
+    } else if (validTo > this.now && validTo < this.dateWarn) {
       return 'color:yellow; font-weight: bold;';
-    } else if (validTo > dateNow && validFrom <= dateNow) {
+    } else if (validTo > this.now && validFrom <= this.now) {
       return 'color:green; font-weight: bold;';
     }
     return '';
@@ -229,7 +229,12 @@ export default class CertList extends mixins(AlertMixin, Vue) {
   public toLocalDate(dateAsString: string): string {
     if (dateAsString && dateAsString.length > 8) {
       const dateObj = new Date(dateAsString);
-      return dateObj.toLocaleDateString();
+
+      if (dateObj > this.recently && dateObj < this.soon) {
+        return dateObj.toLocaleDateString() + ', ' + dateObj.toLocaleTimeString();
+      } else {
+        return dateObj.toLocaleDateString();
+      }
     }
     return '';
   }
@@ -320,7 +325,7 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     this.buildContentAccessUrl();
   }
 
-  public buildContentAccessUrl() {
+  public buildAccessUrl(baseUrl: string): string {
     const filterLen = this.filters.filterList.length;
 
     const params = {};
@@ -332,8 +337,11 @@ export default class CertList extends mixins(AlertMixin, Vue) {
       params['attributeSelector_' + idx] = filter.selector;
     }
 
-    const baseApiUrl = 'publicapi/certificateList';
-    const url = `${baseApiUrl}?${makeQueryStringFromObj(params)}`;
+    return `${baseUrl}?${makeQueryStringFromObj(params)}`;
+  }
+
+  public buildContentAccessUrl() {
+    const url = this.buildAccessUrl('publicapi/certificateList');
 
     if (this.tmpContentAccessUrl !== url) {
       this.tmpContentAccessUrl = url;
@@ -345,6 +353,11 @@ export default class CertList extends mixins(AlertMixin, Vue) {
   }
 
   public mounted(): void {
+    this.soon.setDate(this.now.getDate() + 7);
+    this.recently.setDate(this.now.getDate() - 7);
+    this.dateWarn.setDate(this.now.getDate() + 35);
+    this.dateAlarm.setDate(this.now.getDate() + 10);
+
     this.getCertificateSelectionAttributes();
     this.getUsersFilterList();
     setInterval(() => this.putUsersFilterList(this), 3000);
@@ -413,6 +426,32 @@ export default class CertList extends mixins(AlertMixin, Vue) {
         }
       });
     }
+  }
+
+  public downloadCSV() {
+    const url =
+      this.buildAccessUrl('publicapi/certificateListCSV') +
+      '&filter=id%2Csubject%2Cissuer%2Ctype%2CkeyLength%2Cserial%2CvalidFrom%2CvalidTo%2ChashAlgorithm%2CpaddingAlgorithm%2Crevoked%2CrevokedSince%2CrevocationReason';
+
+    this.download(url, 'certificateList.csv', 'text/csv');
+  }
+
+  public download(url: string, filename: string, mimetype: string) {
+    axios
+      .get(url, { responseType: 'blob', headers: { Accept: mimetype } })
+      .then(response => {
+        const blob = new Blob([response.data], { type: mimetype, endings: 'transparent' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.type = mimetype;
+
+        window.console.info('tmp download lnk : ' + link.download);
+
+        link.click();
+        URL.revokeObjectURL(link.href);
+      })
+      .catch(console.error);
   }
 
   public printObject(object): string {
