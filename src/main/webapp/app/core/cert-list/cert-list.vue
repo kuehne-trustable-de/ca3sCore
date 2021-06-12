@@ -48,7 +48,7 @@
 					<template slot-scope="{ row }">
 						<tr>
 							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.id }}</td>
-							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" :style="getRevocationStyle(row.revoked)">{{ row.subject }}</td>
+							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" :style="getSubjectStyle(row.ca, row.selfsigned, row.revoked)">{{ row.subject }}</td>
 							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.issuer }}</td>
 							<!--td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ row.type }}</router-link></td-->
 							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.keyLength }}</td>

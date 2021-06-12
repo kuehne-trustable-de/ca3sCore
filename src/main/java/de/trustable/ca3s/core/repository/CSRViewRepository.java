@@ -1,27 +1,34 @@
 package de.trustable.ca3s.core.repository;
 
 import java.util.Map;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 
+import de.trustable.ca3s.core.domain.CSR;
+import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateSelectionUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import de.trustable.ca3s.core.service.dto.CSRView;
-import de.trustable.ca3s.core.service.dto.CertificateView;
 
 
 @Service
 public class CSRViewRepository {
 
-	@Autowired
-    private EntityManager entityManager;
+    final private EntityManager entityManager;
+    final private CertificateSelectionUtil certificateSelectionAttributeList;
+    final private CSRRepository csrRepository;
+    final private CSRUtil csrUtil;
 
-    @Autowired
-    private CertificateSelectionUtil certificateSelectionAttributeList;
+    public CSRViewRepository(EntityManager entityManager, CertificateSelectionUtil certificateSelectionAttributeList, CSRRepository csrRepository, CSRUtil csrUtil) {
+        this.entityManager = entityManager;
+        this.certificateSelectionAttributeList = certificateSelectionAttributeList;
+        this.csrRepository = csrRepository;
+        this.csrUtil = csrUtil;
+    }
 
     public Page<CSRView> findSelection(Map<String, String[]> parameterMap){
 
@@ -31,7 +38,15 @@ public class CSRViewRepository {
 				cb,
 				parameterMap,
             certificateSelectionAttributeList.getCertificateSelectionAttributes());
-
 	}
+
+    public Optional<CSRView> findbyCSRId(final Long csrId) {
+
+        Optional<CSR> optCSR = csrRepository.findById(csrId);
+        if (optCSR.isPresent()) {
+            return Optional.of(new CSRView(csrUtil, optCSR.get()));
+        }
+        return Optional.empty();
+    }
 
 }

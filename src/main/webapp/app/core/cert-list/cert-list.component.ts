@@ -203,6 +203,19 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     return '';
   }
 
+  public getSubjectStyle(ca: boolean, selfsigned: boolean, revoked: boolean): string {
+    const revStyle = revoked ? 'text-decoration:line-through;' : '';
+
+    if (ca && selfsigned) {
+      return revStyle + 'color:red;font-weight: bold;';
+    } else if (selfsigned) {
+      return revStyle + 'color:yellow; font-weight: bold;';
+    } else if (ca) {
+      return revStyle + 'color:green; font-weight: bold;';
+    }
+    return revStyle;
+  }
+
   public getRevocationStyle(revoked: boolean): string {
     return revoked ? 'text-decoration:line-through;' : '';
   }
@@ -286,6 +299,8 @@ export default class CertList extends mixins(AlertMixin, Vue) {
         { label: this.$t('subject'), field: 'subject', headerClass: 'class-in-header second-class' },
         { label: this.$t('issuer'), field: 'issuer' },
         { label: this.$t('type'), field: 'type', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
+        //        { label: this.$t('ca'), field: 'ca', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
+        //        { label: this.$t('selfsigned'), field: 'selfsigned', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
         { label: this.$t('length'), field: 'keyLength', align: 'right' },
         {
           label: this.$t('serial'),

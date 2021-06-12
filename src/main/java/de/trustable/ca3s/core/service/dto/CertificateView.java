@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.service.dto;
 
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvIgnore;
+import com.opencsv.bean.CsvRecurse;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.web.rest.data.NamedValue;
@@ -132,14 +133,24 @@ public class CertificateView implements Serializable {
     @CsvBindByName
     private Long chainLength;
 
-    @CsvBindByName
+    @CsvIgnore
     private String[] usage;
 
-    @CsvBindByName
+    @CsvBindByName(column="usage")
+    private String usageString;
+
+    @CsvIgnore
     private String[] extUsage;
+
+    @CsvBindByName(column="extUsage")
+    private String extUsageString;
 
     @CsvIgnore
     private String[] sanArr;
+
+    @CsvBindByName(column="sans")
+    private String sansString;
+
 
     @CsvIgnore
     private Long caConnectorId;
@@ -192,7 +203,7 @@ public class CertificateView implements Serializable {
     @CsvIgnore
     private Boolean isAuditPresent = false;
 
-    @CsvIgnore
+    @CsvRecurse
     private NamedValue[] arArr;
 
     public CertificateView() {}
@@ -239,6 +250,10 @@ public class CertificateView implements Serializable {
     	List<String> usageList = new ArrayList<>();
         List<String> extUsageList = new ArrayList<>();
         List<String> sanList = new ArrayList<>();
+
+        this.usageString = "";
+        this.extUsageString = "";
+        this.sansString = "";
 
     	for( CertificateAttribute certAttr: cert.getCertificateAttributes()) {
     		if( CertificateAttribute.ATTRIBUTE_CA_CONNECTOR_ID.equalsIgnoreCase(certAttr.getName())) {
@@ -295,10 +310,13 @@ public class CertificateView implements Serializable {
     			this.chainLength = Long.parseLong(certAttr.getValue());
     		} else if( CertificateAttribute.ATTRIBUTE_USAGE.equalsIgnoreCase(certAttr.getName())) {
     			usageList.add(certAttr.getValue());
+                this.usageString = this.usageString.isEmpty()?certAttr.getValue(): this.usageString+ ", "+ certAttr.getValue();
             } else if(CertificateAttribute.ATTRIBUTE_EXTENDED_USAGE.equalsIgnoreCase(certAttr.getName())) {
                 extUsageList.add(certAttr.getValue());
+                this.extUsageString = this.extUsageString.isEmpty()?certAttr.getValue(): this.extUsageString+ ", "+ certAttr.getValue();
             } else if(CertificateAttribute.ATTRIBUTE_SAN.equalsIgnoreCase(certAttr.getName())) {
                 sanList.add(certAttr.getValue());
+                this.sansString = this.sansString.isEmpty()?certAttr.getValue(): this.sansString+ ", "+ certAttr.getValue();
     		}else {
     			LOG.debug("Irrelevant certificate attribute '{}' with value '{}'", certAttr.getName(), certAttr.getValue());
 

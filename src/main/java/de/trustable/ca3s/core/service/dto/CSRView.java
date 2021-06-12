@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.Set;
 
+import com.opencsv.bean.CsvBindByName;
+import com.opencsv.bean.CsvIgnore;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
@@ -17,38 +19,55 @@ public class CSRView implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @CsvBindByName
     private Long id;
 
+    @CsvBindByName
     private Long certificateId;
 
+    @CsvBindByName
     private CsrStatus status;
 
+    @CsvBindByName
     private String subject;
 
+    @CsvBindByName
     private String sans;
 
+    @CsvBindByName
   	private PipelineType pipelineType;
 
+    @CsvBindByName
     private Instant rejectedOn;
 
+    @CsvBindByName
     private String rejectionReason;
 
+    @CsvBindByName
     private String requestedBy;
 
+    @CsvBindByName
     private String processingCA;
 
+    @CsvBindByName
     private String pipelineName;
 
+    @CsvBindByName
     private String x509KeySpec;
 
+    @CsvBindByName
     private String keyLength;
 
+    @CsvBindByName
     private String signingAlgorithm;
 
+    @CsvBindByName
     private String publicKeyAlgorithm;
 
+    @CsvBindByName
     private Instant requestedOn;
 
+    @CsvIgnore
     private AuditView[] auditViewArr;
 
     public CSRView() {}
@@ -56,7 +75,7 @@ public class CSRView implements Serializable {
     public CSRView(final CSRUtil csrUtil, final CSR csr) {
 
     	this.id = csr.getId();
-    	this.certificateId = csr.getCertificate().getId();
+    	this.certificateId = csr.getCertificate() != null? csr.getCertificate().getId(): null;
     	this.subject = csr.getSubject();
     	this.sans = csr.getSans();
     	this.status = csr.getStatus();
@@ -69,10 +88,9 @@ public class CSRView implements Serializable {
     	this.requestedBy = csrUtil.getCSRAttribute(csr, CsrAttribute.ATTRIBUTE_REQUESTED_BY);
     	this.processingCA = csrUtil.getCSRAttribute(csr, CsrAttribute.ATTRIBUTE_PROCESSING_CA);
 
-    	this.pipelineName = csr.getPipeline().getName();
+    	this.pipelineName = csr.getPipeline() != null ? csr.getPipeline().getName(): null;
 
 //   		this.keyLength = cert.getKeyLength().toString();
-
 
     	this.requestedOn = csr.getRequestedOn();
     }

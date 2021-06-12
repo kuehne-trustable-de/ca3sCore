@@ -1,17 +1,5 @@
 package de.trustable.ca3s.core.security.provider;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.cert.X509Certificate;
-
-import javax.security.auth.x500.X500Principal;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.trustable.ca3s.cert.bundle.BundleFactory;
 import de.trustable.ca3s.cert.bundle.KeyCertBundle;
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
@@ -19,6 +7,18 @@ import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.service.util.CaConnectorAdapter;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.util.CryptoUtil;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.security.auth.x500.X500Principal;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.cert.X509Certificate;
 
 public class Ca3sBundleFactory implements BundleFactory {
 
@@ -49,7 +49,16 @@ public class Ca3sBundleFactory implements BundleFactory {
 			X500Principal subject = new X500Principal("CN=" + hostname + ", OU=ca3s " + System.currentTimeMillis() + ", O=trustable solutions, C=DE");
 			LOG.debug("requesting certificate for subject : " + subject.getName() );
 
-			String csrBase64 = CryptoUtil.getCsrAsPEM(subject, localKeyPair.getPublic(), localKeyPair.getPrivate(), null);
+            GeneralName[] sanArray = new GeneralName[1];
+            sanArray[0] = new GeneralName(GeneralName.dNSName, hostname);
+
+            PKCS10CertificationRequest req = CryptoUtil.getCsr(subject,
+                localKeyPair.getPublic(), localKeyPair.getPrivate(),
+                null,
+                null,
+                sanArray);
+
+            String csrBase64 = CryptoUtil.pkcs10RequestToPem(req);
 
 			Certificate cert = cacAdapt.signCertificateRequest(csrBase64, caConfigDao);
 
