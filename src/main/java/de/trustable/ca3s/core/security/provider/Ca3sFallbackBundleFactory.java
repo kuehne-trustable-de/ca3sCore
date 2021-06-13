@@ -9,9 +9,11 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.cert.X509Certificate;
-import java.util.Calendar;
+import java.util.*;
 
 import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x509.*;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,16 +83,35 @@ public class Ca3sFallbackBundleFactory implements BundleFactory {
 			LOG.debug("requesting certificate for host : " + hostname );
 			X500Name subject = new X500Name("CN=" + hostname);
 
-			X509Certificate issuedCertificate = cryptoUtil.issueCertificate(x500Issuer,
-					getRootKeyPair(),
-					subject,
-					localKeyPair.getPublic().getEncoded(),
-					Calendar.HOUR, 1);
+            GeneralName[] sanArray = new GeneralName[1];
+            sanArray[0] = new GeneralName(GeneralName.dNSName, hostname);
+            GeneralNames gns = new GeneralNames(sanArray);
+
+            List<Map<String, Object>> extensions = new ArrayList<>();
+            Map<String, Object> serverAuthMap = new HashMap<>();
+            serverAuthMap.put("oid", Extension.extendedKeyUsage.getId());
+            serverAuthMap.put("critical", Boolean.FALSE);
+            List<String> valList = new ArrayList<>();
+            valList.add(KeyPurposeId.id_kp_serverAuth.getId());
+            serverAuthMap.put("value", valList );
+            extensions.add(serverAuthMap);
+            LOG.debug("building certificate for SAN '{}' and EKU {}", hostname, Extension.extendedKeyUsage.getId() );
+
+            X509Certificate issuedCertificate = cryptoUtil.issueCertificate(
+                x500Issuer,
+                getRootKeyPair(),
+                subject,
+                SubjectPublicKeyInfo.getInstance(localKeyPair.getPublic().getEncoded()),
+                Calendar.HOUR, 1,
+                gns,
+                extensions,
+                PKILevel.END_ENTITY);
+
 
 			// build the (short) chain
 			X509Certificate[] certificateChain = {issuedCertificate, getRootCertificate()};
 
-			LOG.debug("returning new  certificate : " + issuedCertificate );
+			LOG.debug("returning temp. certificate : " + issuedCertificate );
 
 			return new KeyCertBundle(bundleName, certificateChain, issuedCertificate, localKeyPair.getPrivate());
 

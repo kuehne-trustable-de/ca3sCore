@@ -181,7 +181,15 @@ public class CaInternalConnector {
                 }
             }
 
-            X509Certificate x509Cert = cryptoUtil.issueCertificate(new X500Name(intermediate.getSubject()), kpIntermediate, p10.getSubject(), p10.getSubjectPublicKeyInfo(), Calendar.YEAR, 1, gns, PKILevel.END_ENTITY);
+            X509Certificate x509Cert = cryptoUtil.issueCertificate(
+                new X500Name(intermediate.getSubject()),
+                kpIntermediate,
+                p10.getSubject(),
+                p10.getSubjectPublicKeyInfo(),
+                Calendar.YEAR, 1,
+                gns,
+                null,
+                PKILevel.END_ENTITY);
 
 			Certificate cert = certUtil.createCertificate(x509Cert.getEncoded(), csr, "", false);
 			cert.setRevocationCA(caConfig);

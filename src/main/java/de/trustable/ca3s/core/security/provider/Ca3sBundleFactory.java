@@ -7,7 +7,10 @@ import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.service.util.CaConnectorAdapter;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.util.CryptoUtil;
+import org.bouncycastle.asn1.x509.ExtendedKeyUsage;
+import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.KeyPurposeId;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +22,10 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Ca3sBundleFactory implements BundleFactory {
 
@@ -52,10 +59,19 @@ public class Ca3sBundleFactory implements BundleFactory {
             GeneralName[] sanArray = new GeneralName[1];
             sanArray[0] = new GeneralName(GeneralName.dNSName, hostname);
 
+            List<Map<String, Object>> extensions = new ArrayList<>();
+            Map<String, Object> serverAuthMap = new HashMap<>();
+            serverAuthMap.put("oid", Extension.extendedKeyUsage.getId());
+            serverAuthMap.put("critical", Boolean.FALSE);
+            List<String> valList = new ArrayList<>();
+            valList.add(KeyPurposeId.id_kp_serverAuth.getId());
+            serverAuthMap.put("value", valList );
+            extensions.add(serverAuthMap);
+
             PKCS10CertificationRequest req = CryptoUtil.getCsr(subject,
                 localKeyPair.getPublic(), localKeyPair.getPrivate(),
                 null,
-                null,
+                extensions,
                 sanArray);
 
             String csrBase64 = CryptoUtil.pkcs10RequestToPem(req);
