@@ -444,9 +444,8 @@ export default class CertList extends mixins(AlertMixin, Vue) {
   }
 
   public downloadCSV() {
-    const url =
-      this.buildAccessUrl('publicapi/certificateListCSV') +
-      '&filter=id%2Csubject%2Cissuer%2Ctype%2CkeyLength%2Cserial%2CvalidFrom%2CvalidTo%2ChashAlgorithm%2CpaddingAlgorithm%2Crevoked%2CrevokedSince%2CrevocationReason';
+    const url = this.buildAccessUrl('publicapi/certificateListCSV');
+    //      '&filter=id%2Csubject%2Cissuer%2Ctype%2CkeyLength%2Cserial%2CvalidFrom%2CvalidTo%2ChashAlgorithm%2CpaddingAlgorithm%2Crevoked%2CrevokedSince%2CrevocationReason';
 
     this.download(url, 'certificateList.csv', 'text/csv');
   }

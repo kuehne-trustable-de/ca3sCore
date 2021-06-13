@@ -30,11 +30,12 @@ public final class CertificateSpecifications {
 	static final String SORT = "sort";
 	static final String ORDER = "order";
 
-    static final String DEFAULT_FILTER ="ca,chainlength," +
+    static final String DEFAULT_FILTER ="id,issuer,subject";
+//    static final String DEFAULT_FILTER ="ca,chainlength," +
 //        "comment," +
-        "crlurl,csrComment,endEntity,extUsage,id,intermediate,issuer," +
-    "keyAlgorithm,keyLength,processingCa,requestedBy,revocationReason,revoked,revokedBy,revokedSince,root,sans,selfSigned,serial,subject," +
-    "type,uploadedBy,usage,validFrom,validTo";
+//        "crlurl,csrComment,endEntity,extUsage,id,intermediate,issuer," +
+//    "keyAlgorithm,keyLength,processingCa,requestedBy,revocationReason,revoked,revokedBy,revokedSince,root,sans,selfSigned,serial,subject," +
+//    "type,uploadedBy,usage,validFrom,validTo";
 
 private CertificateSpecifications() {}
 
@@ -159,10 +160,12 @@ private CertificateSpecifications() {}
 		// retrieve all the required columns
 		// 'filter' is a bit misleading, here...
     	String[] columnArr = DEFAULT_FILTER.split(",");
+        boolean idOnly = true;
 
 		if( parameterMap.containsKey("filter")){
 			String[] paramArr = parameterMap.get("filter");
 			if( paramArr.length > 0) {
+                idOnly = false;
 				columnArr = paramArr[0].split(",");
 			}
 		}
@@ -277,16 +280,16 @@ private CertificateSpecifications() {}
 
     	// use the result set to fill the response object
     	List<CertificateView> certViewList = new ArrayList<CertificateView>();
-    	for( Object[] objArr: listResponse) {
+        for (Object[] objArr : listResponse) {
 
-    		if( logger.isDebugEnabled() && (objArr.length != colList.size())) {
-    			logger.debug("objArr len {}, colList len {}", objArr.length, colList.size());
-    		}
+            if (logger.isDebugEnabled() && (objArr.length != colList.size())) {
+                logger.debug("objArr len {}, colList len {}", objArr.length, colList.size());
+            }
 
-    		CertificateView cv = buildCertificateViewFromObjArr(colList, objArr);
+            CertificateView cv = buildCertificateViewFromObjArr(colList, objArr);
 
-        	certViewList.add(cv);
-    	}
+            certViewList.add(cv);
+        }
 
     	// start again to retrieve the row count
         Pageable pageable = PageRequest.of(pageOffset / pagesize, pagesize, sortDir, sortCol);
