@@ -31,13 +31,8 @@ public final class CertificateSpecifications {
 	static final String ORDER = "order";
 
     static final String DEFAULT_FILTER ="id,issuer,subject";
-//    static final String DEFAULT_FILTER ="ca,chainlength," +
-//        "comment," +
-//        "crlurl,csrComment,endEntity,extUsage,id,intermediate,issuer," +
-//    "keyAlgorithm,keyLength,processingCa,requestedBy,revocationReason,revoked,revokedBy,revokedSince,root,sans,selfSigned,serial,subject," +
-//    "type,uploadedBy,usage,validFrom,validTo";
 
-private CertificateSpecifications() {}
+    private CertificateSpecifications() {}
 
     public static Specification<Certificate> subjectOrIssuer(String searchTerm) {
         return (root, query, cb) -> {
@@ -444,9 +439,13 @@ private CertificateSpecifications() {}
                 cv.setCsrComment((String) objArr[i]);
             }else if( "ca".equalsIgnoreCase(attribute)) {
                 cv.setCa( Boolean.parseBoolean((String)objArr[i]));
+            }else if( "selfSigned".equalsIgnoreCase(attribute)) {
+                cv.setSelfsigned(Boolean.parseBoolean((String)objArr[i]));
+            }else if( "trusted".equalsIgnoreCase(attribute)) {
+                cv.setTrusted(Boolean.parseBoolean((String)objArr[i]));
+
             }else if( "endEntity".equalsIgnoreCase(attribute)) {
                 cv.setEndEntity( Boolean.parseBoolean((String)objArr[i]));
-
             }else if( "chainlength".equalsIgnoreCase(attribute)) {
                 cv.setChainLength( Long.parseLong ((String)objArr[i]));
             }else if( "crlurl".equalsIgnoreCase(attribute)) {
@@ -738,11 +737,15 @@ private CertificateSpecifications() {}
 		}else if( "active".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.active));
 			pred = SpecificationsHelper.buildBooleanPredicate( attributeSelector, cb, root.<Boolean>get(Certificate_.active), attributeValue);
-		}else if( "revoked".equals(attribute)){
-			addNewColumn(selectionList,root.get(Certificate_.revoked));
-			pred = SpecificationsHelper.buildBooleanPredicate( attributeSelector, cb, root.<Boolean>get(Certificate_.revoked), attributeValue);
+        }else if( "revoked".equals(attribute)){
+            addNewColumn(selectionList,root.get(Certificate_.revoked));
+            pred = SpecificationsHelper.buildBooleanPredicate( attributeSelector, cb, root.<Boolean>get(Certificate_.revoked), attributeValue);
 
-		}else if( "revokedSince".equals(attribute)){
+        }else if( "trusted".equals(attribute)){
+            addNewColumn(selectionList,root.get(Certificate_.trusted));
+            pred = SpecificationsHelper.buildBooleanPredicate( attributeSelector, cb, root.<Boolean>get(Certificate_.trusted), attributeValue);
+
+        }else if( "revokedSince".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.revokedSince));
 			pred = SpecificationsHelper.buildDatePredicate( attributeSelector, cb, root.<Instant>get(Certificate_.revokedSince), attributeValue);
 

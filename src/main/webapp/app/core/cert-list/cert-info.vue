@@ -238,6 +238,11 @@
 -->
             <form name="editForm" role="form" novalidate>
                 <div>
+                    <div v-if="isTrustable()" class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.trusted')" for="certificate-trusted">Trusted</label>
+                        <input type="checkbox" class="form-check-inline" name="active" id="certificate-trusted"
+                               v-model="certificateAdminData.trusted" />
+                    </div>
 
                     <Fragment v-if="isEditable()">
                         <div v-for="attr in certificateView.arArr" :key="attr.name" class="form-group">
@@ -279,7 +284,7 @@
                     </button>
 
                     <button type="button" id="update" v-if="isRAOfficer()" class="btn btn-secondary" v-on:click="updateCertificate()">
-                        <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.edit')">Update</span>
+                        <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.update')">Update</span>
                     </button>
 
                     <button type="button" id="removeFromCRL" v-if="isRemovableFromCRL()" class="btn btn-secondary" v-on:click="removeCertificateFromCRL()">

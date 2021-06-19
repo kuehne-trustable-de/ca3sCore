@@ -72,7 +72,12 @@ public class NotificationService {
                 Context context = new Context(locale);
                 context.setVariable("expiringCertList", expiringCertList);
                 context.setVariable("pendingCsrList", pendingCsrList);
-                mailService.sendEmailFromTemplate(context, raOfficer, "mail/pendingReqExpiringCertificateEmail", "email.allExpiringCertificate.subject");
+                try {
+                    mailService.sendEmailFromTemplate(context, raOfficer, "mail/pendingReqExpiringCertificateEmail", "email.allExpiringCertificate.subject");
+                }catch (Throwable throwable){
+                    LOG.warn("Problem occured while sending a notificaton eMail to RA officer address '" + raOfficer.getEmail() + "'", throwable);
+                    auditService.saveAuditTrace(auditService.createAuditTraceExpiryNotificationfailed(raOfficer.getEmail()));
+                }
             }
             auditService.saveAuditTrace(auditService.createAuditTraceExpiryNotificationSent(expiringCertList.size()));
         }

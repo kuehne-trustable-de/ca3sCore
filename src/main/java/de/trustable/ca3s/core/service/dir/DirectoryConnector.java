@@ -157,7 +157,7 @@ public class DirectoryConnector {
 			long startTime = System.currentTimeMillis();
 			for( String filename: certSet) {
 
-				transactionHandler.runInNewTransaction(() -> importCertifiateFromFile(filename, importInfo));
+				transactionHandler.runInNewTransaction(() -> importCertifiateFromFile(filename, importInfo, caConfig));
 
 				if( (System.currentTimeMillis() - startTime) > MAX_IMPORTS_MILLISECONDS ) {
 					LOGGER.debug("retrieveCertificates: imported for more than {} sec., delaying ...", MAX_IMPORTS_MILLISECONDS / 1000L);
@@ -171,9 +171,10 @@ public class DirectoryConnector {
 
 	/**
 	 *
-	 * @param filename
-	 */
-    public ImportInfo importCertifiateFromFile(String filename, ImportInfo importInfo) {
+     * @param filename
+     * @param caConfig
+     */
+    public ImportInfo importCertifiateFromFile(String filename, ImportInfo importInfo, final CAConnectorConfig caConfig) {
 
         try {
             File certFile = new File(filename);
@@ -190,6 +191,20 @@ public class DirectoryConnector {
                     byte[] content = Files.readAllBytes(Paths.get(filename));
                     Certificate certificate = certUtil.createCertificate(content, null, null, false, filename);
                     auditService.saveAuditTrace(auditService.createAuditTraceCertificateImported(filename, certificate));
+                    if( caConfig.getTrustSelfsignedCertificates()){
+                        if(certificate.isSelfsigned()){
+                            if(certificate.isActive()) {
+                                certificate.setTrusted(true);
+                                certificateRepository.save(certificate);
+                                auditService.saveAuditTrace(auditService.createAuditTraceCertificateTrusted(filename, certificate));
+                            }else{
+                                LOGGER.info("selfsigned certificate from file'{}', not active, not set as 'trusted'", filename);
+                            }
+                        }else{
+                            LOGGER.info("'not selfsigned' certificate from file'{}', not active, not set as 'trusted'", filename);
+                        }
+
+                    }
 
                 } catch (GeneralSecurityException | IOException e) {
                     LOGGER.info("reading and importing certificate from '{}' causes {}",

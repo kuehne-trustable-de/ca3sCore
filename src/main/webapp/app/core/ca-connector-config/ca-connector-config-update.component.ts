@@ -26,6 +26,7 @@ const validations: any = {
     caUrl: {},
     pollingOffset: {},
     defaultCA: {},
+    trustSelfsignedCertificates: {},
     active: {},
     selector: {},
     interval: {},

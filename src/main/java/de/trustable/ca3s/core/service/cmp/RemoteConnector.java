@@ -5,24 +5,34 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 
+import de.trustable.ca3s.core.security.provider.Ca3sTrustManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
 
 @Service
 public class RemoteConnector {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RemoteConnector.class);
 
-	@Autowired
-	Environment environment;
+    private final Environment environment;
+    private final Ca3sTrustManager ca3sTrustManager;
 
+    public RemoteConnector(Environment environment, Ca3sTrustManager ca3sTrustManager) {
+        this.environment = environment;
+        this.ca3sTrustManager = ca3sTrustManager;
+    }
 
-	/**
-	 * 
+    /**
+	 *
 	 * @param requestUrlParam
 	 * @param requestBytes
 	 * @return byte array
@@ -35,7 +45,7 @@ public class RemoteConnector {
 		}
 
 		String port = environment.getProperty("local.server.port");
-		
+
 		LOGGER.debug("current port is " + port);
 
 		String requestUrl = requestUrlParam;
@@ -54,7 +64,25 @@ public class RemoteConnector {
 		long startTime = System.currentTimeMillis();
 
 		URL url = new URL(requestUrl);
-		HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        if("https".equals(url.getProtocol())) {
+            try {
+                SSLContext sc = SSLContext.getInstance("SSL");
+                sc.init(null,
+                    new TrustManager[]{ca3sTrustManager},
+                    new java.security.SecureRandom());
+
+                HttpsURLConnection conTLS = (HttpsURLConnection)con;
+                conTLS.setSSLSocketFactory(sc.getSocketFactory());
+            } catch (NoSuchAlgorithmException | KeyManagementException e) {
+                throw new IOException("problem configuring the SSLContext", e);
+            }
+
+        }else if("http".equals(url.getProtocol())) {
+            // everything's fine, nothing to do ...
+        }else{
+            throw new IOException("Unexpected protocol '" + url.getProtocol() + "'");
+        }
 
 		// we are going to do a POST
 		con.setDoOutput(true);

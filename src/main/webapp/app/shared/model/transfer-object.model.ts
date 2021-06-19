@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2021-06-04 20:09:37.
+// Generated using typescript-generator version 2.19.577 on 2021-06-18 16:43:19.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -90,6 +90,7 @@ export interface ICertificateView extends ISerializable {
   sans?: string;
   issuer?: string;
   root?: string;
+  trusted?: boolean;
   fingerprintSha1?: string;
   fingerprintSha256?: string;
   type?: string;
@@ -114,8 +115,11 @@ export interface ICertificateView extends ISerializable {
   endEntity?: boolean;
   chainLength?: number;
   usage?: string[];
+  usageString?: string;
   extUsage?: string[];
+  extUsageString?: string;
   sanArr?: string[];
+  sansString?: string;
   caConnectorId?: number;
   caProcessingId?: number;
   processingCa?: string;
@@ -134,6 +138,7 @@ export interface ICertificateView extends ISerializable {
   isServersideKeyGeneration?: boolean;
   arArr?: INamedValue[];
   auditPresent?: boolean;
+  serversideKeyGeneration?: boolean;
 }
 
 export interface ICSRView extends ISerializable {
@@ -176,6 +181,7 @@ export interface ICertificateAdministrationData extends ISerializable {
   revocationReason?: string;
   comment?: string;
   administrationType?: IAdministrationType;
+  trusted?: boolean;
   arAttributes?: INamedValue[];
 }
 

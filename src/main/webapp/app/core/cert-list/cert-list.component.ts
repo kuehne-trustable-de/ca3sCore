@@ -66,6 +66,8 @@ VuejsDatatableFactory.useDefaultType(false).registerTableType<any, any, any, any
         headers: { 'x-total-count': totalCount }
       } = await axios.get(url);
 
+      window.console.info('list data returns ' + totalCount);
+
       return {
         rows: data,
         totalRowCount: parseInt(totalCount, 10)
@@ -300,7 +302,7 @@ export default class CertList extends mixins(AlertMixin, Vue) {
         { label: this.$t('issuer'), field: 'issuer' },
         { label: this.$t('type'), field: 'type', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
         //        { label: this.$t('ca'), field: 'ca', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
-        //        { label: this.$t('selfsigned'), field: 'selfsigned', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
+        //        { label: this.$t('selfsigned'), field: 'selfSigned', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
         { label: this.$t('length'), field: 'keyLength', align: 'right' },
         {
           label: this.$t('serial'),

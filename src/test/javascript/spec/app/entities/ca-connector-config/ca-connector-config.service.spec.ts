@@ -38,6 +38,7 @@ describe('Service Tests', () => {
         0,
         false,
         false,
+        false,
         'AAAAAAA',
         Interval.MINUTE,
         'AAAAAAA'

@@ -120,6 +120,7 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
         this.certificateView = res;
         this.certificateAdminData.arAttributes = this.certificateView.arArr;
         this.certificateAdminData.comment = this.certificateView.comment;
+        this.certificateAdminData.trusted = this.certificateView.trusted;
       });
   }
 
@@ -133,6 +134,10 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
 
   public getUsername(): string {
     return this.$store.getters.account ? this.$store.getters.account.login : '';
+  }
+
+  public isTrustable() {
+    return this.isRAOfficer() && !this.certificateView.revoked && this.certificateView.selfsigned;
   }
 
   public isEditable() {

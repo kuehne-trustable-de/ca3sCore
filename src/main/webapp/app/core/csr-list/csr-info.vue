@@ -207,7 +207,7 @@
 
                     <button type="button" id="selfAdminister" v-if="cSR.status === 'PENDING' && getUsername() === cSR.requestedBy && roles !== 'ROLE_RA'"
                             class="btn btn-secondary" v-on:click="selfAdministerRequest()">
-                        <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.edit')">Update</span>
+                        <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.update')">Update</span>
                     </button>
 
                     <button type="button" id="confirm" v-if="cSR.status === 'PENDING' && roles === 'ROLE_RA'" class="btn btn-primary"

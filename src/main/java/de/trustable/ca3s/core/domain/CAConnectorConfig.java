@@ -30,7 +30,7 @@ import de.trustable.ca3s.core.domain.enumeration.Interval;
 @NamedQueries({
 	@NamedQuery(name = "CAConnectorConfig.findAllCertGenerators",
 	query = "SELECT ccc FROM CAConnectorConfig ccc WHERE " +
-			"ccc.caConnectorType in ('ADCS', 'CMP', 'INTERNAL' )"
+			"ccc.caConnectorType in ( 'ADCS', 'CMP', 'INTERNAL' )"
     ),
 	@NamedQuery(name = "CAConnectorConfig.findbyName",
 	query = "SELECT ccc FROM CAConnectorConfig ccc WHERE " +
@@ -62,6 +62,9 @@ public class CAConnectorConfig implements Serializable {
 
     @Column(name = "default_ca")
     private Boolean defaultCA;
+
+    @Column(name = "trust_selfsigned_certificates")
+    private Boolean trustSelfsignedCertificates;
 
     @Column(name = "active")
     private Boolean active;
@@ -163,6 +166,20 @@ public class CAConnectorConfig implements Serializable {
         this.active = active;
         return this;
     }
+
+    public Boolean getTrustSelfsignedCertificates() {
+        return trustSelfsignedCertificates;
+    }
+
+    public void setTrustSelfsignedCertificates(Boolean trustSelfsignedCertificates) {
+        this.trustSelfsignedCertificates = trustSelfsignedCertificates;
+    }
+
+    public CAConnectorConfig trustSelfsignedCertificates(Boolean trustSelfsignedCertificates) {
+        this.trustSelfsignedCertificates = trustSelfsignedCertificates;
+        return this;
+    }
+
 
     public void setActive(Boolean active) {
         this.active = active;

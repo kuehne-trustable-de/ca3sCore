@@ -45,11 +45,17 @@ public class AuditService {
     public static final String AUDIT_TLS_CERTIFICATE_IMPORTED = "TLS_CERTIFICATE_IMPORTED";
     public static final String AUDIT_TLS_INTERMEDIATE_CERTIFICATE_IMPORTED = "TLS_INTERMEDIATE_CERTIFICATE_IMPORTED";
 
+    public static final String AUDIT_CERTIFICATE_SET_TRUSTED_BY_DIRECTORY_IMPORT = "CERTIFICATE_SET_TRUSTED_BY_DIRECTORY_IMPORT";
+    public static final String AUDIT_CERTIFICATE_SET_TRUSTED = "CERTIFICATE_SET_TRUSTED";
+    public static final String AUDIT_CERTIFICATE_UNSET_TRUSTED = "CERTIFICATE_UNSET_TRUSTED";
+
     public static final String AUDIT_PIPELINE_ATTRIBUTE_CHANGED = "PIPELINE_ATTRIBUTE_CHANGED";
     public static final String AUDIT_CSR_ATTRIBUTE_CHANGED = "CSR_ATTRIBUTE_CHANGED";
 
     public static final String AUDIT_CERTIFICATE_IMPORTED = "CERTIFICATE_IMPORTED";
     public static final String AUDIT_CERTIFICATE_ATTRIBUTE_CHANGED = "CERTIFICATE_ATTRIBUTE_CHANGED";
+
+    public static final String AUDIT_EMAIL_SEND_NOTIFICATION_FAILED = "EMAIL_SEND_NOTIFICATION_FAILED";
 
     public static final String AUDIT_PIPELINE_CREATED = "PIPELINE_CREATED";
     public static final String AUDIT_PIPELINE_COPIED = "PIPELINE_COPIED";
@@ -222,6 +228,33 @@ public class AuditService {
             null,
             null,
             caConnectorConfig,
+            null );
+    }
+
+    public AuditTrace createAuditTraceExpiryNotificationfailed(String email) {
+
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_EMAIL_SEND_NOTIFICATION_FAILED,
+            email,
+            null, null,
+            null,
+            null,
+            null,
+            null,
+            null );
+    }
+
+    public AuditTrace createAuditTraceCertificateTrusted(String filename, Certificate certificate) {
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_CERTIFICATE_SET_TRUSTED_BY_DIRECTORY_IMPORT,
+            filename,
+            null, null,
+            null,
+            certificate,
+            null,
+            null,
             null );
     }
 

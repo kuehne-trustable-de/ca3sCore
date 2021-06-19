@@ -13,7 +13,6 @@ import javax.net.ssl.X509TrustManager;
 import de.trustable.ca3s.core.service.AuditService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.trustable.ca3s.core.domain.Certificate;
@@ -29,17 +28,21 @@ public class Ca3sTrustManager implements X509TrustManager {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Ca3sTrustManager.class);
 
-	@Autowired
-	private CertificateRepository certificateRepository;
+	private final CertificateRepository certificateRepository;
 
-	@Autowired
-	private CryptoService cryptoUtil;
+	private final CryptoService cryptoUtil;
 
-    @Autowired
-    private CertificateUtil certUtil;
+    private final CertificateUtil certUtil;
 
-    @Autowired
-    private AuditService auditService;
+    private final AuditService auditService;
+
+
+    public Ca3sTrustManager(CertificateRepository certificateRepository, CryptoService cryptoUtil, CertificateUtil certUtil, AuditService auditService) {
+        this.certificateRepository = certificateRepository;
+        this.cryptoUtil = cryptoUtil;
+        this.certUtil = certUtil;
+        this.auditService = auditService;
+    }
 
     @Override
 	public void checkClientTrusted(X509Certificate[] cert, String authType) throws CertificateException {
@@ -93,6 +96,10 @@ public class Ca3sTrustManager implements X509TrustManager {
 
 				if( "true".equalsIgnoreCase(certUtil.getCertAttribute(issuingCACertDao, CertificateAttribute.ATTRIBUTE_SELFSIGNED))) {
 					LOGGER.debug("certificate chain complete, cert id '{}' is selfsigned", issuingCACertDao.getId());
+					if(!issuingCACertDao.isTrusted()){
+                        LOGGER.warn("checkServerTrusted : root certificate with subject '" + issuingCACertDao.getSubject() + "' is NOT explicitly marked as trusted !");
+                    }
+
 					break;
 				}
 			}

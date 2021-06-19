@@ -4,11 +4,11 @@
 
 ## **C**ertificate **A**utomation, **A**uthorization and **A**dministration **S**ervice (_ca3s_)
 
-ca3s ist ein CA Unterstützungssystem mit einem flexiblen RA Teil, welcher BPMN benutzt, mit dem Ziel so viel wie möglich zu automatisieren. Zu diesem Zweck, werden zusätzlich zur normalen Web-Variante, ACME und SCEP Schnittstellen bereitgestellt. Außerdem werden Zertifikatsbestände aus verschiedenen Quellen aggregiert und es werden CMP-angebundene CAs oder ADCS-Instanzen für die Zertifikatserstellung benutzt.
+ca3s ist ein CA Unterstützungssystem mit einem flexiblen RA-Modul, welches BPMN mit dem Ziel benutzt, möglichst viel zu automatisieren. Zu diesem Zweck, werden zusätzlich zur normalen Web-Variante, ACME und SCEP Schnittstellen bereitgestellt. Außerdem werden Zertifikatsbestände aus verschiedenen Quellen aggregiert und es werden CMP-angebundene CAs oder ADCS-Instanzen für die Zertifikatserstellung benutzt.
 
 - Verwaltet verschiedene CA Instanzen (CMP und ADCS)
 - Erlaubt den Überblick über die Ablaufdaten aller relevanten Zertifikate aus allen Quellen.
-- Analysiere die Schlüssel-Algorithmen, Schlüssellänge, Hash and Padding-Algorithmen in Nutzung
+- Analysiert die Schlüssel-Algorithmen, Schlüssellänge, Hash and Padding-Algorithmen in Nutzung
 - Ein nutzerfreundliches Webinterface für Antragsteller und Registrierungsbeauftragten (auch als 'RA-Officer' bezeichnet).
 
 Die wichtigsten Punkte für eine zuverlässige PKI Infrastruktur:
@@ -29,7 +29,7 @@ Architekturübersicht
 
 #### Anfragen Adapter (Oberer Bereich)
 
-Zertifikatsanfragen können gemäß ACME- und SCEP-Protokoll and mittels einer Web-user Schnittstelle übermittelt werden. Zusätzliche Protokolle können einfach hinzugefügt werden.
+Zertifikatsanfragen können gemäß ACME- und SCEP-Protokoll oder mittels einer Web-Oberfläche übermittelt werden. Zusätzliche Protokolle können einfach hinzugefügt werden.
 
 #### CA Adapter (Unterer Bereich)
 
@@ -54,7 +54,7 @@ Zertifikate können für eine Vielzahl von Anwendungsfällen ausgestellt werden.
 - CSR available  
   Die einfachste Methode des Zertifikatsanforderungsprozesses besteht darin, eine CSR hochzuladen. Wählen Sie diese Option, wenn bereits ein CSR verfügbar ist, und fügen Sie ihn in den Textbereich unten ein. Alternativ können Sie auf Ihrem Computer nach einer CSR-Datei suchen.
 - Serverside key creation  
-   Wenn Ihre Sicherheitsrichtlinie diese Option zulässt, können Sie festlegen, dass der Server ein Schlüsselpaar für Sie erstellt. Sie können einen Schlüsseltyp und eine Schlüssellänge auswählen und die Details des Betreffs des Zertifikats definieren. Der Server erstellt einen Schlüssel- und Zertifikats-Container, der Ihren privaten Schlüssel schützt. Um Zugriff auf den privaten Schlüssel zu erhalten, müssen Sie ein Passwort für den Container angeben. Bewahren Sie dieses Passwort an einem sicheren Ort auf! Wenn das Passwort verloren geht, ist der geheime Schlüssel nicht mehr verfügbar. Es gibt keine Möglichkeit, das Passwort vom ca3s-Server abzurufen. Eine Kompromittierung des Passworts wirkt sich auf den privaten Schlüssel und das Zertifikat aus! Verwenden Sie keinen kompromittierten Schlüssel. Widerrufen Sie das Zertifikat in diesem Fall sofort!
+   Wenn Ihre Sicherheitsrichtlinie diese Option zulässt, können Sie festlegen, dass der Server ein Schlüsselpaar für Sie erstellt. Sie können einen Schlüsseltyp und eine Schlüssellänge auswählen und die Details des Betreffs des Zertifikats definieren. Der Server erstellt einen Schlüssel- und Zertifikats-Container, der Ihren privaten Schlüssel schützt. Um Zugriff auf den privaten Schlüssel zu erhalten, müssen Sie ein Passwort für den Container angeben. Bewahren Sie dieses Passwort an einem sicheren Ort auf! Wenn das Passwort verloren geht, ist der geheime Schlüssel nicht mehr verfügbar. Es gibt keine Möglichkeit, das Passwort vom ca3s-Server abzurufen. Eine Kompromittierung des Passworts wirkt sich auf den privaten Schlüssel und das Zertifikat aus! Verwenden Sie keinen kompromittierten Schlüssel! Widerrufen Sie das Zertifikat in diesem Fall sofort!
   **Es wird dringend empfohlen, CSRs oder ein automatisiertes Zertifikatsverwaltungsprotokoll zu verwenden, z.B. ACME! Der private Schlüssel sollte das nutzende System nicht verlassen!**
 
 ### CSR generation command lines
@@ -148,7 +148,7 @@ Die Information, welche Version von 'openSSL' auf Ihrem System installiert ist, 
 
 ##### OpenSSL Schlüssel- und CSR-Erzeugungesbefehl
 
-Kopieren Sie den erzeugten Befehl aus dem Formularfeld (mittels Copy-Button oder Ctrl-C) in die Kommandozeile (Ctrl-V oder rechte / mittlere Maustaste) und führen Sie ihn aus.
+Kopieren Sie den erzeugten Befehl aus dem Formularfeld (mittels Copy-Button oder Strg-C) in die Kommandozeile (Strg-V oder rechte / mittlere Maustaste) und führen Sie ihn aus.
 
 Der CSR liegt nun in der Datei 'server.csr' vor (oder unter einem anderen Namen, falls Sie den Dateinamen angepasst haben).
 Wechseln Sie nun in der Auswahlbox 'Erzeugungsmodus' auf 'CSR verfügbar' und laden Sie diese Datei hoch, um sie von der Zertifizierungsstelle bearbeiten zu lassen.
@@ -180,13 +180,13 @@ Ein PKCS12 Container enthält sowohl Zertifikate als auch private Schlüssel. Um
 
 Download des angeforderten Zertifikats im Binärformat (aka PKIX / DER form). Schauen Sie in die Dokumentation ihrer Anwendung, ob dieses Format unterstützt wird.
 
-#### <a id="ca3SApp.certificate.download.PEM"></a> Download eines Zertifikats im PEM-Formats
+#### <a id="ca3SApp.certificate.download.PEM"></a> Download eines Zertifikats im PEM-Format
 
 Download des erzeugten Zertifikats im Textformat (PEM). Schauen Sie in die Dokumentation ihrer Anwendung, ob dieses Format unterstützt wird.
 
 #### <a id="ca3SApp.certificate.download.revocationReason"></a> Rückrufgründe
 
-Falls dieses Zertifikat zurückgerufen werden muss, wählen Sie hier den passenden Grund.
+Falls ein Zertifikat zurückgerufen werden muss, wählen Sie hier den passenden Grund.
 
 #### <a id="ca3SApp.certificate.comment"></a> Rückrufkommentar
 

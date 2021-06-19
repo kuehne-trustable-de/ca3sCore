@@ -48,7 +48,12 @@
                     <div class="form-group" v-if="!($v.cAConnectorConfig.caConnectorType.$model === 'DIRECTORY' || $v.cAConnectorConfig.caConnectorType.$model === 'ADCS_CERTIFICATE_INVENTORY')">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.defaultCA')" for="ca-connector-config-defaultCA">Default CA</label>
                         <input type="checkbox" class="form-check" name="defaultCA" id="ca-connector-config-defaultCA"
-                            :class="{'valid': !$v.cAConnectorConfig.defaultCA.$invalid, 'invalid': $v.cAConnectorConfig.defaultCA.$invalid }" v-model="$v.cAConnectorConfig.defaultCA.$model" />
+                               :class="{'valid': !$v.cAConnectorConfig.defaultCA.$invalid, 'invalid': $v.cAConnectorConfig.defaultCA.$invalid }" v-model="$v.cAConnectorConfig.defaultCA.$model" />
+                    </div>
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'DIRECTORY'">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.trustSelfsignedCertificates')" for="ca-connector-config-trustSelfsignedCertificates">Trust Selfsigned Certificates</label>
+                        <input type="checkbox" class="form-check" name="trustSelfsignedCertificates" id="ca-connector-config-trustSelfsignedCertificates"
+                               :class="{'valid': !$v.cAConnectorConfig.trustSelfsignedCertificates.$invalid, 'invalid': $v.cAConnectorConfig.trustSelfsignedCertificates.$invalid }" v-model="$v.cAConnectorConfig.trustSelfsignedCertificates.$model" />
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.active')" for="ca-connector-config-active">Active</label>

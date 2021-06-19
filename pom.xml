@@ -82,7 +82,9 @@
         <!-- The hibernate version should match the one managed by
         https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
 
-        <spring.version>5.2.13.RELEASE</spring.version>
+        <spring.version>5.2.15.RELEASE</spring.version>
+        <spring-framework.version>5.2.15.RELEASE</spring-framework.version>
+
         <!--spring.security.version>5.3.8.RELEASE</spring.security.version-->
         <spring.security.version>5.2.10.RELEASE</spring.security.version>
         <springSecurityLdapVersion>5.3.1.RELEASE</springSecurityLdapVersion>
@@ -172,7 +174,7 @@
         <xml.maven.saxon.version>9.7.0-18</xml.maven.saxon.version>
         <xml.maven.plugin.version>1.0.2</xml.maven.plugin.version>
 
-        <dependencyCheck.version>6.1.6</dependencyCheck.version>
+        <dependencyCheck.version>6.2.2</dependencyCheck.version>
         <dependencyCheck.skip>true</dependencyCheck.skip>
 
     </properties>

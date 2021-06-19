@@ -27,6 +27,10 @@ public class CertificateAdministrationData implements Serializable {
     @JsonProperty("administrationType")
     private AdministrationType administrationType;
 
+    @NotNull
+    @JsonProperty("trusted")
+    private Boolean trusted;
+
     @JsonProperty("arAttributes")
     private NamedValue[] arAttributeArr;
 
@@ -64,6 +68,14 @@ public class CertificateAdministrationData implements Serializable {
 
     public void setAdministrationType(AdministrationType administrationType) {
         this.administrationType = administrationType;
+    }
+
+    public Boolean getTrusted() {
+        return trusted;
+    }
+
+    public void setTrusted(Boolean trusted) {
+        this.trusted = trusted;
     }
 
     public NamedValue[] getArAttributeArr() {

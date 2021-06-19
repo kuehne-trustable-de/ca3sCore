@@ -118,6 +118,7 @@ public class CertificateAdministration {
                     }
                 } else if(AdministrationType.UPDATE.equals(adminData.getAdministrationType())){
                     updateARAttributes(adminData, cert);
+                    updateTrustedFlag(adminData, cert);
                 } else {
                     LOG.info("administration type '{}' unexpected!", adminData.getAdministrationType());
                     return ResponseEntity.badRequest().build();
@@ -135,6 +136,39 @@ public class CertificateAdministration {
     	}
 
 	}
+
+    private void updateTrustedFlag(CertificateAdministrationData adminData, Certificate cert) {
+        if( adminData.getTrusted() && cert.isTrusted()){
+            LOG.debug("Certificate id {} already marked as trusted", cert.getId() );
+        }else if( adminData.getTrusted() && !cert.isTrusted()){
+            LOG.debug("Setting Certificate id {} as trusted", cert.getId() );
+            if(cert.isRevoked()){
+                LOG.error("Cannot set revoked Certificate id {} as trusted!", cert.getId() );
+                return;
+            }
+            if(!cert.isActive()){
+                LOG.error("Cannot set expired Certificate id {} as trusted!", cert.getId() );
+                return;
+            }
+
+            if(cert.isEndEntity()){
+                LOG.error("Cannot set end entity certificate id {} as trusted!", cert.getId() );
+                return;
+            }
+
+            if(!cert.isSelfsigned()){
+                LOG.warn("Trying to set the certificate id {} as trusted, but it is not selfsigned!", cert.getId() );
+            }
+            auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_CERTIFICATE_SET_TRUSTED, cert));
+            cert.setTrusted(true);
+            certificateRepository.save(cert);
+        }else if( !adminData.getTrusted() && cert.isTrusted()){
+            LOG.debug("Revoking 'trusted' status from certificate id {}", cert.getId() );
+            auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_CERTIFICATE_UNSET_TRUSTED, cert));
+            cert.setTrusted(false);
+            certificateRepository.save(cert);
+        }
+    }
 
 
     /**

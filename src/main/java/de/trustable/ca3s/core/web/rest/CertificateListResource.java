@@ -9,6 +9,7 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import de.trustable.ca3s.core.repository.CertificateViewRepository;
 import de.trustable.ca3s.core.service.dto.CertificateView;
 import io.github.jhipster.web.util.PaginationUtil;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -59,7 +60,10 @@ public class CertificateListResource {
         log.debug("REST request to get a page of CertificateViews");
         Page<CertificateView> page = certificateViewRepository.findSelection(request.getParameterMap());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
+
+        List<CertificateView> cvList = getFullCertificateViews(page);
+
+        return ResponseEntity.ok().headers(headers).body(cvList);
     }
 
     /**
@@ -85,14 +89,7 @@ public class CertificateListResource {
 
         Page<CertificateView> page = certificateViewRepository.findSelection(paramMap);
 
-        List<CertificateView> cvList = new ArrayList<>();
-        for( CertificateView cv: page.getContent()){
-            Optional<CertificateView> optionalCertificateView = certificateViewRepository.findbyCertificateId(cv.getId());
-            if(optionalCertificateView.isPresent()){
-                cvList.add(optionalCertificateView.get());
-                log.debug("returning certificate #{}", cv.getId());
-            }
-        }
+        List<CertificateView> cvList = getFullCertificateViews(page);
 
         Writer writer = new StringWriter();
         ColumnPositionMappingStrategy mappingStrategy = new ColumnPositionMappingStrategy();
@@ -112,6 +109,19 @@ public class CertificateListResource {
         }
 
         return ResponseEntity.ok().contentType(TEXT_CSV_TYPE).body(writer.toString());
+    }
+
+    @NotNull
+    private List<CertificateView> getFullCertificateViews(Page<CertificateView> page) {
+        List<CertificateView> cvList = new ArrayList<>();
+        for( CertificateView cv: page.getContent()){
+            Optional<CertificateView> optionalCertificateView = certificateViewRepository.findbyCertificateId(cv.getId());
+            if(optionalCertificateView.isPresent()){
+                cvList.add(optionalCertificateView.get());
+                log.debug("returning certificate #{}", cv.getId());
+            }
+        }
+        return cvList;
     }
 
 }

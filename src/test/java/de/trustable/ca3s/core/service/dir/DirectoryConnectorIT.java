@@ -7,10 +7,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 
+import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 
 import de.trustable.ca3s.core.Ca3SApp;
@@ -30,10 +30,10 @@ class DirectoryConnectorIT {
 
 	@Autowired
 	DirectoryConnector dc;
-	 
+
 	@Autowired
 	CertificateRepository cr;
-	 
+
 	@Test
 	void testImportCertifiateFromFile() throws IOException {
 
@@ -44,21 +44,23 @@ class DirectoryConnectorIT {
 
 		File tmpCrt = File.createTempFile("testCertificate", ".crt");
 		tmpCrt.delete();
-		
+
 		Files.copy(getClass().getClassLoader().getResourceAsStream(CERTIFICATE_A_SIGN_STRONG), tmpCrt.toPath());
-		
+
 		ImportInfo importInfo = new ImportInfo();
-		
-		dc.importCertifiateFromFile(tmpCrt.getAbsolutePath(), importInfo );
-		
+        CAConnectorConfig caConnectorConfig = new CAConnectorConfig();
+        caConnectorConfig.setTrustSelfsignedCertificates(false);
+
+		dc.importCertifiateFromFile(tmpCrt.getAbsolutePath(), importInfo, caConnectorConfig);
+
 		assertEquals(1, importInfo.getImported());
-		
+
 		List<Certificate> certList = cr.findAll();
 		for(Certificate cert: certList ) {
 			System.out.println("cert #" + cert.getSerial());
 		}
-		
-		
+
+
 		assertEquals(1, certList.size() - certListPreTest.size());
 
 		certListTestCert = cr.findByAttributeValue(CertificateAttribute.ATTRIBUTE_SUBJECT, SUBJECT_A_SIGN_STRONG);

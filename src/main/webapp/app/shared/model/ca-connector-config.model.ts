@@ -23,6 +23,7 @@ export interface ICAConnectorConfig {
   caUrl?: string;
   pollingOffset?: number;
   defaultCA?: boolean;
+  trustSelfsignedCertificates?: boolean;
   active?: boolean;
   selector?: string;
   interval?: Interval;
@@ -38,6 +39,7 @@ export class CAConnectorConfig implements ICAConnectorConfig {
     public caUrl?: string,
     public pollingOffset?: number,
     public defaultCA?: boolean,
+    public trustSelfsignedCertificates?: boolean,
     public active?: boolean,
     public selector?: string,
     public interval?: Interval,
@@ -45,6 +47,7 @@ export class CAConnectorConfig implements ICAConnectorConfig {
     public secret?: IProtectedContent
   ) {
     this.defaultCA = this.defaultCA || false;
+    this.trustSelfsignedCertificates = this.trustSelfsignedCertificates || false;
     this.active = this.active || false;
   }
 }

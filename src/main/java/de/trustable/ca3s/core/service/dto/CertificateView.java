@@ -65,6 +65,9 @@ public class CertificateView implements Serializable {
     @CsvBindByName
     private String root;
 
+    @CsvBindByName
+    private Boolean trusted;
+
     @CsvIgnore
     private String fingerprintSha1;
 
@@ -227,7 +230,8 @@ public class CertificateView implements Serializable {
     	this.contentAddedAt = cert.getContentAddedAt();
     	this.revokedSince = cert.getRevokedSince();
     	this.revocationReason = cert.getRevocationReason();
-    	this.revoked = cert.isRevoked();
+        this.revoked = cert.isRevoked();
+        this.trusted = cert.isTrusted();
     	this.certB64 = cert.getContent();
 
         this.csrComment = "";
@@ -811,5 +815,45 @@ public class CertificateView implements Serializable {
 
     public void setAuditPresent(Boolean auditPresent) {
         isAuditPresent = auditPresent;
+    }
+
+    public Boolean getTrusted() {
+        return trusted;
+    }
+
+    public void setTrusted(Boolean trusted) {
+        this.trusted = trusted;
+    }
+
+    public String getUsageString() {
+        return usageString;
+    }
+
+    public void setUsageString(String usageString) {
+        this.usageString = usageString;
+    }
+
+    public String getExtUsageString() {
+        return extUsageString;
+    }
+
+    public void setExtUsageString(String extUsageString) {
+        this.extUsageString = extUsageString;
+    }
+
+    public String getSansString() {
+        return sansString;
+    }
+
+    public void setSansString(String sansString) {
+        this.sansString = sansString;
+    }
+
+    public Boolean getServersideKeyGeneration() {
+        return isServersideKeyGeneration;
+    }
+
+    public void setServersideKeyGeneration(Boolean serversideKeyGeneration) {
+        isServersideKeyGeneration = serversideKeyGeneration;
     }
 }

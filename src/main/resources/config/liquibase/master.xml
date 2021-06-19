@@ -75,4 +75,6 @@
     <include file="config/liquibase/changelog/20210526170457_added_entity_CertificateComment.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20210526170458_added_entity_CSRComment.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/20210618163021_added_columns_CAConnectorConfig.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>
