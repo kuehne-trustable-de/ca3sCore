@@ -43,6 +43,7 @@
                         <span>{{certificateView.type}}</span>
                         <span v-if="certificateView.ca"><b>CA</b></span>
                         <span v-if="certificateView.selfsigned"><b>Selfsigned</b></span>
+                        <span v-if="certificateView.trusted"><b>Trusted</b></span>
 
                     </dd>
                     <dt>

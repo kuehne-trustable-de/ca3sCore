@@ -205,13 +205,19 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     return '';
   }
 
-  public getSubjectStyle(ca: boolean, selfsigned: boolean, revoked: boolean): string {
-    const revStyle = revoked ? 'text-decoration:line-through;' : '';
+  public getSubjectStyle(ca: boolean, selfsigned: boolean, revoked: boolean, validToString: string): string {
+    let revStyle = revoked ? 'text-decoration:line-through;' : '';
+
+    const validTo = new Date(validToString);
+
+    if (validTo < this.now) {
+      revStyle += 'font-style: italic;';
+    }
 
     if (ca && selfsigned) {
-      return revStyle + 'color:red;font-weight: bold;';
+      return revStyle + 'color:navy;font-weight: bold;';
     } else if (selfsigned) {
-      return revStyle + 'color:yellow; font-weight: bold;';
+      return revStyle + 'color:cyan; font-weight: bold;';
     } else if (ca) {
       return revStyle + 'color:green; font-weight: bold;';
     }
