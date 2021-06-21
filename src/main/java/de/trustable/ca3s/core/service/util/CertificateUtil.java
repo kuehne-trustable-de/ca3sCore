@@ -105,7 +105,7 @@ public class CertificateUtil {
     private static final String SERIAL_PADDING_PATTERN = "000000000000000000000000000000000000000000000000000000000000000";
 
     private static final String TIMESTAMP_PADDING_PATTERN = "000000000000000000";
-    public static final int CURRENT_ATTRIBUTES_VERSION = 3;
+    public static final int CURRENT_ATTRIBUTES_VERSION = 4;
 
     static HashSet<Integer> lenSet = new HashSet<Integer>();
 
@@ -479,26 +479,10 @@ public class CertificateUtil {
 
 		certificateRepository.save(cert);
 
-		//
-		// write certificate attributes
-		//
-
-		// guess some details from basic constraint
-		int basicConstraint = x509Cert.getBasicConstraints();
-		if (Integer.MAX_VALUE == basicConstraint) {
-			cert.setEndEntity(true);
-			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CA, "true");
-		} else if (-1 == basicConstraint) {
-			cert.setEndEntity(true);
-			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_END_ENTITY, "true");
-		} else {
-			cert.setEndEntity(true);
-			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CA, "true");
-			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CHAIN_LENGTH, "" + basicConstraint);
-		}
+        interpretBasicConstraint(x509Cert, cert);
 
 
-		// add the basic key usages a attributes
+        // add the basic key usages a attributes
 		usageAsCertAttributes( x509Cert.getKeyUsage(), cert );
 
 		// add the extended key usages a attributes
@@ -619,6 +603,27 @@ public class CertificateUtil {
 
 		return cert;
 	}
+
+    public void interpretBasicConstraint(X509Certificate x509Cert, Certificate cert) {
+
+        //
+        // write certificate attributes
+        //
+
+        // guess some details from basic constraint
+        int basicConstraint = x509Cert.getBasicConstraints();
+        if (Integer.MAX_VALUE == basicConstraint) {
+            cert.setEndEntity(false);
+            setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CA, "true");
+        } else if (-1 == basicConstraint) {
+            cert.setEndEntity(true);
+            setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_END_ENTITY, "true");
+        } else {
+            cert.setEndEntity(false);
+            setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CA, "true");
+            setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CHAIN_LENGTH, "" + basicConstraint);
+        }
+    }
 
     private void copyArAttributes(final CSR csr, final Certificate cert) {
 

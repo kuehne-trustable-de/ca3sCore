@@ -70,7 +70,13 @@ public class SchemaUpdateScheduler {
 
             X509Certificate x509Cert = null;
             try {
+                int currentVersion = Integer.parseInt( certUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION));
+
                 x509Cert = CryptoService.convertPemToCertificate(cert.getContent());
+
+                if( currentVersion < 4 ){
+                    certUtil.interpretBasicConstraint(x509Cert, cert);
+                }
                 certUtil.addAdditionalCertificateAttributes(x509Cert, cert);
 
                 certificateRepo.save(cert);
