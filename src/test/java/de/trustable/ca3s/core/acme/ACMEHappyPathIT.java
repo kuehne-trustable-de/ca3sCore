@@ -89,7 +89,7 @@ public class ACMEHappyPathIT {
 
 		JCAManager.getInstance();
 
-		TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory());
+		TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory("O=test trustable solutions, C=DE"));
 		Security.addProvider(new Ca3sKeyStoreProvider(certMap, "ca3s"));
     	Security.addProvider(new Ca3sKeyManagerProvider(certMap));
     	new TimedRenewalCertMapHolder().setCertMap(certMap);
@@ -195,9 +195,12 @@ public class ACMEHappyPathIT {
 
 				Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
 
-				provideAuthEndpoint(challenge, order);
-
-				challenge.trigger();
+				if( challenge != null) {
+                    provideAuthEndpoint(challenge, order);
+                    challenge.trigger();
+                } else {
+                    LOG.warn("http01 Challange not found for order");
+                }
 			}
 		}
 

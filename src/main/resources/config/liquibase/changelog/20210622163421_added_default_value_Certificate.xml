@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Add the active flag to Pipeline.
+    -->
+    <changeSet id="20210622163421-1" author="ak">
+
+        <addDefaultValue
+            columnName="revoked"
+            tableName="certificate"
+            defaultValueBoolean="false" />
+
+        <addDefaultValue
+            columnName="end_entity"
+            tableName="certificate"
+            defaultValueBoolean="false" />
+
+        <addDefaultValue
+            columnName="selfsigned"
+            tableName="certificate"
+            defaultValueBoolean="false" />
+
+        <addDefaultValue
+            columnName="trusted"
+            tableName="certificate"
+            defaultValueBoolean="false" />
+
+        <addDefaultValue
+            columnName="active"
+            tableName="certificate"
+            defaultValueBoolean="false" />
+
+        <addDefaultValue
+            columnName="revoked"
+            tableName="certificate"
+            defaultValueBoolean="false" />
+
+    </changeSet>
+
+
+</databaseChangeLog>

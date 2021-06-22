@@ -7,13 +7,13 @@ import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.service.util.CaConnectorAdapter;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.util.CryptoUtil;
-import org.bouncycastle.asn1.x509.ExtendedKeyUsage;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.KeyPurposeId;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.security.auth.x500.X500Principal;
 import java.io.IOException;
@@ -31,17 +31,23 @@ public class Ca3sBundleFactory implements BundleFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(Ca3sBundleFactory.class);
 
-	private CAConnectorConfig caConfigDao;
+	private final CAConnectorConfig caConfigDao;
 
-	private CaConnectorAdapter cacAdapt;
+	private final CaConnectorAdapter cacAdapt;
 
-	private CertificateUtil certUtil;
+	private final CertificateUtil certUtil;
 
-	public Ca3sBundleFactory(CAConnectorConfig caConfigDao, CaConnectorAdapter cacAdapt, CertificateUtil certUtil) {
+    private final String dnSuffix;
+
+	public Ca3sBundleFactory(CAConnectorConfig caConfigDao,
+                             CaConnectorAdapter cacAdapt,
+                             CertificateUtil certUtil,
+                             String dnSuffix) {
 		this.caConfigDao = caConfigDao;
 		this.cacAdapt = cacAdapt;
 		this.certUtil = certUtil;
-	}
+        this.dnSuffix = dnSuffix;
+    }
 
 
 	@Override
@@ -53,7 +59,7 @@ public class Ca3sBundleFactory implements BundleFactory {
 		try {
 			InetAddress ip = InetAddress.getLocalHost();
 			String hostname = ip.getCanonicalHostName();
-			X500Principal subject = new X500Principal("CN=" + hostname + ", OU=ca3s " + System.currentTimeMillis() + ", O=trustable solutions, C=DE");
+			X500Principal subject = new X500Principal("CN=" + hostname + ", " + dnSuffix );
 			LOG.debug("requesting certificate for subject : " + subject.getName() );
 
             GeneralName[] sanArray = new GeneralName[1];

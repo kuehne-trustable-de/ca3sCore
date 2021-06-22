@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Set all boolean values to false if it's null.
+    -->
+    <changeSet id="20210622171821-1" author="ak">
+
+        <update tableName="certificate">
+            <column name="revoked" valueBoolean="false"/>
+            <where>revoked is null</where>
+        </update>
+
+        <update tableName="certificate">
+            <column name="end_entity" valueBoolean="false"/>
+            <where>end_entity is null</where>
+        </update>
+
+        <update tableName="certificate">
+            <column name="selfsigned" valueBoolean="false"/>
+            <where>selfsigned is null</where>
+        </update>
+
+        <update tableName="certificate">
+            <column name="trusted" valueBoolean="false"/>
+            <where>trusted is null</where>
+        </update>
+
+        <update tableName="certificate">
+            <column name="active" valueBoolean="false"/>
+            <where>active is null</where>
+        </update>
+
+        <update tableName="certificate">
+            <column name="revoked" valueBoolean="false"/>
+            <where>revoked is null</where>
+        </update>
+    </changeSet>
+
+</databaseChangeLog>

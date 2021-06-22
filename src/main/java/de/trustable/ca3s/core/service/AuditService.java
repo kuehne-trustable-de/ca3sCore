@@ -245,7 +245,7 @@ public class AuditService {
             null );
     }
 
-    public AuditTrace createAuditTraceCertificateTrusted(String filename, Certificate certificate) {
+    public AuditTrace createAuditTraceCertificateTrusted(String filename, Certificate certificate, final CAConnectorConfig caConnectorConfig) {
         NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),
             AUDIT_CERTIFICATE_SET_TRUSTED_BY_DIRECTORY_IMPORT,
@@ -254,7 +254,7 @@ public class AuditService {
             null,
             certificate,
             null,
-            null,
+            caConnectorConfig,
             null );
     }
 
@@ -340,7 +340,7 @@ public class AuditService {
             null );
     }
 
-    public AuditTrace createAuditTraceCertificateImported(final String source, final Certificate certificate){
+    public AuditTrace createAuditTraceCertificateImported(final String source, final Certificate certificate, CAConnectorConfig caConfig){
 
         NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),

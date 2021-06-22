@@ -1774,8 +1774,6 @@ public class CertificateUtil {
 		} finally {
 			pemWriter.close();
 		}
-
-		LOG.debug("new private key as PEM : " + sw.toString());
 		return sw;
 	}
 

@@ -1,11 +1,11 @@
 package de.trustable.ca3s.core.schedule;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -28,19 +28,27 @@ public class CertBundleScheduler {
 
 	transient Logger LOG = LoggerFactory.getLogger(CertificateImportScheduler.class);
 
-	@Autowired
-	private CAConnectorConfigRepository caConfigRepo;
+	private final CAConnectorConfigRepository caConfigRepo;
+	private final CaConnectorAdapter caConnAd;
+	private final CertificateUtil certUtil;
+	private final TimedRenewalCertMapHolder timedRenewalCertMapHolder;
+    private final String dnSuffix;
 
-	@Autowired
-	private CaConnectorAdapter caConnAd;
+    public CertBundleScheduler(CAConnectorConfigRepository caConfigRepo,
+                               CaConnectorAdapter caConnAd,
+                               CertificateUtil certUtil,
+                               TimedRenewalCertMapHolder timedRenewalCertMapHolder,
+                               @Value("${ca3s.https.certificate.dnSuffix:S3cr3t}") String dnSuffix) {
+        this.caConfigRepo = caConfigRepo;
+        this.caConnAd = caConnAd;
+        this.certUtil = certUtil;
+        this.timedRenewalCertMapHolder = timedRenewalCertMapHolder;
+        this.dnSuffix = dnSuffix;
+    }
 
-	@Autowired
-	private CertificateUtil certUtil;
+//    @Value("${ca3s.https.certificate.dnSuffix:S3cr3t}")
 
-	@Autowired
-	private TimedRenewalCertMapHolder timedRenewalCertMapHolder;
-
-	@Scheduled(fixedDelay = 60000)
+    @Scheduled(fixedDelay = 60000)
 	public void retrieveCertificates() {
 
 		for (CAConnectorConfig caConfigDao : caConfigRepo.findAll()) {
@@ -49,7 +57,7 @@ public class CertBundleScheduler {
 				if( CAStatus.Active.equals(caConnAd.getStatus(caConfigDao))) {
 
 					if( timedRenewalCertMapHolder.getCertMap().getBundleFactory() == null) {
-						timedRenewalCertMapHolder.getCertMap().setBundleFactory( new Ca3sBundleFactory(caConfigDao, caConnAd, certUtil));
+						timedRenewalCertMapHolder.getCertMap().setBundleFactory( new Ca3sBundleFactory(caConfigDao, caConnAd, certUtil, dnSuffix));
 						LOG.info("Ca3sBundleFactory registered for TLS certificate poduction");
 					}
 				}else {

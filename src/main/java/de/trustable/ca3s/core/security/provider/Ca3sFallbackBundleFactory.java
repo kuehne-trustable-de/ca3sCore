@@ -34,7 +34,7 @@ public class Ca3sFallbackBundleFactory implements BundleFactory {
 	private CryptoUtil cryptoUtil = new CryptoUtil();
 
 
-	public Ca3sFallbackBundleFactory() {
+	public Ca3sFallbackBundleFactory( String dnSuffix) {
 		try{
 			x500Issuer = new X500Name("CN=RootOn" + InetAddress.getLocalHost().getCanonicalHostName() + ", OU=temporary bootstrap root " + System.currentTimeMillis() + ", O=trustable solutions, C=DE");
 		} catch(UnknownHostException uhe) {

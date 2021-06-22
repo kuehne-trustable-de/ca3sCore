@@ -97,6 +97,10 @@ VuejsDatatableFactory.useDefaultType(false).registerTableType<any, any, any, any
 
 @Component
 export default class CertList extends mixins(AlertMixin, Vue) {
+  public now: Date = new Date();
+  public soon: Date = new Date();
+  public recently: Date = new Date();
+
   public get authenticated(): boolean {
     return this.$store.getters.authenticated;
   }
@@ -152,7 +156,12 @@ export default class CertList extends mixins(AlertMixin, Vue) {
   public toLocalDate(dateAsString: string): string {
     if (dateAsString && dateAsString.length > 8) {
       const dateObj = new Date(dateAsString);
-      return dateObj.toLocaleDateString();
+
+      if (dateObj > this.recently && dateObj < this.soon) {
+        return dateObj.toLocaleDateString() + ', ' + dateObj.toLocaleTimeString();
+      } else {
+        return dateObj.toLocaleDateString();
+      }
     }
     return '';
   }
@@ -281,6 +290,10 @@ export default class CertList extends mixins(AlertMixin, Vue) {
 
   public mounted(): void {
     this.getUsersFilterList();
+
+    this.soon.setDate(this.now.getDate() + 7);
+    this.recently.setDate(this.now.getDate() - 7);
+
     setInterval(() => this.putUsersFilterList(this), 3000);
     setInterval(() => this.buildContentAccessUrl(), 1000);
   }

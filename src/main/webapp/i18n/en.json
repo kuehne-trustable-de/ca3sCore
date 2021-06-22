@@ -978,6 +978,7 @@
   "validFrom": "Valid from",
   "validTo": "Valid to",
   "active": "Active",
+  "trusted": "Trusted",
   "pkiLevel": "PKI level",
   "root": "Self signed",
   "intermediate": "CA",
@@ -1045,6 +1046,9 @@
   "SCEP_CERTIFICATE_REQUESTED": "Certificate requested using SCEP protocol",
   "SCEP_CERTIFICATE_CREATED": "Certificate using SCEP issued",
   "REQUEST_RESTRICTIONS_FAILED": "Certificate restriction violation",
+  "CERTIFICATE_SET_TRUSTED": "Certificate marked as trusted",
+  "CERTIFICATE_UNSET_TRUSTED": "Certificate's trusted state withdrawn",
+  "CERTIFICATE_SET_TRUSTED_BY_DIRECTORY_IMPORT": "Certificate marked as trusted by directory import from '{{attribute}}'",
   "CERTIFICATE_REVOKED": "Certificate revoked",
   "CERTIFICATE_REVOKED_BY_CRL": "Revoked certificate found in CRL",
   "MANUAL_CERTIFICATE_IMPORTED": "Certificate imported manually",
@@ -1066,5 +1070,10 @@
   "PIPELINE_APPROVAL_REQUIRED_CHANGED": "Pipeline 'approval required' updated from '{{oldVal}}' to '{{newVal}}'",
   "PIPELINE_ACTIVE_CHANGED": "Pipeline 'active' state updated from '{{oldVal}}' to '{{newVal}}'",
 
-  "CA_CONNECTOR_ATTRIBUTE_CHANGED": "Connector attribute '{{attribute}}' updated from '{{oldVal}}' to '{{newVal}}'"
+  "CA_CONNECTOR_ATTRIBUTE_CHANGED": "Connector attribute '{{attribute}}' updated from '{{oldVal}}' to '{{newVal}}'",
+
+  "CERTIFICATE_SCHEMA_UPDATED": "database scheme of #{{attribute}} certificates updated to version '{{newVal}}'",
+
+  "CA3S_STARTED": "ca3s instance started",
+  "CA3S_STOPPED": "ca3s instance stopped"
 }

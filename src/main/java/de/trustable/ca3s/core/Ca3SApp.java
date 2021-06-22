@@ -148,7 +148,9 @@ public class Ca3SApp implements InitializingBean {
     public TimedRenewalCertMapHolder registerJCEProvider() {
 		JCAManager.getInstance();
 
-		TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory());
+        String dnSuffix = env.getProperty("ca3s.https.certificate.dnSuffix", "O=trustable solutions, C=DE");
+
+        TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory(dnSuffix));
 		Security.addProvider(new Ca3sKeyStoreProvider(certMap, "ca3s"));
     	Security.addProvider(new Ca3sKeyManagerProvider(certMap));
 

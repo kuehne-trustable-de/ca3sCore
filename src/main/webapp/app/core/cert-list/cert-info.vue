@@ -50,7 +50,11 @@
                         <span v-text="$t('ca3SApp.certificate.serial')">Serial</span>
                     </dt>
                     <dd>
-                        <span>{{certificateView.serial}}</span>
+                        <ul>
+                            <li >{{toHex(certificateView.serial)}}</li>
+                            <li >{{certificateView.serial}}</li>
+                        </ul>
+
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.certificate.validFrom')">Valid From</span>
@@ -241,7 +245,7 @@
                 <div>
                     <div v-if="isTrustable()" class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.trusted')" for="certificate-trusted">Trusted</label>
-                        <input type="checkbox" class="form-check-inline" name="active" id="certificate-trusted"
+                        <input type="checkbox" class="form-check-inline" name="trusted" id="certificate-trusted"
                                v-model="certificateAdminData.trusted" />
                     </div>
 

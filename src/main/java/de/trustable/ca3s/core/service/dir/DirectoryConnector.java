@@ -141,7 +141,7 @@ public class DirectoryConnector {
 			for( String domain: crawlDomains) {
                 Set<String> certificateSet = crawler.search(domain, regEx);
                 for( String certUrl: certificateSet) {
-                    importCertifiateFromURL(certUrl, importInfo);
+                    importCertifiateFromURL(certUrl, importInfo, caConfig);
                 }
             }
 
@@ -190,13 +190,13 @@ public class DirectoryConnector {
 
                     byte[] content = Files.readAllBytes(Paths.get(filename));
                     Certificate certificate = certUtil.createCertificate(content, null, null, false, filename);
-                    auditService.saveAuditTrace(auditService.createAuditTraceCertificateImported(filename, certificate));
+                    auditService.saveAuditTrace(auditService.createAuditTraceCertificateImported(filename, certificate, caConfig));
                     if( caConfig.getTrustSelfsignedCertificates()){
                         if(certificate.isSelfsigned()){
                             if(certificate.isActive()) {
                                 certificate.setTrusted(true);
                                 certificateRepository.save(certificate);
-                                auditService.saveAuditTrace(auditService.createAuditTraceCertificateTrusted(filename, certificate));
+                                auditService.saveAuditTrace(auditService.createAuditTraceCertificateTrusted(filename, certificate, caConfig));
                             }else{
                                 LOGGER.info("selfsigned certificate from file'{}', not active, not set as 'trusted'", filename);
                             }
@@ -252,6 +252,7 @@ public class DirectoryConnector {
                 }else {
                     //				LOGGER.debug("certificate unchanged at '{}'", filename);
                 }
+
             }
 
             importInfo.incRejected();
@@ -261,7 +262,7 @@ public class DirectoryConnector {
         return importInfo;
     }
 
-    public ImportInfo importCertifiateFromURL(String url, ImportInfo importInfo) {
+    public ImportInfo importCertifiateFromURL(String url, ImportInfo importInfo, CAConnectorConfig caConfig) {
 
         try {
 
@@ -278,7 +279,7 @@ public class DirectoryConnector {
                     lastChangeDate = Instant.ofEpochMilli(downloadedContent.getDate());
 
                     Certificate certificate = certUtil.createCertificate(downloadedContent.getContent(), null, null, false, url);
-                    auditService.saveAuditTrace(auditService.createAuditTraceCertificateImported( url, certificate));
+                    auditService.saveAuditTrace(auditService.createAuditTraceCertificateImported( url, certificate, caConfig));
 
                     LOGGER.debug("certificate imported from '{}'", url);
 

@@ -978,6 +978,7 @@
   "validFrom": "Gültig von",
   "validTo": "Gültig bis",
   "active": "Aktiv",
+  "trusted": "Vertrauenswürdig",
   "pkiLevel": "PKI Level",
   "root": "Selbstsigniert",
   "intermediate": "CA",
@@ -1045,6 +1046,9 @@
   "SCEP_CERTIFICATE_CREATED": "Zertifikat mittels SCEP ausgestellt",
   "REQUEST_RESTRICTIONS_FAILED": "Zertifikatseinschränkungen verletzt",
   "WEB_CERTIFICATE_CREATED": "Zertifikat über Web-Interface ausgestellt",
+  "CERTIFICATE_SET_TRUSTED": "Zertifikat als vertrauenswürdig ausgezeichnet",
+  "CERTIFICATE_UNSET_TRUSTED": "Zertifikat die Vertrauenswürdigkeit entzogen",
+  "CERTIFICATE_SET_TRUSTED_BY_DIRECTORY_IMPORT": "Zertifikat durch Verzeichnis-Import aus '{{attribute}}' als vertrauenswürdig ausgezeichnet",
   "CERTIFICATE_REVOKED": "Zertifikat zurückgerufen",
   "CERTIFICATE_REVOKED_BY_CRL": "Zertifikatsrückruf in CRL gefunden",
   "MANUAL_CERTIFICATE_IMPORTED": "Existierendes Zertifikat importiert",
@@ -1066,5 +1070,10 @@
   "PIPELINE_APPROVAL_REQUIRED_CHANGED": "Pipeline-Freigabe geändert von '{{oldVal}}' auf '{{newVal}}'",
   "PIPELINE_ACTIVE_CHANGED": "Pipeline-Aktivitätsstatus geändert von '{{oldVal}}' auf '{{newVal}}'",
 
-  "CA_CONNECTOR_ATTRIBUTE_CHANGED": "Konnektor-Attribute '{{attribute}}' geändert von '{{oldVal}}' auf '{{newVal}}'"
+  "CA_CONNECTOR_ATTRIBUTE_CHANGED": "Konnektor-Attribute '{{attribute}}' geändert von '{{oldVal}}' auf '{{newVal}}'",
+
+  "CERTIFICATE_SCHEMA_UPDATED": "Datenbankschema für #{{attribute}} Zertifikaten auf Version '{{newVal}}' angepasst",
+
+  "CA3S_STARTED": "ca3s-Instanz gestartet",
+  "CA3S_STOPPED": "ca3s-Instanz gestoppt"
 }

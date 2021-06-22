@@ -163,6 +163,7 @@ win-auth:
 ca3s:
   tlsAccess:
     port: 8442
+
 #  adminAccess:
 #    port: 8444
 #  raAccess:
@@ -173,8 +174,13 @@ ca3s:
 #  scepAccess:
 #    port: 8447
 
+  https:
+    certificate:
+      dnSuffix: O=trustable solutions UG, C=DE
+
 # application:
 protectionSecret: ZiNWY1NzA2YjAzZTY2ODJhNWM5MjFjYzZmZTZlMDE4Y
+
 
 # ===================================================================
 # configure camunda web app, e.g. cockpit

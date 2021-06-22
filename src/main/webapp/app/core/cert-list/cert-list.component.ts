@@ -117,6 +117,7 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     { itemName: 'id', itemType: 'number', itemDefaultSelector: null, itemDefaultValue: null },
     { itemName: 'validTo', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}' },
     { itemName: 'active', itemType: 'boolean', itemDefaultSelector: 'ISTRUE', itemDefaultValue: 'true' },
+    { itemName: 'trusted', itemType: 'boolean', itemDefaultSelector: 'ISTRUE', itemDefaultValue: 'true' },
     {
       itemName: 'pkiLevel',
       itemType: 'set',

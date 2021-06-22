@@ -137,7 +137,7 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
   }
 
   public isTrustable() {
-    return this.isRAOfficer() && !this.certificateView.revoked && this.certificateView.selfsigned;
+    return this.isRAOrAdmin() && !this.certificateView.revoked && this.certificateView.selfsigned;
   }
 
   public isEditable() {
@@ -163,11 +163,36 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
   }
 
   public isRAOfficer() {
-    return this.roles === 'ROLE_RA';
+    return this.hasRole('ROLE_RA');
+  }
+
+  public isAdmin() {
+    return this.hasRole('ROLE_ADMIN');
+  }
+
+  public isRAOrAdmin() {
+    return this.isRAOfficer() || this.isAdmin();
+  }
+
+  public hasRole(targetRole: string) {
+    for (const role of this.$store.getters.account.authorities) {
+      if (targetRole === role) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public isOwnCertificate() {
     return this.getUsername() === this.certificateView.requestedBy;
+  }
+
+  public toHex(input: string): string {
+    const n = Number(input);
+    if (isNaN(n)) {
+      return '';
+    }
+    return n.toString(16);
   }
 
   public updateCertificate() {
