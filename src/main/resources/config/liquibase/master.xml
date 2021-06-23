@@ -77,7 +77,7 @@
 
     <include file="config/liquibase/changelog/20210618163021_added_columns_CAConnectorConfig.xml" relativeToChangelogFile="false"/>
 
-    <include file="config/liquibase/changelog/20210622163421_added_default_value_Certificate.xml" relativeToChangelogFile="false"/>
+    <!--include file="config/liquibase/changelog/20210622163421_added_default_value_Certificate.xml" relativeToChangelogFile="false"/-->
     <include file="config/liquibase/changelog/20210622171821_update_null_values_Certificate.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>
