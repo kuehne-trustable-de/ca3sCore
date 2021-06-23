@@ -1210,7 +1210,7 @@
 							<dir>./src/main/resources/config/liquibase/changelog</dir>
 							<stylesheet>./src/main/resources/stylesheet/adaptChangelogLBForMSSQL.xsl</stylesheet>
 							<outputDir>${project.build.directory}/classes/config/liquibase-mssql/changelog</outputDir>
-							<includes>*_added_*.xml</includes>
+							<includes>*_added_*.xml, *_update_*.xml</includes>
 
 							<parameters>
 								<parameter>
