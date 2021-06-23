@@ -29,12 +29,15 @@ public class Ca3sFallbackBundleFactory implements BundleFactory {
 	private KeyPair rootKeyPair = null ;
 	private X509Certificate issuingCertificate = null;
 
+	private final String dnSuffix;
+
 	private X500Name x500Issuer;
 
 	private CryptoUtil cryptoUtil = new CryptoUtil();
 
 
 	public Ca3sFallbackBundleFactory( String dnSuffix) {
+	    this.dnSuffix = dnSuffix;
 		try{
 			x500Issuer = new X500Name("CN=RootOn" + InetAddress.getLocalHost().getCanonicalHostName() + ", OU=temporary bootstrap root " + System.currentTimeMillis() + ", O=trustable solutions, C=DE");
 		} catch(UnknownHostException uhe) {
@@ -81,7 +84,11 @@ public class Ca3sFallbackBundleFactory implements BundleFactory {
 			InetAddress ip = InetAddress.getLocalHost();
 			String hostname = ip.getHostName();
 			LOG.debug("requesting certificate for host : " + hostname );
-			X500Name subject = new X500Name("CN=" + hostname);
+            String x500Name = "CN=" + hostname;
+            if(!dnSuffix.trim().isEmpty()){
+                x500Name += ", " + dnSuffix;
+            }
+            X500Name subject = new X500Name(x500Name);
 
             GeneralName[] sanArray = new GeneralName[1];
             sanArray[0] = new GeneralName(GeneralName.dNSName, hostname);

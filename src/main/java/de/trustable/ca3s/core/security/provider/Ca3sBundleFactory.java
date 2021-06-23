@@ -59,7 +59,11 @@ public class Ca3sBundleFactory implements BundleFactory {
 		try {
 			InetAddress ip = InetAddress.getLocalHost();
 			String hostname = ip.getCanonicalHostName();
-			X500Principal subject = new X500Principal("CN=" + hostname + ", " + dnSuffix );
+			String x500Name = "CN=" + hostname;
+			if(!dnSuffix.trim().isEmpty()){
+                x500Name += ", " + dnSuffix;
+            }
+            X500Principal subject = new X500Principal(x500Name);
 			LOG.debug("requesting certificate for subject : " + subject.getName() );
 
             GeneralName[] sanArray = new GeneralName[1];
