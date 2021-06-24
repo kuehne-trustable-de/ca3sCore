@@ -25,8 +25,10 @@ module.exports = merge(baseWebpackConfig, {
   },
   output: {
     path: jhiUtils.root('target/classes/static/'),
-    filename: 'app/[name].bundle.js',
-    chunkFilename: 'app/[id].chunk.js'
+    //    filename: 'app/[name].bundle.js',
+    //    chunkFilename: 'app/[id].chunk.js'
+    filename: 'app/[name].[hash].bundle.js',
+    chunkFilename: 'app/[id].[hash].chunk.js'
   },
   devServer: {
     contentBase: './target/classes/static/',
