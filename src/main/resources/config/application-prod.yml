@@ -40,11 +40,18 @@ spring:
       enabled: false
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://localhost:3306/ca3s_jh_dev?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: ca3s_jh_dev
-    password: nYbA4Jm4rnQJ
+    url: jdbc:h2:file:./target/h2db/db/ca3s_jh;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: root
+    password:
+
+# sample configuration for a mysql connection
+#    type: com.zaxxer.hikari.HikariDataSource
+#    url: jdbc:mysql://localhost:3306/ca3s_jh_dev?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+#    username: ca3s_jh_dev
+#    password: nYbA4Jm4rnQJ
 
 # connect to the database with user-only privileges
+# the application runs with restricted rights, liquibase uses admin rights to create / alter the DB scheme
 #    url: jdbc:mysql://localhost:3306/ca3s_sep_roles?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
 #    username: ca3s_sr_user
 #    password: o2Z3je8twZ5W
