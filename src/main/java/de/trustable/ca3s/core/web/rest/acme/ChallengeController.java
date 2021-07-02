@@ -132,7 +132,6 @@ public class ChallengeController extends ACMEController {
 		Optional<AcmeChallenge> challengeOpt = challengeRepository.findById(challengeId);
 		if(!challengeOpt.isPresent()) {
 		    return ResponseEntity.notFound().headers(additionalHeaders).build();
-
 		}else {
 			AcmeChallenge challengeDao = challengeOpt.get();
 
@@ -177,7 +176,6 @@ public class ChallengeController extends ACMEController {
 			    return ok().headers(additionalHeaders).body(challenge);
 			}else {
 				LOG.warn("validation of challenge{} of type '{}' failed", challengeId, challengeDao.getType());
-
 				return ResponseEntity.badRequest().headers(additionalHeaders).body(challenge);
 			}
 		}

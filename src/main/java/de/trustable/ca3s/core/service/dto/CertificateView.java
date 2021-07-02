@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -103,6 +104,9 @@ public class CertificateView implements Serializable {
 
     @CsvBindByName
     private String serial;
+
+    @CsvBindByName
+    private String serialHex;
 
     @CsvBindByName
     private Instant validFrom;
@@ -225,7 +229,13 @@ public class CertificateView implements Serializable {
 		this.hashAlgorithm = cert.getHashingAlgorithm();
     	this.description = cert.getDescription();
     	this.serial = cert.getSerial();
-    	this.validFrom = cert.getValidFrom();
+    	try {
+            BigInteger bi = new BigInteger(serial);
+            this.serialHex = bi.toString(16);
+        }catch(NumberFormatException nfe){
+            this.serialHex ="";
+        }
+        this.validFrom = cert.getValidFrom();
     	this.validTo = cert.getValidTo();
     	this.contentAddedAt = cert.getContentAddedAt();
     	this.revokedSince = cert.getRevokedSince();
@@ -417,7 +427,13 @@ public class CertificateView implements Serializable {
 
 	public void setSerial(String serial) {
 		this.serial = serial;
-	}
+        try {
+            BigInteger bi = new BigInteger(serial);
+            this.serialHex = bi.toString(16);
+        }catch(NumberFormatException nfe){
+            this.serialHex ="";
+        }
+    }
 
 	public void setValidFrom(Instant validFrom) {
 		this.validFrom = validFrom;
@@ -855,5 +871,9 @@ public class CertificateView implements Serializable {
 
     public void setServersideKeyGeneration(Boolean serversideKeyGeneration) {
         isServersideKeyGeneration = serversideKeyGeneration;
+    }
+
+    public String getSerialHex() {
+        return serialHex;
     }
 }

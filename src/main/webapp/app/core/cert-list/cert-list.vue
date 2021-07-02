@@ -30,7 +30,17 @@
 						<select v-if="getInputType(filter.attributeName) === 'set'" float="left" class="smallSelector fa-1x" v-model="filter.attributeValue" name="certSelectionSet">
 							<option v-for="item in getValueChoices(filter.attributeName)" :key="item" :value="item">{{$t(item)}}</option>
 						</select>
-						<input type="date" v-else-if="getInputType(filter.attributeName) === 'date'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueDate" v-on:keydown.enter="updateTable"/>
+
+                        <Fragment v-else-if="getInputType(filter.attributeName) === 'date'">
+                            <Fragment v-if="getInputSelector(filter.attributeName) === 'PERIOD_BEFORE'">
+                                <input type="date" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueDate" v-on:keydown.enter="updateTable"/>
+                                <input  float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueDate" v-on:keydown.enter="updateTable"/>
+                            </Fragment>
+                            <Fragment v-else>
+                                <input type="date" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueDate" v-on:keydown.enter="updateTable"/>
+                            </Fragment>
+                        </Fragment>
+
 						<input type="hidden" v-else-if="getInputType(filter.attributeName) === 'boolean'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueBoolean" v-on:keydown.enter="updateTable"/>
 						<input v-else float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValue" v-on:keydown.enter="updateTable"/>
 
@@ -52,7 +62,7 @@
 							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.issuer }}</td>
 							<!--td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ row.type }}</router-link></td-->
 							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.keyLength }}</td>
-							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{(row.serial.length > 12) ? row.serial.substring(0, 6).concat('...', row.serial.substring(row.serial.length - 4, row.serial.length )) : row.serial}}</td>
+							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{(row.serialHex.length > 12) ? row.serialHex.substring(0, 6).concat('...', row.serialHex.substring(row.serialHex.length - 4, row.serialHex.length )) : row.serialHex}}</td>
 							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ toLocalDate(row.validFrom)}}</td>
 							<td ><router-link :style="getValidToStyle(row.validFrom, row.validTo, row.revoked)" :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ toLocalDate(row.validTo) }}</router-link></td>
 							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.hashAlgorithm }}</td>

@@ -126,6 +126,7 @@ export default class CertList extends mixins(AlertMixin, Vue) {
       values: ['root', 'intermediate', 'endEntity']
     },
     { itemName: 'revoked', itemType: 'boolean', itemDefaultSelector: 'ISTRUE', itemDefaultValue: 'true' },
+    { itemName: 'revokedBy', itemType: 'string', itemDefaultSelector: 'EQUAL', itemDefaultValue: '{user}' },
     {
       itemName: 'revocationReason',
       itemType: 'set',
@@ -174,7 +175,7 @@ export default class CertList extends mixins(AlertMixin, Vue) {
   public selectionChoices: ISelectionChoices[] = [
     { itemType: 'string', hasValue: true, choices: ['EQUAL', 'NOT_EQUAL', 'LIKE', 'NOTLIKE', 'LESSTHAN', 'GREATERTHAN'] },
     { itemType: 'number', hasValue: true, choices: ['EQUAL', 'NOT_EQUAL', 'LESSTHAN', 'GREATERTHAN'] },
-    { itemType: 'date', hasValue: true, choices: ['ON', 'BEFORE', 'AFTER'] },
+    { itemType: 'date', hasValue: true, choices: ['ON', 'BEFORE', 'AFTER', 'PERIOD_BEFORE', 'PERIOD_AFTER'] },
     { itemType: 'boolean', hasValue: false, choices: ['ISTRUE', 'ISFALSE'] },
     { itemType: 'set', hasValue: false, choices: ['EQUAL', 'NOT_EQUAL'] }
   ];
@@ -202,6 +203,16 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     const selectionItem = this.certSelectionItems.find(selections => selections.itemName === itemName);
     if (selectionItem) {
       return selectionItem.itemType;
+    }
+    return '';
+  }
+
+  public getInputSelector(itemName: string): string {
+    const selectionItem = this.certSelectionItems.find(selections => selections.itemName === itemName);
+
+    if (selectionItem) {
+      window.console.info('getInputSelector(' + itemName + ') -> ' + selectionItem.itemDefaultSelector);
+      return selectionItem.itemDefaultSelector;
     }
     return '';
   }
@@ -258,7 +269,6 @@ export default class CertList extends mixins(AlertMixin, Vue) {
         return dateObj.toLocaleDateString();
       }
     }
-    return '';
   }
 
   public getValueChoices(itemName: string): string[] {
@@ -313,13 +323,13 @@ export default class CertList extends mixins(AlertMixin, Vue) {
         { label: this.$t('length'), field: 'keyLength', align: 'right' },
         {
           label: this.$t('serial'),
-          field: 'serial',
+          field: 'serialHex',
           align: 'right',
           representedAs: row =>
             `${
-              row.serial.length > 12
-                ? row.serial.substring(0, 6).concat('...', row.serial.substring(row.serial.length - 4, row.serial.length - 1))
-                : row.serial
+              row.serialHex.length > 12
+                ? row.serialHex.substring(0, 6).concat('...', row.serialHex.substring(row.serialHex.length - 4, row.serialHex.length - 1))
+                : row.serialHex
             }`
         },
         { label: this.$t('validFrom'), field: 'validFrom' },
@@ -383,6 +393,8 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     this.dateAlarm.setDate(this.now.getDate() + 10);
 
     this.getCertificateSelectionAttributes();
+    this.updateCertificateSelectionAttributes();
+
     this.getUsersFilterList();
     setInterval(() => this.putUsersFilterList(this), 3000);
     setInterval(() => this.buildContentAccessUrl(), 1000);
@@ -411,6 +423,22 @@ export default class CertList extends mixins(AlertMixin, Vue) {
         }
       }
     });
+  }
+
+  public get username(): string {
+    return this.$store.getters.account ? this.$store.getters.account.login : '';
+  }
+
+  public updateCertificateSelectionAttributes(): void {
+    window.console.info('calling updateCertificateSelectionAttributes ');
+    for (let i = 0; i < this.certSelectionItems.length; i++) {
+      if (this.certSelectionItems[i].itemDefaultValue === '{user}') {
+        this.certSelectionItems[i].itemDefaultValue = this.username;
+      } else if (this.certSelectionItems[i].itemDefaultValue === '{now}') {
+        this.certSelectionItems[i].itemDefaultValue = this.now.toLocaleDateString();
+        window.console.info('updateCertificateSelectionAttributes initializes value to ' + this.certSelectionItems[i].itemDefaultValue);
+      }
+    }
   }
 
   public getUsersFilterList(): void {

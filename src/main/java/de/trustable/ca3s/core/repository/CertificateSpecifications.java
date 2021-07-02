@@ -411,8 +411,10 @@ public final class CertificateSpecifications {
 		    	cv.setKeyLength(objArr[i].toString());
 		    }else if( "description".equalsIgnoreCase(attribute)) {
 		    	cv.setDescription((String) objArr[i]);
-		    }else if( "serial".equalsIgnoreCase(attribute)) {
-		    	cv.setSerial((String) objArr[i]);
+            }else if( "serial".equalsIgnoreCase(attribute)) {
+                cv.setSerial((String) objArr[i]);
+            }else if( "serialHex".equalsIgnoreCase(attribute)) {
+                cv.setSerial((String) objArr[i]);
 		    }else if( "validFrom".equalsIgnoreCase(attribute)) {
 		    	cv.setValidFrom((Instant) objArr[i]);
 		    }else if( "validTo".equalsIgnoreCase(attribute)) {
@@ -423,8 +425,10 @@ public final class CertificateSpecifications {
 		    	cv.setRevokedSince((Instant) objArr[i]);
 			}else if( "revocationReason".equalsIgnoreCase(attribute)) {
 		    	cv.setRevocationReason((String) objArr[i]);
-			}else if( "revoked".equalsIgnoreCase(attribute)) {
-		    	cv.setRevoked((Boolean) objArr[i]);
+            }else if( "revoked".equalsIgnoreCase(attribute)) {
+                cv.setRevoked((Boolean) objArr[i]);
+            }else if( "revokedBy".equalsIgnoreCase(attribute)) {
+                cv.setRevokedBy((String) objArr[i]);
 			}else if( "keyAlgorithm".equalsIgnoreCase(attribute)) {
 		    	cv.setKeyAlgorithm((String) objArr[i]);
 			}else if( "signingAlgorithm".equalsIgnoreCase(attribute)) {
@@ -450,7 +454,8 @@ public final class CertificateSpecifications {
                 cv.setChainLength( Long.parseLong ((String)objArr[i]));
             }else if( "crlurl".equalsIgnoreCase(attribute)) {
                 cv.setCrlUrl((String) objArr[i]);
-
+            }else if( "requestedBy".equalsIgnoreCase(attribute)) {
+                cv.setRequestedBy( (String) objArr[i]) ;
             }else {
 				logger.warn("unexpected attribute '{}' from query", attribute);
 			}
@@ -544,8 +549,6 @@ public final class CertificateSpecifications {
         }else if( "csrComment".equals(attribute)){
         }else if( "extUsage".equals(attribute)){
         }else if( "processingCa".equals(attribute)){
-        }else if( "requestedBy".equals(attribute)){
-        }else if( "revokedBy".equals(attribute)){
         }else if( "uploadedBy".equals(attribute)){
         }else if( "selfSigned".equals(attribute)){
             Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
@@ -706,7 +709,7 @@ public final class CertificateSpecifications {
 			addNewColumn(selectionList,root.get(Certificate_.keyLength));
 			pred = SpecificationsHelper.buildPredicateInteger( attributeSelector, cb, root.<Integer>get(Certificate_.keyLength), attributeValue);
 
-		}else if( "serial".equals(attribute)){
+		}else if( "serial".equals(attribute) || "serialHex".equals(attribute) ){
 
 			addNewColumn(selectionList,root.get(Certificate_.serial));
 
@@ -753,15 +756,19 @@ public final class CertificateSpecifications {
 			addNewColumn(selectionList,root.get(Certificate_.revocationReason));
 			pred = buildPredicateString( attributeSelector, cb, root.<String>get(Certificate_.revocationReason), attributeValue);
 
-		}else if( "requestedBy".equals(attribute)){
+        }else if( "revokedBy".equals(attribute)){
+            Join<Certificate, CertificateAttribute> attJoinRequestor = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
+            addNewColumn(selectionList,attJoinRequestor.get(CertificateAttribute_.value));
 
-			if( attributeValue.trim().length() > 0 ) {
-				Join<Certificate,CSR> attJoin = root.join(Certificate_.csr, JoinType.LEFT);
-				addNewColumn(selectionList,attJoin.get(CSR_.requestedBy));
+            pred = cb.and( cb.equal(attJoinRequestor.<String>get(CertificateAttribute_.name), CertificateAttribute.ATTRIBUTE_REVOKED_BY),
+                buildPredicateString( attributeSelector, cb, attJoinRequestor.<String>get(CertificateAttribute_.value), attributeValue));
 
-				pred = buildPredicateString( attributeSelector, cb, attJoin.<String>get(CSR_.requestedBy), attributeValue);
-			}
+        }else if( "requestedBy".equals(attribute)){
+            Join<Certificate, CertificateAttribute> attJoinRequestor = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
+            addNewColumn(selectionList,attJoinRequestor.get(CertificateAttribute_.value));
 
+            pred = cb.and( cb.equal(attJoinRequestor.<String>get(CertificateAttribute_.name), CertificateAttribute.ATTRIBUTE_REQUESTED_BY),
+                buildPredicateString( attributeSelector, cb, attJoinRequestor.<String>get(CertificateAttribute_.value), attributeValue));
         }else if( "comment".equals(attribute)){
             Join<Certificate, CertificateComment> attJoin = root.join(Certificate_.comment, JoinType.LEFT);
             addNewColumn(selectionList,attJoin.get(CertificateComment_.comment));

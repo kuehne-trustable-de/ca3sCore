@@ -36,7 +36,7 @@ import javax.naming.ldap.Rdn;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.repository.CertificateCommentRepository;
 import de.trustable.ca3s.core.service.AuditService;
-import de.trustable.ca3s.core.web.rest.data.NamedValue;
+import io.micrometer.core.instrument.util.StringUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.validator.routines.InetAddressValidator;
@@ -540,7 +540,7 @@ public class CertificateUtil {
 
 		addAdditionalCertificateAttributes(x509Cert, cert);
 
-		copyArAttributes(csr, cert);
+		copyCsrAttributesToCertificate(csr, cert);
 
 		certificateRepository.save(cert);
 		certificateAttributeRepository.saveAll(cert.getCertificateAttributes());
@@ -625,10 +625,18 @@ public class CertificateUtil {
         }
     }
 
-    private void copyArAttributes(final CSR csr, final Certificate cert) {
+    private void copyCsrAttributesToCertificate(final CSR csr, final Certificate cert) {
 
 	    if( csr == null || cert == null ){
 	        return;
+        }
+
+	    if(!StringUtils.isBlank(csr.getRequestedBy())){
+            setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_REQUESTED_BY, csr.getRequestedBy());
+        }
+
+        if(csr.getComment() != null && !StringUtils.isBlank(csr.getComment().getComment())) {
+            setCertificateComment(cert, csr.getComment().getComment());
         }
 
         for(CsrAttribute csrAttr: csr.getCsrAttributes()){

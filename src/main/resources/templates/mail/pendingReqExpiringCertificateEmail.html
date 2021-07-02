@@ -32,6 +32,7 @@
         <p th:if="${#lists.isEmpty(pendingCsrList) and #lists.isEmpty(expiringCertList)}" th:text="#{email.notification.greeting.RA.empty.set}">
             Currently there are no pending requests and or expiring certificates.
         </p>
+<h3>${#lists.isEmpty(expiringCertList)}</h3>
 
         <p th:unless="${#lists.isEmpty(pendingCsrList)}">
             <h2 th:text="#{email.pending.requests.header}">Pending requests</h2>
@@ -41,7 +42,7 @@
                     <th>SANs</th>
                     <th>requested by</th>
                     <th>requested on</th>
-                    <th>details</th>
+                    <!--th>details</th-->
                 </tr>
                 <tr th:each="csr : ${pendingCsrList}">
                     <td th:text="${csr.subject}"></td>
@@ -49,7 +50,7 @@
                     <td th:text="${csr.requestedBy}"></td>
                     <td th:text="${#dates.format(csr.requestedOn, 'dd.MM.yyyy, HH:mm')}"></td>
 
-                    <td><a th:with="url=(@{|${baseUrl}/csr-info?id=${csr.id}|})" th:href="${url}" th:text="#{email.notification.csr.RA.link}">CSR details</a></td>
+                    <!--td><a th:with="url=(@{|${baseUrl}/csr-info?id=${csr.id}|})" th:href="${url}" th:text="#{email.notification.csr.RA.link}">CSR details</a></td-->
                 </tr>
             </table>
         </p>
@@ -66,6 +67,7 @@
                 </tr>
                 <tr th:each="cert : ${expiringCertList}">
                     <td th:text="${cert.subject}"></td>
+                    <td th:text="${cert.serial}"></td>
                     <td th:text="${cert.sans}"></td>
                     <td th:text="${#dates.format(cert.validTo, 'dd.MM.yyyy, HH:mm')}"></td>
                     <td><a th:with="url=(@{|${baseUrl}/cert-info?certificateId=${cert.id}|})" th:href="${url}" th:text="#{email.notification.cert.RA.link}">Certificate details</a></td>

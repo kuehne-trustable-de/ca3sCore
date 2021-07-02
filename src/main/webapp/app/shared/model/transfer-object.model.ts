@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2021-06-18 16:43:19.
+// Generated using typescript-generator version 2.19.577 on 2021-06-30 18:13:28.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -103,6 +103,7 @@ export interface ICertificateView extends ISerializable {
   comment?: string;
   csrComment?: string;
   serial?: string;
+  serialHex?: string;
   validFrom?: Date;
   validTo?: Date;
   contentAddedAt?: Date;
@@ -344,7 +345,9 @@ export type ISelector =
   | 'BEFORE'
   | 'AFTER'
   | 'ISTRUE'
-  | 'ISFALSE';
+  | 'ISFALSE'
+  | 'PERIOD_BEFORE'
+  | 'PERIOD_AFTER';
 
 export type IBPMNProcessType = 'CA_INVOCATION' | 'REQUEST_AUTHORIZATION';
 

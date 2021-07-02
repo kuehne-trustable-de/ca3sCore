@@ -187,14 +187,6 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
     return this.getUsername() === this.certificateView.requestedBy;
   }
 
-  public toHex(input: string): string {
-    const n = Number(input);
-    if (isNaN(n)) {
-      return '';
-    }
-    return n.toString(16);
-  }
-
   public updateCertificate() {
     this.certificateAdminData.certificateId = this.certificateView.id;
     this.certificateAdminData.administrationType = 'UPDATE';

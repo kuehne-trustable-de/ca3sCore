@@ -99,6 +99,10 @@ public class PreferenceResource {
 
         String portsCommaSeparatedList = "";
         for( int nPort: portsArr){
+            if(nPort == 0){
+                // Just ignore a '0'
+                continue;
+            }
     		try {
     			if( nPort <= 0 || nPort > 65535) {
     		        log.warn("unexpected Preference value for port in ACME_HTTP01_CALLBACK_PORTS '{}'", nPort);

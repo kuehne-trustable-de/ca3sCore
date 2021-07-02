@@ -51,7 +51,7 @@
                     </dt>
                     <dd>
                         <ul>
-                            <li >{{toHex(certificateView.serial)}}</li>
+                            <li >{{certificateView.serialHex}}</li>
                             <li >{{certificateView.serial}}</li>
                         </ul>
 
