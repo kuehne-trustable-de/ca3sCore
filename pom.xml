@@ -86,7 +86,7 @@
         <spring-framework.version>5.2.15.RELEASE</spring-framework.version>
 
         <!--spring.security.version>5.3.8.RELEASE</spring.security.version-->
-        <spring.security.version>5.2.10.RELEASE</spring.security.version>
+        <spring.security.version>5.2.11.RELEASE</spring.security.version>
         <springSecurityLdapVersion>5.3.1.RELEASE</springSecurityLdapVersion>
 
         <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core/${hibernate.version} -->
