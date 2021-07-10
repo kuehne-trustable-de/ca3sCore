@@ -58,7 +58,7 @@ public class JwtUtil {
 	  private static final String EMPTY_PAYLOAD_REPLACEMENT_B64 = "e30";
 
 	 private static final Logger LOG = LoggerFactory.getLogger(JwtUtil.class);
-	 
+
 		  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
 //		  private final ObjectReader objectReader;
@@ -81,16 +81,16 @@ public class JwtUtil {
 
 		}
 */
-		  
+
     private static final JwtConsumer NOT_VALIDATING_JWT_CONSUMER = new JwtConsumerBuilder()
             .setSkipAllValidators()
             .setDisableRequireSignature()
             .setSkipSignatureVerification()
             .build();
 
-    
+
     public JwtContext processFlattenedJWT(final String flattenedJwsJson) {
-    	
+
 	    LOG.debug("Converting Flattened JWT: {}", flattenedJwsJson);
 	    final String compactJwsSerialization;
 	    try {
@@ -101,7 +101,7 @@ public class JwtUtil {
 	      }
 	      final String protectedValue = jsonProtectedValue.asText();
 		  LOG.debug("protected JWT content decoded: {}", new String(Base64.decodeBase64(protectedValue)));
-	      
+
 	      final JsonNode jsonPayloadValue = jsonRootNode.get("payload");
 	      if( jsonPayloadValue == null){
 	    	  throw new IOException("JWT component 'payload' missing");
@@ -111,7 +111,7 @@ public class JwtUtil {
 	    	  payload = EMPTY_PAYLOAD_REPLACEMENT_B64;
 	      }
 		  LOG.debug("JWT payload decoded: {}", new String(Base64.decodeBase64(payload)));
-	      
+
 	      final JsonNode jsonSignatureValue = jsonRootNode.get("signature");
 	      if( jsonSignatureValue == null){
 	    	  throw new IOException("JWT component 'signature' missing");
@@ -122,40 +122,40 @@ public class JwtUtil {
 	      return NOT_VALIDATING_JWT_CONSUMER.process(compactJwsSerialization);
 
 	    } catch (IOException | InvalidJwtException e) {
-	    	
+
 		    LOG.debug("Problem processing JWT from flattenedJwsJson : " + flattenedJwsJson, e);
 	        final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "JWT processing problem",
 	                BAD_REQUEST, e.getMessage(), ACMEUtil.NO_INSTANCE);
 	    	throw new AcmeProblemException(problem);
 
 	    }
-	    
+
     }
-    
+
     public JwtContext processCompactJWT(final String compactJwsSerialization) {
-    	
+
 	    LOG.debug("Processing Compact JWT: {}", compactJwsSerialization);
 	    try {
 	      return NOT_VALIDATING_JWT_CONSUMER.process(compactJwsSerialization);
 
 	    } catch (InvalidJwtException e) {
-	    	
+
 		    LOG.debug("Problem processing JWT from compactJwsSerialization : " + compactJwsSerialization, e);
 	        final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "JWT processing problem",
 	                BAD_REQUEST, e.getMessage(), ACMEUtil.NO_INSTANCE);
 	    	throw new AcmeProblemException(problem);
 
 	    }
-	    
+
     }
-    
+
     public JwtContext convertCompact(final String compactJwsSerialization) throws InvalidJwtException {
     	return NOT_VALIDATING_JWT_CONSUMER.process(compactJwsSerialization);
     }
 
 	public void validateSignature(JwtContext context, String publicKeyBase64, long accountId)
 			throws InvalidJwtException, JoseException, IOException {
-		
+
 		try {
 		    JsonWebStructure webStruct = getJsonWebStructure(context);
 
@@ -165,7 +165,7 @@ public class JwtUtil {
 		    	keyAlgo = "EC";
 		    }
 			LOG.debug("jrw key algo {} selected by JWT algorithm header {}", keyAlgo, algHeader);
-		    
+
 			KeyFactory kf = KeyFactory.getInstance(keyAlgo);
 			PublicKey publicKey = kf.generatePublic(new X509EncodedKeySpec(Base64.decodeBase64(publicKeyBase64)));
 
@@ -173,7 +173,7 @@ public class JwtUtil {
 				final JwtConsumer jwtConsumer = new JwtConsumerBuilder().setVerificationKey(publicKey).build();
 				jwtConsumer.processContext(context);
 				LOG.debug("JWT signature validation successful for account {}", accountId);
-				
+
 		    } catch (InvalidJwtSignatureException e) {
 
 		    	// try to detect the certbot hack (inserting a dummy JSON payload '{}', base64 encoded 'e30').
@@ -187,16 +187,16 @@ public class JwtUtil {
 	      	    }else {
 
 			      	if( EMPTY_PAYLOAD_REPLACEMENT_B64.equals(signatureSerializationParts[1])) {
-			      		
+
 			      		// Create a new JsonWebSignature object
 			      	    JsonWebSignature jws = new JsonWebSignature();
-	
+
 			      	    String compactSerialization = signatureSerializationParts[0] + ".." + signatureSerializationParts[2];
-			      	    
+
 			      	    // Set the compact serialization on the JWS
 			      	    jws.setCompactSerialization(compactSerialization);
 			      	    jws.setKey(publicKey);
-			      	    
+
 			      	    if( jws.verifySignature()){
 			      	    	LOG.debug("JWT signature validation successful after settin payload to 'blank' for account {}", accountId);
 			      	    	return;
@@ -204,7 +204,7 @@ public class JwtUtil {
 		      	    }
 		      	}
 		      	throw e;
-				
+
 		    } catch (InvalidJwtException e) {
 				LOG.error("Failed signature validation: " + e.getMessage());
 				throw e;
@@ -225,7 +225,7 @@ public class JwtUtil {
 	    	throw new AcmeProblemException(problem);
 		}
 	}
-	  
+
 
     public AccountRequest getAccountRequest(final JwtClaims jwtClaims)  {
     	try {
@@ -258,7 +258,7 @@ public class JwtUtil {
 		    return e.getMessage();
 		}
 	}
-	
+
 	public String getOrderResponseAsJSON(OrderResponse orderResp) {
     	ObjectWriter objectWriter = OBJECT_MAPPER.writerFor(OrderResponse.class);
         try {
@@ -268,21 +268,21 @@ public class JwtUtil {
 		    return e.getMessage();
 		}
 	}
-	
-	
+
+
 
     public ChangeKeyRequest getChangeKeyRequest(final JwtClaims jwtClaims)  {
     	try {
-    		
+
     		ObjectMapper mapper = new ObjectMapper();
     		SimpleModule module = new SimpleModule();
     		module.addDeserializer(JsonWebKey.class, new JWKJsonDeserializer());
     		mapper.registerModule(module);
-    		
+
 	    	ObjectReader objectReader = mapper.readerFor(ChangeKeyRequest.class);
 	        return objectReader.readValue(jwtClaims.toJson());
 	    } catch (IOException e) {
-	    	
+
 		    LOG.debug("Problem processing JWT payload for ChangeKeyRequest", e);
 	        final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "JWT processing problem",
 	                BAD_REQUEST, e.getMessage(), ACMEUtil.NO_INSTANCE);
@@ -290,7 +290,7 @@ public class JwtUtil {
 	    }
     }
 
-    
+
     public IdentifiersResponse getIdentifiers(final JwtClaims jwtClaims){
     	ObjectReader objectReader = OBJECT_MAPPER.readerFor(IdentifiersResponse.class);
         try {
@@ -314,7 +314,7 @@ public class JwtUtil {
     }
 
     public RevokeRequest getRevokeReq(final JwtClaims jwtClaims) {
-    	
+
     	ObjectReader objectReader = OBJECT_MAPPER.readerFor(RevokeRequest.class);
         try {
 			return objectReader.readValue(jwtClaims.toJson());
@@ -325,7 +325,7 @@ public class JwtUtil {
 		}
     }
 
-    
+
     public JsonWebStructure getJsonWebStructure(JwtContext context) {
 	    if( context.getJoseObjects().isEmpty()) {
 			final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "JsonWebStructure missing",
@@ -337,7 +337,7 @@ public class JwtUtil {
 					BAD_REQUEST, "", ACMEUtil.NO_INSTANCE);
 			throw new AcmeProblemException(problem);
 	    }
-	    
+
 	    return context.getJoseObjects().get(0);
     }
 
@@ -351,16 +351,16 @@ public class JwtUtil {
 	    LOG.debug("Looking for accountId: " + accountId);
 	    return accountId;
     }
-    
+
     /*
-     *        
+     *
     final Optional<URL> optJOSEkid = contextResult.has(JOSEkid.INSTANCE);
-    
+
       final URL accountURL = optJOSEkid.get();
       final Optional<PublicKey> optPublicKey = accountDAO.getPublicKeyWith(accountURL);
       contextResult.setJsonWebKey(optPublicKey.orElseThrow(() -> new KidDoesNotExistException(accountURL)));
      */
-  
+
 	public PublicKey getPublicKey(final JsonWebStructure webStruct) {
 		try {
 			final PublicJsonWebKey jwk = webStruct.getHeaders().getPublicJwkHeaderValue(JWK, NO_EXPLICIT_JCA_PROVIDER);
@@ -371,7 +371,7 @@ public class JwtUtil {
 			throw new AcmeProblemException(problem);
 		}
 	}
-	
+
 	public String getKid(final JsonWebStructure webStruct) throws JoseException {
 		if( webStruct.getHeader(KID) != null ) {
 			final String kid = webStruct.getHeaders().getStringHeaderValue(KID);
@@ -380,7 +380,7 @@ public class JwtUtil {
 			return null;
 		}
 	}
-	
+
 	public String getNonce(final JsonWebStructure webStruct) throws JoseException {
 		if( webStruct.getHeader(NONCE) != null ) {
 			final String kid = webStruct.getHeaders().getStringHeaderValue(NONCE);

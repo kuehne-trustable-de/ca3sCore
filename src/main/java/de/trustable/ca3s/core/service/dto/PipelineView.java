@@ -57,7 +57,7 @@ public class PipelineView implements Serializable {
 
     private AuditView[] auditViewArr;
 
-    private CsrUsage csrUsage;
+    private CsrUsage csrUsage = CsrUsage.TLS_SERVER;
 
 
     public PipelineView() {}

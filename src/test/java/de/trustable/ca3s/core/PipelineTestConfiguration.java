@@ -8,6 +8,7 @@ import javax.transaction.Transactional;
 
 import de.trustable.ca3s.core.domain.AuditTrace;
 import de.trustable.ca3s.core.domain.PipelineAttribute;
+import de.trustable.ca3s.core.domain.enumeration.CsrUsage;
 import de.trustable.ca3s.core.service.dto.SCEPConfigItems;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
