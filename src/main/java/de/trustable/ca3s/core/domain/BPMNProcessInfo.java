@@ -55,7 +55,7 @@ public class BPMNProcessInfo implements Serializable {
     @Column(name = "bpmn_hash_base_64", nullable = false)
     private String bpmnHashBase64;
 
-    @Lob
+    @NotNull
     @Column(name = "process_id", nullable = false)
     private String processId;
 
