@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_08150v4" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.8.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:process id="Process_0h49k3l" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_1myylgo</bpmn:outgoing>
+    </bpmn:startEvent>
+    
+    <bpmn:serviceTask  id="Activity_02uy9jy" name="Soap Test">
+      
+			<bpmn2:extensionElements>
+<camunda:connector>
+  <camunda:connectorId>soap-http-connector</camunda:connectorId>
+  <camunda:inputOutput>
+
+    <camunda:inputParameter name="url">http://localhost:8180/ws</camunda:inputParameter>
+
+    <camunda:inputParameter name="payload">
+      <camunda:script scriptFormat="freemarker" resource="soapEnvelope.ftl" />
+    </camunda:inputParameter>
+
+    <camunda:inputParameter name="headers">
+      <camunda:map>
+        <!--camunda:entry key="Content-Type">application/soap+xml;charset=UTF-8;action="${soap_action}"</camunda:entry-->
+        <camunda:entry key="Content-Type">application/soap+xml;charset=UTF-8</camunda:entry>
+      </camunda:map>
+    </camunda:inputParameter>
+
+    <camunda:outputParameter name="isActive">
+      <![CDATA[
+        ${S(response)
+            .childElement("Body")
+            .childElement(base_url, "GetActiveCIByURLResponse")
+            .childElement(base_url, "ci")
+            .childElement(base_url, "active")
+            .textContent()}
+      ]]>
+    </camunda:outputParameter>
+
+  </camunda:inputOutput>
+</camunda:connector>
+  </bpmn2:extensionElements>
+      <bpmn:incoming>Flow_1myylgo</bpmn:incoming>
+      <bpmn:outgoing>Flow_0bf7fub</bpmn:outgoing>
+    </bpmn:serviceTask >
+    
+    <bpmn:endEvent id="Event_1i2nooq">
+      <bpmn:incoming>Flow_0bf7fub</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1myylgo" sourceRef="StartEvent_1" targetRef="Activity_02uy9jy" />
+    <bpmn:sequenceFlow id="Flow_0bf7fub" sourceRef="Activity_02uy9jy" targetRef="Event_1i2nooq" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_0h49k3l">
+      <bpmndi:BPMNEdge id="Flow_1myylgo_di" bpmnElement="Flow_1myylgo">
+        <di:waypoint x="215" y="117" />
+        <di:waypoint x="300" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0bf7fub_di" bpmnElement="Flow_0bf7fub">
+        <di:waypoint x="400" y="117" />
+        <di:waypoint x="562" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_02uy9jy_di" bpmnElement="Activity_02uy9jy">
+        <dc:Bounds x="300" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1i2nooq_di" bpmnElement="Event_1i2nooq">
+        <dc:Bounds x="562" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
