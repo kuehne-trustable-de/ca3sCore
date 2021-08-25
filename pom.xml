@@ -601,6 +601,14 @@
             <groupId>org.liquibase.ext</groupId>
             <artifactId>liquibase-mssql</artifactId>
             <version>${liquibase.version}</version>
+            <!-- strange hack for a strange problem:
+              this module infers a different number of lb core despite its referenced within this pom -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.liquibase</groupId>
+                    <artifactId>liquibase-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.logstash.logback</groupId>
