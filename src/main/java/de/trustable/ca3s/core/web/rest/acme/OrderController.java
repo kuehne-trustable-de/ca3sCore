@@ -42,7 +42,7 @@ import java.util.Set;
 
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.util.*;
-import de.trustable.ca3s.core.web.rest.data.NamedValues;
+import de.trustable.ca3s.core.service.dto.NamedValues;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
@@ -246,7 +246,7 @@ public class OrderController extends ACMEController {
 						boolean bSanFound = false;
 						for (AcmeAuthorization authDao : orderDao.getAcmeAuthorizations()) {
 							if( san.equalsIgnoreCase(authDao.getValue())) {
-								LOG.debug("san '{}' part of order {} in authorization {}", san, orderDao.getOrderId(), authDao.toString());
+								LOG.debug("san '{}' part of order {} in authorization {}", san, orderDao.getOrderId(), authDao);
 								bSanFound = true;
 								break;
 							}

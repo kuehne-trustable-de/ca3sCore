@@ -7,14 +7,12 @@ import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.schedule.CertExpiryScheduler;
 import de.trustable.ca3s.core.service.AuditService;
-import de.trustable.ca3s.core.service.MailService;
 import de.trustable.ca3s.core.service.NotificationService;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.web.rest.data.AdministrationType;
-import de.trustable.ca3s.core.web.rest.data.CSRAdministrationData;
 import de.trustable.ca3s.core.web.rest.data.CertificateAdministrationData;
-import de.trustable.ca3s.core.web.rest.data.NamedValue;
+import de.trustable.ca3s.core.service.dto.NamedValue;
 import de.trustable.util.CryptoUtil;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.slf4j.Logger;
@@ -29,14 +27,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.thymeleaf.context.Context;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.Date;
-import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -126,7 +122,7 @@ public class CertificateAdministration {
 
                 certUtil.setCertificateComment(cert, adminData.getComment());
 
-                return new ResponseEntity<Long>(adminData.getCertificateId(), HttpStatus.OK);
+                return new ResponseEntity<>(adminData.getCertificateId(), HttpStatus.OK);
 			} catch (GeneralSecurityException e) {
 	    		return ResponseEntity.badRequest().build();
 			}
@@ -192,9 +188,8 @@ public class CertificateAdministration {
     		Certificate certificate = optCert.get();
 
     		String requestedBy = certificate.getCsr().getRequestedBy();
-    		if( userName == null ||
-    				requestedBy == null ||
-    				!userName.equals(requestedBy) ){
+    		if(userName == null ||
+                !userName.equals(requestedBy)){
 
     	    	LOG.debug("REST request by '{}' to revoke certificate '{}' rejected ", userName, adminData.getCertificateId());
         		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -203,7 +198,7 @@ public class CertificateAdministration {
     		try {
 	    		revokeCertificate(certificate, adminData, userName);
 
-	    		return new ResponseEntity<Long>(adminData.getCertificateId(), HttpStatus.OK);
+	    		return new ResponseEntity<>(adminData.getCertificateId(), HttpStatus.OK);
 
 			} catch (GeneralSecurityException e) {
 	    		return ResponseEntity.badRequest().build();
@@ -270,7 +265,7 @@ public class CertificateAdministration {
 	@Transactional
     public ResponseEntity<Integer> sendExpiringCertificateEmail() {
     	int nExpiringCerts = certExpiryScheduler.notifyRAOfficerHolderOnExpiry();
-		return new ResponseEntity<Integer>(nExpiringCerts, HttpStatus.OK);
+		return new ResponseEntity<>(nExpiringCerts, HttpStatus.OK);
     }
 
 //    selfAdministerCertificate
@@ -312,7 +307,7 @@ public class CertificateAdministration {
 
             certificateRepository.save(certificate);
 
-            return new ResponseEntity<Long>(adminData.getCertificateId(), HttpStatus.OK);
+            return new ResponseEntity<>(adminData.getCertificateId(), HttpStatus.OK);
 
         }else {
             return ResponseEntity.notFound().build();

@@ -9,14 +9,12 @@ import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CsrAttributeRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.AuditService;
-import de.trustable.ca3s.core.service.MailService;
 import de.trustable.ca3s.core.service.NotificationService;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CSRUtil;
-import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.web.rest.data.AdministrationType;
 import de.trustable.ca3s.core.web.rest.data.CSRAdministrationData;
-import de.trustable.ca3s.core.web.rest.data.NamedValue;
+import de.trustable.ca3s.core.service.dto.NamedValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,12 +27,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.thymeleaf.context.Context;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.time.Instant;
-import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -110,11 +106,11 @@ public class CSRAdministration {
         			} else {
         				LOG.warn("certificate requestor '{}' unknown!", csr.getRequestedBy());
         			}
-    	    		return new ResponseEntity<Long>(cert.getId(), HttpStatus.CREATED);
+    	    		return new ResponseEntity<>(cert.getId(), HttpStatus.CREATED);
 
     			} else {
     				LOG.warn("creation of certificate requested for CSR {} failed ", csr.getId());
-    	    		return new ResponseEntity<Long>(adminData.getCsrId(), HttpStatus.BAD_REQUEST);
+    	    		return new ResponseEntity<>(adminData.getCsrId(), HttpStatus.BAD_REQUEST);
     			}
 
     		}else if(AdministrationType.REJECT.equals(adminData.getAdministrationType())){
@@ -141,13 +137,13 @@ public class CSRAdministration {
 
                 auditService.saveAuditTrace(auditService.createAuditTraceCsrRejected(csr));
 
-        		return new ResponseEntity<Long>(adminData.getCsrId(), HttpStatus.OK);
+        		return new ResponseEntity<>(adminData.getCsrId(), HttpStatus.OK);
 
             }else if(AdministrationType.UPDATE.equals(adminData.getAdministrationType())){
                 updateARAttributes(adminData, csr);
                 csrUtil.setCSRComment(csr, adminData.getComment());
 
-                return new ResponseEntity<Long>(adminData.getCsrId(), HttpStatus.OK);
+                return new ResponseEntity<>(adminData.getCsrId(), HttpStatus.OK);
             } else {
                 LOG.info("administration type '{}' unexpected!", adminData.getAdministrationType());
                 return ResponseEntity.badRequest().build();
@@ -194,7 +190,7 @@ public class CSRAdministration {
 
             auditService.saveAuditTrace(auditService.createAuditTraceCsrRejected(csr));
 
-            return new ResponseEntity<Long>(adminData.getCsrId(), HttpStatus.OK);
+            return new ResponseEntity<>(adminData.getCsrId(), HttpStatus.OK);
 
         }else {
             return ResponseEntity.notFound().build();
@@ -236,7 +232,7 @@ public class CSRAdministration {
 
             csrRepository.save(csr);
 
-            return new ResponseEntity<Long>(adminData.getCsrId(), HttpStatus.OK);
+            return new ResponseEntity<>(adminData.getCsrId(), HttpStatus.OK);
 
         }else {
             return ResponseEntity.notFound().build();

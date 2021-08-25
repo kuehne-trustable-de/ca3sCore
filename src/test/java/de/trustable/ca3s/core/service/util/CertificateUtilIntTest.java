@@ -29,7 +29,7 @@ import de.trustable.util.JCAManager;
 import javax.naming.InvalidNameException;
 
 @SpringBootTest(classes = Ca3SApp.class)
-public class CertificateUtilTest {
+public class CertificateUtilIntTest {
 
     @Autowired
     private CertificateUtil certificateUtil;

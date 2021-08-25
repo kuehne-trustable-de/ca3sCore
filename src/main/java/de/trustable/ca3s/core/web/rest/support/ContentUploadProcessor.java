@@ -9,6 +9,7 @@ import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.dto.NamedValues;
 import de.trustable.ca3s.core.service.dto.PipelineView;
 import de.trustable.ca3s.core.service.dto.Preferences;
 import de.trustable.ca3s.core.service.util.*;
@@ -464,7 +465,7 @@ public class ContentUploadProcessor {
 
                 CSR csr = cpUtil.buildCSR(csrAsPem, requestorName, AuditService.AUDIT_WEB_CERTIFICATE_REQUESTED, requestorComment, pipeline, nvArr, messageList);
 
-                p10ReqData.setMessages(messageList.toArray(new String[messageList.size()]));
+                p10ReqData.setMessages(messageList.toArray(new String[0]));
 
                 if (csr != null) {
                     if (pipeline.isApprovalRequired()) {
@@ -479,7 +480,7 @@ public class ContentUploadProcessor {
                     LOG.warn("startCertificateCreationProcess: creation of CSR failed");
                 }
             } else {
-                LOG.warn("startCertificateCreationProcess: pipeline {} not active");
+                LOG.warn("startCertificateCreationProcess: pipeline {} not active", pipeline.getName());
             }
 		}else {
             LOG.warn("startCertificateCreationProcess: no processing pipeline defined");

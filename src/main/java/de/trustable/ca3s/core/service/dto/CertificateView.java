@@ -5,7 +5,6 @@ import com.opencsv.bean.CsvIgnore;
 import com.opencsv.bean.CsvRecurse;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
-import de.trustable.ca3s.core.web.rest.data.NamedValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

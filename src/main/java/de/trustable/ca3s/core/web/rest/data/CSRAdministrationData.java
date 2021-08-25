@@ -5,6 +5,7 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.trustable.ca3s.core.service.dto.NamedValue;
 
 public class CSRAdministrationData implements Serializable {
 
