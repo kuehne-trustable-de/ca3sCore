@@ -5,7 +5,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>0.1.21</version>
+    <version>0.1.22</version>
     <packaging>jar</packaging>
 
 
@@ -162,6 +162,7 @@
         <!-- start-class>camunda.transformation.pipeline.CamundaTransformationPipelineApp</start-class-->
         <camunda.version>7.12.0</camunda.version>
         <camunda.commons.version>1.6.1</camunda.commons.version>
+        <camunda.commons.logging.version>1.8.2</camunda.commons.logging.version>
 
         <!-- camunda.spring-boot.version>3.4.0</camunda.spring-boot.version-->
         <camunda.spring-boot.version>3.2.0</camunda.spring-boot.version>
@@ -188,6 +189,15 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <dependency>
+                <groupId>org.camunda.bpm</groupId>
+                <artifactId>camunda-bom</artifactId>
+                <scope>import</scope>
+                <type>pom</type>
+                <version>${camunda.version}</version>
+            </dependency>
+
             <!-- jhipster-needle-maven-add-dependency-management -->
             <dependency>
                 <groupId>mysql</groupId>
@@ -329,7 +339,7 @@
             <dependency>
                 <groupId>org.camunda.commons</groupId>
                 <artifactId>camunda-commons-logging</artifactId>
-                <version>1.6.1</version>
+                <version>${camunda.commons.logging.version}</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-compress -->
@@ -755,6 +765,46 @@
         <!-- jhipster-needle-maven-add-dependency -->
 
         <dependency>
+            <groupId>org.camunda.bpm</groupId>
+            <artifactId>camunda-engine-plugin-connect</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.camunda.connect</groupId>
+            <artifactId>camunda-connect-soap-http-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.camunda.connect</groupId>
+            <artifactId>camunda-connect-http-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.camunda.bpm</groupId>
+            <artifactId>camunda-engine-plugin-spin</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.camunda.template-engines</groupId>
+            <artifactId>camunda-template-engines-freemarker</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.camunda.spin</groupId>
+            <artifactId>camunda-spin-dataformat-xml-dom</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.camunda.spin</groupId>
+            <artifactId>camunda-spin-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.camunda.spin</groupId>
+            <artifactId>camunda-spin-dataformat-all</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.camunda.bpm.springboot</groupId>
             <artifactId>camunda-bpm-spring-boot-starter-rest</artifactId>
             <version>${camunda.spring-boot.version}</version>
@@ -766,11 +816,7 @@
             </exclusions>
 
         </dependency>
-        <!-- dependency>
-            <groupId>org.camunda.bpm.springboot</groupId>
-            <artifactId>camunda-bpm-spring-boot-starter-webapp</artifactId>
-            <version>${camunda.spring-boot.version}</version>
-        </dependency-->
+
         <dependency>
             <groupId>org.camunda.bpm.springboot</groupId>
             <artifactId>camunda-bpm-spring-boot-starter-test</artifactId>
@@ -1126,7 +1172,9 @@
 						<class>de.trustable.ca3s.core.web.rest.data.CertificateSelectionData</class>
 						<class>de.trustable.ca3s.core.web.rest.data.PkcsXXData</class>
 						<class>de.trustable.ca3s.core.web.rest.data.DataCollection</class>
-						<class>de.trustable.ca3s.core.web.rest.data.DataSet</class>
+                        <class>de.trustable.ca3s.core.web.rest.data.DataSet</class>
+                        <class>de.trustable.ca3s.core.web.rest.data.BpmnCheckResult</class>
+
 					</classes>
 					<addTypeNamePrefix>I</addTypeNamePrefix>
 					<optionalProperties>all</optionalProperties>

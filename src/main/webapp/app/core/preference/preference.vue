@@ -21,6 +21,11 @@
                             <label for="preferences-checkCRL" v-text="$t('ca3SApp.preference.checkCRL')">Check CRLs (to update certificate state)</label>
                             <input type="checkbox" class="form-check-inline" name="preferences-checkCRL" id="preferences-checkCRL" v-model="preferences.checkCRL" />
                         </div>
+
+                        <div class="form-group" v-if="preferences.checkCRL">
+                            <label for="preferences-maxNextUpdatePeriodCRLHour" v-text="$t('ca3SApp.preference.maxNextUpdatePeriodCRLHour')">Store CRLs for up to N hours</label>
+                            <input type="number" class="form-check-inline" name="preferences-maxNextUpdatePeriodCRLHour" id="preferences-maxNextUpdatePeriodCRLHour" v-model="preferences.maxNextUpdatePeriodCRLHour" />
+                        </div>
                         <div class="form-group">
                             <label for="preferences-serverSideKeyCreationAllowed" v-text="$t('ca3SApp.preference.serverSideKeyCreationAllowed')">Server side key creation allowed</label>
                             <input type="checkbox" class="form-check-inline" name="preferences-serverSideKeyCreationAllowed" id="preferences-serverSideKeyCreationAllowed" v-model="preferences.serverSideKeyCreationAllowed" />

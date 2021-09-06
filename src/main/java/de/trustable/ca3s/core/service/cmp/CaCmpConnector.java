@@ -250,7 +250,7 @@ public class CaCmpConnector {
 			throw new GeneralSecurityException(e.getMessage());
 		}
 
-		List<RDN> rdnList = new ArrayList<RDN>();
+		List<RDN> rdnList = new ArrayList<>();
 		for (de.trustable.ca3s.core.domain.RDN rdnDao : csr.getRdns()) {
 			LOGGER.debug("rdnDao : " + rdnDao.getRdnAttributes());
 			List<AttributeTypeAndValue> attrTVList = new ArrayList<AttributeTypeAndValue>();
@@ -268,9 +268,9 @@ public class CaCmpConnector {
 		}
 
 		X500Name subjectDN = new X500Name(rdnList.toArray(new RDN[rdnList.size()]));
-		LOGGER.debug("subjectDN : " + subjectDN.toString());
+		LOGGER.debug("subjectDN : " + subjectDN);
 
-		Collection<Extension> certExtList = new ArrayList<Extension>();
+		Collection<Extension> certExtList = new ArrayList<>();
 
 		final SubjectPublicKeyInfo keyInfo = p10Req.getSubjectPublicKeyInfo();
 
@@ -289,7 +289,7 @@ public class CaCmpConnector {
 			throws GeneralSecurityException {
 
 		X500Name subjectDN = p10Req.getSubject();
-		Collection<Extension> certExtList = new ArrayList<Extension>();
+		Collection<Extension> certExtList = new ArrayList<>();
 
 		Attribute[] attrs = p10Req.getAttributes();
 		for (Attribute attr : attrs) {
@@ -343,7 +343,11 @@ public class CaCmpConnector {
 			return CAStatus.Active;
 
 		} catch( GeneralSecurityException gse) {
-			LOGGER.error("status call to CMP instance '" + caConnConfig.getName() + "' failed", gse);
+            if( LOGGER.isDebugEnabled()){
+                LOGGER.error("status call to CMP instance '" + caConnConfig.getName() + "' failed", gse);
+            }else {
+                LOGGER.error("status call to CMP instance '" + caConnConfig.getName() + "' failed: " +  gse.getMessage());
+            }
 		}
 
 		return CAStatus.Deactivated;
@@ -366,8 +370,7 @@ public class CaCmpConnector {
 			LOGGER.debug("general info responseBytes : " + java.util.Base64.getEncoder().encodeToString(responseBytes));
 
 			// handle the response
-			GenMsgContent genMsgContent = cryptoUtil.readGenMsgResponse(responseBytes);
-			return genMsgContent;
+            return cryptoUtil.readGenMsgResponse(responseBytes);
 
 		} catch (CRMFException e) {
 			LOGGER.info("CMS format problem", e);
@@ -376,7 +379,11 @@ public class CaCmpConnector {
 			LOGGER.info("CMP problem", e);
 			throw new GeneralSecurityException(e.getMessage());
 		} catch (IOException e) {
-			LOGGER.info("IO / encoding problem", e);
+		    if( LOGGER.isDebugEnabled()){
+                LOGGER.debug("IO / encoding problem", e);
+            }else {
+                LOGGER.info("IO / encoding problem: {}", e.getMessage());
+            }
 			throw new GeneralSecurityException(e.getMessage());
 		}
 	}
@@ -566,7 +573,7 @@ public class CaCmpConnector {
 		LOGGER.info(errMsg);
 
 		try {
-			if (errMsgContent != null && errMsgContent.getPKIStatusInfo() != null) {
+			if (errMsgContent.getPKIStatusInfo() != null) {
 				PKIFreeText freeText = errMsgContent.getPKIStatusInfo().getStatusString();
 				for (int i = 0; i < freeText.size(); i++) {
 					LOGGER.info("#" + i + ": " + freeText.getStringAt(i));
@@ -581,7 +588,6 @@ public class CaCmpConnector {
 
 	/**
 	 * @param pkiMessage
-	 * @return
 	 */
 	private void printPKIMessageInfo(final PKIMessage pkiMessage) {
 

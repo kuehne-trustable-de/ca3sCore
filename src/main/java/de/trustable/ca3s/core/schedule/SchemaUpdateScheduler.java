@@ -68,7 +68,7 @@ public class SchemaUpdateScheduler {
 		int count = 0;
 		for (Certificate cert : updateCertificateList) {
 
-            X509Certificate x509Cert = null;
+            X509Certificate x509Cert;
             try {
                 int currentVersion = Integer.parseInt( certUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION));
 
@@ -93,5 +93,6 @@ public class SchemaUpdateScheduler {
 		if( count > 0){
             auditService.saveAuditTrace(auditService.createAuditTraceCertificateSchemaUpdated(count, CertificateUtil.CURRENT_ATTRIBUTES_VERSION ));
         }
+
 	}
 }

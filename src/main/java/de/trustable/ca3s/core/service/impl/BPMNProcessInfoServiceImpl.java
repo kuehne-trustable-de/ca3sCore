@@ -4,6 +4,7 @@ import de.trustable.ca3s.core.service.BPMNProcessInfoService;
 import de.trustable.ca3s.core.domain.BPMNProcessInfo;
 import de.trustable.ca3s.core.repository.BPMNProcessInfoRepository;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
+import org.camunda.bpm.engine.exception.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +80,16 @@ public class BPMNProcessInfoServiceImpl implements BPMNProcessInfoService {
         log.debug("Request to delete BPMNProcessInfo : {}", id);
         Optional<BPMNProcessInfo> optionalBPMNProcessInfo = bPMNProcessInfoRepository.findById(id);
         if(optionalBPMNProcessInfo.isPresent()) {
-            bpmnUtil.deleteProcessDefinitions(optionalBPMNProcessInfo.get().getProcessId());
+            String processId = optionalBPMNProcessInfo.get().getProcessId();
+            if( processId != null ) {
+                try {
+                    bpmnUtil.deleteProcessDefinitions(processId);
+                } catch ( NotFoundException nfe){
+                    log.warn("No valid process found for process if '{}' while deleting BPMNProcessInfo : {}", processId, id);
+                }
+            }else{
+                log.warn("No valid process id found while deleting BPMNProcessInfo : {}", id);
+            }
             bPMNProcessInfoRepository.deleteById(id);
         }
     }

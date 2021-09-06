@@ -2,13 +2,7 @@ import Component from 'vue-class-component';
 import { Inject, Vue } from 'vue-property-decorator';
 import { mixins } from 'vue-class-component';
 
-import {
-  ICertificateFilter,
-  ICertificateFilterList,
-  ISelector,
-  ICertificateSelectionData,
-  IPipelineView
-} from '@/shared/model/transfer-object.model';
+import { ICertificateFilter, ICertificateFilterList, ISelector, ICertificateSelectionData } from '@/shared/model/transfer-object.model';
 
 import { IBPMNProcessInfo } from '@/shared/model/bpmn-process-info.model';
 
@@ -105,7 +99,7 @@ export default class BpmnList extends mixins(AlertMixin, Vue) {
     return this.$store.getters.authenticated;
   }
 
-  public csrSelectionItems: ICertificateSelectionData[] = [
+  public bpmnSelectionItems: ICertificateSelectionData[] = [
     { itemName: 'name', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'ISSUE' },
     { itemName: 'version', itemType: 'string', itemDefaultSelector: 'GREATERTHAN', itemDefaultValue: null },
     {
@@ -149,7 +143,7 @@ export default class BpmnList extends mixins(AlertMixin, Vue) {
   }
 
   public getInputType(itemName: string): string {
-    const selectionItem = this.csrSelectionItems.find(selections => selections.itemName === itemName);
+    const selectionItem = this.bpmnSelectionItems.find(selections => selections.itemName === itemName);
     if (selectionItem) {
       return selectionItem.itemType;
     }
@@ -169,7 +163,7 @@ export default class BpmnList extends mixins(AlertMixin, Vue) {
   }
 
   public getValueChoices(itemName: string): string[] {
-    const selectionItem = this.csrSelectionItems.find(selections => selections.itemName === itemName);
+    const selectionItem = this.bpmnSelectionItems.find(selections => selections.itemName === itemName);
     if (selectionItem) {
       return selectionItem.values;
     }

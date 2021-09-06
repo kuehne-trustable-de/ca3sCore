@@ -198,6 +198,7 @@
   "ca3SApp.bPNMProcessInfo.type.CA_INVOCATION": "Zertifikatserstellung",
   "ca3SApp.bPNMProcessInfo.type.REQUEST_AUTHORIZATION": "Anfrage-Authorisierung",
 
+  "ca3SApp.bPNMProcessInfo.check.csrId": "Test CSR Id",
   "ca3SApp.bPNMProcessInfo.subtitle.process.list": "Prozess Liste",
   "ca3SApp.bPNMProcessInfo.author": "Autor",
   "ca3SApp.bPNMProcessInfo.createdOn": "vom",
@@ -205,6 +206,7 @@
   "ca3SApp.bPNMProcessInfo.delete.question": "Soll BPNM Prozess Info {{ id }} wirklich dauerhaft gelöscht werden?",
   "ca3SApp.bPNMProcessInfo.deleted": "BPNM Prozess Info gelöscht mit ID {{ param }}",
   "ca3SApp.bPNMProcessInfo.detail.title": "BPNM Prozess Info",
+  "ca3SApp.bPNMProcessInfo.check.subtitle": "BPNM Prozess prüfen",
   "ca3SApp.bPNMProcessInfo.home.createLabel": "BPNM Prozess Info erstellen",
   "ca3SApp.bPNMProcessInfo.home.createOrEditLabel": "BPNM Prozess Info erstellen oder bearbeiten",
   "ca3SApp.bPNMProcessInfo.home.notFound": "Keine BPNM Prozess Infos gefunden",
@@ -215,6 +217,8 @@
   "ca3SApp.bPNMProcessInfo.type": "Type",
   "ca3SApp.bPNMProcessInfo.updated": "BPNM Prozess Info aktualisiert mit ID {{ param }}",
   "ca3SApp.bPNMProcessInfo.version": "Version",
+  "ca3SApp.bPNMProcessInfo.check.check": "BPNM Prozess Starten",
+
   "ca3SApp.cAConnectorConfig.active": "Aktiv",
   "ca3SApp.cAConnectorConfig.status": "Status",
   "ca3SApp.cAConnectorConfig.caConnectorType": "CA Konnektortyp",
@@ -967,6 +971,7 @@
   "ca3SApp.preference.checkCRL": "CRLs überprüfen (um den Zertifikatstatus zu aktualisieren)",
   "ca3SApp.preference.home.editLabel": "Eine Einstellung bearbeiten",
   "ca3SApp.preference.serverSideKeyCreationAllowed": "Serverseitige Schlüsselerstellung erlaubt",
+  "ca3SApp.preference.maxNextUpdatePeriodCRLHour": "Maximale CRL-Gültigkeit (in Std.)",
   "status": "Status",
   "subject": "Subjekt",
   "sans": "SAN",

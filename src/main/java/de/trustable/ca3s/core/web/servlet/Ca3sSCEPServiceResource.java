@@ -25,20 +25,21 @@ import de.trustable.ca3s.core.repository.PipelineRepository;
 @RestController
 public class Ca3sSCEPServiceResource {
 
-	@Autowired
-	private ScepServletImpl scepServlet;
-
-	@Autowired
-	PipelineRepository pipeRepo;
+	private final ScepServletImpl scepServlet;
+    private final PipelineRepository pipeRepo;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Ca3sSCEPServiceResource.class);
 
-	public Ca3sSCEPServiceResource() {
-		LOGGER.info("in Ca3sSCEPServiceResource()");
+    @Autowired
+	public Ca3sSCEPServiceResource(ScepServletImpl scepServlet, PipelineRepository pipeRepo) {
+        this.scepServlet = scepServlet;
+        this.pipeRepo = pipeRepo;
+        LOGGER.info("in Ca3sSCEPServiceResource()");
 	}
 
 	@RequestMapping(value = "/ca3sScep/{realm}", method = { RequestMethod.GET, RequestMethod.POST })
-	public @ResponseBody void handleSCEPRequest(@PathVariable("realm") String realm, HttpServletRequest request,
+	public @ResponseBody void handleSCEPRequest(@PathVariable("realm") String realm,
+            HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 
 		long startTime = System.currentTimeMillis();

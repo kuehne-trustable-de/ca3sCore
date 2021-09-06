@@ -40,6 +40,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import javax.naming.CommunicationException;
 import javax.naming.Context;
 import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
@@ -84,14 +85,20 @@ public class CRLUtil {
 		long startTime = System.currentTimeMillis();
 
 		X509CRL crl = null;
-        if (crlURL.startsWith("http://") || crlURL.startsWith("https://")
+		try {
+            if (crlURL.startsWith("http://") || crlURL.startsWith("https://")
                 || crlURL.startsWith("ftp://")) {
-        	crl = downloadCRLFromWeb(crlURL);
-        } else if (crlURL.startsWith("ldap://")) {
-        	crl = downloadCRLFromLDAP(crlURL);
-        }else{
-            throw new IOException(
-                "Unexpected CRL download protocol : " + crlURL);
+                crl = downloadCRLFromWeb(crlURL);
+            } else if (crlURL.startsWith("ldap://")) {
+                crl = downloadCRLFromLDAP(crlURL);
+            } else {
+                throw new IOException(
+                    "Unexpected CRL download protocol : " + crlURL);
+            }
+        }catch( CommunicationException | IOException communicationException){
+		    if( LOG.isDebugEnabled()){
+		        LOG.debug("Exception accessing CRL endpoint", communicationException);
+            }
         }
 
         if(crl == null) {

@@ -198,6 +198,7 @@
   "ca3SApp.bPNMProcessInfo.new.type": "process type",
   "ca3SApp.bPNMProcessInfo.type.CA_INVOCATION": "Certificate creation",
   "ca3SApp.bPNMProcessInfo.type.REQUEST_AUTHORIZATION": "Request authorization",
+  "ca3SApp.bPNMProcessInfo.check.csrId": "Test CSR Id",
 
   "ca3SApp.bPNMProcessInfo.subtitle.process.list": "Process list",
   "ca3SApp.bPNMProcessInfo.author": "Author",
@@ -206,6 +207,9 @@
   "ca3SApp.bPNMProcessInfo.delete.question": "Are you sure you want to delete BPNM Process Info {{ id }}?",
   "ca3SApp.bPNMProcessInfo.deleted": "A BPNM Process Info is deleted with identifier {{ param }}",
   "ca3SApp.bPNMProcessInfo.detail.title": "BPNM Process Info",
+  "ca3SApp.bPNMProcessInfo.check.subtitle": "Check BPNM Process",
+  "ca3SApp.bPNMProcessInfo.check.check": "Start BPNM Process",
+
   "ca3SApp.bPNMProcessInfo.home.createLabel": "Create a new BPNM Process Info",
   "ca3SApp.bPNMProcessInfo.home.createOrEditLabel": "Create or edit a BPNM Process Info",
   "ca3SApp.bPNMProcessInfo.home.notFound": "No BPNM Process Infos found",
@@ -480,6 +484,7 @@
   "ca3SApp.preference.home.title": "Preferences",
   "ca3SApp.preference.checkCRL": "Check CRLs (to update the certificate state)",
   "ca3SApp.preference.serverSideKeyCreationAllowed": "Server side key creation allowed",
+  "ca3SApp.preference.maxNextUpdatePeriodCRLHour": "CRL validity limited to hours",
   "ca3SApp.preference.acmeHTTP01TimeoutMilliSec": "ACME HTTP01 callback timeout (milli sec)",
   "ca3SApp.preference.acmeHTTP01CallbackPorts": "ACME HTTP01 callback ports",
   "ca3SApp.protectedContent.contentBase64": "Content Base 64",

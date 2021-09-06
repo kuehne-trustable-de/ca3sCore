@@ -65,7 +65,7 @@ public class PreferenceResource {
 
     	Preferences prefs = preferenceUtil.getPrefs(userId);
 
-   		return new ResponseEntity<Preferences>(prefs, HttpStatus.OK);
+   		return new ResponseEntity<>(prefs, HttpStatus.OK);
     }
 
 
@@ -121,12 +121,13 @@ public class PreferenceResource {
 
         List<UserPreference> upList = userPreferenceService.findAllForUserId(userId);
 
-        Map<String, UserPreference> upMap = new HashMap<String, UserPreference>();
+        Map<String, UserPreference> upMap = new HashMap<>();
         for(UserPreference up: upList) {
         	upMap.put(up.getName(), up);
         }
 
         updateValue(upMap, PreferenceUtil.CHECK_CRL, "" + preferences.isCheckCRL(), userId);
+        updateValue(upMap, PreferenceUtil.MAX_NEXT_UPDATE_PERIOD_CRL_SEC, "" + ( preferences.getMaxNextUpdatePeriodCRLHour() * 3600L), userId);
         updateValue(upMap, PreferenceUtil.SERVER_SIDE_KEY_CREATION_ALLOWED, "" + preferences.isServerSideKeyCreationAllowed(), userId);
         updateValue(upMap, PreferenceUtil.ACME_HTTP01_CALLBACK_PORTS, portsCommaSeparatedList, userId);
         updateValue(upMap, PreferenceUtil.ACME_HTTP01_TIMEOUT_MILLI_SEC, "" + preferences.getAcmeHTTP01TimeoutMilliSec(), userId);

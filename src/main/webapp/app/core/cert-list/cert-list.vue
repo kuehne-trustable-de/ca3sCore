@@ -70,7 +70,7 @@
 							<!--td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.revoked }}</router-link></td-->
 							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ toLocalDate(row.revokedSince) }}</td>
 							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.revocationReason }}</td>
-							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.sans }}</td>
+							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.sansString }}</td>
 						</tr>
 					</template>
 				</certificate>

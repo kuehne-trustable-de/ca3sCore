@@ -76,12 +76,6 @@ public class ScepServletImpl extends ScepServlet {
     CSRRepository csrRepository;
 
     @Autowired
-    private CSRUtil csrUtil;
-
-	@Autowired
-	private BPMNUtil bpmnUtil;
-
-    @Autowired
     private CryptoUtil cryptoUtil;
 
     @Autowired
@@ -190,9 +184,9 @@ public class ScepServletImpl extends ScepServlet {
 		Certificate cert = cpUtil.processCertificateRequest(csr, requestorName,  AuditService.AUDIT_SCEP_CERTIFICATE_CREATED, pipeline );
 
 		if( cert == null) {
-			LOGGER.warn("creation of certificate by SCEP transaction id '{}' failed ", transId.toString());
+			LOGGER.warn("creation of certificate by SCEP transaction id '{}' failed ", transId);
 		}else {
-			LOGGER.debug("new certificate id '{}' for SCEP transaction id '{}'", cert.getId(), transId.toString() );
+			LOGGER.debug("new certificate id '{}' for SCEP transaction id '{}'", cert.getId(), transId);
 
 			certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SCEP_TRANS_ID, transId.toString());
 			certRepository.save(cert);
@@ -248,9 +242,15 @@ public class ScepServletImpl extends ScepServlet {
 
     void checkPassword(final Pipeline pipeline, final String password) throws OperationFailureException{
 
+        if( password == null || password.isEmpty()) {
+            LOGGER.warn("password not present in SCEP request / is empty!");
+            throw new OperationFailureException(FailInfo.badRequest);
+        }
+
         List<ProtectedContent> listPC = protectedContentRepository.findByTypeRelationId(ProtectedContentType.PASSWORD, ContentRelationType.SCEP_PW,pipeline.getId());
         for(ProtectedContent pc: listPC){
             String expectedPassword = protectedContentUtil.unprotectString(pc.getContentBase64()).trim();
+            LOGGER.debug("Pipeline {} defined SCEP password '{}'", pipeline.getName(), expectedPassword);
             if( password.trim().equals(expectedPassword)) {
                 LOGGER.debug("Protected Content found matching SCEP password");
                 return; // the only successful exit !!
@@ -304,7 +304,7 @@ public class ScepServletImpl extends ScepServlet {
     	List<Certificate> certDaoList = certRepository.findByIssuerSerial(issuer.toString(), serial.toString());
 
     	if( certDaoList.isEmpty()){
-            LOGGER.debug("no match for doGetCert(" + issuer.toString() +", "+ serial.toString() +")");
+            LOGGER.debug("no match for doGetCert(" + issuer +", "+ serial +")");
 
             RDN[] rdns = issuer.getRDNs();
             for( RDN rdn: rdns){
@@ -316,7 +316,7 @@ public class ScepServletImpl extends ScepServlet {
             RDN[] rdnsIssuer =  issuer.getRDNs(BCStyle.CN);
             if( rdnsIssuer.length > 0){
 	            String rdnIssuerString = rdnsIssuer[0].getFirst().getValue().toString();
-	            LOGGER.debug("looking for doGetCert(" + rdnIssuerString +", "+ serial.toString() +")");
+	            LOGGER.debug("looking for doGetCert(" + rdnIssuerString +", "+ serial +")");
 
 	            certDaoList = certRepository.findByTermNamed2(CertificateAttribute.ATTRIBUTE_ISSUER, rdnIssuerString,
 	        			CertificateAttribute.ATTRIBUTE_SERIAL, serial.toString());
@@ -333,7 +333,7 @@ public class ScepServletImpl extends ScepServlet {
         	try {
         		X509Certificate x509Cert = CryptoUtil.convertPemToCertificate(certDao.getContent());
         		if( x509Cert.getIssuerX500Principal().getName().equals(issuer.toString())){
-                    LOGGER.debug("issuer match for doGetCert(" + issuer.toString() +", "+ serial.toString() +")");
+                    LOGGER.debug("issuer match for doGetCert(" + issuer +", "+ serial +")");
         		}
 				certList.add(x509Cert);
 			} catch (GeneralSecurityException e) {

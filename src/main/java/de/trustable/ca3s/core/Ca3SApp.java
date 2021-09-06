@@ -44,11 +44,12 @@ public class Ca3SApp implements InitializingBean {
 
     private static final Logger log = LoggerFactory.getLogger(Ca3SApp.class);
 
-    public static final String  SERVER_TLS_PREFIX = "ca3s.tlsAccess.";
-    public static final String  SERVER_ADMIN_PREFIX = "ca3s.adminAccess.";
-    public static final String  SERVER_RA_PREFIX = "ca3s.raAccess.";
-    public static final String  SERVER_ACME_PREFIX = "ca3s.acmeAccess.";
-    public static final String  SERVER_SCEP_PREFIX = "ca3s.scepAccess.";
+    public static final String SERVER_TLS_PREFIX = "ca3s.tlsAccess.";
+    public static final String SERVER_ADMIN_PREFIX = "ca3s.adminAccess.";
+    public static final String SERVER_RA_PREFIX = "ca3s.raAccess.";
+    public static final String SERVER_ACME_PREFIX = "ca3s.acmeAccess.";
+    public static final String SERVER_SCEP_PREFIX = "ca3s.scepAccess.";
+    public static final String DEFAULT_BINDING_HOST = "0.0.0.0";
 
     private final Environment env;
 
@@ -173,14 +174,11 @@ public class Ca3SApp implements InitializingBean {
 
 
         factory.addBuilderCustomizers(new UndertowBuilderCustomizer() {
-
             @Override
             public void customize(Undertow.Builder builder) {
 
-
             	try {
 	                KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(Ca3sKeyManagerProvider.SERVICE_NAME);
-
 
 	                KeyStore ks = KeyStore.getInstance("ca3s");
 	                ks.load(null, null);
@@ -195,12 +193,12 @@ public class Ca3SApp implements InitializingBean {
 	                for( EndpointConfig epc : endpointConfigs.getPortConfigMap().values()) {
 
 	                	if( epc.isHttps()) {
-	                		log.debug("added TLS listen port {} for {}", epc.port, epc.getUsage());
+	                		log.debug("added TLS listen port {} for {}", epc.port, epc.getUsageDescription());
 	                		builder.addHttpsListener(epc.getPort(), epc.getBindingHost(), sslContext);
 	//                builder.setSocketOption(Options.SSL_CLIENT_AUTH_MODE, SslClientAuthMode.REQUESTED);
 
 	                	} else {
-	                		log.debug("added plain text listen port {} for {}", epc.port, epc.getUsage());
+	                		log.debug("added plain text listen port {} for {}", epc.port, epc.getUsageDescription());
 	                		builder.addHttpListener(epc.getPort(), epc.getBindingHost());
 	                	}
 	                }
@@ -219,24 +217,26 @@ public class Ca3SApp implements InitializingBean {
 
     	epc.addConfig(getPortForUsage(SERVER_TLS_PREFIX, 8442),
     			getHTTPSForUsage(SERVER_TLS_PREFIX, true),
-    			getBindingHostForUsage( SERVER_TLS_PREFIX, "0.0.0.0"), "TLS Port");
+    			getBindingHostForUsage( SERVER_TLS_PREFIX, DEFAULT_BINDING_HOST), "TLS Port");
 
     	epc.addConfig(getPortForUsage(SERVER_ADMIN_PREFIX, 8442),
     			getHTTPSForUsage(SERVER_ADMIN_PREFIX, true),
-    			getBindingHostForUsage( SERVER_ADMIN_PREFIX, "0.0.0.0"), "Admin Port");
+    			getBindingHostForUsage( SERVER_ADMIN_PREFIX, DEFAULT_BINDING_HOST), "Admin Port");
 
     	epc.addConfig(getPortForUsage(SERVER_RA_PREFIX, 8442),
     			getHTTPSForUsage(SERVER_RA_PREFIX, true),
-    			getBindingHostForUsage( SERVER_RA_PREFIX, "0.0.0.0"),"RA Port");
+    			getBindingHostForUsage( SERVER_RA_PREFIX, DEFAULT_BINDING_HOST),"RA Port");
 
     	epc.addConfig(getPortForUsage(SERVER_ACME_PREFIX, 8442),
     			getHTTPSForUsage(SERVER_ACME_PREFIX, true),
-    			getBindingHostForUsage( SERVER_ACME_PREFIX, "0.0.0.0"), "ACME Port");
+    			getBindingHostForUsage( SERVER_ACME_PREFIX, DEFAULT_BINDING_HOST), "ACME Port");
 
     	int httpPort = getPortForUsage("server.port", 8080);
     	int scepPort = getPortForUsage(SERVER_SCEP_PREFIX, 8081);
     	if( scepPort != httpPort) {
-    		epc.addConfig(scepPort, getHTTPSForUsage(SERVER_SCEP_PREFIX, false), getBindingHostForUsage( SERVER_SCEP_PREFIX, "0.0.0.0"), "SCEP Port");
+    		epc.addConfig(scepPort,
+                getHTTPSForUsage(SERVER_SCEP_PREFIX, false),
+                getBindingHostForUsage( SERVER_SCEP_PREFIX, DEFAULT_BINDING_HOST), "SCEP Port");
     	}
     	return epc;
     }
@@ -260,7 +260,7 @@ public class Ca3SApp implements InitializingBean {
 		if( envPort == null) {
 	    	log.debug("Use HTTPS for usage '{}' undefined, using default mode {}", usage, defaultHTTPS);
 		}else {
-			isHttps = Boolean.valueOf(envPort);
+			isHttps = Boolean.parseBoolean(envPort);
 		}
 		return isHttps;
     }
@@ -285,19 +285,19 @@ class EndpointConfigs{
 
 	HashMap<Integer,EndpointConfig> portConfigMap = new HashMap<>();
 
-	public void addConfig(int port, boolean isHttps, String bindingHost, String usage) {
+	public void addConfig(int port, boolean isHttps, String bindingHost, String usageDescription) {
 		if( portConfigMap.containsKey(port)) {
 			EndpointConfig existingConfig = portConfigMap.get(port);
 			if( existingConfig.isHttps() != isHttps ) {
-		    	log.warn("Https redefinition for port {}, ignoring definition for '{}'", port, usage);
+		    	log.warn("Https redefinition for port {}, ignoring definition for '{}'", port, usageDescription);
 			}
 			if( !existingConfig.getBindingHost().equalsIgnoreCase(bindingHost)) {
-		    	log.warn("Binding Host redefinition for port {}, ignoring definition for '{}'", port, usage);
+		    	log.warn("Binding Host redefinition for port {}, ignoring definition for '{}'", port, usageDescription);
 			}
 
-			existingConfig.usage += ", " + usage;
+			existingConfig.usageDescription += ", " + usageDescription;
 		}else {
-			portConfigMap.put(port, new EndpointConfig(port, isHttps, bindingHost, usage));
+			portConfigMap.put(port, new EndpointConfig(port, isHttps, bindingHost, usageDescription));
 		}
 	}
 
@@ -309,37 +309,32 @@ class EndpointConfigs{
 
 class EndpointConfig{
 
-	public EndpointConfig(int port, boolean isHttps, String bindingHost, String usage) {
+    int port;
+    boolean isHttps;
+    String bindingHost;
+    String usageDescription;
+
+    public EndpointConfig(int port, boolean isHttps, String bindingHost, String usageDescription) {
 		this.port = port;
 		this.isHttps = isHttps;
 		this.bindingHost = bindingHost;
-		this.usage = usage;
+		this.usageDescription = usageDescription;
 	}
-
-	int port;
-	boolean isHttps;
-	String bindingHost;
-	String usage;
-
 
 	public int getPort() {
 		return port;
 	}
 
-
 	public boolean isHttps() {
 		return isHttps;
 	}
-
 
 	public String getBindingHost() {
 		return bindingHost;
 	}
 
-
-	public String getUsage() {
-		return usage;
+	public String getUsageDescription() {
+		return usageDescription;
 	}
-
 
 }

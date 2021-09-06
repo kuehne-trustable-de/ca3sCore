@@ -8,12 +8,12 @@ import CopyClipboardButton from '@/shared/clipboard/clipboard.vue';
 import HelpTag from '@/core/help/help-tag.vue';
 import AuditTag from '@/core/audit/audit-tag.vue';
 
-import { ICSRAdministrationData, INamedValue } from '@/shared/model/transfer-object.model';
-
 import BPNMProcessInfoService from '../../entities/bpnm-process-info/bpnm-process-info.service';
 import { IBPMNProcessInfo } from '@/shared/model/bpmn-process-info.model';
 
 import VueBpmn from 'vue-bpmn';
+import axios from 'axios';
+import { IBpmnCheckResult, IBPMNUpload } from '@/shared/model/transfer-object.model';
 
 @Component({
   components: {
@@ -29,8 +29,15 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
   @Inject('bPNMProcessInfoService') private bPNMProcessInfoService: () => BPNMProcessInfoService;
 
   public bPNMProcessInfo: IBPMNProcessInfo = {};
+  public bpmnUpload: IBPMNUpload = { type: 'CA_INVOCATION' };
 
-  public csrAdminData: ICSRAdministrationData = {};
+  public bpmnCheckResult: IBpmnCheckResult = {};
+
+  public bpmnUrl: string;
+  public bpmnFileUploaded: boolean = false;
+  public warningMessage: string = null;
+
+  public csrId: number = 1;
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -45,6 +52,8 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
       .find(bpmnId)
       .then(res => {
         this.bPNMProcessInfo = res;
+        this.bpmnUpload.name = this.bPNMProcessInfo.name;
+        this.bpmnUpload.type = this.bPNMProcessInfo.type;
       });
   }
 
@@ -85,7 +94,24 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
     return this.$store.getters.account ? this.$store.getters.account.login : '';
   }
 
+  public checkBpmn() {
+    this.bpmnCheckResult = {};
+    const self = this;
+
+    const url = `/api/bpmn/check/csr/${this.bPNMProcessInfo.processId}/${this.csrId}`;
+    console.log('calling bpmn check endpoint at ' + url);
+
+    axios({
+      method: 'post',
+      url: url
+    }).then(function(response) {
+      window.console.info('/bpmn/check/csr returns ' + response.data);
+      self.bpmnCheckResult = response.data;
+    });
+  }
+
   public getBpmnUrl(): string {
+    console.log('/api/bpmn/ called for ' + this.bPNMProcessInfo.processId);
     return '/api/bpmn/' + this.bPNMProcessInfo.processId;
   }
 
@@ -112,4 +138,52 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
     additionalModules: [];
     moddleExtensions: [];
   };
+
+  public notifyFileChange(evt: any): void {
+    if (!evt || !evt.target || !evt.target.files || evt.target.files.length === 0) {
+      return;
+    }
+
+    this.warningMessage = null;
+
+    const self = this;
+
+    const readerContent = new FileReader();
+    readerContent.onload = function(_result) {
+      console.log('uploaded bpmn content read');
+      self.bpmnFileUploaded = false;
+      self.bpmnUpload.contentXML = '';
+      self.bpmnUrl = '';
+      self.warningMessage = '';
+
+      if (typeof readerContent.result === 'string') {
+        self.bpmnUpload.contentXML = readerContent.result;
+        console.log('uploaded bpmn read as XML: ' + readerContent.result);
+      } else {
+        console.error('uploaded bpmn reading URL: unexpected type ' + readerContent.result);
+      }
+
+      const readerUrl = new FileReader();
+      readerUrl.onload = function(_result) {
+        if (typeof readerUrl.result === 'string') {
+          self.bpmnUrl = readerUrl.result;
+
+          let name = evt.target.files[0].name;
+          if (name.endsWith('.bpmn20.xml')) {
+            name.substring(0, name.length - 11);
+          }
+          const lastDot = name.lastIndexOf('.');
+          self.bpmnUpload.name = name.substring(0, lastDot);
+
+          self.bpmnFileUploaded = true;
+          console.log('uploaded bpmn read as URL: ' + self.bpmnUrl);
+        } else {
+          console.error('uploaded bpmn reading URL: unexpected type ' + readerUrl.result);
+        }
+      };
+
+      readerUrl.readAsDataURL(evt.target.files[0]);
+    };
+    readerContent.readAsText(evt.target.files[0]);
+  }
 }

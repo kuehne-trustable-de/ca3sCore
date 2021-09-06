@@ -1,11 +1,8 @@
-<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:web="http://www.webserviceX.NET">
-    <soap:Header/>
-    <soap:Body>
-        <web:GetWeather>
-            <!--Optional:-->
-            <web:CityName>${city}</web:CityName>
-            <!--Optional:-->
-            <web:CountryName>${country}</web:CountryName>
-        </web:GetWeather>
-    </soap:Body>
-</soap:Envelope>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ci="http://trustable.eu/soap/sample/ci">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <ci:getActiveCIByURLRequest>
+            <ci:url>mail.trustable.eu</ci:url>
+        </ci:getActiveCIByURLRequest>
+    </soapenv:Body>
+</soapenv:Envelope>

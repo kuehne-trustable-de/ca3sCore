@@ -26,10 +26,7 @@ import org.bouncycastle.asn1.DLSequence;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
-import org.bouncycastle.asn1.x509.Extension;
-import org.bouncycastle.asn1.x509.GeneralName;
-import org.bouncycastle.asn1.x509.GeneralNames;
-import org.bouncycastle.asn1.x509.X509ObjectIdentifiers;
+import org.bouncycastle.asn1.x509.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,13 +51,6 @@ public class CSRUtil {
 
     @Autowired
     private CSRCommentRepository csrCommentRepository;
-
-    @Autowired
-	private RequestAttributeRepository rasRepository;
-
-	@Autowired
-	private RequestAttributeValueRepository rasvRepository;
-
 
 	@Autowired
 	private RDNAttributeRepository rdnAttRepository;
@@ -475,8 +465,21 @@ public class CSRUtil {
 		for( Attribute attr : reqAttributes) {
 			if( PKCSObjectIdentifiers.pkcs_9_at_extensionRequest.equals(attr.getAttrType())){
 
-			    retrieveSANFromCSRAttribute(generalNameSet, attr );
-/*
+                Extensions extensions = Extensions.getInstance(attr.getAttrValues().getObjectAt(0));
+
+                GeneralNames gns = GeneralNames.fromExtensions(extensions, Extension.subjectAlternativeName);
+                if( gns != null) {
+
+                    GeneralName[] names = gns.getNames();
+                    for (GeneralName name : names) {
+                        LOG.info("Type: " + name.getTagNo() + " | Name: " + name.getName());
+                        generalNameSet.add(name);
+                    }
+                }
+
+//                retrieveSANFromCSRAttribute(generalNameSet, attr );
+
+                /*
 				ASN1Set valueSet = attr.getAttrValues();
 				LOG.debug("ExtensionRequest / AttrValues has {} elements", valueSet.size());
 				for (ASN1Encodable asn1Enc : valueSet) {
@@ -515,7 +518,6 @@ public class CSRUtil {
 			}
 		}
 		return generalNameSet;
-
 	}
 
 /**

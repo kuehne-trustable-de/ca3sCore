@@ -60,13 +60,7 @@ public class CertExpiryScheduler {
 	@Autowired
 	private CertificateRepository certificateRepo;
 
-	@Autowired
-	private CSRRepository csrRepo;
-
-	@Autowired
-	private UserRepository userRepository;
-
-	@Autowired
+    @Autowired
 	private CRLUtil crlUtil;
 
 	@Autowired
@@ -74,12 +68,6 @@ public class CertExpiryScheduler {
 
 	@Autowired
 	private CryptoUtil cryptoUtil;
-
-	@Autowired
-	private MailService mailService;
-
-	@Autowired
-	private ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
     private AuditService auditService;
@@ -136,7 +124,9 @@ public class CertExpiryScheduler {
 			return;
 		}
 
-		long startTime = System.currentTimeMillis();
+        long excessiveNextUpdate = System.currentTimeMillis() + (2L * 1000L * preferenceUtil.getMaxNextUpdatePeriodCRLSec());
+
+        long startTime = System.currentTimeMillis();
 
 		HashSet<String> brokenCrlUrlList = new HashSet<>();
 
@@ -152,7 +142,9 @@ public class CertExpiryScheduler {
             if( nextUpdate != null ) {
                 try {
                     long nextUpdateMilliSec = Long.parseLong(nextUpdate);
-                    if( startTime < nextUpdateMilliSec) {
+                    if( nextUpdateMilliSec > excessiveNextUpdate) {
+                        LOG.info("Excessively long CRL validity period for certificate {} ({} sec left), enforcing check.", cert.getId(), (nextUpdateMilliSec - startTime) / 1000L);
+                    } else if( startTime < nextUpdateMilliSec ) {
                         LOG.debug("No CRL check for certificate {}, {} sec left ...", cert.getId(), (nextUpdateMilliSec - startTime) / 1000L);
                         continue;
                     }
@@ -191,6 +183,7 @@ public class CertExpiryScheduler {
     CRLUpdateInfo checkAllCRLsForCertificate(Certificate cert, X509Certificate x509Cert, HashSet<String> brokenCrlUrlList){
 
         CRLUpdateInfo info = new CRLUpdateInfo();
+        long maxNextUpdate = System.currentTimeMillis() + 1000L * preferenceUtil.getMaxNextUpdatePeriodCRLSec();
 
         for( CertificateAttribute certAtt: cert.getCertificateAttributes()) {
 
@@ -213,8 +206,14 @@ public class CertExpiryScheduler {
                         continue;
                     }
 
+                    long nextUpdate = crl.getNextUpdate().getTime();
+                    if( nextUpdate > maxNextUpdate ){
+                        LOG.debug("nextUpdate {} from CRL limited to {}", crl.getNextUpdate(), new Date(maxNextUpdate));
+                        nextUpdate = maxNextUpdate;
+                    }
+
                     // set the crl's 'next update' timestamp to the certificate
-                    certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE, Long.toString(crl.getNextUpdate().getTime()), false);
+                    certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE, Long.toString(nextUpdate), false);
 
                     X509CRLEntry crlItem = crl.getRevokedCertificate(new BigInteger(cert.getSerial()));
 

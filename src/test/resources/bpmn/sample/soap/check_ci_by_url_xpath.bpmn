@@ -48,11 +48,8 @@
     <camunda:outputParameter name="isActive">
       <![CDATA[
         ${S(response)
-            .childElement("Body")
-            .childElement("http://trustable.eu/soap/sample/ci", "GetActiveCIByURLResponse")
-            .childElement("http://trustable.eu/soap/sample/ci", "ci")
-            .childElement("http://trustable.eu/soap/sample/ci", "active")
-            .textContent()}
+            .xPath("//*[local-name()='active']")
+            .string()}
       ]]>
     </camunda:outputParameter>
 

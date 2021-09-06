@@ -13,9 +13,12 @@ public class Preferences implements Serializable {
 
 	private boolean checkCRL = false;
 
-	private long acmeHTTP01TimeoutMilliSec = 2L * 1000L;
+    private long maxNextUpdatePeriodCRLHour = 24L;
+
+    private long acmeHTTP01TimeoutMilliSec = 2L * 1000L;
 
 	private int[] acmeHTTP01CallbackPortArr = {5544,8080,80};
+
 
 	public Preferences() {}
 
@@ -49,5 +52,13 @@ public class Preferences implements Serializable {
 
     public void setAcmeHTTP01CallbackPortArr(int[] acmeHTTP01CallbackPortArr) {
         this.acmeHTTP01CallbackPortArr = acmeHTTP01CallbackPortArr;
+    }
+
+    public long getMaxNextUpdatePeriodCRLHour() {
+        return maxNextUpdatePeriodCRLHour;
+    }
+
+    public void setMaxNextUpdatePeriodCRLHour(long maxNextUpdatePeriodCRLHour) {
+        this.maxNextUpdatePeriodCRLHour = maxNextUpdatePeriodCRLHour;
     }
 }

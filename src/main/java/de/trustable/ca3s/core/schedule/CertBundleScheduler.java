@@ -26,7 +26,7 @@ import de.trustable.ca3s.core.service.util.CertificateUtil;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public class CertBundleScheduler {
 
-	transient Logger LOG = LoggerFactory.getLogger(CertificateImportScheduler.class);
+	transient Logger LOG = LoggerFactory.getLogger(CertBundleScheduler.class);
 
 	private final CAConnectorConfigRepository caConfigRepo;
 	private final CaConnectorAdapter caConnAd;
@@ -38,15 +38,13 @@ public class CertBundleScheduler {
                                CaConnectorAdapter caConnAd,
                                CertificateUtil certUtil,
                                TimedRenewalCertMapHolder timedRenewalCertMapHolder,
-                               @Value("${ca3s.https.certificate.dnSuffix:S3cr3t}") String dnSuffix) {
+                               @Value("${ca3s.https.certificate.dnSuffix:}") String dnSuffix) {
         this.caConfigRepo = caConfigRepo;
         this.caConnAd = caConnAd;
         this.certUtil = certUtil;
         this.timedRenewalCertMapHolder = timedRenewalCertMapHolder;
         this.dnSuffix = dnSuffix;
     }
-
-//    @Value("${ca3s.https.certificate.dnSuffix:S3cr3t}")
 
     @Scheduled(fixedDelay = 60000)
 	public void retrieveCertificates() {
@@ -58,7 +56,7 @@ public class CertBundleScheduler {
 
 					if( timedRenewalCertMapHolder.getCertMap().getBundleFactory() == null) {
 						timedRenewalCertMapHolder.getCertMap().setBundleFactory( new Ca3sBundleFactory(caConfigDao, caConnAd, certUtil, dnSuffix));
-						LOG.info("Ca3sBundleFactory registered for TLS certificate poduction");
+						LOG.info("Ca3sBundleFactory registered for TLS certificate production");
 					}
 				}else {
 					LOG.info("CA default connector not active");

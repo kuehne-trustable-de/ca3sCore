@@ -21,6 +21,7 @@ public class PreferenceUtil {
     public static final Long SYSTEM_PREFERENCE_ID = 1L;
 
     public static final String CHECK_CRL = "CheckCRL";
+    public static final String MAX_NEXT_UPDATE_PERIOD_CRL_SEC = "MaxNextUpdatePeriodCrlSec";
 	public static final String ACME_HTTP01_TIMEOUT_MILLI_SEC = "AcmeHTTP01TimeoutMilliSec";
 	public static final String ACME_HTTP01_CALLBACK_PORTS = "AcmeHTTP01CallbackPorts";
 	public static final String SERVER_SIDE_KEY_CREATION_ALLOWED = "ServerSideKeyCreationAllowed";
@@ -29,8 +30,13 @@ public class PreferenceUtil {
     private UserPreferenceService userPreferenceService;
 
     public boolean isCheckCrl() {
-    	Optional<UserPreference> optBoolean = userPreferenceService.findPreferenceForUserId(CHECK_CRL, SYSTEM_PREFERENCE_ID);
+        Optional<UserPreference> optBoolean = userPreferenceService.findPreferenceForUserId(CHECK_CRL, SYSTEM_PREFERENCE_ID);
         return optBoolean.filter(userPreference -> Boolean.parseBoolean(userPreference.getContent())).isPresent();
+    }
+
+    public long getMaxNextUpdatePeriodCRLSec() {
+        Optional<UserPreference> optLong = userPreferenceService.findPreferenceForUserId(MAX_NEXT_UPDATE_PERIOD_CRL_SEC, SYSTEM_PREFERENCE_ID);
+        return optLong.map(userPreference -> Long.parseLong(userPreference.getContent())).orElse(3600L * 24L);
     }
 
     public boolean isServerSideKeyCreationAllowed() {
@@ -93,6 +99,9 @@ public class PreferenceUtil {
                 }
             } else if( PreferenceUtil.CHECK_CRL.equals(name)) {
                 prefs.setCheckCRL(Boolean.parseBoolean(up.getContent()));
+            } else if( PreferenceUtil.MAX_NEXT_UPDATE_PERIOD_CRL_SEC.equals(name)) {
+
+                prefs.setMaxNextUpdatePeriodCRLHour((Long.parseLong(up.getContent()) + 1800L) / 3600L) ;
             }
         }
         return prefs;

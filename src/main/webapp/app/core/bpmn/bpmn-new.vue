@@ -22,6 +22,7 @@
                     <option value="CA_INVOCATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.CA_INVOCATION')" selected="selected">CA_INVOCATION</option>
                     <option value="REQUEST_AUTHORIZATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.REQUEST_AUTHORIZATION')" >REQUEST_AUTHORIZATION</option>
                 </select>
+
             </div>
 
             <form name="editForm" role="form" novalidate>

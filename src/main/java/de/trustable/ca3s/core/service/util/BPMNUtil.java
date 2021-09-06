@@ -17,10 +17,12 @@ import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,41 +37,43 @@ import de.trustable.util.CryptoUtil;
 @Service
 public class BPMNUtil{
 
-	private static final Logger LOG = LoggerFactory.getLogger(BPMNUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BPMNUtil.class);
+    public static final String CAINVOCATION_PROCESS = "CAInvocationProcess";
 
-	@Autowired
-	private ConfigUtil configUtil;
+    private final ConfigUtil configUtil;
 
-    @Autowired
-    private CaConnectorAdapter caConnAdapter;
+    private final CaConnectorAdapter caConnAdapter;
 
-    @Autowired
-    private CAConnectorConfigRepository caConnConRepo;
+    private final CAConnectorConfigRepository caConnConRepo;
 
-	@Autowired
-	private CryptoUtil cryptoUtil;
+	private final CryptoUtil cryptoUtil;
 
-	@Autowired
-    private RuntimeService runtimeService;
+    private final RuntimeService runtimeService;
 
-	@Autowired
-    private RepositoryService repoService;
+    private final RepositoryService repoService;
 
-	@Autowired
-    private BPMNProcessInfoRepository bpnmInfoRepo;
+    private final BPMNProcessInfoRepository bpnmInfoRepo;
 
-	@Autowired
-	private CSRRepository csrRepository;
+	private final CSRRepository csrRepository;
 
-	@Autowired
-	private CertificateRepository certRepository;
+	private final CertificateRepository certRepository;
 
-    @Autowired
-    private CertificateUtil certUtil;
+    private final CertificateUtil certUtil;
 
     private final NameAndRoleUtil nameAndRoleUtil;
 
-    public BPMNUtil(NameAndRoleUtil nameAndRoleUtil) {
+    @Autowired
+    public BPMNUtil(ConfigUtil configUtil, CaConnectorAdapter caConnAdapter, CAConnectorConfigRepository caConnConRepo, CryptoUtil cryptoUtil, RuntimeService runtimeService, RepositoryService repoService, BPMNProcessInfoRepository bpnmInfoRepo, CSRRepository csrRepository, CertificateRepository certRepository, CertificateUtil certUtil, NameAndRoleUtil nameAndRoleUtil) {
+        this.configUtil = configUtil;
+        this.caConnAdapter = caConnAdapter;
+        this.caConnConRepo = caConnConRepo;
+        this.cryptoUtil = cryptoUtil;
+        this.runtimeService = runtimeService;
+        this.repoService = repoService;
+        this.bpnmInfoRepo = bpnmInfoRepo;
+        this.csrRepository = csrRepository;
+        this.certRepository = certRepository;
+        this.certUtil = certUtil;
         this.nameAndRoleUtil = nameAndRoleUtil;
     }
 
@@ -78,7 +82,18 @@ public class BPMNUtil{
         BpmnModelInstance modelInstance = Bpmn.readModelFromStream(
             new ByteArrayInputStream(bpmnString.getBytes(StandardCharsets.UTF_8)));
 
-        return repoService.createDeployment().addModelInstance(name + ".bpmn20.xml", modelInstance).deploy().getId();
+        String modelName = name + ".bpmn20.xml";
+        Deployment deployment = repoService.createDeployment().addModelInstance(modelName, modelInstance).deploy();
+        LOG.debug( "deployment with name {} and if {} is a {}", modelName, deployment.getId(), deployment.getClass().getName() );
+
+        for(ProcessDefinition pd: getProcessDefinitions()){
+            LOG.debug( "process definition with name {}, id {}, versionTag {}, deploymentId {}, key {} found", pd.getName(), pd.getId(), pd.getVersionTag(), pd.getDeploymentId(),
+                pd.getKey());
+        }
+
+        ProcessDefinition pdNew = repoService.createProcessDefinitionQuery().deploymentId(deployment.getId()).list().get(0);
+        LOG.debug( "New process definition Id '{}'", pdNew.getId() );
+        return pdNew.getId();
     }
 
     public List<ProcessDefinition> getProcessDefinitions(){
@@ -97,7 +112,7 @@ public class BPMNUtil{
 		for(ProcessDefinition pd: pdList ) {
 			Optional<BPMNProcessInfo> optBI = bpnmInfoRepo.findByName(pd.getKey());
 			if( !optBI.isPresent() ) {
-                buildBPMNProcessInfo(pd, pd.getKey(), BPMNProcessType.CA_INVOCATION);
+                buildBPMNProcessInfoByProcess(pd, pd.getKey(), BPMNProcessType.CA_INVOCATION);
 
             }else {
 				// @todo check for updates
@@ -106,16 +121,21 @@ public class BPMNUtil{
 		}
 	}
 
-    public BPMNProcessInfo buildBPMNProcessInfo(final String id,
-                                                final String name,
-                                                final BPMNProcessType bpmnProcessType) {
-        return buildBPMNProcessInfo(
-            repoService.getProcessDefinition(id), name, bpmnProcessType);
+    public BPMNProcessInfo buildBPMNProcessInfoByProcessId(final String processId,
+                                                           final String name,
+                                                           final BPMNProcessType bpmnProcessType) {
+
+        List<ProcessDefinition> pdList = repoService.createProcessDefinitionQuery().processDefinitionId(processId).list();
+        if( pdList.isEmpty()){
+            LOG.debug("retrieving ProcessDefinition for id '{}' failed ...", processId);
+        }
+
+        return buildBPMNProcessInfoByProcess(pdList.get(0), name, bpmnProcessType);
     }
 
-    public BPMNProcessInfo buildBPMNProcessInfo(final ProcessDefinition pd,
-                                                 final String name,
-                                                 final BPMNProcessType bpmnProcessType) {
+    public BPMNProcessInfo buildBPMNProcessInfoByProcess(final ProcessDefinition pd,
+                                                           final String name,
+                                                           final BPMNProcessType bpmnProcessType) {
         BPMNProcessInfo newBI = new BPMNProcessInfo();
 
         newBI.setAuthor(nameAndRoleUtil.getNameAndRole().getName());
@@ -185,30 +205,35 @@ public class BPMNUtil{
 		String failureReason = "";
 		String processInstanceId = "";
 
-		String processName = "CAInvocationProcess";
+		String processName;
 
 		if( processInfo != null) {
 			processName = processInfo.getName();
-		}
+		}else{
+
+            // runtimeService.createProcessInstanceByKey(processName)
+
+            processName = repoService.createProcessDefinitionQuery().processDefinitionKey("CAInvocationProcess").latestVersion().list().get(0).getId();
+        }
 
 		if(caConfig != null ){
 
 			if(processName != null && (processName.trim().length() > 0 )) {
 				// BPNM call
 				try {
-					Map<String, Object> variables = new HashMap<>();
-					variables.put("csrId", csr.getId());
-					variables.put("csr", csr);
-					variables.put("caConfigId", caConfig.getId());
-					variables.put("status", "Failed");
-					variables.put("certificateId", certificateId);
-					variables.put("failureReason", failureReason);
+                    Map<String, Object> variables = buildVariableMapFromCSR(csr, caConfig);
 
-		            ProcessInstanceWithVariables processInstance = runtimeService.createProcessInstanceByKey(processName).setVariables(variables).executeWithVariablesInReturn();
-		            processInstanceId = processInstance.getId();
-		            LOG.info("ProcessInstance: {}", processInstanceId);
+//					variables.put("status", "Failed");
+//					variables.put("failureReason", failureReason);
+                    variables.put("certificateId", certificateId);
 
-		            certificate = (Certificate)processInstance.getVariables().get("certificate");
+//		            ProcessInstanceWithVariables processInstance = runtimeService.createProcessInstanceByKey(processName).setVariables(variables).executeWithVariablesInReturn();
+//		            processInstanceId = processInstance.getId();
+//		            LOG.info("ProcessInstance: {}", processInstanceId);
+
+                    ProcessInstanceWithVariables processInstance = executeBPMNProcessByName(processName, variables);
+
+                    certificate = (Certificate)processInstance.getVariables().get("certificate");
 		            status = processInstance.getVariables().get("status").toString();
 
 		            if( processInstance.getVariables().get("failureReason") != null) {
@@ -218,7 +243,7 @@ public class BPMNUtil{
 					// catch all (runtime) Exception
 				} catch (Exception e) {
 					failureReason = e.getLocalizedMessage();
-					LOG.warn("execution of CAInvocationProcess failed ", e);
+					LOG.warn("execution of '"+processName+"' failed ", e);
 				}
 			} else {
 				// direct call
@@ -265,6 +290,45 @@ public class BPMNUtil{
 		return null;
 	}
 
+
+    public ProcessInstanceWithVariables checkCertificateCreationProcess(final CSR csr, final CAConnectorConfig caConfig, final String processName)  {
+
+        Map<String, Object> variables = buildVariableMapFromCSR(csr, caConfig);
+
+        return executeBPMNProcessByName(processName, variables);
+    }
+
+    @NotNull
+    private Map<String, Object> buildVariableMapFromCSR(CSR csr, CAConnectorConfig caConfig) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("csrId", csr.getId());
+        variables.put("csr", csr);
+        variables.put("csrAttributes", csr.getCsrAttributes());
+        variables.put("caConfigId", caConfig.getId());
+        return variables;
+    }
+
+
+    private ProcessInstanceWithVariables executeBPMNProcessByName(final String processNameId, Map<String, Object> variables){
+
+        LOG.debug("execute BPMN Process with id {} ", processNameId);
+
+        variables.put("status", "Failed");
+        variables.put("failureReason", "");
+
+        try {
+            ProcessInstanceWithVariables processInstance = runtimeService.createProcessInstanceById(processNameId).setVariables(variables).executeWithVariablesInReturn();
+            String processInstanceId = processInstance.getId();
+            LOG.info("ProcessInstance: {}", processInstanceId);
+            return processInstance;
+        }catch(RuntimeException processException){
+            if(LOG.isDebugEnabled()){
+                LOG.debug("Exception while calling bpmn process '"+processNameId+"'", processException);
+            }
+            throw processException;
+        }
+    }
+
 	/**
 	 *
 	 * @param certificate
@@ -277,8 +341,7 @@ public class BPMNUtil{
 		String failureReason = "";
 		String processInstanceId = "";
 
-//		String processName = null;
-		String processName = "CAInvocationProcess";
+		String processName = CAINVOCATION_PROCESS;
 
 		if( certificate == null) {
 			throw new GeneralSecurityException("certificate to be revoked MUST be provided");
@@ -304,7 +367,7 @@ public class BPMNUtil{
 
             LOG.debug("revoke certificate '{}' at CA with config '{}' ", certificate.getId(), caConnectorId);
 
-			if(processName != null && (processName.trim().length() > 0 )) {
+			if(processName.trim().length() > 0 ) {
 				// BPNM call
 				try {
 					Map<String, Object> variables = new HashMap<>();
@@ -331,7 +394,7 @@ public class BPMNUtil{
 					// catch all (runtime) Exception
 				} catch (Exception e) {
 					failureReason = e.getLocalizedMessage();
-					LOG.warn("execution of CAInvocationProcess failed ", e);
+					LOG.warn("execution of '" + processName + "' failed ", e);
 				}
 			} else {
 				// direct call
@@ -363,6 +426,5 @@ public class BPMNUtil{
 			LOG.warn("revocation of certificate by BPMN process {} failed with reason '{}' ", processInstanceId, failureReason);
 			throw new GeneralSecurityException(failureReason);
 		}
-
 	}
 }

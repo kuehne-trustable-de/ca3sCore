@@ -32,9 +32,9 @@
         <p th:if="${#lists.isEmpty(pendingCsrList) and #lists.isEmpty(expiringCertList)}" th:text="#{email.notification.greeting.RA.empty.set}">
             Currently there are no pending requests and or expiring certificates.
         </p>
-<h3>${#lists.isEmpty(expiringCertList)}</h3>
 
-        <p th:unless="${#lists.isEmpty(pendingCsrList)}">
+        <th:block th:unless="${#lists.isEmpty(pendingCsrList)}">
+            <p/>
             <h2 th:text="#{email.pending.requests.header}">Pending requests</h2>
             <table>
                 <tr>
@@ -53,9 +53,10 @@
                     <!--td><a th:with="url=(@{|${baseUrl}/csr-info?id=${csr.id}|})" th:href="${url}" th:text="#{email.notification.csr.RA.link}">CSR details</a></td-->
                 </tr>
             </table>
-        </p>
+        </th:block>
 
-        <p th:unless="${#lists.isEmpty(expiringCertList)}">
+        <th:block th:unless="${#lists.isEmpty(expiringCertList)}">
+            <p/>
             <h2 th:text="#{email.expiring.certificates.header}">Expiring certificates</h2>
             <table>
                 <tr>
@@ -73,12 +74,11 @@
                     <td><a th:with="url=(@{|${baseUrl}/cert-info?certificateId=${cert.id}|})" th:href="${url}" th:text="#{email.notification.cert.RA.link}">Certificate details</a></td>
                 </tr>
             </table>
-        </p>
+        </th:block>
 
-        <p>
-            <span th:text="#{email.activation.text2}">Regards, </span>
-            <br/>
-            <em th:text="#{email.request.signature}">your ca3s notification robot.</em>
-        </p>
+        <p/>
+        <span th:text="#{email.activation.text2}">Regards, </span>
+        <br/>
+        <em th:text="#{email.request.signature}">your ca3s notification robot.</em>
     </body>
 </html>
