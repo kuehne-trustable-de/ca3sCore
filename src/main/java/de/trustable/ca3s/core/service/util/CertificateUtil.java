@@ -34,6 +34,7 @@ import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
 import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.repository.CertificateCommentRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import io.micrometer.core.instrument.util.StringUtils;
@@ -58,26 +59,15 @@ import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStrictStyle;
 import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.asn1.x509.AccessDescription;
-import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
-import org.bouncycastle.asn1.x509.AuthorityKeyIdentifier;
-import org.bouncycastle.asn1.x509.CRLDistPoint;
-import org.bouncycastle.asn1.x509.DistributionPoint;
-import org.bouncycastle.asn1.x509.DistributionPointName;
-import org.bouncycastle.asn1.x509.Extension;
-import org.bouncycastle.asn1.x509.Extensions;
-import org.bouncycastle.asn1.x509.GeneralName;
-import org.bouncycastle.asn1.x509.GeneralNames;
-import org.bouncycastle.asn1.x509.PolicyInformation;
-import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
-import org.bouncycastle.asn1.x509.X509Extensions;
-import org.bouncycastle.asn1.x509.X509ObjectIdentifiers;
+import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.jcajce.provider.asymmetric.util.EC5Util;
+import org.bouncycastle.jce.PrincipalUtil;
+import org.bouncycastle.jce.X509Principal;
 import org.bouncycastle.jce.provider.JCEECPublicKey;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
@@ -601,6 +591,28 @@ public class CertificateUtil {
 			LOG.debug("Name '" + cad.getName() +"' got value '" + cad.getValue() + "'");
 		}
 
+        final X509Principal principal = PrincipalUtil.getSubjectX509Principal(x509Cert);
+        final Vector<?> values = principal.getValues(X509Name.CN);
+        final String cn = (String) values.get(0);
+
+        List<String> sanList = getCertAttributes(cert, CertificateAttribute.ATTRIBUTE_SAN);
+        sanList.addAll(getCertAttributes(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN));
+        sanList.addAll(getCertAttributes(cert, CsrAttribute.ATTRIBUTE_TYPED_VSAN));
+
+        List<Certificate> replacedCerts = findReplaceCandidates(Instant.now(), cn, sanList);
+
+        if(replacedCerts.isEmpty()){
+            LOG.debug("certificate id {} does not replace any certificate", cert.getId());
+        }else{
+            for( Certificate replacedCert: replacedCerts ){
+                if( !cert.equals(replacedCert)) {
+                    LOG.debug("certificate id {} replaces certificate id {}", cert.getId(), replacedCert.getId());
+                    setCertMultiValueAttribute(replacedCert, CertificateAttribute.ATTRIBUTE_REPLACED_BY, cert.getId().toString());
+                    certificateAttributeRepository.saveAll(replacedCert.getCertificateAttributes());
+                }
+            }
+        }
+
 		return cert;
 	}
 
@@ -1082,15 +1094,26 @@ public class CertificateUtil {
     }
 
     public String getCertAttribute(Certificate certDao, String name) {
-		for( CertificateAttribute certAttr:certDao.getCertificateAttributes()) {
-			if( certAttr.getName().equals(name)) {
-				return certAttr.getValue();
-			}
-		}
-		return null;
-	}
+        for( CertificateAttribute certAttr:certDao.getCertificateAttributes()) {
+            if( certAttr.getName().equals(name)) {
+                return certAttr.getValue();
+            }
+        }
+        return null;
+    }
 
-	/**
+    public List<String> getCertAttributes(Certificate certDao, String name) {
+        List<String> stringList = new ArrayList<>();
+
+        for( CertificateAttribute certAttr:certDao.getCertificateAttributes()) {
+            if( certAttr.getName().equals(name)) {
+                stringList.add( certAttr.getValue());
+            }
+        }
+        return stringList;
+    }
+
+    /**
 	 *
 	 * @param certDao
 	 * @param name
@@ -1947,29 +1970,59 @@ public class CertificateUtil {
 	}
 
 
-	/**
-	 *
-	 * @param sanArr SAN array
-	 * @return list of certificates
-	 */
-	public List<Certificate> findReplaceCandidates(String[] sanArr) {
+    /**
+     *
+     * @param sanArr SAN array
+     * @return list of certificates
+     */
+    public List<Certificate> findReplaceCandidates(String[] sanArr) {
 
-		List<String> sans = new ArrayList<String>();
-		for (String san : sanArr) {
-			LOG.debug("SAN present: {} ", san);
-			sans.add(san);
-		}
+        return findReplaceCandidates(null, sanArr);
+    }
 
-		return findReplaceCandidates(sans);
+    public List<Certificate> findReplaceCandidates(String cn, String[] sanArr){
+        return findReplaceCandidates(Instant.now(), cn, sanArr);
+    }
 
-	}
+    /**
+     *
+     * @param sanArr SAN array
+     * @return list of certificates
+     */
+    public List<Certificate> findReplaceCandidates(Instant validOn, String cn, String[] sanArr) {
 
-	/**
+        List<String> sans = new ArrayList<String>();
+        for (String san : sanArr) {
+            LOG.debug("SAN present: {} ", san);
+            sans.add(san.toLowerCase(Locale.ROOT));
+        }
+
+        return findReplaceCandidates(validOn, cn, sans);
+
+    }
+
+    /**
+     *
+     * @param sanList SAN list
+     * @return list of certificates
+     */
+    public List<Certificate> findReplaceCandidates(Instant validOn, String cn, List<String> sanList) {
+
+        if( cn != null ){
+            if( !sanList.contains(cn.toLowerCase(Locale.ROOT))){
+                sanList.add(cn.toLowerCase(Locale.ROOT));
+            }
+        }
+        return findReplaceCandidates(validOn, sanList);
+
+    }
+
+    /**
 	 *
 	 * @param sans SANs as List
 	 * @return list of certificates
 	 */
-	public List<Certificate> findReplaceCandidates(List<String> sans) {
+	public List<Certificate> findReplaceCandidates(Instant validOn, List<String> sans) {
 
 		LOG.debug("sans list contains {} elements", sans.size());
 
@@ -1979,7 +2032,7 @@ public class CertificateUtil {
 			return candidateList;
 		}
 
-		List<Certificate> matchingCertList = certificateRepository.findActiveCertificatesBySANs(Instant.now(), sans);
+		List<Certificate> matchingCertList = certificateRepository.findActiveCertificatesBySANs(validOn, sans);
 		LOG.debug("objArrList contains {} elements", matchingCertList.size());
 
 		for (Certificate cert : matchingCertList) {
@@ -1992,7 +2045,7 @@ public class CertificateUtil {
 					String san = certAttr.getValue();
 					if( !sans.contains(san)) {
 						matches = false;
-						LOG.debug("candidate san {} NOT in provided san list", san, cert.getSubject());
+						LOG.debug("candidate san {} NOT in provided san list", san);
 						break;
 					}
 				}
@@ -2003,9 +2056,7 @@ public class CertificateUtil {
 			}
 
 		}
-
 		return candidateList;
-
 	}
 
 	public static String getDownloadFilename(final Certificate cert) {

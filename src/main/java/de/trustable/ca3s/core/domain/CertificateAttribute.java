@@ -136,15 +136,8 @@ public class CertificateAttribute implements Serializable {
 	public static final String ATTRIBUTE_EXTENDED_USAGE = "EXTENDED_USAGE";
 	public static final String ATTRIBUTE_EXTENDED_USAGE_OID = "EXTENDED_USAGE_OID";
 
-//	public static final String ATTRIBUTE_KEY_LENGTH = "KEY_LENGTH";
-//	public static final String ATTRIBUTE_SIGNATURE_ALGO = "SIGNATURE_ALGO";
-//	public static final String ATTRIBUTE_KEY_ALGO = "KEY_ALGO";
-//	public static final String ATTRIBUTE_HASH_ALGO = "HASH_ALGO";
-//	public static final String ATTRIBUTE_PADDING_ALGO = "PADDING_ALGO";
-//	public static final String ATTRIBUTE_CURVE_NAME = "CURVE_NAME";
 	public static final String ATTRIBUTE_SKI = "SKI";
 	public static final String ATTRIBUTE_AKI = "AKI";
-//	public static final String ATTRIBUTE_FINGERPRINT = "FINGERPRINT";
 	public static final String ATTRIBUTE_SERIAL = "SERIAL";
 	public static final String ATTRIBUTE_SERIAL_PADDED = "SERIAL_PADDED";
 	public static final String ATTRIBUTE_VALID_FROM = "VALID_FROM";
@@ -166,6 +159,7 @@ public class CertificateAttribute implements Serializable {
 	public static final String ATTRIBUTE_PROCESSING_CA = CsrAttribute.ATTRIBUTE_PROCESSING_CA;
 
     public static final String ATTRIBUTE_REQUESTED_BY = "REQUESTED_BY";
+    public static final String ATTRIBUTE_REPLACED_BY = "REPLACED_BY";
 
     public static final String ATTRIBUTE_SOURCE = "SOURCE";
 

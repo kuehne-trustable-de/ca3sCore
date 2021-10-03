@@ -109,7 +109,6 @@ public class CSRContentProcessor {
 			LOG.debug("not a certificate, trying to parse it as CSR ");
 
 			try {
-
 				Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(cryptoUtil.convertPemToPKCS10CertificationRequest(content));
 
 				Pkcs10RequestHolderShallow p10ReqHolderShallow = new Pkcs10RequestHolderShallow( p10ReqHolder);
@@ -143,7 +142,7 @@ public class CSRContentProcessor {
 			        pkcs12Store.load(bais, passphrase);
 					LOG.debug("keystore loaded successfully!");
 
-			        List<X509CertificateHolderShallow> certList = new ArrayList<X509CertificateHolderShallow>();
+			        List<X509CertificateHolderShallow> certList = new ArrayList<>();
 
 			        for (Enumeration<String> en = pkcs12Store.aliases(); en.hasMoreElements();)
 			        {

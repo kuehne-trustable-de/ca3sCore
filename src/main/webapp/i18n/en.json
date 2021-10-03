@@ -709,7 +709,7 @@
   "global.messages.error.dontmatch": "The password and its confirmation do not match!",
   "global.messages.info.authenticated.link": "sign in",
   "global.messages.info.authenticated.prefix": "If you want to ",
-  "global.messages.info.authenticated.suffix": ", you can try the default accounts:<br/>- Administrator (login=\"admin\" and password=\"admin\") <br/>- User (login=\"user\" and password=\"user\").",
+  "global.messages.info.authenticated.suffix": ", you can try the default accounts:<br/>- Administrator (login=\"admin\" and password=\"admin\") <br/>- Registration Officer (Name=\"ra\" und Passwort=\"s3cr3t\")<br/>- User (login=\"user\" and password=\"user\").",
   "global.messages.info.register.link": "Register a new account",
   "global.messages.info.register.noaccount": "You don't have an account yet?",
   "global.messages.validate.confirmpassword.maxlength": "Your confirmation password cannot be longer than 50 characters.",
@@ -991,6 +991,7 @@
 
   "revoked": "Revoked",
   "revokedOn": "Revoked on",
+  "revokedBy": "Revoked by",
   "revocationReason": "Reason",
   "length": "Length",
   "keyAlgorithm": "Key Algo",

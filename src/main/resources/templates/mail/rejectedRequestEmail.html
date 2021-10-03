@@ -9,8 +9,8 @@
         <p th:text="#{email.notification.greeting(${user.login})}">
             Dear
         </p>
-        <p th:text="#{email.request.rejection.text1(${csr.subject}, ${csr.rejectedOn})}">
-            Your certificate request submitted on ${csr.rejected_on} has been rejected by the Registration officer!
+        <p th:text="#{email.request.rejection.text1(${csr.subject}, ${csr.requestedOn})}">
+            Your certificate request submitted on ${csr.requestedOn} has been rejected by the Registration officer!
         </p>
         <p th:if="${csr.rejectionReason != null}">
             <span th:text="#{email.request.rejection.reason}">Reason:</span>

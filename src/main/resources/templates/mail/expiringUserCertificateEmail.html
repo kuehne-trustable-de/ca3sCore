@@ -14,14 +14,14 @@
         <p>
             <table>
                 <tr>
+                    <th>validTo</th>
                     <th>Subject</th>
                     <th>SAN</th>
-                    <th>validTo</th>
                 </tr>
                 <tr th:each="cert : ${expiringCertList}">
+                    <td th:text="${cert.validTo}">2.41</td>
                     <td th:text="${cert.subject}">foo.com</td>
                     <td th:text="${cert.sans}">foo.com, 8.8.8.8</td>
-                    <td th:text="${cert.validTo}">2.41</td>
                 </tr>
             </table>
         </p>

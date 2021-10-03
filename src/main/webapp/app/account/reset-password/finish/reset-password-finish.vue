@@ -28,9 +28,9 @@
                 <div v-if="!keyMissing">
                     <form v-if="!success" name="form" role="form" v-on:submit.prevent="finishReset()">
                         <div class="form-group">
-                            <label class="form-control-label" for="newPassword" v-text="$t('global.form[\'newpassword.label\']')">New password</label>
+                            <label class="form-control-label" for="newPassword" v-text="$t('global.form.newpassword.label')">New password</label>
                             <input type="password" class="form-control" id="newPassword" name="newPassword"
-                                v-bind:placeholder="$t('global.form[\'newpassword.placeholder\']')"
+                                v-bind:placeholder="$t('global.form.newpassword.placeholder')"
                                 :class="{'valid': !$v.resetAccount.newPassword.$invalid, 'invalid': $v.resetAccount.newPassword.$invalid }"
                                 v-model="$v.resetAccount.newPassword.$model" minlength=4 maxlength=50 required>
                             <div v-if="$v.resetAccount.newPassword.$anyDirty && $v.resetAccount.newPassword.$invalid">
@@ -50,10 +50,10 @@
                         </div>
                         <!--<jhi-password-strength-bar [passwordToCheck]="newPassword"></jhi-password-strength-bar>-->
                         <div class="form-group">
-                            <label class="form-control-label" for="confirmPassword" v-text="$t('global.form[\'confirmpassword.label\']')">New password confirmation</label>
+                            <label class="form-control-label" for="confirmPassword" v-text="$t('global.form.confirmpassword.label')">New password confirmation</label>
                             <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
                                :class="{'valid': !$v.resetAccount.confirmPassword.$invalid, 'invalid': $v.resetAccount.confirmPassword.$invalid }"
-                               v-bind:placeholder="$t('global.form[\'confirmpassword.placeholder\']')"
+                               v-bind:placeholder="$t('global.form.confirmpassword.placeholder')"
                                v-model="$v.resetAccount.confirmPassword.$model" minlength=4 maxlength=50 required>
                             <div v-if="$v.resetAccount.confirmPassword.$anyDirty && $v.resetAccount.confirmPassword.$invalid">
                                 <small class="form-text text-danger"

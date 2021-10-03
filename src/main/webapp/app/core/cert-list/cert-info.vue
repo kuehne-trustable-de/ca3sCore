@@ -25,8 +25,9 @@
                     </dt>
                     <dd>
                         <span v-if="certificateView.selfsigned" v-text="$t('ca3SApp.certificate.selfsigned')">Selfsigned</span>
-                        <router-link v-else-if="certificateView.issuerId" :to="{name: 'CertInfo', params: {certificateId: certificateView.issuerId}}">{{certificateView.issuer}}</router-link>
+                        <a v-else-if="certificateView.issuerId" href="issuer" @click.prevent="retrieveCertificate(certificateView.issuerId)">{{certificateView.issuer}}</a>
                         <span v-else>{{certificateView.issuer}}</span>
+
                     </dd>
 
                     <dt v-if="!certificateView.selfsigned && certificateView.root">

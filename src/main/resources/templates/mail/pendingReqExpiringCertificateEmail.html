@@ -60,17 +60,17 @@
             <h2 th:text="#{email.expiring.certificates.header}">Expiring certificates</h2>
             <table>
                 <tr>
+                    <th>expiring on</th>
                     <th>CN</th>
                     <th>Serial</th>
                     <th>SANs</th>
-                    <th>expiring on</th>
                     <th>details</th>
                 </tr>
                 <tr th:each="cert : ${expiringCertList}">
+                    <td th:text="${#dates.format(cert.validTo, 'dd.MM.yyyy, HH:mm')}"></td>
                     <td th:text="${cert.subject}"></td>
                     <td th:text="${cert.serial}"></td>
                     <td th:text="${cert.sans}"></td>
-                    <td th:text="${#dates.format(cert.validTo, 'dd.MM.yyyy, HH:mm')}"></td>
                     <td><a th:with="url=(@{|${baseUrl}/cert-info?certificateId=${cert.id}|})" th:href="${url}" th:text="#{email.notification.cert.RA.link}">Certificate details</a></td>
                 </tr>
             </table>

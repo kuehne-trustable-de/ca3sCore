@@ -18,7 +18,7 @@
 
                     <div class="form-group">
                         <label class="form-control-label" for="firstName" v-text="$t('settings.form.firstname')">First Name</label>
-                        <input type="text" class="form-control" id="firstName" name="firstName" v-bind:placeholder="$t('settings.form[\'firstname.placeholder\']')"
+                        <input type="text" class="form-control" id="firstName" name="firstName" v-bind:placeholder="$t('settings.form.firstname.placeholder')"
                                :class="{'valid': !$v.settingsAccount.firstName.$invalid, 'invalid': $v.settingsAccount.firstName.$invalid }"
                                v-model="$v.settingsAccount.firstName.$model" minlength=1 maxlength=50 required>
                         <div v-if="$v.settingsAccount.firstName.$anyDirty && $v.settingsAccount.firstName.$invalid">
@@ -38,7 +38,7 @@
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" for="lastName" v-text="$t('settings.form.lastname')">Last Name</label>
-                        <input type="text" class="form-control" id="lastName" name="lastName" v-bind:placeholder="$t('settings.form[\'lastname.placeholder\']')"
+                        <input type="text" class="form-control" id="lastName" name="lastName" v-bind:placeholder="$t('settings.form.lastname.placeholder')"
                                :class="{'valid': !$v.settingsAccount.lastName.$invalid, 'invalid': $v.settingsAccount.lastName.$invalid }"
                                v-model="$v.settingsAccount.lastName.$model" minlength=1 maxlength=50 required>
                         <div v-if="$v.settingsAccount.lastName.$anyDirty && $v.settingsAccount.lastName.$invalid">
@@ -57,8 +57,8 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-control-label" for="email" v-text="$t('global.form[\'email.label\']')">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" v-bind:placeholder="$t('global.form[\'email.placeholder\']')"
+                        <label class="form-control-label" for="email" v-text="$t('global.form.email.label')">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" v-bind:placeholder="$t('global.form.email.placeholder')"
                                :class="{'valid': !$v.settingsAccount.email.$invalid, 'invalid': $v.settingsAccount.email.$invalid }"
                                v-model="$v.settingsAccount.email.$model" minlength="5" maxlength="254" email required>
                         <div v-if="$v.settingsAccount.email.$anyDirty && $v.settingsAccount.email.$invalid">

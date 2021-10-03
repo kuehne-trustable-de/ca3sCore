@@ -209,6 +209,9 @@ public class CertificateView implements Serializable {
     @CsvIgnore
     private Boolean isAuditPresent = false;
 
+    @CsvIgnore
+    private String[] replacedCertArr;
+
     @CsvRecurse
     private NamedValue[] arArr;
 
@@ -263,6 +266,7 @@ public class CertificateView implements Serializable {
     	List<String> usageList = new ArrayList<>();
         List<String> extUsageList = new ArrayList<>();
         List<String> sanList = new ArrayList<>();
+        List<String> replacedCertList = new ArrayList<>();
 
         this.usageString = "";
         this.extUsageString = "";
@@ -330,6 +334,8 @@ public class CertificateView implements Serializable {
             } else if(CertificateAttribute.ATTRIBUTE_SAN.equalsIgnoreCase(certAttr.getName())) {
                 sanList.add(certAttr.getValue());
                 this.sansString = this.sansString.isEmpty()?certAttr.getValue(): this.sansString+ ", "+ certAttr.getValue();
+            } else if(CertificateAttribute.ATTRIBUTE_REPLACED_BY.equalsIgnoreCase(certAttr.getName())) {
+                replacedCertList.add(certAttr.getValue());
     		}else {
     			LOG.debug("Irrelevant certificate attribute '{}' with value '{}'", certAttr.getName(), certAttr.getValue());
 
@@ -338,8 +344,9 @@ public class CertificateView implements Serializable {
     	this.usage = usageList.toArray(new String[0]);
         this.extUsage = extUsageList.toArray(new String[0]);
         this.sanArr = sanList.toArray(new String[0]);
+        this.replacedCertArr = replacedCertList.toArray(new String[0]);
 
-    	this.downloadFilename = CertificateUtil.getDownloadFilename(cert);
+        this.downloadFilename = CertificateUtil.getDownloadFilename(cert);
 
     	this.arArr = copyArAttributes(cert);
 
@@ -874,5 +881,17 @@ public class CertificateView implements Serializable {
 
     public String getSerialHex() {
         return serialHex;
+    }
+
+    public void setSerialHex(String serialHex) {
+        this.serialHex = serialHex;
+    }
+
+    public String[] getReplacedCertArr() {
+        return replacedCertArr;
+    }
+
+    public void setReplacedCertArr(String[] replacedCertArr) {
+        this.replacedCertArr = replacedCertArr;
     }
 }

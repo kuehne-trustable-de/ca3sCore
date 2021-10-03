@@ -1,6 +1,7 @@
 import Component from 'vue-class-component';
 import { Vue } from 'vue-property-decorator';
 import { mixins } from 'vue-class-component';
+import { Fragment } from 'vue-fragment';
 
 import {
   ICertificateFilter,
@@ -16,6 +17,9 @@ import { VuejsDatatableFactory, TColumnsDefinition, ITableContentParam } from 'v
 
 import axios from 'axios';
 import AlertMixin from '@/shared/alert/alert.mixin';
+import CopyClipboardButton from '@/shared/clipboard/clipboard.vue';
+import HelpTag from '@/core/help/help-tag.vue';
+import AuditTag from '@/core/audit/audit-tag.vue';
 
 Vue.use(VuejsDatatableFactory);
 
@@ -95,7 +99,11 @@ VuejsDatatableFactory.useDefaultType(false).registerTableType<any, any, any, any
     })
 );
 
-@Component
+@Component({
+  components: {
+    Fragment
+  }
+})
 export default class CertList extends mixins(AlertMixin, Vue) {
   public now: Date = new Date();
   public soon: Date = new Date();
@@ -115,6 +123,7 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     { itemName: 'serial', itemType: 'number', itemDefaultSelector: null, itemDefaultValue: null },
     { itemName: 'fingerprint', itemType: 'number', itemDefaultSelector: null, itemDefaultValue: null },
     { itemName: 'id', itemType: 'number', itemDefaultSelector: null, itemDefaultValue: null },
+    { itemName: 'validFrom', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}' },
     { itemName: 'validTo', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}' },
     { itemName: 'active', itemType: 'boolean', itemDefaultSelector: 'ISTRUE', itemDefaultValue: 'true' },
     { itemName: 'trusted', itemType: 'boolean', itemDefaultSelector: 'ISTRUE', itemDefaultValue: 'true' },
@@ -175,7 +184,8 @@ export default class CertList extends mixins(AlertMixin, Vue) {
   public selectionChoices: ISelectionChoices[] = [
     { itemType: 'string', hasValue: true, choices: ['EQUAL', 'NOT_EQUAL', 'LIKE', 'NOTLIKE', 'LESSTHAN', 'GREATERTHAN'] },
     { itemType: 'number', hasValue: true, choices: ['EQUAL', 'NOT_EQUAL', 'LESSTHAN', 'GREATERTHAN'] },
-    { itemType: 'date', hasValue: true, choices: ['ON', 'BEFORE', 'AFTER', 'PERIOD_BEFORE', 'PERIOD_AFTER'] },
+    { itemType: 'date', hasValue: true, choices: ['ON', 'BEFORE', 'AFTER'] },
+    //    { itemType: 'date', hasValue: true, choices: ['ON', 'BEFORE', 'AFTER', 'PERIOD_BEFORE', 'PERIOD_AFTER'] },
     { itemType: 'boolean', hasValue: false, choices: ['ISTRUE', 'ISFALSE'] },
     { itemType: 'set', hasValue: false, choices: ['EQUAL', 'NOT_EQUAL'] }
   ];

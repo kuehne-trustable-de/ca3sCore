@@ -18,10 +18,10 @@
                 <form name="form" role="form" id="password-form" v-on:submit.prevent="changePassword()">
 
                     <div class="form-group">
-                        <label class="form-control-label" for="currentPassword" v-text="$t('global.form[\'currentpassword.label\']')">Current password</label>
+                        <label class="form-control-label" for="currentPassword" v-text="$t('global.form.currentpassword.label')">Current password</label>
                         <input type="password" class="form-control" id="currentPassword" name="currentPassword"
                                :class="{'valid': !$v.resetPassword.currentPassword.$invalid, 'invalid': $v.resetPassword.currentPassword.$invalid }"
-                               v-bind:placeholder="$t('global.form[\'currentpassword.placeholder\']')"
+                               v-bind:placeholder="$t('global.form.currentpassword.placeholder')"
                                v-model="$v.resetPassword.currentPassword.$model" required>
                         <div v-if="$v.resetPassword.currentPassword.$anyDirty && $v.resetPassword.currentPassword.$invalid">
                             <small class="form-text text-danger"
@@ -31,9 +31,9 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-control-label" for="newPassword" v-text="$t('global.form[\'newpassword.label\']')">New password</label>
+                        <label class="form-control-label" for="newPassword" v-text="$t('global.form.newpassword.label')">New password</label>
                         <input type="password" class="form-control" id="newPassword" name="newPassword"
-                               v-bind:placeholder="$t('global.form[\'newpassword.placeholder\']')"
+                               v-bind:placeholder="$t('global.form.newpassword.placeholder')"
                                :class="{'valid': !$v.resetPassword.newPassword.$invalid, 'invalid': $v.resetPassword.newPassword.$invalid }"
                                v-model="$v.resetPassword.newPassword.$model" minlength=4 maxlength=50 required>
                         <div v-if="$v.resetPassword.newPassword.$anyDirty && $v.resetPassword.newPassword.$invalid">
@@ -53,10 +53,10 @@
                         <!--<jhi-password-strength-bar [passwordToCheck]="newPassword"></jhi-password-strength-bar>-->
                     </div>
                     <div class="form-group">
-                        <label class="form-control-label" for="confirmPassword" v-text="$t('global.form[\'confirmpassword.label\']')">New password confirmation</label>
+                        <label class="form-control-label" for="confirmPassword" v-text="$t('global.form.confirmpassword.label')">New password confirmation</label>
                         <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
                                :class="{'valid': !$v.resetPassword.confirmPassword.$invalid, 'invalid': $v.resetPassword.confirmPassword.$invalid }"
-                               v-bind:placeholder="$t('global.form[\'confirmpassword.placeholder\']')"
+                               v-bind:placeholder="$t('global.form.confirmpassword.placeholder')"
                                v-model="$v.resetPassword.confirmPassword.$model" minlength=4 maxlength=50 required>
                         <div v-if="$v.resetPassword.confirmPassword.$anyDirty && $v.resetPassword.confirmPassword.$invalid">
                             <small class="form-text text-danger"
