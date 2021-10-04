@@ -33,17 +33,20 @@ public class CertBundleScheduler {
 	private final CertificateUtil certUtil;
 	private final TimedRenewalCertMapHolder timedRenewalCertMapHolder;
     private final String dnSuffix;
+    private final String sans;
 
     public CertBundleScheduler(CAConnectorConfigRepository caConfigRepo,
                                CaConnectorAdapter caConnAd,
                                CertificateUtil certUtil,
                                TimedRenewalCertMapHolder timedRenewalCertMapHolder,
-                               @Value("${ca3s.https.certificate.dnSuffix:}") String dnSuffix) {
+                               @Value("${ca3s.https.certificate.dnSuffix:}") String dnSuffix,
+                               @Value("${ca3s.https.certificate.sans:}") String sans) {
         this.caConfigRepo = caConfigRepo;
         this.caConnAd = caConnAd;
         this.certUtil = certUtil;
         this.timedRenewalCertMapHolder = timedRenewalCertMapHolder;
         this.dnSuffix = dnSuffix;
+        this.sans = sans;
     }
 
     @Scheduled(fixedDelay = 60000)
@@ -55,7 +58,7 @@ public class CertBundleScheduler {
 				if( CAStatus.Active.equals(caConnAd.getStatus(caConfigDao))) {
 
 					if( timedRenewalCertMapHolder.getCertMap().getBundleFactory() == null) {
-						timedRenewalCertMapHolder.getCertMap().setBundleFactory( new Ca3sBundleFactory(caConfigDao, caConnAd, certUtil, dnSuffix));
+						timedRenewalCertMapHolder.getCertMap().setBundleFactory( new Ca3sBundleFactory(caConfigDao, caConnAd, certUtil, dnSuffix, sans));
 						LOG.info("Ca3sBundleFactory registered for TLS certificate production");
 					}
 				}else {

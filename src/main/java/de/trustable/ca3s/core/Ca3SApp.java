@@ -50,6 +50,8 @@ public class Ca3SApp implements InitializingBean {
     public static final String SERVER_ACME_PREFIX = "ca3s.acmeAccess.";
     public static final String SERVER_SCEP_PREFIX = "ca3s.scepAccess.";
     public static final String DEFAULT_BINDING_HOST = "0.0.0.0";
+    public static final String HTTPS_CERTIFICATE_DN_SUFFIX = "ca3s.https.certificate.dnSuffix";
+    public static final String O_TRUSTABLE_SOLUTIONS_C_DE = "O=trustable solutions, C=DE";
 
     private final Environment env;
 
@@ -149,7 +151,7 @@ public class Ca3SApp implements InitializingBean {
     public TimedRenewalCertMapHolder registerJCEProvider() {
 		JCAManager.getInstance();
 
-        String dnSuffix = env.getProperty("ca3s.https.certificate.dnSuffix", "O=trustable solutions, C=DE");
+        String dnSuffix = env.getProperty(HTTPS_CERTIFICATE_DN_SUFFIX, O_TRUSTABLE_SOLUTIONS_C_DE);
 
         TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory(dnSuffix));
 		Security.addProvider(new Ca3sKeyStoreProvider(certMap, "ca3s"));

@@ -198,5 +198,6 @@ protectionSecret: bnJvbGwvV1MtMjAxOS1DQS5jcmyGK2h0dHA6Ly90cnVzdGFibGUuZXUvYWRjc1
 ca3s:
   https:
     certificate:
-      dnSuffix:
+      dnSuffix: O=Trustable Solutions,OU=CA3S Instance,C=DE
+      sans: trustable.de, www.trustable.de
 #  certificateSelectionAttributes: Foo,Bar,Baz

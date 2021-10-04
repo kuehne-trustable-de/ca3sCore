@@ -13,7 +13,6 @@ import org.bouncycastle.asn1.x509.KeyPurposeId;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.security.auth.x500.X500Principal;
 import java.io.IOException;
@@ -39,14 +38,18 @@ public class Ca3sBundleFactory implements BundleFactory {
 
     private final String dnSuffix;
 
+    private final String sans;
+
 	public Ca3sBundleFactory(CAConnectorConfig caConfigDao,
                              CaConnectorAdapter cacAdapt,
                              CertificateUtil certUtil,
-                             String dnSuffix) {
+                             String dnSuffix,
+                             String sans) {
 		this.caConfigDao = caConfigDao;
 		this.cacAdapt = cacAdapt;
 		this.certUtil = certUtil;
         this.dnSuffix = dnSuffix;
+        this.sans = sans;
     }
 
 
@@ -66,8 +69,12 @@ public class Ca3sBundleFactory implements BundleFactory {
             X500Principal subject = new X500Principal(x500Name);
 			LOG.debug("requesting certificate for subject : " + subject.getName() );
 
-            GeneralName[] sanArray = new GeneralName[1];
+			String[] sanArr = sans.split(",");
+            GeneralName[] sanArray = new GeneralName[sanArr.length + 1];
             sanArray[0] = new GeneralName(GeneralName.dNSName, hostname);
+            for(int i = 0; i < sanArr.length; i++){
+                sanArray[i + 1] = new GeneralName(GeneralName.dNSName,sanArr[i].trim());
+            }
 
             List<Map<String, Object>> extensions = new ArrayList<>();
             Map<String, Object> serverAuthMap = new HashMap<>();
