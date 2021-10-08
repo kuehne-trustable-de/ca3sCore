@@ -174,7 +174,7 @@ public class CertificateView implements Serializable {
     private Long acmeOrderId;
 
     @CsvIgnore
-    private Long scepTransId;
+    private String scepTransId;
 
     @CsvIgnore
     private String scepRecipient;
@@ -272,76 +272,81 @@ public class CertificateView implements Serializable {
         this.extUsageString = "";
         this.sansString = "";
 
-    	for( CertificateAttribute certAttr: cert.getCertificateAttributes()) {
-    		if( CertificateAttribute.ATTRIBUTE_CA_CONNECTOR_ID.equalsIgnoreCase(certAttr.getName())) {
-    			this.caConnectorId = Long.parseLong(certAttr.getValue());
-    		} else if( CertificateAttribute.ATTRIBUTE_CA_PROCESSING_ID.equalsIgnoreCase(certAttr.getName())) {
-    			this.caProcessingId = Long.parseLong(certAttr.getValue());
-    		} else if( CertificateAttribute.ATTRIBUTE_PROCESSING_CA.equalsIgnoreCase(certAttr.getName())) {
-    			this.processingCa = certAttr.getValue();
-    		} else if( CertificateAttribute.ATTRIBUTE_SOURCE.equalsIgnoreCase(certAttr.getName())) {
-    			this.fileSource = certAttr.getValue();
-    		} else if( CertificateAttribute.ATTRIBUTE_UPLOADED_BY.equalsIgnoreCase(certAttr.getName())) {
-    			this.uploadedBy = certAttr.getValue();
-    		} else if( CertificateAttribute.ATTRIBUTE_REVOKED_BY.equalsIgnoreCase(certAttr.getName())) {
-    			this.revokedBy = certAttr.getValue();
-            } else if( CertificateAttribute.ATTRIBUTE_CRL_URL.equalsIgnoreCase(certAttr.getName())) {
-                this.crlUrl= certAttr.getValue();
-            } else if( CertificateAttribute.ATTRIBUTE_FINGERPRINT_SHA1.equalsIgnoreCase(certAttr.getName())) {
-                this.fingerprintSha1 = certAttr.getValue();
-            } else if( CertificateAttribute.ATTRIBUTE_FINGERPRINT_SHA256.equalsIgnoreCase(certAttr.getName())) {
-                this.fingerprintSha256 = certAttr.getValue();
-            } else if( CertificateAttribute.ATTRIBUTE_RDN_CN.equalsIgnoreCase(certAttr.getName())) {
-                this.rdn_cn = certAttr.getValue();
-            } else if( CertificateAttribute.ATTRIBUTE_RDN_C.equalsIgnoreCase(certAttr.getName())) {
-                this.rdn_c = certAttr.getValue();
-            } else if( CertificateAttribute.ATTRIBUTE_RDN_O.equalsIgnoreCase(certAttr.getName())) {
-                this.rdn_o = certAttr.getValue();
-            } else if( CertificateAttribute.ATTRIBUTE_RDN_OU.equalsIgnoreCase(certAttr.getName())) {
-                this.rdn_ou = certAttr.getValue();
-            } else if( CertificateAttribute.ATTRIBUTE_RDN_L.equalsIgnoreCase(certAttr.getName())) {
-                this.rdn_l = certAttr.getValue();
-            } else if( CertificateAttribute.ATTRIBUTE_RDN_S.equalsIgnoreCase(certAttr.getName())) {
-                this.rdn_s = certAttr.getValue();
+        for (CertificateAttribute certAttr : cert.getCertificateAttributes()) {
+           try {
+                if (CertificateAttribute.ATTRIBUTE_CA_CONNECTOR_ID.equalsIgnoreCase(certAttr.getName())) {
+                    this.caConnectorId = Long.parseLong(certAttr.getValue());
+                } else if (CertificateAttribute.ATTRIBUTE_CA_PROCESSING_ID.equalsIgnoreCase(certAttr.getName())) {
+                    this.caProcessingId = Long.parseLong(certAttr.getValue());
+                } else if (CertificateAttribute.ATTRIBUTE_PROCESSING_CA.equalsIgnoreCase(certAttr.getName())) {
+                    this.processingCa = certAttr.getValue();
+                } else if (CertificateAttribute.ATTRIBUTE_SOURCE.equalsIgnoreCase(certAttr.getName())) {
+                    this.fileSource = certAttr.getValue();
+                } else if (CertificateAttribute.ATTRIBUTE_UPLOADED_BY.equalsIgnoreCase(certAttr.getName())) {
+                    this.uploadedBy = certAttr.getValue();
+                } else if (CertificateAttribute.ATTRIBUTE_REVOKED_BY.equalsIgnoreCase(certAttr.getName())) {
+                    this.revokedBy = certAttr.getValue();
+                } else if (CertificateAttribute.ATTRIBUTE_CRL_URL.equalsIgnoreCase(certAttr.getName())) {
+                    this.crlUrl = certAttr.getValue();
+                } else if (CertificateAttribute.ATTRIBUTE_FINGERPRINT_SHA1.equalsIgnoreCase(certAttr.getName())) {
+                    this.fingerprintSha1 = certAttr.getValue();
+                } else if (CertificateAttribute.ATTRIBUTE_FINGERPRINT_SHA256.equalsIgnoreCase(certAttr.getName())) {
+                    this.fingerprintSha256 = certAttr.getValue();
+                } else if (CertificateAttribute.ATTRIBUTE_RDN_CN.equalsIgnoreCase(certAttr.getName())) {
+                    this.rdn_cn = certAttr.getValue();
+                } else if (CertificateAttribute.ATTRIBUTE_RDN_C.equalsIgnoreCase(certAttr.getName())) {
+                    this.rdn_c = certAttr.getValue();
+                } else if (CertificateAttribute.ATTRIBUTE_RDN_O.equalsIgnoreCase(certAttr.getName())) {
+                    this.rdn_o = certAttr.getValue();
+                } else if (CertificateAttribute.ATTRIBUTE_RDN_OU.equalsIgnoreCase(certAttr.getName())) {
+                    this.rdn_ou = certAttr.getValue();
+                } else if (CertificateAttribute.ATTRIBUTE_RDN_L.equalsIgnoreCase(certAttr.getName())) {
+                    this.rdn_l = certAttr.getValue();
+                } else if (CertificateAttribute.ATTRIBUTE_RDN_S.equalsIgnoreCase(certAttr.getName())) {
+                    this.rdn_s = certAttr.getValue();
 
-            } else if( CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE.equalsIgnoreCase(certAttr.getName())) {
-    			this.crlNextUpdate = Instant.ofEpochMilli(Long.parseLong(certAttr.getValue()));
-    		} else if( CertificateAttribute.ATTRIBUTE_ACME_ACCOUNT_ID.equalsIgnoreCase(certAttr.getName())) {
-    			this.acmeAccountId = Long.parseLong(certAttr.getValue());
-    		} else if( CertificateAttribute.ATTRIBUTE_ACME_ORDER_ID.equalsIgnoreCase(certAttr.getName())) {
-    			this.acmeOrderId = Long.parseLong(certAttr.getValue());
-    		} else if( CertificateAttribute.ATTRIBUTE_SCEP_RECIPIENT.equalsIgnoreCase(certAttr.getName())) {
-    			this.scepRecipient = certAttr.getValue();
-    		} else if( CertificateAttribute.ATTRIBUTE_SCEP_TRANS_ID.equalsIgnoreCase(certAttr.getName())) {
-    			this.scepTransId = Long.parseLong(certAttr.getValue());
-    		} else if( CertificateAttribute.ATTRIBUTE_SELFSIGNED.equalsIgnoreCase(certAttr.getName())) {
-    			this.selfsigned = Boolean.valueOf(certAttr.getValue());
-    		} else if( CertificateAttribute.ATTRIBUTE_CA.equalsIgnoreCase(certAttr.getName())) {
-    			this.ca = Boolean.valueOf(certAttr.getValue());
-    		} else if( CertificateAttribute.ATTRIBUTE_CA3S_ROOT.equalsIgnoreCase(certAttr.getName())) {
-    		} else if( CertificateAttribute.ATTRIBUTE_ROOT.equalsIgnoreCase(certAttr.getName())) {
-    		} else if( CertificateAttribute.ATTRIBUTE_CA3S_INTERMEDIATE.equalsIgnoreCase(certAttr.getName())) {
-    		} else if( CertificateAttribute.ATTRIBUTE_END_ENTITY.equalsIgnoreCase(certAttr.getName())) {
-    			this.endEntity = Boolean.valueOf(certAttr.getValue());
-    		} else if( CertificateAttribute.ATTRIBUTE_CHAIN_LENGTH.equalsIgnoreCase(certAttr.getName())) {
-    			this.chainLength = Long.parseLong(certAttr.getValue());
-    		} else if( CertificateAttribute.ATTRIBUTE_USAGE.equalsIgnoreCase(certAttr.getName())) {
-    			usageList.add(certAttr.getValue());
-                this.usageString = this.usageString.isEmpty()?certAttr.getValue(): this.usageString+ ", "+ certAttr.getValue();
-            } else if(CertificateAttribute.ATTRIBUTE_EXTENDED_USAGE.equalsIgnoreCase(certAttr.getName())) {
-                extUsageList.add(certAttr.getValue());
-                this.extUsageString = this.extUsageString.isEmpty()?certAttr.getValue(): this.extUsageString+ ", "+ certAttr.getValue();
-            } else if(CertificateAttribute.ATTRIBUTE_SAN.equalsIgnoreCase(certAttr.getName())) {
-                sanList.add(certAttr.getValue());
-                this.sansString = this.sansString.isEmpty()?certAttr.getValue(): this.sansString+ ", "+ certAttr.getValue();
-            } else if(CertificateAttribute.ATTRIBUTE_REPLACED_BY.equalsIgnoreCase(certAttr.getName())) {
-                replacedCertList.add(certAttr.getValue());
-    		}else {
-    			LOG.debug("Irrelevant certificate attribute '{}' with value '{}'", certAttr.getName(), certAttr.getValue());
+                } else if (CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE.equalsIgnoreCase(certAttr.getName())) {
+                    this.crlNextUpdate = Instant.ofEpochMilli(Long.parseLong(certAttr.getValue()));
+                } else if (CertificateAttribute.ATTRIBUTE_ACME_ACCOUNT_ID.equalsIgnoreCase(certAttr.getName())) {
+                    this.acmeAccountId = Long.parseLong(certAttr.getValue());
+                } else if (CertificateAttribute.ATTRIBUTE_ACME_ORDER_ID.equalsIgnoreCase(certAttr.getName())) {
+                    this.acmeOrderId = Long.parseLong(certAttr.getValue());
+                } else if (CertificateAttribute.ATTRIBUTE_SCEP_RECIPIENT.equalsIgnoreCase(certAttr.getName())) {
+                    this.scepRecipient = certAttr.getValue();
+                } else if (CertificateAttribute.ATTRIBUTE_SCEP_TRANS_ID.equalsIgnoreCase(certAttr.getName())) {
+                    this.scepTransId = certAttr.getValue();
+                } else if (CertificateAttribute.ATTRIBUTE_SELFSIGNED.equalsIgnoreCase(certAttr.getName())) {
+                    this.selfsigned = Boolean.valueOf(certAttr.getValue());
+                } else if (CertificateAttribute.ATTRIBUTE_CA.equalsIgnoreCase(certAttr.getName())) {
+                    this.ca = Boolean.valueOf(certAttr.getValue());
+                } else if (CertificateAttribute.ATTRIBUTE_CA3S_ROOT.equalsIgnoreCase(certAttr.getName())) {
+                } else if (CertificateAttribute.ATTRIBUTE_ROOT.equalsIgnoreCase(certAttr.getName())) {
+                } else if (CertificateAttribute.ATTRIBUTE_CA3S_INTERMEDIATE.equalsIgnoreCase(certAttr.getName())) {
+                } else if (CertificateAttribute.ATTRIBUTE_END_ENTITY.equalsIgnoreCase(certAttr.getName())) {
+                    this.endEntity = Boolean.valueOf(certAttr.getValue());
+                } else if (CertificateAttribute.ATTRIBUTE_CHAIN_LENGTH.equalsIgnoreCase(certAttr.getName())) {
+                    this.chainLength = Long.parseLong(certAttr.getValue());
+                } else if (CertificateAttribute.ATTRIBUTE_USAGE.equalsIgnoreCase(certAttr.getName())) {
+                    usageList.add(certAttr.getValue());
+                    this.usageString = this.usageString.isEmpty() ? certAttr.getValue() : this.usageString + ", " + certAttr.getValue();
+                } else if (CertificateAttribute.ATTRIBUTE_EXTENDED_USAGE.equalsIgnoreCase(certAttr.getName())) {
+                    extUsageList.add(certAttr.getValue());
+                    this.extUsageString = this.extUsageString.isEmpty() ? certAttr.getValue() : this.extUsageString + ", " + certAttr.getValue();
+                } else if (CertificateAttribute.ATTRIBUTE_SAN.equalsIgnoreCase(certAttr.getName())) {
+                    sanList.add(certAttr.getValue());
+                    this.sansString = this.sansString.isEmpty() ? certAttr.getValue() : this.sansString + ", " + certAttr.getValue();
+                } else if (CertificateAttribute.ATTRIBUTE_REPLACED_BY.equalsIgnoreCase(certAttr.getName())) {
+                    replacedCertList.add(certAttr.getValue());
+                } else {
+                    LOG.debug("Irrelevant certificate attribute '{}' with value '{}'", certAttr.getName(), certAttr.getValue());
 
-    		}
-    	}
-    	this.usage = usageList.toArray(new String[0]);
+                }
+            }catch(NumberFormatException nfe){
+                LOG.warn("Number parsing problem for certificate attribute '{}' with value '{}'", certAttr.getName(), certAttr.getValue());
+            }
+        }
+
+        this.usage = usageList.toArray(new String[0]);
         this.extUsage = extUsageList.toArray(new String[0]);
         this.sanArr = sanList.toArray(new String[0]);
         this.replacedCertArr = replacedCertList.toArray(new String[0]);
@@ -641,7 +646,7 @@ public class CertificateView implements Serializable {
 		return acmeOrderId;
 	}
 
-	public Long getScepTransId() {
+	public String getScepTransId() {
 		return scepTransId;
 	}
 
@@ -657,7 +662,7 @@ public class CertificateView implements Serializable {
 		this.acmeOrderId = acmeOrderId;
 	}
 
-	public void setScepTransId(Long scepTransId) {
+	public void setScepTransId(String scepTransId) {
 		this.scepTransId = scepTransId;
 	}
 

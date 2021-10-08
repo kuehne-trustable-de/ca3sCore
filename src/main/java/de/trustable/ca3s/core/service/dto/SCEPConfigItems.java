@@ -13,8 +13,11 @@ public class SCEPConfigItems implements Serializable {
 	private boolean capabilityRenewal = true;
 	private boolean capabilityPostPKIOperation = true;
 
+    private String recepientCertSubject = "";
+    private String recepientCertSerial = "1";
+
     private String scepSecretPCId = null;
-    private String scepSecret = "true";
+    private String scepSecret = "******";
     private Instant scepSecretValidTo = Instant.now();
 
     public SCEPConfigItems() {}
@@ -57,5 +60,21 @@ public class SCEPConfigItems implements Serializable {
 
     public void setScepSecretValidTo(Instant scepSecretValidTo) {
         this.scepSecretValidTo = scepSecretValidTo;
+    }
+
+    public String getRecepientCertSubject() {
+        return recepientCertSubject;
+    }
+
+    public void setRecepientCertSubject(String recepientCertSubject) {
+        this.recepientCertSubject = recepientCertSubject;
+    }
+
+    public String getRecepientCertSerial() {
+        return recepientCertSerial;
+    }
+
+    public void setRecepientCertSerial(String recepientCertSerial) {
+        this.recepientCertSerial = recepientCertSerial;
     }
 }

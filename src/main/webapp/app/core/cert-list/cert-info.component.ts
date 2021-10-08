@@ -175,6 +175,10 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
   }
 
   public hasRole(targetRole: string) {
+    if (this.$store.getters.account.authorities === null) {
+      return false;
+    }
+
     for (const role of this.$store.getters.account.authorities) {
       if (targetRole === role) {
         return true;
@@ -190,6 +194,7 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
   public updateCertificate() {
     this.certificateAdminData.certificateId = this.certificateView.id;
     this.certificateAdminData.administrationType = 'UPDATE';
+    this.certificateAdminData.trusted = this.certificateView.trusted;
     this.sendAdministrationAction('api/administerCertificate');
   }
 
@@ -197,30 +202,38 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
     this.certificateAdminData.certificateId = this.certificateView.id;
     this.certificateAdminData.revocationReason = 'removeFromCRL';
     this.certificateAdminData.administrationType = 'REVOKE';
+    this.certificateAdminData.trusted = this.certificateView.trusted;
     this.sendAdministrationAction('api/administerCertificate');
   }
 
   public revokeCertificate() {
     this.certificateAdminData.certificateId = this.certificateView.id;
     this.certificateAdminData.administrationType = 'REVOKE';
+    this.certificateAdminData.trusted = this.certificateView.trusted;
     this.sendAdministrationAction('api/administerCertificate');
   }
 
   public selfAdministerCertificate() {
     this.certificateAdminData.certificateId = this.certificateView.id;
     this.certificateAdminData.administrationType = 'UPDATE';
+    this.certificateAdminData.trusted = this.certificateView.trusted;
     this.sendAdministrationAction('api/selfAdministerCertificate');
   }
 
   public withdrawCertificate() {
     this.certificateAdminData.certificateId = this.certificateView.id;
     this.certificateAdminData.administrationType = 'REVOKE';
+    this.certificateAdminData.trusted = this.certificateView.trusted;
     this.sendAdministrationAction('api/withdrawOwnCertificate');
   }
 
   sendAdministrationAction(adminUrl: string) {
     document.body.style.cursor = 'wait';
     const self = this;
+
+    if (this.certificateAdminData.trusted === null) {
+      this.certificateAdminData.trusted = false;
+    }
 
     axios({
       method: 'post',

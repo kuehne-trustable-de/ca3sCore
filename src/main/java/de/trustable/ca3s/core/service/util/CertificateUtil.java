@@ -8,6 +8,7 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
@@ -344,7 +345,27 @@ public class CertificateUtil {
 		}
 	}
 
-	/**
+    public Certificate getCurrentSCEPRecipient(){
+        List<Certificate> certList = certificateRepository.findByAttributeValue(CertificateAttribute.ATTRIBUTE_SCEP_RECIPIENT, "true");
+
+        Instant now = Instant.now();
+        Certificate currentRecepientCert = null;
+        for (Certificate recCert : certList) {
+
+            if (!recCert.isRevoked() && now.isAfter(recCert.getValidFrom())) {
+                if (currentRecepientCert == null) {
+                    currentRecepientCert = recCert;
+                } else {
+                    if (recCert.getValidTo().isAfter(currentRecepientCert.getValidTo())) {
+                        currentRecepientCert = recCert;
+                    }
+                }
+            }
+        }
+        return currentRecepientCert;
+    }
+
+    /**
 	 *
 	 * @param pemCert
 	 * @param csr
@@ -593,7 +614,8 @@ public class CertificateUtil {
 
         final X509Principal principal = PrincipalUtil.getSubjectX509Principal(x509Cert);
         final Vector<?> values = principal.getValues(X509Name.CN);
-        final String cn = (String) values.get(0);
+
+        String cn = values.size() > 0 ? (String) values.get(0): null;
 
         List<String> sanList = getCertAttributes(cert, CertificateAttribute.ATTRIBUTE_SAN);
         sanList.addAll(getCertAttributes(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN));
@@ -1201,7 +1223,7 @@ public class CertificateUtil {
 	public List<Certificate> getCertificateChain(final Certificate startCertDao) throws GeneralSecurityException {
 
 		int MAX_CHAIN_LENGTH = 10;
-		ArrayList<Certificate> certChain = new ArrayList<Certificate>();
+		ArrayList<Certificate> certChain = new ArrayList<>();
 
 		Certificate certDao = startCertDao;
 		LOG.debug("added end entity cert id {} to the chain", certDao.getId());
@@ -1242,7 +1264,7 @@ public class CertificateUtil {
 			}else {
 
 				// root reached? No need to move further ..
-				if( issuingCertDao.getId() == issuingCertDao.getIssuingCertificate().getId()) {
+				if( issuingCertDao.getId().equals(issuingCertDao.getIssuingCertificate().getId())) {
 					LOG.debug("certificate chain complete, cert id '{}' is selfsigned", issuingCertDao.getId());
 					break;
 				}
@@ -1284,7 +1306,7 @@ public class CertificateUtil {
 
 		List<Certificate> certList = getCertificateChain(startCert);
 
-		List<X509Certificate> x509chainList = new ArrayList<X509Certificate>();
+		List<X509Certificate> x509chainList = new ArrayList<>();
 		for( int i = 0; i < certList.size(); i++) {
 
 			X509Certificate x509Cert = CryptoService.convertPemToCertificate(certList.get(i).getContent());
@@ -1362,7 +1384,7 @@ public class CertificateUtil {
 		}
 
 		String desc = "valid for ";
-		if ( (usage.length > 0) && usage[0]) desc += "digitalSignature ";
+		if ( usage[0]) desc += "digitalSignature ";
 		if ( (usage.length > 1) && usage[1]) desc += "nonRepudiation ";
 		if ( (usage.length > 2) && usage[2]) desc += "keyEncipherment ";
 		if ( (usage.length > 3) && usage[3]) desc += "dataEncipherment ";
@@ -1387,7 +1409,7 @@ public class CertificateUtil {
 			return;
 		}
 
-		if ( (usage.length > 0) && usage[0]){
+		if ( usage[0]){
 			setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_USAGE,  "digitalSignature");
 		}
 		if ( (usage.length > 1) && usage[1]){
@@ -1468,18 +1490,11 @@ public class CertificateUtil {
 		public X509Certificate convertPemToCertificate(final String pem)
 				throws GeneralSecurityException {
 
-			X509Certificate cert = null;
-			ByteArrayInputStream pemStream = null;
-			try {
-				pemStream = new ByteArrayInputStream(pem.getBytes("UTF-8"));
-			} catch (UnsupportedEncodingException ex) {
-				LOG.error("UnsupportedEncodingException, convertPemToPublicKey",
-						ex);
-				throw new GeneralSecurityException(
-						"Parsing of PublicKey failed due to encoding problem! Not PEM encoded?");
-			}
+			X509Certificate cert;
+			ByteArrayInputStream pemStream;
+            pemStream = new ByteArrayInputStream(pem.getBytes(StandardCharsets.UTF_8));
 
-			Reader pemReader = new InputStreamReader(pemStream);
+            Reader pemReader = new InputStreamReader(pemStream);
 			PEMParser pemParser = new PEMParser(pemReader);
 
 			try {
@@ -1526,17 +1541,11 @@ public class CertificateUtil {
 		public PrivateKey convertPemToPrivateKey(final String pem)
 				throws GeneralSecurityException {
 
-			PrivateKey privKey = null;
-			ByteArrayInputStream pemStream = null;
-			try {
-				pemStream = new ByteArrayInputStream(pem.getBytes("UTF-8"));
-			} catch (UnsupportedEncodingException ex) {
-				LOG.error("UnsupportedEncodingException, PrivateKey", ex);
-				throw new GeneralSecurityException(
-						"Parsing of PEM file failed due to encoding problem! Not PEM encoded?");
-			}
+			PrivateKey privKey;
+			ByteArrayInputStream pemStream;
+            pemStream = new ByteArrayInputStream(pem.getBytes(StandardCharsets.UTF_8));
 
-			Reader pemReader = new InputStreamReader(pemStream);
+            Reader pemReader = new InputStreamReader(pemStream);
 			PEMParser pemParser = new PEMParser(pemReader);
 
 			try {
@@ -1584,7 +1593,7 @@ public class CertificateUtil {
 
 		Objects.requireNonNull(x509CertHolder, "x509CertHolder can't be null");
 
-		List<Certificate> issuingCertList = new ArrayList<Certificate>();
+		List<Certificate> issuingCertList = new ArrayList<>();
 
 		// look for the AKI extension in the given certificate
 		if( (x509CertHolder != null) && (x509CertHolder.getExtensions() != null)) {
@@ -1598,7 +1607,7 @@ public class CertificateUtil {
 			LOG.debug("AKI from crt extension failed, trying to find issuer name");
 			issuingCertList = certificateRepository.findCACertByIssuer(x509CertHolder.getIssuer().toString());
 			if( issuingCertList.size() > 1){
-				LOG.debug("more than one issuer found for certificate id '{}' by matching issuer name '{}'");
+				LOG.debug("more than one issuer found by matching issuer name '{}'", x509CertHolder.getIssuer().toString());
 			}
 		}
 /*
@@ -1711,7 +1720,7 @@ public class CertificateUtil {
 
     public Set<GeneralName> getSANList(X509CertificateHolder x509CertHolder){
 
-		Set<GeneralName> generalNameSet = new HashSet<GeneralName>();
+		Set<GeneralName> generalNameSet = new HashSet<>();
 
 		Extensions exts = x509CertHolder.getExtensions();
 		for( ASN1ObjectIdentifier objId : exts.getExtensionOIDs()) {
@@ -1734,7 +1743,7 @@ public class CertificateUtil {
 
 	public Set<GeneralName> getSANList(Pkcs10RequestHolder p10ReqHolder){
 
-		Set<GeneralName> generalNameSet = new HashSet<GeneralName>();
+		Set<GeneralName> generalNameSet = new HashSet<>();
 
 		for( Attribute attr : p10ReqHolder.getReqAttributes()) {
 			if( PKCSObjectIdentifiers.pkcs_9_at_extensionRequest.equals(attr.getAttrType())){
@@ -1909,9 +1918,9 @@ public class CertificateUtil {
      * extension in a X.509 certificate. If CRL distribution point extension is
      * unavailable, returns an empty list.
      */
-    public List<String> getCrlDistributionPoints(X509Certificate cert) throws CertificateParsingException, IOException {
+    public List<String> getCrlDistributionPoints(X509Certificate cert) throws IOException {
 
-    	List<String> crlUrls = new ArrayList<String>();
+    	List<String> crlUrls = new ArrayList<>();
 
     	byte[] crldpExt = cert.getExtensionValue(X509Extensions.CRLDistributionPoints.getId());
     	if( crldpExt != null && crldpExt.length > 0) {
@@ -1991,7 +2000,7 @@ public class CertificateUtil {
      */
     public List<Certificate> findReplaceCandidates(Instant validOn, String cn, String[] sanArr) {
 
-        List<String> sans = new ArrayList<String>();
+        List<String> sans = new ArrayList<>();
         for (String san : sanArr) {
             LOG.debug("SAN present: {} ", san);
             sans.add(san.toLowerCase(Locale.ROOT));
@@ -2026,7 +2035,7 @@ public class CertificateUtil {
 
 		LOG.debug("sans list contains {} elements", sans.size());
 
-		List<Certificate> candidateList = new ArrayList<Certificate>();
+		List<Certificate> candidateList = new ArrayList<>();
 
 		if( sans.size() == 0) {
 			return candidateList;

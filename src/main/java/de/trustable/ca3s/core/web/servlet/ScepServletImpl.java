@@ -109,6 +109,7 @@ public class ScepServletImpl extends ScepServlet {
      */
     Certificate getCurrentRecepientCert() throws ServletException {
 
+        /*
     	List<Certificate> certList = certRepository.findByAttributeValue( CertificateAttribute.ATTRIBUTE_SCEP_RECIPIENT, "true");
 
     	Instant now = Instant.now();
@@ -125,7 +126,9 @@ public class ScepServletImpl extends ScepServlet {
     			}
     		}
     	}
+*/
 
+        Certificate currentRecepientCert = certUtil.getCurrentSCEPRecipient();
 		if (currentRecepientCert == null) {
 
 			try {
@@ -229,11 +232,20 @@ public class ScepServletImpl extends ScepServlet {
     		certUtil.setCertAttribute(newCertDao, CertificateAttribute.ATTRIBUTE_SCEP_TRANS_ID, transId.toString());
 
 			certRepository.save(newCertDao);
-            X509Certificate issued = CryptoUtil.convertPemToCertificate(newCertDao.getContent());
 
-            LOGGER.debug("Issuing {}", issued);
+			ArrayList<X509Certificate> certList = new ArrayList<>();
+            Certificate chainCert = newCertDao;
+            for( int i = 0; i < 3; i++){
 
-            return Collections.singletonList(issued);
+                if( chainCert != null) {
+                    certList.add(CryptoUtil.convertPemToCertificate(chainCert.getContent()));
+                    chainCert = chainCert.getIssuingCertificate();
+                }
+            }
+            for(X509Certificate x509: certList){
+                LOGGER.debug("--- chain element: " + x509.getSubjectDN().getName());
+            }
+            return certList;
         } catch (Exception e) {
             LOGGER.warn("Error in enrollment", e);
             throw new OperationFailureException(FailInfo.badRequest);
@@ -250,12 +262,12 @@ public class ScepServletImpl extends ScepServlet {
         List<ProtectedContent> listPC = protectedContentRepository.findByTypeRelationId(ProtectedContentType.PASSWORD, ContentRelationType.SCEP_PW,pipeline.getId());
         for(ProtectedContent pc: listPC){
             String expectedPassword = protectedContentUtil.unprotectString(pc.getContentBase64()).trim();
-            LOGGER.debug("Pipeline {} defined SCEP password '{}'", pipeline.getName(), expectedPassword);
+//            LOGGER.debug("Pipeline '{}' defined SCEP password '{}'", pipeline.getName(), expectedPassword);
             if( password.trim().equals(expectedPassword)) {
                 LOGGER.debug("Protected Content found matching SCEP password");
                 return; // the only successful exit !!
             } else {
-                LOGGER.debug("Protected Content password does not match SCEP password");
+//                LOGGER.debug("Protected Content password does not match SCEP password '{}' != '{}'", expectedPassword, password);
             }
         }
 

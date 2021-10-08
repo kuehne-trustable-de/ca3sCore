@@ -115,6 +115,9 @@ public class PipelineUtil {
     private ProtectedContentUtil protectedContentUtil;
 
     @Autowired
+    private CertificateUtil certUtil;
+
+    @Autowired
     private AuditService auditService;
 
     @Autowired
@@ -286,6 +289,13 @@ public class PipelineUtil {
                     }else {
                         scepConfigItems.setScepSecretValidTo(pc.getValidTo());
                     }
+
+                    Certificate currentRecepientCert = certUtil.getCurrentSCEPRecipient();
+                    if( currentRecepientCert != null){
+                        scepConfigItems.setRecepientCertSerial(currentRecepientCert.getSerial());
+                        scepConfigItems.setRecepientCertSubject(currentRecepientCert.getSubject());
+                    }
+
                 }else{
                     LOG.debug("no protected content for pc id : " + plAtt.getValue());
                 }
@@ -613,7 +623,7 @@ public class PipelineUtil {
 
 
 		if( name == null || name.trim().isEmpty()) {
-			new Exception("name == null");
+			new Exception("name == null").printStackTrace();
 			return;
 		}
 
