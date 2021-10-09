@@ -211,9 +211,12 @@ public class BPMNUtil{
 			processName = processInfo.getName();
 		}else{
 
-            // runtimeService.createProcessInstanceByKey(processName)
-
-            processName = repoService.createProcessDefinitionQuery().processDefinitionKey("CAInvocationProcess").latestVersion().list().get(0).getId();
+            List<ProcessDefinition> processDefinitionList = repoService.createProcessDefinitionQuery().processDefinitionKey("CAInvocationProcess").latestVersion().list();
+            if( processDefinitionList.isEmpty()){
+                LOG.warn( "Default process 'CAInvocationProcess' not found!");
+                return null;
+            }
+            processName = processDefinitionList.get(0).getId();
         }
 
 		if(caConfig != null ){

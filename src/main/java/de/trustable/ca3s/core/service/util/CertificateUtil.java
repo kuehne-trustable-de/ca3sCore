@@ -182,6 +182,11 @@ public class CertificateUtil {
     }
 
     public String getNormalizedName(final String inputName) throws InvalidNameException {
+
+        if( inputName.trim().isEmpty()){
+            return "";
+        }
+
         try {
             X500Name x500Name = new X500Name(BCStrictStyle.INSTANCE, inputName);
 
@@ -825,17 +830,19 @@ public class CertificateUtil {
             }
 
             try {
-                X500Name x500Name = new X500Name(cert.getSubject());
-                for (RDN rdn : x500Name.getRDNs()) {
+                if( !cert.getSubject().trim().isEmpty()) {
+                    X500Name x500Name = new X500Name(cert.getSubject());
+                    for (RDN rdn : x500Name.getRDNs()) {
 
-                    AttributeTypeAndValue[] attrTVArr = rdn.getTypesAndValues();
-                    for (AttributeTypeAndValue attrTV : attrTVArr) {
+                        AttributeTypeAndValue[] attrTVArr = rdn.getTypesAndValues();
+                        for (AttributeTypeAndValue attrTV : attrTVArr) {
 
-                        String rdnReadableName = OidNameMapper.lookupOid(attrTV.getType().toString());
+                            String rdnReadableName = OidNameMapper.lookupOid(attrTV.getType().toString());
 
-                        setCertAttribute(cert,
-                            CertificateAttribute.ATTRIBUTE_RDN_PREFIX + rdnReadableName.toUpperCase(),
-                            attrTV.getValue().toString());
+                            setCertAttribute(cert,
+                                CertificateAttribute.ATTRIBUTE_RDN_PREFIX + rdnReadableName.toUpperCase(),
+                                attrTV.getValue().toString());
+                        }
                     }
                 }
             } catch (IllegalArgumentException iae) {
