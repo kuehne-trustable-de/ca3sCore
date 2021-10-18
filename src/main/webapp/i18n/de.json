@@ -459,7 +459,7 @@
   "ca3SApp.pipeline.s.cardinality": "Kardinalität 'ST'",
   "ca3SApp.pipeline.san.cardinality": "SAN-Kardinalität",
   "ca3SApp.pipeline.template": "Vorlage",
-  "ca3SApp.pipeline.toPendingOnFailedRestrictions": "",
+  "ca3SApp.pipeline.toPendingOnFailedRestrictions": "Fehlgeschlagene Anfrage in den Status 'Auf Freigabe wartend' setzen",
   "ca3SApp.pipeline.type": "Type",
   "ca3SApp.pipeline.active": "Aktiv",
   "ca3SApp.pipeline.trusted": "Zertifikat vertrauen",

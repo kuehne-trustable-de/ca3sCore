@@ -1,36 +1,20 @@
 package de.trustable.ca3s.core.web.servlet;
 
-import java.io.IOException;
-import java.math.BigInteger;
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
-import java.security.cert.X509CRL;
-import java.security.cert.X509Certificate;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.security.auth.x500.X500Principal;
-import javax.servlet.ServletException;
-
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
+import de.trustable.ca3s.core.repository.CSRRepository;
+import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 import de.trustable.ca3s.core.service.AuditService;
-import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
-import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.*;
+import de.trustable.util.CryptoUtil;
 import de.trustable.util.Pkcs10RequestHolder;
 import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.jscep.server.ScepServlet;
 import org.jscep.transaction.FailInfo;
@@ -41,14 +25,20 @@ import org.jscep.util.CertificationRequestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 
-import de.trustable.ca3s.core.repository.CSRRepository;
-import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.util.CryptoUtil;
-
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import javax.security.auth.x500.X500Principal;
+import javax.servlet.ServletException;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.cert.X509CRL;
+import java.security.cert.X509Certificate;
+import java.util.*;
 
 
 /**
@@ -90,13 +80,23 @@ public class ScepServletImpl extends ScepServlet {
     @Autowired
     private ProtectedContentUtil protectedContentUtil;
 
-    @Autowired
-    private PipelineUtil pipelineUtil;
+    final private PipelineUtil pipelineUtil;
 
-    @Autowired
-	private ApplicationEventPublisher applicationEventPublisher;
+    final private String dnSuffix;
+
+    final private String sans;
+
 
 	public ThreadLocal<Pipeline> requestPipeline = new ThreadLocal<>();
+
+    public ScepServletImpl(PipelineUtil pipelineUtil,
+                           @Value("${ca3s.https.certificate.dnSuffix:O=trustable solutions,C=DE}") String dnSuffix,
+                           @Value("${ca3s.https.certificate.sans:}") String sans
+                           ) {
+        this.pipelineUtil = pipelineUtil;
+        this.dnSuffix = dnSuffix;
+        this.sans = sans;
+    }
 
     @Override
     public void init() throws ServletException {
@@ -109,41 +109,26 @@ public class ScepServletImpl extends ScepServlet {
      */
     Certificate getCurrentRecepientCert() throws ServletException {
 
-        /*
-    	List<Certificate> certList = certRepository.findByAttributeValue( CertificateAttribute.ATTRIBUTE_SCEP_RECIPIENT, "true");
-
-    	Instant now = Instant.now();
-    	Certificate currentRecepientCert = null;
-    	for( Certificate recCert: certList){
-
-    		if( !recCert.isRevoked() && now.isAfter(recCert.getValidFrom())){
-    			if( currentRecepientCert == null ){
-    				currentRecepientCert = recCert;
-    			}else{
-    				if( recCert.getValidTo().isAfter(currentRecepientCert.getValidTo())){
-        				currentRecepientCert = recCert;
-    				}
-    			}
-    		}
-    	}
-*/
-
         Certificate currentRecepientCert = certUtil.getCurrentSCEPRecipient();
 		if (currentRecepientCert == null) {
 
 			try {
 				KeyPair keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
 
-				X500Principal subject = new X500Principal("CN=SCEPRecepient"
-						+ System.currentTimeMillis()
-						+ ", O=trustable solutions, C=DE");
+				String x500Name = "CN=SCEPRecepient"+ System.currentTimeMillis();
+                if(!dnSuffix.trim().isEmpty()){
+                    x500Name += ", " + dnSuffix;
+                }
+
+                X500Principal subject = new X500Principal(x500Name);
+                GeneralName[] sanArray = CertificateUtil.splitSANString(sans, null);
 
 				String p10ReqPem = CryptoUtil.getCsrAsPEM(subject,
 						keyPair.getPublic(),
 						keyPair.getPrivate(),
 						"password".toCharArray());
 
-				LOGGER.debug("created csr SCEPRecepient '{}'", p10ReqPem );
+				LOGGER.debug("created csr for SCEPRecepient '{}':\n'{}'", x500Name, p10ReqPem );
 
 				TransactionId tid = new TransactionId(new byte[] {1});
 
@@ -163,7 +148,15 @@ public class ScepServletImpl extends ScepServlet {
 
 		return currentRecepientCert;
     }
+/*
+    private Certificate createCertificate(final String csrAsPem) {
 
+        CSR csr = csrUtil.buildCSR(csrAsPem, CsrAttribute.REQUESTOR_SYSTEM, csrUtil.parseBase64CSR(csrAsPem), PipelineType.INTERNAL, null);
+        CAConnectorConfig caConfig = configUtil.getDefaultConfig();
+        return signCertificateRequest(csr, caConfig );
+
+    }
+*/
 
 	private Certificate startCertificateCreationProcess(final String csrAsPem, TransactionId transId, Pipeline pipeline) throws OperationFailureException, IOException, GeneralSecurityException {
 

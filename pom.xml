@@ -134,7 +134,8 @@
         <junit.itReportFolder>${project.testresult.directory}/integrationTest</junit.itReportFolder>
         <!-- jhipster-needle-maven-property -->
 
-        <cryptoUtilVersion>1.1.12</cryptoUtilVersion>
+        <bouncyCastleVersion>1.68</bouncyCastleVersion>
+        <cryptoUtilVersion>1.2.0</cryptoUtilVersion>
         <certBundleVersion>1.1.1</certBundleVersion>
     	<nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
     	<adcsUtilVersion>1.2.0</adcsUtilVersion>
@@ -175,7 +176,7 @@
         <xml.maven.saxon.version>9.7.0-18</xml.maven.saxon.version>
         <xml.maven.plugin.version>1.0.2</xml.maven.plugin.version>
 
-        <dependencyCheck.version>6.3.1</dependencyCheck.version>
+        <dependencyCheck.version>6.4.1</dependencyCheck.version>
         <dependencyCheck.skip>true</dependencyCheck.skip>
 
     </properties>
@@ -314,7 +315,7 @@
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpkix-jdk15on</artifactId>
-                <version>1.68</version>
+                <version>${bouncyCastleVersion}</version>
             </dependency>
 
             <dependency>

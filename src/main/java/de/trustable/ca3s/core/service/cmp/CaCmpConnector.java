@@ -214,7 +214,7 @@ public class CaCmpConnector {
 			LOGGER.info("revocation responseBytes : " + java.util.Base64.getEncoder().encodeToString(responseBytes));
 
 			// handle the response
-			cryptoUtil.readRevResponse(responseBytes);
+			cryptoUtil.readRevResponse(responseBytes, hmacSecret);
 
 			return;
 
@@ -370,7 +370,7 @@ public class CaCmpConnector {
 			LOGGER.debug("general info responseBytes : " + java.util.Base64.getEncoder().encodeToString(responseBytes));
 
 			// handle the response
-            return cryptoUtil.readGenMsgResponse(responseBytes);
+            return cryptoUtil.readGenMsgResponse(responseBytes, hmacSecret);
 
 		} catch (CRMFException e) {
 			LOGGER.info("CMS format problem", e);

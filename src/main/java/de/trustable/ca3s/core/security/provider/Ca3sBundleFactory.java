@@ -69,12 +69,7 @@ public class Ca3sBundleFactory implements BundleFactory {
             X500Principal subject = new X500Principal(x500Name);
 			LOG.debug("requesting certificate for subject : " + subject.getName() );
 
-			String[] sanArr = sans.split(",");
-            GeneralName[] sanArray = new GeneralName[sanArr.length + 1];
-            sanArray[0] = new GeneralName(GeneralName.dNSName, hostname);
-            for(int i = 0; i < sanArr.length; i++){
-                sanArray[i + 1] = new GeneralName(GeneralName.dNSName,sanArr[i].trim());
-            }
+            GeneralName[] sanArray = CertificateUtil.splitSANString(sans, hostname);
 
             List<Map<String, Object>> extensions = new ArrayList<>();
             Map<String, Object> serverAuthMap = new HashMap<>();

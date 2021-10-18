@@ -37,7 +37,7 @@ public class Ca3sSCEPServiceResource {
         LOGGER.info("in Ca3sSCEPServiceResource()");
 	}
 
-	@RequestMapping(value = "/ca3sScep/{realm}", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/scep/{realm}", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody void handleSCEPRequest(@PathVariable("realm") String realm,
             HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
@@ -61,7 +61,5 @@ public class Ca3sSCEPServiceResource {
 		}
 
 		LOGGER.info("duration of scep processing " + (System.currentTimeMillis() - startTime));
-
 	}
-
 }

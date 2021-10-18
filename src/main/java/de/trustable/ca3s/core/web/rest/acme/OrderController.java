@@ -50,6 +50,7 @@ import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.GeneralName;
+import org.jetbrains.annotations.NotNull;
 import org.jose4j.base64url.Base64Url;
 import org.jose4j.jwt.consumer.JwtContext;
 import org.slf4j.Logger;
@@ -157,58 +158,7 @@ public class OrderController extends ACMEController {
 
 		ACMEAccount acctDao = checkJWTSignatureForAccount(context, realm);
 
-		/*
-		 * parse the CSR included in the finalize request
-		 */
-  		String csrAsString = finalizeReq.getCsr();
-  	  	LOG.debug("csr received: " + csrAsString);
-
-  	  	byte[] csrByte = Base64Url.decode(csrAsString);
-  	  	Pkcs10RequestHolder p10Holder = cryptoUtil.parseCertificateRequest(csrByte);
-
-  	  	LOG.debug("csr decoded: " + p10Holder);
-
-  	  	/*
-  	  	 * retrieve all the requested SANs contained in the CSR
-  	  	 */
-  	  	Set<String> snSet = new HashSet<>();
-
-  	  	// consider subject's CN as a possible source of names to verified
-  	  	for( RDN rdn: p10Holder.getSubjectRDNs()) {
-
-  	  	  	for( AttributeTypeAndValue atv: rdn.getTypesAndValues()) {
-
-  	  	  		if( BCStyle.CN.equals(atv.getType())) {
-  	  	  			String cnValue = atv.getValue().toString();
-  	  	  			LOG.debug("cn found in CSR: " + cnValue);
-  	  	  			snSet.add(cnValue);
-  	  	  		}
-  	  	  	}
-  	  	}
-
-  	  	// add all SANs as source of names to verified
-  	    for( Attribute csrAttr : p10Holder.getReqAttributes()) {
-
-            String attrOid = csrAttr.getAttrType().getId();
-            String attrReadableName = OidNameMapper.lookupOid(attrOid);
-
-            if( PKCSObjectIdentifiers.pkcs_9_at_extensionRequest.equals(csrAttr.getAttrType()) ) {
-
-            	LOG.debug("CSR contains extensionRequest");
-                retrieveSANFromCSRAttribute(snSet, csrAttr);
-
-            } else if( "certReqExtensions".equals(attrReadableName)){
-            	LOG.debug("CSR contains attrReadableName");
-                retrieveSANFromCSRAttribute(snSet, csrAttr);
-            }else {
-                String value = getASN1ValueAsString(csrAttr);
-                LOG.debug("found attrReadableName '{}' with value '{}'", attrReadableName, value);
-            }
-
-  	    }
-
-
-  	    /*
+        /*
   	     * Prepare the response header, e.g. add a nonce
   	     */
   	    final HttpHeaders additionalHeaders = buildNonceHeader();
@@ -226,21 +176,34 @@ public class OrderController extends ACMEController {
   			 * does the order correlate to the Account selected by the JWT
   			 */
   			if( !orderDao.getAccount().equals(acctDao) ) {
-  	      		LOG.error("Account idenfied by key (accound {}) does not match account {} of requested order", acctDao, orderDao.getAccount());
+  	      		LOG.error("Account identified by key (account {}) does not match account {} of requested order", acctDao, orderDao.getAccount());
   		        return ResponseEntity.badRequest().build();
   			}
 
   			/*
   			 * check the order status:
-  			 * only 'pending' and 'processing' status of not-yet-expired orders need to be considered
+  			 * only 'ready' status of not-yet-expired orders need to be considered
   			 */
-  			if( (orderDao.getStatus() == AcmeOrderStatus.PENDING) || (orderDao.getStatus() == AcmeOrderStatus.PROCESSING )) {
+  			if(orderDao.getStatus() == AcmeOrderStatus.READY) {
   				if( orderDao.getExpires().isBefore(Instant.now()) ) {
 					LOG.debug("pending order {} expired on {}", orderDao.getOrderId(), orderDao.getExpires().toString());
   			  	  	orderDao.setStatus(AcmeOrderStatus.INVALID);
 				} else {
 
-					boolean orderReady = true;
+                    /*
+                     * parse the CSR included in the finalize request
+                     */
+                    String csrAsString = finalizeReq.getCsr();
+                    LOG.debug("csr received: " + csrAsString);
+
+                    byte[] csrByte = Base64Url.decode(csrAsString);
+                    Pkcs10RequestHolder p10Holder = cryptoUtil.parseCertificateRequest(csrByte);
+
+                    LOG.debug("csr decoded: " + p10Holder);
+
+                    Set<String> snSet = collectAllSANS(p10Holder);
+
+                    boolean orderValid = true;
 
 					for(String san: snSet) {
 						boolean bSanFound = false;
@@ -253,15 +216,13 @@ public class OrderController extends ACMEController {
 						}
 						if(!bSanFound) {
 							LOG.info("failed to find requested hostname '{}' (from CSR) in authorization", san);
-		  			  	  	orderReady = false;
+		  			  	  	orderValid = false;
 		  			  	  	break;
 						}
 					}
 
-					if (orderReady) {
-						/*
-						 * check all authorizations having at least one successfully validated challenge
-						 */
+					/*
+					if (orderValid) {
 						for (AcmeAuthorization authDao : orderDao.getAcmeAuthorizations()) {
 
 							boolean authReady = false;
@@ -277,13 +238,13 @@ public class OrderController extends ACMEController {
 							} else {
 								LOG.debug("no valid challange, authorization id {} and order {} fails ",
 										authDao.getAcmeAuthorizationId(), orderDao.getOrderId());
-								orderReady = false;
+								orderValid = false;
 								break;
 							}
 						}
 					}
-
-					if (orderReady) {
+*/
+					if (orderValid) {
 
                         List<String> messageList = new ArrayList<>();
                         if( !pipelineUtil.isPipelineRestrictionsResolved(pipeline, p10Holder, messageList)){
@@ -297,27 +258,28 @@ public class OrderController extends ACMEController {
                             throw new AcmeProblemException(problem);
                         }
 
-                        LOG.debug("order status {} changes to ready for order {}", orderDao.getStatus(), orderDao.getOrderId());
-						orderDao.setStatus(AcmeOrderStatus.READY);
+                        LOG.debug("order status {} changes to 'processing' for order {}", orderDao.getStatus(), orderDao.getOrderId());
+                        orderDao.setStatus(AcmeOrderStatus.PROCESSING);
+                        orderRepository.save(orderDao);
 
-					  	LOG.debug("order {} status 'ready', producing certificate", orderDao.getOrderId());
+
+                        LOG.debug("order {} status 'valid', producing certificate", orderDao.getOrderId());
 				  	  	startCertificateCreationProcess(orderDao, pipeline, "ACME_ACCOUNT_" + acctDao.getAccountId(), CryptoUtil.pkcs10RequestToPem( p10Holder.getP10Req()));
 
-						orderRepository.save(orderDao);
-					}else {
+                        LOG.debug("order status {} changes to valid for order {}", orderDao.getStatus(), orderDao.getOrderId());
+                        orderDao.setStatus(AcmeOrderStatus.VALID);
+
+
+                    }else {
+                        LOG.info("order {} failed to reach status 'valid' !", orderDao.getOrderId());
 	  			  	  	orderDao.setStatus(AcmeOrderStatus.INVALID);
 					}
 
-
+                    orderRepository.save(orderDao);
 				}
 			}else {
 				LOG.debug("unexpected finalize call at order status {} for order {}", orderDao.getStatus(), orderDao.getOrderId());
 			}
-
-			// certificate creation only on status 'Ready' and no certificate created, yet
-  	  		if((orderDao.getStatus() == AcmeOrderStatus.READY) && (orderDao.getCertificate() == null)){
-			  	LOG.debug("order {} status 'ready', producing certificate", orderDao.getOrderId());
-  			}
 
   			boolean valid = true;
   			UriComponentsBuilder baseUriBuilder = fromCurrentRequestUri().path("../../../..");
@@ -336,7 +298,50 @@ public class OrderController extends ACMEController {
 
   }
 
-	private ResponseEntity<OrderResponse> buildOrderResponse(final HttpHeaders additionalHeaders, AcmeOrder orderDao,
+    @NotNull
+    private Set<String> collectAllSANS(Pkcs10RequestHolder p10Holder) {
+        /*
+         * retrieve all the requested SANs contained in the CSR
+         */
+        Set<String> snSet = new HashSet<>();
+
+        // consider subject's CN as a possible source of names to verified
+        for( RDN rdn: p10Holder.getSubjectRDNs()) {
+
+              for( AttributeTypeAndValue atv: rdn.getTypesAndValues()) {
+
+                  if( BCStyle.CN.equals(atv.getType())) {
+                      String cnValue = atv.getValue().toString();
+                      LOG.debug("cn found in CSR: " + cnValue);
+                      snSet.add(cnValue);
+                  }
+              }
+        }
+
+        // add all SANs as source of names to verified
+        for (Attribute csrAttr : p10Holder.getReqAttributes()) {
+
+            String attrOid = csrAttr.getAttrType().getId();
+            String attrReadableName = OidNameMapper.lookupOid(attrOid);
+
+            if (PKCSObjectIdentifiers.pkcs_9_at_extensionRequest.equals(csrAttr.getAttrType())) {
+
+                LOG.debug("CSR contains extensionRequest");
+                retrieveSANFromCSRAttribute(snSet, csrAttr);
+
+            } else if ("certReqExtensions".equals(attrReadableName)) {
+                LOG.debug("CSR contains attrReadableName");
+                retrieveSANFromCSRAttribute(snSet, csrAttr);
+            } else {
+                String value = getASN1ValueAsString(csrAttr);
+                LOG.debug("found attrReadableName '{}' with value '{}'", attrReadableName, value);
+            }
+
+        }
+        return snSet;
+    }
+
+    private ResponseEntity<OrderResponse> buildOrderResponse(final HttpHeaders additionalHeaders, AcmeOrder orderDao,
 			final UriComponentsBuilder baseUriBuilder,
 			boolean valid) {
 

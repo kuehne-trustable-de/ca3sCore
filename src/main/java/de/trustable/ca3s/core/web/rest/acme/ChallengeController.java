@@ -43,6 +43,10 @@ import java.net.UnknownHostException;
 import java.time.Instant;
 import java.util.Optional;
 
+import de.trustable.ca3s.core.domain.AcmeAuthorization;
+import de.trustable.ca3s.core.domain.AcmeOrder;
+import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
+import de.trustable.ca3s.core.repository.AcmeOrderRepository;
 import org.jose4j.jwt.consumer.JwtContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,6 +83,9 @@ public class ChallengeController extends ACMEController {
 
     @Autowired
     private AcmeChallengeRepository challengeRepository;
+
+    @Autowired
+    private AcmeOrderRepository orderRepository;
 
     @Autowired
 	private PreferenceUtil preferenceUtil;
@@ -135,7 +142,9 @@ public class ChallengeController extends ACMEController {
 		}else {
 			AcmeChallenge challengeDao = challengeOpt.get();
 
-			if( challengeDao.getAcmeAuthorization().getOrder().getAccount().getAccountId() != acctDao.getAccountId() ) {
+			AcmeOrder order = challengeDao.getAcmeAuthorization().getOrder();
+
+			if(!order.getAccount().getAccountId().equals(acctDao.getAccountId())) {
 				LOG.warn("Account of signing key {} does not match account id {} associated to given challenge{}", acctDao.getAccountId(), challengeDao.getAcmeAuthorization().getOrder().getAccount().getAccountId(), challengeId);
 				final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "Account / Auth mismatch",
 						BAD_REQUEST, "", ACMEController.NO_INSTANCE);
@@ -154,9 +163,6 @@ public class ChallengeController extends ACMEController {
 					challengeDao.setStatus(ChallengeStatus.INVALID);
 				}
 
-//				solved = true;
-//				LOG.error("!!! ignoring callback outcome !!!");
-
 				challengeDao.setValidated(Instant.now());
 				challengeRepository.save(challengeDao);
 
@@ -166,6 +172,7 @@ public class ChallengeController extends ACMEController {
 				LOG.warn("Unexpected type '{}' of challenge{}", challengeDao.getType(), challengeId);
 			}
 
+            alignOrderState(order);
 
 			ChallengeResponse challenge = buildChallengeResponse(challengeDao);
 
@@ -183,6 +190,49 @@ public class ChallengeController extends ACMEController {
 	} catch (AcmeProblemException e) {
 	    return buildProblemResponseEntity(e);
 	}
+  }
+
+  void alignOrderState(AcmeOrder orderDao){
+
+      if( orderDao.getStatus().equals(AcmeOrderStatus.READY) ){
+          LOG.info("order status already '{}', no re-check after challenge state change required", orderDao.getStatus() );
+          return;
+      }
+
+      if( orderDao.getStatus() != AcmeOrderStatus.PENDING) {
+          LOG.warn("unexpected order status '{}' (!= Pending), no re-check after challenge state change required", orderDao.getStatus() );
+          return;
+      }
+
+      boolean orderReady = true;
+
+      /*
+       * check all authorizations having at least one successfully validated challenge
+       */
+      for (AcmeAuthorization authDao : orderDao.getAcmeAuthorizations()) {
+
+          boolean authReady = false;
+          for (AcmeChallenge challDao : authDao.getChallenges()) {
+              if (challDao.getStatus() == ChallengeStatus.VALID) {
+                  LOG.debug("challenge {} of type {} is valid ", challDao.getChallengeId(), challDao.getType());
+                  authReady = true;
+                  break;
+              }
+          }
+          if (authReady) {
+              LOG.debug("found valid challenge, authorization id {} is valid ", authDao.getAcmeAuthorizationId());
+          } else {
+              LOG.debug("no valid challange, authorization id {} and order {} fails ",
+                  authDao.getAcmeAuthorizationId(), orderDao.getOrderId());
+              orderReady = false;
+              break;
+          }
+      }
+      if( orderReady ){
+          LOG.debug("order status set to READY" );
+          orderDao.setStatus(AcmeOrderStatus.READY);
+          orderRepository.save(orderDao);
+      }
   }
 
 	private boolean checkChallengeHttp(AcmeChallenge challengeDao) {
@@ -233,7 +283,7 @@ public class ChallengeController extends ACMEController {
 				con.setRequestProperty("User-Agent", "CA3S_ACME");
 
 				int responseCode = con.getResponseCode();
-				LOG.debug("\nSending 'GET' request to URL : " + url.toString());
+				LOG.debug("\nSending 'GET' request to URL : " + url);
 				LOG.debug("Response Code : " + responseCode);
 
 				if( responseCode != 200) {
@@ -260,17 +310,16 @@ public class ChallengeController extends ACMEController {
 				LOG.debug("unable to resolve hostname ", uhe);
 				return false;
 		    } catch(IOException ioe) {
-				LOG.info("problem reading challenge response on on {}:{} for {}", host, port, challengeDao.getId(), ioe.getMessage());
-				LOG.debug("exception occured reading challenge response", ioe);
+				LOG.info("problem reading challenge response on {}:{} for {} : {}", host, port, challengeDao.getId(), ioe.getMessage());
+				LOG.debug("exception occurred reading challenge response", ioe);
 		    }
 	    }
 		return false;
 	}
 
 	ChallengeResponse buildChallengeResponse(final AcmeChallenge challengeDao){
-		ChallengeResponse challenge = new ChallengeResponse(challengeDao, locationUriOfChallenge(challengeDao.getId(), fromCurrentRequestUri()).toString());
 
-		return challenge;
+        return new ChallengeResponse(challengeDao, locationUriOfChallenge(challengeDao.getId(), fromCurrentRequestUri()).toString());
   }
 
   private URI locationUriOfChallenge(final long challengeId, final UriComponentsBuilder uriBuilder) {
