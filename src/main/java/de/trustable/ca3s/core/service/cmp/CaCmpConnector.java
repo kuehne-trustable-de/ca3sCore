@@ -35,6 +35,7 @@ import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.Extensions;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.cert.cmp.CMPException;
 import org.bouncycastle.cert.crmf.CRMFException;
@@ -272,7 +273,20 @@ public class CaCmpConnector {
 
 		Collection<Extension> certExtList = new ArrayList<>();
 
-		final SubjectPublicKeyInfo keyInfo = p10Req.getSubjectPublicKeyInfo();
+        // copy CSR attributes to Extension list
+        for(Attribute attribute: p10Req.getAttributes()){
+            for(ASN1Encodable asn1Encodable: attribute.getAttributeValues()){
+                if( asn1Encodable != null){
+                    Extensions extensions = Extensions.getInstance(asn1Encodable);
+                    for(ASN1ObjectIdentifier oid: extensions.getExtensionOIDs()){
+                        LOGGER.debug("copying oid '"+oid.toString()+"' from csr to PKIMessage");
+                        certExtList.add(extensions.getExtension(oid));
+                    }
+                }
+            }
+        }
+
+        final SubjectPublicKeyInfo keyInfo = p10Req.getSubjectPublicKeyInfo();
 
 		return cryptoUtil.buildCertRequest(certReqId, subjectDN, certExtList, keyInfo, hmacSecret);
 	}

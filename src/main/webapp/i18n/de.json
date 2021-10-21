@@ -467,6 +467,7 @@
   "ca3SApp.pipeline.urlPart": "Url Teil",
   "ca3SApp.pipeline.scepSecret": "Geheimnis",
   "ca3SApp.pipeline.scepSecretValidTo": "Gültig bis",
+  "ca3SApp.pipeline.scepRecipientCertificate": "'Recipient' Zertifikat",
   "ca3SApp.pipelineAttribute.created": "Pipeline Attribut erstellt mit ID {{ param }}",
   "ca3SApp.pipelineAttribute.delete.question": "Soll Pipeline Attribut {{ id }} wirklich dauerhaft gelöscht werden?",
   "ca3SApp.pipelineAttribute.deleted": "Pipeline Attribut gelöscht mit ID {{ param }}",

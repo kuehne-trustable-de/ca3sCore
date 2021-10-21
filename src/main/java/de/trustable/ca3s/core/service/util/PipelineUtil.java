@@ -290,20 +290,22 @@ public class PipelineUtil {
                         scepConfigItems.setScepSecretValidTo(pc.getValidTo());
                     }
 
-                    Certificate currentRecepientCert = certUtil.getCurrentSCEPRecipient();
-                    if( currentRecepientCert != null){
-                        scepConfigItems.setRecepientCertSerial(currentRecepientCert.getSerial());
-                        scepConfigItems.setRecepientCertSubject(currentRecepientCert.getSubject());
-                    }
-
                 }else{
+                    scepConfigItems.setScepSecret("-- expired --");
                     LOG.debug("no protected content for pc id : " + plAtt.getValue());
                 }
     		}
 
         }
 
-    	pv.setAcmeConfigItems(acmeConfigItems);
+        Certificate currentRecipientCert = certUtil.getCurrentSCEPRecipient();
+        if( currentRecipientCert != null){
+            scepConfigItems.setRecepientCertId(currentRecipientCert.getId());
+            scepConfigItems.setRecepientCertSerial(currentRecipientCert.getSerial());
+            scepConfigItems.setRecepientCertSubject(currentRecipientCert.getSubject());
+        }
+
+        pv.setAcmeConfigItems(acmeConfigItems);
     	pv.setScepConfigItems(scepConfigItems);
 
     	/*

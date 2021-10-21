@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2021-10-16 20:33:37.
+// Generated using typescript-generator version 2.19.577 on 2021-10-19 21:30:28.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -139,8 +139,8 @@ export interface ICertificateView extends ISerializable {
   isServersideKeyGeneration?: boolean;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
-  serversideKeyGeneration?: boolean;
   auditPresent?: boolean;
+  serversideKeyGeneration?: boolean;
 }
 
 export interface ICSRView extends ISerializable {
@@ -310,6 +310,7 @@ export interface ISCEPConfigItems extends ISerializable {
   capabilityPostPKIOperation?: boolean;
   recepientCertSubject?: string;
   recepientCertSerial?: string;
+  recepientCertId?: number;
   scepSecretPCId?: string;
   scepSecret?: string;
   scepSecretValidTo?: Date;

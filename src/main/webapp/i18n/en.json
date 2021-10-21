@@ -468,6 +468,8 @@
   "ca3SApp.pipeline.urlPart": "Url Part",
   "ca3SApp.pipeline.scepSecret": "Secret",
   "ca3SApp.pipeline.scepSecretValidTo": "Valid to",
+  "ca3SApp.pipeline.scepRecipientCertificate": "Recipient certificate",
+
   "ca3SApp.pipelineAttribute.created": "A new Pipeline Attribute is created with identifier {{ param }}",
   "ca3SApp.pipelineAttribute.delete.question": "Are you sure you want to delete Pipeline Attribute {{ id }}?",
   "ca3SApp.pipelineAttribute.deleted": "A Pipeline Attribute is deleted with identifier {{ param }}",

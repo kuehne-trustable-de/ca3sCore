@@ -15,6 +15,7 @@ public class SCEPConfigItems implements Serializable {
 
     private String recepientCertSubject = "";
     private String recepientCertSerial = "1";
+    private Long   recepientCertId = 0L;
 
     private String scepSecretPCId = null;
     private String scepSecret = "******";
@@ -76,5 +77,13 @@ public class SCEPConfigItems implements Serializable {
 
     public void setRecepientCertSerial(String recepientCertSerial) {
         this.recepientCertSerial = recepientCertSerial;
+    }
+
+    public Long getRecepientCertId() {
+        return recepientCertId;
+    }
+
+    public void setRecepientCertId(Long recepientCertId) {
+        this.recepientCertId = recepientCertId;
     }
 }
