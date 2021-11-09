@@ -61,9 +61,9 @@ public class TokenProvider implements InitializingBean {
     }
 
     public String createToken(Authentication authentication, boolean rememberMe) {
-    	
-        log.info("creating token for {}", authentication.getName());
-        
+
+        log.info("############ creating token for {}", authentication.getName());
+
         String authorities = authentication.getAuthorities().stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.joining(","));

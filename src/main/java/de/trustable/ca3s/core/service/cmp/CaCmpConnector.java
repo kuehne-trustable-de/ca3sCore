@@ -277,10 +277,14 @@ public class CaCmpConnector {
         for(Attribute attribute: p10Req.getAttributes()){
             for(ASN1Encodable asn1Encodable: attribute.getAttributeValues()){
                 if( asn1Encodable != null){
-                    Extensions extensions = Extensions.getInstance(asn1Encodable);
-                    for(ASN1ObjectIdentifier oid: extensions.getExtensionOIDs()){
-                        LOGGER.debug("copying oid '"+oid.toString()+"' from csr to PKIMessage");
-                        certExtList.add(extensions.getExtension(oid));
+                    try {
+                        Extensions extensions = Extensions.getInstance(asn1Encodable);
+                        for (ASN1ObjectIdentifier oid : extensions.getExtensionOIDs()) {
+                            LOGGER.debug("copying oid '" + oid.toString() + "' from csr to PKIMessage");
+                            certExtList.add(extensions.getExtension(oid));
+                        }
+                    }catch(IllegalArgumentException iae){
+                        LOGGER.debug("processing asn1 value  '" + asn1Encodable + "' caused exception", iae);
                     }
                 }
             }

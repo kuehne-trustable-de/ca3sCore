@@ -51,8 +51,8 @@ public class SCEPTestClient {
 		X509Certificate ephemeralCert = X509Certificates.createEphemeral(enrollingPrincipal, keyPair);
 
 
-		URL serverUrl = new URL("http://localhost:8080/ca3sScep/test");
-//		URL serverUrl = new URL("http://localhost:8080/ca3sScep/ejbca");
+		URL serverUrl = new URL("http://localhost:8080/scep/test");
+//		URL serverUrl = new URL("http://localhost:8080/scep/ejbca");
 		LOG.debug("scep serverUrl : " + serverUrl.toString());
 
 		Client client = new Client(serverUrl, acceptAllVerifier);

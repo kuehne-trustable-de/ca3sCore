@@ -42,10 +42,12 @@ import de.trustable.ca3s.core.test.util.AcceptAllVerifier;
 import de.trustable.ca3s.core.test.util.X509Certificates;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.JCAManager;
+import org.springframework.test.context.ActiveProfiles;
 
 
 //@Disabled("Integration test fails for unknown reason, running it as a separate client succeeds. Maybe a classloader issue? ")
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("dev")
 public class ScepServiceIT{
 
 	public static final Logger LOG = LogManager.getLogger(ScepServiceIT.class);
@@ -88,13 +90,13 @@ public class ScepServiceIT{
             ex.printStackTrace();
         }
 
-		URL serverUrl = new URL("http://localhost:" + serverPort + "/ca3sScep/" + PipelineTestConfiguration.SCEP_REALM);
+		URL serverUrl = new URL("http://localhost:" + serverPort + "/scep/" + PipelineTestConfiguration.SCEP_REALM);
 		LOG.debug("scep serverUrl : " + serverUrl.toString());
 
 		client = new Client(serverUrl, acceptAllVerifier);
 
 
-		URL serverUrl1CN = new URL("http://localhost:" + serverPort + "/ca3sScep/" + PipelineTestConfiguration.SCEP1CN_REALM);
+		URL serverUrl1CN = new URL("http://localhost:" + serverPort + "/scep/" + PipelineTestConfiguration.SCEP1CN_REALM);
 		LOG.debug("scep serverUrl1CN : " + serverUrl1CN.toString());
 
 		client1CN = new Client(serverUrl1CN, acceptAllVerifier);

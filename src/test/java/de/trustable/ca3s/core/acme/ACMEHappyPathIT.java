@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.test.context.ActiveProfiles;
 import org.takes.Take;
 import org.takes.facets.fork.FkRegex;
 import org.takes.facets.fork.TkFork;
@@ -58,6 +59,7 @@ import de.trustable.ca3s.core.security.provider.TimedRenewalCertMapHolder;
 import de.trustable.util.JCAManager;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("dev")
 public class ACMEHappyPathIT {
 
     private static final Logger LOG = LoggerFactory.getLogger(ACMEHappyPathIT.class);
@@ -537,7 +539,7 @@ public class ACMEHappyPathIT {
 			@Override
 			public boolean ready() {
 				boolean bTerminate = !(challenge.getStatus().equals( Status.PENDING));
-				LOG.info("exitOnValid {}", challenge.getStatus().toString());
+				LOG.info("exitOnValid {}, terminate = {}", challenge.getStatus().toString(), bTerminate);
 				return (bTerminate);
 			}
 		};
@@ -546,7 +548,7 @@ public class ACMEHappyPathIT {
 			@Override
 			public void run() {
 				try {
-					LOG.debug("ACME callback webserver started for {}", fileNameRegEx);
+					LOG.debug("ACME callback webserver started on port {} for {}", callbackPort, fileNameRegEx);
 					webBasic.start(exitOnValid);
 					LOG.debug("ACME callback webserver finished for {}", fileNameRegEx);
 				} catch (IOException ioe) {

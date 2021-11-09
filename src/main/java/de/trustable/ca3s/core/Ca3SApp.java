@@ -246,9 +246,10 @@ public class Ca3SApp implements InitializingBean {
     int getPortForUsage(final String usage, int defaultPort) {
 		int port = defaultPort;
 
-		String envPort = env.getProperty( usage + "port");
+        String item = usage + "port";
+        String envPort = env.getProperty(item);
 		if( envPort == null) {
-	    	log.debug("Port for usage '{}' undefined, using default port #{}", usage, defaultPort);
+	    	log.debug("Port for usage '{}' undefined, using default port #{}", item, defaultPort);
 		}else {
 			port = Integer.parseUnsignedInt(envPort);
 		}
@@ -258,11 +259,12 @@ public class Ca3SApp implements InitializingBean {
     boolean getHTTPSForUsage(final String usage, boolean defaultHTTPS) {
 		boolean isHttps = defaultHTTPS;
 
-		String envPort = env.getProperty( usage + "https");
-		if( envPort == null) {
-	    	log.debug("Use HTTPS for usage '{}' undefined, using default mode {}", usage, defaultHTTPS);
+		String item = usage + "https";
+		String envHttpsUsage = env.getProperty(item);
+		if( envHttpsUsage == null) {
+	    	log.debug("Use HTTPS for usage '{}' undefined, using default mode {}", item, defaultHTTPS);
 		}else {
-			isHttps = Boolean.parseBoolean(envPort);
+			isHttps = Boolean.parseBoolean(envHttpsUsage);
 		}
 		return isHttps;
     }
@@ -270,11 +272,12 @@ public class Ca3SApp implements InitializingBean {
     String getBindingHostForUsage(final String usage, String defaultBindingHost) {
 		String bindingHost = defaultBindingHost;
 
-		String envPort = env.getProperty( usage + "bindingHost");
-		if( envPort == null) {
-	    	log.debug("Binding host for usage '{}' undefined, using default '{}'", usage, defaultBindingHost);
+        String item = usage + "bindingHost";
+        String envBindingHost = env.getProperty(item);
+		if( envBindingHost == null) {
+	    	log.debug("Binding host for usage '{}' undefined, using default '{}'", item, defaultBindingHost);
 		}else {
-			bindingHost = envPort;
+			bindingHost = envBindingHost;
 		}
 		return bindingHost;
     }

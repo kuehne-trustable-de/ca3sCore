@@ -18,6 +18,8 @@ logging:
     ROOT: INFO
     de.trustable.ca3s: DEBUG
     de.trustable.ca3s.core.config.SecurityConfiguration: INFO
+    org.springframework.security: DEBUG
+    org.apache.http.wire: DEBUG
 
 spring:
   profiles:
@@ -36,7 +38,8 @@ spring:
       indent-output: true
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:h2:file:./target/h2db/db/ca3s_jh;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+#    url: jdbc:h2:file:./target/h2db/db/ca3s_jh;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:ca3sTestDB
     username: root
     password:
     hikari:

@@ -1,11 +1,14 @@
 package de.trustable.ca3s.core.web.rest;
 
+import de.trustable.ca3s.core.config.KerberosSecurityConfiguration;
 import de.trustable.ca3s.core.security.jwt.JWTFilter;
 import de.trustable.ca3s.core.security.jwt.TokenProvider;
 import de.trustable.ca3s.core.web.rest.vm.LoginVM;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +27,9 @@ import javax.validation.Valid;
 @RequestMapping("/api")
 public class UserJWTController {
 
-    private final TokenProvider tokenProvider;
+    private final Logger LOG = LoggerFactory.getLogger(UserJWTController.class);
 
+    private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     public UserJWTController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder) {

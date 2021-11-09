@@ -5,7 +5,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>0.1.24</version>
+    <version>0.1.25</version>
     <packaging>jar</packaging>
 
 
@@ -172,6 +172,9 @@
         <flexmarkVersion>0.62.2</flexmarkVersion>
 
         <conductorVersion>3.0.1</conductorVersion>
+
+        <kerby.version>2.0.1</kerby.version>
+        <embedded-ldap.version>0.8.1</embedded-ldap.version>
 
         <xml.maven.saxon.version>9.7.0-18</xml.maven.saxon.version>
         <xml.maven.plugin.version>1.0.2</xml.maven.plugin.version>
@@ -691,6 +694,10 @@
                     <artifactId>junit</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>org.junit.jupiter</groupId>
+                    <artifactId>junit-jupiter-engine</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>org.junit.vintage</groupId>
                     <artifactId>junit-vintage-engine</artifactId>
                 </exclusion>
@@ -904,16 +911,16 @@
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-ldap -->
-		<!--dependency>
+		<dependency>
 		    <groupId>org.springframework.security</groupId>
 		    <artifactId>spring-security-ldap</artifactId>
-		</dependency-->
+		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.springframework.ldap/spring-ldap-core -->
-		<!--dependency>
+		<dependency>
     		<groupId>org.springframework.ldap</groupId>
     		<artifactId>spring-ldap-core</artifactId>
-    	</dependency-->
+    	</dependency>
 
 	   <!-- https://mvnrepository.com/artifact/org.jasypt/jasypt -->
 		<dependency>
@@ -991,6 +998,38 @@
 			<version>${conductorVersion}</version>
 			<scope>test</scope>
 		</dependency>
+
+        <dependency>
+            <groupId>org.apache.kerby</groupId>
+            <artifactId>kerby-kdc</artifactId>
+            <version>${kerby.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kerby</groupId>
+            <artifactId>kerb-gssapi</artifactId>
+            <version>${kerby.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kerby</groupId>
+            <artifactId>kerb-simplekdc</artifactId>
+            <version>${kerby.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kerby</groupId>
+            <artifactId>kerb-client</artifactId>
+            <version>${kerby.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.zapodot</groupId>
+            <artifactId>embedded-ldap-junit</artifactId>
+            <version>${embedded-ldap.version}</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

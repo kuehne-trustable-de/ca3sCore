@@ -18,6 +18,13 @@ logging:
     ROOT: INFO
     io.github.jhipster: INFO
     de.trustable.ca3s.core: DEBUG
+    de.trustable.ca3s.core.schedule.RequestProxyScheduler: WARN
+    de.trustable.ca3s.core.service.util.CaConnectorAdapter: WARN
+    de.trustable.ca3s.core.service.adcs: WARN
+    de.trustable.ca3s.core.service.cmp: WARN
+    de.trustable.ca3s.core.service.dir: WARN
+    de.trustable.ca3s.core.security.provider.Ca3sTrustManager: WARN
+    de.trustable.util.CryptoUtil: WARN
     org.springframework.security: INFO
 
 management:
@@ -184,14 +191,6 @@ jhipster:
 #    using the corresponding properties below.
 # ===================================================================
 
-win-auth:
-  ad-domain: ci.dc
-  ad-server: ldap://ci-adcs/
-  service-principal: HTTP/admin@ci-adcs
-  keytab-location: ca3s.keytab
-  ldap-search-base: dc=ci,dc=dc
-  ldap-search-filter: "(| (userPrincipalName={0}) (sAMAccountName={0}))"
-
 # application:
 protectionSecret: bnJvbGwvV1MtMjAxOS1DQS5jcmyGK2h0dHA6Ly90cnVzdGFibGUuZXUvYWRjc1Rl
 
@@ -201,3 +200,21 @@ ca3s:
       dnSuffix: O=Trustable Solutions,OU=CA3S Instance,C=DE
       sans: trustable.de, www.trustable.de
 #  certificateSelectionAttributes: Foo,Bar,Baz
+  scep:
+    recipient:
+      certificate:
+        cnSuffix: .trustable.de
+
+  auth:
+    kerberos:
+      service-principal: HTTP/admin@ci-adcs
+      keytab-location: ca3s.keytab
+    ad-domain: foo
+    ldap:
+      url: ldap://testLDAP.eu:123
+      baseDN: dc=testLDAP,dc=eu
+      search-base: dc=testLDAP,dc=eu
+      search-filter: dc=testLDAP,dc=eu
+      group-search-base: (| (userPrincipalName={0}) (sAMAccountName={0}))
+      principal: cn=alice,ou=people,dc=testLDAP,dc=eu
+      password: s3cr3t

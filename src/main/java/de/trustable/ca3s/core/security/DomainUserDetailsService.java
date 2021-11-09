@@ -6,6 +6,7 @@ import org.hibernate.validator.internal.constraintvalidators.hv.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -33,19 +34,26 @@ public class DomainUserDetailsService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(final String login) {
-        log.debug("Authenticating {}", login);
+        log.warn("----------- Authenticating {}", login);
 
-        if (new EmailValidator().isValid(login, null)) {
-            return userRepository.findOneWithAuthoritiesByEmailIgnoreCase(login)
-                .map(user -> createSpringSecurityUser(login, user))
-                .orElseThrow(() -> new UsernameNotFoundException("User with email " + login + " was not found in the database"));
+        if(login.startsWith("Kerberos@@")){
+            String username = login.substring(10);
+            return new org.springframework.security.core.userdetails.User( username,
+                "KerberosToken",
+                AuthorityUtils.createAuthorityList(AuthoritiesConstants.USER));
+
+        }else {
+            if (new EmailValidator().isValid(login, null)) {
+                return userRepository.findOneWithAuthoritiesByEmailIgnoreCase(login)
+                    .map(user -> createSpringSecurityUser(login, user))
+                    .orElseThrow(() -> new UsernameNotFoundException("User with email " + login + " was not found in the database"));
+            }
+
+            String lowercaseLogin = login.toLowerCase(Locale.ENGLISH);
+            return userRepository.findOneWithAuthoritiesByLogin(lowercaseLogin)
+                .map(user -> createSpringSecurityUser(lowercaseLogin, user))
+                .orElseThrow(() -> new UsernameNotFoundException("User " + lowercaseLogin + " was not found in the database"));
         }
-
-        String lowercaseLogin = login.toLowerCase(Locale.ENGLISH);
-        return userRepository.findOneWithAuthoritiesByLogin(lowercaseLogin)
-            .map(user -> createSpringSecurityUser(lowercaseLogin, user))
-            .orElseThrow(() -> new UsernameNotFoundException("User " + lowercaseLogin + " was not found in the database"));
-
     }
 
     private org.springframework.security.core.userdetails.User createSpringSecurityUser(String lowercaseLogin, User user) {

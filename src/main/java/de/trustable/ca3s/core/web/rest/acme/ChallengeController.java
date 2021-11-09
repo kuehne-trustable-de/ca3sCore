@@ -123,93 +123,93 @@ public class ChallengeController extends ACMEController {
 
     }
 
-  @RequestMapping(value = "/{challengeId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
-  public ResponseEntity<?> postChallenge(@RequestBody final String requestBody,
-		  @PathVariable final long challengeId) {
+    @RequestMapping(value = "/{challengeId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
+    public ResponseEntity<?> postChallenge(@RequestBody final String requestBody,
+          @PathVariable final long challengeId) {
 
-	LOG.debug("Received Challenge request ");
+        LOG.debug("Received Challenge request ");
 
-	try {
-		JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
+        try {
+            JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
 
-		ACMEAccount acctDao = checkJWTSignatureForAccount(context);
+            ACMEAccount acctDao = checkJWTSignatureForAccount(context);
 
-	    final HttpHeaders additionalHeaders = buildNonceHeader();
+            final HttpHeaders additionalHeaders = buildNonceHeader();
 
-		Optional<AcmeChallenge> challengeOpt = challengeRepository.findById(challengeId);
-		if(!challengeOpt.isPresent()) {
-		    return ResponseEntity.notFound().headers(additionalHeaders).build();
-		}else {
-			AcmeChallenge challengeDao = challengeOpt.get();
+            Optional<AcmeChallenge> challengeOpt = challengeRepository.findById(challengeId);
+            if(!challengeOpt.isPresent()) {
+                return ResponseEntity.notFound().headers(additionalHeaders).build();
+            }else {
+                AcmeChallenge challengeDao = challengeOpt.get();
 
-			AcmeOrder order = challengeDao.getAcmeAuthorization().getOrder();
+                AcmeOrder order = challengeDao.getAcmeAuthorization().getOrder();
 
-			if(!order.getAccount().getAccountId().equals(acctDao.getAccountId())) {
-				LOG.warn("Account of signing key {} does not match account id {} associated to given challenge{}", acctDao.getAccountId(), challengeDao.getAcmeAuthorization().getOrder().getAccount().getAccountId(), challengeId);
-				final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "Account / Auth mismatch",
-						BAD_REQUEST, "", ACMEController.NO_INSTANCE);
-				throw new AcmeProblemException(problem);
-			}
+                if(!order.getAccount().getAccountId().equals(acctDao.getAccountId())) {
+                    LOG.warn("Account of signing key {} does not match account id {} associated to given challenge{}", acctDao.getAccountId(), challengeDao.getAcmeAuthorization().getOrder().getAccount().getAccountId(), challengeId);
+                    final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "Account / Auth mismatch",
+                            BAD_REQUEST, "", ACMEController.NO_INSTANCE);
+                    throw new AcmeProblemException(problem);
+                }
 
-			LOG.debug( "checking challenge {}", challengeDao.getId());
+                LOG.debug( "checking challenge {}", challengeDao.getId());
 
-			boolean solved = false;
-			if( "http-01".equals(challengeDao.getType())){
-				solved = checkChallengeHttp(challengeDao);
+                boolean solved = false;
+                if( "http-01".equals(challengeDao.getType())){
+                    solved = checkChallengeHttp(challengeDao);
 
-				if( solved) {
-					challengeDao.setStatus(ChallengeStatus.VALID);
-				}else {
-					challengeDao.setStatus(ChallengeStatus.INVALID);
-				}
+                    if( solved) {
+                        challengeDao.setStatus(ChallengeStatus.VALID);
+                    }else {
+                        challengeDao.setStatus(ChallengeStatus.INVALID);
+                    }
 
-				challengeDao.setValidated(Instant.now());
-				challengeRepository.save(challengeDao);
+                    challengeDao.setValidated(Instant.now());
+                    challengeRepository.save(challengeDao);
 
-				LOG.debug("challengeDao set to '{}' at {}", challengeDao.getStatus().toString(), challengeDao.getValidated());
+                    LOG.debug("challengeDao set to '{}' at {}", challengeDao.getStatus().toString(), challengeDao.getValidated());
 
-			}else{
-				LOG.warn("Unexpected type '{}' of challenge{}", challengeDao.getType(), challengeId);
-			}
+                }else{
+                    LOG.warn("Unexpected type '{}' of challenge{}", challengeDao.getType(), challengeId);
+                }
 
-            alignOrderState(order);
+                alignOrderState(order);
 
-			ChallengeResponse challenge = buildChallengeResponse(challengeDao);
+                ChallengeResponse challenge = buildChallengeResponse(challengeDao);
 
 
-			if( solved) {
-				URI authUri = locationUriOfAuthorization(challengeDao.getAcmeAuthorization().getAcmeAuthorizationId(), fromCurrentRequestUri());
-			    additionalHeaders.set("Link", "<" + authUri.toASCIIString() + ">;rel=\"up\"");
-			    return ok().headers(additionalHeaders).body(challenge);
-			}else {
-				LOG.warn("validation of challenge{} of type '{}' failed", challengeId, challengeDao.getType());
-				return ResponseEntity.badRequest().headers(additionalHeaders).body(challenge);
-			}
-		}
+                if( solved) {
+                    URI authUri = locationUriOfAuthorization(challengeDao.getAcmeAuthorization().getAcmeAuthorizationId(), fromCurrentRequestUri());
+                    additionalHeaders.set("Link", "<" + authUri.toASCIIString() + ">;rel=\"up\"");
+                    return ok().headers(additionalHeaders).body(challenge);
+                }else {
+                    LOG.warn("validation of challenge{} of type '{}' failed", challengeId, challengeDao.getType());
+                    return ResponseEntity.badRequest().headers(additionalHeaders).body(challenge);
+                }
+            }
 
-	} catch (AcmeProblemException e) {
-	    return buildProblemResponseEntity(e);
-	}
-  }
+        } catch (AcmeProblemException e) {
+            return buildProblemResponseEntity(e);
+        }
+    }
 
-  void alignOrderState(AcmeOrder orderDao){
+    void alignOrderState(AcmeOrder orderDao){
 
-      if( orderDao.getStatus().equals(AcmeOrderStatus.READY) ){
+        if( orderDao.getStatus().equals(AcmeOrderStatus.READY) ){
           LOG.info("order status already '{}', no re-check after challenge state change required", orderDao.getStatus() );
           return;
-      }
+        }
 
-      if( orderDao.getStatus() != AcmeOrderStatus.PENDING) {
+        if( orderDao.getStatus() != AcmeOrderStatus.PENDING) {
           LOG.warn("unexpected order status '{}' (!= Pending), no re-check after challenge state change required", orderDao.getStatus() );
           return;
-      }
+        }
 
-      boolean orderReady = true;
+        boolean orderReady = true;
 
-      /*
-       * check all authorizations having at least one successfully validated challenge
-       */
-      for (AcmeAuthorization authDao : orderDao.getAcmeAuthorizations()) {
+        /*
+        * check all authorizations having at least one successfully validated challenge
+        */
+        for (AcmeAuthorization authDao : orderDao.getAcmeAuthorizations()) {
 
           boolean authReady = false;
           for (AcmeChallenge challDao : authDao.getChallenges()) {
@@ -227,13 +227,13 @@ public class ChallengeController extends ACMEController {
               orderReady = false;
               break;
           }
-      }
-      if( orderReady ){
+        }
+        if( orderReady ){
           LOG.debug("order status set to READY" );
           orderDao.setStatus(AcmeOrderStatus.READY);
           orderRepository.save(orderDao);
-      }
-  }
+        }
+    }
 
 	private boolean checkChallengeHttp(AcmeChallenge challengeDao) {
 
@@ -317,17 +317,16 @@ public class ChallengeController extends ACMEController {
 		return false;
 	}
 
-	ChallengeResponse buildChallengeResponse(final AcmeChallenge challengeDao){
-
+    ChallengeResponse buildChallengeResponse(final AcmeChallenge challengeDao){
         return new ChallengeResponse(challengeDao, locationUriOfChallenge(challengeDao.getId(), fromCurrentRequestUri()).toString());
-  }
+    }
 
-  private URI locationUriOfChallenge(final long challengeId, final UriComponentsBuilder uriBuilder) {
+    private URI locationUriOfChallenge(final long challengeId, final UriComponentsBuilder uriBuilder) {
 	    return challengeResourceUriBuilderFrom(uriBuilder.path("../..")).path("/").path(Long.toString(challengeId)).build().normalize().toUri();
-	  }
+	}
 
-  private URI locationUriOfAuthorization(final long authorizationId, final UriComponentsBuilder uriBuilder) {
+    private URI locationUriOfAuthorization(final long authorizationId, final UriComponentsBuilder uriBuilder) {
 	    return authorizationResourceUriBuilderFrom(uriBuilder.path("../..")).path("/").path("..").path("/").path(Long.toString(authorizationId)).build().normalize().toUri();
-	  }
+	}
 
 }

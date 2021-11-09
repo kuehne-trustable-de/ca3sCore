@@ -1,4 +1,5 @@
 import { Component } from 'vue-property-decorator';
+import { Fragment } from 'vue-fragment';
 import { Vue } from 'vue-property-decorator';
 import { mixins } from 'vue-class-component';
 import AlertMixin from '@/shared/alert/alert.mixin';
@@ -51,6 +52,7 @@ const validations: any = {
 @Component({
   validations,
   components: {
+    Fragment,
     CopyClipboardButton,
     HelpTag
   }

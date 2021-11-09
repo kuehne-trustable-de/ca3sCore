@@ -16,7 +16,6 @@ import java.util.Optional;
 
 import static de.trustable.ca3s.core.service.util.PreferenceUtil.SYSTEM_PREFERENCE_ID;
 
-//@TestConfiguration
 @Service
 public class PreferenceTestConfiguration {
 
@@ -28,7 +27,7 @@ public class PreferenceTestConfiguration {
     @Autowired
     PreferenceUtil prefUtil;
 
-    int freePort = SocketUtils.findAvailableTcpPort();
+    int freePort = SocketUtils.findAvailableTcpPort(45000);
 
 	@Bean
     public Preferences getTestUserPreference() {
@@ -50,7 +49,7 @@ public class PreferenceTestConfiguration {
 
         Optional<UserPreference> existingUCOpt = upRepo.findByNameforUser(topicName, userId);
         if( existingUCOpt.isPresent()) {
-            LOGGER.debug("UserPreference '{}' for user '{}'already present", topicName, userId);
+            LOGGER.debug("UserPreference '{}' for user '{}' already present", topicName, userId);
         }else {
             UserPreference newUP = new UserPreference();
             newUP.setUserId(userId);

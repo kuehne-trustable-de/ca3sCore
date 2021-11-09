@@ -374,6 +374,7 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
                 ((org.openqa.selenium.JavascriptExecutor) driver).executeScript( "arguments[0].scrollIntoView(true);", we);
                 we = waitForElement(by);
             } catch (Exception e) { // just ignore
+                System.out.println("Exception while retrying to set value on element '" + by.toString() + "'" + e.getMessage());
             }
             we.click();
         }
@@ -388,18 +389,31 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
         WebElement element = waitForElement(by);
         try{
             element.clear();
+            element.sendKeys(text);
+        }catch( ElementNotInteractableException enie){
+            System.out.println("NotInteractable, trying to execute script");
+            new WebDriverWait(driver, 30).until((ExpectedCondition<Boolean>) wd ->
+                ((org.openqa.selenium.JavascriptExecutor) wd).executeScript("return document.readyState").equals("complete"));
+
+//            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript( "arguments[0].value = arguments[1];arguments[0].click()", element, text);
+            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].setAttribute('value', '" + text +"')", element);
+            System.out.println("setText for '" + by.toString() + "' to '" + text + "' by javascript.");
         }catch( WebDriverException wde){
 
-            element = waitForElement(by);
-            try {
-                try {Thread.sleep(200);}catch(Exception x) { x.printStackTrace(); }
-                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript( "arguments[0].scrollIntoView(true);", element);
+            System.out.println("setText failed with Exception: " + wde.getMessage());
+
+            for( int attempts = 0; attempts < MAX_ATTEMPTS; attempts++) {
                 element = waitForElement(by);
-            } catch (Exception e) { // just ignore
+                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
+                try {
+                    try {Thread.sleep(1000);} catch (Exception x) {x.printStackTrace();}
+                    element.clear();
+                    element.sendKeys(text);
+                } catch (Exception e) { // just ignore
+                    e.printStackTrace();
+                }
             }
-            element.clear();
         }
-        element.sendKeys(text);
         return this;
     }
 

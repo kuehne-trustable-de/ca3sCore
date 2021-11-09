@@ -88,7 +88,7 @@ public class CSRSubmitIT extends WebTestBase{
 
     public static final By LOC_TEXT_MESSAGE_NO_IP = By.xpath("//form//dl [dt[span [text() = 'Message']]]/dd/div[ul/li [contains(text(), 'is an IP address, not allowed')]]");
 
-    public static final By LOC_TD_CSR_ITEM_PENDING = By.xpath("//table//td [starts-with(text(), 'PENDING')]");
+    public static final By LOC_TD_CSR_ITEM_PENDING = By.xpath("//table//td [starts-with(text(), 'Pending')]");
 
     public static final By LOC_TA_DOWNLOAD_CERT_CONTENT = By.xpath("//dd/div/textarea [@name = 'certContent']");
     public static final By LOC_TEXT_CERT_REVOCATION_REASON = By.xpath("//div//dd/span[@name = 'revocationReason']");
@@ -162,12 +162,12 @@ public class CSRSubmitIT extends WebTestBase{
 	@Test
 	public void testCSRSubmitServersideDirect() throws GeneralSecurityException {
 
-		String c = "GB";
+		String c = "DE";
 		String cn = "reqTest" + System.currentTimeMillis();
 		String o = "trustable solutions";
 		String ou = "nuclear research";
-		String l = "Birmingham";
-		String st = "West Midlands";
+		String l = "Hannover";
+		String st = "Lower Saxony";
 		String san = "wwww." + cn;
 
 	    String subject = "CN=" + cn + ", O="+o+", OU="+ou+", C="+ c + ", L=" + l + ", ST=" + st;
@@ -204,7 +204,10 @@ public class CSRSubmitIT extends WebTestBase{
 */
 
 	    setText(LOC_INP_C_VALUE, c);
-	    setText(LOC_INP_CN_VALUE, cn);
+
+        System.out.println(" ---------------- country = " + c + ", found in input field " + getText(LOC_INP_C_VALUE) );
+
+        setText(LOC_INP_CN_VALUE, cn);
 	    setText(LOC_INP_O_VALUE, o);
 	    setText(LOC_INP_OU_VALUE, ou);
 	    setText(LOC_INP_L_VALUE, l);

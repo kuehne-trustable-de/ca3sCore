@@ -57,7 +57,7 @@ public class ScepServletImpl extends ScepServlet {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScepServletImpl.class);
 
-    private static X500Name pollName = new X500Name("CN=Poll");
+    private static final X500Name pollName = new X500Name("CN=Poll");
 
     @Autowired
     CertificateRepository certRepository;
@@ -84,18 +84,17 @@ public class ScepServletImpl extends ScepServlet {
 
     final private String dnSuffix;
 
-    final private String sans;
-
+    final private String cnSuffix;
 
 	public ThreadLocal<Pipeline> requestPipeline = new ThreadLocal<>();
 
     public ScepServletImpl(PipelineUtil pipelineUtil,
                            @Value("${ca3s.https.certificate.dnSuffix:O=trustable solutions,C=DE}") String dnSuffix,
-                           @Value("${ca3s.https.certificate.sans:}") String sans
+                           @Value("${ca3s.scep.recipient.certificate.cnSuffix:}") String cnSuffix
                            ) {
         this.pipelineUtil = pipelineUtil;
         this.dnSuffix = dnSuffix;
-        this.sans = sans;
+        this.cnSuffix = cnSuffix;
     }
 
     @Override
@@ -115,18 +114,17 @@ public class ScepServletImpl extends ScepServlet {
 			try {
 				KeyPair keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
 
-				String x500Name = "CN=SCEPRecepient"+ System.currentTimeMillis();
+				String x500Name = "CN=SCEPRecepient"+ System.currentTimeMillis() + cnSuffix;
                 if(!dnSuffix.trim().isEmpty()){
                     x500Name += ", " + dnSuffix;
                 }
 
                 X500Principal subject = new X500Principal(x500Name);
-                GeneralName[] sanArray = CertificateUtil.splitSANString(sans, null);
-
 				String p10ReqPem = CryptoUtil.getCsrAsPEM(subject,
-						keyPair.getPublic(),
-						keyPair.getPrivate(),
-						"password".toCharArray());
+                    keyPair.getPublic(),
+                    keyPair.getPrivate(),
+                    null
+                );
 
 				LOGGER.debug("created csr for SCEPRecepient '{}':\n'{}'", x500Name, p10ReqPem );
 
@@ -259,7 +257,7 @@ public class ScepServletImpl extends ScepServlet {
             if( password.trim().equals(expectedPassword)) {
                 LOGGER.debug("Protected Content found matching SCEP password");
                 return; // the only successful exit !!
-            } else {
+//            } else {
 //                LOGGER.debug("Protected Content password does not match SCEP password '{}' != '{}'", expectedPassword, password);
             }
         }
