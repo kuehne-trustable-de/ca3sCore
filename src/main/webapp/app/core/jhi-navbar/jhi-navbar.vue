@@ -5,7 +5,8 @@
                 <font-awesome-icon icon="bars" />
             </b-navbar-toggle>
             <b-navbar-brand class="logo float-left" b-link to="/">
-                <img src='../../../content/images/android-chrome-36x36.png'/>
+                <!--img src='../../../content/images/ca3s-36x36.png'/-->
+                <img src='/app/resource/logo.png'/>
                 <!--span v-text="$t('global.title')" class="navbar-title">ca3s</span--> <span class="navbar-version">{{version}}</span>
             </b-navbar-brand>
              <b-navbar-brand class="logo float-left" b-link to="/" v-if="authenticated">
@@ -128,7 +129,7 @@
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.acmeContact')">AcmeContact</span>
                     </b-dropdown-item>
-                    <!-- b-dropdown-item to="/acme-order">
+                    <b-dropdown-item to="/acme-order">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.acmeOrder')">AcmeOrder</span>
                     </b-dropdown-item>
@@ -136,7 +137,7 @@
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.acmeChallenge')">AcmeChallenge</span>
                     </b-dropdown-item>
-                    <b-dropdown-item to="/imported-url">
+                    <!--b-dropdown-item to="/imported-url">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.importedUrl')">ImportedURL</span>
                     </b-dropdown-item>
@@ -261,10 +262,11 @@
                         </span>
                     </span>
 
-                    <b-dropdown-item v-for="(value, key) in languages" :key="`lang-${key}`" v-on:click="changeLanguage(key);"
+                    <b-dropdown-item v-if="languages.multiLanguage" v-for="(value, key) in languages" :key="`lang-${key}`" v-on:click="changeLanguage(key);"
                                      :class="{ active: isActiveLanguage(key)}">
                         {{value.name}}
                     </b-dropdown-item>
+
 
                     <b-dropdown-item to="/account/settings" tag="b-dropdown-item" v-if="authenticated">
                         <font-awesome-icon icon="wrench" />

@@ -6,6 +6,7 @@ import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.security.SecurityUtils;
 import de.trustable.ca3s.core.service.MailService;
 import de.trustable.ca3s.core.service.UserService;
+import de.trustable.ca3s.core.service.dto.Languages;
 import de.trustable.ca3s.core.service.dto.PasswordChangeDTO;
 import de.trustable.ca3s.core.service.dto.UserDTO;
 import de.trustable.ca3s.core.web.rest.errors.*;
@@ -15,6 +16,7 @@ import de.trustable.ca3s.core.web.rest.vm.ManagedUserVM;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,6 +43,9 @@ public class AccountResource {
             super(message);
         }
     }
+
+    @Value("${ca3s.ui.languages:en,de,pl}")
+    private String availableLanguages;
 
     private final Logger log = LoggerFactory.getLogger(AccountResource.class);
 
@@ -109,9 +114,19 @@ public class AccountResource {
      */
     @GetMapping("/account")
     public UserDTO getAccount() {
-        return userService.getUserWithAuthorities()
-            .map(UserDTO::new)
-            .orElseThrow(() -> new AccountResourceException("User could not be found"));
+
+        Optional<User> optUser = userService.getUserWithAuthorities();
+
+        if( optUser.isPresent()){
+
+            // return available languages, only
+            Languages languages = new Languages(availableLanguages);
+            User user = optUser.get();
+            user.setLangKey( languages.alignLanguage(user.getLangKey()));
+            return new UserDTO(user);
+        }
+
+        throw new AccountResourceException("User could not be found");
     }
 
     /**

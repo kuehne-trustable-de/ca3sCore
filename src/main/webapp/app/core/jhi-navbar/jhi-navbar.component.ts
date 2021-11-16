@@ -13,7 +13,7 @@ export default class JhiNavbar extends Vue {
   @Inject('accountService') private accountService: () => AccountService;
   public version = VERSION ? 'v' + VERSION : '';
   private currentLanguage = this.$store.getters.currentLanguage;
-  private languages: any = this.$store.getters.languages;
+  public languages: any = this.$store.getters.languages;
 
   public beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -23,7 +23,26 @@ export default class JhiNavbar extends Vue {
     });
   }
 
-  created() {
+  async created() {
+    const res = await this.translationService().refreshLanguages();
+
+    if (res.data) {
+      this.languages = new Object();
+      for (let lang of res.data.languageArr) {
+        window.console.log('adding available language "' + lang + '" ...');
+        if (lang === 'en') {
+          this.languages['en'] = { name: 'English' };
+        } else if (lang === 'de') {
+          this.languages['de'] = { name: 'Deutsch' };
+        } else if (lang === 'pl') {
+          this.languages['pl'] = { name: 'Polski' };
+        } else {
+          window.console.warn('unexpected language "' + lang + '" found');
+        }
+      }
+      this.languages['multiLanguage'] = res.data.languageArr.length > 1;
+    }
+
     this.translationService().refreshTranslation(this.currentLanguage);
   }
 

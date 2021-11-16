@@ -59,7 +59,6 @@ public class KerberosSecurityConfiguration extends WebSecurityConfigurerAdapter 
     @Value("${ca3s.auth.kerberos.service-principal:HTTP/admin@ca3s}")
     private String servicePrincipal;
 
-
     @Value("${ca3s.auth.ad-domain:}")
 	private String adDomain;
 

@@ -1,4 +1,4 @@
-package de.trustable.ca3s.core.web.servlet;
+package de.trustable.ca3s.core.web.scepservlet;
 
 import java.io.IOException;
 import java.util.List;
@@ -51,13 +51,13 @@ public class Ca3sSCEPServiceResource {
 		}
 
 		// transfer additional information thru the given servlet implementation into the callbacks
-		scepServlet.requestPipeline.set(pipelineList.get(0));
+		scepServlet.threadLocalPipeline.set(pipelineList.get(0));
 
 		try {
 			scepServlet.service(request, response);
 		}finally {
 			// make absolutely sure that the pipeline is dis-connected from the current thread an may not be used in subsequent calls!
-			scepServlet.requestPipeline.remove();
+			scepServlet.threadLocalPipeline.remove();
 		}
 
 		LOGGER.info("duration of scep processing " + (System.currentTimeMillis() - startTime));

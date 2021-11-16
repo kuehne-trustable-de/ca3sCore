@@ -1,5 +1,7 @@
 package de.trustable.ca3s.core.service.dto;
 
+import de.trustable.ca3s.core.web.rest.data.KeyAlgoLength;
+
 import java.io.Serializable;
 import java.time.Instant;
 
@@ -20,6 +22,9 @@ public class SCEPConfigItems implements Serializable {
     private String scepSecretPCId = null;
     private String scepSecret = "******";
     private Instant scepSecretValidTo = Instant.now();
+
+    private KeyAlgoLength keyAlgoLength = KeyAlgoLength.RSA_2048;
+    private String scepRecipientDN = "";
 
     public SCEPConfigItems() {}
 
@@ -85,5 +90,21 @@ public class SCEPConfigItems implements Serializable {
 
     public void setRecepientCertId(Long recepientCertId) {
         this.recepientCertId = recepientCertId;
+    }
+
+    public KeyAlgoLength getKeyAlgoLength() {
+        return keyAlgoLength;
+    }
+
+    public void setKeyAlgoLength(KeyAlgoLength keyAlgoLength) {
+        this.keyAlgoLength = keyAlgoLength;
+    }
+
+    public String getScepRecipientDN() {
+        return scepRecipientDN;
+    }
+
+    public void setScepRecipientDN(String scepRecipientDN) {
+        this.scepRecipientDN = scepRecipientDN;
     }
 }

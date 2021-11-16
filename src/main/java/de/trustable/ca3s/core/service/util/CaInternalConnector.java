@@ -31,7 +31,7 @@ import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.web.servlet.ScepServletImpl;
+import de.trustable.ca3s.core.web.scepservlet.ScepServletImpl;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.PKILevel;
 

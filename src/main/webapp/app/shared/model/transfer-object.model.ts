@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2021-10-19 21:30:28.
+// Generated using typescript-generator version 2.19.577 on 2021-11-12 16:48:47.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -314,6 +314,8 @@ export interface ISCEPConfigItems extends ISerializable {
   scepSecretPCId?: string;
   scepSecret?: string;
   scepSecretValidTo?: Date;
+  keyAlgoLength?: IKeyAlgoLength;
+  scepRecipientDN?: string;
 }
 
 export interface IWebConfigItems extends ISerializable {}

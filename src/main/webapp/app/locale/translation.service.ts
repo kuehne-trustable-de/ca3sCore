@@ -11,6 +11,39 @@ export default class TranslationService {
     this.i18n = i18n;
   }
 
+  async refreshLanguages() {
+    this.store.commit('languages', {
+      de: { name: 'Deutsch' }
+    });
+
+    return axios.get('api/languages');
+
+    /*
+    const self = this;
+    axios.get('api/languages').then(res => {
+      if (res.data) {
+        let newLanguages = new Object();
+        for( let lang of res.data.languageArr){
+          window.console.log('adding available language "' + lang + '" ...');
+          if( lang === 'en'){
+            newLanguages['en'] = { name: 'English' };
+          }else if( lang === 'de'){
+            newLanguages['de'] = { name: 'Deutsch' };
+          }else if( lang === 'pl'){
+            newLanguages['pl'] = { name: 'Polski' };
+          }else{
+            window.console.warn('unexpected language "' + lang + '" found');
+          }
+        }
+        newLanguages['multiLanguage'] = res.data.languageArr.length > 1;
+
+        self.store.commit('languages', newLanguages);
+      }
+    });
+
+ */
+  }
+
   public refreshTranslation(newLanguage: string) {
     let currentLanguage = this.store.getters.currentLanguage;
     currentLanguage = newLanguage ? newLanguage : 'en';

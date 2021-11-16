@@ -38,7 +38,8 @@ const validations: any = {
       scepSecretValidTo: {},
       recepientCertSerial: {},
       recepientCertSubject: {},
-      recepientCertId: {}
+      recepientCertId: {},
+      scepRecipientDN: {}
     }
   }
 };

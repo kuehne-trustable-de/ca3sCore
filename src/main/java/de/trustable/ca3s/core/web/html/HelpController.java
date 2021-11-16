@@ -35,7 +35,7 @@ public class HelpController {
     @Value("${ca3s.help.en:classpath:help/help_en.md}")
     private Resource helpResourceEn;
 
-    @Value("${ca3s.help.en:classpath:help/help_de.md}")
+    @Value("${ca3s.help.de:classpath:help/help_de.md}")
     private Resource helpResourceDe;
 
     @GetMapping(value = "/help-{lang}.html", produces = MediaType.TEXT_HTML_VALUE)

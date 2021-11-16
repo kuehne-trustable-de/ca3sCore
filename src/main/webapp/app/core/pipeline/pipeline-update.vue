@@ -70,6 +70,9 @@
                         <datetime type="datetime" input-class="form-control" name="scepSecretValidTo" input-id="pipeline-scepSecretValidTo" id="pipeline-scepSecretValidTo"
                                   v-model="$v.pipeline.scepConfigItems.scepSecretValidTo.$model"/>
 
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.scepRecipientDN')" for="pipeline-scepRecipientDN">SCEP Recipient DN</label>
+                        <input type="text" class="form-control" name="scepRecipientDN" id="pipeline-scepRecipientDN" v-model="$v.pipeline.scepConfigItems.scepRecipientDN.$model" />
+
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.scepRecipientCertificate')" for="pipeline-scepRecipientCertificate">SCEP Recipient certificate</label>
                         <div>
                             <router-link name="pipeline-scepRecipientCertificate" :to="{name: 'CertInfo', params: {certificateId: $v.pipeline.scepConfigItems.recepientCertId.$model}}">{{$v.pipeline.scepConfigItems.recepientCertSubject.$model}}</router-link>

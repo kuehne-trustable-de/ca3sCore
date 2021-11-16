@@ -1,4 +1,4 @@
-package de.trustable.ca3s.core.web.servlet;
+package de.trustable.ca3s.core.web.scepservlet;
 
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
@@ -14,7 +14,6 @@ import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.jscep.server.ScepServlet;
 import org.jscep.transaction.FailInfo;
@@ -28,13 +27,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 
-import javax.security.auth.x500.X500Principal;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
@@ -86,7 +82,7 @@ public class ScepServletImpl extends ScepServlet {
 
     final private String cnSuffix;
 
-	public ThreadLocal<Pipeline> requestPipeline = new ThreadLocal<>();
+	public ThreadLocal<Pipeline> threadLocalPipeline = new ThreadLocal<>();
 
     public ScepServletImpl(PipelineUtil pipelineUtil,
                            @Value("${ca3s.https.certificate.dnSuffix:O=trustable solutions,C=DE}") String dnSuffix,
@@ -106,45 +102,22 @@ public class ScepServletImpl extends ScepServlet {
      * @return
      * @throws ServletException
      */
-    Certificate getCurrentRecepientCert() throws ServletException {
+    Certificate getCurrentRecepientCert() throws ServletException, OperationFailureException {
 
-        Certificate currentRecepientCert = certUtil.getCurrentSCEPRecipient();
-		if (currentRecepientCert == null) {
+        Pipeline pipeline = threadLocalPipeline.get();
+        if( pipeline == null ) {
+            LOGGER.warn("doEnrol: no processing pipeline defined");
+            throw new OperationFailureException(FailInfo.badRequest);
+        }
 
-			try {
-				KeyPair keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+        try {
+            Certificate currentRecepientCert = pipelineUtil.getSCEPRecipientCertificate(pipeline);
+            return currentRecepientCert;
 
-				String x500Name = "CN=SCEPRecepient"+ System.currentTimeMillis() + cnSuffix;
-                if(!dnSuffix.trim().isEmpty()){
-                    x500Name += ", " + dnSuffix;
-                }
+        } catch (GeneralSecurityException | IOException e) {
+            throw new ServletException(e);
+        }
 
-                X500Principal subject = new X500Principal(x500Name);
-				String p10ReqPem = CryptoUtil.getCsrAsPEM(subject,
-                    keyPair.getPublic(),
-                    keyPair.getPrivate(),
-                    null
-                );
-
-				LOGGER.debug("created csr for SCEPRecepient '{}':\n'{}'", x500Name, p10ReqPem );
-
-				TransactionId tid = new TransactionId(new byte[] {1});
-
-				currentRecepientCert = startCertificateCreationProcess(p10ReqPem, tid, null);
-
-				certUtil.storePrivateKey(currentRecepientCert, keyPair);
-
-				certUtil.setCertAttribute(currentRecepientCert, CertificateAttribute.ATTRIBUTE_SCEP_RECIPIENT, "true");
-
-				certRepository.save(currentRecepientCert);
-
-			} catch (OperationFailureException | GeneralSecurityException | IOException e) {
-				throw new ServletException(e);
-			}
-
-		}
-
-		return currentRecepientCert;
     }
 /*
     private Certificate createCertificate(final String csrAsPem) {
@@ -196,7 +169,7 @@ public class ScepServletImpl extends ScepServlet {
 
         LOGGER.debug("doEnrol(" + csr.toString() + ", " + transId.toString() +")");
 
-        Pipeline pipeline = requestPipeline.get();
+        Pipeline pipeline = threadLocalPipeline.get();
         if( pipeline == null ) {
             LOGGER.warn("doEnrol: no processing pipeline defined");
             throw new OperationFailureException(FailInfo.badRequest);
@@ -267,7 +240,7 @@ public class ScepServletImpl extends ScepServlet {
     }
 
     @Override
-    protected List<X509Certificate> doGetCaCertificate(String identifier) {
+    protected List<X509Certificate> doGetCaCertificate(String identifier) throws OperationFailureException{
         LOGGER.debug("doGetCaCertificate(" + identifier +")");
 
         List<X509Certificate> caList = new ArrayList<>();
@@ -382,11 +355,11 @@ public class ScepServletImpl extends ScepServlet {
     }
 
     @Override
-    protected PrivateKey getRecipientKey(){
+    protected PrivateKey getRecipientKey() {
 
         try {
 			return certUtil.getPrivateKey(getCurrentRecepientCert());
-		} catch (ServletException e) {
+		} catch (ServletException | OperationFailureException e) {
 			LOGGER.warn("problem retrieving recipient's private key", e);
 			return null;
 		}
@@ -399,7 +372,7 @@ public class ScepServletImpl extends ScepServlet {
         	X509Certificate ca = CryptoUtil.convertPemToCertificate(getCurrentRecepientCert().getContent());
 	        LOGGER.debug("getRecipient() returns " + ca.toString());
 	        return ca;
-		} catch (GeneralSecurityException | ServletException e) {
+		} catch (GeneralSecurityException | ServletException | OperationFailureException e) {
 			LOGGER.warn("problem retrieving recipient certificate", e);
 		}
         return null;
@@ -437,7 +410,7 @@ public class ScepServletImpl extends ScepServlet {
 				}
 
 			}
-		} catch (GeneralSecurityException | ServletException e) {
+		} catch (GeneralSecurityException | ServletException | OperationFailureException e) {
 			LOGGER.warn("Failed to retrieve CA certificates", e);
 		}
 

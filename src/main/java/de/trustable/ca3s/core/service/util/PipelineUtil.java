@@ -1,5 +1,9 @@
 package de.trustable.ca3s.core.service.util;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -7,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import de.trustable.ca3s.core.config.Constants;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.CsrUsage;
@@ -15,12 +20,17 @@ import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.*;
 import de.trustable.ca3s.core.service.dto.NamedValues;
+import de.trustable.ca3s.core.web.rest.data.KeyAlgoLength;
+import de.trustable.util.CryptoUtil;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.GeneralName;
+import org.jscep.transaction.FailInfo;
+import org.jscep.transaction.OperationFailureException;
+import org.jscep.transaction.TransactionId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +39,8 @@ import org.springframework.stereotype.Service;
 import de.trustable.ca3s.core.domain.enumeration.RDNCardinalityRestriction;
 import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
+
+import javax.security.auth.x500.X500Principal;
 
 
 @Service
@@ -93,10 +105,20 @@ public class PipelineUtil {
     public static final String SCEP_SECRET_VALID_TO = "SCEP_SECRET_VALID_TO";
     public static final String SCEP_SECRET_PC_ID = "SCEP_SECRET_PC_ID";
 
+    public static final String SCEP_RECIPIENT_DN = "SCEP_RECIPIENT_DN";
+    public static final String SCEP_RECIPIENT_KEY_TYPE_LEN = "SCEP_RECIPIENT_KEY_TYPE_LEN";
+    public static final String SCEP_RECIPIENT_CERT_ID = "SCEP_RECIPIENT_CERT_ID";
+
 
     Logger LOG = LoggerFactory.getLogger(PipelineUtil.class);
 
-	@Autowired
+    @Autowired
+    private CertificateRepository certRepository;
+
+    @Autowired
+    private CSRRepository csrRepository;
+
+    @Autowired
 	private CAConnectorConfigRepository caConnRepository;
 
 	@Autowired
@@ -116,6 +138,9 @@ public class PipelineUtil {
 
     @Autowired
     private CertificateUtil certUtil;
+
+    @Autowired
+    private CertificateProcessingUtil cpUtil;
 
     @Autowired
     private AuditService auditService;
@@ -274,6 +299,36 @@ public class PipelineUtil {
 
             }else if( TO_PENDIND_ON_FAILED_RESTRICTIONS.equals(plAtt.getName())) {
                 pv.setToPendingOnFailedRestrictions(Boolean.parseBoolean(plAtt.getValue()));
+
+            }else if( SCEP_RECIPIENT_DN.equals(plAtt.getName())) {
+                scepConfigItems.setScepRecipientDN(plAtt.getValue());
+
+            }else if( SCEP_RECIPIENT_KEY_TYPE_LEN.equals(plAtt.getName())) {
+    		    KeyAlgoLength keyAlgoLength = KeyAlgoLength.valueOf(plAtt.getValue());
+                scepConfigItems.setKeyAlgoLength(keyAlgoLength);
+
+            }else if( SCEP_RECIPIENT_CERT_ID.equals(plAtt.getName())) {
+
+    		    if( !plAtt.getValue().isEmpty()) {
+                    Optional<Certificate> optCert = certRepository.findById(Long.parseLong(plAtt.getValue()));
+                    if (optCert.isPresent()) {
+
+                        Certificate currentRecipientCert = optCert.get();
+                        if (currentRecipientCert != null) {
+                            LOG.debug("SCEP_RECIPIENT_CERT_ID for pipeline id {} identifies recipient certificate with id {} ", pipeline.getId(), plAtt.getValue());
+                            scepConfigItems.setRecepientCertId(currentRecipientCert.getId());
+                            scepConfigItems.setRecepientCertSerial(currentRecipientCert.getSerial());
+                            scepConfigItems.setRecepientCertSubject(currentRecipientCert.getSubject());
+                        }else{
+                            LOG.warn("SCEP_RECIPIENT_CERT_ID for pipeline id {} : retrieved recipient certificate with id {} is null", pipeline.getId(), plAtt.getValue());
+                        }
+                    }else{
+                        LOG.warn("SCEP_RECIPIENT_CERT_ID for pipeline id {} has value {}, but no certificate found", pipeline.getId(), plAtt.getValue());
+                    }
+                }else{
+                    LOG.warn("SCEP_RECIPIENT_CERT_ID has no value for pipeline id {}", pipeline.getId());
+                }
+
             }else if( SCEP_SECRET_PC_ID.equals(plAtt.getName())) {
 
                 Optional<ProtectedContent> optPC = protectedContentRepository.findById( Long.parseLong(plAtt.getValue()));
@@ -298,12 +353,6 @@ public class PipelineUtil {
 
         }
 
-        Certificate currentRecipientCert = certUtil.getCurrentSCEPRecipient();
-        if( currentRecipientCert != null){
-            scepConfigItems.setRecepientCertId(currentRecipientCert.getId());
-            scepConfigItems.setRecepientCertSerial(currentRecipientCert.getSerial());
-            scepConfigItems.setRecepientCertSubject(currentRecipientCert.getSubject());
-        }
 
         pv.setAcmeConfigItems(acmeConfigItems);
     	pv.setScepConfigItems(scepConfigItems);
@@ -521,6 +570,9 @@ public class PipelineUtil {
         }
         addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_CAPABILITY_RENEWAL,pv.getScepConfigItems().isCapabilityRenewal());
         addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_CAPABILITY_POST,pv.getScepConfigItems().isCapabilityPostPKIOperation());
+
+        addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_RECIPIENT_DN,pv.getScepConfigItems().getScepRecipientDN());
+        addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_RECIPIENT_KEY_TYPE_LEN,pv.getScepConfigItems().getKeyAlgoLength().toString());
 
         ProtectedContent pc;
         List<ProtectedContent> listPC = protectedContentRepository.findByTypeRelationId(ProtectedContentType.PASSWORD, ContentRelationType.SCEP_PW,p.getId());
@@ -1014,4 +1066,97 @@ public class PipelineUtil {
 		return false;
 	}
 
+    public void setPipelineAttribute(Pipeline pipeline, String name, String value) {
+
+        for (PipelineAttribute plAtt : pipeline.getPipelineAttributes()) {
+            if (name.equals(plAtt.getName())) {
+                if( !plAtt.getValue().equals(value) ){
+                    plAtt.setValue(value);
+                    pipelineAttRepository.save(plAtt);
+                }
+                return;
+            }
+        }
+        PipelineAttribute pAtt = new PipelineAttribute();
+        pAtt.setPipeline(pipeline);
+        pAtt.setName(name);
+        pAtt.setValue(value);
+        pipeline.getPipelineAttributes().add(pAtt);
+
+        pipelineAttRepository.save(pAtt);
+        pipelineRepository.save(pipeline);
+    }
+
+    public String getPipelineAttribute(Pipeline pipeline, String name, String defaultValue) {
+
+        for (PipelineAttribute plAtt : pipeline.getPipelineAttributes()) {
+            if (name.equals(plAtt.getName())) {
+                return plAtt.getValue();
+            }
+        }
+        return defaultValue;
+    }
+
+    public Certificate getSCEPRecipientCertificate( Pipeline pipeline) throws OperationFailureException, IOException, GeneralSecurityException {
+
+	    new Exception().printStackTrace();
+
+        String scepRecipientCertId = getPipelineAttribute( pipeline, SCEP_RECIPIENT_CERT_ID, "0");
+        Optional<Certificate> optCert = certRepository.findById(Long.parseLong(scepRecipientCertId));
+        if(optCert.isPresent()){
+            Certificate recipientCert = optCert.get();
+            if(recipientCert.isActive()){
+                LOG.debug("found active certificate as scep recipient with id {}", recipientCert.getId());
+                return recipientCert;
+            }
+            LOG.info("found expired / revoked scep recipient certificate with id {}", recipientCert.getId());
+        }else{
+            LOG.info("no scep recipient certificate present, creating new instance");
+        }
+
+        Certificate recipientCert = createSCEPRecipientCertificate(pipeline);
+        setPipelineAttribute(pipeline, SCEP_RECIPIENT_CERT_ID, "" + recipientCert.getId());
+        LOG.debug("updated pipeline attribute 'scep recipient id' updated to {}", recipientCert.getId());
+        return recipientCert;
+    }
+
+    private Certificate createSCEPRecipientCertificate( Pipeline pipeline) throws IOException, GeneralSecurityException {
+
+        String scepRecipientDN = getPipelineAttribute( pipeline, SCEP_RECIPIENT_DN, "CN=SCEPRecepient_"+ pipeline.getId());
+        X500Principal subject = new X500Principal(scepRecipientDN);
+
+        String scepRecipientKeyLength = getPipelineAttribute( pipeline, SCEP_RECIPIENT_KEY_TYPE_LEN, "RSA_2048");
+        KeyAlgoLength kal = KeyAlgoLength.valueOf(scepRecipientKeyLength);
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(kal.algoName());
+        keyPairGenerator.initialize(kal.keyLength());
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+        String p10ReqPem = CryptoUtil.getCsrAsPEM(subject,
+            keyPair.getPublic(),
+            keyPair.getPrivate(),
+            null
+        );
+
+        String requestorName = Constants.SYSTEM_ACCOUNT;
+        CSR csr = cpUtil.buildCSR(p10ReqPem, requestorName, AuditService.AUDIT_SCEP_CERTIFICATE_REQUESTED, "", pipeline );
+        csrRepository.save(csr);
+
+        Certificate cert = cpUtil.processCertificateRequest(csr, requestorName,  AuditService.AUDIT_SCEP_CERTIFICATE_CREATED, pipeline );
+
+        if( cert == null) {
+            LOG.warn("creation of SCEP recipient certificate with DN '{}' failed ", scepRecipientDN);
+        }else {
+            LOG.debug("new certificate id '{}' for SCEP recipient", cert.getId());
+
+            certUtil.storePrivateKey(cert, keyPair);
+            certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SCEP_RECIPIENT, "true");
+
+            certRepository.save(cert);
+        }
+
+        return cert;
+    }
+
+
 }
+
