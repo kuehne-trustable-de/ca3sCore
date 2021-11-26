@@ -76,12 +76,12 @@ public class NewAccountController extends ACMEController {
 
   @Autowired
   AcmeContactRepository contactRepo;
-  
+
   @RequestMapping(method = POST, consumes = APPLICATION_JOSE_JSON_VALUE)
   public ResponseEntity<?> consumingPostedJoseJson(@RequestBody final String requestBody, @PathVariable final String realm) {
-	  
+
     return consumeWithConverter(requestBody, realm);
-	  
+
   }
 
 
@@ -90,30 +90,30 @@ public class NewAccountController extends ACMEController {
     return consumeWithConverter(requestBody, realm);
   }
 
-  
+
   @Transactional
-  private ResponseEntity<?> consumeWithConverter(final String requestBody, final String realm) {
+  ResponseEntity<?> consumeWithConverter(final String requestBody, final String realm) {
 
     LOG.info("New ACCOUNT requested for realm {} using requestbody \n {}", realm, requestBody);
 
-	ACMEAccount acctDaoReturn; 
+	ACMEAccount acctDaoReturn;
 
     final HttpHeaders additionalHeaders = buildNonceHeader();
 //    additionalHeaders.set("Link", "<" + directoryResourceUriBuilderFrom(fromCurrentRequestUri()).build().normalize() + ">;rel=\"index\"");
-    
+
 	try {
 		JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
 	    AccountRequest newAcct = jwtUtil.getAccountRequest(context.getJwtClaims());
 	    LOG.debug("New ACCOUNT reads NewAccountRequest: " + newAcct);
-	    
-	    List<ACMEAccount> accListExisting = null;
+
+	    List<ACMEAccount> accListExisting;
 		PublicKey pk;
 		JsonWebStructure webStruct = jwtUtil.getJsonWebStructure(context);
 		pk = jwtUtil.getPublicKey(webStruct);
 
 		if( pk == null) {
-			
-			accListExisting = new ArrayList<ACMEAccount>();
+
+			accListExisting = new ArrayList<>();
 			accListExisting.add(checkJWTSignatureForAccount(context));
 			if( accListExisting.isEmpty()) {
 			    LOG.debug("NewAccountRequest does NOT provide key, no matching account found ");
@@ -121,26 +121,25 @@ public class NewAccountController extends ACMEController {
 		                BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
 				throw new AcmeProblemException(problem);
 			}
-			
+
 		}else {
 		    LOG.debug("JWK with public key found : " + pk);
 			accListExisting = acctRepository.findByPublicKeyHashBase64(jwtUtil.getJWKThumbPrint(pk));
-			
+
 			jwtUtil.verifyJWT(context, pk);
 		    LOG.debug("provided public key verifies given JWT: " + pk);
-
 		}
-		
+
 		if(Boolean.TRUE.equals( newAcct.isOnlyReturnExisting())) {
 			if( accListExisting.isEmpty()) {
 		        final ProblemDetail problem = new ProblemDetail(ACMEUtil.ACCOUNT_DOES_NOT_EXIST, "Account does not exist.",
 		                BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
 				throw new AcmeProblemException(problem);
 			}else {
-				acctDaoReturn = accListExisting.get(0); 
+				acctDaoReturn = accListExisting.get(0);
 			}
 		} else {
-		
+
 			if( accListExisting.isEmpty()) {
 				/*
 			    JwtClaims claims = context.getJwtClaims();
@@ -152,42 +151,42 @@ public class NewAccountController extends ACMEController {
 		//	    LOG.info("New ACCOUNT key: " + webStruct.getKey());
 		//	    LOG.info("New ACCOUNT jwk: " + webStruct.getHeader("jwk"));
 		//	    LOG.info("New ACCOUNT kid: " + webStruct.getKeyIdHeaderValue());
-			    
+
 			    ACMEAccount newAcctDao = new ACMEAccount();
 			    newAcctDao.setAccountId(generateId());
 			    newAcctDao.setRealm(realm);
-			    
+
 				String pkAsString = Base64.encodeBase64String(pk.getEncoded()).trim();
 				newAcctDao.setPublicKey(pkAsString);
-				
+
 				String thumbPrint = jwtUtil.getJWKThumbPrint(pk);
 				newAcctDao.setPublicKeyHash(thumbPrint);
-				
+
 				if( newAcct.isTermsAgreed() != null) {
 					newAcctDao.setTermsOfServiceAgreed(newAcct.isTermsAgreed());
 				}else {
 					newAcctDao.setTermsOfServiceAgreed(false);
 				}
-				
-			    acctRepository.save(newAcctDao);			    
+
+			    acctRepository.save(newAcctDao);
 			    contactsFromRequest(newAcctDao, newAcct);
 
 			    newAcctDao.setStatus(AccountStatus.VALID);
-			    
+
 			    acctRepository.save(newAcctDao);
 			    LOG.debug("New Account {} created", newAcctDao.getAccountId());
 			    acctDaoReturn = newAcctDao;
 			}else {
-				acctDaoReturn = accListExisting.get(0); 
+				acctDaoReturn = accListExisting.get(0);
 			}
 		}
-		
+
 
 	    URI locationUri = locationUriOf(acctDaoReturn.getAccountId(), fromCurrentRequestUri());
 	    String locationHeader = locationUri.toASCIIString();
 	    LOG.debug("location header set to " + locationHeader);
 	    additionalHeaders.set("Location", locationHeader);
-	    
+
 	    AccountResponse accResp = new AccountResponse(acctDaoReturn);
 	    accResp.setOrders(locationUriOfOrders(acctDaoReturn.getAccountId(), fromCurrentRequestUri()).toString());
 		if( accListExisting.isEmpty()) {
@@ -199,7 +198,7 @@ public class NewAccountController extends ACMEController {
 		    return ok().headers(additionalHeaders).body(accResp);
 		}
 
-	    
+
 	} catch (JoseException e) {
         final ProblemDetail problem = new ProblemDetail(ACMEUtil.SERVER_INTERNAL, "Algorithm mismatch.",
                 BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
@@ -207,14 +206,14 @@ public class NewAccountController extends ACMEController {
 	} catch (AcmeProblemException e) {
 	    return buildProblemResponseEntity(e);
 	}
-    
+
   }
 
 
   private URI locationUriOf(final long accountId, final UriComponentsBuilder uriBuilder) {
     return accountResourceUriBuilderFrom(uriBuilder.path("..")).path("/").path(Long.toString(accountId)).build().normalize().toUri();
   }
-  
+
   private URI locationUriOfOrders(final long accountId, final UriComponentsBuilder uriBuilder) {
 	    return accountResourceUriBuilderFrom(uriBuilder.path("..")).path("/").path(Long.toString(accountId)).path("/orders").build().normalize().toUri();
 	  }

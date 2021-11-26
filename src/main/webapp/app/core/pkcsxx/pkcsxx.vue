@@ -59,8 +59,8 @@
 								</div>
 								<div class="col colContent">
 									<select class="form-control w-50" id="pkcsxx.upload.key-length" name="pkcsxx.upload.key-length" v-model="keyAlgoLength" v-on:change="updateCmdLine()">
-										<option value="RSA_2048" selected="selected">RSA_2048</option>
-										<option value="RSA_4096">RSA_4096</option>
+										<option value="RSA_2048">RSA_2048</option>
+										<option value="RSA_4096" selected="selected">RSA_4096</option>
 									</select>
 								</div>
 							</div>
@@ -72,17 +72,13 @@
 								<div class="col colContent">
                                     <Fragment v-for="(val, valueIndex) in upload.certificateAttributes[index].values" :key="valueIndex">
                                         <input
-                                            type="text" class="form-control form-check-inline valid"
+                                            type="text" :class="(showRequiredWarning(rr.required, upload.certificateAttributes[index].values[valueIndex])) ? 'invalid' : ' valid'" class="form-control form-check-inline"
                                             autocomplete="false"
                                             :name="'pkcsxx.upload.' + rr.name" :id="'pkcsxx.upload.' + rr.name"
                                             v-model="upload.certificateAttributes[index].values[valueIndex]"
                                             :readonly="rr.readOnly"
                                             :required="rr.required"
                                             v-on:input="alignRDNArraySize(index, valueIndex)"/>
-
-                                        <small class="form-text text-danger" v-if="showRequiredWarning(rr.required, upload.certificateAttributes[index].values[valueIndex])" v-text="$t('entity.validation.required')">
-                                            Element required!
-                                        </small>
                                     </Fragment>
                                 </div>
 							</div>
@@ -97,16 +93,19 @@
 									<label class="form-control-label" :for="'pkcsxx.upload.ara.' + item.name">{{item.name}}</label>
 								</div>
 								<div class="col colContent">
-									<input type="text" class="form-control form-check-inline valid" :name="'pkcsxx.upload.ara.' + item.name" :id="'pkcsxx.upload.ara.' + item.name"
-										:readonly="item.readOnly"
-										:required="item.required"
-										v-model="upload.arAttributes[index].values[0]" />
+									<input type="text"
+                                       :class="(showRequiredWarning(item.required, upload.arAttributes[index].values[0])) ? 'invalid' : ' valid'"
+                                       class="form-control form-check-inline"
+                                       :name="'pkcsxx.upload.ara.' + item.name" :id="'pkcsxx.upload.ara.' + item.name"
+                                       :readonly="item.readOnly"
+                                       :required="item.required"
+                                       v-model="upload.arAttributes[index].values[0]"
+                                       v-on:input="updateCmdLine()" />
 								</div>
 							</div>
 						</div>
 
 						<div class="form-group" v-if="creationMode === 'SERVERSIDE_KEY_CREATION'">
-
                             <div class="row">
                                 <div class="col">
                                     <label class="form-control-label" v-text="$t('pkcsxx.upload.csr.usage')" for="pkcsxx.upload.csr.usage">csr usage</label>
@@ -121,10 +120,14 @@
 									<label class="form-control-label" v-text="$t('pkcsxx.upload.serversideCreation.secret')" for="upload-secret">Secret</label>
 								</div>
 								<div class="col colContent">
-									<input type="password" class="form-control form-check-inline valid w-50" name="upload-secret" id="upload-secret"
-										autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                                        required="true"
-										v-model="secret" />
+									<input type="password"
+                                       class="form-control form-check-inline w-50"
+                                       :class="(showRequiredWarning(true, secret) ? 'invalid' : ' valid')"
+                                       name="upload-secret" id="upload-secret"
+                                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                       required="true"
+                                       v-model="secret"
+                                       v-on:input="updateForm()" />
 								</div>
 							</div>
 							<div class="row" >
@@ -132,10 +135,15 @@
 									<label class="form-control-label" v-text="$t('pkcsxx.upload.serversideCreation.repeat')" for="upload-secret-repeat">Repeat</label>
 								</div>
 								<div class="col colContent">
-									<input type="password" class="form-control form-check-inline valid w-50" name="upload-secret-repeat" id="upload-secret-repeat"
-										autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                                           required="true"
-                                           v-model="secretRepeat" />
+									<input type="password"
+                                       class="form-control form-check-inline w-50"
+                                       :class="(showRequiredWarning(true, secretRepeat) ? 'invalid' : ' valid')"
+                                       name="upload-secret-repeat" id="upload-secret-repeat"
+                                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                       required="true"
+                                       v-model="secretRepeat"
+                                       v-on:input="updateForm()" />
+
                                     <small class="form-text text-danger" v-if="secret !== secretRepeat" v-text="$t('entity.validation.secretRepeat')">
                                         Repeated secret must match!
                                     </small>

@@ -26,6 +26,7 @@
 
 package de.trustable.ca3s.core.web.rest.acme;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequestUri;
 
@@ -35,10 +36,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Set;
 
+import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
+import de.trustable.ca3s.core.service.util.ACMEUtil;
 import org.jose4j.jwt.consumer.JwtContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -62,6 +65,10 @@ import de.trustable.ca3s.core.service.dto.acme.IdentifierResponse;
 import de.trustable.ca3s.core.service.dto.acme.IdentifiersResponse;
 import de.trustable.ca3s.core.service.dto.acme.NewOrderResponse;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
+import org.xbill.DNS.Name;
+import org.xbill.DNS.TextParseException;
+
+import java.net.IDN;
 
 /*
  * 7.4.  Applying for Certificate Issuance
@@ -269,28 +276,39 @@ If the server is willing to issue the requested certificate, it
 @RequestMapping("/acme/{realm}/newOrder")
 public class NewOrderController extends ACMEController {
 
-  private static final Logger LOG = LoggerFactory.getLogger(NewOrderController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NewOrderController.class);
 
-  private static final long DEFAULT_ORDER_VALID_DAYS = 5L;
+    private static final long DEFAULT_ORDER_VALID_DAYS = 5L;
 
-  @Autowired
-  private AcmeOrderRepository orderRepository;
+    private final AcmeOrderRepository orderRepository;
 
-  @Autowired
-  private AcmeAuthorizationRepository authorizationRepository;
+    private final AcmeAuthorizationRepository authorizationRepository;
 
-  @Autowired
-  private AcmeChallengeRepository challengeRepository;
+    private final AcmeChallengeRepository challengeRepository;
 
-  @Autowired
-  private AcmeIdentifierRepository identRepository;
+    private final AcmeIdentifierRepository identRepository;
+
+    private final String resolverHost;
+
+    public NewOrderController(AcmeOrderRepository orderRepository,
+                              AcmeAuthorizationRepository authorizationRepository,
+                              AcmeChallengeRepository challengeRepository,
+                              AcmeIdentifierRepository identRepository,
+                              @Value("${ca3s.dns.server:}") String resolverHost) {
+
+        this.orderRepository = orderRepository;
+        this.authorizationRepository = authorizationRepository;
+        this.challengeRepository = challengeRepository;
+        this.identRepository = identRepository;
+        this.resolverHost = resolverHost;
+    }
 
 
-  @RequestMapping(method = POST, consumes = APPLICATION_JOSE_JSON_VALUE)
-  public ResponseEntity<?> consumingPostedJoseJson(@RequestBody final String requestBody, @PathVariable final String realm) {
-		LOG.info("Received consumingPostedJoseJson request ");
-    return consumeWithConverter(requestBody, realm);
-  }
+    @RequestMapping(method = POST, consumes = APPLICATION_JOSE_JSON_VALUE)
+    public ResponseEntity<?> consumingPostedJoseJson(@RequestBody final String requestBody, @PathVariable final String realm) {
+        LOG.info("Received consumingPostedJoseJson request ");
+        return consumeWithConverter(requestBody, realm);
+    }
 
 
   @RequestMapping(method = POST, consumes = APPLICATION_JWS_VALUE)
@@ -323,7 +341,7 @@ public class NewOrderController extends ACMEController {
 
 		orderRepository.save(orderDao);
 
-		Set<AcmeIdentifier> identifiers = new HashSet<AcmeIdentifier>();
+		Set<AcmeIdentifier> identifiers = new HashSet<>();
 		for( IdentifierResponse ident: newIdentifiers.getIdentifiers()) {
 			AcmeIdentifier identDao = new AcmeIdentifier();
 			identDao.setAcmeIdentifierId(generateId());
@@ -337,30 +355,50 @@ public class NewOrderController extends ACMEController {
 
 		orderRepository.save(orderDao);
 
-		Set<AcmeAuthorization> authorizations = new HashSet<AcmeAuthorization>();
-		Set<String> authorizationsResp = new HashSet<String>();;
+		Set<AcmeAuthorization> authorizations = new HashSet<>();
+		Set<String> authorizationsResp = new HashSet<>();
 
 		for( AcmeIdentifier identDao: identifiers) {
 			AcmeAuthorization authorizationDao = new AcmeAuthorization();
 			authorizationDao.setAcmeAuthorizationId(generateId());
 			authorizationDao.setOrder(orderDao);
+
+            Name name;
+            try {
+                Name tempName = Name.fromString( identDao.getValue(), Name.root);
+                name = Name.fromString(IDN.toASCII(tempName.toString(), IDN.USE_STD3_ASCII_RULES));
+            } catch (TextParseException e) {
+                throw new IllegalArgumentException("DNS identifier value '" + identDao.getValue() + "'", e);
+            }
+
+
+			// set the type once it's validated
 			authorizationDao.setType(identDao.getType());
 			authorizationDao.setValue( identDao.getValue());
 			authorizationRepository.save(authorizationDao);
 
-			Set<AcmeChallenge> challenges = new HashSet<AcmeChallenge>();
-			AcmeChallenge challengeDao = new AcmeChallenge();
-			challengeDao.setChallengeId(generateId());
-			challengeDao.setAcmeAuthorization(authorizationDao);
+			Set<AcmeChallenge> challenges = new HashSet<>();
 
-			// @todo expand to arbitrary types
-			challengeDao.setType( "http-01");
-			challengeDao.setValue(identDao.getValue());
-			challengeDao.setToken( getNewChallenge());
-			challengeDao.setStatus(ChallengeStatus.PENDING);
-			challengeRepository.save(challengeDao);
+            if( name.isWild() ){
+                LOG.debug("Wildcard requested, HTTP-01 disabled!");
+            }else {
+                challenges.add(createChallenge(AcmeChallenge.CHALLENGE_TYPE_HTTP_01, identDao.getValue(), authorizationDao));
+            }
 
-			authorizationDao.setChallenges(challenges);
+            if( resolverHost != null && !resolverHost.isEmpty()) {
+                LOG.debug("Offering DNS-01 challenge");
+                challenges.add(createChallenge(AcmeChallenge.CHALLENGE_TYPE_DNS_01, identDao.getValue(), authorizationDao));
+            }else{
+                LOG.debug("DNS-01 challenge skipped, no dns resolver configured.");
+                if( name.isWild() ) {
+                    LOG.info("Wildcard requested, but no dns resolver configured!");
+                    final ProblemDetail problemDetail = new ProblemDetail(ACMEUtil.MALFORMED, "DNS auth not supported",
+                        BAD_REQUEST, "DNS-01 challenge skipped, no dns resolver configured.", ACMEController.NO_INSTANCE);
+                    throw new AcmeProblemException(problemDetail);
+                }
+            }
+
+            authorizationDao.setChallenges(challenges);
 			authorizationRepository.save(authorizationDao);
 
 			authorizations.add(authorizationDao);
@@ -399,6 +437,20 @@ public class NewOrderController extends ACMEController {
 	    return buildProblemResponseEntity(e);
 	}
 }
+
+    private AcmeChallenge createChallenge(String type, String value, AcmeAuthorization authorizationDao) {
+        AcmeChallenge challengeDao = new AcmeChallenge();
+        challengeDao.setChallengeId(generateId());
+        challengeDao.setAcmeAuthorization(authorizationDao);
+
+        challengeDao.setType( type );
+        challengeDao.setValue(value);
+        challengeDao.setToken( getRandomChallenge());
+        challengeDao.setStatus(ChallengeStatus.PENDING);
+        challengeRepository.save(challengeDao);
+
+        return challengeDao;
+    }
 
 /*
   @RequestMapping(method = POST, consumes = APPLICATION_JWS_VALUE)

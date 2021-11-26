@@ -23,36 +23,9 @@ package de.trustable.ca3s.core.service.util;
  *
  */
 
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.security.GeneralSecurityException;
-import java.security.cert.CRLException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509CRL;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-
-import javax.naming.CommunicationException;
-import javax.naming.Context;
-import javax.naming.InvalidNameException;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.ldap.LdapName;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.security.auth.x500.X500Principal;
-
+import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.repository.CertificateSpecifications;
+import de.trustable.ca3s.core.service.dto.CertificateView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,9 +33,27 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.repository.CertificateSpecifications;
-import de.trustable.ca3s.core.service.dto.CertificateView;
+import javax.naming.CommunicationException;
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.security.auth.x500.X500Principal;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.GeneralSecurityException;
+import java.security.cert.*;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -130,7 +121,7 @@ public class CRLUtil {
 
         for( Certificate cert: certList) {
         	try {
-	        	X509Certificate x509cert = certUtil.convertPemToCertificate(cert.getContent());
+	        	X509Certificate x509cert = CertificateUtil.convertPemToCertificate(cert.getContent());
 	        	crl.verify(x509cert.getPublicKey());
 	            return crl;
         	} catch(GeneralSecurityException gse) {
@@ -151,7 +142,7 @@ public class CRLUtil {
 
     	LOG.debug("loading CRL from LDAP {}", ldapURL);
 
-        Map<String, String> env = new Hashtable<String, String>();
+        Map<String, String> env = new Hashtable<>();
         env.put(Context.INITIAL_CONTEXT_FACTORY,
                 "com.sun.jndi.ldap.LdapCtxFactory");
         env.put(Context.PROVIDER_URL, ldapURL);
@@ -178,9 +169,8 @@ public class CRLUtil {
      * Downloads a CRL from given HTTP/HTTPS/FTP URL, e.g.
      * http://crl.infonotary.com/crl/identity-ca.crl
      */
-    private X509CRL downloadCRLFromWeb(String crlURL) throws MalformedURLException,
-    IOException, CertificateException,
-            CRLException {
+    private X509CRL downloadCRLFromWeb(String crlURL) throws
+        IOException, CertificateException,CRLException {
 
     	LOG.debug("loading CRL from URL {}", crlURL);
 
@@ -204,7 +194,7 @@ public class CRLUtil {
 
 		return CertificateSpecifications.handleQueryParamsCertificateView(entityManager,
 				cb,
-				parameterMap, new ArrayList<String>());
+				parameterMap, new ArrayList<>());
 
 //	    public List<Object[]>  getCertificateList(Map<String, String[]> parameterMap) {
 

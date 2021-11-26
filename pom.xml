@@ -69,6 +69,9 @@
         <argLine>-Djava.security.egd=file:/dev/./urandom -Xmx256m</argLine>
         <m2e.apt.activation>jdt_apt</m2e.apt.activation>
         <run.addResources>false</run.addResources>
+
+        <packaging.executable>false</packaging.executable>
+
         <!-- These remain empty unless the corresponding profile is active -->
         <profile.no-liquibase />
         <profile.swagger />
@@ -134,6 +137,8 @@
         <junit.itReportFolder>${project.testresult.directory}/integrationTest</junit.itReportFolder>
         <!-- jhipster-needle-maven-property -->
 
+        <keycloak-adapter-bom.version>13.0.1</keycloak-adapter-bom.version>
+
         <bouncyCastleVersion>1.68</bouncyCastleVersion>
         <cryptoUtilVersion>1.2.0</cryptoUtilVersion>
         <certBundleVersion>1.1.1</certBundleVersion>
@@ -149,6 +154,8 @@
        	<takesVersion>1.16</takesVersion>
    		<jscepVersion>2.5.4</jscepVersion>
    		<jasyptVersion>1.9.3</jasyptVersion>
+
+        <dnsjava.version>3.4.2</dnsjava.version>
 
         <opencsvVersion>5.4</opencsvVersion>
 
@@ -207,7 +214,8 @@
             <dependency>
                 <groupId>org.keycloak.bom</groupId>
                 <artifactId>keycloak-adapter-bom</artifactId>
-                <version>15.0.2</version>
+                <!--version>15.0.2</version-->
+                <version>${keycloak-adapter-bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -493,11 +501,35 @@
                 <version>1.9</version>
             </dependency>
 
+            <!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna -->
+            <dependency>
+                <groupId>net.java.dev.jna</groupId>
+                <artifactId>jna</artifactId>
+                <version>5.9.0</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna-platform -->
+            <dependency>
+                <groupId>net.java.dev.jna</groupId>
+                <artifactId>jna-platform</artifactId>
+                <version>5.9.0</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
+
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna-platform</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>io.github.jhipster</groupId>
             <artifactId>jhipster-framework</artifactId>
@@ -549,6 +581,13 @@
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
             <version>1.14.2</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/dnsjava/dnsjava -->
+        <dependency>
+            <groupId>dnsjava</groupId>
+            <artifactId>dnsjava</artifactId>
+            <version>${dnsjava.version}</version>
         </dependency>
 
         <dependency>
@@ -1137,7 +1176,7 @@
                 <configuration>
                     <mainClass>${start-class}</mainClass>
                     <fork>true</fork>
-                    <executable>true</executable>
+                    <executable>${packaging.executable}</executable>
                     <!--
                     Enable the line below to have remote debugging of your application on port 5005
                     <jvmArguments>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</jvmArguments>

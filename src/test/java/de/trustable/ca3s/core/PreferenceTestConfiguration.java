@@ -28,6 +28,7 @@ public class PreferenceTestConfiguration {
     PreferenceUtil prefUtil;
 
     int freePort = SocketUtils.findAvailableTcpPort(45000);
+    int dnsPort = SocketUtils.findAvailableTcpPort(45000);
 
 	@Bean
     public Preferences getTestUserPreference() {
@@ -42,7 +43,11 @@ public class PreferenceTestConfiguration {
     }
 
     public int getFreePort(){
-	    return freePort;
+        return freePort;
+    }
+
+    public int getDNSPort(){
+        return dnsPort;
     }
 
     void initTestUserPreference(final String topicName, final String value, final Long userId) {

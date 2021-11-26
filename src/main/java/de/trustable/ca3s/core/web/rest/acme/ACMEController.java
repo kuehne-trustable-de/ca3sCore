@@ -236,7 +236,7 @@ public class ACMEController {
 
 		Set<AcmeContact> contactSet = acctDao.getContacts();
 		if (contactSet == null) {
-			contactSet = new HashSet<AcmeContact>();
+			contactSet = new HashSet<>();
 		}
 
 		contactSet.clear();
@@ -267,7 +267,7 @@ public class ACMEController {
 				|| AccountStatus.REVOKED.equals(updatedAcct.getStatus())) {
 			acctDao.setStatus(updatedAcct.getStatus());
 		} else if (updatedAcct.getStatus() == null) {
-			LOG.debug("No status transition of AccountStatus requested externally", updatedAcct.getStatus());
+			LOG.debug("No status transition of AccountStatus requested externally");
 		} else {
 			LOG.info("Unexpected transition of AccountStatus to '{}' requested", updatedAcct.getStatus());
 		}
@@ -287,10 +287,7 @@ public class ACMEController {
 	 *
 	 * @param context
 	 * @return
-	 * @throws IOException
-	 * @throws JoseException
-	 * @throws InvalidJwtException
-	 */
+     */
 	ACMEAccount checkJWTSignatureForAccount(JwtContext context, final String realm, Long accountIdReq) {
 
 		try {
@@ -398,7 +395,7 @@ public class ACMEController {
 		return nonce;
 	}
 
-	protected String getNewChallenge() {
+	protected String getRandomChallenge() {
 		String challengeToken = getBase64UrlEncodedRandom(16);
 		return challengeToken.split("=")[0];
 	}

@@ -179,4 +179,8 @@ public class AcmeChallenge implements Serializable {
             ", status='" + getStatus() + "'" +
             "}";
     }
+
+    public static final String CHALLENGE_TYPE_HTTP_01 = "http-01";
+    public static final String CHALLENGE_TYPE_DNS_01 = "dns-01";
+
 }

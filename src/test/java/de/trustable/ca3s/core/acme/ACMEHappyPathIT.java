@@ -42,11 +42,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
-import org.takes.Take;
-import org.takes.facets.fork.FkRegex;
-import org.takes.facets.fork.TkFork;
-import org.takes.http.Exit;
-import org.takes.http.FtBasic;
 
 import de.trustable.ca3s.cert.bundle.TimedRenewalCertMap;
 import de.trustable.ca3s.core.Ca3SApp;
@@ -70,7 +65,9 @@ public class ACMEHappyPathIT {
 	final String ACME_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM + "/directory";
 	String dirUrl;
 
-	@Autowired
+    HttpChallengeHelper httpChallengeHelper;
+
+    @Autowired
 	PipelineTestConfiguration ptc;
 
     @Autowired
@@ -82,12 +79,13 @@ public class ACMEHappyPathIT {
 		ptc.getInternalACMETestPipelineLaxRestrictions();
 
         prefTC.getTestUserPreference();
+        httpChallengeHelper = new HttpChallengeHelper(prefTC.getFreePort());
 
 	}
 
 
 	@BeforeAll
-	public static void setUpBeforeClass() throws Exception {
+	public static void setUpBeforeClass() {
 
 		JCAManager.getInstance();
 
@@ -198,7 +196,7 @@ public class ACMEHappyPathIT {
 				Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
 
 				if( challenge != null) {
-                    provideAuthEndpoint(challenge, order);
+                    provideAuthEndpoint(challenge, order, prefTC);
                     challenge.trigger();
                 } else {
                     LOG.warn("http01 Challange not found for order");
@@ -228,7 +226,7 @@ public class ACMEHappyPathIT {
 		assertNotNull("Expected to receive a x509Cert", x509Cert);
 
 		Iterator<Order> orderIt = account.getOrders();
-		assertNotNull("Expected to find at least one order", orderIt.hasNext());
+		assertTrue(orderIt.hasNext(), "Expected to find at least one order");
 
 		for( int i = 0; i < 100; i++) {
 			buildOrder(account, i);
@@ -286,7 +284,7 @@ public class ACMEHappyPathIT {
 					int MAX_TRIAL = 10;
 					for( int retry = 0; retry < MAX_TRIAL; retry++) {
 						try {
-							provideAuthEndpoint(challenge, order);
+                            provideAuthEndpoint(challenge, order, prefTC);
 							break;
 						} catch( BindException be) {
 							System.out.println("bind exception, waiting for port to become available");
@@ -336,7 +334,7 @@ public class ACMEHappyPathIT {
 				int MAX_TRIAL = 10;
 				for( int retry = 0; retry < MAX_TRIAL; retry++) {
 					try {
-						provideAuthEndpoint(challenge, order);
+                        provideAuthEndpoint(challenge, order, prefTC);
 						break;
 					} catch( BindException be) {
 						System.out.println("bind exception, waiting for port to become available");
@@ -389,7 +387,7 @@ public class ACMEHappyPathIT {
 				int MAX_TRIAL = 10;
 				for( int retry = 0; retry < MAX_TRIAL; retry++) {
 					try {
-						provideAuthEndpoint(challenge, order);
+                        provideAuthEndpoint(challenge, order, prefTC);
 						break;
 					} catch( BindException be) {
 						System.out.println("bind exception, waiting for port to become available");
@@ -459,7 +457,7 @@ public class ACMEHappyPathIT {
 					LOG.debug("auth {}", auth);
 					Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
 
-					provideAuthEndpoint(challenge, order);
+					provideAuthEndpoint(challenge, order, prefTC);
 
 					challenge.trigger();
 				}
@@ -501,11 +499,12 @@ public class ACMEHappyPathIT {
 	}
 
 
-	void provideAuthEndpoint(final Http01Challenge challenge, Order order) throws IOException, InterruptedException {
+    void provideAuthEndpoint(final Http01Challenge challenge, Order order, PreferenceTestConfiguration prefTC) throws IOException, InterruptedException {
 		int MAX_TRIAL = 10;
 		for( int retry = 0; retry < MAX_TRIAL; retry++) {
 			try {
-				provideAuthEndpoint(challenge);
+//				provideAuthEndpoint(challenge, prefTC);
+                httpChallengeHelper.provideAuthEndpoint(challenge.getToken(), challenge.getAuthorization(), false);
 				break;
 			} catch( BindException be) {
 				System.out.println("bind exception, waiting for port to become available");
@@ -514,50 +513,5 @@ public class ACMEHappyPathIT {
 				System.out.println("callback port not available");
 			}
 		}
-	}
-
-	void provideAuthEndpoint(final Http01Challenge challenge) throws IOException, InterruptedException {
-
-		int callbackPort = this.prefTC.getFreePort();
-		final String fileNameRegEx = "/\\.well-known/acme-challenge/" + challenge.getToken();
-		String fileContent = challenge.getAuthorization();
-
-		LOG.debug("Handling authorization for {} serving {} on port {}", fileNameRegEx, fileContent, callbackPort);
-
-		Take tk = new TkFork(new FkRegex(fileNameRegEx, fileContent));
-
-		FtBasic webBasicTmp = null;
-		try {
-			webBasicTmp = new FtBasic(tk, callbackPort);
-		}catch(BindException be) {
-			Thread.sleep(1000L);
-			webBasicTmp = new FtBasic(tk, callbackPort);
-		}
-		final FtBasic webBasic = webBasicTmp;
-
-		final Exit exitOnValid = new Exit() {
-			@Override
-			public boolean ready() {
-				boolean bTerminate = !(challenge.getStatus().equals( Status.PENDING));
-				LOG.info("exitOnValid {}, terminate = {}", challenge.getStatus().toString(), bTerminate);
-				return (bTerminate);
-			}
-		};
-
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					LOG.debug("ACME callback webserver started on port {} for {}", callbackPort, fileNameRegEx);
-					webBasic.start(exitOnValid);
-					LOG.debug("ACME callback webserver finished for {}", fileNameRegEx);
-				} catch (IOException ioe) {
-					LOG.warn("exception occur running webserver in extra thread", ioe);
-				}
-			}
-		}).start();
-
-		LOG.debug("started ACME callback webserver for {} on port {}", fileNameRegEx, callbackPort);
-
 	}
 }

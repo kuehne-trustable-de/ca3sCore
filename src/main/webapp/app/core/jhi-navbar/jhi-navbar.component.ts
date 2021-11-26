@@ -11,6 +11,7 @@ export default class JhiNavbar extends Vue {
   @Inject('translationService') private translationService: () => TranslationService;
 
   @Inject('accountService') private accountService: () => AccountService;
+
   public version = VERSION ? 'v' + VERSION : '';
   private currentLanguage = this.$store.getters.currentLanguage;
   public languages: any = this.$store.getters.languages;
@@ -74,6 +75,11 @@ export default class JhiNavbar extends Vue {
 
   public get authenticated(): boolean {
     return this.$store.getters.authenticated;
+  }
+
+  public get headerColor(): string {
+    window.console.warn('headerColor: #00ffff');
+    return '#8fffff';
   }
 
   public get username(): string {

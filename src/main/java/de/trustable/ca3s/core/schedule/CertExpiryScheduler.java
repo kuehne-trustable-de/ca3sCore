@@ -155,7 +155,7 @@ public class CertExpiryScheduler {
 
             try {
                 CRLUpdateInfo crlInfo = checkAllCRLsForCertificate( cert,
-                    certUtil.convertPemToCertificate(cert.getContent()),
+                    CertificateUtil.convertPemToCertificate(cert.getContent()),
                     brokenCrlUrlList);
 
                 if( !crlInfo.isbCRLDownloadSuccess() ) {
@@ -240,7 +240,8 @@ public class CertExpiryScheduler {
                     info.setSuccess();
                     break;
                 } catch (CertificateException | CRLException | IOException | NamingException e2) {
-                    LOG.info("Problem retrieving CRL for certificate "+ cert.getId(), e2);
+                    LOG.info("Problem retrieving CRL for certificate "+ cert.getId());
+                    LOG.debug("CRL retrieval for certificate "+ cert.getId() + " failed", e2);
                     brokenCrlUrlList.add(crlUrl);
                 }
             }

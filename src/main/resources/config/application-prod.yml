@@ -14,13 +14,15 @@
 # ===================================================================
 
 keycloak:
-  realm: ca3sRealm
   auth-server-url: http://127.0.0.1:50080/auth
-  ssl-required: external
+  realm: ca3sRealm
   resource: ca3s
-  credentials.secret: 11111111-1111-1111-1111-111111111111
-  use-resource-role-mappings: true
+  public-client: true
+#  ssl-required: external
+#  credentials.secret: 11111111-1111-1111-1111-111111111111
+#  use-resource-role-mappings: true
   enabled: false
+
 
 logging:
   level:
@@ -34,6 +36,7 @@ logging:
     de.trustable.ca3s.core.service.dir: WARN
     de.trustable.ca3s.core.security.provider.Ca3sTrustManager: WARN
     de.trustable.util.CryptoUtil: WARN
+    org.keycloak.adapters: DEBUG
     org.springframework.security: INFO
 
 management:
@@ -205,17 +208,26 @@ protectionSecret: bnJvbGwvV1MtMjAxOS1DQS5jcmyGK2h0dHA6Ly90cnVzdGFibGUuZXUvYWRjc1
 
 ca3s:
   ui:
-    languages: de
+# limit the set of selectable languages, available languages are de, en, pl
+# if only one language is selected, the user form for selection is disabled / hidden.
+#    languages: de
+# provide a custom image for the upper left corner of the user interface
 #    logo: custom_logo.png
+
 #  help:
 #    en: /var/help/custom_help_en.md
 #    de: /var/help/custom_help_de.md
+
+#  dns:
+#    server: 8.8.8.8
+#    port: 53
 
   https:
     certificate:
       dnSuffix: O=Trustable Solutions,OU=CA3S Instance,C=DE
       sans: trustable.de, www.trustable.de
 #  certificateSelectionAttributes: Foo,Bar,Baz
+
   scep:
     recipient:
       certificate:

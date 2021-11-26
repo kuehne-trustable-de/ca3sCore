@@ -53,6 +53,7 @@ import org.bouncycastle.asn1.x509.GeneralName;
 import org.jetbrains.annotations.NotNull;
 import org.jose4j.base64url.Base64Url;
 import org.jose4j.jwt.consumer.JwtContext;
+import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -201,6 +202,15 @@ public class OrderController extends ACMEController {
 
                     LOG.debug("csr decoded: " + p10Holder);
 
+                    List<ACMEAccount> accListExisting = acctRepository.findByPublicKeyHashBase64(jwtUtil.getJWKThumbPrint(p10Holder.getPublicSigningKey()));
+                    if(!accListExisting.isEmpty()) {
+                        LOG.debug("public key in csr already used for account #" + accListExisting.get(0).getAccountId());
+
+                        final ProblemDetail problem = new ProblemDetail(ACMEUtil.BAD_CSR, "CSR rejected.",
+                            BAD_REQUEST, "Public key of CSR already in use ", NO_INSTANCE);
+                        throw new AcmeProblemException(problem);
+                    }
+
                     Set<String> snSet = collectAllSANS(p10Holder);
 
                     boolean orderValid = true;
@@ -290,13 +300,13 @@ public class OrderController extends ACMEController {
 
 	} catch (AcmeProblemException e) {
 	    return buildProblemResponseEntity(e);
-	} catch (IOException | GeneralSecurityException e) {
+	} catch (JoseException| IOException | GeneralSecurityException e) {
         final ProblemDetail problem = new ProblemDetail(ACMEUtil.SERVER_INTERNAL, "Algorithm mismatch.",
                 BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
         return buildProblemResponseEntity(new AcmeProblemException(problem));
-	}
+    }
 
-  }
+    }
 
     @NotNull
     private Set<String> collectAllSANS(Pkcs10RequestHolder p10Holder) {

@@ -1,13 +1,13 @@
 <template>
-    <b-navbar toggleable="md" type="light" class="jh-navbar">
+
+    <b-navbar toggleable="md" type="light" class="jh-navbar" >
         <div class="jh-logo-container float-left">
             <b-navbar-toggle right class="jh-navbar-toggler d-lg-none float-right" href="javascript:void(0);"  data-toggle="collapse" target="header-tabs" aria-expanded="false" aria-label="Toggle navigation">
                 <font-awesome-icon icon="bars" />
             </b-navbar-toggle>
-            <b-navbar-brand class="logo float-left" b-link to="/">
-                <!--img src='../../../content/images/ca3s-36x36.png'/-->
+            <b-navbar-brand :style="headerColor" class="logo float-left" b-link to="/">
                 <img src='/app/resource/logo.png'/>
-                <!--span v-text="$t('global.title')" class="navbar-title">ca3s</span--> <span class="navbar-version">{{version}}</span>
+                <!--span class="navbar-version">{{version}}</span-->
             </b-navbar-brand>
              <b-navbar-brand class="logo float-left" b-link to="/" v-if="authenticated">
                 <span v-if="username" v-text="$t('home.logged.message', { 'username': username, 'roles': roles})" class="navbar-version">"{{username}}", You are logged in as "{{roles}}"</span>
@@ -314,7 +314,8 @@
 
 .jh-navbar {
 /*    background-color: #353d47; */
-    background-color: #e6e6ff;
+/*    background-color: #e6e6ff; */
+    background-color: #ffffff;
   padding: 0.2em 1em;
 }
 

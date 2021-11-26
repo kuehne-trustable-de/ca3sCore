@@ -37,6 +37,15 @@ const validations: any = {
         }
       }
     },
+    arAttributes: {
+      $each: {
+        arAttributes: {
+          $each: {
+            values: { required }
+          }
+        }
+      }
+    },
     pipelineId: {
       id: { required },
       name: { required }
@@ -134,6 +143,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   }
 
   public showRequiredWarning(required: boolean, value: string): boolean {
+    console.log('showRequiredWarning( ' + required + ', "' + value + '"');
     if (required) {
       if (value.trim().length === 0) {
         return true;
@@ -166,9 +176,14 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     this.updateCmdLine();
   }
 
+  public updateForm(): void {
+    window.console.info('in updateForm ... ');
+    this.updateCounter += 1;
+  }
+
   public updateCmdLine(): void {
     this.cmdline = this.buildCommandLine();
-    this.updateCounter += 1;
+    this.updateForm();
   }
 
   public updatePipelineRestrictions(evt: any): void {
@@ -260,9 +275,9 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     if (this.keyAlgoLength.startsWith('RSA')) {
       algo = 'RSA';
     }
-    let keyLen = '2048';
-    if (this.keyAlgoLength.endsWith('4096')) {
-      keyLen = '4096';
+    let keyLen = '4096';
+    if (this.keyAlgoLength.endsWith('2048')) {
+      keyLen = '2048';
     }
     //
     // java keytool

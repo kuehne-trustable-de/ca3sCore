@@ -133,3 +133,6 @@ jhipster:
 protectionSecret: AxOS1DQS5jcnQwDQYJKoZIhvcNAQELBQADggEBA
 
 acmeClientPorts: 5544, 80, 8800
+
+keycloak:
+  enabled: false

@@ -40,8 +40,9 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.time.Duration;
 import java.time.Instant;
-import java.util.Optional;
+import java.util.*;
 
 import de.trustable.ca3s.core.domain.AcmeAuthorization;
 import de.trustable.ca3s.core.domain.AcmeOrder;
@@ -50,7 +51,6 @@ import de.trustable.ca3s.core.repository.AcmeOrderRepository;
 import org.jose4j.jwt.consumer.JwtContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -70,6 +70,13 @@ import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.ACMEUtil;
 import de.trustable.ca3s.core.service.util.PreferenceUtil;
+import org.xbill.DNS.*;
+
+import javax.validation.constraints.NotNull;
+
+import static org.xbill.DNS.Name.*;
+import static org.xbill.DNS.Type.TXT;
+import static org.xbill.DNS.Type.string;
 
 
 @Controller
@@ -78,18 +85,32 @@ public class ChallengeController extends ACMEController {
 
     private static final Logger LOG = LoggerFactory.getLogger(ChallengeController.class);
 
+    public static final Name ACME_CHALLENGE_PREFIX = fromConstantString("_acme-challenge");
+
     @Value("${ca3s.acme.reject.get:true}")
     boolean rejectGet;
 
-    @Autowired
-    private AcmeChallengeRepository challengeRepository;
+    private final AcmeChallengeRepository challengeRepository;
 
-    @Autowired
-    private AcmeOrderRepository orderRepository;
+    private final AcmeOrderRepository orderRepository;
 
-    @Autowired
-	private PreferenceUtil preferenceUtil;
+	private final PreferenceUtil preferenceUtil;
 
+    private final SimpleResolver dnsResolver;
+
+    public ChallengeController(AcmeChallengeRepository challengeRepository,
+                               AcmeOrderRepository orderRepository,
+                               PreferenceUtil preferenceUtil,
+                               @Value("${ca3s.dns.server:}") String resolverHost,
+                               @Value("${ca3s.dns.port:53}") int resolverPort) throws UnknownHostException {
+        this.challengeRepository = challengeRepository;
+        this.orderRepository = orderRepository;
+        this.preferenceUtil = preferenceUtil;
+
+        this.dnsResolver = new SimpleResolver(resolverHost);
+        this.dnsResolver.setPort(resolverPort);
+        LOG.info("Applying default DNS resolver {}", this.dnsResolver.getAddress());
+    }
 
     @RequestMapping(value = "/{challengeId}", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getChallenge(@PathVariable final long challengeId) {
@@ -154,37 +175,47 @@ public class ChallengeController extends ACMEController {
                 LOG.debug( "checking challenge {}", challengeDao.getId());
 
                 boolean solved = false;
-                if( "http-01".equals(challengeDao.getType())){
-                    solved = checkChallengeHttp(challengeDao);
-
-                    if( solved) {
-                        challengeDao.setStatus(ChallengeStatus.VALID);
-                    }else {
-                        challengeDao.setStatus(ChallengeStatus.INVALID);
+                ChallengeStatus newChallengeState = null;
+                if( AcmeChallenge.CHALLENGE_TYPE_HTTP_01.equals(challengeDao.getType())) {
+                    if (checkChallengeHttp(challengeDao)) {
+                        newChallengeState = ChallengeStatus.VALID;
+                        solved = true;
+                    } else {
+                        newChallengeState = ChallengeStatus.INVALID;
                     }
-
-                    challengeDao.setValidated(Instant.now());
-                    challengeRepository.save(challengeDao);
-
-                    LOG.debug("challengeDao set to '{}' at {}", challengeDao.getStatus().toString(), challengeDao.getValidated());
-
+                }else if( AcmeChallenge.CHALLENGE_TYPE_DNS_01.equals(challengeDao.getType())){
+                    if (checkChallengeDNS(challengeDao)) {
+                        newChallengeState = ChallengeStatus.VALID;
+                        solved = true;
+                    } else {
+                        newChallengeState = ChallengeStatus.INVALID;
+                    }
                 }else{
                     LOG.warn("Unexpected type '{}' of challenge{}", challengeDao.getType(), challengeId);
+                }
+
+                if( newChallengeState != null) {
+                    ChallengeStatus oldChallengeState = challengeDao.getStatus();
+                    if(!oldChallengeState.equals(newChallengeState)) {
+                        challengeDao.setStatus(newChallengeState);
+                        challengeDao.setValidated(Instant.now());
+                        challengeRepository.save(challengeDao);
+
+                        LOG.debug("{} challengeDao set to '{}' at {}", challengeDao.getType(), challengeDao.getStatus().toString(), challengeDao.getValidated());
+                    }
                 }
 
                 alignOrderState(order);
 
                 ChallengeResponse challenge = buildChallengeResponse(challengeDao);
 
-
                 if( solved) {
                     URI authUri = locationUriOfAuthorization(challengeDao.getAcmeAuthorization().getAcmeAuthorizationId(), fromCurrentRequestUri());
                     additionalHeaders.set("Link", "<" + authUri.toASCIIString() + ">;rel=\"up\"");
-                    return ok().headers(additionalHeaders).body(challenge);
                 }else {
                     LOG.warn("validation of challenge{} of type '{}' failed", challengeId, challengeDao.getType());
-                    return ResponseEntity.badRequest().headers(additionalHeaders).body(challenge);
                 }
+                return ok().headers(additionalHeaders).body(challenge);
             }
 
         } catch (AcmeProblemException e) {
@@ -211,22 +242,22 @@ public class ChallengeController extends ACMEController {
         */
         for (AcmeAuthorization authDao : orderDao.getAcmeAuthorizations()) {
 
-          boolean authReady = false;
-          for (AcmeChallenge challDao : authDao.getChallenges()) {
-              if (challDao.getStatus() == ChallengeStatus.VALID) {
-                  LOG.debug("challenge {} of type {} is valid ", challDao.getChallengeId(), challDao.getType());
-                  authReady = true;
-                  break;
-              }
-          }
-          if (authReady) {
-              LOG.debug("found valid challenge, authorization id {} is valid ", authDao.getAcmeAuthorizationId());
-          } else {
-              LOG.debug("no valid challange, authorization id {} and order {} fails ",
-                  authDao.getAcmeAuthorizationId(), orderDao.getOrderId());
-              orderReady = false;
-              break;
-          }
+            boolean authReady = false;
+            for (AcmeChallenge challDao : authDao.getChallenges()) {
+                if (challDao.getStatus() == ChallengeStatus.VALID) {
+                    LOG.debug("challenge {} of type {} is valid ", challDao.getChallengeId(), challDao.getType());
+                    authReady = true;
+                    break;
+                }
+            }
+            if (authReady) {
+                LOG.debug("found valid challenge, authorization id {} is valid ", authDao.getAcmeAuthorizationId());
+            } else {
+                LOG.debug("no valid challange, authorization id {} and order {} fails ",
+                    authDao.getAcmeAuthorizationId(), orderDao.getOrderId());
+                orderReady = false;
+                break;
+            }
         }
         if( orderReady ){
           LOG.debug("order status set to READY" );
@@ -235,7 +266,63 @@ public class ChallengeController extends ACMEController {
         }
     }
 
-	private boolean checkChallengeHttp(AcmeChallenge challengeDao) {
+    private boolean checkChallengeDNS(AcmeChallenge challengeDao) {
+
+        String identifierValue = challengeDao.getValue();
+        String token = challengeDao.getToken();
+
+        final Name nameToLookup;
+        try {
+            final Name nameOfIdentifier = fromString(identifierValue, root);
+            nameToLookup = concatenate(ACME_CHALLENGE_PREFIX, nameOfIdentifier);
+
+        } catch (TextParseException | NameTooLongException e) {
+            throw new RuntimeException(identifierValue + " invalid", e);
+        }
+
+        final Lookup lookupOperation = new Lookup(nameToLookup, TXT);
+        lookupOperation.setResolver(dnsResolver);
+        lookupOperation.setCache(null);
+        LOG.info("DNS lookup: {} records of '{}' (via resolver '{}')", string(TXT), nameToLookup, this.dnsResolver.getAddress());
+
+        final Instant startedAt = Instant.now();
+        final org.xbill.DNS.Record[] lookupResult = lookupOperation.run();
+        final Duration lookupDuration = Duration.between(startedAt, Instant.now());
+        LOG.info("DNS lookup yields: {} (took {})", Arrays.toString(lookupResult), lookupDuration);
+
+        final Collection<String> retrievedToken = extractTokenFrom(lookupResult);
+        if (retrievedToken.isEmpty()) {
+            LOG.info("Found no DNS entry solving '{}'", identifierValue);
+            return false;
+        } else {
+            final boolean matchingDnsEntryFound = retrievedToken.stream().anyMatch(token::equals);
+            if (matchingDnsEntryFound) {
+                return true;
+            } else {
+                LOG.info("Did not find matching token '{}' in TXT record DNS response", token);
+                return false;
+            }
+        }
+    }
+
+    /**
+     * @param lookupResult Optional
+     * @return Never <code>null</code>
+     */
+    private @NotNull List<String> extractTokenFrom(final Record[] lookupResult) {
+
+        List<String> tokenList = new ArrayList<>();
+        if( lookupResult != null) {
+            for (Record record : lookupResult) {
+                LOG.debug("Found DNS entry solving '{}'", record);
+                tokenList.addAll(((TXTRecord) record).getStrings());
+            }
+        }
+        return tokenList;
+    }
+
+
+    private boolean checkChallengeHttp(AcmeChallenge challengeDao) {
 
 		int[] ports = {80, 5544, 8800};
 
