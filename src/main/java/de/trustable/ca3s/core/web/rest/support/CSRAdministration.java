@@ -115,9 +115,7 @@ public class CSRAdministration {
 
     		}else if(AdministrationType.REJECT.equals(adminData.getAdministrationType())){
 
-    			csr.setRejectionReason(adminData.getRejectionReason());
-    			csr.setRejectedOn(Instant.now());
-    			csr.setStatus(CsrStatus.REJECTED);
+    			csrUtil.setStatusAndRejectionReason(csr, CsrStatus.REJECTED, adminData.getRejectionReason());
     			csrRepository.save(csr);
 
     			Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());
@@ -183,11 +181,8 @@ public class CSRAdministration {
             csr.setAdministeredBy(userName);
             updateComment(adminData, csr);
 
-            csr.setRejectionReason(adminData.getRejectionReason());
-            csr.setRejectedOn(Instant.now());
-            csr.setStatus(CsrStatus.REJECTED);
+            csrUtil.setStatusAndRejectionReason(csr, CsrStatus.REJECTED, adminData.getRejectionReason());
             csrRepository.save(csr);
-
             auditService.saveAuditTrace(auditService.createAuditTraceCsrRejected(csr));
 
             return new ResponseEntity<>(adminData.getCsrId(), HttpStatus.OK);

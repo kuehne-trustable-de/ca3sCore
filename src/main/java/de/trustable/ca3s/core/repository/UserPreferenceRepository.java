@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.NamedQuery;
+
 
 /**
  * Spring Data  repository for the UserPreference entity.
@@ -22,5 +24,8 @@ public interface UserPreferenceRepository extends JpaRepository<UserPreference, 
 
 	@Query(name = "UserPreference.findByNameforUser")
 	Optional<UserPreference> findByNameforUser(@Param("name") String name, @Param("userId") Long userId);
+
+    @Query(name = "UserPreference.findByNameContent")
+    List<UserPreference> findByNameContent(@Param("name") String name,@Param("content") String content);
 
 }

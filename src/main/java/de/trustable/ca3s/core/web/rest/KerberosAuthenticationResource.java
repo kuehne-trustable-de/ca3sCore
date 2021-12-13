@@ -42,7 +42,14 @@ public class KerberosAuthenticationResource {
      */
     @GetMapping("/authenticatedUser")
     public ResponseEntity<String> getAuthenticatedUser(HttpServletRequest request) {
-        log.info("REST request to check if the current user is (kerberos) authenticated. User {}, Principal {}, authType {}",
+
+        if( request.getUserPrincipal() == null){
+            // not authenticated, yet
+            log.info("Not authenticated");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        log.info("REST request to check if the current user is authenticated. User {}, Principal {}, authType {}",
             request.getRemoteUser(), request.getUserPrincipal().getName(), request.getAuthType());
 
         SecurityContext securityContext = SecurityContextHolder.getContext();

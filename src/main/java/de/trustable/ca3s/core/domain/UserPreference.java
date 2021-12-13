@@ -24,15 +24,22 @@ import javax.validation.constraints.NotNull;
 	query = "SELECT up FROM UserPreference up WHERE " +
 			"up.userId = :userId"
     ),
-	@NamedQuery(name = "UserPreference.findByNameforUser",
-	query = "SELECT up FROM UserPreference up WHERE " +
-			"up.name = :name and " +
-			"up.userId = :userId"
+    @NamedQuery(name = "UserPreference.findByNameforUser",
+        query = "SELECT up FROM UserPreference up WHERE " +
+            "up.name = :name and " +
+            "up.userId = :userId"
+    ),
+    @NamedQuery(name = "UserPreference.findByNameContent",
+        query = "SELECT up FROM UserPreference up WHERE " +
+            "up.name = :name and " +
+            "up.content = :content"
     )
 })
 public class UserPreference implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    public static final String USER_PREFERENCE_KEYCLOAK_ID = "KEYCLOAK_ID";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,7 +53,7 @@ public class UserPreference implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
 
-    
+
     @Lob
     @Column(name = "content", nullable = false)
     private String content;

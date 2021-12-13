@@ -146,6 +146,8 @@ jhipster:
     ehcache: # Ehcache configuration
       time-to-live-seconds: 3600 # By default objects stay 1 hour in the cache
       max-entries: 1000 # Number of objects in each cache entry
+#  cors:
+#    allowed-origins: '*'
   security:
     authentication:
       jwt:
@@ -212,15 +214,17 @@ ca3s:
 # if only one language is selected, the user form for selection is disabled / hidden.
 #    languages: de
 # provide a custom image for the upper left corner of the user interface
+# Remark: PNG format, only
 #    logo: custom_logo.png
 
 #  help:
 #    en: /var/help/custom_help_en.md
 #    de: /var/help/custom_help_de.md
 
-#  dns:
+  dns:
 #    server: 8.8.8.8
-#    port: 53
+    server: 213.133.106.251
+    port: 53
 
   https:
     certificate:
@@ -246,3 +250,19 @@ ca3s:
       group-search-base: (| (userPrincipalName={0}) (sAMAccountName={0}))
       principal: cn=alice,ou=people,dc=testLDAP,dc=eu
       password: s3cr3t
+
+# check your configuration with e.g.
+# http://keycloak-server/auth/realms/ca3sRealm/.well-known/openid-configuration
+  oidc:
+
+    client-id: ca3s
+    client-secret: 197bc3b4-64b0-452f-9bdb-fcaea0988e90
+    scope: openid, profile
+    authorization-grant-type: password
+
+    authorization-uri: http://keycloak.trustable.eu:50080/auth/realms/ca3sRealm/protocol/openid-connect/auth
+    user-info-uri: http://keycloak.trustable.eu:50080/auth/realms/ca3sRealm/protocol/openid-connect/userinfo
+    token-uri: http://keycloak.trustable.eu:50080/auth/realms/ca3sRealm/protocol/openid-connect/token
+    logout: http://keycloak.trustable.eu:50080/auth/realms/ca3sRealm/protocol/openid-connect/logout
+    jwk-set-uri: http://keycloak.trustable.eu:50080/auth/realms/ca3sRealm/protocol/openid-connect/certs
+    certs-id: vdaec4Br3ZnRFtZN-pimK9v1eGd3gL2MHu8rQ6M5SiE

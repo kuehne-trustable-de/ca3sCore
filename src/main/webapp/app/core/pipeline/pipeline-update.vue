@@ -303,7 +303,7 @@
                         <input type="checkbox" class="form-check-inline" name="allowChallengeDNS" id="pipeline-allowChallengeDNS" v-model="pipeline.acmeConfigItems.allowChallengeDNS" />
 
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.allowWildcards')" for="pipeline-allowWildcards">Allow Wildcards</label>
-                        <input type="checkbox" class="form-check-inline" name="allowWildcards" id="pipeline-allowWildcards" v-model="pipeline.acmeConfigItems.allowWildcards" />
+                        <input type="checkbox" class="form-check-inline" :disabled="pipeline.acmeConfigItems.allowChallengeDNS == false"  name="allowWildcards" id="pipeline-allowWildcards" v-model="pipeline.acmeConfigItems.allowWildcards" />
 
                     </div>
                     <div v-if="$v.pipeline.type.$model === 'ACME'" class="form-inline">

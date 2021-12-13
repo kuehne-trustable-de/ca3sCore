@@ -127,6 +127,10 @@ export default class PipelineUpdate extends Vue {
           this.pipeline.name = 'Copy of ' + this.pipeline.name;
           this.pipeline.id = null;
         }
+        if (!this.pipeline.acmeConfigItems.allowChallengeDNS) {
+          this.pipeline.acmeConfigItems.allowChallengeHTTP01 = true;
+          this.pipeline.acmeConfigItems.allowWildcards = false;
+        }
         if (this.pipeline.araRestrictions && this.pipeline.araRestrictions.length > 0) {
           window.console.info('pipeline.araRestrictions.length' + this.pipeline.araRestrictions.length);
         } else {

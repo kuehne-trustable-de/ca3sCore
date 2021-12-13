@@ -1,14 +1,23 @@
 import Component from 'vue-class-component';
 import { Inject, Vue } from 'vue-property-decorator';
 import LoginService from '@/account/login.service';
+import AccountService from '@/account/account.service';
 
 // import VueAxios from 'vue-axios'
 // Vue.use(VueAxios, axios)
 
+/*
+ *
+ * Currently this class is not active!!
+ * The code section for this apge is includedn the vue file, directly!
+ *
+ */
 @Component
 export default class Home extends Vue {
   @Inject('loginService')
   private loginService: () => LoginService;
+
+  @Inject('accountService') private accountService: () => AccountService;
 
   public openLogin(): void {
     this.loginService().openLogin((<any>this).$root);
@@ -20,6 +29,23 @@ export default class Home extends Vue {
 
   public get username(): string {
     return this.$store.getters.account ? this.$store.getters.account.login : '';
+  }
+
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      window.console.info('################ to.params : ' + to.params.bearer);
+    });
+  }
+
+  public mounted(): void {
+    window.console.info('++++++++++++++++++ route.query : ' + this.$route.query.bearer);
+
+    const token: string = this.$route.query.bearer[0];
+    if (token) {
+      window.console.info('setting bearer token to local storage : ' + token);
+      localStorage.setItem('jhi-authenticationToken', token);
+      this.accountService().retrieveAccount();
+    }
   }
 
   public get chartdata(): Object {
@@ -42,16 +68,20 @@ export default class Home extends Vue {
     };
   }
 
-  el() { return '#vue-home'; }
+  el() {
+    return '#vue-home';
+  }
 
   data() {
     return {
-        chartData: {
-            type: 'line',
-            series: [{
-                values: [4, 5, 3, 3, 4, 4]
-            }]
-        }
+      chartData: {
+        type: 'line',
+        series: [
+          {
+            values: [4, 5, 3, 3, 4, 4]
+          }
+        ]
+      }
     };
   }
 }

@@ -3,6 +3,7 @@ import { VERSION } from '@/constants';
 import LoginService from '@/account/login.service';
 import AccountService from '@/account/account.service';
 import TranslationService from '@/locale/translation.service';
+import axios from 'axios';
 
 @Component
 export default class JhiNavbar extends Vue {
@@ -18,10 +19,15 @@ export default class JhiNavbar extends Vue {
 
   public beforeRouteEnter(to, from, next) {
     next(vm => {
+      window.console.info('################ to.params : ' + to.params.bearer);
       console.log('JhiNavbar beforeRouteEnter : ' + to.params.showNavBar);
       if (to.params.showNavBar) {
       }
     });
+  }
+
+  public mounted(): void {
+    window.console.info('++++++++++++++++++ route.query : ' + this.$route.query.bearer);
   }
 
   async created() {
@@ -71,6 +77,28 @@ export default class JhiNavbar extends Vue {
 
   public openLogin(): void {
     this.loginService().openLogin((<any>this).$root);
+  }
+
+  public doOIDCLogin(): void {
+    axios
+      .get('oidc/authenticate')
+      .then(result => {
+        const location = result.headers.location;
+        if (location) {
+          window.console.info('forwarding to OIDC authentication url.');
+          window.location.href = location;
+        }
+
+        const bearerToken = result.headers.authorization;
+        if (bearerToken && bearerToken.slice(0, 7) === 'Bearer ') {
+          const jwt = bearerToken.slice(7, bearerToken.length);
+          localStorage.setItem('jhi-authenticationToken', jwt);
+        }
+        this.accountService().retrieveAccount();
+      })
+      .catch(() => {
+        window.console.warn('problem doing OIDC authentication.');
+      });
   }
 
   public get authenticated(): boolean {

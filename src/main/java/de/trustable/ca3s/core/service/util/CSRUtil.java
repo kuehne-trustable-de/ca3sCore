@@ -558,13 +558,22 @@ public class CSRUtil {
 	 * @param csrDao
 	 * @param status
 	 */
-	public void setStatus(CSR csrDao, CsrStatus status) {
-		csrDao.setStatus(status);
-		csrRepository.save(csrDao);
-	}
+    public void setStatus(CSR csrDao, CsrStatus status) {
+        csrDao.setStatus(status);
+        csrRepository.save(csrDao);
+    }
 
 
-	/**
+    public void setStatusAndRejectionReason(CSR csr, CsrStatus status, String reason) {
+        csr.setStatus(status);
+        csr.setStatus(status);
+        csr.setRejectedOn(Instant.now());
+        csr.setRejectionReason(CryptoUtil.limitLength(reason, 250));
+        csrRepository.save(csr);
+    }
+
+
+    /**
 	 *
 	 * @param csrDao
 	 * @param name

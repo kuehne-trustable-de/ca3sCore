@@ -556,6 +556,12 @@ public class PipelineUtil {
 			ACMEConfigItems acmeConfigItems = new ACMEConfigItems();
 			pv.setAcmeConfigItems(acmeConfigItems );
 		}
+
+		// ensure that at least HTTP-01 challenge is available
+		if( !pv.getAcmeConfigItems().isAllowChallengeDNS()){
+            pv.getAcmeConfigItems().setAllowChallengeHTTP01(true);
+            pv.getAcmeConfigItems().setAllowWildcards(false);
+        }
 		addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_HTTP01,pv.getAcmeConfigItems().isAllowChallengeHTTP01());
 		addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_DNS,pv.getAcmeConfigItems().isAllowChallengeDNS());
 		addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_WILDCARDS,pv.getAcmeConfigItems().isAllowWildcards());

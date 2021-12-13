@@ -16,6 +16,26 @@ export default class AccountService {
   }
 
   public init(): void {
+    window.console.info('++++++++ AccountService.init : ');
+
+    this.router.beforeEach((to, from, next) => {
+      window.console.info('++++++++++++++++++ to.query.bearer : ' + to.query.bearer);
+      const token = to.query.bearer;
+      if (token) {
+        window.console.info('setting bearer token to local storage : ' + token);
+        localStorage.setItem('jhi-authenticationToken', '' + token);
+        this.retrieveAccount();
+      }
+      next();
+    });
+    /*
+    const token = this.$route.query.bearer;
+    if (token) {
+      window.console.info('setting bearer token to local storage : ' + token);
+      localStorage.setItem('jhi-authenticationToken', token);
+      this.AccountService().retrieveAccount();
+    }
+*/
     const token = localStorage.getItem('jhi-authenticationToken') || sessionStorage.getItem('jhi-authenticationToken');
     if (!this.store.getters.account && !this.store.getters.logon && token) {
       this.retrieveAccount();

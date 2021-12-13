@@ -280,6 +280,10 @@
                         <font-awesome-icon icon="sign-out-alt" />
                         <span v-text="$t('global.menu.account.logout')">Sign out</span>
                     </b-dropdown-item>
+                    <b-dropdown-item v-if="!authenticated"  v-on:click="doOIDCLogin()" id="oidcLogin">
+                        <font-awesome-icon icon="sign-in-alt" />
+                        <span v-text="$t('global.menu.account.SSOLogin')">SSO Login</span>
+                    </b-dropdown-item>
                     <b-dropdown-item v-if="!authenticated"  v-on:click="openLogin()" id="login">
                         <font-awesome-icon icon="sign-in-alt" />
                         <span v-text="$t('global.menu.account.login')">Sign in</span>

@@ -1,48 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>0.1.25</version>
+    <version>0.1.26</version>
     <packaging>jar</packaging>
 
 
     <name>ca3s core</name>
     <description>ca3s offers a unified view and administrative interface for your certificate landscape.
-    It's a CA system with a flexible RA part based on BPM. backed by a CMP-connected CA or an ADCS. Offers automatic certificate distribution interfaces (like ACME and SCEP) for CAs that don't offer such interfaces.
-    Brushed-up codebase of the sourceforge's ca3s-project ([https://sourceforge.net/projects/ca3s/]</description>
+        It's a CA system with a flexible RA part based on BPM. backed by a CMP-connected CA or an ADCS. Offers automatic
+        certificate distribution interfaces (like ACME and SCEP) for CAs that don't offer such interfaces.
+        Brushed-up codebase of the sourceforge's ca3s-project ([https://sourceforge.net/projects/ca3s/]
+    </description>
     <url>https://github.com/kuehne-trustable-de/ca3sCore</url>
 
 
-	<licenses>
-		<license>
-			<name>European Union Public Licence (EUPL-1.2)</name>
-			<url>https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12</url>
-		</license>
-	</licenses>
+    <licenses>
+        <license>
+            <name>European Union Public Licence (EUPL-1.2)</name>
+            <url>https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12</url>
+        </license>
+    </licenses>
 
-	<developers>
-		<developer>
-			<name>Andreas Kuehne</name>
-			<email>kuehne@trustable.de</email>
-			<organization>trustable solutions UG</organization>
-			<organizationUrl>https://trustable.de</organizationUrl>
-		</developer>
-		<developer>
-			<name>Damian Wabisch</name>
-			<email>damian@trustable.de</email>
-			<organization>trustable solutions UG</organization>
-			<organizationUrl>https://trustable.de</organizationUrl>
-		</developer>
-	</developers>
+    <developers>
+        <developer>
+            <name>Andreas Kuehne</name>
+            <email>kuehne@trustable.de</email>
+            <organization>trustable solutions UG</organization>
+            <organizationUrl>https://trustable.de</organizationUrl>
+        </developer>
+        <developer>
+            <name>Damian Wabisch</name>
+            <email>damian@trustable.de</email>
+            <organization>trustable solutions UG</organization>
+            <organizationUrl>https://trustable.de</organizationUrl>
+        </developer>
+    </developers>
 
-	<scm>
-		<connection>https://github.com/kuehne-trustable-de/ca3sCore.git</connection>
-		<developerConnection>https://github.com/kuehne-trustable-de/ca3sCore.git</developerConnection>
-		<url>https://github.com/kuehne-trustable-de/ca3sCore.git</url>
-	</scm>
+    <scm>
+        <connection>https://github.com/kuehne-trustable-de/ca3sCore.git</connection>
+        <developerConnection>https://github.com/kuehne-trustable-de/ca3sCore.git</developerConnection>
+        <url>https://github.com/kuehne-trustable-de/ca3sCore.git</url>
+    </scm>
 
     <repositories>
         <!-- jhipster-needle-maven-repository -->
@@ -73,9 +76,9 @@
         <packaging.executable>false</packaging.executable>
 
         <!-- These remain empty unless the corresponding profile is active -->
-        <profile.no-liquibase />
-        <profile.swagger />
-        <profile.tls />
+        <profile.no-liquibase/>
+        <profile.swagger/>
+        <profile.tls/>
 
         <!-- Dependency versions -->
         <jhipster-dependencies.version>3.9.1</jhipster-dependencies.version>
@@ -137,35 +140,35 @@
         <junit.itReportFolder>${project.testresult.directory}/integrationTest</junit.itReportFolder>
         <!-- jhipster-needle-maven-property -->
 
-        <keycloak-adapter-bom.version>13.0.1</keycloak-adapter-bom.version>
+        <keycloak.version>15.0.2</keycloak.version>
 
         <bouncyCastleVersion>1.68</bouncyCastleVersion>
         <cryptoUtilVersion>1.2.0</cryptoUtilVersion>
         <certBundleVersion>1.1.1</certBundleVersion>
-    	<nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
-    	<adcsUtilVersion>1.2.0</adcsUtilVersion>
-		<adcsProxyClientVersion>1.2.1</adcsProxyClientVersion>
+        <nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
+        <adcsUtilVersion>1.2.0</adcsUtilVersion>
+        <adcsProxyClientVersion>1.2.1</adcsProxyClientVersion>
 
-		<webSocketDTOVersion>0.0.1-SNAPSHOT</webSocketDTOVersion>
+        <webSocketDTOVersion>0.0.1-SNAPSHOT</webSocketDTOVersion>
 
         <nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
-       	<jose4jVersion>0.7.6</jose4jVersion>
-       	<acme4jVersion>2.11</acme4jVersion>
-       	<takesVersion>1.16</takesVersion>
-   		<jscepVersion>2.5.4</jscepVersion>
-   		<jasyptVersion>1.9.3</jasyptVersion>
+        <jose4jVersion>0.7.6</jose4jVersion>
+        <acme4jVersion>2.11</acme4jVersion>
+        <takesVersion>1.16</takesVersion>
+        <jscepVersion>2.5.4</jscepVersion>
+        <jasyptVersion>1.9.3</jasyptVersion>
 
         <dnsjava.version>3.4.2</dnsjava.version>
 
         <opencsvVersion>5.4</opencsvVersion>
 
         <kerberosCoreVersion>1.0.1.RELEASE</kerberosCoreVersion>
-	    <kerberosWebVersion>1.0.1.RELEASE</kerberosWebVersion>
-	    <kerberosClientVersion>1.0.1.RELEASE</kerberosClientVersion>
+        <kerberosWebVersion>1.0.1.RELEASE</kerberosWebVersion>
+        <kerberosClientVersion>1.0.1.RELEASE</kerberosClientVersion>
 
-		<commonsValidatorVersion>1.7</commonsValidatorVersion>
+        <commonsValidatorVersion>1.7</commonsValidatorVersion>
 
-		<typescriptGeneratorVersion>2.19.577</typescriptGeneratorVersion>
+        <typescriptGeneratorVersion>2.19.577</typescriptGeneratorVersion>
 
         <!-- start-class>camunda.transformation.pipeline.CamundaTransformationPipelineApp</start-class-->
         <camunda.version>7.12.0</camunda.version>
@@ -175,7 +178,7 @@
         <!-- camunda.spring-boot.version>3.4.0</camunda.spring-boot.version-->
         <camunda.spring-boot.version>3.2.0</camunda.spring-boot.version>
 
-		<crawler4jVersion>4.4.0</crawler4jVersion>
+        <crawler4jVersion>4.4.0</crawler4jVersion>
         <flexmarkVersion>0.62.2</flexmarkVersion>
 
         <conductorVersion>3.0.1</conductorVersion>
@@ -210,15 +213,6 @@
             </dependency>
 
             <!-- jhipster-needle-maven-add-dependency-management -->
-
-            <dependency>
-                <groupId>org.keycloak.bom</groupId>
-                <artifactId>keycloak-adapter-bom</artifactId>
-                <!--version>15.0.2</version-->
-                <version>${keycloak-adapter-bom.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
 
             <dependency>
                 <groupId>mysql</groupId>
@@ -312,6 +306,11 @@
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-messaging</artifactId>
+                <version>${spring.security.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-openid</artifactId>
                 <version>${spring.security.version}</version>
             </dependency>
 
@@ -544,10 +543,29 @@
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
 
-        <dependency>
+        <!--dependency>
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-spring-boot-starter</artifactId>
+        </dependency-->
+
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-core</artifactId>
+            <version>${keycloak.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-common</artifactId>
+            <version>${keycloak.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-adapter-core</artifactId>
+            <version>${keycloak.version}</version>
+        </dependency>
+
 
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
@@ -725,6 +743,10 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-openid</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
@@ -757,6 +779,17 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <!-- Spring Security OAuth 2.0 -->
+        <!--dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency-->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-test</artifactId>
@@ -887,55 +920,55 @@
         </dependency>
 
 
-		<dependency>
-  			<groupId>de.trustable.ca3s</groupId>
-			<artifactId>CertificateBundle</artifactId>
-			<version>${certBundleVersion}</version>
-		</dependency>
+        <dependency>
+            <groupId>de.trustable.ca3s</groupId>
+            <artifactId>CertificateBundle</artifactId>
+            <version>${certBundleVersion}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>de.trustable</groupId>
-			<artifactId>cryptoUtil</artifactId>
-			<version>${cryptoUtilVersion}</version>
-		</dependency>
+        <dependency>
+            <groupId>de.trustable</groupId>
+            <artifactId>cryptoUtil</artifactId>
+            <version>${cryptoUtilVersion}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>de.trustable.ca3s</groupId>
-			<artifactId>adcsCertUtil</artifactId>
-			<version>${adcsUtilVersion}</version>
-		</dependency>
+        <dependency>
+            <groupId>de.trustable.ca3s</groupId>
+            <artifactId>adcsCertUtil</artifactId>
+            <version>${adcsUtilVersion}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>de.trustable.ca3s</groupId>
-			<artifactId>adcsProxyClient</artifactId>
-			<version>${adcsProxyClientVersion}</version>
-		</dependency>
+        <dependency>
+            <groupId>de.trustable.ca3s</groupId>
+            <artifactId>adcsProxyClient</artifactId>
+            <version>${adcsProxyClientVersion}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>de.trustable.ca3s</groupId>
-			<artifactId>ca3sWebSocketDTO</artifactId>
-			<version>${webSocketDTOVersion}</version>
-		</dependency>
+        <dependency>
+            <groupId>de.trustable.ca3s</groupId>
+            <artifactId>ca3sWebSocketDTO</artifactId>
+            <version>${webSocketDTOVersion}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>com.nimbusds</groupId>
-			<artifactId>nimbus-jose-jwt</artifactId>
-			<version>${nimbus-jose-jwt-version}</version>
-		</dependency>
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+            <version>${nimbus-jose-jwt-version}</version>
+        </dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.bitbucket.b_c/jose4j -->
-		<dependency>
-			<groupId>org.bitbucket.b_c</groupId>
-			<artifactId>jose4j</artifactId>
-			<version>${jose4jVersion}</version>
-		</dependency>
+        <!-- https://mvnrepository.com/artifact/org.bitbucket.b_c/jose4j -->
+        <dependency>
+            <groupId>org.bitbucket.b_c</groupId>
+            <artifactId>jose4j</artifactId>
+            <version>${jose4jVersion}</version>
+        </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.google.code.jscep/jscep -->
-		<dependency>
-		    <groupId>com.google.code.jscep</groupId>
-		    <artifactId>jscep</artifactId>
-		    <version>${jscepVersion}</version>
-		</dependency>
+        <dependency>
+            <groupId>com.google.code.jscep</groupId>
+            <artifactId>jscep</artifactId>
+            <version>${jscepVersion}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.opencsv</groupId>
@@ -943,58 +976,58 @@
             <version>${opencsvVersion}</version>
         </dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.springframework.security.kerberos/spring-security-kerberos-core -->
-		<dependency>
-		    <groupId>org.springframework.security.kerberos</groupId>
-		    <artifactId>spring-security-kerberos-core</artifactId>
-		    <version>${kerberosCoreVersion}</version>
-		</dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework.security.kerberos/spring-security-kerberos-core -->
+        <dependency>
+            <groupId>org.springframework.security.kerberos</groupId>
+            <artifactId>spring-security-kerberos-core</artifactId>
+            <version>${kerberosCoreVersion}</version>
+        </dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.springframework.security.kerberos/spring-security-kerberos-web -->
-		<dependency>
-		    <groupId>org.springframework.security.kerberos</groupId>
-		    <artifactId>spring-security-kerberos-web</artifactId>
-		    <version>${kerberosWebVersion}</version>
-		</dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework.security.kerberos/spring-security-kerberos-web -->
+        <dependency>
+            <groupId>org.springframework.security.kerberos</groupId>
+            <artifactId>spring-security-kerberos-web</artifactId>
+            <version>${kerberosWebVersion}</version>
+        </dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.springframework.security.kerberos/spring-security-kerberos-client -->
-		<dependency>
-		    <groupId>org.springframework.security.kerberos</groupId>
-		    <artifactId>spring-security-kerberos-client</artifactId>
-		    <version>${kerberosClientVersion}</version>
-		</dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework.security.kerberos/spring-security-kerberos-client -->
+        <dependency>
+            <groupId>org.springframework.security.kerberos</groupId>
+            <artifactId>spring-security-kerberos-client</artifactId>
+            <version>${kerberosClientVersion}</version>
+        </dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-ldap -->
-		<dependency>
-		    <groupId>org.springframework.security</groupId>
-		    <artifactId>spring-security-ldap</artifactId>
-		</dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-ldap -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-ldap</artifactId>
+        </dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.springframework.ldap/spring-ldap-core -->
-		<dependency>
-    		<groupId>org.springframework.ldap</groupId>
-    		<artifactId>spring-ldap-core</artifactId>
-    	</dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework.ldap/spring-ldap-core -->
+        <dependency>
+            <groupId>org.springframework.ldap</groupId>
+            <artifactId>spring-ldap-core</artifactId>
+        </dependency>
 
-	   <!-- https://mvnrepository.com/artifact/org.jasypt/jasypt -->
-		<dependency>
-		    <groupId>org.jasypt</groupId>
-		    <artifactId>jasypt</artifactId>
-		    <version>${jasyptVersion}</version>
-		</dependency>
+        <!-- https://mvnrepository.com/artifact/org.jasypt/jasypt -->
+        <dependency>
+            <groupId>org.jasypt</groupId>
+            <artifactId>jasypt</artifactId>
+            <version>${jasyptVersion}</version>
+        </dependency>
 
-		<!-- https://mvnrepository.com/artifact/commons-validator/commons-validator -->
-		<dependency>
-		    <groupId>commons-validator</groupId>
-		    <artifactId>commons-validator</artifactId>
-		    <version>${commonsValidatorVersion}</version>
-		</dependency>
+        <!-- https://mvnrepository.com/artifact/commons-validator/commons-validator -->
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>${commonsValidatorVersion}</version>
+        </dependency>
 
-		<!--dependency>
-			<groupId>edu.uci.ics</groupId>
-			<artifactId>crawler4j</artifactId>
-			<version>${crawler4jVersion}</version>
-		</dependency-->
+        <!--dependency>
+            <groupId>edu.uci.ics</groupId>
+            <artifactId>crawler4j</artifactId>
+            <version>${crawler4jVersion}</version>
+        </dependency-->
 
         <dependency>
             <groupId>com.vladsch.flexmark</groupId>
@@ -1002,24 +1035,24 @@
             <version>${flexmarkVersion}</version>
         </dependency>
 
-   <!--  start of test dependencies -->
-   		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <!--  start of test dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>org.shredzone.acme4j</groupId>
-			<artifactId>acme4j-client</artifactId>
-			<version>${acme4jVersion}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.shredzone.acme4j</groupId>
-			<artifactId>acme4j-utils</artifactId>
-			<version>${acme4jVersion}</version>
-			<scope>test</scope>
+        <dependency>
+            <groupId>org.shredzone.acme4j</groupId>
+            <artifactId>acme4j-client</artifactId>
+            <version>${acme4jVersion}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.shredzone.acme4j</groupId>
+            <artifactId>acme4j-utils</artifactId>
+            <version>${acme4jVersion}</version>
+            <scope>test</scope>
             <exclusions>
                 <exclusion>
                     <artifactId>bcpkix-jdk15on</artifactId>
@@ -1032,12 +1065,12 @@
             </exclusions>
         </dependency>
 
-		<dependency>
-		      <groupId>org.takes</groupId>
-		      <artifactId>takes</artifactId>
-			<version>${takesVersion}</version>
-			<scope>test</scope>
-    	</dependency>
+        <dependency>
+            <groupId>org.takes</groupId>
+            <artifactId>takes</artifactId>
+            <version>${takesVersion}</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.junit.platform</groupId>
@@ -1046,12 +1079,12 @@
             <scope>test</scope>
         </dependency>
 
-		<dependency>
-			<groupId>io.ddavison</groupId>
-			<artifactId>conductor</artifactId>
-			<version>${conductorVersion}</version>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>io.ddavison</groupId>
+            <artifactId>conductor</artifactId>
+            <version>${conductorVersion}</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.kerby</groupId>
@@ -1082,6 +1115,12 @@
             <groupId>org.zapodot</groupId>
             <artifactId>embedded-ldap-junit</artifactId>
             <version>${embedded-ldap.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -1226,21 +1265,21 @@
                 </configuration>
             </plugin>
             <plugin>
-				<groupId>cz.habarta.typescript-generator</groupId>
-				<artifactId>typescript-generator-maven-plugin</artifactId>
-				<version>${typescriptGeneratorVersion}</version>
-				<executions>
-					<execution>
-						<id>generate</id>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<phase>process-classes</phase>
-					</execution>
-				</executions>
-				<configuration>
-					<jsonLibrary>jackson2</jsonLibrary>
-					<classes>
+                <groupId>cz.habarta.typescript-generator</groupId>
+                <artifactId>typescript-generator-maven-plugin</artifactId>
+                <version>${typescriptGeneratorVersion}</version>
+                <executions>
+                    <execution>
+                        <id>generate</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <phase>process-classes</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <jsonLibrary>jackson2</jsonLibrary>
+                    <classes>
                         <class>de.trustable.ca3s.core.service.dto.CAStatus</class>
                         <class>de.trustable.ca3s.core.service.dto.CAConnectorStatus</class>
 
@@ -1249,152 +1288,163 @@
                         <class>de.trustable.ca3s.core.service.dto.AuditView</class>
                         <class>de.trustable.ca3s.core.service.dto.AuditTraceView</class>
                         <class>de.trustable.ca3s.core.service.dto.BPMNUpload</class>
-						<class>de.trustable.ca3s.core.service.dto.PipelineView</class>
-						<class>de.trustable.ca3s.core.service.dto.CertificateView</class>
-						<class>de.trustable.ca3s.core.service.dto.CSRView</class>
-						<class>de.trustable.ca3s.core.service.dto.Selector</class>
-						<class>de.trustable.ca3s.core.service.dto.Preferences</class>
+                        <class>de.trustable.ca3s.core.service.dto.PipelineView</class>
+                        <class>de.trustable.ca3s.core.service.dto.CertificateView</class>
+                        <class>de.trustable.ca3s.core.service.dto.CSRView</class>
+                        <class>de.trustable.ca3s.core.service.dto.Selector</class>
+                        <class>de.trustable.ca3s.core.service.dto.Preferences</class>
 
-						<class>de.trustable.ca3s.core.web.rest.data.CSRAdministrationData</class>
-						<class>de.trustable.ca3s.core.web.rest.data.CertificateAdministrationData</class>
+                        <class>de.trustable.ca3s.core.web.rest.data.CSRAdministrationData</class>
+                        <class>de.trustable.ca3s.core.web.rest.data.CertificateAdministrationData</class>
 
-						<class>de.trustable.ca3s.core.web.rest.data.UploadPrecheckData</class>
-						<class>de.trustable.ca3s.core.web.rest.data.X509CertificateHolderShallow</class>
-						<class>de.trustable.ca3s.core.web.rest.data.CertificateFilter</class>
-						<class>de.trustable.ca3s.core.web.rest.data.CertificateOrder</class>
-						<class>de.trustable.ca3s.core.web.rest.data.CertificateFilterList</class>
+                        <class>de.trustable.ca3s.core.web.rest.data.UploadPrecheckData</class>
+                        <class>de.trustable.ca3s.core.web.rest.data.X509CertificateHolderShallow</class>
+                        <class>de.trustable.ca3s.core.web.rest.data.CertificateFilter</class>
+                        <class>de.trustable.ca3s.core.web.rest.data.CertificateOrder</class>
+                        <class>de.trustable.ca3s.core.web.rest.data.CertificateFilterList</class>
 
-						<class>de.trustable.ca3s.core.web.rest.data.CertificateSelectionData</class>
-						<class>de.trustable.ca3s.core.web.rest.data.PkcsXXData</class>
-						<class>de.trustable.ca3s.core.web.rest.data.DataCollection</class>
+                        <class>de.trustable.ca3s.core.web.rest.data.CertificateSelectionData</class>
+                        <class>de.trustable.ca3s.core.web.rest.data.PkcsXXData</class>
+                        <class>de.trustable.ca3s.core.web.rest.data.DataCollection</class>
                         <class>de.trustable.ca3s.core.web.rest.data.DataSet</class>
                         <class>de.trustable.ca3s.core.web.rest.data.BpmnCheckResult</class>
 
-					</classes>
-					<addTypeNamePrefix>I</addTypeNamePrefix>
-					<optionalProperties>all</optionalProperties>
-					<outputKind>module</outputKind>
-					<outputFile>${project.build.directory}/generated-sources/typescript/transfer-object.model.ts</outputFile>
-					<outputFileType>implementationFile</outputFileType>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-gpg-plugin</artifactId>
-				<version>1.6</version>
-				<executions>
-					<execution>
-						<id>sign-artifacts</id>
-						<phase>deploy</phase>
-						<goals>
-							<goal>sign</goal>
-						</goals>
-						<configuration>
-							<keyname>${gpg.keyname}</keyname>
-							<passphraseServerId>${gpg.keyname}</passphraseServerId>
-							<gpgArguments>
-								<arg>--pinentry-mode</arg>
-								<arg>loopback</arg>
-							</gpgArguments>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+                    </classes>
+                    <addTypeNamePrefix>I</addTypeNamePrefix>
+                    <optionalProperties>all</optionalProperties>
+                    <outputKind>module</outputKind>
+                    <outputFile>${project.build.directory}/generated-sources/typescript/transfer-object.model.ts
+                    </outputFile>
+                    <outputFileType>implementationFile</outputFileType>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                        <configuration>
+                            <keyname>${gpg.keyname}</keyname>
+                            <passphraseServerId>${gpg.keyname}</passphraseServerId>
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
-		    <plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>xml-maven-plugin</artifactId>
-				<version>${xml.maven.plugin.version}</version>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xml-maven-plugin</artifactId>
+                <version>${xml.maven.plugin.version}</version>
 
-				<executions>
-					<execution>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>transform</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<transformationSets>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>transform</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <transformationSets>
 
-						<transformationSet>
-							<dir>./src/main/resources/config/liquibase</dir>
-							<stylesheet>./src/main/resources/stylesheet/alignLBSchemaVersion.xsl</stylesheet>
-							<outputDir>${project.build.directory}/classes/config/liquibase-3.5</outputDir>
-							<includes>*.xml</includes>
-							<parameters>
-								<parameter>
-									<name>LiquibaseTarget</name>
-									<value>http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd</value>
-								</parameter>
-							</parameters>
-						</transformationSet>
-						<transformationSet>
-							<dir>./src/main/resources/config/liquibase/changelog</dir>
-							<stylesheet>./src/main/resources/stylesheet/alignLBSchemaVersion.xsl</stylesheet>
-							<outputDir>${project.build.directory}/classes/config/liquibase-3.5/changelog</outputDir>
-							<includes>*.xml</includes>
-							<parameters>
-								<parameter>
-									<name>LiquibaseTarget</name>
-									<value>http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd</value>
-								</parameter>
-							</parameters>
-						</transformationSet>
+                        <transformationSet>
+                            <dir>./src/main/resources/config/liquibase</dir>
+                            <stylesheet>./src/main/resources/stylesheet/alignLBSchemaVersion.xsl</stylesheet>
+                            <outputDir>${project.build.directory}/classes/config/liquibase-3.5</outputDir>
+                            <includes>*.xml</includes>
+                            <parameters>
+                                <parameter>
+                                    <name>LiquibaseTarget</name>
+                                    <value>http://www.liquibase.org/xml/ns/dbchangelog
+                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                                    </value>
+                                </parameter>
+                            </parameters>
+                        </transformationSet>
+                        <transformationSet>
+                            <dir>./src/main/resources/config/liquibase/changelog</dir>
+                            <stylesheet>./src/main/resources/stylesheet/alignLBSchemaVersion.xsl</stylesheet>
+                            <outputDir>${project.build.directory}/classes/config/liquibase-3.5/changelog</outputDir>
+                            <includes>*.xml</includes>
+                            <parameters>
+                                <parameter>
+                                    <name>LiquibaseTarget</name>
+                                    <value>http://www.liquibase.org/xml/ns/dbchangelog
+                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                                    </value>
+                                </parameter>
+                            </parameters>
+                        </transformationSet>
 
 
-						<transformationSet>
-							<dir>./src/main/resources/config/liquibase</dir>
-							<stylesheet>./src/main/resources/stylesheet/adaptMasterLBForMSSQL.xsl</stylesheet>
-							<outputDir>${project.build.directory}/classes/config/liquibase-mssql</outputDir>
-							<includes>*.xml</includes>
-							<parameters>
-								<parameter>
-									<name>MssqlLiquibaseTarget</name>
-									<value>http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd</value>
-								</parameter>
-							</parameters>
-						</transformationSet>
-						<transformationSet>
-							<dir>./src/main/resources/config/liquibase/changelog</dir>
-							<stylesheet>./src/main/resources/stylesheet/adaptChangelogLBForMSSQL.xsl</stylesheet>
-							<outputDir>${project.build.directory}/classes/config/liquibase-mssql/changelog</outputDir>
-							<includes>00000000000000_initial_schema.xml</includes>
-							<parameters>
-								<parameter>
-									<name>MssqlLiquibaseTarget</name>
-									<value>http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd</value>
-								</parameter>
-								<parameter>
-									<name>InsertSequence</name>
-									<value>true</value>
-								</parameter>
-							</parameters>
-						</transformationSet>
-						<transformationSet>
-							<dir>./src/main/resources/config/liquibase/changelog</dir>
-							<stylesheet>./src/main/resources/stylesheet/adaptChangelogLBForMSSQL.xsl</stylesheet>
-							<outputDir>${project.build.directory}/classes/config/liquibase-mssql/changelog</outputDir>
-							<includes>*_added_*.xml, *_update_*.xml</includes>
+                        <transformationSet>
+                            <dir>./src/main/resources/config/liquibase</dir>
+                            <stylesheet>./src/main/resources/stylesheet/adaptMasterLBForMSSQL.xsl</stylesheet>
+                            <outputDir>${project.build.directory}/classes/config/liquibase-mssql</outputDir>
+                            <includes>*.xml</includes>
+                            <parameters>
+                                <parameter>
+                                    <name>MssqlLiquibaseTarget</name>
+                                    <value>http://www.liquibase.org/xml/ns/dbchangelog
+                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                                    </value>
+                                </parameter>
+                            </parameters>
+                        </transformationSet>
+                        <transformationSet>
+                            <dir>./src/main/resources/config/liquibase/changelog</dir>
+                            <stylesheet>./src/main/resources/stylesheet/adaptChangelogLBForMSSQL.xsl</stylesheet>
+                            <outputDir>${project.build.directory}/classes/config/liquibase-mssql/changelog</outputDir>
+                            <includes>00000000000000_initial_schema.xml</includes>
+                            <parameters>
+                                <parameter>
+                                    <name>MssqlLiquibaseTarget</name>
+                                    <value>http://www.liquibase.org/xml/ns/dbchangelog
+                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                                    </value>
+                                </parameter>
+                                <parameter>
+                                    <name>InsertSequence</name>
+                                    <value>true</value>
+                                </parameter>
+                            </parameters>
+                        </transformationSet>
+                        <transformationSet>
+                            <dir>./src/main/resources/config/liquibase/changelog</dir>
+                            <stylesheet>./src/main/resources/stylesheet/adaptChangelogLBForMSSQL.xsl</stylesheet>
+                            <outputDir>${project.build.directory}/classes/config/liquibase-mssql/changelog</outputDir>
+                            <includes>*_added_*.xml, *_update_*.xml</includes>
 
-							<parameters>
-								<parameter>
-									<name>MssqlLiquibaseTarget</name>
-									<value>http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd</value>
-								</parameter>
-							</parameters>
-						</transformationSet>
-					</transformationSets>
-				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>net.sf.saxon</groupId>
-						<artifactId>Saxon-HE</artifactId>
-						<version>${xml.maven.saxon.version}</version>
-					</dependency>
-				</dependencies>
+                            <parameters>
+                                <parameter>
+                                    <name>MssqlLiquibaseTarget</name>
+                                    <value>http://www.liquibase.org/xml/ns/dbchangelog
+                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                                    </value>
+                                </parameter>
+                            </parameters>
+                        </transformationSet>
+                    </transformationSets>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>net.sf.saxon</groupId>
+                        <artifactId>Saxon-HE</artifactId>
+                        <version>${xml.maven.saxon.version}</version>
+                    </dependency>
+                </dependencies>
 
-			</plugin>
+            </plugin>
 
             <plugin>
                 <groupId>org.owasp</groupId>
@@ -1408,8 +1458,12 @@
                     <nodeAnalyzerEnabled>false</nodeAnalyzerEnabled>
                     <skip>${dependencyCheck.skip}</skip>
                     <suppressionFiles>
-                        <suppressionFile>${project.basedir}/src/main/resources/config/dependency-suppression/suppression.xml</suppressionFile>
-                        <suppressionFile>${project.basedir}/src/main/resources/config/dependency-suppression/suppression_flexmark.xml</suppressionFile>
+                        <suppressionFile>
+                            ${project.basedir}/src/main/resources/config/dependency-suppression/suppression.xml
+                        </suppressionFile>
+                        <suppressionFile>
+                            ${project.basedir}/src/main/resources/config/dependency-suppression/suppression_flexmark.xml
+                        </suppressionFile>
                     </suppressionFiles>
                 </configuration>
                 <executions>
@@ -1421,19 +1475,19 @@
                 </executions>
             </plugin>
 
-	      <plugin>
-	        <groupId>org.codehaus.mojo</groupId>
-	        <artifactId>license-maven-plugin</artifactId>
-	        <version>2.0.0</version>
-	        <executions>
-	          <execution>
-	            <id>download-licenses</id>
-	            <goals>
-	              <goal>download-licenses</goal>
-	            </goals>
-	          </execution>
-	        </executions>
-	      </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>2.0.0</version>
+                <executions>
+                    <execution>
+                        <id>download-licenses</id>
+                        <goals>
+                            <goal>download-licenses</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
         </plugins>
 
@@ -1565,13 +1619,17 @@
                     <version>${liquibase.version}</version>
                     <configuration>
                         <changeLogFile>${project.basedir}/src/main/resources/config/liquibase/master.xml</changeLogFile>
-                        <diffChangeLogFile>${project.basedir}/src/main/resources/config/liquibase/changelog/${maven.build.timestamp}_changelog.xml</diffChangeLogFile>
+                        <diffChangeLogFile>
+                            ${project.basedir}/src/main/resources/config/liquibase/changelog/${maven.build.timestamp}_changelog.xml
+                        </diffChangeLogFile>
                         <driver>org.h2.Driver</driver>
                         <url>jdbc:h2:file:${project.build.directory}/h2db/db/ca3s</url>
                         <defaultSchemaName/>
                         <username>ca3s</username>
                         <password/>
-                        <referenceUrl>hibernate:spring:de.trustable.ca3s.core.domain?dialect=org.hibernate.dialect.H2Dialect&amp;hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
+                        <referenceUrl>
+                            hibernate:spring:de.trustable.ca3s.core.domain?dialect=org.hibernate.dialect.H2Dialect&amp;hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+                        </referenceUrl>
                         <verbose>true</verbose>
                         <logging>debug</logging>
                         <contexts>!test</contexts>
@@ -1662,7 +1720,7 @@
                             <id>enforce-dependencyConvergence</id>
                             <configuration>
                                 <rules>
-                                    <DependencyConvergence />
+                                    <DependencyConvergence/>
                                 </rules>
                                 <fail>false</fail>
                             </configuration>
@@ -1674,11 +1732,15 @@
                     <configuration>
                         <rules>
                             <requireMavenVersion>
-                                <message>You are running an older version of Maven. JHipster requires at least Maven ${maven.version}</message>
+                                <message>You are running an older version of Maven. JHipster requires at least Maven
+                                    ${maven.version}
+                                </message>
                                 <version>[${maven.version},)</version>
                             </requireMavenVersion>
                             <requireJavaVersion>
-                                <message>You are running an incompatible version of Java. JHipster supports JDK 8 to 13.</message>
+                                <message>You are running an incompatible version of Java. JHipster supports JDK 8 to
+                                    13.
+                                </message>
                                 <version>[1.8,14)</version>
                             </requireJavaVersion>
                         </rules>
@@ -1750,9 +1812,9 @@
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <version>${maven-failsafe-plugin.version}</version>
                     <configuration>
-    					<argLine>-Xmx2048m -Dspring.test.context.cache.maxSize=1</argLine>
+                        <argLine>-Xmx2048m -Dspring.test.context.cache.maxSize=1</argLine>
 
-    					<forkCount>0</forkCount>
+                        <forkCount>0</forkCount>
 
                         <!-- Due to spring-boot repackage, without adding this property test classes are not found
                              See https://github.com/spring-projects/spring-boot/issues/6254 -->
@@ -2141,68 +2203,68 @@
             <id>prepare-central</id>
             <build>
                 <plugins>
-		  		    <plugin>
-				      <groupId>org.apache.maven.plugins</groupId>
-				      <artifactId>maven-source-plugin</artifactId>
-				      <executions>
-				        <execution>
-				          <id>attach-sources</id>
-				          <goals>
-				            <goal>jar</goal>
-				          </goals>
-				        </execution>
-				      </executions>
-				    </plugin>
-				    <plugin>
-				        <groupId>org.apache.maven.plugins</groupId>
-				        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>${maven-javadoc-plugin.version}</version>
-				        <configuration>
-					        <detectJavaApiLink>false</detectJavaApiLink>
-		                    <source>${maven.compiler.source}</source>
-                        </configuration>
-				        <executions>
-				            <execution>
-				                <id>attach-javadocs</id>
-				                <goals>
-				                    <goal>jar</goal>
-				                </goals>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
                             </execution>
-				        </executions>
-				    </plugin>
-				    <plugin>
-		                <groupId>org.apache.maven.plugins</groupId>
-		                <artifactId>maven-checkstyle-plugin</artifactId>
-		                <version>${maven-checkstyle.version}</version>
-		                <dependencies>
-		                    <dependency>
-		                        <groupId>com.puppycrawl.tools</groupId>
-		                        <artifactId>checkstyle</artifactId>
-		                        <version>${checkstyle.version}</version>
-		                    </dependency>
-		                    <dependency>
-		                        <groupId>io.spring.nohttp</groupId>
-		                        <artifactId>nohttp-checkstyle</artifactId>
-		                        <version>${spring-nohttp-checkstyle.version}</version>
-		                    </dependency>
-		                </dependencies>
-		                <configuration>
-		                    <configLocation>checkstyle.xml</configLocation>
-		                    <includes>pom.xml,README.md</includes>
-		                    <excludes>.git/**/*,target/**/*,node_modules/**/*,node/**/*</excludes>
-		                    <sourceDirectories>./</sourceDirectories>
-		                </configuration>
-		                <executions>
-		                    <execution>
-		                        <goals>
-		                            <goal>check</goal>
-		                        </goals>
-		                    </execution>
-		                </executions>
-		            </plugin>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${maven-javadoc-plugin.version}</version>
+                        <configuration>
+                            <detectJavaApiLink>false</detectJavaApiLink>
+                            <source>${maven.compiler.source}</source>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-checkstyle-plugin</artifactId>
+                        <version>${maven-checkstyle.version}</version>
+                        <dependencies>
+                            <dependency>
+                                <groupId>com.puppycrawl.tools</groupId>
+                                <artifactId>checkstyle</artifactId>
+                                <version>${checkstyle.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>io.spring.nohttp</groupId>
+                                <artifactId>nohttp-checkstyle</artifactId>
+                                <version>${spring-nohttp-checkstyle.version}</version>
+                            </dependency>
+                        </dependencies>
+                        <configuration>
+                            <configLocation>checkstyle.xml</configLocation>
+                            <includes>pom.xml,README.md</includes>
+                            <excludes>.git/**/*,target/**/*,node_modules/**/*,node/**/*</excludes>
+                            <sourceDirectories>./</sourceDirectories>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
 
-				</plugins>
-			</build>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

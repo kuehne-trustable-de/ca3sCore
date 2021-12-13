@@ -229,6 +229,7 @@ export default new Router({
           'ca3sHelp');
       }
     },
+
     {
       path: '/forbidden',
       name: 'Forbidden',

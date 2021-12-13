@@ -16,6 +16,7 @@ import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.security.provider.Ca3sTrustManager;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.CAStatus;
+import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.CryptoService;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
@@ -57,10 +58,13 @@ public class ADCSConnector {
 	@Autowired
 	private Ca3sTrustManager ca3sTrustManager;
 
-	@Autowired
-	CSRRepository csrRepository;
+    @Autowired
+    CSRRepository csrRepository;
 
-	@Autowired
+    @Autowired
+    CSRUtil csrUtil;
+
+    @Autowired
 	private CertificateRepository certificateRepository;
 
 	@Autowired
@@ -212,7 +216,7 @@ public class ADCSConnector {
 					|| (SubmitStatus.INCOMPLETE.equals(certResponse.getStatus()))
 					|| (SubmitStatus.ERROR.equals(certResponse.getStatus()))) {
 
-				csr.setStatus(CsrStatus.REJECTED);
+                csrUtil.setStatusAndRejectionReason(csr, CsrStatus.REJECTED, "ADCS call failed with Status '" + certResponse.getStatus() + "'.");
 
 				csrAttrs.add(createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_FINISHED_TIMESTAMP,"" + System.currentTimeMillis()));
 				csrAttrs.add(createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_ID,"" + certResponse.getReqId()));

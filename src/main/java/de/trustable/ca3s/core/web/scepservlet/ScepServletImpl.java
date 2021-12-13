@@ -137,7 +137,7 @@ public class ScepServletImpl extends ScepServlet {
         }
 
         String pipelineName = ( pipeline == null) ? "NoPipeline":pipeline.getName();
-        String requestorName = "SCEP-transId-" + transId.toString();
+        String requestorName = "SCEP client";
         LOGGER.debug("doEnrol: processing request by {} using pipeline {}", requestorName,pipelineName);
 
 		CSR csr = cpUtil.buildCSR(csrAsPem, requestorName, AuditService.AUDIT_SCEP_CERTIFICATE_REQUESTED, "", pipeline );

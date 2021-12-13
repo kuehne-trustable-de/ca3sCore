@@ -123,8 +123,6 @@
           self.activeCertificatesByKeyLength = response.data;
         });
 
-
-        
       }
     }
   }
@@ -146,11 +144,11 @@
     height: 500px;
     max-height: 500px;
   }
-  
+
   .box {
     border: 2px solid #a0a0a0;
     border-radius: 5px;
-    padding: 10px; 
+    padding: 10px;
   }
   .column {
     float: left;

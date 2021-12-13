@@ -122,7 +122,11 @@ public class AccountResource {
             // return available languages, only
             Languages languages = new Languages(availableLanguages);
             User user = optUser.get();
-            user.setLangKey( languages.alignLanguage(user.getLangKey()));
+            if( user.getLangKey() == null){
+                user.setLangKey(languages.getLanguageArr()[0]);
+            }else {
+                user.setLangKey(languages.alignLanguage(user.getLangKey()));
+            }
             return new UserDTO(user);
         }
 

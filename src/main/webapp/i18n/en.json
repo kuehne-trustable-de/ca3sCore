@@ -650,6 +650,7 @@
   "global.form.username.placeholder": "Your username",
   "global.item-count": "Showing {{first}} - {{second}} of {{total}} items.",
   "global.menu.account.login": "Sign in",
+  "global.menu.account.SSOLogin": "SSO Login",
   "global.menu.account.logout": "Sign out",
   "global.menu.account.main": "Account",
   "global.menu.account.password": "Password",
