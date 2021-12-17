@@ -121,15 +121,23 @@
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.pipelineAttribute')">PipelineAttribute</span>
                     </b-dropdown-item -->
-                    <b-dropdown-item to="/acme-account">
+                    <b-dropdown-item to="/acme-account-list">
+                        <font-awesome-icon icon="asterisk" />
+                        <span v-text="$t('global.menu.entities.acmeAccount')">ACMEAccount</span>
+                    </b-dropdown-item>
+                    <!--b-dropdown-item to="/acme-account">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.acmeAccount')">ACMEAccount</span>
                     </b-dropdown-item>
                     <b-dropdown-item to="/acme-contact">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.acmeContact')">AcmeContact</span>
+                    </b-dropdown-item-->
+                    <b-dropdown-item to="/acme-order-list">
+                        <font-awesome-icon icon="asterisk" />
+                        <span v-text="$t('global.menu.entities.acmeOrder')">AcmeOrder</span>
                     </b-dropdown-item>
-                    <b-dropdown-item to="/acme-order">
+                    <!--b-dropdown-item to="/acme-order">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.acmeOrder')">AcmeOrder</span>
                     </b-dropdown-item>
@@ -137,7 +145,7 @@
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.acmeChallenge')">AcmeChallenge</span>
                     </b-dropdown-item>
-                    <!--b-dropdown-item to="/imported-url">
+                    <b-dropdown-item to="/imported-url">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.importedUrl')">ImportedURL</span>
                     </b-dropdown-item>

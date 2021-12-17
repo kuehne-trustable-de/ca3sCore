@@ -1,8 +1,6 @@
 package de.trustable.ca3s.core.web.rest;
 
-import de.trustable.ca3s.core.domain.AuditTrace;
 import de.trustable.ca3s.core.domain.Pipeline;
-import de.trustable.ca3s.core.repository.AuditTraceRepository;
 import de.trustable.ca3s.core.service.PipelineService;
 import de.trustable.ca3s.core.service.dto.AuditView;
 import de.trustable.ca3s.core.service.dto.PipelineView;
@@ -12,7 +10,6 @@ import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,14 +37,12 @@ public class PipelineViewResource {
 
     private final PipelineService pipelineService;
 
-    @Autowired
-    private PipelineUtil pipelineUtil;
+    private final PipelineUtil pipelineUtil;
 
-    @Autowired
-    private AuditTraceRepository auditTraceRepository;
 
-    public PipelineViewResource(PipelineService pipelineService) {
+    public PipelineViewResource(PipelineService pipelineService, PipelineUtil pipelineUtil) {
         this.pipelineService = pipelineService;
+        this.pipelineUtil = pipelineUtil;
     }
 
     /**
@@ -100,7 +95,7 @@ public class PipelineViewResource {
     @GetMapping("/pipelineViews")
     public List<PipelineView> getAllPipelines() {
         log.debug("REST request to get all PipelineViews");
-        List<PipelineView> pvList = new ArrayList<PipelineView>();
+        List<PipelineView> pvList = new ArrayList<>();
         for( Pipeline p: pipelineService.findAll()){
             pvList.add(pipelineUtil.from(p));
         }
@@ -128,7 +123,7 @@ public class PipelineViewResource {
                 auditList.add(new AuditView(at));
             }
  */
-            pv.setAuditViewArr(auditList.toArray(new AuditView[auditList.size()]));
+            pv.setAuditViewArr(auditList.toArray(new AuditView[0]));
 
             pvOpt = Optional.of(pv);
         }

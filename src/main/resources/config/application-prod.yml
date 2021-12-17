@@ -13,17 +13,6 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # ===================================================================
 
-keycloak:
-  auth-server-url: http://127.0.0.1:50080/auth
-  realm: ca3sRealm
-  resource: ca3s
-  public-client: true
-#  ssl-required: external
-#  credentials.secret: 11111111-1111-1111-1111-111111111111
-#  use-resource-role-mappings: true
-  enabled: false
-
-
 logging:
   level:
     ROOT: INFO

@@ -17,10 +17,14 @@ import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 @Entity
 @Table(name = "acme_order")
 @NamedQueries({
-	@NamedQuery(name = "AcmeOrder.findByOrderId",
-	query = "SELECT a FROM AcmeOrder a WHERE " +
-			"a.orderId = :orderId"
-    ),    
+    @NamedQuery(name = "AcmeOrder.findByOrderId",
+        query = "SELECT a FROM AcmeOrder a WHERE " +
+            "a.orderId = :orderId"
+    ),
+    @NamedQuery(name = "AcmeOrder.countByAccountId",
+        query = "SELECT count(a) FROM AcmeOrder a WHERE " +
+            "a.account.accountId = :accountId"
+    ),
 })
 public class AcmeOrder implements Serializable {
 

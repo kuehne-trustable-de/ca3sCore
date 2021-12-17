@@ -11,6 +11,12 @@ import java.io.Serializable;
  */
 @Entity
 @Table(name = "acme_contact")
+@NamedQueries({
+    @NamedQuery(name = "AcmeContact.findByAccountId",
+        query = "SELECT ac FROM AcmeContact ac WHERE " +
+            "ac.account.accountId = :accountId"
+    )
+})
 public class AcmeContact implements Serializable {
 
     private static final long serialVersionUID = 1L;

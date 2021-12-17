@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2021-11-12 16:48:47.
+// Generated using typescript-generator version 2.19.577 on 2021-12-17 18:21:32.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -38,6 +38,35 @@ export interface IAuditTraceView extends ISerializable {
   pipelineId?: number;
   caConnectorId?: number;
   processInfoId?: number;
+}
+
+export interface IACMEAccountView extends ISerializable {
+  id?: number;
+  accountId?: number;
+  realm?: string;
+  createdOn?: Date;
+  status?: IAccountStatus;
+  termsOfServiceAgreed?: boolean;
+  publicKeyHash?: string;
+  contactUrls?: string[];
+  orderCount?: number;
+}
+
+export interface IACMEOrderView extends ISerializable {
+  id?: number;
+  orderId?: number;
+  status?: IAcmeOrderStatus;
+  realm?: string;
+  challenges?: IACMEChallengeView[];
+  expires?: Date;
+  notBefore?: Date;
+  notAfter?: Date;
+  error?: string;
+  finalizeUrl?: string;
+  certificateUrl?: string;
+  csrId?: number;
+  certificateId?: number;
+  accountId?: number;
 }
 
 export interface IBPMNUpload {
@@ -139,8 +168,8 @@ export interface ICertificateView extends ISerializable {
   isServersideKeyGeneration?: boolean;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
-  auditPresent?: boolean;
   serversideKeyGeneration?: boolean;
+  auditPresent?: boolean;
 }
 
 export interface ICSRView extends ISerializable {
@@ -280,6 +309,16 @@ export interface ISerializable {}
 
 export interface IURI extends IComparable<IURI>, ISerializable {}
 
+export interface IACMEChallengeView extends ISerializable {
+  authorizationType?: string;
+  authorizationValue?: string;
+  challengeId?: number;
+  type?: string;
+  value?: string;
+  validated?: Date;
+  status?: IChallengeStatus;
+}
+
 export interface IRDNRestriction {
   rdnName?: string;
   cardinalityRestriction?: IRDNCardinalityRestriction;
@@ -364,6 +403,10 @@ export type ISelector =
   | 'PERIOD_BEFORE'
   | 'PERIOD_AFTER';
 
+export type IAccountStatus = 'valid' | 'deactivated' | 'revoked';
+
+export type IAcmeOrderStatus = 'pending' | 'ready' | 'processing' | 'valid' | 'invalid';
+
 export type IBPMNProcessType = 'CA_INVOCATION' | 'REQUEST_AUTHORIZATION';
 
 export type IPipelineType = 'ACME' | 'SCEP' | 'WEB' | 'INTERNAL';
@@ -387,5 +430,7 @@ export type IPKCSDataType =
   | 'UNKNOWN'
   | 'CONTAINER'
   | 'CONTAINER_REQUIRING_PASSPHRASE';
+
+export type IChallengeStatus = 'pending' | 'valid' | 'invalid' | 'deactivated' | 'expired' | 'revoked';
 
 export type IRDNCardinalityRestriction = 'NOT_ALLOWED' | 'ZERO_OR_ONE' | 'ONE' | 'ZERO_OR_MANY' | 'ONE_OR_MANY';

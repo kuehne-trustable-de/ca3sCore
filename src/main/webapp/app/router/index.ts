@@ -16,6 +16,8 @@ const BpmnInfo = () => import('../core/bpmn/bpmn-info.vue');
 const BpmnNew = () => import('../core/bpmn/bpmn-new.vue');
 const CertList = () => import('../core/cert-list/cert-list.vue');
 const CertInfo = () => import('../core/cert-list/cert-info.vue');
+const ACMEAccountList = () => import('../core/acme-account-list/acme-account-list.vue');
+const ACMEOrderList = () => import('../core/acme-order-list/acme-order-list.vue');
 const CsrList = () => import('../core/csr-list/csr-list.vue');
 const CsrInfo = () => import('../core/csr-list/csr-info.vue');
 const Error = () => import('../core/error/error.vue');
@@ -748,6 +750,18 @@ export default new Router({
       name: 'ACMEAccount',
       component: ACMEAccount,
       meta: { authorities: ['ROLE_USER'] }
+    },
+    {
+      path: '/acme-account-list',
+      name: 'ACMEAccountList',
+      component: ACMEAccountList,
+      meta: { authorities: ['ROLE_ADMIN'] }
+    },
+    {
+      path: '/acme-order-list',
+      name: 'ACMEOrderList',
+      component: ACMEOrderList,
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/acme-account/new',
