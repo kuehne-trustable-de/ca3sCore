@@ -66,6 +66,7 @@ import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.ACMEUtil;
 import de.trustable.ca3s.core.service.util.JwtUtil;
+import org.springframework.web.util.UriComponentsBuilder;
 
 
 /*
@@ -116,25 +117,26 @@ public class AccountController extends ACMEController {
 
   @Autowired
   JwtUtil jwtUtil;
- 
-  public ResponseEntity<ACMEAccount> getAccount(@PathVariable final long accountId) {
+
+  public ResponseEntity<AccountResponse> getAccount(@PathVariable final long accountId) {
     LOG.info("Received GET request for '{}'", accountId);
     final HttpHeaders additionalHeaders = new HttpHeaders();
-    
+
     additionalHeaders.set("Link", "<" + directoryResourceUriBuilderFrom(fromCurrentRequestUri().path("/..")).build()
             .normalize() + ">;rel=\"index\"");
-    
+
     Optional<ACMEAccount> acct = acctRepository.findById(accountId);
     if( acct.isPresent()) {
-    	return ok().headers(additionalHeaders).body(acct.get());
+        AccountResponse accResp = new AccountResponse(acct.get(), fromCurrentRequestUri());
+        return ok().headers(additionalHeaders).body(accResp);
     }else {
     	throw new AccountDoesNotExistException(fromCurrentRequestUri().build().toUri());
     }
   }
 
-  
-  
-  
+
+
+
 	@RequestMapping(value = "/changeKey", method = POST, consumes = APPLICATION_JOSE_JSON_VALUE)
 	public ResponseEntity<?> changeKey( @RequestBody final String requestBody) {
 
@@ -157,11 +159,11 @@ public class AccountController extends ACMEController {
 				}
 			}
 			*/
-			 
+
 			String compactInnerJWT;
 			try {
 				compactInnerJWT = claims.getClaimValue("protected", String.class) + "." +
-						claims.getClaimValue("payload", String.class) + "." + 
+						claims.getClaimValue("payload", String.class) + "." +
 						claims.getClaimValue("signature", String.class);
 				LOG.debug( "change key compactInnerJWT : " + compactInnerJWT);
 			} catch (MalformedClaimException e) {
@@ -169,11 +171,11 @@ public class AccountController extends ACMEController {
 						BAD_REQUEST, "", ACMEController.NO_INSTANCE);
 				throw new AcmeProblemException(problem);
 			}
-			
+
 			JwtContext innerContext = jwtUtil.processCompactJWT(compactInnerJWT);
-			
+
 			JsonWebStructure innerWebStruct = jwtUtil.getJsonWebStructure(innerContext);
-			
+
 			String accountURL;
 			try {
 				accountURL = innerContext.getJwtClaims().getClaimValue("account", String.class);
@@ -182,11 +184,11 @@ public class AccountController extends ACMEController {
 						BAD_REQUEST, "", ACMEController.NO_INSTANCE);
 				throw new AcmeProblemException(problem);
 			}
-			
+
 			ChangeKeyRequest changeKeyReq = jwtUtil.getChangeKeyRequest(innerContext.getJwtClaims());
-			
+
 			PublicKey newPK = jwtUtil.getPublicKey(innerWebStruct);
-			
+
 			JsonWebKey oldWebKey = changeKeyReq.getOldKey();
 			if( !(oldWebKey instanceof PublicJsonWebKey)) {
 			    String msg = "change Key request: old key is NOT a PublicJsonWebKey (but of class " + oldWebKey.getClass().getName();
@@ -199,7 +201,7 @@ public class AccountController extends ACMEController {
 
 			LOG.debug( "change key, new key : thumb {} : {}", jwtUtil.getJWKThumbPrint(newPK), newPK);
 			LOG.debug( "change key, old key : thumb {} : {}", jwtUtil.getJWKThumbPrint(oldPK), oldPK );
-			
+
 			List<ACMEAccount> accListByOldPK = acctRepository.findByPublicKeyHashBase64(jwtUtil.getJWKThumbPrint(oldPK));
 			if( accListByOldPK.isEmpty() ) {
 			    LOG.warn("change Key request: old key does NOT identify given account");
@@ -207,12 +209,12 @@ public class AccountController extends ACMEController {
 		                BAD_REQUEST, "", ACMEController.NO_INSTANCE);
 		    	throw new AcmeProblemException(problem);
 			}
-			
+
 			ACMEAccount accountDao = accListByOldPK.get(0);
-			
+
 			String[] urlParts = accountURL.split("/");
 			long accountId = Long.parseLong(urlParts[urlParts.length -1]);
-			
+
 			if(accountDao.getAccountId() != acctByKidDao.getAccountId() ) {
 			    LOG.warn("change Key request: account identified by old key {} does not match account isetified by URL : {}", accountDao.getAccountId(), acctByKidDao.getAccountId());
 		        final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "old key does NOT identify kid-identified account",
@@ -232,17 +234,17 @@ public class AccountController extends ACMEController {
 
 			String pkAsString = Base64.encodeBase64String(newPK.getEncoded()).trim();
 			accountDao.setPublicKey(pkAsString);
-			
+
 			String thumbPrint = jwtUtil.getJWKThumbPrint(newPK);
 			accountDao.setPublicKeyHash(thumbPrint);
 
 			acctRepository.save(accountDao);
-			
+
 			LOG.debug("account {} has thumbprint {}", accountDao.getAccountId(), thumbPrint);
-			
+
 		    final HttpHeaders additionalHeaders = buildNonceHeader();
 		    return ResponseEntity.ok().headers(additionalHeaders).build();
-		    
+
 		} catch (AcmeProblemException e) {
 			return buildProblemResponseEntity(e);
 		} catch (JoseException e) {
@@ -250,34 +252,6 @@ public class AccountController extends ACMEController {
 	        final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "Internal crypto problem",
 	                 HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), ACMEController.NO_INSTANCE);
 			return buildProblemResponseEntity(new AcmeProblemException(problem));
-		}
-		
-	}
-
-
-	@RequestMapping(value = "/{accountId}", method = POST, consumes = APPLICATION_JOSE_JSON_VALUE)
-	public ResponseEntity<?> updateAccount(@PathVariable final long accountId, @PathVariable final String realm, @RequestBody final String requestBody) {
-
-		LOG.info("Received updateAccount request for '{}'", accountId);
-
-		try {
-			JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
-
-			AccountRequest updateAccountReq = jwtUtil.getAccountRequest(context.getJwtClaims());
-
-			ACMEAccount acctDao = checkJWTSignatureForAccount(context, realm, accountId);
-
-			contactsFromRequest(acctDao, updateAccountReq);
-
-			acctRepository.save(acctDao);
-			
-		    AccountResponse accResp = new AccountResponse(acctDao);
-		    
-		    final HttpHeaders additionalHeaders = buildNonceHeader();
-		    return ok().headers(additionalHeaders).body(accResp);
-
-		} catch (AcmeProblemException e) {
-			return buildProblemResponseEntity(e);
 		}
 
 	}
@@ -288,7 +262,7 @@ public class AccountController extends ACMEController {
     LOG.info("Updating ACCOUNT '{}': {}", accountId, requestBody);
     final AccountRequest.Payload payload = accountRequest.convert(requestBody).getPayload();
     final Optional<Account> optUpdatedAccount = accountDAO.updateWith(accountId, payload.getContacts());
-    
+
     if (optUpdatedAccount.isPresent()) {
       return ok(optUpdatedAccount.get());
     }
@@ -300,7 +274,7 @@ public class AccountController extends ACMEController {
             "Account ID '" + accountId + "'", NO_INSTANCE));
   }
 */
-  
+
 /*
   7.1.2.1.  Orders List
 
@@ -322,14 +296,14 @@ Link: <https://example.com/acme/acct/evOfKhNU60wg/orders?cursor=2>;rel="next"
  "orders": [
    "https://example.com/acme/order/TOlocE8rfgo",
    "https://example.com/acme/order/4E16bbL5iSw",
-    
+
    "https://example.com/acme/order/neBHYLfw0mg"
  ]
 }
 */
   @RequestMapping(value = "/{accountId}/orders", method = POST, consumes = APPLICATION_JOSE_JSON_VALUE)
   public ResponseEntity<?> getAccountOrders (@PathVariable final long accountId, @PathVariable final String realm, @RequestParam(name="cursor", defaultValue = "0") String cursorParam,  @RequestBody final String requestBody) {
-	  
+
 		LOG.info("Received getAccountOrders request for '{}', cursor '{}'", accountId, cursorParam);
 		int cursor = Integer.parseInt(cursorParam);
 		int maxCursor = CURSOR_CHUNK + cursor;
@@ -338,13 +312,13 @@ Link: <https://example.com/acme/acct/evOfKhNU60wg/orders?cursor=2>;rel="next"
 			JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
 
 			ACMEAccount acctDao = checkJWTSignatureForAccount(context, realm, accountId);
-			
+
 		    final HttpHeaders additionalHeaders = buildNonceHeader();
-		    
+
 		    OrderSetResponse orderSetResp = new OrderSetResponse();
 
 		    String orderUrl = accountResourceUriBuilderFrom(fromCurrentRequestUri().path("../..")).path("/").path(Long.toString(accountId)).path("/orders/").build().normalize().toUri().toString();
-		    
+
 		    int nThisChunk = acctDao.getOrders().size();
 		    if( nThisChunk > CURSOR_CHUNK) {
 		    	nThisChunk = CURSOR_CHUNK;
@@ -363,10 +337,11 @@ Link: <https://example.com/acme/acct/evOfKhNU60wg/orders?cursor=2>;rel="next"
 				    String nextLink= "<" + fromCurrentRequestUri().queryParam("cursor", maxCursor).build().normalize() + ">;rel=\"next\"";
 					LOG.info("Next Chunk Link '{}'", nextLink);
 				    additionalHeaders.set("Link", nextLink);
-					break;	
+					break;
 				}
 			}
-			
+
+            orderSetResp.setOrderUrls(orderUrlArr);
 		    return ok().headers(additionalHeaders).body(orderSetResp);
 
 		} catch (AcmeProblemException e) {
@@ -374,5 +349,34 @@ Link: <https://example.com/acme/acct/evOfKhNU60wg/orders?cursor=2>;rel="next"
 		}
 
   }
+
+
+    @RequestMapping(value = "/{accountId}", method = POST, consumes = APPLICATION_JOSE_JSON_VALUE)
+    public ResponseEntity<?> updateAccount(@PathVariable final long accountId, @PathVariable final String realm, @RequestBody final String requestBody) {
+
+        LOG.info("Received updateAccount request for '{}'", accountId);
+
+        try {
+            JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
+
+            AccountRequest updateAccountReq = jwtUtil.getAccountRequest(context.getJwtClaims());
+
+            ACMEAccount acctDao = checkJWTSignatureForAccount(context, realm, accountId);
+
+            contactsFromRequest(acctDao, updateAccountReq);
+
+            acctRepository.save(acctDao);
+
+            AccountResponse accResp = new AccountResponse(acctDao, fromCurrentRequestUri());
+
+            final HttpHeaders additionalHeaders = buildNonceHeader();
+            return ok().headers(additionalHeaders).body(accResp);
+
+        } catch (AcmeProblemException e) {
+            return buildProblemResponseEntity(e);
+        }
+
+    }
+
 
 }

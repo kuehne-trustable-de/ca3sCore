@@ -38,7 +38,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import de.trustable.ca3s.core.domain.ACMEAccount;
 import de.trustable.ca3s.core.domain.AcmeContact;
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
-
+import org.springframework.web.util.UriComponentsBuilder;
 
 
 @Immutable
@@ -56,19 +56,17 @@ public class AccountResponse {
 
 	@JsonProperty("contact")
     private String[] contacts;
-    
-	@JsonProperty("termsOfServiceAgreed") 
+
+	@JsonProperty("termsOfServiceAgreed")
 	private boolean termsAgreed = false;
-	
-	@JsonProperty("orders") 
+
+	@JsonProperty("orders")
 	private String orders;
 
-	
-	public AccountResponse(ACMEAccount accountDao) {
+
+	public AccountResponse(ACMEAccount accountDao, UriComponentsBuilder uriComponentsBuilder) {
 		this.setId( accountDao.getAccountId());
-		
 		this.setStatus(accountDao.getStatus());
-		
 		String[] contacts = new String[accountDao.getContacts().size()];
 		int i = 0;
 		for( AcmeContact contactDao: accountDao.getContacts()) {
@@ -76,10 +74,10 @@ public class AccountResponse {
 		}
 		this.setContacts(contacts);
 		this.setTermsAgreed(accountDao.isTermsOfServiceAgreed());
+		this.setOrders(uriComponentsBuilder.path("/../").path(accountDao.getAccountId().toString()).path("/orders").build().normalize().toString());
+        logger.info("AccountResponse has ordersUrl '{}'", this.getOrders());
 	}
-	
-	
-	
+
 	/**
 	 * @return the id
 	 */
@@ -151,8 +149,8 @@ public class AccountResponse {
 	 */
 	public void setOrders(String orders) {
 		this.orders = orders;
-	} 
-	
-	
+	}
+
+
 }
 

@@ -12,6 +12,10 @@ public class ACMEOrderView implements Serializable {
     private AcmeOrderStatus status;
     private String realm;
     private ACMEChallengeView[] challenges;
+    private String challengeTypes;
+    private String challengeUrls;
+
+    private Boolean wildcard;
     private Instant expires;
     private Instant notBefore;
     private Instant notAfter;
@@ -50,6 +54,14 @@ public class ACMEOrderView implements Serializable {
 
     public void setStatus(AcmeOrderStatus status) {
         this.status = status;
+    }
+
+    public Boolean getWildcard() {
+        return wildcard;
+    }
+
+    public void setWildcard(Boolean wildcard) {
+        this.wildcard = wildcard;
     }
 
     public Instant getExpires() {
@@ -138,5 +150,21 @@ public class ACMEOrderView implements Serializable {
 
     public void setChallenges(ACMEChallengeView[] challenges) {
         this.challenges = challenges;
+    }
+
+    public String getChallengeTypes() {
+        return challengeTypes;
+    }
+
+    public void setChallengeTypes(String challengeTypes) {
+        this.challengeTypes = challengeTypes;
+    }
+
+    public String getChallengeUrls() {
+        return challengeUrls;
+    }
+
+    public void setChallengeUrls(String challengeUrls) {
+        this.challengeUrls = challengeUrls;
     }
 }

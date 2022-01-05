@@ -375,7 +375,7 @@ public class ChallengeController extends ACMEController {
 
 				if( responseCode != 200) {
 					LOG.info("read challenge responded with unexpected code : " + responseCode);
-					return false;
+					continue;
 				}
 
 				BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));

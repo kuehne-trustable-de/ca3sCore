@@ -187,7 +187,7 @@ public class NewAccountController extends ACMEController {
 	    LOG.debug("location header set to " + locationHeader);
 	    additionalHeaders.set("Location", locationHeader);
 
-	    AccountResponse accResp = new AccountResponse(acctDaoReturn);
+        AccountResponse accResp = new AccountResponse(acctDaoReturn, fromCurrentRequestUri());
 	    accResp.setOrders(locationUriOfOrders(acctDaoReturn.getAccountId(), fromCurrentRequestUri()).toString());
 		if( accListExisting.isEmpty()) {
 		    LOG.debug("returning new account response " + jwtUtil.getAccountResponseAsJSON(accResp));

@@ -17,7 +17,9 @@ const BpmnNew = () => import('../core/bpmn/bpmn-new.vue');
 const CertList = () => import('../core/cert-list/cert-list.vue');
 const CertInfo = () => import('../core/cert-list/cert-info.vue');
 const ACMEAccountList = () => import('../core/acme-account-list/acme-account-list.vue');
+const ACMEAccountInfo = () => import('../core/acme-account-list/acme-account-info.vue');
 const ACMEOrderList = () => import('../core/acme-order-list/acme-order-list.vue');
+const AcmeOrderInfo = () => import('../core/acme-order-list/acme-order-info.vue');
 const CsrList = () => import('../core/csr-list/csr-list.vue');
 const CsrInfo = () => import('../core/csr-list/csr-info.vue');
 const Error = () => import('../core/error/error.vue');
@@ -758,11 +760,24 @@ export default new Router({
       meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
+      path: '/acme-account-info/:accountId',
+      name: 'ACMEAccountInfo',
+      component: ACMEAccountInfo,
+      meta: { authorities: ['ROLE_ADMIN'] }
+    },
+    {
       path: '/acme-order-list',
       name: 'ACMEOrderList',
       component: ACMEOrderList,
       meta: { authorities: ['ROLE_ADMIN'] }
     },
+    {
+      path: '/acme-order-info/:orderId',
+      name: 'AcmeOrderInfo',
+      component: AcmeOrderInfo,
+      meta: { authorities: ['ROLE_ADMIN'] }
+    },
+
     {
       path: '/acme-account/new',
       name: 'ACMEAccountCreate',

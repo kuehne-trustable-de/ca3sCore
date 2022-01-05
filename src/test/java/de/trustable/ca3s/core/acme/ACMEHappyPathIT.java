@@ -79,7 +79,10 @@ public class ACMEHappyPathIT {
 		ptc.getInternalACMETestPipelineLaxRestrictions();
 
         prefTC.getTestUserPreference();
-        httpChallengeHelper = new HttpChallengeHelper(prefTC.getFreePort());
+
+        int port = prefTC.getFreePort();
+        LOG.info("http challenge on port {}", port);
+        httpChallengeHelper = new HttpChallengeHelper(port);
 
 	}
 
@@ -196,8 +199,9 @@ public class ACMEHappyPathIT {
 				Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
 
 				if( challenge != null) {
-                    provideAuthEndpoint(challenge, order, prefTC);
+                    Thread webThread = provideAuthEndpoint(challenge, order, prefTC);
                     challenge.trigger();
+                    if( webThread != null){webThread.stop();}
                 } else {
                     LOG.warn("http01 Challange not found for order");
                 }
@@ -223,8 +227,10 @@ public class ACMEHappyPathIT {
 		assertNotNull("Expected to receive a certificate", acmeCert);
 
 		java.security.cert.X509Certificate x509Cert = acmeCert.getCertificate();
-		assertNotNull("Expected to receive a x509Cert", x509Cert);
+        assertNotNull("Expected to receive a x509Cert", x509Cert);
+        assertNotNull("Expected the certificate to have a x509Cert", x509Cert.getSubjectDN().getName());
 
+        account.update();
 		Iterator<Order> orderIt = account.getOrders();
 		assertTrue(orderIt.hasNext(), "Expected to find at least one order");
 
@@ -232,15 +238,17 @@ public class ACMEHappyPathIT {
 			buildOrder(account, i);
 		}
 
-		orderIt = account.getOrders();
-		assertNotNull("Expected to find at least one order", orderIt.hasNext());
+        account.update();
+        Iterator<Order> orderIt2 = account.getOrders();
+        assertNotNull("Expected to find at least one order", orderIt2.hasNext());
+        System.out.println("Account orders : " + orderIt2);
 
-
-		for(int i = 0; orderIt.hasNext(); i++) {
-			Order orderRetrieved = orderIt.next();
-			LOG.debug("order {} : {}", i, orderRetrieved);
+/*
+		for(int i = 0; orderIt2.hasNext(); i++) {
+			Order orderRetrieved = orderIt2.next();
+            System.out.println("order " + i + " : "+ orderRetrieved);
 		}
-
+*/
 	}
 
 	@Test
@@ -493,18 +501,19 @@ public class ACMEHappyPathIT {
 
 	void buildOrder(Account account, int n) throws AcmeException {
 		account.newOrder()
-	        .domains("example_"+n+".org")
+	        .domains("example-"+n+".org")
 	        .notAfter(Instant.now().plus(Duration.ofDays(20L)))
 	        .create();
 	}
 
 
-    void provideAuthEndpoint(final Http01Challenge challenge, Order order, PreferenceTestConfiguration prefTC) throws IOException, InterruptedException {
-		int MAX_TRIAL = 10;
+    Thread provideAuthEndpoint(final Http01Challenge challenge, Order order, PreferenceTestConfiguration prefTC) throws IOException, InterruptedException {
+        Thread webThread = null;
+        int MAX_TRIAL = 10;
 		for( int retry = 0; retry < MAX_TRIAL; retry++) {
 			try {
 //				provideAuthEndpoint(challenge, prefTC);
-                httpChallengeHelper.provideAuthEndpoint(challenge.getToken(), challenge.getAuthorization(), false);
+                webThread = httpChallengeHelper.provideAuthEndpoint(challenge.getToken(), challenge.getAuthorization(), true);
 				break;
 			} catch( BindException be) {
 				System.out.println("bind exception, waiting for port to become available");
@@ -513,5 +522,6 @@ public class ACMEHappyPathIT {
 				System.out.println("callback port not available");
 			}
 		}
+		return webThread;
 	}
 }

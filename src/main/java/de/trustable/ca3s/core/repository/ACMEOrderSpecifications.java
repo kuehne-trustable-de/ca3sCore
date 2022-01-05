@@ -353,12 +353,14 @@ public final class ACMEOrderSpecifications {
 
         if ("id".equals(attribute)) {
             addNewColumn(selectionList, root.get(AcmeOrder_.id));
-            pred = buildPredicateLong(attributeSelector, cb, root.get(AcmeOrder_.id), attributeValue);
-
+            if (attributeValue.trim().length() > 0) {
+                pred = buildPredicateLong(attributeSelector, cb, root.get(AcmeOrder_.id), attributeValue);
+            }
         } else if ("orderId".equals(attribute)) {
             addNewColumn(selectionList, root.get(AcmeOrder_.orderId));
-            pred = buildPredicateLong(attributeSelector, cb, root.get(AcmeOrder_.orderId), attributeValue);
-
+            if (attributeValue.trim().length() > 0) {
+                pred = buildPredicateLong(attributeSelector, cb, root.get(AcmeOrder_.orderId), attributeValue);
+            }
         } else if ("status".equals(attribute)) {
             addNewColumn(selectionList, root.get(AcmeOrder_.status));
             if (attributeValue.trim().length() > 0) {
@@ -368,12 +370,10 @@ public final class ACMEOrderSpecifications {
             Join<AcmeOrder, ACMEAccount> accJoin = root.join(AcmeOrder_.account, JoinType.LEFT);
             addNewColumn(selectionList,accJoin.get(ACMEAccount_.realm));
 
-            /*
             if (attributeValue.trim().length() > 0) {
-                pred = buildDatePredicate(attributeSelector, cb, root.<Instant>get(AcmeOrder_.expires), attributeValue);
+                pred = buildPredicateString( attributeSelector, cb, accJoin.<String>get(ACMEAccount_.realm), attributeValue.toLowerCase());
             }
 
-             */
         } else if ("expires".equals(attribute)) {
             addNewColumn(selectionList, root.get(AcmeOrder_.expires));
             if (attributeValue.trim().length() > 0) {
@@ -415,7 +415,13 @@ public final class ACMEOrderSpecifications {
             return cb.conjunction();
         }
 
-        AcmeOrderStatus orderStatus = AcmeOrderStatus.valueOf(attributeValue);
+        AcmeOrderStatus orderStatus;
+        try {
+            orderStatus = AcmeOrderStatus.valueOf(attributeValue);
+        }catch(IllegalArgumentException iae){
+            logger.debug("buildPredicateAccountStatus not an ACMEStatus ", iae);
+            return cb.disjunction();
+        }
 
         if (Selector.EQUAL.toString().equals(attributeSelector)) {
             logger.debug("buildPredicateAccountStatus equal ('{}') for value '{}'", attributeSelector, orderStatus);

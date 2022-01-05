@@ -165,20 +165,24 @@ public final class SpecificationsHelper {
             return cb.conjunction();
         }
 
-        long lValue = Long.parseLong(value.trim());
+        try {
+            long lValue = Long.parseLong(value.trim());
 
-        if (Selector.NOT_EQUAL.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicateLong not equal ('{}') for value '{}'", attributeSelector, lValue);
-            return cb.notEqual(expression, lValue);
-        } else if (Selector.LESSTHAN.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicateLong lessThan ('{}') for value '{}'", attributeSelector, lValue);
-            return cb.lessThan(expression, lValue);
-        } else if (Selector.GREATERTHAN.toString().equals(attributeSelector)) {
-            logger.debug("buildPredicateLong greaterThan ('{}') for value '{}'", attributeSelector, lValue);
-            return cb.greaterThan(expression, lValue);
-        } else {
-            logger.debug("buildPredicateLong defaults to equals ('{}') for value '{}'", attributeSelector, lValue);
-            return cb.equal(expression, lValue);
+            if (Selector.NOT_EQUAL.toString().equals(attributeSelector)) {
+                logger.debug("buildPredicateLong not equal ('{}') for value '{}'", attributeSelector, lValue);
+                return cb.notEqual(expression, lValue);
+            } else if (Selector.LESSTHAN.toString().equals(attributeSelector)) {
+                logger.debug("buildPredicateLong lessThan ('{}') for value '{}'", attributeSelector, lValue);
+                return cb.lessThan(expression, lValue);
+            } else if (Selector.GREATERTHAN.toString().equals(attributeSelector)) {
+                logger.debug("buildPredicateLong greaterThan ('{}') for value '{}'", attributeSelector, lValue);
+                return cb.greaterThan(expression, lValue);
+            } else {
+                logger.debug("buildPredicateLong defaults to equals ('{}') for value '{}'", attributeSelector, lValue);
+                return cb.equal(expression, lValue);
+            }
+        }catch( NumberFormatException nfe){
+            return cb.disjunction();
         }
     }
 

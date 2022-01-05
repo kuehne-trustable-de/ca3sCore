@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.repository;
 
 import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.service.dto.CSRView;
@@ -464,7 +465,13 @@ public final class CSRSpecifications {
             return cb.conjunction();
         }
 
-        CsrStatus csrStatus = CsrStatus.valueOf(attributeValue);
+        CsrStatus csrStatus;
+        try {
+            csrStatus = CsrStatus.valueOf(attributeValue);
+        }catch(IllegalArgumentException iae){
+            logger.debug("buildPredicateCsrStatus not an CsrStatus ", iae);
+            return cb.disjunction();
+        }
 
         if (Selector.EQUAL.toString().equals(attributeSelector)) {
             logger.debug("buildPredicateCsrStatus equal ('{}') for value '{}'", attributeSelector, csrStatus);

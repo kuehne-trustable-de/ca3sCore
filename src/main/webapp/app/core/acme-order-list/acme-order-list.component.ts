@@ -215,13 +215,14 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
     return {
       columns: [
         { label: 'id', field: 'id' },
-        { label: 'orderId', field: 'orderId' },
+        { label: this.$t('ca3SApp.acmeOrder.orderId'), field: 'orderId' },
         { label: this.$t('status'), field: 'status' },
         { label: this.$t('realm'), field: 'realm' },
+        { label: this.$t('ca3SApp.acmeChallenge.type'), field: 'challengeTypes' },
+        { label: this.$t('ca3SApp.acmeChallenge.target'), field: 'challengeUrls' },
         { label: this.$t('expires'), field: 'expires' },
         { label: this.$t('notBefore'), field: 'notBefore' },
-        { label: this.$t('notAfter'), field: 'notAfter' },
-        { label: this.$t('error'), field: 'orderCount' }
+        { label: this.$t('notAfter'), field: 'notAfter' }
       ] as TColumnsDefinition<IACMEOrderView>,
       page: 1,
       filter: '',
@@ -257,7 +258,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
   }
 
   public buildContentAccessUrl() {
-    const url = this.buildAccessUrl('api/acmeOrderViews');
+    const url = this.buildAccessUrl('api/acmeOrderList');
 
     if (this.tmpContentAccessUrl !== url) {
       this.tmpContentAccessUrl = url;
@@ -274,34 +275,9 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
     this.dateWarn.setDate(this.now.getDate() + 35);
     this.dateAlarm.setDate(this.now.getDate() + 10);
 
-    //    this.getCertificateSelectionAttributes();
     this.getUsersFilterList();
     setInterval(() => this.putUsersFilterList(this), 3000);
     setInterval(() => this.buildContentAccessUrl(), 1000);
-  }
-
-  public getCertificateSelectionAttributes(): void {
-    window.console.info('calling getCertificateSelectionAttributes ');
-    const self = this;
-
-    axios({
-      method: 'get',
-      url: 'api/certificateSelectionAttributes',
-      responseType: 'stream'
-    }).then(function(response) {
-      if (response.status === 200) {
-        self.certificateSelectionAttributes = response.data;
-
-        for (let i = 0; i < self.certificateSelectionAttributes.length; i++) {
-          self.acmeOrderSelectionItems.push({
-            itemName: self.certificateSelectionAttributes[i],
-            itemType: 'string',
-            itemDefaultSelector: 'EQUAL',
-            itemDefaultValue: 'X'
-          });
-        }
-      }
-    });
   }
 
   public getUsersFilterList(): void {
@@ -313,7 +289,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
       url: 'api/userProperties/filterList/acmeOrderList',
       responseType: 'stream'
     }).then(function(response) {
-      //      window.console.debug('getUsersFilterList returns ' + response.data );
+      window.console.debug('getUsersFilterList returns ' + response.data);
       if (response.status === 200) {
         self.filters.filterList = response.data.filterList;
         //        window.console.debug('getUsersFilterList sets filters to ' + JSON.stringify(self.filters));
@@ -335,7 +311,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
         data: self.filters,
         responseType: 'stream'
       }).then(function(response) {
-        //        window.console.debug('putUsersFilterList returns ' + response.status);
+        window.console.debug('putUsersFilterList returns ' + response.status);
         if (response.status === 204) {
           self.lastFilters = lastFiltersValue;
         }

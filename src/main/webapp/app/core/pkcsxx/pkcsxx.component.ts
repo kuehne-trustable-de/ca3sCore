@@ -88,7 +88,9 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
   public cmdline = '';
   public cmdline0 = '';
+  public cmdline1 = '';
   public cmdline0Required = false;
+  public cmdline1Required = false;
   public reqConf = '';
   public reqConfRequired = false;
 
@@ -234,9 +236,11 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
     this.araRestrictions = new Array<PipelineRestriction>();
 
-    for (const rr of pipeline.araRestrictions) {
-      const cardinalityRestriction = rr.required ? 'ONE' : 'ZERO_OR_ONE';
-      this.araRestrictions.push(new PipelineRestriction(rr.name, cardinalityRestriction, rr.contentTemplate, rr.regExMatch));
+    if (pipeline.araRestrictions) {
+      for (const rr of pipeline.araRestrictions) {
+        const cardinalityRestriction = rr.required ? 'ONE' : 'ZERO_OR_ONE';
+        this.araRestrictions.push(new PipelineRestriction(rr.name, cardinalityRestriction, rr.contentTemplate, rr.regExMatch));
+      }
     }
 
     for (const rr of this.araRestrictions) {
@@ -259,8 +263,11 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     let cmdline = '';
     let reqConf = '';
     let cmdline0 = '';
+    let cmdline1 = '';
+
     this.reqConfRequired = false;
     this.cmdline0Required = false;
+    this.cmdline1Required = false;
 
     let nvSAN: INamedValues;
 
@@ -286,7 +293,8 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       cmdline0 = 'keytool -genkeypair -keyalg ' + algo;
       cmdline0 += ' -keysize ' + keyLen;
 
-      cmdline0 += ' -alias keyAlias -keystore test.p12 -storetype pkcs12';
+      let aliasP12Type = ' -alias keyAlias -keystore test.p12 -storetype pkcs12';
+      cmdline0 += aliasP12Type;
 
       let dname = '';
       for (const nv of this.upload.certificateAttributes) {
@@ -310,7 +318,10 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       this.cmdline0 = cmdline0;
       this.cmdline0Required = true;
 
-      cmdline += 'keytool -certreq -keystore test.p12 -alias keyAlias';
+      this.cmdline1 = 'keytool -importcert -file certificate.cer' + aliasP12Type;
+      this.cmdline1Required = true;
+
+      cmdline += 'keytool -certreq' + aliasP12Type;
 
       if (nvSAN !== undefined && nvSAN.values.length > 0 && nvSAN.values[0].length > 0) {
         let sans = '';
@@ -335,7 +346,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       //
       // openssl >= 1.1.1
       //
-      cmdline = this.getOpensslGommon(cmdline, algo, keyLen, true);
+      cmdline = this.getOpensslCommon(cmdline, algo, keyLen, true);
 
       if (nvSAN !== undefined && nvSAN.values.length > 0 && nvSAN.values[0].length > 0) {
         cmdline += ' -addext "subjectAltName = ';
@@ -362,7 +373,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       //
       // openssl
       //
-      cmdline = this.getOpensslGommon(cmdline, algo, keyLen, false);
+      cmdline = this.getOpensslCommon(cmdline, algo, keyLen, false);
 
       cmdline += ' -config request.conf -keyout private_key.pem -out server.csr';
 
@@ -413,9 +424,9 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     return cmdline;
   }
 
-  private getOpensslGommon(cmdline: string, algo: string, keyLen: string, addSubject: boolean) {
+  private getOpensslCommon(cmdline: string, algo: string, keyLen: string, addSubject: boolean) {
     cmdline = 'openssl req -newkey ' + algo + ':' + keyLen;
-    cmdline += ' -nodes ';
+    cmdline += ' -nodes';
 
     if (addSubject) {
       cmdline += ' -subj ';

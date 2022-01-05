@@ -49,7 +49,7 @@ public class OIDCAuthenticationResource {
 
     public OIDCAuthenticationResource(TokenProvider tokenProvider,
                                       AuthenticationManagerBuilder authenticationManagerBuilder,
-                                      @Value("${ca3s.oidc.authorization-uri}") String keycloakAuthorizationUri,
+                                      @Value("${ca3s.oidc.authorization-uri:}") String keycloakAuthorizationUri,
                                       @Value("${ca3s.oidc.client-id}") String clientId,
                                       @Value("${ca3s.oidc.client-secret}") String clientSecret,
                                       OIDCRestService OIDCRestService) {
@@ -58,27 +58,28 @@ public class OIDCAuthenticationResource {
         this.keycloakAuthorizationUri = keycloakAuthorizationUri;
         this.oidcRestService = OIDCRestService;
 
+        if(keycloakAuthorizationUri.isEmpty()) {
 
-        String authServerUrl = keycloakAuthorizationUri;
+            String authServerUrl = keycloakAuthorizationUri;
 
-        try {
-            String authUrl = StringUtils.substringBefore(authServerUrl, "/realms/");
-            String postRealms = StringUtils.substringAfter(authServerUrl, "/realms/");
-            String realm = StringUtils.substringBefore(postRealms, '/');
-            log.info("authUrl : {}, realm : {}", authUrl, realm);
+            try {
+                String authUrl = StringUtils.substringBefore(authServerUrl, "/realms/");
+                String postRealms = StringUtils.substringAfter(authServerUrl, "/realms/");
+                String realm = StringUtils.substringBefore(postRealms, '/');
+                log.info("authUrl : {}, realm : {}", authUrl, realm);
 
-            AdapterConfig adapterConfig = new AdapterConfig();
-            adapterConfig.setRealm(realm);
-            adapterConfig.setAuthServerUrl(authUrl);
-            adapterConfig.setResource(clientId);
+                AdapterConfig adapterConfig = new AdapterConfig();
+                adapterConfig.setRealm(realm);
+                adapterConfig.setAuthServerUrl(authUrl);
+                adapterConfig.setResource(clientId);
 
-            deployment = KeycloakDeploymentBuilder.build(adapterConfig);
-            log.info("Using oidcDeployment: {}", deployment);
+                deployment = KeycloakDeploymentBuilder.build(adapterConfig);
+                log.info("Using oidcDeployment: {}", deployment);
 
-        } catch (Exception cause) {
-            throw new RuntimeException("Failed to parse the realm name.", cause);
+            } catch (Exception cause) {
+                throw new RuntimeException("Failed to parse the realm name.", cause);
+            }
         }
-
     }
 
     /**
@@ -90,6 +91,11 @@ public class OIDCAuthenticationResource {
     @CrossOrigin
     @GetMapping("/authenticate")
     public ResponseEntity<String> getAuthenticatedUser(HttpServletRequest request) {
+
+        if(keycloakAuthorizationUri.isEmpty()) {
+            log.info("oidc Authentication not configured");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
 
         HttpHeaders httpHeaders = new HttpHeaders();
 
@@ -124,6 +130,10 @@ public class OIDCAuthenticationResource {
     @GetMapping("/code")
     public ResponseEntity<String> getCode(HttpServletRequest request, @RequestParam(name ="code") String code) {
 
+        if(keycloakAuthorizationUri.isEmpty()) {
+            log.info("oidc Authentication not configured");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
 
         try {
             ServletUriComponentsBuilder servletUriComponentsBuilder = ServletUriComponentsBuilder.fromRequestUri(request);

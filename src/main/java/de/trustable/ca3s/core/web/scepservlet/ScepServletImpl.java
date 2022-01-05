@@ -292,15 +292,22 @@ public class ScepServletImpl extends ScepServlet {
             RDN[] rdnsIssuer =  issuer.getRDNs(BCStyle.CN);
             if( rdnsIssuer.length > 0){
 	            String rdnIssuerString = rdnsIssuer[0].getFirst().getValue().toString();
-	            LOGGER.debug("looking for doGetCert(" + rdnIssuerString +", "+ serial +")");
+                String paddedSerial = CertificateUtil.getPaddedSerial(serial.toString());
 
-	            certDaoList = certRepository.findByTermNamed2(CertificateAttribute.ATTRIBUTE_ISSUER, rdnIssuerString,
-	        			CertificateAttribute.ATTRIBUTE_SERIAL, serial.toString());
+                LOGGER.debug("looking for cert('" + rdnIssuerString +"', '"+ paddedSerial +"')");
+
+                certDaoList = certRepository.findBySearchTermNamed1(CertificateAttribute.ATTRIBUTE_SERIAL_PADDED, paddedSerial);
+
+                if( certDaoList.size() > 1){
+                    LOGGER.warn("looking for cert by padded serial '"+ paddedSerial +"' ailed, multiple certs found");
+                    throw new OperationFailureException(FailInfo.badCertId);
+                }
             }
 
         	if( certDaoList.isEmpty()){
         		throw new OperationFailureException(FailInfo.badCertId);
         	}
+
     	}
 
         List<X509Certificate> certList = new ArrayList<>();

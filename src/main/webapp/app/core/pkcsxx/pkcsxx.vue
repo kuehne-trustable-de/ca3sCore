@@ -108,7 +108,7 @@
 						<div class="form-group" v-if="creationMode === 'SERVERSIDE_KEY_CREATION'">
                             <div class="row">
                                 <div class="col">
-                                    <label class="form-control-label" v-text="$t('pkcsxx.upload.csr.usage')" for="pkcsxx.upload.csr.usage">csr usage</label>
+                                    <label class="form-control-label" v-text="$t('pkcsxx.upload.csr.usage')" >csr usage</label>
                                 </div>
                                 <div class="col colContent">
                                     <span>{{selectPipelineView.csrUsage}}</span>
@@ -173,7 +173,7 @@
                             <div class="col colContent">
                                 <textarea class="form-control cmd-content" name="pkcsxx-reqConf" id="pkcsxx-reqConf"
                                           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly v-model="reqConf" />
-                                <CopyClipboardButton contentElementId="reqConf"/>
+                                <CopyClipboardButton contentElementId="pkcsxx-reqConf"/>
                             </div>
                         </div>
                         <div v-if="creationMode === 'COMMANDLINE_TOOL' && reqConfRequired">
@@ -181,17 +181,31 @@
                         </div>
 
                         <div class="row wrap" v-if="creationMode === 'COMMANDLINE_TOOL'">
-                           <div class="col ">
-                               <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.cmdline')" for="pkcsxx-cmdline">Command line</label>   <help-tag target="pkcsxx.upload.creationTool.cmdline"/>
-                           </div>
-                           <div class="col colContent ">
+                            <div class="col ">
+                                <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.cmdline')" for="pkcsxx-cmdline">Command line</label>   <help-tag target="pkcsxx.upload.creationTool.cmdline"/>
+                            </div>
+                            <div class="col colContent ">
                                 <textarea class="form-control cmd-content" name="pkcsxx-cmdline" id="pkcsxx-cmdline"
-                                      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly v-model="cmdline" />
-                               <CopyClipboardButton contentElementId="pkcsxx-cmdline"/>
-                           </div>
-						</div>
+                                          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly v-model="cmdline" />
+                                <CopyClipboardButton contentElementId="pkcsxx-cmdline"/>
+                            </div>
+                        </div>
+                        <div v-if="creationMode === 'COMMANDLINE_TOOL' && cmdline1Required">
+                            <label></label>
+                        </div>
 
-						<div class="form-group" v-if="(creationMode === 'CSR_AVAILABLE') " >
+                        <div class="row wrap" v-if="creationMode === 'COMMANDLINE_TOOL' && cmdline1Required">
+                            <div class="col ">
+                                <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.cmdline1')" for="pkcsxx-cmdline">Command line 1</label>   <help-tag target="pkcsxx.upload.creationTool.cmdline"/>
+                            </div>
+                            <div class="col colContent ">
+                                <textarea class="form-control cmd0-content" name="pkcsxx-cmdline1" id="pkcsxx-cmdline1"
+                                          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly v-model="cmdline1" />
+                                <CopyClipboardButton contentElementId="pkcsxx-cmdline1"/>
+                            </div>
+                        </div>
+
+                        <div class="form-group" v-if="(creationMode === 'CSR_AVAILABLE') " >
 							<!--label class="form-control-label" v-text="$t('pkcsxx.upload.content')" for="upload-content">Content</label-->
 							<div>
 								<label v-if="(creationMode === 'CSR_AVAILABLE') "

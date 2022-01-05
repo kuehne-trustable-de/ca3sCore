@@ -1,7 +1,5 @@
 package de.trustable.ca3s.core.service.dto;
 
-import de.trustable.ca3s.core.web.rest.data.KeyAlgoLength;
-
 import java.io.Serializable;
 import java.time.Instant;
 

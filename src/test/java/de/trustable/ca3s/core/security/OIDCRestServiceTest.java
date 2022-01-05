@@ -7,6 +7,7 @@ import de.trustable.ca3s.core.repository.AuthorityRepository;
 import de.trustable.ca3s.core.repository.UserPreferenceRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@Disabled("Disabled until a reliable OIDC server can be used")
 public class OIDCRestServiceTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(OIDCRestServiceTest.class);

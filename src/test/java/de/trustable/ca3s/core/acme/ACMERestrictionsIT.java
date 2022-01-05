@@ -151,7 +151,7 @@ public class ACMERestrictionsIT {
 
 			try {
 				order.execute(csr);
-				Assertions.fail("AceException due to restriction violation expected");
+				Assertions.fail("AcmeException due to restriction violation expected");
 			}catch(AcmeServerException ase) {
 				// as expected
 			}

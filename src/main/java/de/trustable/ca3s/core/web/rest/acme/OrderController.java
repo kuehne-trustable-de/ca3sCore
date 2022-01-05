@@ -274,7 +274,7 @@ public class OrderController extends ACMEController {
 
 
                         LOG.debug("order {} status 'valid', producing certificate", orderDao.getOrderId());
-				  	  	startCertificateCreationProcess(orderDao, pipeline, "ACME_ACCOUNT_" + acctDao.getAccountId(), CryptoUtil.pkcs10RequestToPem( p10Holder.getP10Req()));
+                        startCertificateCreationProcess(orderDao, pipeline, "ACME_ACCOUNT_" + acctDao.getAccountId(), CryptoUtil.pkcs10RequestToPem( p10Holder.getP10Req()));
 
                         LOG.debug("order status {} changes to valid for order {}", orderDao.getStatus(), orderDao.getOrderId());
                         orderDao.setStatus(AcmeOrderStatus.VALID);
@@ -413,9 +413,12 @@ public class OrderController extends ACMEController {
 			throw new AcmeProblemException(problem);
 		}
 
+        orderDao.setCsr(csr);
+
 		Certificate cert = cpUtil.processCertificateRequest(csr, requestorName, AuditService.AUDIT_ACME_CERTIFICATE_CREATED, pipeline );
 
 		if( cert == null) {
+            orderDao.setCertificate(cert);
 			orderDao.setStatus(AcmeOrderStatus.INVALID);
 			LOG.warn("creation of certificate by ACME order {} failed ", orderDao.getOrderId());
 		}else {

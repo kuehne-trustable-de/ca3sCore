@@ -252,6 +252,8 @@ public final class ACMEAccountSpecifications {
                 acmeAccountView.setTermsOfServiceAgreed((Boolean) objArr[i]);
             } else if ("contactUrls".equalsIgnoreCase(attribute)) {
                 List<AcmeContact> acmeContactList = acmeContactRepository.findByAccountId((Long) objArr[i]);
+                logger.debug("acme account #íd {} has #{} contacts", objArr[i], acmeContactList.size());
+
                 List<String> contactList = new ArrayList<>();
                 for(AcmeContact acmeContact: acmeContactList){
                     contactList.add(acmeContact.getContactUrl());
@@ -259,6 +261,7 @@ public final class ACMEAccountSpecifications {
                 acmeAccountView.setContactUrls(contactList.toArray(new String[0]));
             } else if ("orderCount".equalsIgnoreCase(attribute)) {
                 long orderCount = acmeOrderRepository.countByAccountId((Long) objArr[i]);
+                logger.debug("acme account #íd {} has #{} orders", objArr[i], orderCount);
                 acmeAccountView.setOrderCount(orderCount);
             } else {
                 logger.warn("unexpected attribute '{}' from query", attribute);
@@ -348,12 +351,14 @@ public final class ACMEAccountSpecifications {
 
         if ("id".equals(attribute)) {
             addNewColumn(selectionList, root.get(ACMEAccount_.id));
-            pred = buildPredicateLong(attributeSelector, cb, root.get(ACMEAccount_.id), attributeValue);
-
+            if (attributeValue.trim().length() > 0) {
+                pred = buildPredicateLong(attributeSelector, cb, root.get(ACMEAccount_.id), attributeValue);
+            }
         } else if ("accountId".equals(attribute)) {
             addNewColumn(selectionList, root.get(ACMEAccount_.accountId));
-            pred = buildPredicateLong(attributeSelector, cb, root.get(ACMEAccount_.accountId), attributeValue);
-
+            if (attributeValue.trim().length() > 0) {
+                pred = buildPredicateLong(attributeSelector, cb, root.get(ACMEAccount_.accountId), attributeValue);
+            }
         } else if ("status".equals(attribute)) {
             addNewColumn(selectionList, root.get(ACMEAccount_.status));
             if (attributeValue.trim().length() > 0) {
@@ -380,9 +385,14 @@ public final class ACMEAccountSpecifications {
             }
 
         } else if ("contactUrls".equals(attribute)) {
-            addNewColumn(selectionList, root.get(ACMEAccount_.id));
+            selectionList.add(root.get(ACMEAccount_.accountId));
+
+            if (attributeValue.trim().length() > 0) {
+                Join<ACMEAccount, AcmeContact> contactJoin = root.join(ACMEAccount_.contacts, JoinType.LEFT);
+                pred = buildPredicateString( attributeSelector, cb, contactJoin.<String>get(AcmeContact_.contactUrl), attributeValue.toLowerCase());
+            }
         } else if ("orderCount".equals(attribute)) {
-            addNewColumn(selectionList, root.get(ACMEAccount_.id));
+            selectionList.add(root.get(ACMEAccount_.accountId));
         } else {
             logger.warn("fall-thru clause adding 'true' condition for {} ", attribute);
         }

@@ -216,9 +216,7 @@ public class ACMEChallengeIT {
 
                 webThread.stop();
             }
-
         }
-
 
         // ##########################
         // csr with key already used

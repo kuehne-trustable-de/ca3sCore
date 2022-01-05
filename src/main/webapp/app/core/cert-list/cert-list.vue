@@ -76,7 +76,7 @@
 				</certificate>
 
                 <div>
-                    <section float="leftt" class="pagers-table">
+                    <section float="left" class="pagers-table">
                         <certificate-pager type="abbreviated" table="certificates" v-model="page"></certificate-pager>
                     </section>
                     <!--select float="right" class="smallSelector fa-1x" name="pageSize">

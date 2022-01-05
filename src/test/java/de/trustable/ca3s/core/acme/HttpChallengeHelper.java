@@ -29,10 +29,11 @@ public class HttpChallengeHelper {
 
         Take tk = new TkFork(new FkRegex(fileNameRegEx, fileContent));
 
-        FtBasic webBasicTmp = null;
+        FtBasic webBasicTmp;
         try {
             webBasicTmp = new FtBasic(tk, callbackPort);
         }catch(BindException be) {
+            LOG.warn("BindException for port " + callbackPort, be);
             Thread.sleep(1000L);
             webBasicTmp = new FtBasic(tk, callbackPort);
         }

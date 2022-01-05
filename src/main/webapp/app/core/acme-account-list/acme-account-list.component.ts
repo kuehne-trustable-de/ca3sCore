@@ -25,7 +25,7 @@ interface ISelectionChoices {
   choices?: ISelector[];
 }
 
-VuejsDatatableFactory.registerTableType<any, any, any, any, any>('accounts-table', tableType =>
+VuejsDatatableFactory.registerTableType<any, any, any, any, any>('account', tableType =>
   tableType
     .setFilterHandler((source, filter, columns) => ({
       // See https://documenter.getpostman.com/view/2025350/RWaEzAiG#json-field-masking
@@ -94,7 +94,7 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('accounts-table
 );
 
 @Component
-export default class CsrList extends mixins(AlertMixin, Vue) {
+export default class AcmeAccountList extends mixins(AlertMixin, Vue) {
   public now: Date = new Date();
   public soon: Date = new Date();
   public recently: Date = new Date();
@@ -219,7 +219,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
     return {
       columns: [
         { label: 'id', field: 'id' },
-        { label: 'accountId', field: 'accountId' },
+        { label: this.$t('ca3SApp.aCMEAccount.accountId'), field: 'accountId' },
         { label: this.$t('status'), field: 'status' },
         { label: this.$t('realm'), field: 'realm' },
         //        { label: this.$t('createdOn'), field: 'createdOn' },
@@ -241,7 +241,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
 
   // refesh table by pressing 'enter'
   public updateTable() {
-    //    window.console.debug('updateTable: enter pressed ...');
+    window.console.debug('updateTable: enter pressed ...');
     this.buildContentAccessUrl();
     this.buildContentAccessUrl();
   }
@@ -279,34 +279,9 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
     this.dateWarn.setDate(this.now.getDate() + 35);
     this.dateAlarm.setDate(this.now.getDate() + 10);
 
-    //    this.getCertificateSelectionAttributes();
     this.getUsersFilterList();
     setInterval(() => this.putUsersFilterList(this), 3000);
     setInterval(() => this.buildContentAccessUrl(), 1000);
-  }
-
-  public getCertificateSelectionAttributes(): void {
-    window.console.info('calling getCertificateSelectionAttributes ');
-    const self = this;
-
-    axios({
-      method: 'get',
-      url: 'api/certificateSelectionAttributes',
-      responseType: 'stream'
-    }).then(function(response) {
-      if (response.status === 200) {
-        self.certificateSelectionAttributes = response.data;
-
-        for (let i = 0; i < self.certificateSelectionAttributes.length; i++) {
-          self.acmeAccountSelectionItems.push({
-            itemName: self.certificateSelectionAttributes[i],
-            itemType: 'string',
-            itemDefaultSelector: 'EQUAL',
-            itemDefaultValue: 'X'
-          });
-        }
-      }
-    });
   }
 
   public getUsersFilterList(): void {
@@ -337,10 +312,11 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
       axios({
         method: 'put',
         url: 'api/userProperties/filterList/acmeAccountList',
-        data: self.filters,
-        responseType: 'stream'
+        data: self.filters
+        //        ,
+        //        responseType: 'stream'
       }).then(function(response) {
-        //        window.console.debug('putUsersFilterList returns ' + response.status);
+        window.console.debug('putUsersFilterList returns ' + response.status);
         if (response.status === 204) {
           self.lastFilters = lastFiltersValue;
         }

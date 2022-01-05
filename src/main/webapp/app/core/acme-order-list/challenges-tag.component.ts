@@ -3,14 +3,14 @@ import { Component, Vue, Prop } from 'vue-property-decorator';
 import { ITableContentParam, TColumnsDefinition, VuejsDatatableFactory } from 'vuejs-datatable';
 import { colFieldToStr, makeQueryStringFromObj } from '@/shared/utils';
 import axios from 'axios';
-import { IAuditTraceView, ICertificateFilter, ICertificateFilterList } from '@/shared/model/transfer-object.model';
+import { IACMEChallengeView } from '@/shared/model/transfer-object.model';
 
 import { mixins } from 'vue-class-component';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
 Vue.use(VuejsDatatableFactory);
 
-VuejsDatatableFactory.registerTableType<any, any, any, any, any>('audits-table', tableType =>
+VuejsDatatableFactory.registerTableType<any, any, any, any, any>('challenges-table', tableType =>
   tableType
     .setFilterHandler((source, filter, columns) => ({
       // See https://documenter.getpostman.com/view/2025350/RWaEzAiG#json-field-masking
@@ -51,13 +51,14 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('audits-table',
         headers: { 'x-total-count': totalCount }
       } = await axios.get(url);
 
-      window.console.info('audit data : ' + totalCount + ' -> ' + data.content);
+      window.console.info('challenge data : ' + totalCount + ' -> ' + data);
 
       return {
-        rows: data.content,
+        rows: data,
         totalRowCount: data.numberOfElements
-      } as ITableContentParam<IAuditTraceView>;
+      } as ITableContentParam<IACMEChallengeView>;
     })
+
     .mergeSettings({
       table: {
         class: 'table table-hover table-striped',
@@ -81,24 +82,9 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('audits-table',
 );
 
 @Component
-export default class AuditTag extends mixins(AlertMixin, Vue) {
+export default class ChallengesTag extends mixins(AlertMixin, Vue) {
   @Prop()
-  public showLinks: boolean;
-
-  @Prop()
-  public csrId: string;
-
-  @Prop()
-  public certificateId: string;
-
-  @Prop()
-  public pipelineId: string;
-
-  @Prop()
-  public caConnectorId: string;
-
-  @Prop()
-  public processInfoId: string;
+  public orderId: number;
 
   public get authenticated(): boolean {
     return this.$store.getters.authenticated;
@@ -134,7 +120,7 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
   }
 
   el() {
-    return '#audits-table';
+    return '#challenges-table';
   }
 
   data() {
@@ -142,28 +128,26 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
 
     return {
       columns: [
-        { label: 'id', field: 'id', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
-        { label: this.$t('audits.actor'), field: 'actorName' },
-        { label: this.$t('audits.role'), field: 'actorRole' },
-        { label: this.$t('audits.plainContent'), field: 'plainContent' },
-        { label: this.$t('audits.createdOn'), field: 'createdOn' },
-        { label: 'certificateId', field: 'certificateId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
-        { label: 'csrId', field: 'csrId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
-        { label: this.$t('audits.links'), field: 'links', headerClass: 'hiddenColumn', class: 'hiddenColumn' }
-      ] as TColumnsDefinition<IAuditTraceView>,
+        { label: 'challengeId', field: 'challengeId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
+        { label: this.$t('ca3SApp.acmeChallenge.status'), field: 'status' },
+        //        { label: this.$t('challenges.authorizationType'), field: 'authorizationType' },
+        //        { label: this.$t('challenges.authorizationValue'), field: 'authorizationValue' },
+        { label: this.$t('ca3SApp.acmeChallenge.type'), field: 'type' },
+        { label: this.$t('ca3SApp.acmeChallenge.target'), field: 'value' },
+        { label: this.$t('ca3SApp.acmeChallenge.updatedOn'), field: 'validated' }
+      ] as TColumnsDefinition<IACMEChallengeView>,
 
-      get auditApiUrl() {
-        console.log('in auditApiUrl ... ');
+      get challengesApiUrl() {
+        console.log('challengesApiUrl returning ' + self.buildContentAccessUrl());
         return self.buildContentAccessUrl();
       },
-
       page: 1,
       filter: '',
       contentAccessUrl: ''
     };
   }
 
-  // refesh table by pressing 'enter'
+  // refresh table by pressing 'enter'
   public updateTable() {
     //    window.console.debug('updateTable: enter pressed ...');
     this.buildContentAccessUrl();
@@ -196,14 +180,9 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
   }
 
   public buildContentAccessUrl(): string {
-    const baseApiUrl = 'api/audit-trace-views';
+    const baseApiUrl = 'api/acmeOrderView/' + this.orderId + '/challenges';
 
-    let url = baseApiUrl + '?';
-    url += 'csrId=' + this.processParamForURL(this.csrId);
-    url += 'certificateId=' + this.processParamForURL(this.certificateId);
-    url += 'pipelineId=' + this.processParamForURL(this.pipelineId);
-    url += 'caConnectorId=' + this.processParamForURL(this.caConnectorId);
-    url += 'processInfoId=' + this.processParamForURL(this.processInfoId);
+    let url = baseApiUrl;
 
     window.console.info('buildContentAccessUrl: url : ' + url);
 
@@ -227,5 +206,7 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
     }
   }
 
-  public mounted(): void {}
+  public mounted(): void {
+    window.console.info('in mounted()');
+  }
 }

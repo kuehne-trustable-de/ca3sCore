@@ -42,29 +42,30 @@
 					</div>
 				</div>
 
-                <accounts-table :columns="columns" :data="acmeAccountApiUrl" :per-page="20" name="accounts">
+                <account :columns="columns" :data="acmeAccountApiUrl" :per-page="20" name="accounts">
 					<template slot-scope="{ row }">
 						<tr>
-                            <td @click="$router.push({name: 'ACMEAccount', params: {acmeAccountId: row.id}})">{{ row.id }}</td>
-                            <td @click="$router.push({name: 'ACMEAccount', params: {acmeAccountId: row.id}})">{{ row.accountId }}</td>
-							<td @click="$router.push({name: 'ACMEAccount', params: {acmeAccountId: row.id}})" >{{ $t(row.status) }}</td>
-							<td @click="$router.push({name: 'ACMEAccount', params: {acmeAccountId: row.id}})" >{{ row.realm }}</td>
-							<!--td @click="$router.push({name: 'ACMEAccount', params: {acmeAccountId: row.id}})" >{{ toLocalDate(row.createdOn) }}</td-->
-							<td @click="$router.push({name: 'ACMEAccount', params: {acmeAccountId: row.id}})" >{{ row.termsOfServiceAgreed }}</td>
-							<td @click="$router.push({name: 'ACMEAccount', params: {acmeAccountId: row.id}})" >{{ row.publicKeyHash }}</td>
-                            <td @click="$router.push({name: 'ACMEAccount', params: {acmeAccountId: row.id}})" >{{ row.orderCount }}</td>
-                            <td @click="$router.push({name: 'ACMEAccount', params: {acmeAccountId: row.id}})" >{{ row.contactUrls }}</td>
+                            <td @click="$router.push({name: 'ACMEAccountInfo', params: {accountId: row.id}})">{{ row.id }}</td>
+                            <td @click="$router.push({name: 'ACMEAccountInfo', params: {accountId: row.id}})">{{ row.accountId }}</td>
+							<td @click="$router.push({name: 'ACMEAccountInfo', params: {accountId: row.id}})" >{{ $t(row.status) }}</td>
+							<td @click="$router.push({name: 'ACMEAccountInfo', params: {accountId: row.id}})" >{{ row.realm }}</td>
+							<!--td @click="$router.push({name: 'ACMEAccountInfo', params: {accountId: row.id}})" >{{ toLocalDate(row.createdOn) }}</td-->
+							<td @click="$router.push({name: 'ACMEAccountInfo', params: {accountId: row.id}})" >{{ row.termsOfServiceAgreed }}</td>
+							<td @click="$router.push({name: 'ACMEAccountInfo', params: {accountId: row.id}})" >{{ row.publicKeyHash }}</td>
+                            <td @click="$router.push({name: 'ACMEAccountInfo', params: {accountId: row.id}})" >{{ row.orderCount }}</td>
+                            <td @click="$router.push({name: 'ACMEAccountInfo', params: {accountId: row.id}})" >{{ row.contactUrls }}</td>
 						</tr>
 					</template>
 
 					<template name="no-result">
 						<div v-text="$t('list.noContent')">no content</div>
 					</template>
-				</accounts-table>
+				</account>
 
 				<section class="pagers-table">
-					<requests-table-pager type="abbreviated" table="accounts"></requests-table-pager>
+					<account-pager type="abbreviated" table="accounts"></account-pager>
 				</section>
+
 			</div>
   	    </div>
 	</div>

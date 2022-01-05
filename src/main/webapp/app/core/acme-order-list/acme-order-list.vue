@@ -45,14 +45,15 @@
                 <orders-table :columns="columns" :data="acmeOrderApiUrl" :per-page="20" name="orders">
 					<template slot-scope="{ row }">
 						<tr>
-                            <td @click="$router.push({name: 'acmeOrder', params: {acmeOrderId: row.id}})">{{ row.id }}</td>
-                            <td @click="$router.push({name: 'acmeOrder', params: {acmeOrderId: row.id}})">{{ row.orderId }}</td>
-							<td @click="$router.push({name: 'acmeOrder', params: {acmeOrderId: row.id}})" >{{ $t(row.status) }}</td>
-							<td @click="$router.push({name: 'acmeOrder', params: {acmeOrderId: row.id}})" >{{ row.realm }}</td>
-                            <td @click="$router.push({name: 'acmeOrder', params: {acmeOrderId: row.id}})" >{{ toLocalDate(row.expires) }}</td>
-                            <td @click="$router.push({name: 'acmeOrder', params: {acmeOrderId: row.id}})" >{{ toLocalDate(row.notBefore) }}</td>
-                            <td @click="$router.push({name: 'acmeOrder', params: {acmeOrderId: row.id}})" >{{ toLocalDate(row.notAfter) }}</td>
-							<td @click="$router.push({name: 'acmeOrder', params: {acmeOrderId: row.id}})" >{{ row.error }}</td>
+                            <td @click="$router.push({name: 'AcmeOrderInfo', params: {orderId: row.id}})">{{ row.id }}</td>
+                            <td @click="$router.push({name: 'AcmeOrderInfo', params: {orderId: row.id}})">{{ row.orderId }}</td>
+							<td @click="$router.push({name: 'AcmeOrderInfo', params: {orderId: row.id}})" >{{ $t(row.status) }}</td>
+							<td @click="$router.push({name: 'AcmeOrderInfo', params: {orderId: row.id}})" >{{ row.realm }}</td>
+                            <td @click="$router.push({name: 'AcmeOrderInfo', params: {orderId: row.id}})" >{{ row.challengeTypes }}</td>
+                            <td @click="$router.push({name: 'AcmeOrderInfo', params: {orderId: row.id}})" >{{ row.challengeUrls }}</td>
+                            <td @click="$router.push({name: 'AcmeOrderInfo', params: {orderId: row.id}})" >{{ toLocalDate(row.expires) }}</td>
+                            <td @click="$router.push({name: 'AcmeOrderInfo', params: {orderId: row.id}})" >{{ toLocalDate(row.notBefore) }}</td>
+                            <td @click="$router.push({name: 'AcmeOrderInfo', params: {orderId: row.id}})" >{{ toLocalDate(row.notAfter) }}</td>
 						</tr>
 					</template>
 
@@ -62,7 +63,7 @@
 				</orders-table>
 
 				<section class="pagers-table">
-					<requests-table-pager type="abbreviated" table="accounts"></requests-table-pager>
+					<orders-table-pager type="abbreviated" table="orders"></orders-table-pager>
 				</section>
 			</div>
   	    </div>

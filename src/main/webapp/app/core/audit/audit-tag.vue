@@ -16,6 +16,11 @@
             <template name="no-result">
                 <div v-text="$t('list.noContent')">no content</div>
             </template>
+
+            <section class="pagers-table">
+                <audits-pager type="abbreviated" table="audits"></audits-pager>
+            </section>
+
         </audits-table>
 
     </div>

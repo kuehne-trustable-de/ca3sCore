@@ -20,7 +20,7 @@ import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.*;
 import de.trustable.ca3s.core.service.dto.NamedValues;
-import de.trustable.ca3s.core.web.rest.data.KeyAlgoLength;
+import de.trustable.ca3s.core.service.dto.KeyAlgoLength;
 import de.trustable.util.CryptoUtil;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
@@ -28,9 +28,7 @@ import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.GeneralName;
-import org.jscep.transaction.FailInfo;
 import org.jscep.transaction.OperationFailureException;
-import org.jscep.transaction.TransactionId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1105,7 +1103,7 @@ public class PipelineUtil {
 
     public Certificate getSCEPRecipientCertificate( Pipeline pipeline) throws OperationFailureException, IOException, GeneralSecurityException {
 
-	    new Exception().printStackTrace();
+//	    new Exception().printStackTrace();
 
         String scepRecipientCertId = getPipelineAttribute( pipeline, SCEP_RECIPIENT_CERT_ID, "0");
         Optional<Certificate> optCert = certRepository.findById(Long.parseLong(scepRecipientCertId));

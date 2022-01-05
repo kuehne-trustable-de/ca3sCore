@@ -254,7 +254,7 @@ export default class CertList extends mixins(AlertMixin, Vue) {
   public links(csrId: string, certificateId: string, pipelineId: string, caConnectorId: string, processInfoId: string) {}
 
   unescapeComma(content: string): string {
-    return content.replace('%2C', ',').replace('%25', '%');
+    return content.replace(new RegExp('%2C', 'g'), ',').replace(new RegExp('%25', 'g'), '%');
   }
 
   // refesh table by pressing 'enter'
