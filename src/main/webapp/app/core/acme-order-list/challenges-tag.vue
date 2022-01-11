@@ -20,6 +20,10 @@
             </template>
         </challenges-table>
 
+        <section class="pagers-table">
+            <challenges-table-pager type="abbreviated" table="challenges"></challenges-table-pager>
+        </section>
+
     </div>
 </template>
 

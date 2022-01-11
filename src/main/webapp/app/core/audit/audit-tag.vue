@@ -2,7 +2,7 @@
 <template>
 
     <div>
-        <audits-table :columns="columns" :data="auditApiUrl" :per-page="20" name="audits">
+        <audits-table :columns="columns" :data="auditApiUrl" :per-page="10" name="audits">
             <template slot-scope="{ row }">
                 <tr>
                     <td>{{ row.actorName }}</td>
@@ -16,12 +16,11 @@
             <template name="no-result">
                 <div v-text="$t('list.noContent')">no content</div>
             </template>
-
-            <section class="pagers-table">
-                <audits-pager type="abbreviated" table="audits"></audits-pager>
-            </section>
-
         </audits-table>
+
+        <section class="pagers-table">
+            <audits-table-pager type="abbreviated" table="audits"></audits-table-pager>
+        </section>
 
     </div>
 </template>

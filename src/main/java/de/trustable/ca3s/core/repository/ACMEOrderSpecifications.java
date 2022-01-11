@@ -265,12 +265,16 @@ public final class ACMEOrderSpecifications {
                 acmeOrderView.setFinalizeUrl((String) objArr[i]);
             } else if ("certificateUrl".equalsIgnoreCase(attribute)) {
                 acmeOrderView.setCertificateUrl((String) objArr[i]);
+            } else if ("challengeTypes".equalsIgnoreCase(attribute)) {
+                acmeOrderView.setChallengeTypes((String) objArr[i]);
+            } else if ("challengeUrls".equalsIgnoreCase(attribute)) {
+                // just ignore
+                // acmeOrderView.setChallengeUrls((String) objArr[i]);
             } else {
                 logger.warn("unexpected attribute '{}' from query", attribute);
             }
             i++;
         }
-
         return acmeOrderView;
     }
 
@@ -403,6 +407,28 @@ public final class ACMEOrderSpecifications {
             addNewColumn(selectionList, root.get(AcmeOrder_.certificateUrl));
             if (attributeValue.trim().length() > 0) {
                 pred = buildPredicateString(attributeSelector, cb, root.get(AcmeOrder_.certificateUrl), attributeValue);
+            }
+        } else if ("challengeTypes".equals(attribute)) {
+            addNewColumn(selectionList, root.get(AcmeOrder_.certificateUrl));
+
+            if( attributeValue.trim().length() > 0 ) {
+                //subquery
+                Subquery<AcmeAuthorization> certAuthSubquery = query.subquery(AcmeAuthorization.class);
+                Root<AcmeAuthorization> certAuthRoot = certAuthSubquery.from(AcmeAuthorization.class);
+                pred = cb.exists(certAuthSubquery.select(certAuthRoot)//subquery selection
+                    .where(cb.and( cb.equal(certAuthRoot.get(AcmeAuthorization_.ORDER), root.get(AcmeOrder_.ID)),
+                        buildPredicateString( attributeSelector, cb, certAuthRoot.<String>get(AcmeAuthorization_.value), attributeValue.toLowerCase()) )));
+            }
+        } else if ("challengeUrls".equals(attribute)) {
+            addNewColumn(selectionList, root.get(AcmeOrder_.certificateUrl));
+
+            if( attributeValue.trim().length() > 0 ) {
+                //subquery
+                Subquery<AcmeAuthorization> certAuthSubquery = query.subquery(AcmeAuthorization.class);
+                Root<AcmeAuthorization> certAuthRoot = certAuthSubquery.from(AcmeAuthorization.class);
+                pred = cb.exists(certAuthSubquery.select(certAuthRoot)//subquery selection
+                    .where(cb.and( cb.equal(certAuthRoot.get(AcmeAuthorization_.ORDER), root.get(AcmeOrder_.ID)),
+                        buildPredicateString( attributeSelector, cb, certAuthRoot.<String>get(AcmeAuthorization_.value), attributeValue.toLowerCase()) )));
             }
         } else {
             logger.warn("fall-thru clause adding 'true' condition for {} ", attribute);

@@ -41,27 +41,21 @@ public class ACMEOrderUtil {
         acmeOrderView.setFinalizeUrl(acmeOrder.getFinalizeUrl());
         acmeOrderView.setCertificateUrl(acmeOrder.getCertificateUrl());
 
-        List<ACMEChallengeView> acmeChallengeViewList = new ArrayList<>();
         HashSet<String> urlSet = new HashSet<>();
         HashSet<String> typeSet = new HashSet<>();
         for(AcmeAuthorization acmeAuthorization: acmeOrder.getAcmeAuthorizations()){
 
             for(AcmeChallenge acmeChallenge: acmeAuthorization.getChallenges()){
-
-                ACMEChallengeView acmeChallengeView = getAcmeChallengeView(acmeAuthorization, acmeChallenge);
-
-                acmeChallengeViewList.add(acmeChallengeView);
-                if(ChallengeStatus.VALID.equals(acmeChallenge.getStatus())){
+//                if(ChallengeStatus.VALID.equals(acmeChallenge.getStatus())){
                     urlSet.add(acmeChallenge.getValue());
                     typeSet.add(acmeChallenge.getType());
                 }
-            }
+//            }
         }
- //       acmeOrderView.setChallenges(acmeChallengeViewList.toArray(new ACMEChallengeView[0]));
 
         String urls = "";
         Iterator<String> itUrl = urlSet.iterator();
-        for( ; itUrl.hasNext(); ){
+        while (itUrl.hasNext()) {
             if( !urls.isEmpty()){
                 urls += "; ";
             }
@@ -71,7 +65,7 @@ public class ACMEOrderUtil {
 
         String types = "";
         Iterator<String> itType = typeSet.iterator();
-        for( ; itType.hasNext(); ){
+        while (itType.hasNext()) {
             if( !types.isEmpty()){
                 types += "; ";
             }
@@ -86,13 +80,10 @@ public class ACMEOrderUtil {
     public List<ACMEChallengeView> challengeListfrom(AcmeOrder acmeOrder) {
 
         List<ACMEChallengeView> acmeChallengeViewList = new ArrayList<>();
-
         for (AcmeAuthorization acmeAuthorization : acmeOrder.getAcmeAuthorizations()) {
 
             for (AcmeChallenge acmeChallenge : acmeAuthorization.getChallenges()) {
-
                 ACMEChallengeView acmeChallengeView = getAcmeChallengeView(acmeAuthorization, acmeChallenge);
-
                 acmeChallengeViewList.add(acmeChallengeView);
             }
         }

@@ -195,7 +195,7 @@ export default class ChallengesTag extends mixins(AlertMixin, Vue) {
     }
     return url;
   }
-
+  /*
   processParamForURL(id): string {
     if (id === null) {
       return '-1&';
@@ -205,7 +205,7 @@ export default class ChallengesTag extends mixins(AlertMixin, Vue) {
       return '-1&';
     }
   }
-
+*/
   public mounted(): void {
     window.console.info('in mounted()');
   }

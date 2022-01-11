@@ -14,6 +14,7 @@ public class ACMEAccountView implements Serializable {
     private AccountStatus status;
     private Boolean termsOfServiceAgreed;
     private String publicKeyHash;
+    private String publicKey;
     private String[] contactUrls;
     private Long orderCount;
 
@@ -67,6 +68,14 @@ public class ACMEAccountView implements Serializable {
         this.termsOfServiceAgreed = termsOfServiceAgreed;
     }
 
+    public String getPublicKey() {
+        return publicKey;
+    }
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
+    }
+
     public String getPublicKeyHash() {
         return publicKeyHash;
     }
@@ -86,7 +95,6 @@ public class ACMEAccountView implements Serializable {
     public Long getOrderCount() {
         return orderCount;
     }
-
     public void setOrderCount(Long orderCount) {
         this.orderCount = orderCount;
     }

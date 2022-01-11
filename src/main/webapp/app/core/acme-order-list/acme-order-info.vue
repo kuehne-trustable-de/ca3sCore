@@ -21,7 +21,7 @@
                         <span v-text="$t('ca3SApp.acmeOrder.status')">Status</span>
                     </dt>
                     <dd>
-                        <span v-text="$t('ca3SApp.aCMEAccount.' + acmeOrderView.status)">{{acmeOrderView.status}}</span>
+                        <span v-text="$t('ca3SApp.AcmeOrderStatus.' + acmeOrderView.status)">{{acmeOrderView.status}}</span>
                     </dd>
 
 
@@ -54,6 +54,15 @@
                     <dd v-if="acmeOrderView.csrId">
                         <div>
                             <router-link :to="{name: 'CsrInfo', params: {csrId: acmeOrderView.csrId}}">{{acmeOrderView.csrId}}</router-link>
+                        </div>
+                    </dd>
+
+                    <dt v-if="acmeOrderView.certificateId">
+                        <span v-text="$t('ca3SApp.certificate.certificate')">Certificate</span>
+                    </dt>
+                    <dd v-if="acmeOrderView.certificateId">
+                        <div>
+                            <router-link :to="{name: 'CertInfo', params: {certificateId: acmeOrderView.certificateId}}">{{acmeOrderView.certificateId}}</router-link>
                         </div>
                     </dd>
 

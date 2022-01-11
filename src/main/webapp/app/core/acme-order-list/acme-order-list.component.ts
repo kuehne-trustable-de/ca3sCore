@@ -113,6 +113,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
       itemDefaultValue: 'VALID',
       values: ['PENDING', 'READY', 'PROCESSING', 'VALID', 'INVALID']
     },
+    { itemName: 'challengeUrls', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable.de' },
     { itemName: 'id', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: '1' },
     { itemName: 'orderId', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: '' },
     { itemName: 'realm', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: '' },

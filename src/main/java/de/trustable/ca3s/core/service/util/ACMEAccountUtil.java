@@ -12,7 +12,6 @@ import java.util.List;
 @Service
 public class ACMEAccountUtil {
 
-
     public ACMEAccountView from(ACMEAccount acmeAccount){
 
         ACMEAccountView acmeAccountView = new ACMEAccountView();
@@ -24,6 +23,7 @@ public class ACMEAccountUtil {
         acmeAccountView.setTermsOfServiceAgreed(acmeAccount.isTermsOfServiceAgreed());
         acmeAccountView.setCreatedOn(Instant.now());
         acmeAccountView.setPublicKeyHash(acmeAccount.getPublicKeyHash());
+        acmeAccountView.setPublicKey(acmeAccount.getPublicKey());
 
         List<String> contactList = new ArrayList<>();
         for(AcmeContact acmeContact: acmeAccount.getContacts()){
