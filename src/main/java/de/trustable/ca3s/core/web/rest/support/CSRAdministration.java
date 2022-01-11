@@ -17,7 +17,7 @@ import de.trustable.ca3s.core.web.rest.data.CSRAdministrationData;
 import de.trustable.ca3s.core.service.dto.NamedValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -42,26 +42,43 @@ public class CSRAdministration {
 
 	private final Logger LOG = LoggerFactory.getLogger(CSRAdministration.class);
 
-    @Autowired
-    private CSRRepository csrRepository;
 
-    @Autowired
-    private CsrAttributeRepository csrAttributeRepository;
+    private final CSRRepository csrRepository;
 
-    @Autowired
-	private BPMNUtil bpmnUtil;
+    private final CsrAttributeRepository csrAttributeRepository;
 
-    @Autowired
-    private CSRUtil csrUtil;
+	private final BPMNUtil bpmnUtil;
 
-    @Autowired
-	private UserRepository userRepository;
+    private final CSRUtil csrUtil;
 
-	@Autowired
-	private AuditService auditService;
+	private final UserRepository userRepository;
 
-    @Autowired
-    private NotificationService notificationService;
+	private final AuditService auditService;
+
+    private final NotificationService notificationService;
+
+    private final boolean selfIssuanceAllowed;
+
+
+
+    public CSRAdministration(CSRRepository csrRepository,
+                             CsrAttributeRepository csrAttributeRepository,
+                             BPMNUtil bpmnUtil,
+                             CSRUtil csrUtil,
+                             UserRepository userRepository,
+                             AuditService auditService,
+                             NotificationService notificationService,
+                             @Value("${ca3s.issuance.ra.self-issuance-allowed:false}") boolean selfIssuanceAllowed
+    ) {
+        this.csrRepository = csrRepository;
+        this.csrAttributeRepository = csrAttributeRepository;
+        this.bpmnUtil = bpmnUtil;
+        this.csrUtil = csrUtil;
+        this.userRepository = userRepository;
+        this.auditService = auditService;
+        this.notificationService = notificationService;
+        this.selfIssuanceAllowed = selfIssuanceAllowed;
+    }
 
     /**
      * {@code POST  /administerRequest} : Process a PKCSXX-object encoded as PEM.
@@ -75,13 +92,23 @@ public class CSRAdministration {
 
     	LOG.debug("REST request to reject / accept CSR : {}", adminData);
 
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String userName = auth.getName();
 
     	Optional<CSR> optCSR = csrRepository.findById(adminData.getCsrId());
     	if( optCSR.isPresent()) {
             CSR csr = optCSR.get();
+            if( userName == null ||
+                userName.equals(csr.getRequestedBy()) ){
 
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			csr.setAdministeredBy(auth.getName());
+                if(selfIssuanceAllowed){
+                    LOG.info("REST request by ra officer '{}' to accept CSR '{}' issued by himself accepted!", userName, adminData.getCsrId());
+                }else {
+                    LOG.warn("REST request by ra officer '{}' to accept CSR '{}' issued by himself rejected!", userName, adminData.getCsrId());
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                }
+            }
+			csr.setAdministeredBy(userName);
             updateComment(adminData, csr);
 
             if(AdministrationType.ACCEPT.equals(adminData.getAdministrationType())){

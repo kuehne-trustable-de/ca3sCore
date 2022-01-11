@@ -198,6 +198,10 @@ jhipster:
 protectionSecret: bnJvbGwvV1MtMjAxOS1DQS5jcmyGK2h0dHA6Ly90cnVzdGFibGUuZXUvYWRjc1Rl
 
 ca3s:
+  issuance:
+    ra:
+      self-issuance-allowed: true
+
   ui:
 # limit the set of selectable languages, available languages are de, en, pl
 # if only one language is selected, the user form for selection is disabled / hidden.
