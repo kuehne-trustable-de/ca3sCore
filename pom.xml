@@ -89,7 +89,7 @@
         https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
 
         <spring.version>5.2.19.RELEASE</spring.version>
-        <spring-framework.version>5.2.19.RELEASE</spring-framework.version>
+        <spring-framework.version>${spring.version}</spring-framework.version>
 
         <!--spring.security.version>5.3.8.RELEASE</spring.security.version-->
         <spring.security.version>5.2.15.RELEASE</spring.security.version>
@@ -104,9 +104,10 @@
         <!-- The liquibase version should match the one managed by
         https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
         <!--liquibase.version>3.5.5</liquibase.version-->
-        <liquibase.version>4.3.1</liquibase.version>
+        <liquibase.version>4.3.5</liquibase.version>
 
         <h2.version>2.0.206</h2.version>
+
         <json.version>2.6.0</json.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
         <jaxb-runtime.version>2.3.3</jaxb-runtime.version>
@@ -146,7 +147,6 @@
         <bouncyCastleVersion>1.68</bouncyCastleVersion>
         <cryptoUtilVersion>1.2.0</cryptoUtilVersion>
         <certBundleVersion>1.1.1</certBundleVersion>
-        <nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
         <adcsUtilVersion>1.2.0</adcsUtilVersion>
         <adcsProxyClientVersion>1.2.1</adcsProxyClientVersion>
 
