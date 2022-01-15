@@ -79,6 +79,16 @@
                                             :readonly="rr.readOnly"
                                             :required="rr.required"
                                             v-on:input="alignRDNArraySize(index, valueIndex)"/>
+
+                                        <small v-if="showContentWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])"
+                                               class="form-text text-danger" v-text="$t('entity.validation.required')">
+                                            This field is required.
+                                        </small>
+                                        <small v-else-if="showRegExpWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])"
+                                               class="form-text text-danger" v-text="$t('entity.validation.pattern', {'pattern': rr.template})">
+                                            This field should follow pattern for {{ rr.template }}.
+                                        </small>
+
                                     </Fragment>
                                 </div>
 							</div>
@@ -100,8 +110,17 @@
                                        :readonly="item.readOnly"
                                        :required="item.required"
                                        v-model="upload.arAttributes[index].values[0]"
-                                       v-on:input="updateCmdLine()" />
-								</div>
+                                       v-on:input="updateAdditionalRestriction()" />
+                                    <small v-if="showContentWarning(item, 0, upload.arAttributes[index].values[0])"
+                                           class="form-text text-danger" v-text="$t('entity.validation.required')">
+                                        This field is required.
+                                    </small>
+                                    <small v-else-if="showRegExpWarning(item, 0, upload.arAttributes[index].values[0])"
+                                           class="form-text text-danger" v-text="$t('entity.validation.pattern', {'pattern': item.template})">
+                                        This field should follow pattern for {{ item.template }}.
+                                    </small>
+
+                                </div>
 							</div>
 						</div>
 

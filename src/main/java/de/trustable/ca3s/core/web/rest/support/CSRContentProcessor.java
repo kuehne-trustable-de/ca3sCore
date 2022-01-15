@@ -11,9 +11,13 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
+import de.trustable.ca3s.core.domain.Pipeline;
+import de.trustable.ca3s.core.repository.PipelineRepository;
+import de.trustable.ca3s.core.service.util.PipelineUtil;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.DecoderException;
@@ -63,6 +67,12 @@ public class CSRContentProcessor {
 
 	@Autowired
 	private CertificateUtil certUtil;
+
+    @Autowired
+    private PipelineRepository pipelineRepository;
+
+    @Autowired
+    private PipelineUtil pvUtil;
 
 
     /**
@@ -120,6 +130,18 @@ public class CSRContentProcessor {
 					LOG.debug("public key with hash '{}' used in #{} csrs, yet", p10ReqHolder.getPublicKeyHash(), csrList.size());
 					p10ReqData.setCsrPublicKeyPresentInDB(!csrList.isEmpty());
 
+                    Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
+                    if( optPipeline.isPresent()) {
+                        List<String> messageList = new ArrayList<>();
+                        if (pvUtil.isPipelineRestrictionsResolved(optPipeline.get(), p10ReqHolder, uploaded.getArAttributes(), messageList)) {
+                            LOG.debug("pipeline restrictions for pipeline '{}' solved", optPipeline.get().getName());
+                        }else {
+                            p10ReqData.setMessages(messageList.toArray(new String[0]));
+//                            return new ResponseEntity<>(p10ReqData, HttpStatus.BAD_REQUEST);
+                        }
+                    }else{
+                        LOG.info("pipeline id '{}' not found", uploaded.getPipelineId());
+                    }
 
 					List<Certificate> candidates = certUtil.findReplaceCandidates(p10ReqData.getP10Holder().getSans());
 					p10ReqData.setReplacementCandidates(candidates);

@@ -85,6 +85,9 @@ public class ContentUploadProcessor {
     private PipelineUtil pipelineUtil;
 
     @Autowired
+    private PipelineUtil pvUtil;
+
+    @Autowired
     private PreferenceUtil preferenceUtil;
 
     @Autowired
@@ -202,6 +205,18 @@ public class ContentUploadProcessor {
                 if(csrList.isEmpty()) {
 
                     Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
+                    if( optPipeline.isPresent()) {
+                        List<String> messageList = new ArrayList<>();
+                        if (pvUtil.isPipelineRestrictionsResolved(optPipeline.get(), p10ReqHolder, uploaded.getArAttributes(), messageList)) {
+                            LOG.debug("pipeline restrictions for pipeline '{}' solved", optPipeline.get().getName());
+                        }else {
+                            p10ReqData.setMessages(messageList.toArray(new String[0]));
+                            return new ResponseEntity<>(p10ReqData, HttpStatus.BAD_REQUEST);
+                        }
+                    }else{
+                        LOG.info("pipeline id '{}' not found", uploaded.getPipelineId());
+                    }
+
                     CSR csr = startCertificateCreationProcess(content, p10ReqData, requestorName, uploaded.getRequestorcomment(), uploaded.getArAttributes(), optPipeline );
                     if( csr != null ){
                         Certificate cert = csr.getCertificate();
@@ -460,7 +475,7 @@ public class ContentUploadProcessor {
 
 		if( optPipeline.isPresent()) {
 
-			Pipeline pipeline  = optPipeline.get();
+			Pipeline pipeline = optPipeline.get();
             if( pipeline.isActive()) {
                 List<String> messageList = new ArrayList<>();
 

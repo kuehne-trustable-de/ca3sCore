@@ -62,9 +62,12 @@ public class PipelineUtil {
 	public static final String RESTR_L_CARDINALITY = "RESTR_L_CARDINALITY";
 	public static final String RESTR_L_TEMPLATE = "RESTR_L_TEMPLATE";
 	public static final String RESTR_L_REGEXMATCH = "RESTR_L_REGEXMATCH";
-	public static final String RESTR_S_CARDINALITY = "RESTR_S_CARDINALITY";
-	public static final String RESTR_S_TEMPLATE = "RESTR_S_TEMPLATE";
-	public static final String RESTR_S_REGEXMATCH = "RESTR_S_REGEXMATCH";
+    public static final String RESTR_S_CARDINALITY = "RESTR_S_CARDINALITY";
+    public static final String RESTR_S_TEMPLATE = "RESTR_S_TEMPLATE";
+    public static final String RESTR_S_REGEXMATCH = "RESTR_S_REGEXMATCH";
+    public static final String RESTR_E_CARDINALITY = "RESTR_E_CARDINALITY";
+    public static final String RESTR_E_TEMPLATE = "RESTR_E_TEMPLATE";
+    public static final String RESTR_E_REGEXMATCH = "RESTR_E_REGEXMATCH";
 
 	public static final String RESTR_SAN_CARDINALITY = "RESTR_SAN_CARDINALITY";
 	public static final String RESTR_SAN_TEMPLATE = "RESTR_SAN_TEMPLATE";
@@ -166,7 +169,7 @@ public class PipelineUtil {
     		pv.setProcessInfoName(pipeline.getProcessInfo().getName());
     	}
 
-    	RDNRestriction[] rdnRestrictArr = new RDNRestriction[7];
+    	RDNRestriction[] rdnRestrictArr = new RDNRestriction[8];
 
 		RDNRestriction rdnRestrict = new RDNRestriction();
 		rdnRestrict.setRdnName("C");
@@ -198,17 +201,23 @@ public class PipelineUtil {
     	pv.setRestriction_L(rdnRestrict);
     	rdnRestrictArr[4] = rdnRestrict;
 
-		rdnRestrict = new RDNRestriction();
-		rdnRestrict.setRdnName("ST");
-		rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
-    	pv.setRestriction_S(rdnRestrict);
-    	rdnRestrictArr[5] = rdnRestrict;
+        rdnRestrict = new RDNRestriction();
+        rdnRestrict.setRdnName("ST");
+        rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv.setRestriction_S(rdnRestrict);
+        rdnRestrictArr[5] = rdnRestrict;
 
-		rdnRestrict = new RDNRestriction();
+        rdnRestrict = new RDNRestriction();
+        rdnRestrict.setRdnName("E");
+        rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv.setRestriction_E(rdnRestrict);
+        rdnRestrictArr[6] = rdnRestrict;
+
+        rdnRestrict = new RDNRestriction();
 		rdnRestrict.setRdnName("SAN");
 		rdnRestrict.setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
     	pv.setRestriction_SAN(rdnRestrict);
-    	rdnRestrictArr[6] = rdnRestrict;
+    	rdnRestrictArr[7] = rdnRestrict;
 
 		pv.setRdnRestrictions(rdnRestrictArr);
 
@@ -277,12 +286,18 @@ public class PipelineUtil {
     			pv.getRestriction_L().setContentTemplate(plAtt.getValue());
     		}else if( RESTR_L_REGEXMATCH.equals(plAtt.getName())) {
     			pv.getRestriction_L().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
-    		}else if( RESTR_S_CARDINALITY.equals(plAtt.getName())) {
-				pv.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
-    		}else if( RESTR_S_TEMPLATE.equals(plAtt.getName())) {
-    			pv.getRestriction_S().setContentTemplate(plAtt.getValue());
-    		}else if( RESTR_S_REGEXMATCH.equals(plAtt.getName())) {
-    			pv.getRestriction_S().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
+            }else if( RESTR_S_CARDINALITY.equals(plAtt.getName())) {
+                pv.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
+            }else if( RESTR_S_TEMPLATE.equals(plAtt.getName())) {
+                pv.getRestriction_S().setContentTemplate(plAtt.getValue());
+            }else if( RESTR_S_REGEXMATCH.equals(plAtt.getName())) {
+                pv.getRestriction_S().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
+            }else if( RESTR_E_CARDINALITY.equals(plAtt.getName())) {
+                pv.getRestriction_E().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
+            }else if( RESTR_E_TEMPLATE.equals(plAtt.getName())) {
+                pv.getRestriction_E().setContentTemplate(plAtt.getValue());
+            }else if( RESTR_E_REGEXMATCH.equals(plAtt.getName())) {
+                pv.getRestriction_E().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
 
     		}else if( RESTR_SAN_CARDINALITY.equals(plAtt.getName())) {
 				pv.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
@@ -537,9 +552,12 @@ public class PipelineUtil {
 		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_L_CARDINALITY, pv.getRestriction_L().getCardinalityRestriction().name());
 		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_L_TEMPLATE, pv.getRestriction_L().getContentTemplate());
 		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_L_REGEXMATCH, pv.getRestriction_L().isRegExMatch());
-		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_CARDINALITY, pv.getRestriction_S().getCardinalityRestriction().name());
-		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_TEMPLATE, pv.getRestriction_S().getContentTemplate());
-		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_REGEXMATCH, pv.getRestriction_S().isRegExMatch());
+        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_CARDINALITY, pv.getRestriction_S().getCardinalityRestriction().name());
+        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_TEMPLATE, pv.getRestriction_S().getContentTemplate());
+        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_REGEXMATCH, pv.getRestriction_S().isRegExMatch());
+        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_CARDINALITY, pv.getRestriction_E().getCardinalityRestriction().name());
+        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_TEMPLATE, pv.getRestriction_E().getContentTemplate());
+        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_REGEXMATCH, pv.getRestriction_E().isRegExMatch());
 
 		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_CARDINALITY, pv.getRestriction_SAN().getCardinalityRestriction().name());
 		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_TEMPLATE, pv.getRestriction_SAN().getContentTemplate());
@@ -757,7 +775,8 @@ public class PipelineUtil {
 	    if( !checkRestrictions(BCStyle.O, pv.getRestriction_O(), rdnArr, messageList)) { outcome = false;}
 	    if( !checkRestrictions(BCStyle.OU, pv.getRestriction_OU(), rdnArr, messageList)) { outcome = false;}
 	    if( !checkRestrictions(BCStyle.L, pv.getRestriction_L(), rdnArr, messageList)) { outcome = false;}
-	    if( !checkRestrictions(BCStyle.ST, pv.getRestriction_S(), rdnArr, messageList)) { outcome = false;}
+        if( !checkRestrictions(BCStyle.ST, pv.getRestriction_S(), rdnArr, messageList)) { outcome = false;}
+        if( !checkRestrictions(BCStyle.E, pv.getRestriction_E(), rdnArr, messageList)) { outcome = false;}
 
     	Set<GeneralName> gNameSet = CSRUtil.getSANList(p10ReqHolder.getReqAttributes());
     	LOG.debug("#" + gNameSet.size() + " SANs present");

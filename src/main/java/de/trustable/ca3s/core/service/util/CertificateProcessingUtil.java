@@ -113,7 +113,7 @@ public class CertificateProcessingUtil {
 				LOG.debug("CSR requested without pipeline given!", new Exception());
 				csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, PipelineType.WEB, null);
 			}else {
-				csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, pipeline);
+                csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, pipeline);
                 PipelineView pv = pvUtil.from(pipeline);
                 restrictionArr = pv.getAraRestrictions();
 			}

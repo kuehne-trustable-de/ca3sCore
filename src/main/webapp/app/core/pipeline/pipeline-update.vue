@@ -217,6 +217,30 @@
                                 <input type="checkbox" class="form-check-inline" name="pipeline-s-regExMatch" id="pipeline-s-regExMatch" v-model="pipeline.restriction_S.regExMatch" />
                             </div>
                         </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.e.cardinality')" for="pipeline-e-cardinality">Cardinality 'E'</label>
+                                <select class="form-control" id="pipeline-e-cardinality" name="pipeline-e-cardinality" v-model="pipeline.restriction_E.cardinalityRestriction">
+                                    <option value="NOT_ALLOWED">NOT_ALLOWED</option>
+                                    <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
+                                    <option value="ONE">ONE</option>
+                                    <option value="ZERO_OR_MANY">ZERO_OR_MANY</option>
+                                    <option value="ONE_OR_MANY">ONE_OR_MANY</option>
+                                </select>
+
+                            </div>
+                            <div class="col">
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.template')" for="pipeline-e-template">Template</label>
+                                <input type="text" class="form-control" name="pipeline-e-template" id="pipeline-e-template" v-model="pipeline.restriction_E.contentTemplate" />
+
+                            </div>
+                            <div class="col">
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.regExMatch')" for="pipeline-e-regExMatch">Regular Expression</label>
+                                <input type="checkbox" class="form-check-inline" name="pipeline-e-regExMatch" id="pipeline-e-regExMatch" v-model="pipeline.restriction_E.regExMatch" />
+                            </div>
+                        </div>
+
                         <div class="row">
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.san.cardinality')" for="pipeline-san-cardinality">Cardinality SAN</label>
