@@ -201,7 +201,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   }
 
   public updateForm(): void {
-    window.console.info('in updateForm ... ');
+    window.console.info('in updateForm, incrementing this.updateCounter:  ' + this.updateCounter);
     this.updateCounter += 1;
   }
 
@@ -212,12 +212,17 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
   public updateAdditionalRestriction(): void {
     window.console.info('in updateAdditionalRestriction ... ');
+    this.contentCall(precheckUrl);
+
     this.updateCmdLine();
   }
 
   public updatePipelineRestrictions(evt: any): void {
     const idx = evt.currentTarget.selectedIndex;
     this.updatePipelineRestrictionsByPipelineInfo(this.allWebPipelines[idx]);
+    this.precheckResponse.dataType = 'UNKNOWN';
+    this.precheckResponse.messages = [];
+    this.isChecked = false;
   }
 
   public updatePipelineRestrictionsByPipelineInfo(pipeline: IPipelineView): void {
@@ -541,7 +546,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     this.upload.keyAlgoLength = this.keyAlgoLength;
     this.upload.secret = this.secret;
 
-    if (this.creationMode === 'CSR_AVAILABLE' && this.upload.content.trim().length === 0) {
+    if (this.creationMode === 'CSR_AVAILABLE' && this.upload.content && this.upload.content.trim().length === 0) {
       this.precheckResponse.dataType = 'UNKNOWN';
       return;
     }

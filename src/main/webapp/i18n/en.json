@@ -909,6 +909,7 @@
   "pkcsxx.upload.result.type": "Content type",
   "pkcsxx.upload.result.unknown": "Unknown content",
   "pkcsxx.upload.result.message": "Message",
+  "pkcsxx.upload.result.error": "Error",
   "pkcsxx.upload.sans": "Subject alternative names",
   "pkcsxx.upload.serial": "Serial no.",
   "pkcsxx.upload.csr.usage": "Key Usage (in CSR)",

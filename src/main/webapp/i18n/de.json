@@ -900,6 +900,7 @@
   "pkcsxx.upload.result.type": "Inhaltsart",
   "pkcsxx.upload.result.unknown": "Unbekannter Inhalt",
   "pkcsxx.upload.result.message": "Hinweis",
+  "pkcsxx.upload.result.error": "Fehler",
   "pkcsxx.upload.sans": "SAN",
   "pkcsxx.upload.serial": "Seriennummer",
   "pkcsxx.upload.csr.usage": "Verwendungszweck (im CSR)",
