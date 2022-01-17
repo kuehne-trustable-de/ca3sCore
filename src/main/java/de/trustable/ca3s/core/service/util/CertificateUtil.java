@@ -938,19 +938,30 @@ public class CertificateUtil {
         return aIn.readObject();
     }
 
+    public static String getTypedSAN(final GeneralName gn) {
+
+        if (GeneralName.iPAddress == gn.getTagNo()) {
+
+            DEROctetString derOctetString = (DEROctetString)gn.getName();
+            try {
+                InetAddress addr = InetAddress.getByAddress(derOctetString.getOctets());
+                return getTypedSAN(gn.getTagNo(), addr.getHostAddress());
+            } catch (UnknownHostException e) {
+                LOG.debug("Problem parsing ip address '" + gn.getName().toString() + "'!", e.getLocalizedMessage());
+                return getTypedSAN(gn.getTagNo(), gn.getName().toString());
+            }
+        }else{
+            return getTypedSAN(gn.getTagNo(), gn.getName().toString());
+        }
+
+    }
 
     public static String getTypedSAN(int altNameType, String sanValue) {
 
         if (GeneralName.dNSName == altNameType) {
             return ("DNS:" + sanValue);
         } else if (GeneralName.iPAddress == altNameType) {
-            String normalizedIpAddress = sanValue;
-            try {
-                normalizedIpAddress = InetAddress.getByName(sanValue).getHostAddress();
-            } catch (UnknownHostException e) {
-                LOG.debug("Problem parsing ip address '" + sanValue + "'!", e.getLocalizedMessage());
-            }
-            return ("IP:" + normalizedIpAddress);
+            return ("IP:" + sanValue);
         } else if (GeneralName.ediPartyName == altNameType) {
             return ("EDI:" + sanValue);
         } else if (GeneralName.otherName == altNameType) {

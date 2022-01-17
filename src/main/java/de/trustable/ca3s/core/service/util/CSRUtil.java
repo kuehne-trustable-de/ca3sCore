@@ -17,12 +17,7 @@ import javax.naming.ldap.Rdn;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.service.AuditService;
-import org.bouncycastle.asn1.ASN1Encodable;
-import org.bouncycastle.asn1.ASN1ObjectIdentifier;
-import org.bouncycastle.asn1.ASN1Set;
-import org.bouncycastle.asn1.DEROctetString;
-import org.bouncycastle.asn1.DERSequence;
-import org.bouncycastle.asn1.DLSequence;
+import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
@@ -548,8 +543,15 @@ public class CSRUtil {
 	}
 
 	public static String getGeneralNameDescription(GeneralName gName) {
+/*
+        LOG.info("gName.getName() is a " + gName.getName().getClass().getName());
+        if( gName.getName() instanceof DERIA5String){
+            return CertificateUtil.getTypedSAN(gName.getTagNo(), ((DERIA5String)gName.getName()).getString());
+        }
+        return CertificateUtil.getTypedSAN(gName.getTagNo(), gName.getName().toString());
 
-		return CertificateUtil.getTypedSAN(gName.getTagNo(), gName.getName().toString());
+ */
+        return CertificateUtil.getTypedSAN(gName);
 
 	}
 

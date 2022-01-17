@@ -72,7 +72,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
   public preferences: IPreferences = {};
   public allWebPipelines: IPipelineView[] = [];
-  public selectPipelineView: IPipelineView = {};
+  public selectPipelineView: IPipelineView = { csrUsage: 'TLS_SERVER' };
   public rdnRestrictions: IPipelineRestriction[] = [];
   public araRestrictions: IPipelineRestriction[] = [];
 
@@ -219,9 +219,25 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
   public updatePipelineRestrictions(evt: any): void {
     const idx = evt.currentTarget.selectedIndex;
+    this.updatePipelineRestrictionsById(idx);
+  }
+
+  public updateCurrentPipelineRestrictions(): void {
+    if (this.upload.pipelineId < 1) {
+      this.updatePipelineRestrictionsById(0);
+    } else {
+      const idx = this.upload.pipelineId - 1;
+      this.updatePipelineRestrictionsById(idx);
+    }
+  }
+
+  public updatePipelineRestrictionsById(idx: number): void {
     this.updatePipelineRestrictionsByPipelineInfo(this.allWebPipelines[idx]);
     this.precheckResponse.dataType = 'UNKNOWN';
     this.precheckResponse.messages = [];
+    if (this.creationMode !== 'CSR_AVAILABLE') {
+      this.upload.content = '';
+    }
     this.isChecked = false;
   }
 

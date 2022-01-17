@@ -90,6 +90,9 @@ public class CSRContentProcessor {
     	LOG.debug("REST request to describe a PEM clob : {}", content);
 
 		PkcsXXData p10ReqData = new PkcsXXData();
+		if( content == null || content.trim().isEmpty()) {
+            return new ResponseEntity<>(p10ReqData, HttpStatus.OK);
+        }
 
 		try {
 
@@ -218,7 +221,7 @@ public class CSRContentProcessor {
 			}
 		}
 
-		return new ResponseEntity<PkcsXXData>(p10ReqData, HttpStatus.OK);
+		return new ResponseEntity<>(p10ReqData, HttpStatus.OK);
 	}
 
 }

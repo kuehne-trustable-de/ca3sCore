@@ -32,7 +32,7 @@
 
 						<div class="form-group">
 							<label class="form-control-label" v-text="$t('pkcsxx.upload.creationMode.selection')" for="pkcsxx-key-creation">Creation mode</label> <help-tag target="pkcsxx.upload.creationMode.selection"/>
-							<select class="form-control" id="pkcsxx-key-creation" name="pkcsxx-key-creation" v-model="creationMode" v-on:change="updatePipelineRestrictions($event)">
+							<select class="form-control" id="pkcsxx-key-creation" name="pkcsxx-key-creation" v-model="creationMode" v-on:change="updateCurrentPipelineRestrictions()">
 
 								<option value="CSR_AVAILABLE" v-text="$t('pkcsxx.upload.creationMode.csrAvailable')" selected="selected">csrAvailable</option>
                                 <option v-if="preferences.serverSideKeyCreationAllowed && authenticated" value="SERVERSIDE_KEY_CREATION" v-text="$t('pkcsxx.upload.creationMode.serversideKeyCreation')">serverside key creation</option>
@@ -124,7 +124,7 @@
 							</div>
 						</div>
 
-						<div class="form-group" v-if="creationMode === 'SERVERSIDE_KEY_CREATION'">
+						<div class="form-group" v-if="creationMode === 'SERVERSIDE_KEY_CREATION' && selectPipelineView && selectPipelineView.csrUsage">
                             <div class="row">
                                 <div class="col">
                                     <label class="form-control-label" v-text="$t('pkcsxx.upload.csr.usage')" >csr usage</label>
