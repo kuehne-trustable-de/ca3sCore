@@ -31,7 +31,7 @@ const validations: any = {
     approvalRequired: {},
     approvalInfo1: {},
     ipAsSubjectAllowed: {},
-    ipAsSanAllowed: {},
+    ipAsSANAllowed: {},
     scepConfigItems: {
       scepSecretPCId: {},
       scepSecret: {},

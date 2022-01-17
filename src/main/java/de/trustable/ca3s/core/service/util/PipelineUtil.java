@@ -689,14 +689,11 @@ public class PipelineUtil {
         }
     }
 
-
     public void addPipelineAttribute(Set<PipelineAttribute> pipelineAttributes, Pipeline p, List<AuditTrace> auditList, String name, Boolean value) {
 		addPipelineAttribute(pipelineAttributes, p, auditList, name, value.toString());
-
 	}
 
 	public void addPipelineAttribute(Set<PipelineAttribute> pipelineAttributes, Pipeline p, List<AuditTrace> auditList, String name, String value) {
-
 
 		if( name == null || name.trim().isEmpty()) {
 			new Exception("name == null").printStackTrace();

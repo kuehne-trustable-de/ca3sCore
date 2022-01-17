@@ -307,7 +307,7 @@
 
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ipAsSanAllowed')" for="pipeline-ipAsSanAllowed">IP as SAN Allowed</label>
                         <input type="checkbox" class="form-check-inline" name="ipAsSanAllowed" id="pipeline-ipAsSanAllowed"
-                            :class="{'valid': !$v.pipeline.ipAsSanAllowed.$invalid, 'invalid': $v.pipeline.ipAsSanAllowed.$invalid }" v-model="$v.pipeline.ipAsSanAllowed.$model" />
+                            :class="{'valid': !$v.pipeline.ipAsSANAllowed.$invalid, 'invalid': $v.pipeline.ipAsSANAllowed.$invalid }" v-model="$v.pipeline.ipAsSANAllowed.$model" />
                     </div>
 
 <!--
