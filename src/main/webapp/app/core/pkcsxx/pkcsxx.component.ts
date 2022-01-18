@@ -9,7 +9,7 @@ import HelpTag from '@/core/help/help-tag.vue';
 
 import axios from 'axios';
 
-import { required, minLength } from 'vuelidate/lib/validators';
+import { required } from 'vuelidate/lib/validators';
 
 import {
   IUploadPrecheckData,
@@ -242,8 +242,16 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   }
 
   public updatePipelineRestrictionsByPipelineInfo(pipeline: IPipelineView): void {
+    if (!pipeline) {
+      return;
+    }
+
     this.selectPipelineView = pipeline;
-    this.selectPipelineInfo = pipeline.description;
+    if (pipeline.description) {
+      this.selectPipelineInfo = pipeline.description;
+    } else {
+      this.selectPipelineInfo = '';
+    }
 
     this.rdnRestrictions = new Array<PipelineRestriction>();
 
