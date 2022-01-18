@@ -75,13 +75,15 @@
 
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.scepRecipientCertificate')" for="pipeline-scepRecipientCertificate">SCEP Recipient certificate</label>
                         <div>
-                            <router-link name="pipeline-scepRecipientCertificate" :to="{name: 'CertInfo', params: {certificateId: $v.pipeline.scepConfigItems.recepientCertId.$model}}">{{$v.pipeline.scepConfigItems.recepientCertSubject.$model}}</router-link>
+                            <router-link name="pipeline-scepRecipientCertificate"
+                                         id="pipeline-scepRecipientCertificate"
+                                         :to="{name: 'CertInfo', params: {certificateId: $v.pipeline.scepConfigItems.recepientCertId.$model}}">{{$v.pipeline.scepConfigItems.recepientCertSubject.$model}}</router-link>
                         </div>
 
                     </div>
 
-                    <div class="container">
-                        <div class="row">
+                    <div class="container" v-if="pipeline && pipeline.restriction_CN">
+                        <div class="row" v-if="pipeline.restriction_CN.cardinalityRestriction">
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.cn.cardinality')" for="pipeline-cn-cardinality">Cardinality 'CN'</label>
                                 <select class="form-control" id="pipeline-cn-cardinality" name="pipeline-cn-cardinality" v-model="pipeline.restriction_CN.cardinalityRestriction">
@@ -102,7 +104,7 @@
                             </div>
                         </div>
 
-                        <div class="row">
+                        <div class="row" v-if="pipeline.restriction_C.cardinalityRestriction">
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.c.cardinality')" for="pipeline-c-cardinality">Cardinality 'C'</label>
                                 <select class="form-control" id="pipeline-c-cardinality" name="pipeline-c-cardinality" v-model="pipeline.restriction_C.cardinalityRestriction">
@@ -125,7 +127,7 @@
                         </div>
 
 
-                        <div class="row">
+                        <div class="row" v-if="pipeline.restriction_O.cardinalityRestriction">
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.o.cardinality')" for="pipeline-o-cardinality">Cardinality 'O'</label>
                                 <select class="form-control" id="pipeline-o-cardinality" name="pipeline-o-cardinality" v-model="pipeline.restriction_O.cardinalityRestriction">
@@ -150,7 +152,7 @@
                         </div>
 
 
-                        <div class="row">
+                        <div class="row" v-if="pipeline.restriction_OU.cardinalityRestriction">
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ou.cardinality')" for="pipeline-ou-cardinality">Cardinality 'OU'</label>
                                 <select class="form-control" id="pipeline-ou-cardinality" name="pipeline-ou-cardinality" v-model="pipeline.restriction_OU.cardinalityRestriction">
@@ -173,7 +175,7 @@
                             </div>
                         </div>
 
-                        <div class="row">
+                        <div class="row" v-if="pipeline.restriction_L.cardinalityRestriction">
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.l.cardinality')" for="pipeline-l-cardinality">Cardinality 'L'</label>
                                 <select class="form-control" id="pipeline-l-cardinality" name="pipeline-l-cardinality" v-model="pipeline.restriction_L.cardinalityRestriction">
@@ -195,7 +197,8 @@
                                 <input type="checkbox" class="form-check-inline" name="pipeline-l-regExMatch" id="pipeline-l-regExMatch" v-model="pipeline.restriction_L.regExMatch" />
                             </div>
                         </div>
-                        <div class="row">
+
+                        <div class="row" v-if="pipeline.restriction_L.cardinalityRestriction">
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.s.cardinality')" for="pipeline-s-cardinality">Cardinality 'S'</label>
                                 <select class="form-control" id="pipeline-s-cardinality" name="pipeline-s-cardinality" v-model="pipeline.restriction_S.cardinalityRestriction">
@@ -218,7 +221,7 @@
                             </div>
                         </div>
 
-                        <div class="row">
+                        <div class="row" v-if="pipeline.restriction_E.cardinalityRestriction">
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.e.cardinality')" for="pipeline-e-cardinality">Cardinality 'E'</label>
                                 <select class="form-control" id="pipeline-e-cardinality" name="pipeline-e-cardinality" v-model="pipeline.restriction_E.cardinalityRestriction">
@@ -241,7 +244,7 @@
                             </div>
                         </div>
 
-                        <div class="row">
+                        <div class="row" v-if="pipeline.restriction_SAN.cardinalityRestriction">
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.san.cardinality')" for="pipeline-san-cardinality">Cardinality SAN</label>
                                 <select class="form-control" id="pipeline-san-cardinality" name="pipeline-san-cardinality" v-model="pipeline.restriction_SAN.cardinalityRestriction">
@@ -327,7 +330,7 @@
                         <input type="checkbox" class="form-check-inline" name="allowChallengeDNS" id="pipeline-allowChallengeDNS" v-model="pipeline.acmeConfigItems.allowChallengeDNS" />
 
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.allowWildcards')" for="pipeline-allowWildcards">Allow Wildcards</label>
-                        <input type="checkbox" class="form-check-inline" :disabled="pipeline.acmeConfigItems.allowChallengeDNS == false"  name="allowWildcards" id="pipeline-allowWildcards" v-model="pipeline.acmeConfigItems.allowWildcards" />
+                        <input type="checkbox" class="form-check-inline" :disabled="pipeline.acmeConfigItems.allowChallengeDNS === false" name="allowWildcards" id="pipeline-allowWildcards" v-model="pipeline.acmeConfigItems.allowWildcards" />
 
                     </div>
                     <div v-if="$v.pipeline.type.$model === 'ACME'" class="form-inline">

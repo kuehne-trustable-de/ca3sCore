@@ -319,7 +319,6 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     let cmdline = '';
     let reqConf = '';
     let cmdline0 = '';
-    let cmdline1 = '';
 
     this.reqConfRequired = false;
     this.cmdline0Required = false;
