@@ -6,7 +6,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>0.1.27</version>
+    <version>0.1.28</version>
     <packaging>jar</packaging>
 
 
@@ -218,10 +218,50 @@
 
             <!-- jhipster-needle-maven-add-dependency-management -->
 
+            <!-- Fix for CVE-2021-27568
+                https://mvnrepository.com/artifact/net.minidev/json-smart -->
+            <dependency>
+                <groupId>net.minidev</groupId>
+                <artifactId>json-smart</artifactId>
+                <version>2.4.7</version>
+            </dependency>
+
+            <!-- Fix for CVE-2021-31811 & CVE-2021-31812
+                https://mvnrepository.com/artifact/org.apache.pdfbox/xmpbox -->
+            <dependency>
+                <groupId>org.apache.pdfbox</groupId>
+                <artifactId>xmpbox</artifactId>
+                <version>2.0.25</version>
+            </dependency>
+
+            <!-- Fix for CVE-2021-42550
+                https://mvnrepository.com/artifact/ch.qos.logback/logback-core -->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>1.2.10</version>
+            </dependency>
+
+            <!-- Fix for CVE-2021-42550
+                https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>1.2.10</version>
+            </dependency>
+
+            <!-- Fix for CVE-2021-22569
+                https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java</artifactId>
+                <version>3.19.3</version>
+            </dependency>
+
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
-                <version>8.0.23</version>
+                <version>8.0.28</version>
             </dependency>
             <dependency>
                 <groupId>org.mybatis</groupId>

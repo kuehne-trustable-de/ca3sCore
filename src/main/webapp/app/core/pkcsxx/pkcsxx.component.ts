@@ -680,7 +680,9 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     window.console.info('in disableCertificateRequest()');
 
     if (this.creationMode === 'CSR_AVAILABLE') {
-      return this.precheckResponse.csrPublicKeyPresentInDB;
+      if (this.precheckResponse.csrPublicKeyPresentInDB) {
+        return true;
+      }
     } else if (this.creationMode === 'SERVERSIDE_KEY_CREATION') {
       if (this.secret.trim().length === 0) {
         window.console.info('upload.secret not present');

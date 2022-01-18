@@ -303,7 +303,7 @@
 								<span v-text="$t('pkcsxx.upload.type')">Result</span>
 							</dt>
 							<dd>
-								<span><div v-if="precheckResponse.p10Holder.csrvalid === false">invalid </div>{{precheckResponse.dataType}}</span>
+								<span><b v-if="precheckResponse.p10Holder.csrvalid === false">invalid </b>{{precheckResponse.dataType}}</span>
 							</dd>
 
 							<dt v-if="precheckResponse.csrPublicKeyPresentInDB === true">
