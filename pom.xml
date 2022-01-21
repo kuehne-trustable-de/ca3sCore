@@ -114,7 +114,7 @@
         <archunit-junit5.version>0.21.0</archunit-junit5.version>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
 
-        <spring.version>5.3.9</spring.version>
+        <spring.version>5.3.14</spring.version>
         <spring.security.version>5.2.15.RELEASE</spring.security.version>
         <springSecurityLdapVersion>5.3.1.RELEASE</springSecurityLdapVersion>
 
