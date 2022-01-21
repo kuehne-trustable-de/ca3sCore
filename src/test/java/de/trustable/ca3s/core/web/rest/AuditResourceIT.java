@@ -1,7 +1,7 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.Ca3SApp;
-import io.github.jhipster.config.JHipsterProperties;
+import tech.jhipster.config.JHipsterProperties;
 import de.trustable.ca3s.core.config.audit.AuditEventConverter;
 import de.trustable.ca3s.core.domain.PersistentAuditEvent;
 import de.trustable.ca3s.core.repository.PersistenceAuditEventRepository;

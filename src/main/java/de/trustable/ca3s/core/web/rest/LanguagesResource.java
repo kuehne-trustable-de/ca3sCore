@@ -5,7 +5,7 @@ import de.trustable.ca3s.core.service.UserPreferenceService;
 import de.trustable.ca3s.core.service.dto.Languages;
 import de.trustable.ca3s.core.service.dto.Preferences;
 import de.trustable.ca3s.core.service.util.PreferenceUtil;
-import io.github.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

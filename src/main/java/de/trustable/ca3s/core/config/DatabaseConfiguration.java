@@ -1,7 +1,7 @@
 package de.trustable.ca3s.core.config;
 
-import io.github.jhipster.config.JHipsterConstants;
-import io.github.jhipster.config.h2.H2ConfigurationHelper;
+import tech.jhipster.config.JHipsterConstants;
+import tech.jhipster.config.h2.H2ConfigurationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;

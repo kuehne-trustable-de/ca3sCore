@@ -27,9 +27,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.service.CertificateService;
 import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
-import io.github.jhipster.web.util.HeaderUtil;
-import io.github.jhipster.web.util.PaginationUtil;
-import io.github.jhipster.web.util.ResponseUtil;
+import tech.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.PaginationUtil;
+import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing {@link de.trustable.ca3s.core.domain.Certificate}.

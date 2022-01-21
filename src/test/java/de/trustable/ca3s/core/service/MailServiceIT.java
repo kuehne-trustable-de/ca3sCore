@@ -4,7 +4,7 @@ import de.trustable.ca3s.core.config.Constants;
 
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.User;
-import io.github.jhipster.config.JHipsterProperties;
+import tech.jhipster.config.JHipsterProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

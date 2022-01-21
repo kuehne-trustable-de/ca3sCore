@@ -8,7 +8,7 @@ import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import de.trustable.ca3s.core.repository.CertificateViewRepository;
 import de.trustable.ca3s.core.service.dto.CertificateView;
-import io.github.jhipster.web.util.PaginationUtil;
+import tech.jhipster.web.util.PaginationUtil;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

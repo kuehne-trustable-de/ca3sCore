@@ -1,6 +1,6 @@
 package de.trustable.ca3s.core.config;
 
-import io.github.jhipster.config.JHipsterConstants;
+import tech.jhipster.config.JHipsterConstants;
 
 import org.springframework.boot.SpringApplication;
 

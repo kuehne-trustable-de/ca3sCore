@@ -489,6 +489,7 @@ public class ContentUploadProcessor {
                         p10ReqData.setCsrPending(true);
                         p10ReqData.setCreatedCSRId(csr.getId().toString());
                     } else {
+                        auditService.saveAuditTrace(auditService.createAuditTraceWebAutoAccepted(csr));
                         cpUtil.processCertificateRequest(csr, requestorName, AuditService.AUDIT_WEB_CERTIFICATE_CREATED, pipeline);
                     }
                     return csr;

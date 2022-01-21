@@ -61,8 +61,12 @@
         <!-- Build properties -->
         <maven.version>3.3.9</maven.version>
         <java.version>1.8</java.version>
-        <node.version>v12.16.1</node.version>
-        <npm.version>6.14.2</npm.version>
+        <!--node.version>v12.16.1</node.version>
+        <npm.version>6.14.2</npm.version-->
+        <node.version>v14.17.6</node.version>
+        <npm.version>7.23.0</npm.version>
+
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.testresult.directory>${project.build.directory}/test-results</project.testresult.directory>
@@ -81,30 +85,38 @@
         <profile.tls/>
 
         <!-- Dependency versions -->
-        <jhipster-dependencies.version>3.9.1</jhipster-dependencies.version>
-        <!-- The spring-boot version should match the one managed by
-        https://mvnrepository.com/artifact/io.github.jhipster/jhipster-dependencies/${jhipster-dependencies.version} -->
+        <!--jhipster-dependencies.version>3.9.1</jhipster-dependencies.version>
         <spring-boot.version>2.2.13.RELEASE</spring-boot.version>
-        <!-- The hibernate version should match the one managed by
-        https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
-
         <spring.version>5.2.19.RELEASE</spring.version>
         <spring-framework.version>${spring.version}</spring-framework.version>
-
-        <!--spring.security.version>5.3.8.RELEASE</spring.security.version-->
-        <spring.security.version>5.2.15.RELEASE</spring.security.version>
-        <springSecurityLdapVersion>5.3.1.RELEASE</springSecurityLdapVersion>
-
-        <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core/${hibernate.version} -->
         <hibernate.version>5.4.32.Final</hibernate.version>
         <hibernate-core.version>${hibernate.version}</hibernate-core.version>
-
         <javassist.version>3.24.0-GA</javassist.version>
+        <liquibase.version>4.3.5</liquibase.version-->
 
+        <jhipster-dependencies.version>7.2.0</jhipster-dependencies.version>
+        <!-- The spring-boot version should match the one managed by
+        https://mvnrepository.com/artifact/tech.jhipster/jhipster-dependencies/${jhipster-dependencies.version} -->
+        <spring-boot.version>2.5.4</spring-boot.version>
+        <!-- The hibernate version should match the one managed by
+        https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
+        <hibernate.version>5.4.32.Final</hibernate.version>
+        <hibernate-core.version>${hibernate.version}</hibernate-core.version>
+        <!-- The javassist version should match the one managed by
+        https://mvnrepository.com/artifact/org.hibernate/hibernate-core/${hibernate.version} -->
+        <javassist.version>3.27.0-GA</javassist.version>
         <!-- The liquibase version should match the one managed by
         https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
-        <!--liquibase.version>3.5.5</liquibase.version-->
-        <liquibase.version>4.3.5</liquibase.version>
+        <liquibase.version>4.4.3</liquibase.version>
+        <liquibase-hibernate5.version>4.4.3</liquibase-hibernate5.version>
+        <validation-api.version>2.0.1.Final</validation-api.version>
+        <jaxb-runtime.version>2.3.3</jaxb-runtime.version>
+        <archunit-junit5.version>0.21.0</archunit-junit5.version>
+        <mapstruct.version>1.4.2.Final</mapstruct.version>
+
+        <spring.version>5.3.9</spring.version>
+        <spring.security.version>5.2.15.RELEASE</spring.security.version>
+        <springSecurityLdapVersion>5.3.1.RELEASE</springSecurityLdapVersion>
 
         <h2.version>2.0.206</h2.version>
 
@@ -145,7 +157,7 @@
         <keycloak.version>15.0.2</keycloak.version>
 
         <bouncyCastleVersion>1.68</bouncyCastleVersion>
-        <cryptoUtilVersion>1.2.0</cryptoUtilVersion>
+        <cryptoUtilVersion>1.2.1</cryptoUtilVersion>
         <certBundleVersion>1.1.1</certBundleVersion>
         <adcsUtilVersion>1.2.0</adcsUtilVersion>
         <adcsProxyClientVersion>1.2.1</adcsProxyClientVersion>
@@ -201,7 +213,7 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>io.github.jhipster</groupId>
+                <groupId>tech.jhipster</groupId>
                 <artifactId>jhipster-dependencies</artifactId>
                 <version>${jhipster-dependencies.version}</version>
                 <type>pom</type>
@@ -228,11 +240,11 @@
 
             <!-- Fix for CVE-2021-31811 & CVE-2021-31812
                 https://mvnrepository.com/artifact/org.apache.pdfbox/xmpbox -->
-            <dependency>
+            <!--dependency>
                 <groupId>org.apache.pdfbox</groupId>
                 <artifactId>xmpbox</artifactId>
                 <version>2.0.25</version>
-            </dependency>
+            </dependency-->
 
             <!-- Fix for CVE-2021-42550
                 https://mvnrepository.com/artifact/ch.qos.logback/logback-core -->
@@ -597,7 +609,7 @@
         </dependency>
 
         <dependency>
-            <groupId>io.github.jhipster</groupId>
+            <groupId>tech.jhipster</groupId>
             <artifactId>jhipster-framework</artifactId>
         </dependency>
         <dependency>
@@ -1391,7 +1403,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
+                <version>3.0.1</version>
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>

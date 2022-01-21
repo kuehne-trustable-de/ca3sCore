@@ -35,12 +35,6 @@ management:
         enabled: false
 
 spring:
-  profiles:
-    active: prod
-    include:
-      # - swagger
-      # (Un)comment to activate TLS for the prod profile
-      # - tls
   devtools:
     restart:
       enabled: false
@@ -151,10 +145,6 @@ jhipster:
         token-validity-in-seconds-for-remember-me: 2592000
   mail: # specific JHipster mail property, for standard properties see MailProperties
     base-url: http://localhost:8080 # Modify according to your server's URL
-  metrics:
-    logs: # Reports metrics in the logs
-      enabled: false
-      report-frequency: 60 # in seconds
   logging:
     use-json-format: false # By default, logs are not in Json format
     logstash: # Forward logs to logstash over a socket, used by LoggingConfiguration
@@ -178,7 +168,7 @@ jhipster:
 # Kerberos configuration
 #
 # 1. Define a Service Principal Name(SPN) for ca3s using HTTP and the server name ( e.g. 'ca3s.server') where ca3s is installed.
-#    Provide the Windows domain user that is accociated with the service:
+#    Provide the Windows domain user that is associated with the service:
 #  setspn -A HTTP/ca3s.server ca3sUser
 #
 # 2. Export the keytab to a file (e.g. ca3s.keytab)
@@ -208,7 +198,8 @@ ca3s:
 #    languages: de
 # provide a custom image for the upper left corner of the user interface
 # Remark: PNG format, only
-#    logo: custom_logo.png
+#    logo: custom_logo.
+    logo: file:///Users/kuehn/tmp/BKA_Logo_weiss.png
 
 #  help:
 #    en: /var/help/custom_help_en.md

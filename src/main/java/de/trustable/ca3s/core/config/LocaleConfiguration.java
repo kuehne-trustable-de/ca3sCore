@@ -1,6 +1,6 @@
 package de.trustable.ca3s.core.config;
 
-import io.github.jhipster.config.locale.AngularCookieLocaleResolver;
+import tech.jhipster.config.locale.AngularCookieLocaleResolver;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

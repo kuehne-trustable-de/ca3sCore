@@ -22,12 +22,6 @@ logging:
     org.apache.http.wire: DEBUG
 
 spring:
-  profiles:
-    active: dev
-    include:
-      - swagger
-      # (Un)comment to activate TLS for the dev profile
-      # - tls
   devtools:
     restart:
       enabled: true
@@ -106,10 +100,6 @@ jhipster:
         token-validity-in-seconds-for-remember-me: 2592000
   mail: # specific JHipster mail property, for standard properties see MailProperties
     base-url: http://127.0.0.1:8080
-  metrics:
-    logs: # Reports metrics in the logs
-      enabled: false
-      report-frequency: 60 # in seconds
   logging:
     use-json-format: false # By default, logs are not in Json format
     logstash: # Forward logs to logstash over a socket, used by LoggingConfiguration

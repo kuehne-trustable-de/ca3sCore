@@ -471,45 +471,6 @@ public class CSRUtil {
                         generalNameSet.add(name);
                     }
                 }
-
-//                retrieveSANFromCSRAttribute(generalNameSet, attr );
-
-                /*
-				ASN1Set valueSet = attr.getAttrValues();
-				LOG.debug("ExtensionRequest / AttrValues has {} elements", valueSet.size());
-				for (ASN1Encodable asn1Enc : valueSet) {
-					if( asn1Enc instanceof DERSequence) {
-						DERSequence derSeq = (DERSequence)asn1Enc;
-
-						LOG.debug("ExtensionRequest / DERSequence has {} elements", derSeq.size());
-						if( derSeq.size() > 0 ) {
-							LOG.debug("ExtensionRequest / DERSequence[0] is a  {}", derSeq.getObjectAt(0).getClass().getName());
-
-							DERSequence derSeq2 = (DERSequence)derSeq.getObjectAt(0);
-							LOG.debug("ExtensionRequest / DERSequence2 has {} elements", derSeq2.size());
-							LOG.debug("ExtensionRequest / DERSequence2[0] is a  {}", derSeq2.getObjectAt(0).getClass().getName());
-
-
-							ASN1ObjectIdentifier objId = (ASN1ObjectIdentifier)(derSeq2.getObjectAt(0));
-							if( Extension.subjectAlternativeName.equals(objId)) {
-								DEROctetString derStr = (DEROctetString)derSeq2.getObjectAt(1);
-								GeneralNames names = GeneralNames.getInstance(derStr.getOctets());
-								LOG.debug("Attribute value SAN" + names);
-								LOG.debug("SAN values #" + names.getNames().length);
-
-								for (GeneralName gnSAN : names.getNames()) {
-									LOG.debug("GN " + gnSAN.toString());
-									generalNameSet.add(gnSAN);
-								}
-							} else {
-								LOG.debug("non-interesting extensions attribute: " + objId.getId());
-							}
-						}else {
-							LOG.debug("ExtensionRequest / DERSequence has no elements: " + derSeq.toString());
-						}
-					}
-				}
-*/
 			}
 		}
 		return generalNameSet;

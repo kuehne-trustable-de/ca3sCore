@@ -1083,6 +1083,7 @@
   "CSR_ACCEPTED": "Certificate request accepted",
   "CSR_REJECTED": "Certificate request rejected",
   "WEB_CERTIFICATE_REQUESTED": "Certificate requested at web interface",
+  "WEB_CERTIFICATE_AUTO_ACCEPTED": "Certificate request accepted without approval",
   "WEB_CERTIFICATE_CREATED": "Certificate at web interface issued",
   "ACME_CERTIFICATE_REQUESTED": "Certificate requested using ACME protocol",
   "ACME_CERTIFICATE_CREATED": "Certificate using ACME issued",

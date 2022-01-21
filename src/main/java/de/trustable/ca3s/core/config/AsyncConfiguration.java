@@ -1,6 +1,6 @@
 package de.trustable.ca3s.core.config;
 
-import io.github.jhipster.async.ExceptionHandlingAsyncTaskExecutor;
+import tech.jhipster.async.ExceptionHandlingAsyncTaskExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;

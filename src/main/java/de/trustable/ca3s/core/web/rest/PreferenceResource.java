@@ -25,7 +25,7 @@ import de.trustable.ca3s.core.domain.UserPreference;
 import de.trustable.ca3s.core.service.UserPreferenceService;
 import de.trustable.ca3s.core.service.dto.Preferences;
 import de.trustable.ca3s.core.service.util.PreferenceUtil;
-import io.github.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.HeaderUtil;
 
 /**
  * REST controller for reading {@link de.trustable.ca3s.core.domain.Certificate} using the convenient CertificateView object.

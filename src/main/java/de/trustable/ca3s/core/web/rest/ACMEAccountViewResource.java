@@ -4,7 +4,7 @@ import de.trustable.ca3s.core.domain.ACMEAccount;
 import de.trustable.ca3s.core.service.ACMEAccountService;
 import de.trustable.ca3s.core.service.dto.ACMEAccountView;
 import de.trustable.ca3s.core.service.util.ACMEAccountUtil;
-import io.github.jhipster.web.util.ResponseUtil;
+import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;

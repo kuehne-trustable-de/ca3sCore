@@ -3,7 +3,7 @@ package de.trustable.ca3s.core.web.rest;
 import de.trustable.ca3s.core.repository.AuditTraceViewRepository;
 import de.trustable.ca3s.core.service.dto.AuditTraceView;
 import de.trustable.ca3s.core.service.dto.CSRView;
-import io.github.jhipster.web.util.PaginationUtil;
+import tech.jhipster.web.util.PaginationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
