@@ -1,7 +1,7 @@
 package de.trustable.ca3s.core.security.jwt;
 
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
-import io.github.jhipster.config.JHipsterProperties;
+import tech.jhipster.config.JHipsterProperties;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 

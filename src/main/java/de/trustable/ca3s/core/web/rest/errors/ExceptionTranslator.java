@@ -1,6 +1,6 @@
 package de.trustable.ca3s.core.web.rest.errors;
 
-import io.github.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.HeaderUtil;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.ConcurrencyFailureException;

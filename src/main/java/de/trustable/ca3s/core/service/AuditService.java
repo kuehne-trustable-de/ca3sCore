@@ -32,7 +32,9 @@ public class AuditService {
     public static final String AUDIT_CSR_ACCEPTED = "CSR_ACCEPTED";
     public static final String AUDIT_CSR_REJECTED = "CSR_REJECTED";
     public static final String AUDIT_WEB_CERTIFICATE_REQUESTED = "WEB_CERTIFICATE_REQUESTED";
+    public static final String AUDIT_WEB_CERTIFICATE_AUTO_ACCEPTED = "WEB_CERTIFICATE_AUTO_ACCEPTED";
     public static final String AUDIT_ACME_CERTIFICATE_REQUESTED = "ACME_CERTIFICATE_REQUESTED";
+
     public static final String AUDIT_ACME_CERTIFICATE_CREATED = "ACME_CERTIFICATE_CREATED";
     public static final String AUDIT_SCEP_CERTIFICATE_REQUESTED = "SCEP_CERTIFICATE_REQUESTED";
     public static final String AUDIT_SCEP_CERTIFICATE_CREATED = "SCEP_CERTIFICATE_CREATED";
@@ -147,6 +149,11 @@ public class AuditService {
     public AuditTrace createAuditTraceWebRequest(final CSR csr){
         NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_WEB_CERTIFICATE_REQUESTED, csr);
+    }
+
+    public AuditTrace createAuditTraceWebAutoAccepted(final CSR csr){
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_WEB_CERTIFICATE_AUTO_ACCEPTED, csr);
     }
 
     public AuditTrace createAuditTraceCsrRestrictionFailed( final CSR csr){

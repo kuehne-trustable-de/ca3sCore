@@ -4,8 +4,8 @@ import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.repository.CertificateAttributeRepository;
 import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
 
-import io.github.jhipster.web.util.HeaderUtil;
-import io.github.jhipster.web.util.ResponseUtil;
+import tech.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,7 +54,7 @@ public class CertificateAttributeResource {
         if (certificateAttribute.getId() != null) {
             throw new BadRequestAlertException("A new certificateAttribute cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        
+
         CertificateAttribute result = certificateAttributeRepository.save(certificateAttribute);
         return ResponseEntity.created(new URI("/api/certificate-attributes/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))

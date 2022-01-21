@@ -3,7 +3,7 @@ package de.trustable.ca3s.core.service;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.User;
 
-import io.github.jhipster.config.JHipsterProperties;
+import tech.jhipster.config.JHipsterProperties;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;

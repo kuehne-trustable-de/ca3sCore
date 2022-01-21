@@ -3,7 +3,7 @@ package de.trustable.ca3s.core.service;
 import de.trustable.ca3s.core.domain.PersistentAuditEvent;
 import de.trustable.ca3s.core.repository.PersistenceAuditEventRepository;
 import de.trustable.ca3s.core.Ca3SApp;
-import io.github.jhipster.config.JHipsterProperties;
+import tech.jhipster.config.JHipsterProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,13 +60,13 @@ public class AuditEventServiceIT {
         persistenceAuditEventRepository.save(auditEventOld);
         persistenceAuditEventRepository.save(auditEventWithinRetention);
         persistenceAuditEventRepository.save(auditEventNew);
-        
+
         persistenceAuditEventRepository.flush();
-        
+
         auditEventService.removeOldAuditEvents();
-        
+
         persistenceAuditEventRepository.flush();
-        
+
         assertThat(persistenceAuditEventRepository.findAll().size()).isEqualTo(2);
         assertThat(persistenceAuditEventRepository.findByPrincipal("test-user-old")).isEmpty();
         assertThat(persistenceAuditEventRepository.findByPrincipal("test-user-retention")).isNotEmpty();

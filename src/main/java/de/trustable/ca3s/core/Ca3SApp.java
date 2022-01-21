@@ -8,7 +8,7 @@ import de.trustable.ca3s.core.security.provider.Ca3sKeyManagerProvider;
 import de.trustable.ca3s.core.security.provider.Ca3sKeyStoreProvider;
 import de.trustable.ca3s.core.security.provider.TimedRenewalCertMapHolder;
 import de.trustable.util.JCAManager;
-import io.github.jhipster.config.JHipsterConstants;
+import tech.jhipster.config.JHipsterConstants;
 import io.undertow.Undertow;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

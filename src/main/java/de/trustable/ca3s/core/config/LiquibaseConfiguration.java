@@ -1,7 +1,7 @@
 package de.trustable.ca3s.core.config;
 
-import io.github.jhipster.config.JHipsterConstants;
-import io.github.jhipster.config.liquibase.SpringLiquibaseUtil;
+import tech.jhipster.config.JHipsterConstants;
+import tech.jhipster.config.liquibase.SpringLiquibaseUtil;
 import liquibase.integration.spring.SpringLiquibase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,14 +44,14 @@ public class LiquibaseConfiguration {
         // If you don't want Liquibase to start asynchronously, substitute by this:
         // SpringLiquibase liquibase = SpringLiquibaseUtil.createSpringLiquibase(liquibaseDataSource.getIfAvailable(), liquibaseProperties, dataSource.getIfUnique(), dataSourceProperties);
         SpringLiquibase liquibase = SpringLiquibaseUtil.createAsyncSpringLiquibase(this.env, executor, liquibaseDataSource.getIfAvailable(), liquibaseProperties, dataSource.getIfUnique(), dataSourceProperties);
-        
+
         log.debug("Using liquibase files from '{}'", certificateImportActive);
-        
+
         liquibase.setChangeLog(certificateImportActive);
-        
+
         liquibase.setContexts(liquibaseProperties.getContexts());
         liquibase.setDefaultSchema(liquibaseProperties.getDefaultSchema());
-        
+
 		try {
 	        // liquibase.setLiquibaseSchema(liquibaseProperties.getLiquibaseSchema());
 			Method method = liquibase.getClass().getMethod("setLiquibaseSchema", String.class);
@@ -76,12 +76,12 @@ public class LiquibaseConfiguration {
 		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             log.debug("Old Liquibase version, not supporting more recent methods");
 		}
-		
+
         liquibase.setDropFirst(liquibaseProperties.isDropFirst());
         liquibase.setLabels(liquibaseProperties.getLabels());
         liquibase.setChangeLogParameters(liquibaseProperties.getParameters());
         liquibase.setRollbackFile(liquibaseProperties.getRollbackFile());
-        
+
         if (env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_NO_LIQUIBASE))) {
             liquibase.setShouldRun(false);
         } else {

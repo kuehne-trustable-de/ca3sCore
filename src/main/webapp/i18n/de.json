@@ -1080,6 +1080,7 @@
   "CSR_ACCEPTED": "Zertifikatsantrag freigegeben",
   "CSR_REJECTED": "Zertifikatsantrag abgelehnt",
   "WEB_CERTIFICATE_REQUESTED": "Zertifikat am Web-Interface beantragt",
+  "WEB_CERTIFICATE_AUTO_ACCEPTED": "Zertifikatsantrag benötigt keine Freigabe",
   "ACME_CERTIFICATE_REQUESTED": "Zertifikat mittels ACME beantragt",
   "ACME_CERTIFICATE_CREATED": "Zertifikat mittels ACME ausgestellt",
   "SCEP_CERTIFICATE_REQUESTED": "Zertifikat mittels SCEP beantragt",

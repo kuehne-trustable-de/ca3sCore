@@ -1,5 +1,29 @@
 package de.trustable.ca3s.core.service.util;
 
+import de.trustable.ca3s.core.config.Constants;
+import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
+import de.trustable.ca3s.core.domain.enumeration.CsrUsage;
+import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
+import de.trustable.ca3s.core.domain.enumeration.RDNCardinalityRestriction;
+import de.trustable.ca3s.core.repository.*;
+import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.dto.*;
+import de.trustable.util.CryptoUtil;
+import de.trustable.util.OidNameMapper;
+import de.trustable.util.Pkcs10RequestHolder;
+import org.apache.commons.validator.routines.InetAddressValidator;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
+import org.bouncycastle.asn1.x500.RDN;
+import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.security.auth.x500.X500Principal;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
@@ -10,35 +34,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
-import de.trustable.ca3s.core.config.Constants;
-import de.trustable.ca3s.core.domain.*;
-import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
-import de.trustable.ca3s.core.domain.enumeration.CsrUsage;
-import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
-import de.trustable.ca3s.core.repository.*;
-import de.trustable.ca3s.core.service.AuditService;
-import de.trustable.ca3s.core.service.dto.*;
-import de.trustable.ca3s.core.service.dto.NamedValues;
-import de.trustable.ca3s.core.service.dto.KeyAlgoLength;
-import de.trustable.util.CryptoUtil;
-import org.apache.commons.validator.routines.InetAddressValidator;
-import org.bouncycastle.asn1.ASN1ObjectIdentifier;
-import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
-import org.bouncycastle.asn1.x500.RDN;
-import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.asn1.x509.GeneralName;
-import org.jscep.transaction.OperationFailureException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import de.trustable.ca3s.core.domain.enumeration.RDNCardinalityRestriction;
-import de.trustable.util.OidNameMapper;
-import de.trustable.util.Pkcs10RequestHolder;
-
-import javax.security.auth.x500.X500Principal;
 
 
 @Service
@@ -327,14 +322,10 @@ public class PipelineUtil {
                     if (optCert.isPresent()) {
 
                         Certificate currentRecipientCert = optCert.get();
-                        if (currentRecipientCert != null) {
-                            LOG.debug("SCEP_RECIPIENT_CERT_ID for pipeline id {} identifies recipient certificate with id {} ", pipeline.getId(), plAtt.getValue());
-                            scepConfigItems.setRecepientCertId(currentRecipientCert.getId());
-                            scepConfigItems.setRecepientCertSerial(currentRecipientCert.getSerial());
-                            scepConfigItems.setRecepientCertSubject(currentRecipientCert.getSubject());
-                        }else{
-                            LOG.warn("SCEP_RECIPIENT_CERT_ID for pipeline id {} : retrieved recipient certificate with id {} is null", pipeline.getId(), plAtt.getValue());
-                        }
+                        LOG.debug("SCEP_RECIPIENT_CERT_ID for pipeline id {} identifies recipient certificate with id {} ", pipeline.getId(), plAtt.getValue());
+                        scepConfigItems.setRecepientCertId(currentRecipientCert.getId());
+                        scepConfigItems.setRecepientCertSerial(currentRecipientCert.getSerial());
+                        scepConfigItems.setRecepientCertSubject(currentRecipientCert.getSubject());
                     }else{
                         LOG.warn("SCEP_RECIPIENT_CERT_ID for pipeline id {} has value {}, but no certificate found", pipeline.getId(), plAtt.getValue());
                     }
@@ -710,7 +701,10 @@ public class PipelineUtil {
 		pAtt.setValue(value);
 		pipelineAttributes.add(pAtt);
 
-	}
+        auditList.add(auditService.createAuditTracePipelineAttribute( name, "", value, p));
+        LOG.debug("matching PipelineAttributes : new attribute with name '{}' and value  '{}' added", name, value);
+
+    }
 
     public boolean isPipelineRestrictionsResolved(Pipeline p, Pkcs10RequestHolder p10ReqHolder, NamedValues[] nvARArr, List<String> messageList) {
 
@@ -803,8 +797,8 @@ public class PipelineUtil {
 
     	for( GeneralName gn: gNameSet) {
 			if (GeneralName.iPAddress == gn.getTagNo()) {
-				String sanValue = gn.getName().toString();
-				messageList.add("SAN '"+sanValue+"' is an IP address, not allowed.");
+                String sanValue = CertificateUtil.getTypedSAN(gn);
+                messageList.add("SAN '"+sanValue+"' is an IP address, not allowed.");
 				outcome = true;
 			}
     	}
@@ -833,7 +827,8 @@ public class PipelineUtil {
         for( GeneralName gn: gNameSet) {
             n++;
             if( hasTemplate) {
-                String value = gn.getName().toString().trim();
+                String value = CertificateUtil.getTypedSAN(gn);
+
                 if( restriction.isRegExMatch()) {
                     boolean evalResult = false;
                     try {
@@ -922,9 +917,8 @@ public class PipelineUtil {
                 LOG.debug(msg);
                 outcome = false;
             }else{
-                boolean bFirst = true;
                 for( String value: nvAR.getValues()){
-                    if( bFirst && value.isEmpty()) {
+                    if( value.isEmpty()) {
                         String msg = "additional restriction mismatch: An value for '" + nvAR.getName() + "' MUST be present!";
                         messageList.add(msg);
                         LOG.debug(msg);
@@ -1117,7 +1111,7 @@ public class PipelineUtil {
         return defaultValue;
     }
 
-    public Certificate getSCEPRecipientCertificate( Pipeline pipeline) throws OperationFailureException, IOException, GeneralSecurityException {
+    public Certificate getSCEPRecipientCertificate( Pipeline pipeline) throws IOException, GeneralSecurityException {
 
 //	    new Exception().printStackTrace();
 

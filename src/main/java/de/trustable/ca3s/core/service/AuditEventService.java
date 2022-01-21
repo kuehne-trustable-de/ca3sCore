@@ -1,6 +1,6 @@
 package de.trustable.ca3s.core.service;
 
-import io.github.jhipster.config.JHipsterProperties;
+import tech.jhipster.config.JHipsterProperties;
 import de.trustable.ca3s.core.config.audit.AuditEventConverter;
 import de.trustable.ca3s.core.repository.PersistenceAuditEventRepository;
 import org.slf4j.Logger;

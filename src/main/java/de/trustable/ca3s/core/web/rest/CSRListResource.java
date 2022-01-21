@@ -9,7 +9,7 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import de.trustable.ca3s.core.repository.CSRViewRepository;
 import de.trustable.ca3s.core.service.dto.CSRView;
 import de.trustable.ca3s.core.service.dto.CertificateView;
-import io.github.jhipster.web.util.PaginationUtil;
+import tech.jhipster.web.util.PaginationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
