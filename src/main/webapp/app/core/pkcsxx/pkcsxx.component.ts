@@ -434,13 +434,8 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
       this.reqConfRequired = true;
 
-      reqConf = '[req]\n';
-      reqConf += 'distinguished_name = req_distinguished_name\n';
-      reqConf += 'req_extensions = v3_req\n';
-      reqConf += 'prompt = no\n';
-      reqConf += '[req_distinguished_name]\n';
-
       let hasSAN = false;
+      let dnLines = '';
       for (const nv of this.upload.certificateAttributes) {
         const name = nv.name;
 
@@ -451,10 +446,21 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
               hasSAN = true;
               continue;
             }
-            reqConf += name + '=' + value + '\n';
+            dnLines += name + '=' + value + '\n';
           }
         }
       }
+
+      reqConf = '[req]\n';
+      reqConf += 'distinguished_name = req_distinguished_name\n';
+      if (hasSAN) {
+        // insert forward reference only if required
+        reqConf += 'req_extensions = v3_req\n';
+      }
+      reqConf += 'prompt = no\n';
+      reqConf += '[req_distinguished_name]\n';
+      reqConf += dnLines;
+
       if (hasSAN) {
         reqConf += '[v3_req]\n';
         reqConf += 'subjectAltName = @alt_names\n';

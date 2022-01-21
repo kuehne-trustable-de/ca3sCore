@@ -149,14 +149,10 @@
                         </div>
 
                     </dd>
-                    <dt>
-                        <span v-text="$t('ca3SApp.certificate.audit')">Audits</span>
-                    </dt>
-                    <dd>
-                        <audit-tag :csrId="cSR.id" showLinks="false"></audit-tag>
-                    </dd>
                 </dl>
-
+                <div>
+                    <audit-tag :csrId="cSR.id" showLinks="false" :title="$t('ca3SApp.certificate.audit')"></audit-tag>
+                </div>
 
             </div>
 

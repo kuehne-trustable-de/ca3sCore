@@ -21,7 +21,7 @@ public class ResourceController {
     @GetMapping(value = "/logo.png", produces = MediaType.IMAGE_PNG_VALUE)
     public void getImage(HttpServletResponse response) throws IOException {
 
-        response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+        response.setContentType(MediaType.IMAGE_PNG_VALUE);
         StreamUtils.copy(logoImageResource.getInputStream(), response.getOutputStream());
     }
 }

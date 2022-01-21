@@ -81,9 +81,8 @@
                             :class="{'valid': !$v.cAConnectorConfig.plainSecret.$invalid, 'invalid': $v.cAConnectorConfig.plainSecret.$invalid }" v-model="$v.cAConnectorConfig.plainSecret.$model" />
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.audit')" >Audit</label>
-                        <audit-tag :caConnectorId="cAConnectorConfig.id" showLinks="false"></audit-tag>
+                    <div>
+                        <audit-tag :caConnectorId="cAConnectorConfig.id" showLinks="false" :title="$t('ca3SApp.certificate.audit')"></audit-tag>
                     </div>
 
                 </div>

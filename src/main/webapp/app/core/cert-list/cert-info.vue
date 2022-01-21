@@ -179,16 +179,6 @@
                         </dd>
                     </Fragment>
 
-
-                    <Fragment  v-if="certificateView.auditPresent">
-                        <dt>
-                            <span v-text="$t('ca3SApp.certificate.audit')">Audit</span>
-                        </dt>
-                        <dd>
-                            <audit-tag :certificateId="certificateView.id" :csrId="certificateView.csrId" showLinks="false"></audit-tag>
-                        </dd>
-                    </Fragment>
-
                     <!-- donwload section -->
                     <dt v-if="certificateView.isServersideKeyGeneration">
                         <span v-text="$t('ca3SApp.certificate.download.PKCS12')">PKCS12 keystore</span> <help-tag target="ca3SApp.certificate.download.PKCS12"/>
@@ -236,15 +226,20 @@
                         </div>
 
                     </dd>
-
                 </dl>
+                <Fragment  v-if="certificateView.auditPresent">
+                    <div>
+                        <audit-tag :certificateId="certificateView.id" :csrId="certificateView.csrId" showLinks="false" :title="$t('ca3SApp.certificate.audit')"></audit-tag>
+                    </div>
+                </Fragment>
             </div>
-<!--
+
+            <!--
     certificateAdminData
 -->
             <form name="editForm" role="form" novalidate>
                 <div>
-                    <div v-if="isTrustable()" class="form-group">
+                    <div v-if="isTrustable() && isRAOfficer()" class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.trusted')" for="certificate-trusted">Trusted</label>
                         <input type="checkbox" class="form-check-inline" name="trusted" id="certificate-trusted"
                                v-model="certificateAdminData.trusted" />

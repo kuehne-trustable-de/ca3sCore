@@ -46,11 +46,9 @@ public class ACMEOrderUtil {
         for(AcmeAuthorization acmeAuthorization: acmeOrder.getAcmeAuthorizations()){
 
             for(AcmeChallenge acmeChallenge: acmeAuthorization.getChallenges()){
-//                if(ChallengeStatus.VALID.equals(acmeChallenge.getStatus())){
-                    urlSet.add(acmeChallenge.getValue());
-                    typeSet.add(acmeChallenge.getType());
-                }
-//            }
+                urlSet.add(acmeChallenge.getValue());
+                typeSet.add(acmeChallenge.getType());
+            }
         }
 
         String urls = "";

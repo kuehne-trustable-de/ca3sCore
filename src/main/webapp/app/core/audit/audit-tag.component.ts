@@ -100,8 +100,18 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
   @Prop()
   public processInfoId: string;
 
+  @Prop()
+  public title: string;
+
   public get authenticated(): boolean {
     return this.$store.getters.authenticated;
+  }
+
+  public titleContent = 'Audit Log';
+
+  public collapsed = true;
+  public setCollapsed(collapsed: boolean) {
+    this.collapsed = collapsed;
   }
 
   public contentAccessUrl: string;
@@ -227,5 +237,9 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
     }
   }
 
-  public mounted(): void {}
+  public mounted(): void {
+    if (this.title) {
+      this.titleContent = this.title;
+    }
+  }
 }
