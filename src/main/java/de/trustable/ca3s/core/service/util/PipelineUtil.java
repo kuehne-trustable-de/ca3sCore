@@ -599,7 +599,16 @@ public class PipelineUtil {
         ProtectedContent pc;
         List<ProtectedContent> listPC = protectedContentRepository.findByTypeRelationId(ProtectedContentType.PASSWORD, ContentRelationType.SCEP_PW,p.getId());
         if(listPC.isEmpty()) {
-            pc = protectedContentUtil.createProtectedContent("", ProtectedContentType.PASSWORD, ContentRelationType.SCEP_PW, p.getId());
+//            pc = protectedContentUtil.createProtectedContent("", ProtectedContentType.PASSWORD, ContentRelationType.SCEP_PW, p.getId());
+
+            pc = new ProtectedContent();
+            pc.setType(ProtectedContentType.PASSWORD);
+            pc.setRelationType(ContentRelationType.SCEP_PW);
+            pc.setRelatedId(p.getId());
+            pc.setLeftUsages(-1);
+            pc.setValidTo(ProtectedContentUtil.MAX_INSTANT);
+            pc.setDeleteAfter(ProtectedContentUtil.MAX_INSTANT);
+
             LOG.debug("Protected Content created for SCEP password");
         }else{
             pc = listPC.get(0);
