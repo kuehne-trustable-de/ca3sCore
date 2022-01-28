@@ -29,7 +29,8 @@ public class ProtectedContentUtil {
 	private BasicTextEncryptor textEncryptor;
 
 	// defining our own max instant, as Instant.MAX is out f the range hibernate supports :-(
-	public static final Instant MAX_INSTANT = Instant.parse("9999-12-30T23:59:59Z");
+//    public static final Instant MAX_INSTANT = Instant.parse("9999-12-30T23:59:59Z");
+    public static final Instant MAX_INSTANT = Instant.parse("2029-12-30T23:59:59Z");
 
 	@Autowired
 	private ProtectedContentRepository protContentRepository;
