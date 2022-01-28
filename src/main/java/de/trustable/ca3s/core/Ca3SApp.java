@@ -88,6 +88,7 @@ public class Ca3SApp implements InitializingBean {
 
         SpringApplication app = new SpringApplication(Ca3SApp.class);
         DefaultProfileUtil.addDefaultProfile(app);
+        app.addListeners(new PropertiesLogger());
         Environment env = app.run(args).getEnvironment();
         logApplicationStartup(env);
     }

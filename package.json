@@ -8,6 +8,7 @@
     "node_modules"
   ],
   "dependencies": {
+    "node-fetch": ">=3.1.1",
     "@fortawesome/fontawesome-svg-core": "1.2.25",
     "@fortawesome/free-solid-svg-icons": "^5.4.0",
     "@fortawesome/vue-fontawesome": "0.1.8",
@@ -39,7 +40,8 @@
     "vuex": "3.1.2",
     "webstomp-client": "1.2.0",
     "weekstart": "^1.1.0",
-    "zingchart-vue": "^1.1.0"
+    "zingchart-vue": "^1.1.0",
+    "min-dash": "^3.8.1"
   },
   "devDependencies": {
     "@types/jest": "24.0.23",

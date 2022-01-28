@@ -33,7 +33,7 @@ spring:
 #    hikari:
 #      auto-commit: false
 #  jpa:
-#    database-platform: io.github.jhipster.domain.util.FixedH2Dialect
+#    database-platform: tech.jhipster.domain.util.FixedH2Dialect
 #    database: H2
 #    open-in-view: false
 #    show-sql: false
@@ -65,7 +65,7 @@ spring:
         prepStmtCacheSqlLimit: 2048
         useServerPrepStmts: true
   jpa:
-    database-platform: io.github.jhipster.domain.util.FixedH2Dialect
+    database-platform: tech.jhipster.domain.util.FixedH2Dialect
     database: H2
     show-sql: false
     properties:
@@ -132,10 +132,6 @@ jhipster:
         base64-secret: NDkyZWMyYTljNmZiOGQwMWFlMDUyM2ViYmIyNGFlNDEyMzE4NTM0MTA0NjhjMTFkNWViMmYzODRkNzEwNWZmMzQwN2MyNDA4N2UzNzZmZDEzYjVkZjIzYmY3Njg2NDVjZThkZGQyMzA4NTYyYjk0YzRmZGU4NmQwMWM2MDM3MWE=
         # Token is valid 24 hours
         token-validity-in-seconds: 86400
-  metrics:
-    logs: # Reports metrics in the logs
-      enabled: true
-      report-frequency: 60 # in seconds
 
 # ===================================================================
 # Application specific properties

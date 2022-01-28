@@ -48,6 +48,10 @@ spring:
     username: ca3s_jh_dev
     password: nYbA4Jm4rnQJ
 
+#    url: jdbc:mysql://localhost:3306/test_schema?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+#    username: ca3s_test
+#    password: s3cr3t
+
 # connect to the database with user-only privileges
 # the application runs with restricted rights, liquibase uses admin rights to create / alter the DB scheme
 #    url: jdbc:mysql://localhost:3306/ca3s_sep_roles?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true

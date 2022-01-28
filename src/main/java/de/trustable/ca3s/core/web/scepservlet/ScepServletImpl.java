@@ -78,19 +78,10 @@ public class ScepServletImpl extends ScepServlet {
 
     final private PipelineUtil pipelineUtil;
 
-    final private String dnSuffix;
-
-    final private String cnSuffix;
-
 	public ThreadLocal<Pipeline> threadLocalPipeline = new ThreadLocal<>();
 
-    public ScepServletImpl(PipelineUtil pipelineUtil,
-                           @Value("${ca3s.https.certificate.dnSuffix:O=trustable solutions,C=DE}") String dnSuffix,
-                           @Value("${ca3s.scep.recipient.certificate.cnSuffix:}") String cnSuffix
-                           ) {
+    public ScepServletImpl(PipelineUtil pipelineUtil) {
         this.pipelineUtil = pipelineUtil;
-        this.dnSuffix = dnSuffix;
-        this.cnSuffix = cnSuffix;
     }
 
     @Override

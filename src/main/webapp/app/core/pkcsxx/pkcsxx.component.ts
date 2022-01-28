@@ -686,6 +686,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     window.console.info('in disableCertificateRequest()');
 
     if (this.creationMode === 'CSR_AVAILABLE') {
+      // if the key is present in the DB, reject a CSR upload
       if (this.precheckResponse.csrPublicKeyPresentInDB) {
         return true;
       }
@@ -702,18 +703,25 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       }
     }
 
-    for (let rdnIndex = 0; rdnIndex < this.rdnRestrictions.length; rdnIndex++) {
-      for (let valueIndex = 0; valueIndex < this.upload.certificateAttributes[rdnIndex].values.length; valueIndex++) {
-        if (
-          this.showContentWarning(
-            this.rdnRestrictions[rdnIndex],
-            valueIndex,
-            this.upload.certificateAttributes[rdnIndex].values[valueIndex]
-          ) ||
-          this.showRegExpWarning(this.rdnRestrictions[rdnIndex], valueIndex, this.upload.certificateAttributes[rdnIndex].values[valueIndex])
-        ) {
-          window.console.info('attribute "' + this.rdnRestrictions[rdnIndex].name + '" does not match requirements!');
-          return true;
+    // the CSR does not fill the RDN values, don't check !!
+    if (this.creationMode !== 'CSR_AVAILABLE') {
+      for (let rdnIndex = 0; rdnIndex < this.rdnRestrictions.length; rdnIndex++) {
+        for (let valueIndex = 0; valueIndex < this.upload.certificateAttributes[rdnIndex].values.length; valueIndex++) {
+          if (
+            this.showContentWarning(
+              this.rdnRestrictions[rdnIndex],
+              valueIndex,
+              this.upload.certificateAttributes[rdnIndex].values[valueIndex]
+            ) ||
+            this.showRegExpWarning(
+              this.rdnRestrictions[rdnIndex],
+              valueIndex,
+              this.upload.certificateAttributes[rdnIndex].values[valueIndex]
+            )
+          ) {
+            window.console.info('attribute "' + this.rdnRestrictions[rdnIndex].name + '" does not match requirements!');
+            return true;
+          }
         }
       }
     }

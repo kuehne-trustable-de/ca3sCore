@@ -2,7 +2,6 @@ package de.trustable.ca3s.core.service.util;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.time.Instant;
 import java.util.*;
 
 import de.trustable.ca3s.core.domain.*;
@@ -10,7 +9,6 @@ import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.CsrAttributeRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.ARARestriction;
-import de.trustable.ca3s.core.service.dto.PipelineView;
 import de.trustable.ca3s.core.service.dto.NamedValues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,9 +112,8 @@ public class CertificateProcessingUtil {
 				csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, PipelineType.WEB, null);
 			}else {
                 csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, pipeline);
-                PipelineView pv = pvUtil.from(pipeline);
-                restrictionArr = pv.getAraRestrictions();
-			}
+                restrictionArr = pvUtil.initAraRestrictions(pipeline);
+            }
 
 
 			csr.setRequestorComment(requestorComment);

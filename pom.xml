@@ -115,8 +115,7 @@
         <mapstruct.version>1.4.2.Final</mapstruct.version>
 
         <spring.version>5.3.14</spring.version>
-        <spring.security.version>5.2.15.RELEASE</spring.security.version>
-        <springSecurityLdapVersion>5.3.1.RELEASE</springSecurityLdapVersion>
+        <spring.security.version>5.3.13.RELEASE</spring.security.version>
 
         <h2.version>2.1.210</h2.version>
 
@@ -157,7 +156,7 @@
         <keycloak.version>15.0.2</keycloak.version>
 
         <bouncyCastleVersion>1.68</bouncyCastleVersion>
-        <cryptoUtilVersion>1.2.1</cryptoUtilVersion>
+        <cryptoUtilVersion>1.2.2</cryptoUtilVersion>
         <certBundleVersion>1.1.1</certBundleVersion>
         <adcsUtilVersion>1.2.0</adcsUtilVersion>
         <adcsProxyClientVersion>1.2.1</adcsProxyClientVersion>
@@ -228,6 +227,14 @@
                 <version>${camunda.version}</version>
             </dependency>
 
+            <!-- https://mvnrepository.com/artifact/org.junit/junit-bom -->
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>5.8.2</version>
+                <type>pom</type>
+            </dependency>
+
             <!-- jhipster-needle-maven-add-dependency-management -->
 
             <!-- Fix for CVE-2021-27568
@@ -268,6 +275,14 @@
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
                 <version>3.19.3</version>
+            </dependency>
+
+            <!-- Newer version introduced by adcsProxyClient
+                https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations -->
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>2.1.12</version>
             </dependency>
 
             <dependency>
@@ -1151,12 +1166,12 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
+        <!--dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-commons</artifactId>
             <version>1.5.2</version>
             <scope>test</scope>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>io.ddavison</groupId>

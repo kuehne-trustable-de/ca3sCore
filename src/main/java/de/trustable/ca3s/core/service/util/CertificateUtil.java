@@ -344,9 +344,14 @@ public class CertificateUtil {
             return certList.get(0);
         }
     }
-/*
-    public Certificate getCurrentSCEPRecipient() {
-        List<Certificate> certList = certificateRepository.findByAttributeValue(CertificateAttribute.ATTRIBUTE_SCEP_RECIPIENT, "true");
+
+    public Certificate getCurrentSCEPRecipient(final Pipeline pipeline) {
+
+        LOG.debug("start: getCurrentSCEPRecipient ");
+        List<Certificate> certList =
+            certificateRepository.findByAttributeValue(CertificateAttribute.ATTRIBUTE_SCEP_RECIPIENT, "" + pipeline.getId());
+
+        LOG.debug("getCurrentSCEPRecipient #{} found as recepient certificate", certList.size());
 
         Instant now = Instant.now();
         Certificate currentRecipientCert = null;
@@ -365,7 +370,7 @@ public class CertificateUtil {
         LOG.debug("getCurrentSCEPRecipient " + currentRecipientCert);
         return currentRecipientCert;
     }
-*/
+
     /**
      * @param pemCert
      * @param csr
@@ -2093,7 +2098,37 @@ public class CertificateUtil {
     }
 
     public static String getDownloadFilename(final Certificate cert) {
-        String downloadFilename = cert.getSubject().replaceAll("[^a-zA-Z0-9.\\-]", "_");
+
+        String cn = null;
+        String e = null;
+        String firstSAN = null;
+        for( CertificateAttribute certificateAttribute: cert.getCertificateAttributes()){
+            if( CertificateAttribute.ATTRIBUTE_SUBJECT.equals(certificateAttribute.getName())){
+                if( certificateAttribute.getValue().startsWith("cn=") &&
+                    cn == null){
+                    cn = certificateAttribute.getValue().substring(3);
+                }
+                if( certificateAttribute.getValue().startsWith("e=") &&
+                    e == null ){
+                    e = certificateAttribute.getValue().substring(2);
+                }
+            }
+            if( CertificateAttribute.ATTRIBUTE_SAN.equals(certificateAttribute.getName()) &&
+                firstSAN == null){
+                firstSAN = certificateAttribute.getValue();
+            }
+        }
+
+        String downloadFilename = cert.getSubject();
+        if( cn != null){
+            downloadFilename = cn;
+        }else if( e != null){
+            downloadFilename = e;
+        }else if( firstSAN != null){
+            downloadFilename = firstSAN;
+        }
+
+        downloadFilename = downloadFilename.replaceAll("[^a-zA-Z0-9.\\-]", "_");
         if (downloadFilename.trim().isEmpty()) {
             downloadFilename = "cert" + cert.getSerial();
         }

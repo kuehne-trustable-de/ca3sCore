@@ -155,9 +155,7 @@ public class ADCSConnector {
 
 		LOGGER.debug("incoming csr for ADCS");
 
-		Set<CsrAttribute> csrAttrs = csr.getCsrAttributes();
-
-		csrAttrs.add(createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_STARTED_TIMESTAMP,"" + System.currentTimeMillis()));
+		createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_STARTED_TIMESTAMP,"" + System.currentTimeMillis());
 
 		csr.setStatus(CsrStatus.PROCESSING);
 
@@ -209,8 +207,8 @@ public class ADCSConnector {
 				csr.setCertificate(certDao);
 				csr.setStatus(CsrStatus.ISSUED);
 
-				csrAttrs.add(createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_FINISHED_TIMESTAMP,"" + System.currentTimeMillis()));
-				csrAttrs.add(createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_ID,"" + certResponse.getReqId()));
+				createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_FINISHED_TIMESTAMP,"" + System.currentTimeMillis());
+				createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_ID,"" + certResponse.getReqId());
 
 			} else if ((SubmitStatus.DENIED.equals(certResponse.getStatus()))
 					|| (SubmitStatus.INCOMPLETE.equals(certResponse.getStatus()))
@@ -218,10 +216,9 @@ public class ADCSConnector {
 
                 csrUtil.setStatusAndRejectionReason(csr, CsrStatus.REJECTED, "ADCS call failed with Status '" + certResponse.getStatus() + "'.");
 
-				csrAttrs.add(createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_FINISHED_TIMESTAMP,"" + System.currentTimeMillis()));
-				csrAttrs.add(createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_ID,"" + certResponse.getReqId()));
+				createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_FINISHED_TIMESTAMP,"" + System.currentTimeMillis());
+				createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_ID,"" + certResponse.getReqId());
 
-				csr.setCsrAttributes(csrAttrs);
 				csrRepository.save(csr);
 
 				throw new GeneralSecurityException("adcs rejected request");
@@ -230,7 +227,7 @@ public class ADCSConnector {
 					|| (SubmitStatus.ISSUED_OUT_OF_BAND.equals(certResponse.getStatus()))) {
 				csr.setStatus(CsrStatus.PENDING);
 
-				csrAttrs.add(createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_ID,"" + certResponse.getReqId()));
+				createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_ID,"" + certResponse.getReqId());
 
 			} else {
 				throw new GeneralSecurityException(
@@ -258,7 +255,6 @@ public class ADCSConnector {
 			throw new GeneralSecurityException("adcs connector caused IOException", ioex);
 
 		}finally {
-			csr.setCsrAttributes(csrAttrs);
 			csrRepository.save(csr);
 		}
 
@@ -272,13 +268,9 @@ public class ADCSConnector {
 	 * @param csr
 	 * @return
 	 */
-	private CsrAttribute createCsrAttribute(CSR csr, final String name, final String value) {
+	private void createCsrAttribute(CSR csr, final String name, final String value) {
 
-		CsrAttribute csrAttr = new CsrAttribute();
-		csrAttr.setCsr(csr);
-		csrAttr.setName(name);
-		csrAttr.setValue(value);
-		return csrAttr;
+        csrUtil.setCsrAttribute(csr, name, value, false);
 	}
 
 	/**
