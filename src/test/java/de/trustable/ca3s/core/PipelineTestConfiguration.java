@@ -116,6 +116,8 @@ public class PipelineTestConfiguration {
 		pv_LaxRestrictions.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
     	pv_LaxRestrictions.setRestriction_S(new RDNRestriction());
 		pv_LaxRestrictions.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv_LaxRestrictions.setRestriction_E(new RDNRestriction());
+        pv_LaxRestrictions.getRestriction_E().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
 
     	pv_LaxRestrictions.setRestriction_SAN(new RDNRestriction());
 		pv_LaxRestrictions.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
@@ -151,17 +153,19 @@ public class PipelineTestConfiguration {
 
 		PipelineView pv_1CNRestrictions = new PipelineView();
     	pv_1CNRestrictions.setRestriction_C(new RDNRestriction());
-		pv_1CNRestrictions.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
+		pv_1CNRestrictions.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
     	pv_1CNRestrictions.setRestriction_CN(new RDNRestriction());
-		pv_1CNRestrictions.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+		pv_1CNRestrictions.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
     	pv_1CNRestrictions.setRestriction_L(new RDNRestriction());
 		pv_1CNRestrictions.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
     	pv_1CNRestrictions.setRestriction_O(new RDNRestriction());
 		pv_1CNRestrictions.getRestriction_O().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
     	pv_1CNRestrictions.setRestriction_OU(new RDNRestriction());
 		pv_1CNRestrictions.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
-    	pv_1CNRestrictions.setRestriction_S(new RDNRestriction());
-		pv_1CNRestrictions.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+        pv_1CNRestrictions.setRestriction_S(new RDNRestriction());
+        pv_1CNRestrictions.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+        pv_1CNRestrictions.setRestriction_E(new RDNRestriction());
+        pv_1CNRestrictions.getRestriction_E().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
 
 		pv_1CNRestrictions.setRestriction_SAN(new RDNRestriction());
 		pv_1CNRestrictions.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
@@ -313,6 +317,8 @@ public class PipelineTestConfiguration {
 		pv_LaxRestrictions.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
     	pv_LaxRestrictions.setRestriction_S(new RDNRestriction());
 		pv_LaxRestrictions.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv_LaxRestrictions.setRestriction_E(new RDNRestriction());
+        pv_LaxRestrictions.getRestriction_E().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
 
 		pv_LaxRestrictions.setRestriction_SAN(new RDNRestriction());
 		pv_LaxRestrictions.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
@@ -364,6 +370,8 @@ public class PipelineTestConfiguration {
 		pv_1CNRestrictions.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
     	pv_1CNRestrictions.setRestriction_S(new RDNRestriction());
 		pv_1CNRestrictions.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+        pv_1CNRestrictions.setRestriction_E(new RDNRestriction());
+        pv_1CNRestrictions.getRestriction_E().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
 
 		pv_1CNRestrictions.setRestriction_SAN(new RDNRestriction());
 		pv_1CNRestrictions.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);

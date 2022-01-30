@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2022-01-13 23:02:15.
+// Generated using typescript-generator version 2.19.577 on 2022-01-30 15:34:02.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -85,6 +85,7 @@ export interface IPipelineView extends ISerializable {
   type?: IPipelineType;
   urlPart?: string;
   description?: string;
+  listOrder?: number;
   approvalRequired?: boolean;
   active?: boolean;
   caConnectorName?: string;
@@ -174,6 +175,7 @@ export interface ICertificateView extends ISerializable {
   replacedCertArr?: string[];
   arArr?: INamedValue[];
   serversideKeyGeneration?: boolean;
+  fullChainAvailable?: boolean;
   auditPresent?: boolean;
 }
 
@@ -360,6 +362,7 @@ export interface ISCEPConfigItems extends ISerializable {
   scepSecretValidTo?: Date;
   keyAlgoLength?: IKeyAlgoLength;
   scepRecipientDN?: string;
+  caConnectorRecipientName?: string;
 }
 
 export interface IWebConfigItems extends ISerializable {}
@@ -438,4 +441,4 @@ export type IPKCSDataType =
 
 export type IChallengeStatus = 'pending' | 'valid' | 'invalid' | 'deactivated' | 'expired' | 'revoked';
 
-export type IRDNCardinalityRestriction = 'NOT_ALLOWED' | 'ZERO_OR_ONE' | 'ONE' | 'ZERO_OR_MANY' | 'ONE_OR_MANY';
+export type IRDNCardinalityRestriction = 'NOT_ALLOWED' | 'ZERO_OR_ONE' | 'ONE' | 'ONE_OR_SAN' | 'ZERO_OR_MANY' | 'ONE_OR_MANY';

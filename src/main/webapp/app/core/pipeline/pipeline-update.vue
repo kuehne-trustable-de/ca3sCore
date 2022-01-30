@@ -50,6 +50,12 @@
                             :class="{'valid': !$v.pipeline.description.$invalid, 'invalid': $v.pipeline.description.$invalid }" v-model="$v.pipeline.description.$model" />
                     </div>
 
+                    <div class="form-group" v-if="$v.pipeline.type.$model === 'WEB'">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.listOrder')" for="pipeline-listOrder">Url Part</label>
+                        <input type="number" class="form-control" name="listOrder" id="pipeline-listOrder"
+                               :class="{'valid': !$v.pipeline.listOrder.$invalid, 'invalid': $v.pipeline.listOrder.$invalid }" v-model="$v.pipeline.listOrder.$model" />
+                    </div>
+
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.caConnector')" for="pipeline-caConnector">Ca Connector</label>
                         <select class="form-control" id="pipeline-caConnector" name="caConnector" v-model="pipeline.caConnectorName">
@@ -73,6 +79,15 @@
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.scepRecipientDN')" for="pipeline-scepRecipientDN">SCEP Recipient DN</label>
                         <input type="text" class="form-control" name="scepRecipientDN" id="pipeline-scepRecipientDN" v-model="$v.pipeline.scepConfigItems.scepRecipientDN.$model" />
 
+                        <div class="form-group">
+                            <label class="form-control-label" v-text="$t('ca3SApp.pipeline.caConnectorScepRecipientName')" for="pipeline-caConnectorScepRecipientName">Ca Connector Scep Recipient</label>
+                            <select class="form-control" id="pipeline-caConnectorScepRecipientName" name="caConnector" v-model="pipeline.scepConfigItems.caConnectorRecipientName">
+                                <option v-bind:value="pipeline.scepConfigItems.caConnectorRecipientName && cAConnectorConfigOption.name === pipeline.scepConfigItems.caConnectorRecipientName ? pipeline.scepConfigItems.caConnectorRecipientName : cAConnectorConfigOption.name" v-for="cAConnectorConfigOption in allCertGenerators" :key="cAConnectorConfigOption.id">{{cAConnectorConfigOption.name}}</option>
+
+                            </select>
+                        </div>
+
+
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.scepRecipientCertificate')" for="pipeline-scepRecipientCertificate">SCEP Recipient certificate</label>
                         <div>
                             <router-link name="pipeline-scepRecipientCertificate"
@@ -89,6 +104,7 @@
                                 <select class="form-control" id="pipeline-cn-cardinality" name="pipeline-cn-cardinality" v-model="pipeline.restriction_CN.cardinalityRestriction">
                                     <option value="NOT_ALLOWED">NOT_ALLOWED</option>
                                     <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
+                                    <option value="ONE_OR_SAN">ONE_OR_SAN</option>
                                     <option value="ONE">ONE</option>
                                     <option value="ZERO_OR_MANY">ZERO_OR_MANY</option>
                                     <option value="ONE_OR_MANY">ONE_OR_MANY</option>

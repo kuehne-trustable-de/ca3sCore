@@ -196,35 +196,26 @@
                         </div>
                     </dd>
 
-                    <dt v-if="certificateView.subject">
+
+                    <dt v-if="certificateView.downloadFilename">
                         <span v-text="$t('ca3SApp.certificate.download.pkix')">Pkix</span> <help-tag target="ca3SApp.certificate.download.PKIX"/>
                     </dt>
-                    <dd v-if="certificateView.subject">
-                        <div>
-                            <a href="downloadUrl" @click.prevent="downloadPKIX('.crt', 'application/pkix-cert')" >{{certificateView.downloadFilename}}.crt</a>
+                    <dd v-if="certificateView.downloadFilename">
+                        <div class="container">
+                            <div class="row" >
+                                <div class="col">
+                                    <select class="form-control" id="download-format" name="download-format" v-model="downloadFormat" >
+                                        <option value="pkix" v-text="$t('ca3SApp.certificate.download.PKIX')" selected="selected">PKIX</option>
+                                        <option value="pem" v-text="$t('ca3SApp.certificate.download.PEM')" >PEM</option>
+                                        <option v-if="certificateView.endEntity" value="pemPart" v-text="$t('ca3SApp.certificate.download.pemPartChain')" >PEMPartChain</option>
+                                        <option v-if="certificateView.endEntity" value="pemFull" v-text="$t('ca3SApp.certificate.download.pemFullChain')" >PEMFullChain</option>
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <a href="downloadUrl" @click.prevent="downloadItem()" >{{getDownloadFilename()}}</a>
+                                </div>
+                            </div>
                         </div>
-                    </dd>
-                    <dt v-if="certificateView.subject">
-                        <span v-text="$t('ca3SApp.certificate.download.pem')">PEM</span> <help-tag target="ca3SApp.certificate.download.PEM"/>
-                    </dt>
-                    <dd v-if="certificateView.subject">
-                        <div>
-                            <a href="downloadUrl" @click.prevent="downloadItem('.cer', 'application/pem-certificate')" >{{certificateView.downloadFilename}}.cer</a>
-                        </div>
-                    </dd>
-
-                    <dt>
-                        <span v-text="$t('ca3SApp.certificate.csrBase64')">Certificate as PEM</span>
-                    </dt>
-                    <dd>
-                        <div class="form-group wrap">
-                            <textarea class="form-control pem-content" name="certContent" id="certContent"
-                                      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly
-                                      v-model="certificateView.certB64" />
-
-                            <CopyClipboardButton contentElementId="certContent"/>
-                        </div>
-
                     </dd>
                 </dl>
                 <Fragment  v-if="certificateView.auditPresent">

@@ -29,6 +29,39 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
   public certificateView: ICertificateView = {};
   public certificateAdminData: ICertificateAdministrationData = {};
   public p12Alias = 'alias';
+  public downloadFormat = 'pkix';
+
+  public getDownloadFilename(): string {
+    let extension = '.crt';
+    if (this.downloadFormat === 'pem') {
+      extension = '.pem';
+    } else if (this.downloadFormat === 'pemPart') {
+      extension = '.part.pem';
+    } else if (this.downloadFormat === 'pemFull') {
+      extension = '.full.pem';
+    }
+    return this.certificateView.downloadFilename + extension;
+  }
+
+  public downloadItem() {
+    const filename = this.getDownloadFilename();
+
+    let url = '/publicapi/certPKIX/' + this.certificateView.id + '/' + filename;
+    let mimetype = 'application/pkix-cert';
+
+    if (this.downloadFormat === 'pem') {
+      url = '/publicapi/certPEM/' + this.certificateView.id + '/' + filename;
+      mimetype = 'application/pem-certificate';
+    } else if (this.downloadFormat === 'pemPart') {
+      url = '/publicapi/certPEMPart/' + this.certificateView.id + '/' + filename;
+      mimetype = 'application/x-pem-certificate-chain';
+    } else if (this.downloadFormat === 'pemFull') {
+      url = '/publicapi/certPEMFull/' + this.certificateView.id + '/' + filename;
+      mimetype = 'application/pem-certificate-chain';
+    }
+
+    this.download(url, filename, mimetype);
+  }
 
   public downloadUrl(): string {
     const url = '/publicapi/cert/' + this.certificateView.id;
@@ -48,7 +81,7 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
     return url;
   }
 
-  public downloadItem(extension: string, mimetype: string) {
+  public downloadItem__(extension: string, mimetype: string) {
     const filename = this.certificateView.downloadFilename + extension;
     const url = '/publicapi/cert/' + this.certificateView.id;
     this.download(url, filename, mimetype);

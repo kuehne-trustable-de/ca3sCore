@@ -23,6 +23,8 @@ public class PipelineView implements Serializable {
 
     private String description;
 
+    private int listOrder;
+
     private Boolean approvalRequired;
 
     private Boolean active;
@@ -307,5 +309,13 @@ public class PipelineView implements Serializable {
 
     public void setCsrUsage(CsrUsage csrUsage) {
         this.csrUsage = csrUsage;
+    }
+
+    public int getListOrder() {
+        return listOrder;
+    }
+
+    public void setListOrder(int listOrder) {
+        this.listOrder = listOrder;
     }
 }

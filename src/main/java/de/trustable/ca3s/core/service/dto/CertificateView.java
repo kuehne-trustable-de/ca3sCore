@@ -210,6 +210,9 @@ public class CertificateView implements Serializable {
     private Boolean isAuditPresent = false;
 
     @CsvIgnore
+    private Boolean isFullChainAvailable = false;
+
+    @CsvIgnore
     private String[] replacedCertArr;
 
     @CsvRecurse
@@ -223,7 +226,7 @@ public class CertificateView implements Serializable {
     	this.subject = cert.getSubject();
     	this.sans = cert.getSans();
         this.issuer = cert.getIssuer();
-    	this.type = cert.getType();
+        this.type = cert.getType();
    		this.keyLength = cert.getKeyLength().toString();
    		this.keyAlgorithm = cert.getKeyAlgorithm();
 		this.signingAlgorithm = cert.getSigningAlgorithm();
@@ -259,9 +262,21 @@ public class CertificateView implements Serializable {
     		this.requestedBy = "";
     	}
 
+        this.root = "";
+        this.intermediate = false;
+        this.isFullChainAvailable = false;
     	if( cert.getIssuingCertificate() != null) {
     		this.issuerId = cert.getIssuingCertificate().getId();
-    	}
+
+            Certificate issuerCheck = cert.getIssuingCertificate();
+            for(int i = 0; i < 10 || issuerCheck != null; i++){
+                if( issuerCheck.isSelfsigned() ){
+                    this.isFullChainAvailable = true;
+                    break;
+                }
+                issuerCheck = issuerCheck.getIssuingCertificate();
+            }
+        }
 
     	List<String> usageList = new ArrayList<>();
         List<String> extUsageList = new ArrayList<>();
@@ -321,7 +336,9 @@ public class CertificateView implements Serializable {
                     this.ca = Boolean.valueOf(certAttr.getValue());
                 } else if (CertificateAttribute.ATTRIBUTE_CA3S_ROOT.equalsIgnoreCase(certAttr.getName())) {
                 } else if (CertificateAttribute.ATTRIBUTE_ROOT.equalsIgnoreCase(certAttr.getName())) {
+                    this.root = certAttr.getValue();
                 } else if (CertificateAttribute.ATTRIBUTE_CA3S_INTERMEDIATE.equalsIgnoreCase(certAttr.getName())) {
+                    this.intermediate = true;
                 } else if (CertificateAttribute.ATTRIBUTE_END_ENTITY.equalsIgnoreCase(certAttr.getName())) {
                     this.endEntity = Boolean.valueOf(certAttr.getValue());
                 } else if (CertificateAttribute.ATTRIBUTE_CHAIN_LENGTH.equalsIgnoreCase(certAttr.getName())) {
@@ -898,5 +915,13 @@ public class CertificateView implements Serializable {
 
     public void setReplacedCertArr(String[] replacedCertArr) {
         this.replacedCertArr = replacedCertArr;
+    }
+
+    public Boolean getFullChainAvailable() {
+        return isFullChainAvailable;
+    }
+
+    public void setFullChainAvailable(Boolean fullChainAvailable) {
+        isFullChainAvailable = fullChainAvailable;
     }
 }

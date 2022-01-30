@@ -22,6 +22,7 @@ import {
 } from '@/shared/model/transfer-object.model';
 import { IPipelineRestrictions, PipelineRestrictions } from '@/shared/model/pipeline-restrictions';
 import { IPipelineRestriction, PipelineRestriction } from '@/shared/model/pipeline-restriction';
+import { IRDNCardinalityRestriction } from '../../../../../../target/generated-sources/typescript/transfer-object.model';
 
 const precheckUrl = 'publicapi/describeContent';
 const uploadUrl = 'api/uploadContent';
@@ -158,6 +159,21 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     console.log('showContentWarning( ' + rr.required + ', ' + valueIndex + ', "' + value + '")');
     if (rr.required && valueIndex == 0 && value.trim().length == 0) {
       console.log('showContentWarning( ' + rr.required + ', ' + valueIndex + ', "' + value + '") does not match');
+      return true;
+    }
+    return false;
+  }
+
+  public showContentOrSANWarning(rr: IPipelineRestriction, valueIndex: number, value: string): boolean {
+    console.log('showContentOrSANWarning( ' + rr.required + ', ' + valueIndex + ', "' + value + '")');
+    if (rr.cardinality === 'ONE_OR_SAN' && valueIndex == 0 && value.trim().length == 0) {
+      for (const nv of this.upload.certificateAttributes) {
+        if (nv.name === 'SAN' && nv.values.length > 0 && nv.values[0].trim().length > 0) {
+          console.log('showContentWarning: CN empty, SAN present');
+          return false;
+        }
+      }
+      console.log('showContentOrSANWarning( ' + rr.required + ', ' + valueIndex + ', "' + value + '") does not match');
       return true;
     }
     return false;
@@ -709,6 +725,11 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
         for (let valueIndex = 0; valueIndex < this.upload.certificateAttributes[rdnIndex].values.length; valueIndex++) {
           if (
             this.showContentWarning(
+              this.rdnRestrictions[rdnIndex],
+              valueIndex,
+              this.upload.certificateAttributes[rdnIndex].values[valueIndex]
+            ) ||
+            this.showContentOrSANWarning(
               this.rdnRestrictions[rdnIndex],
               valueIndex,
               this.upload.certificateAttributes[rdnIndex].values[valueIndex]

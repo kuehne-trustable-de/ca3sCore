@@ -89,6 +89,8 @@ public class PipelineUtil {
 
     public static final String CSR_USAGE = "CSR_USAGE";
 
+    public static final String LIST_ORDER = "LIST_ORDER";
+
     public static final String ACME_PROCESS_ACCOUNT_VALIDATION = "ACME_PROCESS_ACCOUNT_VALIDATION";
 	public static final String ACME_PROCESS_ORDER_VALIDATION = "ACME_PROCESS_ORDER_VALIDATION";
 	public static final String ACME_PROCESS_CHALLENGE_VALIDATION = "ACME_PROCESS_CHALLENGE_VALIDATION";
@@ -101,6 +103,7 @@ public class PipelineUtil {
 
     public static final String SCEP_RECIPIENT_DN = "SCEP_RECIPIENT_DN";
     public static final String SCEP_RECIPIENT_KEY_TYPE_LEN = "SCEP_RECIPIENT_KEY_TYPE_LEN";
+    public static final String SCEP_CA_CONNECTOR_RECIPIENT_NAME = "SCEP_CA_CONNECTOR_RECIPIENT_NAME";
 
 
     Logger LOG = LoggerFactory.getLogger(PipelineUtil.class);
@@ -177,26 +180,22 @@ public class PipelineUtil {
 
     		if( ACME_ALLOW_CHALLENGE_HTTP01.equals(plAtt.getName())) {
     			acmeConfigItems.setAllowChallengeHTTP01(Boolean.parseBoolean(plAtt.getValue()));
-
     		}else if( ACME_ALLOW_CHALLENGE_DNS.equals(plAtt.getName())) {
     			acmeConfigItems.setAllowChallengeDNS(Boolean.parseBoolean(plAtt.getValue()));
-
     		}else if( ACME_ALLOW_CHALLENGE_WILDCARDS.equals(plAtt.getName())) {
     			acmeConfigItems.setAllowWildcards(Boolean.parseBoolean(plAtt.getValue()));
-
     		}else if( ACME_CHECK_CAA.equals(plAtt.getName())) {
     			acmeConfigItems.setCheckCAA(Boolean.parseBoolean(plAtt.getValue()));
-
     		}else if( ACME_NAME_CAA.equals(plAtt.getName())) {
     			acmeConfigItems.setCaNameCAA(plAtt.getValue());
 
             }else if( SCEP_RECIPIENT_DN.equals(plAtt.getName())) {
                 scepConfigItems.setScepRecipientDN(plAtt.getValue());
-
             }else if( SCEP_RECIPIENT_KEY_TYPE_LEN.equals(plAtt.getName())) {
-    		    KeyAlgoLength keyAlgoLength = KeyAlgoLength.valueOf(plAtt.getValue());
+                KeyAlgoLength keyAlgoLength = KeyAlgoLength.valueOf(plAtt.getValue());
                 scepConfigItems.setKeyAlgoLength(keyAlgoLength);
-
+            }else if( SCEP_CA_CONNECTOR_RECIPIENT_NAME.equals(plAtt.getName())) {
+                scepConfigItems.setCaConnectorRecipientName(plAtt.getValue());
             }else if( SCEP_SECRET_PC_ID.equals(plAtt.getName())) {
 
                 Optional<ProtectedContent> optPC = protectedContentRepository.findById( Long.parseLong(plAtt.getValue()));
@@ -360,6 +359,9 @@ public class PipelineUtil {
 
             }else if( CSR_USAGE.equals(plAtt.getName())) {
                 pv.setCsrUsage(CsrUsage.valueOf(plAtt.getValue()));
+
+            }else if( LIST_ORDER.equals(plAtt.getName())) {
+                pv.setListOrder(Integer.parseInt(plAtt.getValue()));
 
             }else if( TO_PENDIND_ON_FAILED_RESTRICTIONS.equals(plAtt.getName())) {
                 pv.setToPendingOnFailedRestrictions(Boolean.parseBoolean(plAtt.getValue()));
@@ -573,28 +575,37 @@ public class PipelineUtil {
 			pv.setAcmeConfigItems(acmeConfigItems );
 		}
 
-		// ensure that at least HTTP-01 challenge is available
-		if( !pv.getAcmeConfigItems().isAllowChallengeDNS()){
-            pv.getAcmeConfigItems().setAllowChallengeHTTP01(true);
-            pv.getAcmeConfigItems().setAllowWildcards(false);
+        if( PipelineType.ACME.equals(pv.getType())) {
+            // ensure that at least HTTP-01 challenge is available
+            if (!pv.getAcmeConfigItems().isAllowChallengeDNS()) {
+                pv.getAcmeConfigItems().setAllowChallengeHTTP01(true);
+                pv.getAcmeConfigItems().setAllowWildcards(false);
+            }
+            addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_HTTP01, pv.getAcmeConfigItems().isAllowChallengeHTTP01());
+            addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_DNS, pv.getAcmeConfigItems().isAllowChallengeDNS());
+            addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_WILDCARDS, pv.getAcmeConfigItems().isAllowWildcards());
+            addPipelineAttribute(pipelineAttributes, p, auditList, ACME_CHECK_CAA, pv.getAcmeConfigItems().isCheckCAA());
+            addPipelineAttribute(pipelineAttributes, p, auditList, ACME_NAME_CAA, pv.getAcmeConfigItems().getCaNameCAA());
         }
-		addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_HTTP01,pv.getAcmeConfigItems().isAllowChallengeHTTP01());
-		addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_DNS,pv.getAcmeConfigItems().isAllowChallengeDNS());
-		addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_WILDCARDS,pv.getAcmeConfigItems().isAllowWildcards());
-		addPipelineAttribute(pipelineAttributes, p, auditList, ACME_CHECK_CAA,pv.getAcmeConfigItems().isCheckCAA());
-		addPipelineAttribute(pipelineAttributes, p, auditList, ACME_NAME_CAA,pv.getAcmeConfigItems().getCaNameCAA());
 
         addPipelineAttribute(pipelineAttributes, p, auditList, CSR_USAGE,pv.getCsrUsage().toString());
+        if( PipelineType.WEB.equals(pv.getType())) {
+            addPipelineAttribute(pipelineAttributes, p, auditList, LIST_ORDER, "" + pv.getListOrder());
+        }
 
         if( pv.getScepConfigItems() == null) {
             SCEPConfigItems scepConfigItems = new SCEPConfigItems();
             pv.setScepConfigItems(scepConfigItems );
         }
-        addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_CAPABILITY_RENEWAL,pv.getScepConfigItems().isCapabilityRenewal());
-        addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_CAPABILITY_POST,pv.getScepConfigItems().isCapabilityPostPKIOperation());
 
-        addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_RECIPIENT_DN,pv.getScepConfigItems().getScepRecipientDN());
-        addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_RECIPIENT_KEY_TYPE_LEN,pv.getScepConfigItems().getKeyAlgoLength().toString());
+        if( PipelineType.SCEP.equals(pv.getType())) {
+            addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_CAPABILITY_RENEWAL, pv.getScepConfigItems().isCapabilityRenewal());
+            addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_CAPABILITY_POST, pv.getScepConfigItems().isCapabilityPostPKIOperation());
+
+            addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_RECIPIENT_DN, pv.getScepConfigItems().getScepRecipientDN());
+            addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_RECIPIENT_KEY_TYPE_LEN, pv.getScepConfigItems().getKeyAlgoLength().toString());
+            addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_CA_CONNECTOR_RECIPIENT_NAME, pv.getScepConfigItems().getCaConnectorRecipientName());
+        }
 
         ProtectedContent pc;
         List<ProtectedContent> listPC = protectedContentRepository.findByTypeRelationId(ProtectedContentType.PASSWORD, ContentRelationType.SCEP_PW,p.getId());
@@ -618,7 +629,11 @@ public class PipelineUtil {
         String oldContent = protectedContentUtil.unprotectString(pc.getContentBase64());
         Instant validTo = pv.getScepConfigItems().getScepSecretValidTo();
 
-        if(!oldContent.equals(pv.getScepConfigItems().getScepSecret()) || !pc.getValidTo().equals(validTo)){
+        if(oldContent == null ||
+            !oldContent.equals(pv.getScepConfigItems().getScepSecret()) ||
+            pc.getValidTo() == null ||
+            !pc.getValidTo().equals(validTo)){
+
             pc.setContentBase64( protectedContentUtil.protectString(pv.getScepConfigItems().getScepSecret()));
             pc.setValidTo(validTo);
             pc.setDeleteAfter(validTo.plus(1, ChronoUnit.DAYS));
@@ -779,19 +794,19 @@ public class PipelineUtil {
 
 		boolean outcome = true;
 
-	    RDN[] rdnArr = p10ReqHolder.getSubjectRDNs();
+        Set<GeneralName> gNameSet = CSRUtil.getSANList(p10ReqHolder.getReqAttributes());
+        LOG.debug("#" + gNameSet.size() + " SANs present");
+
+
+        RDN[] rdnArr = p10ReqHolder.getSubjectRDNs();
 
 	    if( !checkRestrictions(BCStyle.C, pv.getRestriction_C(), rdnArr, messageList)) { outcome = false;}
-	    if( !checkRestrictions(BCStyle.CN, pv.getRestriction_CN(), rdnArr, messageList)) { outcome = false;}
+	    if( !checkRestrictions(BCStyle.CN, pv.getRestriction_CN(), rdnArr, gNameSet, messageList)) { outcome = false;}
 	    if( !checkRestrictions(BCStyle.O, pv.getRestriction_O(), rdnArr, messageList)) { outcome = false;}
 	    if( !checkRestrictions(BCStyle.OU, pv.getRestriction_OU(), rdnArr, messageList)) { outcome = false;}
 	    if( !checkRestrictions(BCStyle.L, pv.getRestriction_L(), rdnArr, messageList)) { outcome = false;}
         if( !checkRestrictions(BCStyle.ST, pv.getRestriction_S(), rdnArr, messageList)) { outcome = false;}
         if( !checkRestrictions(BCStyle.E, pv.getRestriction_E(), rdnArr, messageList)) { outcome = false;}
-
-    	Set<GeneralName> gNameSet = CSRUtil.getSANList(p10ReqHolder.getReqAttributes());
-    	LOG.debug("#" + gNameSet.size() + " SANs present");
-
 
 	    if( !checkRestrictions(pv.getRestriction_SAN(), gNameSet, messageList)) { outcome = false;}
 
@@ -958,8 +973,13 @@ public class PipelineUtil {
 
 
     private boolean checkRestrictions(ASN1ObjectIdentifier restricted, RDNRestriction restriction, RDN[] rdnArr, List<String> messageList) {
+        return checkRestrictions(restricted, restriction, rdnArr, new HashSet<>(), messageList);
+    }
 
-		if( restriction == null) {
+    private boolean checkRestrictions(ASN1ObjectIdentifier restricted, RDNRestriction restriction, RDN[] rdnArr, Set<GeneralName> gNameSet, List<String> messageList) {
+
+
+        if( restriction == null) {
 			return true; // no restrictions present!!
 		}
 
@@ -1030,6 +1050,19 @@ public class PipelineUtil {
 				LOG.debug(msg);
 				outcome = false;
 			}
+        } else if( RDNCardinalityRestriction.ONE_OR_SAN.equals(cardinality)) {
+            if( n == 0 && gNameSet.isEmpty()) {
+                String msg = "restricition mismatch: '"+restrictedName+"' MUST occur once or a SAN entry MUST be present!!";
+                messageList.add(msg);
+                LOG.debug(msg);
+                outcome = false;
+            }
+            if( n != 1) {
+                String msg = "restricition mismatch: '"+restrictedName+"' MUST occur exactly once, found "+n+" times!";
+                messageList.add(msg);
+                LOG.debug(msg);
+                outcome = false;
+            }
 		} else if( RDNCardinalityRestriction.ONE_OR_MANY.equals(cardinality)) {
 			if( n == 0) {
 				String msg = "restricition mismatch: '"+restrictedName+"' MUST occur once or more, missing here!";

@@ -80,6 +80,12 @@
                                             :required="rr.required"
                                             v-on:input="alignRDNArraySize(index, valueIndex)"/>
 
+
+
+                                        <small v-if="showContentOrSANWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])"
+                                               class="form-text text-danger" v-text="$t('entity.validation.requiredOrSAN')">
+                                            This field is required.
+                                        </small>
                                         <small v-if="showContentWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])"
                                                class="form-text text-danger" v-text="$t('entity.validation.required')">
                                             This field is required.

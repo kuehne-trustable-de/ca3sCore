@@ -23,6 +23,7 @@ public class SCEPConfigItems implements Serializable {
 
     private KeyAlgoLength keyAlgoLength = KeyAlgoLength.RSA_2048;
     private String scepRecipientDN = "";
+    private String caConnectorRecipientName = "";
 
     public SCEPConfigItems() {}
 
@@ -104,5 +105,13 @@ public class SCEPConfigItems implements Serializable {
 
     public void setScepRecipientDN(String scepRecipientDN) {
         this.scepRecipientDN = scepRecipientDN;
+    }
+
+    public String getCaConnectorRecipientName() {
+        return caConnectorRecipientName;
+    }
+
+    public void setCaConnectorRecipientName(String caConnectorRecipientName) {
+        this.caConnectorRecipientName = caConnectorRecipientName;
     }
 }

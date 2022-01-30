@@ -6,7 +6,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>0.1.28</version>
+    <version>0.1.29</version>
     <packaging>jar</packaging>
 
 
@@ -94,21 +94,24 @@
         <javassist.version>3.24.0-GA</javassist.version>
         <liquibase.version>4.3.5</liquibase.version-->
 
-        <jhipster-dependencies.version>7.2.0</jhipster-dependencies.version>
+        <jhipster-dependencies.version>7.5.1</jhipster-dependencies.version>
         <!-- The spring-boot version should match the one managed by
         https://mvnrepository.com/artifact/tech.jhipster/jhipster-dependencies/${jhipster-dependencies.version} -->
-        <spring-boot.version>2.5.4</spring-boot.version>
+        <spring-boot.version>2.6.3</spring-boot.version>
         <!-- The hibernate version should match the one managed by
         https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
-        <hibernate.version>5.4.32.Final</hibernate.version>
+        <hibernate.version>5.6.5.Final</hibernate.version>
         <hibernate-core.version>${hibernate.version}</hibernate-core.version>
         <!-- The javassist version should match the one managed by
         https://mvnrepository.com/artifact/org.hibernate/hibernate-core/${hibernate.version} -->
         <javassist.version>3.27.0-GA</javassist.version>
         <!-- The liquibase version should match the one managed by
         https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
-        <liquibase.version>4.4.3</liquibase.version>
-        <liquibase-hibernate5.version>4.4.3</liquibase-hibernate5.version>
+        <liquibase.version>4.7.1</liquibase.version>
+        <liquibase-hibernate5.version>${liquibase.version}</liquibase-hibernate5.version>
+
+        <mssql.jdbc.version>9.4.0.jre11</mssql.jdbc.version>
+
         <validation-api.version>2.0.1.Final</validation-api.version>
         <jaxb-runtime.version>2.3.3</jaxb-runtime.version>
         <archunit-junit5.version>0.21.0</archunit-junit5.version>
@@ -713,14 +716,23 @@
             <scope>test</scope>
             <!-- parent POM declares this dependency in default (compile) scope -->
         </dependency>
-        <dependency>
+
+        <!--dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-bean-validators</artifactId>
+        </dependency-->
+
+        <!-- https://mvnrepository.com/artifact/io.springfox/springfox-boot-starter -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-boot-starter</artifactId>
+            <version>3.0.0</version>
         </dependency>
+
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
@@ -770,6 +782,7 @@
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
+            <!--version>${mssql.jdbc.version}</version-->
         </dependency>
 
         <dependency>
