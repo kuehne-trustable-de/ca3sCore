@@ -22,7 +22,6 @@ import {
 } from '@/shared/model/transfer-object.model';
 import { IPipelineRestrictions, PipelineRestrictions } from '@/shared/model/pipeline-restrictions';
 import { IPipelineRestriction, PipelineRestriction } from '@/shared/model/pipeline-restriction';
-import { IRDNCardinalityRestriction } from '../../../../../../target/generated-sources/typescript/transfer-object.model';
 
 const precheckUrl = 'publicapi/describeContent';
 const uploadUrl = 'api/uploadContent';
