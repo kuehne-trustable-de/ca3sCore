@@ -338,13 +338,17 @@ public class BPMNUtil{
 	 *
 	 * @throws GeneralSecurityException
 	 */
-	public void startCertificateRevoctionProcess(Certificate certificate, final CRLReason crlReason, final Date revocationDate) throws GeneralSecurityException  {
+	public void startCertificateRevocationProcess(Certificate certificate, final CRLReason crlReason, final Date revocationDate) throws GeneralSecurityException  {
 
 		String status = "Failed";
 		String failureReason = "";
 		String processInstanceId = "";
 
 		String processName = CAINVOCATION_PROCESS;
+        /*
+         * @todo
+         *   allow specific BPMNProcessInfo
+         */
 
 		if( certificate == null) {
 			throw new GeneralSecurityException("certificate to be revoked MUST be provided");

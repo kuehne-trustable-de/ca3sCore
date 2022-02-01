@@ -108,7 +108,7 @@ public class CertificateProcessingUtil {
 
             ARARestriction[] restrictionArr = new ARARestriction[0];
 			if( pipeline == null) {
-				LOG.debug("CSR requested without pipeline given!", new Exception());
+//				LOG.debug("CSR requested without pipeline given!", new Exception());
 				csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, PipelineType.WEB, null);
 			}else {
                 csr = csrUtil.buildCSR(csrAsPem, requestorName, p10ReqHolder, pipeline);
@@ -161,11 +161,6 @@ public class CertificateProcessingUtil {
 
 			LOG.info("Restrictions failed {}", msg);
 
-			HashMap<String, Object> messageMap = new HashMap<>();
-			for(String msgItem: messageList) {
-				messageMap.put("RequestRestriction", CryptoUtil.limitLength(msgItem, 250) );
-			}
-
 			csrUtil.setStatusAndRejectionReason(csr, CsrStatus.REJECTED, msg);
             auditService.saveAuditTrace(auditService.createAuditTraceCsrRestrictionFailed(csr));
 		}
@@ -180,37 +175,59 @@ public class CertificateProcessingUtil {
 	 * @param pipeline				pipeline
 	 * @return certificate
 	 */
-	public Certificate processCertificateRequest(CSR csr, final String requestorName, final String certificateAuditType, Pipeline pipeline )  {
+    public Certificate processCertificateRequest(CSR csr, final String requestorName, final String certificateAuditType, Pipeline pipeline )  {
 
 
-		if( csr == null) {
-			LOG.warn("creation of certificate requires a csr!");
-			return null;
-		}
+        if( csr == null) {
+            LOG.warn("creation of certificate requires a csr!");
+            return null;
+        }
 
-		boolean bApprovalRequired = false;
+        boolean bApprovalRequired = false;
 
-		if( pipeline != null) {
-			bApprovalRequired = pipeline.isApprovalRequired();
-		}
+        if( pipeline != null) {
+            bApprovalRequired = pipeline.isApprovalRequired();
+        }
 
-		if( bApprovalRequired ){
-			LOG.debug("defering certificate creation for csr #{}", csr.getId());
-		} else {
+        if( bApprovalRequired ){
+            LOG.debug("deferring certificate creation for csr #{}", csr.getId());
+        } else {
 
-			Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
-			if(cert != null) {
-				certificateRepository.save(cert);
+            Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
+            if(cert != null) {
+                certificateRepository.save(cert);
 
                 auditService.saveAuditTrace(auditService.createAuditTraceCertificate(certificateAuditType, cert));
 
-				return cert;
-			} else {
-				LOG.warn("creation of certificate requested by {} failed ", requestorName);
-			}
-		}
+                return cert;
+            } else {
+                LOG.warn("creation of certificate requested by {} failed ", requestorName);
+            }
+        }
 
-		return null;
-	}
+        return null;
+    }
+
+    public Certificate processCertificateRequest(CSR csr, final String requestorName, final String certificateAuditType, CAConnectorConfig caConfig )  {
+
+        if( csr == null) {
+            LOG.warn("creation of certificate requires a csr!");
+            return null;
+        }
+
+        Certificate cert = bpmnUtil.startCertificateCreationProcess(csr, caConfig, null);
+
+            if(cert != null) {
+            certificateRepository.save(cert);
+
+            auditService.saveAuditTrace(auditService.createAuditTraceCertificate(certificateAuditType, cert));
+
+            return cert;
+        } else {
+            LOG.warn("creation of certificate requested by {} failed ", requestorName);
+        }
+
+        return null;
+    }
 
 }

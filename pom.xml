@@ -107,6 +107,7 @@
         <javassist.version>3.27.0-GA</javassist.version>
         <!-- The liquibase version should match the one managed by
         https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
+        <!--liquibase.version>4.3.5</liquibase.version-->
         <liquibase.version>4.7.1</liquibase.version>
         <liquibase-hibernate5.version>${liquibase.version}</liquibase-hibernate5.version>
 
@@ -120,7 +121,8 @@
         <spring.version>5.3.14</spring.version>
         <spring.security.version>5.3.13.RELEASE</spring.security.version>
 
-        <h2.version>2.1.210</h2.version>
+        <!--h2.version>2.1.210</h2.version-->
+        <h2.version>1.4.200</h2.version>
 
         <json.version>2.6.0</json.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
@@ -782,7 +784,6 @@
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
-            <!--version>${mssql.jdbc.version}</version-->
         </dependency>
 
         <dependency>
@@ -790,19 +791,19 @@
             <artifactId>liquibase-core</artifactId>
             <version>${liquibase.version}</version>
         </dependency>
-        <dependency>
+        <!-- strange hack for a strange problem:
+          this module infers a different number of lb core despite its referenced within this pom -->
+        <!--dependency>
             <groupId>org.liquibase.ext</groupId>
             <artifactId>liquibase-mssql</artifactId>
             <version>${liquibase.version}</version>
-            <!-- strange hack for a strange problem:
-              this module infers a different number of lb core despite its referenced within this pom -->
             <exclusions>
                 <exclusion>
                     <groupId>org.liquibase</groupId>
                     <artifactId>liquibase-core</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>

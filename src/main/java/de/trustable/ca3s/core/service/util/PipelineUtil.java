@@ -1167,24 +1167,36 @@ public class PipelineUtil {
     public Certificate getSCEPRecipientCertificate( Pipeline pipeline) throws IOException, GeneralSecurityException {
 
         Certificate currentRecepientCert = certUtil.getCurrentSCEPRecipient(pipeline);
-        if(currentRecepientCert != null) {
+        if(currentRecepientCert != null ) {
             LOG.debug("found active certificate as scep recipient with id {}", currentRecepientCert.getId());
             return currentRecepientCert;
         }
+        if( pipeline.isActive()) {
 
-        Certificate recipientCert = createSCEPRecipientCertificate(pipeline);
-        if( recipientCert == null){
-            LOG.info("creation of scep recipient certificate for pipeline {} failed", pipeline.getId());
-        }else {
-            LOG.debug("new scep recipient certificate {} created for pipeline {}", recipientCert.getId(), pipeline.getId());
+            Certificate recipientCert = createSCEPRecipientCertificate(pipeline);
+            if (recipientCert == null) {
+                LOG.info("creation of scep recipient certificate for pipeline {} failed", pipeline.getId());
+            } else {
+                LOG.debug("new scep recipient certificate {} created for pipeline {}", recipientCert.getId(), pipeline.getId());
+            }
+            return recipientCert;
+        }else{
+            LOG.debug("pipeline {} NOT active, no recipient certificate created",pipeline.getId());
+            return currentRecepientCert;
         }
-        return recipientCert;
     }
 
     private Certificate createSCEPRecipientCertificate( Pipeline pipeline) throws IOException, GeneralSecurityException {
 
         String scepRecipientDN = getPipelineAttribute( pipeline, SCEP_RECIPIENT_DN, "CN=SCEPRecepient_"+ pipeline.getId());
         X500Principal subject = new X500Principal(scepRecipientDN);
+
+        String caConnectorName = getPipelineAttribute( pipeline, SCEP_CA_CONNECTOR_RECIPIENT_NAME, "");
+        List<CAConnectorConfig> caConfigList = caConnRepository.findByName(caConnectorName);
+        if( caConfigList.isEmpty() ){
+            LOG.warn("creation of SCEP recipient certificate failed, connector {} missing !", caConnectorName);
+            return null;
+        }
 
         String scepRecipientKeyLength = getPipelineAttribute( pipeline, SCEP_RECIPIENT_KEY_TYPE_LEN, "RSA_2048");
         KeyAlgoLength kal = KeyAlgoLength.valueOf(scepRecipientKeyLength);
@@ -1199,11 +1211,11 @@ public class PipelineUtil {
         );
 
         String requestorName = Constants.SYSTEM_ACCOUNT;
-        CSR csr = cpUtil.buildCSR(p10ReqPem, requestorName, AuditService.AUDIT_SCEP_CERTIFICATE_REQUESTED, "", pipeline );
+        CSR csr = cpUtil.buildCSR(p10ReqPem, requestorName, AuditService.AUDIT_SCEP_CERTIFICATE_REQUESTED, "", null );
         csrRepository.save(csr);
 
-        Certificate cert = cpUtil.processCertificateRequest(csr, requestorName,  AuditService.AUDIT_SCEP_CERTIFICATE_CREATED, pipeline );
 
+        Certificate cert = cpUtil.processCertificateRequest(csr, requestorName,  AuditService.AUDIT_SCEP_CERTIFICATE_CREATED, caConfigList.get(0) );
         if( cert == null) {
             LOG.warn("creation of SCEP recipient certificate with DN '{}' failed ", scepRecipientDN);
         }else {

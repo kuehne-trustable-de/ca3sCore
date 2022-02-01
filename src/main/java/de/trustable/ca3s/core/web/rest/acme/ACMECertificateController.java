@@ -320,7 +320,7 @@ public class ACMECertificateController extends ACMEController {
 
 		Date revocationDate = new Date();
 
-		bpmnUtil.startCertificateRevoctionProcess(certDao, crlReason, revocationDate);
+		bpmnUtil.startCertificateRevocationProcess(certDao, crlReason, revocationDate);
 
 		certDao.setActive(false);
 		certDao.setRevoked(true);

@@ -88,8 +88,11 @@
                         </div>
 
 
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.scepRecipientCertificate')" for="pipeline-scepRecipientCertificate">SCEP Recipient certificate</label>
-                        <div>
+                        <label v-if="$v.pipeline.scepConfigItems.recepientCertId.$model"
+                               class="form-control-label"
+                               v-text="$t('ca3SApp.pipeline.scepRecipientCertificate')" for="pipeline-scepRecipientCertificate">SCEP Recipient certificate</label>
+
+                        <div v-if="$v.pipeline.scepConfigItems.recepientCertId.$model">
                             <router-link name="pipeline-scepRecipientCertificate"
                                          id="pipeline-scepRecipientCertificate"
                                          :to="{name: 'CertInfo', params: {certificateId: $v.pipeline.scepConfigItems.recepientCertId.$model}}">{{$v.pipeline.scepConfigItems.recepientCertSubject.$model}}</router-link>

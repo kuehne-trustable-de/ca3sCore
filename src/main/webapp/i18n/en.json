@@ -485,6 +485,8 @@
   "ca3SApp.pipeline.scepSecret": "Secret",
   "ca3SApp.pipeline.scepSecretValidTo": "Valid to",
   "ca3SApp.pipeline.scepRecipientCertificate": "Recipient certificate",
+  "ca3SApp.pipeline.scepRecipientDN": "SCEP Recipient DN",
+  "ca3SApp.pipeline.caConnectorScepRecipientName": "Connector issuing the recipient certificate",
 
   "ca3SApp.pipelineAttribute.created": "A new Pipeline Attribute is created with identifier {{ param }}",
   "ca3SApp.pipelineAttribute.delete.question": "Are you sure you want to delete Pipeline Attribute {{ id }}?",
@@ -1068,7 +1070,6 @@
   "DEACTIVATED": "Deactivated",
   "REVOKED": "Revoked",
 
-  "id": "Id",
   "orderId": "Order id",
   "realm": "Realm",
   "expires": "Expires on",

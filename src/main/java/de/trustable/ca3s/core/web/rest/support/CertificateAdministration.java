@@ -234,7 +234,7 @@ public class CertificateAdministration {
 
 		Date revocationDate = new Date();
 
-		bpmnUtil.startCertificateRevoctionProcess(cert, crlReason, revocationDate);
+		bpmnUtil.startCertificateRevocationProcess(cert, crlReason, revocationDate);
 
 		// @todo isn't this already done in the process?
 		cert.setActive(false);
