@@ -121,8 +121,7 @@
         <spring.version>5.3.14</spring.version>
         <spring.security.version>5.3.13.RELEASE</spring.security.version>
 
-        <!--h2.version>2.1.210</h2.version-->
-        <h2.version>1.4.200</h2.version>
+        <h2.version>2.1.210</h2.version>
 
         <json.version>2.6.0</json.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
