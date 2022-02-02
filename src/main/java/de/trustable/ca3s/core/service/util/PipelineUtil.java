@@ -41,30 +41,42 @@ public class PipelineUtil {
 	public static final String RESTR_C_CARDINALITY = "RESTR_C_CARDINALITY";
 	public static final String RESTR_C_TEMPLATE = "RESTR_C_TEMPLATE";
 	public static final String RESTR_C_REGEXMATCH = "RESTR_C_REGEXMATCH";
+    public static final String RESTR_C_REGEX = "RESTR_C_REGEX";
+
 	public static final String RESTR_CN_CARDINALITY = "RESTR_CN_CARDINALITY";
 	public static final String RESTR_CN_TEMPLATE = "RESTR_CN_TEMPLATE";
-	public static final String RESTR_CN_REGEXMATCH = "RESTR_CN_REGEXMATCH";
+    public static final String RESTR_CN_REGEXMATCH = "RESTR_CN_REGEXMATCH";
+    public static final String RESTR_CN_REGEX = "RESTR_CN_REGEX";
 
 	public static final String RESTR_O_CARDINALITY = "RESTR_O_CARDINALITY";
 	public static final String RESTR_O_TEMPLATE = "RESTR_O_TEMPLATE";
 	public static final String RESTR_O_REGEXMATCH = "RESTR_O_REGEXMATCH";
-	public static final String RESTR_OU_CARDINALITY = "RESTR_OU_CARDINALITY";
+    public static final String RESTR_O_REGEX = "RESTR_O_REGEX";
+
+    public static final String RESTR_OU_CARDINALITY = "RESTR_OU_CARDINALITY";
 	public static final String RESTR_OU_TEMPLATE = "RESTR_OU_TEMPLATE";
 	public static final String RESTR_OU_REGEXMATCH = "RESTR_OU_REGEXMATCH";
+    public static final String RESTR_OU_REGEX = "RESTR_OU_REGEX";
 
 	public static final String RESTR_L_CARDINALITY = "RESTR_L_CARDINALITY";
 	public static final String RESTR_L_TEMPLATE = "RESTR_L_TEMPLATE";
 	public static final String RESTR_L_REGEXMATCH = "RESTR_L_REGEXMATCH";
+    public static final String RESTR_L_REGEX = "RESTR_L_REGEX";
+
     public static final String RESTR_S_CARDINALITY = "RESTR_S_CARDINALITY";
     public static final String RESTR_S_TEMPLATE = "RESTR_S_TEMPLATE";
     public static final String RESTR_S_REGEXMATCH = "RESTR_S_REGEXMATCH";
+    public static final String RESTR_S_REGEX = "RESTR_S_REGEX";
+
     public static final String RESTR_E_CARDINALITY = "RESTR_E_CARDINALITY";
     public static final String RESTR_E_TEMPLATE = "RESTR_E_TEMPLATE";
     public static final String RESTR_E_REGEXMATCH = "RESTR_E_REGEXMATCH";
+    public static final String RESTR_E_REGEX = "RESTR_E_REGEX";
 
 	public static final String RESTR_SAN_CARDINALITY = "RESTR_SAN_CARDINALITY";
 	public static final String RESTR_SAN_TEMPLATE = "RESTR_SAN_TEMPLATE";
-	public static final String RESTR_SAN_REGEXMATCH = "RESTR_SAN_REGEXMATCH";
+    public static final String RESTR_SAN_REGEXMATCH = "RESTR_SAN_REGEXMATCH";
+    public static final String RESTR_SAN_REGEX = "RESTR_SAN_REGEX";
 
 	public static final String RESTR_ARA_PREFIX = "RESTR_ARA_";
 	public static final String RESTR_ARA_PATTERN = RESTR_ARA_PREFIX + "(.*)_(.*)";
@@ -311,12 +323,17 @@ public class PipelineUtil {
                 pv.getRestriction_C().setContentTemplate(plAtt.getValue());
             }else if( RESTR_C_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_C().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
+            }else if( RESTR_C_REGEX.equals(plAtt.getName())) {
+                pv.getRestriction_C().setRegEx(plAtt.getValue());
+
             }else if( RESTR_CN_CARDINALITY.equals(plAtt.getName())) {
                 pv.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
             }else if( RESTR_CN_TEMPLATE.equals(plAtt.getName())) {
                 pv.getRestriction_CN().setContentTemplate(plAtt.getValue());
             }else if( RESTR_CN_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_CN().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
+            }else if( RESTR_CN_REGEX.equals(plAtt.getName())) {
+                pv.getRestriction_CN().setRegEx(plAtt.getValue());
 
             }else if( RESTR_O_CARDINALITY.equals(plAtt.getName())) {
                 pv.getRestriction_O().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
@@ -324,12 +341,17 @@ public class PipelineUtil {
                 pv.getRestriction_O().setContentTemplate(plAtt.getValue());
             }else if( RESTR_O_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_O().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
+            }else if( RESTR_O_REGEX.equals(plAtt.getName())) {
+                pv.getRestriction_O().setRegEx(plAtt.getValue());
+
             }else if( RESTR_OU_CARDINALITY.equals(plAtt.getName())) {
                 pv.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
             }else if( RESTR_OU_TEMPLATE.equals(plAtt.getName())) {
                 pv.getRestriction_OU().setContentTemplate(plAtt.getValue());
             }else if( RESTR_OU_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_OU().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
+            }else if( RESTR_OU_REGEX.equals(plAtt.getName())) {
+                pv.getRestriction_OU().setRegEx(plAtt.getValue());
 
             }else if( RESTR_L_CARDINALITY.equals(plAtt.getName())) {
                 pv.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
@@ -337,18 +359,26 @@ public class PipelineUtil {
                 pv.getRestriction_L().setContentTemplate(plAtt.getValue());
             }else if( RESTR_L_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_L().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
+            }else if( RESTR_L_REGEX.equals(plAtt.getName())) {
+                pv.getRestriction_L().setRegEx(plAtt.getValue());
+
             }else if( RESTR_S_CARDINALITY.equals(plAtt.getName())) {
                 pv.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
             }else if( RESTR_S_TEMPLATE.equals(plAtt.getName())) {
                 pv.getRestriction_S().setContentTemplate(plAtt.getValue());
             }else if( RESTR_S_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_S().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
+            }else if( RESTR_S_REGEX.equals(plAtt.getName())) {
+                pv.getRestriction_S().setRegEx(plAtt.getValue());
+
             }else if( RESTR_E_CARDINALITY.equals(plAtt.getName())) {
                 pv.getRestriction_E().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
             }else if( RESTR_E_TEMPLATE.equals(plAtt.getName())) {
                 pv.getRestriction_E().setContentTemplate(plAtt.getValue());
             }else if( RESTR_E_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_E().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
+            }else if( RESTR_E_REGEX.equals(plAtt.getName())) {
+                pv.getRestriction_E().setRegEx(plAtt.getValue());
 
             }else if( RESTR_SAN_CARDINALITY.equals(plAtt.getName())) {
                 pv.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
@@ -356,6 +386,8 @@ public class PipelineUtil {
                 pv.getRestriction_SAN().setContentTemplate(plAtt.getValue());
             }else if( RESTR_SAN_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_SAN().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
+            }else if( RESTR_SAN_REGEX.equals(plAtt.getName())) {
+                pv.getRestriction_SAN().setRegEx(plAtt.getValue());
 
             }else if( CSR_USAGE.equals(plAtt.getName())) {
                 pv.setCsrUsage(CsrUsage.valueOf(plAtt.getValue()));
@@ -539,31 +571,43 @@ public class PipelineUtil {
 
 		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_C_CARDINALITY, pv.getRestriction_C().getCardinalityRestriction().name());
 		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_C_TEMPLATE, pv.getRestriction_C().getContentTemplate());
-		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_C_REGEXMATCH, pv.getRestriction_C().isRegExMatch());
+        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_C_REGEXMATCH, pv.getRestriction_C().isRegExMatch());
+        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_C_REGEX, pv.getRestriction_C().getRegEx());
+
 		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_CN_CARDINALITY, pv.getRestriction_CN().getCardinalityRestriction().name());
 		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_CN_TEMPLATE, pv.getRestriction_CN().getContentTemplate());
 		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_CN_REGEXMATCH, pv.getRestriction_CN().isRegExMatch());
+        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_CN_REGEX, pv.getRestriction_CN().getRegEx());
 
 		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_O_CARDINALITY, pv.getRestriction_O().getCardinalityRestriction().name());
 		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_O_TEMPLATE, pv.getRestriction_O().getContentTemplate());
 		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_O_REGEXMATCH, pv.getRestriction_O().isRegExMatch());
-		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_OU_CARDINALITY, pv.getRestriction_OU().getCardinalityRestriction().name());
+        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_O_REGEX, pv.getRestriction_O().getRegEx());
+
+        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_OU_CARDINALITY, pv.getRestriction_OU().getCardinalityRestriction().name());
 		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_OU_TEMPLATE, pv.getRestriction_OU().getContentTemplate());
 		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_OU_REGEXMATCH, pv.getRestriction_OU().isRegExMatch());
+        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_OU_REGEX, pv.getRestriction_OU().getRegEx());
 
 		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_L_CARDINALITY, pv.getRestriction_L().getCardinalityRestriction().name());
 		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_L_TEMPLATE, pv.getRestriction_L().getContentTemplate());
 		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_L_REGEXMATCH, pv.getRestriction_L().isRegExMatch());
+        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_L_REGEX, pv.getRestriction_L().getRegEx());
+
         addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_CARDINALITY, pv.getRestriction_S().getCardinalityRestriction().name());
         addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_TEMPLATE, pv.getRestriction_S().getContentTemplate());
         addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_REGEXMATCH, pv.getRestriction_S().isRegExMatch());
+        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_REGEX, pv.getRestriction_S().getRegEx());
+
         addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_CARDINALITY, pv.getRestriction_E().getCardinalityRestriction().name());
         addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_TEMPLATE, pv.getRestriction_E().getContentTemplate());
         addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_REGEXMATCH, pv.getRestriction_E().isRegExMatch());
+        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_REGEX, pv.getRestriction_E().getRegEx());
 
 		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_CARDINALITY, pv.getRestriction_SAN().getCardinalityRestriction().name());
 		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_TEMPLATE, pv.getRestriction_SAN().getContentTemplate());
-		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_REGEXMATCH, pv.getRestriction_SAN().isRegExMatch());
+        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_REGEXMATCH, pv.getRestriction_SAN().isRegExMatch());
+        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_REGEX, pv.getRestriction_SAN().getRegEx());
 
 		addPipelineAttribute(pipelineAttributes, p, auditList, ALLOW_IP_AS_SUBJECT,pv.isIpAsSubjectAllowed());
 		addPipelineAttribute(pipelineAttributes, p, auditList, ALLOW_IP_AS_SAN,pv.isIpAsSANAllowed());
@@ -849,37 +893,38 @@ public class PipelineUtil {
 
         boolean outcome = true;
 
-        String template = "";
+        String regEx = "";
         LOG.debug("checking SANs");
 
-        boolean hasTemplate = false;
-        if( restriction.getContentTemplate() != null) {
-            template = restriction.getContentTemplate().trim();
-            hasTemplate = !template.isEmpty();
+        boolean hasRegEx = false;
+        if( restriction.getRegEx() != null) {
+            regEx = restriction.getRegEx().trim();
+            hasRegEx = !regEx.isEmpty();
         }
+
         int n = 0;
 
         for( GeneralName gn: gNameSet) {
             n++;
-            if( hasTemplate) {
+            if( hasRegEx) {
                 String value = CertificateUtil.getTypedSAN(gn);
 
                 if( restriction.isRegExMatch()) {
                     boolean evalResult = false;
                     try {
-                        evalResult = value.matches(template);
+                        evalResult = value.matches(regEx);
                     }catch(PatternSyntaxException pse) {
-                        LOG.warn("pattern '"+template+"' is not valid");
+                        LOG.warn("pattern '"+regEx+"' is not valid");
                     }
                     if( !evalResult ) {
-                        String msg = "restriction mismatch: SAN '"+value +"' does not match regular expression '"+template+"' !";
+                        String msg = "restriction mismatch: SAN '"+value +"' does not match regular expression '"+regEx+"' !";
                         messageList.add(msg);
                         LOG.debug(msg);
                         outcome = false;
                     }
                 }else{
-                    if( !template.equalsIgnoreCase(value) ) {
-                        String msg = "restriction mismatch: SAN '"+value +"' does not match expected value '"+template+"' !";
+                    if( !regEx.equalsIgnoreCase(value) ) {
+                        String msg = "restriction mismatch: SAN '"+value +"' does not match expected value '"+regEx+"' !";
                         messageList.add(msg);
                         LOG.debug(msg);
                         outcome = false;
@@ -936,13 +981,12 @@ public class PipelineUtil {
 
         boolean outcome = true;
 
-        String template;
         LOG.debug("checking AdditionalRestrictions");
-
-        boolean hasTemplate = false;
-        if( araRestriction.getContentTemplate() != null) {
-            template = araRestriction.getContentTemplate().trim();
-            hasTemplate = !template.isEmpty();
+        String regEx;
+        boolean hasRegEx = false;
+        if( araRestriction.getRegEx() != null) {
+            regEx = araRestriction.getRegEx().trim();
+            hasRegEx = !regEx.isEmpty();
         }
 
         if( araRestriction.isRequired() ){
@@ -959,8 +1003,8 @@ public class PipelineUtil {
                         LOG.debug(msg);
                         outcome = false;
                     }
-                    if( hasTemplate ) {
-                        if (!checkTemplate(araRestriction, value, messageList)) {
+                    if( hasRegEx ) {
+                        if (!checkRegEx(araRestriction, value, messageList)) {
                             outcome = false;
                         }
                     }
@@ -994,39 +1038,43 @@ public class PipelineUtil {
 			template = restriction.getContentTemplate().trim();
 			hasTemplate = !template.isEmpty();
 		}
-		int n = 0;
+
+        String regEx = "";
+        boolean hasRegEx = false;
+        if( restriction.getRegEx() != null) {
+            regEx = restriction.getRegEx().trim();
+            hasRegEx = !regEx.isEmpty();
+        }
+
+        int n = 0;
 
 		for( RDN rdn: rdnArr) {
 			AttributeTypeAndValue atv = rdn.getFirst();
 			if( restricted.equals(atv.getType())){
 				n++;
-				if( hasTemplate) {
-					String value = atv.getValue().toString().trim();
-					if( restriction.isRegExMatch()) {
-						boolean evalResult = false;
-						try {
-							evalResult = value.matches(template);
-						}catch(PatternSyntaxException pse) {
-							LOG.warn("pattern '"+template+"' is not valid");
-						}
-						if( !evalResult ) {
-							String msg = "restriction mismatch: '"+value +"' does not match regular expression '"+template+"' !";
-							messageList.add(msg);
-							LOG.debug(msg);
-							outcome = false;
-						}
-					}else{
-						if( !template.equalsIgnoreCase(value) ) {
-							String msg = "restriction mismatch: '"+value +"' does not match expected value '"+template+"' !";
-							messageList.add(msg);
-							LOG.debug(msg);
-							outcome = false;
-						}
-					}
-				}
+                String value = atv.getValue().toString().trim();
+				if( hasRegEx && restriction.isRegExMatch()) {
+                    boolean evalResult = false;
+                    try {
+                        evalResult = value.matches(regEx);
+                    } catch (PatternSyntaxException pse) {
+                        LOG.warn("pattern '" + regEx + "' is not valid");
+                    }
+                    if (!evalResult) {
+                        String msg = "restriction mismatch: '" + value + "' does not match regular expression '" + regEx + "' !";
+                        messageList.add(msg);
+                        LOG.debug(msg);
+                        outcome = false;
+                    }
+                }
 
+                if( hasTemplate && !template.equalsIgnoreCase(value) ) {
+                    String msg = "restriction mismatch: '"+value +"' does not match expected value '"+template+"' !";
+                    messageList.add(msg);
+                    LOG.debug(msg);
+                    outcome = false;
+                }
 			}
-
 		}
 
 		RDNCardinalityRestriction cardinality = restriction.getCardinalityRestriction();
@@ -1081,27 +1129,27 @@ public class PipelineUtil {
 		return outcome;
 	}
 
-	private boolean checkTemplate(ARARestriction araRestriction, String value, List<String> messageList){
+	private boolean checkRegEx(ARARestriction araRestriction, String value, List<String> messageList){
 
         boolean outcome = true;
-        String template = araRestriction.getContentTemplate().trim();
+        String regEx = araRestriction.getRegEx().trim();
 
         if( araRestriction.isRegExMatch()) {
             boolean evalResult = false;
             try {
-                evalResult = value.matches(template);
+                evalResult = value.matches(regEx);
             }catch(PatternSyntaxException pse) {
-                LOG.warn("pattern '"+template+"' is not valid");
+                LOG.warn("pattern '"+regEx+"' is not valid");
             }
             if( !evalResult ) {
-                String msg = "restriction mismatch: '"+value +"' does not match regular expression '"+template+"' !";
+                String msg = "restriction mismatch: '"+value +"' does not match regular expression '"+regEx+"' !";
                 messageList.add(msg);
                 LOG.debug(msg);
                 outcome = false;
             }
         }else{
-            if( !template.equalsIgnoreCase(value) ) {
-                String msg = "restriction mismatch: '"+value +"' does not match expected value '"+template+"' !";
+            if( !regEx.equalsIgnoreCase(value) ) {
+                String msg = "restriction mismatch: '"+value +"' does not match expected value '"+regEx+"' !";
                 messageList.add(msg);
                 LOG.debug(msg);
                 outcome = false;

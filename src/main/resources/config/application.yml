@@ -132,17 +132,17 @@ jhipster:
   #     max-age: 1800
   mail:
     from: ca3s@localhost
-
-#  swagger:
-#    default-include-pattern: /api/.*
-#    title: ca3s API
-#    description: ca3s API documentation
+#  api-docs:
+#    default-include-pattern: ${server.servlet.context-path:}/api/.*
+#    management-include-pattern: ${server.servlet.context-path:}/management/.*
+#    title: foo API
+#    description: foo API documentation
 #    version: 0.0.1
 #    terms-of-service-url:
 #    contact-name:
 #    contact-url:
 #    contact-email:
-#    license:
+#    license: unlicensed
 #    license-url:
 
 # ===================================================================

@@ -3,12 +3,13 @@ package de.trustable.ca3s.core.service.dto;
 public class ARARestriction {
 
 	String name;
-	String contentTemplate;
+    String contentTemplate;
+    String regEx;
 	boolean regExMatch = false;
 	boolean required = false;
-	
+
 	public ARARestriction() {
-		
+
 	}
 
 
@@ -45,7 +46,12 @@ public class ARARestriction {
 	public void setRequired(boolean required) {
 		this.required = required;
 	}
-	
-	
-	
+
+    public String getRegEx() {
+        return regEx;
+    }
+
+    public void setRegEx(String regEx) {
+        this.regEx = regEx;
+    }
 }

@@ -72,15 +72,13 @@
 								<div class="col colContent">
                                     <Fragment v-for="(val, valueIndex) in upload.certificateAttributes[index].values" :key="valueIndex">
                                         <input
-                                            type="text" :class="(showRequiredWarning(rr.required, upload.certificateAttributes[index].values[valueIndex])) ? 'invalid' : ' valid'" class="form-control form-check-inline"
+                                            type="text" :class="(showProblemWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])) ? 'invalid' : ' valid'" class="form-control form-check-inline"
                                             autocomplete="false"
                                             :name="'pkcsxx.upload.' + rr.name" :id="'pkcsxx.upload.' + rr.name"
                                             v-model="upload.certificateAttributes[index].values[valueIndex]"
                                             :readonly="rr.readOnly"
                                             :required="rr.required"
                                             v-on:input="alignRDNArraySize(index, valueIndex)"/>
-
-
 
                                         <small v-if="showContentOrSANWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])"
                                                class="form-text text-danger" v-text="$t('entity.validation.requiredOrSAN')">
@@ -91,8 +89,8 @@
                                             This field is required.
                                         </small>
                                         <small v-else-if="showRegExpWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])"
-                                               class="form-text text-danger" v-text="$t('entity.validation.pattern', {'pattern': rr.template})">
-                                            This field should follow pattern for {{ rr.template }}.
+                                               class="form-text text-danger" v-text="$t('entity.validation.pattern', {'pattern': rr.regEx})">
+                                            This field should follow pattern for {{ rr.regEx }}.
                                         </small>
 
                                     </Fragment>
@@ -110,7 +108,7 @@
 								</div>
 								<div class="col colContent">
 									<input type="text"
-                                       :class="(showRequiredWarning(item.required, upload.arAttributes[index].values[0])) ? 'invalid' : ' valid'"
+                                       :class="(showProblemWarning(item, 0, upload.arAttributes[index].values[0])) ? 'invalid' : ' valid'"
                                        class="form-control form-check-inline"
                                        :name="'pkcsxx.upload.ara.' + item.name" :id="'pkcsxx.upload.ara.' + item.name"
                                        :readonly="item.readOnly"
@@ -122,8 +120,8 @@
                                         This field is required.
                                     </small>
                                     <small v-else-if="showRegExpWarning(item, 0, upload.arAttributes[index].values[0])"
-                                           class="form-text text-danger" v-text="$t('entity.validation.pattern', {'pattern': item.template})">
-                                        This field should follow pattern for {{ item.template }}.
+                                           class="form-text text-danger" v-text="$t('entity.validation.pattern', {'pattern': item.regEx})">
+                                        This field should follow pattern for {{ item.regEx }}.
                                     </small>
 
                                 </div>

@@ -120,6 +120,7 @@
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.regExMatch')" for="pipeline-cn-regExMatch">Regular Expression</label>
                                 <input type="checkbox" class="form-check-inline" name="pipeline-cn-regExMatch" id="pipeline-cn-regExMatch" v-model="pipeline.restriction_CN.regExMatch" />
+                                <input type="text" class="form-control" name="pipeline-cn-regex" id="pipeline-cn-regex" v-model="pipeline.restriction_CN.regEx" />
                             </div>
                         </div>
 
@@ -142,6 +143,7 @@
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.regExMatch')" for="pipeline-c-regExMatch">Regular Expression</label>
                                 <input type="checkbox" class="form-check-inline" name="pipeline-c-regExMatch" id="pipeline-c-regExMatch" v-model="pipeline.restriction_C.regExMatch" />
+                                <input type="text" class="form-control" name="pipeline-c-regex" id="pipeline-c-regex" v-model="pipeline.restriction_C.regEx" />
                             </div>
                         </div>
 
@@ -166,6 +168,7 @@
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.regExMatch')" for="pipeline-o-regExMatch">Regular Expression</label>
                                 <input type="checkbox" class="form-check-inline" name="pipeline-o-regExMatch" id="pipeline-o-regExMatch" v-model="pipeline.restriction_O.regExMatch" />
+                                <input type="text" class="form-control" name="pipeline-o-regex" id="pipeline-o-regex" v-model="pipeline.restriction_O.regEx" />
 
                             </div>
                         </div>
@@ -191,6 +194,7 @@
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.regExMatch')" for="pipeline-ou-regExMatch">Regular Expression</label>
                                 <input type="checkbox" class="form-check-inline" name="pipeline-ou-regExMatch" id="pipeline-ou-regExMatch" v-model="pipeline.restriction_OU.regExMatch" />
+                                <input type="text" class="form-control" name="pipeline-ou-regex" id="pipeline-ou-regex" v-model="pipeline.restriction_OU.regEx" />
                             </div>
                         </div>
 
@@ -214,6 +218,7 @@
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.regExMatch')" for="pipeline-l-regExMatch">Regular Expression</label>
                                 <input type="checkbox" class="form-check-inline" name="pipeline-l-regExMatch" id="pipeline-l-regExMatch" v-model="pipeline.restriction_L.regExMatch" />
+                                <input type="text" class="form-control" name="pipeline-l-regex" id="pipeline-l-regex" v-model="pipeline.restriction_L.regEx" />
                             </div>
                         </div>
 
@@ -237,6 +242,7 @@
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.regExMatch')" for="pipeline-s-regExMatch">Regular Expression</label>
                                 <input type="checkbox" class="form-check-inline" name="pipeline-s-regExMatch" id="pipeline-s-regExMatch" v-model="pipeline.restriction_S.regExMatch" />
+                                <input type="text" class="form-control" name="pipeline-s-regex" id="pipeline-s-regex" v-model="pipeline.restriction_S.regEx" />
                             </div>
                         </div>
 
@@ -260,6 +266,7 @@
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.regExMatch')" for="pipeline-e-regExMatch">Regular Expression</label>
                                 <input type="checkbox" class="form-check-inline" name="pipeline-e-regExMatch" id="pipeline-e-regExMatch" v-model="pipeline.restriction_E.regExMatch" />
+                                <input type="text" class="form-control" name="pipeline-e-regex" id="pipeline-e-regex" v-model="pipeline.restriction_E.regEx" />
                             </div>
                         </div>
 
@@ -283,6 +290,7 @@
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.regExMatch')" for="pipeline-san-regExMatch">Regular Expression</label>
                                 <input type="checkbox" class="form-check-inline" name="pipeline-san-regExMatch" id="pipeline-san-regExMatch" v-model="pipeline.restriction_SAN.regExMatch" />
+                                <input type="text" class="form-control" name="pipeline-san-regex" id="pipeline-san-regex" v-model="pipeline.restriction_SAN.regEx" />
                             </div>
                         </div>
                     </div>
@@ -302,6 +310,7 @@
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.regExMatch')" for="pipeline-ara-regExMatch">Regular Expression</label>
                                 <input type="checkbox" class="form-check-inline" name="pipeline-ara-regExMatch" id="pipeline-ara-regExMatch" v-model="pipeline.araRestrictions[index].regExMatch" />
+                                <input type="text" class="form-control" name="pipeline-ara-regex" id="pipeline-ara-regex" v-model="pipeline.araRestrictions[index].regEx" />
                             </div>
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ara.required')" for="pipeline-ara-required">Required</label>

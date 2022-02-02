@@ -144,6 +144,22 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     readerBase64.readAsText(blob);
   }
 
+  public showProblemWarning(rr: IPipelineRestriction, valueIndex: number, value: string): boolean {
+    if (this.showRequiredWarning(rr.required, value)) {
+      return true;
+    }
+    if (this.showContentWarning(rr, valueIndex, value)) {
+      return true;
+    }
+    if (this.showRegExpWarning(rr, valueIndex, value)) {
+      return true;
+    }
+    if (this.showContentOrSANWarning(rr, valueIndex, value)) {
+      return true;
+    }
+    return false;
+  }
+
   public showRequiredWarning(required: boolean, value: string): boolean {
     console.log('showRequiredWarning( ' + required + ', "' + value + '"');
     if (required) {
@@ -179,12 +195,12 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   }
 
   public showRegExpWarning(rr: IPipelineRestriction, valueIndex: number, value: string): boolean {
-    console.log('showRegExpWarning( ' + rr.regex + ', ' + valueIndex + ', "' + value + '")');
-    console.log('showRegExpWarning : rr.template = ' + rr.template);
-    if (rr.regex && valueIndex == 0 && rr.template.trim().length > 0) {
-      const regexp = new RegExp(rr.template);
+    console.log('showRegExpWarning( ' + rr.regExMatch + ', ' + valueIndex + ', "' + value + '")');
+    console.log('showRegExpWarning : rr.regEx = ' + rr.regEx);
+    if (rr.regExMatch && valueIndex == 0 && rr.regEx.trim().length > 0) {
+      const regexp = new RegExp(rr.regEx);
       const valid = regexp.test(value);
-      console.log('showRegExpWarning( ' + rr.regex + ', ' + valueIndex + ', "' + value + '") -> ' + valid);
+      console.log('showRegExpWarning( ' + rr.regExMatch + ', ' + valueIndex + ', "' + value + '") -> ' + valid);
       return !valid;
     }
     return false;
@@ -275,7 +291,9 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
         if (rr.cardinalityRestriction === 'NOT_ALLOWED') {
           // ignore this
         } else {
-          this.rdnRestrictions.push(new PipelineRestriction(rr.rdnName, rr.cardinalityRestriction, rr.contentTemplate, rr.regExMatch));
+          this.rdnRestrictions.push(
+            new PipelineRestriction(rr.rdnName, rr.cardinalityRestriction, rr.contentTemplate, rr.regExMatch, rr.regEx)
+          );
         }
       }
     }
@@ -310,7 +328,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     if (pipeline.araRestrictions) {
       for (const rr of pipeline.araRestrictions) {
         const cardinalityRestriction = rr.required ? 'ONE' : 'ZERO_OR_ONE';
-        this.araRestrictions.push(new PipelineRestriction(rr.name, cardinalityRestriction, rr.contentTemplate, rr.regExMatch));
+        this.araRestrictions.push(new PipelineRestriction(rr.name, cardinalityRestriction, rr.contentTemplate, rr.regExMatch, rr.regEx));
       }
     }
 

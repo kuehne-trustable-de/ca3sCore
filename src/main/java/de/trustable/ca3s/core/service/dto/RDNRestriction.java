@@ -6,13 +6,14 @@ public class RDNRestriction {
 
 	String rdnName;
 	RDNCardinalityRestriction cardinalityRestriction;
-	String contentTemplate;
+    String contentTemplate;
+    String regEx;
 	boolean regExMatch = false;
-	
+
 	public RDNRestriction() {
-		
+
 	}
-	
+
 	public String getRdnName() {
 		return rdnName;
 	}
@@ -44,6 +45,12 @@ public class RDNRestriction {
 	public void setRegExMatch(boolean regExMatch) {
 		this.regExMatch = regExMatch;
 	}
-	
-	
+
+    public String getRegEx() {
+        return regEx;
+    }
+
+    public void setRegEx(String regEx) {
+        this.regEx = regEx;
+    }
 }
