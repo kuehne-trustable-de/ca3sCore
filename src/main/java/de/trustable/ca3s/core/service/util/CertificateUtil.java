@@ -181,7 +181,7 @@ public class CertificateUtil {
         return Collections.unmodifiableMap(orderMap);
     }
 
-    public String getNormalizedName(final String inputName) throws InvalidNameException {
+    public static String getNormalizedName(final String inputName) throws InvalidNameException {
 
         if (inputName.trim().isEmpty()) {
             return "";
@@ -1964,7 +1964,6 @@ public class CertificateUtil {
             ASN1Primitive derObj2 = oAsnInStream2.readObject();
             CRLDistPoint distPoint = CRLDistPoint.getInstance(derObj2);
             for (DistributionPoint dp : distPoint.getDistributionPoints()) {
-                System.out.println(dp);
                 DistributionPointName dpn = dp.getDistributionPoint();
                 // Look for URIs in fullName
                 if (dpn != null) {
@@ -2138,19 +2137,31 @@ public class CertificateUtil {
     public static GeneralName[] splitSANString(final String sans, final String hostname) {
 
         String[] sanArr = sans.split(",");
-        GeneralName[] sanArray;
-        int startPos = 0;
-        if( hostname == null || hostname.isEmpty()){
-            sanArray = new GeneralName[sanArr.length];
+        List<GeneralName> generalNameList = new ArrayList<>();
+        if( hostname == null || hostname.trim().isEmpty()){
+            //
         }else{
-            sanArray = new GeneralName[sanArr.length + 1];
-            sanArray[0] = new GeneralName(GeneralName.dNSName, hostname);
-            startPos = 1;
+            generalNameList.add(buildGeneralNameFromName(hostname));
         }
+
         for(int i = 0;i < sanArr.length;i++){
-            sanArray[i + startPos] = new GeneralName(GeneralName.dNSName, sanArr[i].trim());
+            GeneralName generalName = buildGeneralNameFromName(sanArr[i]);
+
+            if( !generalNameList.contains(generalName)) {
+                generalNameList.add(generalName);
+            }
         }
-        return sanArray;
+        return generalNameList.toArray(new GeneralName[0]);
+    }
+
+    public static GeneralName buildGeneralNameFromName(final String rawName){
+
+        String name = rawName.trim();
+        InetAddressValidator inv = InetAddressValidator.getInstance();
+        if( inv.isValidInet4Address(name) || inv.isValidInet6Address(name)) {
+            return new GeneralName(GeneralName.iPAddress, name);
+        }
+        return new GeneralName(GeneralName.dNSName, name);
     }
 
 }

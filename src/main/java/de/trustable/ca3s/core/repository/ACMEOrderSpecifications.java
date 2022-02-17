@@ -34,9 +34,9 @@ public final class ACMEOrderSpecifications {
     public static Page<ACMEOrderView> handleQueryParamsACMEOrderView(EntityManager entityManager,
                                                                      AcmeOrderRepository acmeOrderRepository,
                                                                      ACMEOrderUtil acmeOrderUtil,
-                                                                       CriteriaBuilder cb,
-                                                                       Map<String, String[]> parameterMap,
-                                                                       List<String> additionalSelectionAttributes) {
+                                                                     CriteriaBuilder cb,
+                                                                     Map<String, String[]> parameterMap,
+                                                                     List<String> additionalSelectionAttributes) {
 
         CriteriaQuery<Object[]> query = cb.createQuery(Object[].class);
         Root<AcmeOrder> root = query.from(AcmeOrder.class);

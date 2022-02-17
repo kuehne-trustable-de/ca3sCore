@@ -137,6 +137,10 @@
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.acmeOrder')">AcmeOrder</span>
                     </b-dropdown-item>
+                    <b-dropdown-item to="/scep-order-list">
+                        <font-awesome-icon icon="asterisk" />
+                        <span v-text="$t('global.menu.entities.scepOrder')">ScepOrder</span>
+                    </b-dropdown-item>
                     <!--b-dropdown-item to="/acme-order">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.acmeOrder')">AcmeOrder</span>

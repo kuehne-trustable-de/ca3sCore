@@ -21,9 +21,14 @@ import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 @Entity
 @Table(name = "csr")
 @NamedQueries({
-	@NamedQuery(name = "CSR.findByPublicKeyHash",
-	query = "SELECT c FROM CSR c WHERE " +
-			"c.publicKeyHash = :hash"
+    @NamedQuery(name = "CSR.findByPublicKeyHash",
+        query = "SELECT c FROM CSR c WHERE " +
+            "c.publicKeyHash = :hash"
+    ),
+    @NamedQuery(name = "CSR.findNonRejectedByPublicKeyHash",
+        query = "SELECT c FROM CSR c WHERE " +
+            " c.publicKeyHash = :hash  and " +
+            " c.status <> 'REJECTED' "
     ),
     @NamedQuery(name = "CSR.countAll",
     query = "SELECT count(c) FROM CSR c "

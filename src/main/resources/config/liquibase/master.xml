@@ -14,9 +14,13 @@
     <property name="clobType" value="clob" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
     <property name="blobType" value="blob" dbms="h2"/>
     <property name="blobType" value="blob" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
+    <property name="uuidType" value="varchar(36)" dbms="h2, mysql, mariadb"/>
+
+    <property name="datetimeType" value="datetime(6)" dbms="mysql, mariadb"/>
+    <property name="datetimeType" value="datetime" dbms="oracle, mssql, postgresql, h2"/>
+
     <property name="limitedIndexLength" value="" dbms="h2"/>
     <property name="limitedIndexLength" value="(100)" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
-    <property name="uuidType" value="varchar(36)" dbms="h2, mysql, mariadb"/>
 
     <include file="config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170110_added_entity_CAConnectorConfig.xml" relativeToChangelogFile="false"/>
@@ -79,5 +83,19 @@
 
     <!--include file="config/liquibase/changelog/20210622163421_added_default_value_Certificate.xml" relativeToChangelogFile="false"/-->
     <include file="config/liquibase/changelog/20210622171821_update_null_values_Certificate.xml" relativeToChangelogFile="false"/>
+
+    <include file="config/liquibase/changelog/20220204162916_added_entity_ScepOrder.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220204162916_added_entity_constraints_ScepOrder.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220211170512_added_entity_ScepOrderAttribute.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220211170512_added_entity_constraints_ScepOrderAttribute.xml" relativeToChangelogFile="false"/>
+
+    <include file="config/liquibase/changelog/20220124203942_added_columns_ACMEAccount.xml" relativeToChangelogFile="false"/>
+
+    <include file="config/liquibase/changelog/20220124203944_added_columns_AcmeOrder.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220124203944_added_entity_constraints_AcmeOrder.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220211170511_added_entity_AcmeOrderAttribute.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220211170511_added_entity_constraints_AcmeOrderAttribute.xml" relativeToChangelogFile="false"/>
+
+    <include file="config/liquibase/changelog/20220124203942_added_columns_AuditTrace.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>

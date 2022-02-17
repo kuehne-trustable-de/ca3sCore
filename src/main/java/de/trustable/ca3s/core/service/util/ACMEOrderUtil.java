@@ -1,14 +1,13 @@
 package de.trustable.ca3s.core.service.util;
 
-import de.trustable.ca3s.core.domain.*;
-import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
-import de.trustable.ca3s.core.service.dto.ACMEAccountView;
+import de.trustable.ca3s.core.domain.AcmeAuthorization;
+import de.trustable.ca3s.core.domain.AcmeChallenge;
+import de.trustable.ca3s.core.domain.AcmeOrder;
 import de.trustable.ca3s.core.service.dto.ACMEChallengeView;
 import de.trustable.ca3s.core.service.dto.ACMEOrderView;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;

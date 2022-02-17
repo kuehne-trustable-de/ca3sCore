@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.ProtectedContent;
+import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.Interval;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
@@ -14,23 +15,19 @@ import de.trustable.ca3s.core.service.dto.CAStatus;
 import de.trustable.ca3s.core.service.util.CaConnectorAdapter;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
-
-import tech.jhipster.web.util.HeaderUtil;
-import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import tech.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.ResponseUtil;
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,15 +47,15 @@ public class CAConnectorConfigResource {
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
-	private ProtectedContentUtil protUtil;
+	private final ProtectedContentUtil protUtil;
 
-	private ProtectedContentRepository protContentRepository;
+	private final ProtectedContentRepository protContentRepository;
 
-	private CAConnectorConfigRepository caConfigRepository;
+	private final CAConnectorConfigRepository caConfigRepository;
 
-    private CaConnectorAdapter caConnectorAdapter;
+    private final CaConnectorAdapter caConnectorAdapter;
 
-    private AuditService auditService;
+    private final AuditService auditService;
 
 
     private final CAConnectorConfigService cAConnectorConfigService;
@@ -92,13 +89,19 @@ public class CAConnectorConfigResource {
             throw new BadRequestAlertException("A new cAConnectorConfig cannot already have an ID", ENTITY_NAME, "idexists");
         }
 
+        if(CAConnectorType.ADCS_CERTIFICATE_INVENTORY.equals(cAConnectorConfig.getCaConnectorType())){
+            if( cAConnectorConfig.getPollingOffset() == null){
+                cAConnectorConfig.setPollingOffset(0);
+            }
+        }
+
         if((cAConnectorConfig.getPlainSecret() == null) || (cAConnectorConfig.getPlainSecret().trim().length() == 0))  {
             log.debug("REST request to save CAConnectorConfig : cAConnectorConfig.getPlainSecret() == null");
 	        cAConnectorConfig.setSecret(null);
 	        cAConnectorConfig.setPlainSecret("");
         }else {
         	if( protUtil == null) {
-                System.err.println("Autowired 'protUtil' failed ...");
+                log.warn("Autowired 'protUtil' failed ...");
         	}
 
 	        ProtectedContent protSecret = protUtil.createProtectedContent(cAConnectorConfig.getPlainSecret(), ProtectedContentType.PASSWORD, ContentRelationType.CONNECTION, -1L);
@@ -166,7 +169,7 @@ public class CAConnectorConfigResource {
         		}
 
                 if( protUtil == null) {
-                    System.err.println("Autowired 'protUtil' failed ...");
+                    log.warn("Autowired 'protUtil' failed ...");
                 }
 
                 ProtectedContent protSecret = protUtil.createProtectedContent(cAConnectorConfig.getPlainSecret(), ProtectedContentType.PASSWORD, ContentRelationType.CONNECTION, cAConnectorConfig.getId());
@@ -179,7 +182,7 @@ public class CAConnectorConfigResource {
 
         if( cAConnectorConfig.isDefaultCA()) {
         	for( CAConnectorConfig other: caConfigRepository.findAll() ) {
-        		if( other.getId() != cAConnectorConfig.getId() &&
+        		if( !other.getId().equals(cAConnectorConfig.getId()) &&
         				other.isDefaultCA()) {
 
                 	log.debug("REST request to update CAConnectorConfig : remove 'defaultCA' flag from caConfig {} ", other.getId());

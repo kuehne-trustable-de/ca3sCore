@@ -31,6 +31,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.AccessControlException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.PrivateKey;
@@ -39,6 +40,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
+import de.trustable.ca3s.core.security.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -195,12 +198,14 @@ public class CertificateDownloadController  {
     public ResponseEntity<byte[]> getKeystore(@PathVariable final long certId,
     		@PathVariable final String filename,
     		@PathVariable final String alias,
-    		@RequestHeader(name="Accept", defaultValue=ACMEController.APPLICATION_PKCS12_VALUE) final String accept) throws NotFoundException {
+    		@RequestHeader(name="Accept", defaultValue=ACMEController.APPLICATION_PKCS12_VALUE) final String accept) throws NotFoundException, UnauthorizedException {
 
 		LOG.info("Received keystore request for id '{}' for filename '{}' with alias '{}'", certId, filename, alias);
 
     	try {
-			return buildByteArrayResponseForId(certId, accept, alias, filename);
+            return buildByteArrayResponseForId(certId, accept, alias, filename);
+        } catch (AccessControlException ace){
+            throw new UnauthorizedException(ace.getMessage());
 		} catch (HttpClientErrorException | AcmeProblemException | GeneralSecurityException e) {
 			throw new NotFoundException(e.getMessage());
 		}
@@ -375,13 +380,19 @@ public class CertificateDownloadController  {
 			throw new GeneralSecurityException("problem downloading keystore content for cert id "+certDao.getId()+": no csr object available ");
 		}
 
-    	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    	String userName = auth.getName();
-    	if( userName == null ) {
-			throw new GeneralSecurityException("problem downloading keystore content for csr id "+csr.getId()+":  user name not available");
-    	}if(!userName.equals(csr.getRequestedBy())) {
-			throw new GeneralSecurityException("problem downloading keystore content for csr id "+csr.getId()+": user does not match initial requestor");
-    	}
+        if( SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN) ||
+        SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.RA_OFFICER) ){
+            LOG.debug("Admins and RA Officers are allowed to download P12 files");
+        }else {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String userName = auth.getName();
+            if (userName == null) {
+                throw new GeneralSecurityException("problem downloading keystore content for csr id " + csr.getId() + ":  user name not available");
+            }
+            if (!userName.equals(csr.getRequestedBy())) {
+                throw new AccessControlException("problem downloading keystore content for csr id " + csr.getId() + ": user does not match initial requestor");
+            }
+        }
 
 		if (!csr.isServersideKeyGeneration()) {
 			throw new GeneralSecurityException("problem downloading keystore content for csr id "+csr.getId()+": key not generated serverside");
@@ -432,14 +443,30 @@ public class CertificateDownloadController  {
 class NotFoundException extends Exception {
 
     /**
-	 *
-	 */
-	private static final long serialVersionUID = -7873233893252750875L;
+     *
+     */
+    private static final long serialVersionUID = -7873233893252750875L;
 
-	public NotFoundException() {
+    public NotFoundException() {
     }
 
-	public NotFoundException(String message) {
-		super(message);
-	}
+    public NotFoundException(String message) {
+        super(message);
+    }
+}
+
+@ResponseStatus(code = HttpStatus.UNAUTHORIZED, reason = "Unauthorized")
+class UnauthorizedException extends Exception {
+
+    /**
+     *
+     */
+    private static final long serialVersionUID = -7873296392052750875L;
+
+    public UnauthorizedException() {
+    }
+
+    public UnauthorizedException(String message) {
+        super(message);
+    }
 }

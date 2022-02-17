@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+    <!--
+        Added the constraints for entity ScepOrderAttribute.
+    -->
+    <changeSet id="20220211170512-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="order_id"
+                                 baseTableName="scep_order_attribute"
+                                 constraintName="fk_scep_order_attribute__order_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="scep_order"/>
+    </changeSet>
+</databaseChangeLog>

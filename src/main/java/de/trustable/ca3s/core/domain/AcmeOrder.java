@@ -1,18 +1,18 @@
 package de.trustable.ca3s.core.domain;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
+import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
-
-import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
+import javax.persistence.*;
+import javax.validation.constraints.*;
 
 /**
  * A AcmeOrder.
+ *
+ *
  */
 @Entity
 @Table(name = "acme_order")
@@ -20,6 +20,10 @@ import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
     @NamedQuery(name = "AcmeOrder.findByOrderId",
         query = "SELECT a FROM AcmeOrder a WHERE " +
             "a.orderId = :orderId"
+    ),
+    @NamedQuery(name = "AcmeOrder.findPipelineIsNull",
+        query = "SELECT a FROM AcmeOrder a WHERE " +
+            "a.pipeline IS NULL"
     ),
     @NamedQuery(name = "AcmeOrder.countByAccountId",
         query = "SELECT count(a) FROM AcmeOrder a WHERE " +
@@ -32,11 +36,16 @@ public class AcmeOrder implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @NotNull
     @Column(name = "order_id", nullable = false)
     private Long orderId;
+
+    @NotNull
+    @Column(name = "realm", nullable = false)
+    private String realm;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -62,26 +71,45 @@ public class AcmeOrder implements Serializable {
     private String certificateUrl;
 
     @OneToMany(mappedBy = "order")
+    @JsonIgnoreProperties(value = { "challenges", "order" }, allowSetters = true)
     private Set<AcmeAuthorization> acmeAuthorizations = new HashSet<>();
 
     @OneToMany(mappedBy = "order")
+    @JsonIgnoreProperties(value = { "order" }, allowSetters = true)
+    private Set<AcmeOrderAttribute> attributes = new HashSet<>();
+
+    @OneToMany(mappedBy = "order")
+    @JsonIgnoreProperties(value = { "order" }, allowSetters = true)
     private Set<AcmeIdentifier> acmeIdentifiers = new HashSet<>();
 
     @ManyToOne
-    @JsonIgnoreProperties("acmeOrders")
+    @JsonIgnoreProperties(value = { "comment", "rdns", "ras", "csrAttributes", "pipeline", "certificate" }, allowSetters = true)
     private CSR csr;
 
     @ManyToOne
-    @JsonIgnoreProperties("acmeOrders")
+    @JsonIgnoreProperties(
+        value = { "csr", "comment", "certificateAttributes", "issuingCertificate", "rootCertificate", "revocationCA" },
+        allowSetters = true
+    )
     private Certificate certificate;
 
     @ManyToOne
-    @JsonIgnoreProperties("orders")
+    @JsonIgnoreProperties(value = { "pipelineAttributes", "caConnector", "processInfo" }, allowSetters = true)
+    private Pipeline pipeline;
+
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "contacts", "orders" }, allowSetters = true)
     private ACMEAccount account;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public AcmeOrder id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
@@ -89,11 +117,11 @@ public class AcmeOrder implements Serializable {
     }
 
     public Long getOrderId() {
-        return orderId;
+        return this.orderId;
     }
 
     public AcmeOrder orderId(Long orderId) {
-        this.orderId = orderId;
+        this.setOrderId(orderId);
         return this;
     }
 
@@ -101,12 +129,25 @@ public class AcmeOrder implements Serializable {
         this.orderId = orderId;
     }
 
+    public String getRealm() {
+        return this.realm;
+    }
+
+    public AcmeOrder realm(String realm) {
+        this.setRealm(realm);
+        return this;
+    }
+
+    public void setRealm(String realm) {
+        this.realm = realm;
+    }
+
     public AcmeOrderStatus getStatus() {
-        return status;
+        return this.status;
     }
 
     public AcmeOrder status(AcmeOrderStatus status) {
-        this.status = status;
+        this.setStatus(status);
         return this;
     }
 
@@ -115,11 +156,11 @@ public class AcmeOrder implements Serializable {
     }
 
     public Instant getExpires() {
-        return expires;
+        return this.expires;
     }
 
     public AcmeOrder expires(Instant expires) {
-        this.expires = expires;
+        this.setExpires(expires);
         return this;
     }
 
@@ -128,11 +169,11 @@ public class AcmeOrder implements Serializable {
     }
 
     public Instant getNotBefore() {
-        return notBefore;
+        return this.notBefore;
     }
 
     public AcmeOrder notBefore(Instant notBefore) {
-        this.notBefore = notBefore;
+        this.setNotBefore(notBefore);
         return this;
     }
 
@@ -141,11 +182,11 @@ public class AcmeOrder implements Serializable {
     }
 
     public Instant getNotAfter() {
-        return notAfter;
+        return this.notAfter;
     }
 
     public AcmeOrder notAfter(Instant notAfter) {
-        this.notAfter = notAfter;
+        this.setNotAfter(notAfter);
         return this;
     }
 
@@ -154,11 +195,11 @@ public class AcmeOrder implements Serializable {
     }
 
     public String getError() {
-        return error;
+        return this.error;
     }
 
     public AcmeOrder error(String error) {
-        this.error = error;
+        this.setError(error);
         return this;
     }
 
@@ -167,11 +208,11 @@ public class AcmeOrder implements Serializable {
     }
 
     public String getFinalizeUrl() {
-        return finalizeUrl;
+        return this.finalizeUrl;
     }
 
     public AcmeOrder finalizeUrl(String finalizeUrl) {
-        this.finalizeUrl = finalizeUrl;
+        this.setFinalizeUrl(finalizeUrl);
         return this;
     }
 
@@ -180,11 +221,11 @@ public class AcmeOrder implements Serializable {
     }
 
     public String getCertificateUrl() {
-        return certificateUrl;
+        return this.certificateUrl;
     }
 
     public AcmeOrder certificateUrl(String certificateUrl) {
-        this.certificateUrl = certificateUrl;
+        this.setCertificateUrl(certificateUrl);
         return this;
     }
 
@@ -193,11 +234,21 @@ public class AcmeOrder implements Serializable {
     }
 
     public Set<AcmeAuthorization> getAcmeAuthorizations() {
-        return acmeAuthorizations;
+        return this.acmeAuthorizations;
+    }
+
+    public void setAcmeAuthorizations(Set<AcmeAuthorization> acmeAuthorizations) {
+        if (this.acmeAuthorizations != null) {
+            this.acmeAuthorizations.forEach(i -> i.setOrder(null));
+        }
+        if (acmeAuthorizations != null) {
+            acmeAuthorizations.forEach(i -> i.setOrder(this));
+        }
+        this.acmeAuthorizations = acmeAuthorizations;
     }
 
     public AcmeOrder acmeAuthorizations(Set<AcmeAuthorization> acmeAuthorizations) {
-        this.acmeAuthorizations = acmeAuthorizations;
+        this.setAcmeAuthorizations(acmeAuthorizations);
         return this;
     }
 
@@ -213,16 +264,54 @@ public class AcmeOrder implements Serializable {
         return this;
     }
 
-    public void setAcmeAuthorizations(Set<AcmeAuthorization> acmeAuthorizations) {
-        this.acmeAuthorizations = acmeAuthorizations;
+    public Set<AcmeOrderAttribute> getAttributes() {
+        return this.attributes;
     }
 
+    public void setAttributes(Set<AcmeOrderAttribute> acmeOrderAttributes) {
+        if (this.attributes != null) {
+            this.attributes.forEach(i -> i.setOrder(null));
+        }
+        if (acmeOrderAttributes != null) {
+            acmeOrderAttributes.forEach(i -> i.setOrder(this));
+        }
+        this.attributes = acmeOrderAttributes;
+    }
+
+    public AcmeOrder attributes(Set<AcmeOrderAttribute> acmeOrderAttributes) {
+        this.setAttributes(acmeOrderAttributes);
+        return this;
+    }
+
+    public AcmeOrder addAttributes(AcmeOrderAttribute acmeOrderAttribute) {
+        this.attributes.add(acmeOrderAttribute);
+        acmeOrderAttribute.setOrder(this);
+        return this;
+    }
+
+    public AcmeOrder removeAttributes(AcmeOrderAttribute acmeOrderAttribute) {
+        this.attributes.remove(acmeOrderAttribute);
+        acmeOrderAttribute.setOrder(null);
+        return this;
+    }
+
+
     public Set<AcmeIdentifier> getAcmeIdentifiers() {
-        return acmeIdentifiers;
+        return this.acmeIdentifiers;
+    }
+
+    public void setAcmeIdentifiers(Set<AcmeIdentifier> acmeIdentifiers) {
+        if (this.acmeIdentifiers != null) {
+            this.acmeIdentifiers.forEach(i -> i.setOrder(null));
+        }
+        if (acmeIdentifiers != null) {
+            acmeIdentifiers.forEach(i -> i.setOrder(this));
+        }
+        this.acmeIdentifiers = acmeIdentifiers;
     }
 
     public AcmeOrder acmeIdentifiers(Set<AcmeIdentifier> acmeIdentifiers) {
-        this.acmeIdentifiers = acmeIdentifiers;
+        this.setAcmeIdentifiers(acmeIdentifiers);
         return this;
     }
 
@@ -238,49 +327,59 @@ public class AcmeOrder implements Serializable {
         return this;
     }
 
-    public void setAcmeIdentifiers(Set<AcmeIdentifier> acmeIdentifiers) {
-        this.acmeIdentifiers = acmeIdentifiers;
-    }
-
     public CSR getCsr() {
-        return csr;
-    }
-
-    public AcmeOrder csr(CSR cSR) {
-        this.csr = cSR;
-        return this;
+        return this.csr;
     }
 
     public void setCsr(CSR cSR) {
         this.csr = cSR;
     }
 
-    public Certificate getCertificate() {
-        return certificate;
+    public AcmeOrder csr(CSR cSR) {
+        this.setCsr(cSR);
+        return this;
     }
 
-    public AcmeOrder certificate(Certificate certificate) {
-        this.certificate = certificate;
-        return this;
+    public Certificate getCertificate() {
+        return this.certificate;
     }
 
     public void setCertificate(Certificate certificate) {
         this.certificate = certificate;
     }
 
-    public ACMEAccount getAccount() {
-        return account;
+    public AcmeOrder certificate(Certificate certificate) {
+        this.setCertificate(certificate);
+        return this;
     }
 
-    public AcmeOrder account(ACMEAccount aCMEAccount) {
-        this.account = aCMEAccount;
+    public Pipeline getPipeline() {
+        return this.pipeline;
+    }
+
+    public void setPipeline(Pipeline pipeline) {
+        this.pipeline = pipeline;
+    }
+
+    public AcmeOrder pipeline(Pipeline pipeline) {
+        this.setPipeline(pipeline);
         return this;
+    }
+
+    public ACMEAccount getAccount() {
+        return this.account;
     }
 
     public void setAccount(ACMEAccount aCMEAccount) {
         this.account = aCMEAccount;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+
+    public AcmeOrder account(ACMEAccount aCMEAccount) {
+        this.setAccount(aCMEAccount);
+        return this;
+    }
+
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -295,14 +394,17 @@ public class AcmeOrder implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "AcmeOrder{" +
             "id=" + getId() +
             ", orderId=" + getOrderId() +
+            ", realm='" + getRealm() + "'" +
             ", status='" + getStatus() + "'" +
             ", expires='" + getExpires() + "'" +
             ", notBefore='" + getNotBefore() + "'" +

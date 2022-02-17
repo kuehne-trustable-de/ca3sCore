@@ -4,6 +4,7 @@ import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.service.CSRService;
+import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +18,6 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Base64Utils;
 import org.springframework.validation.Validator;
 
 import javax.persistence.EntityManager;
@@ -115,6 +115,9 @@ public class CSRResourceIT {
     private CSRService cSRService;
 
     @Autowired
+    private CSRUtil csrUtil;
+
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -136,7 +139,7 @@ public class CSRResourceIT {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final CSRResource cSRResource = new CSRResource(cSRService);
+        final CSRResource cSRResource = new CSRResource(cSRService, csrUtil);
         this.restCSRMockMvc = MockMvcBuilders.standaloneSetup(cSRResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -402,7 +405,7 @@ public class CSRResourceIT {
             .andExpect(jsonPath("$.[*].requestorComment").value(hasItem(DEFAULT_REQUESTOR_COMMENT.toString())))
             .andExpect(jsonPath("$.[*].administrationComment").value(hasItem(DEFAULT_ADMINISTRATION_COMMENT.toString())));
     }
-    
+
     @Test
     @Transactional
     public void getCSR() throws Exception {

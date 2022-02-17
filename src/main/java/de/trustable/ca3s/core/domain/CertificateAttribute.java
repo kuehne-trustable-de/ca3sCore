@@ -177,4 +177,10 @@ public class CertificateAttribute implements Serializable {
 
     public static final String ATTRIBUTE_COMMENT = "COMMENT";
 
+    public static final String ATTRIBUTE_SCEP_TRUSTED_ISSUER = "SCEP_TRUSTED_ISSUER";
+
+    public static final String ATTRIBUTE_TLS_CERTIFICATE = "TLS_CERTIFICATE";
+    public static final String ATTRIBUTE_TLS_KEY = "TLS_KEY";
+
+
 }

@@ -345,7 +345,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
     //    this.creationMode = 'CSR_AVAILABLE';
     this.upload.containerType = 'PKCS_12';
-    this.keyAlgoLength = 'RSA_2048';
+    this.keyAlgoLength = 'RSA_4096';
   }
 
   public buildCommandLine(): string {
@@ -677,11 +677,15 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       responseType: 'stream'
     }).then(function(response) {
       window.console.info('getWebPipelines returns ' + response.data);
+      self.upload.pipelineId = -1;
       self.allWebPipelines = response.data;
+      /*
       if (self.allWebPipelines.length > 0) {
         self.upload.pipelineId = self.allWebPipelines[0].id;
         self.updatePipelineRestrictionsByPipelineInfo(self.allWebPipelines[0]);
       }
+
+ */
     });
   }
 

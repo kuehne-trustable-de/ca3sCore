@@ -114,7 +114,7 @@ public class NewAccountController extends ACMEController {
 		if( pk == null) {
 
 			accListExisting = new ArrayList<>();
-			accListExisting.add(checkJWTSignatureForAccount(context));
+			accListExisting.add(checkJWTSignatureForAccount(context, realm));
 			if( accListExisting.isEmpty()) {
 			    LOG.debug("NewAccountRequest does NOT provide key, no matching account found ");
 		        final ProblemDetail problem = new ProblemDetail(ACMEUtil.ACCOUNT_DOES_NOT_EXIST, "Account does not exist.",

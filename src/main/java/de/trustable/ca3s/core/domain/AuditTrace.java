@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
-import javax.xml.bind.annotation.XmlTransient;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -89,6 +88,18 @@ public class AuditTrace implements Serializable {
     @ManyToOne
     @JsonIgnoreProperties(value = "auditTraces", allowSetters = true)
     private BPMNProcessInfo processInfo;
+
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "contacts", "orders" }, allowSetters = true)
+    private ACMEAccount acmeAccount;
+
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "acmeAuthorizations", "acmeIdentifiers", "csr", "certificate", "account" }, allowSetters = true)
+    private AcmeOrder acmeOrder;
+
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "csr", "certificate", "authenticatedBy" }, allowSetters = true)
+    private ScepOrder scepOrder;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
@@ -228,6 +239,47 @@ public class AuditTrace implements Serializable {
     public void setProcessInfo(BPMNProcessInfo bPMNProcessInfo) {
         this.processInfo = bPMNProcessInfo;
     }
+
+    public ACMEAccount getAcmeAccount() {
+        return this.acmeAccount;
+    }
+
+    public void setAcmeAccount(ACMEAccount aCMEAccount) {
+        this.acmeAccount = aCMEAccount;
+    }
+
+    public AuditTrace acmeAccount(ACMEAccount aCMEAccount) {
+        this.setAcmeAccount(aCMEAccount);
+        return this;
+    }
+
+    public AcmeOrder getAcmeOrder() {
+        return this.acmeOrder;
+    }
+
+    public void setAcmeOrder(AcmeOrder acmeOrder) {
+        this.acmeOrder = acmeOrder;
+    }
+
+    public AuditTrace acmeOrder(AcmeOrder acmeOrder) {
+        this.setAcmeOrder(acmeOrder);
+        return this;
+    }
+
+    public ScepOrder getScepOrder() {
+        return this.scepOrder;
+    }
+
+    public void setScepOrder(ScepOrder scepOrder) {
+        this.scepOrder = scepOrder;
+    }
+
+    public AuditTrace scepOrder(ScepOrder scepOrder) {
+        this.setScepOrder(scepOrder);
+        return this;
+    }
+
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override

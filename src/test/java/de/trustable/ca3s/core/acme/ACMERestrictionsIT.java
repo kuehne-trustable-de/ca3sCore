@@ -46,7 +46,7 @@ public class ACMERestrictionsIT {
 	@LocalServerPort
 	int serverPort; // random port chosen by spring test
 
-	final String ACME_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME1CN_REALM + "/directory";
+	final String ACME_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME1CNNOIP_REALM + "/directory";
 	String dirUrl;
 
 	@Autowired
@@ -59,7 +59,7 @@ public class ACMERestrictionsIT {
 	void init() {
 		dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
 		ptc.getInternalACMETestPipelineLaxRestrictions();
-		ptc.getInternalACMETestPipeline_1_CN_ONLY_Restrictions();
+		ptc.getInternalACMETestPipeline_1_CN_ONLY_NO_IP_Restrictions();
         prefTC.getTestUserPreference();
 	}
 
@@ -99,7 +99,7 @@ public class ACMERestrictionsIT {
 		        .create(session);
 
 		Assertions.assertNotNull(retrievedAccount, "created account MUST NOT be null");
-		Assertions.assertEquals(accountLocationUrl, retrievedAccount.getLocation(), "expected to fimnd the smae account (URL)");
+		Assertions.assertEquals(accountLocationUrl, retrievedAccount.getLocation(), "expected to find the same account (URL)");
 
 		// #########################
 		// request mismatching restrictions
@@ -144,7 +144,7 @@ public class ACMERestrictionsIT {
 
 			CSRBuilder csrb = new CSRBuilder();
 			csrb.addDomain("localhost");
-			csrb.addDomain("127.0.0.1");
+			csrb.addIP(InetAddress.getByName("127.0.0.1"));
 			csrb.setOrganization("The Example Organization");
 			csrb.sign(domainKeyPair);
 			byte[] csr = csrb.getEncoded();

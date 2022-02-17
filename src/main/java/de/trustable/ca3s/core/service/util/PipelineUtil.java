@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.security.auth.x500.X500Principal;
+import javax.servlet.ServletException;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
@@ -1175,11 +1176,11 @@ public class PipelineUtil {
 				String value = atv.getValue().toString().trim();
 				InetAddressValidator inv = InetAddressValidator.getInstance();
 				if( inv.isValidInet4Address(value)) {
-					messageList.add("CommonName '"+value+"' is valid IP4 address");
+					messageList.add("CommonName '"+value+"' is a valid IP4 address");
 					return true;
 				}
 				if( inv.isValidInet6Address(value)) {
-					messageList.add("CommonName '"+value+"' is valid IP6 address");
+					messageList.add("CommonName '"+value+"' is a valid IP6 address");
 					return true;
 				}
 			}
@@ -1293,6 +1294,14 @@ public class PipelineUtil {
         return cert;
     }
 
+    public Pipeline getPipelineByRealm(final PipelineType pipelineType, final String realm) {
+        List<Pipeline> pipelineList = pipelineRepository.findActiveByTypeUrl(pipelineType, realm);
+        if (pipelineList.isEmpty()) {
+            LOG.info("no matching pipeline for type '{}' request realm {}", pipelineType, realm);
+            return null;
+        }
+        return pipelineList.get(0);
+    }
 
 }
 

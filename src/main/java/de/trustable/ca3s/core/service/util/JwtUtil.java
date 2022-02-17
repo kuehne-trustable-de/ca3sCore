@@ -164,7 +164,7 @@ public class JwtUtil {
 		    if( algHeader.toUpperCase().startsWith("E")) {
 		    	keyAlgo = "EC";
 		    }
-			LOG.debug("jrw key algo {} selected by JWT algorithm header {}", keyAlgo, algHeader);
+			LOG.debug("jws key algo {} selected by JWT algorithm header {}", keyAlgo, algHeader);
 
 			KeyFactory kf = KeyFactory.getInstance(keyAlgo);
 			PublicKey publicKey = kf.generatePublic(new X509EncodedKeySpec(Base64.decodeBase64(publicKeyBase64)));
@@ -374,8 +374,7 @@ public class JwtUtil {
 
 	public String getKid(final JsonWebStructure webStruct) throws JoseException {
 		if( webStruct.getHeader(KID) != null ) {
-			final String kid = webStruct.getHeaders().getStringHeaderValue(KID);
-			return kid;
+            return webStruct.getHeaders().getStringHeaderValue(KID);
 		}else {
 			return null;
 		}
@@ -383,8 +382,7 @@ public class JwtUtil {
 
 	public String getNonce(final JsonWebStructure webStruct) throws JoseException {
 		if( webStruct.getHeader(NONCE) != null ) {
-			final String kid = webStruct.getHeaders().getStringHeaderValue(NONCE);
-			return kid;
+            return webStruct.getHeaders().getStringHeaderValue(NONCE);
 		}else {
 			return null;
 		}
@@ -399,8 +397,7 @@ public class JwtUtil {
 		// follow all JWK conventions for the calculation of thumbprint
 		PublicJsonWebKey jwk = Factory.newPublicJwk(newPK);
 		Encoder URL_ENCODER = java.util.Base64.getUrlEncoder().withoutPadding();
-		String thumbPrint = URL_ENCODER.encodeToString(jwk.calculateThumbprint("SHA-256"));
-		return thumbPrint;
+        return URL_ENCODER.encodeToString(jwk.calculateThumbprint("SHA-256"));
 	}
 
 

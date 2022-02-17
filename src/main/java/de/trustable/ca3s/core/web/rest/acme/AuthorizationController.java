@@ -122,14 +122,14 @@ public class AuthorizationController extends ACMEController {
 
     @RequestMapping(value = "/{authorizationId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
   public ResponseEntity<?> postAuthorization(@RequestBody final String requestBody,
-		  @PathVariable final long authorizationId) {
+		  @PathVariable final long authorizationId, @PathVariable final String realm) {
 
 	LOG.debug("Received Authorization request ");
 
 	try {
 		JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
 
-		ACMEAccount acctDao = checkJWTSignatureForAccount(context);
+		ACMEAccount acctDao = checkJWTSignatureForAccount(context, realm);
 
 	    final HttpHeaders additionalHeaders = buildNonceHeader();
 

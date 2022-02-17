@@ -20,6 +20,9 @@ public interface AcmeOrderRepository extends JpaRepository<AcmeOrder, Long> {
     @Query(name = "AcmeOrder.findByOrderId")
     List<AcmeOrder> findByOrderId(@Param("orderId") long orderId);
 
+    @Query(name = "AcmeOrder.findPipelineIsNull")
+    List<AcmeOrder> findPipelineIsNull();
+
     @Query(name = "AcmeOrder.countByAccountId")
     long countByAccountId(@Param("accountId") long accountId);
 

@@ -4,6 +4,8 @@ import de.trustable.ca3s.cert.bundle.BundleFactory;
 import de.trustable.ca3s.cert.bundle.KeyCertBundle;
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.CertificateAttribute;
+import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.service.util.CaConnectorAdapter;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.util.CryptoUtil;
@@ -20,6 +22,7 @@ import java.net.InetAddress;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,28 +39,73 @@ public class Ca3sBundleFactory implements BundleFactory {
 
 	private final CertificateUtil certUtil;
 
+    private final CertificateRepository certificateRepository;
+
     private final String dnSuffix;
 
     private final String sans;
 
-	public Ca3sBundleFactory(CAConnectorConfig caConfigDao,
+    private final KeyPersistenceType keyPersistenceType;
+
+    public Ca3sBundleFactory(CAConnectorConfig caConfigDao,
                              CaConnectorAdapter cacAdapt,
                              CertificateUtil certUtil,
-                             String dnSuffix,
-                             String sans) {
+                             CertificateRepository certificateRepository, String dnSuffix,
+                             String sans, String persist) {
 		this.caConfigDao = caConfigDao;
 		this.cacAdapt = cacAdapt;
 		this.certUtil = certUtil;
+        this.certificateRepository = certificateRepository;
         this.dnSuffix = dnSuffix;
         this.sans = sans;
+        this.keyPersistenceType = KeyPersistenceType.valueOf(persist);
+        LOG.debug("keyPersistenceType : " + keyPersistenceType );
     }
 
 
 	@Override
 	public KeyCertBundle newKeyBundle(final String bundleName, long minValiditySeconds) throws GeneralSecurityException {
 
+        if( KeyPersistenceType.DB.equals(keyPersistenceType)){
+            LOG.debug("Storing TLS certificate in database." );
+            return newDBKeyBundle(bundleName, minValiditySeconds);
+        }else if( KeyPersistenceType.FILE.equals(keyPersistenceType)){
+            LOG.warn("Storing of TLS certificate in file not implemented, yet! Falling bak to 'NO' persistence." );
+        }
 
-		KeyPair localKeyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+        return createKeyBundle(bundleName, minValiditySeconds).getKeyCertBundle();
+    }
+
+    public KeyCertBundle newDBKeyBundle(final String bundleName, long minValiditySeconds) throws GeneralSecurityException {
+
+        List<Certificate> certDaoList = certificateRepository.findActiveTLSCertificate();
+
+        if(certDaoList.isEmpty()){
+            LOG.debug("Creating new TLS certificate." );
+            BundleCertHolder bundleCertHolder = createKeyBundle(bundleName, minValiditySeconds);
+            KeyCertBundle keyCertBundle = bundleCertHolder.getKeyCertBundle();
+            KeyPair keyPair = new KeyPair(keyCertBundle.getCertificate().getPublicKey(), (PrivateKey)keyCertBundle.getKey());
+            try {
+                certUtil.storePrivateKey(bundleCertHolder.getCertificate(), keyPair);
+                certUtil.setCertAttribute(bundleCertHolder.getCertificate(), CertificateAttribute.ATTRIBUTE_TLS_KEY, "true");
+            } catch (IOException e) {
+                LOG.warn("problem storing key and certificate ", e );
+                throw new GeneralSecurityException(e.getMessage());
+            }
+            return keyCertBundle;
+        }else{
+            Certificate certificate = certDaoList.get(0);
+            LOG.debug("Found TLS certificate {} in database.", certificate.getId() );
+
+            X509Certificate[] certificateChain = certUtil.getX509CertificateChain(certificate);
+            PrivateKey privateKey = certUtil.getPrivateKey(certificate);
+            return new KeyCertBundle(bundleName, certificateChain, certificateChain[0], privateKey);
+        }
+    }
+
+    public BundleCertHolder createKeyBundle(final String bundleName, long minValiditySeconds) throws GeneralSecurityException {
+
+        KeyPair localKeyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
 
 		try {
 			InetAddress ip = InetAddress.getLocalHost();
@@ -89,14 +137,17 @@ public class Ca3sBundleFactory implements BundleFactory {
             String csrBase64 = CryptoUtil.pkcs10RequestToPem(req);
 
 			Certificate cert = cacAdapt.signCertificateRequest(csrBase64, caConfigDao);
+            certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_TLS_CERTIFICATE, "true");
 
 			// build the chain
 			X509Certificate[] certificateChain = certUtil.getX509CertificateChain(cert);
 
 			LOG.debug("returning new certificate : " + certificateChain[0] );
 
-			return new KeyCertBundle(bundleName, certificateChain, certificateChain[0], localKeyPair.getPrivate());
 
+            return new BundleCertHolder(
+                new KeyCertBundle(bundleName, certificateChain, certificateChain[0], localKeyPair.getPrivate()),
+                cert );
 		} catch (IOException e) {
 			// certificate creation failed with an exception not inheriting from 'GeneralSecurityException'
 			throw new GeneralSecurityException(e);
@@ -104,4 +155,23 @@ public class Ca3sBundleFactory implements BundleFactory {
 
 	}
 
+}
+
+class BundleCertHolder{
+
+    private final KeyCertBundle keyCertBundle;
+    private final Certificate certificate;
+
+    public BundleCertHolder(KeyCertBundle keyCertBundle, Certificate certificate){
+        this.keyCertBundle = keyCertBundle;
+        this.certificate = certificate;
+    }
+
+    public KeyCertBundle getKeyCertBundle() {
+        return keyCertBundle;
+    }
+
+    public Certificate getCertificate() {
+        return certificate;
+    }
 }

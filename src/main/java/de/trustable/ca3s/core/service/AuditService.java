@@ -76,6 +76,7 @@ public class AuditService {
     public static final String AUDIT_CA_CONNECTOR_DELETED = "CA_CONNECTOR_DELETED";
     public static final String AUDIT_CA_CONNECTOR_ATTRIBUTE_CHANGED = "CA_CONNECTOR_ATTRIBUTE_CHANGED";
     public static final String AUDIT_CERTIFICATE_SCHEMA_UPDATED = "CERTIFICATE_SCHEMA_UPDATED";
+    public static final String AUDIT_ACME_ORDER_PIPELINE_UPDATED = "AUDIT_ACME_ORDER_PIPELINE_UPDATED";
 
 
     private final Logger log = LoggerFactory.getLogger(AuditService.class);
@@ -368,6 +369,21 @@ public class AuditService {
             AUDIT_CERTIFICATE_SCHEMA_UPDATED,
             "" + nUpdated,
             null, "" + version,
+            null,
+            null,
+            null,
+            null,
+            null );
+    }
+
+
+    public AuditTrace createAuditTraceAcmeOrderPipelineUpdated(final int nUpdated){
+
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_ACME_ORDER_PIPELINE_UPDATED,
+            "" + nUpdated,
+            null, "",
             null,
             null,
             null,

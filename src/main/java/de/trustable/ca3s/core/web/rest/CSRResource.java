@@ -2,22 +2,21 @@ package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.service.CSRService;
-import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
-
-import tech.jhipster.web.util.HeaderUtil;
-import tech.jhipster.web.util.ResponseUtil;
+import de.trustable.ca3s.core.service.dto.CSRView;
+import de.trustable.ca3s.core.service.util.CSRUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import tech.jhipster.web.util.ResponseUtil;
 
 import javax.validation.Valid;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 
 /**
  * REST controller for managing {@link de.trustable.ca3s.core.domain.CSR}.
@@ -34,9 +33,11 @@ public class CSRResource {
     private String applicationName;
 
     private final CSRService cSRService;
+    private final CSRUtil csrUtil;
 
-    public CSRResource(CSRService cSRService) {
+    public CSRResource(CSRService cSRService, CSRUtil csrUtil) {
         this.cSRService = cSRService;
+        this.csrUtil = csrUtil;
     }
 
     /**
@@ -48,6 +49,9 @@ public class CSRResource {
      */
     @PostMapping("/csrs")
     public ResponseEntity<CSR> createCSR(@Valid @RequestBody CSR cSR) throws URISyntaxException {
+
+        return (ResponseEntity<CSR>) ResponseEntity.badRequest();
+/*
         log.debug("REST request to save CSR : {}", cSR);
         if (cSR.getId() != null) {
             throw new BadRequestAlertException("A new cSR cannot already have an ID", ENTITY_NAME, "idexists");
@@ -56,6 +60,7 @@ public class CSRResource {
         return ResponseEntity.created(new URI("/api/csrs/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
+ */
     }
 
     /**
@@ -70,6 +75,8 @@ public class CSRResource {
     @PutMapping("/csrs")
     public ResponseEntity<CSR> updateCSR(@Valid @RequestBody CSR cSR) throws URISyntaxException {
         log.debug("REST request to update CSR : {}", cSR);
+        return (ResponseEntity<CSR>) ResponseEntity.badRequest();
+/*
         if (cSR.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
@@ -77,6 +84,7 @@ public class CSRResource {
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, cSR.getId().toString()))
             .body(result);
+ */
     }
 
     /**
@@ -87,15 +95,59 @@ public class CSRResource {
      */
     @GetMapping("/csrs")
     public List<CSR> getAllCSRS(@RequestParam(required = false) String filter) {
+
+        return (List<CSR>) ResponseEntity.badRequest();
+/*
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String userName = auth.getName();
+
+        List<CSR> csrList;
         if ("certificate-is-null".equals(filter)) {
             log.debug("REST request to get all CSRs where certificate is null");
-            return cSRService.findAllWhereCertificateIsNull();
+            csrList = cSRService.findAllWhereCertificateIsNull();
+        }else {
+            log.debug("REST request to get all CSRS");
+            csrList = cSRService.findAll();
         }
-        log.debug("REST request to get all CSRS");
-        return cSRService.findAll();
+
+//        List<CSR> cleanList = new ArrayList<>();
+        for(CSR csr: csrList){
+            if( !csr.getRequestedBy().equals(userName)){
+                csr.setCsrBase64("");
+            }
+        }
+        return csrList;
+ */
     }
 
     /**
+     * {@code GET  /csr/:id} : get the "id" cSR.
+     *
+     * @param id the id of the cSR to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the cSR, or with status {@code 404 (Not Found)}.
+     */
+    @GetMapping("/csrView/{id}")
+    public ResponseEntity<CSRView> getCSRView(@PathVariable Long id) {
+        log.debug("REST request to get CSRView for CSR id : {}", id);
+
+        Optional<CSR> cSROptional = cSRService.findOne(id);
+
+        if(cSROptional.isPresent()){
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String userName = auth.getName();
+
+            CSR csr = cSROptional.get();
+            CSRView csrView = new CSRView(csrUtil, csr);
+            if( csr.getRequestedBy().equals(userName)){
+                csrView.setCsrBase64(csr.getCsrBase64());
+            }
+            log.debug("returning CSRView for id : {} -> {}", id, csrView);
+            return ResponseEntity.ok(csrView);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+   /**
      * {@code GET  /csrs/:id} : get the "id" cSR.
      *
      * @param id the id of the cSR to retrieve.
@@ -104,8 +156,23 @@ public class CSRResource {
     @GetMapping("/csrs/{id}")
     public ResponseEntity<CSR> getCSR(@PathVariable Long id) {
         log.debug("REST request to get CSR : {}", id);
-        Optional<CSR> cSR = cSRService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(cSR);
+        return (ResponseEntity<CSR>) ResponseEntity.badRequest();
+
+/*
+        Optional<CSR> cSROptional = cSRService.findOne(id);
+
+        if(cSROptional.isPresent()){
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String userName = auth.getName();
+
+            CSR csr = cSROptional.get();
+            if( !csr.getRequestedBy().equals(userName)){
+                csr.setCsrBase64("");
+            }
+        }
+        return ResponseUtil.wrapOrNotFound(cSROptional);
+
+ */
     }
 
     /**
@@ -117,7 +184,11 @@ public class CSRResource {
     @DeleteMapping("/csrs/{id}")
     public ResponseEntity<Void> deleteCSR(@PathVariable Long id) {
         log.debug("REST request to delete CSR : {}", id);
+        return (ResponseEntity<Void>) ResponseEntity.badRequest();
+/*
         cSRService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
+
+ */
     }
 }

@@ -328,7 +328,10 @@ public class ADCSConnector {
 
 		int limit = 100;
 
-		int pollingOffset = config.getPollingOffset();
+        int pollingOffset = 0;
+        if(config.getPollingOffset() != null){
+            pollingOffset = config.getPollingOffset();
+        }
 
 		ADCSWinNativeConnector adcsConnector = getConnector(config);
 
@@ -1036,5 +1039,5 @@ class EmptyADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 	public ADCSInstanceDetails getCAInstanceDetails() throws ADCSException {
 		throw new WinClassesUnavailableException();
 	}
-};
+}
 

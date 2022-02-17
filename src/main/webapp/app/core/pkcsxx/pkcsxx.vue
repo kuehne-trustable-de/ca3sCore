@@ -23,6 +23,9 @@
 						<div class="form-group" v-if="authenticated">
 							<label class="form-control-label" v-text="$t('pkcsxx.upload.pipeline')" for="pkcsxx-pipeline">Pipeline</label> <help-tag target="pkcsxx.upload.pipeline"/>
 							<!--select class="form-control" id="pkcsxx-pipeline" name="pkcsxx-pipeline" v-model="$v.upload.pipelineId.$model" required v-on:change="updatePipelineRestrictions($event)"-->
+
+
+                            <option value="EMPTY" selected="selected"></option>
 							<select class="form-control" id="pkcsxx-pipeline" name="pkcsxx-pipeline" v-model="upload.pipelineId" required v-on:change="updatePipelineRestrictions($event)">
 								<option v-bind:value="upload && webPipeline.id === upload.pipelineId ? upload.pipelineId : webPipeline.id" v-for="webPipeline in allWebPipelines" :key="webPipeline.id">{{webPipeline.name}}</option>
 							</select>
@@ -30,204 +33,206 @@
 							<div class="readonly_comment">{{selectPipelineInfo}}</div>
 						</div>
 
-						<div class="form-group">
-							<label class="form-control-label" v-text="$t('pkcsxx.upload.creationMode.selection')" for="pkcsxx-key-creation">Creation mode</label> <help-tag target="pkcsxx.upload.creationMode.selection"/>
-							<select class="form-control" id="pkcsxx-key-creation" name="pkcsxx-key-creation" v-model="creationMode" v-on:change="updateCurrentPipelineRestrictions()">
+                        <Fragment v-if="upload.pipelineId >= 0">
+                            <div class="form-group">
+                                <label class="form-control-label" v-text="$t('pkcsxx.upload.creationMode.selection')" for="pkcsxx-key-creation">Creation mode</label> <help-tag target="pkcsxx.upload.creationMode.selection"/>
+                                <select class="form-control" id="pkcsxx-key-creation" name="pkcsxx-key-creation" v-model="creationMode" v-on:change="updateCurrentPipelineRestrictions()">
 
-								<option value="CSR_AVAILABLE" v-text="$t('pkcsxx.upload.creationMode.csrAvailable')" selected="selected">csrAvailable</option>
-                                <option v-if="preferences.serverSideKeyCreationAllowed && authenticated" value="SERVERSIDE_KEY_CREATION" v-text="$t('pkcsxx.upload.creationMode.serversideKeyCreation')">serverside key creation</option>
-								<option value="COMMANDLINE_TOOL" v-text="$t('pkcsxx.upload.creationMode.commandLineTool')">csr generation command line</option>
-							</select>
-						</div>
+                                    <option value="CSR_AVAILABLE" v-text="$t('pkcsxx.upload.creationMode.csrAvailable')" selected="selected">csrAvailable</option>
+                                    <option v-if="preferences.serverSideKeyCreationAllowed && authenticated" value="SERVERSIDE_KEY_CREATION" v-text="$t('pkcsxx.upload.creationMode.serversideKeyCreation')">serverside key creation</option>
+                                    <option value="COMMANDLINE_TOOL" v-text="$t('pkcsxx.upload.creationMode.commandLineTool')">csr generation command line</option>
+                                </select>
+                            </div>
 
-						<div class="form-group" v-if="creationMode === 'COMMANDLINE_TOOL'">
-							<label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.selection')" for="pkcsxx-key-tool">Creation tool</label>  <help-tag target="pkcsxx.upload.creationTool.selection"/>
-							<select class="form-control" id="pkcsxx-key-tool" name="pkcsxx-key-tool" v-model="creationTool" v-on:change="updateCmdLine()">
-								<option value="keytool" v-text="$t('pkcsxx.upload.creationTool.keytool')" selected="selected">keytool</option>
-                                <option value="openssl_ge_1.1.1" v-text="$t('pkcsxx.upload.creationTool.openssl_ge_1.1.1')" >openssl (ver. >= 1.1.1)</option>
-                                <option value="openssl" v-text="$t('pkcsxx.upload.creationTool.openssl')" >openssl</option>
-							</select>
-						</div>
+                            <div class="form-group" v-if="creationMode === 'COMMANDLINE_TOOL'">
+                                <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.selection')" for="pkcsxx-key-tool">Creation tool</label>  <help-tag target="pkcsxx.upload.creationTool.selection"/>
+                                <select class="form-control" id="pkcsxx-key-tool" name="pkcsxx-key-tool" v-model="creationTool" v-on:change="updateCmdLine()">
+                                    <option value="keytool" v-text="$t('pkcsxx.upload.creationTool.keytool')" selected="selected">keytool</option>
+                                    <option value="openssl_ge_1.1.1" v-text="$t('pkcsxx.upload.creationTool.openssl_ge_1.1.1')" >openssl (ver. >= 1.1.1)</option>
+                                    <option value="openssl" v-text="$t('pkcsxx.upload.creationTool.openssl')" >openssl</option>
+                                </select>
+                            </div>
 
-						<div class="form-group" v-if="(creationMode === 'COMMANDLINE_TOOL') || (creationMode === 'SERVERSIDE_KEY_CREATION')" >
-							<label class="form-control-label" v-text="$t('pkcsxx.upload.certificateParams')" >certificateParams</label>
+                            <div class="form-group" v-if="(creationMode === 'COMMANDLINE_TOOL') || (creationMode === 'SERVERSIDE_KEY_CREATION')" >
+                                <label class="form-control-label" v-text="$t('pkcsxx.upload.certificateParams')" >certificateParams</label>
 
-                            <div class="row">
-                                <!-- update counter is a hack to re-render the complex list -->
-								<div class="col" :key="updateCounter">
-									<label class="form-control-label" v-text="$t('pkcsxx.upload.key-length')" for="pkcsxx.upload.key-length">Key length</label>
-								</div>
-								<div class="col colContent">
-									<select class="form-control w-50" id="pkcsxx.upload.key-length" name="pkcsxx.upload.key-length" v-model="keyAlgoLength" v-on:change="updateCmdLine()">
-										<option value="RSA_2048">RSA_2048</option>
-										<option value="RSA_4096" selected="selected">RSA_4096</option>
-									</select>
-								</div>
-							</div>
+                                <div class="row">
+                                    <!-- update counter is a hack to re-render the complex list -->
+                                    <div class="col" :key="updateCounter">
+                                        <label class="form-control-label" v-text="$t('pkcsxx.upload.key-length')" for="pkcsxx.upload.key-length">Key length</label>
+                                    </div>
+                                    <div class="col colContent">
+                                        <select class="form-control w-50" id="pkcsxx.upload.key-length" name="pkcsxx.upload.key-length" v-model="keyAlgoLength" v-on:change="updateCmdLine()">
+                                            <option value="RSA_2048">RSA_2048</option>
+                                            <option value="RSA_4096" selected="selected">RSA_4096</option>
+                                        </select>
+                                    </div>
+                                </div>
 
-							<div class="row" v-for="(rr, index) in rdnRestrictions" :key="index" >
-								<div class="col ">
-									<label class="form-control-label" v-text="$t('pkcsxx.upload.' + rr.name)" :for="'pkcsxx.upload.' + rr.name">{{rr.name}}</label>
-								</div>
-								<div class="col colContent">
-                                    <Fragment v-for="(val, valueIndex) in upload.certificateAttributes[index].values" :key="valueIndex">
-                                        <input
-                                            type="text" :class="(showProblemWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])) ? 'invalid' : ' valid'" class="form-control form-check-inline"
-                                            autocomplete="false"
-                                            :name="'pkcsxx.upload.' + rr.name" :id="'pkcsxx.upload.' + rr.name"
-                                            v-model="upload.certificateAttributes[index].values[valueIndex]"
-                                            :readonly="rr.readOnly"
-                                            :required="rr.required"
-                                            v-on:input="alignRDNArraySize(index, valueIndex)"/>
+                                <div class="row" v-for="(rr, index) in rdnRestrictions" :key="index" >
+                                    <div class="col ">
+                                        <label class="form-control-label" v-text="$t('pkcsxx.upload.' + rr.name)" :for="'pkcsxx.upload.' + rr.name">{{rr.name}}</label>
+                                    </div>
+                                    <div class="col colContent">
+                                        <Fragment v-for="(val, valueIndex) in upload.certificateAttributes[index].values" :key="valueIndex">
+                                            <input
+                                                type="text" :class="(showProblemWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])) ? 'invalid' : ' valid'" class="form-control form-check-inline"
+                                                autocomplete="false"
+                                                :name="'pkcsxx.upload.' + rr.name" :id="'pkcsxx.upload.' + rr.name"
+                                                v-model="upload.certificateAttributes[index].values[valueIndex]"
+                                                :readonly="rr.readOnly"
+                                                :required="rr.required"
+                                                v-on:input="alignRDNArraySize(index, valueIndex)"/>
 
-                                        <small v-if="showContentOrSANWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])"
-                                               class="form-text text-danger" v-text="$t('entity.validation.requiredOrSAN')">
-                                            This field is required.
-                                        </small>
-                                        <small v-if="showContentWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])"
+                                            <small v-if="showContentOrSANWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])"
+                                                   class="form-text text-danger" v-text="$t('entity.validation.requiredOrSAN')">
+                                                This field is required.
+                                            </small>
+                                            <small v-if="showContentWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])"
+                                                   class="form-text text-danger" v-text="$t('entity.validation.required')">
+                                                This field is required.
+                                            </small>
+                                            <small v-else-if="showRegExpWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])"
+                                                   class="form-text text-danger" v-text="$t('entity.validation.pattern', {'pattern': rr.regEx})">
+                                                This field should follow pattern for {{ rr.regEx }}.
+                                            </small>
+
+                                        </Fragment>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Additional Request Attributes -->
+                            <div class="form-group" v-if="(araRestrictions.length > 0 ) && ( creationMode === 'CSR_AVAILABLE' || creationMode === 'SERVERSIDE_KEY_CREATION')">
+                                <label class="form-control-label" v-text="$t('pkcsxx.upload.requestParams')" >certificateParams</label>
+
+                                <div class="row" v-for="(item, index) in araRestrictions" :key="index" >
+                                    <div class="col">
+                                        <label class="form-control-label" :for="'pkcsxx.upload.ara.' + item.name">{{item.name}}</label>
+                                    </div>
+                                    <div class="col colContent">
+                                        <input type="text"
+                                           :class="(showProblemWarning(item, 0, upload.arAttributes[index].values[0])) ? 'invalid' : ' valid'"
+                                           class="form-control form-check-inline"
+                                           :name="'pkcsxx.upload.ara.' + item.name" :id="'pkcsxx.upload.ara.' + item.name"
+                                           :readonly="item.readOnly"
+                                           :required="item.required"
+                                           v-model="upload.arAttributes[index].values[0]"
+                                           v-on:input="updateAdditionalRestriction()" />
+                                        <small v-if="showContentWarning(item, 0, upload.arAttributes[index].values[0])"
                                                class="form-text text-danger" v-text="$t('entity.validation.required')">
                                             This field is required.
                                         </small>
-                                        <small v-else-if="showRegExpWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])"
-                                               class="form-text text-danger" v-text="$t('entity.validation.pattern', {'pattern': rr.regEx})">
-                                            This field should follow pattern for {{ rr.regEx }}.
+                                        <small v-else-if="showRegExpWarning(item, 0, upload.arAttributes[index].values[0])"
+                                               class="form-text text-danger" v-text="$t('entity.validation.pattern', {'pattern': item.regEx})">
+                                            This field should follow pattern for {{ item.regEx }}.
                                         </small>
 
-                                    </Fragment>
+                                    </div>
                                 </div>
-							</div>
-						</div>
+                            </div>
 
-						<!-- Additional Request Attributes -->
-						<div class="form-group" v-if="(araRestrictions.length > 0 ) && ( creationMode === 'CSR_AVAILABLE' || creationMode === 'SERVERSIDE_KEY_CREATION')">
-							<label class="form-control-label" v-text="$t('pkcsxx.upload.requestParams')" >certificateParams</label>
-
-							<div class="row" v-for="(item, index) in araRestrictions" :key="index" >
-								<div class="col">
-									<label class="form-control-label" :for="'pkcsxx.upload.ara.' + item.name">{{item.name}}</label>
-								</div>
-								<div class="col colContent">
-									<input type="text"
-                                       :class="(showProblemWarning(item, 0, upload.arAttributes[index].values[0])) ? 'invalid' : ' valid'"
-                                       class="form-control form-check-inline"
-                                       :name="'pkcsxx.upload.ara.' + item.name" :id="'pkcsxx.upload.ara.' + item.name"
-                                       :readonly="item.readOnly"
-                                       :required="item.required"
-                                       v-model="upload.arAttributes[index].values[0]"
-                                       v-on:input="updateAdditionalRestriction()" />
-                                    <small v-if="showContentWarning(item, 0, upload.arAttributes[index].values[0])"
-                                           class="form-text text-danger" v-text="$t('entity.validation.required')">
-                                        This field is required.
-                                    </small>
-                                    <small v-else-if="showRegExpWarning(item, 0, upload.arAttributes[index].values[0])"
-                                           class="form-text text-danger" v-text="$t('entity.validation.pattern', {'pattern': item.regEx})">
-                                        This field should follow pattern for {{ item.regEx }}.
-                                    </small>
-
+                            <div class="form-group" v-if="creationMode === 'SERVERSIDE_KEY_CREATION' && selectPipelineView && selectPipelineView.csrUsage">
+                                <div class="row">
+                                    <div class="col">
+                                        <label class="form-control-label" v-text="$t('pkcsxx.upload.csr.usage')" >csr usage</label>
+                                    </div>
+                                    <div class="col colContent">
+                                        <span>{{selectPipelineView.csrUsage}}</span>
+                                    </div>
                                 </div>
-							</div>
-						</div>
 
-						<div class="form-group" v-if="creationMode === 'SERVERSIDE_KEY_CREATION' && selectPipelineView && selectPipelineView.csrUsage">
-                            <div class="row">
-                                <div class="col">
-                                    <label class="form-control-label" v-text="$t('pkcsxx.upload.csr.usage')" >csr usage</label>
+                                <div class="row" >
+                                    <div class="col">
+                                        <label class="form-control-label" v-text="$t('pkcsxx.upload.serversideCreation.secret')" for="upload-secret">Secret</label>
+                                    </div>
+                                    <div class="col colContent">
+                                        <input type="password"
+                                           class="form-control form-check-inline w-50"
+                                           :class="(showRequiredWarning(true, secret) ? 'invalid' : ' valid')"
+                                           name="upload-secret" id="upload-secret"
+                                           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                           required="true"
+                                           v-model="secret"
+                                           v-on:input="updateForm()" />
+                                    </div>
+                                </div>
+                                <div class="row" >
+                                    <div class="col">
+                                        <label class="form-control-label" v-text="$t('pkcsxx.upload.serversideCreation.repeat')" for="upload-secret-repeat">Repeat</label>
+                                    </div>
+                                    <div class="col colContent">
+                                        <input type="password"
+                                           class="form-control form-check-inline w-50"
+                                           :class="(showRequiredWarning(true, secretRepeat) ? 'invalid' : ' valid')"
+                                           name="upload-secret-repeat" id="upload-secret-repeat"
+                                           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                           required="true"
+                                           v-model="secretRepeat"
+                                           v-on:input="updateForm()" />
+
+                                        <small class="form-text text-danger" v-if="secret !== secretRepeat" v-text="$t('entity.validation.secretRepeat')">
+                                            Repeated secret must match!
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="row wrap" v-if="creationMode === 'COMMANDLINE_TOOL' && cmdline0Required">
+                                <div class="col ">
+                                    <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.cmdline0')" for="pkcsxx-reqConf">Command line</label> <help-tag target="pkcsxx.upload.creationTool.cmdline"/>
                                 </div>
                                 <div class="col colContent">
-                                    <span>{{selectPipelineView.csrUsage}}</span>
+                                    <textarea class="form-control cmd0-content" name="pkcsxx-cmdline0" id="pkcsxx-cmdline0"
+                                              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly v-model="cmdline0" />
+                                    <CopyClipboardButton contentElementId="cmdline0"/>
+                                </div>
+                            </div>
+                            <div v-if="creationMode === 'COMMANDLINE_TOOL' && cmdline0Required">
+                                <label></label>
+                            </div>
+
+                            <div class="row wrap" v-if="creationMode === 'COMMANDLINE_TOOL' && reqConfRequired">
+                                <div class="col ">
+                                    <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.req.conf')" for="pkcsxx-reqConf">Request config file</label> <help-tag target="pkcsxx.upload.creationTool.req.conf"/>
+                                </div>
+                                <div class="col colContent">
+                                    <textarea class="form-control cmd-content" name="pkcsxx-reqConf" id="pkcsxx-reqConf"
+                                              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly v-model="reqConf" />
+                                    <CopyClipboardButton contentElementId="pkcsxx-reqConf"/>
+                                </div>
+                            </div>
+                            <div v-if="creationMode === 'COMMANDLINE_TOOL' && reqConfRequired">
+                                <label></label>
+                            </div>
+
+                            <div class="row wrap" v-if="creationMode === 'COMMANDLINE_TOOL'">
+                                <div class="col ">
+                                    <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.cmdline')" for="pkcsxx-cmdline">Command line</label>   <help-tag target="pkcsxx.upload.creationTool.cmdline"/>
+                                </div>
+                                <div class="col colContent ">
+                                    <textarea class="form-control cmd-content" name="pkcsxx-cmdline" id="pkcsxx-cmdline"
+                                              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly v-model="cmdline" />
+                                    <CopyClipboardButton contentElementId="pkcsxx-cmdline"/>
+                                </div>
+                            </div>
+                            <div v-if="creationMode === 'COMMANDLINE_TOOL' && cmdline1Required">
+                                <label></label>
+                            </div>
+
+                            <div class="row wrap" v-if="creationMode === 'COMMANDLINE_TOOL' && cmdline1Required">
+                                <div class="col ">
+                                    <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.cmdline1')" for="pkcsxx-cmdline">Command line 1</label>   <help-tag target="pkcsxx.upload.creationTool.cmdline"/>
+                                </div>
+                                <div class="col colContent ">
+                                    <textarea class="form-control cmd0-content" name="pkcsxx-cmdline1" id="pkcsxx-cmdline1"
+                                              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly v-model="cmdline1" />
+                                    <CopyClipboardButton contentElementId="pkcsxx-cmdline1"/>
                                 </div>
                             </div>
 
-                            <div class="row" >
-								<div class="col">
-									<label class="form-control-label" v-text="$t('pkcsxx.upload.serversideCreation.secret')" for="upload-secret">Secret</label>
-								</div>
-								<div class="col colContent">
-									<input type="password"
-                                       class="form-control form-check-inline w-50"
-                                       :class="(showRequiredWarning(true, secret) ? 'invalid' : ' valid')"
-                                       name="upload-secret" id="upload-secret"
-                                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                                       required="true"
-                                       v-model="secret"
-                                       v-on:input="updateForm()" />
-								</div>
-							</div>
-							<div class="row" >
-								<div class="col">
-									<label class="form-control-label" v-text="$t('pkcsxx.upload.serversideCreation.repeat')" for="upload-secret-repeat">Repeat</label>
-								</div>
-								<div class="col colContent">
-									<input type="password"
-                                       class="form-control form-check-inline w-50"
-                                       :class="(showRequiredWarning(true, secretRepeat) ? 'invalid' : ' valid')"
-                                       name="upload-secret-repeat" id="upload-secret-repeat"
-                                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                                       required="true"
-                                       v-model="secretRepeat"
-                                       v-on:input="updateForm()" />
-
-                                    <small class="form-text text-danger" v-if="secret !== secretRepeat" v-text="$t('entity.validation.secretRepeat')">
-                                        Repeated secret must match!
-                                    </small>
-								</div>
-							</div>
-						</div>
-
-
-                        <div class="row wrap" v-if="creationMode === 'COMMANDLINE_TOOL' && cmdline0Required">
-                            <div class="col ">
-                                <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.cmdline0')" for="pkcsxx-reqConf">Command line</label> <help-tag target="pkcsxx.upload.creationTool.cmdline"/>
-                            </div>
-                            <div class="col colContent">
-                                <textarea class="form-control cmd0-content" name="pkcsxx-cmdline0" id="pkcsxx-cmdline0"
-                                          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly v-model="cmdline0" />
-                                <CopyClipboardButton contentElementId="cmdline0"/>
-                            </div>
-                        </div>
-                        <div v-if="creationMode === 'COMMANDLINE_TOOL' && cmdline0Required">
-                            <label></label>
-                        </div>
-
-                        <div class="row wrap" v-if="creationMode === 'COMMANDLINE_TOOL' && reqConfRequired">
-                            <div class="col ">
-                                <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.req.conf')" for="pkcsxx-reqConf">Request config file</label> <help-tag target="pkcsxx.upload.creationTool.req.conf"/>
-                            </div>
-                            <div class="col colContent">
-                                <textarea class="form-control cmd-content" name="pkcsxx-reqConf" id="pkcsxx-reqConf"
-                                          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly v-model="reqConf" />
-                                <CopyClipboardButton contentElementId="pkcsxx-reqConf"/>
-                            </div>
-                        </div>
-                        <div v-if="creationMode === 'COMMANDLINE_TOOL' && reqConfRequired">
-                            <label></label>
-                        </div>
-
-                        <div class="row wrap" v-if="creationMode === 'COMMANDLINE_TOOL'">
-                            <div class="col ">
-                                <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.cmdline')" for="pkcsxx-cmdline">Command line</label>   <help-tag target="pkcsxx.upload.creationTool.cmdline"/>
-                            </div>
-                            <div class="col colContent ">
-                                <textarea class="form-control cmd-content" name="pkcsxx-cmdline" id="pkcsxx-cmdline"
-                                          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly v-model="cmdline" />
-                                <CopyClipboardButton contentElementId="pkcsxx-cmdline"/>
-                            </div>
-                        </div>
-                        <div v-if="creationMode === 'COMMANDLINE_TOOL' && cmdline1Required">
-                            <label></label>
-                        </div>
-
-                        <div class="row wrap" v-if="creationMode === 'COMMANDLINE_TOOL' && cmdline1Required">
-                            <div class="col ">
-                                <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.cmdline1')" for="pkcsxx-cmdline">Command line 1</label>   <help-tag target="pkcsxx.upload.creationTool.cmdline"/>
-                            </div>
-                            <div class="col colContent ">
-                                <textarea class="form-control cmd0-content" name="pkcsxx-cmdline1" id="pkcsxx-cmdline1"
-                                          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly v-model="cmdline1" />
-                                <CopyClipboardButton contentElementId="pkcsxx-cmdline1"/>
-                            </div>
-                        </div>
-
+                        </Fragment>
                         <div class="form-group" v-if="(creationMode === 'CSR_AVAILABLE') " >
 							<!--label class="form-control-label" v-text="$t('pkcsxx.upload.content')" for="upload-content">Content</label-->
 							<div>

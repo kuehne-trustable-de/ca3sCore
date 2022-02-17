@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2022-02-01 19:02:19.
+// Generated using typescript-generator version 2.19.577 on 2022-02-17 21:46:33.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -71,6 +71,23 @@ export interface IACMEOrderView extends ISerializable {
   csrId?: number;
   certificateId?: number;
   accountId?: number;
+}
+
+export interface IScepOrderView extends ISerializable {
+  id?: number;
+  transId?: string;
+  status?: IScepOrderStatus;
+  realm?: string;
+  pipelineName?: string;
+  subject?: string;
+  sans?: string;
+  sanArr?: string[];
+  requestedOn?: Date;
+  requestedBy?: string;
+  asyncProcessing?: boolean;
+  passwordAuthentication?: boolean;
+  csrId?: number;
+  certificateId?: number;
 }
 
 export interface IBPMNUpload {
@@ -174,9 +191,9 @@ export interface ICertificateView extends ISerializable {
   isServersideKeyGeneration?: boolean;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
-  auditPresent?: boolean;
   serversideKeyGeneration?: boolean;
   fullChainAvailable?: boolean;
+  auditPresent?: boolean;
 }
 
 export interface ICSRView extends ISerializable {
@@ -185,6 +202,7 @@ export interface ICSRView extends ISerializable {
   status?: ICsrStatus;
   subject?: string;
   sans?: string;
+  sanArr?: string[];
   pipelineType?: IPipelineType;
   rejectedOn?: Date;
   rejectionReason?: string;
@@ -192,11 +210,21 @@ export interface ICSRView extends ISerializable {
   processingCA?: string;
   pipelineName?: string;
   x509KeySpec?: string;
+  keyAlgorithm?: string;
   keyLength?: string;
   signingAlgorithm?: string;
   publicKeyAlgorithm?: string;
   requestedOn?: Date;
+  serversideKeyGeneration?: boolean;
+  processInstanceId?: string;
+  publicKeyHash?: string;
+  administeredBy?: string;
+  approvedOn?: Date;
+  requestorComment?: string;
+  administrationComment?: string;
+  csrBase64?: string;
   auditViewArr?: IAuditView[];
+  csrvalid?: boolean;
 }
 
 export interface IPreferences extends ISerializable {
@@ -416,6 +444,8 @@ export type ISelector =
 export type IAccountStatus = 'valid' | 'deactivated' | 'revoked';
 
 export type IAcmeOrderStatus = 'pending' | 'ready' | 'processing' | 'valid' | 'invalid';
+
+export type IScepOrderStatus = 'PENDING' | 'READY' | 'INVALID';
 
 export type IBPMNProcessType = 'CA_INVOCATION' | 'REQUEST_AUTHORIZATION';
 

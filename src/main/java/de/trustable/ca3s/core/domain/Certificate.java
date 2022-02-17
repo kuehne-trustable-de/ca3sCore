@@ -139,9 +139,15 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
         "c.active = FALSE "
     ),
     @NamedQuery(name = "Certificate.findActiveCertificatesByValidTo",
-    query = "SELECT c FROM Certificate c WHERE " +
-        "c.validTo <= :now and " +
-        "c.active = TRUE "
+        query = "SELECT c FROM Certificate c WHERE " +
+            "c.validTo <= :now and " +
+            "c.active = TRUE "
+    ),
+    @NamedQuery(name = "Certificate.findActiveTLSCertificate",
+        query = "SELECT distinct c, certAtt.value FROM Certificate c JOIN c.certificateAttributes certAtt WHERE " +
+            " certAtt.name = 'TLS_KEY' and " +
+            " c.active = TRUE " +
+            " order by c.validTo desc"
     ),
     @NamedQuery(name = "Certificate.findActiveCertificateOrderedByCrlURL",
         query = "SELECT distinct c, certAtt.value FROM Certificate c JOIN c.certificateAttributes certAtt WHERE " +

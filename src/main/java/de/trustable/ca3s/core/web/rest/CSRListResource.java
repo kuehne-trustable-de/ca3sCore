@@ -42,7 +42,7 @@ public class CSRListResource {
 
 
     /**
-     * {@code GET  /csrLisr} : get all the csrs.
+     * {@code GET  /csrList} : get all the csrs.
      *
 
      * @param pageable the pagination information.

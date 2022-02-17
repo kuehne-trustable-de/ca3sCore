@@ -13,6 +13,7 @@ import java.security.cert.X509Certificate;
 
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.x509.AuthorityKeyIdentifier;
+import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.junit.jupiter.api.BeforeAll;
@@ -496,4 +497,12 @@ public class CertificateUtilIntTest {
         assertEquals("normalizing names expected to be identical ", a, b);
 	}
 
+
+    @Test
+    public void testNameHandling() {
+
+        GeneralName[] generalNames = certificateUtil.splitSANString(" foo.de, bar.de , baz.de", null);
+        assertEquals(" expected to see 3 GeneralNames ", 3, generalNames.length);
+
+    }
 }

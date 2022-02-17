@@ -33,6 +33,7 @@ import CertificateAttributeService from '@/entities/certificate-attribute/certif
 import CertificateService from '@/entities/certificate/certificate.service';
 import CertificateViewService from '@/entities/certificate/certificate-view.service';
 import CSRService from '@/entities/csr/csr.service';
+import CSRServiceView from '@/entities/csr/csr-view.service';
 import CsrAttributeService from '@/entities/csr-attribute/csr-attribute.service';
 import RDNService from '@/entities/rdn/rdn.service';
 import RDNAttributeService from '@/entities/rdn-attribute/rdn-attribute.service';
@@ -122,6 +123,7 @@ new Vue({
     certificateService: () => new CertificateService(),
     certificateViewService: () => new CertificateViewService(),
     cSRService: () => new CSRService(),
+    cSRViewService: () => new CSRServiceView(),
     csrAttributeService: () => new CsrAttributeService(),
     rDNService: () => new RDNService(),
     rDNAttributeService: () => new RDNAttributeService(),

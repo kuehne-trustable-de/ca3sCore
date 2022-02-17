@@ -33,11 +33,18 @@ import static org.springframework.web.servlet.support.ServletUriComponentsBuilde
 import java.net.URI;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.repository.*;
+import de.trustable.ca3s.core.service.dto.ACMEConfigItems;
+import de.trustable.ca3s.core.service.dto.PipelineView;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.ACMEUtil;
+import de.trustable.ca3s.core.service.util.PipelineUtil;
 import org.jose4j.jwt.consumer.JwtContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,17 +57,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import de.trustable.ca3s.core.domain.ACMEAccount;
-import de.trustable.ca3s.core.domain.AcmeAuthorization;
-import de.trustable.ca3s.core.domain.AcmeChallenge;
-import de.trustable.ca3s.core.domain.AcmeIdentifier;
-import de.trustable.ca3s.core.domain.AcmeOrder;
 import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
-import de.trustable.ca3s.core.repository.AcmeAuthorizationRepository;
-import de.trustable.ca3s.core.repository.AcmeChallengeRepository;
-import de.trustable.ca3s.core.repository.AcmeIdentifierRepository;
-import de.trustable.ca3s.core.repository.AcmeOrderRepository;
 import de.trustable.ca3s.core.service.dto.acme.IdentifierResponse;
 import de.trustable.ca3s.core.service.dto.acme.IdentifiersResponse;
 import de.trustable.ca3s.core.service.dto.acme.NewOrderResponse;
@@ -282,24 +280,32 @@ public class NewOrderController extends ACMEController {
 
     private final AcmeOrderRepository orderRepository;
 
+    private final AcmeOrderAttributeRepository orderAttributeRepository;
+
     private final AcmeAuthorizationRepository authorizationRepository;
 
     private final AcmeChallengeRepository challengeRepository;
 
     private final AcmeIdentifierRepository identRepository;
 
+    private final PipelineUtil pipelineUtil;
+
     private final String resolverHost;
 
+
     public NewOrderController(AcmeOrderRepository orderRepository,
-                              AcmeAuthorizationRepository authorizationRepository,
+                              AcmeOrderAttributeRepository orderAttributeRepository, AcmeAuthorizationRepository authorizationRepository,
                               AcmeChallengeRepository challengeRepository,
                               AcmeIdentifierRepository identRepository,
+                              PipelineUtil pipelineUtil,
                               @Value("${ca3s.dns.server:}") String resolverHost) {
 
         this.orderRepository = orderRepository;
+        this.orderAttributeRepository = orderAttributeRepository;
         this.authorizationRepository = authorizationRepository;
         this.challengeRepository = challengeRepository;
         this.identRepository = identRepository;
+        this.pipelineUtil = pipelineUtil;
         this.resolverHost = resolverHost;
     }
 
@@ -325,13 +331,17 @@ public class NewOrderController extends ACMEController {
 	    IdentifiersResponse newIdentifiers = jwtUtil.getIdentifiers(context.getJwtClaims());
 	    LOG.debug("New Order reads Identifiers: " + newIdentifiers);
 
-	    ACMEAccount acctDao = checkJWTSignatureForAccount(context, realm);
+        Pipeline pipeline = getPipelineForRealm(realm);
+        LOG.debug("ACME pipeline '{}' found for request realm '{}'", pipeline.getName(), realm);
 
-		AcmeOrder orderDao = new AcmeOrder();
+        ACMEAccount acctDao = checkJWTSignatureForAccount(context, realm);
+
+        AcmeOrder orderDao = new AcmeOrder();
 		orderDao.setOrderId(generateId());
 
 		orderDao.setAccount(acctDao);
-
+        orderDao.setRealm(realm);
+        orderDao.setPipeline(pipeline);
 		orderDao.setStatus(AcmeOrderStatus.PENDING);
 
 		Instant now = Instant.now();
@@ -358,19 +368,26 @@ public class NewOrderController extends ACMEController {
 		Set<AcmeAuthorization> authorizations = new HashSet<>();
 		Set<String> authorizationsResp = new HashSet<>();
 
+        PipelineView pipelineView = pipelineUtil.from(pipeline);
+        ACMEConfigItems acmeConfigItems = pipelineView.getAcmeConfigItems();
+
+        Set<AcmeOrderAttribute> acmeOrderAttributeSet = new HashSet<>();
+        Set<String> challengeTypeSet = new HashSet<>();
+
+        boolean hasWildcardRequest = false;
 		for( AcmeIdentifier identDao: identifiers) {
 			AcmeAuthorization authorizationDao = new AcmeAuthorization();
 			authorizationDao.setAcmeAuthorizationId(generateId());
 			authorizationDao.setOrder(orderDao);
 
-            Name name;
-            try {
-                Name tempName = Name.fromString( identDao.getValue(), Name.root);
-                name = Name.fromString(IDN.toASCII(tempName.toString(), IDN.USE_STD3_ASCII_RULES));
-            } catch (TextParseException e) {
-                throw new IllegalArgumentException("DNS identifier value '" + identDao.getValue() + "'", e);
+            boolean isWildcardRequest = isWildcardRequest(identDao.getValue());
+            hasWildcardRequest |= isWildcardRequest;
+            if( isWildcardRequest && !acmeConfigItems.isAllowWildcards() ) {
+                LOG.info("Wildcard requested, but no allowed for pipeline '{}'!", pipeline.getName());
+                final ProblemDetail problemDetail = new ProblemDetail(ACMEUtil.MALFORMED, "Wildcard request not supported",
+                    BAD_REQUEST, "Wildcard requested, but no allowed.", ACMEController.NO_INSTANCE);
+                throw new AcmeProblemException(problemDetail);
             }
-
 
 			// set the type once it's validated
 			authorizationDao.setType(identDao.getType());
@@ -379,18 +396,25 @@ public class NewOrderController extends ACMEController {
 
 			Set<AcmeChallenge> challenges = new HashSet<>();
 
-            if( name.isWild() ){
+            if( isWildcardRequest ){
                 LOG.debug("Wildcard requested, HTTP-01 disabled!");
             }else {
-                challenges.add(createChallenge(AcmeChallenge.CHALLENGE_TYPE_HTTP_01, identDao.getValue(), authorizationDao));
+                if( acmeConfigItems.isAllowChallengeHTTP01() ) {
+                    LOG.debug("Offering HTTP-01 challenge");
+                    challenges.add(createChallenge(AcmeChallenge.CHALLENGE_TYPE_HTTP_01, identDao.getValue(), authorizationDao));
+                    challengeTypeSet.add(AcmeChallenge.CHALLENGE_TYPE_HTTP_01);
+                }
             }
 
             if( resolverHost != null && !resolverHost.isEmpty()) {
-                LOG.debug("Offering DNS-01 challenge");
-                challenges.add(createChallenge(AcmeChallenge.CHALLENGE_TYPE_DNS_01, identDao.getValue(), authorizationDao));
+                if( acmeConfigItems.isAllowChallengeDNS() ) {
+                    LOG.debug("Offering DNS-01 challenge");
+                    challenges.add(createChallenge(AcmeChallenge.CHALLENGE_TYPE_DNS_01, identDao.getValue(), authorizationDao));
+                    challengeTypeSet.add(AcmeChallenge.CHALLENGE_TYPE_DNS_01);
+                }
             }else{
                 LOG.debug("DNS-01 challenge skipped, no dns resolver configured.");
-                if( name.isWild() ) {
+                if( isWildcardRequest ) {
                     LOG.info("Wildcard requested, but no dns resolver configured!");
                     final ProblemDetail problemDetail = new ProblemDetail(ACMEUtil.MALFORMED, "DNS auth not supported",
                         BAD_REQUEST, "DNS-01 challenge skipped, no dns resolver configured.", ACMEController.NO_INSTANCE);
@@ -398,18 +422,36 @@ public class NewOrderController extends ACMEController {
                 }
             }
 
+            if( challenges.isEmpty()){
+                LOG.info("No challenge available for the given configuration of pipeline '{}'", pipeline.getName());
+                final ProblemDetail problemDetail = new ProblemDetail(ACMEUtil.MALFORMED, "No challange available",
+                    BAD_REQUEST, "No challange available for the given configuration.", ACMEController.NO_INSTANCE);
+                throw new AcmeProblemException(problemDetail);
+            }
+
             authorizationDao.setChallenges(challenges);
 			authorizationRepository.save(authorizationDao);
 
 			authorizations.add(authorizationDao);
 
+            addOrderAttribute(orderDao, AcmeOrderAttribute.AUTHORIZATION, identDao.getValue(), acmeOrderAttributeSet);
+
             authorizationsResp.add(locationUriOfAuth(authorizationDao.getAcmeAuthorizationId(), fromCurrentRequestUri()).toString());
 		}
+
+        addOrderAttribute(orderDao, AcmeOrderAttribute.WILDCARD_REQUEST, String.valueOf(hasWildcardRequest), acmeOrderAttributeSet);
+
+        for( String type: challengeTypeSet){
+            addOrderAttribute(orderDao, AcmeOrderAttribute.CHALLENGE_TYPE, type, acmeOrderAttributeSet);
+        }
+
+        orderDao.setAttributes(acmeOrderAttributeSet);
+        orderAttributeRepository.saveAll(acmeOrderAttributeSet);
 
 		orderDao.setAcmeAuthorizations(authorizations);
 		orderRepository.save(orderDao);
 
-		String finalizeUrl = locationUriOfOrderFinalize(orderDao.getOrderId(), fromCurrentRequestUri()).toString();
+        String finalizeUrl = locationUriOfOrderFinalize(orderDao.getOrderId(), fromCurrentRequestUri()).toString();
 		NewOrderResponse newOrderResp = new NewOrderResponse(orderDao, authorizationsResp, finalizeUrl);
 
 //		newOrderResp.setStatus(orderDao.getStatus());
@@ -437,6 +479,27 @@ public class NewOrderController extends ACMEController {
 	    return buildProblemResponseEntity(e);
 	}
 }
+
+    private void addOrderAttribute(AcmeOrder orderDao, String challengeType, String type, Set<AcmeOrderAttribute> acmeOrderAttributeSet) {
+        AcmeOrderAttribute acmeOrderAttribute  = new AcmeOrderAttribute();
+        acmeOrderAttribute.setOrder(orderDao);
+        acmeOrderAttribute.setName(challengeType);
+        acmeOrderAttribute.setValue(type);
+        acmeOrderAttributeSet.add(acmeOrderAttribute);
+    }
+
+    private boolean isWildcardRequest(String ident) {
+        boolean isWildcardRequest;
+        Name name;
+        try {
+            Name tempName = Name.fromString(ident, Name.root);
+            name = Name.fromString(IDN.toASCII(tempName.toString(), IDN.USE_STD3_ASCII_RULES));
+        } catch (TextParseException e) {
+            throw new IllegalArgumentException("DNS identifier value '" + ident + "'", e);
+        }
+        isWildcardRequest = name.isWild();
+        return isWildcardRequest;
+    }
 
     private AcmeChallenge createChallenge(String type, String value, AcmeAuthorization authorizationDao) {
         AcmeChallenge challengeDao = new AcmeChallenge();

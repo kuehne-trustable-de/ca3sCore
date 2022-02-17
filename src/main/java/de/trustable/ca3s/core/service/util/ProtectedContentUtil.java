@@ -26,7 +26,7 @@ public class ProtectedContentUtil {
 
     private final Logger log = LoggerFactory.getLogger(ProtectedContentUtil.class);
 
-	private BasicTextEncryptor textEncryptor;
+	private final BasicTextEncryptor textEncryptor;
 
 	// defining our own max instant, as Instant.MAX is out f the range hibernate supports :-(
 //    public static final Instant MAX_INSTANT = Instant.parse("9999-12-30T23:59:59Z");
@@ -38,7 +38,7 @@ public class ProtectedContentUtil {
 	public ProtectedContentUtil(@Value("${protectionSecret:S3cr3t}") String protectionSecret) {
 		textEncryptor = new BasicTextEncryptor();
 		if( (protectionSecret == null) || (protectionSecret.trim().length() == 0)) {
-            System.err.println("Configuration parameter 'protectionSecret' missing or invalid!!");
+            log.warn("Configuration parameter 'protectionSecret' missing or invalid!!");
 			throw new UnsupportedOperationException("Configuration parameter 'protectionSecret' missing or invalid");
 		}
 		if( log.isDebugEnabled()) {

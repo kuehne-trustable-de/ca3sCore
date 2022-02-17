@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Add the created_on field to the ACME account.
+    -->
+    <changeSet id="20220124203924-1" author="ak">
+
+        <addColumn tableName="audit_trace">
+            <column name="acme_account_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="acme_order_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="scep_order_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+
+        <addForeignKeyConstraint baseColumnNames="acme_account_id"
+                                 baseTableName="audit_trace"
+                                 constraintName="fk_audit_trace__acme_account_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="acme_account"/>
+
+        <addForeignKeyConstraint baseColumnNames="acme_order_id"
+                                 baseTableName="audit_trace"
+                                 constraintName="fk_audit_trace__acme_order_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="acme_order"/>
+
+        <addForeignKeyConstraint baseColumnNames="scep_order_id"
+                                 baseTableName="audit_trace"
+                                 constraintName="fk_audit_trace__scep_order_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="scep_order"/>
+
+    </changeSet>
+
+
+</databaseChangeLog>

@@ -147,3 +147,4 @@ Desktop.ini
 .eslintcache
 /application-prod.yml.mssql
 /application-prod.yml.dumpsql
+/logs/

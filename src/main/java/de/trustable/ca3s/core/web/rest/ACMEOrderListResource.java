@@ -38,7 +38,7 @@ public class ACMEOrderListResource {
 
 
     /**
-     * {@code GET  /acmeAccountList} : get all the ACME orders.
+     * {@code GET  /acmeOrderList} : get all the ACME orders.
      *
      * @param pageable the pagination information.
      *

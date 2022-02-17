@@ -109,4 +109,6 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
 	  @Query(name = "Certificate.findMaxTimestampForCA")
 	  String findMaxTimestampForCA(@Param("caName") String caName, @Param("timestamp") String timestamp);
 
+    @Query(name = "Certificate.findActiveTLSCertificate")
+    List<Certificate> findActiveTLSCertificate();
 }

@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import de.trustable.ca3s.core.service.util.PipelineUtil;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtContext;
 import org.jose4j.jwx.JsonWebStructure;
@@ -128,7 +129,10 @@ public class ACMEController {
 	@Autowired
 	PipelineRepository pipeRepo;
 
-	public UriComponentsBuilder newAuthorizationResourceUriBuilderFrom(
+    @Autowired
+    private PipelineUtil pipelineUtil;
+
+    public UriComponentsBuilder newAuthorizationResourceUriBuilderFrom(
 			final UriComponentsBuilder uriComponentsBuilder) {
 		return buildUrlFrom(uriComponentsBuilder, NEW_AUTHORIZATION_RESOURCE_MAPPING);
 	}
@@ -275,9 +279,9 @@ public class ACMEController {
 
 	}
 
-	ACMEAccount checkJWTSignatureForAccount(JwtContext context) {
-		return checkJWTSignatureForAccount(context, null, null);
-	}
+//	ACMEAccount checkJWTSignatureForAccount(JwtContext context) {
+//		return checkJWTSignatureForAccount(context, null, null);
+//	}
 
 	ACMEAccount checkJWTSignatureForAccount(JwtContext context, final String realm) {
 		return checkJWTSignatureForAccount(context, realm, null);
@@ -326,7 +330,17 @@ public class ACMEController {
 				throw new AcmeProblemException(problem);
 			}
 
-			jwtUtil.validateSignature(context, acctDao.getPublicKey(), acctDao.getAccountId());
+            Pipeline pipeline = getPipelineForRealm(realm);
+
+            if(!pipeline.isActive()) {
+                String msg = "Deactivated pipeline '"+pipeline.getName()+"' found for request realm '"+realm+"'" ;
+                LOG.info(msg);
+                final ProblemDetail problemDetail = new ProblemDetail(ACMEUtil.MALFORMED, "Realm unknown",
+                    BAD_REQUEST, msg, ACMEController.NO_INSTANCE);
+                throw new AcmeProblemException(problemDetail);
+            }
+
+            jwtUtil.validateSignature(context, acctDao.getPublicKey(), acctDao.getAccountId());
 
 			return acctDao;
 

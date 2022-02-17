@@ -138,14 +138,14 @@ public class AccountController extends ACMEController {
 
 
 	@RequestMapping(value = "/changeKey", method = POST, consumes = APPLICATION_JOSE_JSON_VALUE)
-	public ResponseEntity<?> changeKey( @RequestBody final String requestBody) {
+	public ResponseEntity<?> changeKey( @RequestBody final String requestBody, @PathVariable final String realm) {
 
 		LOG.info("Received change key request for ");
 
 		try {
 			JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
 
-			ACMEAccount acctByKidDao = checkJWTSignatureForAccount(context);
+			ACMEAccount acctByKidDao = checkJWTSignatureForAccount(context, realm);
 
 			JwtClaims claims = context.getJwtClaims();
 			/*
@@ -215,8 +215,8 @@ public class AccountController extends ACMEController {
 			String[] urlParts = accountURL.split("/");
 			long accountId = Long.parseLong(urlParts[urlParts.length -1]);
 
-			if(accountDao.getAccountId() != acctByKidDao.getAccountId() ) {
-			    LOG.warn("change Key request: account identified by old key {} does not match account isetified by URL : {}", accountDao.getAccountId(), acctByKidDao.getAccountId());
+			if(!accountDao.getAccountId().equals(acctByKidDao.getAccountId()) ) {
+			    LOG.warn("change Key request: account identified by old key {} does not match account identified by URL : {}", accountDao.getAccountId(), acctByKidDao.getAccountId());
 		        final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "old key does NOT identify kid-identified account",
 		                BAD_REQUEST, "", ACMEController.NO_INSTANCE);
 		    	throw new AcmeProblemException(problem);

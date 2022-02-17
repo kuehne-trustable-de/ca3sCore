@@ -56,10 +56,7 @@
                             <li v-for="contacts in acmeAccountView.contactUrls" :key="contacts" >{{contacts}}</li>
                         </ul>
                     </dd>
-
-
                 </dl>
-
             </div>
 
             <form name="editForm" role="form" novalidate>

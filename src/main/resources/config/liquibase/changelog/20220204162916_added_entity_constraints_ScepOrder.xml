@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+    <!--
+        Added the constraints for entity ScepOrder.
+    -->
+    <changeSet id="20220204162916-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="csr_id"
+                                 baseTableName="scep_order"
+                                 constraintName="fk_scep_order__csr_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="csr"/>
+
+        <addForeignKeyConstraint baseColumnNames="certificate_id"
+                                 baseTableName="scep_order"
+                                 constraintName="fk_scep_order__certificate_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="certificate"/>
+
+        <addForeignKeyConstraint baseColumnNames="authenticated_by_id"
+                                 baseTableName="scep_order"
+                                 constraintName="fk_scep_order__authenticated_by_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="certificate"/>
+
+        <addForeignKeyConstraint baseColumnNames="pipeline_id"
+                                 baseTableName="scep_order"
+                                 constraintName="fk_scep_order__pipeline_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="pipeline"/>
+    </changeSet>
+</databaseChangeLog>

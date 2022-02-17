@@ -41,7 +41,7 @@ public class ACMEOrderViewResource {
     }
 
     /**
-     * {@code GET  /acmeOrderViews} : get all ACME accounts.
+     * {@code GET  /acmeOrderViews} : get all ACME orders.
      *
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of ACME accounts in body.
      */

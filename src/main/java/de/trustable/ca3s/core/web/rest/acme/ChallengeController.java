@@ -146,14 +146,14 @@ public class ChallengeController extends ACMEController {
 
     @RequestMapping(value = "/{challengeId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
     public ResponseEntity<?> postChallenge(@RequestBody final String requestBody,
-          @PathVariable final long challengeId) {
+          @PathVariable final long challengeId, @PathVariable final String realm) {
 
         LOG.debug("Received Challenge request ");
 
         try {
             JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
 
-            ACMEAccount acctDao = checkJWTSignatureForAccount(context);
+            ACMEAccount acctDao = checkJWTSignatureForAccount(context, realm);
 
             final HttpHeaders additionalHeaders = buildNonceHeader();
 

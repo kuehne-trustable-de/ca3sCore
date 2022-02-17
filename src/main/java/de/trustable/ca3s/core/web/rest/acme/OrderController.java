@@ -111,6 +111,10 @@ public class OrderController extends ACMEController {
     @Autowired
     private PipelineUtil pipelineUtil;
 
+    @Autowired
+    private AuditService auditService;
+
+
     @RequestMapping(value = "/{orderId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
     public ResponseEntity<?> postAsGetOrder(@RequestBody final String requestBody,
   		  @PathVariable final long orderId, @PathVariable final String realm) {
@@ -130,9 +134,11 @@ public class OrderController extends ACMEController {
       		}else {
       			AcmeOrder orderDao = orderList.get(0);
       			if( !orderDao.getAccount().equals(acctDao) ) {
-      	      		LOG.error("Account idenfied by key (accound {}) does not match account {} of requested order", acctDao, orderDao.getAccount());
+      	      		LOG.error("Account identified by key (account {}) does not match account {} of requested order", acctDao, orderDao.getAccount());
       		        return ResponseEntity.badRequest().build();
       			}
+
+                updateAcmeOrderState(orderDao);
 
       			UriComponentsBuilder baseUriBuilder = fromCurrentRequestUri().path("../../..");
                 LOG.debug("postAsGetOrder: baseUriBuilder : " + baseUriBuilder.toUriString());
@@ -142,6 +148,20 @@ public class OrderController extends ACMEController {
     	} catch (AcmeProblemException e) {
     	    return buildProblemResponseEntity(e);
       	}
+    }
+
+    private void updateAcmeOrderState(AcmeOrder orderDao) {
+        Instant now = Instant.now();
+        if( now.isAfter(orderDao.getExpires() )){
+            AcmeOrderStatus acmeOrderStatus = orderDao.getStatus();
+            if( !AcmeOrderStatus.INVALID.equals(acmeOrderStatus)){
+                LOG.debug("pending order {} expired on {}, setting to state 'INVALID'", orderDao.getOrderId(), orderDao.getExpires().toString());
+                orderDao.setStatus(AcmeOrderStatus.INVALID);
+                orderRepository.save(orderDao);
+                // @ToDo
+//                auditService.saveAuditTrace( auditService. .createAuditTraceCAConfigCreated(cAConnectorConfig));
+            }
+        }
     }
 
     @RequestMapping(value = "/finalize/{orderId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
@@ -180,113 +200,111 @@ public class OrderController extends ACMEController {
   	      		LOG.error("Account identified by key (account {}) does not match account {} of requested order", acctDao, orderDao.getAccount());
   		        return ResponseEntity.badRequest().build();
   			}
+            /**
+             * check validity
+             */
+            updateAcmeOrderState(orderDao);
 
-  			/*
+            /*
   			 * check the order status:
   			 * only 'ready' status of not-yet-expired orders need to be considered
   			 */
   			if(orderDao.getStatus() == AcmeOrderStatus.READY) {
-  				if( orderDao.getExpires().isBefore(Instant.now()) ) {
-					LOG.debug("pending order {} expired on {}", orderDao.getOrderId(), orderDao.getExpires().toString());
-  			  	  	orderDao.setStatus(AcmeOrderStatus.INVALID);
-				} else {
+                /*
+                 * parse the CSR included in the finalize request
+                 */
+                String csrAsString = finalizeReq.getCsr();
+                LOG.debug("csr received: " + csrAsString);
 
-                    /*
-                     * parse the CSR included in the finalize request
-                     */
-                    String csrAsString = finalizeReq.getCsr();
-                    LOG.debug("csr received: " + csrAsString);
+                byte[] csrByte = Base64Url.decode(csrAsString);
+                Pkcs10RequestHolder p10Holder = cryptoUtil.parseCertificateRequest(csrByte);
 
-                    byte[] csrByte = Base64Url.decode(csrAsString);
-                    Pkcs10RequestHolder p10Holder = cryptoUtil.parseCertificateRequest(csrByte);
+                LOG.debug("csr decoded: " + p10Holder);
 
-                    LOG.debug("csr decoded: " + p10Holder);
+                List<ACMEAccount> accListExisting = acctRepository.findByPublicKeyHashBase64(jwtUtil.getJWKThumbPrint(p10Holder.getPublicSigningKey()));
+                if(!accListExisting.isEmpty()) {
+                    LOG.debug("public key in csr already used for account #" + accListExisting.get(0).getAccountId());
 
-                    List<ACMEAccount> accListExisting = acctRepository.findByPublicKeyHashBase64(jwtUtil.getJWKThumbPrint(p10Holder.getPublicSigningKey()));
-                    if(!accListExisting.isEmpty()) {
-                        LOG.debug("public key in csr already used for account #" + accListExisting.get(0).getAccountId());
+                    final ProblemDetail problem = new ProblemDetail(ACMEUtil.BAD_CSR, "CSR rejected.",
+                        BAD_REQUEST, "Public key of CSR already in use ", NO_INSTANCE);
+                    throw new AcmeProblemException(problem);
+                }
 
-                        final ProblemDetail problem = new ProblemDetail(ACMEUtil.BAD_CSR, "CSR rejected.",
-                            BAD_REQUEST, "Public key of CSR already in use ", NO_INSTANCE);
+                Set<String> snSet = collectAllSANS(p10Holder);
+
+                boolean orderValid = true;
+
+                for(String san: snSet) {
+                    boolean bSanFound = false;
+                    for (AcmeAuthorization authDao : orderDao.getAcmeAuthorizations()) {
+                        if( san.equalsIgnoreCase(authDao.getValue())) {
+                            LOG.debug("san '{}' part of order {} in authorization {}", san, orderDao.getOrderId(), authDao);
+                            bSanFound = true;
+                            break;
+                        }
+                    }
+                    if(!bSanFound) {
+                        LOG.info("failed to find requested hostname '{}' (from CSR) in authorization", san);
+                        orderValid = false;
+                        break;
+                    }
+                }
+
+                /*
+                if (orderValid) {
+                    for (AcmeAuthorization authDao : orderDao.getAcmeAuthorizations()) {
+
+                        boolean authReady = false;
+                        for (AcmeChallenge challDao : authDao.getChallenges()) {
+                            if (challDao.getStatus() == ChallengeStatus.VALID) {
+                                LOG.debug("challenge {} of type {} is valid ", challDao.getChallengeId(), challDao.getType());
+                                authReady = true;
+                                break;
+                            }
+                        }
+                        if (authReady) {
+                            LOG.debug("found valid challenge, authorization id {} is valid ", authDao.getAcmeAuthorizationId());
+                        } else {
+                            LOG.debug("no valid challange, authorization id {} and order {} fails ",
+                                    authDao.getAcmeAuthorizationId(), orderDao.getOrderId());
+                            orderValid = false;
+                            break;
+                        }
+                    }
+                }
+*/
+                if (orderValid) {
+
+                    List<String> messageList = new ArrayList<>();
+                    if( !pipelineUtil.isPipelineRestrictionsResolved(pipeline, p10Holder, messageList)){
+
+                        String detail = NO_DETAIL;
+                        if( !messageList.isEmpty()){
+                            detail = messageList.get(0);
+                        }
+                        final ProblemDetail problem = new ProblemDetail(ACMEUtil.BAD_CSR, "Restriction check failed.",
+                            BAD_REQUEST, detail, NO_INSTANCE);
                         throw new AcmeProblemException(problem);
                     }
 
-                    Set<String> snSet = collectAllSANS(p10Holder);
-
-                    boolean orderValid = true;
-
-					for(String san: snSet) {
-						boolean bSanFound = false;
-						for (AcmeAuthorization authDao : orderDao.getAcmeAuthorizations()) {
-							if( san.equalsIgnoreCase(authDao.getValue())) {
-								LOG.debug("san '{}' part of order {} in authorization {}", san, orderDao.getOrderId(), authDao);
-								bSanFound = true;
-								break;
-							}
-						}
-						if(!bSanFound) {
-							LOG.info("failed to find requested hostname '{}' (from CSR) in authorization", san);
-		  			  	  	orderValid = false;
-		  			  	  	break;
-						}
-					}
-
-					/*
-					if (orderValid) {
-						for (AcmeAuthorization authDao : orderDao.getAcmeAuthorizations()) {
-
-							boolean authReady = false;
-							for (AcmeChallenge challDao : authDao.getChallenges()) {
-								if (challDao.getStatus() == ChallengeStatus.VALID) {
-									LOG.debug("challenge {} of type {} is valid ", challDao.getChallengeId(), challDao.getType());
-									authReady = true;
-									break;
-								}
-							}
-							if (authReady) {
-								LOG.debug("found valid challenge, authorization id {} is valid ", authDao.getAcmeAuthorizationId());
-							} else {
-								LOG.debug("no valid challange, authorization id {} and order {} fails ",
-										authDao.getAcmeAuthorizationId(), orderDao.getOrderId());
-								orderValid = false;
-								break;
-							}
-						}
-					}
-*/
-					if (orderValid) {
-
-                        List<String> messageList = new ArrayList<>();
-                        if( !pipelineUtil.isPipelineRestrictionsResolved(pipeline, p10Holder, messageList)){
-
-                            String detail = NO_DETAIL;
-                            if( !messageList.isEmpty()){
-                                detail = messageList.get(0);
-                            }
-                            final ProblemDetail problem = new ProblemDetail(ACMEUtil.BAD_CSR, "Restriction check failed.",
-                                BAD_REQUEST, detail, NO_INSTANCE);
-                            throw new AcmeProblemException(problem);
-                        }
-
-                        LOG.debug("order status {} changes to 'processing' for order {}", orderDao.getStatus(), orderDao.getOrderId());
-                        orderDao.setStatus(AcmeOrderStatus.PROCESSING);
-                        orderRepository.save(orderDao);
-
-
-                        LOG.debug("order {} status 'valid', producing certificate", orderDao.getOrderId());
-                        startCertificateCreationProcess(orderDao, pipeline, "ACME_ACCOUNT_" + acctDao.getAccountId(), CryptoUtil.pkcs10RequestToPem( p10Holder.getP10Req()));
-
-                        LOG.debug("order status {} changes to valid for order {}", orderDao.getStatus(), orderDao.getOrderId());
-                        orderDao.setStatus(AcmeOrderStatus.VALID);
-
-
-                    }else {
-                        LOG.info("order {} failed to reach status 'valid' !", orderDao.getOrderId());
-	  			  	  	orderDao.setStatus(AcmeOrderStatus.INVALID);
-					}
-
+                    LOG.debug("order status {} changes to 'processing' for order {}", orderDao.getStatus(), orderDao.getOrderId());
+                    orderDao.setStatus(AcmeOrderStatus.PROCESSING);
                     orderRepository.save(orderDao);
-				}
+
+
+                    LOG.debug("order {} status 'valid', producing certificate", orderDao.getOrderId());
+                    startCertificateCreationProcess(orderDao, pipeline, "ACME_ACCOUNT_" + acctDao.getAccountId(), CryptoUtil.pkcs10RequestToPem( p10Holder.getP10Req()));
+
+                    LOG.debug("order status {} changes to valid for order {}", orderDao.getStatus(), orderDao.getOrderId());
+                    orderDao.setStatus(AcmeOrderStatus.VALID);
+
+
+                }else {
+                    LOG.info("order {} failed to reach status 'valid' !", orderDao.getOrderId());
+                    orderDao.setStatus(AcmeOrderStatus.INVALID);
+                }
+
+                orderRepository.save(orderDao);
 			}else {
 				LOG.debug("unexpected finalize call at order status {} for order {}", orderDao.getStatus(), orderDao.getOrderId());
 			}

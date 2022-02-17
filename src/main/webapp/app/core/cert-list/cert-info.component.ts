@@ -3,15 +3,15 @@ import { Fragment } from 'vue-fragment';
 
 import { mixins } from 'vue-class-component';
 import JhiDataUtils from '@/shared/data/data-utils.service';
-import AlertService from '@/shared/alert/alert.service';
+import AlertMixin from '@/shared/alert/alert.mixin';
 import CopyClipboardButton from '@/shared/clipboard/clipboard.vue';
 import HelpTag from '@/core/help/help-tag.vue';
 import AuditTag from '@/core/audit/audit-tag.vue';
 
-import { ICertificateView, INamedValue } from '@/shared/model/transfer-object.model';
+import { ICertificateView } from '@/shared/model/transfer-object.model';
 import CertificateViewService from '../../entities/certificate/certificate-view.service';
 
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { ICertificateAdministrationData } from '@/shared/model/transfer-object.model';
 
 @Component({
@@ -22,9 +22,8 @@ import { ICertificateAdministrationData } from '@/shared/model/transfer-object.m
     AuditTag
   }
 })
-export default class CertificateDetails extends mixins(JhiDataUtils) {
+export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils) {
   @Inject('certificateViewService') private certificateViewService: () => CertificateViewService;
-  @Inject('alertService') private alertService: () => AlertService;
 
   public certificateView: ICertificateView = {};
   public certificateAdminData: ICertificateAdministrationData = {};
@@ -113,6 +112,7 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
   }
 
   public download(url: string, filename: string, mimetype: string) {
+    const self = this;
     axios
       .get(url, { responseType: 'blob', headers: { Accept: mimetype } })
       .then(response => {
@@ -127,7 +127,24 @@ export default class CertificateDetails extends mixins(JhiDataUtils) {
         link.click();
         URL.revokeObjectURL(link.href);
       })
-      .catch(console.error);
+      .catch(function(error) {
+        console.log(error);
+        const message = self.$t('problem processing request: ' + error);
+
+        const err = error as AxiosError;
+        if (err.response) {
+          console.log(err.response.status);
+          console.log(err.response.data);
+          if (err.response.status === 401) {
+            self.alertService().showAlert('Action not allowed', 'warn');
+          } else {
+            self.alertService().showAlert(message, 'info');
+          }
+        } else {
+          self.alertService().showAlert(message, 'info');
+        }
+        self.getAlertFromStore();
+      });
   }
 
   beforeRouteEnter(to, from, next) {

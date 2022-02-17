@@ -7,6 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import de.trustable.ca3s.core.service.util.PipelineUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +27,14 @@ import de.trustable.ca3s.core.repository.PipelineRepository;
 public class Ca3sSCEPServiceResource {
 
 	private final ScepServletImpl scepServlet;
-    private final PipelineRepository pipeRepo;
+    private final PipelineUtil pipeUtil;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Ca3sSCEPServiceResource.class);
 
     @Autowired
-	public Ca3sSCEPServiceResource(ScepServletImpl scepServlet, PipelineRepository pipeRepo) {
+	public Ca3sSCEPServiceResource(ScepServletImpl scepServlet, PipelineUtil pipeUtil) {
         this.scepServlet = scepServlet;
-        this.pipeRepo = pipeRepo;
+        this.pipeUtil = pipeUtil;
         LOGGER.info("in Ca3sSCEPServiceResource()");
 	}
 
@@ -44,14 +45,19 @@ public class Ca3sSCEPServiceResource {
 
 		long startTime = System.currentTimeMillis();
 
-		List<Pipeline> pipelineList = pipeRepo.findActiveByTypeUrl(PipelineType.SCEP, realm);
-		if( pipelineList.isEmpty() ) {
-			LOGGER.info("no matching pipeline for scep request realm {}", realm);
-			throw new ServletException("Request URL not found");
-		}
+        Pipeline pipeline = pipeUtil.getPipelineByRealm(PipelineType.SCEP, realm);
+        if( pipeline == null ) {
+            LOGGER.info("no matching pipeline for scep request realm {}", realm);
+//            throw new ServletException("Request URL not found");
 
-		// transfer additional information thru the given servlet implementation into the callbacks
-		scepServlet.threadLocalPipeline.set(pipelineList.get(0));
+        }else if( !pipeline.isActive() ) {
+            LOGGER.info("Deactivated pipeline '{}' found for scep request realm '{}'", pipeline.getName(), realm);
+//          throw new ServletException("Request URL not found");
+            pipeline = null;
+        }
+
+        // transfer additional information thru the given servlet implementation into the callbacks
+		scepServlet.threadLocalPipeline.set(pipeline);
 
 		try {
 			scepServlet.service(request, response);

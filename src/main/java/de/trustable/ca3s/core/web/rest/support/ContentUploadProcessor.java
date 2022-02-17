@@ -107,7 +107,8 @@ public class ContentUploadProcessor {
 		nameOIDMap.put("O", BCStyle.O);
 		nameOIDMap.put("OU", BCStyle.OU);
 		nameOIDMap.put("L", BCStyle.L);
-		nameOIDMap.put("ST", BCStyle.ST);
+        nameOIDMap.put("ST", BCStyle.ST);
+        nameOIDMap.put("E", BCStyle.E);
 
 		nameGeneralNameMap.put("DNS", GeneralName.dNSName);
 		nameGeneralNameMap.put("IP", GeneralName.iPAddress);
@@ -194,7 +195,7 @@ public class ContentUploadProcessor {
 
                 Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(cryptoUtil.convertPemToPKCS10CertificationRequest(content));
 
-                List<CSR> csrList = csrRepository.findByPublicKeyHash(p10ReqHolder.getPublicKeyHash());
+                List<CSR> csrList = csrRepository.findNonRejectedByPublicKeyHash(p10ReqHolder.getPublicKeyHash());
                 LOG.debug("public key with hash '{}' already used in #{} CSRs.", p10ReqHolder.getPublicKeyHash(), csrList.size());
 
 

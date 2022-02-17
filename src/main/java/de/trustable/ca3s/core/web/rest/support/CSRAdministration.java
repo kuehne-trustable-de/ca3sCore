@@ -98,14 +98,17 @@ public class CSRAdministration {
     	Optional<CSR> optCSR = csrRepository.findById(adminData.getCsrId());
     	if( optCSR.isPresent()) {
             CSR csr = optCSR.get();
+
             if( userName == null ||
                 userName.equals(csr.getRequestedBy()) ){
 
-                if(selfIssuanceAllowed){
-                    LOG.info("REST request by ra officer '{}' to accept CSR '{}' issued by himself accepted!", userName, adminData.getCsrId());
-                }else {
-                    LOG.warn("REST request by ra officer '{}' to accept CSR '{}' issued by himself rejected!", userName, adminData.getCsrId());
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                if(AdministrationType.ACCEPT.equals(adminData.getAdministrationType())) {
+                    if (selfIssuanceAllowed) {
+                        LOG.info("REST request by ra officer '{}' to accept CSR '{}' issued by himself accepted!", userName, adminData.getCsrId());
+                    } else {
+                        LOG.warn("REST request by ra officer '{}' to accept CSR '{}' issued by himself rejected!", userName, adminData.getCsrId());
+                        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                    }
                 }
             }
 			csr.setAdministeredBy(userName);

@@ -1,41 +1,50 @@
 <template>
+    <div>
+    <b-alert :show="dismissCountDown"
+             dismissible
+             :variant="alertType"
+             @dismissed="dismissCountDown=0"
+             @dismiss-count-down="countDownChanged">
+        {{alertMessage}}
+    </b-alert>
+    <br/>
     <div class="row justify-content-center">
         <div class="col-8">
-            <div v-if="cSR">
-                <h2 class="jh-entity-heading"><span v-text="$t('ca3SApp.cSR.detail.title')">CSR</span> {{cSR.id}}</h2>
+            <div v-if="icsrView">
+                <h2 class="jh-entity-heading"><span v-text="$t('ca3SApp.cSR.detail.title')">CSR</span> {{ icsrView.id }}</h2>
                 <dl class="row jh-entity-details">
                     <dt>
                         <span v-text="$t('ca3SApp.cSR.status')">Status</span>
                     </dt>
                     <dd>
                         <!--span v-text="$t('ca3SApp.CsrStatus.' + cSR.status)">{{cSR.status}}</span-->
-                        <span>{{cSR.status}}</span>
+                        <span>{{ icsrView.status }}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.cSR.isCSRValid')">Is CSR Valid</span>
                     </dt>
                     <dd>
-                        <span>{{cSR.isCSRValid}}</span>
+                        <span>{{ icsrView.isCSRValid }}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.cSR.serversideKeyGeneration')">Serverside Key Generation</span>
                     </dt>
                     <dd>
-                        <span>{{cSR.serversideKeyGeneration}}</span>
+                        <span>{{ icsrView.serversideKeyGeneration }}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.cSR.subject')">Subject</span>
                     </dt>
                     <dd>
-                        <span>{{cSR.subject}}</span>
+                        <span>{{ icsrView.subject }}</span>
                     </dd>
 
-                    <dt v-if="cSR.sans && cSR.sans.length > 0">
+                    <dt v-if="icsrView.sanArr && icsrView.sanArr.length > 0">
 						<span v-text="$t('ca3SApp.cSR.sans')">Subject alternative names</span>
 					</dt>
-					<dd v-if="cSR.sans && cSR.sans.length > 0">
+					<dd v-if="icsrView.sanArr && icsrView.sanArr.length > 0">
 						<ul>
-							<li v-for="san in sansOnly(cSR.csrAttributes)" :key="san.Id" >{{san.value}}</li>
+							<li v-for="san in icsrView.sanArr" :key="san" >{{san}}</li>
 						</ul>
 					</dd>
 
@@ -43,65 +52,65 @@
                         <span v-text="$t('ca3SApp.cSR.requestedBy')">Subject</span>
                     </dt>
                     <dd>
-                        <span>{{cSR.requestedBy}}</span>
+                        <span>{{ icsrView.requestedBy }}</span>
                     </dd>
 
                     <dt>
                         <span v-text="$t('ca3SApp.cSR.requestedOn')">Requested On</span>
                     </dt>
                     <dd>
-                        <span v-if="cSR.requestedOn">{{$d(Date.parse(cSR.requestedOn), 'long') }}</span>
+                        <span v-if="icsrView.requestedOn">{{ $d(Date.parse(icsrView.requestedOn), 'long') }}</span>
                     </dd>
 
-                    <dt v-if="cSR.requestorComment && cSR.requestorComment.length > 0">
+                    <dt v-if="icsrView.requestorComment && icsrView.requestorComment.length > 0">
                         <span v-text="$t('ca3SApp.cSR.requestorComment')">Requestor comment</span>
                     </dt>
-                    <dd v-if="cSR.requestorComment && cSR.requestorComment.length > 0">
-                        <span>{{cSR.requestorComment}}</span>
+                    <dd v-if="icsrView.requestorComment && icsrView.requestorComment.length > 0">
+                        <span>{{ icsrView.requestorComment }}</span>
                     </dd>
 
-                    <dt v-if="cSR.status === 'REJECTED'">
+                    <dt v-if="icsrView.status === 'REJECTED'">
                         <span v-text="$t('ca3SApp.cSR.rejectedOn')">Rejected On</span>
                     </dt>
-                    <dd v-if="cSR.status === 'REJECTED'">
-                        <span v-if="cSR.rejectedOn">{{$d(Date.parse(cSR.rejectedOn), 'long') }}</span>
+                    <dd v-if="icsrView.status === 'REJECTED'">
+                        <span v-if="icsrView.rejectedOn">{{ $d(Date.parse(icsrView.rejectedOn), 'long') }}</span>
                     </dd>
 
-                    <dt v-if="cSR.status === 'REJECTED'">
+                    <dt v-if="icsrView.status === 'REJECTED'">
                         <span v-text="$t('ca3SApp.cSR.rejectionReason')">Rejection Reason</span>
                     </dt>
-                    <dd v-if="cSR.status === 'REJECTED'">
-                        <span>{{cSR.rejectionReason}}</span>
+                    <dd v-if="icsrView.status === 'REJECTED'">
+                        <span>{{ icsrView.rejectionReason }}</span>
                     </dd>
 
-                    <dt v-if="cSR.administrationComment && cSR.administrationComment.length > 0">
+                    <dt v-if="icsrView.administrationComment && icsrView.administrationComment.length > 0">
                         <span v-text="$t('ca3SApp.cSR.administrationComment')">Administrator comment</span>
                     </dt>
-                    <dd v-if="cSR.administrationComment && cSR.administrationComment.length > 0">
-                        <span>{{cSR.administrationComment}}</span>
+                    <dd v-if="icsrView.administrationComment && icsrView.administrationComment.length > 0">
+                        <span>{{ icsrView.administrationComment }}</span>
                     </dd>
 
                     <dt>
                         <span v-text="$t('ca3SApp.cSR.x509KeySpec')">X 509 Key Spec</span>
                     </dt>
                     <dd>
-                        <span>{{cSR.x509KeySpec}}</span>
+                        <span>{{ icsrView.x509KeySpec }}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.cSR.signingAlgorithm')">Signing Algorithm</span>
                     </dt>
                     <dd>
-                        <span>{{cSR.signingAlgorithm}}</span>
+                        <span>{{ icsrView.signingAlgorithm }}</span>
                     </dd>
 
                     <dt>
                         <span v-text="$t('ca3SApp.cSR.keyDetails')">Key Details</span>
                     </dt>
                     <dd>
-                        <span>{{cSR.publicKeyAlgorithm}} / {{cSR.keyLength}} bits</span>
+                        <span>{{ icsrView.publicKeyAlgorithm }} / {{ icsrView.keyLength }} bits</span>
                     </dd>
 
-                    <Fragment v-for="attr in arAttributes" :key="attr.name" v-if="!(cSR.status === 'PENDING' && ((roles === 'ROLE_RA') || (getUsername() === cSR.requestedBy)))">
+                    <Fragment v-for="attr in arAttributes" :key="attr.name" v-if="!(icsrView.status === 'PENDING' && ((roles === 'ROLE_RA') || (getUsername() === icsrView.requestedBy)))">
 
                         <dt>
                             <span >{{attr.name}}</span>
@@ -111,19 +120,19 @@
                         </dd>
                     </Fragment>
 
-                    <dt v-if="cSR.pipeline && cSR.pipeline.name && cSR.pipeline.name.length > 0">
+                    <dt v-if="icsrView.pipeline && icsrView.pipeline.name && icsrView.pipeline.name.length > 0">
                         <span v-text="$t('ca3SApp.cSR.pipeline')">Pipeline</span>
                     </dt>
-                    <dd v-if="cSR.pipeline && cSR.pipeline.name && cSR.pipeline.name.length > 0">
+                    <dd v-if="icsrView.pipeline && icsrView.pipeline.name && icsrView.pipeline.name.length > 0">
                         <div>
-                            <router-link :to="{name: 'PipelineView', params: {pipelineId: cSR.pipeline.id}}">{{cSR.pipeline.name}}</router-link>
+                            <router-link :to="{name: 'PipelineView', params: {pipelineId: icsrView.pipeline.id}}">{{ icsrView.pipeline.name }}</router-link>
                         </div>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.cSR.pipelineType')">Pipeline Type</span>
                     </dt>
                     <dd>
-                        <span v-text="$t('ca3SApp.PipelineType.' + cSR.pipelineType)">{{cSR.pipelineType}}</span>
+                        <span v-text="$t('ca3SApp.PipelineType.' + icsrView.pipelineType)">{{ icsrView.pipelineType }}</span>
                     </dd>
                     <!--dt>
                         <span v-text="$t('ca3SApp.cSR.processInstanceId')">Process Instance Id</span>
@@ -132,18 +141,14 @@
                         <span>{{cSR.processInstanceId}}</span>
                     </dd-->
 
-                    <dt>
+                    <dt v-if="icsrView.csrBase64 && icsrView.csrBase64.trim().length > 0">
                         <span v-text="$t('ca3SApp.cSR.csrBase64')">Csr Base64</span>
                     </dt>
-                    <dd>
-                        <!--span><textarea class="form-control pem-content" name="csrContent" id="comment"
-							autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly
-                            v-model="cSR.csrBase64" /></span-->
-
+                    <dd v-if="icsrView.csrBase64 && icsrView.csrBase64.trim().length > 0">
                         <div class="form-group wrap">
                             <textarea class="form-control pem-content" name="certContent" id="csrContent"
                                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly
-                                      v-model="cSR.csrBase64" />
+                                      v-model="icsrView.csrBase64" />
 
                             <CopyClipboardButton contentElementId="csrContent"/>
                         </div>
@@ -151,7 +156,7 @@
                     </dd>
                 </dl>
                 <div>
-                    <audit-tag :csrId="cSR.id" showLinks="false" :title="$t('ca3SApp.certificate.audit')"></audit-tag>
+                    <audit-tag :csrId="icsrView.id" showLinks="false" :title="$t('ca3SApp.certificate.audit')"></audit-tag>
                 </div>
 
             </div>
@@ -162,7 +167,7 @@
             <form name="editForm" role="form" novalidate>
                 <div>
 
-                    <Fragment v-if="cSR.status === 'PENDING' && ((roles === 'ROLE_RA') || (getUsername() === cSR.requestedBy))">
+                    <Fragment v-if="icsrView.status === 'PENDING' && ((roles === 'ROLE_RA') || (getUsername() === icsrView.requestedBy))">
 
                         <div v-for="attr in csrAdminData.arAttributes" :key="attr.name" class="form-group">
                             <label class="form-control-label"  for="csr-ar-{attr.name}">{{attr.name}}</label>
@@ -189,31 +194,32 @@
                         <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.back')"> Back</span>
                     </button>
 
-                    <button type="button" id="reject" v-if="cSR.status === 'PENDING' && roles === 'ROLE_RA' && !(getUsername() === cSR.requestedBy)" class="btn btn-secondary" v-on:click="rejectCSR()">
+                    <button type="button" id="reject" v-if="icsrView.status === 'PENDING' && roles === 'ROLE_RA' && !(getUsername() === icsrView.requestedBy)" class="btn btn-secondary" v-on:click="rejectCSR()">
                         <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.reject')">Reject</span>
                     </button>
 
-                    <button type="button" id="withdraw" v-if="cSR.status === 'PENDING' && getUsername() === cSR.requestedBy" class="btn btn-secondary" v-on:click="withdrawCSR()">
+                    <button type="button" id="withdraw" v-if="icsrView.status === 'PENDING' && getUsername() === icsrView.requestedBy" class="btn btn-secondary" v-on:click="withdrawCSR()">
                         <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.withdraw')">Withdraw</span>
                     </button>
 
-                    <button type="button" id="update" v-if="cSR.status === 'PENDING' && roles === 'ROLE_RA'" class="btn btn-secondary" v-on:click="updateCSR()">
+                    <button type="button" id="update" v-if="icsrView.status === 'PENDING' && roles === 'ROLE_RA'" class="btn btn-secondary" v-on:click="updateCSR()">
                         <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.edit')">Update</span>
                     </button>
 
-                    <button type="button" id="selfAdminister" v-if="cSR.status === 'PENDING' && getUsername() === cSR.requestedBy && roles !== 'ROLE_RA'"
+                    <button type="button" id="selfAdminister" v-if="icsrView.status === 'PENDING' && getUsername() === icsrView.requestedBy && roles !== 'ROLE_RA'"
                             class="btn btn-secondary" v-on:click="selfAdministerRequest()">
                         <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.update')">Update</span>
                     </button>
 
-                    <button type="button" id="confirm" v-if="cSR.status === 'PENDING' && roles === 'ROLE_RA'" class="btn btn-primary"
-                        v-on:click="confirmCSR()">
+                    <button type="button" id="confirm" v-if="icsrView.status === 'PENDING' && roles === 'ROLE_RA'" class="btn btn-primary"
+                            v-on:click="confirmCSR()">
                         <font-awesome-icon icon="save"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.confirm')">Confirm</span>
                     </button>
                 </div>
             </form>
 
         </div>
+    </div>
     </div>
 </template>
 

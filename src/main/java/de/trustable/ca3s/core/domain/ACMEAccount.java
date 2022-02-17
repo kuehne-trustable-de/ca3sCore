@@ -4,6 +4,7 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,11 +19,11 @@ import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 	@NamedQuery(name = "Account.findByPublicKeyHash",
 	query = "SELECT a FROM ACMEAccount a WHERE " +
 			"a.publicKeyHash = :publicKeyHashBase64"
-    ),    
+    ),
 	@NamedQuery(name = "Account.findByAccountId",
 	query = "SELECT a FROM ACMEAccount a WHERE " +
 			"a.accountId = :accountId"
-    ),    
+    ),
 })
 public class ACMEAccount implements Serializable {
 
@@ -52,10 +53,14 @@ public class ACMEAccount implements Serializable {
     @Column(name = "public_key_hash", nullable = false)
     private String publicKeyHash;
 
-    
+
     @Lob
     @Column(name = "public_key", nullable = false)
     private String publicKey;
+
+    @Column(name = "created_on")
+    private Instant createdOn;
+
 
     @OneToMany(mappedBy = "account")
     private Set<AcmeContact> contacts = new HashSet<>();
@@ -148,6 +153,19 @@ public class ACMEAccount implements Serializable {
 
     public void setPublicKey(String publicKey) {
         this.publicKey = publicKey;
+    }
+
+    public Instant getCreatedOn() {
+        return this.createdOn;
+    }
+
+    public ACMEAccount createdOn(Instant createdOn) {
+        this.setCreatedOn(createdOn);
+        return this;
+    }
+
+    public void setCreatedOn(Instant createdOn) {
+        this.createdOn = createdOn;
     }
 
     public Set<AcmeContact> getContacts() {

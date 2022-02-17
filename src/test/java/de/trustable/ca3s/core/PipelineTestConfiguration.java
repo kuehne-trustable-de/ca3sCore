@@ -39,12 +39,14 @@ public class PipelineTestConfiguration {
 	public static final String PIPELINE_NAME_WEB_RA_ISSUANCE = "ra issuance";
 
 	private static final String PIPELINE_NAME_ACME = "acme";
-	private static final String PIPELINE_NAME_ACME1CN = "acme1CN";
+    private static final String PIPELINE_NAME_ACME1CN = "acme1CN";
+    private static final String PIPELINE_NAME_ACME1CNNOIP = "acme1CNNoIP";
 	private static final String PIPELINE_NAME_SCEP = "scep";
 	private static final String PIPELINE_NAME_SCEP1CN = "scep1CN";
 
 	public static final String ACME_REALM = "acmeTest";
-	public static final String ACME1CN_REALM = "acmeTest1CN";
+    public static final String ACME1CN_REALM = "acmeTest1CN";
+    public static final String ACME1CNNOIP_REALM = "acmeTest1CNNoIP";
 	public static final String SCEP_REALM = "scepTest";
 	public static final String SCEP1CN_REALM = "scepTest1CN";
 
@@ -135,57 +137,106 @@ public class PipelineTestConfiguration {
 		return pipelineLaxRestrictions;
 	}
 
-	@Transactional
-	public Pipeline getInternalACMETestPipeline_1_CN_ONLY_Restrictions() {
+    @Transactional
+    public Pipeline getInternalACMETestPipeline_1_CN_ONLY_Restrictions() {
 
-		Pipeline examplePipeline = new Pipeline();
-		examplePipeline.setName(PIPELINE_NAME_ACME1CN);
+        Pipeline examplePipeline = new Pipeline();
+        examplePipeline.setName(PIPELINE_NAME_ACME1CN);
         examplePipeline.setActive(true);
-		Example<Pipeline> example = Example.of(examplePipeline);
-		List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+        Example<Pipeline> example = Example.of(examplePipeline);
+        List<Pipeline> existingPLList = pipelineRepo.findAll(example);
 
-		if( !existingPLList.isEmpty()) {
-			LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_ACME1CN);
+        if( !existingPLList.isEmpty()) {
+            LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_ACME1CN);
 
-			return existingPLList.get(0);
-		}
+            return existingPLList.get(0);
+        }
 
 
-		PipelineView pv_1CNRestrictions = new PipelineView();
-    	pv_1CNRestrictions.setRestriction_C(new RDNRestriction());
-		pv_1CNRestrictions.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
-    	pv_1CNRestrictions.setRestriction_CN(new RDNRestriction());
-		pv_1CNRestrictions.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
-    	pv_1CNRestrictions.setRestriction_L(new RDNRestriction());
-		pv_1CNRestrictions.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
-    	pv_1CNRestrictions.setRestriction_O(new RDNRestriction());
-		pv_1CNRestrictions.getRestriction_O().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
-    	pv_1CNRestrictions.setRestriction_OU(new RDNRestriction());
-		pv_1CNRestrictions.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+        PipelineView pv_1CNRestrictions = new PipelineView();
+        pv_1CNRestrictions.setRestriction_C(new RDNRestriction());
+        pv_1CNRestrictions.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv_1CNRestrictions.setRestriction_CN(new RDNRestriction());
+        pv_1CNRestrictions.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
+        pv_1CNRestrictions.setRestriction_L(new RDNRestriction());
+        pv_1CNRestrictions.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+        pv_1CNRestrictions.setRestriction_O(new RDNRestriction());
+        pv_1CNRestrictions.getRestriction_O().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+        pv_1CNRestrictions.setRestriction_OU(new RDNRestriction());
+        pv_1CNRestrictions.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
         pv_1CNRestrictions.setRestriction_S(new RDNRestriction());
         pv_1CNRestrictions.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
         pv_1CNRestrictions.setRestriction_E(new RDNRestriction());
         pv_1CNRestrictions.getRestriction_E().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
 
-		pv_1CNRestrictions.setRestriction_SAN(new RDNRestriction());
-		pv_1CNRestrictions.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
+        pv_1CNRestrictions.setRestriction_SAN(new RDNRestriction());
+        pv_1CNRestrictions.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
 
+        pv_1CNRestrictions.setApprovalRequired(false);
 
-		pv_1CNRestrictions.setApprovalRequired(false);
-
-		pv_1CNRestrictions.setCaConnectorName(internalTestCAC().getName());
-		pv_1CNRestrictions.setName(PIPELINE_NAME_ACME1CN);
+        pv_1CNRestrictions.setCaConnectorName(internalTestCAC().getName());
+        pv_1CNRestrictions.setName(PIPELINE_NAME_ACME1CN);
         pv_1CNRestrictions.setActive(true);
-		pv_1CNRestrictions.setType(PipelineType.ACME);
-		pv_1CNRestrictions.setUrlPart(ACME1CN_REALM);
+        pv_1CNRestrictions.setType(PipelineType.ACME);
+        pv_1CNRestrictions.setUrlPart(ACME1CN_REALM);
 
-		Pipeline pipelineLaxRestrictions = pipelineUtil.toPipeline(pv_1CNRestrictions);
-		pipelineRepo.save(pipelineLaxRestrictions);
-		return pipelineLaxRestrictions;
-	}
+        Pipeline pipelineRestrictions = pipelineUtil.toPipeline(pv_1CNRestrictions);
+        pipelineRepo.save(pipelineRestrictions);
+        return pipelineRestrictions;
+    }
+
+    @Transactional
+    public Pipeline getInternalACMETestPipeline_1_CN_ONLY_NO_IP_Restrictions() {
+
+        Pipeline examplePipeline = new Pipeline();
+        examplePipeline.setName(PIPELINE_NAME_ACME1CNNOIP);
+        examplePipeline.setActive(true);
+        Example<Pipeline> example = Example.of(examplePipeline);
+        List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+
+        if( !existingPLList.isEmpty()) {
+            LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_ACME1CNNOIP);
+            return existingPLList.get(0);
+        }
 
 
-	@Transactional
+        PipelineView pv_1CN_NoIP_Restrictions = new PipelineView();
+        pv_1CN_NoIP_Restrictions.setRestriction_C(new RDNRestriction());
+        pv_1CN_NoIP_Restrictions.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv_1CN_NoIP_Restrictions.setRestriction_CN(new RDNRestriction());
+        pv_1CN_NoIP_Restrictions.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
+        pv_1CN_NoIP_Restrictions.setRestriction_L(new RDNRestriction());
+        pv_1CN_NoIP_Restrictions.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+        pv_1CN_NoIP_Restrictions.setRestriction_O(new RDNRestriction());
+        pv_1CN_NoIP_Restrictions.getRestriction_O().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+        pv_1CN_NoIP_Restrictions.setRestriction_OU(new RDNRestriction());
+        pv_1CN_NoIP_Restrictions.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+        pv_1CN_NoIP_Restrictions.setRestriction_S(new RDNRestriction());
+        pv_1CN_NoIP_Restrictions.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+        pv_1CN_NoIP_Restrictions.setRestriction_E(new RDNRestriction());
+        pv_1CN_NoIP_Restrictions.getRestriction_E().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+
+        pv_1CN_NoIP_Restrictions.setRestriction_SAN(new RDNRestriction());
+        pv_1CN_NoIP_Restrictions.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
+
+        pv_1CN_NoIP_Restrictions.setIpAsSubjectAllowed(false);
+        pv_1CN_NoIP_Restrictions.setIpAsSANAllowed(false);
+
+        pv_1CN_NoIP_Restrictions.setApprovalRequired(false);
+
+        pv_1CN_NoIP_Restrictions.setCaConnectorName(internalTestCAC().getName());
+        pv_1CN_NoIP_Restrictions.setName(PIPELINE_NAME_ACME1CN);
+        pv_1CN_NoIP_Restrictions.setActive(true);
+        pv_1CN_NoIP_Restrictions.setType(PipelineType.ACME);
+        pv_1CN_NoIP_Restrictions.setUrlPart(ACME1CNNOIP_REALM);
+
+        Pipeline pipelineRestrictions = pipelineUtil.toPipeline(pv_1CN_NoIP_Restrictions);
+        pipelineRepo.save(pipelineRestrictions);
+        return pipelineRestrictions;
+    }
+
+
+    @Transactional
 	public Pipeline getInternalWebDirectTestPipeline() {
 
 		Pipeline examplePipeline = new Pipeline();

@@ -188,6 +188,12 @@
   "ca3SApp.acmeOrder.orderId": "Order Id",
   "ca3SApp.acmeOrder.status": "Status",
   "ca3SApp.acmeOrder.updated": "A Acme Order is updated with identifier {{ param }}",
+
+  "ca3SApp.scepOrder.subtitle.request.list": "SCEP Order List",
+  "ca3SApp.scepOrder.home.title": "SCEP Order",
+  "ca3SApp.scepOrder.transId": "TransId",
+  "ca3SApp.scepOrder.pipeline": "Pipeline",
+
   "ca3SApp.authorization.authorizationId": "",
   "ca3SApp.authorization.challenges": "",
   "ca3SApp.authorization.created": "",
@@ -702,6 +708,7 @@
   "global.menu.entities.acmeIdentifier": "Acme Identifier",
   "global.menu.entities.acmeNonce": "Acme Nonce",
   "global.menu.entities.acmeOrder": "Acme Order",
+  "global.menu.entities.scepOrder": "SCEP Order",
   "global.menu.entities.authorization": "Authorization",
   "global.menu.entities.bpnmProcessInfo": "BPNM Process Info",
   "global.menu.entities.caConnectorConfig": "CA Connector Config",

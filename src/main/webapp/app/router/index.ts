@@ -20,6 +20,8 @@ const ACMEAccountList = () => import('../core/acme-account-list/acme-account-lis
 const ACMEAccountInfo = () => import('../core/acme-account-list/acme-account-info.vue');
 const ACMEOrderList = () => import('../core/acme-order-list/acme-order-list.vue');
 const AcmeOrderInfo = () => import('../core/acme-order-list/acme-order-info.vue');
+const ScepOrderList = () => import('../core/scep-order-list/scep-order-list.vue');
+const ScepOrderInfo = () => import('../core/scep-order-list/scep-order-info.vue');
 const CsrList = () => import('../core/csr-list/csr-list.vue');
 const CsrInfo = () => import('../core/csr-list/csr-info.vue');
 const Error = () => import('../core/error/error.vue');
@@ -380,6 +382,21 @@ export default new Router({
       meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
     },
 
+    {
+      path: '/account/activate',
+      name: 'Activate',
+      component: Activate,
+    },
+    {
+      path: '/account/reset/request',
+      name: 'ResetPasswordInit',
+      component: ResetPasswordInit,
+    },
+    {
+      path: '/account/reset/finish',
+      name: 'ResetPasswordFinish',
+      component: ResetPasswordFinish,
+    },
 
     {
       path: '/account/password',
@@ -775,6 +792,19 @@ export default new Router({
       path: '/acme-order-info/:orderId',
       name: 'AcmeOrderInfo',
       component: AcmeOrderInfo,
+      meta: { authorities: ['ROLE_ADMIN'] }
+    },
+
+    {
+      path: '/scep-order-list',
+      name: 'ScepOrderList',
+      component: ScepOrderList,
+      meta: { authorities: ['ROLE_ADMIN'] }
+    },
+    {
+      path: '/scep-order-info/:id',
+      name: 'ScepOrderInfo',
+      component: ScepOrderInfo,
       meta: { authorities: ['ROLE_ADMIN'] }
     },
 

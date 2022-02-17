@@ -3,17 +3,21 @@ package de.trustable.ca3s.core.web.scepservlet;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
+import de.trustable.ca3s.core.domain.enumeration.ScepOrderStatus;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
+import de.trustable.ca3s.core.repository.ScepOrderRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.util.*;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.Pkcs10RequestHolder;
+import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.jscep.server.ScepServlet;
 import org.jscep.transaction.FailInfo;
@@ -24,7 +28,6 @@ import org.jscep.util.CertificationRequestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 
 import javax.servlet.ServletException;
@@ -34,7 +37,10 @@ import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
+import java.time.Instant;
 import java.util.*;
+
+import static de.trustable.ca3s.core.domain.ScepOrderAttribute.ATTRIBUTE_CN;
 
 
 /**
@@ -62,19 +68,26 @@ public class ScepServletImpl extends ScepServlet {
     CSRRepository csrRepository;
 
     @Autowired
+    ScepOrderRepository scepOrderRepository;
+
+    @Autowired
     private CryptoUtil cryptoUtil;
 
     @Autowired
     private CertificateUtil certUtil;
 
-	@Autowired
-	private CertificateProcessingUtil cpUtil;
+    @Autowired
+    private CertificateProcessingUtil cpUtil;
+
+    @Autowired
+    private ScepOrderUtil scepOrderUtil;
 
     @Autowired
     private ProtectedContentRepository protectedContentRepository;
 
     @Autowired
     private ProtectedContentUtil protectedContentUtil;
+
 
     final private PipelineUtil pipelineUtil;
 
@@ -102,8 +115,7 @@ public class ScepServletImpl extends ScepServlet {
         }
 
         try {
-            Certificate currentRecepientCert = pipelineUtil.getSCEPRecipientCertificate(pipeline);
-            return currentRecepientCert;
+            return pipelineUtil.getSCEPRecipientCertificate(pipeline);
 
         } catch (GeneralSecurityException | IOException e) {
             throw new ServletException(e);
@@ -120,7 +132,7 @@ public class ScepServletImpl extends ScepServlet {
     }
 */
 
-	private Certificate startCertificateCreationProcess(final String csrAsPem, TransactionId transId, Pipeline pipeline) throws OperationFailureException, IOException, GeneralSecurityException {
+	private Certificate startCertificateCreationProcess(final String csrAsPem, TransactionId transId, Pipeline pipeline, ScepOrder scepOrder) throws OperationFailureException, IOException, GeneralSecurityException {
 
         Pkcs10RequestHolder p10Holder = cryptoUtil.parseCertificateRequest(csrAsPem);
         if( !pipelineUtil.isPipelineRestrictionsResolved(pipeline, p10Holder, new ArrayList<>())){
@@ -139,12 +151,16 @@ public class ScepServletImpl extends ScepServlet {
 		csr.addCsrAttributes(csrAttributeTransId);
 		csrRepository.save(csr);
 
+        scepOrder.setCsr(csr);
+
 		Certificate cert = cpUtil.processCertificateRequest(csr, requestorName,  AuditService.AUDIT_SCEP_CERTIFICATE_CREATED, pipeline );
 
 		if( cert == null) {
 			LOGGER.warn("creation of certificate by SCEP transaction id '{}' failed ", transId);
 		}else {
 			LOGGER.debug("new certificate id '{}' for SCEP transaction id '{}'", cert.getId(), transId);
+
+            scepOrder.setCertificate(cert);
 
 			certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SCEP_TRANS_ID, transId.toString());
 			certRepository.save(cert);
@@ -158,13 +174,26 @@ public class ScepServletImpl extends ScepServlet {
     		X509Certificate sender,
             TransactionId transId) throws OperationFailureException {
 
-        LOGGER.debug("doEnrol(" + csr.toString() + ", " + transId.toString() +")");
-
         Pipeline pipeline = threadLocalPipeline.get();
         if( pipeline == null ) {
             LOGGER.warn("doEnrol: no processing pipeline defined");
             throw new OperationFailureException(FailInfo.badRequest);
         }
+
+        LOGGER.debug("doEnrol(" + csr.toString() + ", " + transId.toString() +") using pipeline '{}'", pipeline.getName());
+
+        ScepOrder scepOrder = new ScepOrder();
+        scepOrder.setPipeline(pipeline);
+        scepOrder.setRealm(pipeline.getUrlPart());
+        scepOrder.setTransId(transId.toString());
+        scepOrder.setRequestedOn(Instant.now());
+        scepOrder.setRequestedBy(sender.getSubjectDN().getName());
+
+        // start with ...
+        scepOrder.setStatus(ScepOrderStatus.PENDING);
+        scepOrder.setPasswordAuthentication(false);
+
+        scepOrder.setAsyncProcessing(false);
 
         try {
 
@@ -174,13 +203,46 @@ public class ScepServletImpl extends ScepServlet {
                 return Collections.emptyList();
             }
 
+            scepOrderUtil.setOrderAttribute(scepOrder, ATTRIBUTE_CN, csr.getSubject().toString());
+            insertSANs(scepOrder, csr);
+            scepOrderRepository.save(scepOrder);
+
             String password = CertificationRequestUtils.getChallengePassword(csr);
-            checkPassword(pipeline, password);
+            if( password != null){
+                checkPassword(pipeline, password);
+                scepOrder.setPasswordAuthentication(true);
+            }else{
+                Certificate senderCert = certUtil.createCertificate(sender.getEncoded(), null, null, false,
+                    "scep sender certificate");
+
+                if( !senderCert.isActive()){
+                    LOGGER.warn("certificate {} not active! Revoked {}, expiring on {}", senderCert.getId(), senderCert.isRevoked(), senderCert.getValidTo());
+                    scepOrder.setStatus(ScepOrderStatus.INVALID);
+                    throw new OperationFailureException(FailInfo.badRequest);
+                }
+
+                boolean isTrusted = false;
+                List<Certificate> senderChain = certUtil.getCertificateChain(senderCert);
+                for( Certificate chainCert: senderChain) {
+                    if (!certUtil.getCertAttributes(chainCert, CertificateAttribute.ATTRIBUTE_SCEP_TRUSTED_ISSUER).isEmpty()) {
+                        isTrusted = true;
+                        LOGGER.debug("certificate {} valid a scep issuer!", chainCert.getId());
+                        scepOrder.setAuthenticatedBy(chainCert);
+                        break;
+                    }
+                }
+                if(!isTrusted){
+                    LOGGER.warn("certificate authentication, no valid issuer found!");
+                    scepOrder.setStatus(ScepOrderStatus.INVALID);
+                    throw new OperationFailureException(FailInfo.badRequest);
+                }
+            }
 
             String p10ReqPem = CryptoUtil.pkcs10RequestToPem(csr);
-        	Certificate newCertDao = startCertificateCreationProcess(p10ReqPem, transId, pipeline);
+        	Certificate newCertDao = startCertificateCreationProcess(p10ReqPem, transId, pipeline, scepOrder);
         	if( newCertDao == null ){
                 LOGGER.debug("creation of certificate failed");
+                scepOrder.setStatus(ScepOrderStatus.INVALID);
                 throw new OperationFailureException(FailInfo.badRequest);
         	}
 
@@ -200,10 +262,17 @@ public class ScepServletImpl extends ScepServlet {
             for(X509Certificate x509: certList){
                 LOGGER.debug("--- chain element: " + x509.getSubjectDN().getName());
             }
+
+            scepOrder.setStatus(ScepOrderStatus.READY);
+
             return certList;
+
         } catch (Exception e) {
             LOGGER.warn("Error in enrollment", e);
+            scepOrder.setStatus(ScepOrderStatus.INVALID);
             throw new OperationFailureException(FailInfo.badRequest);
+        }finally{
+            scepOrderRepository.save(scepOrder);
         }
     }
 
@@ -246,8 +315,7 @@ public class ScepServletImpl extends ScepServlet {
     }
 
     @Override
-    protected X509CRL doGetCrl(X500Name issuer, BigInteger serial)
-            throws OperationFailureException {
+    protected X509CRL doGetCrl(X500Name issuer, BigInteger serial) {
         LOGGER.debug("doGetCrl(" + issuer.toString() +", "+ serial.toString(10) +")");
         return null;
     }
@@ -416,4 +484,47 @@ public class ScepServletImpl extends ScepServlet {
 
     }
 
+    private void insertSANs(ScepOrder scepOrder, final PKCS10CertificationRequest csr){
+
+        Set<GeneralName> generalNameSet = CSRUtil.getSANList(csr.getAttributes());
+
+        String allSans = "";
+        LOGGER.debug("putting SANs into ScepOrderAttributes");
+
+        for (GeneralName gName : generalNameSet) {
+
+            String sanValue = gName.getName().toString();
+            if (GeneralName.otherName == gName.getTagNo()) {
+                sanValue = "--other value--";
+            }
+
+            if( allSans.length() > 0) {
+                allSans += ";";
+            }
+            allSans += sanValue;
+
+            scepOrderUtil.setOrderAttribute(scepOrder, CsrAttribute.ATTRIBUTE_SAN, sanValue, true);
+            if (GeneralName.dNSName == gName.getTagNo()) {
+                scepOrderUtil.setOrderAttribute(scepOrder, CsrAttribute.ATTRIBUTE_TYPED_SAN, "DNS:" + sanValue, true);
+            } else if (GeneralName.iPAddress == gName.getTagNo()) {
+                scepOrderUtil.setOrderAttribute(scepOrder, CsrAttribute.ATTRIBUTE_TYPED_SAN, "IP:" + sanValue, true);
+            } else if (GeneralName.ediPartyName == gName.getTagNo()) {
+                scepOrderUtil.setOrderAttribute(scepOrder, CsrAttribute.ATTRIBUTE_TYPED_SAN, "EDI:" + sanValue, true);
+            } else if (GeneralName.otherName == gName.getTagNo()) {
+                scepOrderUtil.setOrderAttribute(scepOrder, CsrAttribute.ATTRIBUTE_TYPED_SAN, "other:" + sanValue, true);
+            } else if (GeneralName.registeredID == gName.getTagNo()) {
+                scepOrderUtil.setOrderAttribute(scepOrder, CsrAttribute.ATTRIBUTE_TYPED_SAN, "regID:" + sanValue, true);
+            } else if (GeneralName.rfc822Name == gName.getTagNo()) {
+                scepOrderUtil.setOrderAttribute(scepOrder, CsrAttribute.ATTRIBUTE_TYPED_SAN, "rfc822:" + sanValue, true);
+            } else if (GeneralName.uniformResourceIdentifier == gName.getTagNo()) {
+                scepOrderUtil.setOrderAttribute(scepOrder, CsrAttribute.ATTRIBUTE_TYPED_SAN, "URI:" + sanValue, true);
+            } else if (GeneralName.x400Address == gName.getTagNo()) {
+                scepOrderUtil.setOrderAttribute(scepOrder, CsrAttribute.ATTRIBUTE_TYPED_SAN, "X400:" + sanValue, true);
+            } else if (GeneralName.directoryName == gName.getTagNo()) {
+                scepOrderUtil.setOrderAttribute(scepOrder, CsrAttribute.ATTRIBUTE_TYPED_SAN, "DirName:" + sanValue, true);
+            }else {
+                LOGGER.info("unexpected name / tag '{}' in SANs", gName.getTagNo());
+            }
+        }
+    }
 }

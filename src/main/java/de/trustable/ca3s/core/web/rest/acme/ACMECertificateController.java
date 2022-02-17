@@ -146,18 +146,18 @@ public class ACMECertificateController extends ACMEController {
 	}
 
 	@RequestMapping(value = "/revoke", method = POST, consumes = APPLICATION_JOSE_JSON_VALUE)
-	public ResponseEntity<?> revokeCertificate(@RequestBody final String requestBody ) {
+	public ResponseEntity<?> revokeCertificate(@RequestBody final String requestBody, @PathVariable final String realm ) {
 
 		LOG.info("Received revoke request for certificate ");
 
 		try {
 			JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
 
-			RevokeRequest revokeReq = jwtUtil.getRevokeReq(context.getJwtClaims());
+            ACMEAccount acctDao = checkJWTSignatureForAccount(context, realm);
 
-			ACMEAccount acctDao = checkJWTSignatureForAccount(context);
+            RevokeRequest revokeReq = jwtUtil.getRevokeReq(context.getJwtClaims());
 
-			String certB64 = revokeReq.getCertificate();
+            String certB64 = revokeReq.getCertificate();
 
 			X509Certificate x509Cert = CertUtil.decodeCertificate(Base64.decodeBase64(certB64));
 
@@ -219,12 +219,13 @@ public class ACMECertificateController extends ACMEController {
 	public ResponseEntity<?>  retrieveCertificate(@RequestBody final String requestBody,
 			@RequestHeader(name="Accept",  defaultValue=APPLICATION_PEM_CERT_CHAIN_VALUE) final String accept,
 			@RequestHeader("Content-Type") final String contentType,
-			@PathVariable final long certId) {
+			@PathVariable final long certId,
+            @PathVariable final String realm) {
 
 		try {
 			JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
 
-			ACMEAccount acctDao = checkJWTSignatureForAccount(context);
+			ACMEAccount acctDao = checkJWTSignatureForAccount(context, realm);
 			// check order for certificate matches account identified by JWT protecting key
 			// ... or not, as certs a public ...
 

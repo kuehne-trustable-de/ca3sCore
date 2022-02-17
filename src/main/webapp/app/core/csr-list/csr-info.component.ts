@@ -1,7 +1,7 @@
-import { Component, Inject, Vue } from 'vue-property-decorator';
+import { Component, Inject } from 'vue-property-decorator';
 import { Fragment } from 'vue-fragment';
 
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 import { mixins } from 'vue-class-component';
 import JhiDataUtils from '@/shared/data/data-utils.service';
@@ -10,13 +10,13 @@ import CopyClipboardButton from '@/shared/clipboard/clipboard.vue';
 import HelpTag from '@/core/help/help-tag.vue';
 import AuditTag from '@/core/audit/audit-tag.vue';
 
-import { ICSRAdministrationData, INamedValue } from '@/shared/model/transfer-object.model';
+import { ICSRAdministrationData, INamedValue, ICSRView } from '@/shared/model/transfer-object.model';
 
 import ArItem from './ar-item.component';
 
-import { ICSR } from '@/shared/model/csr.model';
-import CSRService from '../../entities/csr/csr.service';
+import CSRViewService from '../../entities/csr/csr-view.service';
 import { ICsrAttribute } from '@/shared/model/csr-attribute.model';
+import AlertMixin from '@/shared/alert/alert.mixin';
 
 @Component({
   components: {
@@ -27,10 +27,9 @@ import { ICsrAttribute } from '@/shared/model/csr-attribute.model';
     AuditTag
   }
 })
-export default class CsrInfo extends mixins(JhiDataUtils, Vue) {
-  @Inject('alertService') private alertService: () => AlertService;
-  @Inject('cSRService') private cSRService: () => CSRService;
-  public cSR: ICSR = {};
+export default class CsrInfo extends mixins(AlertMixin, JhiDataUtils) {
+  @Inject('cSRViewService') private cSRViewService: () => CSRViewService;
+  public icsrView: ICSRView = {};
 
   public csrAdminData: ICSRAdministrationData = {};
 
@@ -47,11 +46,11 @@ export default class CsrInfo extends mixins(JhiDataUtils, Vue) {
   }
 
   public retrieveCsr(csrId) {
-    this.cSRService()
+    this.cSRViewService()
       .find(csrId)
       .then(res => {
-        this.cSR = res;
-        window.console.info('csr :' + this.cSR.status);
+        this.icsrView = res;
+        window.console.info('csr :' + this.icsrView.status);
         this.requestorComment = this.getRequestorComment();
         this.arAttributes = this.getArAttributes();
         this.csrAdminData.arAttributes = this.getArAttributes();
@@ -74,28 +73,33 @@ export default class CsrInfo extends mixins(JhiDataUtils, Vue) {
   }
 
   public getRequestorComment(): string {
-    if (this.cSR.csrAttributes === undefined) {
+    return this.icsrView.requestorComment;
+
+    /*
+    if (this.icsrView.csrAttributes === undefined) {
       return '';
     }
 
-    for (let i = 0; i < this.cSR.csrAttributes.length; i++) {
+    for (let i = 0; i < this.icsrView.csrAttributes.length; i++) {
       window.console.info('checking csrAttribute : ' + i);
-      if (this.cSR.csrAttributes[i].name === 'REQUESTOR_COMMENT') {
-        return this.cSR.csrAttributes[i].value;
+      if (this.icsrView.csrAttributes[i].name === 'REQUESTOR_COMMENT') {
+        return this.icsrView.csrAttributes[i].value;
       }
     }
-    return '';
+
+ */
   }
 
   public getArAttributes(): INamedValue[] {
     let resultArr: INamedValue[] = new Array<INamedValue>();
 
-    if (this.cSR.csrAttributes === undefined) {
+    /*
+    if (this.icsrView.csrAttributes === undefined) {
       return resultArr;
     }
 
-    for (let i = 0; i < this.cSR.csrAttributes.length; i++) {
-      const attr = this.cSR.csrAttributes[i];
+    for (let i = 0; i < this.icsrView.csrAttributes.length; i++) {
+      const attr = this.icsrView.csrAttributes[i];
       if (attr.name.startsWith('_ARA_')) {
         const nv: INamedValue = {};
         nv.name = attr.name.substr(5);
@@ -103,7 +107,7 @@ export default class CsrInfo extends mixins(JhiDataUtils, Vue) {
         resultArr.push(nv);
       }
     }
-    /*
+
     // retrieve all names
     const pas = this.cSR.pipeline.pipelineAttributes;
     for (let i = 0; i < this.cSR.csrAttributes.length; i++) {
@@ -139,35 +143,35 @@ export default class CsrInfo extends mixins(JhiDataUtils, Vue) {
   }
 
   public async withdrawCSR() {
-    this.csrAdminData.csrId = this.cSR.id;
+    this.csrAdminData.csrId = this.icsrView.id;
     this.csrAdminData.administrationType = 'REJECT';
 
     this.sendAdministrationAction('api/withdrawOwnRequest');
   }
 
   public async rejectCSR() {
-    this.csrAdminData.csrId = this.cSR.id;
+    this.csrAdminData.csrId = this.icsrView.id;
     this.csrAdminData.administrationType = 'REJECT';
 
     this.sendAdministrationAction('api/administerRequest');
   }
 
   public confirmCSR() {
-    this.csrAdminData.csrId = this.cSR.id;
+    this.csrAdminData.csrId = this.icsrView.id;
     this.csrAdminData.administrationType = 'ACCEPT';
 
     this.sendAdministrationAction('api/administerRequest');
   }
 
   public updateCSR() {
-    this.csrAdminData.csrId = this.cSR.id;
+    this.csrAdminData.csrId = this.icsrView.id;
     this.csrAdminData.administrationType = 'UPDATE';
 
     this.sendAdministrationAction('api/administerRequest');
   }
 
   public selfAdministerRequest() {
-    this.csrAdminData.csrId = this.cSR.id;
+    this.csrAdminData.csrId = this.icsrView.id;
     this.csrAdminData.administrationType = 'UPDATE';
 
     this.sendAdministrationAction('api/selfAdministerRequest');
@@ -178,6 +182,7 @@ export default class CsrInfo extends mixins(JhiDataUtils, Vue) {
       return att.name === 'SAN';
     });
   }
+
   sendAdministrationAction(adminUrl: string) {
     document.body.style.cursor = 'wait';
     const self = this;
@@ -201,7 +206,19 @@ export default class CsrInfo extends mixins(JhiDataUtils, Vue) {
         console.log(error);
         self.previousState();
         const message = self.$t('problem processing request: ' + error);
-        self.alertService().showAlert(message, 'info');
+
+        const err = error as AxiosError;
+        if (err.response) {
+          console.log(err.response.status);
+          console.log(err.response.data);
+          if (err.response.status === 401) {
+            self.alertService().showAlert('Action not allowed', 'warn');
+          } else {
+            self.alertService().showAlert(message, 'info');
+          }
+        } else {
+          self.alertService().showAlert(message, 'info');
+        }
       })
       .then(function() {
         // always executed

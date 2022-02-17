@@ -2,6 +2,8 @@ package de.trustable.ca3s.core.service.dto;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import com.opencsv.bean.CsvBindByName;
@@ -11,6 +13,9 @@ import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.service.util.CSRUtil;
+
+import javax.persistence.Column;
+import javax.persistence.Lob;
 
 /**
  * A certificate view from a given certificate and its attributes
@@ -35,6 +40,9 @@ public class CSRView implements Serializable {
     private String sans;
 
     @CsvBindByName
+    private String[] sanArr;
+
+    @CsvBindByName
   	private PipelineType pipelineType;
 
     @CsvBindByName
@@ -56,6 +64,9 @@ public class CSRView implements Serializable {
     private String x509KeySpec;
 
     @CsvBindByName
+    private String keyAlgorithm;
+
+    @CsvBindByName
     private String keyLength;
 
     @CsvBindByName
@@ -67,14 +78,44 @@ public class CSRView implements Serializable {
     @CsvBindByName
     private Instant requestedOn;
 
+    @CsvBindByName
+    private Boolean isCSRValid;
+
+    @CsvBindByName
+    private Boolean serversideKeyGeneration;
+
+    @CsvBindByName
+    private String processInstanceId;
+
+    @CsvBindByName
+    private String publicKeyHash;
+
+    @CsvBindByName
+    private String administeredBy;
+
+    @CsvBindByName
+    private Instant approvedOn;
+
+    @CsvBindByName
+    private String requestorComment;
+
+    @CsvBindByName
+    private String administrationComment;
+
+    @CsvIgnore
+    private String csrBase64;
+
     @CsvIgnore
     private AuditView[] auditViewArr;
+
+
 
     public CSRView() {}
 
     public CSRView(final CSRUtil csrUtil, final CSR csr) {
 
     	this.id = csr.getId();
+        this.csrBase64 = "";
     	this.certificateId = csr.getCertificate() != null? csr.getCertificate().getId(): null;
     	this.subject = csr.getSubject();
     	this.sans = csr.getSans();
@@ -83,16 +124,35 @@ public class CSRView implements Serializable {
     	this.signingAlgorithm = csr.getSigningAlgorithm();
     	this.x509KeySpec = csr.getx509KeySpec();
 
-    	Set<CsrAttribute> attributes = csr.getCsrAttributes();
+        this.keyLength = csr.getKeyLength().toString();
 
-    	this.requestedBy = csrUtil.getCSRAttribute(csr, CsrAttribute.ATTRIBUTE_REQUESTED_BY);
+        this.requestedOn = csr.getRequestedOn();
+        this.requestedBy = csr.getRequestedBy();
+
+        Set<CsrAttribute> attributes = csr.getCsrAttributes();
+        List<String> sanList = new ArrayList<>();
+        for( CsrAttribute csrAttribute: attributes){
+            if( csrAttribute.getName().equals(CsrAttribute.ATTRIBUTE_SAN)){
+                sanList.add(csrAttribute.getValue());
+            }
+        }
+        this.sanArr = sanList.toArray(new String[0]);
+
     	this.processingCA = csrUtil.getCSRAttribute(csr, CsrAttribute.ATTRIBUTE_PROCESSING_CA);
-
     	this.pipelineName = csr.getPipeline() != null ? csr.getPipeline().getName(): null;
 
-//   		this.keyLength = cert.getKeyLength().toString();
+        this.isCSRValid = csr.isIsCSRValid();
+        this.serversideKeyGeneration = csr.isServersideKeyGeneration();
 
-    	this.requestedOn = csr.getRequestedOn();
+        this.processInstanceId = csr.getProcessInstanceId();
+
+        this.publicKeyHash = csr.getPublicKeyHash();
+
+        this.administeredBy = csr.getAdministeredBy();
+        this.approvedOn = csr.getApprovedOn();
+        this.requestorComment = csr.getRequestorComment();
+        this.administrationComment = csr.getAdministrationComment();
+
     }
 
 	public Long getId() {
@@ -106,6 +166,7 @@ public class CSRView implements Serializable {
 	public CsrStatus getStatus() {
 		return status;
 	}
+
 
 	public String getProcessingCA() {
 		return processingCA;
@@ -223,11 +284,99 @@ public class CSRView implements Serializable {
 		this.sans = sans;
 	}
 
+    public String[] getSanArr() {
+        return sanArr;
+    }
+
+    public void setSanArr(String[] sanArr) {
+        this.sanArr = sanArr;
+    }
+
     public AuditView[] getAuditViewArr() {
         return auditViewArr;
     }
 
     public void setAuditViewArr(AuditView[] auditViewArr) {
         this.auditViewArr = auditViewArr;
+    }
+
+    public String getCsrBase64() {
+        return csrBase64;
+    }
+
+    public void setCsrBase64(String csrBase64) {
+        this.csrBase64 = csrBase64;
+    }
+
+    public String getKeyAlgorithm() {
+        return keyAlgorithm;
+    }
+
+    public void setKeyAlgorithm(String keyAlgorithm) {
+        this.keyAlgorithm = keyAlgorithm;
+    }
+
+    public Boolean getCSRValid() {
+        return isCSRValid;
+    }
+
+    public void setCSRValid(Boolean CSRValid) {
+        isCSRValid = CSRValid;
+    }
+
+    public Boolean getServersideKeyGeneration() {
+        return serversideKeyGeneration;
+    }
+
+    public void setServersideKeyGeneration(Boolean serversideKeyGeneration) {
+        this.serversideKeyGeneration = serversideKeyGeneration;
+    }
+
+    public String getProcessInstanceId() {
+        return processInstanceId;
+    }
+
+    public void setProcessInstanceId(String processInstanceId) {
+        this.processInstanceId = processInstanceId;
+    }
+
+    public String getPublicKeyHash() {
+        return publicKeyHash;
+    }
+
+    public void setPublicKeyHash(String publicKeyHash) {
+        this.publicKeyHash = publicKeyHash;
+    }
+
+    public String getAdministeredBy() {
+        return administeredBy;
+    }
+
+    public void setAdministeredBy(String administeredBy) {
+        this.administeredBy = administeredBy;
+    }
+
+    public Instant getApprovedOn() {
+        return approvedOn;
+    }
+
+    public void setApprovedOn(Instant approvedOn) {
+        this.approvedOn = approvedOn;
+    }
+
+    public String getRequestorComment() {
+        return requestorComment;
+    }
+
+    public void setRequestorComment(String requestorComment) {
+        this.requestorComment = requestorComment;
+    }
+
+    public String getAdministrationComment() {
+        return administrationComment;
+    }
+
+    public void setAdministrationComment(String administrationComment) {
+        this.administrationComment = administrationComment;
     }
 }
