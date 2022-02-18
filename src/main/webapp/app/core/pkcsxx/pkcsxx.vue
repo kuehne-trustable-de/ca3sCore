@@ -186,7 +186,7 @@
                                 <div class="col colContent">
                                     <textarea class="form-control cmd0-content" name="pkcsxx-cmdline0" id="pkcsxx-cmdline0"
                                               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly v-model="cmdline0" />
-                                    <CopyClipboardButton contentElementId="cmdline0"/>
+                                    <CopyClipboardButton contentElementId="pkcsxx-cmdline0"/>
                                 </div>
                             </div>
                             <div v-if="creationMode === 'COMMANDLINE_TOOL' && cmdline0Required">

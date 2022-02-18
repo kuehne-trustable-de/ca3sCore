@@ -306,6 +306,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     this.pipelineRestrictions.ou.alignContent();
     this.pipelineRestrictions.l.alignContent();
     this.pipelineRestrictions.st.alignContent();
+    this.pipelineRestrictions.e.alignContent();
     this.pipelineRestrictions.san.alignContent();
 
     this.upload.secret = '';
@@ -386,10 +387,14 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
       let dname = '';
       for (const nv of this.upload.certificateAttributes) {
-        const name = nv.name;
+        let name = nv.name;
         if (name === 'SAN') {
           // handle SANS specially, see below
           continue;
+        }
+
+        if ('E' === name.toUpperCase()) {
+          name = 'EMAILADDRESS';
         }
 
         for (const value of nv.values) {
@@ -554,7 +559,12 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
         }
         for (const value of nv.values) {
           if (value.length > 0) {
-            subject += '/' + name.toUpperCase() + '=' + value;
+            if ('E' === name.toUpperCase()) {
+              subject += '/emailAddress=';
+            } else {
+              subject += '/' + name.toUpperCase() + '=';
+            }
+            subject += value.replace(/\//g, '\\/');
           }
         }
       }
