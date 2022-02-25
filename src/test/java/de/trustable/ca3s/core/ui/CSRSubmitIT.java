@@ -32,6 +32,7 @@ import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.JCAManager;
 import io.ddavison.conductor.Browser;
+import org.springframework.test.context.ActiveProfiles;
 
 // @ContextConfiguration(classes=PipelineTestConfiguration.class)
 
@@ -40,6 +41,7 @@ import io.ddavison.conductor.Browser;
         browser = Browser.CHROME,
         url     = "http://localhost:${local.server.port}/"
 )
+@ActiveProfiles("dev")
 public class CSRSubmitIT extends WebTestBase{
 
     public static final By LOC_TXT_WEBPACK_ERROR = By.xpath("//div//h1 [text() = 'An error has occured :-(']");

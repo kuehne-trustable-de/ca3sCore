@@ -31,10 +31,10 @@ export default class UserPreferenceService {
     });
   }
 
-  public retrieveUserPreferences(user: string): Promise<any> {
+  public retrieveUserPreferences(currentUser: string): Promise<any> {
     return new Promise<any>((resolve, reject) => {
       axios
-        .get(baseApiUrl,  { params: { user: user } })
+        .get(baseApiUrl, { params: { user: currentUser } })
         .then(function(res) {
           resolve(res);
         })

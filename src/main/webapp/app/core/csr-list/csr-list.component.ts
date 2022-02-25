@@ -171,7 +171,8 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
     const validFrom = new Date(validFromString);
 
     if (validTo > this.now && validTo < this.dateAlarm) {
-      //      window.console.info('getValidToStyle(' + validTo + '), dateNow: ' + dateNow + ' , dateWarn: ' + dateWarn + ' -> ' + (validTo > dateNow) + ' - ' + (validTo < dateWarn));
+      //      window.console.info('getValidToStyle(' + validTo + '), dateNow: ' + dateNow + ' , dateWarn: ' + dateWarn +
+      //      ' -> ' + (validTo > dateNow) + ' - ' + (validTo < dateWarn));
       return 'color:red;font-weight: bold;';
     } else if (validTo > this.now && validTo < this.dateWarn) {
       return 'color:yellow; font-weight: bold;';

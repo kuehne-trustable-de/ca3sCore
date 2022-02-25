@@ -4,8 +4,10 @@ import de.trustable.ca3s.core.config.Constants;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.*;
 import de.trustable.ca3s.core.repository.*;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.*;
+import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
@@ -19,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import javax.security.auth.x500.X500Principal;
@@ -33,6 +36,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -90,6 +94,9 @@ public class PipelineUtil {
 	public static final String ALLOW_IP_AS_SUBJECT = "ALLOW_IP_AS_SUBJECT";
 	public static final String ALLOW_IP_AS_SAN = "ALLOW_IP_AS_SAN";
 	public static final String TO_PENDIND_ON_FAILED_RESTRICTIONS = "TO_PENDIND_ON_FAILED_RESTRICTIONS";
+
+    public static final String DOMAIN_RA_OFFICER = "DOMAIN_RA_OFFICER";
+    public static final String ADDITIONAL_EMAIL_RECIPIENTS = "ADDITIONAL_EMAIL_RECIPIENTS";
 
 	public static final String ACME_ALLOW_CHALLENGE_HTTP01 = "ACME_ALLOW_CHALLENGE_HTTP01";
 	public static final String ACME_ALLOW_CHALLENGE_DNS = "ACME_ALLOW_CHALLENGE_DNS";
@@ -187,8 +194,11 @@ public class PipelineUtil {
 
     	ACMEConfigItems acmeConfigItems = new ACMEConfigItems();
         SCEPConfigItems scepConfigItems = new SCEPConfigItems();
+        WebConfigItems webConfigItems = new WebConfigItems();
 
         pv.setCsrUsage(CsrUsage.TLS_SERVER);
+
+        List<String> domainRaOfficerList = new ArrayList<>();
 
 //    	acmeConfigItems.setProcessInfoNameAccountValidation(processInfoNameAccountValidation);
 
@@ -202,8 +212,13 @@ public class PipelineUtil {
     			acmeConfigItems.setAllowWildcards(Boolean.parseBoolean(plAtt.getValue()));
     		}else if( ACME_CHECK_CAA.equals(plAtt.getName())) {
     			acmeConfigItems.setCheckCAA(Boolean.parseBoolean(plAtt.getValue()));
-    		}else if( ACME_NAME_CAA.equals(plAtt.getName())) {
-    			acmeConfigItems.setCaNameCAA(plAtt.getValue());
+            }else if( ACME_NAME_CAA.equals(plAtt.getName())) {
+                acmeConfigItems.setCaNameCAA(plAtt.getValue());
+            }else if( DOMAIN_RA_OFFICER.equals(plAtt.getName())) {
+                domainRaOfficerList.add(plAtt.getValue());
+
+            }else if( ADDITIONAL_EMAIL_RECIPIENTS.equals(plAtt.getName())) {
+                webConfigItems.setAdditionalEMailRecipients(plAtt.getValue());
 
             }else if( SCEP_RECIPIENT_DN.equals(plAtt.getName())) {
                 scepConfigItems.setScepRecipientDN(plAtt.getValue());
@@ -250,8 +265,11 @@ public class PipelineUtil {
             }
         }
 
+        pv.setDomainRaOfficerList(domainRaOfficerList.toArray(new String[0]));
+
         pv.setAcmeConfigItems(acmeConfigItems);
     	pv.setScepConfigItems(scepConfigItems);
+        pv.setWebConfigItems(webConfigItems);
 
         ARARestriction[] araRestrictions = initAraRestrictions(pipeline);
 
@@ -470,20 +488,34 @@ public class PipelineUtil {
 	 */
 	public Pipeline toPipeline(PipelineView pv) {
 
-	    List<AuditTrace> auditList = new ArrayList<>();
+        List<AuditTrace> auditList = new ArrayList<>();
         Pipeline p;
+        Optional<Pipeline> optP = pipelineRepository.findById(pv.getId());
+        List<Pipeline> pipelineList = pipelineRepository.findByName(pv.getName());
         if( pv.getId() != null) {
-	       	Optional<Pipeline> optP = pipelineRepository.findById(pv.getId());
 	        if(optP.isPresent()) {
 	        	p = optP.get();
+                if(!pipelineList.isEmpty() && !pipelineList.get(0).getId().equals(p.getId())){
+                    throw new BadRequestAlertException("Name '" + pv.getName() + "' already assigned", "pipeline", "name already used");
+                }
 	        	pipelineAttRepository.deleteAll(p.getPipelineAttributes());
 	        }else {
+                if(!pipelineList.isEmpty()){
+                    throw new BadRequestAlertException("Name '" + pv.getName() + "' already assigned", "pipeline", "name already used");
+                }
 	        	p = new Pipeline();
                 pipelineRepository.save(p);
                 auditList.add(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_CREATED, p));
 	        }
         }else {
-        	p = new Pipeline();
+            if(!pipelineList.isEmpty()){
+                throw new BadRequestAlertException("Name '" + pv.getName() + "' already assigned", "pipeline", "name already used");
+            }
+            if( getPipelineByRealm(pv.getType(), pv.getUrlPart()) != null ){
+                throw new BadRequestAlertException("Realm '" + pv.getUrlPart() + "' already exists", "pipeline", "realmexists");
+            }
+
+            p = new Pipeline();
             p.setName(pv.getName());
             p.setType(pv.getType());
             pipelineRepository.save(p);
@@ -509,6 +541,7 @@ public class PipelineUtil {
             auditList.add(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_TYPE_CHANGED, oldType, pv.getType().toString(), p));
             p.setType(pv.getType());
         }
+
         if(!Objects.equals(pv.getUrlPart(), p.getUrlPart())) {
             auditList.add(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_URLPART_CHANGED, p.getUrlPart(), pv.getUrlPart(), p));
             p.setUrlPart(pv.getUrlPart());
@@ -657,6 +690,12 @@ public class PipelineUtil {
             addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_RECIPIENT_DN, pv.getScepConfigItems().getScepRecipientDN());
             addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_RECIPIENT_KEY_TYPE_LEN, pv.getScepConfigItems().getKeyAlgoLength().toString());
             addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_CA_CONNECTOR_RECIPIENT_NAME, pv.getScepConfigItems().getCaConnectorRecipientName());
+        }
+
+        addPipelineAttribute(pipelineAttributes, p, auditList, ADDITIONAL_EMAIL_RECIPIENTS, pv.getWebConfigItems().getAdditionalEMailRecipients());
+
+        for( String domainOfficer: pv.getDomainRaOfficerList()){
+            addPipelineAttribute(pipelineAttributes, p, auditList, DOMAIN_RA_OFFICER, domainOfficer);
         }
 
         ProtectedContent pc;
@@ -1075,13 +1114,15 @@ public class PipelineUtil {
                         outcome = false;
                     }
                 }
-
+/*
                 if( hasTemplate && !template.equalsIgnoreCase(value) ) {
                     String msg = "restriction mismatch: '"+value +"' does not match expected value '"+template+"' !";
                     messageList.add(msg);
                     LOG.debug(msg);
                     outcome = false;
                 }
+
+ */
 			}
 		}
 
@@ -1247,7 +1288,7 @@ public class PipelineUtil {
         }
     }
 
-    private Certificate createSCEPRecipientCertificate( Pipeline pipeline) throws IOException, GeneralSecurityException {
+    private Certificate createSCEPRecipientCertificate(final Pipeline pipeline) throws IOException, GeneralSecurityException {
 
         String scepRecipientDN = getPipelineAttribute( pipeline, SCEP_RECIPIENT_DN, "CN=SCEPRecepient_"+ pipeline.getId());
         X500Principal subject = new X500Principal(scepRecipientDN);
@@ -1303,5 +1344,24 @@ public class PipelineUtil {
         return pipelineList.get(0);
     }
 
+    public boolean isUserValidAsRA(final Pipeline pipeline, User user){
+
+        if(user.getAuthorities().stream().anyMatch(a -> AuthoritiesConstants.RA_OFFICER.equals(a.getName() ))){
+            LOG.debug("user '{}' has role 'RA_OFFICER'", user.getLogin());
+            return true;
+        }
+
+        if(user.getAuthorities().stream().anyMatch(a -> AuthoritiesConstants.DOMAIN_RA_OFFICER.equals(a.getName() ))){
+            LOG.debug("user '{}' has role 'DOMAIN_RA_OFFICER'", user.getLogin());
+            for(PipelineAttribute pipelineAttribute: pipeline.getPipelineAttributes()){
+                if( DOMAIN_RA_OFFICER.equals(pipelineAttribute.getName()) &&
+                    Long.parseLong(pipelineAttribute.getValue()) == user.getId()){
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }
 

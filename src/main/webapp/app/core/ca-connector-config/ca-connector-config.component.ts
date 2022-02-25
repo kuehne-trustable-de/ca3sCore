@@ -73,7 +73,7 @@ export default class CAConnectorConfig extends mixins(Vue2Filters.mixin, AlertMi
   }
 
   public getStatus(connectorId: number): ICAStatus {
-    for (let ccs of this.cAConnectorStatus) {
+    for (const ccs of this.cAConnectorStatus) {
       if (connectorId === ccs.connectorId) {
         return ccs.status;
       }

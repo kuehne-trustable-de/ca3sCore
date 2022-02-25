@@ -3,8 +3,10 @@ package de.trustable.ca3s.core.web.rest;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.repository.CSRRepository;
+import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.CSRService;
 import de.trustable.ca3s.core.service.util.CSRUtil;
+import de.trustable.ca3s.core.service.util.PipelineUtil;
 import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -118,6 +120,12 @@ public class CSRResourceIT {
     private CSRUtil csrUtil;
 
     @Autowired
+    private PipelineUtil pipelineUtil;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -139,7 +147,7 @@ public class CSRResourceIT {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final CSRResource cSRResource = new CSRResource(cSRService, csrUtil);
+        final CSRResource cSRResource = new CSRResource(cSRService, csrUtil, pipelineUtil, userRepository);
         this.restCSRMockMvc = MockMvcBuilders.standaloneSetup(cSRResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)

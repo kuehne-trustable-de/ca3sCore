@@ -110,20 +110,9 @@ public class CSRUtil {
 		 * produce a readable form of algorithms
 		 */
 		String sigAlgName = OidNameMapper.lookupOid(p10ReqHolder.getSigningAlgorithm());
-		String keyAlgName = sigAlgName;
-		if( sigAlgName.toLowerCase().contains("with")) {
-			String[] parts = sigAlgName.toLowerCase().split("with");
-			if(parts.length > 1) {
-				if(parts[1].contains("and")) {
-					String[] parts2 = parts[1].split("and");
-					keyAlgName = parts2[0];
-				}else {
-					keyAlgName = parts[1];
-				}
-			}
-		}
+        String keyAlgName = getKeyAlgoName(sigAlgName);
 
-		csr.setSigningAlgorithm(sigAlgName);
+        csr.setSigningAlgorithm(sigAlgName);
 
 		csr.setIsCSRValid(p10ReqHolder.isCSRValid());
 
@@ -314,7 +303,23 @@ public class CSRUtil {
 		return csr;
 	}
 
-	/**
+    public static String getKeyAlgoName(String sigAlgName) {
+        String keyAlgName = sigAlgName;
+        if( sigAlgName.toLowerCase().contains("with")) {
+            String[] parts = sigAlgName.toLowerCase().split("with");
+            if(parts.length > 1) {
+                if(parts[1].contains("and")) {
+                    String[] parts2 = parts[1].split("and");
+                    keyAlgName = parts2[0];
+                }else {
+                    keyAlgName = parts[1];
+                }
+            }
+        }
+        return keyAlgName;
+    }
+
+    /**
 	 *
 	 * @param p10ReqHolder
 	 * @return

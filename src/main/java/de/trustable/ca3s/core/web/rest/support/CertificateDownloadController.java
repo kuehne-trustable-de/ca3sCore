@@ -381,7 +381,9 @@ public class CertificateDownloadController  {
 		}
 
         if( SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN) ||
-        SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.RA_OFFICER) ){
+            SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.RA_OFFICER) ){
+            LOG.debug("Admins and RA Officers are allowed to download P12 files");
+        }else if( SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.DOMAIN_RA_OFFICER) ){
             LOG.debug("Admins and RA Officers are allowed to download P12 files");
         }else {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -415,7 +417,7 @@ public class CertificateDownloadController  {
 
 			X509Certificate[] chain = certUtil.getX509CertificateChain(certDao);
 
-			p12.setKeyEntry(entryAlias, key, passphraseChars, chain);
+			p12 .setKeyEntry(entryAlias, key, passphraseChars, chain);
 
 			try(ByteArrayOutputStream baos = new ByteArrayOutputStream()){
 				p12.store(baos, passphraseChars);

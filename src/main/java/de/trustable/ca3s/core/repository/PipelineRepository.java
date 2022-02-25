@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.NamedQuery;
+
 
 /**
  * Spring Data  repository for the Pipeline entity.
@@ -31,5 +33,8 @@ public interface PipelineRepository extends JpaRepository<Pipeline, Long> {
 
     @Query(name = "Pipeline.findActiveByType")
     List<Pipeline> findActiveByType(@Param("type") PipelineType type);
+
+    @Query(name = "Pipeline.findByName")
+    List<Pipeline> findByName(@Param("name") String name);
 
 }

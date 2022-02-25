@@ -48,8 +48,8 @@ public final class CSRSpecifications {
         int pageOffset = getIntValue(parameterMap.get("offset"), 0);
         int pagesize = getIntValue(parameterMap.get("limit"), 20);
 
-        ArrayList<Selection<?>> selectionList = new ArrayList<Selection<?>>();
-        ArrayList<String> colList = new ArrayList<String>();
+        ArrayList<Selection<?>> selectionList = new ArrayList<>();
+        ArrayList<String> colList = new ArrayList<>();
 
         Map<String, List<SelectionData>> selectionMap = getSelectionMap(parameterMap);
 
@@ -65,7 +65,7 @@ public final class CSRSpecifications {
 
 
         // collect all selectors in a list
-        List<Predicate> predList = new ArrayList<Predicate>();
+        List<Predicate> predList = new ArrayList<>();
 
         // walk thru all requested columns
         for (String col : columnArr) {
@@ -144,7 +144,7 @@ public final class CSRSpecifications {
         List<Object[]> listResponse = typedQuery.getResultList();
 
         // use the result set to fill the response object
-        List<CSRView> certViewList = new ArrayList<CSRView>();
+        List<CSRView> certViewList = new ArrayList<>();
         for (Object[] objArr : listResponse) {
 
             if (logger.isDebugEnabled() && (objArr.length != colList.size())) {
@@ -159,14 +159,14 @@ public final class CSRSpecifications {
         // start again to retrieve the row count
         Pageable pageable = PageRequest.of(pageOffset / pagesize, pagesize, sortDir, sortCol);
 
-        Long nTotalElements = 1000L;
+        Long nTotalElements;
 
         CriteriaQuery<Long> queryCount = cb.createQuery(Long.class);
         Root<CSR> iRoot = queryCount.from(CSR.class);
 
-        List<Predicate> predCountList = new ArrayList<Predicate>();
+        List<Predicate> predCountList = new ArrayList<>();
 
-        ArrayList<Selection<?>> selectionListCount = new ArrayList<Selection<?>>();
+        ArrayList<Selection<?>> selectionListCount = new ArrayList<>();
 
         // walk thru all requested columns
         for (String col : columnArr) {
@@ -219,7 +219,7 @@ public final class CSRSpecifications {
         nTotalElements = entityManager.createQuery(queryCount).getSingleResult();
         logger.debug("buildPredicate selects {} elements ", nTotalElements);
 
-        return new PageImpl<CSRView>(certViewList, pageable, nTotalElements);
+        return new PageImpl<>(certViewList, pageable, nTotalElements);
 
     }
 
@@ -286,7 +286,7 @@ public final class CSRSpecifications {
      */
     static Map<String, List<SelectionData>> getSelectionMap(Map<String, String[]> parameterMap) {
 
-        Map<String, List<SelectionData>> selectorMap = new HashMap<String, List<SelectionData>>();
+        Map<String, List<SelectionData>> selectorMap = new HashMap<>();
 
         for (int n = 1; n < 20; n++) {
             String paramNameAttribute = "attributeName_" + n;
@@ -322,7 +322,7 @@ public final class CSRSpecifications {
                     selectorMap.get(attribute).add(selData);
                 } else {
                     logger.debug("creating new selector list for '{}'", attribute);
-                    List<SelectionData> selectorList = new ArrayList<SelectionData>();
+                    List<SelectionData> selectorList = new ArrayList<>();
                     selectorList.add(selData);
                     selectorMap.put(attribute, selectorList);
                 }
@@ -356,12 +356,12 @@ public final class CSRSpecifications {
 
         if ("id".equals(attribute)) {
             addNewColumn(selectionList, root.get(CSR_.id));
-            pred = buildPredicateLong(attributeSelector, cb, root.<Long>get(CSR_.id), attributeValue);
+            pred = buildPredicateLong(attributeSelector, cb, root.get(CSR_.id), attributeValue);
 
         } else if ("status".equals(attribute)) {
             addNewColumn(selectionList, root.get(CSR_.status));
             if (attributeValue.trim().length() > 0) {
-                pred = buildPredicateCsrStatus(attributeSelector, cb, root.<CsrStatus>get(CSR_.status), attributeValue);
+                pred = buildPredicateCsrStatus(attributeSelector, cb, root.get(CSR_.status), attributeValue);
             }
         } else if ("certificateId".equals(attribute)) {
             Join<CSR, Certificate> certJoin = root.join(CSR_.certificate, JoinType.LEFT);
@@ -377,7 +377,7 @@ public final class CSRSpecifications {
                 pred = cb.exists(csrAttSubquery.select(csrAttRoot)//subquery selection
                     .where(cb.and(cb.equal(csrAttRoot.get(CsrAttribute_.CSR), root.get(CSR_.ID)),
                         cb.equal(csrAttRoot.get(CsrAttribute_.NAME), CsrAttribute.ATTRIBUTE_SUBJECT),
-                        buildPredicateString(attributeSelector, cb, csrAttRoot.<String>get(CsrAttribute_.value), attributeValue.toLowerCase()))));
+                        buildPredicateString(attributeSelector, cb, csrAttRoot.get(CsrAttribute_.value), attributeValue.toLowerCase()))));
             }
         } else if ("sans".equals(attribute)) {
             addNewColumn(selectionList, root.get(CSR_.sans));
@@ -389,32 +389,31 @@ public final class CSRSpecifications {
                 pred = cb.exists(csrAttSubquery.select(csrAttRoot)//subquery selection
                     .where(cb.and(cb.equal(csrAttRoot.get(CsrAttribute_.CSR), root.get(CSR_.ID)),
                         cb.equal(csrAttRoot.get(CsrAttribute_.NAME), CsrAttribute.ATTRIBUTE_SAN),
-                        buildPredicateString(attributeSelector, cb, csrAttRoot.<String>get(CsrAttribute_.value), attributeValue.toLowerCase()))));
+                        buildPredicateString(attributeSelector, cb, csrAttRoot.get(CsrAttribute_.value), attributeValue.toLowerCase()))));
             }
         } else if ("publicKeyAlgorithm".equals(attribute)) {
             addNewColumn(selectionList, root.get(CSR_.publicKeyAlgorithm));
             if (attributeValue.trim().length() > 0) {
-                pred = buildPredicateString(attributeSelector, cb, root.<String>get(CSR_.publicKeyAlgorithm), attributeValue);
+                pred = buildPredicateString(attributeSelector, cb, root.get(CSR_.publicKeyAlgorithm), attributeValue);
             }
 
         } else if ("signingAlgorithm".equals(attribute)) {
             addNewColumn(selectionList, root.get(CSR_.signingAlgorithm));
             if (attributeValue.trim().length() > 0) {
-                pred = buildPredicateString(attributeSelector, cb, root.<String>get(CSR_.signingAlgorithm), attributeValue);
+                pred = buildPredicateString(attributeSelector, cb, root.get(CSR_.signingAlgorithm), attributeValue);
             }
 
         } else if ("x509KeySpec".equals(attribute)) {
             addNewColumn(selectionList, root.get(CSR_.x509KeySpec));
             if (attributeValue.trim().length() > 0) {
-                pred = buildPredicateString(attributeSelector, cb, root.<String>get(CSR_.x509KeySpec), attributeValue);
+                pred = buildPredicateString(attributeSelector, cb, root.get(CSR_.x509KeySpec), attributeValue);
             }
 
         } else if ("requestedBy".equals(attribute)) {
             addNewColumn(selectionList, root.get(CSR_.requestedBy));
             if (attributeValue.trim().length() > 0) {
-                pred = buildPredicateString(attributeSelector, cb, root.<String>get(CSR_.requestedBy), attributeValue);
+                pred = buildPredicateString(attributeSelector, cb, root.get(CSR_.requestedBy), attributeValue);
             }
-
 /*
 		}else if( "processingCA".equals(attribute)){
 			Join<CSR, Pipeline> certJoin = root.join(CSR_.pipeline, JoinType.LEFT);
@@ -424,32 +423,36 @@ public final class CSRSpecifications {
             Join<CSR, Pipeline> certJoin = root.join(CSR_.pipeline, JoinType.LEFT);
             addNewColumn(selectionList, certJoin.get(Pipeline_.name));
 
+        } else if ("pipelineType".equals(attribute)) {
+            Join<CSR, Pipeline> certJoin = root.join(CSR_.pipeline, JoinType.LEFT);
+            addNewColumn(selectionList, certJoin.get(Pipeline_.type));
+
         } else if ("keyLength".equals(attribute)) {
             addNewColumn(selectionList, root.get(CSR_.keyLength));
             if (attributeValue.trim().length() > 0) {
-                pred = buildPredicateInteger(attributeSelector, cb, root.<Integer>get(CSR_.keyLength), attributeValue);
+                pred = buildPredicateInteger(attributeSelector, cb, root.get(CSR_.keyLength), attributeValue);
             }
         } else if ("requestedOn".equals(attribute)) {
             addNewColumn(selectionList, root.get(CSR_.requestedOn));
             if (attributeValue.trim().length() > 0) {
-                pred = buildDatePredicate(attributeSelector, cb, root.<Instant>get(CSR_.requestedOn), attributeValue);
+                pred = buildDatePredicate(attributeSelector, cb, root.get(CSR_.requestedOn), attributeValue);
             }
         } else if ("rejectedOn".equals(attribute)) {
             addNewColumn(selectionList, root.get(CSR_.rejectedOn));
             if (attributeValue.trim().length() > 0) {
-                pred = buildDatePredicate(attributeSelector, cb, root.<Instant>get(CSR_.rejectedOn), attributeValue);
+                pred = buildDatePredicate(attributeSelector, cb, root.get(CSR_.rejectedOn), attributeValue);
             }
         } else if ("rejectionReason".equals(attribute)) {
             addNewColumn(selectionList, root.get(CSR_.rejectionReason));
             if (attributeValue.trim().length() > 0) {
-                pred = buildPredicateString(attributeSelector, cb, root.<String>get(CSR_.rejectionReason), attributeValue);
+                pred = buildPredicateString(attributeSelector, cb, root.get(CSR_.rejectionReason), attributeValue);
             }
         } else {
             if( csrSelectionAttributes.contains(attribute) ){
                 // handle ARAs
                 Join<CSR, CsrAttribute> attJoin = root.join(CSR_.csrAttributes, JoinType.LEFT);
-                pred = cb.and( cb.equal(attJoin.<String>get(CsrAttribute_.name), CsrAttribute.ARA_PREFIX + attribute),
-                    buildPredicateString( attributeSelector, cb, attJoin.<String>get(CsrAttribute_.value), attributeValue.toLowerCase()));
+                pred = cb.and( cb.equal(attJoin.get(CsrAttribute_.name), CsrAttribute.ARA_PREFIX + attribute),
+                    buildPredicateString( attributeSelector, cb, attJoin.get(CsrAttribute_.value), attributeValue.toLowerCase()));
 
             }else {
                 logger.warn("fall-thru clause adding 'true' condition for {} ", attribute);

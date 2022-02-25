@@ -98,4 +98,7 @@
 
     <include file="config/liquibase/changelog/20220124203942_added_columns_AuditTrace.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/20220225163112_added_values.xml" relativeToChangelogFile="false"/>
+
+
 </databaseChangeLog>

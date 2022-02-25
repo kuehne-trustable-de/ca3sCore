@@ -4,6 +4,7 @@ import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.service.PipelineService;
 import de.trustable.ca3s.core.service.dto.AuditView;
 import de.trustable.ca3s.core.service.dto.PipelineView;
+import de.trustable.ca3s.core.service.exception.IntegrityException;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
 import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
 import tech.jhipster.web.util.HeaderUtil;
@@ -56,8 +57,13 @@ public class PipelineViewResource {
     public ResponseEntity<PipelineView> createPipeline(@Valid @RequestBody PipelineView pipelineView) throws URISyntaxException {
         log.debug("REST request to save PipelineView : {}", pipelineView);
         if (pipelineView.getId() != null) {
-            throw new BadRequestAlertException("A new pipeline cannot already have an ID", ENTITY_NAME, "idexists");
+            throw new BadRequestAlertException("A new pipeline request cannot have an ID", ENTITY_NAME, "idexists");
         }
+
+        if( pipelineUtil.getPipelineByRealm(pipelineView.getType(), pipelineView.getUrlPart()) != null ){
+            throw new BadRequestAlertException("Realm '" + pipelineView.getUrlPart() + "' already exists", ENTITY_NAME, "realmexists");
+        }
+
         Pipeline p = pipelineUtil.toPipeline(pipelineView);
         return ResponseEntity.created(new URI("/api/pipelineViews/" + p.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, p.getId().toString()))
@@ -139,7 +145,12 @@ public class PipelineViewResource {
     @DeleteMapping("/pipelineViews/{id}")
     public ResponseEntity<Void> deletePipeline(@PathVariable Long id) {
         log.debug("REST request to delete Pipeline : {}", id);
-        pipelineService.delete(id);
+        try {
+            pipelineService.delete(id);
+        } catch( RuntimeException dive){
+            log.debug("Pipeline deletion failed", dive);
+            throw new IntegrityException("Pipeline already used");
+        }
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
 }

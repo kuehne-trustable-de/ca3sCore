@@ -161,7 +161,7 @@ public class ACMECertificateController extends ACMEController {
 
 			X509Certificate x509Cert = CertUtil.decodeCertificate(Base64.decodeBase64(certB64));
 
-			LOG.info("Revoke request for certificate {} ", x509Cert.getSubjectDN().toString() );
+			LOG.info("Revoke request for certificate {} ", x509Cert.getSubjectX500Principal().toString() );
 
 			String tbsDigestBase64;
 			try {
@@ -176,7 +176,7 @@ public class ACMECertificateController extends ACMEController {
 			List<Certificate> certList = certificateRepository.findByTBSDigest(tbsDigestBase64);
 
 			if (certList.isEmpty()) {
-				LOG.warn("Certificate {} to be revoked not found in database", x509Cert.getSubjectDN().toString() );
+				LOG.warn("Certificate {} to be revoked not found in database", x509Cert.getSubjectX500Principal().toString() );
 	  		    return ResponseEntity.notFound().build();
 			} else {
 				Certificate certDao = certList.get(0);
@@ -191,7 +191,7 @@ public class ACMECertificateController extends ACMEController {
 		  	        return ResponseEntity.ok().headers(headers).build();
 				}else {
 					LOG.warn("Revoke request for certificate {} identified by account {} does not match cert's associated account {}",
-							x509Cert.getSubjectDN().toString(),
+							x509Cert.getSubjectX500Principal().toString(),
 							acctDao.getAccountId(),
 							certUtil.getCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_ACME_ACCOUNT_ID));
 		  	        return ResponseEntity.status(HttpStatus.FORBIDDEN).headers(headers).build();

@@ -36,6 +36,10 @@ import de.trustable.ca3s.core.domain.enumeration.PipelineType;
         query = "SELECT p FROM Pipeline p WHERE " +
             "p.active = true and " +
             "p.type = :type "
+    ),
+    @NamedQuery(name = "Pipeline.findByName",
+        query = "SELECT p FROM Pipeline p WHERE " +
+            "p.name = :name "
     )
 
 })

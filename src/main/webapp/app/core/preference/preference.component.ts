@@ -151,6 +151,4 @@ export default class Preference extends mixins(AlertMixin, JhiDataUtils) {
       }
     }
   }
-
-  acmeHTTP01CallbackPortArr;
 }

@@ -5,8 +5,19 @@ import java.io.Serializable;
 public class WebConfigItems implements Serializable{
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -3033819425667579550L;
 
+    private String additionalEMailRecipients = "";
+
+    public WebConfigItems(){}
+
+    public String getAdditionalEMailRecipients() {
+        return additionalEMailRecipients;
+    }
+
+    public void setAdditionalEMailRecipients(String additionalEMailRecipients) {
+        this.additionalEMailRecipients = additionalEMailRecipients;
+    }
 }

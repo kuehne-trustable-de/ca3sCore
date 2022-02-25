@@ -34,10 +34,16 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
   public bpmnCheckResult: IBpmnCheckResult = {};
 
   public bpmnUrl: string;
-  public bpmnFileUploaded: boolean = false;
+  public bpmnFileUploaded = false;
   public warningMessage: string = null;
 
-  public csrId: number = 1;
+  public csrId = 1;
+
+  public options: {
+    propertiesPanel: {};
+    additionalModules: [];
+    moddleExtensions: [];
+  };
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -70,7 +76,7 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
   }
 
   public isRAOfficer() {
-    return this.hasRole('ROLE_RA');
+    return this.hasRole('ROLE_RA') || this.hasRole('ROLE_RA_DOMAIN');
   }
 
   public isAdmin() {
@@ -98,12 +104,12 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
     this.bpmnCheckResult = {};
     const self = this;
 
-    const url = `/api/bpmn/check/csr/${this.bPNMProcessInfo.processId}/${this.csrId}`;
-    console.log('calling bpmn check endpoint at ' + url);
+    const targetURL = `/api/bpmn/check/csr/${this.bPNMProcessInfo.processId}/${this.csrId}`;
+    console.log('calling bpmn check endpoint at ' + targetURL);
 
     axios({
       method: 'post',
-      url: url
+      url: targetURL
     }).then(function(response) {
       window.console.info('/bpmn/check/csr returns ' + response.data);
       self.bpmnCheckResult = response.data;
@@ -133,12 +139,6 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
     console.log('diagram loading');
   }
 
-  public options: {
-    propertiesPanel: {};
-    additionalModules: [];
-    moddleExtensions: [];
-  };
-
   public notifyFileChange(evt: any): void {
     if (!evt || !evt.target || !evt.target.files || evt.target.files.length === 0) {
       return;
@@ -164,11 +164,11 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
       }
 
       const readerUrl = new FileReader();
-      readerUrl.onload = function(_result) {
+      readerUrl.onload = function(__result) {
         if (typeof readerUrl.result === 'string') {
           self.bpmnUrl = readerUrl.result;
 
-          let name = evt.target.files[0].name;
+          const name = evt.target.files[0].name;
           if (name.endsWith('.bpmn20.xml')) {
             name.substring(0, name.length - 11);
           }

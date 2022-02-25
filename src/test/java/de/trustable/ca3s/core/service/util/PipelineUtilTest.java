@@ -366,8 +366,10 @@ class PipelineUtilTest {
 			PipelineView pv_CN_Only = new PipelineView();
 	    	pv_CN_Only.setRestriction_C(new RDNRestriction());
 			pv_CN_Only.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
-			pv_CN_Only.getRestriction_C().setContentTemplate("foo");
-	    	pv_CN_Only.setRestriction_CN(new RDNRestriction());
+            pv_CN_Only.getRestriction_C().setRegEx("foo");
+            pv_CN_Only.getRestriction_C().setRegExMatch(true);
+
+            pv_CN_Only.setRestriction_CN(new RDNRestriction());
 			pv_CN_Only.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
 	    	pv_CN_Only.setRestriction_L(new RDNRestriction());
 			pv_CN_Only.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
@@ -390,8 +392,10 @@ class PipelineUtilTest {
 			PipelineView pv_C_de = new PipelineView();
 	    	pv_C_de.setRestriction_C(new RDNRestriction());
 			pv_C_de.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
-			pv_C_de.getRestriction_C().setContentTemplate("de");
-	    	pv_C_de.setRestriction_CN(new RDNRestriction());
+			pv_C_de.getRestriction_C().setRegEx("(?i)de");
+            pv_C_de.getRestriction_C().setRegExMatch(true);
+
+            pv_C_de.setRestriction_CN(new RDNRestriction());
 			pv_C_de.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
 	    	pv_C_de.setRestriction_L(new RDNRestriction());
 			pv_C_de.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
@@ -416,7 +420,9 @@ class PipelineUtilTest {
 			pv_C_de.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
 	    	pv_C_de.setRestriction_CN(new RDNRestriction());
 			pv_C_de.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
-			pv_C_de.getRestriction_CN().setContentTemplate("trustable.eu");
+			pv_C_de.getRestriction_CN().setRegEx("trustable.eu");
+            pv_C_de.getRestriction_CN().setRegExMatch(true);
+
 	    	pv_C_de.setRestriction_L(new RDNRestriction());
 			pv_C_de.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
 	    	pv_C_de.setRestriction_O(new RDNRestriction());
@@ -450,8 +456,10 @@ class PipelineUtilTest {
 			pv_C_de.getRestriction_O().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
 	    	pv_C_de.setRestriction_OU(new RDNRestriction());
 			pv_C_de.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.ONE_OR_MANY);
-			pv_C_de.getRestriction_OU().setContentTemplate("ca3s");
-	    	pv_C_de.setRestriction_S(new RDNRestriction());
+            pv_C_de.getRestriction_OU().setRegEx("ca3s");
+            pv_C_de.getRestriction_OU().setRegExMatch(true);
+
+            pv_C_de.setRestriction_S(new RDNRestriction());
 			pv_C_de.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
 
 
@@ -484,7 +492,7 @@ class PipelineUtilTest {
 			PipelineView pv_CRegexBroken = new PipelineView();
 	    	pv_CRegexBroken.setRestriction_C(new RDNRestriction());
 			pv_CRegexBroken.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
-			pv_CRegexBroken.getRestriction_C().setContentTemplate("*.foo");
+			pv_CRegexBroken.getRestriction_C().setRegEx("*.foo");
 			pv_CRegexBroken.getRestriction_C().setRegExMatch(true);
 	    	pv_CRegexBroken.setRestriction_CN(new RDNRestriction());
 			pv_CRegexBroken.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
@@ -522,7 +530,7 @@ class PipelineUtilTest {
 			pv_CRegexBroken.getRestriction_O().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
 	    	pv_CRegexBroken.setRestriction_OU(new RDNRestriction());
 			pv_CRegexBroken.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.ONE_OR_MANY);
-			pv_CRegexBroken.getRestriction_OU().setContentTemplate("(ca3s|foo|bar)");
+			pv_CRegexBroken.getRestriction_OU().setRegEx("(ca3s|foo|bar)");
 			pv_CRegexBroken.getRestriction_OU().setRegExMatch(true);
 	    	pv_CRegexBroken.setRestriction_S(new RDNRestriction());
 			pv_CRegexBroken.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
@@ -545,7 +553,7 @@ class PipelineUtilTest {
 			pv_CRegexBroken.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
 	    	pv_CRegexBroken.setRestriction_CN(new RDNRestriction());
 			pv_CRegexBroken.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
-			pv_CRegexBroken.getRestriction_CN().setContentTemplate(".*\\.eu");
+			pv_CRegexBroken.getRestriction_CN().setRegEx(".*\\.eu");
 			pv_CRegexBroken.getRestriction_CN().setRegExMatch(true);
 	    	pv_CRegexBroken.setRestriction_L(new RDNRestriction());
 			pv_CRegexBroken.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
@@ -570,7 +578,7 @@ class PipelineUtilTest {
 			pv_CRegexBroken.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
 	    	pv_CRegexBroken.setRestriction_CN(new RDNRestriction());
 			pv_CRegexBroken.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
-			pv_CRegexBroken.getRestriction_CN().setContentTemplate("trustable.*");
+			pv_CRegexBroken.getRestriction_CN().setRegEx("trustable.*");
 			pv_CRegexBroken.getRestriction_CN().setRegExMatch(true);
 	    	pv_CRegexBroken.setRestriction_L(new RDNRestriction());
 			pv_CRegexBroken.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
@@ -593,7 +601,35 @@ class PipelineUtilTest {
 			assertEquals("Expecting given number of messages", 0, messageList.size());
 	    }
 
-	}
+        {
+            PipelineView pv_TemplateSet = new PipelineView();
+            pv_TemplateSet.setRestriction_C(new RDNRestriction());
+            pv_TemplateSet.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
+            pv_TemplateSet.setRestriction_CN(new RDNRestriction());
+            pv_TemplateSet.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
+            pv_TemplateSet.getRestriction_CN().setContentTemplate("trustable.*");
+            pv_TemplateSet.setRestriction_L(new RDNRestriction());
+            pv_TemplateSet.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+            pv_TemplateSet.setRestriction_O(new RDNRestriction());
+            pv_TemplateSet.getRestriction_O().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
+            pv_TemplateSet.setRestriction_OU(new RDNRestriction());
+            pv_TemplateSet.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.ONE_OR_MANY);
+            pv_TemplateSet.setRestriction_S(new RDNRestriction());
+            pv_TemplateSet.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+
+
+            messageList.clear();
+            boolean bResult = pu.isPipelineRestrictionsResolved(pv_TemplateSet, p10ReqHolder, messageList);
+
+            for(String msg:messageList) {
+                System.out.println(msg);
+            }
+
+            assertTrue("Expect to pass ", bResult);
+            assertEquals("Expecting given number of messages", 0, messageList.size());
+        }
+
+    }
 
 	@Test
 	void testCheckPipelineRestrictionsIPHasSubject() throws GeneralSecurityException, IOException {

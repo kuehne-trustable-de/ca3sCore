@@ -182,7 +182,7 @@ export default class ChallengesTag extends mixins(AlertMixin, Vue) {
   public buildContentAccessUrl(): string {
     const baseApiUrl = 'api/acmeOrderView/' + this.orderId + '/challenges';
 
-    let url = baseApiUrl;
+    const url = baseApiUrl;
 
     window.console.info('buildContentAccessUrl: url : ' + url);
 

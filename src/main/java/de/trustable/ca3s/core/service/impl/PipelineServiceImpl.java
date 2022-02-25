@@ -1,14 +1,17 @@
 package de.trustable.ca3s.core.service.impl;
 
+import de.trustable.ca3s.core.domain.AuditTrace;
+import de.trustable.ca3s.core.repository.AuditTraceRepository;
 import de.trustable.ca3s.core.repository.PipelineAttributeRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.PipelineService;
 import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.repository.PipelineRepository;
+import de.trustable.ca3s.core.service.exception.IntegrityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,15 +28,16 @@ public class PipelineServiceImpl implements PipelineService {
     private final Logger log = LoggerFactory.getLogger(PipelineServiceImpl.class);
 
     private final PipelineRepository pipelineRepository;
+    private final PipelineAttributeRepository pipelineAttributeRepository;
 
-    @Autowired
-    private PipelineAttributeRepository pipelineAttributeRepository;
+    private final AuditService auditService;
+    private final AuditTraceRepository auditTraceRepository;
 
-    @Autowired
-    private AuditService auditService;
-
-    public PipelineServiceImpl(PipelineRepository pipelineRepository) {
+    public PipelineServiceImpl(PipelineRepository pipelineRepository, PipelineAttributeRepository pipelineAttributeRepository, AuditService auditService, AuditTraceRepository auditTraceRepository) {
         this.pipelineRepository = pipelineRepository;
+        this.pipelineAttributeRepository = pipelineAttributeRepository;
+        this.auditService = auditService;
+        this.auditTraceRepository = auditTraceRepository;
     }
 
     /**
@@ -85,8 +89,30 @@ public class PipelineServiceImpl implements PipelineService {
 
         Optional<Pipeline> pipelineOpt = pipelineRepository.findById(id);
         if(pipelineOpt.isPresent()) {
-            auditService.saveAuditTrace(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_DELETED, null));
-            pipelineAttributeRepository.deleteAll(pipelineOpt.get().getPipelineAttributes());
+
+            Pipeline pipeline = pipelineOpt.get();
+
+            List<AuditTrace> auditTraceList = auditTraceRepository.findByPipeline(pipeline);
+            boolean bWasUsed = false;
+            for( AuditTrace auditTrace: auditTraceList){
+                if( auditTrace.getCertificate() != null ){
+                    log.debug("Pipeline : {} has certificate. Delete prohibited", id);
+                    bWasUsed = true;
+                    break;
+                }
+                if( auditTrace.getCsr() != null ){
+                    log.debug("Pipeline : {} has CSR. Delete prohibited", id);
+                    bWasUsed = true;
+                    break;
+                }
+            }
+            if(bWasUsed){
+                throw new IntegrityException("Pipeline already used");
+            }
+
+            auditTraceRepository.deleteAll(auditTraceList);
+            auditService.saveAuditTrace(auditService.createAuditTracePipeline(AuditService.AUDIT_PIPELINE_DELETED, null));
+            pipelineAttributeRepository.deleteAll(pipeline.getPipelineAttributes());
             pipelineRepository.deleteById(id);
         }
     }

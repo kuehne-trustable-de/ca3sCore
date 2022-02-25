@@ -1084,8 +1084,9 @@
   "orderCount": "Anz. Aufträge",
   "contactUrls": "Kontaktinfo",
 
-  "ROLE_USER": "User",
+  "ROLE_USER": "Nutzer",
   "ROLE_RA": "RA Mitarbeiter",
+  "ROLE_RA_DOMAIN": "Domain RA Mitarbeiter",
   "ROLE_ADMIN": "Administrator",
 
   "CERTIFICATE_IMPORTED": "Zertifikat importiert von '{{val}}'",

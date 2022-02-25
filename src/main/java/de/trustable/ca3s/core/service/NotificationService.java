@@ -102,17 +102,22 @@ public class NotificationService {
         Context context = new Context(locale);
         context.setVariable("certId", cert.getId());
         context.setVariable("subject", cert.getSubject());
+        context.setVariable("sans", cert.getSans());
 
         String downloadFilename = CertificateUtil.getDownloadFilename(cert);
 
+        Instant requestedOn = cert.getValidFrom();
         boolean isServersideKeyGeneration = false;
         if(cert.getCsr() != null) {
+            requestedOn = cert.getCsr().getRequestedOn();
             isServersideKeyGeneration = cert.getCsr().isServersideKeyGeneration();
         }
+        context.setVariable("requestedOn", requestedOn);
         context.setVariable("isServersideKeyGeneration", isServersideKeyGeneration);
 
         context.setVariable("filenameCrt", downloadFilename + ".crt");
         context.setVariable("filenamePem", downloadFilename + ".pem");
+        context.setVariable("filenameFullChainPem", downloadFilename + ".full.pem");
 
         mailService.sendEmailFromTemplate(context, requestor, "mail/acceptedRequestEmail", "email.acceptedRequest.title");
     }
@@ -171,7 +176,7 @@ public class NotificationService {
         for( User user: userRepository.findAll()) {
             for( Authority auth: user.getAuthorities()) {
                 LOG.debug("user {} {} has role {}", user.getFirstName(), user.getLastName(), auth.getName());
-                if( AuthoritiesConstants.RA_OFFICER.equalsIgnoreCase(auth.getName())) {
+                if( AuthoritiesConstants.RA_OFFICER.equalsIgnoreCase(auth.getName()) || AuthoritiesConstants.DOMAIN_RA_OFFICER.equalsIgnoreCase(auth.getName())) {
                     raOfficerList.add(user);
                     LOG.debug("found user {} {} having the role of a RA officers", user.getFirstName(), user.getLastName());
                     break;

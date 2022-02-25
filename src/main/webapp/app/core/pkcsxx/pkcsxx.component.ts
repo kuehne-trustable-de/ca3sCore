@@ -160,9 +160,9 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     return false;
   }
 
-  public showRequiredWarning(required: boolean, value: string): boolean {
-    console.log('showRequiredWarning( ' + required + ', "' + value + '"');
-    if (required) {
+  public showRequiredWarning(isRequired: boolean, value: string): boolean {
+    console.log('showRequiredWarning( ' + isRequired + ', "' + value + '"');
+    if (isRequired) {
       if (value.trim().length === 0) {
         return true;
       }
@@ -172,7 +172,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
   public showContentWarning(rr: IPipelineRestriction, valueIndex: number, value: string): boolean {
     console.log('showContentWarning( ' + rr.required + ', ' + valueIndex + ', "' + value + '")');
-    if (rr.required && valueIndex == 0 && value.trim().length == 0) {
+    if (rr.required && valueIndex === 0 && value.trim().length === 0) {
       console.log('showContentWarning( ' + rr.required + ', ' + valueIndex + ', "' + value + '") does not match');
       return true;
     }
@@ -181,7 +181,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
   public showContentOrSANWarning(rr: IPipelineRestriction, valueIndex: number, value: string): boolean {
     console.log('showContentOrSANWarning( ' + rr.required + ', ' + valueIndex + ', "' + value + '")');
-    if (rr.cardinality === 'ONE_OR_SAN' && valueIndex == 0 && value.trim().length == 0) {
+    if (rr.cardinality === 'ONE_OR_SAN' && valueIndex === 0 && value.trim().length === 0) {
       for (const nv of this.upload.certificateAttributes) {
         if (nv.name === 'SAN' && nv.values.length > 0 && nv.values[0].trim().length > 0) {
           console.log('showContentWarning: CN empty, SAN present');
@@ -197,7 +197,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   public showRegExpWarning(rr: IPipelineRestriction, valueIndex: number, value: string): boolean {
     console.log('showRegExpWarning( ' + rr.regExMatch + ', ' + valueIndex + ', "' + value + '")');
     console.log('showRegExpWarning : rr.regEx = ' + rr.regEx);
-    if (rr.regExMatch && valueIndex == 0 && rr.regEx.trim().length > 0) {
+    if (rr.regExMatch && valueIndex === 0 && rr.regEx.trim().length > 0) {
       const regexp = new RegExp(rr.regEx);
       const valid = regexp.test(value);
       console.log('showRegExpWarning( ' + rr.regExMatch + ', ' + valueIndex + ', "' + value + '") -> ' + valid);
@@ -382,7 +382,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       cmdline0 = 'keytool -genkeypair -keyalg ' + algo;
       cmdline0 += ' -keysize ' + keyLen;
 
-      let aliasP12Type = ' -alias keyAlias -keystore test.p12 -storetype pkcs12';
+      const aliasP12Type = ' -alias keyAlias -keystore test.p12 -storetype pkcs12';
       cmdline0 += aliasP12Type;
 
       let dname = '';
@@ -803,7 +803,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   }
 
   public isRAOfficer() {
-    return this.hasRole('ROLE_RA');
+    return this.hasRole('ROLE_RA') || this.hasRole('ROLE_RA_DOMAIN');
   }
 
   public isAdmin() {

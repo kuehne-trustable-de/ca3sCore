@@ -110,7 +110,7 @@
                         <span>{{ icsrView.publicKeyAlgorithm }} / {{ icsrView.keyLength }} bits</span>
                     </dd>
 
-                    <Fragment v-for="attr in arAttributes" :key="attr.name" v-if="!(icsrView.status === 'PENDING' && ((roles === 'ROLE_RA') || (getUsername() === icsrView.requestedBy)))">
+                    <Fragment v-for="attr in arAttributes" :key="attr.name" v-if="!(icsrView.status === 'PENDING' && (isRAOfficer() || (getUsername() === icsrView.requestedBy)))">
 
                         <dt>
                             <span >{{attr.name}}</span>
@@ -128,6 +128,15 @@
                             <router-link :to="{name: 'PipelineView', params: {pipelineId: icsrView.pipeline.id}}">{{ icsrView.pipeline.name }}</router-link>
                         </div>
                     </dd>
+
+
+                    <dt>
+                        <span v-text="$t('ca3SApp.cSR.pipeline')">Pipeline</span>
+                    </dt>
+                    <dd>
+                        <span>{{ icsrView.pipelineName }}</span>
+                    </dd>
+
                     <dt>
                         <span v-text="$t('ca3SApp.cSR.pipelineType')">Pipeline Type</span>
                     </dt>
@@ -167,7 +176,7 @@
             <form name="editForm" role="form" novalidate>
                 <div>
 
-                    <Fragment v-if="icsrView.status === 'PENDING' && ((roles === 'ROLE_RA') || (getUsername() === icsrView.requestedBy))">
+                    <Fragment v-if="icsrView.status === 'PENDING' && (isRAOfficer() || (getUsername() === icsrView.requestedBy))">
 
                         <div v-for="attr in csrAdminData.arAttributes" :key="attr.name" class="form-group">
                             <label class="form-control-label"  for="csr-ar-{attr.name}">{{attr.name}}</label>
@@ -194,7 +203,7 @@
                         <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.back')"> Back</span>
                     </button>
 
-                    <button type="button" id="reject" v-if="icsrView.status === 'PENDING' && roles === 'ROLE_RA' && !(getUsername() === icsrView.requestedBy)" class="btn btn-secondary" v-on:click="rejectCSR()">
+                    <button type="button" id="reject" v-if="icsrView.status === 'PENDING' && isRAOfficer() && !(getUsername() === icsrView.requestedBy)" class="btn btn-secondary" v-on:click="rejectCSR()">
                         <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.reject')">Reject</span>
                     </button>
 
@@ -202,16 +211,16 @@
                         <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.withdraw')">Withdraw</span>
                     </button>
 
-                    <button type="button" id="update" v-if="icsrView.status === 'PENDING' && roles === 'ROLE_RA'" class="btn btn-secondary" v-on:click="updateCSR()">
+                    <button type="button" id="update" v-if="icsrView.status === 'PENDING' && isRAOfficer()" class="btn btn-secondary" v-on:click="updateCSR()">
                         <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.edit')">Update</span>
                     </button>
 
-                    <button type="button" id="selfAdminister" v-if="icsrView.status === 'PENDING' && getUsername() === icsrView.requestedBy && roles !== 'ROLE_RA'"
+                    <button type="button" id="selfAdminister" v-if="icsrView.status === 'PENDING' && getUsername() === icsrView.requestedBy && !isRAOfficer()"
                             class="btn btn-secondary" v-on:click="selfAdministerRequest()">
                         <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.update')">Update</span>
                     </button>
 
-                    <button type="button" id="confirm" v-if="icsrView.status === 'PENDING' && roles === 'ROLE_RA'" class="btn btn-primary"
+                    <button type="button" id="confirm" v-if="icsrView.status === 'PENDING' && isRAOfficer()" class="btn btn-primary"
                             v-on:click="confirmCSR()">
                         <font-awesome-icon icon="save"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.confirm')">Confirm</span>
                     </button>

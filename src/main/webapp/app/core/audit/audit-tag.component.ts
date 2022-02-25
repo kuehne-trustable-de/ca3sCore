@@ -109,13 +109,13 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
 
   public titleContent = 'Audit Log';
 
+  public contentAccessUrl: string;
+  public tmpContentAccessUrl: string;
+
   public collapsed = true;
   public setCollapsed(collapsed: boolean) {
     this.collapsed = collapsed;
   }
-
-  public contentAccessUrl: string;
-  public tmpContentAccessUrl: string;
 
   public get username(): string {
     return this.$store.getters.account ? this.$store.getters.account.login : '';

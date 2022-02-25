@@ -50,7 +50,7 @@ export default class AcmeOrderInfo extends mixins(JhiDataUtils, Vue) {
   }
 
   public isRAOfficer() {
-    return this.hasRole('ROLE_RA');
+    return this.hasRole('ROLE_RA') || this.hasRole('ROLE_RA_DOMAIN');
   }
 
   public isAdmin() {

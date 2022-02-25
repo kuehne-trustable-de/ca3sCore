@@ -312,74 +312,76 @@ export default new Router({
       path: '/csr-list',
       name: 'CsrList',
       component: CsrList,
-      meta: { authorities: ['ROLE_USER', 'ROLE_RA', 'ROLE_ADMIN'] }
+
+
+      meta: { authorities: ['ROLE_USER', 'ROLE_RA', 'ROLE_RA_DOMAIN','ROLE_ADMIN'] }
     },
     {
       path: '/csr-info',
       name: 'CsrInfo',
       component: CsrInfo,
-      meta: { authorities: ['ROLE_USER', 'ROLE_RA', 'ROLE_ADMIN'] }
+      meta: { authorities: ['ROLE_USER', 'ROLE_RA', 'ROLE_RA_DOMAIN', 'ROLE_ADMIN'] }
     },
     {
       path: '/confPipeline',
       name: 'ConfPipeline',
       component: ConfPipeline,
-      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
+      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA', 'ROLE_RA_DOMAIN'] }
     },
     {
       path: '/confPipeline/new',
       name: 'ConfPipelineCreate',
       component: ConfPipelineUpdate,
-      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
+      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA', 'ROLE_RA_DOMAIN'] }
     },
     {
       path: '/confPipeline/:pipelineId/:mode',
       name: 'ConfPipelineEdit',
       component: ConfPipelineUpdate,
-      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
+      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA', 'ROLE_RA_DOMAIN'] }
     },
     {
       path: '/confPipeline/:pipelineId/:mode',
       name: 'ConfPipelineCopy',
       component: ConfPipelineUpdate,
-      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
+      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA', 'ROLE_RA_DOMAIN'] }
     },
     {
       path: '/confPipeline/:pipelineId/view',
       name: 'ConfPipelineView',
       component: ConfPipelineDetails,
-      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
+      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA', 'ROLE_RA_DOMAIN'] }
     },
 
     {
       path: '/confCaConnector',
       name: 'ConfCaConnector',
       component: ConfCaConnector,
-      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
+      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA', 'ROLE_RA_DOMAIN'] }
     },
     {
       path: '/confCaConnector/new',
       name: 'ConfCaConnectorCreate',
       component: ConfCaConnectorUpdate,
-      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
+      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA', 'ROLE_RA_DOMAIN'] }
     },
     {
       path: '/confCaConnector/:cAConnectorConfigId/:mode',
       name: 'ConfCaConnectorEdit',
       component: ConfCaConnectorUpdate,
-      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
+      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA', 'ROLE_RA_DOMAIN'] }
     },
     {
       path: '/confCaConnector/:cAConnectorConfigId/:mode',
       name: 'ConfCaConnectorCopy',
       component: ConfCaConnectorUpdate,
-      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
+      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA', 'ROLE_RA_DOMAIN'] }
     },
     {
       path: '/confCaConnector/:caConnectorId/view',
       name: 'ConfCaConnectorView',
       component: ConfCaConnectorDetails,
-      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA'] }
+      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA', 'ROLE_RA_DOMAIN'] }
     },
 
     {
@@ -402,13 +404,13 @@ export default new Router({
       path: '/account/password',
       name: 'ChangePassword',
       component: ChangePassword,
-      meta: { authorities: ['ROLE_USER', 'ROLE_RA'] }
+      meta: { authorities: ['ROLE_USER', 'ROLE_RA', 'ROLE_RA_DOMAIN'] }
     },
     {
       path: '/account/settings',
       name: 'Settings',
       component: Settings,
-      meta: { authorities: ['ROLE_USER', 'ROLE_RA'] }
+      meta: { authorities: ['ROLE_USER', 'ROLE_RA', 'ROLE_RA_DOMAIN'] }
     },
     {
       path: '/admin/user-management',

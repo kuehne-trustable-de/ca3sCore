@@ -20,10 +20,10 @@ export default class AccountService {
 
     this.router.beforeEach((to, from, next) => {
       window.console.info('++++++++++++++++++ to.query.bearer : ' + to.query.bearer);
-      const token = to.query.bearer;
-      if (token) {
-        window.console.info('setting bearer token to local storage : ' + token);
-        localStorage.setItem('jhi-authenticationToken', '' + token);
+      const bearer = to.query.bearer;
+      if (bearer) {
+        window.console.info('setting bearer token to local storage : ' + bearer);
+        localStorage.setItem('jhi-authenticationToken', '' + bearer);
         this.retrieveAccount();
       }
       next();

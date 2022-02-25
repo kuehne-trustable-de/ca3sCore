@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2022-02-17 21:46:33.
+// Generated using typescript-generator version 2.19.577 on 2022-02-25 19:03:06.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -117,6 +117,7 @@ export interface IPipelineView extends ISerializable {
   restriction_SAN?: IRDNRestriction;
   rdnRestrictions?: IRDNRestriction[];
   araRestrictions?: IARARestriction[];
+  domainRaOfficerList?: string[];
   toPendingOnFailedRestrictions?: boolean;
   ipAsSubjectAllowed?: boolean;
   ipAsSANAllowed?: boolean;
@@ -191,9 +192,9 @@ export interface ICertificateView extends ISerializable {
   isServersideKeyGeneration?: boolean;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
+  auditPresent?: boolean;
   serversideKeyGeneration?: boolean;
   fullChainAvailable?: boolean;
-  auditPresent?: boolean;
 }
 
 export interface ICSRView extends ISerializable {
@@ -224,6 +225,7 @@ export interface ICSRView extends ISerializable {
   administrationComment?: string;
   csrBase64?: string;
   auditViewArr?: IAuditView[];
+  isAdministrable?: boolean;
   csrvalid?: boolean;
 }
 
@@ -395,7 +397,9 @@ export interface ISCEPConfigItems extends ISerializable {
   caConnectorRecipientName?: string;
 }
 
-export interface IWebConfigItems extends ISerializable {}
+export interface IWebConfigItems extends ISerializable {
+  additionalEMailRecipients?: string;
+}
 
 export interface INamedValue {
   name?: string;
@@ -412,6 +416,9 @@ export interface IPkcs10RequestHolderShallow {
   signingAlgorithmName?: string;
   isCSRValid?: boolean;
   x509KeySpec?: string;
+  sigAlgName?: string;
+  keyAlgName?: string;
+  keyLength?: number;
   sans?: string[];
   subject?: string;
   publicKeyAlgorithmName?: string;

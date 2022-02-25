@@ -13,6 +13,7 @@ import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.service.util.CSRUtil;
+import de.trustable.ca3s.core.service.util.PipelineUtil;
 
 import javax.persistence.Column;
 import javax.persistence.Lob;
@@ -108,9 +109,13 @@ public class CSRView implements Serializable {
     @CsvIgnore
     private AuditView[] auditViewArr;
 
+    @CsvIgnore
+    private boolean isAdministrable;
+
 
 
     public CSRView() {}
+
 
     public CSRView(final CSRUtil csrUtil, final CSR csr) {
 
@@ -139,7 +144,16 @@ public class CSRView implements Serializable {
         this.sanArr = sanList.toArray(new String[0]);
 
     	this.processingCA = csrUtil.getCSRAttribute(csr, CsrAttribute.ATTRIBUTE_PROCESSING_CA);
-    	this.pipelineName = csr.getPipeline() != null ? csr.getPipeline().getName(): null;
+
+        if( csr.getPipeline() != null) {
+            this.pipelineName = csr.getPipeline().getName();
+            this.pipelineType = csr.getPipeline().getType();
+        }else{
+            this.pipelineName = null;
+            this.pipelineType = null;
+        }
+        this.isAdministrable = false;
+
 
         this.isCSRValid = csr.isIsCSRValid();
         this.serversideKeyGeneration = csr.isServersideKeyGeneration();
@@ -378,5 +392,13 @@ public class CSRView implements Serializable {
 
     public void setAdministrationComment(String administrationComment) {
         this.administrationComment = administrationComment;
+    }
+
+    public boolean getIsAdministrable() {
+        return isAdministrable;
+    }
+
+    public void setAdministrable(boolean administrable) {
+        isAdministrable = administrable;
     }
 }

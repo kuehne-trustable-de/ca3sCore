@@ -1,17 +1,20 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.CSR;
+import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.CSRService;
 import de.trustable.ca3s.core.service.dto.CSRView;
 import de.trustable.ca3s.core.service.util.CSRUtil;
+import de.trustable.ca3s.core.service.util.PipelineUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import tech.jhipster.web.util.ResponseUtil;
 
 import javax.validation.Valid;
 import java.net.URISyntaxException;
@@ -34,10 +37,14 @@ public class CSRResource {
 
     private final CSRService cSRService;
     private final CSRUtil csrUtil;
+    private final PipelineUtil pipelineUtil;
+    private final UserRepository userRepository;
 
-    public CSRResource(CSRService cSRService, CSRUtil csrUtil) {
+    public CSRResource(CSRService cSRService, CSRUtil csrUtil, PipelineUtil pipelineUtil, UserRepository userRepository) {
         this.cSRService = cSRService;
         this.csrUtil = csrUtil;
+        this.pipelineUtil = pipelineUtil;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -127,6 +134,7 @@ public class CSRResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the cSR, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/csrView/{id}")
+    @Transactional(readOnly = true)
     public ResponseEntity<CSRView> getCSRView(@PathVariable Long id) {
         log.debug("REST request to get CSRView for CSR id : {}", id);
 
@@ -138,9 +146,19 @@ public class CSRResource {
 
             CSR csr = cSROptional.get();
             CSRView csrView = new CSRView(csrUtil, csr);
-            if( csr.getRequestedBy().equals(userName)){
+
+            Optional<User> optCurrentUser = userRepository.findOneByLogin(userName);
+            if(!optCurrentUser.isPresent()) {
+                log.warn("Name of ra officer '{}' not found as user", userName);
+                return ResponseEntity.notFound().build();
+            }
+
+            csrView.setAdministrable(pipelineUtil.isUserValidAsRA(csr.getPipeline(), optCurrentUser.get()));
+
+            if( csr.getRequestedBy().equals(userName) || csrView.getIsAdministrable()){
                 csrView.setCsrBase64(csr.getCsrBase64());
             }
+
             log.debug("returning CSRView for id : {} -> {}", id, csrView);
             return ResponseEntity.ok(csrView);
         }

@@ -47,6 +47,8 @@ public class PipelineView implements Serializable {
 
     private ARARestriction[] araRestrictions;
 
+    private String[] domainRaOfficerList;
+
     private boolean toPendingOnFailedRestrictions = false;
 
     private boolean ipAsSubjectAllowed = false;
@@ -317,5 +319,13 @@ public class PipelineView implements Serializable {
 
     public void setListOrder(int listOrder) {
         this.listOrder = listOrder;
+    }
+
+    public String[] getDomainRaOfficerList() {
+        return domainRaOfficerList;
+    }
+
+    public void setDomainRaOfficerList(String[] domainRaOfficerList) {
+        this.domainRaOfficerList = domainRaOfficerList;
     }
 }

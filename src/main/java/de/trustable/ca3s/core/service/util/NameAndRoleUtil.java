@@ -34,6 +34,10 @@ public class NameAndRoleUtil {
             return "RA";
         }
 
+        if( auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(AuthoritiesConstants.DOMAIN_RA_OFFICER))){
+            return "DOMAIN_RA_OFFICER";
+        }
+
         if( auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(AuthoritiesConstants.USER))){
             return "USER";
         }

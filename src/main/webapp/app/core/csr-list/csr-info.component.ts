@@ -91,7 +91,7 @@ export default class CsrInfo extends mixins(AlertMixin, JhiDataUtils) {
   }
 
   public getArAttributes(): INamedValue[] {
-    let resultArr: INamedValue[] = new Array<INamedValue>();
+    const resultArr: INamedValue[] = new Array<INamedValue>();
 
     /*
     if (this.icsrView.csrAttributes === undefined) {
@@ -231,7 +231,8 @@ export default class CsrInfo extends mixins(AlertMixin, JhiDataUtils) {
   }
 
   public isRAOfficer() {
-    return this.hasRole('ROLE_RA');
+    console.log('isRAOfficer: ' + this.icsrView.isAdministrable);
+    return this.icsrView.isAdministrable;
   }
 
   public isAdmin() {

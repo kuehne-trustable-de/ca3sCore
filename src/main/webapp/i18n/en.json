@@ -1089,6 +1089,7 @@
 
   "ROLE_USER": "User",
   "ROLE_RA": "RA officer",
+  "ROLE_RA_DOMAIN": "Domain RA officer",
   "ROLE_ADMIN": "Administrator",
 
   "CERTIFICATE_IMPORTED": "Certificate imported from '{{val}}'",

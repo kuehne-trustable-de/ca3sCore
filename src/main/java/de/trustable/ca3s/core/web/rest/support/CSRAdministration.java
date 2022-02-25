@@ -12,6 +12,7 @@ import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.NotificationService;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CSRUtil;
+import de.trustable.ca3s.core.service.util.PipelineUtil;
 import de.trustable.ca3s.core.web.rest.data.AdministrationType;
 import de.trustable.ca3s.core.web.rest.data.CSRAdministrationData;
 import de.trustable.ca3s.core.service.dto.NamedValue;
@@ -51,7 +52,9 @@ public class CSRAdministration {
 
     private final CSRUtil csrUtil;
 
-	private final UserRepository userRepository;
+    private final PipelineUtil pipelineUtil;
+
+    private final UserRepository userRepository;
 
 	private final AuditService auditService;
 
@@ -65,6 +68,7 @@ public class CSRAdministration {
                              CsrAttributeRepository csrAttributeRepository,
                              BPMNUtil bpmnUtil,
                              CSRUtil csrUtil,
+                             PipelineUtil pipelineUtil,
                              UserRepository userRepository,
                              AuditService auditService,
                              NotificationService notificationService,
@@ -74,6 +78,7 @@ public class CSRAdministration {
         this.csrAttributeRepository = csrAttributeRepository;
         this.bpmnUtil = bpmnUtil;
         this.csrUtil = csrUtil;
+        this.pipelineUtil = pipelineUtil;
         this.userRepository = userRepository;
         this.auditService = auditService;
         this.notificationService = notificationService;
@@ -94,13 +99,28 @@ public class CSRAdministration {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String userName = auth.getName();
+        if( userName == null) {
+            LOG.warn("Current user == null!");
+            return ResponseEntity.notFound().build();
+        }
 
-    	Optional<CSR> optCSR = csrRepository.findById(adminData.getCsrId());
+        Optional<User> optCurrentUser = userRepository.findOneByLogin(userName);
+        if(!optCurrentUser.isPresent()) {
+            LOG.warn("Name of ra officer '{}' not found as user", userName);
+            return ResponseEntity.notFound().build();
+        }
+
+
+        Optional<CSR> optCSR = csrRepository.findById(adminData.getCsrId());
     	if( optCSR.isPresent()) {
             CSR csr = optCSR.get();
 
-            if( userName == null ||
-                userName.equals(csr.getRequestedBy()) ){
+            if( !pipelineUtil.isUserValidAsRA(csr.getPipeline(), optCurrentUser.get())){
+                LOG.warn("REST request by user '{}' to accept CSR '{}' is not allowed by the pipeline!", userName, adminData.getCsrId());
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            if( userName.equals(csr.getRequestedBy()) ){
 
                 if(AdministrationType.ACCEPT.equals(adminData.getAdministrationType())) {
                     if (selfIssuanceAllowed) {
@@ -111,6 +131,7 @@ public class CSRAdministration {
                     }
                 }
             }
+
 			csr.setAdministeredBy(userName);
             updateComment(adminData, csr);
 

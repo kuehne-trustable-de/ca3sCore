@@ -18,6 +18,7 @@ logging:
     ROOT: INFO
     io.github.jhipster: INFO
     de.trustable.ca3s.core: DEBUG
+    de.trustable.ca3s.core.PropertiesLogger: INFO
     de.trustable.ca3s.core.schedule.RequestProxyScheduler: WARN
     de.trustable.ca3s.core.service.util.CaConnectorAdapter: WARN
     de.trustable.ca3s.core.service.adcs: WARN

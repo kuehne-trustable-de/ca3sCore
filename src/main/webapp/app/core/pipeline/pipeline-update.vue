@@ -3,6 +3,16 @@
         <div class="col-8">
             <form name="editForm" role="form" novalidate v-on:submit.prevent="save()" >
                 <h2 id="ca3SApp.pipeline.home.createOrEditLabel" v-text="$t('ca3SApp.pipeline.home.createOrEditLabel')">Create or edit a Pipeline</h2>
+
+                <b-alert :show="dismissCountDown"
+                         dismissible
+                         :variant="alertType"
+                         @dismissed="dismissCountDown=0"
+                         @dismiss-count-down="countDownChanged">
+                    {{alertMessage}}
+                </b-alert>
+                <br/>
+
                 <div>
                     <!--div class="form-group" v-if="pipeline.id">
                         <label for="id" v-text="$t('global.field.id')">ID</label>
@@ -378,6 +388,20 @@
                             <option value="DOC_SIGNING">Document Signing</option>
                             <option value="CODE_SIGNING">Code  Signing</option>
                         </select>
+                    </div>
+
+                    <div class="form-inline" v-if="pipeline.domainRaOfficerList && domainRAs && domainRAs.length > 0">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.domainRAs')" for="pipeline-domainRAs">Domain RAs</label>
+                        <select class="form-control" multiple="true" id="pipeline-domainRAs" name="pipeline-domainRAs" v-model="pipeline.domainRaOfficerList">
+                            <option v-bind:value="domainRA.id" v-for="domainRA in domainRAs" :key="domainRA.id">{{readableUserName(domainRA)}}</option>
+                        </select>
+                    </div>
+
+
+
+                    <div v-if="$v.pipeline.type.$model === 'WEB'" class="form-inline">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.additionalEmailRecipients')" for="pipeline-additionalEmailRecipients">Additional Email Recipients</label>
+                        <input type="text" class="form-control" name="additionalEmailRecipients" id="pipeline-additionalEmailRecipients" v-model="pipeline.webConfigItems.additionalEMailRecipients" />
                     </div>
 
                     <div>

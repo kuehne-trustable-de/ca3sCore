@@ -11,6 +11,7 @@ import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
 import de.trustable.ca3s.core.web.rest.errors.EmailAlreadyUsedException;
 import de.trustable.ca3s.core.web.rest.errors.LoginAlreadyUsedException;
 
+import org.springframework.transaction.annotation.Transactional;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -173,6 +174,24 @@ public class UserResource {
         return ResponseUtil.wrapOrNotFound(
             userService.getUserWithAuthoritiesByLogin(login)
                 .map(UserDTO::new));
+    }
+
+    /**
+     * {@code GET /users/role/:role} : get the user with a given role.
+     *
+     * @param role the role to be fretrieved.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the users of given role, or with status {@code 404 (Not Found)}.
+     */
+    @GetMapping("/users/role/{role}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<UserDTO>> getUsersByRole(@PathVariable String role) {
+        log.debug("REST request to get Users for role : {}", role);
+        List<UserDTO> userDTOList = new ArrayList<>();
+        for(User user:userService.getUsersByRole(role)){
+            userDTOList.add(new UserDTO(user));
+        }
+        return ResponseEntity.ok(userDTOList);
     }
 
     /**

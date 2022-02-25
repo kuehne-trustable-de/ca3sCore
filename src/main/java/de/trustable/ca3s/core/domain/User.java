@@ -22,6 +22,13 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "jhi_user")
+@NamedQueries({
+    @NamedQuery(name = "User.findActiveByRole",
+        query = "SELECT distinct u FROM User u JOIN u.authorities auth  WHERE " +
+            " auth.name = :role AND" +
+            " u.activated = TRUE"
+    )
+})
 public class User extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;

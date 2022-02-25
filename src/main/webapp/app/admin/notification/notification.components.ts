@@ -5,8 +5,8 @@ import { IProblemDetail } from '@/shared/model/transfer-object.model';
 
 @Component
 export default class Notification extends Vue {
-  public certificateId: string = '1';
-  public csrId: string = '1';
+  public certificateId = '1';
+  public csrId = '1';
 
   public problemDetail: IProblemDetail = {};
 

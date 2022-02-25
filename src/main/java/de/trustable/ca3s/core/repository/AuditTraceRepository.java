@@ -34,6 +34,9 @@ public interface AuditTraceRepository extends PagingAndSortingRepository<AuditTr
     Page<AuditTrace> findByPipeline(Pageable pageable,
                                     @Param("pipeline") Pipeline pipeline);
 
+    @Query(name = "AuditTrace.findByPipeline")
+    List<AuditTrace> findByPipeline(@Param("pipeline") Pipeline pipeline);
+
     @Query(name = "AuditTrace.findByCaConnector")
     Page<AuditTrace> findByCaConnector(Pageable pageable,
                                        @Param("caConnector") CAConnectorConfig caConnector);

@@ -31,8 +31,14 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
   public bpmnUpload: IBPMNUpload = { type: 'CA_INVOCATION' };
 
   public bpmnUrl: string;
-  public bpmnFileUploaded: boolean = false;
+  public bpmnFileUploaded = false;
   public warningMessage: string = null;
+
+  public options: {
+    propertiesPanel: {};
+    additionalModules: [];
+    moddleExtensions: [];
+  };
 
   public previousState() {
     this.$router.go(-1);
@@ -47,7 +53,7 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
   }
 
   public isRAOfficer() {
-    return this.hasRole('ROLE_RA');
+    return this.hasRole('ROLE_RA') || this.hasRole('ROLE_RA_DOMAIN');
   }
 
   public isAdmin() {
@@ -96,11 +102,11 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
       }
 
       const readerUrl = new FileReader();
-      readerUrl.onload = function(_result) {
+      readerUrl.onload = function(__result) {
         if (typeof readerUrl.result === 'string') {
           self.bpmnUrl = readerUrl.result;
 
-          let name = evt.target.files[0].name;
+          const name = evt.target.files[0].name;
           if (name.endsWith('.bpmn20.xml')) {
             name.substring(0, name.length - 11);
           }
@@ -137,12 +143,6 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
   public handleLoading() {
     console.log('diagram loading');
   }
-
-  public options: {
-    propertiesPanel: {};
-    additionalModules: [];
-    moddleExtensions: [];
-  };
 
   public saveBpmn(): void {
     document.body.style.cursor = 'wait';

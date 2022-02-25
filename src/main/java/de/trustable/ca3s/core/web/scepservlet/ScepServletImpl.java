@@ -187,7 +187,7 @@ public class ScepServletImpl extends ScepServlet {
         scepOrder.setRealm(pipeline.getUrlPart());
         scepOrder.setTransId(transId.toString());
         scepOrder.setRequestedOn(Instant.now());
-        scepOrder.setRequestedBy(sender.getSubjectDN().getName());
+        scepOrder.setRequestedBy(sender.getSubjectX500Principal().getName());
 
         // start with ...
         scepOrder.setStatus(ScepOrderStatus.PENDING);
@@ -260,7 +260,7 @@ public class ScepServletImpl extends ScepServlet {
                 }
             }
             for(X509Certificate x509: certList){
-                LOGGER.debug("--- chain element: " + x509.getSubjectDN().getName());
+                LOGGER.debug("--- chain element: " + x509.getSubjectX500Principal().getName());
             }
 
             scepOrder.setStatus(ScepOrderStatus.READY);

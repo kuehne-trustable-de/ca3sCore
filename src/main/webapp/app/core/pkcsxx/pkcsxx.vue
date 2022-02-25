@@ -333,8 +333,9 @@
 								<span v-text="$t('pkcsxx.upload.algoname')">Build with</span>
 							</dt>
 							<dd>
-								<span>{{precheckResponse.p10Holder.signingAlgorithmName}}</span>
+								<span>{{precheckResponse.p10Holder.signingAlgorithmName}}, {{precheckResponse.p10Holder.keyLength}} Bits</span>
 							</dd>
+
 							<dt v-if="precheckResponse.p10Holder.sans.length > 0">
 								<span v-text="$t('pkcsxx.upload.sans')">Subject alternative names</span>
 							</dt>

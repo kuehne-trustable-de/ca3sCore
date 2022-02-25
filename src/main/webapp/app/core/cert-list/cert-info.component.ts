@@ -213,7 +213,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
   }
 
   public isRAOfficer() {
-    return this.hasRole('ROLE_RA');
+    return this.hasRole('ROLE_RA') || this.hasRole('ROLE_RA_DOMAIN');
   }
 
   public isAdmin() {

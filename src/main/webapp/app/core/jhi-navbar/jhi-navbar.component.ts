@@ -35,7 +35,7 @@ export default class JhiNavbar extends Vue {
 
     if (res.data) {
       this.languages = new Object();
-      for (let lang of res.data.languageArr) {
+      for (const lang of res.data.languageArr) {
         window.console.log('adding available language "' + lang + '" ...');
         if (lang === 'en') {
           this.languages['en'] = { name: 'English' };

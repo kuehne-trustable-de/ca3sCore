@@ -166,12 +166,18 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers("/publicapi/**").permitAll()
 
             .requestMatchers(forPortAndPath(raPort, "/api/administerRequest")).hasAuthority(AuthoritiesConstants.RA_OFFICER)
+            .requestMatchers(forPortAndPath(raPort, "/api/administerRequest")).hasAuthority(AuthoritiesConstants.DOMAIN_RA_OFFICER)
             .antMatchers("/api/administerRequest").denyAll()
+
             .requestMatchers(forPortAndPath(raPort, "/api/administerCertificate")).hasAuthority(AuthoritiesConstants.RA_OFFICER)
+            .requestMatchers(forPortAndPath(raPort, "/api/administerCertificate")).hasAuthority(AuthoritiesConstants.DOMAIN_RA_OFFICER)
             .antMatchers("/api/administerCertificate").denyAll()
 
             .requestMatchers(forPortAndPath(acmePort, "/acme/**")).permitAll()
             .antMatchers("/acme/**").denyAll()
+
+            .requestMatchers(forPortAndPath(scepPort, "/scep/**")).permitAll()
+            .antMatchers("/scep/**").denyAll()
 
             .requestMatchers(forPortAndPath(scepPort, "/ca3sScep/**")).permitAll()
             .antMatchers("/ca3sScep/**").denyAll()

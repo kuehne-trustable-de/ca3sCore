@@ -49,7 +49,7 @@ public class Ca3sTrustManager implements X509TrustManager {
 		if( cert.length == 0) {
 			throw new CertificateException();
 		}
-		LOGGER.debug("checkClientTrusted called for authType '{}' with certificate subject '{}'",authType, cert[0].getSubjectDN().getName());
+		LOGGER.debug("checkClientTrusted called for authType '{}' with certificate subject '{}'",authType, cert[0].getSubjectX500Principal().getName());
 	}
 
 	@Override
@@ -58,24 +58,24 @@ public class Ca3sTrustManager implements X509TrustManager {
 			throw new CertificateException("chain.length == 0");
 		}
 		X509Certificate serverCert = chain[0];
-		LOGGER.debug("checkServerTrusted called for authType '{}' with certificate subject '{}'",authType, serverCert.getSubjectDN().getName());
+		LOGGER.debug("checkServerTrusted called for authType '{}' with certificate subject '{}'",authType, serverCert.getSubjectX500Principal().getName());
 
 		Date now = new Date();
 		if( now.after(serverCert.getNotAfter()) ) {
-			LOGGER.debug("checkServerTrusted:  certificate with subject '" + serverCert.getSubjectDN().getName() + "' not valid anymore (now > " + serverCert.getNotAfter());
-			throw new CertificateException( "certificate '" + serverCert.getSubjectDN().getName() + "' expired!");
+			LOGGER.debug("checkServerTrusted:  certificate with subject '" + serverCert.getSubjectX500Principal().getName() + "' not valid anymore (now > " + serverCert.getNotAfter());
+			throw new CertificateException( "certificate '" + serverCert.getSubjectX500Principal().getName() + "' expired!");
 		}
 
 		if(now.before(serverCert.getNotBefore()) ) {
-			LOGGER.debug("checkServerTrusted:  certificate with subject '" + serverCert.getSubjectDN().getName() + "' not valid yet (now < " + serverCert.getNotBefore());
-			throw new CertificateException("certificate '" + serverCert.getSubjectDN().getName() + "' not valid yet!");
+			LOGGER.debug("checkServerTrusted:  certificate with subject '" + serverCert.getSubjectX500Principal().getName() + "' not valid yet (now < " + serverCert.getNotBefore());
+			throw new CertificateException("certificate '" + serverCert.getSubjectX500Principal().getName() + "' not valid yet!");
 		}
 
 		try {
 
             Certificate issuingCACertDao = getCertificateObject(chain, serverCert);
 
-            ArrayList<X509Certificate> certList = new ArrayList<X509Certificate>();
+            ArrayList<X509Certificate> certList = new ArrayList<>();
 			certList.add(serverCert);
 			certList.add(serverCert);
 			certList.add(CryptoService.convertPemToCertificate(issuingCACertDao.getContent()));
@@ -111,19 +111,20 @@ public class Ca3sTrustManager implements X509TrustManager {
 			 */
 
 		} catch (GeneralSecurityException | IOException e) {
-			LOGGER.debug("checkServerTrusted exception for certificate subject '" + serverCert.getSubjectDN().getName() + "'", e);
+			LOGGER.debug("checkServerTrusted exception for certificate subject '" + serverCert.getSubjectX500Principal().getName() + "'", e);
 			throw new CertificateException();
 		} catch (Throwable th) {
 			LOGGER.debug("checkServerTrusted: caught Throwable", th);
 			throw th;
 		}
 
-		LOGGER.debug("checkServerTrusted succeeded for certificate subject '" + serverCert.getSubjectDN().getName() + "'");
+		LOGGER.debug("checkServerTrusted succeeded for certificate subject '" + serverCert.getSubjectX500Principal().getName() + "'");
 
 	}
 
     private synchronized Certificate getCertificateObject(X509Certificate[] chain, X509Certificate serverCert) throws GeneralSecurityException, IOException {
-        LOGGER.info("checkServerTrusted : entering synchronized block!" );
+//        LOGGER.debug("checkServerTrusted : entering synchronized block!" );
+
         Certificate serverCertDao = certUtil.getCertificateByX509(serverCert);
         if( serverCertDao!= null){
             LOGGER.debug("checkServerTrusted : server certificate found in database  '" + serverCertDao.getSubject() + "' with id  '" + serverCertDao.getId() + "'" );
@@ -135,7 +136,7 @@ public class Ca3sTrustManager implements X509TrustManager {
         }
 
         if( serverCertDao.isRevoked()) {
-            LOGGER.debug("checkServerTrusted : certificate for subject '" + serverCert.getSubjectDN().getName() + "', revoked '" + serverCertDao.getRevocationReason() + "' on " + serverCertDao.getRevokedSince());
+            LOGGER.debug("checkServerTrusted : certificate for subject '" + serverCert.getSubjectX500Principal().getName() + "', revoked '" + serverCertDao.getRevocationReason() + "' on " + serverCertDao.getRevokedSince());
             throw new CertificateException();
         }
 
@@ -153,16 +154,16 @@ public class Ca3sTrustManager implements X509TrustManager {
                     null,
                     false);
             auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_TLS_INTERMEDIATE_CERTIFICATE_IMPORTED, serverCertDao));
-            LOGGER.debug("checkServerTrusted importing issuing CA cert '" + chain[1].getSubjectDN().getName() + "'");
+            LOGGER.debug("checkServerTrusted importing issuing CA cert '" + chain[1].getSubjectX500Principal().getName() + "'");
 
         }
         if( issuingCACertDao == null){
-            LOGGER.debug("checkServerTrusted : no issuing certificate found for certificate subject '" + serverCert.getSubjectDN().getName() + "', issuer : '" + serverCert.getIssuerDN().getName() + "'");
+            LOGGER.debug("checkServerTrusted : no issuing certificate found for certificate subject '" + serverCert.getSubjectX500Principal().getName() + "', issuer : '" + serverCert.getIssuerX500Principal().getName() + "'");
             throw new CertificateException();
         }
 
         if( issuingCACertDao.isRevoked()) {
-            LOGGER.debug("checkServerTrusted : certificate forsubject '" + issuingCACertDao.getSubject() + "', revoked '" + issuingCACertDao.getRevocationReason() + "' on " + issuingCACertDao.getRevokedSince());
+            LOGGER.debug("checkServerTrusted : certificate for subject '" + issuingCACertDao.getSubject() + "', revoked '" + issuingCACertDao.getRevocationReason() + "' on " + issuingCACertDao.getRevokedSince());
             throw new CertificateException();
         }
         return issuingCACertDao;
