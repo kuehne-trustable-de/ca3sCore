@@ -110,7 +110,7 @@
         <!-- The liquibase version should match the one managed by
         https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
         <!--liquibase.version>4.3.5</liquibase.version-->
-        <liquibase.version>4.7.1</liquibase.version>
+        <liquibase.version>4.8.0</liquibase.version>
         <liquibase-hibernate5.version>${liquibase.version}</liquibase-hibernate5.version>
 
         <mssql.jdbc.version>9.4.0.jre11</mssql.jdbc.version>
