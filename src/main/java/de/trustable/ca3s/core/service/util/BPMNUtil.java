@@ -14,6 +14,7 @@ import java.util.Optional;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.BPMNProcessType;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
+import de.trustable.ca3s.core.service.exception.CAFailureException;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
@@ -285,12 +286,13 @@ public class BPMNUtil{
 				return certificate;
 			}else {
 				LOG.warn("creation of certificate by BPMN process {} failed, no certificate returned ", processInstanceId);
+                throw new CAFailureException();
 			}
 
 		} else {
 			LOG.warn("creation of certificate by BPMN process {} failed with reason '{}' ", processInstanceId, failureReason);
+            throw new CAFailureException(failureReason);
 		}
-		return null;
 	}
 
 

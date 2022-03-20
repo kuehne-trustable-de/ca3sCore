@@ -132,6 +132,13 @@ public class PreferenceResource {
         updateValue(upMap, PreferenceUtil.ACME_HTTP01_CALLBACK_PORTS, portsCommaSeparatedList, userId);
         updateValue(upMap, PreferenceUtil.ACME_HTTP01_TIMEOUT_MILLI_SEC, "" + preferences.getAcmeHTTP01TimeoutMilliSec(), userId);
 
+        String[] selectedHashArr = preferences.getSelectedHashes();
+        updateValue(upMap, PreferenceUtil.SELECTED_HASHES, String.join(",", selectedHashArr), userId);
+
+        String[] selectedSigningAlgoArr = preferences.getSelectedSigningAlgos();
+        updateValue(upMap, PreferenceUtil.SELECTED_SIGNING_ALGOS, String.join(",", selectedSigningAlgoArr), userId);
+
+
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, userId.toString()))
             .body(preferences);

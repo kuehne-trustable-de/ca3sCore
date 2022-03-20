@@ -10,12 +10,14 @@ import de.trustable.ca3s.core.repository.CsrAttributeRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.NotificationService;
+import de.trustable.ca3s.core.service.exception.CAFailureException;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
 import de.trustable.ca3s.core.web.rest.data.AdministrationType;
 import de.trustable.ca3s.core.web.rest.data.CSRAdministrationData;
 import de.trustable.ca3s.core.service.dto.NamedValue;
+import liquibase.repackaged.org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -110,7 +112,6 @@ public class CSRAdministration {
             return ResponseEntity.notFound().build();
         }
 
-
         Optional<CSR> optCSR = csrRepository.findById(adminData.getCsrId());
     	if( optCSR.isPresent()) {
             CSR csr = optCSR.get();
@@ -143,7 +144,14 @@ public class CSRAdministration {
 
                 auditService.saveAuditTrace(auditService.createAuditTraceCsrAccepted(csr));
 
-    			Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
+                Certificate cert = null;
+                try{
+                    cert = bpmnUtil.startCertificateCreationProcess(csr);
+                }catch (CAFailureException caFailureException) {
+                    LOG.info("problem creating certificate", caFailureException);
+                    return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                }
+
     			if(cert != null) {
 
         			Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());

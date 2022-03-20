@@ -19,4 +19,7 @@ public interface PipelineAttributeRepository extends JpaRepository<PipelineAttri
     @Query(name = "PipelineAttribute.findDistinctByName")
     List<String> findDistinctByName(@Param("name") String name);
 
+    @Query(name = "PipelineAttribute.findDistinctPipelineByNameAndValue")
+    List<Long> findDistinctPipelineByNameAndValue(@Param("name") String name, @Param("value") String value);
+
 }

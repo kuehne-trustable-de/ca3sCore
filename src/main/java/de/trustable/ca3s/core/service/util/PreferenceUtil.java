@@ -20,13 +20,20 @@ public class PreferenceUtil {
 
     public static final Long SYSTEM_PREFERENCE_ID = 1L;
 
+    public static final String LIST_DELIMITER = ",";
+
     public static final String CHECK_CRL = "CheckCRL";
     public static final String MAX_NEXT_UPDATE_PERIOD_CRL_SEC = "MaxNextUpdatePeriodCrlSec";
 	public static final String ACME_HTTP01_TIMEOUT_MILLI_SEC = "AcmeHTTP01TimeoutMilliSec";
 	public static final String ACME_HTTP01_CALLBACK_PORTS = "AcmeHTTP01CallbackPorts";
 	public static final String SERVER_SIDE_KEY_CREATION_ALLOWED = "ServerSideKeyCreationAllowed";
+    public static final String SELECTED_HASHES = "SelectedHashes";
+    public static final String SELECTED_SIGNING_ALGOS = "SelectedSigningAlgos";
 
-	@Autowired
+    public static final String[] DEFAULT_HASHES = {"sha-256","sha-512"};
+    public static final String[] DEFAULT_ALGOS = {"rsa-2048","rsa-3072","rsa-4096"};
+
+    @Autowired
     private UserPreferenceService userPreferenceService;
 
     public boolean isCheckCrl() {
@@ -65,6 +72,11 @@ public class PreferenceUtil {
     public Preferences getPrefs(Long userId) {
         Preferences prefs = new Preferences();
 
+        // initialize the algorithm sets
+        // this values have no effect once properties are set
+        prefs.setSelectedHashes(DEFAULT_HASHES);
+        prefs.setSelectedSigningAlgos(DEFAULT_ALGOS);
+
         log.debug("REST request to get Preference for user {}", userId);
         List<UserPreference> upList = userPreferenceService.findAllForUserId(userId);
 
@@ -73,7 +85,7 @@ public class PreferenceUtil {
             if( PreferenceUtil.SERVER_SIDE_KEY_CREATION_ALLOWED.equals(name)) {
                 prefs.setServerSideKeyCreationAllowed(Boolean.parseBoolean(up.getContent()));
             } else if( PreferenceUtil.ACME_HTTP01_CALLBACK_PORTS.equals(name)) {
-                String[] portArr = up.getContent().split(",");
+                String[] portArr = up.getContent().split(LIST_DELIMITER);
                 ArrayList<Integer> portList = new ArrayList<>();
                 for( String port: portArr){
                     if( "0".equals(port)){
@@ -100,8 +112,25 @@ public class PreferenceUtil {
             } else if( PreferenceUtil.CHECK_CRL.equals(name)) {
                 prefs.setCheckCRL(Boolean.parseBoolean(up.getContent()));
             } else if( PreferenceUtil.MAX_NEXT_UPDATE_PERIOD_CRL_SEC.equals(name)) {
-
                 prefs.setMaxNextUpdatePeriodCRLHour((Long.parseLong(up.getContent()) + 1800L) / 3600L) ;
+            } else if( PreferenceUtil.SELECTED_HASHES.equals(name)) {
+                String[] valArr = up.getContent().split(LIST_DELIMITER);
+                if( valArr.length == 0 ){
+                    log.error("Configuration problem: No valid hash algorithm defined");
+                    continue;
+                }else if( valArr.length > 10 ){
+                    log.warn("Configuration problem: Too many hash algorithms ({}) defined", valArr.length);
+                }
+                prefs.setSelectedHashes(valArr);
+            } else if( PreferenceUtil.SELECTED_SIGNING_ALGOS.equals(name)) {
+                String[] valArr = up.getContent().split(LIST_DELIMITER);
+                if( valArr.length == 0 ){
+                    log.error("Configuration problem: No valid signing algorithm defined");
+                    continue;
+                }else if( valArr.length > 32 ){
+                    log.warn("Configuration problem: Too many signing algorithms ({}) defined", valArr.length);
+                }
+                prefs.setSelectedSigningAlgos(valArr);
             }
         }
         return prefs;

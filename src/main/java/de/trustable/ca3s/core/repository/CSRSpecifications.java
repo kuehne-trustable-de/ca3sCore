@@ -1,7 +1,6 @@
 package de.trustable.ca3s.core.repository;
 
 import de.trustable.ca3s.core.domain.*;
-import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.service.dto.CSRView;
@@ -18,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static de.trustable.ca3s.core.repository.SpecificationsHelper.*;
 
@@ -33,10 +33,11 @@ public final class CSRSpecifications {
     }
 
 
-    public static Page<CSRView> handleQueryParamsCertificateView(EntityManager entityManager,
-                                                                 CriteriaBuilder cb,
-                                                                 Map<String, String[]> parameterMap,
-                                                                 List<String> csrSelectionAttributes) {
+    public static Page<CSRView> handleQueryParamsCSRView(EntityManager entityManager,
+                                                         CriteriaBuilder cb,
+                                                         Map<String, String[]> parameterMap,
+                                                         List<String> csrSelectionAttributes,
+                                                         List<Long> pipelineIds) {
 
         CriteriaQuery<Object[]> query = cb.createQuery(Object[].class);
         Root<CSR> root = query.from(CSR.class);
@@ -66,6 +67,22 @@ public final class CSRSpecifications {
 
         // collect all selectors in a list
         List<Predicate> predList = new ArrayList<>();
+
+        if( selectionMap.containsKey("isAdministrable")) {
+
+            List<String> pipelineIdList =
+                pipelineIds.stream().map(Object::toString).collect(Collectors.toList());
+            logger.debug("buildPredicate for 'isAdministrable' with assigned pipeline ids {}", pipelineIdList);
+
+            predList.add(buildPredicate(root,
+                cb,
+                query,
+                "pipelineId",
+                "IN",
+                String.join(", ", pipelineIdList),
+                selectionList,
+                csrSelectionAttributes));
+        }
 
         // walk thru all requested columns
         for (String col : columnArr) {
@@ -260,6 +277,8 @@ public final class CSRSpecifications {
                 cv.setProcessingCA((String) objArr[i]);
             } else if ("pipelineName".equalsIgnoreCase(attribute)) {
                 cv.setPipelineName((String) objArr[i]);
+            } else if ("pipelineId".equalsIgnoreCase(attribute)) {
+                cv.setPipelineId((Long) objArr[i]);
             } else if ("pipelineType".equalsIgnoreCase(attribute)) {
                 cv.setPipelineType((PipelineType) objArr[i]);
             } else if ("requestedOn".equalsIgnoreCase(attribute)) {
@@ -273,7 +292,6 @@ public final class CSRSpecifications {
             }
             i++;
         }
-
         return cv;
     }
 
@@ -318,7 +336,7 @@ public final class CSRSpecifications {
 
                 SelectionData selData = new SelectionData(attributeSelector, attributeValue);
                 if (selectorMap.containsKey(attribute)) {
-                    logger.debug("adding selector to exiting list for '{}'", attribute);
+                    logger.debug("adding selector to existing list for '{}'", attribute);
                     selectorMap.get(attribute).add(selData);
                 } else {
                     logger.debug("creating new selector list for '{}'", attribute);
@@ -356,8 +374,9 @@ public final class CSRSpecifications {
 
         if ("id".equals(attribute)) {
             addNewColumn(selectionList, root.get(CSR_.id));
-            pred = buildPredicateLong(attributeSelector, cb, root.get(CSR_.id), attributeValue);
-
+            if (attributeValue.trim().length() > 0) {
+                pred = buildPredicateLong(attributeSelector, cb, root.get(CSR_.id), attributeValue);
+            }
         } else if ("status".equals(attribute)) {
             addNewColumn(selectionList, root.get(CSR_.status));
             if (attributeValue.trim().length() > 0) {
@@ -419,6 +438,13 @@ public final class CSRSpecifications {
 			Join<CSR, Pipeline> certJoin = root.join(CSR_.pipeline, JoinType.LEFT);
 			addNewColumn(selectionList,certJoin.get(Pipeline_.CA_CONNECTOR));
 */
+        } else if ("pipelineId".equals(attribute)) {
+            Join<CSR, Pipeline> certJoin = root.join(CSR_.pipeline, JoinType.LEFT);
+            addNewColumn(selectionList, certJoin.get(Pipeline_.id));
+            if (attributeValue.trim().length() > 0) {
+                pred = buildPredicateLong(attributeSelector, cb, certJoin.get(Pipeline_.id), attributeValue);
+            }
+
         } else if ("pipelineName".equals(attribute)) {
             Join<CSR, Pipeline> certJoin = root.join(CSR_.pipeline, JoinType.LEFT);
             addNewColumn(selectionList, certJoin.get(Pipeline_.name));
@@ -426,6 +452,9 @@ public final class CSRSpecifications {
         } else if ("pipelineType".equals(attribute)) {
             Join<CSR, Pipeline> certJoin = root.join(CSR_.pipeline, JoinType.LEFT);
             addNewColumn(selectionList, certJoin.get(Pipeline_.type));
+            if (attributeValue.trim().length() > 0) {
+                pred = buildPredicatePipelineType(attributeSelector, cb, certJoin.get(Pipeline_.type), attributeValue);
+            }
 
         } else if ("keyLength".equals(attribute)) {
             addNewColumn(selectionList, root.get(CSR_.keyLength));
@@ -487,5 +516,29 @@ public final class CSRSpecifications {
             return cb.equal(path, csrStatus);
         }
 
+    }
+    private static Predicate buildPredicatePipelineType(String attributeSelector, CriteriaBuilder cb, Path<PipelineType> path, String attributeValue) {
+        if (attributeSelector == null) {
+            return cb.conjunction();
+        }
+
+        PipelineType pipelineType;
+        try {
+            pipelineType = PipelineType.valueOf(attributeValue);
+        }catch(IllegalArgumentException iae){
+            logger.debug("buildPredicateCsrStatus not a PipelineType ", iae);
+            return cb.disjunction();
+        }
+
+        if (Selector.EQUAL.toString().equals(attributeSelector)) {
+            logger.debug("buildPredicatePipelineType equal ('{}') for value '{}'", attributeSelector, pipelineType);
+            return cb.equal(path, pipelineType);
+        } else if (Selector.NOT_EQUAL.toString().equals(attributeSelector)) {
+            logger.debug("buildPredicatePipelineType notEqual ('{}') for value '{}'", attributeSelector, pipelineType);
+            return cb.notEqual(path, pipelineType);
+        } else {
+            logger.debug("buildPredicatePipelineType defaults to equals ('{}') for value '{}'", attributeSelector, pipelineType);
+            return cb.equal(path, pipelineType);
+        }
     }
 }

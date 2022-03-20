@@ -62,6 +62,17 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
     this.download(url, filename, mimetype);
   }
 
+  /*
+  public copyToClipboard(elementId) {
+    const copyText = document.getElementById(elementId) as HTMLInputElement;
+
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+
+    document.execCommand('copy');
+  }
+
+
   public downloadUrl(): string {
     const url = '/publicapi/cert/' + this.certificateView.id;
     window.console.info('downloadUrl() : ' + url);
@@ -91,24 +102,12 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
     const url = '/publicapi/certPKIX/' + this.certificateView.id + '/' + encodeURIComponent(filename);
     this.download(url, filename, mimetype);
   }
-
+*/
   public downloadKeystore(extension: string, mimetype: string) {
     const filename = this.certificateView.downloadFilename + extension;
     const url =
       '/publicapi/keystore/' + this.certificateView.id + '/' + encodeURIComponent(filename) + '/' + encodeURIComponent(this.p12Alias);
     this.download(url, filename, mimetype);
-  }
-
-  public copyToClipboard(elementId) {
-    /* Get the text field */
-    const copyText = document.getElementById(elementId) as HTMLInputElement;
-
-    /* Select the text field */
-    copyText.select();
-    copyText.setSelectionRange(0, 99999); /* For mobile devices */
-
-    /* Copy the text inside the text field */
-    document.execCommand('copy');
   }
 
   public download(url: string, filename: string, mimetype: string) {

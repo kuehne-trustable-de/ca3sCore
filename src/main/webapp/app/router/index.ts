@@ -274,6 +274,11 @@ export default new Router({
       component: PkcsXX
     },
     {
+      path: '/requestCertificate',
+      name: 'PkcsXX',
+      component: PkcsXX
+    },
+    {
       path: '/preference',
       name: 'Preference',
       component: Preference

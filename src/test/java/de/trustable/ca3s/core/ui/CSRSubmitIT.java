@@ -325,7 +325,13 @@ public class CSRSubmitIT extends WebTestBase{
 		validatePresent(LOC_LNK_REQ_CERT_MENUE);
 		click(LOC_LNK_REQ_CERT_MENUE);
 
-		validatePresent(LOC_TA_UPLOAD_CONTENT);
+        validatePresent(LOC_SEL_PIPELINE );
+//        validatePresent(LOC_SEL_PIPELINE + "[option/text()='" + PipelineTestConfiguration.PIPELINE_NAME_WEB_DIRECT_ISSUANCE + "']");
+
+        selectOptionByText(LOC_SEL_PIPELINE, PipelineTestConfiguration.PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
+
+
+        validatePresent(LOC_TA_UPLOAD_CONTENT);
 
 		String cn = "reqTest" + System.currentTimeMillis();
 	    String subject = "CN=" + cn + ", O=trustable solutions, C=DE";
@@ -334,10 +340,6 @@ public class CSRSubmitIT extends WebTestBase{
         setLongText(LOC_TA_UPLOAD_CONTENT, csr);
 
 	    validatePresent(LOC_TEXT_CONTENT_TYPE);
-
-	    validatePresent(LOC_SEL_PIPELINE);
-
-	    selectOptionByText(LOC_SEL_PIPELINE, PipelineTestConfiguration.PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
 
 	    validatePresent(LOC_BTN_REQUEST_CERTIFICATE);
 	    click(LOC_BTN_REQUEST_CERTIFICATE);

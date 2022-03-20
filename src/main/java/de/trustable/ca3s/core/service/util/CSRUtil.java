@@ -17,6 +17,7 @@ import javax.naming.ldap.Rdn;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.util.AlgorithmInfo;
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
@@ -143,6 +144,15 @@ public class CSRUtil {
 
 		csrRepository.save(csr);
 
+        AlgorithmInfo algorithmInfo = p10ReqHolder.getAlgorithmInfo();
+
+        setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_HASH_ALGO, algorithmInfo.getHashAlgName(), false);
+        setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_SIGN_ALGO, algorithmInfo.getSigAlgName(), false);
+        setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_PADDING_ALGO, algorithmInfo.getPaddingAlgName(), false);
+
+        if( algorithmInfo.getMfgName() != null && !algorithmInfo.getMfgName().isEmpty()) {
+            setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_MFG, algorithmInfo.getMfgName(), false);
+        }
 
 		LOG.debug("RDN arr #" + p10ReqHolder.getSubjectRDNs().length);
 

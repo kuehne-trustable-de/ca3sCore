@@ -60,7 +60,7 @@ public class ACMERestrictionsIT {
 		dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
 		ptc.getInternalACMETestPipelineLaxRestrictions();
 		ptc.getInternalACMETestPipeline_1_CN_ONLY_NO_IP_Restrictions();
-        prefTC.getTestUserPreference();
+        prefTC.getTestUserPreference(serverPort);
 	}
 
 	@BeforeAll

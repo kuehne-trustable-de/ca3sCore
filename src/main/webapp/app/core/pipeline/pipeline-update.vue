@@ -398,7 +398,6 @@
                     </div>
 
 
-
                     <div v-if="$v.pipeline.type.$model === 'WEB'" class="form-inline">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.additionalEmailRecipients')" for="pipeline-additionalEmailRecipients">Additional Email Recipients</label>
                         <input type="text" class="form-control" name="additionalEmailRecipients" id="pipeline-additionalEmailRecipients" v-model="pipeline.webConfigItems.additionalEMailRecipients" />

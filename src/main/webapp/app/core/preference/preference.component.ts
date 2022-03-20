@@ -42,6 +42,19 @@ export default class Preference extends mixins(AlertMixin, JhiDataUtils) {
 
   public portArr: number[] = [5544];
 
+  public selectedHashes: any[] = [];
+  public selectedSigningAlgos: any[] = [];
+
+  public allHashes = [{ id: 'sha-1', name: 'SHA-1' }, { id: 'sha-256', name: 'SHA-256' }, { id: 'sha-512', name: 'SHA-512' }];
+
+  public allSignAlgos = [
+    { id: 'rsa-1024', name: 'RSA-1024' },
+    { id: 'rsa-2048', name: 'RSA-2048' },
+    { id: 'rsa-3072', name: 'RSA-3072' },
+    { id: 'rsa-4096', name: 'RSA-4096' },
+    { id: 'rsa-8192', name: 'RSA-8192' }
+  ];
+
   public isSaving = false;
 
   beforeRouteEnter(to, from, next) {

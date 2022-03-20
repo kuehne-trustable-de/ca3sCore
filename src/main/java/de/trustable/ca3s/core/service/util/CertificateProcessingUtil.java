@@ -10,6 +10,7 @@ import de.trustable.ca3s.core.repository.CsrAttributeRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.ARARestriction;
 import de.trustable.ca3s.core.service.dto.NamedValues;
+import de.trustable.ca3s.core.service.exception.CAFailureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -193,15 +194,23 @@ public class CertificateProcessingUtil {
             LOG.debug("deferring certificate creation for csr #{}", csr.getId());
         } else {
 
-            Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
-            if(cert != null) {
-                certificateRepository.save(cert);
+            try {
+                Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
 
-                auditService.saveAuditTrace(auditService.createAuditTraceCertificate(certificateAuditType, cert));
+                if(cert != null) {
+                    certificateRepository.save(cert);
 
-                return cert;
-            } else {
-                LOG.warn("creation of certificate requested by {} failed ", requestorName);
+                    auditService.saveAuditTrace(auditService.createAuditTraceCertificate(certificateAuditType, cert));
+
+                    return cert;
+                } else {
+                    LOG.warn("creation of certificate requested by {} failed ", requestorName);
+                }
+            } catch( CAFailureException caFailureException){
+                auditService.saveAuditTrace(auditService.createAuditTraceCsrSigningFailed(csr, caFailureException.getMessage()));
+
+                caFailureException.printStackTrace();
+                throw caFailureException;
             }
         }
 

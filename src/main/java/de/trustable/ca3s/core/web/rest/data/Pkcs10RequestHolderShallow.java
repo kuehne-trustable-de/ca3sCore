@@ -2,8 +2,8 @@ package de.trustable.ca3s.core.web.rest.data;
 
 import java.util.Set;
 
-import de.trustable.ca3s.core.service.util.AlgorithmInfo;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.util.AlgorithmInfo;
 import de.trustable.util.OidNameMapper;
 import org.bouncycastle.asn1.x509.GeneralName;
 
@@ -24,11 +24,20 @@ public class Pkcs10RequestHolderShallow {
 	@JsonProperty("x509KeySpec")
 	private String x509KeySpec;
 
+    @JsonProperty("hashAlgName")
+    private String hashAlgName;
+
     @JsonProperty("sigAlgName")
     private String sigAlgName;
 
     @JsonProperty("keyAlgName")
     private String keyAlgName;
+
+    @JsonProperty("paddingAlgName")
+    private String paddingAlgName;
+
+    @JsonProperty("mfgName")
+    private String mfgName;
 
     @JsonProperty("keyLength")
     private int keyLength;
@@ -51,13 +60,19 @@ public class Pkcs10RequestHolderShallow {
 		subject = p10ReqHolder.getSubject();
 		publicKeyAlgorithmName = p10ReqHolder.getPublicKeyAlgorithm();
 
-
         this.sigAlgName = OidNameMapper.lookupOid(p10ReqHolder.getSigningAlgorithm());
 
-        AlgorithmInfo algorithmInfo = new AlgorithmInfo(p10ReqHolder.getSigningAlgorithmName());
-        this.signingAlgorithmName = algorithmInfo.getSigAlgName();
-        this.keyAlgName = algorithmInfo.getSigAlgName();
+        AlgorithmInfo algorithmInfo = p10ReqHolder.getAlgorithmInfo();
+        this.signingAlgorithmName = OidNameMapper.lookupOid(algorithmInfo.getSigAlgName());
+        this.hashAlgName = OidNameMapper.lookupOid(algorithmInfo.getHashAlgName());
+        this.keyAlgName = OidNameMapper.lookupOid(algorithmInfo.getSigAlgName());
         this.keyLength = CertificateUtil.getAlignedKeyLength(p10ReqHolder.getPublicSigningKey());
+        this.paddingAlgName = algorithmInfo.getPaddingAlgName();
+        if( "pss".equalsIgnoreCase(this.paddingAlgName )){
+            this.mfgName = OidNameMapper.lookupOid(algorithmInfo.getMfgName());
+        }else{
+            this.mfgName = null;
+        }
 
 		Set<GeneralName> sanSet = CSRUtil.getSANList(p10ReqHolder.getReqAttributes());
 		this.sans = new String[sanSet.size()];
@@ -65,7 +80,6 @@ public class Pkcs10RequestHolderShallow {
 		for( GeneralName gn : sanSet) {
 			this.sans[i++] = CSRUtil.getGeneralNameDescription(gn);
 		}
-
 	}
 
 	public String getSigningAlgorithmName() {
@@ -102,5 +116,17 @@ public class Pkcs10RequestHolderShallow {
 
     public int getKeyLength() {
         return keyLength;
+    }
+
+    public String getHashAlgName() {
+        return hashAlgName;
+    }
+
+    public String getPaddingAlgName() {
+        return paddingAlgName;
+    }
+
+    public String getMfgName() {
+        return mfgName;
     }
 }

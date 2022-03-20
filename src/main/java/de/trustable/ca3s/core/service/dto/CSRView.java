@@ -61,6 +61,9 @@ public class CSRView implements Serializable {
     @CsvBindByName
     private String pipelineName;
 
+    @CsvIgnore
+    private Long pipelineId;
+
     @CsvBindByName
     private String x509KeySpec;
 
@@ -400,5 +403,13 @@ public class CSRView implements Serializable {
 
     public void setAdministrable(boolean administrable) {
         isAdministrable = administrable;
+    }
+
+    public Long getPipelineId() {
+        return pipelineId;
+    }
+
+    public void setPipelineId(Long pipelineId) {
+        this.pipelineId = pipelineId;
     }
 }

@@ -51,7 +51,6 @@ public class OIDCAuthenticationResource {
                                       AuthenticationManagerBuilder authenticationManagerBuilder,
                                       @Value("${ca3s.oidc.authorization-uri:}") String keycloakAuthorizationUri,
                                       @Value("${ca3s.oidc.client-id}") String clientId,
-                                      @Value("${ca3s.oidc.client-secret}") String clientSecret,
                                       OIDCRestService OIDCRestService) {
         this.tokenProvider = tokenProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
@@ -59,6 +58,8 @@ public class OIDCAuthenticationResource {
         this.oidcRestService = OIDCRestService;
 
         if(keycloakAuthorizationUri.isEmpty()) {
+            log.info("OIDC not configured, 'ca3s.oidc.authorization-uri' is empty!");
+        }else{
 
             String authServerUrl = keycloakAuthorizationUri;
 
@@ -120,7 +121,7 @@ public class OIDCAuthenticationResource {
             httpHeaders.add("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS");
             httpHeaders.add("Access-Control-Allow-Headers","Origin, Content-Type, X-Auth-Token");
             httpHeaders.add("Location", redirectUrl);
-            return new ResponseEntity<String>(httpHeaders, HttpStatus.OK);
+            return new ResponseEntity<>(httpHeaders, HttpStatus.OK);
         }
 
         log.info("Bearer Token created for oidc Authentication");

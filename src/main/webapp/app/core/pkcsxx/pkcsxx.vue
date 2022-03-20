@@ -20,13 +20,10 @@
                         <span v-else-if="creationMode === 'SERVERSIDE_KEY_CREATION'" v-text="$t('pkcsxx.subtitle.serverside')">Upload</span>
                     </h2>
 					<div>
-						<div class="form-group" v-if="authenticated">
+						<div class="form-group" v-if="authenticated && allWebPipelines && allWebPipelines.length > 0 && (preselectedPipelineId === -1)">
 							<label class="form-control-label" v-text="$t('pkcsxx.upload.pipeline')" for="pkcsxx-pipeline">Pipeline</label> <help-tag target="pkcsxx.upload.pipeline"/>
-							<!--select class="form-control" id="pkcsxx-pipeline" name="pkcsxx-pipeline" v-model="$v.upload.pipelineId.$model" required v-on:change="updatePipelineRestrictions($event)"-->
-
-
-                            <option value="EMPTY" selected="selected"></option>
-							<select class="form-control" id="pkcsxx-pipeline" name="pkcsxx-pipeline" v-model="upload.pipelineId" required v-on:change="updatePipelineRestrictions($event)">
+							<select class="form-control" id="pkcsxx-pipeline" name="pkcsxx-pipeline" v-model="upload.pipelineId" required v-on:change="updateCurrentPipelineRestrictions()">
+                                <option value="-1" disabled selected hidden v-text="$t('pkcsxx.upload.select.pipeline')">{{$t('pkcsxx.upload.select.pipeline')}}</option>
 								<option v-bind:value="upload && webPipeline.id === upload.pipelineId ? upload.pipelineId : webPipeline.id" v-for="webPipeline in allWebPipelines" :key="webPipeline.id">{{webPipeline.name}}</option>
 							</select>
 
@@ -50,8 +47,15 @@
                                     <option value="keytool" v-text="$t('pkcsxx.upload.creationTool.keytool')" selected="selected">keytool</option>
                                     <option value="openssl_ge_1.1.1" v-text="$t('pkcsxx.upload.creationTool.openssl_ge_1.1.1')" >openssl (ver. >= 1.1.1)</option>
                                     <option value="openssl" v-text="$t('pkcsxx.upload.creationTool.openssl')" >openssl</option>
+                                    <option value="certreq" v-text="$t('pkcsxx.upload.creationTool.certreq')" >certreq</option>
                                 </select>
                             </div>
+
+                            <div class="form-group" v-if="(creationMode === 'COMMANDLINE_TOOL') && isSANAllowed()">
+                                <label class="form-control-label" v-text="$t('pkcsxx.upload.cn.as.san')" for="pkcsxx-cn-as-san">CN as SAN</label> <help-tag target="pkcsxx.upload.creationTool.cn.as.san"/>
+                                <input type="checkbox" class="form-check-inline" name="pkcsxx-cn-as-san" id="pkcsxx-cn-as-san" v-model="cnAsSAN" v-on:change="updateCmdLine()"/>
+                            </div>
+
 
                             <div class="form-group" v-if="(creationMode === 'COMMANDLINE_TOOL') || (creationMode === 'SERVERSIDE_KEY_CREATION')" >
                                 <label class="form-control-label" v-text="$t('pkcsxx.upload.certificateParams')" >certificateParams</label>
@@ -195,7 +199,8 @@
 
                             <div class="row wrap" v-if="creationMode === 'COMMANDLINE_TOOL' && reqConfRequired">
                                 <div class="col ">
-                                    <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.req.conf')" for="pkcsxx-reqConf">Request config file</label> <help-tag target="pkcsxx.upload.creationTool.req.conf"/>
+                                    <label v-if="creationTool === 'certreq'" class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.req.inf')" for="pkcsxx-reqConf">Request info file</label> <help-tag v-if="creationTool === 'certreq'" target="pkcsxx.upload.creationTool.req.inf"/>
+                                    <label v-if="creationTool !== 'certreq'" class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.req.conf')" for="pkcsxx-reqConf">Request config file</label> <help-tag v-if="creationTool !== 'certreq'"target="pkcsxx.upload.creationTool.req.conf"/>
                                 </div>
                                 <div class="col colContent">
                                     <textarea class="form-control cmd-content" name="pkcsxx-reqConf" id="pkcsxx-reqConf"
@@ -232,7 +237,6 @@
                                 </div>
                             </div>
 
-                        </Fragment>
                         <div class="form-group" v-if="(creationMode === 'CSR_AVAILABLE') " >
 							<!--label class="form-control-label" v-text="$t('pkcsxx.upload.content')" for="upload-content">Content</label-->
 							<div>
@@ -255,36 +259,18 @@
 									This field is required.
 								</small>
 							</div-->
-						</div>
 
-						<div class="form-group" v-if="showCSRRelatedArea()">
-							<label class="form-control-label" v-text="$t('pkcsxx.upload.requestorComment')" for="upload-requestor-comment">Requestor Comment</label>
-							<textarea type="text" class="form-control" name="requestor-comment" id="upload-requestor-comment"
-								autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-								v-model="upload.requestorcomment" v-on:input="notifyChange"/>
-								<!-- v-model="$v.upload.requestorcomment.$model" v-on:input="notifyChange"/ -->
-						</div>
+                            </div>
 
-						<div class="form-group" v-if="precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE'">
-							<label class="form-control-label" v-text="$t('pkcsxx.upload.passphrase')" for="upload-passphrase">Passphrase</label>
-							<input type="text" class="form-control" name="passphrase" id="upload-passphrase"
-								autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-								v-model="upload.passphrase" v-on:input="notifyChange"/>
-								<!-- v-model="$v.upload.passphrase.$model" v-on:input="notifyChange"/-->
-						</div>
+                            <div class="form-group" v-if="precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE'">
+                                <label class="form-control-label" v-text="$t('pkcsxx.upload.passphrase')" for="upload-passphrase">Passphrase</label>
+                                <input type="text" class="form-control" name="passphrase" id="upload-passphrase"
+                                    autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                    v-model="upload.passphrase" v-on:input="notifyChange"/>
+                                    <!-- v-model="$v.upload.passphrase.$model" v-on:input="notifyChange"/-->
+                            </div>
 
-                        <dl class="row jh-entity-details" v-if="precheckResponse && precheckResponse.messages && precheckResponse.messages.length > 0">
-                            <dt>
-                                <span v-text="$t('pkcsxx.upload.result.message')">Message</span>
-                            </dt>
-                            <dd>
-                                <div>
-                                    <ul>
-                                        <li v-for="message in precheckResponse.messages" >{{message}}</li>
-                                    </ul>
-                                </div>
-                            </dd>
-                        </dl>
+                        </Fragment>
 
                         <dl class="row jh-entity-details" v-if="responseStatus > 0">
                             <dt>
@@ -333,7 +319,8 @@
 								<span v-text="$t('pkcsxx.upload.algoname')">Build with</span>
 							</dt>
 							<dd>
-								<span>{{precheckResponse.p10Holder.signingAlgorithmName}}, {{precheckResponse.p10Holder.keyLength}} Bits</span>
+								<span>{{precheckResponse.p10Holder.signingAlgorithmName}}, {{precheckResponse.p10Holder.hashAlgName}}, {{precheckResponse.p10Holder.keyLength}} Bits</span>
+                                <span v-if="precheckResponse.p10Holder.paddingAlgName === 'pss'">, {{precheckResponse.p10Holder.paddingAlgName}}, {{precheckResponse.p10Holder.mfgName}}</span>
 							</dd>
 
 							<dt v-if="precheckResponse.p10Holder.sans.length > 0">
@@ -425,8 +412,29 @@
 							</dd>
 
 						</dl>
-					</div>
 
+                        <dl class="row jh-entity-details" v-if="precheckResponse && precheckResponse.warnings && precheckResponse.warnings.length > 0">
+                            <dt>
+                                <span v-text="$t('pkcsxx.upload.result.message')">Warnings</span>
+                            </dt>
+                            <dd>
+                                <div>
+                                    <ul>
+                                        <li v-for="warning in precheckResponse.warnings" >{{warning}}</li>
+                                    </ul>
+                                </div>
+                            </dd>
+                        </dl>
+                    </div>
+
+                    <Fragment v-if="upload.pipelineId >= 0">
+                        <div class="form-group" v-if="showCSRRelatedArea()">
+                            <label class="form-control-label" v-text="$t('pkcsxx.upload.requestorComment')" for="upload-requestor-comment">Requestor Comment</label>
+                            <textarea type="text" class="form-control" name="requestor-comment" id="upload-requestor-comment"
+                                      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                      v-model="upload.requestorcomment" v-on:input="notifyChange"/>
+                        </div>
+                    </Fragment>
 
 					<div v-if="authenticated">
 						<!--div class="row jh-entity-details" v-if="isChecked === true && precheckResponse.dataType === 'X509_CERTIFICATE' && precheckResponse.csrPublicKeyPresentInDB === false">

@@ -6,7 +6,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>0.1.29</version>
+    <version>0.1.30</version>
     <packaging>jar</packaging>
 
 
@@ -159,10 +159,10 @@
         <junit.itReportFolder>${project.testresult.directory}/integrationTest</junit.itReportFolder>
         <!-- jhipster-needle-maven-property -->
 
-        <keycloak.version>15.0.2</keycloak.version>
+        <keycloak.version>17.0.0</keycloak.version>
 
         <bouncyCastleVersion>1.68</bouncyCastleVersion>
-        <cryptoUtilVersion>1.2.2</cryptoUtilVersion>
+        <cryptoUtilVersion>1.3.0</cryptoUtilVersion>
         <certBundleVersion>1.1.1</certBundleVersion>
         <adcsUtilVersion>1.2.0</adcsUtilVersion>
         <adcsProxyClientVersion>1.2.1</adcsProxyClientVersion>
@@ -210,7 +210,7 @@
         <xml.maven.saxon.version>9.7.0-18</xml.maven.saxon.version>
         <xml.maven.plugin.version>1.0.2</xml.maven.plugin.version>
 
-        <dependencyCheck.version>6.4.1</dependencyCheck.version>
+        <dependencyCheck.version>7.0.0</dependencyCheck.version>
         <dependencyCheck.skip>true</dependencyCheck.skip>
 
     </properties>
@@ -587,12 +587,12 @@
                 <version>3.12.0</version>
             </dependency>
 
-            <!-- https://mvnrepository.com/artifact/commons-lang/commons-lang -->
+            <!-- https://mvnrepository.com/artifact/commons-lang/commons-lang >
             <dependency>
                 <groupId>commons-lang</groupId>
                 <artifactId>commons-lang</artifactId>
                 <version>2.6</version>
-            </dependency>
+            </dependency-->
 
             <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-text -->
             <dependency>

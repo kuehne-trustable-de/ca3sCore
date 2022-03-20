@@ -37,6 +37,7 @@ import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.repository.CertificateCommentRepository;
 import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.util.AlgorithmInfo;
 import io.micrometer.core.instrument.util.StringUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;

@@ -12,7 +12,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.Pipeline;
 
 @Immutable
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -23,13 +22,13 @@ public class PkcsXXData {
 
 	@JsonProperty("dataType")
 	private PKCSDataType dataType;
-	
+
 	@JsonProperty("p10Holder")
 	private Pkcs10RequestHolderShallow p10Holder;
 
 	@JsonProperty("certificates")
 	private X509CertificateHolderShallow[] certsHolder;
-	
+
 	private boolean csrPublicKeyPresentInDB = false;
 
 	@JsonProperty("createdCertificateId")
@@ -44,18 +43,21 @@ public class PkcsXXData {
 	@JsonProperty("createdCSRId")
 	private String createdCSRId;
 
-	@JsonProperty("messages")
-	private String[] messages;
+    @JsonProperty("messages")
+    private String[] messages;
 
-	@JsonProperty("replacementCandidates")
+    @JsonProperty("warnings")
+    private String[] warnings;
+
+    @JsonProperty("replacementCandidates")
 	CertificateNameId[] replacementCandidates;
-	
-	
+
+
 	public PkcsXXData() {
 	}
 
 	public PkcsXXData(final X509CertificateHolder certHolder, Certificate cert) {
-		
+
 		setDataType(PKCSDataType.X509_CERTIFICATE_CREATED);
 		X509CertificateHolderShallow[] x509HolderArr = new X509CertificateHolderShallow[1];
 		x509HolderArr[0] = new X509CertificateHolderShallow(certHolder);
@@ -65,29 +67,29 @@ public class PkcsXXData {
 	}
 
 	public PkcsXXData(final X509CertificateHolder certHolder, boolean isCertificatePresentInDB) {
-		
+
 		this(certHolder, null, isCertificatePresentInDB);
 	}
-	
+
 	public PkcsXXData(final X509CertificateHolder certHolder, String pemCertificate, boolean isCertificatePresentInDB) {
 
 		setDataType(PKCSDataType.X509_CERTIFICATE);
-		
+
 		X509CertificateHolderShallow[] x509HolderArr = new X509CertificateHolderShallow[1];
 		x509HolderArr[0] =	new X509CertificateHolderShallow(certHolder);
 		x509HolderArr[0].setPemCertificate(pemCertificate);
 		x509HolderArr[0].setCertificatePresentInDB( isCertificatePresentInDB);
-		
+
 		setCertsHolder( x509HolderArr);
 	}
-	
+
 
 	public PkcsXXData(final Pkcs10RequestHolderShallow p10Holder) {
 		setDataType(PKCSDataType.CSR);
 		setP10Holder(p10Holder);
 	}
 
-	
+
 	public PKCSDataType getDataType() {
 		return dataType;
 	}
@@ -152,15 +154,23 @@ public class PkcsXXData {
 		this.createdCSRId = createdCSRId;
 	}
 
-	public String[] getMessages() {
-		return messages;
+	public String[] getWarnings() {
+		return warnings;
 	}
 
-	public void setMessages(String[] messages) {
-		this.messages = messages;
+	public void setWarnings(String[] warnings) {
+		this.warnings = warnings;
 	}
 
-	public CertificateNameId[] getReplacementCandidates() {
+    public String[] getMessages() {
+        return messages;
+    }
+
+    public void setMessages(String[] messages) {
+        this.messages = messages;
+    }
+
+    public CertificateNameId[] getReplacementCandidates() {
 		return replacementCandidates;
 	}
 
@@ -169,7 +179,7 @@ public class PkcsXXData {
 	}
 
 	public void setReplacementCandidates(List<Certificate> candidates) {
-		
+
 		this.replacementCandidates = new CertificateNameId[candidates.size()];
 		int i = 0;
 		for( Certificate cert: candidates) {
@@ -177,6 +187,4 @@ public class PkcsXXData {
 		}
 	}
 
-	
-	
 }

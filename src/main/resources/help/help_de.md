@@ -79,7 +79,7 @@ Unter Sicherheitsgesichtspunkten empfiehlt es sich, das Schlüsselpaar auf dem Z
 
 Füllen Sie die erforderlichen Felder im ca3s-Webformular aus (Betreff, Organisation, SAN, ...). Wechseln Sie in das Verzeichnis, in dem der Schlüssel erstellt werden soll. In der Produktdokumentation Ihrer Anwendung finden Sie das entsprechende Verzeichnis.
 
-![Zertifikatsparameter](../../images/sslold3.png)
+![Zertifikatsparameter](../../images/sslold3_de.png)
 
 Zertifikatsparameter
 
@@ -87,12 +87,14 @@ Zertifikatsparameter
 
 Mit Hilfe 'Werkzeugauswahl' wählen Sie zwischen den verschiedenen Werkzeuge aus:
 
-- Java keytool  
+- Java 'keytool'
   Für das Keytool von Java sind zwei Befehle erforderlich, um den Schlüssel und die CSR zu erstellen.
-- OpenSSL > 1.1.0  
+- OpenSSL > 1.1.0
   Diese aktuelle Version erstellt alle erforderlichen Dateien in einem Befehl.
-- OpenSSL  
+- OpenSSL
   Die alten Versionen von OpenSSL erfordern eine Konfigurationsdatei und einen Shell-Befehl.
+- Windows 'certreq'
+  Für die Nutzung des 'certreq'-Tools ist eine Konfigurationsdatei und ein Kommandozeilenbefehl notwendig.
 
 Kopieren Sie den generierten Wert aus dem Textfeld in Ihre Kommandozeile:
 
@@ -112,9 +114,18 @@ Aufruf-Beispiel
 
 Die Felder mit den generierten Kommandozeilen haben einen 'Copy'-Button. Alternativ kann der Text selektiert und kopiert werden.
 
-![Copy](../../images/java 3,5.png)
+![Copy](../../images/java_3_5.png)
 
 Copy-Button
+
+### <a id="pkcsxx.upload.creationTool.cn.as.san"></a> Common Name als SAN anfügen
+
+Für einige Anwendungsfälle (TLS Server) kann es sinnvoll sein, den Common Name zusätzlich als SAN anzugeben. Falls die aktuelle Pipeline die Nutzung von SANs erlaubt, ist diese Option verfügbar.
+Ist der Common Name bereits als SAN vorhanden, hat diese Option keine Auswirkung.
+
+### Dateinamen und FriendlyName (bei certreq)
+
+Die in den Kommandozeilen erzeugte oder genutzte Dateien besten aus dem Common Name, dem aktuellen Datum und der Endung gemäss des Dateityps. So wird ein unbeabsichtigtes Überschreiben relevanter Dateien anderer Requests verhindert. Selbstverständlich können die Dateinamen gemäß der jeweiligen Anforderungen angepasst werden.
 
 ### <a id="pkcsxx.upload.creationTool.cmdline"></a> Kommandozeilen-Beispiele
 
@@ -122,7 +133,7 @@ Copy-Button
 
 Die generierte Java-Keytool-Befehlszeile besteht aus zwei Teilen:
 
-Der erste Befehl generiert ein neues Schlüsselpaar mit der ausgewählten Schlüssellänge in einem PKCS12-Schlüsselspeicher ('test.p12') mit dem Alias 'keyAlias'.
+Der erste Befehl generiert ein neues Schlüsselpaar mit der ausgewählten Schlüssellänge in einem PKCS12-Schlüsselspeicher (endet auf '.p12') mit dem Alias 'keyAlias'.
 
 ![](../../images/java4shell.png)
 
@@ -131,7 +142,7 @@ Informationen zum erforderlichen Keystore-Dateinamen und zum erwarteten Alias fi
 Der zweite Befehl erstellt den CSR (Certificate Signing Request).
 ![](../../images/java5shell.png)
 
-Der CSR liegt nun in der Datei 'server.csr' vor (oder unter einem anderen Namen, falls Sie den Dateinamen angepasst haben).
+Der CSR liegt nun in der Dateiendung '.csr' vor.
 Wechseln Sie nun in der Auswahlbox 'Erzeugungsmodus' auf 'CSR verfügbar' und laden Sie diese Datei hoch, um sie von der Zertifizierungsstelle bearbeiten zu lassen.
 
 #### openSSL Version (< 1.1.1)
@@ -150,25 +161,43 @@ Die Information, welche Version von 'openSSL' auf Ihrem System installiert ist, 
 
 Kopieren Sie den erzeugten Befehl aus dem Formularfeld (mittels Copy-Button oder Strg-C) in die Kommandozeile (Strg-V oder rechte / mittlere Maustaste) und führen Sie ihn aus.
 
-Der CSR liegt nun in der Datei 'server.csr' vor (oder unter einem anderen Namen, falls Sie den Dateinamen angepasst haben).
+Der CSR liegt nun in der Datei endend auf '.csr' vor.
 Wechseln Sie nun in der Auswahlbox 'Erzeugungsmodus' auf 'CSR verfügbar' und laden Sie diese Datei hoch, um sie von der Zertifizierungsstelle bearbeiten zu lassen.
 
 #### openSSL Version (>= 1.1.1)
 
-Bei den neueren Versionen von 'openSSL' kann auf eine zusätzliche 'request.conf'-Datei verzichtet werden, ale relevanten Parameter werden als Paramter des oppenSSL-Aufrufs übergeben.
+Bei den neueren Versionen von 'openSSL' kann auf eine zusätzliche 'request.conf'-Datei verzichtet werden, ale relevanten Parameter werden als Parameter des openSSL-Aufrufs übergeben.
 
 Kopieren Sie den erzeugten Befehl in ihre Kommandozeile und führen Sie sie aus.
 ![](../../images/sslold5.png)
 
-Der CSR liegt nun in der Datei 'server.csr' vor (oder unter einem anderen Namen, falls Sie den Dateinamen angepasst haben).
+Der CSR liegt nun in der Datei endend auf '.csr' vor.
 Wechseln Sie nun in der Auswahlbox 'Erzeugungsmodus' auf 'CSR verfügbar' und laden Sie diese Datei hoch, um sie von der Zertifizierungsstelle bearbeiten zu lassen.
+
+#### Windows 'certreq'
+
+Auf Windows-Systemen ist das Kommandozeilen-Tool 'certreq' vorhanden, mit dem einfach Zertifikatsanforderungen für den lokalen Rechner erzeugt werden können. Der private Schlüssel wird dabei im Windows-eignem Speicher abgelegt.
+
+##### <a id="pkcsxx.upload.creationTool.req.inf"></a> certreq Konfigurationsdatei (requestconfig.inf)
+
+Die Konfigurationsdatei definiert neben den Zertifikatsparametern auch den 'Friendly Name' (aus Common Name und dem aktuellen Datum), unter dem der private Schlüssel im Windows-Store abgelegt wird. Dieser Name kann problemlos gemäß der Anforderungen des nutzenden Systems angepasst werden.
+Öffnen Sie einen Texteditor (z. B. 'Editor') auf Ihrem System. Kopieren Sie die erzeugte Konfiguration aus dem Textfeld in Ihren Editor. Speichern Sie die Datei in dem Verzeichnis, in dem das certreq-Kommando ausgeführt und die CSR-Datei erzeugt werden soll.
+
+![](../../images/editrequestconfig.inf.png)
+
+##### certreq Schlüssel- und CSR-Erzeugungsbefehl
+
+Kopieren Sie den erzeugten Befehl aus dem Formularfeld (mittels Copy-Button oder Strg-C) in die Kommandozeile (Strg-V oder rechte / mittlere Maustaste) und führen Sie ihn aus.
+
+Der CSR liegt nun in der Datei mit der Endung '.csr' vor. Wechseln Sie nun in der Auswahlbox 'Erzeugungsmodus' auf 'CSR verfügbar' und laden Sie diese Datei hoch, um sie von der Zertifizierungsstelle bearbeiten zu lassen.
 
 ### Zertifikats-Anforderung
 
 Wurde ein CSR hochgeladen oder eine serverseitige Schlüsselerzeugung angefordert, so befindet sich Ihre Anfrage in der internen Prüfung, im Erfolgsfall mit anschließender Erzeugung des angeforderten Zertifikats. Dieser Prozess kann automatisiert erfolgen oder eine manuelle Freigabe erfordern.
 Entweder Sie werden sofort zum Zertifikats-Download weitergeleitet oder Sie werden durch eine eMail über die Zertifikatsaustellung informiert. Das Zertifikat wird in verschiednen Formaten zum Download angeboten:
 
-Konsultieren Sie die Dokumentation der Anwendung, die das Zertifikat nutzen soll. Befolgen Sie die dort angegeben Empfehlungen bzgl. Zertifikats-Format und -Dateinamen. Ggf.muss das erzeugte Zertifikat auch in die oben per Kommandozeile erzeugte Container eingefügt werden.
+Konsultieren Sie die Dokumentation der Anwendung, die das Zertifikat nutzen soll. Befolgen Sie die dort angegeben Empfehlungen bzgl. Zertifikats-Format und -Dateinamen.
+Ggf.muss das erzeugte Zertifikat auch in die oben per Kommandozeile erzeugte Container eingefügt werden.
 
 #### <a id="ca3SApp.certificate.download.PKCS12"></a> PKCS12 Container
 

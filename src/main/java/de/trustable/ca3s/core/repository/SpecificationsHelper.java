@@ -166,8 +166,29 @@ public final class SpecificationsHelper {
         }
 
         try {
-            long lValue = Long.parseLong(value.trim());
+            if(Selector.IN.toString().equals(attributeSelector) ||
+                Selector.NOT_IN.toString().equals(attributeSelector)) {
+                logger.debug("buildPredicateLong in ('{}') for value '{}'", attributeSelector, value);
+                CriteriaBuilder.In<Long> inClause = cb.in(expression);
+                for (String inValue : value.split(",")) {
+                    logger.debug("buildPredicateLong 'in' value : '" + inValue + "'");
+                    if (inValue.trim().isEmpty()) {
+                        continue;
+                    }
+                    try {
+                        inClause.value(Long.parseLong(inValue.trim()));
+                    } catch (NumberFormatException nfe) {
+                        logger.debug("buildPredicateLong 'in': problem parsing value '" + inValue + "'", nfe);
+                    }
+                }
+                if(Selector.NOT_IN.toString().equals(attributeSelector)) {
+                    return cb.not(inClause);
+                }
 
+                return inClause;
+            }
+
+            long lValue = Long.parseLong(value.trim());
             if (Selector.NOT_EQUAL.toString().equals(attributeSelector)) {
                 logger.debug("buildPredicateLong not equal ('{}') for value '{}'", attributeSelector, lValue);
                 return cb.notEqual(expression, lValue);
@@ -182,6 +203,7 @@ public final class SpecificationsHelper {
                 return cb.equal(expression, lValue);
             }
         }catch( NumberFormatException nfe){
+            logger.debug("buildPredicateLong '"+attributeSelector+"': problem parsing value '" + value + "'", nfe);
             return cb.disjunction();
         }
     }

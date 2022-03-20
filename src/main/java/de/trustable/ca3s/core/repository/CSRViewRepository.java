@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.repository;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -30,14 +31,15 @@ public class CSRViewRepository {
         this.csrUtil = csrUtil;
     }
 
-    public Page<CSRView> findSelection(Map<String, String[]> parameterMap){
+    public Page<CSRView> findSelection(Map<String, String[]> parameterMap, List<Long> pipelineIds){
 
 		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
-		return CSRSpecifications.handleQueryParamsCertificateView(entityManager,
+		return CSRSpecifications.handleQueryParamsCSRView(entityManager,
 				cb,
 				parameterMap,
-            certificateSelectionAttributeList.getCertificateSelectionAttributes());
+            certificateSelectionAttributeList.getCertificateSelectionAttributes(),
+            pipelineIds);
 	}
 
     public Optional<CSRView> findbyCSRId(final Long csrId) {

@@ -14,6 +14,10 @@ import java.io.Serializable;
 @Table(name = "csr_attribute")
 public class CsrAttribute implements Serializable {
 
+    public static final String ATTRIBUTE_HASH_ALGO = "HASH_ALGO";
+    public static final String ATTRIBUTE_SIGN_ALGO = "SIGN_ALGO";
+    public static final String ATTRIBUTE_PADDING_ALGO = "PADDING_ALGO";
+    public static final String ATTRIBUTE_MFG = "MFG";
     private static final long serialVersionUID = 1L;
 
     @Id

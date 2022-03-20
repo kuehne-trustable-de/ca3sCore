@@ -357,17 +357,19 @@ public class ScepServletImpl extends ScepServlet {
 
                 certDaoList = certRepository.findBySearchTermNamed1(CertificateAttribute.ATTRIBUTE_SERIAL_PADDED, paddedSerial);
 
-                if( certDaoList.size() > 1){
-                    LOGGER.warn("looking for cert by padded serial '"+ paddedSerial +"' ailed, multiple certs found");
+                if( certDaoList.isEmpty()){
+                    LOGGER.warn("looking for cert by padded serial '"+ paddedSerial +"' failed, nothing found");
+                    throw new OperationFailureException(FailInfo.badCertId);
+                } else if( certDaoList.size() > 1){
+                    LOGGER.warn("looking for cert by padded serial '"+ paddedSerial +"' failed, multiple certs found");
                     throw new OperationFailureException(FailInfo.badCertId);
                 }
             }
 
-        	if( certDaoList.isEmpty()){
-        		throw new OperationFailureException(FailInfo.badCertId);
-        	}
-
     	}
+        if( certDaoList.isEmpty()){
+            throw new OperationFailureException(FailInfo.badCertId);
+        }
 
         List<X509Certificate> certList = new ArrayList<>();
 

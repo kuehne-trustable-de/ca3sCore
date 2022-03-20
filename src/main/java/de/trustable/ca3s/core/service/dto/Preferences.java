@@ -17,7 +17,10 @@ public class Preferences implements Serializable {
 
     private long acmeHTTP01TimeoutMilliSec = 2L * 1000L;
 
-	private int[] acmeHTTP01CallbackPortArr = {5544,8080,80};
+    private int[] acmeHTTP01CallbackPortArr = {5544,8080,80};
+
+    private String[] selectedHashes = {"sha256", "sha512"};
+    private String[] selectedSigningAlgos = {"rsa3072","rsa4096", "rsa8192"};
 
 
 	public Preferences() {}
@@ -60,5 +63,21 @@ public class Preferences implements Serializable {
 
     public void setMaxNextUpdatePeriodCRLHour(long maxNextUpdatePeriodCRLHour) {
         this.maxNextUpdatePeriodCRLHour = maxNextUpdatePeriodCRLHour;
+    }
+
+    public String[] getSelectedHashes() {
+        return selectedHashes;
+    }
+
+    public void setSelectedHashes(String[] selectedHashes) {
+        this.selectedHashes = selectedHashes;
+    }
+
+    public String[] getSelectedSigningAlgos() {
+        return selectedSigningAlgos;
+    }
+
+    public void setSelectedSigningAlgos(String[] selectedSigningAlgos) {
+        this.selectedSigningAlgos = selectedSigningAlgos;
     }
 }

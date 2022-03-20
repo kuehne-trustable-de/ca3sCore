@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
@@ -241,11 +242,14 @@ public class ScepServiceIT{
                 keyPair.getPrivate(),
                 csr);
 
+        Assertions.assertTrue(response.isSuccess());
+
         X509Certificate issued = (X509Certificate) response.getCertStore().getCertificates(null).iterator().next();
 
         Certificate retrieved = client.getCertificate(ephemeralCert,
         		keyPair.getPrivate(),
-                issued.getSerialNumber()).getCertificates(null).iterator().next();
+                issued.getSerialNumber()
+            ).getCertificates(null).iterator().next();
 
         Assertions.assertEquals(issued, retrieved);
 	}

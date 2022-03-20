@@ -153,6 +153,9 @@ public class PipelineUtil {
     private ProtectedContentUtil protectedContentUtil;
 
     @Autowired
+    private PreferenceUtil preferenceUtil;
+
+    @Autowired
     private CertificateUtil certUtil;
 
     @Autowired
@@ -490,9 +493,9 @@ public class PipelineUtil {
 
         List<AuditTrace> auditList = new ArrayList<>();
         Pipeline p;
-        Optional<Pipeline> optP = pipelineRepository.findById(pv.getId());
         List<Pipeline> pipelineList = pipelineRepository.findByName(pv.getName());
         if( pv.getId() != null) {
+            Optional<Pipeline> optP = pipelineRepository.findById(pv.getId());
 	        if(optP.isPresent()) {
 	        	p = optP.get();
                 if(!pipelineList.isEmpty() && !pipelineList.get(0).getId().equals(p.getId())){
@@ -511,8 +514,9 @@ public class PipelineUtil {
             if(!pipelineList.isEmpty()){
                 throw new BadRequestAlertException("Name '" + pv.getName() + "' already assigned", "pipeline", "name already used");
             }
-            if( getPipelineByRealm(pv.getType(), pv.getUrlPart()) != null ){
-                throw new BadRequestAlertException("Realm '" + pv.getUrlPart() + "' already exists", "pipeline", "realmexists");
+            Pipeline pipelineByName = getPipelineByRealm(pv.getType(), pv.getUrlPart());
+            if( pipelineByName != null ){
+                throw new BadRequestAlertException("Realm '" + pv.getUrlPart() + "' already exists with pipeline " + pipelineByName.getName() + " / " + pipelineByName.getUrlPart(), "pipeline", "realmexists");
             }
 
             p = new Pipeline();
@@ -692,10 +696,14 @@ public class PipelineUtil {
             addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_CA_CONNECTOR_RECIPIENT_NAME, pv.getScepConfigItems().getCaConnectorRecipientName());
         }
 
-        addPipelineAttribute(pipelineAttributes, p, auditList, ADDITIONAL_EMAIL_RECIPIENTS, pv.getWebConfigItems().getAdditionalEMailRecipients());
+        if( pv.getWebConfigItems() != null) {
+            addPipelineAttribute(pipelineAttributes, p, auditList, ADDITIONAL_EMAIL_RECIPIENTS, pv.getWebConfigItems().getAdditionalEMailRecipients());
+        }
 
-        for( String domainOfficer: pv.getDomainRaOfficerList()){
-            addPipelineAttribute(pipelineAttributes, p, auditList, DOMAIN_RA_OFFICER, domainOfficer);
+        if( pv.getDomainRaOfficerList() != null) {
+            for (String domainOfficer : pv.getDomainRaOfficerList()) {
+                addPipelineAttribute(pipelineAttributes, p, auditList, DOMAIN_RA_OFFICER, domainOfficer);
+            }
         }
 
         ProtectedContent pc;
@@ -883,11 +891,10 @@ public class PipelineUtil {
 
     public boolean isPipelineRestrictionsResolved(PipelineView pv, Pkcs10RequestHolder p10ReqHolder, List<String> messageList) {
 
-		boolean outcome = true;
+		boolean outcome = isAlgorithmRestrictionsResolved( pv,  p10ReqHolder, messageList);
 
         Set<GeneralName> gNameSet = CSRUtil.getSANList(p10ReqHolder.getReqAttributes());
         LOG.debug("#" + gNameSet.size() + " SANs present");
-
 
         RDN[] rdnArr = p10ReqHolder.getSubjectRDNs();
 
@@ -916,8 +923,52 @@ public class PipelineUtil {
 		return outcome;
 	}
 
+    public boolean isAlgorithmRestrictionsResolved(PipelineView pv, Pkcs10RequestHolder p10ReqHolder, List<String> messageList) {
+        boolean outcome = true;
 
-	private boolean hasIPinSANList(Set<GeneralName> gNameSet, List<String> messageList) {
+        Preferences preferences = preferenceUtil.getPrefs(PreferenceUtil.SYSTEM_PREFERENCE_ID);
+
+        String hashAlgName = p10ReqHolder.getAlgorithmInfo().getHashAlgName();
+        if( !Arrays.stream(preferences.getSelectedHashes()).anyMatch(a -> a.equalsIgnoreCase(hashAlgName))){
+            String msg = "restriction mismatch: hash algo '"+hashAlgName +"' does not match expected set!";
+            messageList.add(msg);
+            LOG.debug(msg);
+            outcome = false;
+        }
+
+        String signingAlgo = "rsa";
+        int keyLength = CertificateUtil.getAlignedKeyLength(p10ReqHolder.getPublicSigningKey());
+
+        if( !Arrays.stream(preferences.getSelectedSigningAlgos()).anyMatch(a -> matchesAlgo(a, signingAlgo, keyLength))){
+            String msg = "restriction mismatch: signature algo / length '"+signingAlgo +"/" + keyLength + "' does not match expected set!";
+            messageList.add(msg);
+            LOG.info(msg);
+            outcome = false;
+        }
+
+        return outcome;
+    }
+
+    private boolean matchesAlgo(String a, String signingAlgo, int keyLength) {
+        String[] parts = a.split("-");
+        if( parts.length != 2){
+            LOG.warn("unexpected keyLength / type descriptor: '{}'", a);
+            return false;
+        }
+        if( !parts[0].equalsIgnoreCase(signingAlgo)){
+            LOG.debug ("type check  mismatch: '{}' / '{}'", parts[0], signingAlgo);
+            return false;
+        }
+        try {
+            int keyLengthRestriction = Integer.parseInt(parts[1]);
+            return keyLengthRestriction == keyLength;
+        }catch(NumberFormatException nfe){
+            LOG.warn("unexpected number in keyLengthdescriptor: '"+a+"'",nfe);
+        }
+        return false;
+    }
+
+    private boolean hasIPinSANList(Set<GeneralName> gNameSet, List<String> messageList) {
 
 		boolean outcome = false;
 
@@ -1340,6 +1391,10 @@ public class PipelineUtil {
         if (pipelineList.isEmpty()) {
             LOG.info("no matching pipeline for type '{}' request realm {}", pipelineType, realm);
             return null;
+        }else{
+            for( Pipeline pipeline: pipelineList){
+                LOG.info("matching pipeline for type '{}' and request realm {} found: {}", pipeline.getType(), pipeline.getUrlPart(), pipeline.getName());
+            }
         }
         return pipelineList.get(0);
     }

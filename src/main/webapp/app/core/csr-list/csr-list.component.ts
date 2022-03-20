@@ -1,5 +1,5 @@
 import Component from 'vue-class-component';
-import { Vue } from 'vue-property-decorator';
+import { Inject, Vue } from 'vue-property-decorator';
 import { mixins } from 'vue-class-component';
 
 import {
@@ -7,8 +7,11 @@ import {
   ICertificateFilterList,
   ISelector,
   ICertificateSelectionData,
-  ICSRView
+  ICSRView,
+  IPipelineView
 } from '@/shared/model/transfer-object.model';
+
+import PipelineViewService from '../pipeline/pipelineview.service';
 
 import { colFieldToStr, makeQueryStringFromObj } from '@/shared/utils';
 
@@ -95,11 +98,17 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('requests-table
 
 @Component
 export default class CsrList extends mixins(AlertMixin, Vue) {
+  @Inject('pipelineViewService') private pipelineViewService: () => PipelineViewService;
+
   public now: Date = new Date();
   public soon: Date = new Date();
   public recently: Date = new Date();
   public dateWarn = new Date();
   public dateAlarm = new Date();
+
+  public pipelines: IPipelineView[] = [];
+
+  public selectedPipelines: String[] = [];
 
   public get authenticated(): boolean {
     return this.$store.getters.authenticated;
@@ -113,10 +122,14 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
       itemType: 'set',
       itemDefaultSelector: 'EQUAL',
       itemDefaultValue: 'PENDING',
-      values: ['PROCESSING', 'ISSUED', 'REJECTED', 'PENDING']
+      values: ['PENDING', 'ISSUED', 'REJECTED', 'PROCESSING']
     },
     { itemName: 'subject', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable' },
     { itemName: 'sans', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable' },
+    { itemName: 'pipelineId', itemType: 'pipelineList', itemDefaultSelector: 'IN', itemDefaultValue: '1,2,3' },
+    { itemName: 'isAdministrable', itemType: 'boolean', itemDefaultSelector: 'ISTRUE', itemDefaultValue: '' },
+    { itemName: 'id', itemType: 'number', itemDefaultSelector: null, itemDefaultValue: null },
+    { itemName: 'pipelineType', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'WEB', values: ['WEB', 'ACME', 'SCEP'] },
     { itemName: 'requestedOn', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}' },
     { itemName: 'requestedBy', itemType: 'string', itemDefaultSelector: 'EQUAL', itemDefaultValue: '{user}' },
     { itemName: 'rejectedOn', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}' },
@@ -125,9 +138,10 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
 
   public selectionChoices: ISelectionChoices[] = [
     { itemType: 'string', hasValue: true, choices: ['EQUAL', 'NOT_EQUAL', 'LIKE', 'NOTLIKE', 'LESSTHAN', 'GREATERTHAN'] },
-    { itemType: 'number', hasValue: true, choices: ['EQUAL', 'NOT_EQUAL', 'LESSTHAN', 'GREATERTHAN'] },
+    { itemType: 'number', hasValue: true, choices: ['EQUAL', 'NOT_EQUAL', 'LESSTHAN', 'GREATERTHAN', 'IN'] },
     { itemType: 'date', hasValue: true, choices: ['ON', 'BEFORE', 'AFTER'] },
     { itemType: 'boolean', hasValue: false, choices: ['ISTRUE', 'ISFALSE'] },
+    { itemType: 'pipelineList', hasValue: true, choices: ['IN', 'NOT_IN'] },
     { itemType: 'set', hasValue: false, choices: ['EQUAL', 'NOT_EQUAL'] }
   ];
 
@@ -245,6 +259,9 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
         { label: this.$t('requestedOn'), field: 'requestedOn' },
         { label: this.$t('requestedBy'), field: 'requestedBy' },
         { label: this.$t('pipeline'), field: 'pipelineName' },
+        { label: this.$t('pipelineId'), field: 'pipelineId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
+        { label: this.$t('pipelineType'), field: 'pipelineType' },
+
         //        { label: 'CA', field: 'processingCA'  },
         { label: this.$t('x509KeySpec'), field: 'x509KeySpec' },
         { label: this.$t('keyAlgorithm'), field: 'publicKeyAlgorithm' },
@@ -259,6 +276,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
       contentAccessUrl: '',
 
       get csrApiUrl() {
+        window.console.info('selectedPipelines : ' + self.selectedPipelines);
         window.console.info('csrApiUrl returns : ' + self.contentAccessUrl);
         return self.contentAccessUrl;
       }
@@ -272,10 +290,27 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
     this.buildContentAccessUrl();
   }
 
+  public alignFilterValues() {
+    for (const filter of this.filters.filterList) {
+      if (filter.attributeName === 'pipelineId') {
+        filter.attributeValue = filter.attributeValueArr.join(', ');
+        window.console.info(
+          'buildContentAccessUrl: filter.attributeValue: ' +
+            filter.attributeValue +
+            "', filter.attributeValueArr : '" +
+            filter.attributeValueArr +
+            "'"
+        );
+      }
+    }
+  }
+
   public buildAccessUrl(baseUrl: string): string {
     const filterLen = this.filters.filterList.length;
-
     const params = {};
+
+    this.alignFilterValues();
+
     for (let i = 0; i < filterLen; i++) {
       const filter = this.filters.filterList[i];
       const idx = i + 1;
@@ -307,8 +342,23 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
 
     this.getCertificateSelectionAttributes();
     this.getUsersFilterList();
+    this.retrieveAllPipelines();
+
     setInterval(() => this.putUsersFilterList(this), 3000);
     setInterval(() => this.buildContentAccessUrl(), 1000);
+  }
+
+  public retrieveAllPipelines(): void {
+    this.pipelineViewService()
+      .retrieve()
+      .then(
+        res => {
+          this.pipelines = res.data;
+        },
+        err => {
+          window.console.info('err : ' + err);
+        }
+      );
   }
 
   public getCertificateSelectionAttributes(): void {
@@ -347,6 +397,12 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
       //      window.console.debug('getUsersFilterList returns ' + response.data );
       if (response.status === 200) {
         self.filters.filterList = response.data.filterList;
+        for (const filter of self.filters.filterList) {
+          if (filter.attributeName === 'pipelineId') {
+            filter.attributeValueArr = filter.attributeValue.split(', ');
+          }
+        }
+
         //        window.console.debug('getUsersFilterList sets filters to ' + JSON.stringify(self.filters));
         self.lastFilters = JSON.stringify(self.filters);
       }
@@ -354,7 +410,9 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
   }
 
   public putUsersFilterList(self): void {
-    //    window.console.debug('calling putUsersFilterList ');
+    window.console.debug('calling putUsersFilterList ');
+    this.alignFilterValues();
+
     const lastFiltersValue = JSON.stringify(self.filters);
     if (self.lastFilters === lastFiltersValue) {
       //      window.console.debug('putUsersFilterList: no change ...');

@@ -7,7 +7,6 @@ import java.security.Key;
 import java.security.KeyStore;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -24,7 +23,6 @@ import org.bouncycastle.util.encoders.DecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -139,7 +137,7 @@ public class CSRContentProcessor {
                         if (pvUtil.isPipelineRestrictionsResolved(optPipeline.get(), p10ReqHolder, uploaded.getArAttributes(), messageList)) {
                             LOG.debug("pipeline restrictions for pipeline '{}' solved", optPipeline.get().getName());
                         }else {
-                            p10ReqData.setMessages(messageList.toArray(new String[0]));
+                            p10ReqData.setWarnings(messageList.toArray(new String[0]));
 //                            return new ResponseEntity<>(p10ReqData, HttpStatus.BAD_REQUEST);
                         }
                     }else{

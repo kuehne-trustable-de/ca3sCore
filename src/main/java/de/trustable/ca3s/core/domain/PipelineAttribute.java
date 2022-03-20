@@ -6,6 +6,7 @@ import javax.validation.constraints.*;
 
 import java.io.Serializable;
 
+
 /**
  * A PipelineAttribute.
  */
@@ -15,6 +16,11 @@ import java.io.Serializable;
     @NamedQuery(name = "PipelineAttribute.findDistinctByName",
         query = "SELECT distinct pa.value FROM PipelineAttribute pa WHERE " +
             "pa.name like :name"
+    ),
+    @NamedQuery(name = "PipelineAttribute.findDistinctPipelineByNameAndValue",
+        query = "SELECT distinct pa.pipeline.id FROM PipelineAttribute pa WHERE " +
+            "pa.name like :name and " +
+            "pa.value like :value"
     )
 })
 public class PipelineAttribute implements Serializable {

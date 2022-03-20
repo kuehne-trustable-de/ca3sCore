@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2022-02-25 19:03:06.
+// Generated using typescript-generator version 2.19.577 on 2022-03-14 20:36:52.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -192,9 +192,9 @@ export interface ICertificateView extends ISerializable {
   isServersideKeyGeneration?: boolean;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
-  auditPresent?: boolean;
   serversideKeyGeneration?: boolean;
   fullChainAvailable?: boolean;
+  auditPresent?: boolean;
 }
 
 export interface ICSRView extends ISerializable {
@@ -210,6 +210,7 @@ export interface ICSRView extends ISerializable {
   requestedBy?: string;
   processingCA?: string;
   pipelineName?: string;
+  pipelineId?: number;
   x509KeySpec?: string;
   keyAlgorithm?: string;
   keyLength?: string;
@@ -235,6 +236,8 @@ export interface IPreferences extends ISerializable {
   maxNextUpdatePeriodCRLHour?: number;
   acmeHTTP01TimeoutMilliSec?: number;
   acmeHTTP01CallbackPortArr?: number[];
+  selectedHashes?: string[];
+  selectedSigningAlgos?: string[];
 }
 
 export interface ICSRAdministrationData extends ISerializable {
@@ -289,6 +292,7 @@ export interface IX509CertificateHolderShallow {
 export interface ICertificateFilter extends ISerializable {
   attributeName?: string;
   attributeValue?: string;
+  attributeValueArr?: string[];
   selector?: ISelector;
 }
 
@@ -320,6 +324,7 @@ export interface IPkcsXXData {
   csrPending?: boolean;
   createdCSRId?: string;
   messages?: string[];
+  warnings?: string[];
   replacementCandidates?: ICertificateNameId[];
 }
 
@@ -416,8 +421,11 @@ export interface IPkcs10RequestHolderShallow {
   signingAlgorithmName?: string;
   isCSRValid?: boolean;
   x509KeySpec?: string;
+  hashAlgName?: string;
   sigAlgName?: string;
   keyAlgName?: string;
+  paddingAlgName?: string;
+  mfgName?: string;
   keyLength?: number;
   sans?: string[];
   subject?: string;
@@ -445,6 +453,8 @@ export type ISelector =
   | 'AFTER'
   | 'ISTRUE'
   | 'ISFALSE'
+  | 'IN'
+  | 'NOT_IN'
   | 'PERIOD_BEFORE'
   | 'PERIOD_AFTER';
 

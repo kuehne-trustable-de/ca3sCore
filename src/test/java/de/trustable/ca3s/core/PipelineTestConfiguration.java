@@ -1,23 +1,8 @@
 package de.trustable.ca3s.core;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.transaction.Transactional;
-
-import de.trustable.ca3s.core.domain.AuditTrace;
-import de.trustable.ca3s.core.domain.PipelineAttribute;
-import de.trustable.ca3s.core.domain.enumeration.CsrUsage;
-import de.trustable.ca3s.core.service.dto.SCEPConfigItems;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.stereotype.Service;
-
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.Pipeline;
+import de.trustable.ca3s.core.domain.PipelineAttribute;
 import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.domain.enumeration.RDNCardinalityRestriction;
@@ -25,7 +10,17 @@ import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.service.dto.PipelineView;
 import de.trustable.ca3s.core.service.dto.RDNRestriction;
+import de.trustable.ca3s.core.service.dto.SCEPConfigItems;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.HashSet;
+import java.util.List;
 
 
 @Service
@@ -60,6 +55,7 @@ public class PipelineTestConfiguration {
 
 	@Autowired
 	PipelineUtil pipelineUtil;
+
 
 
 	public CAConnectorConfig internalTestCAC() {
@@ -104,6 +100,7 @@ public class PipelineTestConfiguration {
 			return existingPLList.get(0);
 		}
 
+        LOGGER.info("------------ Creating pipeline '{}' ... ", PIPELINE_NAME_ACME);
 
 		PipelineView pv_LaxRestrictions = new PipelineView();
     	pv_LaxRestrictions.setRestriction_C(new RDNRestriction());
@@ -152,6 +149,7 @@ public class PipelineTestConfiguration {
             return existingPLList.get(0);
         }
 
+        LOGGER.info("------------ Creating pipeline '{}' ... ", PIPELINE_NAME_ACME1CN);
 
         PipelineView pv_1CNRestrictions = new PipelineView();
         pv_1CNRestrictions.setRestriction_C(new RDNRestriction());
@@ -199,6 +197,8 @@ public class PipelineTestConfiguration {
             return existingPLList.get(0);
         }
 
+        LOGGER.info("------------ Creating pipeline '{}' ... ", PIPELINE_NAME_ACME1CNNOIP);
+
 
         PipelineView pv_1CN_NoIP_Restrictions = new PipelineView();
         pv_1CN_NoIP_Restrictions.setRestriction_C(new RDNRestriction());
@@ -225,7 +225,7 @@ public class PipelineTestConfiguration {
         pv_1CN_NoIP_Restrictions.setApprovalRequired(false);
 
         pv_1CN_NoIP_Restrictions.setCaConnectorName(internalTestCAC().getName());
-        pv_1CN_NoIP_Restrictions.setName(PIPELINE_NAME_ACME1CN);
+        pv_1CN_NoIP_Restrictions.setName(PIPELINE_NAME_ACME1CNNOIP);
         pv_1CN_NoIP_Restrictions.setActive(true);
         pv_1CN_NoIP_Restrictions.setType(PipelineType.ACME);
         pv_1CN_NoIP_Restrictions.setUrlPart(ACME1CNNOIP_REALM);
@@ -250,6 +250,8 @@ public class PipelineTestConfiguration {
 
 			return existingPLList.get(0);
 		}
+
+        LOGGER.info("------------ Creating pipeline '{}' ... ", PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
 
 
 		Pipeline pipelineWeb = new Pipeline();

@@ -13,10 +13,12 @@ import de.trustable.ca3s.core.service.dto.KeyAlgoLength;
 import de.trustable.ca3s.core.service.dto.NamedValues;
 import de.trustable.ca3s.core.service.dto.PipelineView;
 import de.trustable.ca3s.core.service.dto.Preferences;
+import de.trustable.ca3s.core.service.exception.CAFailureException;
 import de.trustable.ca3s.core.service.util.*;
 import de.trustable.ca3s.core.web.rest.data.*;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.Pkcs10RequestHolder;
+import liquibase.repackaged.org.apache.commons.lang3.ArrayUtils;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -211,14 +213,23 @@ public class ContentUploadProcessor {
                         if (pvUtil.isPipelineRestrictionsResolved(optPipeline.get(), p10ReqHolder, uploaded.getArAttributes(), messageList)) {
                             LOG.debug("pipeline restrictions for pipeline '{}' solved", optPipeline.get().getName());
                         }else {
-                            p10ReqData.setMessages(messageList.toArray(new String[0]));
+                            p10ReqData.setWarnings(messageList.toArray(new String[0]));
                             return new ResponseEntity<>(p10ReqData, HttpStatus.BAD_REQUEST);
                         }
                     }else{
                         LOG.info("pipeline id '{}' not found", uploaded.getPipelineId());
                     }
 
-                    CSR csr = startCertificateCreationProcess(content, p10ReqData, requestorName, uploaded.getRequestorcomment(), uploaded.getArAttributes(), optPipeline );
+                    CSR csr;
+                    try{
+                        csr = startCertificateCreationProcess(content, p10ReqData, requestorName, uploaded.getRequestorcomment(), uploaded.getArAttributes(), optPipeline );
+                    }catch (CAFailureException caFailureException) {
+                        LOG.info("problem creating certificate", caFailureException);
+                        String [] messages = ArrayUtils.add( p10ReqData.getWarnings(), caFailureException.getMessage() );
+                        p10ReqData.setWarnings(messages);
+                        return new ResponseEntity<>(p10ReqData, HttpStatus.OK);
+                    }
+
                     if( csr != null ){
                         Certificate cert = csr.getCertificate();
                         if( cert != null) {
@@ -422,7 +433,16 @@ public class ContentUploadProcessor {
             Pkcs10RequestHolderShallow p10ReqHolderShallow = new Pkcs10RequestHolderShallow( p10ReqHolder);
             PkcsXXData p10ReqData = new PkcsXXData(p10ReqHolderShallow);
 
-            CSR csr = startCertificateCreationProcess(csrAsPem, p10ReqData, requestorName, uploaded.getRequestorcomment(), uploaded.getArAttributes(), optPipeline );
+            CSR csr;
+            try{
+                csr = startCertificateCreationProcess(csrAsPem, p10ReqData, requestorName, uploaded.getRequestorcomment(), uploaded.getArAttributes(), optPipeline );
+            }catch (CAFailureException caFailureException) {
+                LOG.info("problem creating certificate", caFailureException);
+                String [] messages = ArrayUtils.add( p10ReqData.getWarnings(), caFailureException.getMessage() );
+                p10ReqData.setWarnings(messages);
+                return new ResponseEntity<>(p10ReqData, HttpStatus.OK);
+            }
+
             if( csr != null ){
                 csr.setServersideKeyGeneration(true);
                 csrRepository.save(csr);
@@ -482,7 +502,7 @@ public class ContentUploadProcessor {
 
                 CSR csr = cpUtil.buildCSR(csrAsPem, requestorName, AuditService.AUDIT_WEB_CERTIFICATE_REQUESTED, requestorComment, pipeline, nvArr, messageList);
 
-                p10ReqData.setMessages(messageList.toArray(new String[0]));
+                p10ReqData.setWarnings(messageList.toArray(new String[0]));
 
                 if (csr != null) {
                     if (pipeline.isApprovalRequired()) {
