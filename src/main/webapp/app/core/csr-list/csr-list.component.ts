@@ -127,7 +127,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
     { itemName: 'subject', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable' },
     { itemName: 'sans', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable' },
     { itemName: 'pipelineId', itemType: 'pipelineList', itemDefaultSelector: 'IN', itemDefaultValue: '1,2,3' },
-    { itemName: 'isAdministrable', itemType: 'boolean', itemDefaultSelector: 'ISTRUE', itemDefaultValue: '' },
+    //    { itemName: 'isAdministrable', itemType: 'boolean', itemDefaultSelector: 'ISTRUE', itemDefaultValue: '' },
     { itemName: 'id', itemType: 'number', itemDefaultSelector: null, itemDefaultValue: null },
     { itemName: 'pipelineType', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'WEB', values: ['WEB', 'ACME', 'SCEP'] },
     { itemName: 'requestedOn', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}' },

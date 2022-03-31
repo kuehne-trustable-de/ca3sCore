@@ -140,6 +140,35 @@ entity ProtectedContent{
   	relatedId Long
 }
 
+enum TimedElementNotificationType {
+    ON_EXPIRY, ON_EXPIRY_ACTIVE
+}
+
+@skipClient
+entity TimedElementNotification{
+
+  	type TimedElementNotificationType required
+  	notifyOn Instant required
+  	customMessage String
+}
+
+enum AlgorithmType {
+    SIGNING, PADDING, HASH, CURVE
+}
+
+@skipClient
+entity AlgorithmRestriction{
+
+  	type AlgorithmType required
+  	notAfter Instant
+  	identifier String
+  	name String
+    acceptable Boolean required
+}
+
+entity AlgorithmRestrictions{
+}
+
 
 @skipClient
 entity RDN{
@@ -397,6 +426,7 @@ relationship OneToMany {
 
 	AcmeAuthorization{challenges} to AcmeChallenge{AcmeAuthorization}
 
+    AlgorithmRestrictions{restrictions} to AlgorithmRestriction
 }
 
 relationship ManyToOne {
@@ -408,6 +438,7 @@ relationship ManyToOne {
 	AuditTrace{caConnector} to CAConnectorConfig
 	AuditTrace{processInfo} to BPMNProcessInfo
 
+    TimedElementNotification{certificate} to Certificate
 
 	AcmeOrder{csr} to CSR
 	AcmeOrder{certificate} to Certificate
@@ -422,12 +453,13 @@ relationship ManyToOne {
 
 	Pipeline{caConnector} to CAConnectorConfig
 	Pipeline{processInfo} to BPMNProcessInfo
+	Pipeline{algorithms} to AlgorithmRestrictions
+
 }
 
 relationship OneToOne{
 
   Certificate{csr} to CSR{certificate}
-
   Certificate{comment} to CertificateComment{certificate}
 
   CSR{comment} to CSRComment{csr}
@@ -435,6 +467,7 @@ relationship OneToOne{
   RequestProxyConfig{secret} to ProtectedContent
 
   CAConnectorConfig{secret} to ProtectedContent
+
 }
 
 // Set pagination options

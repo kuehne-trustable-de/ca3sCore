@@ -13,10 +13,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static de.trustable.ca3s.core.repository.SpecificationsHelper.*;
@@ -56,11 +53,13 @@ public final class CSRSpecifications {
 
         // retrieve all the required columns
         // 'filter' is a bit misleading, here...
-        String[] columnArr = new String[0];
+
+        HashSet<String> columnSet = new HashSet<>();
         if (parameterMap.containsKey("filter")) {
             String[] paramArr = parameterMap.get("filter");
             if (paramArr.length > 0) {
-                columnArr = paramArr[0].split(",");
+                String[] columnArr = paramArr[0].split(",");
+                Collections.addAll(columnSet, columnArr);
             }
         }
 
@@ -82,10 +81,12 @@ public final class CSRSpecifications {
                 String.join(", ", pipelineIdList),
                 selectionList,
                 csrSelectionAttributes));
+
+            columnSet.add("pipelineId");
         }
 
         // walk thru all requested columns
-        for (String col : columnArr) {
+        for (String col : columnSet) {
             colList.add(col);
 
             if (selectionMap.containsKey(col)) {
@@ -186,7 +187,7 @@ public final class CSRSpecifications {
         ArrayList<Selection<?>> selectionListCount = new ArrayList<>();
 
         // walk thru all requested columns
-        for (String col : columnArr) {
+        for (String col : columnSet) {
             colList.add(col);
 
             if (selectionMap.containsKey(col)) {
@@ -287,6 +288,9 @@ public final class CSRSpecifications {
                 cv.setRejectedOn((Instant) objArr[i]);
             } else if ("rejectionReason".equalsIgnoreCase(attribute)) {
                 cv.setRejectionReason((String) objArr[i]);
+            } else if ("isAdministrable".equalsIgnoreCase(attribute)) {
+                // not a database result column
+                continue;
             } else {
                 logger.warn("unexpected attribute '{}' from query", attribute);
             }

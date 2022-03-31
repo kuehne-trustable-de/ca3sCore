@@ -31,15 +31,8 @@
 							<option v-for="item in getValueChoices(filter.attributeName)" :key="item" :value="item">{{$t(item)}}</option>
 						</select>
 
-                        <!--Fragment v-else-if="getInputType(filter.attributeName) === 'date'">
-                            <Fragment v-if="getInputSelector(filter.attributeName) === 'PERIOD_BEFORE'">
-                                <input type="date" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueDate" v-on:keydown.enter="updateTable"/>
-                                <input  float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueDate" v-on:keydown.enter="updateTable"/>
-                            </Fragment>
-                            <Fragment v-else>
-                                <input type="date" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueDate" v-on:keydown.enter="updateTable"/>
-                            </Fragment>
-                        </Fragment-->
+                        <input v-else-if="(getInputType(filter.attributeName) === 'date') && (filter.selector === 'ON')" type="date" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueDate" v-on:keydown.enter="updateTable"/>
+                        <input v-else-if=" getInputType(filter.attributeName) === 'date'" type="datetime-local" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueDate" v-on:keydown.enter="updateTable"/>
 
 						<input type="hidden" v-else-if="getInputType(filter.attributeName) === 'boolean'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueBoolean" v-on:keydown.enter="updateTable"/>
 						<input v-else float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValue" v-on:keydown.enter="updateTable"/>

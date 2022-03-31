@@ -1589,7 +1589,7 @@ public class CertificateUtil {
         List<Certificate> rawIssuingCertList = new ArrayList<>();
 
         // look for the AKI extension in the given certificate
-        if ((x509CertHolder != null) && (x509CertHolder.getExtensions() != null)) {
+        if (x509CertHolder.getExtensions() != null) {
             AuthorityKeyIdentifier aki = AuthorityKeyIdentifier.fromExtensions(x509CertHolder.getExtensions());
             if (aki != null) {
                 rawIssuingCertList = findCertsByAKI(x509CertHolder, aki);
@@ -1622,7 +1622,7 @@ public class CertificateUtil {
 
             Date notBefore = x509CertHolder.getNotBefore();
 
-            issuingCertList = new ArrayList<>();
+            List<Certificate> issuingCertListChecked = new ArrayList<>();
             for (Certificate issuer : issuingCertList) {
                 if(issuer.isRevoked() && notBefore.after(DateUtil.asDate(issuer.getRevokedSince()))){
                     LOG.debug("issuer {} was revoked on {}", issuer.getId(), notBefore);
@@ -1640,8 +1640,9 @@ public class CertificateUtil {
                     LOG.debug("probable issuer {} is an end entity, ignoring as issuer", issuer.getId());
                     continue;
                 }
-                issuingCertList.add(issuer);
+                issuingCertListChecked.add(issuer);
             }
+            issuingCertList = issuingCertListChecked;
 
             // that's wierd!!
             if (issuingCertList.size() > 1) {
@@ -1845,7 +1846,7 @@ public class CertificateUtil {
             List<ProtectedContent> pcList = protContentRepository.findByCertificateId(csr.getId());
 
             if (pcList.isEmpty()) {
-                LOG.error("retrieval of private key for csr '{}' returns not key!", csr.getId());
+                LOG.error("retrieval of private key for csr '{}' returns no key!", csr.getId());
             } else {
                 if (pcList.size() > 1) {
                     LOG.warn("retrieval of private key for certificate '{}' returns more than one key ({}) !", csr.getId(), pcList.size());
@@ -1853,7 +1854,7 @@ public class CertificateUtil {
 
                 String content = protUtil.unprotectString(pcList.get(0).getContentBase64());
                 priKey = cryptoUtil.convertPemToPrivateKey(content);
-                LOG.debug("getPrivateKey() returns " + priKey.toString());
+                LOG.debug("getPrivateKey() returns key for csr #" + csr.getId());
             }
 
         } catch (GeneralSecurityException e) {

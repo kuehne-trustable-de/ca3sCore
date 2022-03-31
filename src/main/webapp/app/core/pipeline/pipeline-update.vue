@@ -380,27 +380,44 @@
 
                     </div>
 
-                    <div class="form-inline">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.csr.usage')" for="pipeline-csrUsage">Csr usage</label>
-                        <select class="form-control" id="pipeline-csrUsage" name="pipeline-csrUsage" v-model="pipeline.csrUsage">
-                            <option value="TLS_SERVER">TLS Server</option>
-                            <option value="TLS_CLIENT">TLS Client</option>
-                            <option value="DOC_SIGNING">Document Signing</option>
-                            <option value="CODE_SIGNING">Code  Signing</option>
-                        </select>
+                    <div class="container" >
+                        <div class="row" >
+                            <div class="col">
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.csr.usage')" for="pipeline-csrUsage">Csr usage</label>
+                            </div>
+                            <div class="col">
+                                <select class="form-control" id="pipeline-csrUsage" name="pipeline-csrUsage" v-model="pipeline.csrUsage">
+                                    <option value="TLS_SERVER">TLS Server</option>
+                                    <option value="TLS_CLIENT">TLS Client</option>
+                                    <option value="DOC_SIGNING">Document Signing</option>
+                                    <option value="CODE_SIGNING">Code Signing</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="form-inline" v-if="pipeline.domainRaOfficerList && domainRAs && domainRAs.length > 0">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.domainRAs')" for="pipeline-domainRAs">Domain RAs</label>
-                        <select class="form-control" multiple="true" id="pipeline-domainRAs" name="pipeline-domainRAs" v-model="pipeline.domainRaOfficerList">
-                            <option v-bind:value="domainRA.id" v-for="domainRA in domainRAs" :key="domainRA.id">{{readableUserName(domainRA)}}</option>
-                        </select>
+                    <div class="container" v-if="pipeline.domainRaOfficerList && domainRAs && domainRAs.length > 0">
+                        <div class="row" >
+                            <div class="col">
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.domainRAs')" for="pipeline-domainRAs">Domain RAs</label>
+                            </div>
+                            <div class="col">
+                                <select class="form-control" multiple="true" id="pipeline-domainRAs" name="pipeline-domainRAs" v-model="pipeline.domainRaOfficerList">
+                                    <option v-bind:value="domainRA.id" v-for="domainRA in domainRAs" :key="domainRA.id">{{readableUserName(domainRA)}}</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
-
-                    <div v-if="$v.pipeline.type.$model === 'WEB'" class="form-inline">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.additionalEmailRecipients')" for="pipeline-additionalEmailRecipients">Additional Email Recipients</label>
-                        <input type="text" class="form-control" name="additionalEmailRecipients" id="pipeline-additionalEmailRecipients" v-model="pipeline.webConfigItems.additionalEMailRecipients" />
+                    <div class="container" v-if="$v.pipeline.type.$model === 'WEB'">
+                        <div class="row" >
+                            <div class="col">
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.additionalEmailRecipients')" for="pipeline-additionalEmailRecipients">Additional Email Recipients</label>
+                            </div>
+                            <div class="col">
+                                <input type="text" class="form-control" name="additionalEmailRecipients" id="pipeline-additionalEmailRecipients" v-model="pipeline.webConfigItems.additionalEMailRecipients" />
+                            </div>
+                        </div>
                     </div>
 
                     <div>

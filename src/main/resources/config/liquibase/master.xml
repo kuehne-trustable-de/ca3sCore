@@ -100,5 +100,8 @@
 
     <include file="config/liquibase/changelog/20220225163112_added_values.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/20220322121000_change_description_field_type.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220322124500_change_content_field_type.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>

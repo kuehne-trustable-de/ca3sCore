@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Service for managing audit events.
@@ -451,23 +453,30 @@ public class AuditService {
         final BPMNProcessInfo processInfo ){
 
         String msg = "";
+        String content = "";
 
         if(attributeName != null) {
             msg = limitAndEscapeContent(attributeName, 30) ;
+            content = limitAndEscapeContent(attributeName, 50) ;
         }
 
         if(oldVal != null || newVal != null) {
             msg += "," + limitAndEscapeContent(oldVal, 100) + "," + limitAndEscapeContent(newVal, 100);
+            content += "," + limitAndEscapeContent(oldVal, 1000) + "," + limitAndEscapeContent(newVal, 1000);
         }
 
-        applicationEventPublisher.publishEvent(new AuditApplicationEvent( actor, template, msg));
+        Map<String,Object> eventData = new HashMap<>();
+        if( !msg.isEmpty()) {
+            eventData.put("content", CryptoUtil.limitLength(msg, 250));
+        }
+        applicationEventPublisher.publishEvent(new AuditApplicationEvent( actor, template, eventData));
 
         log.debug("Audit trace for {}, attribute {}, oldVal {}, newVal {} ", template, attributeName, oldVal, newVal);
 
 		AuditTrace auditTrace = new AuditTrace();
         auditTrace.setActorName(CryptoUtil.limitLength(actor, 50));
         auditTrace.setActorRole(CryptoUtil.limitLength(actorRole, 50));
-        auditTrace.setPlainContent(msg);
+        auditTrace.setPlainContent(content);
         auditTrace.setContentTemplate(template);
         auditTrace.setCreatedOn(Instant.now());
         auditTrace.setCsr(csr);

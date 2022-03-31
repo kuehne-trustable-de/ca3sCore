@@ -32,8 +32,11 @@
                                 v-model="filter.attributeValueArr" multiple="true" name="pipelineId">
                             <option v-for="item in pipelines" :key="item.id" :value="item.id">{{item.name}}</option>
                         </select>
-						<input type="date" v-else-if="getInputType(filter.attributeName) === 'date'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="csrSelectionValueDate" v-on:keydown.enter="updateTable"/>
-						<input type="hidden" v-else-if="getInputType(filter.attributeName) === 'boolean'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="csrSelectionValueBoolean" v-on:keydown.enter="updateTable"/>
+
+                        <input v-else-if="(getInputType(filter.attributeName) === 'date') && (filter.selector === 'ON')" type="date" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="csrSelectionValueDate" v-on:keydown.enter="updateTable"/>
+                        <input v-else-if=" getInputType(filter.attributeName) === 'date'" type="datetime-local" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="csrSelectionValueDate" v-on:keydown.enter="updateTable"/>
+
+                        <input type="hidden" v-else-if="getInputType(filter.attributeName) === 'boolean'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="csrSelectionValueBoolean" v-on:keydown.enter="updateTable"/>
 						<input v-else float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="csrSelectionValue" v-on:keydown.enter="updateTable"/>
 
 						<button class="addRemoveSelector" float="right" v-if="index === 0" v-on:click="addSelector()">
