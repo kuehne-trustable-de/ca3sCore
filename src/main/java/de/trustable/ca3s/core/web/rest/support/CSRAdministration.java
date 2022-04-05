@@ -11,13 +11,12 @@ import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.NotificationService;
 import de.trustable.ca3s.core.service.exception.CAFailureException;
-import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CSRUtil;
+import de.trustable.ca3s.core.service.util.CertificateProcessingUtil;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
 import de.trustable.ca3s.core.web.rest.data.AdministrationType;
 import de.trustable.ca3s.core.web.rest.data.CSRAdministrationData;
 import de.trustable.ca3s.core.service.dto.NamedValue;
-import liquibase.repackaged.org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,9 +49,9 @@ public class CSRAdministration {
 
     private final CsrAttributeRepository csrAttributeRepository;
 
-	private final BPMNUtil bpmnUtil;
-
     private final CSRUtil csrUtil;
+
+    private final CertificateProcessingUtil cpUtil;
 
     private final PipelineUtil pipelineUtil;
 
@@ -68,8 +67,8 @@ public class CSRAdministration {
 
     public CSRAdministration(CSRRepository csrRepository,
                              CsrAttributeRepository csrAttributeRepository,
-                             BPMNUtil bpmnUtil,
                              CSRUtil csrUtil,
+                             CertificateProcessingUtil cpUtil,
                              PipelineUtil pipelineUtil,
                              UserRepository userRepository,
                              AuditService auditService,
@@ -78,8 +77,8 @@ public class CSRAdministration {
     ) {
         this.csrRepository = csrRepository;
         this.csrAttributeRepository = csrAttributeRepository;
-        this.bpmnUtil = bpmnUtil;
         this.csrUtil = csrUtil;
+        this.cpUtil = cpUtil;
         this.pipelineUtil = pipelineUtil;
         this.userRepository = userRepository;
         this.auditService = auditService;
@@ -144,12 +143,12 @@ public class CSRAdministration {
 
                 auditService.saveAuditTrace(auditService.createAuditTraceCsrAccepted(csr));
 
-                Certificate cert = null;
+                Certificate cert;
                 try{
-                    cert = bpmnUtil.startCertificateCreationProcess(csr);
+                    cert = cpUtil.processCertificateRequestImmediate( csr, userName, AuditService.AUDIT_RA_CERTIFICATE_CREATED );
                 }catch (CAFailureException caFailureException) {
                     LOG.info("problem creating certificate", caFailureException);
-                    return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                    return new ResponseEntity<>(adminData.getCsrId(), HttpStatus.BAD_REQUEST);
                 }
 
     			if(cert != null) {

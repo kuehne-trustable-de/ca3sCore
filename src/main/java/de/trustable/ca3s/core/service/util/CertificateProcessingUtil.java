@@ -169,13 +169,13 @@ public class CertificateProcessingUtil {
 		return null;
 	}
 
-	/**
-	 * @param csr					certificate signing request as CSR object
-	 * @param requestorName			requestorName
-	 * @param certificateAuditType 	certificateAuditType
-	 * @param pipeline				pipeline
-	 * @return certificate
-	 */
+    /**
+     * @param csr					certificate signing request as CSR object
+     * @param requestorName			requestorName
+     * @param certificateAuditType 	certificateAuditType
+     * @param pipeline				pipeline
+     * @return certificate
+     */
     public Certificate processCertificateRequest(CSR csr, final String requestorName, final String certificateAuditType, Pipeline pipeline )  {
 
 
@@ -194,24 +194,43 @@ public class CertificateProcessingUtil {
             LOG.debug("deferring certificate creation for csr #{}", csr.getId());
         } else {
 
-            try {
-                Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
+            return processCertificateRequestImmediate(csr, requestorName, certificateAuditType );
+        }
 
-                if(cert != null) {
-                    certificateRepository.save(cert);
+        return null;
+    }
 
-                    auditService.saveAuditTrace(auditService.createAuditTraceCertificate(certificateAuditType, cert));
+    /**
+     * @param csr					certificate signing request as CSR object
+     * @param requestorName			requestorName
+     * @param certificateAuditType 	certificateAuditType
+     * @return certificate
+     */
+    public Certificate processCertificateRequestImmediate(CSR csr, final String requestorName, final String certificateAuditType )  {
 
-                    return cert;
-                } else {
-                    LOG.warn("creation of certificate requested by {} failed ", requestorName);
-                }
-            } catch( CAFailureException caFailureException){
-                auditService.saveAuditTrace(auditService.createAuditTraceCsrSigningFailed(csr, caFailureException.getMessage()));
 
-                caFailureException.printStackTrace();
-                throw caFailureException;
+        if( csr == null) {
+            LOG.warn("creation of certificate requires a csr!");
+            return null;
+        }
+
+        try {
+            Certificate cert = bpmnUtil.startCertificateCreationProcess(csr);
+
+            if(cert != null) {
+                certificateRepository.save(cert);
+
+                auditService.saveAuditTrace(auditService.createAuditTraceCertificate(certificateAuditType, cert));
+
+                return cert;
+            } else {
+                LOG.warn("creation of certificate requested by {} failed ", requestorName);
             }
+        } catch( CAFailureException caFailureException){
+            auditService.saveAuditTrace(auditService.createAuditTraceCsrSigningFailed(csr, caFailureException.getMessage()));
+
+            caFailureException.printStackTrace();
+            throw caFailureException;
         }
 
         return null;
@@ -226,7 +245,7 @@ public class CertificateProcessingUtil {
 
         Certificate cert = bpmnUtil.startCertificateCreationProcess(csr, caConfig, null);
 
-            if(cert != null) {
+        if(cert != null) {
             certificateRepository.save(cert);
 
             auditService.saveAuditTrace(auditService.createAuditTraceCertificate(certificateAuditType, cert));

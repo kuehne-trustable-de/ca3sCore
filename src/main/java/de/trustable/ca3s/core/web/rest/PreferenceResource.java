@@ -127,6 +127,7 @@ public class PreferenceResource {
         }
 
         updateValue(upMap, PreferenceUtil.CHECK_CRL, "" + preferences.isCheckCRL(), userId);
+        updateValue(upMap, PreferenceUtil.NOTIFY_RA_ON_REQUEST, "" + preferences.isNotifyRAOnRequest(), userId);
         updateValue(upMap, PreferenceUtil.MAX_NEXT_UPDATE_PERIOD_CRL_SEC, "" + ( preferences.getMaxNextUpdatePeriodCRLHour() * 3600L), userId);
         updateValue(upMap, PreferenceUtil.SERVER_SIDE_KEY_CREATION_ALLOWED, "" + preferences.isServerSideKeyCreationAllowed(), userId);
         updateValue(upMap, PreferenceUtil.ACME_HTTP01_CALLBACK_PORTS, portsCommaSeparatedList, userId);

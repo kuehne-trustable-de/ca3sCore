@@ -91,8 +91,7 @@
         <spring-framework.version>${spring.version}</spring-framework.version>
         <hibernate.version>5.4.32.Final</hibernate.version>
         <hibernate-core.version>${hibernate.version}</hibernate-core.version>
-        <javassist.version>3.24.0-GA</javassist.version>
-        <liquibase.version>4.3.5</liquibase.version-->
+        <javassist.version>3.24.0-GA</javassist.version-->
 
         <jhipster-framework.version>3.9.1</jhipster-framework.version>
 
@@ -107,9 +106,7 @@
         <!-- The javassist version should match the one managed by
         https://mvnrepository.com/artifact/org.hibernate/hibernate-core/${hibernate.version} -->
         <javassist.version>3.27.0-GA</javassist.version>
-        <!-- The liquibase version should match the one managed by
-        https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
-        <!--liquibase.version>4.3.5</liquibase.version-->
+
         <liquibase.version>4.8.0</liquibase.version>
         <liquibase-hibernate5.version>${liquibase.version}</liquibase-hibernate5.version>
 
@@ -570,7 +567,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>2.10.5.1</version>
+                <version>2.12.6.1</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->

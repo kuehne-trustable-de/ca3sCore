@@ -11,7 +11,9 @@ public class Preferences implements Serializable {
 
 	private boolean serverSideKeyCreationAllowed = false;
 
-	private boolean checkCRL = false;
+    private boolean checkCRL = false;
+
+    private boolean notifyRAOnRequest = false;
 
     private long maxNextUpdatePeriodCRLHour = 24L;
 
@@ -79,5 +81,13 @@ public class Preferences implements Serializable {
 
     public void setSelectedSigningAlgos(String[] selectedSigningAlgos) {
         this.selectedSigningAlgos = selectedSigningAlgos;
+    }
+
+    public boolean isNotifyRAOnRequest() {
+        return notifyRAOnRequest;
+    }
+
+    public void setNotifyRAOnRequest(boolean notifyRAOnRequest) {
+        this.notifyRAOnRequest = notifyRAOnRequest;
     }
 }

@@ -511,6 +511,7 @@
   "ca3SApp.pipeline.csr.usage": "Default usage (for serverside csr creation only)",
   "ca3SApp.preference.home.editLabel": "Edit Preferences",
   "ca3SApp.preference.home.title": "Preferences",
+  "ca3SApp.preference.notifyRAOnRequest": "Notify RA officer on new request",
   "ca3SApp.preference.checkCRL": "Check CRLs (to update the certificate state)",
   "ca3SApp.preference.serverSideKeyCreationAllowed": "Server side key creation allowed",
   "ca3SApp.preference.maxNextUpdatePeriodCRLHour": "CRL validity limited to hours",

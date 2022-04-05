@@ -41,6 +41,7 @@ public class AuditService {
     public static final String AUDIT_ACME_CERTIFICATE_CREATED = "ACME_CERTIFICATE_CREATED";
     public static final String AUDIT_SCEP_CERTIFICATE_REQUESTED = "SCEP_CERTIFICATE_REQUESTED";
     public static final String AUDIT_SCEP_CERTIFICATE_CREATED = "SCEP_CERTIFICATE_CREATED";
+    public static final String AUDIT_RA_CERTIFICATE_CREATED = "RA_CERTIFICATE_CREATED";
     public static final String AUDIT_REQUEST_RESTRICTIONS_FAILED = "REQUEST_RESTRICTIONS_FAILED";
     public static final String AUDIT_WEB_CERTIFICATE_CREATED = "WEB_CERTIFICATE_CREATED";
     public static final String AUDIT_CERTIFICATE_REVOKED = "CERTIFICATE_REVOKED";
@@ -256,7 +257,7 @@ public class AuditService {
             null );
     }
 
-    public AuditTrace createAuditTraceExpiryNotificationfailed(String email) {
+    public AuditTrace createAuditTraceNotificationFailed(String email) {
 
         NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),

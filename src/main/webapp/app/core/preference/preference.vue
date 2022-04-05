@@ -20,6 +20,15 @@
                         <div class="form-group">
                             <div class="row">
                                 <div class="col ">
+                                    <label for="preferences-notifyRAOnRequest" v-text="$t('ca3SApp.preference.notifyRAOnRequest')">Notify RA officer on new request</label>
+                                </div>
+                                <div class="col colContent" >
+                                    <input type="checkbox" class="form-check-inline" name="preferences-notifyRAOnRequest" id="preferences-notifyRAOnRequest" v-model="preferences.notifyRAOnRequest" />
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col ">
                                     <label for="preferences-checkCRL" v-text="$t('ca3SApp.preference.checkCRL')">Check CRLs (to update certificate state)</label>
                                 </div>
                                 <div class="col colContent" >

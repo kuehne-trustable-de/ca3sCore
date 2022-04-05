@@ -23,6 +23,7 @@ public class PreferenceUtil {
     public static final String LIST_DELIMITER = ",";
 
     public static final String CHECK_CRL = "CheckCRL";
+    public static final String NOTIFY_RA_ON_REQUEST = "NotifyRAOnRequest";
     public static final String MAX_NEXT_UPDATE_PERIOD_CRL_SEC = "MaxNextUpdatePeriodCrlSec";
 	public static final String ACME_HTTP01_TIMEOUT_MILLI_SEC = "AcmeHTTP01TimeoutMilliSec";
 	public static final String ACME_HTTP01_CALLBACK_PORTS = "AcmeHTTP01CallbackPorts";
@@ -38,6 +39,11 @@ public class PreferenceUtil {
 
     public boolean isCheckCrl() {
         Optional<UserPreference> optBoolean = userPreferenceService.findPreferenceForUserId(CHECK_CRL, SYSTEM_PREFERENCE_ID);
+        return optBoolean.filter(userPreference -> Boolean.parseBoolean(userPreference.getContent())).isPresent();
+    }
+
+    public boolean isNotifyRAOnRequest() {
+        Optional<UserPreference> optBoolean = userPreferenceService.findPreferenceForUserId(NOTIFY_RA_ON_REQUEST, SYSTEM_PREFERENCE_ID);
         return optBoolean.filter(userPreference -> Boolean.parseBoolean(userPreference.getContent())).isPresent();
     }
 
@@ -109,6 +115,8 @@ public class PreferenceUtil {
                     log.warn("unexpected Preference value for ACME_HTTP01_TIMEOUT_MILLI_SEC '{}'", nfe.getMessage());
                     prefs.setAcmeHTTP01TimeoutMilliSec(2000);
                 }
+            } else if( PreferenceUtil.NOTIFY_RA_ON_REQUEST.equals(name)) {
+                prefs.setNotifyRAOnRequest(Boolean.parseBoolean(up.getContent()));
             } else if( PreferenceUtil.CHECK_CRL.equals(name)) {
                 prefs.setCheckCRL(Boolean.parseBoolean(up.getContent()));
             } else if( PreferenceUtil.MAX_NEXT_UPDATE_PERIOD_CRL_SEC.equals(name)) {

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title th:text="#{email.newPendingRequestEmail.title}">New certificate request issued</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="shortcut icon" th:href="@{|${baseUrl}/favicon.ico|}" />
+        <style>
+            table th {
+                font-weight: bold;
+            }
+            table th, table td {
+                padding: 1px 2px;
+                border: 1px solid #ddd;
+            }
+            table tr {
+                background-color: #fff;
+                border-top: 1px solid #ccc;
+            }
+            table tr:nth-child(2n) {
+                background-color: #f8f8f8;
+            }
+        </style>
+    </head>
+    <body>
+        <p th:text="#{email.notification.greeting.RA(${user.login})}">
+            Dear RA Officer,
+        </p>
+        <p th:text="#{email.notification.greeting.RA.new.request}">
+            this is a notification eMail informing about a new certificate request.
+        </p>
+
+        <p/>
+        <h2 th:text="#{email.new.pending.request.header}">Pending requests</h2>
+        <table>
+            <tr>
+                <th>Subject</th>
+                <th>SANs</th>
+                <th>requested by</th>
+                <th>requested on</th>
+                <!--th>details</th-->
+            </tr>
+            <tr th:each="csr : ${newCsrList}">
+                <td th:text="${csr.subject}"></td>
+                <td th:text="${csr.sans}"></td>
+                <td th:text="${csr.requestedBy}"></td>
+                <td th:text="${#dates.format(csr.requestedOn, 'dd.MM.yyyy, HH:mm')}"></td>
+
+                <!--td><a th:with="url=(@{|${baseUrl}/csr-info?id=${csr.id}|})" th:href="${url}" th:text="#{email.notification.csr.RA.link}">CSR details</a></td-->
+            </tr>
+        </table>
+
+        <p/>
+        <span th:text="#{email.activation.text2}">Regards, </span>
+        <br/>
+        <em th:text="#{email.request.signature}">your ca3s notification robot.</em>
+    </body>
+</html>

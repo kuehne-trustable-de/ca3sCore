@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core.web.rest;
 
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import de.trustable.ca3s.core.security.KeycloakUserDetails;
 import de.trustable.ca3s.core.security.OIDCRestService;

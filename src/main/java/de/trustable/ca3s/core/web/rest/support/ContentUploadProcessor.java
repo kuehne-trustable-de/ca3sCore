@@ -9,6 +9,7 @@ import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.NotificationService;
 import de.trustable.ca3s.core.service.dto.KeyAlgoLength;
 import de.trustable.ca3s.core.service.dto.NamedValues;
 import de.trustable.ca3s.core.service.dto.PipelineView;
@@ -94,6 +95,9 @@ public class ContentUploadProcessor {
 
     @Autowired
 	private CertificateProcessingUtil cpUtil;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @Autowired
     private AuditService auditService;
@@ -509,6 +513,11 @@ public class ContentUploadProcessor {
                         LOG.debug("deferring certificate creation for csr #{}", csr.getId());
                         p10ReqData.setCsrPending(true);
                         p10ReqData.setCreatedCSRId(csr.getId().toString());
+
+                        if(preferenceUtil.isNotifyRAOnRequest()) {
+                            notificationService.notifyRAOfficerOnRequest(csr);
+                        }
+
                     } else {
                         auditService.saveAuditTrace(auditService.createAuditTraceWebAutoAccepted(csr));
                         cpUtil.processCertificateRequest(csr, requestorName, AuditService.AUDIT_WEB_CERTIFICATE_CREATED, pipeline);
