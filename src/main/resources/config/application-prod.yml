@@ -203,6 +203,13 @@ ca3s:
     ra:
       self-issuance-allowed: true
 
+  batch:
+    maxRecordsPerTransaction: 1000
+
+  pkcs12:
+    pbe:
+      algos: PBEWithHmacSHA256AndAES_256, pbeWithSHAAnd3_KeyTripleDES_CBC
+
   ui:
 # limit the set of selectable languages, available languages are de, en, pl
 # if only one language is selected, the user form for selection is disabled / hidden.
@@ -215,6 +222,11 @@ ca3s:
 #  help:
 #    en: /var/help/custom_help_en.md
 #    de: /var/help/custom_help_de.md
+
+
+    sso:
+      autologin: true
+
 
   dns:
 #    server: 8.8.8.8
@@ -250,6 +262,8 @@ ca3s:
 # check your configuration with e.g.
 # http://keycloak-server/auth/realms/ca3sRealm/.well-known/openid-configuration
   oidc:
+    roles:
+      admin: uma_authorization
 
     client-id: ca3s
     client-secret: 197bc3b4-64b0-452f-9bdb-fcaea0988e90

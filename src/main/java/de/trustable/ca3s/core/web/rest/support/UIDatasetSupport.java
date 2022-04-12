@@ -2,20 +2,18 @@ package de.trustable.ca3s.core.web.rest.support;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.trustable.ca3s.core.config.CryptoConfiguration;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.domain.enumeration.RDNCardinalityRestriction;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
-import de.trustable.ca3s.core.repository.PipelineAttributeRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.repository.UserPreferenceRepository;
 import de.trustable.ca3s.core.security.SecurityUtils;
 import de.trustable.ca3s.core.service.UserService;
-import de.trustable.ca3s.core.service.dto.PipelineView;
-import de.trustable.ca3s.core.service.dto.RDNRestriction;
-import de.trustable.ca3s.core.service.dto.CAStatus;
+import de.trustable.ca3s.core.service.dto.*;
 import de.trustable.ca3s.core.service.util.CaConnectorAdapter;
 import de.trustable.ca3s.core.service.util.CertificateSelectionUtil;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
@@ -24,7 +22,6 @@ import de.trustable.ca3s.core.web.rest.CAConnectorConfigResource;
 import de.trustable.ca3s.core.web.rest.data.CertificateFilterList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,29 +42,65 @@ public class UIDatasetSupport {
 
 	private final Logger LOG = LoggerFactory.getLogger(UIDatasetSupport.class);
 
-	@Autowired
-	private CAConnectorConfigRepository caConnConfRepo;
+    private final CAConnectorConfigRepository caConnConfRepo;
 
-	@Autowired
-	private CaConnectorAdapter caConnectorAdapter;
+    private final CaConnectorAdapter caConnectorAdapter;
 
-	@Autowired
-	private PipelineRepository pipelineRepo;
+    private final PipelineRepository pipelineRepo;
 
-	@Autowired
-	private PipelineUtil pipelineUtil;
+    private final PipelineUtil pipelineUtil;
 
-	@Autowired
-	private ProtectedContentUtil protUtil;
+    private final ProtectedContentUtil protUtil;
 
-    @Autowired
-    private UserPreferenceRepository userPreferenceRepository;
+    private final UserPreferenceRepository userPreferenceRepository;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private CertificateSelectionUtil certificateSelectionAttributeList;
+    private final CertificateSelectionUtil certificateSelectionAttributeList;
+
+    private final CryptoConfiguration cryptoConfiguration;
+
+    private final boolean autoSSOLogin;
+
+    public UIDatasetSupport(CAConnectorConfigRepository caConnConfRepo,
+                            CaConnectorAdapter caConnectorAdapter,
+                            PipelineRepository pipelineRepo,
+                            PipelineUtil pipelineUtil,
+                            ProtectedContentUtil protUtil,
+                            UserPreferenceRepository userPreferenceRepository,
+                            UserService userService,
+                            CertificateSelectionUtil certificateSelectionAttributeList,
+                            CryptoConfiguration cryptoConfiguration,
+                            @Value("${ca3s.ui.sso.autologin:false}") boolean autoSSOLogin) {
+        this.caConnConfRepo = caConnConfRepo;
+        this.caConnectorAdapter = caConnectorAdapter;
+        this.pipelineRepo = pipelineRepo;
+        this.pipelineUtil = pipelineUtil;
+        this.protUtil = protUtil;
+        this.userPreferenceRepository = userPreferenceRepository;
+        this.userService = userService;
+        this.certificateSelectionAttributeList = certificateSelectionAttributeList;
+        this.cryptoConfiguration = cryptoConfiguration;
+        this.autoSSOLogin = autoSSOLogin;
+    }
+
+    /**
+     * {@code GET  /ui/config} : get all ui and crypto configurations.
+     *
+     * @return the {@link UIConfigView} .
+     */
+    @GetMapping("/ui/config")
+    @Transactional
+    public UIConfigView getUIConfig() {
+
+        CryptoConfigView cryptoConfigView = cryptoConfiguration.getCryptoConfigView();
+
+        UIConfigView uiConfigView = new UIConfigView(cryptoConfigView, autoSSOLogin);
+        LOG.debug("returning uiConfigView: {}", uiConfigView);
+
+        return uiConfigView;
+    }
+
 
     /**
      * {@code GET  /pipeline/getWebPipelines} : get all pipelines for web upload.

@@ -321,6 +321,9 @@
   "ca3SApp.certificate.download.pemPartChain": "PEM encoded (with certificate chain, without root)",
   "ca3SApp.certificate.download.pemFullChain": "PEM encoded (with certificate chain)",
   "ca3SApp.certificate.download.pkix": "PKIX (DER encoded)",
+  "ca3SApp.certificate.download.pbe": "PKCS12 protection",
+  "ca3SApp.certificate.download.p12keyex": "'KeyEx' option",
+
   "ca3SApp.certificate.endEntity": "End Entity",
   "ca3SApp.certificate.extended.usage": "Extended Usage",
   "ca3SApp.certificate.fingerprint": "Fingerprint",
@@ -979,6 +982,7 @@
   "settings.form.language": "Language",
   "settings.form.lastname": "Last Name",
   "settings.form.lastname.placeholder": "Your last name",
+  "settings.form.disabled.managed.externally": "The details of this account were managed externally, editing disabled.",
   "settings.messages.error.emailexists": "<strong>Email is already in use!</strong> Please choose another one.",
   "settings.messages.error.fail": "<strong>An error has occurred!</strong> Settings could not be saved.",
   "settings.messages.success": "<strong>Settings saved!</strong>",

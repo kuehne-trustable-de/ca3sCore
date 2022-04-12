@@ -70,8 +70,14 @@ export default class AccountService {
           this.trackerService.connect();
         } else {
           this.store.commit('logout');
-          this.router.push('/');
           sessionStorage.removeItem('requested-url');
+
+          if (this.store.state.uiConfigStore.config.autoSSOLogin) {
+            window.console.info('forwading to SSO Login ');
+            this.router.push('/');
+          } else {
+            this.router.push('/');
+          }
         }
         this.translationService.refreshTranslation(this.store.getters.currentLanguage);
       })

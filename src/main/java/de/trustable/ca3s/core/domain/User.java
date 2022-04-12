@@ -87,6 +87,14 @@ public class User extends AbstractAuditingEntity implements Serializable {
     @Column(name = "reset_date")
     private Instant resetDate = null;
 
+    @NotNull
+    @Column(name = "managed_externally", nullable = false)
+    private boolean managedExternally = false;
+
+    @Column(name = "last_user_details_update", nullable = true)
+    private Instant lastUserDetailsUpdate = null;
+
+
     @JsonIgnore
     @ManyToMany
     @JoinTable(
@@ -202,6 +210,22 @@ public class User extends AbstractAuditingEntity implements Serializable {
         this.authorities = authorities;
     }
 
+    public boolean isManagedExternally() {
+        return managedExternally;
+    }
+
+    public void setManagedExternally(boolean managedExternally) {
+        this.managedExternally = managedExternally;
+    }
+
+    public Instant getLastUserDetailsUpdate() {
+        return lastUserDetailsUpdate;
+    }
+
+    public void setLastUserDetailsUpdate(Instant lastUserDetailsUpdate) {
+        this.lastUserDetailsUpdate = lastUserDetailsUpdate;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -229,6 +253,8 @@ public class User extends AbstractAuditingEntity implements Serializable {
             ", activated='" + activated + '\'' +
             ", langKey='" + langKey + '\'' +
             ", activationKey='" + activationKey + '\'' +
+            ", managedExternally='" + managedExternally + '\'' +
+            ", lastUserDetailsUpdate='" + lastUserDetailsUpdate + '\'' +
             "}";
     }
 }

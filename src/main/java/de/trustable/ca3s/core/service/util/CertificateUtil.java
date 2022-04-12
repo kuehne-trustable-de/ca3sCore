@@ -1884,7 +1884,7 @@ public class CertificateUtil {
 
                 String content = protUtil.unprotectString(pcList.get(0).getContentBase64());
                 priKey = cryptoUtil.convertPemToPrivateKey(content);
-                LOG.debug("getPrivateKey() returns " + priKey.toString());
+                LOG.debug("getPrivateKey() returns key for csr #" + cert.getId());
             }
 
         } catch (GeneralSecurityException e) {
@@ -1916,7 +1916,8 @@ public class CertificateUtil {
 
                 String content = protUtil.unprotectString(pcList.get(0).getContentBase64());
                 priKey = cryptoUtil.convertPemToPrivateKey(content);
-                LOG.debug("getPrivateKey() returns " + priKey.toString());
+                LOG.debug("getPrivateKey() returns key for ProtectedContent #" + id);
+
             }
 
         } catch (GeneralSecurityException e) {

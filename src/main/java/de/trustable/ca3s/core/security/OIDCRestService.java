@@ -10,6 +10,7 @@ import de.trustable.ca3s.core.domain.UserPreference;
 import de.trustable.ca3s.core.repository.AuthorityRepository;
 import de.trustable.ca3s.core.repository.UserPreferenceRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.keycloak.OAuth2Constants;
 import org.slf4j.Logger;
@@ -20,7 +21,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +30,7 @@ import org.springframework.web.client.RestTemplate;
 import org.thymeleaf.util.StringUtils;
 
 import java.io.UnsupportedEncodingException;
+import java.time.Instant;
 import java.util.*;
 
 import static de.trustable.ca3s.core.domain.UserPreference.USER_PREFERENCE_KEYCLOAK_ID;
@@ -48,6 +49,11 @@ public class OIDCRestService {
     final private String clientSecret;
     final private String scope;
 
+    final private String[] rolesUserArr;
+    final private String[] rolesDomainRAArr;
+    final private String[] rolesRAArr;
+    final private String[] rolesAdminArr;
+
     final private UserPreferenceRepository userPreferenceRepository;
     final private UserRepository userRepository;
     final private AuthorityRepository authorityRepository;
@@ -57,6 +63,10 @@ public class OIDCRestService {
     public OIDCRestService(@Value("${ca3s.oidc.token-uri}") String keycloakTokenUri,
                            @Value("${ca3s.oidc.user-info-uri}") String keycloakUserInfo,
                            @Value("${ca3s.oidc.logout}") String keycloakLogout,
+                           @Value("${ca3s.oidc.roles.user:USER}") String[] rolesUserArr,
+                           @Value("${ca3s.oidc.roles.domainra:DOMAIN_RA}") String[] rolesDomainRAArr,
+                           @Value("${ca3s.oidc.roles.ra:RA}") String[] rolesRAArr,
+                           @Value("${ca3s.oidc.roles.admin:ADMIN}") String[] rolesAdminArr,
                            @Value("${ca3s.oidc.client-id}") String clientId,
                            @Value("${ca3s.oidc.authorization-grant-type}") String grantType,
                            @Value("${ca3s.oidc.client-secret}") String clientSecret,
@@ -68,6 +78,12 @@ public class OIDCRestService {
         this.keycloakTokenUri = keycloakTokenUri;
         this.keycloakUserInfo = keycloakUserInfo;
         this.keycloakLogout = keycloakLogout;
+
+        this.rolesUserArr = rolesUserArr;
+        this.rolesDomainRAArr = rolesDomainRAArr;
+        this.rolesRAArr = rolesRAArr;
+        this.rolesAdminArr = rolesAdminArr;
+
         this.clientId = clientId;
         this.grantType = grantType;
         this.clientSecret = clientSecret;
@@ -192,6 +208,7 @@ public class OIDCRestService {
                 User user = new User();
                 user.setPassword(passwordEncoder.encode(RandomStringUtils.random(16)));
                 user.setActivated(true);
+                user.setManagedExternally(true);
 
                 updateUserFromKeycloak(keycloakUserDetails, user);
                 UserPreference userPreference = new UserPreference();
@@ -237,7 +254,12 @@ public class OIDCRestService {
             update = true;
         }
 
-        Set<Authority> authoritySet = getAutoritiesFromKeycloak(keycloakUserDetails.getRoles());
+        if(!user.isManagedExternally()){
+            user.setManagedExternally(true);
+            update = true;
+        }
+
+        Set<Authority> authoritySet = getAuthoritiesFromKeycloak(keycloakUserDetails.getRoles());
 
         if( authoritySet.containsAll(user.getAuthorities()) && user.getAuthorities().containsAll(authoritySet)){
             LOG.debug("Roles local / oidc are identical");
@@ -248,29 +270,56 @@ public class OIDCRestService {
         }
 
         if(update){
+            user.setLastUserDetailsUpdate(Instant.now());
             userRepository.save(user);
         }
     }
 
     public Set<GrantedAuthority> getAuthorities(final KeycloakUserDetails keycloakUserDetails){
         Set<GrantedAuthority> grantedAuthoritySet = new HashSet<>();
-        for( Authority authority:  getAutoritiesFromKeycloak(keycloakUserDetails.getRoles())){
+        for( Authority authority:  getAuthoritiesFromKeycloak(keycloakUserDetails.getRoles())){
             LOG.debug("oidc role '{}' added to granted roles", authority.getName());
             grantedAuthoritySet.add(new SimpleGrantedAuthority(authority.getName()));
         }
         return grantedAuthoritySet;
     }
 
-    private Set<Authority> getAutoritiesFromKeycloak(String[] roles) {
+    private Set<Authority> getAuthoritiesFromKeycloak(String[] roles) {
         Set<Authority> authoritySet = new HashSet<>();
         for( Authority authority: authorityRepository.findAll()){
-            for(String role: roles){
-                if( authority.getName().equalsIgnoreCase("ROLE_" + role)){
-                    authoritySet.add(authority);
-                }
+
+            if( authority.getName().equalsIgnoreCase("ROLE_USER")){
+//                addMatchedRole(authoritySet, roles, authority, rolesUserArr);
+                authoritySet.add(authority);
+                LOG.debug("added role '{}' due to oidc login", authority.getName());
+
+            }else if( authority.getName().equalsIgnoreCase("ROLE_RA_DOMAIN")){
+                addMatchedRole(authoritySet, roles, authority, rolesDomainRAArr);
+            }else if( authority.getName().equalsIgnoreCase("ROLE_RA")){
+                addMatchedRole(authoritySet, roles, authority, rolesRAArr);
+            }else if( authority.getName().equalsIgnoreCase("ROLE_ADMIN")){
+                addMatchedRole(authoritySet, roles, authority, rolesAdminArr);
+            }else{
+                LOG.warn("Unexpected authority '{}' !", authority.getName());
             }
-        }
-        return authoritySet;
+       }
+
+       return authoritySet;
     }
 
+    private void addMatchedRole(Set<Authority> authoritySet, String[] oidcRoles, Authority authority, String[] rolesNameArr) {
+
+        for (String role : rolesNameArr) {
+            LOG.debug("addMatchedRole accepted role '{}' for authority '{}'", role, authority.getName());
+        }
+
+        for (String role : oidcRoles) {
+            if (ArrayUtils.contains(rolesNameArr, role)) {
+                authoritySet.add(authority);
+                LOG.debug("addMatchedRole checking oidc role '{}' does match mapping", role);
+            }else{
+                LOG.debug("addMatchedRole checking oidc role '{}' does not match mapping", role);
+            }
+        }
+    }
 }

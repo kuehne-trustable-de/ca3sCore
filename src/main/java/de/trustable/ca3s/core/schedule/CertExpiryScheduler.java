@@ -9,7 +9,6 @@ import java.security.cert.X509CRL;
 import java.security.cert.X509CRLEntry;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import javax.mail.MessagingException;
@@ -20,25 +19,15 @@ import de.trustable.ca3s.core.service.NotificationService;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.audit.listener.AuditApplicationEvent;
-import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.context.Context;
 
-import de.trustable.ca3s.core.domain.Authority;
-import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
-import de.trustable.ca3s.core.domain.User;
-import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.repository.UserRepository;
-import de.trustable.ca3s.core.security.AuthoritiesConstants;
-import de.trustable.ca3s.core.service.MailService;
 import de.trustable.ca3s.core.service.util.CRLUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.PreferenceUtil;
@@ -55,29 +44,40 @@ public class CertExpiryScheduler {
 
 	transient Logger LOG = LoggerFactory.getLogger(CertExpiryScheduler.class);
 
-	final static int MAX_RECORDS_PER_TRANSACTION = 10000;
+	private final int maxRecordsPerTransaction;
 
-	@Autowired
-	private CertificateRepository certificateRepo;
+	private final CertificateRepository certificateRepo;
 
-    @Autowired
-	private CRLUtil crlUtil;
+	private final CRLUtil crlUtil;
 
-	@Autowired
-	private CertificateUtil certUtil;
+	private final CertificateUtil certUtil;
 
-	@Autowired
-	private CryptoUtil cryptoUtil;
+	private final CryptoUtil cryptoUtil;
 
-    @Autowired
-    private AuditService auditService;
+    private final AuditService auditService;
 
-    @Autowired
-	private PreferenceUtil preferenceUtil;
+	private final PreferenceUtil preferenceUtil;
 
-    @Autowired
-    private NotificationService notificationService;
+    private final NotificationService notificationService;
 
+    public CertExpiryScheduler( @Value("${ca3s.batch.maxRecordsPerTransaction:1000}") int maxRecordsPerTransaction,
+                               CertificateRepository certificateRepo,
+                               CRLUtil crlUtil,
+                               CertificateUtil certUtil,
+                               CryptoUtil cryptoUtil,
+                               AuditService auditService,
+                               PreferenceUtil preferenceUtil,
+                               NotificationService notificationService) {
+
+        this.maxRecordsPerTransaction = maxRecordsPerTransaction;
+        this.certificateRepo = certificateRepo;
+        this.crlUtil = crlUtil;
+        this.certUtil = certUtil;
+        this.cryptoUtil = cryptoUtil;
+        this.auditService = auditService;
+        this.preferenceUtil = preferenceUtil;
+        this.notificationService = notificationService;
+    }
 
 
     @Scheduled(fixedDelay = 3600000)
@@ -93,8 +93,8 @@ public class CertExpiryScheduler {
 			certificateRepo.save(cert);
 			LOG.info("Certificate {} becoming active passing 'validFrom'", cert.getId());
 
-			if( count++ > MAX_RECORDS_PER_TRANSACTION) {
-				LOG.info("limited certificate validity processing to {} per call", MAX_RECORDS_PER_TRANSACTION);
+			if( count++ > maxRecordsPerTransaction) {
+				LOG.info("limited certificate validity processing to {} per call", maxRecordsPerTransaction);
 				break;
 			}
 		}
@@ -107,8 +107,8 @@ public class CertExpiryScheduler {
 			certificateRepo.save(cert);
 			LOG.info("Certificate {} becoming inactive due to expiry", cert.getId());
 
-			if( count++ > MAX_RECORDS_PER_TRANSACTION) {
-				LOG.info("limited certificate validity processing to {} per call", MAX_RECORDS_PER_TRANSACTION);
+			if( count++ > maxRecordsPerTransaction) {
+				LOG.info("limited certificate validity processing to {} per call", maxRecordsPerTransaction);
 				break;
 			}
 		}
@@ -167,15 +167,15 @@ public class CertExpiryScheduler {
                 continue;
             }
 
-            if( count++ > MAX_RECORDS_PER_TRANSACTION) {
-                LOG.info("limited certificate revocation check to {} per call", MAX_RECORDS_PER_TRANSACTION);
+            if( count++ > maxRecordsPerTransaction) {
+                LOG.info("limited certificate revocation check to {} per call", maxRecordsPerTransaction);
                 break;
             }
 
 		}
 
 		if( !brokenCrlUrlList.isEmpty()) {
-            LOG.info("#{} CRL URLs marked as inacessable / broken", brokenCrlUrlList.size());
+            LOG.info("#{} CRL URLs marked as inaccessible / broken", brokenCrlUrlList.size());
         }
         LOG.info("#{} certificate revocation checks in {} mSec", count, System.currentTimeMillis() - startTime );
 	}
@@ -193,7 +193,7 @@ public class CertExpiryScheduler {
                 String crlUrl = certAtt.getValue();
 
                 if(brokenCrlUrlList.contains(crlUrl)){
-                    LOG.debug("CRL URL'{}' already marked as broken / inaccessable", crlUrl);
+                    LOG.debug("CRL URL'{}' already marked as broken / inaccessible", crlUrl);
                     continue;
                 }
 
@@ -267,7 +267,7 @@ public class CertExpiryScheduler {
     }
 
 
-	class CRLUpdateInfo{
+	 static class CRLUpdateInfo{
         boolean bCRLDownloadSuccess = false;
         int crlUrlCount = 0;
 

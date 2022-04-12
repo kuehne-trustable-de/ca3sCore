@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2022-04-05 18:12:05.
+// Generated using typescript-generator version 2.19.577 on 2022-04-12 12:38:54.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -192,9 +192,19 @@ export interface ICertificateView extends ISerializable {
   isServersideKeyGeneration?: boolean;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
-  auditPresent?: boolean;
   serversideKeyGeneration?: boolean;
   fullChainAvailable?: boolean;
+  auditPresent?: boolean;
+}
+
+export interface ICryptoConfigView extends ISerializable {
+  validPBEAlgoArr?: string[];
+  defaultPBEAlgo?: string;
+}
+
+export interface IUIConfigView extends ISerializable {
+  cryptoConfigView?: ICryptoConfigView;
+  autoSSOLogin?: boolean;
 }
 
 export interface ICSRView extends ISerializable {

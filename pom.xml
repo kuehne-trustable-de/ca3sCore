@@ -6,7 +6,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>0.1.31</version>
+    <version>0.1.32</version>
     <packaging>jar</packaging>
 
 
@@ -1400,6 +1400,9 @@
                         <class>de.trustable.ca3s.core.service.dto.BPMNUpload</class>
                         <class>de.trustable.ca3s.core.service.dto.PipelineView</class>
                         <class>de.trustable.ca3s.core.service.dto.CertificateView</class>
+                        <class>de.trustable.ca3s.core.service.dto.CryptoConfigView</class>
+                        <class>de.trustable.ca3s.core.service.dto.UIConfigView</class>
+
                         <class>de.trustable.ca3s.core.service.dto.CSRView</class>
                         <class>de.trustable.ca3s.core.service.dto.Selector</class>
                         <class>de.trustable.ca3s.core.service.dto.Preferences</class>

@@ -28,7 +28,21 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
   public certificateView: ICertificateView = {};
   public certificateAdminData: ICertificateAdministrationData = {};
   public p12Alias = 'alias';
+  public p12Pbe = this.$store.state.uiConfigStore.config.cryptoConfigView.defaultPBEAlgo;
+  public p12KeyEx = false;
   public downloadFormat = 'pkix';
+
+  public collapsed = true;
+  public setCollapsed(collapsed: boolean) {
+    this.collapsed = collapsed;
+  }
+
+  public getP12PbeAlgoArr(): string[] {
+    if (!this.p12Pbe) {
+      this.p12Pbe = this.$store.state.uiConfigStore.config.cryptoConfigView.defaultPBEAlgo;
+    }
+    return this.$store.state.uiConfigStore.config.cryptoConfigView.validPBEAlgoArr;
+  }
 
   public getDownloadFilename(): string {
     let extension = '.crt';
@@ -59,61 +73,29 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
       mimetype = 'application/pem-certificate-chain';
     }
 
-    this.download(url, filename, mimetype);
+    const headers: any = { Accept: mimetype };
+
+    this.download(url, filename, mimetype, headers);
   }
 
-  /*
-  public copyToClipboard(elementId) {
-    const copyText = document.getElementById(elementId) as HTMLInputElement;
-
-    copyText.select();
-    copyText.setSelectionRange(0, 99999);
-
-    document.execCommand('copy');
-  }
-
-
-  public downloadUrl(): string {
-    const url = '/publicapi/cert/' + this.certificateView.id;
-    window.console.info('downloadUrl() : ' + url);
-    return url;
-  }
-
-  public downloadUrlDER(): string {
-    const url = '/publicapi/certPKIX/' + this.certificateView.id + '/' + this.certificateView.downloadFilename + '.crt';
-    window.console.info('downloadUrlDER() : ' + url);
-    return url;
-  }
-
-  public downloadUrlPEM(): string {
-    const url = '/publicapi/certPEM/' + this.certificateView.id + '/' + this.certificateView.downloadFilename + '.cer';
-    window.console.info('downloadUrlPEM() : ' + url);
-    return url;
-  }
-
-  public downloadItem__(extension: string, mimetype: string) {
-    const filename = this.certificateView.downloadFilename + extension;
-    const url = '/publicapi/cert/' + this.certificateView.id;
-    this.download(url, filename, mimetype);
-  }
-
-  public downloadPKIX(extension: string, mimetype: string) {
-    const filename = this.certificateView.downloadFilename + extension;
-    const url = '/publicapi/certPKIX/' + this.certificateView.id + '/' + encodeURIComponent(filename);
-    this.download(url, filename, mimetype);
-  }
-*/
   public downloadKeystore(extension: string, mimetype: string) {
     const filename = this.certificateView.downloadFilename + extension;
     const url =
       '/publicapi/keystore/' + this.certificateView.id + '/' + encodeURIComponent(filename) + '/' + encodeURIComponent(this.p12Alias);
-    this.download(url, filename, mimetype);
+
+    const headers: any = {
+      Accept: mimetype,
+      X_pbeAlgo: this.p12Pbe,
+      X_keyEx: this.p12KeyEx
+    };
+
+    this.download(url, filename, mimetype, headers);
   }
 
-  public download(url: string, filename: string, mimetype: string) {
+  public download(url: string, filename: string, mimetype: string, headers: any) {
     const self = this;
     axios
-      .get(url, { responseType: 'blob', headers: { Accept: mimetype } })
+      .get(url, { responseType: 'blob', headers: headers })
       .then(response => {
         const blob = new Blob([response.data], { type: mimetype, endings: 'transparent' });
         const link = document.createElement('a');

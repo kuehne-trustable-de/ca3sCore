@@ -320,6 +320,9 @@
   "ca3SApp.certificate.download.pemPartChain": "PEM-codiert (inkl. Zertifikatskette, ohne Root)",
   "ca3SApp.certificate.download.pemFullChain": "PEM-codiert (inkl. Zertifikatskette)",
   "ca3SApp.certificate.download.pkix": "PKIX (DER-codiert)",
+  "ca3SApp.certificate.download.pbe": "PKCS12 Verschlüsselung",
+  "ca3SApp.certificate.download.p12keyex": "'KeyEx'-Option",
+
   "ca3SApp.certificate.endEntity": "End Entity",
   "ca3SApp.certificate.extended.usage": "Erweiterte Nutzung",
   "ca3SApp.certificate.fingerprint": "Fingerprint",
@@ -967,6 +970,7 @@
   "settings.form.language": "Sprache",
   "settings.form.lastname": "Nachname",
   "settings.form.lastname.placeholder": "Ihr Nachname",
+  "settings.form.disabled.managed.externally": "Die Daten für diesen Account werden extern verwaltet, Bearbeitung nicht möglich.",
   "settings.messages.error.emailexists": "<strong>Email wird bereits verwendet!</strong> Bitte wählen Sie eine andere aus.",
   "settings.messages.error.fail": "<strong>Es ist ein Fehler aufgetreten!</strong> Die Einstellungen konnten nicht gespeichert werden.",
   "settings.messages.success": "<strong>Einstellungen wurden gespeichert!</strong>",

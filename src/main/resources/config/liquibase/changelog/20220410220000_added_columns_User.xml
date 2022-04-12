@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Added columns related to OIDC connection.
+    -->
+    <changeSet id="20220410220000-1" author="ak">
+        <addColumn tableName="jhi_user">
+            <column name="managed_externally" type="boolean" valueBoolean="false">
+                <constraints nullable="true" />
+            </column>
+            <column name="last_user_details_update" type="timestamp">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="20220410220000-2" author="ak">
+        <createIndex indexName="index_last_user_details_update" tableName="jhi_user">
+            <column name="last_user_details_update"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

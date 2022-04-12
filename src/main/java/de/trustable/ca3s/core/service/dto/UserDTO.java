@@ -48,6 +48,8 @@ public class UserDTO {
 
     private Instant lastModifiedDate;
 
+    private boolean isManagedExternally;
+
     private Set<String> authorities;
 
     public UserDTO() {
@@ -67,6 +69,7 @@ public class UserDTO {
         this.createdDate = user.getCreatedDate();
         this.lastModifiedBy = user.getLastModifiedBy();
         this.lastModifiedDate = user.getLastModifiedDate();
+        this.isManagedExternally = user.isManagedExternally();
         this.authorities = user.getAuthorities().stream()
             .map(Authority::getName)
             .collect(Collectors.toSet());
@@ -164,6 +167,14 @@ public class UserDTO {
         return lastModifiedDate;
     }
 
+    public boolean isManagedExternally() {
+        return isManagedExternally;
+    }
+
+    public void setManagedExternally(boolean managedExternally) {
+        isManagedExternally = managedExternally;
+    }
+
     public void setLastModifiedDate(Instant lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
     }
@@ -190,6 +201,7 @@ public class UserDTO {
             ", createdDate=" + createdDate +
             ", lastModifiedBy='" + lastModifiedBy + '\'' +
             ", lastModifiedDate=" + lastModifiedDate +
+            ", isManagedExternally=" + isManagedExternally +
             ", authorities=" + authorities +
             "}";
     }

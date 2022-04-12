@@ -4,6 +4,7 @@ import LoginService from '@/account/login.service';
 import AccountService from '@/account/account.service';
 import TranslationService from '@/locale/translation.service';
 import axios from 'axios';
+import { IUIConfigView } from '@/shared/model/transfer-object.model';
 
 @Component
 export default class JhiNavbar extends Vue {
@@ -27,14 +28,34 @@ export default class JhiNavbar extends Vue {
   }
 
   public mounted(): void {
-    window.console.info('++++++++++++++++++ route.query : ' + this.$route.query.bearer);
+    window.console.info('++++++++++++++++++ JhiNavbar.mounted(), route.query.bearer : ' + this.$route.query.bearer);
   }
 
   async created() {
+    window.console.info('++++++++++++++++++ JhiNavbar.created()');
+
+    const self = this;
+    axios({
+      method: 'get',
+      url: 'api/ui/config',
+      responseType: 'stream'
+    }).then(function(response) {
+      window.console.info('ui/config returns ' + response.data);
+      const uiConfig: IUIConfigView = response.data;
+      self.$store.commit('updateCV', uiConfig);
+
+      if (!self.authenticated) {
+        if (self.$store.state.uiConfigStore.config.autoSSOLogin) {
+          window.console.info('forwarding to SSO Login ');
+          self.doOIDCLogin();
+        }
+      }
+    });
+
     const res = await this.translationService().refreshLanguages();
 
     if (res.data) {
-      this.languages = new Object();
+      this.languages = {};
       for (const lang of res.data.languageArr) {
         window.console.log('adding available language "' + lang + '" ...');
         if (lang === 'en') {

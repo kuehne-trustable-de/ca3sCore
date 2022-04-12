@@ -31,20 +31,16 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.security.AccessControlException;
-import java.security.GeneralSecurityException;
-import java.security.KeyStore;
-import java.security.PrivateKey;
+import java.security.*;
 import java.security.cert.X509Certificate;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+import de.trustable.ca3s.core.config.CryptoConfiguration;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.security.SecurityUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -70,6 +66,8 @@ import de.trustable.ca3s.core.service.util.CryptoService;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import de.trustable.ca3s.core.web.rest.acme.ACMEController;
 
+import javax.crypto.spec.PBEParameterSpec;
+
 @Controller
 @RequestMapping("/publicapi")
 public class CertificateDownloadController  {
@@ -78,14 +76,23 @@ public class CertificateDownloadController  {
 
     private boolean chainIncludeRoot = true;
 
-  	@Autowired
-  	private CertificateRepository certificateRepository;
+    private final CryptoConfiguration cryptoConfiguration;
 
-  	@Autowired
-  	private CertificateUtil certUtil;
+  	private final CertificateRepository certificateRepository;
 
-  	@Autowired
-  	private ProtectedContentUtil protContentUtil;
+  	private final CertificateUtil certUtil;
+
+  	private final ProtectedContentUtil protContentUtil;
+
+    public CertificateDownloadController(CryptoConfiguration cryptoConfiguration,
+                                         CertificateRepository certificateRepository,
+                                         CertificateUtil certUtil,
+                                         ProtectedContentUtil protContentUtil) {
+        this.cryptoConfiguration = cryptoConfiguration;
+        this.certificateRepository = certificateRepository;
+        this.certUtil = certUtil;
+        this.protContentUtil = protContentUtil;
+    }
 
     /**
      * Public certificate download endpoint providing DER format
@@ -408,6 +415,28 @@ public class CertificateDownloadController  {
 
 		PrivateKey key = certUtil.getPrivateKey(ProtectedContentType.KEY, ContentRelationType.CSR, csr.getId());
 
+        boolean keyEx = false;
+        List<String> keyExHeaderList = headers.get("X_keyEx");
+        if( !keyExHeaderList.isEmpty() ){
+            keyEx = Boolean.parseBoolean(keyExHeaderList.get(0));
+        }
+        LOG.info("PKCS12: keyEx flag: {} ", keyEx);
+
+        String passwordProtectionAlgo = cryptoConfiguration.getDefaultPBEAlgo();
+        List<String> algoHeaderList = headers.get("X_pbeAlgo");
+        if( algoHeaderList != null && !algoHeaderList.isEmpty()){
+            String reqAlgo = algoHeaderList.get(0).trim();
+            if( cryptoConfiguration.isPBEAlgoAllowed(reqAlgo)){
+                passwordProtectionAlgo = reqAlgo;
+            }else{
+                LOG.info("requested PKCS12 pbe algo '{}' not in list of valid algos, using default '{}' ", reqAlgo, passwordProtectionAlgo);
+            }
+        }
+        LOG.info("PKCS12: using algo {} ", passwordProtectionAlgo);
+
+        byte[] salt = new byte[20];
+        new SecureRandom().nextBytes(salt);
+
 		char[] passphraseChars = protContentUtil.unprotectString(protContentList.get(0).getContentBase64())
 				.toCharArray();
 		try {
@@ -417,7 +446,14 @@ public class CertificateDownloadController  {
 
 			X509Certificate[] chain = certUtil.getX509CertificateChain(certDao);
 
-			p12 .setKeyEntry(entryAlias, key, passphraseChars, chain);
+            Set<KeyStore.Entry.Attribute> privateKeyAttributes = new HashSet<>();
+            p12.setEntry(entryAlias,
+                new KeyStore.PrivateKeyEntry(key, chain, privateKeyAttributes),
+                new KeyStore.PasswordProtection(passphraseChars,
+                    passwordProtectionAlgo,
+                    new PBEParameterSpec(salt, 100000)));
+
+//			p12.setKeyEntry(entryAlias, key, passphraseChars, chain);
 
 			try(ByteArrayOutputStream baos = new ByteArrayOutputStream()){
 				p12.store(baos, passphraseChars);
