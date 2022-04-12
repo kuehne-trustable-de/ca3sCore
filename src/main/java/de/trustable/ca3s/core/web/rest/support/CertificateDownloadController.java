@@ -417,7 +417,7 @@ public class CertificateDownloadController  {
 
         boolean keyEx = false;
         List<String> keyExHeaderList = headers.get("X_keyEx");
-        if( !keyExHeaderList.isEmpty() ){
+        if( keyExHeaderList != null && !keyExHeaderList.isEmpty() ){
             keyEx = Boolean.parseBoolean(keyExHeaderList.get(0));
         }
         LOG.info("PKCS12: keyEx flag: {} ", keyEx);
