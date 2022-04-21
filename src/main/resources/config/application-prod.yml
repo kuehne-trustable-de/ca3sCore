@@ -225,7 +225,7 @@ ca3s:
 
 
     sso:
-      autologin: true
+      autologin: false
 
 
   dns:

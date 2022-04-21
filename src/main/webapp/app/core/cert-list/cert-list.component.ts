@@ -23,13 +23,7 @@ import AuditTag from '@/core/audit/audit-tag.vue';
 
 Vue.use(VuejsDatatableFactory);
 
-interface ISelectionChoices {
-  itemType: string;
-  hasValue: boolean;
-  choices?: ISelector[];
-}
-
-VuejsDatatableFactory.useDefaultType(false).registerTableType<any, any, any, any, any>('certificate', tableType =>
+VuejsDatatableFactory.useDefaultType(false).registerTableType<any, any, any, any, any>('certificates-table', tableType =>
   tableType
     .setFilterHandler((source, filter, columns) => ({
       // See https://documenter.getpostman.com/view/2025350/RWaEzAiG#json-field-masking
@@ -60,6 +54,8 @@ VuejsDatatableFactory.useDefaultType(false).registerTableType<any, any, any, any
 
     // Alias our process steps, because the source, here, is our API url, and paged is the complete query string
     .setDisplayHandler(async ({ source: baseEndPoint, paged: endpointDesc }) => {
+      window.console.info('in setDisplayHandler ');
+
       const delimit = baseEndPoint.includes('?') ? '&' : '?';
       const url = `${baseEndPoint}${delimit}${makeQueryStringFromObj(endpointDesc)}`;
 
@@ -98,6 +94,12 @@ VuejsDatatableFactory.useDefaultType(false).registerTableType<any, any, any, any
       }
     })
 );
+
+interface ISelectionChoices {
+  itemType: string;
+  hasValue: boolean;
+  choices?: ISelector[];
+}
 
 @Component({
   components: {
@@ -193,6 +195,8 @@ export default class CertList extends mixins(AlertMixin, Vue) {
   public defaultFilter: ICertificateFilter = { attributeName: 'subject', attributeValue: 'trust', selector: 'LIKE' };
   public filters: ICertificateFilterList = { filterList: [this.defaultFilter] };
   public lastFilters: string = JSON.stringify({ filterList: [this.defaultFilter] });
+
+  public pageSize = 20;
 
   public contentAccessUrl: string;
   public tmpContentAccessUrl: string;

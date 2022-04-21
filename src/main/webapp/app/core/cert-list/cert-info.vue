@@ -200,13 +200,14 @@
                                         </button>
                                         <p/>
                                     </div>
-                                    <div v-if="!collapsed">
+
+                                    <!--div v-if="!collapsed">
                                         <button type="button" class="addRemoveSelector" v-on:click="setCollapsed(true)">
                                             <font-awesome-icon icon="minus"></font-awesome-icon>
                                         </button>
                                     </div>
 
-                                    <Fragment v-if="!collapsed">
+                                    <Fragment v-if="!collapsed"-->
                                         <Fragment v-if="getP12PbeAlgoArr().length > 1">
                                             <label class="form-control-label" v-text="$t('ca3SApp.certificate.download.p12pbe')" for="p12Pbe">PBE</label>
                                             <select class="form-control" id="p12Pbe" name="p12Pbe" v-model="p12Pbe" >
@@ -214,9 +215,9 @@
                                             </select>
                                         </Fragment>
 
-                                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.p12keyex')" for="p12KeyEx">KeyEx</label>
+                                        <!--label class="form-control-label" v-text="$t('ca3SApp.certificate.p12keyex')" for="p12KeyEx">KeyEx</label>
                                         <input type="checkbox" class="form-check-inline" name="p12KeyEx" id="p12KeyEx" v-model="p12KeyEx" />
-                                    </Fragment>
+                                    </Fragment-->
 
                                     <label class="form-control-label" v-text="$t('ca3SApp.certificate.download.p12Alias')" for="p12Alias">Alias</label>
                                     <input type="text" class="form-check-inline" name="p12Alias" id="p12Alias" v-model="p12Alias" />

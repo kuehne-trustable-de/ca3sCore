@@ -55,6 +55,11 @@
                                 <label class="form-control-label" v-text="$t('pkcsxx.upload.cn.as.san')" for="pkcsxx-cn-as-san">CN as SAN</label> <help-tag target="pkcsxx.upload.creationTool.cn.as.san"/>
                                 <input type="checkbox" class="form-check-inline" name="pkcsxx-cn-as-san" id="pkcsxx-cn-as-san" v-model="cnAsSAN" v-on:change="updateCmdLine()"/>
                             </div>
+                            <div class="form-group" v-if="(creationMode === 'COMMANDLINE_TOOL') && (creationTool === 'certreq') ">
+                                <label class="form-control-label" v-text="$t('pkcsxx.upload.machine.key.set')" for="pkcsxx-machine-key-set">Use machine key set</label>
+                                <input type="checkbox" class="form-check-inline" name="pkcsxx-machine-key-set" id="pkcsxx-machine-key-set" v-model="machineKeySet" v-on:change="updateCmdLine()"/>
+                            </div>
+
 
 
                             <div class="form-group" v-if="(creationMode === 'COMMANDLINE_TOOL') || (creationMode === 'SERVERSIDE_KEY_CREATION')" >

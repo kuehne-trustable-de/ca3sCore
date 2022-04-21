@@ -6,7 +6,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>0.1.32</version>
+    <version>0.1.33</version>
     <packaging>jar</packaging>
 
 
@@ -159,7 +159,7 @@
         <keycloak.version>17.0.0</keycloak.version>
 
         <bouncyCastleVersion>1.68</bouncyCastleVersion>
-        <cryptoUtilVersion>1.3.2</cryptoUtilVersion>
+        <cryptoUtilVersion>1.3.3</cryptoUtilVersion>
         <certBundleVersion>1.1.1</certBundleVersion>
         <adcsUtilVersion>1.2.0</adcsUtilVersion>
         <adcsProxyClientVersion>1.2.1</adcsProxyClientVersion>

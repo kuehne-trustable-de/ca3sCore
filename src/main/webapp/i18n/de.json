@@ -893,6 +893,7 @@
   "pkcsxx.upload.certificates": "Zertifikate",
   "pkcsxx.upload.content": "Inhalt",
   "pkcsxx.upload.cn.as.san": "'Common Name' als SAN anfügen",
+  "pkcsxx.upload.machine.key.set": "Schlüssel im 'Machine Key Set' ablegen",
   "pkcsxx.upload.creationMode.commandLineTool": "CSR Kommandozeilen",
   "pkcsxx.upload.creationMode.csrAvailable": "CSR verfügbar",
   "pkcsxx.upload.creationMode.selection": "Erzeugungsmodus",

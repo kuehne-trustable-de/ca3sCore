@@ -88,6 +88,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   public secret = '';
   public creationMode: ICreationMode = 'CSR_AVAILABLE';
   public keyAlgoLength: IKeyAlgoLength = 'RSA_2048';
+  public machineKeySet = true;
 
   public cmdline = '';
   public cmdline0 = '';
@@ -552,6 +553,8 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       reqConf += 'Subject = "' + dnLines + '"\n';
       reqConf += 'KeyLength = ' + keyLen + '\n';
       reqConf += 'HashAlgorithm = ' + hashAlgo + '\n';
+      reqConf += 'Exportable = False\n';
+      reqConf += 'MachineKeySet = ' + this.machineKeySet + '\n';
       reqConf += 'FriendlyName = ' + fileName + '\n';
 
       if (hasSAN) {
@@ -574,7 +577,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
           }
 
           if (value.length > 0) {
-            reqConf += '_continue_ = "' + type + '=' + sanValue + '"&\n';
+            reqConf += '_continue_ = "' + type + '=' + sanValue + '&"\n';
           }
         }
       }

@@ -47,7 +47,7 @@
                     </div>
 				</div>
 
-				<certificate :columns="columns" :data="certApiUrl" :per-page="20" name="certificates">
+				<certificates-table :columns="columns" :data="certApiUrl" :per-page="pageSize" name="certificates">
 					<template slot-scope="{ row }">
 						<tr>
 							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.id }}</td>
@@ -66,18 +66,19 @@
 							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.sansString }}</td>
 						</tr>
 					</template>
-				</certificate>
+				</certificates-table>
 
-                <div>
-                    <section float="left" class="pagers-table">
-                        <certificate-pager type="abbreviated" table="certificates" v-model="page"></certificate-pager>
-                    </section>
-                    <!--select float="right" class="smallSelector fa-1x" name="pageSize">
+                <section class="pagers-table">
+                    <certificates-table-pager type="abbreviated" table="certificates" v-model="page"></certificates-table-pager>
+                </section>
+
+                <!--div>
+                    <select float="right" class="smallSelector fa-1x" name="pageSize">
                         <option key="10" value="10">10</option>
                         <option key="20" value="20" selected="selected">20</option>
                         <option key="50" value="50">50</option>
-                    </select-->
-                </div>
+                    </select>
+                </div-->
 			</div>
 		</div>
 	</div>

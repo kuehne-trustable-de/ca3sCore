@@ -905,6 +905,7 @@
   "pkcsxx.upload.certificates": "Certificates",
   "pkcsxx.upload.content": "Content",
   "pkcsxx.upload.cn.as.san": "Add 'Common Name' as SAN",
+  "pkcsxx.upload.machine.key.set": "Store key in the 'Machine Key Set'",
   "pkcsxx.upload.creationMode.commandLineTool": "CSR generation command lines",
   "pkcsxx.upload.creationMode.csrAvailable": "CSR available",
   "pkcsxx.upload.creationMode.selection": "Creation mode",
