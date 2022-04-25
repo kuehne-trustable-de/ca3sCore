@@ -26,6 +26,7 @@
 
 package de.trustable.ca3s.core.web.rest.acme;
 
+import static de.trustable.ca3s.core.service.util.PipelineUtil.ACME_ORDER_VALIDITY_SECONDS;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequestUri;
@@ -345,7 +346,12 @@ public class NewOrderController extends ACMEController {
 		orderDao.setStatus(AcmeOrderStatus.PENDING);
 
 		Instant now = Instant.now();
-		orderDao.setExpires(now.plus(DEFAULT_ORDER_VALID_DAYS, ChronoUnit.DAYS));
+
+        int orderValiditySeconds = pipelineUtil.getPipelineAttribute(pipeline,
+            ACME_ORDER_VALIDITY_SECONDS,
+            600);
+
+        orderDao.setExpires(now.plus(orderValiditySeconds, ChronoUnit.SECONDS));
 		orderDao.setNotBefore(now);
 		orderDao.setNotAfter(orderDao.getExpires());
 

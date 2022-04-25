@@ -113,7 +113,9 @@ public class PipelineUtil {
 
     public static final String ACME_PROCESS_ACCOUNT_VALIDATION = "ACME_PROCESS_ACCOUNT_VALIDATION";
 	public static final String ACME_PROCESS_ORDER_VALIDATION = "ACME_PROCESS_ORDER_VALIDATION";
-	public static final String ACME_PROCESS_CHALLENGE_VALIDATION = "ACME_PROCESS_CHALLENGE_VALIDATION";
+    public static final String ACME_PROCESS_CHALLENGE_VALIDATION = "ACME_PROCESS_CHALLENGE_VALIDATION";
+
+    public static final String ACME_ORDER_VALIDITY_SECONDS = "ACME_ORDER_VALIDITY_SECONDS";
 
     public static final String SCEP_CAPABILITY_RENEWAL = "SCEP_CAPABILITY_RENEWAL";
     public static final String SCEP_CAPABILITY_POST = "SCEP_CAPABILITY_POST";
@@ -929,7 +931,7 @@ public class PipelineUtil {
         Preferences preferences = preferenceUtil.getPrefs(PreferenceUtil.SYSTEM_PREFERENCE_ID);
 
         String hashAlgName = p10ReqHolder.getAlgorithmInfo().getHashAlgName();
-        if( !Arrays.stream(preferences.getSelectedHashes()).anyMatch(a -> a.equalsIgnoreCase(hashAlgName))){
+        if(Arrays.stream(preferences.getSelectedHashes()).noneMatch(a -> a.equalsIgnoreCase(hashAlgName))){
             String msg = "restriction mismatch: hash algo '"+hashAlgName +"' does not match expected set!";
             messageList.add(msg);
             LOG.debug(msg);
@@ -939,7 +941,7 @@ public class PipelineUtil {
         String signingAlgo = "rsa";
         int keyLength = CertificateUtil.getAlignedKeyLength(p10ReqHolder.getPublicSigningKey());
 
-        if( !Arrays.stream(preferences.getSelectedSigningAlgos()).anyMatch(a -> matchesAlgo(a, signingAlgo, keyLength))){
+        if(Arrays.stream(preferences.getSelectedSigningAlgos()).noneMatch(a -> matchesAlgo(a, signingAlgo, keyLength))){
             String msg = "restriction mismatch: signature algo / length '"+signingAlgo +"/" + keyLength + "' does not match expected set!";
             messageList.add(msg);
             LOG.info(msg);
@@ -1127,7 +1129,7 @@ public class PipelineUtil {
 
 		boolean outcome = true;
 
-		String template = "";
+		String template;
 		String restrictedName = OidNameMapper.lookupOid(restricted.toString());
 		LOG.debug("checking element '{}'", restrictedName);
 
@@ -1307,6 +1309,20 @@ public class PipelineUtil {
         for (PipelineAttribute plAtt : pipeline.getPipelineAttributes()) {
             if (name.equals(plAtt.getName())) {
                 return plAtt.getValue();
+            }
+        }
+        return defaultValue;
+    }
+
+    public int getPipelineAttribute(Pipeline pipeline, String name, int defaultValue) {
+
+        for (PipelineAttribute plAtt : pipeline.getPipelineAttributes()) {
+            if (name.equals(plAtt.getName())) {
+                try{
+                    return Integer.parseInt(plAtt.getValue());
+                }catch( NumberFormatException nfe){
+                    LOG.warn("unexpected value for attribute '" + name + "'", nfe);
+                }
             }
         }
         return defaultValue;

@@ -53,6 +53,13 @@ public class NotificationService {
 
     @Transactional
     public int notifyRAOfficerHolderOnExpiry() throws MessagingException {
+        return notifyRAOfficerHolderOnExpiry(findAllRAOfficer(AuthoritiesConstants.RA_OFFICER),
+            findAllRAOfficer(AuthoritiesConstants.DOMAIN_RA_OFFICER),
+            true);
+    }
+
+    @Transactional
+    public int notifyRAOfficerHolderOnExpiry(List<User> raOfficerList, List<User> domainOfficerList, boolean logNotification) throws MessagingException {
 
         Instant now = Instant.now();
         int nDays = 30;
@@ -69,7 +76,7 @@ public class NotificationService {
             LOG.info("#{} expiring certificate in the next {} days, #{} pending requests", expiringCertList.size(), nDays, pendingCsrList.size());
 
             // Process all CSRs for RA officers
-            for( User raOfficer: findAllRAOfficer(AuthoritiesConstants.RA_OFFICER)) {
+            for( User raOfficer: raOfficerList) {
                 Locale locale = Locale.forLanguageTag(raOfficer.getLangKey());
                 Context context = new Context(locale);
                 context.setVariable("expiringCertList", expiringCertList);
@@ -78,12 +85,14 @@ public class NotificationService {
                     mailService.sendEmailFromTemplate(context, raOfficer, "mail/pendingReqExpiringCertificateEmail", "email.allExpiringCertificate.subject");
                 }catch (Throwable throwable){
                     LOG.warn("Problem occured while sending a notificaton eMail to RA officer address '" + raOfficer.getEmail() + "'", throwable);
-                    auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(raOfficer.getEmail()));
+                    if(logNotification) {
+                        auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(raOfficer.getEmail()));
+                    }
                 }
             }
 
             // Process subset of CSRs for domain officers
-            for( User domainOfficer: findAllRAOfficer(AuthoritiesConstants.DOMAIN_RA_OFFICER)) {
+            for( User domainOfficer: domainOfficerList) {
 
                 List<CSR> pendingDomainCsrList = new ArrayList<>();
                 for( CSR csr: pendingCsrList){
@@ -100,18 +109,32 @@ public class NotificationService {
                     mailService.sendEmailFromTemplate(context, domainOfficer, "mail/pendingReqExpiringCertificateEmail", "email.allExpiringCertificate.subject");
                 }catch (Throwable throwable){
                     LOG.warn("Problem occured while sending a notificaton eMail to RA officer address '" + domainOfficer.getEmail() + "'", throwable);
-                    auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(domainOfficer.getEmail()));
+                    if(logNotification) {
+                        auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(domainOfficer.getEmail()));
+                    }
                 }
             }
 
-            auditService.saveAuditTrace(auditService.createAuditTraceExpiryNotificationSent(expiringCertList.size()));
+            if(logNotification) {
+                auditService.saveAuditTrace(auditService.createAuditTraceExpiryNotificationSent(expiringCertList.size()));
+            }
         }
 
         return expiringCertList.size();
     }
 
+
     @Transactional
     public void notifyRAOfficerOnRequest(CSR csr) {
+
+        notifyRAOfficerOnRequest( csr,
+            findAllRAOfficer(AuthoritiesConstants.RA_OFFICER),
+            findAllRAOfficer(AuthoritiesConstants.DOMAIN_RA_OFFICER),
+            true);
+    }
+
+    public void notifyRAOfficerOnRequest(CSR csr, List<User> raOfficerList, List<User> domainOfficerList,
+                                         boolean logNotification) {
 
         LOG.info("certificate requested, causing a new pending requests (CSR # {})", csr.getId());
 
@@ -119,7 +142,7 @@ public class NotificationService {
         newCsrList.add(csr);
 
         // Notify RA officers
-        for( User raOfficer: findAllRAOfficer(AuthoritiesConstants.RA_OFFICER)) {
+        for( User raOfficer: raOfficerList) {
             Locale locale = Locale.forLanguageTag(raOfficer.getLangKey());
             Context context = new Context(locale);
             context.setVariable("newCsrList", newCsrList);
@@ -127,12 +150,14 @@ public class NotificationService {
                 mailService.sendEmailFromTemplate(context, raOfficer, "mail/newPendingRequestEmail", "email.newPendingRequestEmail.subject");
             }catch (Throwable throwable){
                 LOG.warn("Problem occurred while sending a notification eMail to RA officer address '" + raOfficer.getEmail() + "'", throwable);
-                auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(raOfficer.getEmail()));
+                if(logNotification) {
+                    auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(raOfficer.getEmail()));
+                }
             }
         }
 
         // Process subset of CSRs for domain officers
-        for( User domainOfficer: findAllRAOfficer(AuthoritiesConstants.DOMAIN_RA_OFFICER)) {
+        for( User domainOfficer: domainOfficerList) {
 
             if( pipelineUtil.isUserValidAsRA(csr.getPipeline(), domainOfficer) ){
                 Locale locale = Locale.forLanguageTag(domainOfficer.getLangKey());
@@ -142,7 +167,9 @@ public class NotificationService {
                     mailService.sendEmailFromTemplate(context, domainOfficer, "mail/newPendingRequestEmail", "email.newPendingRequestEmail.subject");
                 }catch (Throwable throwable){
                     LOG.warn("Problem occurred while sending a notification eMail to domain officer address '" + domainOfficer.getEmail() + "'", throwable);
-                    auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(domainOfficer.getEmail()));
+                    if(logNotification) {
+                        auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(domainOfficer.getEmail()));
+                    }
                 }
             }
         }

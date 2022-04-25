@@ -57,7 +57,7 @@ Zertifikate können für eine Vielzahl von Anwendungsfällen ausgestellt werden.
    Wenn Ihre Sicherheitsrichtlinie diese Option zulässt, können Sie festlegen, dass der Server ein Schlüsselpaar für Sie erstellt. Sie können einen Schlüsseltyp und eine Schlüssellänge auswählen und die Details des Betreffs des Zertifikats definieren. Der Server erstellt einen Schlüssel- und Zertifikats-Container, der Ihren privaten Schlüssel schützt. Um Zugriff auf den privaten Schlüssel zu erhalten, müssen Sie ein Passwort für den Container angeben. Bewahren Sie dieses Passwort an einem sicheren Ort auf! Wenn das Passwort verloren geht, ist der geheime Schlüssel nicht mehr verfügbar. Es gibt keine Möglichkeit, das Passwort vom ca3s-Server abzurufen. Eine Kompromittierung des Passworts wirkt sich auf den privaten Schlüssel und das Zertifikat aus! Verwenden Sie keinen kompromittierten Schlüssel! Widerrufen Sie das Zertifikat in diesem Fall sofort!
   **Es wird dringend empfohlen, CSRs oder ein automatisiertes Zertifikatsverwaltungsprotokoll zu verwenden, z.B. ACME! Der private Schlüssel sollte das nutzende System nicht verlassen!**
 
-### CSR generation command lines
+### CSR-Erzeugung auf der Kommandozeile
 
 Mit der Befehlszeilenoption können Sie die verschiedenen verfügbaren Tools für die CSR-Erstellung je nach Betriebssystem und Zielanwendung verwenden.
 
@@ -118,18 +118,23 @@ Die Felder mit den generierten Kommandozeilen haben einen 'Copy'-Button. Alterna
 
 Copy-Button
 
-### <a id="pkcsxx.upload.creationTool.cn.as.san"></a> Common Name als SAN anfügen
+#### <a id="pkcsxx.upload.creationTool.cn.as.san"></a> Common Name als SAN anfügen
 
 Für einige Anwendungsfälle (TLS Server) kann es sinnvoll sein, den Common Name zusätzlich als SAN anzugeben. Falls die aktuelle Pipeline die Nutzung von SANs erlaubt, ist diese Option verfügbar.
 Ist der Common Name bereits als SAN vorhanden, hat diese Option keine Auswirkung.
 
-### Dateinamen und FriendlyName (bei certreq)
+#### <a id="pkcsxx.upload.machine.key.set"></a> Auswahl des Windows 'Machine Key Set' (bei certreq)
 
-Die in den Kommandozeilen erzeugte oder genutzte Dateien besten aus dem Common Name, dem aktuellen Datum und der Endung gemäss des Dateityps. So wird ein unbeabsichtigtes Überschreiben relevanter Dateien anderer Requests verhindert. Selbstverständlich können die Dateinamen gemäß der jeweiligen Anforderungen angepasst werden.
+Diese Option erlaubt die Auswahl des zu nutzenden Keystores. Bitte konsultieren Sie die Dokumentation Ihrer Anwendung, welcher Store-Typ zu verwenden ist.
+Falls aktiviert, wird durch diese Option der 'Machine Key Set' ausgewählt und der Nuzer, der das 'certreq'-Kommando ausführt, muss Administrator-Berechtigungen besitzen.
 
-### <a id="pkcsxx.upload.creationTool.cmdline"></a> Kommandozeilen-Beispiele
+#### Dateinamen und FriendlyName (bei certreq)
 
-#### Java keytool
+Die in den Kommandozeilen erzeugte oder genutzte Dateien bestehen aus dem Common Name, dem aktuellen Datum und der Endung gemäss des Dateityps. So wird ein unbeabsichtigtes Überschreiben relevanter Dateien anderer Requests verhindert. Selbstverständlich können die Dateinamen gemäß der jeweiligen Anforderungen angepasst werden.
+
+#### <a id="pkcsxx.upload.creationTool.cmdline"></a> Kommandozeilen-Beispiele
+
+### Java keytool
 
 Die generierte Java-Keytool-Befehlszeile besteht aus zwei Teilen:
 
@@ -157,7 +162,7 @@ Die Information, welche Version von 'openSSL' auf Ihrem System installiert ist, 
 
 ![](../../images/sslold4.5.png)
 
-##### OpenSSL Schlüssel- und CSR-Erzeugungesbefehl
+#### OpenSSL Schlüssel- und CSR-Erzeugungesbefehl
 
 Kopieren Sie den erzeugten Befehl aus dem Formularfeld (mittels Copy-Button oder Strg-C) in die Kommandozeile (Strg-V oder rechte / mittlere Maustaste) und führen Sie ihn aus.
 
@@ -191,10 +196,14 @@ Kopieren Sie den erzeugten Befehl aus dem Formularfeld (mittels Copy-Button oder
 
 Der CSR liegt nun in der Datei mit der Endung '.csr' vor. Wechseln Sie nun in der Auswahlbox 'Erzeugungsmodus' auf 'CSR verfügbar' und laden Sie diese Datei hoch, um sie von der Zertifizierungsstelle bearbeiten zu lassen.
 
+##### 'certreq -accept' Importieren des Zertifikats
+
+Mit der Option '-accept' und dem Dateinamen des erzeugten Zertifikats wird das Zertifikat zum Schlüssel in den entsprechenden Windows-Store eingefügt und kann genutzt werden.
+
 ### Zertifikats-Anforderung
 
 Wurde ein CSR hochgeladen oder eine serverseitige Schlüsselerzeugung angefordert, so befindet sich Ihre Anfrage in der internen Prüfung, im Erfolgsfall mit anschließender Erzeugung des angeforderten Zertifikats. Dieser Prozess kann automatisiert erfolgen oder eine manuelle Freigabe erfordern.
-Entweder Sie werden sofort zum Zertifikats-Download weitergeleitet oder Sie werden durch eine eMail über die Zertifikatsaustellung informiert. Das Zertifikat wird in verschiednen Formaten zum Download angeboten:
+Entweder Sie werden sofort zum Zertifikats-Download weitergeleitet oder Sie werden durch eine eMail über die Zertifikatsaustellung informiert. Das Zertifikat wird in verschiedenen Formaten zum Download angeboten:
 
 Konsultieren Sie die Dokumentation der Anwendung, die das Zertifikat nutzen soll. Befolgen Sie die dort angegeben Empfehlungen bzgl. Zertifikats-Format und -Dateinamen.
 Ggf.muss das erzeugte Zertifikat auch in die oben per Kommandozeile erzeugte Container eingefügt werden.

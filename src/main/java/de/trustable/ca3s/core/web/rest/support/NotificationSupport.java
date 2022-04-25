@@ -6,10 +6,12 @@ import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.NotificationService;
 import de.trustable.ca3s.core.service.util.NameAndRoleUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.mail.MessagingException;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -52,10 +56,47 @@ public class NotificationSupport {
      *
      * @return the number of expiring certificates .
      */
+    @Transactional
     @PostMapping("notification/sendExpiryPendingSummary")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public int notifyRAOfficerHolderOnExpiry() throws MessagingException {
 
-        return notificationService.notifyRAOfficerHolderOnExpiry();
+        Optional<User> optUser = userRepository.findOneByLogin(nameAndRoleUtil.getNameAndRole().getName());
+        if (optUser.isPresent()) {
+            User admin = optUser.get();
+
+            List<User> raOfficerList = new ArrayList<>();
+            raOfficerList.add(admin);
+
+            List<User> domainOfficerList = new ArrayList<>();
+
+            return notificationService.notifyRAOfficerHolderOnExpiry(raOfficerList, domainOfficerList, false);
+        }
+
+        return 0;
+    }
+
+    /**
+     * {@code POST  api/notification/sendRAOfficerOnRequest} : send out notification on new request to assigned RA.
+     *
+     */
+    @Transactional
+    @PostMapping("notification/sendRAOfficerOnRequest/{csrId}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public void notifyRAOfficerOnRequest(@PathVariable String csrId) throws MessagingException {
+
+        Optional<User> optUser = userRepository.findOneByLogin(nameAndRoleUtil.getNameAndRole().getName());
+        if (optUser.isPresent()) {
+            User admin = optUser.get();
+
+            List<User> raOfficerList = new ArrayList<>();
+            raOfficerList.add(admin);
+
+            List<User> domainOfficerList = new ArrayList<>();
+
+            CSR csr = csrRepository.getOne(Long.parseLong(csrId));
+            notificationService.notifyRAOfficerOnRequest(csr, raOfficerList, domainOfficerList, false);
+        }
     }
 
     /**
@@ -63,6 +104,7 @@ public class NotificationSupport {
      */
     @Transactional
     @PostMapping("notification/sendUserCertificateIssued/{certId}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public void notifyUserCertificateIssued(@PathVariable String certId) throws MessagingException {
 
         Optional<User> optUser = userRepository.findOneByLogin(nameAndRoleUtil.getNameAndRole().getName());
@@ -74,11 +116,13 @@ public class NotificationSupport {
         }
     }
 
+
     /**
      * {@code POST  api/notification/sendUserCertificateRejected} : send out certificate request rejection info.
      */
     @Transactional
     @PostMapping("notification/sendUserCertificateRejected/{csrId}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public void notifyUserCertificateRejected(@PathVariable String csrId) throws MessagingException {
 
         Optional<User> optUser = userRepository.findOneByLogin(nameAndRoleUtil.getNameAndRole().getName());
@@ -87,6 +131,22 @@ public class NotificationSupport {
 
             CSR csr = csrRepository.getOne(Long.parseLong(csrId));
             notificationService.notifyUserCerificateRejected(requestor, csr);
+        }
+    }
+
+    /**
+     * {@code POST  api/notification/sendUserCertificateRevoked} : send out certificate revocation info.
+     */
+    @Transactional
+    @PostMapping("notification/sendUserCertificateRevoked/{certId}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public void notifyUserCerificateRevoked(@PathVariable String certId) throws MessagingException {
+
+        Optional<User> optUser = userRepository.findOneByLogin(nameAndRoleUtil.getNameAndRole().getName());
+        if (optUser.isPresent()) {
+            User requestor = optUser.get();
+            Certificate cert = certificateRepository.getOne(Long.parseLong(certId));
+            notificationService.notifyUserCerificateRevoked(requestor, cert, cert.getCsr());
         }
     }
 

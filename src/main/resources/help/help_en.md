@@ -41,7 +41,7 @@ A central certificate store holds issued and certificates retrieved otherwise to
 
 Depending on the configuration certificate requests maybe admitted by a human registration officer. Complementary automated workflows can be configured to unload registration officer from tedious tasks and to perform even complex processes. The processes can be defined in BPMN and assigned to specific processing pipelines.
 
-## Forms explainations
+## Forms explanations
 
 ### <a id="pkcsxx.upload.pipeline"></a> Processing pipeline
 
@@ -92,6 +92,8 @@ The 'tool selection' chooses the different tools:
   This recent version creates all required files in one command.
 - OpenSSL  
   The old versions of OpenSSL requires a configuration file and a shell command.
+- Windows 'certreq'
+  For the use of the Windows build-in 'certreq' tool it is required to provide a configuration file on the windows command line interface.
 
 #### Linux
 
@@ -112,6 +114,23 @@ Copy the generated value from the text box to your input shell. The text boxes g
 ![Copy-Button](../../images/stop_sign.png)
 
 Copy-Button
+
+#### <a id="pkcsxx.upload.creationTool.cn.as.san"></a> Ensure Common Name as SAN
+
+For certain use cases (e.g. TLS Server) it is useful, recommended or even required to repeat the Common Name as a SAN entry. If the current pipeline allows the use of SANs, this option forces the Common Name to be inserted as a SAN. If a corresponding SAN entry is already present, this option has no effect.
+
+#### <a id="pkcsxx.upload.machine.key.set"></a> Use Windows 'Machine Key Set' (using certreq)
+
+This option allows to select the Windows keystore. Depending on your application it may be required to store the key and the certificate in a specific store (e.g. Machine store for IIS). Please consult yor application documentation regarding the appropriate store.
+If this option is activated the certreq command will use the 'Machine Key Set' and therefore wil require the certreq command to be submitted by an 'Administrator'.
+
+#### File name und FriendlyName (using certreq)
+
+The generated file names consist of the Common Name, the current date and an extension representing the specific file type. This approach should avoid unintentional deletion or overwriting of relevant files by subsequent requests. Changing the file names according to specific needs should cause any problems.
+
+#### 'certreq -accept' Importing of the created certificate
+
+Using the option '-accept' and the filename of the created certificate advises the certreq tool to import the certificate into the store alongside the created key. After this import the key and certificate can be used by the application.
 
 #### <a id="pkcsxx.upload.creationTool.cmdline"></a> Command line
 
