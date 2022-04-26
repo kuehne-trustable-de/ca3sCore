@@ -1393,7 +1393,7 @@ public class PipelineUtil {
         }else {
             LOG.debug("new certificate id '{}' for SCEP recipient", cert.getId());
 
-            certUtil.storePrivateKey(cert, keyPair);
+            certUtil.storePrivateKey(cert, keyPair, cert.getValidTo());
             certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SCEP_RECIPIENT, ""+ pipeline.getId());
 
             certRepository.save(cert);

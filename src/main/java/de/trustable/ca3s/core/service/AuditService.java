@@ -146,6 +146,20 @@ public class AuditService {
         return createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_CSR_REJECTED, csr);
     }
 
+    public AuditTrace createAuditTraceCsrRejected(final CSR csr, final String reason){
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+
+        return createAuditTrace(nar.getName(), nar.getRole(), AUDIT_CSR_REJECTED,
+            reason,
+            null, null,
+            csr,
+            null,
+            null,
+            null,
+            null );
+
+    }
+
     public AuditTrace createAuditTraceCsrSigningFailed(final CSR csr, final String reason){
         NameAndRole nar = nameAndRoleUtil.getNameAndRole();
 

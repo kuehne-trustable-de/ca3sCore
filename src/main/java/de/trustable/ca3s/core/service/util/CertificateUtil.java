@@ -27,6 +27,7 @@ import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.ECParameterSpec;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import javax.naming.InvalidNameException;
@@ -1803,11 +1804,17 @@ public class CertificateUtil {
         return generalNameSet;
     }
 
-    public void storePrivateKey(CSR csr, KeyPair keyPair) throws IOException {
+    public void storePrivateKey(CSR csr, KeyPair keyPair, Instant validTo) throws IOException {
 
         StringWriter sw = keyToPEM(keyPair);
 
-        ProtectedContent pt = protUtil.createProtectedContent(sw.toString(), ProtectedContentType.KEY, ContentRelationType.CSR, csr.getId());
+        ProtectedContent pt = protUtil.createProtectedContent(sw.toString(),
+            ProtectedContentType.KEY,
+            ContentRelationType.CSR,
+            csr.getId(),
+            -1,
+            validTo);
+
         protContentRepository.save(pt);
     }
 
@@ -1823,6 +1830,20 @@ public class CertificateUtil {
         ProtectedContent pt = protUtil.createProtectedContent(sw.toString(), ProtectedContentType.KEY, ContentRelationType.CERTIFICATE, cert.getId());
         protContentRepository.save(pt);
     }
+
+    public void storePrivateKey(Certificate cert, KeyPair keyPair, Instant validTo) throws IOException {
+
+        StringWriter sw = keyToPEM(keyPair);
+
+        ProtectedContent pt = protUtil.createProtectedContent(sw.toString(),
+            ProtectedContentType.KEY,
+            ContentRelationType.CERTIFICATE,
+            cert.getId(),
+            -1,
+            validTo);
+        protContentRepository.save(pt);
+    }
+
 
     private StringWriter keyToPEM(KeyPair keyPair) throws IOException {
         StringWriter sw = new StringWriter();

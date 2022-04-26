@@ -55,6 +55,8 @@ import java.security.*;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.ECKey;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 /**
@@ -306,7 +308,7 @@ public class ContentUploadProcessor {
                                 LOG.debug("key {} found alongside certificate in PKCS12 for alias {}", "*****", alias);
 
                                 KeyPair keyPair = new KeyPair(x509cert.getPublicKey(), (PrivateKey) key);
-                                certUtil.storePrivateKey(cert, keyPair);
+                                certUtil.storePrivateKey(cert, keyPair, cert.getValidTo());
                                 x509Holder.setKeyPresent(true);
                                 LOG.debug("key {} stored for certificate {}", "*****", cert.getId());
 
@@ -451,8 +453,15 @@ public class ContentUploadProcessor {
                 csr.setServersideKeyGeneration(true);
                 csrRepository.save(csr);
 
-                certUtil.storePrivateKey(csr, keypair);
-                protUtil.createProtectedContent(uploaded.getSecret(), ProtectedContentType.PASSWORD, ContentRelationType.CSR, csr.getId());
+                Instant validTo = Instant.now().plus(30, ChronoUnit.DAYS);
+
+                certUtil.storePrivateKey(csr, keypair, validTo);
+                protUtil.createProtectedContent(uploaded.getSecret(),
+                    ProtectedContentType.PASSWORD,
+                    ContentRelationType.CSR,
+                    csr.getId(),
+                    -1,
+                    validTo);
 
                 Certificate cert = csr.getCertificate();
                 if( cert != null) {

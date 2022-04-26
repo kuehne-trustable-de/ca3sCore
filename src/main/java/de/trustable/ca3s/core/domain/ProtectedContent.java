@@ -33,10 +33,15 @@ import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
             "pc.relationType = :relationType and " +
             "pc.relatedId    = :id"
     ),
+    @NamedQuery(name = "ProtectedContent.findByValidToPassed",
+        query = "SELECT pc FROM ProtectedContent pc WHERE " +
+            "pc.validTo    < :validTo"
+    ),
     @NamedQuery(name = "ProtectedContent.findByDeleteAfterPassed",
         query = "SELECT pc FROM ProtectedContent pc WHERE " +
             "pc.deleteAfter    < :deleteAfter"
     )
+
 })
 public class ProtectedContent implements Serializable {
 
