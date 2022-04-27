@@ -230,7 +230,25 @@ public class OIDCRestService {
 
     private void updateUserFromKeycloak(KeycloakUserDetails keycloakUserDetails, User user) {
         boolean update = false;
-        if(!StringUtils.equals(user.getLogin(), keycloakUserDetails.getName())){
+        String effLoginName = keycloakUserDetails.getName();
+        if( (effLoginName == null) || effLoginName.isEmpty()){
+            effLoginName = keycloakUserDetails.getPreferred_username();
+            if( (effLoginName == null) || effLoginName.isEmpty()) {
+                effLoginName = keycloakUserDetails.getEmail();
+                if( (effLoginName == null) || effLoginName.isEmpty()) {
+                    effLoginName = (keycloakUserDetails.getGiven_name() + " " + keycloakUserDetails.getFamily_name()).trim();
+                    LOG.debug("using 'given name' and 'family name' ('{}') as login", effLoginName);
+                }else{
+                    LOG.debug("using 'email' ('{}') as login", keycloakUserDetails.getEmail());
+                }
+            }else{
+                LOG.debug("using 'preferred_username' ('{}') as login", keycloakUserDetails.getPreferred_username());
+            }
+        }else{
+            LOG.debug("using 'name' ('{}') as login", keycloakUserDetails.getName());
+        }
+
+        if(!StringUtils.equals(user.getLogin(), effLoginName)){
             LOG.info("oidc data updates user name from '{}' to '{}'", user.getLogin(), keycloakUserDetails.getName());
             user.setLogin(keycloakUserDetails.getName());
             update = true;

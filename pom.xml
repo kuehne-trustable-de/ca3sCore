@@ -6,7 +6,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>0.1.33</version>
+    <version>0.1.34</version>
     <packaging>jar</packaging>
 
 
@@ -198,6 +198,7 @@
 
         <crawler4jVersion>4.4.0</crawler4jVersion>
         <flexmarkVersion>0.62.2</flexmarkVersion>
+        <pdfbox.version>2.0.26</pdfbox.version>
 
         <conductorVersion>3.0.1</conductorVersion>
 
@@ -358,6 +359,11 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-aop</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
                 <version>${spring.version}</version>
             </dependency>
 
@@ -526,7 +532,7 @@
             <dependency>
                 <groupId>org.apache.pdfbox</groupId>
                 <artifactId>xmpbox</artifactId>
-                <version>2.0.23</version>
+                <version>${pdfbox.version}</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.jetbrains/annotations -->
@@ -540,7 +546,7 @@
             <dependency>
                 <groupId>org.apache.pdfbox</groupId>
                 <artifactId>pdfbox</artifactId>
-                <version>2.0.24</version>
+                <version>${pdfbox.version}</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.apache.pdfbox/preflight -->
