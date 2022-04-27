@@ -126,8 +126,7 @@ public class OIDCRestService {
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        KeycloakUserId keycloakUserId = objectMapper.readValue(userId, KeycloakUserId.class);
-        return keycloakUserId;
+        return objectMapper.readValue(userId, KeycloakUserId.class);
     }
 
     public String exchangeCodeToToken( final String authCode, final String redirectUri ) throws JsonProcessingException, UnsupportedEncodingException {
@@ -177,9 +176,7 @@ public class OIDCRestService {
 
     public List<String> getRoles(String token) throws Exception {
         KeycloakUserDetails keycloakUserDetails = getUserInfo(token);
-
-        List<String> rolesList = Arrays.asList(keycloakUserDetails.getRoles());
-        return rolesList;
+        return Arrays.asList(keycloakUserDetails.getRoles());
     }
 
     @Transactional
@@ -286,6 +283,7 @@ public class OIDCRestService {
 
     private Set<Authority> getAuthoritiesFromKeycloak(String[] roles) {
         Set<Authority> authoritySet = new HashSet<>();
+
         for( Authority authority: authorityRepository.findAll()){
 
             if( authority.getName().equalsIgnoreCase("ROLE_USER")){
@@ -308,6 +306,11 @@ public class OIDCRestService {
     }
 
     private void addMatchedRole(Set<Authority> authoritySet, String[] oidcRoles, Authority authority, String[] rolesNameArr) {
+
+        if((oidcRoles == null) || (oidcRoles.length == 0)){
+            LOG.debug("addMatchedRole : roles from kerberos is empty");
+            return;
+        }
 
         for (String role : rolesNameArr) {
             LOG.debug("addMatchedRole accepted role '{}' for authority '{}'", role, authority.getName());
