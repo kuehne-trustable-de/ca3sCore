@@ -320,7 +320,7 @@
   "ca3SApp.certificate.download.pemPartChain": "PEM-codiert (inkl. Zertifikatskette, ohne Root)",
   "ca3SApp.certificate.download.pemFullChain": "PEM-codiert (inkl. Zertifikatskette)",
   "ca3SApp.certificate.download.pkix": "PKIX (DER-codiert)",
-  "ca3SApp.certificate.download.pbe": "PKCS12 Verschlüsselung",
+  "ca3SApp.certificate.download.p12pbe": "PKCS12 Verschlüsselung",
   "ca3SApp.certificate.download.p12keyex": "'KeyEx'-Option",
 
   "ca3SApp.certificate.endEntity": "End Entity",
