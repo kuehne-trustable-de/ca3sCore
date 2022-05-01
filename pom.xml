@@ -156,7 +156,7 @@
         <junit.itReportFolder>${project.testresult.directory}/integrationTest</junit.itReportFolder>
         <!-- jhipster-needle-maven-property -->
 
-        <keycloak.version>17.0.0</keycloak.version>
+        <keycloak.version>17.0.1</keycloak.version>
 
         <bouncyCastleVersion>1.68</bouncyCastleVersion>
         <cryptoUtilVersion>1.3.4</cryptoUtilVersion>
