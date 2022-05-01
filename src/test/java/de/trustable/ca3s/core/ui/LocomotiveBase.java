@@ -52,6 +52,7 @@ import io.ddavison.conductor.Config;
 import org.springframework.util.ResourceUtils;
 
 import static org.junit.Assert.*;
+import io.github.bonigarcia.wdm.WebDriverManager;
 
 public class LocomotiveBase implements Conductor<LocomotiveBase>{
 
@@ -212,6 +213,9 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
 
                     if (isLocal) {
                         try {
+
+                            WebDriverManager.chromedriver().setup();
+
                             ChromeOptions options = new ChromeOptions();
                             options.addArguments("--no-sandbox");
                             options.addArguments("--disable-dev-shm-usage");
