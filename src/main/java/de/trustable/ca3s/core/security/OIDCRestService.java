@@ -239,18 +239,18 @@ public class OIDCRestService {
                     effLoginName = (keycloakUserDetails.getGiven_name() + " " + keycloakUserDetails.getFamily_name()).trim();
                     LOG.debug("using 'given name' and 'family name' ('{}') as login", effLoginName);
                 }else{
-                    LOG.debug("using 'email' ('{}') as login", keycloakUserDetails.getEmail());
+                    LOG.debug("using 'email' ('{}') as login", effLoginName);
                 }
             }else{
-                LOG.debug("using 'preferred_username' ('{}') as login", keycloakUserDetails.getPreferred_username());
+                LOG.debug("using 'preferred_username' ('{}') as login", effLoginName);
             }
         }else{
-            LOG.debug("using 'name' ('{}') as login", keycloakUserDetails.getName());
+            LOG.debug("using 'name' ('{}') as login", effLoginName);
         }
 
         if(!StringUtils.equals(user.getLogin(), effLoginName)){
-            LOG.info("oidc data updates user name from '{}' to '{}'", user.getLogin(), keycloakUserDetails.getName());
-            user.setLogin(keycloakUserDetails.getName());
+            LOG.info("oidc data updates user name from '{}' to '{}'", user.getLogin(), effLoginName);
+            user.setLogin(effLoginName);
             update = true;
         }
         if(!StringUtils.equals(user.getFirstName(), keycloakUserDetails.getGiven_name())){
