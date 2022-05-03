@@ -6,7 +6,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>0.1.36</version>
+    <version>0.1.37</version>
     <packaging>jar</packaging>
 
 
@@ -287,6 +287,13 @@
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-annotations</artifactId>
                 <version>2.1.12</version>
+            </dependency>
+
+            <!-- check whether required after jhispter update ( > 7.5.1 ) -->
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>docker-java-transport</artifactId>
+                <version>3.2.13</version>
             </dependency>
 
             <dependency>

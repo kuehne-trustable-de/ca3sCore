@@ -62,7 +62,7 @@ public class TokenProvider implements InitializingBean {
 
     public String createToken(Authentication authentication, boolean rememberMe) {
 
-        log.info("############ creating token for {}", authentication.getName());
+        log.debug("creating token for {}", authentication.getName());
 
         String authorities = authentication.getAuthorities().stream()
             .map(GrantedAuthority::getAuthority)
@@ -85,15 +85,21 @@ public class TokenProvider implements InitializingBean {
     }
 
     public Authentication getAuthentication(String token) {
+//        log.debug("incoming token: {}", token);
+
         Claims claims = Jwts.parser()
             .setSigningKey(key)
             .parseClaimsJws(token)
             .getBody();
 
+        log.debug("claims: {}", claims);
+
         Collection<? extends GrantedAuthority> authorities =
             Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
+
+        log.debug("creating User({}, '', {})", claims.getSubject(), claims.get(AUTHORITIES_KEY));
 
         User principal = new User(claims.getSubject(), "", authorities);
 
@@ -106,16 +112,16 @@ public class TokenProvider implements InitializingBean {
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             log.info("Invalid JWT signature.");
-            log.trace("Invalid JWT signature trace: {}", e);
+            log.trace("Invalid JWT signature trace", e);
         } catch (ExpiredJwtException e) {
             log.info("Expired JWT token.");
-            log.trace("Expired JWT token trace: {}", e);
+            log.trace("Expired JWT token trace", e);
         } catch (UnsupportedJwtException e) {
             log.info("Unsupported JWT token.");
-            log.trace("Unsupported JWT token trace: {}", e);
+            log.trace("Unsupported JWT token trace", e);
         } catch (IllegalArgumentException e) {
             log.info("JWT token compact of handler are invalid.");
-            log.trace("JWT token compact of handler are invalid trace: {}", e);
+            log.trace("JWT token compact of handler are invalid trace", e);
         }
         return false;
     }

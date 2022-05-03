@@ -76,7 +76,7 @@ public class OIDCRestServiceTest {
             "ca3s",
             "password",
             "197bc3b4-64b0-452f-9bdb-fcaea0988e90",
-            "roles", userPreferenceRepository, userRepository, authorityRepository, passwordEncoder);
+            "roles", "en", userPreferenceRepository, userRepository, authorityRepository, passwordEncoder);
 
         // subject not found
         when(userPreferenceRepository.findByNameContent(eq(USER_PREFERENCE_KEYCLOAK_ID), anyString())).thenReturn(new ArrayList<>());
@@ -113,7 +113,7 @@ public class OIDCRestServiceTest {
             "ca3s",
             "password",
             "197bc3b4-64b0-452f-9bdb-fcaea0988e90",
-            "roles", userPreferenceRepository, userRepository, authorityRepository, passwordEncoder);
+            "roles", "en", userPreferenceRepository, userRepository, authorityRepository, passwordEncoder);
 
         User user = new User();
         user.setId(1L);

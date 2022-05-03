@@ -10,8 +10,10 @@ import de.trustable.ca3s.core.domain.UserPreference;
 import de.trustable.ca3s.core.repository.AuthorityRepository;
 import de.trustable.ca3s.core.repository.UserPreferenceRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
+import de.trustable.ca3s.core.service.dto.Languages;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.keycloak.OAuth2Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +61,8 @@ public class OIDCRestService {
     final private AuthorityRepository authorityRepository;
 
     final private PasswordEncoder passwordEncoder;
+    private final Languages languages;
+
 
     public OIDCRestService(@Value("${ca3s.oidc.token-uri}") String keycloakTokenUri,
                            @Value("${ca3s.oidc.user-info-uri}") String keycloakUserInfo,
@@ -71,6 +75,7 @@ public class OIDCRestService {
                            @Value("${ca3s.oidc.authorization-grant-type}") String grantType,
                            @Value("${ca3s.oidc.client-secret}") String clientSecret,
                            @Value("${ca3s.oidc.scope}") String scope,
+                           @Value("${ca3s.ui.languages:en,de,pl}") String availableLanguages,
                            UserPreferenceRepository userPreferenceRepository,
                            UserRepository userRepository,
                            AuthorityRepository authorityRepository,
@@ -92,6 +97,9 @@ public class OIDCRestService {
         this.userRepository = userRepository;
         this.authorityRepository = authorityRepository;
         this.passwordEncoder = passwordEncoder;
+
+        this.languages = new Languages(availableLanguages);
+
     }
 
     /**
@@ -159,6 +167,22 @@ public class OIDCRestService {
     }
 
     /**
+     *  logging out and disabling active token by redirectUri
+     *
+     * @param redirectUri
+     */
+    public void logoutByRedirectUri(String redirectUri) {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("client_id",clientId);
+        map.add("client_secret",clientSecret);
+        map.add("redirect_uri",redirectUri);
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, null);
+        restTemplate.postForObject(keycloakLogout, request, String.class);
+    }
+
+    /**
      *  logging out and disabling active token from oidc
      *
      * @param refreshToken
@@ -207,6 +231,8 @@ public class OIDCRestService {
                 user.setActivated(true);
                 user.setManagedExternally(true);
 
+                user.setLangKey(languages.alignLanguage("en"));
+
                 updateUserFromKeycloak(keycloakUserDetails, user);
                 UserPreference userPreference = new UserPreference();
                 userPreference.setUserId(user.getId());
@@ -230,23 +256,8 @@ public class OIDCRestService {
 
     private void updateUserFromKeycloak(KeycloakUserDetails keycloakUserDetails, User user) {
         boolean update = false;
-        String effLoginName = keycloakUserDetails.getName();
-        if( (effLoginName == null) || effLoginName.isEmpty()){
-            effLoginName = keycloakUserDetails.getPreferred_username();
-            if( (effLoginName == null) || effLoginName.isEmpty()) {
-                effLoginName = keycloakUserDetails.getEmail();
-                if( (effLoginName == null) || effLoginName.isEmpty()) {
-                    effLoginName = (keycloakUserDetails.getGiven_name() + " " + keycloakUserDetails.getFamily_name()).trim();
-                    LOG.debug("using 'given name' and 'family name' ('{}') as login", effLoginName);
-                }else{
-                    LOG.debug("using 'email' ('{}') as login", effLoginName);
-                }
-            }else{
-                LOG.debug("using 'preferred_username' ('{}') as login", effLoginName);
-            }
-        }else{
-            LOG.debug("using 'name' ('{}') as login", effLoginName);
-        }
+
+        String effLoginName = retrieveUserName(keycloakUserDetails);
 
         if(!StringUtils.equals(user.getLogin(), effLoginName)){
             LOG.info("oidc data updates user name from '{}' to '{}'", user.getLogin(), effLoginName);
@@ -288,6 +299,30 @@ public class OIDCRestService {
             user.setLastUserDetailsUpdate(Instant.now());
             userRepository.save(user);
         }
+    }
+
+    @NotNull
+    public String retrieveUserName(KeycloakUserDetails keycloakUserDetails) {
+        String effLoginName = keycloakUserDetails.getName();
+        if( (effLoginName == null) || effLoginName.isEmpty()){
+            effLoginName = keycloakUserDetails.getPreferred_username();
+            if( (effLoginName == null) || effLoginName.isEmpty()) {
+                effLoginName = keycloakUserDetails.getEmail();
+                if( (effLoginName == null) || effLoginName.isEmpty()) {
+                    effLoginName = (keycloakUserDetails.getGiven_name() + "_" + keycloakUserDetails.getFamily_name()).trim();
+                    LOG.debug("using 'given name' and 'family name' ('{}') as login", effLoginName);
+                }else{
+                    LOG.debug("using 'email' ('{}') as login", effLoginName);
+                }
+            }else{
+                LOG.debug("using 'preferred_username' ('{}') as login", effLoginName);
+            }
+        }else{
+            LOG.debug("using 'name' ('{}') as login", effLoginName);
+        }
+
+        effLoginName = effLoginName.replaceAll("[^_.@A-Za-z0-9-]", "_");
+        return effLoginName;
     }
 
     public Set<GrantedAuthority> getAuthorities(final KeycloakUserDetails keycloakUserDetails){
@@ -337,10 +372,11 @@ public class OIDCRestService {
         for (String role : oidcRoles) {
             if (ArrayUtils.contains(rolesNameArr, role)) {
                 authoritySet.add(authority);
-                LOG.debug("addMatchedRole checking oidc role '{}' does match mapping", role);
+                LOG.debug("addMatchedRole checking oidc role '{}' does match mapping !", role);
             }else{
                 LOG.debug("addMatchedRole checking oidc role '{}' does not match mapping", role);
             }
         }
     }
+
 }

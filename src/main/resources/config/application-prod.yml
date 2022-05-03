@@ -263,7 +263,8 @@ ca3s:
 # http://keycloak-server/auth/realms/ca3sRealm/.well-known/openid-configuration
   oidc:
     roles:
-      admin: uma_authorization
+      ra: ROLE_RA
+#      admin: uma_authorization
 
     client-id: ca3s
     client-secret: 197bc3b4-64b0-452f-9bdb-fcaea0988e90

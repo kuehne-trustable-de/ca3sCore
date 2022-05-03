@@ -93,6 +93,8 @@ export default class JhiNavbar extends Vue {
     localStorage.removeItem('jhi-authenticationToken');
     sessionStorage.removeItem('jhi-authenticationToken');
     this.$store.commit('logout');
+    this.doOIDCLogout();
+
     this.$router.push('/');
   }
 
@@ -119,6 +121,16 @@ export default class JhiNavbar extends Vue {
       })
       .catch(() => {
         window.console.warn('problem doing OIDC authentication.');
+      });
+  }
+  public doOIDCLogout(): void {
+    axios
+      .post('oidc/logout')
+      .then(result => {
+        window.console.log('OIDC logout successful!');
+      })
+      .catch(() => {
+        window.console.warn('problem doing OIDC logout.');
       });
   }
 

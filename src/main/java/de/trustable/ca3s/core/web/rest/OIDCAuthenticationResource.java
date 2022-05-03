@@ -17,14 +17,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.openid.OpenIDAttribute;
 import org.springframework.security.openid.OpenIDAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -41,24 +43,21 @@ public class OIDCAuthenticationResource {
     private final Logger log = LoggerFactory.getLogger(OIDCAuthenticationResource.class);
 
     private final TokenProvider tokenProvider;
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final String keycloakAuthorizationUri;
     private final OIDCRestService oidcRestService;
     private KeycloakDeployment deployment;
 
     public OIDCAuthenticationResource(TokenProvider tokenProvider,
-                                      AuthenticationManagerBuilder authenticationManagerBuilder,
                                       @Value("${ca3s.oidc.authorization-uri:}") String keycloakAuthorizationUri,
                                       @Value("${ca3s.oidc.client-id}") String clientId,
                                       OIDCRestService OIDCRestService) {
         this.tokenProvider = tokenProvider;
-        this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.keycloakAuthorizationUri = keycloakAuthorizationUri;
         this.oidcRestService = OIDCRestService;
 
-        if(keycloakAuthorizationUri.isEmpty()) {
+        if (keycloakAuthorizationUri.isEmpty()) {
             log.info("OIDC not configured, 'ca3s.oidc.authorization-uri' is empty!");
-        }else{
+        } else {
 
             String authServerUrl = keycloakAuthorizationUri;
 
@@ -92,7 +91,7 @@ public class OIDCAuthenticationResource {
     @GetMapping("/authenticate")
     public ResponseEntity<String> getAuthenticatedUser(HttpServletRequest request) {
 
-        if(keycloakAuthorizationUri.isEmpty()) {
+        if (keycloakAuthorizationUri.isEmpty()) {
             log.info("oidc Authentication not configured");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -118,7 +117,7 @@ public class OIDCAuthenticationResource {
 
             httpHeaders.add("Access-Control-Allow-Origin", "*");
             httpHeaders.add("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS");
-            httpHeaders.add("Access-Control-Allow-Headers","Origin, Content-Type, X-Auth-Token");
+            httpHeaders.add("Access-Control-Allow-Headers", "Origin, Content-Type, X-Auth-Token");
             httpHeaders.add("Location", redirectUrl);
             return new ResponseEntity<>(httpHeaders, HttpStatus.OK);
         }
@@ -128,9 +127,9 @@ public class OIDCAuthenticationResource {
     }
 
     @GetMapping("/code")
-    public ResponseEntity<String> getCode(HttpServletRequest request, @RequestParam(name ="code") String code) {
+    public ResponseEntity<String> getCode(HttpServletRequest request, @RequestParam(name = "code") String code) {
 
-        if(keycloakAuthorizationUri.isEmpty()) {
+        if (keycloakAuthorizationUri.isEmpty()) {
             log.info("oidc Authentication not configured");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -139,18 +138,19 @@ public class OIDCAuthenticationResource {
             ServletUriComponentsBuilder servletUriComponentsBuilder = ServletUriComponentsBuilder.fromRequestUri(request);
             String redirectUri = servletUriComponentsBuilder.path("/../code").build().normalize().toString();
 
-            String token = oidcRestService.exchangeCodeToToken( code, redirectUri );
+            String token = oidcRestService.exchangeCodeToToken(code, redirectUri);
             log.info("getCode() code : '{}', token was '{}'", code, token);
 
             KeycloakUserDetails keycloakUserDetails = oidcRestService.getUserInfo(token);
-            if( keycloakUserDetails != null){
+            if (keycloakUserDetails != null) {
 
                 SecurityContext securityContext = SecurityContextHolder.getContext();
                 log.info("Current authentication in SecurityContext: " + securityContext.getAuthentication());
 
                 List<OpenIDAttribute> attributes = new ArrayList<>();
 
-                OpenIDAuthenticationToken authentication = new OpenIDAuthenticationToken(keycloakUserDetails.getName(),
+                OpenIDAuthenticationToken authentication = new OpenIDAuthenticationToken(
+                    oidcRestService.retrieveUserName(keycloakUserDetails),
                     oidcRestService.getAuthorities(keycloakUserDetails),
                     "identityUrl",
                     attributes);
@@ -161,12 +161,12 @@ public class OIDCAuthenticationResource {
                 String jwt = tokenProvider.createToken(authentication, false);
 
                 HttpHeaders httpHeaders = new HttpHeaders();
-                String startUri = servletUriComponentsBuilder.path("/../..").queryParam("bearer", jwt) .build().normalize().toString();
+                String startUri = servletUriComponentsBuilder.path("/../..").queryParam("bearer", jwt).build().normalize().toString();
 
                 httpHeaders.add("Location", startUri);
                 httpHeaders.add(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
                 return new ResponseEntity<>(keycloakUserDetails.getName(), httpHeaders, HttpStatus.TEMPORARY_REDIRECT);
-            }else{
+            } else {
                 log.info("keycloakUserDetails == null, token was '{}'", token);
             }
 
@@ -178,4 +178,21 @@ public class OIDCAuthenticationResource {
 
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity logout() {
+
+//        oidcRestService.logoutByRedirectUri(buildRedirectUrl());
+
+        HttpServletRequest request =
+            ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        try {
+            request.logout();
+        } catch (ServletException e) {
+            log.info("problem logging out", e);
+        }
+
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
 }
