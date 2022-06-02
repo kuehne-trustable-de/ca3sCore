@@ -78,6 +78,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   public rdnRestrictions: IPipelineRestriction[] = [];
   public araRestrictions: IPipelineRestriction[] = [];
 
+  public selectPipelineName = '';
   public selectPipelineInfo = '';
 
   public pipelineRestrictions: IPipelineRestrictions = new PipelineRestrictions();
@@ -297,8 +298,10 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
     this.selectPipelineView = pipeline;
     if (pipeline.description) {
+      this.selectPipelineName = pipeline.name;
       this.selectPipelineInfo = pipeline.description;
     } else {
+      this.selectPipelineName = '';
       this.selectPipelineInfo = '';
     }
 
@@ -316,7 +319,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       }
     }
 
-    window.console.info('calling updatePipelineRestrictions 1: ' + this.selectPipelineInfo);
+    window.console.info('calling updatePipelineRestrictions : align content' + this.selectPipelineInfo);
 
     this.pipelineRestrictions.c.alignContent();
     this.pipelineRestrictions.cn.alignContent();
@@ -379,7 +382,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     let nvCN: INamedValues;
     let nvSAN: INamedValues;
 
-    let soon: Date = new Date();
+    const soon: Date = new Date();
 
     let fileName = 'file';
 
@@ -435,7 +438,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       keyLen = '2048';
     }
 
-    let hashAlgo = 'sha256';
+    const hashAlgo = 'sha256';
 
     //
     // java keytool

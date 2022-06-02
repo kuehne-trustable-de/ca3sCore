@@ -10,7 +10,7 @@ import de.trustable.ca3s.core.repository.CsrAttributeRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.ARARestriction;
 import de.trustable.ca3s.core.service.dto.NamedValues;
-import de.trustable.ca3s.core.service.exception.CAFailureException;
+import de.trustable.ca3s.core.exception.CAFailureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

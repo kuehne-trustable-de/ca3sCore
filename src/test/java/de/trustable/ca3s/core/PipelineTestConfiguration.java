@@ -3,15 +3,16 @@ package de.trustable.ca3s.core;
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.domain.PipelineAttribute;
-import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
-import de.trustable.ca3s.core.domain.enumeration.PipelineType;
-import de.trustable.ca3s.core.domain.enumeration.RDNCardinalityRestriction;
+import de.trustable.ca3s.core.domain.ProtectedContent;
+import de.trustable.ca3s.core.domain.enumeration.*;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
+import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 import de.trustable.ca3s.core.service.dto.PipelineView;
 import de.trustable.ca3s.core.service.dto.RDNRestriction;
 import de.trustable.ca3s.core.service.dto.SCEPConfigItems;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
+import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.List;
 
@@ -56,7 +58,11 @@ public class PipelineTestConfiguration {
 	@Autowired
 	PipelineUtil pipelineUtil;
 
+    @Autowired
+    private ProtectedContentRepository protectedContentRepository;
 
+    @Autowired
+    private ProtectedContentUtil protectedContentUtil;
 
 	public CAConnectorConfig internalTestCAC() {
 
@@ -384,13 +390,28 @@ public class PipelineTestConfiguration {
         pv_LaxRestrictions.setActive(true);
 		pv_LaxRestrictions.setUrlPart(SCEP_REALM);
 
+
+        ProtectedContent pc = new ProtectedContent();
+        pc.setType(ProtectedContentType.PASSWORD);
+        pc.setRelationType(ContentRelationType.SCEP_PW);
+        pc.setLeftUsages(-1);
+        pc.setValidTo(ProtectedContentUtil.MAX_INSTANT);
+        pc.setDeleteAfter(ProtectedContentUtil.MAX_INSTANT);
+        pc.setContentBase64( protectedContentUtil.protectString(SCEP_PASSWORD));
+        protectedContentRepository.save(pc);
+
         SCEPConfigItems scepConfigItems = new SCEPConfigItems();
         scepConfigItems.setScepSecret(SCEP_PASSWORD);
+        scepConfigItems.setScepSecretPCId(String.valueOf(pc.getId()));
         pv_LaxRestrictions.setScepConfigItems(scepConfigItems);
 
 		Pipeline pipelineLaxRestrictions = pipelineUtil.toPipeline(pv_LaxRestrictions);
 		pipelineRepo.save(pipelineLaxRestrictions);
-		return pipelineLaxRestrictions;
+
+        pc.setRelatedId(pipelineLaxRestrictions.getId());
+        protectedContentRepository.save(pc);
+
+        return pipelineLaxRestrictions;
 
 	}
 

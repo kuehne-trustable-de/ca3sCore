@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for the {@link RequestProxyConfigResource} REST controller.
  */
 @SpringBootTest(classes = Ca3SApp.class)
+@ActiveProfiles("dev")
 public class RequestProxyConfigResourceIT {
 
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
@@ -203,7 +205,7 @@ public class RequestProxyConfigResourceIT {
             .andExpect(jsonPath("$.[*].requestProxyUrl").value(hasItem(DEFAULT_REQUEST_PROXY_URL)))
             .andExpect(jsonPath("$.[*].active").value(hasItem(DEFAULT_ACTIVE.booleanValue())));
     }
-    
+
     @Test
     @Transactional
     public void getRequestProxyConfig() throws Exception {

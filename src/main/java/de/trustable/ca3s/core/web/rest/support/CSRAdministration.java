@@ -10,7 +10,7 @@ import de.trustable.ca3s.core.repository.CsrAttributeRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.NotificationService;
-import de.trustable.ca3s.core.service.exception.CAFailureException;
+import de.trustable.ca3s.core.exception.CAFailureException;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateProcessingUtil;
 import de.trustable.ca3s.core.service.util.PipelineUtil;

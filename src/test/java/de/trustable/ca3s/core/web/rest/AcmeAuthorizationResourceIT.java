@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for the {@link AcmeAuthorizationResource} REST controller.
  */
 @SpringBootTest(classes = Ca3SApp.class)
+@ActiveProfiles("dev")
 public class AcmeAuthorizationResourceIT {
 
     private static final Long DEFAULT_ACME_AUTHORIZATION_ID = 1L;
@@ -221,7 +223,7 @@ public class AcmeAuthorizationResourceIT {
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
             .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE)));
     }
-    
+
     @Test
     @Transactional
     public void getAcmeAuthorization() throws Exception {

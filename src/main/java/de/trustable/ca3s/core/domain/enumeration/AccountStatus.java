@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public enum AccountStatus {
 
-	VALID, DEACTIVATED, REVOKED;
+	VALID, PENDING, DEACTIVATED, REVOKED;
 
 	private static final Logger LOG = LoggerFactory.getLogger(AccountStatus.class);
 
@@ -26,7 +26,7 @@ public enum AccountStatus {
 		LOG.warn("trying to build AccountStatus from an unexpected value '{}'", value);
 		return null;
 	}
-	
+
 	@JsonValue
     public String getValue() {
         return this.toString().toLowerCase();

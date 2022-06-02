@@ -25,7 +25,25 @@ export default class AccountService {
         window.console.info('setting bearer token to local storage : ' + bearer);
         localStorage.setItem('jhi-authenticationToken', '' + bearer);
         this.retrieveAccount();
+      } else {
+        const fragmentParts = to.hash.split('&');
+        let access_token = null;
+
+        for (let i = 0; i < fragmentParts.length; i++) {
+          const fragmentPartArray = fragmentParts[i].split('=');
+
+          if (fragmentPartArray.length > 1) {
+            if ('access_token' === fragmentPartArray[0]) {
+              access_token = fragmentPartArray[1];
+            }
+          }
+        }
+        window.console.info('++++++++++++++++++ access_token : ' + access_token);
+        if (access_token) {
+          this.forwardToken(access_token);
+        }
       }
+
       next();
     });
     /*
@@ -50,6 +68,18 @@ export default class AccountService {
         this.store.commit('setActiveProfiles', res.data['activeProfiles']);
       }
     });
+  }
+
+  public forwardToken(token: string): void {
+    axios
+      .get('oidc/tokenImplicit', { params: { access_token: token } })
+      .then(response => {
+        //        const account = response.data;
+        window.console.info('token accepted');
+      })
+      .catch(() => {
+        window.console.info('token rejected');
+      });
   }
 
   public retrieveAccount(): void {

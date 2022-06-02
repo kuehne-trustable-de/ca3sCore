@@ -8,6 +8,7 @@ import de.trustable.ca3s.adcsCertUtil.CertificateEnrollmentResponse;
 import de.trustable.ca3s.adcsCertUtil.GetCertificateResponse;
 import de.trustable.ca3s.adcsCertUtil.*;
 import de.trustable.ca3s.client.api.RemoteADCSClient;
+import de.trustable.ca3s.client.invoker.ApiException;
 import de.trustable.ca3s.client.model.*;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
@@ -20,7 +21,7 @@ import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.CryptoService;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
-import io.swagger.client.ApiException;
+
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
@@ -722,13 +723,11 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 
 	    String apiKey = Base64.encodeBase64String(skf.generateSecret(specApiKey).getEncoded());
 
-		this.remoteClient = new RemoteADCSClient(caUrl, apiKey);
+        TrustManager[] trustManagers = {ca3sTrustManager};
+		this.remoteClient = new RemoteADCSClient(caUrl, apiKey, trustManagers);
 
 		this.remoteClient.getApiClient().setConnectTimeout(30 * 1000);
 		this.remoteClient.getApiClient().setReadTimeout(60 * 1000);
-
-		TrustManager[] managers = {ca3sTrustManager};
-		this.remoteClient.getApiClient().setTrustManagers(managers);
 
 //		LOGGER.debug("secret '{}', sharedSecret '{}', apiKey '{}'", secret, Base64.encodeBase64String(sharedSecret), apiKey);
 	}
@@ -850,7 +849,7 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 	public List<String> getRequesIdList(int limit, int offset, long resolvedWhenTimestamp, long revokedEffectiveWhen)
 			throws ADCSException {
 		try {
-			List<String> rir = remoteClient.getRequestIdList(limit, offset, resolvedWhenTimestamp, revokedEffectiveWhen );
+			List<String> rir = remoteClient.getRequestIdList(offset, resolvedWhenTimestamp, revokedEffectiveWhen, limit );
 			return rir;
 		} catch (ApiException e) {
 			if( e.getCode() == 503) {

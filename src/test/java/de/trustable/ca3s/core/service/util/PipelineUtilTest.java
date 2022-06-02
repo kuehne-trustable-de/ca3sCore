@@ -1,9 +1,22 @@
 package de.trustable.ca3s.core.service.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import de.trustable.ca3s.core.domain.enumeration.RDNCardinalityRestriction;
+import de.trustable.ca3s.core.repository.*;
+import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.dto.PipelineView;
+import de.trustable.ca3s.core.service.dto.Preferences;
+import de.trustable.ca3s.core.service.dto.RDNRestriction;
+import de.trustable.util.CryptoUtil;
+import de.trustable.util.JCAManager;
+import de.trustable.util.Pkcs10RequestHolder;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
+import javax.security.auth.x500.X500Principal;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
@@ -12,19 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.security.auth.x500.X500Principal;
-
-import org.bouncycastle.asn1.x509.GeneralName;
-import org.bouncycastle.pkcs.PKCS10CertificationRequest;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
-import de.trustable.ca3s.core.domain.enumeration.RDNCardinalityRestriction;
-import de.trustable.ca3s.core.service.dto.PipelineView;
-import de.trustable.ca3s.core.service.dto.RDNRestriction;
-import de.trustable.util.CryptoUtil;
-import de.trustable.util.JCAManager;
-import de.trustable.util.Pkcs10RequestHolder;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 class PipelineUtilTest {
 
@@ -34,7 +36,46 @@ class PipelineUtilTest {
 
 	CryptoUtil cryptoUtil = new CryptoUtil();
 
-	PipelineUtil pu = new PipelineUtil();
+    @Mock
+    CertificateRepository certRepository = mock(CertificateRepository.class);
+
+    @Mock
+    CSRRepository csrRepository= mock(CSRRepository.class);
+
+    @Mock
+    CAConnectorConfigRepository caConnRepository= mock(CAConnectorConfigRepository.class);
+
+    @Mock
+    PipelineRepository pipelineRepository= mock(PipelineRepository.class);
+
+    @Mock
+    PipelineAttributeRepository pipelineAttRepository= mock(PipelineAttributeRepository.class);
+
+    @Mock
+    BPMNProcessInfoRepository bpmnPIRepository= mock(BPMNProcessInfoRepository.class);
+
+    @Mock
+    ProtectedContentRepository protectedContentRepository= mock(ProtectedContentRepository.class);
+
+    @Mock
+    ProtectedContentUtil protectedContentUtil= mock(ProtectedContentUtil.class);
+
+    @Mock
+    PreferenceUtil preferenceUtil= mock(PreferenceUtil.class);
+
+    @Mock
+    CertificateUtil certUtil= mock(CertificateUtil.class);
+
+    @Mock
+    ConfigUtil configUtil= mock(ConfigUtil.class);
+
+    @Mock
+    AuditService auditService= mock(AuditService.class);
+
+    @Mock
+    AuditTraceRepository auditTraceRepository= mock(AuditTraceRepository.class);
+
+    PipelineUtil pu;
 
 
 	@BeforeAll
@@ -43,15 +84,21 @@ class PipelineUtilTest {
 		JCAManager.getInstance();
 
 		keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+    }
 
-	}
+
+    @BeforeEach
+    public void setUp() {
+        Preferences prefs = new Preferences();
+        when(preferenceUtil.getPrefs(anyLong())).thenReturn(prefs);
+
+        pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository);
+    }
 
 	@Test
 	void testCheckPipelineRestrictions() throws GeneralSecurityException, IOException {
 
-
-		List<String> messageList = new ArrayList<String>();;
-//		Pkcs10RequestHolder p10ReqHolder;
+        List<String> messageList = new ArrayList<>();
 
 		X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, O=trustable solutions, C=DE");
 
@@ -186,9 +233,9 @@ class PipelineUtilTest {
 	@Test
 	void testCheckPipelineRestrictionsCardinality() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil();
+		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository);
 
-		List<String> messageList = new ArrayList<String>();;
+		List<String> messageList = new ArrayList<>();
 //		Pkcs10RequestHolder p10ReqHolder;
 
 		X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
@@ -349,9 +396,9 @@ class PipelineUtilTest {
 	@Test
 	void testCheckPipelineRestrictionsConstantValue() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil();
+		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository);
 
-		List<String> messageList = new ArrayList<String>();;
+		List<String> messageList = new ArrayList<>();
 		X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
 
 	    PKCS10CertificationRequest p10Req = CryptoUtil.getCsr(subject,
@@ -475,9 +522,9 @@ class PipelineUtilTest {
 	@Test
 	void testCheckPipelineRestrictionsRegExp() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil();
+		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository);
 
-		List<String> messageList = new ArrayList<String>();;
+		List<String> messageList = new ArrayList<>();
 		X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
 
 	    PKCS10CertificationRequest p10Req = CryptoUtil.getCsr(subject,
@@ -634,9 +681,9 @@ class PipelineUtilTest {
 	@Test
 	void testCheckPipelineRestrictionsIPHasSubject() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil();
+		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository);
 
-		List<String> messageList = new ArrayList<String>();;
+        List<String> messageList = new ArrayList<>();
 		X500Principal subject = new X500Principal("CN=trustable.eu");
 
 	    PKCS10CertificationRequest p10Req = CryptoUtil.getCsr(subject,
@@ -718,9 +765,9 @@ class PipelineUtilTest {
 	@Test
 	void testCheckPipelineRestrictionsIPHasSAN() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil();
+		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository);
 
-		List<String> messageList = new ArrayList<String>();;
+		List<String> messageList = new ArrayList<>();
 		X500Principal subject = new X500Principal("CN=trustable.eu");
 
 		GeneralName[] gnArr = new GeneralName[2];

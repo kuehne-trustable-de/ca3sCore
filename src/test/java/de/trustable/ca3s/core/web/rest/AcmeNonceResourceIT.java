@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for the {@link AcmeNonceResource} REST controller.
  */
 @SpringBootTest(classes = Ca3SApp.class)
+@ActiveProfiles("dev")
 public class AcmeNonceResourceIT {
 
     private static final String DEFAULT_NONCE_VALUE = "AAAAAAAAAA";
@@ -162,7 +164,7 @@ public class AcmeNonceResourceIT {
             .andExpect(jsonPath("$.[*].nonceValue").value(hasItem(DEFAULT_NONCE_VALUE)))
             .andExpect(jsonPath("$.[*].expiresAt").value(hasItem(DEFAULT_EXPIRES_AT.toString())));
     }
-    
+
     @Test
     @Transactional
     public void getAcmeNonce() throws Exception {

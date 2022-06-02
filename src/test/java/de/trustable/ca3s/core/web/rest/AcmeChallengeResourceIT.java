@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,7 @@ import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
  * Integration tests for the {@link AcmeChallengeResource} REST controller.
  */
 @SpringBootTest(classes = Ca3SApp.class)
+@ActiveProfiles("dev")
 public class AcmeChallengeResourceIT {
 
     private static final Long DEFAULT_CHALLENGE_ID = 1L;
@@ -281,7 +283,7 @@ public class AcmeChallengeResourceIT {
             .andExpect(jsonPath("$.[*].validated").value(hasItem(DEFAULT_VALIDATED.toString())))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString().toLowerCase())));
     }
-    
+
     @Test
     @Transactional
     public void getAcmeChallenge() throws Exception {

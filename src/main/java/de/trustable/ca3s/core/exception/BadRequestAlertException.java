@@ -1,5 +1,6 @@
-package de.trustable.ca3s.core.web.rest.errors;
+package de.trustable.ca3s.core.exception;
 
+import de.trustable.ca3s.core.web.rest.errors.ErrorConstants;
 import org.zalando.problem.AbstractThrowableProblem;
 import org.zalando.problem.Status;
 

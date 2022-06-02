@@ -15,6 +15,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.keycloak.OAuth2Constants;
+import org.keycloak.representations.AccessToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,9 +44,6 @@ public class OIDCRestService {
 
     private static final Logger LOG = LoggerFactory.getLogger(OIDCRestService.class);
 
-    final private String keycloakTokenUri;
-    final private String keycloakUserInfo;
-    final private String keycloakLogout;
     final private String clientId;
     final private String grantType;
     final private String clientSecret;
@@ -64,10 +62,7 @@ public class OIDCRestService {
     private final Languages languages;
 
 
-    public OIDCRestService(@Value("${ca3s.oidc.token-uri}") String keycloakTokenUri,
-                           @Value("${ca3s.oidc.user-info-uri}") String keycloakUserInfo,
-                           @Value("${ca3s.oidc.logout}") String keycloakLogout,
-                           @Value("${ca3s.oidc.roles.user:USER}") String[] rolesUserArr,
+    public OIDCRestService(@Value("${ca3s.oidc.roles.user:USER}") String[] rolesUserArr,
                            @Value("${ca3s.oidc.roles.domainra:DOMAIN_RA}") String[] rolesDomainRAArr,
                            @Value("${ca3s.oidc.roles.ra:RA}") String[] rolesRAArr,
                            @Value("${ca3s.oidc.roles.admin:ADMIN}") String[] rolesAdminArr,
@@ -80,9 +75,6 @@ public class OIDCRestService {
                            UserRepository userRepository,
                            AuthorityRepository authorityRepository,
                            PasswordEncoder passwordEncoder) {
-        this.keycloakTokenUri = keycloakTokenUri;
-        this.keycloakUserInfo = keycloakUserInfo;
-        this.keycloakLogout = keycloakLogout;
 
         this.rolesUserArr = rolesUserArr;
         this.rolesDomainRAArr = rolesDomainRAArr;
@@ -108,8 +100,8 @@ public class OIDCRestService {
      * @param username
      * @param password
      * @return
-     */
-    public KeycloakUserId login(String username, String password) throws JsonProcessingException {
+
+    public KeycloakUserId login(String keycloakTokenUri, String username, String password) throws JsonProcessingException {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -136,8 +128,9 @@ public class OIDCRestService {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         return objectMapper.readValue(userId, KeycloakUserId.class);
     }
+*/
 
-    public String exchangeCodeToToken( final String authCode, final String redirectUri ) throws JsonProcessingException, UnsupportedEncodingException {
+    public String exchangeCodeToToken( final String keycloakTokenUri, final String authCode, final String redirectUri ) throws JsonProcessingException, UnsupportedEncodingException {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -166,45 +159,8 @@ public class OIDCRestService {
         return keycloakUserId.getAccess_token();
     }
 
-    /**
-     *  logging out and disabling active token by redirectUri
-     *
-     * @param redirectUri
-     */
-    public void logoutByRedirectUri(String redirectUri) {
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("client_id",clientId);
-        map.add("client_secret",clientSecret);
-        map.add("redirect_uri",redirectUri);
-
-        RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, null);
-        restTemplate.postForObject(keycloakLogout, request, String.class);
-    }
-
-    /**
-     *  logging out and disabling active token from oidc
-     *
-     * @param refreshToken
-     */
-    public void logout(String refreshToken) throws Exception {
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("client_id",clientId);
-        map.add("client_secret",clientSecret);
-        map.add("refresh_token",refreshToken);
-
-        RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, null);
-        restTemplate.postForObject(keycloakLogout, request, String.class);
-    }
-
-    public List<String> getRoles(String token) throws Exception {
-        KeycloakUserDetails keycloakUserDetails = getUserInfo(token);
-        return Arrays.asList(keycloakUserDetails.getRoles());
-    }
-
     @Transactional
-    public KeycloakUserDetails getUserInfo(String token) throws JsonProcessingException {
+    public KeycloakUserDetails getUserInfo(final String keycloakUserInfoUrl, final String token) throws JsonProcessingException {
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
         headers.add("Authorization", "Bearer " + token);
 
@@ -212,15 +168,41 @@ public class OIDCRestService {
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(null, headers);
         LOG.info("request: {}", request);
 
-        String userInfo = restTemplate.postForObject(keycloakUserInfo, request, String.class);
+        String userInfo = restTemplate.postForObject(keycloakUserInfoUrl, request, String.class);
         LOG.debug("userInfo: {}", userInfo);
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         KeycloakUserDetails keycloakUserDetails = objectMapper.readValue(userInfo, KeycloakUserDetails.class);
 
+        storeUserInfo(keycloakUserDetails);
+
+        return keycloakUserDetails;
+    }
+
+    @Transactional
+    public KeycloakUserDetails getUserInfo(final AccessToken token) {
+
+        KeycloakUserDetails keycloakUserDetails = new KeycloakUserDetails();
+
+        keycloakUserDetails.setEmail( token.getEmail());
+        keycloakUserDetails.setName(token.getName());
+        keycloakUserDetails.setFamily_name(token.getFamilyName());
+        keycloakUserDetails.setGiven_name(token.getGivenName());
+        keycloakUserDetails.setPreferred_username(token.getPreferredUsername());
+        String[] roleArr = {"ROLE_USER"};
+        keycloakUserDetails.setRoles(roleArr);
+        keycloakUserDetails.setSub(token.getSubject());
+
+        storeUserInfo(keycloakUserDetails);
+
+        return keycloakUserDetails;
+    }
+
+    private void storeUserInfo(final KeycloakUserDetails keycloakUserDetails) {
+
         if( keycloakUserDetails.getSub().isEmpty() ){
-            LOG.info("no subscriber retrieved for token {}", token);
+            LOG.info("no subscriber retrieved for token {}", keycloakUserDetails);
         }else {
             List<UserPreference> userPreferenceList =
                 userPreferenceRepository.findByNameContent(USER_PREFERENCE_KEYCLOAK_ID, keycloakUserDetails.getSub());
@@ -251,7 +233,6 @@ public class OIDCRestService {
                 }
             }
         }
-        return keycloakUserDetails;
     }
 
     private void updateUserFromKeycloak(KeycloakUserDetails keycloakUserDetails, User user) {
@@ -303,6 +284,7 @@ public class OIDCRestService {
 
     @NotNull
     public String retrieveUserName(KeycloakUserDetails keycloakUserDetails) {
+
         String effLoginName = keycloakUserDetails.getName();
         if( (effLoginName == null) || effLoginName.isEmpty()){
             effLoginName = keycloakUserDetails.getPreferred_username();
@@ -340,10 +322,7 @@ public class OIDCRestService {
         for( Authority authority: authorityRepository.findAll()){
 
             if( authority.getName().equalsIgnoreCase("ROLE_USER")){
-//                addMatchedRole(authoritySet, roles, authority, rolesUserArr);
-                authoritySet.add(authority);
-                LOG.debug("added role '{}' due to oidc login", authority.getName());
-
+                addMatchedRole(authoritySet, roles, authority, rolesUserArr);
             }else if( authority.getName().equalsIgnoreCase("ROLE_RA_DOMAIN")){
                 addMatchedRole(authoritySet, roles, authority, rolesDomainRAArr);
             }else if( authority.getName().equalsIgnoreCase("ROLE_RA")){
@@ -358,25 +337,35 @@ public class OIDCRestService {
        return authoritySet;
     }
 
-    private void addMatchedRole(Set<Authority> authoritySet, String[] oidcRoles, Authority authority, String[] rolesNameArr) {
+    private boolean addMatchedRole(Set<Authority> authoritySet, String[] oidcRoles, Authority authority, String[] rolesNameArr) {
 
         if((oidcRoles == null) || (oidcRoles.length == 0)){
             LOG.debug("addMatchedRole : roles from kerberos is empty");
-            return;
+            return false;
         }
 
         for (String role : rolesNameArr) {
-            LOG.debug("addMatchedRole accepted role '{}' for authority '{}'", role, authority.getName());
+            if( "*".equals(role.trim())){
+                authoritySet.add(authority);
+                LOG.debug("addMatchedRole added authority '{}' as default role", role, authority.getName());
+                return true;
+            }else {
+                LOG.debug("addMatchedRole accepts role '{}' for authority '{}'", role, authority.getName());
+            }
         }
 
+        boolean hasMatch = false;
         for (String role : oidcRoles) {
             if (ArrayUtils.contains(rolesNameArr, role)) {
                 authoritySet.add(authority);
+                hasMatch = true;
                 LOG.debug("addMatchedRole checking oidc role '{}' does match mapping !", role);
             }else{
                 LOG.debug("addMatchedRole checking oidc role '{}' does not match mapping", role);
             }
         }
+
+        return hasMatch;
     }
 
 }

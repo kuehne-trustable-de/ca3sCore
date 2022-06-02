@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for the {@link CertificateResource} REST controller.
  */
 @SpringBootTest(classes = Ca3SApp.class)
+@ActiveProfiles("dev")
 public class CertificateResourceIT {
 
     private static final String DEFAULT_TBS_DIGEST = "AAAAAAAAAA";
@@ -478,7 +480,7 @@ public class CertificateResourceIT {
             .andExpect(jsonPath("$.[*].active").value(hasItem(DEFAULT_ACTIVE.booleanValue())))
             .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT.toString())));
     }
-    
+
     @Test
     @Transactional
     public void getCertificate() throws Exception {

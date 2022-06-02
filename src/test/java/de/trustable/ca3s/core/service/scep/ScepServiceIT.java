@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
@@ -17,6 +16,7 @@ import java.security.cert.CertStoreException;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
+import java.util.Iterator;
 
 import javax.security.auth.x500.X500Principal;
 
@@ -118,6 +118,7 @@ public class ScepServiceIT{
 
         EnrollmentResponse resp = client.enrol(ephemeralCert, keyPair.getPrivate(), csr);
         Assertions.assertNotNull(resp);
+//        LOG.info("FailInfo : " + resp.getFailInfo() );
         Assertions.assertFalse(resp.isFailure());
         if (resp.isSuccess()) {
 
@@ -244,9 +245,11 @@ public class ScepServiceIT{
 
         Assertions.assertTrue(response.isSuccess());
 
-        X509Certificate issued = (X509Certificate) response.getCertStore().getCertificates(null).iterator().next();
+        Iterator<? extends Certificate> certIt = response.getCertStore().getCertificates(null).iterator();
+        X509Certificate issued = (X509Certificate) certIt.next();
+        X509Certificate issuer = (X509Certificate) certIt.next();
 
-        Certificate retrieved = client.getCertificate(ephemeralCert,
+        Certificate retrieved = client.getCertificate(issuer,
         		keyPair.getPrivate(),
                 issued.getSerialNumber()
             ).getCertificates(null).iterator().next();

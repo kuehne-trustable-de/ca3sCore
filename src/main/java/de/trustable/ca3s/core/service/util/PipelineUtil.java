@@ -7,7 +7,7 @@ import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.*;
-import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
+import de.trustable.ca3s.core.exception.BadRequestAlertException;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
@@ -20,12 +20,9 @@ import org.bouncycastle.asn1.x509.GeneralName;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import javax.security.auth.x500.X500Principal;
-import javax.servlet.ServletException;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
@@ -36,7 +33,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -130,47 +126,48 @@ public class PipelineUtil {
 
     Logger LOG = LoggerFactory.getLogger(PipelineUtil.class);
 
-    @Autowired
-    private CertificateRepository certRepository;
+    final private CertificateRepository certRepository;
 
-    @Autowired
-    private CSRRepository csrRepository;
+    final private CSRRepository csrRepository;
 
-    @Autowired
-	private CAConnectorConfigRepository caConnRepository;
+    final private CAConnectorConfigRepository caConnRepository;
 
-	@Autowired
-    private PipelineRepository pipelineRepository;
+    final private PipelineRepository pipelineRepository;
 
-	@Autowired
-	private PipelineAttributeRepository pipelineAttRepository;
+    final private PipelineAttributeRepository pipelineAttRepository;
 
-    @Autowired
-    private BPMNProcessInfoRepository bpmnPIRepository;
+    final private BPMNProcessInfoRepository bpmnPIRepository;
 
-    @Autowired
-    private ProtectedContentRepository protectedContentRepository;
+    final private ProtectedContentRepository protectedContentRepository;
 
-    @Autowired
-    private ProtectedContentUtil protectedContentUtil;
+    final private ProtectedContentUtil protectedContentUtil;
 
-    @Autowired
-    private PreferenceUtil preferenceUtil;
+    final private PreferenceUtil preferenceUtil;
 
-    @Autowired
-    private CertificateUtil certUtil;
+    final private CertificateUtil certUtil;
 
-    @Autowired
-    private CertificateProcessingUtil cpUtil;
+    final private ConfigUtil configUtil;
 
-    @Autowired
-    private ConfigUtil configUtil;
+    final private AuditService auditService;
 
-    @Autowired
-    private AuditService auditService;
+    final private AuditTraceRepository auditTraceRepository;
 
-    @Autowired
-    private AuditTraceRepository auditTraceRepository;
+    public PipelineUtil(CertificateRepository certRepository, CSRRepository csrRepository, CAConnectorConfigRepository caConnRepository, PipelineRepository pipelineRepository, PipelineAttributeRepository pipelineAttRepository, BPMNProcessInfoRepository bpmnPIRepository, ProtectedContentRepository protectedContentRepository, ProtectedContentUtil protectedContentUtil, PreferenceUtil preferenceUtil, CertificateUtil certUtil, ConfigUtil configUtil, AuditService auditService, AuditTraceRepository auditTraceRepository) {
+        this.certRepository = certRepository;
+        this.csrRepository = csrRepository;
+        this.caConnRepository = caConnRepository;
+        this.pipelineRepository = pipelineRepository;
+        this.pipelineAttRepository = pipelineAttRepository;
+        this.bpmnPIRepository = bpmnPIRepository;
+        this.protectedContentRepository = protectedContentRepository;
+        this.protectedContentUtil = protectedContentUtil;
+        this.preferenceUtil = preferenceUtil;
+        this.certUtil = certUtil;
+        this.configUtil = configUtil;
+        this.auditService = auditService;
+        this.auditTraceRepository = auditTraceRepository;
+    }
+
 
     public PipelineView from(Pipeline pipeline) {
 
@@ -254,7 +251,7 @@ public class PipelineUtil {
     		}
 
         }
-
+/*
         if( PipelineType.SCEP.equals(pipeline.getType())){
             try {
                 Certificate currentRecipientCert = getSCEPRecipientCertificate(pipeline);
@@ -269,7 +266,7 @@ public class PipelineUtil {
                 LOG.warn("problem retrieving recipient certificate", e);
             }
         }
-
+*/
         pv.setDomainRaOfficerList(domainRaOfficerList.toArray(new String[0]));
 
         pv.setAcmeConfigItems(acmeConfigItems);
@@ -912,12 +909,14 @@ public class PipelineUtil {
 
 	    if(!pv.isIpAsSubjectAllowed()) {
 	    	if( isSubjectIP(rdnArr, messageList)) {
+                LOG.info("IP not allowed as subject");
 	    		outcome = false;
 	    	}
 	    }
 
 	    if(!pv.isIpAsSANAllowed()) {
 	    	if( hasIPinSANList(gNameSet, messageList)) {
+                LOG.info("IP not allowed as SAN");
 	    		outcome = false;
 	    	}
 	    }
@@ -931,12 +930,13 @@ public class PipelineUtil {
         Preferences preferences = preferenceUtil.getPrefs(PreferenceUtil.SYSTEM_PREFERENCE_ID);
 
         String hashAlgName = p10ReqHolder.getAlgorithmInfo().getHashAlgName();
-        if(Arrays.stream(preferences.getSelectedHashes()).noneMatch(a -> a.equalsIgnoreCase(hashAlgName))){
-            String msg = "restriction mismatch: hash algo '"+hashAlgName +"' does not match expected set!";
-            messageList.add(msg);
-            LOG.debug(msg);
-            outcome = false;
-        }
+        if(Arrays.stream(preferences.getSelectedHashes())
+            .noneMatch(a -> a.equalsIgnoreCase(hashAlgName))){
+                String msg = "restriction mismatch: hash algo '"+hashAlgName +"' does not match expected set!";
+                messageList.add(msg);
+                LOG.debug(msg);
+                outcome = false;
+            }
 
         String signingAlgo = "rsa";
         int keyLength = CertificateUtil.getAlignedKeyLength(p10ReqHolder.getPublicSigningKey());
@@ -1328,7 +1328,7 @@ public class PipelineUtil {
         return defaultValue;
     }
 
-    public Certificate getSCEPRecipientCertificate( Pipeline pipeline) throws IOException, GeneralSecurityException {
+    public Certificate getSCEPRecipientCertificate( Pipeline pipeline, CertificateProcessingUtil cpUtil) throws IOException, GeneralSecurityException {
 
         if( pipeline == null){
             throw new GeneralSecurityException("pipeline argument == null!");
@@ -1342,7 +1342,7 @@ public class PipelineUtil {
 
         if( Boolean.TRUE.equals(pipeline.isActive())) {
 
-            Certificate recipientCert = createSCEPRecipientCertificate(pipeline);
+            Certificate recipientCert = createSCEPRecipientCertificate(pipeline, cpUtil);
             if (recipientCert == null) {
                 LOG.info("creation of scep recipient certificate for pipeline {} failed", pipeline.getId());
             } else {
@@ -1355,7 +1355,7 @@ public class PipelineUtil {
         }
     }
 
-    private Certificate createSCEPRecipientCertificate(final Pipeline pipeline) throws IOException, GeneralSecurityException {
+    private Certificate createSCEPRecipientCertificate(final Pipeline pipeline, CertificateProcessingUtil cpUtil) throws IOException, GeneralSecurityException {
 
         String scepRecipientDN = getPipelineAttribute( pipeline, SCEP_RECIPIENT_DN, "CN=SCEPRecepient_"+ pipeline.getId());
         X500Principal subject = new X500Principal(scepRecipientDN);

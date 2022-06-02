@@ -3,9 +3,11 @@ package de.trustable.ca3s.core.service;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.config.Constants;
 import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.exception.PasswordRestrictionMismatch;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.dto.UserDTO;
 
+import org.springframework.test.context.ActiveProfiles;
 import tech.jhipster.security.RandomUtil;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -27,12 +29,14 @@ import java.util.Optional;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
 /**
  * Integration tests for {@link UserService}.
  */
 @SpringBootTest(classes = Ca3SApp.class)
+@ActiveProfiles("dev")
 @Transactional
 public class UserServiceIT {
 
@@ -76,6 +80,33 @@ public class UserServiceIT {
 
         when(dateTimeProvider.getNow()).thenReturn(Optional.of(LocalDateTime.now()));
         auditingHandler.setDateTimeProvider(dateTimeProvider);
+    }
+
+    @Test
+    public void assertThatNewPasswordMatches() {
+        userService.checkPassword("FooBarBaz1");
+    }
+
+    @Test
+    public void assertThatNewPasswordFails() {
+        try {
+            userService.checkPassword("Foo1");
+            fail("password check MUST fail, too short");
+        }catch(PasswordRestrictionMismatch passwordRestrictionMismatch){
+            // as expected
+        }
+        try {
+            userService.checkPassword("foobarbaz1");
+            fail("password check MUST fail, lowerecase chars only");
+        }catch(PasswordRestrictionMismatch passwordRestrictionMismatch){
+            // as expected
+        }
+        try {
+            userService.checkPassword("FooBarBaz");
+            fail("password check MUST fail, number missing");
+        }catch(PasswordRestrictionMismatch passwordRestrictionMismatch){
+            // as expected
+        }
     }
 
     @Test

@@ -3,12 +3,16 @@ package de.trustable.ca3s.core.service;
 import de.trustable.ca3s.core.config.Constants;
 import de.trustable.ca3s.core.domain.Authority;
 import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.exception.PasswordRestrictionMismatch;
 import de.trustable.ca3s.core.repository.AuthorityRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.security.SecurityUtils;
 import de.trustable.ca3s.core.service.dto.UserDTO;
 
+import de.trustable.ca3s.core.web.rest.vm.ManagedUserVM;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import tech.jhipster.security.RandomUtil;
 
 import org.slf4j.Logger;
@@ -24,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -43,11 +48,22 @@ public class UserService {
 
     private final CacheManager cacheManager;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository, CacheManager cacheManager) {
+    private final String passwordCheckRegExp;
+    private final Pattern passwordCheckPattern;
+
+
+    public UserService(UserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       AuthorityRepository authorityRepository,
+                       CacheManager cacheManager,
+                       @Value("${ca3s.ui.password.check.regexp:^(?=.*\\d)(?=.*[a-z]).{6,100}$}") String passwordCheckRegExp) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authorityRepository = authorityRepository;
         this.cacheManager = cacheManager;
+        this.passwordCheckRegExp = passwordCheckRegExp;
+
+        this.passwordCheckPattern = Pattern.compile(passwordCheckRegExp);
     }
 
     public Optional<User> activateRegistration(String key) {
@@ -305,6 +321,15 @@ public class UserService {
         Objects.requireNonNull(cacheManager.getCache(UserRepository.USERS_BY_LOGIN_CACHE)).evict(user.getLogin());
         if (user.getEmail() != null) {
             Objects.requireNonNull(cacheManager.getCache(UserRepository.USERS_BY_EMAIL_CACHE)).evict(user.getEmail());
+        }
+    }
+
+    public void checkPassword(String password) {
+
+        if( password != null && passwordCheckPattern.matcher(password).matches() ){
+            log.debug("new password matches restrictions");
+        }else{
+            throw new PasswordRestrictionMismatch("password does not match restriction '" + this.passwordCheckRegExp + "'");
         }
     }
 }

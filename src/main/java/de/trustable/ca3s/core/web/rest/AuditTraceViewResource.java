@@ -1,13 +1,9 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.AuditTrace;
-import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.service.AuditTraceService;
 import de.trustable.ca3s.core.service.dto.AuditTraceView;
-import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
-import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
-import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,12 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * REST controller for managing {@link AuditTrace}.

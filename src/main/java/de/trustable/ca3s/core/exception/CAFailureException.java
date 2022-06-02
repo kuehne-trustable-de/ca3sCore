@@ -1,4 +1,4 @@
-package de.trustable.ca3s.core.service.exception;
+package de.trustable.ca3s.core.exception;
 
 public class CAFailureException extends RuntimeException{
 

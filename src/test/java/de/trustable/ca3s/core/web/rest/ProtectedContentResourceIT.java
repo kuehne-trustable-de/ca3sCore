@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,7 @@ import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
  * Integration tests for the {@link ProtectedContentResource} REST controller.
  */
 @SpringBootTest(classes = Ca3SApp.class)
+@ActiveProfiles("dev")
 public class ProtectedContentResourceIT {
 
     private static final String DEFAULT_CONTENT_BASE_64 = "AAAAAAAAAA";
@@ -195,7 +197,7 @@ public class ProtectedContentResourceIT {
             .andExpect(jsonPath("$.[*].relationType").value(hasItem(DEFAULT_RELATION_TYPE.toString())))
             .andExpect(jsonPath("$.[*].relatedId").value(hasItem(DEFAULT_RELATED_ID.intValue())));
     }
-    
+
     @Test
     @Transactional
     public void getProtectedContent() throws Exception {

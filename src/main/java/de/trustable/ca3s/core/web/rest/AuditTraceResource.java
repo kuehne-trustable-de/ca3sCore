@@ -2,7 +2,7 @@ package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.AuditTrace;
 import de.trustable.ca3s.core.service.AuditTraceService;
-import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
+import de.trustable.ca3s.core.exception.BadRequestAlertException;
 
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -11,15 +11,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 /**

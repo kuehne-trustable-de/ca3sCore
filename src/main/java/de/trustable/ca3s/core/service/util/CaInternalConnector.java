@@ -11,8 +11,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
+import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.X500NameBuilder;
+import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.Extensions;
@@ -94,7 +98,7 @@ public class CaInternalConnector {
 		PrivateKey privKeyRoot = certUtil.getPrivateKey(root);
 		KeyPair kpRoot = new KeyPair(certUtil.convertPemToCertificate(root.getContent()).getPublicKey(), privKeyRoot);
 
-		X509Certificate x509Cert = cryptoUtil.issueCertificate(new X500Name(root.getSubject()), kpRoot, subject, keyPair.getPublic().getEncoded(), Calendar.YEAR, 1, PKILevel.INTERMEDIATE);
+		X509Certificate x509Cert = cryptoUtil.issueCertificate(normalizeX500Name(new X500Name(root.getSubject())), kpRoot, normalizeX500Name(subject), keyPair.getPublic().getEncoded(), Calendar.YEAR, 1, PKILevel.INTERMEDIATE);
 
 		Certificate intermediateCert = certUtil.createCertificate(x509Cert.getEncoded(), null, "", false);
 
@@ -107,7 +111,27 @@ public class CaInternalConnector {
 		return intermediateCert;
 	}
 
-	/**
+    X500Name normalizeX500Name( X500Name dn){
+
+        X500NameBuilder x500NameBuilder = new X500NameBuilder(X500Name.getDefaultStyle());
+
+        addExistingRDN(BCStyle.C, dn, x500NameBuilder);
+        addExistingRDN(BCStyle.OU, dn, x500NameBuilder);
+        addExistingRDN(BCStyle.O, dn, x500NameBuilder);
+        addExistingRDN(BCStyle.CN, dn, x500NameBuilder);
+
+        return x500NameBuilder.build();
+
+    }
+
+    private void addExistingRDN(ASN1ObjectIdentifier identifier, X500Name dn, X500NameBuilder x500NameBuilder) {
+        RDN[] rdnArr = dn.getRDNs(identifier);
+        for(RDN rdn: rdnArr) {
+            x500NameBuilder.addRDN(identifier, rdn.getFirst().getValue().toString());
+        }
+    }
+
+    /**
 	 *
 	 * @return
 	 * @throws GeneralSecurityException
@@ -121,7 +145,7 @@ public class CaInternalConnector {
 				+ System.currentTimeMillis()
 				+ ", OU=Internal Only, OU=Dev/Test Only, O=trustable solutions, C=DE");
 
-		X509Certificate x509Cert = cryptoUtil.issueCertificate(subject, keyPair, subject, keyPair.getPublic().getEncoded(), Calendar.YEAR, 1, PKILevel.ROOT);
+		X509Certificate x509Cert = cryptoUtil.issueCertificate(normalizeX500Name(subject), keyPair, normalizeX500Name(subject), keyPair.getPublic().getEncoded(), Calendar.YEAR, 1, PKILevel.ROOT);
 
 		Certificate rootCert = certUtil.createCertificate(x509Cert.getEncoded(), null, "", false);
 
@@ -182,9 +206,9 @@ public class CaInternalConnector {
             }
 
             X509Certificate x509Cert = cryptoUtil.issueCertificate(
-                new X500Name(intermediate.getSubject()),
+                normalizeX500Name(new X500Name(intermediate.getSubject())),
                 kpIntermediate,
-                p10.getSubject(),
+                normalizeX500Name(p10.getSubject()),
                 p10.getSubjectPublicKeyInfo(),
                 Calendar.YEAR, 1,
                 gns,

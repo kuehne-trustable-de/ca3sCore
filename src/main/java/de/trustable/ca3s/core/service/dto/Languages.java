@@ -25,10 +25,12 @@ public class Languages implements Serializable {
     public Languages(String availableLanguages) {
 
 	    List<String> langList = new ArrayList<>();
-        for( String lang: availableLanguages.split(",")){
-            if( !lang.isEmpty()){
-                langList.add(lang.toLowerCase().trim());
-                LOG.debug("language added: '{}'", lang.toLowerCase().trim());
+        if( availableLanguages != null ) {
+            for (String lang : availableLanguages.split(",")) {
+                if (!lang.isEmpty()) {
+                    langList.add(lang.toLowerCase().trim());
+                    LOG.debug("language added: '{}'", lang.toLowerCase().trim());
+                }
             }
         }
 

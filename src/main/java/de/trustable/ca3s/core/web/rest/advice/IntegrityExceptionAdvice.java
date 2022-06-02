@@ -27,7 +27,7 @@
 package de.trustable.ca3s.core.web.rest.advice;
 
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
-import de.trustable.ca3s.core.service.exception.IntegrityException;
+import de.trustable.ca3s.core.exception.IntegrityException;
 import de.trustable.ca3s.core.service.util.ACMEUtil;
 import de.trustable.ca3s.core.web.rest.acme.ACMEController;
 import org.springframework.http.HttpStatus;

@@ -14,7 +14,7 @@ import de.trustable.ca3s.core.service.dto.KeyAlgoLength;
 import de.trustable.ca3s.core.service.dto.NamedValues;
 import de.trustable.ca3s.core.service.dto.PipelineView;
 import de.trustable.ca3s.core.service.dto.Preferences;
-import de.trustable.ca3s.core.service.exception.CAFailureException;
+import de.trustable.ca3s.core.exception.CAFailureException;
 import de.trustable.ca3s.core.service.util.*;
 import de.trustable.ca3s.core.web.rest.data.*;
 import de.trustable.util.CryptoUtil;

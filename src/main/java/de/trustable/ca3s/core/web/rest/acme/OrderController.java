@@ -26,23 +26,19 @@
 
 package de.trustable.ca3s.core.web.rest.acme;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.ResponseEntity.ok;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequestUri;
-
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
+import de.trustable.ca3s.core.repository.AcmeOrderRepository;
 import de.trustable.ca3s.core.service.AuditService;
-import de.trustable.ca3s.core.service.util.*;
 import de.trustable.ca3s.core.service.dto.NamedValues;
+import de.trustable.ca3s.core.service.dto.acme.FinalizeRequest;
+import de.trustable.ca3s.core.service.dto.acme.OrderResponse;
+import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
+import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
+import de.trustable.ca3s.core.service.util.*;
+import de.trustable.util.CryptoUtil;
+import de.trustable.util.OidNameMapper;
+import de.trustable.util.Pkcs10RequestHolder;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
@@ -66,24 +62,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import de.trustable.ca3s.core.domain.ACMEAccount;
-import de.trustable.ca3s.core.domain.AcmeAuthorization;
-import de.trustable.ca3s.core.domain.AcmeChallenge;
-import de.trustable.ca3s.core.domain.AcmeOrder;
-import de.trustable.ca3s.core.domain.CSR;
-import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.CertificateAttribute;
-import de.trustable.ca3s.core.domain.Pipeline;
-import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
-import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
-import de.trustable.ca3s.core.repository.AcmeOrderRepository;
-import de.trustable.ca3s.core.service.dto.acme.FinalizeRequest;
-import de.trustable.ca3s.core.service.dto.acme.OrderResponse;
-import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
-import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
-import de.trustable.util.CryptoUtil;
-import de.trustable.util.OidNameMapper;
-import de.trustable.util.Pkcs10RequestHolder;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequestUri;
 
 
 @Transactional
@@ -156,6 +147,8 @@ public class OrderController extends ACMEController {
             AcmeOrderStatus acmeOrderStatus = orderDao.getStatus();
             if( !AcmeOrderStatus.INVALID.equals(acmeOrderStatus)){
                 LOG.debug("pending order {} expired on {}, setting to state 'INVALID'", orderDao.getOrderId(), orderDao.getExpires().toString());
+                auditService.saveAuditTrace(
+                    auditService.createAuditTraceACMEOrderExpired(orderDao.getAccount(), orderDao));
                 orderDao.setStatus(AcmeOrderStatus.INVALID);
                 orderRepository.save(orderDao);
                 // @ToDo
@@ -301,12 +294,17 @@ public class OrderController extends ACMEController {
 
                 }else {
                     LOG.info("order {} failed to reach status 'valid' !", orderDao.getOrderId());
+                    auditService.saveAuditTrace(
+                        auditService.createAuditTraceACMEOrderInvalid(orderDao.getAccount(), orderDao, "csr / authorization mismatch"));
                     orderDao.setStatus(AcmeOrderStatus.INVALID);
                 }
 
                 orderRepository.save(orderDao);
 			}else {
-				LOG.debug("unexpected finalize call at order status {} for order {}", orderDao.getStatus(), orderDao.getOrderId());
+                String msg = "unexpected finalize call at order status "+orderDao.getStatus()+" for order "+ orderDao.getOrderId();
+                LOG.debug(msg);
+                throw new AcmeProblemException(new ProblemDetail(ACMEUtil.SERVER_INTERNAL, msg,
+                    BAD_REQUEST, NO_DETAIL, NO_INSTANCE));
 			}
 
   			boolean valid = true;
@@ -319,7 +317,7 @@ public class OrderController extends ACMEController {
 	} catch (AcmeProblemException e) {
 	    return buildProblemResponseEntity(e);
 	} catch (JoseException| IOException | GeneralSecurityException e) {
-        final ProblemDetail problem = new ProblemDetail(ACMEUtil.SERVER_INTERNAL, "Algorithm mismatch.",
+        final ProblemDetail problem = new ProblemDetail(ACMEUtil.SERVER_INTERNAL, e.getMessage(),
                 BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
         return buildProblemResponseEntity(new AcmeProblemException(problem));
     }
@@ -436,11 +434,14 @@ public class OrderController extends ACMEController {
 		Certificate cert = cpUtil.processCertificateRequest(csr, requestorName, AuditService.AUDIT_ACME_CERTIFICATE_CREATED, pipeline );
 
 		if( cert == null) {
-            orderDao.setCertificate(cert);
+            LOG.warn("creation of certificate by ACME order {} failed ", orderDao.getOrderId());
+            auditService.saveAuditTrace(
+                auditService.createAuditTraceACMEOrderInvalid(orderDao.getAccount(), orderDao, "certificate creation failed"));
 			orderDao.setStatus(AcmeOrderStatus.INVALID);
-			LOG.warn("creation of certificate by ACME order {} failed ", orderDao.getOrderId());
 		}else {
 			LOG.debug("updating order id {} with new certificate id {}", orderDao.getOrderId(), cert.getId());
+            auditService.saveAuditTrace(
+                auditService.createAuditTraceACMEOrderSucceeded(orderDao.getAccount(), orderDao));
 			orderDao.setCertificate(cert);
 			orderDao.setStatus(AcmeOrderStatus.VALID);
 

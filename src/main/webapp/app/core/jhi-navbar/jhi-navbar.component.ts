@@ -20,7 +20,8 @@ export default class JhiNavbar extends Vue {
 
   public beforeRouteEnter(to, from, next) {
     next(vm => {
-      window.console.info('################ to.params : ' + to.params.bearer);
+      window.console.info('################ to.params.bearer : ' + to.params.bearer);
+      window.console.info('################ to.query.pipelineId : ' + to.query.pipelineId);
       console.log('JhiNavbar beforeRouteEnter : ' + to.params.showNavBar);
       if (to.params.showNavBar) {
       }
@@ -29,6 +30,8 @@ export default class JhiNavbar extends Vue {
 
   public mounted(): void {
     window.console.info('++++++++++++++++++ JhiNavbar.mounted(), route.query.bearer : ' + this.$route.query.bearer);
+    window.console.info('++++++++++++++++++ JhiNavbar.mounted(), route.query.pipelineId : ' + this.$route.query.pipelineId);
+    window.console.info('++++++++++++++++++ JhiNavbar.mounted(), route.query.certificateId : ' + this.$route.query.certificateId);
   }
 
   async created() {
@@ -103,6 +106,9 @@ export default class JhiNavbar extends Vue {
   }
 
   public doOIDCLogin(): void {
+    window.console.info('++++++++++++++++++ JhiNavbar.doOIDCLogin(), route.query.pipelineId : ' + this.$route.query.pipelineId);
+    window.console.info('++++++++++++++++++ JhiNavbar.doOIDCLogin(), route.query.certificateId : ' + this.$route.query.certificateId);
+
     axios
       .get('oidc/authenticate')
       .then(result => {
@@ -117,7 +123,8 @@ export default class JhiNavbar extends Vue {
           const jwt = bearerToken.slice(7, bearerToken.length);
           localStorage.setItem('jhi-authenticationToken', jwt);
         }
-        this.accountService().retrieveAccount();
+
+        //        this.accountService().retrieveAccount();
       })
       .catch(() => {
         window.console.warn('problem doing OIDC authentication.');
@@ -127,7 +134,11 @@ export default class JhiNavbar extends Vue {
     axios
       .post('oidc/logout')
       .then(result => {
-        window.console.log('OIDC logout successful!');
+        const location = result.headers.location;
+        if (location) {
+          window.console.info('forwarding to OIDC logout url.');
+          window.location.href = location;
+        }
       })
       .catch(() => {
         window.console.warn('problem doing OIDC logout.');

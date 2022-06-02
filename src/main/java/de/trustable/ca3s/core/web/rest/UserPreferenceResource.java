@@ -2,7 +2,7 @@ package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.UserPreference;
 import de.trustable.ca3s.core.service.UserPreferenceService;
-import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
+import de.trustable.ca3s.core.exception.BadRequestAlertException;
 
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.Optional;
 
 /**

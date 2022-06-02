@@ -1,15 +1,13 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.Pipeline;
-import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.PipelineService;
-import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
+import de.trustable.ca3s.core.exception.BadRequestAlertException;
 
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

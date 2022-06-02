@@ -115,7 +115,7 @@ public class ScepServletImpl extends ScepServlet {
         }
 
         try {
-            return pipelineUtil.getSCEPRecipientCertificate(pipeline);
+            return pipelineUtil.getSCEPRecipientCertificate(pipeline, cpUtil);
 
         } catch (GeneralSecurityException | IOException e) {
             throw new ServletException(e);
@@ -286,12 +286,12 @@ public class ScepServletImpl extends ScepServlet {
         List<ProtectedContent> listPC = protectedContentRepository.findByTypeRelationId(ProtectedContentType.PASSWORD, ContentRelationType.SCEP_PW,pipeline.getId());
         for(ProtectedContent pc: listPC){
             String expectedPassword = protectedContentUtil.unprotectString(pc.getContentBase64()).trim();
-//            LOGGER.debug("Pipeline '{}' defined SCEP password '{}'", pipeline.getName(), expectedPassword);
+            LOGGER.debug("Pipeline '{}' defined SCEP password '{}'", pipeline.getName(), expectedPassword);
             if( password.trim().equals(expectedPassword)) {
                 LOGGER.debug("Protected Content found matching SCEP password");
                 return; // the only successful exit !!
-//            } else {
-//                LOGGER.debug("Protected Content password does not match SCEP password '{}' != '{}'", expectedPassword, password);
+            } else {
+                LOGGER.debug("Protected Content password does not match SCEP password '{}' != '{}'", expectedPassword, password);
             }
         }
 

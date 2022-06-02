@@ -57,7 +57,7 @@ const validations: any = {
     AuditTag
   }
 })
-//export default class PipelineUpdate extends Vue {
+// export default class PipelineUpdate extends Vue {
 export default class PipelineUpdate extends mixins(AlertMixin) {
   //  @Inject('alertService') private alertService: () => AlertService;
   @Inject('pipelineViewService') private pipelineViewService: () => PipelineViewService;

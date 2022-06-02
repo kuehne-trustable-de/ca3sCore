@@ -43,7 +43,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.jose4j.jwt.consumer.JwtContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -78,14 +77,24 @@ public class AuthorizationController extends ACMEController {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthorizationController.class);
 
-    @Value("${ca3s.acme.reject.get:true}")
-    boolean rejectGet;
 
-    @Autowired
-    private AcmeAuthorizationRepository authorizationRepository;
+    final private boolean rejectGet;
 
-   @Autowired
-	private HttpServletRequest request;
+    final private ChallengeController challengeController;
+
+    final private AcmeAuthorizationRepository authorizationRepository;
+
+   final private HttpServletRequest request;
+
+    public AuthorizationController(@Value("${ca3s.acme.reject.get:true}") boolean rejectGet,
+                                   ChallengeController challengeController,
+                                   AcmeAuthorizationRepository authorizationRepository,
+                                   HttpServletRequest request) {
+        this.rejectGet = rejectGet;
+        this.challengeController = challengeController;
+        this.authorizationRepository = authorizationRepository;
+        this.request = request;
+    }
 
     @RequestMapping(value = "/{authorizationId}", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAuthorization(@PathVariable final long authorizationId) {
@@ -176,7 +185,9 @@ private AuthorizationResponse buildAuthResponse(final AcmeAuthorization authDao)
 
 	AcmeOrderStatus authStatus = AcmeOrderStatus.PENDING;
 	for( AcmeChallenge challDao: authDao.getChallenges()) {
-		if( challDao.getStatus() == ChallengeStatus.VALID) {
+
+        challengeController.isChallengeSolved(challDao);
+        if( challDao.getStatus() == ChallengeStatus.VALID) {
 			authStatus = AcmeOrderStatus.VALID;
 		}
 	}

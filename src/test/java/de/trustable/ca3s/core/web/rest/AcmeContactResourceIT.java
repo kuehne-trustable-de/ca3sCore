@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for the {@link AcmeContactResource} REST controller.
  */
 @SpringBootTest(classes = Ca3SApp.class)
+@ActiveProfiles("dev")
 public class AcmeContactResourceIT {
 
     private static final Long DEFAULT_CONTACT_ID = 1L;
@@ -196,7 +198,7 @@ public class AcmeContactResourceIT {
             .andExpect(jsonPath("$.[*].contactId").value(hasItem(DEFAULT_CONTACT_ID.intValue())))
             .andExpect(jsonPath("$.[*].contactUrl").value(hasItem(DEFAULT_CONTACT_URL)));
     }
-    
+
     @Test
     @Transactional
     public void getAcmeContact() throws Exception {

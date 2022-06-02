@@ -2,7 +2,7 @@ package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.RDNAttribute;
 import de.trustable.ca3s.core.service.RDNAttributeService;
-import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
+import de.trustable.ca3s.core.exception.BadRequestAlertException;
 
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;

@@ -20,16 +20,20 @@
                         <span v-else-if="creationMode === 'SERVERSIDE_KEY_CREATION'" v-text="$t('pkcsxx.subtitle.serverside')">Upload</span>
                     </h2>
 					<div>
-						<div class="form-group" v-if="authenticated && allWebPipelines && allWebPipelines.length > 0 && (preselectedPipelineId === -1)">
-							<label class="form-control-label" v-text="$t('pkcsxx.upload.pipeline')" for="pkcsxx-pipeline">Pipeline</label> <help-tag target="pkcsxx.upload.pipeline"/>
-							<select class="form-control" id="pkcsxx-pipeline" name="pkcsxx-pipeline" v-model="upload.pipelineId" required v-on:change="updateCurrentPipelineRestrictions()">
-                                <option value="-1" disabled selected hidden v-text="$t('pkcsxx.upload.select.pipeline')">{{$t('pkcsxx.upload.select.pipeline')}}</option>
-								<option v-bind:value="upload && webPipeline.id === upload.pipelineId ? upload.pipelineId : webPipeline.id" v-for="webPipeline in allWebPipelines" :key="webPipeline.id">{{webPipeline.name}}</option>
-							</select>
+                        <Fragment v-if="authenticated && allWebPipelines && allWebPipelines.length > 0">
+                            <div class="form-group" v-if="preselectedPipelineId === -1">
+                                <h3>{{selectPipelineName}}</h3>
+                                <div class="readonly_comment">{{selectPipelineInfo}}</div>
+                            </div>
 
-							<div class="readonly_comment">{{selectPipelineInfo}}</div>
-						</div>
-
+                            <div class="form-group" v-if="preselectedPipelineId > -1">
+                                <select class="form-control" id="pkcsxx-pipeline" name="pkcsxx-pipeline" v-model="upload.pipelineId" required v-on:change="updateCurrentPipelineRestrictions()">
+                                    <option value="-1" disabled selected hidden v-text="$t('pkcsxx.upload.select.pipeline')">{{$t('pkcsxx.upload.select.pipeline')}}</option>
+                                    <option v-bind:value="upload && webPipeline.id === upload.pipelineId ? upload.pipelineId : webPipeline.id" v-for="webPipeline in allWebPipelines" :key="webPipeline.id">{{webPipeline.name}}</option>
+                                </select>
+                                <div class="readonly_comment">{{selectPipelineInfo}}</div>
+                            </div>
+                        </Fragment>
                         <Fragment v-if="upload.pipelineId >= 0">
                             <div class="form-group">
                                 <label class="form-control-label" v-text="$t('pkcsxx.upload.creationMode.selection')" for="pkcsxx-key-creation">Creation mode</label> <help-tag target="pkcsxx.upload.creationMode.selection"/>

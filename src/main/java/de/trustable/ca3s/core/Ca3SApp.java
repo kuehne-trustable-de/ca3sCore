@@ -8,6 +8,15 @@ import de.trustable.ca3s.core.security.provider.Ca3sKeyManagerProvider;
 import de.trustable.ca3s.core.security.provider.Ca3sKeyStoreProvider;
 import de.trustable.ca3s.core.security.provider.TimedRenewalCertMapHolder;
 import de.trustable.util.JCAManager;
+/*
+import io.swagger.v3.oas.models.ExternalDocumentation;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
+
+ */
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import tech.jhipster.config.JHipsterConstants;
 import io.undertow.Undertow;
 import org.apache.commons.lang3.StringUtils;
@@ -148,6 +157,33 @@ public class Ca3SApp implements InitializingBean {
     }
 
  */
+    /*
+    @Bean
+    public OpenAPI springShopOpenAPI() {
+        return new OpenAPI()
+            .info(new Info().title("ca3s REST Documentation")
+                .description("ca3s certificate management application")
+                .version("v0.0.1")
+                .license(new License().name("European Union Public Licence (EUPL-1.2)")
+                    .url("https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12")))
+            .externalDocs(new ExternalDocumentation()
+                .description("ca3s Documentation")
+                .url("https://github.com/kuehne-trustable-de/ca3sCore"));
+    }
+
+
+    @Bean
+    public WebMvcConfigurer webConfigurer() {
+        return new WebMvcConfigurer() {
+
+            @Override
+            public void addResourceHandlers(ResourceHandlerRegistry registry) {
+                registry.addResourceHandler("/swagger-ui/**").addResourceLocations("classpath:/META-INF/resources/webjars/swagger-ui/3.14.2/");
+            }
+        };
+    }
+*/
+
     @Bean
     public TimedRenewalCertMapHolder registerJCEProvider() {
 		JCAManager.getInstance();

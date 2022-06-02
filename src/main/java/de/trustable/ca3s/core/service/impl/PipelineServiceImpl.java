@@ -7,11 +7,10 @@ import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.PipelineService;
 import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.repository.PipelineRepository;
-import de.trustable.ca3s.core.service.exception.IntegrityException;
+import de.trustable.ca3s.core.exception.IntegrityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -48,6 +48,7 @@ import de.trustable.ca3s.core.domain.AcmeAuthorization;
 import de.trustable.ca3s.core.domain.AcmeOrder;
 import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 import de.trustable.ca3s.core.repository.AcmeOrderRepository;
+import de.trustable.ca3s.core.service.AuditService;
 import org.jose4j.jwt.consumer.JwtContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,16 +99,19 @@ public class ChallengeController extends ACMEController {
 
     private final SimpleResolver dnsResolver;
 
+    private final AuditService auditService;
+
     public ChallengeController(AcmeChallengeRepository challengeRepository,
                                AcmeOrderRepository orderRepository,
                                PreferenceUtil preferenceUtil,
                                @Value("${ca3s.dns.server:}") String resolverHost,
-                               @Value("${ca3s.dns.port:53}") int resolverPort) throws UnknownHostException {
+                               @Value("${ca3s.dns.port:53}") int resolverPort, AuditService auditService) throws UnknownHostException {
         this.challengeRepository = challengeRepository;
         this.orderRepository = orderRepository;
         this.preferenceUtil = preferenceUtil;
 
         this.dnsResolver = new SimpleResolver(resolverHost);
+        this.auditService = auditService;
         this.dnsResolver.setPort(resolverPort);
         LOG.info("Applying default DNS resolver {}", this.dnsResolver.getAddress());
     }
@@ -168,44 +172,11 @@ public class ChallengeController extends ACMEController {
                 if(!order.getAccount().getAccountId().equals(acctDao.getAccountId())) {
                     LOG.warn("Account of signing key {} does not match account id {} associated to given challenge{}", acctDao.getAccountId(), challengeDao.getAcmeAuthorization().getOrder().getAccount().getAccountId(), challengeId);
                     final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "Account / Auth mismatch",
-                            BAD_REQUEST, "", ACMEController.NO_INSTANCE);
+                        BAD_REQUEST, "", ACMEController.NO_INSTANCE);
                     throw new AcmeProblemException(problem);
                 }
 
-                LOG.debug( "checking challenge {}", challengeDao.getId());
-
-                boolean solved = false;
-                ChallengeStatus newChallengeState = null;
-                if( AcmeChallenge.CHALLENGE_TYPE_HTTP_01.equals(challengeDao.getType())) {
-                    if (checkChallengeHttp(challengeDao)) {
-                        newChallengeState = ChallengeStatus.VALID;
-                        solved = true;
-                    } else {
-                        newChallengeState = ChallengeStatus.INVALID;
-                    }
-                }else if( AcmeChallenge.CHALLENGE_TYPE_DNS_01.equals(challengeDao.getType())){
-                    if (checkChallengeDNS(challengeDao)) {
-                        newChallengeState = ChallengeStatus.VALID;
-                        solved = true;
-                    } else {
-                        newChallengeState = ChallengeStatus.INVALID;
-                    }
-                }else{
-                    LOG.warn("Unexpected type '{}' of challenge{}", challengeDao.getType(), challengeId);
-                }
-
-                if( newChallengeState != null) {
-                    ChallengeStatus oldChallengeState = challengeDao.getStatus();
-                    if(!oldChallengeState.equals(newChallengeState)) {
-                        challengeDao.setStatus(newChallengeState);
-                        challengeDao.setValidated(Instant.now());
-                        challengeRepository.save(challengeDao);
-
-                        LOG.debug("{} challengeDao set to '{}' at {}", challengeDao.getType(), challengeDao.getStatus().toString(), challengeDao.getValidated());
-                    }
-                }
-
-                alignOrderState(order);
+                boolean solved = isChallengeSolved(challengeDao);
 
                 ChallengeResponse challenge = buildChallengeResponse(challengeDao);
 
@@ -221,6 +192,46 @@ public class ChallengeController extends ACMEController {
         } catch (AcmeProblemException e) {
             return buildProblemResponseEntity(e);
         }
+    }
+
+    public boolean isChallengeSolved(AcmeChallenge challengeDao) {
+
+        LOG.debug( "checking challenge {}", challengeDao.getId());
+
+        boolean solved = false;
+        ChallengeStatus newChallengeState = null;
+        if( AcmeChallenge.CHALLENGE_TYPE_HTTP_01.equals(challengeDao.getType())) {
+            if (checkChallengeHttp(challengeDao)) {
+                newChallengeState = ChallengeStatus.VALID;
+                solved = true;
+            } else {
+                newChallengeState = ChallengeStatus.INVALID;
+            }
+        }else if( AcmeChallenge.CHALLENGE_TYPE_DNS_01.equals(challengeDao.getType())){
+            if (checkChallengeDNS(challengeDao)) {
+                newChallengeState = ChallengeStatus.VALID;
+                solved = true;
+            } else {
+                newChallengeState = ChallengeStatus.INVALID;
+            }
+        }else{
+            LOG.warn("Unexpected type '{}' of challenge{}", challengeDao.getType(), challengeDao.getId());
+        }
+
+        if( newChallengeState != null) {
+            ChallengeStatus oldChallengeState = challengeDao.getStatus();
+            if(!oldChallengeState.equals(newChallengeState)) {
+                challengeDao.setStatus(newChallengeState);
+                challengeDao.setValidated(Instant.now());
+                challengeRepository.save(challengeDao);
+
+                LOG.debug("{} challengeDao set to '{}' at {}", challengeDao.getType(), challengeDao.getStatus().toString(), challengeDao.getValidated());
+            }
+        }
+
+        alignOrderState(challengeDao.getAcmeAuthorization().getOrder());
+
+        return solved;
     }
 
     void alignOrderState(AcmeOrder orderDao){
@@ -261,7 +272,10 @@ public class ChallengeController extends ACMEController {
         }
         if( orderReady ){
           LOG.debug("order status set to READY" );
-          orderDao.setStatus(AcmeOrderStatus.READY);
+            auditService.saveAuditTrace(
+                auditService.createAuditTraceACMEOrderSucceeded(orderDao.getAccount(), orderDao));
+
+            orderDao.setStatus(AcmeOrderStatus.READY);
           orderRepository.save(orderDao);
         }
     }
@@ -344,6 +358,7 @@ public class ChallengeController extends ACMEController {
 
 		}
 
+        AcmeOrder acmeOrder = challengeDao.getAcmeAuthorization().getOrder();
 	    String token = challengeDao.getToken();
 	    String pkThumbprint = challengeDao.getAcmeAuthorization().getOrder().getAccount().getPublicKeyHash();
         String expectedContent = token + '.' + pkThumbprint;
@@ -351,6 +366,7 @@ public class ChallengeController extends ACMEController {
 	    String fileNamePath = "/.well-known/acme-challenge/" + token;
 	    String host = challengeDao.getAcmeAuthorization().getValue();
 
+        String ioExceptionMsg = "";
 	    for( int port: ports) {
 
 		    try {
@@ -391,16 +407,36 @@ public class ChallengeController extends ACMEController {
 				LOG.debug("read challenge response: " + actualContent);
 				LOG.debug("expected content: '{}'", expectedContent);
 
-				return ( expectedContent.equals( actualContent));
+                boolean matches = expectedContent.equals( actualContent);
+
+                if(matches) {
+                    auditService.saveAuditTrace(
+                        auditService.createAuditTraceACMEChallengeSucceeded(acmeOrder.getAccount(), acmeOrder,
+                            "challenge response matches at host '" + host + ":" + port + "'"));
+                }else{
+                    auditService.saveAuditTrace(
+                        auditService.createAuditTraceACMEChallengeFailed(acmeOrder.getAccount(), acmeOrder,
+                            "challenge response mismatch at host '" + host + ":" + port + "'"));
+                }
+                LOG.debug("expected content: '{}'", expectedContent);
+
+				return matches;
 
 		    } catch(UnknownHostException uhe) {
 				LOG.debug("unable to resolve hostname ", uhe);
-				return false;
+                auditService.saveAuditTrace(
+                    auditService.createAuditTraceACMEChallengeFailed(acmeOrder.getAccount(), acmeOrder, "unable to resolve hostname '" + host + "'"));
+                return false;
 		    } catch(IOException ioe) {
-				LOG.info("problem reading challenge response on {}:{} for {} : {}", host, port, challengeDao.getId(), ioe.getMessage());
+                ioExceptionMsg += "unable to read challenge response on '" + host + ":" + port + "' ";
+				LOG.info("problem reading challenge response on {}:{} for challenge id {} : {}", host, port, challengeDao.getId(), ioe.getMessage());
 				LOG.debug("exception occurred reading challenge response", ioe);
 		    }
 	    }
+
+//        auditService.saveAuditTrace(
+//            auditService.createAuditTraceACMEChallengeFailed(acmeOrder.getAccount(), acmeOrder, ioExceptionMsg));
+
 		return false;
 	}
 

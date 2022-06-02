@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.web.rest;
 
 
 import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.exception.PasswordRestrictionMismatch;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.security.SecurityUtils;
 import de.trustable.ca3s.core.service.MailService;
@@ -9,11 +10,12 @@ import de.trustable.ca3s.core.service.UserService;
 import de.trustable.ca3s.core.service.dto.Languages;
 import de.trustable.ca3s.core.service.dto.PasswordChangeDTO;
 import de.trustable.ca3s.core.service.dto.UserDTO;
-import de.trustable.ca3s.core.web.rest.errors.*;
+import de.trustable.ca3s.core.web.rest.errors.EmailAlreadyUsedException;
+import de.trustable.ca3s.core.web.rest.errors.EmailNotFoundException;
+import de.trustable.ca3s.core.web.rest.errors.InvalidPasswordException;
+import de.trustable.ca3s.core.web.rest.errors.LoginAlreadyUsedException;
 import de.trustable.ca3s.core.web.rest.vm.KeyAndPasswordVM;
 import de.trustable.ca3s.core.web.rest.vm.ManagedUserVM;
-
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.*;
+import java.util.Optional;
 
 /**
  * REST controller for managing the current user's account.
@@ -73,9 +75,8 @@ public class AccountResource {
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public void registerAccount(@Valid @RequestBody ManagedUserVM managedUserVM) throws MessagingException {
-        if (!checkPasswordLength(managedUserVM.getPassword())) {
-            throw new InvalidPasswordException();
-        }
+        checkPasswordLength(managedUserVM.getPassword());
+
         User user = userService.registerUser(managedUserVM, managedUserVM.getPassword());
         mailService.sendActivationEmail(user);
     }
@@ -163,9 +164,8 @@ public class AccountResource {
      */
     @PostMapping(path = "/account/change-password")
     public void changePassword(@RequestBody PasswordChangeDTO passwordChangeDto) {
-        if (!checkPasswordLength(passwordChangeDto.getNewPassword())) {
-            throw new InvalidPasswordException();
-        }
+        checkPasswordLength(passwordChangeDto.getNewPassword());
+
         userService.changePassword(passwordChangeDto.getCurrentPassword(), passwordChangeDto.getNewPassword());
     }
 
@@ -192,9 +192,8 @@ public class AccountResource {
      */
     @PostMapping(path = "/account/reset-password/finish")
     public void finishPasswordReset(@RequestBody KeyAndPasswordVM keyAndPassword) {
-        if (!checkPasswordLength(keyAndPassword.getNewPassword())) {
-            throw new InvalidPasswordException();
-        }
+        checkPasswordLength(keyAndPassword.getNewPassword());
+
         Optional<User> user =
             userService.completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey());
 
@@ -203,9 +202,12 @@ public class AccountResource {
         }
     }
 
-    private static boolean checkPasswordLength(String password) {
-        return !StringUtils.isEmpty(password) &&
-            password.length() >= ManagedUserVM.PASSWORD_MIN_LENGTH &&
-            password.length() <= ManagedUserVM.PASSWORD_MAX_LENGTH;
+    private void  checkPasswordLength(String password) {
+        try {
+            userService.checkPassword(password);
+        }catch(PasswordRestrictionMismatch passwordRestrictionMismatch){
+            throw new InvalidPasswordException();
+        }
+
     }
 }

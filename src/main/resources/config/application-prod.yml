@@ -162,6 +162,10 @@ jhipster:
   audit-events:
     retention-period: 30 # Number of days before audit events are deleted.
 
+springdoc:
+  packagesToScan: de.trustable.ca3s.core.web.rest
+  pathsToMatch: /v1, /api/**
+
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class
@@ -223,6 +227,10 @@ ca3s:
 #    en: /var/help/custom_help_en.md
 #    de: /var/help/custom_help_de.md
 
+    password:
+      check:
+#        regexp: ^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,100}$
+        regexp: ^(?:(?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))(?!.*(.)\1{2,})[A-Za-z0-9!~<>,;:_=?*+#.”&§%°()\|\[\]\-\$\^\@\/]{8,32}$
 
     sso:
       autologin: false
@@ -262,9 +270,12 @@ ca3s:
 # check your configuration with e.g.
 # http://keycloak-server/auth/realms/ca3sRealm/.well-known/openid-configuration
   oidc:
+    # list comma separated list of oidc roles applicable for given authorities
     roles:
+      user: '*'
+      domainra:
       ra: ROLE_RA
-#      admin: uma_authorization
+      admin:
 
     client-id: ca3s
     client-secret: 197bc3b4-64b0-452f-9bdb-fcaea0988e90

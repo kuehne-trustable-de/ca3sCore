@@ -21,8 +21,8 @@ public class Preferences implements Serializable {
 
     private int[] acmeHTTP01CallbackPortArr = {5544,8080,80};
 
-    private String[] selectedHashes = {"sha256", "sha512"};
-    private String[] selectedSigningAlgos = {"rsa3072","rsa4096", "rsa8192"};
+    private String[] selectedHashes = {"sha-256", "sha-512"};
+    private String[] selectedSigningAlgos = {"rsa-2048","rsa-3072","rsa-4096", "rsa-8192"};
 
 
 	public Preferences() {}

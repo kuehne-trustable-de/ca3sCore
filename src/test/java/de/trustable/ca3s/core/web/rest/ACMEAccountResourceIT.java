@@ -23,6 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +39,7 @@ import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
  * Integration tests for the {@link ACMEAccountResource} REST controller.
  */
 @SpringBootTest(classes = Ca3SApp.class)
+@ActiveProfiles("dev")
 public class ACMEAccountResourceIT {
 
     private static final Long DEFAULT_ACCOUNT_ID = 1L;
@@ -257,7 +259,7 @@ public class ACMEAccountResourceIT {
         // Get all the aCMEAccountList
         restACMEAccountMockMvc.perform(get("/api/acme-accounts?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+//            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(aCMEAccount.getId().intValue())))
             .andExpect(jsonPath("$.[*].accountId").value(hasItem(DEFAULT_ACCOUNT_ID.intValue())))
             .andExpect(jsonPath("$.[*].realm").value(hasItem(DEFAULT_REALM)))
@@ -266,7 +268,7 @@ public class ACMEAccountResourceIT {
             .andExpect(jsonPath("$.[*].publicKeyHash").value(hasItem(DEFAULT_PUBLIC_KEY_HASH)))
             .andExpect(jsonPath("$.[*].publicKey").value(hasItem(DEFAULT_PUBLIC_KEY.toString())));
     }
-    
+
     @Test
     @Transactional
     public void getACMEAccount() throws Exception {
@@ -276,7 +278,7 @@ public class ACMEAccountResourceIT {
         // Get the aCMEAccount
         restACMEAccountMockMvc.perform(get("/api/acme-accounts/{id}", aCMEAccount.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+//            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(aCMEAccount.getId().intValue()))
             .andExpect(jsonPath("$.accountId").value(DEFAULT_ACCOUNT_ID.intValue()))
             .andExpect(jsonPath("$.realm").value(DEFAULT_REALM))

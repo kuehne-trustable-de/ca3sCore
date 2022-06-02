@@ -7,7 +7,7 @@ import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.MailService;
 import de.trustable.ca3s.core.service.UserService;
 import de.trustable.ca3s.core.service.dto.UserDTO;
-import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
+import de.trustable.ca3s.core.exception.BadRequestAlertException;
 import de.trustable.ca3s.core.web.rest.errors.EmailAlreadyUsedException;
 import de.trustable.ca3s.core.web.rest.errors.LoginAlreadyUsedException;
 

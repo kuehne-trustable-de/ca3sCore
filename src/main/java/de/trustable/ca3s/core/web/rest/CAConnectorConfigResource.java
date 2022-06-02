@@ -14,7 +14,7 @@ import de.trustable.ca3s.core.service.dto.CAConnectorStatus;
 import de.trustable.ca3s.core.service.dto.CAStatus;
 import de.trustable.ca3s.core.service.util.CaConnectorAdapter;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
-import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
+import de.trustable.ca3s.core.exception.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

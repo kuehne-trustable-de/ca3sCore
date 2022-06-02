@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -42,6 +43,7 @@ import de.trustable.ca3s.core.domain.enumeration.Interval;
  */
 @SpringBootTest(classes = Ca3SApp.class)
 @ExtendWith(SpringExtension.class)
+@ActiveProfiles("dev")
 public class CAConnectorConfigResourceIT {
 
     private static final String DEFAULT_NAME = "AAAAAAAAAA";

@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.Ca3SApp;
+import org.springframework.test.context.ActiveProfiles;
 import tech.jhipster.config.JHipsterProperties;
 import de.trustable.ca3s.core.config.audit.AuditEventConverter;
 import de.trustable.ca3s.core.domain.PersistentAuditEvent;
@@ -33,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @SpringBootTest(classes = Ca3SApp.class)
 @Transactional
+@ActiveProfiles("dev")
 public class AuditResourceIT {
 
     private static final String SAMPLE_PRINCIPAL = "SAMPLE_PRINCIPAL";

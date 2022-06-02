@@ -105,7 +105,6 @@ public class ACMERestrictionsIT {
 		// request mismatching restrictions
 		// #########################
 
-
 		{
 			Order order = account.newOrder()
 			        .domains("localhost")
@@ -153,6 +152,7 @@ public class ACMERestrictionsIT {
 				order.execute(csr);
 				Assertions.fail("AcmeException due to restriction violation expected");
 			}catch(AcmeServerException ase) {
+                ase.printStackTrace();
 				// as expected
 			}
 

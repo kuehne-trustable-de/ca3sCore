@@ -26,7 +26,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.service.CertificateService;
-import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
+import de.trustable.ca3s.core.exception.BadRequestAlertException;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
