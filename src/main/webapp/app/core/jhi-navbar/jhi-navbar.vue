@@ -14,7 +14,7 @@
             </b-navbar-brand>
         </div>
 
-        <b-collapse is-nav id="header-tabs">
+        <b-collapse v-if="showNavBar" is-nav id="header-tabs">
             <b-navbar-nav class="ml-auto">
 
                 <b-nav-item to="/" exact>

@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.NamedQuery;
+
 
 /**
  * Spring Data  repository for the CSR entity.
@@ -26,6 +28,9 @@ public interface CSRRepository extends JpaRepository<CSR, Long> {
 
     @Query(name = "CSR.findPendingByDay")
     List<CSR> findPendingByDay(@Param("after") Instant after, @Param("before") Instant before);
+
+    @Query(name = "CSR.findByRequestor")
+    List<CSR> findByRequestor(@Param("requestor") String requestor);
 
     @Query(name = "CSR.findPendingGroupedByDay")
     List<CSR> findPendingGroupedByDay(@Param("after") Instant after, @Param("before") Instant before);

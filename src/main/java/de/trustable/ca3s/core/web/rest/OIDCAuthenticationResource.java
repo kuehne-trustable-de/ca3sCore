@@ -1,8 +1,6 @@
 package de.trustable.ca3s.core.web.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.trustable.ca3s.core.security.KeycloakUserDetails;
 import de.trustable.ca3s.core.security.OIDCRestService;
 import de.trustable.ca3s.core.security.jwt.JWTFilter;
@@ -28,16 +26,19 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.openid.OpenIDAttribute;
 import org.springframework.security.openid.OpenIDAuthenticationToken;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * REST controller for managing the current user login using KeyCloak.
@@ -45,6 +46,12 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/oidc")
 public class OIDCAuthenticationResource {
+
+    public static final String INITIAL_URI_PARAM_NAME = "initialUri";
+    public static final String REDIRECT_URI_PARAM_PATH = "path";
+    public static final String PIPELINE_ID = "pipelineId";
+    public static final String CERTIFICATE_ID = "certificateId";
+    public static final String CSR_ID = "csrId";
 
     private final Logger log = LoggerFactory.getLogger(OIDCAuthenticationResource.class);
 
@@ -113,28 +120,27 @@ public class OIDCAuthenticationResource {
             // not authenticated, yet
             log.info("Not authenticated, forwarding");
 
-            ServletUriComponentsBuilder servletUriComponentsBuilder = ServletUriComponentsBuilder.fromRequestUri(request);
+            ServletUriComponentsBuilder redirectUriBuilder = ServletUriComponentsBuilder.fromRequestUri(request);
             String redirectUrlPart = "/../code";
             if( "implicit".equalsIgnoreCase(this.flowType)){
                 redirectUrlPart = "../../..";
             }
-            String redirectCodeUri = servletUriComponentsBuilder.path(redirectUrlPart).build().normalize().toString();
 
-            KeycloakUriBuilder builder = deployment.getAuthUrl().clone()
+            KeycloakUriBuilder locationUrlBuilder = deployment.getAuthUrl().clone()
                 .queryParam(OAuth2Constants.CLIENT_ID, deployment.getResourceName())
-                .queryParam(OAuth2Constants.REDIRECT_URI, redirectCodeUri)
                 .queryParam(OAuth2Constants.SCOPE, OAuth2Constants.SCOPE_OPENID)
                 ;
 
             if( "implicit".equalsIgnoreCase(this.flowType)){
-                builder
+                locationUrlBuilder
                     .queryParam(OAuth2Constants.RESPONSE_TYPE, OAuth2Constants.TOKEN)
                     .queryParam("nonce", "" + System.currentTimeMillis());
             }else{
-                builder
-                    .queryParam(OAuth2Constants.RESPONSE_TYPE, OAuth2Constants.CODE)
-                    .queryParam(OAuth2Constants.STATE, UUID.randomUUID().toString());
+                locationUrlBuilder
+                    .queryParam(OAuth2Constants.RESPONSE_TYPE, OAuth2Constants.CODE);
             }
+
+            String state = "";
 
             for( String key: allParams.keySet()){
                 if( !key.equalsIgnoreCase(OAuth2Constants.CLIENT_ID) &&
@@ -142,20 +148,71 @@ public class OIDCAuthenticationResource {
                     !key.equalsIgnoreCase(OAuth2Constants.SCOPE) &&
                     !key.equalsIgnoreCase(OAuth2Constants.STATE) &&
                     !key.equalsIgnoreCase(OAuth2Constants.RESPONSE_TYPE) &&
+                    !key.equalsIgnoreCase(OAuth2Constants.RESPONSE_TYPE) &&
                     !key.equalsIgnoreCase("nonce")){
 
-                    log.debug("passing query parameter '{}' with value '{}' as redirect uri", key, allParams.get(key));
-                    builder.queryParam(key, allParams.get(key));
+                    if( allParams.containsKey(INITIAL_URI_PARAM_NAME)){
+                        String intialUriValue = allParams.get(INITIAL_URI_PARAM_NAME);
+                        if( !intialUriValue.trim().isEmpty()) {
+                            log.debug("initialUri defined as '{}'", intialUriValue);
+
+                            try {
+                                URL intialUriAsUrl = new URL(intialUriValue);
+                                String path = intialUriAsUrl.getPath();
+                                log.debug("initialUri has path '{}'",path);
+                                log.debug("initialUri has query '{}'",intialUriAsUrl.getQuery());
+
+                                if(path.equals("/pkcsxx") ||
+                                    path.equals("/requestCertificate") ||
+                                    path.equals("/cert-info")||
+                                    path.equals("/csr-info")){
+                                    if( !state.isEmpty()){
+                                        state += "&";
+                                    }
+                                    state += REDIRECT_URI_PARAM_PATH + "=" + path;
+                                }
+
+                                MultiValueMap<String, String> parameters =
+                                    UriComponentsBuilder.fromUriString(intialUriValue).build().getQueryParams();
+                                for( String paramKey: parameters.keySet()){
+                                    if( paramKey.equals(PIPELINE_ID) ||
+                                        paramKey.equals(CSR_ID)||
+                                        paramKey.equals(CERTIFICATE_ID)){
+                                        if( !state.isEmpty()){
+                                            state += "&";
+                                        }
+                                        state += paramKey + "=" + parameters.toSingleValueMap().get(paramKey);
+                                    }
+                                }
+                            } catch (MalformedURLException e) {
+                                log.info("unparsable initialUri detected", e);
+                            }
+                        }
+                    }else {
+
+                        log.debug("passing query parameter '{}' with value '{}' as redirect uri", key, allParams.get(key));
+                        locationUrlBuilder.queryParam(key, allParams.get(key));
+                    }
                 }
             }
 
-            String redirectUrl = builder.build().toString();
-            log.info("redirectUrl : '{}'", redirectUrl);
+            if( state.isEmpty()) {
+//                locationUrlBuilder.queryParam(OAuth2Constants.STATE, UUID.randomUUID().toString());
+            }else{
+                locationUrlBuilder.queryParam(OAuth2Constants.STATE, state);
+                log.info("state : '{}'", state);
+            }
+
+            String redirectCodeUri = redirectUriBuilder.path(redirectUrlPart).build().normalize().toString();
+            locationUrlBuilder.queryParam(OAuth2Constants.REDIRECT_URI, redirectCodeUri);
+
+            String locationUrl = locationUrlBuilder.build().toString();
+            log.info("locationUrl : '{}'", locationUrl);
 
             httpHeaders.add("Access-Control-Allow-Origin", "*");
             httpHeaders.add("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS");
             httpHeaders.add("Access-Control-Allow-Headers", "Origin, Content-Type, X-Auth-Token");
-            httpHeaders.add("Location", redirectUrl);
+            httpHeaders.add("Location", locationUrl);
             return new ResponseEntity<>(httpHeaders, HttpStatus.OK);
         }
 
@@ -165,8 +222,10 @@ public class OIDCAuthenticationResource {
 
     @GetMapping(value={"/code", "/code/"})
     public ResponseEntity<String> getCode(HttpServletRequest request,
-                                          @RequestParam(required = false, name = "code") String code,
-                                          @RequestParam(required = false, name = "accessToken") String accessToken) {
+                                          @RequestParam Map<String,String> allParams){
+
+        String code = allParams.get("code");
+        String accessToken = allParams.get("accessToken");
 
         log.debug("getCode() code : '{}', accessToken '{}'", code, accessToken);
 
@@ -177,8 +236,13 @@ public class OIDCAuthenticationResource {
 
         try {
             if( accessToken == null || accessToken.trim().isEmpty()){
-                ServletUriComponentsBuilder servletUriComponentsBuilder = ServletUriComponentsBuilder.fromRequestUri(request);
-                String redirectUri = servletUriComponentsBuilder.path("/../code").build().normalize().toString();
+                ServletUriComponentsBuilder redirectUriBuilder = ServletUriComponentsBuilder.fromRequestUri(request);
+                String redirectUri = redirectUriBuilder.build().normalize().toString();
+
+//                ServletUriComponentsBuilder redirectUriBuilder = ServletUriComponentsBuilder.fromRequestUri(request);
+//                String redirectUri = redirectUriBuilder.path("/../code").build().normalize().toString();
+                log.debug("getCode() redirectUri is '{}'", redirectUri);
+
 
                 String token = oidcRestService.exchangeCodeToToken(deployment.getTokenUrl(), code, redirectUri);
                 log.debug("getCode() code : '{}', token was '{}'", code, token);
@@ -189,7 +253,8 @@ public class OIDCAuthenticationResource {
                 KeycloakUserDetails keycloakUserDetails = oidcRestService.getUserInfo(userinfoURL, token);
 
                 if (keycloakUserDetails != null) {
-                    return buildAndForwardJWT(servletUriComponentsBuilder, keycloakUserDetails);
+                    ServletUriComponentsBuilder servletUriComponentsBuilder = ServletUriComponentsBuilder.fromRequestUri(request);
+                    return buildAndForwardJWT(servletUriComponentsBuilder, keycloakUserDetails, allParams);
                 } else {
                     log.info("keycloakUserDetails == null, token was '{}'", token);
                 }
@@ -207,7 +272,10 @@ public class OIDCAuthenticationResource {
     }
 
     @NotNull
-    private ResponseEntity<String> buildAndForwardJWT(ServletUriComponentsBuilder servletUriComponentsBuilder, KeycloakUserDetails keycloakUserDetails) {
+    private ResponseEntity<String> buildAndForwardJWT(ServletUriComponentsBuilder servletUriComponentsBuilder,
+                                                      KeycloakUserDetails keycloakUserDetails,
+                                                      final Map<String,String> allParams) {
+
         SecurityContext securityContext = SecurityContextHolder.getContext();
         log.info("Current authentication in SecurityContext: " + securityContext.getAuthentication());
 
@@ -225,7 +293,31 @@ public class OIDCAuthenticationResource {
         String jwt = tokenProvider.createToken(authentication, false);
 
         HttpHeaders httpHeaders = new HttpHeaders();
-        String startUri = servletUriComponentsBuilder.path("/../..").queryParam("bearer", jwt).build().normalize().toString();
+        UriComponentsBuilder builder = servletUriComponentsBuilder.path("/../..");
+
+        if( allParams.containsKey(OAuth2Constants.STATE)) {
+            String state = allParams.get(OAuth2Constants.STATE);
+            log.debug("invocation state = '{}'", state);
+            for( String part: state.split("&")){
+                if( part.startsWith(REDIRECT_URI_PARAM_PATH)){
+                    builder.path(part.substring(REDIRECT_URI_PARAM_PATH.length()+1));
+                }
+                if( part.startsWith(PIPELINE_ID)){
+                    builder.queryParam(PIPELINE_ID, part.substring(PIPELINE_ID.length()+1));
+                }
+                if( part.startsWith(CERTIFICATE_ID)){
+                    builder.queryParam(CERTIFICATE_ID, part.substring(CERTIFICATE_ID.length()+1));
+                }
+                if( part.startsWith(CSR_ID)){
+                    builder.queryParam(CSR_ID, part.substring(CSR_ID.length()+1));
+                }
+
+            }
+        }
+
+        builder.queryParam("bearer", jwt);
+        String startUri = builder.build().normalize().toString();
+        log.debug("startUri : '{}'", startUri);
 
         httpHeaders.add("Location", startUri);
         httpHeaders.add(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
@@ -234,7 +326,8 @@ public class OIDCAuthenticationResource {
 
     @GetMapping(value={"/tokenImplicit"})
     public ResponseEntity<String> getToken(HttpServletRequest request,
-                                        @RequestParam(required = false, name = "access_token") String access_token) {
+                                        @RequestParam(required = false, name = "access_token") String access_token,
+                                        @RequestParam Map<String,String> allParams) {
 
         log.debug("getToken(): retrieved token '{}'", access_token);
 
@@ -257,7 +350,7 @@ public class OIDCAuthenticationResource {
 
                 if (keycloakUserDetails != null) {
                     ServletUriComponentsBuilder servletUriComponentsBuilder = ServletUriComponentsBuilder.fromRequestUri(request);
-                    return buildAndForwardJWT(servletUriComponentsBuilder, keycloakUserDetails);
+                    return buildAndForwardJWT(servletUriComponentsBuilder, keycloakUserDetails, allParams);
                 } else {
                     log.info("keycloakUserDetails == null, token was '{}'", access_token);
                 }

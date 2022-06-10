@@ -21,12 +21,14 @@
                     </h2>
 					<div>
                         <Fragment v-if="authenticated && allWebPipelines && allWebPipelines.length > 0">
-                            <div class="form-group" v-if="preselectedPipelineId === -1">
+                            <!-- if there is a preselected pipeline, show the name and the description -->
+                            <div class="form-group" v-if="preselectedPipelineId > -1">
                                 <h3>{{selectPipelineName}}</h3>
                                 <div class="readonly_comment">{{selectPipelineInfo}}</div>
                             </div>
 
-                            <div class="form-group" v-if="preselectedPipelineId > -1">
+                            <!-- if there is no preselected pipeline, show the pipeline selection box and the related description -->
+                            <div class="form-group" v-if="preselectedPipelineId === -1">
                                 <select class="form-control" id="pkcsxx-pipeline" name="pkcsxx-pipeline" v-model="upload.pipelineId" required v-on:change="updateCurrentPipelineRestrictions()">
                                     <option value="-1" disabled selected hidden v-text="$t('pkcsxx.upload.select.pipeline')">{{$t('pkcsxx.upload.select.pipeline')}}</option>
                                     <option v-bind:value="upload && webPipeline.id === upload.pipelineId ? upload.pipelineId : webPipeline.id" v-for="webPipeline in allWebPipelines" :key="webPipeline.id">{{webPipeline.name}}</option>
@@ -34,6 +36,8 @@
                                 <div class="readonly_comment">{{selectPipelineInfo}}</div>
                             </div>
                         </Fragment>
+
+                        <!-- show the input section when a pipeline is selected -->
                         <Fragment v-if="upload.pipelineId >= 0">
                             <div class="form-group">
                                 <label class="form-control-label" v-text="$t('pkcsxx.upload.creationMode.selection')" for="pkcsxx-key-creation">Creation mode</label> <help-tag target="pkcsxx.upload.creationMode.selection"/>
@@ -246,28 +250,28 @@
                                 </div>
                             </div>
 
-                        <div class="form-group" v-if="(creationMode === 'CSR_AVAILABLE') " >
-							<!--label class="form-control-label" v-text="$t('pkcsxx.upload.content')" for="upload-content">Content</label-->
-							<div>
-								<label v-if="(creationMode === 'CSR_AVAILABLE') "
-									class="form-control-label" v-text="$t('pkcsxx.upload.fileSelectorCSR')" for="fileSelector">Select a CSR</label>
-								<label v-if="(creationMode === 'COMMANDLINE_TOOL') || (creationMode === 'SERVERSIDE_KEY_CREATION')"
-									class="form-control-label" v-text="$t('pkcsxx.upload.fileSelectorCertificate')" for="fileSelector">Select a certificate</label>
-								<input type="file" id="fileSelector" ref="fileSelector" name="fileSelector" @change="notifyFileChange" />
-							</div>
-							<textarea class="form-control pem-content draggable" name="content" id="upload-content"
-								autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-								v-model="upload.content"  required
-								v-on:input="notifyChange"/>
+                            <div class="form-group" v-if="(creationMode === 'CSR_AVAILABLE') " >
+							    <!--label class="form-control-label" v-text="$t('pkcsxx.upload.content')" for="upload-content">Content</label-->
+                                <div>
+                                    <label v-if="(creationMode === 'CSR_AVAILABLE') "
+                                        class="form-control-label" v-text="$t('pkcsxx.upload.fileSelectorCSR')" for="fileSelector">Select a CSR</label>
+                                    <label v-if="(creationMode === 'COMMANDLINE_TOOL') || (creationMode === 'SERVERSIDE_KEY_CREATION')"
+                                        class="form-control-label" v-text="$t('pkcsxx.upload.fileSelectorCertificate')" for="fileSelector">Select a certificate</label>
+                                    <input type="file" id="fileSelector" ref="fileSelector" name="fileSelector" @change="notifyFileChange" />
+                                </div>
+                                <textarea class="form-control pem-content draggable" name="content" id="upload-content"
+                                    autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                    v-model="upload.content"  required
+                                    v-on:input="notifyChange"/>
 	<!--
 									v-model="$v.upload.content.$model"  required
 	-->
 
-							<!--div v-if="$v.upload.content.$anyDirty && $v.upload.content.$invalid">
-								<small class="form-text text-danger" v-if="!$v.upload.content.required" v-text="$t('entity.validation.required')">
-									This field is required.
-								</small>
-							</div-->
+                                <!--div v-if="$v.upload.content.$anyDirty && $v.upload.content.$invalid">
+                                    <small class="form-text text-danger" v-if="!$v.upload.content.required" v-text="$t('entity.validation.required')">
+                                        This field is required.
+                                    </small>
+                                </div-->
 
                             </div>
 
@@ -278,7 +282,6 @@
                                     v-model="upload.passphrase" v-on:input="notifyChange"/>
                                     <!-- v-model="$v.upload.passphrase.$model" v-on:input="notifyChange"/-->
                             </div>
-
                         </Fragment>
 
                         <dl class="row jh-entity-details" v-if="responseStatus > 0">

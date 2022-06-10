@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.persistence.NamedQuery;
 
+import de.trustable.ca3s.core.domain.CSR;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
@@ -99,9 +100,7 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
     List<String> findCrlURLForActiveCertificates();
 
     @Query(name = "Certificate.findActiveCertificateBySerial")
-    List<Certificate> findActiveCertificateBySerial(
-        @Param("serial") String serial
-    );
+    List<Certificate> findActiveCertificateBySerial( @Param("serial") String serial );
 
     @Query(name = "Certificate.findTimestampNotExistForCA")
 	  List<Certificate> findTimestampNotExistForCA(@Param("caName") String caName, @Param("timestamp") String timestamp);
@@ -111,4 +110,8 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
 
     @Query(name = "Certificate.findActiveTLSCertificate")
     List<Certificate> findActiveTLSCertificate();
+
+    @Query(name = "Certificate.findByRequestor")
+    List<Certificate> findByRequestor(@Param("requestor") String requestor);
+
 }

@@ -28,7 +28,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
   public certificateView: ICertificateView = {};
   public certificateAdminData: ICertificateAdministrationData = {};
   public p12Alias = 'alias';
-  public p12Pbe = this.$store.state.uiConfigStore.config.cryptoConfigView.defaultPBEAlgo;
+  public p12Pbe = 'aes-sha256';
   public p12KeyEx = false;
   public downloadFormat = 'pkix';
 
@@ -37,10 +37,20 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
     this.collapsed = collapsed;
   }
 
-  public getP12PbeAlgoArr(): string[] {
-    if (!this.p12Pbe) {
-      this.p12Pbe = this.$store.state.uiConfigStore.config.cryptoConfigView.defaultPBEAlgo;
+  public getRevocationStyle(revoked: boolean): string {
+    return revoked ? 'text-decoration:line-through;' : 'font-weight:bold;';
+  }
+  public getP12Pbe(): string {
+    if (
+      this.$store.state.uiConfigStore.config.cryptoConfigView != undefined &&
+      this.$store.state.uiConfigStore.config.cryptoConfigView.defaultPBEAlgo != undefined
+    ) {
+      return this.$store.state.uiConfigStore.config.cryptoConfigView.defaultPBEAlgo;
     }
+    return 'aes-sha256';
+  }
+
+  public getP12PbeAlgoArr(): string[] {
     return this.$store.state.uiConfigStore.config.cryptoConfigView.validPBEAlgoArr;
   }
 
@@ -85,7 +95,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
 
     const headers: any = {
       Accept: mimetype,
-      X_pbeAlgo: this.p12Pbe,
+      X_pbeAlgo: this.getP12Pbe(),
       X_keyEx: this.p12KeyEx
     };
 
@@ -142,16 +152,22 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
     if (this.$route.query.certificateId) {
       this.retrieveCertificate(this.$route.query.certificateId);
     }
+    this.p12Pbe = this.getP12Pbe();
   }
 
   public retrieveCertificate(certificateId) {
+    const self = this;
     this.certificateViewService()
       .find(certificateId)
       .then(res => {
-        this.certificateView = res;
-        this.certificateAdminData.arAttributes = this.certificateView.arArr;
-        this.certificateAdminData.comment = this.certificateView.comment;
-        this.certificateAdminData.trusted = this.certificateView.trusted;
+        self.certificateView = res;
+        if (self.certificateAdminData === undefined) {
+          self.certificateAdminData = {};
+        }
+        self.certificateAdminData.arAttributes = this.certificateView.arArr;
+        self.certificateAdminData.comment = this.certificateView.comment;
+        self.certificateAdminData.trusted = this.certificateView.trusted;
+        window.console.info('certificate loaded successfully : ' + self.certificateView.id);
       });
   }
 
@@ -206,7 +222,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
   }
 
   public hasRole(targetRole: string) {
-    if (this.$store.getters.account.authorities === null) {
+    if (this.$store.getters.account === null || this.$store.getters.account.authorities === null) {
       return false;
     }
 

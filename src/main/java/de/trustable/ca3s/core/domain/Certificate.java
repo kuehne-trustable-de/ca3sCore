@@ -174,10 +174,15 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
         " att2.name = :timestamp )"
     ),
     @NamedQuery(name = "Certificate.findMaxTimestampForCA",
-    query = "SELECT max(att2.value)  FROM Certificate c JOIN c.certificateAttributes att1 JOIN c.certificateAttributes att2  WHERE " +
-        " att1.name = '" +CertificateAttribute.ATTRIBUTE_PROCESSING_CA+"' and att1.value = :caName AND" +
-        " att2.name = :timestamp"
+        query = "SELECT max(att2.value)  FROM Certificate c JOIN c.certificateAttributes att1 JOIN c.certificateAttributes att2  WHERE " +
+            " att1.name = '" +CertificateAttribute.ATTRIBUTE_PROCESSING_CA+"' and att1.value = :caName AND" +
+            " att2.name = :timestamp"
     ),
+    @NamedQuery(name = "Certificate.findByRequestor",
+        query = "SELECT c  FROM Certificate c JOIN c.certificateAttributes att1 WHERE " +
+            " att1.name = '" +CertificateAttribute.ATTRIBUTE_REQUESTED_BY+"' and att1.value = :requestor"
+    ),
+
 })
 public class Certificate implements Serializable {
 

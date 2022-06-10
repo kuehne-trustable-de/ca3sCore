@@ -46,14 +46,15 @@ export default class CsrInfo extends mixins(AlertMixin, JhiDataUtils) {
   }
 
   public retrieveCsr(csrId) {
+    const self = this;
     this.cSRViewService()
       .find(csrId)
       .then(res => {
-        this.icsrView = res;
-        window.console.info('csr :' + this.icsrView.status);
-        this.requestorComment = this.getRequestorComment();
-        this.arAttributes = this.getArAttributes();
-        this.csrAdminData.arAttributes = this.getArAttributes();
+        self.icsrView = res;
+        window.console.info('csr :' + self.icsrView.status);
+        self.requestorComment = self.getRequestorComment();
+        self.arAttributes = self.getArAttributes();
+        self.csrAdminData.arAttributes = self.getArAttributes();
       });
   }
 

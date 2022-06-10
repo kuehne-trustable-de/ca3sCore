@@ -29,6 +29,7 @@ import java.net.URL;
 import java.security.KeyPair;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Base64;
 
 import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -250,6 +251,95 @@ public class ACMEChallengeIT {
         csrb.setOrganization("The Example Organization");
         csrb.sign(accountKeyPair); // should be detected !!
         byte[] csr = csrb.getEncoded();
+
+        for(Authorization auth: order.getAuthorizations()){
+            System.out.println( " ################ "  + auth.getIdentifier().toString() + "" + auth.getLocation() );
+        }
+
+        try{
+            order.execute(csr);
+            fail("AcmeServerException  expected");
+        }catch( AcmeServerException acmeServerException){
+            assertEquals("Public key of CSR already in use ", acmeServerException.getMessage());
+        }
+
+        account.deactivate();
+
+        assertEquals("account status 'deactivated' expected", Status.DEACTIVATED, account.getStatus() );
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testHttpChallengeCSRMatching() throws AcmeException, IOException, InterruptedException {
+
+        Session session = new Session(dirUrl);
+        Metadata meta = session.getMetadata();
+
+        URI tos = meta.getTermsOfService();
+        URL website = meta.getWebsite();
+        LOG.debug("TermsOfService {}, website {}", tos, website);
+
+        KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
+
+        Account account = new AccountBuilder()
+            .addContact("mailto:acmeTest@ca3s.org")
+            .agreeToTermsOfService()
+            .useKeyPair(accountKeyPair)
+            .create(session);
+        assertNotNull("created account MUST NOT be null", account);
+
+        URL accountLocationUrl = account.getLocation();
+        LOG.debug("accountLocationUrl {}", accountLocationUrl);
+
+
+        Account retrievedAccount = new AccountBuilder()
+            .onlyExisting()         // Do not create a new account
+            .useKeyPair(accountKeyPair)
+            .create(session);
+
+        assertNotNull("created account MUST NOT be null", retrievedAccount);
+        assertEquals("expected to find the same account (URL)", accountLocationUrl, retrievedAccount.getLocation());
+
+        // #########################
+        // valid http endpoint
+        // #########################
+
+        Order order = account.newOrder()
+            .domains("localhost")
+            .notAfter(Instant.now().plus(Duration.ofDays(1L)))
+            .create();
+
+        System.out.println("Auth: " + order.getAuthorizations().get(0).toString() );
+
+        for (Authorization auth : order.getAuthorizations()) {
+            LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
+            String realmPart = "/" + PipelineTestConfiguration.ACME_REALM + "/";
+            assertTrue( auth.getLocation().toString().contains(realmPart));
+
+            if (auth.getStatus() == Status.PENDING) {
+
+                Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
+
+                if( challenge != null) {
+                    httpChallengeHelper.provideAuthEndpoint(challenge.getToken(), challenge.getAuthorization(), false);
+                    challenge.trigger();
+                } else {
+                    LOG.warn("http01 challenge not found for order");
+                }
+            }
+        }
+
+        // ##########################
+        // csr not matching challenge
+        // ##########################
+
+        CSRBuilder csrb = new CSRBuilder();
+        csrb.addDomain("localhost");
+        csrb.addDomain("foo.com");
+        csrb.setOrganization("The Example Organization");
+        csrb.sign(accountKeyPair); // should be detected !!
+        byte[] csr = csrb.getEncoded();
+        LOG.warn("csr : " + Base64.getEncoder().encodeToString(csr));
 
         for(Authorization auth: order.getAuthorizations()){
             System.out.println( " ################ "  + auth.getIdentifier().toString() + "" + auth.getLocation() );

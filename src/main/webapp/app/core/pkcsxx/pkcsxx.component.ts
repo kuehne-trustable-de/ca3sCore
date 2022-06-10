@@ -858,6 +858,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
       for (const pipeline of self.allWebPipelines) {
         window.console.info('pipeline.id: ' + pipeline.id + ' / self.preselectedPipeline : ' + self.preselectedPipelineId);
+        //        if (pipeline.id === self.preselectedPipelineId) {
         if (pipeline.id === self.preselectedPipelineId) {
           self.updatePipelineRestrictionsByPipelineInfo(pipeline);
           self.upload.pipelineId = pipeline.id;

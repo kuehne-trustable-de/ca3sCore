@@ -15,8 +15,21 @@
                         <dt>
                             <span v-text="$t('ca3SApp.certificate.subject')">Subject</span>
                         </dt>
-                        <dd>
+                        <dd :style="getRevocationStyle(certificateView.revoked)">
                             <span>{{certificateView.subject}}</span>
+                        </dd>
+
+                        <dt v-if="certificateView.revoked">
+                            <span v-text="$t('ca3SApp.certificate.revokedSince')">Revoked Since</span>
+                        </dt>
+                        <dd v-if="certificateView.revoked">
+                            <span v-if="certificateView.revokedSince">{{$d(Date.parse(certificateView.revokedSince), 'long') }}</span>
+                        </dd>
+                        <dt v-if="certificateView.revoked">
+                            <span v-text="$t('ca3SApp.certificate.revocationReason')">Revocation Reason</span>
+                        </dt>
+                        <dd v-if="certificateView.revoked">
+                            <span name="revocationReason">{{certificateView.revocationReason}}</span>
                         </dd>
 
                         <dt v-if="certificateView.sanArr && certificateView.sanArr.length > 0">
@@ -121,18 +134,6 @@
                         </dt>
                         <dd>
                             <span v-if="certificateView.contentAddedAt">{{$d(Date.parse(certificateView.contentAddedAt), 'long') }}</span>
-                        </dd>
-                        <dt v-if="certificateView.revoked">
-                            <span v-text="$t('ca3SApp.certificate.revokedSince')">Revoked Since</span>
-                        </dt>
-                        <dd v-if="certificateView.revoked">
-                            <span v-if="certificateView.revokedSince">{{$d(Date.parse(certificateView.revokedSince), 'long') }}</span>
-                        </dd>
-                        <dt v-if="certificateView.revoked">
-                            <span v-text="$t('ca3SApp.certificate.revocationReason')">Revocation Reason</span>
-                        </dt>
-                        <dd v-if="certificateView.revoked">
-                            <span name="revocationReason">{{certificateView.revocationReason}}</span>
                         </dd>
 
                         <dt v-if="certificateView.crlUrl">

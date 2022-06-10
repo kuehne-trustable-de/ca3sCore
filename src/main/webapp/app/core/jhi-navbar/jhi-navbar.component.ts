@@ -18,20 +18,13 @@ export default class JhiNavbar extends Vue {
   private currentLanguage = this.$store.getters.currentLanguage;
   public languages: any = this.$store.getters.languages;
 
-  public beforeRouteEnter(to, from, next) {
-    next(vm => {
-      window.console.info('################ to.params.bearer : ' + to.params.bearer);
-      window.console.info('################ to.query.pipelineId : ' + to.query.pipelineId);
-      console.log('JhiNavbar beforeRouteEnter : ' + to.params.showNavBar);
-      if (to.params.showNavBar) {
-      }
-    });
-  }
+  public showNavBar = true;
 
   public mounted(): void {
-    window.console.info('++++++++++++++++++ JhiNavbar.mounted(), route.query.bearer : ' + this.$route.query.bearer);
-    window.console.info('++++++++++++++++++ JhiNavbar.mounted(), route.query.pipelineId : ' + this.$route.query.pipelineId);
-    window.console.info('++++++++++++++++++ JhiNavbar.mounted(), route.query.certificateId : ' + this.$route.query.certificateId);
+    let urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('showNavBar') && urlParams.get('showNavBar') == 'false') {
+      this.showNavBar = false;
+    }
   }
 
   async created() {
@@ -109,8 +102,15 @@ export default class JhiNavbar extends Vue {
     window.console.info('++++++++++++++++++ JhiNavbar.doOIDCLogin(), route.query.pipelineId : ' + this.$route.query.pipelineId);
     window.console.info('++++++++++++++++++ JhiNavbar.doOIDCLogin(), route.query.certificateId : ' + this.$route.query.certificateId);
 
+    const uri = window.location.href;
+    window.console.info('JhiNavbar ### window.location : ' + uri);
+
     axios
-      .get('oidc/authenticate')
+      .get('oidc/authenticate', {
+        params: {
+          initialUri: uri
+        }
+      })
       .then(result => {
         const location = result.headers.location;
         if (location) {

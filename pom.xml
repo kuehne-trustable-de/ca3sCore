@@ -757,6 +757,12 @@
             <version>1.6.8</version>
         </dependency-->
 
+        <!--dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi</artifactId>
+            <version>1.6.8</version>
+        </dependency-->
+
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>

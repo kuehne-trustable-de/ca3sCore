@@ -24,7 +24,7 @@
                         <span v-text="$t('ca3SApp.cSR.isCSRValid')">Is CSR Valid</span>
                     </dt>
                     <dd>
-                        <span>{{ icsrView.isCSRValid }}</span>
+                        <span>{{ icsrView.csrvalid }}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.cSR.serversideKeyGeneration')">Serverside Key Generation</span>
