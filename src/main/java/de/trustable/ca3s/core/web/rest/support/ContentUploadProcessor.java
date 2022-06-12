@@ -10,6 +10,8 @@ import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.NotificationService;
+import de.trustable.ca3s.core.service.badkeys.BadKeysResult;
+import de.trustable.ca3s.core.service.badkeys.BadKeysService;
 import de.trustable.ca3s.core.service.dto.KeyAlgoLength;
 import de.trustable.ca3s.core.service.dto.NamedValues;
 import de.trustable.ca3s.core.service.dto.PipelineView;
@@ -100,6 +102,9 @@ public class ContentUploadProcessor {
 
     @Autowired
     private NotificationService notificationService;
+
+//    @Autowired
+//    private BadKeysService badKeysService;
 
     @Autowired
     private AuditService auditService;
@@ -202,10 +207,18 @@ public class ContentUploadProcessor {
             try {
 
                 Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(cryptoUtil.convertPemToPKCS10CertificationRequest(content));
+/*
+disabled for now ...
 
+                if( badKeysService.isInstalled()){
+                    BadKeysResult badKeysResult = badKeysService.checkCSR(content);
+                    if( !badKeysResult.isValid()){
+
+                    }
+                }
+*/
                 List<CSR> csrList = csrRepository.findNonRejectedByPublicKeyHash(p10ReqHolder.getPublicKeyHash());
                 LOG.debug("public key with hash '{}' already used in #{} CSRs.", p10ReqHolder.getPublicKeyHash(), csrList.size());
-
 
                 Pkcs10RequestHolderShallow p10ReqHolderShallow = new Pkcs10RequestHolderShallow( p10ReqHolder);
                 p10ReqData = new PkcsXXData(p10ReqHolderShallow);

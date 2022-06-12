@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class BadKeysService {
@@ -17,6 +19,8 @@ public class BadKeysService {
     private final String badkeysExecutable;
     private final File badkeysDirectory;
 
+    private List<String> availableChecks;
+
     private boolean isInstalled = false;
 
     public BadKeysService(@Value("${ca3s.badkeys.executable:badkeys-cli}") String badkeysExecutable,
@@ -25,7 +29,17 @@ public class BadKeysService {
         this.badkeysDirectory = badkeysDirectory;
 
         if( badkeysDirectory.exists() && badkeysDirectory.canRead()){
-            isInstalled = true;
+
+            try {
+                availableChecks = invokeBadKeysInfo();
+                if( availableChecks.size() > 5) {
+                    isInstalled = true;
+                }else{
+                    LOGGER.info("Too few ({}) checks available, check your BadKeys installation!", availableChecks.size());
+                }
+            } catch (IOException e) {
+                LOGGER.info("BadKeysService cTor", e);
+            }
         }
     }
 
@@ -51,8 +65,10 @@ public class BadKeysService {
             return new BadKeysResult(false, "problem occurred writing temp file ");
         } finally {
             if (inputFile != null) {
-                LOGGER.debug("deleting temp file {}", inputFile.getAbsolutePath());
-                inputFile.delete();
+                LOGGER.debug("deleting temp file '{}'", inputFile.getAbsolutePath());
+                if( !inputFile.delete()){
+                    LOGGER.warn("deleting temp file '{}' failed, please cleanup manually!", inputFile.getAbsolutePath());
+                }
             }
         }
     }
@@ -66,10 +82,10 @@ public class BadKeysService {
         for (int i = 0; i < 20; i++) {
             try {
                 int exitValue = process.exitValue();
-                LOGGER.info("badkeys process returns with code {}", exitValue);
+                LOGGER.debug("badkeys process returns with code {}", exitValue);
                 BufferedReader output = new BufferedReader(new InputStreamReader(process.getInputStream()));
                 JsonObject jsonObject = JsonParser.parseReader(output).getAsJsonObject();
-                LOGGER.info("badkeys process returns json:\n{}",jsonObject.toString());
+                LOGGER.debug("badkeys process returns json:\n{}",jsonObject.toString());
 
                 Response response = new Response(jsonObject);
                 return new BadKeysResult(response);
@@ -81,7 +97,43 @@ public class BadKeysService {
         return new BadKeysResult(false, "problem calling / controlling badkeys process ");
     }
 
+    private List<String> invokeBadKeysInfo() throws IOException {
+
+        // badkeys-cli --list
+        String badKeyArg = badkeysExecutable + " --list";
+        Process process = Runtime.getRuntime().exec(badKeyArg, null, badkeysDirectory);
+
+        ArrayList<String> checkList = new ArrayList<>();
+        for (int i = 0; i < 20; i++) {
+            try {
+                int exitValue = process.exitValue();
+                LOGGER.info("badkeys info process returns with code {}", exitValue);
+                if( exitValue != 0){
+                    throw new IOException("invocation of badkeys failed with prcess status " + exitValue);
+                }
+
+                BufferedReader output = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+                String check;
+                while( (check = output.readLine()) != null) {
+                    LOGGER.debug("badkeys offers check :{}", check);
+                    checkList.add(check);
+                }
+                return checkList;
+            } catch (IllegalThreadStateException illegalThreadStateException) {
+                try {Thread.sleep(100L);} catch (InterruptedException ignore) {}
+            }
+        }
+        process.destroyForcibly();
+        throw new IOException("invocation of badkeys failed");
+    }
+
     public boolean isInstalled() {
         return isInstalled;
     }
+
+    public List<String> getAvailableChecks() {
+        return availableChecks;
+    }
+
 }

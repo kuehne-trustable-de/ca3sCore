@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.schedule;
 
+import de.trustable.ca3s.core.domain.Authority;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.User;
@@ -50,8 +51,8 @@ public class UserRetentionScheduler {
         this.certificateOwnerRetentionPeriod = certificateOwnerRetentionPeriod;
     }
 
-//    @Scheduled(cron = "0 20 02 * * ?")
-    @Scheduled(fixedDelay = 60000)
+    @Scheduled(cron = "0 20 02 * * ?")
+//    @Scheduled(fixedDelay = 60000)
     public void retrieveUnrelatedUsers() {
 
         Instant oldestRelevantCertificateExpiry = Instant.now().minus(certificateOwnerRetentionPeriod, ChronoUnit.DAYS);
@@ -66,16 +67,16 @@ public class UserRetentionScheduler {
                 continue;
             }
 
-            if( user.getAuthorities().contains(AuthoritiesConstants.ADMIN) ){
-                LOG.debug("user {} ignored from retention check. Has Role {}", user.getLogin(), AuthoritiesConstants.ADMIN);
+            if(hasAuthority(user, AuthoritiesConstants.ADMIN) ){
+                LOG.debug("user {} ignored from retention check. Has role {}", user.getLogin(), AuthoritiesConstants.ADMIN);
                 continue;
             }
-            if( user.getAuthorities().contains(AuthoritiesConstants.RA_OFFICER) ){
-                LOG.debug("user {} ignored from retention check. Has Role {}", user.getLogin(), AuthoritiesConstants.RA_OFFICER);
+            if(hasAuthority(user, AuthoritiesConstants.RA_OFFICER) ){
+                LOG.debug("user {} ignored from retention check. Has role {}", user.getLogin(), AuthoritiesConstants.RA_OFFICER);
                 continue;
             }
-            if( user.getAuthorities().contains(AuthoritiesConstants.DOMAIN_RA_OFFICER) ){
-                LOG.debug("user {} ignored from retention check. Has Role {}", user.getLogin(), AuthoritiesConstants.DOMAIN_RA_OFFICER);
+            if(hasAuthority(user, AuthoritiesConstants.DOMAIN_RA_OFFICER) ){
+                LOG.debug("user {} ignored from retention check. Has role {}", user.getLogin(), AuthoritiesConstants.DOMAIN_RA_OFFICER);
                 continue;
             }
 
@@ -90,10 +91,21 @@ public class UserRetentionScheduler {
             }
 
             LOG.info("user {} has no relevant data left, deleting ...", user.getLogin());
-            userRepository.delete(user);
+
+            // just log the users for now ...
+            //            userRepository.delete(user);
 
         }
 	}
+
+    private boolean hasAuthority(final User user, final String authorityName) {
+        for( Authority authority : user.getAuthorities()) {
+            if (authorityName.equalsIgnoreCase(authority.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private boolean hasRecentActivity(User user, Instant oldestRelevantLogin) {
         if( user.getCreatedDate() != null &&

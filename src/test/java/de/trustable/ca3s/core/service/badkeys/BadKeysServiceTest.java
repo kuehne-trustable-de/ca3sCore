@@ -24,10 +24,18 @@ class BadKeysServiceTest {
     void checkBadkeysInstallation() {
         if(!subject.isInstalled()){return;}
 
+        assertTrue(subject.getAvailableChecks().size() > 5, "more than 5 checks expected to available in badkeys");
         BadKeysService subjectBroken = new BadKeysService("./badkeys-cli", new File("/unavail/badkeys"));
         BadKeysResult badKeysResult = subjectBroken.checkCSR(validCertificate);
         assertNotNull(badKeysResult);
         assertFalse(badKeysResult.isInstallationValid(), "should not be valid on broken installation");
+    }
+
+    @Test
+    void checkBrokenInstallation() {
+        // try invalid installation
+        subject = new BadKeysService("./xxx", new File("/etc"));
+        assertFalse(subject.isInstalled(), "expected to detect broken installation ");
     }
 
     @Test
