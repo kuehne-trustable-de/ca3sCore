@@ -202,7 +202,7 @@
 
         <conductorVersion>3.0.1</conductorVersion>
 
-        <kerby.version>2.0.1</kerby.version>
+        <kerby.version>2.0.2</kerby.version>
         <embedded-ldap.version>0.8.1</embedded-ldap.version>
 
         <xml.maven.saxon.version>9.7.0-18</xml.maven.saxon.version>
