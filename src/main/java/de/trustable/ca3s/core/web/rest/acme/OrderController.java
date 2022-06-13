@@ -52,7 +52,7 @@ import org.jose4j.jwt.consumer.JwtContext;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -84,26 +84,40 @@ public class OrderController extends ACMEController {
 
     private static final Logger LOG = LoggerFactory.getLogger(OrderController.class);
 
-    @Autowired
-    private AcmeOrderRepository orderRepository;
+    final private AcmeOrderRepository orderRepository;
 
-    @Autowired
-    private JwtUtil jwtUtil;
+    final private JwtUtil jwtUtil;
 
-    @Autowired
-    private CryptoUtil cryptoUtil;
+    final private CryptoUtil cryptoUtil;
 
-    @Autowired
-    private CertificateUtil certUtil;
+    final private CertificateUtil certUtil;
 
-	@Autowired
-	private CertificateProcessingUtil cpUtil;
+    final private CertificateProcessingUtil cpUtil;
 
-    @Autowired
-    private PipelineUtil pipelineUtil;
+    final private PipelineUtil pipelineUtil;
 
-    @Autowired
-    private AuditService auditService;
+    final private AuditService auditService;
+
+    final private boolean finalizeLocationBackwardCompat;
+
+    public OrderController(AcmeOrderRepository orderRepository,
+                           JwtUtil jwtUtil,
+                           CryptoUtil cryptoUtil,
+                           CertificateUtil certUtil,
+                           CertificateProcessingUtil cpUtil,
+                           PipelineUtil pipelineUtil,
+                           AuditService auditService,
+                           @Value("${ca3s.acme.finalizelocationBackwardCompat:false}") boolean finalizeLocationBackwardCompat) {
+        this.orderRepository = orderRepository;
+        this.jwtUtil = jwtUtil;
+        this.cryptoUtil = cryptoUtil;
+        this.certUtil = certUtil;
+        this.cpUtil = cpUtil;
+        this.pipelineUtil = pipelineUtil;
+        this.auditService = auditService;
+        this.finalizeLocationBackwardCompat = finalizeLocationBackwardCompat;
+
+    }
 
 
     @RequestMapping(value = "/{orderId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
@@ -176,6 +190,7 @@ public class OrderController extends ACMEController {
   	     * Prepare the response header, e.g. add a nonce
   	     */
   	    final HttpHeaders additionalHeaders = buildNonceHeader();
+
 
   	    /*
   	     * Order retrieval
@@ -311,7 +326,7 @@ public class OrderController extends ACMEController {
   			UriComponentsBuilder baseUriBuilder = fromCurrentRequestUri().path("../../../..");
             LOG.debug("finalize: baseUriBuilder : " + baseUriBuilder.toUriString());
 
-  			return buildOrderResponse(additionalHeaders, orderDao, baseUriBuilder, valid);
+            return buildOrderResponse(additionalHeaders, orderDao, baseUriBuilder, valid);
   		}
 
 	} catch (AcmeProblemException e) {
@@ -384,18 +399,27 @@ public class OrderController extends ACMEController {
             LOG.debug("authUrl: {}", authUrl);
         }
 
+        if(finalizeLocationBackwardCompat){
+            String orderLocation = fromCurrentRequestUri().build().toUriString();
+            additionalHeaders.add("location", orderLocation);
+            LOG.debug("added location header '{}' for backward compatibility reasons.", orderLocation);
+        }
+
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(baseUriBuilder.build().normalize().toUri());
 //		String finalizeUrl = uriBuilderOrder.path("/finalize/").path(Long.toString(orderDao.getOrderId())).build().toUriString();
         String finalizeUrl = uriBuilder.path(ORDER_RESOURCE_MAPPING).path("/finalize/").path(Long.toString(orderDao.getOrderId())).build().toUriString();
         LOG.debug("order request finalize url: {}", finalizeUrl);
 
-		String certificateUrl = null;
+
+
+        String certificateUrl = null;
 		if( orderDao.getCertificate() != null) {
 			long certId = orderDao.getCertificate().getId();
             uriBuilder = UriComponentsBuilder.fromUri(baseUriBuilder.build().normalize().toUri());
 			certificateUrl = uriBuilder.path(CERTIFICATE_RESOURCE_MAPPING).path("/").path(Long.toString(certId)).build().toUriString();
 			LOG.debug("order request cert url: {}", certificateUrl);
-		}
+
+        }
 		OrderResponse orderResp = new OrderResponse(orderDao, authorizationsResp, finalizeUrl, certificateUrl);
 
 		if( LOG.isDebugEnabled()) {

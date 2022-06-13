@@ -235,6 +235,8 @@ ca3s:
     sso:
       autologin: false
 
+  acme:
+    finalizelocationBackwardCompat: true
 
   dns:
 #    server: 8.8.8.8

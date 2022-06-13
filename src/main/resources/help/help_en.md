@@ -111,7 +111,7 @@ Windows command prompt
 
 Copy the generated value from the text box to your input shell. The text boxes got a 'Copy'-button but of course it's possible to select and copy the texts manually.
 
-![Copy-Button](../../images/stop_sign.png)
+![Copy-Button](../../images/java_3_5.png)
 
 Copy-Button
 
