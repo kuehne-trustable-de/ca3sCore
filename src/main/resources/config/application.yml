@@ -57,7 +57,8 @@ management:
 
 spring:
   application:
-    name: ca3s_jh
+    name: ca3s
+
   profiles:
     # The commented value for `active` can be replaced with valid Spring profiles to load.
     # Otherwise, it will be filled in by maven when building the JAR file
@@ -83,6 +84,8 @@ spring:
   main:
     allow-bean-definition-overriding: true
   mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
     favicon:
       enabled: false
   task:

@@ -472,7 +472,7 @@ class BPMNProcessInfoResourceIT {
         assertThat(testBPMNProcessInfo.getBpmnHashBase64()).isEqualTo(UPDATED_BPMN_HASH_BASE_64);
         assertThat(testBPMNProcessInfo.getProcessId()).isEqualTo(UPDATED_BPMN_CONTENT);
     }
-
+/*
     @Test
     @Transactional
     void fullUpdateBPMNProcessInfoWithPatch() throws Exception {
@@ -576,7 +576,7 @@ class BPMNProcessInfoResourceIT {
         List<BPMNProcessInfo> bPMNProcessInfoList = bPMNProcessInfoRepository.findAll();
         assertThat(bPMNProcessInfoList).hasSize(databaseSizeBeforeUpdate);
     }
-
+*/
     @Test
     @Transactional
     void deleteBPMNProcessInfo() throws Exception {

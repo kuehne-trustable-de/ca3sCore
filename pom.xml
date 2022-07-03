@@ -6,7 +6,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>0.1.39</version>
+    <version>0.1.40</version>
     <packaging>jar</packaging>
 
 
@@ -85,20 +85,17 @@
         <profile.tls/>
 
         <!-- Dependency versions -->
-        <!--jhipster-dependencies.version>3.9.1</jhipster-dependencies.version>
-        <spring-boot.version>2.2.13.RELEASE</spring-boot.version>
-        <spring.version>5.2.19.RELEASE</spring.version>
-        <spring-framework.version>${spring.version}</spring-framework.version>
-        <hibernate.version>5.4.32.Final</hibernate.version>
-        <hibernate-core.version>${hibernate.version}</hibernate-core.version>
-        <javassist.version>3.24.0-GA</javassist.version-->
+        <!--jhipster-dependencies.version>7.8.1</jhipster-dependencies.version-->
+        <jhipster-dependencies.version>7.5.1</jhipster-dependencies.version>
+
+        <!-- The spring-boot version should match the one managed by
+        https://mvnrepository.com/artifact/tech.jhipster/jhipster-dependencies/${jhipster-dependencies.version} -->
+        <spring-boot.version>2.7.0</spring-boot.version>
+        <archunit-junit5.version>0.23.1</archunit-junit5.version>
+        <mapstruct.version>1.4.2.Final</mapstruct.version>
 
         <jhipster-framework.version>3.9.1</jhipster-framework.version>
 
-        <jhipster-dependencies.version>7.5.1</jhipster-dependencies.version>
-        <!-- The spring-boot version should match the one managed by
-        https://mvnrepository.com/artifact/tech.jhipster/jhipster-dependencies/${jhipster-dependencies.version} -->
-        <spring-boot.version>2.6.6</spring-boot.version>
         <!-- The hibernate version should match the one managed by
         https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
         <hibernate.version>5.6.5.Final</hibernate.version>
@@ -114,13 +111,11 @@
 
         <validation-api.version>2.0.1.Final</validation-api.version>
         <jaxb-runtime.version>2.3.3</jaxb-runtime.version>
-        <archunit-junit5.version>0.21.0</archunit-junit5.version>
-        <mapstruct.version>1.4.2.Final</mapstruct.version>
 
-        <spring.version>5.3.20</spring.version>
-        <spring.security.version>5.5.7</spring.security.version>
+        <spring.version>5.3.21</spring.version>
+        <spring.security.version>5.6.6</spring.security.version>
 
-        <h2.version>2.1.210</h2.version>
+        <h2.version>2.1.214</h2.version>
 
         <json.version>2.6.0</json.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
@@ -156,7 +151,7 @@
         <junit.itReportFolder>${project.testresult.directory}/integrationTest</junit.itReportFolder>
         <!-- jhipster-needle-maven-property -->
 
-        <keycloak.version>17.0.1</keycloak.version>
+        <keycloak.version>18.0.2</keycloak.version>
 
         <bouncyCastleVersion>1.68</bouncyCastleVersion>
         <cryptoUtilVersion>1.3.4</cryptoUtilVersion>
@@ -398,6 +393,25 @@
                 <artifactId>spring-security-core</artifactId>
                 <version>${spring.security.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-crypto</artifactId>
+                <version>${spring.security.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-ldap</artifactId>
+                <version>${spring.security.version}</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/io.undertow/undertow-core -->
+            <dependency>
+                <groupId>io.undertow</groupId>
+                <artifactId>undertow-core</artifactId>
+                <version>2.2.18.Final</version>
+            </dependency>
+
             <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-data -->
             <dependency>
                 <groupId>org.springframework.security</groupId>
@@ -426,6 +440,14 @@
                 <artifactId>spring-security-openid</artifactId>
                 <version>${spring.security.version}</version>
             </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.springframework/spring-jcl -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jcl</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+
 
             <dependency>
                 <groupId>com.h2database</groupId>
@@ -642,6 +664,13 @@
                 <groupId>net.java.dev.jna</groupId>
                 <artifactId>jna-platform</artifactId>
                 <version>5.9.0</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.jboss.xnio/xnio-nio -->
+            <dependency>
+                <groupId>org.jboss.xnio</groupId>
+                <artifactId>xnio-nio</artifactId>
+                <version>3.8.7.Final</version>
             </dependency>
 
         </dependencies>
@@ -2006,6 +2035,7 @@
                         <outputDirectory>${project.build.directory}/dependency-check</outputDirectory>
                         <format>HTML</format>
                         <nodeAnalyzerEnabled>false</nodeAnalyzerEnabled>
+                        <nodeAuditSkipDevDependencies>true</nodeAuditSkipDevDependencies>
                         <skip>${dependencyCheck.skip}</skip>
                         <suppressionFiles>
                             <suppressionFile>

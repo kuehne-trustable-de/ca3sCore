@@ -52,7 +52,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
@@ -83,16 +82,16 @@ public class ACMECertificateController extends ACMEController {
 
   	final private CertificateUtil certUtil;
 
-    final private boolean finalizeLocationBackwardCompat;
+    final private boolean certificateLocationBackwardCompat;
 
     public ACMECertificateController(CertificateRepository certificateRepository,
                                      BPMNUtil bpmnUtil,
                                      CertificateUtil certUtil,
-                                     @Value("${ca3s.acme.finalizelocationBackwardCompat:false}") boolean finalizeLocationBackwardCompat) {
+                                     @Value("${ca3s.acme.backward.certificate.location:false}") boolean certificateLocationBackwardCompat) {
         this.certificateRepository = certificateRepository;
         this.bpmnUtil = bpmnUtil;
         this.certUtil = certUtil;
-        this.finalizeLocationBackwardCompat = finalizeLocationBackwardCompat;
+        this.certificateLocationBackwardCompat = certificateLocationBackwardCompat;
     }
 
 
@@ -115,7 +114,7 @@ public class ACMECertificateController extends ACMEController {
   			Certificate certDao = certOpt.get();
 
 			final HttpHeaders headers = buildNonceHeader();
-            if(finalizeLocationBackwardCompat){
+            if(certificateLocationBackwardCompat){
                 String certLocation = fromCurrentRequestUri().build().toUriString();
                 headers.add("location", certLocation);
                 LOG.debug("added certificate location header '{}' for backward compatibility reasons.", certLocation);

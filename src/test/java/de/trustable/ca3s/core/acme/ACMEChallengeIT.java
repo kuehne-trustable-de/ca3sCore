@@ -238,8 +238,10 @@ public class ACMEChallengeIT {
                 Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
 
                 if( challenge != null) {
-                    httpChallengeHelper.provideAuthEndpoint(challenge.getToken(), challenge.getAuthorization(), false);
+                    Thread webThread = httpChallengeHelper.provideAuthEndpoint(challenge.getToken(), challenge.getAuthorization(), false);
                     challenge.trigger();
+                    webThread.stop();
+
                 } else {
                     LOG.warn("http01 Challange not found for order");
                 }
@@ -321,36 +323,42 @@ public class ACMEChallengeIT {
                 Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
 
                 if( challenge != null) {
-                    httpChallengeHelper.provideAuthEndpoint(challenge.getToken(), challenge.getAuthorization(), false);
+                    Thread webThread = httpChallengeHelper.provideAuthEndpoint(challenge.getToken(), challenge.getAuthorization(), false);
                     challenge.trigger();
+                    webThread.stop();
                 } else {
                     LOG.warn("http01 challenge not found for order");
                 }
             }
         }
 
+
         // ##########################
         // csr not matching challenge
         // ##########################
+            CSRBuilder csrb = new CSRBuilder();
+            csrb.addDomain("localhost");
+            csrb.addDomain("foo.com");
+            csrb.setOrganization("The Example Organization");
 
-        CSRBuilder csrb = new CSRBuilder();
-        csrb.addDomain("localhost");
-        csrb.addDomain("foo.com");
-        csrb.setOrganization("The Example Organization");
-        csrb.sign(accountKeyPair); // should be detected !!
-        byte[] csr = csrb.getEncoded();
-        LOG.warn("csr : " + Base64.getEncoder().encodeToString(csr));
+            KeyPair domainKeyPair = KeyPairUtils.createKeyPair(2048);
+            csrb.sign(domainKeyPair);
+            byte[] csr = csrb.getEncoded();
+            LOG.warn("csr : " + Base64.getEncoder().encodeToString(csr));
 
-        for(Authorization auth: order.getAuthorizations()){
-            System.out.println( " ################ "  + auth.getIdentifier().toString() + "" + auth.getLocation() );
-        }
+            for (Authorization auth : order.getAuthorizations()) {
+                System.out.println(" ################ " + auth.getIdentifier().toString() + "" + auth.getLocation());
+            }
 
-        try{
-            order.execute(csr);
-            fail("AcmeServerException  expected");
-        }catch( AcmeServerException acmeServerException){
-            assertEquals("Public key of CSR already in use ", acmeServerException.getMessage());
-        }
+            try {
+                order.execute(csr);
+                fail("AcmeServerException expected");
+            } catch (AcmeServerException acmeServerException) {
+                assertTrue(acmeServerException.getMessage().startsWith("failed to find requested hostname 'foo.com' (from CSR) in authorization for order"),
+                    "failed to find requested hostname 'foo.com' (from CSR) in authorization for order ");
+                order.update();
+                assertEquals(Status.INVALID, order.getStatus());
+            }
 
         account.deactivate();
 

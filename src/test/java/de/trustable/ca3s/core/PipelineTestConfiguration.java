@@ -127,6 +127,9 @@ public class PipelineTestConfiguration {
     	pv_LaxRestrictions.setRestriction_SAN(new RDNRestriction());
 		pv_LaxRestrictions.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
 
+        pv_LaxRestrictions.setIpAsSubjectAllowed(true);
+        pv_LaxRestrictions.setIpAsSANAllowed(true);
+
 		pv_LaxRestrictions.setApprovalRequired(false);
 
 		pv_LaxRestrictions.setCaConnectorName(internalTestCAC().getName());

@@ -13,6 +13,7 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # ===================================================================
 
+
 logging:
   level:
     ROOT: INFO
@@ -273,8 +274,9 @@ ca3s:
 # http://keycloak-server/auth/realms/ca3sRealm/.well-known/openid-configuration
   oidc:
     # list comma separated list of oidc roles applicable for given authorities
+    # an asterik matches with every role
     roles:
-      user: '*'
+      user: "*"
       domainra:
       ra: ROLE_RA
       admin:

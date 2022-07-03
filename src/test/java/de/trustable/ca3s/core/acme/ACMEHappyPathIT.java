@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.shredzone.acme4j.Identifier.TYPE_IP;
 
 import java.io.IOException;
 import java.net.BindException;
@@ -328,7 +329,9 @@ public class ACMEHappyPathIT {
 		 */
 		{
 		Order order = account.newOrder()
-		        .domains("localhost")
+            .domains("localhost")
+            .identifier(new Identifier(TYPE_IP, "127.0.0.1"))
+            .domains("localhost")
 		        .notAfter(Instant.now().plus(Duration.ofDays(20L)))
 		        .create();
 
@@ -366,69 +369,62 @@ public class ACMEHappyPathIT {
 
 		order.execute(csr);
 
-		assertEquals("Expecting the finalize request to fail", Status.INVALID, order.getStatus());
+		assertEquals("Expecting the finalize request to succeed", Status.VALID, order.getStatus());
 
 		Certificate acmeCert = order.getCertificate();
-		assertNull("Expected to receive no certificate", acmeCert);
+		assertNotNull("Expected to receive no certificate", acmeCert);
 		}
 
-		/*
-		 * test with a domain name and an IP address
-		 * and too much domains in the CSR
-		 */
-		{
-		Order order = account.newOrder()
-		        .domains("localhost")
-		        .identifier(Identifier.ip(InetAddress.getByName("127.0.0.1")))
-//		        .domains("localhost", "example.org", "www.example.org", "m.example.org")
-//		        .identifier(Identifier.ip(InetAddress.getByName("192.168.56.10")))
-		        .notAfter(Instant.now().plus(Duration.ofDays(20L)))
-		        .create();
+        /*
+         * test with an IP address only
+         */
+        {
+            Order order = account.newOrder()
+                .identifier(new Identifier(TYPE_IP, "127.0.0.1"))
+                .notAfter(Instant.now().plus(Duration.ofDays(20L)))
+                .create();
 
 
-		for (Authorization auth : order.getAuthorizations()) {
-			LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
-			if (auth.getStatus() == Status.PENDING) {
+            for (Authorization auth : order.getAuthorizations()) {
+                LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
+                if (auth.getStatus() == Status.PENDING) {
 
-				Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
+                    Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
 
-				int MAX_TRIAL = 10;
-				for( int retry = 0; retry < MAX_TRIAL; retry++) {
-					try {
-                        provideAuthEndpoint(challenge, order, prefTC);
-						break;
-					} catch( BindException be) {
-						System.out.println("bind exception, waiting for port to become available");
-					}
-					if( retry == MAX_TRIAL -1) {
-						System.out.println("callback port not available");
-					}
-				}
-				challenge.trigger();
-			}
-		}
+                    int MAX_TRIAL = 10;
+                    for( int retry = 0; retry < MAX_TRIAL; retry++) {
+                        try {
+                            provideAuthEndpoint(challenge, order, prefTC);
+                            break;
+                        } catch( BindException be) {
+                            System.out.println("bind exception, waiting for port to become available");
+                        }
+                        if( retry == MAX_TRIAL -1) {
+                            System.out.println("callback port not available");
+                        }
+                    }
+                    challenge.trigger();
+                }
+            }
 
-		KeyPair domainKeyPair = KeyPairUtils.createKeyPair(2048);
+            KeyPair domainKeyPair = KeyPairUtils.createKeyPair(2048);
 
-		CSRBuilder csrb = new CSRBuilder();
-		csrb.addDomain("localhost");
-		csrb.addDomain("127.0.0.1");
-		csrb.addDomain("example.org");
-		csrb.addDomain("www.example.org");
-		csrb.addDomain("m.example.org");
-		csrb.setOrganization("The Example Organization");
-		csrb.sign(domainKeyPair);
-		byte[] csr = csrb.getEncoded();
+            CSRBuilder csrb = new CSRBuilder();
+            csrb.addDomain("127.0.0.1");
+            csrb.setOrganization("The Example Organization");
+            csrb.sign(domainKeyPair);
+            byte[] csr = csrb.getEncoded();
 
-		order.execute(csr);
+            order.execute(csr);
 
-		assertEquals("Expecting the finalize request to fail", Status.INVALID, order.getStatus());
+            assertEquals("Expecting the finalize request to succeed", Status.VALID, order.getStatus());
 
-		Certificate acmeCert = order.getCertificate();
-		assertNull("Expected to receive no certificate", acmeCert);
-		}
+            Certificate acmeCert = order.getCertificate();
+            assertNotNull("Expected to receive no certificate", acmeCert);
+        }
 
-	}
+
+    }
 
 
 	@Test

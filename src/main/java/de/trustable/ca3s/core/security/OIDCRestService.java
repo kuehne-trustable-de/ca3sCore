@@ -334,13 +334,22 @@ public class OIDCRestService {
             }
        }
 
+        if(authoritySet.isEmpty()){
+            for( Authority authority: authorityRepository.findAll()){
+                if( authority.getName().equalsIgnoreCase("ROLE_USER")){
+                    authoritySet.add(authority);
+                    LOG.warn("No relevant authority from oidc, adding fallback role 'ROLE_USER' !");
+                }
+            }
+        }
+
        return authoritySet;
     }
 
     private boolean addMatchedRole(Set<Authority> authoritySet, String[] oidcRoles, Authority authority, String[] rolesNameArr) {
 
         if((oidcRoles == null) || (oidcRoles.length == 0)){
-            LOG.debug("addMatchedRole : roles from kerberos is empty");
+            LOG.debug("addMatchedRole : roles from identity provider are empty");
             return false;
         }
 

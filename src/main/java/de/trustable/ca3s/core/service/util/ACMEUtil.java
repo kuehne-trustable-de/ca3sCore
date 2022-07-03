@@ -21,7 +21,8 @@ public class ACMEUtil {
 	public static final URI MALFORMED = URI.create(ACME_ERROR_URI_NAMESPACE + ":malformed");
 	public static final URI RATE_LIMITED = URI.create(ACME_ERROR_URI_NAMESPACE + ":rateLimited");
 	public static final URI REJECTED_IDENTIFIER = URI.create(ACME_ERROR_URI_NAMESPACE + ":rejectedIdentifier");
-	public static final URI SERVER_INTERNAL = URI.create(ACME_ERROR_URI_NAMESPACE + ":serverInternal");
+    public static final URI SERVER_INTERNAL = URI.create(ACME_ERROR_URI_NAMESPACE + ":serverInternal");
+    public static final URI ORDER_NOT_READY = URI.create(ACME_ERROR_URI_NAMESPACE + ":orderNotReady");
 	public static final URI UNAUTHORIZED = URI.create(ACME_ERROR_URI_NAMESPACE + ":unauthorized");
 	public static final URI UNSUPPORTED_IDENTIFIER = URI.create(ACME_ERROR_URI_NAMESPACE + ":unsupportedIdentifier");
 	public static final URI USER_ACTION_REQUIRED = URI.create(ACME_ERROR_URI_NAMESPACE + ":userActionRequired");

@@ -655,6 +655,8 @@ public class PipelineUtil {
 
 		addPipelineAttribute(pipelineAttributes, p, auditList, ALLOW_IP_AS_SUBJECT,pv.isIpAsSubjectAllowed());
 		addPipelineAttribute(pipelineAttributes, p, auditList, ALLOW_IP_AS_SAN,pv.isIpAsSANAllowed());
+        LOG.debug("PipelineAttributes : ALLOW_IP_AS_SAN set to {}", pv.isIpAsSANAllowed());
+
 		addPipelineAttribute(pipelineAttributes, p, auditList, TO_PENDIND_ON_FAILED_RESTRICTIONS,pv.isToPendingOnFailedRestrictions());
 
 
@@ -907,16 +909,22 @@ public class PipelineUtil {
 
 	    if( !checkRestrictions(pv.getRestriction_SAN(), gNameSet, messageList)) { outcome = false;}
 
+        LOG.debug("pv.isIpAsSubjectAllowed() is {} ", pv.isIpAsSubjectAllowed());
 	    if(!pv.isIpAsSubjectAllowed()) {
 	    	if( isSubjectIP(rdnArr, messageList)) {
-                LOG.info("IP not allowed as subject");
+                String msg = "IP not allowed as subject";
+                messageList.add(0, msg);
+                LOG.info(msg);
 	    		outcome = false;
 	    	}
 	    }
 
+        LOG.debug("pv.isIpAsSANAllowed() is {} ", pv.isIpAsSANAllowed());
 	    if(!pv.isIpAsSANAllowed()) {
 	    	if( hasIPinSANList(gNameSet, messageList)) {
-                LOG.info("IP not allowed as SAN");
+                String msg = "IP not allowed as SAN";
+                messageList.add(0, msg);
+                LOG.info(msg);
 	    		outcome = false;
 	    	}
 	    }

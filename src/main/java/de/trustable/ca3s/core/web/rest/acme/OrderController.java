@@ -107,7 +107,7 @@ public class OrderController extends ACMEController {
                            CertificateProcessingUtil cpUtil,
                            PipelineUtil pipelineUtil,
                            AuditService auditService,
-                           @Value("${ca3s.acme.finalizelocationBackwardCompat:false}") boolean finalizeLocationBackwardCompat) {
+                           @Value("${ca3s.acme.backward.finalize.location:true}") boolean finalizeLocationBackwardCompat) {
         this.orderRepository = orderRepository;
         this.jwtUtil = jwtUtil;
         this.cryptoUtil = cryptoUtil;
@@ -240,8 +240,6 @@ public class OrderController extends ACMEController {
 
                 Set<String> snSet = collectAllSANS(p10Holder);
 
-                boolean orderValid = true;
-
                 for(String san: snSet) {
                     boolean bSanFound = false;
                     for (AcmeAuthorization authDao : orderDao.getAcmeAuthorizations()) {
@@ -252,9 +250,13 @@ public class OrderController extends ACMEController {
                         }
                     }
                     if(!bSanFound) {
-                        LOG.info("failed to find requested hostname '{}' (from CSR) in authorization", san);
-                        orderValid = false;
-                        break;
+                        String msg = "failed to find requested hostname '"+ san+ "' (from CSR) in authorization for order "+ orderDao.getOrderId();
+                        LOG.info(msg);
+                        orderDao.setStatus(AcmeOrderStatus.INVALID);
+                        orderRepository.save(orderDao);
+
+                        throw new AcmeProblemException(new ProblemDetail(ACMEUtil.BAD_CSR, msg,
+                            BAD_REQUEST, NO_DETAIL, NO_INSTANCE));
                     }
                 }
 
@@ -281,44 +283,34 @@ public class OrderController extends ACMEController {
                     }
                 }
 */
-                if (orderValid) {
+                List<String> messageList = new ArrayList<>();
+                if( !pipelineUtil.isPipelineRestrictionsResolved(pipeline, p10Holder, messageList)){
 
-                    List<String> messageList = new ArrayList<>();
-                    if( !pipelineUtil.isPipelineRestrictionsResolved(pipeline, p10Holder, messageList)){
-
-                        String detail = NO_DETAIL;
-                        if( !messageList.isEmpty()){
-                            detail = messageList.get(0);
-                        }
-                        final ProblemDetail problem = new ProblemDetail(ACMEUtil.BAD_CSR, "Restriction check failed.",
-                            BAD_REQUEST, detail, NO_INSTANCE);
-                        throw new AcmeProblemException(problem);
+                    String detail = NO_DETAIL;
+                    if( !messageList.isEmpty()){
+                        detail = messageList.get(0);
                     }
-
-                    LOG.debug("order status {} changes to 'processing' for order {}", orderDao.getStatus(), orderDao.getOrderId());
-                    orderDao.setStatus(AcmeOrderStatus.PROCESSING);
-                    orderRepository.save(orderDao);
-
-
-                    LOG.debug("order {} status 'valid', producing certificate", orderDao.getOrderId());
-                    startCertificateCreationProcess(orderDao, pipeline, "ACME_ACCOUNT_" + acctDao.getAccountId(), CryptoUtil.pkcs10RequestToPem( p10Holder.getP10Req()));
-
-                    LOG.debug("order status {} changes to valid for order {}", orderDao.getStatus(), orderDao.getOrderId());
-                    orderDao.setStatus(AcmeOrderStatus.VALID);
-
-
-                }else {
-                    LOG.info("order {} failed to reach status 'valid' !", orderDao.getOrderId());
-                    auditService.saveAuditTrace(
-                        auditService.createAuditTraceACMEOrderInvalid(orderDao.getAccount(), orderDao, "csr / authorization mismatch"));
-                    orderDao.setStatus(AcmeOrderStatus.INVALID);
+                    final ProblemDetail problem = new ProblemDetail(ACMEUtil.BAD_CSR, "Restriction check failed.",
+                        BAD_REQUEST, detail, NO_INSTANCE);
+                    throw new AcmeProblemException(problem);
                 }
+
+                LOG.debug("order status {} changes to 'processing' for order {}", orderDao.getStatus(), orderDao.getOrderId());
+                orderDao.setStatus(AcmeOrderStatus.PROCESSING);
+                orderRepository.save(orderDao);
+
+
+                LOG.debug("order {} status 'valid', producing certificate", orderDao.getOrderId());
+                startCertificateCreationProcess(orderDao, pipeline, "ACME_ACCOUNT_" + acctDao.getAccountId(), CryptoUtil.pkcs10RequestToPem( p10Holder.getP10Req()));
+
+                LOG.debug("order status {} changes to valid for order {}", orderDao.getStatus(), orderDao.getOrderId());
+                orderDao.setStatus(AcmeOrderStatus.VALID);
 
                 orderRepository.save(orderDao);
 			}else {
                 String msg = "unexpected finalize call at order status "+orderDao.getStatus()+" for order "+ orderDao.getOrderId();
                 LOG.debug(msg);
-                throw new AcmeProblemException(new ProblemDetail(ACMEUtil.SERVER_INTERNAL, msg,
+                throw new AcmeProblemException(new ProblemDetail(ACMEUtil.ORDER_NOT_READY, msg,
                     BAD_REQUEST, NO_DETAIL, NO_INSTANCE));
 			}
 

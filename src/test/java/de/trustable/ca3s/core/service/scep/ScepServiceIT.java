@@ -249,6 +249,9 @@ public class ScepServiceIT{
         X509Certificate issued = (X509Certificate) certIt.next();
         X509Certificate issuer = (X509Certificate) certIt.next();
 
+        LOG.debug("issued Cert has serial {} and issuer {}", issued.getSerialNumber(),
+            issuer.getSubjectX500Principal().getName());
+
         Certificate retrieved = client.getCertificate(issuer,
         		keyPair.getPrivate(),
                 issued.getSerialNumber()

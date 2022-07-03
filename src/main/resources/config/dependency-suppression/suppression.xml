@@ -21,5 +21,26 @@
         <cve>CVE-2019-8331</cve>
     </suppress>
 
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-digester-2.1.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/commons\-digester/commons\-digester@.*$</packageUrl>
+        <cpe>cpe:/a:apache:james</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-lang-2.6.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/commons\-lang/commons\-lang@.*$</packageUrl>
+        <cpe>cpe:/a:apache:james</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-validator-1.7.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/commons\-validator/commons\-validator@.*$</packageUrl>
+        <cpe>cpe:/a:apache:james</cpe>
+    </suppress>
 
 </suppressions>
