@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2022-04-12 12:38:54.
+// Generated using typescript-generator version 2.19.577 on 2022-07-04 18:36:57.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -415,6 +415,7 @@ export interface ISCEPConfigItems extends ISerializable {
 
 export interface IWebConfigItems extends ISerializable {
   additionalEMailRecipients?: string;
+  notifyRAOfficerOnPendingRequest?: boolean;
 }
 
 export interface INamedValue {
@@ -469,7 +470,7 @@ export type ISelector =
   | 'PERIOD_BEFORE'
   | 'PERIOD_AFTER';
 
-export type IAccountStatus = 'valid' | 'deactivated' | 'revoked';
+export type IAccountStatus = 'valid' | 'pending' | 'deactivated' | 'revoked';
 
 export type IAcmeOrderStatus = 'pending' | 'ready' | 'processing' | 'valid' | 'invalid';
 

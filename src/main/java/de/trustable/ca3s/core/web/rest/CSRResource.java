@@ -83,15 +83,7 @@ public class CSRResource {
     public ResponseEntity<CSR> updateCSR(@Valid @RequestBody CSR cSR) throws URISyntaxException {
         log.debug("REST request to update CSR : {}", cSR);
         return (ResponseEntity<CSR>) ResponseEntity.badRequest();
-/*
-        if (cSR.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-        }
-        CSR result = cSRService.save(cSR);
-        return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, cSR.getId().toString()))
-            .body(result);
- */
+
     }
 
     /**
@@ -104,27 +96,7 @@ public class CSRResource {
     public List<CSR> getAllCSRS(@RequestParam(required = false) String filter) {
 
         return (List<CSR>) ResponseEntity.badRequest();
-/*
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String userName = auth.getName();
 
-        List<CSR> csrList;
-        if ("certificate-is-null".equals(filter)) {
-            log.debug("REST request to get all CSRs where certificate is null");
-            csrList = cSRService.findAllWhereCertificateIsNull();
-        }else {
-            log.debug("REST request to get all CSRS");
-            csrList = cSRService.findAll();
-        }
-
-//        List<CSR> cleanList = new ArrayList<>();
-        for(CSR csr: csrList){
-            if( !csr.getRequestedBy().equals(userName)){
-                csr.setCsrBase64("");
-            }
-        }
-        return csrList;
- */
     }
 
     /**

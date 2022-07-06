@@ -496,6 +496,7 @@
   "ca3SApp.pipeline.scepRecipientDN": "SCEP Recipient DN",
   "ca3SApp.pipeline.caConnectorScepRecipientName": "Konnektor zur Erzeugung des Recipient Zertifikats",
   "ca3SApp.pipeline.domainRAs": "Domain RAs zuordnen",
+  "ca3SApp.pipeline.notifyRAOnPendingRequest": "RA Officer über neue Anfragen benachrichtigen",
   "ca3SApp.pipeline.additionalEmailRecipients": "weitere EMail-Empfänger",
   "ca3SApp.pipeline.listOrder": "Ordnungszahl für Anforderungs-Übersicht",
   "ca3SApp.pipelineAttribute.created": "Pipeline Attribut erstellt mit ID {{ param }}",

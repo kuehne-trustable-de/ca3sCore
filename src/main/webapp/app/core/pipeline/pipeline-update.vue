@@ -409,6 +409,11 @@
                         </div>
                     </div>
 
+                    <div class="form-group" v-if="$v.pipeline.type.$model === 'WEB'">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.notifyRAOnPendingRequest')" for="pipeline-notifyRAOnPendingRequest">Notify RA Officer on pending request</label>
+                        <input type="checkbox" class="form-check-inline" name="notifyRAOnPendingRequest" id="pipeline-notifyRAOnPendingRequest" v-model="pipeline.webConfigItems.notifyRAOfficerOnPendingRequest" />
+                    </div>
+
                     <div class="container" v-if="$v.pipeline.type.$model === 'WEB'">
                         <div class="row" >
                             <div class="col">

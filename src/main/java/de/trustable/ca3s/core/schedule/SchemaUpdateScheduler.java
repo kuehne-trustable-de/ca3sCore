@@ -3,12 +3,12 @@ package de.trustable.ca3s.core.schedule;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
-import de.trustable.ca3s.core.repository.AcmeOrderRepository;
-import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.repository.PipelineRepository;
+import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.CryptoService;
+import org.bouncycastle.util.encoders.DecoderException;
+import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.security.cert.*;
 import java.time.Duration;
@@ -39,14 +41,19 @@ public class SchemaUpdateScheduler {
     final private CertificateRepository certificateRepo;
     final private CertificateUtil certUtil;
 
+    final private CSRRepository csrRepository;
+    final private CsrAttributeRepository csrAttributeRepository;
+
     final private AcmeOrderRepository acmeOrderRepository;
     final private PipelineRepository pipelineRepository;
 
     final private AuditService auditService;
 
-    public SchemaUpdateScheduler(CertificateRepository certificateRepo, CertificateUtil certUtil, AcmeOrderRepository acmeOrderRepository, PipelineRepository pipelineRepository, AuditService auditService) {
+    public SchemaUpdateScheduler(CertificateRepository certificateRepo, CertificateUtil certUtil, CSRRepository csrRepository, CsrAttributeRepository csrAttributeRepository, AcmeOrderRepository acmeOrderRepository, PipelineRepository pipelineRepository, AuditService auditService) {
         this.certificateRepo = certificateRepo;
         this.certUtil = certUtil;
+        this.csrRepository = csrRepository;
+        this.csrAttributeRepository = csrAttributeRepository;
         this.acmeOrderRepository = acmeOrderRepository;
         this.pipelineRepository = pipelineRepository;
         this.auditService = auditService;
@@ -60,6 +67,10 @@ public class SchemaUpdateScheduler {
         Instant now = Instant.now();
         updateCertificateAttributes();
         LOG.info("updateCertificateAttributes took {} ms", Duration.between(now, Instant.now()));
+
+        now = Instant.now();
+        updateCSRAttributes();
+        LOG.info("updateCSRAttributes took {} ms", Duration.between(now, Instant.now()));
 
         now = Instant.now();
         updateACMEOrder();
@@ -101,6 +112,67 @@ public class SchemaUpdateScheduler {
             auditService.saveAuditTrace(auditService.createAuditTraceCertificateSchemaUpdated(count, CertificateUtil.CURRENT_ATTRIBUTES_VERSION));
         }
 
+    }
+
+    public void updateCSRAttributes() {
+
+        List<CSR> updateCSRList = csrRepository.findWithoutAttribute(CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION);
+
+        int count = 0;
+        for (CSR csr : updateCSRList) {
+
+            try {
+                fixIPSan(csr);
+                CsrAttribute verionAttr = new CsrAttribute();
+                verionAttr.setCsr(csr);
+                verionAttr.setName(CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION);
+                verionAttr.setValue("" + CsrAttribute.CURRENT_ATTRIBUTES_VERSION);
+                csr.getCsrAttributes().add(verionAttr);
+                csrAttributeRepository.saveAll(csr.getCsrAttributes());
+                csrRepository.save(csr);
+                LOG.info("attribute schema updated for csr id {} ", csr.getId());
+            } catch (UnknownHostException e) {
+                LOG.error("problem with attribute schema update for csr id " + csr.getId(), e);
+            }
+
+            if (count++ > MAX_RECORDS_PER_TRANSACTION) {
+                LOG.info("limited certificate validity processing to {} per call", MAX_RECORDS_PER_TRANSACTION);
+                break;
+            }
+        }
+        if (count > 0) {
+            auditService.saveAuditTrace(auditService.createAuditTraceCertificateSchemaUpdated(count, CertificateUtil.CURRENT_ATTRIBUTES_VERSION));
+        }
+
+    }
+
+    private void fixIPSan(CSR csr) throws UnknownHostException {
+        for( CsrAttribute attr: csr.getCsrAttributes()){
+            String value = null;
+            if( attr.getName().equals(CsrAttribute.ATTRIBUTE_SAN) &&
+                attr.getValue().startsWith("#")){
+                value = attr.getValue().substring(1);
+            }
+            if( attr.getName().equals(CsrAttribute.ATTRIBUTE_TYPED_SAN) &&
+                attr.getValue().startsWith("IP:#")){
+                value = attr.getValue().substring(4);
+            }
+            if( value != null) {
+                try {
+                    InetAddress inetAddress = InetAddress.getByAddress(Hex.decode(value));
+
+                    if (attr.getName().equals(CsrAttribute.ATTRIBUTE_TYPED_SAN)) {
+                        attr.setValue("IP:" + inetAddress.getHostAddress());
+                        LOG.debug("update TYPED_SAN attribute #{} to {}", attr.getId(), attr.getValue());
+                    } else {
+                        attr.setValue(inetAddress.getHostAddress());
+                        LOG.debug("update SAN attribute #{} to {}", attr.getId(), attr.getValue());
+                    }
+                }catch (DecoderException de){
+                    LOG.info("SAN attribute #{} contains invalid IP address {}, ignoring ...", attr.getId(), value);
+                }
+            }
+        }
     }
 
     public void updateACMEOrder() {

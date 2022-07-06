@@ -23,6 +23,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Handling notification
@@ -82,7 +83,7 @@ public class NotificationService {
                 context.setVariable("expiringCertList", expiringCertList);
                 context.setVariable("pendingCsrList", pendingCsrList);
                 try {
-                    mailService.sendEmailFromTemplate(context, raOfficer, "mail/pendingReqExpiringCertificateEmail", "email.allExpiringCertificate.subject");
+                    mailService.sendEmailFromTemplate(context, raOfficer, null, "mail/pendingReqExpiringCertificateEmail", "email.allExpiringCertificate.subject");
                 }catch (Throwable throwable){
                     LOG.warn("Problem occured while sending a notificaton eMail to RA officer address '" + raOfficer.getEmail() + "'", throwable);
                     if(logNotification) {
@@ -106,7 +107,7 @@ public class NotificationService {
                 context.setVariable("expiringCertList", expiringCertList);
                 context.setVariable("pendingCsrList", pendingDomainCsrList);
                 try {
-                    mailService.sendEmailFromTemplate(context, domainOfficer, "mail/pendingReqExpiringCertificateEmail", "email.allExpiringCertificate.subject");
+                    mailService.sendEmailFromTemplate(context, domainOfficer, null, "mail/pendingReqExpiringCertificateEmail", "email.allExpiringCertificate.subject");
                 }catch (Throwable throwable){
                     LOG.warn("Problem occured while sending a notificaton eMail to RA officer address '" + domainOfficer.getEmail() + "'", throwable);
                     if(logNotification) {
@@ -147,7 +148,7 @@ public class NotificationService {
             Context context = new Context(locale);
             context.setVariable("newCsrList", newCsrList);
             try {
-                mailService.sendEmailFromTemplate(context, raOfficer, "mail/newPendingRequestEmail", "email.newPendingRequestEmail.subject");
+                mailService.sendEmailFromTemplate(context, raOfficer, null, "mail/newPendingRequestEmail", "email.newPendingRequestEmail.subject");
             }catch (Throwable throwable){
                 LOG.warn("Problem occurred while sending a notification eMail to RA officer address '" + raOfficer.getEmail() + "'", throwable);
                 if(logNotification) {
@@ -164,7 +165,7 @@ public class NotificationService {
                 Context context = new Context(locale);
                 context.setVariable("newCsrList", newCsrList);
                 try {
-                    mailService.sendEmailFromTemplate(context, domainOfficer, "mail/newPendingRequestEmail", "email.newPendingRequestEmail.subject");
+                    mailService.sendEmailFromTemplate(context, domainOfficer, null, "mail/newPendingRequestEmail", "email.newPendingRequestEmail.subject");
                 }catch (Throwable throwable){
                     LOG.warn("Problem occurred while sending a notification eMail to domain officer address '" + domainOfficer.getEmail() + "'", throwable);
                     if(logNotification) {
@@ -176,17 +177,17 @@ public class NotificationService {
     }
 
     @Async
-    public void notifyUserCerificateIssuedAsync(User requestor, Certificate cert ){
+    public void notifyUserCerificateIssuedAsync(User requestor, Certificate cert, Set<String> additionalEmailSet ){
 
         try {
-            notifyUserCerificateIssued(requestor, cert );
+            notifyUserCerificateIssued(requestor, cert, additionalEmailSet );
         } catch (MessagingException e) {
             LOG.error("problem sending user notification for issued cert", e);
         }
     }
 
     @Transactional
-    public void notifyUserCerificateIssued(User requestor, Certificate cert ) throws MessagingException {
+    public void notifyUserCerificateIssued(User requestor, Certificate cert, Set<String> additionalEmailSet ) throws MessagingException {
 
         Locale locale = Locale.forLanguageTag(requestor.getLangKey());
         Context context = new Context(locale);
@@ -209,7 +210,7 @@ public class NotificationService {
         context.setVariable("filenamePem", downloadFilename + ".pem");
         context.setVariable("filenameFullChainPem", downloadFilename + ".full.pem");
 
-        mailService.sendEmailFromTemplate(context, requestor, "mail/acceptedRequestEmail", "email.acceptedRequest.title");
+        mailService.sendEmailFromTemplate(context, requestor, additionalEmailSet.toArray(new String[0]), "mail/acceptedRequestEmail", "email.acceptedRequest.title");
     }
 
     @Async
@@ -228,7 +229,7 @@ public class NotificationService {
         Locale locale = Locale.forLanguageTag(requestor.getLangKey());
         Context context = new Context(locale);
         context.setVariable("csr", csr);
-        mailService.sendEmailFromTemplate(context, requestor, "mail/rejectedRequestEmail", "email.request.rejection.title");
+        mailService.sendEmailFromTemplate(context, requestor, null, "mail/rejectedRequestEmail", "email.request.rejection.title");
     }
 
 
@@ -253,7 +254,7 @@ public class NotificationService {
             subject = "";
         }
         String[] args = {subject, cert.getSerial(), cert.getIssuer()};
-        mailService.sendEmailFromTemplate(context, requestor, "mail/revokedCertificateEmail", "email.revokedCertificate.title", args);
+        mailService.sendEmailFromTemplate(context, requestor, null, "mail/revokedCertificateEmail", "email.revokedCertificate.title", args);
     }
 
     /**

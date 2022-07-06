@@ -498,8 +498,9 @@ public class ScepServletImpl extends ScepServlet {
             String sanValue = gName.getName().toString();
             if (GeneralName.otherName == gName.getTagNo()) {
                 sanValue = "--other value--";
+            } else if (GeneralName.iPAddress == gName.getTagNo()) {
+                sanValue = CertificateUtil.getTypedSAN(gName);
             }
-
             if( allSans.length() > 0) {
                 allSans += ";";
             }

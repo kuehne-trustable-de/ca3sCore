@@ -3,6 +3,7 @@ package de.trustable.ca3s.core.service.util;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.Collection;
@@ -197,6 +198,8 @@ public class CSRUtil {
 			String sanValue = gName.getName().toString();
 			if (GeneralName.otherName == gName.getTagNo()) {
 				sanValue = "--other value--";
+            } else if (GeneralName.iPAddress == gName.getTagNo()) {
+                sanValue = CertificateUtil.getSAN(gName);
 			}
 
 			if( allSans.length() > 0) {
@@ -208,7 +211,7 @@ public class CSRUtil {
 			if (GeneralName.dNSName == gName.getTagNo()) {
 				this.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_TYPED_SAN, "DNS:" + sanValue, true);
 			} else if (GeneralName.iPAddress == gName.getTagNo()) {
-				this.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_TYPED_SAN, "IP:" + sanValue, true);
+                this.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_TYPED_SAN, "IP:" + sanValue, true);
 			} else if (GeneralName.ediPartyName == gName.getTagNo()) {
 				this.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_TYPED_SAN, "EDI:" + sanValue, true);
 			} else if (GeneralName.otherName == gName.getTagNo()) {

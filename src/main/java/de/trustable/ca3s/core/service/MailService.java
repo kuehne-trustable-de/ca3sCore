@@ -54,14 +54,17 @@ public class MailService {
     }
 
     @Transactional
-    public void sendEmail(String to, String subject, String content, boolean isMultipart, boolean isHtml) throws MessagingException {
-        log.debug("Send email[multipart '{}' and html '{}'] to '{}' with subject '{}' and content={}",
-            isMultipart, isHtml, to, subject, content);
+    public void sendEmail(String to, String[] cc, String subject, String content, boolean isMultipart, boolean isHtml) throws MessagingException {
+        log.debug("Send email[multipart' '{}' and html '{}'] to '{}' (cc to '{}') with subject '{}' and content={}",
+            isMultipart, isHtml, to, cc, subject, content);
 
         // Prepare message using a Spring helper
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper message = new MimeMessageHelper(mimeMessage, isMultipart, StandardCharsets.UTF_8.name());
         message.setTo(to);
+        if( cc != null) {
+            message.setCc(cc);
+        }
         message.setFrom(jHipsterProperties.getMail().getFrom());
         message.setSubject(subject);
         message.setText(content, isHtml);
@@ -70,14 +73,14 @@ public class MailService {
     }
 
     @Transactional
-    public void sendEmailFromTemplate(Context context, User user, String templateName, String titleKey) throws MessagingException {
+    public void sendEmailFromTemplate(Context context, User user, String[] cc, String templateName, String titleKey) throws MessagingException {
 
-        sendEmailFromTemplate(context, user, templateName, titleKey, null);
+        sendEmailFromTemplate(context, user, cc, templateName, titleKey, null);
 
     }
 
     @Transactional
-    public void sendEmailFromTemplate(Context context, User user, String templateName, String titleKey, String[] args) throws MessagingException {
+    public void sendEmailFromTemplate(Context context, User user, String[] cc, String templateName, String titleKey, String[] args) throws MessagingException {
 
         if (user.getEmail() == null) {
             log.debug("Email doesn't exist for user '{}'", user.getLogin());
@@ -88,7 +91,7 @@ public class MailService {
         context.setVariable(BASE_URL, jHipsterProperties.getMail().getBaseUrl());
         String content = templateEngine.process(templateName, context);
         String subject = messageSource.getMessage(titleKey, args, locale);
-        sendEmail(user.getEmail(), subject, content, false, true);
+        sendEmail(user.getEmail(), cc, subject, content, false, true);
     }
 
     @Transactional
@@ -103,7 +106,7 @@ public class MailService {
         context.setVariable(BASE_URL, jHipsterProperties.getMail().getBaseUrl());
         String content = templateEngine.process(templateName, context);
         String subject = messageSource.getMessage(titleKey, null, locale);
-        sendEmail(user.getEmail(), subject, content, false, true);
+        sendEmail(user.getEmail(), null, subject, content, false, true);
     }
 
     public void sendActivationEmail(User user) throws MessagingException {

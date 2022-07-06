@@ -928,6 +928,24 @@ public class CertificateUtil {
         return aIn.readObject();
     }
 
+    public static String getSAN(final GeneralName gn) {
+
+        if (GeneralName.iPAddress == gn.getTagNo()) {
+
+            DEROctetString derOctetString = (DEROctetString)gn.getName();
+            try {
+                InetAddress addr = InetAddress.getByAddress(derOctetString.getOctets());
+                return addr.getHostAddress();
+            } catch (UnknownHostException e) {
+                LOG.debug("Problem parsing ip address '" + gn.getName().toString() + "'!", e.getLocalizedMessage());
+                return getTypedSAN(gn.getTagNo(), gn.getName().toString());
+            }
+        }else{
+            return getTypedSAN(gn.getTagNo(), gn.getName().toString());
+        }
+
+    }
+
     public static String getTypedSAN(final GeneralName gn) {
 
         if (GeneralName.iPAddress == gn.getTagNo()) {

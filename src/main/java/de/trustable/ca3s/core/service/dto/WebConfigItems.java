@@ -11,6 +11,8 @@ public class WebConfigItems implements Serializable{
 
     private String additionalEMailRecipients = "";
 
+    private boolean notifyRAOfficerOnPendingRequest = false;
+
     public WebConfigItems(){}
 
     public String getAdditionalEMailRecipients() {
@@ -19,5 +21,13 @@ public class WebConfigItems implements Serializable{
 
     public void setAdditionalEMailRecipients(String additionalEMailRecipients) {
         this.additionalEMailRecipients = additionalEMailRecipients;
+    }
+
+    public boolean isNotifyRAOfficerOnPendingRequest() {
+        return notifyRAOfficerOnPendingRequest;
+    }
+
+    public void setNotifyRAOfficerOnPendingRequest(boolean notifyRAOfficerOnPendingRequest) {
+        this.notifyRAOfficerOnPendingRequest = notifyRAOfficerOnPendingRequest;
     }
 }

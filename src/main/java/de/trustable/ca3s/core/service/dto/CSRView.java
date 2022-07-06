@@ -1,6 +1,8 @@
 package de.trustable.ca3s.core.service.dto;
 
 import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -140,8 +142,30 @@ public class CSRView implements Serializable {
         Set<CsrAttribute> attributes = csr.getCsrAttributes();
         List<String> sanList = new ArrayList<>();
         for( CsrAttribute csrAttribute: attributes){
-            if( csrAttribute.getName().equals(CsrAttribute.ATTRIBUTE_SAN)){
-                sanList.add(csrAttribute.getValue());
+            if( csrAttribute.getName().equals(CsrAttribute.ATTRIBUTE_TYPED_SAN)){
+                String value = csrAttribute.getValue();
+                if( value.startsWith("IP:") ){
+                    String ip = value.substring(3);
+                    String names = "";
+                    try {
+                        InetAddress[] inetAddresses= InetAddress.getAllByName(ip);
+                        for( InetAddress inetAddress: inetAddresses){
+                            // return real names, not the already known IP
+                            if( !ip.equals(inetAddress.getHostName())) {
+                                if (!names.isEmpty()) {
+                                    names += ", ";
+                                }
+                                names += inetAddress.getHostName();
+                            }
+                        }
+                        if( !names.isEmpty()){
+                            value += " (" + names + ")";
+                        }
+                    } catch (UnknownHostException e) {
+                        e.printStackTrace();
+                    }
+                }
+                sanList.add(value);
             }
         }
         this.sanArr = sanList.toArray(new String[0]);

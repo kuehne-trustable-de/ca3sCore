@@ -5,18 +5,16 @@ import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.CsrUsage;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
+import de.trustable.ca3s.core.exception.CAFailureException;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.NotificationService;
-import de.trustable.ca3s.core.service.badkeys.BadKeysResult;
-import de.trustable.ca3s.core.service.badkeys.BadKeysService;
 import de.trustable.ca3s.core.service.dto.KeyAlgoLength;
 import de.trustable.ca3s.core.service.dto.NamedValues;
 import de.trustable.ca3s.core.service.dto.PipelineView;
 import de.trustable.ca3s.core.service.dto.Preferences;
-import de.trustable.ca3s.core.exception.CAFailureException;
 import de.trustable.ca3s.core.service.util.*;
 import de.trustable.ca3s.core.web.rest.data.*;
 import de.trustable.util.CryptoUtil;
@@ -61,6 +59,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
+import static de.trustable.ca3s.core.service.util.PipelineUtil.NOTIFY_RA_OFFICER_ON_PENDING;
+
 /**
  * REST controller for processing PKCS10 requests and Certificates.
  */
@@ -92,9 +92,6 @@ public class ContentUploadProcessor {
     private PipelineUtil pipelineUtil;
 
     @Autowired
-    private PipelineUtil pvUtil;
-
-    @Autowired
     private PreferenceUtil preferenceUtil;
 
     @Autowired
@@ -123,7 +120,8 @@ public class ContentUploadProcessor {
         nameOIDMap.put("ST", BCStyle.ST);
         nameOIDMap.put("E", BCStyle.E);
 
-		nameGeneralNameMap.put("DNS", GeneralName.dNSName);
+        nameGeneralNameMap.put("DNS-NAME", GeneralName.dNSName);
+        nameGeneralNameMap.put("DNS", GeneralName.dNSName);
 		nameGeneralNameMap.put("IP", GeneralName.iPAddress);
 	}
 
@@ -229,7 +227,7 @@ disabled for now ...
                     Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
                     if( optPipeline.isPresent()) {
                         List<String> messageList = new ArrayList<>();
-                        if (pvUtil.isPipelineRestrictionsResolved(optPipeline.get(), p10ReqHolder, uploaded.getArAttributes(), messageList)) {
+                        if (pipelineUtil.isPipelineRestrictionsResolved(optPipeline.get(), p10ReqHolder, uploaded.getArAttributes(), messageList)) {
                             LOG.debug("pipeline restrictions for pipeline '{}' solved", optPipeline.get().getName());
                         }else {
                             p10ReqData.setWarnings(messageList.toArray(new String[0]));
@@ -536,7 +534,7 @@ disabled for now ...
                         p10ReqData.setCsrPending(true);
                         p10ReqData.setCreatedCSRId(csr.getId().toString());
 
-                        if(preferenceUtil.isNotifyRAOnRequest()) {
+                        if( "TRUE".equalsIgnoreCase(pipelineUtil.getPipelineAttribute(pipeline,NOTIFY_RA_OFFICER_ON_PENDING, "" + preferenceUtil.isNotifyRAOnRequest()))) {
                             notificationService.notifyRAOfficerOnRequest(csr);
                         }
 

@@ -33,7 +33,11 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
+
+import static de.trustable.ca3s.core.service.util.PipelineUtil.ADDITIONAL_EMAIL_RECIPIENTS;
 
 /**
  * REST controller for processing PKCS10 requests and Certificates.
@@ -153,13 +157,25 @@ public class CSRAdministration {
 
     			if(cert != null) {
 
+                    Set<String> additionalEmailSet = new HashSet<>();
+                    if( (cert.getCsr() != null) && (cert.getCsr().getPipeline() != null)) {
+
+                        String emails = pipelineUtil.getPipelineAttribute(cert.getCsr().getPipeline(), ADDITIONAL_EMAIL_RECIPIENTS, "");
+                        for( String email: emails.split(",;")){
+                            if( !email.trim().isEmpty()){
+                                additionalEmailSet.add(email);
+                                LOG.warn("added additional email address {} to notifier list", email);
+                            }
+                        }
+                    }
+
         			Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());
         			if( optUser.isPresent()) {
         				User requestor = optUser.get();
 	    		        if (requestor.getEmail() == null) {
 	    		        	LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
 	    		        }else {
-                            notificationService.notifyUserCerificateIssuedAsync(requestor, cert);
+                            notificationService.notifyUserCerificateIssuedAsync(requestor, cert, additionalEmailSet);
 	    		        }
         			} else {
         				LOG.warn("certificate requestor '{}' unknown!", csr.getRequestedBy());

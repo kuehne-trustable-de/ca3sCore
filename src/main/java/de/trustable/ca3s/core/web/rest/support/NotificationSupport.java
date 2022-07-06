@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.mail.MessagingException;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -83,7 +84,7 @@ public class NotificationSupport {
     @Transactional
     @PostMapping("notification/sendRAOfficerOnRequest/{csrId}")
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public void notifyRAOfficerOnRequest(@PathVariable String csrId) throws MessagingException {
+    public void notifyRAOfficerOnRequest(@PathVariable String csrId) {
 
         Optional<User> optUser = userRepository.findOneByLogin(nameAndRoleUtil.getNameAndRole().getName());
         if (optUser.isPresent()) {
@@ -112,7 +113,7 @@ public class NotificationSupport {
             User requestor = optUser.get();
 
             Certificate cert = certificateRepository.getOne(Long.parseLong(certId));
-            notificationService.notifyUserCerificateIssued(requestor, cert);
+            notificationService.notifyUserCerificateIssued(requestor, cert, new HashSet<>());
         }
     }
 

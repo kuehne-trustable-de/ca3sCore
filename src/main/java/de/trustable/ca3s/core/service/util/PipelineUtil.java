@@ -92,6 +92,7 @@ public class PipelineUtil {
 	public static final String TO_PENDIND_ON_FAILED_RESTRICTIONS = "TO_PENDIND_ON_FAILED_RESTRICTIONS";
 
     public static final String DOMAIN_RA_OFFICER = "DOMAIN_RA_OFFICER";
+    public static final String NOTIFY_RA_OFFICER_ON_PENDING = "NOTIFY_RA_OFFICER_ON_PENDING";
     public static final String ADDITIONAL_EMAIL_RECIPIENTS = "ADDITIONAL_EMAIL_RECIPIENTS";
 
 	public static final String ACME_ALLOW_CHALLENGE_HTTP01 = "ACME_ALLOW_CHALLENGE_HTTP01";
@@ -218,6 +219,9 @@ public class PipelineUtil {
                 acmeConfigItems.setCaNameCAA(plAtt.getValue());
             }else if( DOMAIN_RA_OFFICER.equals(plAtt.getName())) {
                 domainRaOfficerList.add(plAtt.getValue());
+
+            }else if( NOTIFY_RA_OFFICER_ON_PENDING.equals(plAtt.getName())) {
+                webConfigItems.setNotifyRAOfficerOnPendingRequest(Boolean.parseBoolean(plAtt.getValue()));
 
             }else if( ADDITIONAL_EMAIL_RECIPIENTS.equals(plAtt.getName())) {
                 webConfigItems.setAdditionalEMailRecipients(plAtt.getValue());
@@ -698,6 +702,7 @@ public class PipelineUtil {
         }
 
         if( pv.getWebConfigItems() != null) {
+            addPipelineAttribute(pipelineAttributes, p, auditList, NOTIFY_RA_OFFICER_ON_PENDING, pv.getWebConfigItems().isNotifyRAOfficerOnPendingRequest());
             addPipelineAttribute(pipelineAttributes, p, auditList, ADDITIONAL_EMAIL_RECIPIENTS, pv.getWebConfigItems().getAdditionalEMailRecipients());
         }
 

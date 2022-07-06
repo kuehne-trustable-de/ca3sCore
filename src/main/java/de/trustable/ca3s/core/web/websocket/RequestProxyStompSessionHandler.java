@@ -1,5 +1,8 @@
 package de.trustable.ca3s.core.web.websocket;
 
+import de.trustable.ca3s.core.web.websocket.dto.AcmeRequestContainer;
+import de.trustable.ca3s.core.web.websocket.dto.AcmeResponseContainer;
+import de.trustable.ca3s.core.web.websocket.dto.ConnectInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -7,17 +10,14 @@ import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
 
-import de.trustable.ca3s.acmeproxy.dto.AcmeRequestContainer;
-import de.trustable.ca3s.acmeproxy.dto.AcmeResponseContainer;
-import de.trustable.ca3s.acmeproxy.dto.ConnectInfo;
 
 import java.lang.reflect.Type;
 
 /**
  * This class is an implementation for <code>StompSessionHandlerAdapter</code>.
- * Once a connection is established, We subscribe to /topic/messages and 
+ * Once a connection is established, We subscribe to /topic/messages and
  * send a sample message to server.
- * 
+ *
  * @author Kalyan
  *
  */
@@ -55,7 +55,7 @@ public class RequestProxyStompSessionHandler extends StompSessionHandlerAdapter 
 		}else if( TOPIC_CONNECTED.equals(headers.getDestination())) {
 			return ConnectInfo.class;
 		}
-		
+
 		return String.class;
 	}
 
@@ -77,7 +77,7 @@ public class RequestProxyStompSessionHandler extends StompSessionHandlerAdapter 
 
 	/**
 	 * A sample message instance.
-	 * 
+	 *
 	 * @return instance of <code>Message</code>
 	 */
 	private AcmeRequestContainer getSampleMessage() {

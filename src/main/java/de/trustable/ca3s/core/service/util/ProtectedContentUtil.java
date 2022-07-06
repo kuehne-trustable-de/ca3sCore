@@ -35,16 +35,23 @@ public class ProtectedContentUtil {
 	@Autowired
 	private ProtectedContentRepository protContentRepository;
 
-	public ProtectedContentUtil(@Value("${protectionSecret:S3cr3t}") String protectionSecret) {
-		textEncryptor = new BasicTextEncryptor();
+	public ProtectedContentUtil(@Value("${protectionSecret:S3cr3t}") String protectionSecretFallback,
+                                @Value("${ca3s.protectionSecret}") String protectionSecret) {
+
+        if( (protectionSecretFallback != null) && !protectionSecretFallback.trim().isEmpty() ) {
+            protectionSecret = protectionSecretFallback;
+        }
+
 		if( (protectionSecret == null) || (protectionSecret.trim().length() == 0)) {
             log.warn("Configuration parameter 'protectionSecret' missing or invalid!!");
-			throw new UnsupportedOperationException("Configuration parameter 'protectionSecret' missing or invalid");
+            throw new UnsupportedOperationException("Configuration parameter 'protectionSecret' missing or invalid");
 		}
 		if( log.isDebugEnabled()) {
 			String paddedSecret = "******" + protectionSecret;
-			log.debug("using protection  secret '{}'", "******" + paddedSecret.substring(paddedSecret.length() - 4));
+			log.debug("using protection secret '{}'", "******" + paddedSecret.substring(paddedSecret.length() - 4));
 		}
+
+        textEncryptor = new BasicTextEncryptor();
 		textEncryptor.setPassword(protectionSecret);
 	}
 

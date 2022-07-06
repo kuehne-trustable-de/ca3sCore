@@ -87,7 +87,7 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
     favicon:
-      enabled: false
+      enabled: true
   task:
     execution:
       thread-name-prefix: ca-3-s-task-

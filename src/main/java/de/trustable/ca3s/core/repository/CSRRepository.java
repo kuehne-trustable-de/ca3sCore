@@ -34,4 +34,8 @@ public interface CSRRepository extends JpaRepository<CSR, Long> {
 
     @Query(name = "CSR.findPendingGroupedByDay")
     List<CSR> findPendingGroupedByDay(@Param("after") Instant after, @Param("before") Instant before);
+
+    @Query(name = "CSR.findWithoutAttribute")
+    List<CSR> findWithoutAttribute(@Param("name") String name);
+
 }

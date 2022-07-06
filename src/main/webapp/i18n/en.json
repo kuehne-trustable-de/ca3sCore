@@ -497,6 +497,7 @@
   "ca3SApp.pipeline.scepRecipientDN": "SCEP Recipient DN",
   "ca3SApp.pipeline.caConnectorScepRecipientName": "Connector issuing the recipient certificate",
   "ca3SApp.pipeline.domainRAs": "Assign Domain RAs",
+  "ca3SApp.pipeline.notifyRAOnPendingRequest": "Notify RA Officer on pending request",
   "ca3SApp.pipeline.additionalEmailRecipients": "additional EMail recipients",
   "ca3SApp.pipeline.listOrder": "Sorting for the request overview",
 

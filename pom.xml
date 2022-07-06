@@ -6,7 +6,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>0.1.40</version>
+    <version>0.1.41</version>
     <packaging>jar</packaging>
 
 
@@ -158,8 +158,6 @@
         <certBundleVersion>1.1.1</certBundleVersion>
         <adcsUtilVersion>1.2.7</adcsUtilVersion>
         <adcsProxyClientVersion>1.2.7</adcsProxyClientVersion>
-
-        <webSocketDTOVersion>0.0.1-SNAPSHOT</webSocketDTOVersion>
 
         <nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
         <jose4jVersion>0.7.6</jose4jVersion>
@@ -1130,12 +1128,6 @@
             <groupId>de.trustable.ca3s</groupId>
             <artifactId>adcsProxyClient</artifactId>
             <version>${adcsProxyClientVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>de.trustable.ca3s</groupId>
-            <artifactId>ca3sWebSocketDTO</artifactId>
-            <version>${webSocketDTOVersion}</version>
         </dependency>
 
         <dependency>

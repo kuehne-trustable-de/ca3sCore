@@ -13,8 +13,8 @@ public class TemplateConfig {
     final private String templatePostfix;
 
     public TemplateConfig(@Value("${ca3s.template.cacheable:false}") boolean templateCacheable,
-                          @Value("${ca3s.template.prefix:classpath:/templates/}") String templatePrefix,
-                          @Value("${ca3s.template.postfix:.html}") String templatePostfix) {
+                          @Value("${ca3s.template.email.filePrefix:classpath:/templates/}") String templatePrefix,
+                          @Value("${ca3s.template.email.filePostfix:.html}") String templatePostfix) {
         this.templateCacheable = templateCacheable;
         this.templatePrefix = templatePrefix;
         this.templatePostfix = templatePostfix;

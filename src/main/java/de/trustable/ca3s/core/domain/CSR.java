@@ -31,7 +31,10 @@ import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
             " c.status <> 'REJECTED' "
     ),
     @NamedQuery(name = "CSR.countAll",
-    query = "SELECT count(c) FROM CSR c "
+        query = "SELECT count(c) FROM CSR c "
+    ),
+    @NamedQuery(name = "CSR.findWithoutAttribute",
+        query = "SELECT c FROM CSR c WHERE NOT EXISTS( select 1 FROM CsrAttribute attr WHERE attr.csr = c AND attr.name = :name)"
     ),
     @NamedQuery(name = "CSR.findByRequestor",
         query = "SELECT c FROM CSR c WHERE " +

@@ -18,6 +18,9 @@ public class CsrAttribute implements Serializable {
     public static final String ATTRIBUTE_SIGN_ALGO = "SIGN_ALGO";
     public static final String ATTRIBUTE_PADDING_ALGO = "PADDING_ALGO";
     public static final String ATTRIBUTE_MFG = "MFG";
+
+    public static final int CURRENT_ATTRIBUTES_VERSION = 1;
+
     private static final long serialVersionUID = 1L;
 
     @Id
