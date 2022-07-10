@@ -70,6 +70,9 @@ public class CSRView implements Serializable {
     private String x509KeySpec;
 
     @CsvBindByName
+    private String hashAlgorithm;
+
+    @CsvBindByName
     private String keyAlgorithm;
 
     @CsvBindByName
@@ -170,7 +173,9 @@ public class CSRView implements Serializable {
         }
         this.sanArr = sanList.toArray(new String[0]);
 
-    	this.processingCA = csrUtil.getCSRAttribute(csr, CsrAttribute.ATTRIBUTE_PROCESSING_CA);
+        this.hashAlgorithm = csrUtil.getCSRAttribute(csr, CsrAttribute.ATTRIBUTE_HASH_ALGO);
+
+        this.processingCA = csrUtil.getCSRAttribute(csr, CsrAttribute.ATTRIBUTE_PROCESSING_CA);
 
         if( csr.getPipeline() != null) {
             this.pipelineName = csr.getPipeline().getName();
@@ -435,5 +440,17 @@ public class CSRView implements Serializable {
 
     public void setPipelineId(Long pipelineId) {
         this.pipelineId = pipelineId;
+    }
+
+    public String getHashAlgorithm() {
+        return hashAlgorithm;
+    }
+
+    public void setHashAlgorithm(String hashAlgorithm) {
+        this.hashAlgorithm = hashAlgorithm;
+    }
+
+    public boolean isAdministrable() {
+        return isAdministrable;
     }
 }

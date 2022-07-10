@@ -1045,6 +1045,7 @@
   "revokedBy": "Revoked by",
   "revocationReason": "Reason",
   "length": "Length",
+  "keyLength": "Key Length",
   "keyAlgorithm": "Key Algo",
   "x509KeySpec": "Key Spec",
   "signingAlgorithm": "Signing Algo",

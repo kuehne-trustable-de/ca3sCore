@@ -1044,6 +1044,7 @@
   "revokedBy": "Widerrufen von",
   "revocationReason": "Rückrufgrund",
   "length": "Länge",
+  "keyLength": "Schlüssellänge",
   "keyAlgorithm": "Schlüsselalg.",
   "hashAlgorithm": "Hash Alg.",
   "x509KeySpec": "Schlüssel Spec",

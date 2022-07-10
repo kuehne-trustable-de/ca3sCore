@@ -155,7 +155,21 @@ export default class CertList extends mixins(AlertMixin, Vue) {
         'unspecified'
       ]
     },
-    { itemName: 'keyAlgorithm', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'true', values: ['rsa', 'dsa', 'ec'] },
+    { itemName: 'keyAlgorithm', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'rsa', values: ['rsa', 'dsa', 'ec'] },
+    {
+      itemName: 'keyLength',
+      itemType: 'set',
+      itemDefaultSelector: 'EQUAL',
+      itemDefaultValue: '2048',
+      values: ['1024', '2048', '3072', '4096', '256', '384', '521']
+    },
+    {
+      itemName: 'hashAlgorithm',
+      itemType: 'set',
+      itemDefaultSelector: 'EQUAL',
+      itemDefaultValue: 'sha256',
+      values: ['sha256', 'sha384', 'sha512', 'sha1']
+    },
     {
       itemName: 'signingAlgorithm',
       itemType: 'set',

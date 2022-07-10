@@ -268,6 +268,10 @@ public final class CSRSpecifications {
                 cv.setPublicKeyAlgorithm((String) objArr[i]);
             } else if ("signingAlgorithm".equalsIgnoreCase(attribute)) {
                 cv.setSigningAlgorithm((String) objArr[i]);
+            } else if ("hashAlgorithm".equalsIgnoreCase(attribute)) {
+                cv.setHashAlgorithm((String) objArr[i]);
+            } else if ("keyAlgorithm".equalsIgnoreCase(attribute)) {
+                cv.setKeyAlgorithm((String) objArr[i]);
             } else if ("keyLength".equalsIgnoreCase(attribute)) {
                 cv.setKeyLength(objArr[i].toString());
             } else if ("x509KeySpec".equalsIgnoreCase(attribute)) {
@@ -459,6 +463,10 @@ public final class CSRSpecifications {
             if (attributeValue.trim().length() > 0) {
                 pred = buildPredicatePipelineType(attributeSelector, cb, certJoin.get(Pipeline_.type), attributeValue);
             }
+        }else if( "hashAlgorithm".equals(attribute)){
+            Join<CSR, CsrAttribute> attJoin = root.join(CSR_.csrAttributes, JoinType.LEFT);
+            pred = cb.and( cb.equal(attJoin.get(CsrAttribute_.name), "HASH_ALGO"),
+                buildPredicateString( attributeSelector, cb, attJoin.get(CsrAttribute_.value), attributeValue.toLowerCase()));
 
         } else if ("keyLength".equals(attribute)) {
             addNewColumn(selectionList, root.get(CSR_.keyLength));

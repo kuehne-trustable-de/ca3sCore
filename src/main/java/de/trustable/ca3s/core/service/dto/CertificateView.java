@@ -269,7 +269,7 @@ public class CertificateView implements Serializable {
     		this.issuerId = cert.getIssuingCertificate().getId();
 
             Certificate issuerCheck = cert.getIssuingCertificate();
-            for(int i = 0; i < 10 || issuerCheck != null; i++){
+            for(int i = 0; i < 10 && issuerCheck != null; i++){
                 if( issuerCheck.isSelfsigned() ){
                     this.isFullChainAvailable = true;
                     break;

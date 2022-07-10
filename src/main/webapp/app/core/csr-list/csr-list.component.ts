@@ -134,6 +134,9 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
     { itemName: 'requestedBy', itemType: 'string', itemDefaultSelector: 'EQUAL', itemDefaultValue: '{user}' },
     { itemName: 'rejectedOn', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}' },
     { itemName: 'rejectionReason', itemType: 'string', itemDefaultSelector: 'EQUAL', itemDefaultValue: null }
+    //    { itemName: 'keyAlgorithm', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'rsa', values: ['rsa', 'dsa', 'ec'] },
+    //    { itemName: 'keyLength', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: '2048', values: ['1024', '2048', '3072','4096','256','384','521'] },
+    //    { itemName: 'hashAlgorithm', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'sha256', values: ['sha256', 'sha384','sha512','sha1'] },
   ];
 
   public selectionChoices: ISelectionChoices[] = [

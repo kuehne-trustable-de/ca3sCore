@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2022-07-04 18:36:57.
+// Generated using typescript-generator version 2.19.577 on 2022-07-07 18:55:18.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -222,6 +222,7 @@ export interface ICSRView extends ISerializable {
   pipelineName?: string;
   pipelineId?: number;
   x509KeySpec?: string;
+  hashAlgorithm?: string;
   keyAlgorithm?: string;
   keyLength?: string;
   signingAlgorithm?: string;
@@ -237,6 +238,7 @@ export interface ICSRView extends ISerializable {
   csrBase64?: string;
   auditViewArr?: IAuditView[];
   isAdministrable?: boolean;
+  administrable?: boolean;
   csrvalid?: boolean;
 }
 
