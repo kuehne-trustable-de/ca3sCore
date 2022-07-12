@@ -381,7 +381,7 @@ public class OIDCAuthenticationResource {
     public ResponseEntity logout(HttpServletRequest request) {
 
         ServletUriComponentsBuilder servletUriComponentsBuilder = ServletUriComponentsBuilder.fromRequestUri(request);
-        String redirectCodeUri = servletUriComponentsBuilder.path("/../..").build().normalize().toString();
+        String redirectCodeUri = servletUriComponentsBuilder.path("/../..").queryParam("instantLogin","false").build().normalize().toString();
         KeycloakUriBuilder builder = deployment.getLogoutUrl().clone()
             .queryParam(OAuth2Constants.REDIRECT_URI, redirectCodeUri);
 

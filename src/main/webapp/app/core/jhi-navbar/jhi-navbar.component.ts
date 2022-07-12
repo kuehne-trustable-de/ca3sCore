@@ -5,6 +5,8 @@ import AccountService from '@/account/account.service';
 import TranslationService from '@/locale/translation.service';
 import axios from 'axios';
 import { IUIConfigView } from '@/shared/model/transfer-object.model';
+import { accountStore } from '@/shared/config/store/account-store';
+import { uiConfigStore } from '@/shared/config/store/ui-config-store';
 
 @Component
 export default class JhiNavbar extends Vue {
@@ -19,17 +21,23 @@ export default class JhiNavbar extends Vue {
   public languages: any = this.$store.getters.languages;
 
   public showNavBar = true;
+  public instantLogin = true;
 
   public mounted(): void {
+    window.document.cookie = 'instantLogin';
     let urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('showNavBar') && urlParams.get('showNavBar') == 'false') {
       this.showNavBar = false;
     }
+
+    if (urlParams.has('instantLogin') && urlParams.get('instantLogin') == 'false') {
+      this.instantLogin = false;
+    } else {
+      this.instantLogin = true;
+    }
   }
 
   async created() {
-    window.console.info('++++++++++++++++++ JhiNavbar.created()');
-
     const self = this;
     axios({
       method: 'get',
@@ -40,10 +48,16 @@ export default class JhiNavbar extends Vue {
       const uiConfig: IUIConfigView = response.data;
       self.$store.commit('updateCV', uiConfig);
 
+      window.console.info('self.authenticated: ' + self.authenticated + ', self.instantLogin ' + self.instantLogin);
+
       if (!self.authenticated) {
-        if (self.$store.state.uiConfigStore.config.autoSSOLogin) {
-          window.console.info('forwarding to SSO Login ');
-          self.doOIDCLogin();
+        if (self.instantLogin) {
+          if (self.$store.state.uiConfigStore.config.autoSSOLogin) {
+            window.console.info('forwarding to SSO Login ');
+            self.doOIDCLogin();
+          }
+        } else {
+          window.console.info('logged out recently, no automatic forward to SSO Login ');
         }
       }
     });
@@ -99,9 +113,6 @@ export default class JhiNavbar extends Vue {
   }
 
   public doOIDCLogin(): void {
-    window.console.info('++++++++++++++++++ JhiNavbar.doOIDCLogin(), route.query.pipelineId : ' + this.$route.query.pipelineId);
-    window.console.info('++++++++++++++++++ JhiNavbar.doOIDCLogin(), route.query.certificateId : ' + this.$route.query.certificateId);
-
     const uri = window.location.href;
     window.console.info('JhiNavbar ### window.location : ' + uri);
 
@@ -123,8 +134,6 @@ export default class JhiNavbar extends Vue {
           const jwt = bearerToken.slice(7, bearerToken.length);
           localStorage.setItem('jhi-authenticationToken', jwt);
         }
-
-        //        this.accountService().retrieveAccount();
       })
       .catch(() => {
         window.console.warn('problem doing OIDC authentication.');
