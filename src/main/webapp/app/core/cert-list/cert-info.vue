@@ -195,36 +195,36 @@
                         <dd v-if="certificateView.isServersideKeyGeneration">
                             <div class="row">
                                 <div class="col">
-                                    <div v-if="collapsed">
-                                        <button type="button" class="addRemoveSelector" v-on:click="setCollapsed(false)">
-                                            <font-awesome-icon icon="plus"></font-awesome-icon>
-                                        </button>
-                                        <p/>
-                                    </div>
-
-                                    <!--div v-if="!collapsed">
-                                        <button type="button" class="addRemoveSelector" v-on:click="setCollapsed(true)">
-                                            <font-awesome-icon icon="minus"></font-awesome-icon>
-                                        </button>
-                                    </div>
-
-                                    <Fragment v-if="!collapsed"-->
-                                        <Fragment v-if="getP12PbeAlgoArr().length > 1">
-                                            <label class="form-control-label" v-text="$t('ca3SApp.certificate.download.p12pbe')" for="p12Pbe">PBE</label>
-                                            <select class="form-control" id="p12Pbe" name="p12Pbe" v-model="p12Pbe" >
-                                                <option v-for="algo in getP12PbeAlgoArr()" :key="algo" :value="algo" >{{algo}}</option>
-                                            </select>
-                                        </Fragment>
-
-                                        <!--label class="form-control-label" v-text="$t('ca3SApp.certificate.p12keyex')" for="p12KeyEx">KeyEx</label>
-                                        <input type="checkbox" class="form-check-inline" name="p12KeyEx" id="p12KeyEx" v-model="p12KeyEx" />
-                                    </Fragment-->
-
                                     <label class="form-control-label" v-text="$t('ca3SApp.certificate.download.p12Alias')" for="p12Alias">Alias</label>
                                     <input type="text" class="form-check-inline" name="p12Alias" id="p12Alias" v-model="p12Alias" />
                                 </div>
                                 <div class="col colContent">
                                     <a href="downloadUrl" @click.prevent="downloadKeystore('.p12', 'application/x-pkcs12')" >{{certificateView.downloadFilename}}.p12</a>
+                                </div>
+                            </div>
+
+                            <div class="row" v-if="getP12PbeAlgoArr().length > 1">
+                                <div class="col">
+
+                                    <Fragment v-if="collapsed ">
+                                        <button type="button" class="addRemoveSelector" v-on:click="setCollapsed(false)">
+                                            <font-awesome-icon icon="plus"></font-awesome-icon>
+                                    </button>
+                                    </Fragment>
+
+                                    <Fragment v-if="!collapsed ">
+                                        <button type="button" class="addRemoveSelector" v-on:click="setCollapsed(true)">
+                                            <font-awesome-icon icon="minus"></font-awesome-icon>
+                                        </button>
+
+                                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.download.p12pbe')" for="p12Pbe">PBE</label>
+                                        <select class="form-control" id="p12Pbe" name="p12Pbe" v-model="p12Pbe" >
+                                            <option v-for="algo in getP12PbeAlgoArr()" :key="algo" :value="algo" >{{algo}}</option>
+                                        </select>
+
+                                        <!--label class="form-control-label" v-text="$t('ca3SApp.certificate.p12keyex')" for="p12KeyEx">KeyEx</label>
+                                        <input type="checkbox" class="form-check-inline" name="p12KeyEx" id="p12KeyEx" v-model="p12KeyEx" /-->
+                                    </Fragment>
                                 </div>
                             </div>
                         </dd>
@@ -240,8 +240,8 @@
                                         <select class="form-control" id="download-format" name="download-format" v-model="downloadFormat" >
                                             <option value="pkix" v-text="$t('ca3SApp.certificate.download.PKIX')" selected="selected">PKIX</option>
                                             <option value="pem" v-text="$t('ca3SApp.certificate.download.PEM')" >PEM</option>
-                                            <option v-if="certificateView.endEntity" value="pemPart" v-text="$t('ca3SApp.certificate.download.pemPartChain')" >PEMPartChain</option>
-                                            <option v-if="certificateView.endEntity" value="pemFull" v-text="$t('ca3SApp.certificate.download.pemFullChain')" >PEMFullChain</option>
+                                            <option v-if="certificateView.endEntity && (certificateView.issuerId !== undefined)" value="pemPart" v-text="$t('ca3SApp.certificate.download.pemPartChain')" >PEMPartChain</option>
+                                            <option v-if="certificateView.endEntity && (certificateView.issuerId !== undefined)" value="pemFull" v-text="$t('ca3SApp.certificate.download.pemFullChain')" >PEMFullChain</option>
                                         </select>
                                     </div>
                                     <div class="col">

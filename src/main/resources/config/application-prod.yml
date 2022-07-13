@@ -198,6 +198,7 @@ ca3s:
   batch:
     maxRecordsPerTransaction: 1000
 
+# enable the creation of the PKCS12 download container with specific algorithms
   pkcs12:
     pbe:
       algos: PBEWithHmacSHA256AndAES_256, pbeWithSHAAnd3_KeyTripleDES_CBC

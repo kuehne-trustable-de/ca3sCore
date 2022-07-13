@@ -105,7 +105,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
   public download(url: string, filename: string, mimetype: string, headers: any) {
     const self = this;
     axios
-      .get(url, { responseType: 'blob', headers: '{headers}' })
+      .get(url, { responseType: 'blob', headers: headers })
       .then(response => {
         const blob = new Blob([response.data], { type: mimetype, endings: 'transparent' });
         const link = document.createElement('a');
