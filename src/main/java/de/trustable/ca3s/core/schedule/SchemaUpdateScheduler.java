@@ -5,6 +5,7 @@ import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.CryptoService;
 import org.bouncycastle.util.encoders.DecoderException;
@@ -43,17 +44,19 @@ public class SchemaUpdateScheduler {
 
     final private CSRRepository csrRepository;
     final private CsrAttributeRepository csrAttributeRepository;
+    final private CSRUtil csrUtil;
 
     final private AcmeOrderRepository acmeOrderRepository;
     final private PipelineRepository pipelineRepository;
 
     final private AuditService auditService;
 
-    public SchemaUpdateScheduler(CertificateRepository certificateRepo, CertificateUtil certUtil, CSRRepository csrRepository, CsrAttributeRepository csrAttributeRepository, AcmeOrderRepository acmeOrderRepository, PipelineRepository pipelineRepository, AuditService auditService) {
+    public SchemaUpdateScheduler(CertificateRepository certificateRepo, CertificateUtil certUtil, CSRRepository csrRepository, CsrAttributeRepository csrAttributeRepository, CSRUtil csrUtil, AcmeOrderRepository acmeOrderRepository, PipelineRepository pipelineRepository, AuditService auditService) {
         this.certificateRepo = certificateRepo;
         this.certUtil = certUtil;
         this.csrRepository = csrRepository;
         this.csrAttributeRepository = csrAttributeRepository;
+        this.csrUtil = csrUtil;
         this.acmeOrderRepository = acmeOrderRepository;
         this.pipelineRepository = pipelineRepository;
         this.auditService = auditService;
@@ -123,11 +126,7 @@ public class SchemaUpdateScheduler {
 
             try {
                 fixIPSan(csr);
-                CsrAttribute verionAttr = new CsrAttribute();
-                verionAttr.setCsr(csr);
-                verionAttr.setName(CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION);
-                verionAttr.setValue("" + CsrAttribute.CURRENT_ATTRIBUTES_VERSION);
-                csr.getCsrAttributes().add(verionAttr);
+                csrUtil.setCSRAttributeVersion(csr);
                 csrAttributeRepository.saveAll(csr.getCsrAttributes());
                 csrRepository.save(csr);
                 LOG.info("attribute schema updated for csr id {} ", csr.getId());

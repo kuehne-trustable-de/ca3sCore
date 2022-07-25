@@ -15,10 +15,8 @@ import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.service.util.CSRUtil;
-import de.trustable.ca3s.core.service.util.PipelineUtil;
-
-import javax.persistence.Column;
-import javax.persistence.Lob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A certificate view from a given certificate and its attributes
@@ -26,6 +24,8 @@ import javax.persistence.Lob;
 public class CSRView implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(CSRView.class);
 
     @CsvBindByName
     private Long id;
@@ -120,12 +120,10 @@ public class CSRView implements Serializable {
     @CsvIgnore
     private boolean isAdministrable;
 
+    public CSRView() {
+    }
 
-
-    public CSRView() {}
-
-
-    public CSRView(final CSRUtil csrUtil, final CSR csr) {
+    public CSRView(final CSRUtil csrUtil, final CSR csr, boolean doDNSLookup) {
 
     	this.id = csr.getId();
         this.csrBase64 = "";
@@ -147,25 +145,35 @@ public class CSRView implements Serializable {
         for( CsrAttribute csrAttribute: attributes){
             if( csrAttribute.getName().equals(CsrAttribute.ATTRIBUTE_TYPED_SAN)){
                 String value = csrAttribute.getValue();
-                if( value.startsWith("IP:") ){
-                    String ip = value.substring(3);
-                    String names = "";
+                if( doDNSLookup) {
                     try {
-                        InetAddress[] inetAddresses= InetAddress.getAllByName(ip);
-                        for( InetAddress inetAddress: inetAddresses){
-                            // return real names, not the already known IP
-                            if( !ip.equals(inetAddress.getHostName())) {
-                                if (!names.isEmpty()) {
-                                    names += ", ";
+                    if (value.startsWith("IP:")) {
+                        String ip = value.substring(3);
+                        String names = "";
+                            InetAddress[] inetAddresses = InetAddress.getAllByName(ip);
+                            for (InetAddress inetAddress : inetAddresses) {
+                                // return real names, not just the known IP
+                                if (!ip.equals(inetAddress.getHostName())) {
+                                    if (!names.isEmpty()) {
+                                        names += ", ";
+                                    }
+                                    names += inetAddress.getHostName();
                                 }
-                                names += inetAddress.getHostName();
+                            }
+                            if (!names.isEmpty()) {
+                                value += " (" + names + ")";
+                            }
+                        } else if (value.startsWith("DNS:")) {
+                            if (InetAddress.getAllByName(value.substring(4)).length > 0) {
+                                value += " (in DNS vorhanden)";
+                            }
+                        } else {
+                            if (InetAddress.getAllByName(value).length > 0) {
+                                value += " (in DNS vorhanden)";
                             }
                         }
-                        if( !names.isEmpty()){
-                            value += " (" + names + ")";
-                        }
                     } catch (UnknownHostException e) {
-                        e.printStackTrace();
+                        LOG.info("DNS lookup of '" + value + "' failed.", e);
                     }
                 }
                 sanList.add(value);
@@ -201,7 +209,7 @@ public class CSRView implements Serializable {
 
     }
 
-	public Long getId() {
+    public Long getId() {
 		return id;
 	}
 

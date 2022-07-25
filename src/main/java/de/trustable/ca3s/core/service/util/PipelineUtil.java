@@ -85,7 +85,8 @@ public class PipelineUtil {
 //	public static final String RESTR_ARA_CARDINALITY = "CARDINALITY";
 	public static final String RESTR_ARA_TEMPLATE = "TEMPLATE";
 	public static final String RESTR_ARA_REGEXMATCH = "REGEXMATCH";
-	public static final String RESTR_ARA_REQUIRED = "REQUIRED";
+    public static final String RESTR_ARA_REQUIRED = "REQUIRED";
+    public static final String RESTR_ARA_COMMENT = "COMMENT";
 
 	public static final String ALLOW_IP_AS_SUBJECT = "ALLOW_IP_AS_SUBJECT";
 	public static final String ALLOW_IP_AS_SAN = "ALLOW_IP_AS_SAN";
@@ -477,9 +478,13 @@ public class PipelineUtil {
                         araRestriction.setRequired(Boolean.parseBoolean(plAtt.getValue()));
                     }else if( RESTR_ARA_TEMPLATE.equals(namePart)) {
                         araRestriction.setContentTemplate(plAtt.getValue());
+                    }else if( RESTR_ARA_COMMENT.equals(namePart)) {
+                        araRestriction.setComment(plAtt.getValue());
                     }else if( RESTR_ARA_REGEXMATCH.equals(namePart)) {
                         araRestriction.setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
                     }
+
+
                 }
             }
         }
@@ -766,6 +771,7 @@ public class PipelineUtil {
                     addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_NAME, araName.trim());
                     addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_REQUIRED, araRestriction.isRequired());
                     addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_TEMPLATE, araRestriction.getContentTemplate());
+                    addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_COMMENT, araRestriction.getComment());
                     addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_REGEXMATCH, araRestriction.isRegExMatch());
                     j++;
                 }

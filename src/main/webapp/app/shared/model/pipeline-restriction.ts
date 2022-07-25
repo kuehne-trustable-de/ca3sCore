@@ -2,6 +2,7 @@ export interface IPipelineRestriction {
   name: string;
   cardinality: string;
   template: string;
+  comment: string;
   regExMatch: boolean;
   regEx: string;
   readOnly: boolean;
@@ -16,8 +17,16 @@ export class PipelineRestriction implements IPipelineRestriction {
   public required: boolean;
   public multipleValues: boolean;
 
-  constructor(public name: string, public cardinality: string, public template: string, public regExMatch: boolean, public regEx: string) {
+  constructor(
+    public name: string,
+    public cardinality: string,
+    public template: string,
+    public comment: string,
+    public regExMatch: boolean,
+    public regEx: string
+  ) {
     this.template = template || '';
+    this.comment = comment || '';
     this.regEx = regEx || '';
     this.regExMatch = regExMatch || false;
     this.alignContent();

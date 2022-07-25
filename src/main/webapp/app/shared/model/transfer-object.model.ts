@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2022-07-07 18:55:18.
+// Generated using typescript-generator version 2.19.577 on 2022-07-18 22:52:02.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -192,8 +192,8 @@ export interface ICertificateView extends ISerializable {
   isServersideKeyGeneration?: boolean;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
-  serversideKeyGeneration?: boolean;
   fullChainAvailable?: boolean;
+  serversideKeyGeneration?: boolean;
   auditPresent?: boolean;
 }
 
@@ -386,6 +386,7 @@ export interface IARARestriction {
   name?: string;
   contentTemplate?: string;
   regEx?: string;
+  comment?: string;
   regExMatch?: boolean;
   required?: boolean;
 }

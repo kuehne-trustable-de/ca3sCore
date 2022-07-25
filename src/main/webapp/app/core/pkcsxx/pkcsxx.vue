@@ -19,6 +19,7 @@
                         <span v-else-if="creationMode === 'COMMANDLINE_TOOL'" v-text="$t('pkcsxx.subtitle.tooling')">Upload</span>
                         <span v-else-if="creationMode === 'SERVERSIDE_KEY_CREATION'" v-text="$t('pkcsxx.subtitle.serverside')">Upload</span>
                     </h2>
+                    <h3>upload.pipelineId : {{upload.pipelineId}}</h3>
 					<div>
                         <Fragment v-if="authenticated && allWebPipelines && allWebPipelines.length > 0">
                             <!-- if there is a preselected pipeline, show the name and the description -->
@@ -126,6 +127,8 @@
                                 <div class="row" v-for="(item, index) in araRestrictions" :key="index" >
                                     <div class="col">
                                         <label class="form-control-label" :for="'pkcsxx.upload.ara.' + item.name">{{item.name}}</label>
+                                        <br v-if="item.comment.length > 0" class="form-control-label small"/>
+                                        <label v-if="item.comment.length > 0" class="form-control-label small">{{item.comment}}</label>
                                     </div>
                                     <div class="col colContent">
                                         <input type="text"
@@ -213,7 +216,7 @@
                             <div class="row wrap" v-if="creationMode === 'COMMANDLINE_TOOL' && reqConfRequired">
                                 <div class="col ">
                                     <label v-if="creationTool === 'certreq'" class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.req.inf')" for="pkcsxx-reqConf">Request info file</label> <help-tag v-if="creationTool === 'certreq'" target="pkcsxx.upload.creationTool.req.inf"/>
-                                    <label v-if="creationTool !== 'certreq'" class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.req.conf')" for="pkcsxx-reqConf">Request config file</label> <help-tag v-if="creationTool !== 'certreq'"target="pkcsxx.upload.creationTool.req.conf"/>
+                                    <label v-if="creationTool !== 'certreq'" class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.req.conf')" for="pkcsxx-reqConf">Request config file</label> <help-tag v-if="creationTool !== 'certreq'" target="pkcsxx.upload.creationTool.req.conf"/>
                                 </div>
                                 <div class="col colContent">
                                     <textarea class="form-control cmd-content" name="pkcsxx-reqConf" id="pkcsxx-reqConf"

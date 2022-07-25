@@ -2,7 +2,7 @@
     <div class="row justify-content-center">
         <div class="col-8">
             <form name="editForm" role="form" novalidate v-on:submit.prevent="save()" >
-                <h2 id="ca3SApp.pipeline.home.createOrEditLabel" v-text="$t('ca3SApp.pipeline.home.createOrEditLabel')">Create or edit a Pipeline</h2>
+                <h2 id="ca3SApp.pipeline.home.createOrEditLabel" v-text="$t('ca3SApp.pipeline.home.editLabel', {'id': pipeline.id})">Create or edit a Pipeline</h2>
 
                 <b-alert :show="dismissCountDown"
                          dismissible
@@ -14,11 +14,6 @@
                 <br/>
 
                 <div>
-                    <!--div class="form-group" v-if="pipeline.id">
-                        <label for="id" v-text="$t('global.field.id')">ID</label>
-                        <input type="text" class="form-control" id="id" name="id"
-                               v-model="pipeline.id" readonly />
-                    </div-->
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.name')" for="pipeline-name">Name</label>
                         <input type="text" class="form-control" name="name" id="pipeline-name"
@@ -311,20 +306,24 @@
                         <div class="row" v-for="(item, index) in pipeline.araRestrictions" :key="index" >
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ara.name')" for="pipeline-ara-name">Name</label>
-                                <input type="text" class="form-control" name="pipeline-ara-name" id="pipeline-ara-name" v-model="pipeline.araRestrictions[index].name" v-on:input="alignARAArraySize(index)"/>
+                                <input type="text" class="form-control-inline" name="pipeline-ara-name" id="pipeline-ara-name" v-model="pipeline.araRestrictions[index].name" v-on:input="alignARAArraySize(index)"/>
                             </div>
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.template')" for="pipeline-ara-template">Template</label>
-                                <input type="text" class="form-control" name="pipeline-ara-template" id="pipeline-ara-template" v-model="pipeline.araRestrictions[index].contentTemplate" />
+                                <input type="text" class="form-control-inline" name="pipeline-ara-template" id="pipeline-ara-template" v-model="pipeline.araRestrictions[index].contentTemplate" />
                             </div>
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.regExMatch')" for="pipeline-ara-regExMatch">Regular Expression</label>
-                                <input type="checkbox" class="form-check-inline" name="pipeline-ara-regExMatch" id="pipeline-ara-regExMatch" v-model="pipeline.araRestrictions[index].regExMatch" />
-                                <input type="text" class="form-control" name="pipeline-ara-regex" id="pipeline-ara-regex" v-model="pipeline.araRestrictions[index].regEx" />
+                                    <input type="checkbox" class="form-check-inline" name="pipeline-ara-regExMatch" id="pipeline-ara-regExMatch" v-model="pipeline.araRestrictions[index].regExMatch" />
+                                    <input type="text" class="form-control-inline" name="pipeline-ara-regex" id="pipeline-ara-regex" v-model="pipeline.araRestrictions[index].regEx" />
                             </div>
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ara.required')" for="pipeline-ara-required">Required</label>
                                 <input type="checkbox" class="form-check-inline" name="pipeline-ara-required" id="pipeline-ara-required" v-model="pipeline.araRestrictions[index].required" />
+                            </div>
+                            <div class="col">
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ara.comment')" for="pipeline-ara-comment">Comment</label>
+                                <input type="text" class="form-check-inline" name="pipeline-ara-comment" id="pipeline-ara-comment" v-model="pipeline.araRestrictions[index].comment" />
                             </div>
 
                         </div>

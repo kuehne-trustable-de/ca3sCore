@@ -52,6 +52,7 @@ public class OIDCAuthenticationResource {
     public static final String PIPELINE_ID = "pipelineId";
     public static final String CERTIFICATE_ID = "certificateId";
     public static final String CSR_ID = "csrId";
+    public static final String SHOW_NAV_BAR = "showNavBar";
 
     private final Logger log = LoggerFactory.getLogger(OIDCAuthenticationResource.class);
 
@@ -177,7 +178,8 @@ public class OIDCAuthenticationResource {
                                 for( String paramKey: parameters.keySet()){
                                     if( paramKey.equals(PIPELINE_ID) ||
                                         paramKey.equals(CSR_ID)||
-                                        paramKey.equals(CERTIFICATE_ID)){
+                                        paramKey.equals(CERTIFICATE_ID) ||
+                                        paramKey.equals(SHOW_NAV_BAR)){
                                         if( !state.isEmpty()){
                                             state += "&";
                                         }
@@ -310,6 +312,9 @@ public class OIDCAuthenticationResource {
                 }
                 if( part.startsWith(CSR_ID)){
                     builder.queryParam(CSR_ID, part.substring(CSR_ID.length()+1));
+                }
+                if( part.startsWith(SHOW_NAV_BAR)){
+                    builder.queryParam(SHOW_NAV_BAR, part.substring(SHOW_NAV_BAR.length()+1));
                 }
 
             }

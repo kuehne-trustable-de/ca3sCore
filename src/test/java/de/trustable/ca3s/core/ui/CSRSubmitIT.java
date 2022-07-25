@@ -437,7 +437,14 @@ public class CSRSubmitIT extends WebTestBase{
 		validatePresent(LOC_LNK_REQ_CERT_MENUE);
 		click(LOC_LNK_REQ_CERT_MENUE);
 
-		validatePresent(LOC_TA_UPLOAD_CONTENT);
+        try {
+            System.out.println("... waiting ...");
+            System.in.read();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        validatePresent(LOC_TA_UPLOAD_CONTENT);
 
 		String cn = "reqTest" + System.currentTimeMillis();
 	    String subject = "CN=" + cn + ", O=trustable solutions, C=DE";

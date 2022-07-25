@@ -5,6 +5,7 @@ public class ARARestriction {
 	String name;
     String contentTemplate;
     String regEx;
+    String comment;
 	boolean regExMatch = false;
 	boolean required = false;
 
@@ -53,5 +54,13 @@ public class ARARestriction {
 
     public void setRegEx(String regEx) {
         this.regEx = regEx;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 }

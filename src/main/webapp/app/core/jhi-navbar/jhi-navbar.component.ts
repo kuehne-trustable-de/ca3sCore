@@ -5,8 +5,6 @@ import AccountService from '@/account/account.service';
 import TranslationService from '@/locale/translation.service';
 import axios from 'axios';
 import { IUIConfigView } from '@/shared/model/transfer-object.model';
-import { accountStore } from '@/shared/config/store/account-store';
-import { uiConfigStore } from '@/shared/config/store/ui-config-store';
 
 @Component
 export default class JhiNavbar extends Vue {
@@ -30,11 +28,7 @@ export default class JhiNavbar extends Vue {
       this.showNavBar = false;
     }
 
-    if (urlParams.has('instantLogin') && urlParams.get('instantLogin') == 'false') {
-      this.instantLogin = false;
-    } else {
-      this.instantLogin = true;
-    }
+    this.instantLogin = !(urlParams.has('instantLogin') && urlParams.get('instantLogin') === 'false');
   }
 
   async created() {
@@ -155,6 +149,12 @@ export default class JhiNavbar extends Vue {
   }
 
   public get authenticated(): boolean {
+    if (!this.$store.getters.authenticated) {
+      return false;
+    }
+    if (this.username === 'anonymous') {
+      return false;
+    }
     return this.$store.getters.authenticated;
   }
 

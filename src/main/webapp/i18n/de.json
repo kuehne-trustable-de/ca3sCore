@@ -469,6 +469,7 @@
   "ca3SApp.pipeline.detail.title": "Pipeline",
   "ca3SApp.pipeline.home.createLabel": "Pipeline erstellen",
   "ca3SApp.pipeline.home.createOrEditLabel": "Pipeline erstellen oder bearbeiten",
+  "ca3SApp.pipeline.home.editLabel": "Pipeline #{{ id }} bearbeiten",
   "ca3SApp.pipeline.home.notFound": "Keine Pipelines gefunden",
   "ca3SApp.pipeline.home.title": "Pipelines",
   "ca3SApp.pipeline.ipAsSanAllowed": "IP als SAN erlaubt",
@@ -1098,6 +1099,7 @@
   "NOT_IN": "keins von",
 
   "orderId": "Order-Id",
+  "challengeUrls": "Challenge Url",
   "realm": "Bereich",
   "expires": "Ablauf",
   "accountId": "Konto Id",

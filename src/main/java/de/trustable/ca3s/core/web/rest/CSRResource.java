@@ -39,12 +39,15 @@ public class CSRResource {
     private final CSRUtil csrUtil;
     private final PipelineUtil pipelineUtil;
     private final UserRepository userRepository;
+    private final boolean doDNSLookup;
 
-    public CSRResource(CSRService cSRService, CSRUtil csrUtil, PipelineUtil pipelineUtil, UserRepository userRepository) {
+    public CSRResource(CSRService cSRService, CSRUtil csrUtil, PipelineUtil pipelineUtil, UserRepository userRepository,
+                       @Value("${ca3s.ui.csr.dnslookup:false}") boolean doDNSLookup) {
         this.cSRService = cSRService;
         this.csrUtil = csrUtil;
         this.pipelineUtil = pipelineUtil;
         this.userRepository = userRepository;
+        this.doDNSLookup = doDNSLookup;
     }
 
     /**
@@ -117,7 +120,7 @@ public class CSRResource {
             String userName = auth.getName();
 
             CSR csr = cSROptional.get();
-            CSRView csrView = new CSRView(csrUtil, csr);
+            CSRView csrView = new CSRView(csrUtil, csr, doDNSLookup);
 
             Optional<User> optCurrentUser = userRepository.findOneByLogin(userName);
             if(!optCurrentUser.isPresent()) {

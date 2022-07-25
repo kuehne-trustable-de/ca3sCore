@@ -46,7 +46,7 @@ public class CSRViewRepository {
 
         Optional<CSR> optCSR = csrRepository.findById(csrId);
         if (optCSR.isPresent()) {
-            return Optional.of(new CSRView(csrUtil, optCSR.get()));
+            return Optional.of(new CSRView(csrUtil, optCSR.get(), false));
         }
         return Optional.empty();
     }

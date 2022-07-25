@@ -313,7 +313,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
           // ignore this
         } else {
           this.rdnRestrictions.push(
-            new PipelineRestriction(rr.rdnName, rr.cardinalityRestriction, rr.contentTemplate, rr.regExMatch, rr.regEx)
+            new PipelineRestriction(rr.rdnName, rr.cardinalityRestriction, rr.contentTemplate, '', rr.regExMatch, rr.regEx)
           );
         }
       }
@@ -350,7 +350,9 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     if (pipeline.araRestrictions) {
       for (const rr of pipeline.araRestrictions) {
         const cardinalityRestriction = rr.required ? 'ONE' : 'ZERO_OR_ONE';
-        this.araRestrictions.push(new PipelineRestriction(rr.name, cardinalityRestriction, rr.contentTemplate, rr.regExMatch, rr.regEx));
+        this.araRestrictions.push(
+          new PipelineRestriction(rr.name, cardinalityRestriction, rr.contentTemplate, rr.comment, rr.regExMatch, rr.regEx)
+        );
       }
     }
 

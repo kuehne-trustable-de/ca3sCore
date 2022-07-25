@@ -264,7 +264,7 @@ public class ChallengeController extends ACMEController {
             if (authReady) {
                 LOG.debug("found valid challenge, authorization id {} is valid ", authDao.getAcmeAuthorizationId());
             } else {
-                LOG.debug("no valid challange, authorization id {} and order {} fails ",
+                LOG.debug("no valid challenge, authorization id {} and order {} still pending",
                     authDao.getAcmeAuthorizationId(), orderDao.getOrderId());
                 orderReady = false;
                 break;

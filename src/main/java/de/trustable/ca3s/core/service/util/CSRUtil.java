@@ -295,6 +295,8 @@ public class CSRUtil {
 		csrAttRequestorName.setValue(requestorName);
 		csr.getCsrAttributes().add(csrAttRequestorName);
 
+        setCSRAttributeVersion(csr);
+
 		rdnRepository.saveAll(csr.getRdns());
 
 		for( RDN rdn: csr.getRdns()) {
@@ -311,10 +313,18 @@ public class CSRUtil {
 
 		csrRepository.save(csr);
 
-		LOG.debug("saved #{} csr attributes,  ",newRas.size());
+		LOG.debug("saved #{} csr attributes",newRas.size());
 
 		return csr;
 	}
+
+    public void setCSRAttributeVersion(CSR csr) {
+        CsrAttribute verionAttr = new CsrAttribute();
+        verionAttr.setCsr(csr);
+        verionAttr.setName(CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION);
+        verionAttr.setValue("" + CsrAttribute.CURRENT_ATTRIBUTES_VERSION);
+        csr.getCsrAttributes().add(verionAttr);
+    }
 
     public static String getKeyAlgoName(String sigAlgName) {
         String keyAlgName = sigAlgName;
