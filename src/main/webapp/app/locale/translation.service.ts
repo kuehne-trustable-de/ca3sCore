@@ -11,7 +11,7 @@ export default class TranslationService {
     this.i18n = i18n;
   }
 
-  async refreshLanguages() {
+  public async refreshLanguages() {
     this.store.commit('languages', {
       de: { name: 'Deutsch' }
     });

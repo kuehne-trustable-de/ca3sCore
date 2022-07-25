@@ -72,7 +72,11 @@ export default class JhiNavbar extends Vue {
           window.console.warn('unexpected language "' + lang + '" found');
         }
       }
-      this.languages['multiLanguage'] = res.data.languageArr.length > 1;
+      if (res.data.languageArr) {
+        this.languages['multiLanguage'] = res.data.languageArr.length > 1;
+      } else {
+        this.languages['multiLanguage'] = false;
+      }
     }
 
     this.translationService().refreshTranslation(this.currentLanguage);
