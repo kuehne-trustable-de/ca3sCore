@@ -430,8 +430,8 @@ public class NewOrderController extends ACMEController {
 
             if( challenges.isEmpty()){
                 LOG.info("No challenge available for the given configuration of pipeline '{}'", pipeline.getName());
-                final ProblemDetail problemDetail = new ProblemDetail(ACMEUtil.MALFORMED, "No challange available",
-                    BAD_REQUEST, "No challange available for the given configuration.", ACMEController.NO_INSTANCE);
+                final ProblemDetail problemDetail = new ProblemDetail(ACMEUtil.MALFORMED, "No challenge available",
+                    BAD_REQUEST, "No challenge available for the given configuration.", ACMEController.NO_INSTANCE);
                 throw new AcmeProblemException(problemDetail);
             }
 

@@ -23,8 +23,8 @@ export default class JhiNavbar extends Vue {
 
   public mounted(): void {
     window.document.cookie = 'instantLogin';
-    let urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('showNavBar') && urlParams.get('showNavBar') == 'false') {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('showNavBar') && urlParams.get('showNavBar') === 'false') {
       this.showNavBar = false;
     }
 

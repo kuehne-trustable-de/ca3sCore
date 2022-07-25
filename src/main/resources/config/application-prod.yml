@@ -239,6 +239,12 @@ ca3s:
   acme:
     finalizelocationBackwardCompat: true
 
+# determine the status of an Authentication or an Order by prooving the status of the challenges.
+# this may trigger a challenge validation call to the client
+    iterate:
+      authentications: true
+      challenges: true
+
   dns:
 #    server: 8.8.8.8
     server: 213.133.106.251

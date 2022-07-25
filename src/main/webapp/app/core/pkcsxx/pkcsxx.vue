@@ -19,7 +19,7 @@
                         <span v-else-if="creationMode === 'COMMANDLINE_TOOL'" v-text="$t('pkcsxx.subtitle.tooling')">Upload</span>
                         <span v-else-if="creationMode === 'SERVERSIDE_KEY_CREATION'" v-text="$t('pkcsxx.subtitle.serverside')">Upload</span>
                     </h2>
-                    <h3>upload.pipelineId : {{upload.pipelineId}}</h3>
+                    <!--h3>upload.pipelineId : {{upload.pipelineId}}</h3-->
 					<div>
                         <Fragment v-if="authenticated && allWebPipelines && allWebPipelines.length > 0">
                             <!-- if there is a preselected pipeline, show the name and the description -->

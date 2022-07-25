@@ -204,7 +204,7 @@ public class ACMEHappyPathIT {
                     challenge.trigger();
                     if( webThread != null){webThread.stop();}
                 } else {
-                    LOG.warn("http01 Challange not found for order");
+                    LOG.warn("http01 Challenge not found for order");
                 }
 			}
 		}

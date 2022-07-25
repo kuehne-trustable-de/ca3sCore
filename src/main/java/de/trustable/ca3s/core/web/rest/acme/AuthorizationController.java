@@ -79,6 +79,8 @@ public class AuthorizationController extends ACMEController {
 
 
     final private boolean rejectGet;
+    final private boolean iterateChallengesOnGet;
+
 
     final private ChallengeController challengeController;
 
@@ -87,10 +89,12 @@ public class AuthorizationController extends ACMEController {
    final private HttpServletRequest request;
 
     public AuthorizationController(@Value("${ca3s.acme.reject.get:true}") boolean rejectGet,
-                                   ChallengeController challengeController,
+                                   @Value("${ca3s.acme.iterate.challenges:true}") boolean iterateChallengesOnGet,
+                                    ChallengeController challengeController,
                                    AcmeAuthorizationRepository authorizationRepository,
                                    HttpServletRequest request) {
         this.rejectGet = rejectGet;
+        this.iterateChallengesOnGet = iterateChallengesOnGet;
         this.challengeController = challengeController;
         this.authorizationRepository = authorizationRepository;
         this.request = request;
@@ -129,7 +133,7 @@ public class AuthorizationController extends ACMEController {
 
     }
 
-    @RequestMapping(value = "/{authorizationId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
+  @RequestMapping(value = "/{authorizationId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
   public ResponseEntity<?> postAuthorization(@RequestBody final String requestBody,
 		  @PathVariable final long authorizationId, @PathVariable final String realm) {
 
@@ -186,14 +190,16 @@ private AuthorizationResponse buildAuthResponse(final AcmeAuthorization authDao)
 	AcmeOrderStatus authStatus = AcmeOrderStatus.PENDING;
 	for( AcmeChallenge challDao: authDao.getChallenges()) {
 
-        challengeController.isChallengeSolved(challDao);
+        if(iterateChallengesOnGet) {
+            challengeController.isChallengeSolved(challDao);
+        }
         if( challDao.getStatus() == ChallengeStatus.VALID) {
 			authStatus = AcmeOrderStatus.VALID;
 		}
 	}
 	authResp.setStatus(authStatus);
 
-	Set<ChallengeResponse> challResp = new HashSet<ChallengeResponse>();
+	Set<ChallengeResponse> challResp = new HashSet<>();
 	for( AcmeChallenge challengeDao: authDao.getChallenges()) {
 		ChallengeResponse challenge = new ChallengeResponse(challengeDao, locationUriOfChallenge(challengeDao.getId(), fromCurrentRequestUri()).toString());
 		challResp.add(challenge );

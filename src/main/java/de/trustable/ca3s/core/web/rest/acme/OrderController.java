@@ -100,6 +100,8 @@ public class OrderController extends ACMEController {
 
     final private boolean finalizeLocationBackwardCompat;
 
+    final private boolean iterateAuthenticationsOnGet;
+
     public OrderController(AcmeOrderRepository orderRepository,
                            JwtUtil jwtUtil,
                            CryptoUtil cryptoUtil,
@@ -107,7 +109,8 @@ public class OrderController extends ACMEController {
                            CertificateProcessingUtil cpUtil,
                            PipelineUtil pipelineUtil,
                            AuditService auditService,
-                           @Value("${ca3s.acme.backward.finalize.location:true}") boolean finalizeLocationBackwardCompat) {
+                           @Value("${ca3s.acme.backward.finalize.location:true}") boolean finalizeLocationBackwardCompat,
+                           @Value("${ca3s.acme.iterate.authentications:true}")boolean iterateAuthenticationsOnGet) {
         this.orderRepository = orderRepository;
         this.jwtUtil = jwtUtil;
         this.cryptoUtil = cryptoUtil;
@@ -117,6 +120,7 @@ public class OrderController extends ACMEController {
         this.auditService = auditService;
         this.finalizeLocationBackwardCompat = finalizeLocationBackwardCompat;
 
+        this.iterateAuthenticationsOnGet = iterateAuthenticationsOnGet;
     }
 
 
@@ -143,7 +147,9 @@ public class OrderController extends ACMEController {
       		        return ResponseEntity.badRequest().build();
       			}
 
-                updateAcmeOrderState(orderDao);
+                if(iterateAuthenticationsOnGet){
+                    updateAcmeOrderState(orderDao);
+                }
 
       			UriComponentsBuilder baseUriBuilder = fromCurrentRequestUri().path("../../..");
                 LOG.debug("postAsGetOrder: baseUriBuilder : " + baseUriBuilder.toUriString());
@@ -275,7 +281,7 @@ public class OrderController extends ACMEController {
                         if (authReady) {
                             LOG.debug("found valid challenge, authorization id {} is valid ", authDao.getAcmeAuthorizationId());
                         } else {
-                            LOG.debug("no valid challange, authorization id {} and order {} fails ",
+                            LOG.debug("no valid challenge, authorization id {} and order {} fails ",
                                     authDao.getAcmeAuthorizationId(), orderDao.getOrderId());
                             orderValid = false;
                             break;

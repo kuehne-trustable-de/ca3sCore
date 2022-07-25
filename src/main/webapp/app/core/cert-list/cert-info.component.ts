@@ -42,8 +42,8 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
   }
   public getP12Pbe(): string {
     if (
-      this.$store.state.uiConfigStore.config.cryptoConfigView != undefined &&
-      this.$store.state.uiConfigStore.config.cryptoConfigView.defaultPBEAlgo != undefined
+      this.$store.state.uiConfigStore.config.cryptoConfigView !== undefined &&
+      this.$store.state.uiConfigStore.config.cryptoConfigView.defaultPBEAlgo !== undefined
     ) {
       return this.$store.state.uiConfigStore.config.cryptoConfigView.defaultPBEAlgo;
     }
@@ -104,8 +104,13 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
 
   public download(url: string, filename: string, mimetype: string, headers: any) {
     const self = this;
+    const config = new Object();
+    config['responseType'] = 'blob';
+    config['headers'] = headers;
+
     axios
-      .get(url, { responseType: 'blob', headers: headers })
+      //      .get(url, { responseType: 'blob', headers: headers })
+      .get(url, config)
       .then(response => {
         const blob = new Blob([response.data], { type: mimetype, endings: 'transparent' });
         const link = document.createElement('a');

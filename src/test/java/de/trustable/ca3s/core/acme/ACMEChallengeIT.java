@@ -184,7 +184,7 @@ public class ACMEChallengeIT {
                 challenge.trigger();
 
                 LOG.debug("challenge status (post): {}", challenge.getStatus());
-                assertEquals(Status.INVALID, challenge.getStatus());
+                assertEquals(Status.PENDING, challenge.getStatus());
             }
         }
 
@@ -213,7 +213,7 @@ public class ACMEChallengeIT {
                 challenge.trigger();
 
                 LOG.debug("challenge status (post): {}", challenge.getStatus());
-                assertEquals(Status.INVALID, challenge.getStatus());
+                assertEquals(Status.PENDING, challenge.getStatus());
 
                 webThread.stop();
             }
@@ -243,7 +243,7 @@ public class ACMEChallengeIT {
                     webThread.stop();
 
                 } else {
-                    LOG.warn("http01 Challange not found for order");
+                    LOG.warn("http01 Challenge not found for order");
                 }
             }
         }
@@ -255,7 +255,7 @@ public class ACMEChallengeIT {
         byte[] csr = csrb.getEncoded();
 
         for(Authorization auth: order.getAuthorizations()){
-            System.out.println( " ################ "  + auth.getIdentifier().toString() + "" + auth.getLocation() );
+            System.out.println( " ################ " + auth.getIdentifier().toString() + " " + auth.getLocation() );
         }
 
         try{

@@ -105,7 +105,8 @@ public class ChallengeController extends ACMEController {
                                AcmeOrderRepository orderRepository,
                                PreferenceUtil preferenceUtil,
                                @Value("${ca3s.dns.server:}") String resolverHost,
-                               @Value("${ca3s.dns.port:53}") int resolverPort, AuditService auditService) throws UnknownHostException {
+                               @Value("${ca3s.dns.port:53}") int resolverPort,
+                               AuditService auditService) throws UnknownHostException {
         this.challengeRepository = challengeRepository;
         this.orderRepository = orderRepository;
         this.preferenceUtil = preferenceUtil;
@@ -181,11 +182,13 @@ public class ChallengeController extends ACMEController {
                 ChallengeResponse challenge = buildChallengeResponse(challengeDao);
 
                 if( solved) {
-                    URI authUri = locationUriOfAuthorization(challengeDao.getAcmeAuthorization().getAcmeAuthorizationId(), fromCurrentRequestUri());
-                    additionalHeaders.set("Link", "<" + authUri.toASCIIString() + ">;rel=\"up\"");
+                    LOG.debug("validation of challenge{} of type '{}' succeeded", challengeId, challengeDao.getType());
                 }else {
                     LOG.warn("validation of challenge{} of type '{}' failed", challengeId, challengeDao.getType());
                 }
+
+                URI authUri = locationUriOfAuthorization(challengeDao.getAcmeAuthorization().getAcmeAuthorizationId(), fromCurrentRequestUri());
+                additionalHeaders.set("Link", "<" + authUri.toASCIIString() + ">;rel=\"up\"");
                 return ok().headers(additionalHeaders).body(challenge);
             }
 
@@ -205,14 +208,14 @@ public class ChallengeController extends ACMEController {
                 newChallengeState = ChallengeStatus.VALID;
                 solved = true;
             } else {
-                newChallengeState = ChallengeStatus.INVALID;
+                newChallengeState = ChallengeStatus.PENDING;
             }
         }else if( AcmeChallenge.CHALLENGE_TYPE_DNS_01.equals(challengeDao.getType())){
             if (checkChallengeDNS(challengeDao)) {
                 newChallengeState = ChallengeStatus.VALID;
                 solved = true;
             } else {
-                newChallengeState = ChallengeStatus.INVALID;
+                newChallengeState = ChallengeStatus.PENDING;
             }
         }else{
             LOG.warn("Unexpected type '{}' of challenge{}", challengeDao.getType(), challengeDao.getId());
@@ -418,8 +421,6 @@ public class ChallengeController extends ACMEController {
                         auditService.createAuditTraceACMEChallengeFailed(acmeOrder.getAccount(), acmeOrder,
                             "challenge response mismatch at host '" + host + ":" + port + "'"));
                 }
-                LOG.debug("expected content: '{}'", expectedContent);
-
 				return matches;
 
 		    } catch(UnknownHostException uhe) {
