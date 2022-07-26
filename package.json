@@ -133,8 +133,8 @@
     "webpack:test": "npm run test",
     "webpack-dev-server": "node --max_old_space_size=4096 node_modules/webpack-dev-server/bin/webpack-dev-server.js",
     "webpack": "node --max_old_space_size=4096 node_modules/webpack/bin/webpack.js",
-    "test": "npm run lint && npm run jest",
-    "test-ci": "npm run lint && npm run jest:update",
+    "test": "npm run lint",
+    "test-ci": "npm run lint",
     "test:watch": "npm run jest -- --watch"
   },
   "jestSonar": {
