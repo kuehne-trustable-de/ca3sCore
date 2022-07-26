@@ -63,13 +63,14 @@ const webpackConfig = merge(baseWebpackConfig, {
       chunks: ['vendors', 'main', 'global'],
       //      chunksSortMode: 'manual',
       inject: true,
-      minify: {
-        removeComments: true,
-        collapseWhitespace: true,
-        removeAttributeQuotes: true
-        // more options:
-        // https://github.com/kangax/html-minifier#options-quick-reference
-      },
+
+      //      minify: {
+      //        removeComments: true,
+      //        collapseWhitespace: true,
+      //        removeAttributeQuotes: true
+      // more options:
+      // https://github.com/kangax/html-minifier#options-quick-reference
+      //      },
       // necessary to consistently work with multiple chunks via CommonsChunkPlugin
       chunksSortMode: 'dependency'
     }),
