@@ -131,6 +131,7 @@ public class CertExpiryScheduler {
 		HashSet<String> brokenCrlUrlList = new HashSet<>();
 
 		List<Object[]> certWithURLList = certificateRepo.findActiveCertificateOrderedByCrlURL();
+        LOG.debug("findActiveCertificateOrderedByCrlURL returns #{} certificates in {} ms", certWithURLList.size(), System.currentTimeMillis() - startTime);
 
 		int count = 0;
 		for (Object[] resultArr : certWithURLList) {

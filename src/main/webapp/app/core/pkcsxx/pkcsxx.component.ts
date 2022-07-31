@@ -322,13 +322,16 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     window.console.info('calling updatePipelineRestrictions : align content' + this.selectPipelineInfo);
 
     this.pipelineRestrictions.c.alignContent();
+    window.console.info('this.pipelineRestrictions.c.alignContent()');
     this.pipelineRestrictions.cn.alignContent();
+    window.console.info('this.pipelineRestrictions.cn.alignContent()');
     this.pipelineRestrictions.o.alignContent();
     this.pipelineRestrictions.ou.alignContent();
     this.pipelineRestrictions.l.alignContent();
     this.pipelineRestrictions.st.alignContent();
     this.pipelineRestrictions.e.alignContent();
     this.pipelineRestrictions.san.alignContent();
+    window.console.info('this.pipelineRestrictions.san.alignContent()');
 
     this.upload.secret = '';
     this.upload.certificateAttributes = new Array<INamedValues>();
@@ -343,6 +346,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
         nv.values = [''];
       }
       this.upload.certificateAttributes.push(nv);
+      window.console.info('this.upload.certificateAttributes.push(nv)');
     }
 
     this.araRestrictions = new Array<PipelineRestriction>();
@@ -370,6 +374,10 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     //    this.creationMode = 'CSR_AVAILABLE';
     this.upload.containerType = 'PKCS_12';
     this.keyAlgoLength = 'RSA_4096';
+
+    this.updateForm();
+
+    window.console.info('end of updatePipelineRestrictionsByPipelineInfo');
   }
 
   public buildCommandLine(): string {

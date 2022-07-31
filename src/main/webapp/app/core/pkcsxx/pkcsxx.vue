@@ -20,6 +20,8 @@
                         <span v-else-if="creationMode === 'SERVERSIDE_KEY_CREATION'" v-text="$t('pkcsxx.subtitle.serverside')">Upload</span>
                     </h2>
                     <!--h3>upload.pipelineId : {{upload.pipelineId}}</h3-->
+                    <!--h3>updateCounter: {{updateCounter}}</h3-->
+
 					<div>
                         <Fragment v-if="authenticated && allWebPipelines && allWebPipelines.length > 0">
                             <!-- if there is a preselected pipeline, show the name and the description -->
@@ -471,7 +473,12 @@
 						</button>
 					</div>
 				</form>
-			</div>
+                <div>
+                    <input type="hidden" class="form-control" name="updateCounter"
+                           v-model="updateCounter" />
+                </div>
+
+            </div>
 		</div>
 	</div>
 </template>
