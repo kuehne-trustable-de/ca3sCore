@@ -20,9 +20,13 @@ import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 	query = "SELECT a FROM ACMEAccount a WHERE " +
 			"a.publicKeyHash = :publicKeyHashBase64"
     ),
-	@NamedQuery(name = "Account.findByAccountId",
-	query = "SELECT a FROM ACMEAccount a WHERE " +
-			"a.accountId = :accountId"
+    @NamedQuery(name = "Account.findByAccountId",
+        query = "SELECT a FROM ACMEAccount a WHERE " +
+            "a.accountId = :accountId"
+    ),
+    @NamedQuery(name = "Account.findByCreatedOnIsNull",
+        query = "SELECT a FROM ACMEAccount a WHERE " +
+            "a.createdOn is null"
     ),
 })
 public class ACMEAccount implements Serializable {

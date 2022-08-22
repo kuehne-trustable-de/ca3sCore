@@ -192,6 +192,7 @@
         <crawler4jVersion>4.4.0</crawler4jVersion>
         <flexmarkVersion>0.62.2</flexmarkVersion>
         <pdfbox.version>2.0.26</pdfbox.version>
+        <jsoup.version>1.14.3</jsoup.version>
 
         <conductorVersion>3.0.1</conductorVersion>
 
@@ -571,7 +572,7 @@
             <dependency>
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>
-                <version>1.14.2</version>
+                <version>${jsoup.version}</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.apache.pdfbox/xmpbox -->
@@ -760,7 +761,6 @@
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.14.3</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/dnsjava/dnsjava -->

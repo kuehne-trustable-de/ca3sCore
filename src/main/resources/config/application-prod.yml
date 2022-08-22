@@ -218,7 +218,6 @@ ca3s:
 # provide a custom image for the upper left corner of the user interface
 # Remark: PNG format, only
 #    logo: custom_logo.
-    logo: file:///Users/kuehn/tmp/BKA_Logo_weiss.png
 
 # The help content may need some mor details or additional explanations.
 # external help file location:

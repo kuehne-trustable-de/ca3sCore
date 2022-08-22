@@ -5,13 +5,13 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)"/>
+            <column name="REV_" type="${intType}"/>
             <column name="NAME_" type="VARCHAR(255)"/>
             <column name="DEPLOYMENT_ID_" type="VARCHAR(64)"/>
             <column name="BYTES_" type="${blobType}"/>
             <column name="GENERATED_" type="BOOLEAN(1)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
-            <column name="TYPE_" type="INT(10)"/>
+            <column name="TYPE_" type="${intType}"/>
             <column name="CREATE_TIME_" type="TIMESTAMP"/>
             <column name="ROOT_PROC_INST_ID_" type="VARCHAR(64)"/>
             <column name="REMOVAL_TIME_" type="TIMESTAMP"/>
@@ -23,7 +23,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="VALUE_" type="VARCHAR(300)"/>
-            <column name="REV_" type="INT(10)"/>
+            <column name="REV_" type="${intType}"/>
         </createTable>
     </changeSet>
     <changeSet author="kuehn (generated)" id="1580410283605-3">
@@ -68,8 +68,8 @@
             </column>
             <column name="END_TIME_" type="TIMESTAMP"/>
             <column name="DURATION_" type="BIGINT(19)"/>
-            <column name="ACT_INST_STATE_" type="INT(10)"/>
-            <column name="SEQUENCE_COUNTER_" type="INT(10)"/>
+            <column name="ACT_INST_STATE_" type="${intType}"/>
+            <column name="SEQUENCE_COUNTER_" type="${intType}"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
             <column name="REMOVAL_TIME_" type="TIMESTAMP"/>
         </createTable>
@@ -79,7 +79,7 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)"/>
+            <column name="REV_" type="${intType}"/>
             <column name="USER_ID_" type="VARCHAR(255)"/>
             <column name="NAME_" type="VARCHAR(255)"/>
             <column name="DESCRIPTION_" type="VARCHAR(4000)"/>
@@ -100,9 +100,9 @@
                 <constraints nullable="false"/>
             </column>
             <column name="TYPE_" type="VARCHAR(255)"/>
-            <column name="TOTAL_JOBS_" type="INT(10)"/>
-            <column name="JOBS_PER_SEED_" type="INT(10)"/>
-            <column name="INVOCATIONS_PER_JOB_" type="INT(10)"/>
+            <column name="TOTAL_JOBS_" type="${intType}"/>
+            <column name="JOBS_PER_SEED_" type="${intType}"/>
+            <column name="INVOCATIONS_PER_JOB_" type="${intType}"/>
             <column name="SEED_JOB_DEF_ID_" type="VARCHAR(64)"/>
             <column name="MONITOR_JOB_DEF_ID_" type="VARCHAR(64)"/>
             <column name="BATCH_JOB_DEF_ID_" type="VARCHAR(64)"/>
@@ -140,7 +140,7 @@
             </column>
             <column name="END_TIME_" type="TIMESTAMP"/>
             <column name="DURATION_" type="BIGINT(19)"/>
-            <column name="STATE_" type="INT(10)"/>
+            <column name="STATE_" type="${intType}"/>
             <column name="REQUIRED_" type="BOOLEAN(1)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
         </createTable>
@@ -162,7 +162,7 @@
             </column>
             <column name="CLOSE_TIME_" type="TIMESTAMP"/>
             <column name="DURATION_" type="BIGINT(19)"/>
-            <column name="STATE_" type="INT(10)"/>
+            <column name="STATE_" type="${intType}"/>
             <column name="CREATE_USER_ID_" type="VARCHAR(255)"/>
             <column name="SUPER_CASE_INSTANCE_ID_" type="VARCHAR(64)"/>
             <column name="SUPER_PROCESS_INSTANCE_ID_" type="VARCHAR(64)"/>
@@ -255,7 +255,7 @@
             <column name="CLAUSE_ID_" type="VARCHAR(64)"/>
             <column name="CLAUSE_NAME_" type="VARCHAR(255)"/>
             <column name="RULE_ID_" type="VARCHAR(64)"/>
-            <column name="RULE_ORDER_" type="INT(10)"/>
+            <column name="RULE_ORDER_" type="${intType}"/>
             <column name="VAR_NAME_" type="VARCHAR(255)"/>
             <column name="VAR_TYPE_" type="VARCHAR(100)"/>
             <column name="BYTEARRAY_ID_" type="VARCHAR(64)"/>
@@ -296,13 +296,13 @@
             <column name="ACT_INST_ID_" type="VARCHAR(64)"/>
             <column name="VAR_INST_ID_" type="VARCHAR(64)"/>
             <column name="VAR_TYPE_" type="VARCHAR(255)"/>
-            <column name="REV_" type="INT(10)"/>
+            <column name="REV_" type="${intType}"/>
             <column name="BYTEARRAY_ID_" type="VARCHAR(64)"/>
             <column name="DOUBLE_" type="DOUBLE(17)"/>
             <column name="LONG_" type="BIGINT(19)"/>
             <column name="TEXT_" type="VARCHAR(4000)"/>
             <column name="TEXT2_" type="VARCHAR(4000)"/>
-            <column name="SEQUENCE_COUNTER_" type="INT(10)"/>
+            <column name="SEQUENCE_COUNTER_" type="${intType}"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
             <column name="OPERATION_ID_" type="VARCHAR(64)"/>
             <column name="REMOVAL_TIME_" type="TIMESTAMP"/>
@@ -319,7 +319,7 @@
             <column name="EXT_TASK_ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="RETRIES_" type="INT(10)"/>
+            <column name="RETRIES_" type="${intType}"/>
             <column name="TOPIC_NAME_" type="VARCHAR(255)"/>
             <column name="WORKER_ID_" type="VARCHAR(255)"/>
             <column defaultValueNumeric="0" name="PRIORITY_" type="BIGINT(19)">
@@ -335,7 +335,7 @@
             <column name="PROC_DEF_ID_" type="VARCHAR(64)"/>
             <column name="PROC_DEF_KEY_" type="VARCHAR(255)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
-            <column name="STATE_" type="INT(10)"/>
+            <column name="STATE_" type="${intType}"/>
             <column name="REMOVAL_TIME_" type="TIMESTAMP"/>
         </createTable>
     </changeSet>
@@ -383,7 +383,7 @@
             <column name="ROOT_CAUSE_INCIDENT_ID_" type="VARCHAR(64)"/>
             <column name="CONFIGURATION_" type="VARCHAR(255)"/>
             <column name="HISTORY_CONFIGURATION_" type="VARCHAR(255)"/>
-            <column name="INCIDENT_STATE_" type="INT(10)"/>
+            <column name="INCIDENT_STATE_" type="${intType}"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
             <column name="JOB_DEF_ID_" type="VARCHAR(64)"/>
             <column name="REMOVAL_TIME_" type="TIMESTAMP"/>
@@ -401,13 +401,13 @@
                 <constraints nullable="false"/>
             </column>
             <column name="JOB_DUEDATE_" type="TIMESTAMP"/>
-            <column name="JOB_RETRIES_" type="INT(10)"/>
+            <column name="JOB_RETRIES_" type="${intType}"/>
             <column defaultValueNumeric="0" name="JOB_PRIORITY_" type="BIGINT(19)">
                 <constraints nullable="false"/>
             </column>
             <column name="JOB_EXCEPTION_MSG_" type="VARCHAR(4000)"/>
             <column name="JOB_EXCEPTION_STACK_ID_" type="VARCHAR(64)"/>
-            <column name="JOB_STATE_" type="INT(10)"/>
+            <column name="JOB_STATE_" type="${intType}"/>
             <column name="JOB_DEF_ID_" type="VARCHAR(64)"/>
             <column name="JOB_DEF_TYPE_" type="VARCHAR(255)"/>
             <column name="JOB_DEF_CONFIGURATION_" type="VARCHAR(255)"/>
@@ -418,7 +418,7 @@
             <column name="PROCESS_DEF_ID_" type="VARCHAR(64)"/>
             <column name="PROCESS_DEF_KEY_" type="VARCHAR(255)"/>
             <column name="DEPLOYMENT_ID_" type="VARCHAR(64)"/>
-            <column name="SEQUENCE_COUNTER_" type="INT(10)"/>
+            <column name="SEQUENCE_COUNTER_" type="${intType}"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
             <column name="REMOVAL_TIME_" type="TIMESTAMP"/>
         </createTable>
@@ -516,7 +516,7 @@
             <column name="END_TIME_" type="TIMESTAMP"/>
             <column name="DURATION_" type="BIGINT(19)"/>
             <column name="DELETE_REASON_" type="VARCHAR(4000)"/>
-            <column name="PRIORITY_" type="INT(10)"/>
+            <column name="PRIORITY_" type="${intType}"/>
             <column name="DUE_DATE_" type="TIMESTAMP"/>
             <column name="FOLLOW_UP_DATE_" type="TIMESTAMP"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
@@ -544,7 +544,7 @@
             </column>
             <column name="VAR_TYPE_" type="VARCHAR(100)"/>
             <column name="CREATE_TIME_" type="TIMESTAMP"/>
-            <column name="REV_" type="INT(10)"/>
+            <column name="REV_" type="${intType}"/>
             <column name="BYTEARRAY_ID_" type="VARCHAR(64)"/>
             <column name="DOUBLE_" type="DOUBLE(17)"/>
             <column name="LONG_" type="BIGINT(19)"/>
@@ -560,7 +560,7 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)"/>
+            <column name="REV_" type="${intType}"/>
             <column name="NAME_" type="VARCHAR(255)"/>
             <column name="TYPE_" type="VARCHAR(255)"/>
         </createTable>
@@ -570,7 +570,7 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)"/>
+            <column name="REV_" type="${intType}"/>
             <column name="USER_ID_" type="VARCHAR(64)"/>
             <column name="TYPE_" type="VARCHAR(64)"/>
             <column name="KEY_" type="VARCHAR(255)"/>
@@ -594,7 +594,7 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)"/>
+            <column name="REV_" type="${intType}"/>
             <column name="NAME_" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
@@ -615,14 +615,14 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)"/>
+            <column name="REV_" type="${intType}"/>
             <column name="FIRST_" type="VARCHAR(255)"/>
             <column name="LAST_" type="VARCHAR(255)"/>
             <column name="EMAIL_" type="VARCHAR(255)"/>
             <column name="PWD_" type="VARCHAR(255)"/>
             <column name="SALT_" type="VARCHAR(255)"/>
             <column name="LOCK_EXP_TIME_" type="TIMESTAMP"/>
-            <column name="ATTEMPTS_" type="INT(10)"/>
+            <column name="ATTEMPTS_" type="${intType}"/>
             <column name="PICTURE_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
@@ -631,20 +631,20 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)"/>
+            <column name="REV_" type="${intType}"/>
             <column name="CATEGORY_" type="VARCHAR(255)"/>
             <column name="NAME_" type="VARCHAR(255)"/>
             <column name="KEY_" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="VERSION_" type="INT(10)">
+            <column name="VERSION_" type="${intType}">
                 <constraints nullable="false"/>
             </column>
             <column name="DEPLOYMENT_ID_" type="VARCHAR(64)"/>
             <column name="RESOURCE_NAME_" type="VARCHAR(4000)"/>
             <column name="DGRM_RESOURCE_NAME_" type="VARCHAR(4000)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
-            <column name="HISTORY_TTL_" type="INT(10)"/>
+            <column name="HISTORY_TTL_" type="${intType}"/>
         </createTable>
     </changeSet>
     <changeSet author="kuehn (generated)" id="1580410283605-29">
@@ -652,13 +652,13 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)"/>
+            <column name="REV_" type="${intType}"/>
             <column name="CATEGORY_" type="VARCHAR(255)"/>
             <column name="NAME_" type="VARCHAR(255)"/>
             <column name="KEY_" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="VERSION_" type="INT(10)">
+            <column name="VERSION_" type="${intType}">
                 <constraints nullable="false"/>
             </column>
             <column name="DEPLOYMENT_ID_" type="VARCHAR(64)"/>
@@ -667,7 +667,7 @@
             <column name="DEC_REQ_ID_" type="VARCHAR(64)"/>
             <column name="DEC_REQ_KEY_" type="VARCHAR(255)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
-            <column name="HISTORY_TTL_" type="INT(10)"/>
+            <column name="HISTORY_TTL_" type="${intType}"/>
             <column name="VERSION_TAG_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
@@ -676,13 +676,13 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)"/>
+            <column name="REV_" type="${intType}"/>
             <column name="CATEGORY_" type="VARCHAR(255)"/>
             <column name="NAME_" type="VARCHAR(255)"/>
             <column name="KEY_" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="VERSION_" type="INT(10)">
+            <column name="VERSION_" type="${intType}">
                 <constraints nullable="false"/>
             </column>
             <column name="DEPLOYMENT_ID_" type="VARCHAR(64)"/>
@@ -707,24 +707,24 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)"/>
+            <column name="REV_" type="${intType}"/>
             <column name="CATEGORY_" type="VARCHAR(255)"/>
             <column name="NAME_" type="VARCHAR(255)"/>
             <column name="KEY_" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="VERSION_" type="INT(10)">
+            <column name="VERSION_" type="${intType}">
                 <constraints nullable="false"/>
             </column>
             <column name="DEPLOYMENT_ID_" type="VARCHAR(64)"/>
             <column name="RESOURCE_NAME_" type="VARCHAR(4000)"/>
             <column name="DGRM_RESOURCE_NAME_" type="VARCHAR(4000)"/>
-            <column name="HAS_START_FORM_KEY_" type="BOOLEAN(1)"/>
-            <column name="SUSPENSION_STATE_" type="INT(10)"/>
+            <column name="HAS_START_FORM_KEY_" type="${booleanType}"/>
+            <column name="SUSPENSION_STATE_" type="${intType}"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
             <column name="VERSION_TAG_" type="VARCHAR(64)"/>
-            <column name="HISTORY_TTL_" type="INT(10)"/>
-            <column defaultValueBoolean="true" name="STARTABLE_" type="BOOLEAN(1)">
+            <column name="HISTORY_TTL_" type="${intType}"/>
+            <column defaultValueBoolean="true" name="STARTABLE_" type="${booleanType}">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -734,19 +734,19 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)">
+            <column name="REV_" type="${intType}">
                 <constraints nullable="false"/>
             </column>
-            <column name="TYPE_" type="INT(10)">
+            <column name="TYPE_" type="${intType}">
                 <constraints nullable="false"/>
             </column>
             <column name="GROUP_ID_" type="VARCHAR(255)"/>
             <column name="USER_ID_" type="VARCHAR(255)"/>
-            <column name="RESOURCE_TYPE_" type="INT(10)">
+            <column name="RESOURCE_TYPE_" type="${intType}">
                 <constraints nullable="false"/>
             </column>
             <column name="RESOURCE_ID_" type="VARCHAR(255)"/>
-            <column name="PERMS_" type="INT(10)"/>
+            <column name="PERMS_" type="${intType}"/>
         </createTable>
     </changeSet>
     <changeSet author="kuehn (generated)" id="1580410283605-34">
@@ -754,18 +754,18 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)">
+            <column name="REV_" type="${intType}">
                 <constraints nullable="false"/>
             </column>
             <column name="TYPE_" type="VARCHAR(255)"/>
-            <column name="TOTAL_JOBS_" type="INT(10)"/>
-            <column name="JOBS_CREATED_" type="INT(10)"/>
-            <column name="JOBS_PER_SEED_" type="INT(10)"/>
-            <column name="INVOCATIONS_PER_JOB_" type="INT(10)"/>
+            <column name="TOTAL_JOBS_" type="${intType}"/>
+            <column name="JOBS_CREATED_" type="${intType}"/>
+            <column name="JOBS_PER_SEED_" type="${intType}"/>
+            <column name="INVOCATIONS_PER_JOB_" type="${intType}"/>
             <column name="SEED_JOB_DEF_ID_" type="VARCHAR(64)"/>
             <column name="BATCH_JOB_DEF_ID_" type="VARCHAR(64)"/>
             <column name="MONITOR_JOB_DEF_ID_" type="VARCHAR(64)"/>
-            <column name="SUSPENSION_STATE_" type="INT(10)"/>
+            <column name="SUSPENSION_STATE_" type="${intType}"/>
             <column name="CONFIGURATION_" type="VARCHAR(255)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
             <column name="CREATE_USER_ID_" type="VARCHAR(255)"/>
@@ -776,7 +776,7 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)"/>
+            <column name="REV_" type="${intType}"/>
             <column name="CASE_INST_ID_" type="VARCHAR(64)"/>
             <column name="SUPER_CASE_EXEC_" type="VARCHAR(64)"/>
             <column name="SUPER_EXEC_" type="VARCHAR(64)"/>
@@ -784,9 +784,9 @@
             <column name="PARENT_ID_" type="VARCHAR(64)"/>
             <column name="CASE_DEF_ID_" type="VARCHAR(64)"/>
             <column name="ACT_ID_" type="VARCHAR(255)"/>
-            <column name="PREV_STATE_" type="INT(10)"/>
-            <column name="CURRENT_STATE_" type="INT(10)"/>
-            <column name="REQUIRED_" type="BOOLEAN(1)"/>
+            <column name="PREV_STATE_" type="${intType}"/>
+            <column name="CURRENT_STATE_" type="${intType}"/>
+            <column name="REQUIRED_" type="${booleanType}"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
@@ -795,7 +795,7 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)"/>
+            <column name="REV_" type="${intType}"/>
             <column name="CASE_INST_ID_" type="VARCHAR(64)"/>
             <column name="CASE_EXEC_ID_" type="VARCHAR(64)"/>
             <column name="SENTRY_ID_" type="VARCHAR(255)"/>
@@ -805,7 +805,7 @@
             <column name="SOURCE_" type="VARCHAR(255)"/>
             <column name="VARIABLE_EVENT_" type="VARCHAR(255)"/>
             <column name="VARIABLE_NAME_" type="VARCHAR(255)"/>
-            <column name="SATISFIED_" type="BOOLEAN(1)"/>
+            <column name="SATISFIED_" type="${booleanType}"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
@@ -814,7 +814,7 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)"/>
+            <column name="REV_" type="${intType}"/>
             <column name="EVENT_TYPE_" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
@@ -834,7 +834,7 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)"/>
+            <column name="REV_" type="${intType}"/>
             <column name="ROOT_PROC_INST_ID_" type="VARCHAR(64)"/>
             <column name="PROC_INST_ID_" type="VARCHAR(64)"/>
             <column name="BUSINESS_KEY_" type="VARCHAR(255)"/>
@@ -845,13 +845,13 @@
             <column name="CASE_INST_ID_" type="VARCHAR(64)"/>
             <column name="ACT_INST_ID_" type="VARCHAR(64)"/>
             <column name="ACT_ID_" type="VARCHAR(255)"/>
-            <column name="IS_ACTIVE_" type="BOOLEAN(1)"/>
-            <column name="IS_CONCURRENT_" type="BOOLEAN(1)"/>
-            <column name="IS_SCOPE_" type="BOOLEAN(1)"/>
-            <column name="IS_EVENT_SCOPE_" type="BOOLEAN(1)"/>
-            <column name="SUSPENSION_STATE_" type="INT(10)"/>
-            <column name="CACHED_ENT_STATE_" type="INT(10)"/>
-            <column name="SEQUENCE_COUNTER_" type="INT(10)"/>
+            <column name="IS_ACTIVE_" type="${booleanType}"/>
+            <column name="IS_CONCURRENT_" type="${booleanType}"/>
+            <column name="IS_SCOPE_" type="${booleanType}"/>
+            <column name="IS_EVENT_SCOPE_" type="${booleanType}"/>
+            <column name="SUSPENSION_STATE_" type="${intType}"/>
+            <column name="CACHED_ENT_STATE_" type="${intType}"/>
+            <column name="SEQUENCE_COUNTER_" type="${intType}"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
@@ -860,16 +860,16 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)">
+            <column name="REV_" type="${intType}">
                 <constraints nullable="false"/>
             </column>
             <column name="WORKER_ID_" type="VARCHAR(255)"/>
             <column name="TOPIC_NAME_" type="VARCHAR(255)"/>
-            <column name="RETRIES_" type="INT(10)"/>
+            <column name="RETRIES_" type="${intType}"/>
             <column name="ERROR_MSG_" type="VARCHAR(4000)"/>
             <column name="ERROR_DETAILS_ID_" type="VARCHAR(64)"/>
             <column name="LOCK_EXP_TIME_" type="TIMESTAMP"/>
-            <column name="SUSPENSION_STATE_" type="INT(10)"/>
+            <column name="SUSPENSION_STATE_" type="${intType}"/>
             <column name="EXECUTION_ID_" type="VARCHAR(64)"/>
             <column name="PROC_INST_ID_" type="VARCHAR(64)"/>
             <column name="PROC_DEF_ID_" type="VARCHAR(64)"/>
@@ -887,7 +887,7 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)">
+            <column name="REV_" type="${intType}">
                 <constraints nullable="false"/>
             </column>
             <column name="RESOURCE_TYPE_" type="VARCHAR(255)">
@@ -908,7 +908,7 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)"/>
+            <column name="REV_" type="${intType}"/>
             <column name="GROUP_ID_" type="VARCHAR(255)"/>
             <column name="TYPE_" type="VARCHAR(255)"/>
             <column name="USER_ID_" type="VARCHAR(255)"/>
@@ -922,7 +922,7 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)">
+            <column name="REV_" type="${intType}">
                 <constraints nullable="false"/>
             </column>
             <column name="INCIDENT_TIMESTAMP_" type="TIMESTAMP">
@@ -948,18 +948,18 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)"/>
+            <column name="REV_" type="${intType}"/>
             <column name="TYPE_" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="LOCK_EXP_TIME_" type="TIMESTAMP"/>
             <column name="LOCK_OWNER_" type="VARCHAR(255)"/>
-            <column name="EXCLUSIVE_" type="BOOLEAN(1)"/>
+            <column name="EXCLUSIVE_" type="${booleanType}"/>
             <column name="EXECUTION_ID_" type="VARCHAR(64)"/>
             <column name="PROCESS_INSTANCE_ID_" type="VARCHAR(64)"/>
             <column name="PROCESS_DEF_ID_" type="VARCHAR(64)"/>
             <column name="PROCESS_DEF_KEY_" type="VARCHAR(255)"/>
-            <column name="RETRIES_" type="INT(10)"/>
+            <column name="RETRIES_" type="${intType}"/>
             <column name="EXCEPTION_STACK_ID_" type="VARCHAR(64)"/>
             <column name="EXCEPTION_MSG_" type="VARCHAR(4000)"/>
             <column name="DUEDATE_" type="TIMESTAMP"/>
@@ -968,14 +968,14 @@
             <column name="HANDLER_TYPE_" type="VARCHAR(255)"/>
             <column name="HANDLER_CFG_" type="VARCHAR(4000)"/>
             <column name="DEPLOYMENT_ID_" type="VARCHAR(64)"/>
-            <column defaultValueNumeric="1" name="SUSPENSION_STATE_" type="INT(10)">
+            <column defaultValueNumeric="1" name="SUSPENSION_STATE_" type="${intType}">
                 <constraints nullable="false"/>
             </column>
             <column name="JOB_DEF_ID_" type="VARCHAR(64)"/>
             <column defaultValueNumeric="0" name="PRIORITY_" type="BIGINT(19)">
                 <constraints nullable="false"/>
             </column>
-            <column name="SEQUENCE_COUNTER_" type="INT(10)"/>
+            <column name="SEQUENCE_COUNTER_" type="${intType}"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
             <column name="CREATE_TIME_" type="TIMESTAMP"/>
         </createTable>
@@ -985,7 +985,7 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)"/>
+            <column name="REV_" type="${intType}"/>
             <column name="PROC_DEF_ID_" type="VARCHAR(64)"/>
             <column name="PROC_DEF_KEY_" type="VARCHAR(255)"/>
             <column name="ACT_ID_" type="VARCHAR(255)"/>
@@ -993,7 +993,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="JOB_CONFIGURATION_" type="VARCHAR(255)"/>
-            <column name="SUSPENSION_STATE_" type="INT(10)"/>
+            <column name="SUSPENSION_STATE_" type="${intType}"/>
             <column name="JOB_PRIORITY_" type="BIGINT(19)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
         </createTable>
@@ -1017,7 +1017,7 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)"/>
+            <column name="REV_" type="${intType}"/>
             <column name="EXECUTION_ID_" type="VARCHAR(64)"/>
             <column name="PROC_INST_ID_" type="VARCHAR(64)"/>
             <column name="PROC_DEF_ID_" type="VARCHAR(64)"/>
@@ -1031,11 +1031,11 @@
             <column name="OWNER_" type="VARCHAR(255)"/>
             <column name="ASSIGNEE_" type="VARCHAR(255)"/>
             <column name="DELEGATION_" type="VARCHAR(64)"/>
-            <column name="PRIORITY_" type="INT(10)"/>
+            <column name="PRIORITY_" type="${intType}"/>
             <column name="CREATE_TIME_" type="TIMESTAMP"/>
             <column name="DUE_DATE_" type="TIMESTAMP"/>
             <column name="FOLLOW_UP_DATE_" type="TIMESTAMP"/>
-            <column name="SUSPENSION_STATE_" type="INT(10)"/>
+            <column name="SUSPENSION_STATE_" type="${intType}"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
@@ -1044,7 +1044,7 @@
             <column name="ID_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REV_" type="INT(10)"/>
+            <column name="REV_" type="${intType}"/>
             <column name="TYPE_" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
@@ -1064,8 +1064,8 @@
             <column name="VAR_SCOPE_" type="VARCHAR(64)">
                 <constraints nullable="false"/>
             </column>
-            <column name="SEQUENCE_COUNTER_" type="INT(10)"/>
-            <column name="IS_CONCURRENT_LOCAL_" type="BOOLEAN(1)"/>
+            <column name="SEQUENCE_COUNTER_" type="${intType}"/>
+            <column name="IS_CONCURRENT_LOCAL_" type="${booleanType}"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>

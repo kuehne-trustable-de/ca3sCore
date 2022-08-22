@@ -33,12 +33,12 @@ export default class Home extends Vue {
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
-      window.console.info('################ to.params : ' + to.params.bearer);
+      window.console.info('################ Home to.params : ' + to.params.bearer);
     });
   }
 
   public mounted(): void {
-    window.console.info('++++++++++++++++++ route.query : ' + this.$route.query.bearer);
+    window.console.info('++++++++++++++++++ Home route.query : ' + this.$route.query.bearer);
 
     const token: string = this.$route.query.bearer[0];
     if (token) {

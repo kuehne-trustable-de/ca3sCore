@@ -335,7 +335,9 @@ public class CSRSubmitIT extends WebTestBase{
         validatePresent(LOC_SEL_PIPELINE );
 //        validatePresent(LOC_SEL_PIPELINE + "[option/text()='" + PipelineTestConfiguration.PIPELINE_NAME_WEB_DIRECT_ISSUANCE + "']");
 
+        click(LOC_SEL_PIPELINE);
         selectOptionByText(LOC_SEL_PIPELINE, PipelineTestConfiguration.PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
+//        selectOptionByIndex(LOC_SEL_PIPELINE, 1);
 
 
         validatePresent(LOC_TA_UPLOAD_CONTENT);

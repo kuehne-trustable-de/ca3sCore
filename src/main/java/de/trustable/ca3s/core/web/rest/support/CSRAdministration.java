@@ -321,16 +321,14 @@ public class CSRAdministration {
     private void updateARAttributes(CSRAdministrationData adminData, CSR csr) {
 
         for(CsrAttribute csrAttr: csr.getCsrAttributes()){
-            if(csrAttr.getName().startsWith(CsrAttribute.ARA_PREFIX) ){
-                for(NamedValue nv: adminData.getArAttributeArr()){
-                    if( csrAttr.getName().equals(CsrAttribute.ARA_PREFIX + nv.getName())){
-                        if( !csrAttr.getValue().equals(nv.getValue())) {
-                            auditService.saveAuditTrace(
-                                auditService.createAuditTraceCsrAttribute(csrAttr.getName(), csrAttr.getValue(), nv.getValue(), csr));
+            for(NamedValue nv: adminData.getArAttributeArr()){
+                if( csrAttr.getName().equals(CsrAttribute.ARA_PREFIX + nv.getName())){
+                    if( !csrAttr.getValue().equals(nv.getValue())) {
+                        auditService.saveAuditTrace(
+                            auditService.createAuditTraceCsrAttribute(csrAttr.getName(), csrAttr.getValue(), nv.getValue(), csr));
 
-                            csrAttr.setValue(nv.getValue());
-                            LOG.debug("CSR attribute {} updated to {}", csrAttr.getName(), csrAttr.getValue());
-                        }
+                        csrAttr.setValue(nv.getValue());
+                        LOG.debug("CSR attribute {} updated to {}", csrAttr.getName(), csrAttr.getValue());
                     }
                 }
             }

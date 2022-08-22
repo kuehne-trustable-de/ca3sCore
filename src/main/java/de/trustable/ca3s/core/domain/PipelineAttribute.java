@@ -36,7 +36,7 @@ public class PipelineAttribute implements Serializable {
     private String name;
 
     @NotNull
-    @Column(name = "value", nullable = false)
+    @Column(name = "value_", nullable = false)
     private String value;
 
     @ManyToOne

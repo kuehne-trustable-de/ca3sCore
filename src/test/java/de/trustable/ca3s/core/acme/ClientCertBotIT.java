@@ -30,6 +30,9 @@ import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.CaConfigTestConfiguration;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
 
+// for info : test string for acme.sh:
+// acme.sh --renew --force -d ubuntu.trustable.eu --standalone --alpn --tlsport 8443 --server http://192.168.56.1:9090/acme/acmeTest/directory
+
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("dev")
 public class ClientCertBotIT {

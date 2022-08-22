@@ -742,7 +742,7 @@ class PipelineUtilTest {
 			boolean bResult = pu.isPipelineRestrictionsResolved(pv_CIPNotAllowed, p10ReqHolder, messageList);
 
 			assertFalse("Expect to fail ", bResult);
-			assertEquals("Expecting given number of messages", 1, messageList.size());
+			assertEquals("Expecting given number of messages", 2, messageList.size());
 	    }
 
 	    {
@@ -804,7 +804,7 @@ class PipelineUtilTest {
 
 
 			assertFalse("Expect to fail ", bResult);
-			assertEquals("Expecting given number of messages", 1, messageList.size());
+			assertEquals("Expecting given number of messages", 2, messageList.size());
 	    }
 
 	    {

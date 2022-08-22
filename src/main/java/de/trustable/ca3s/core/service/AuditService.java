@@ -87,6 +87,7 @@ public class AuditService {
     public static final String AUDIT_CA_CONNECTOR_ATTRIBUTE_CHANGED = "CA_CONNECTOR_ATTRIBUTE_CHANGED";
     public static final String AUDIT_CERTIFICATE_SCHEMA_UPDATED = "CERTIFICATE_SCHEMA_UPDATED";
     public static final String AUDIT_ACME_ORDER_PIPELINE_UPDATED = "AUDIT_ACME_ORDER_PIPELINE_UPDATED";
+    public static final String AUDIT_ACME_ACCOUNT_CREATED_OR_UPDATED = "AUDIT_ACME_ACCOUNT_CREATED_OR_UPDATED";
 
 
     private final Logger log = LoggerFactory.getLogger(AuditService.class);
@@ -192,10 +193,17 @@ public class AuditService {
     }
 
     public AuditTrace createAuditTraceACMEOrderSucceeded(final ACMEAccount acmeAccount,
-                                                             final AcmeOrder acmeOrder) {
+                                                         final AcmeOrder acmeOrder) {
         return createAuditTraceACMEInfo(acmeAccount,
             acmeOrder,
             AUDIT_ACME_ORDER_SUCCEEDED,
+            null);
+    }
+
+    public AuditTrace createAuditTraceACMEOrderExpired(final AcmeOrder acmeOrder) {
+        return createAuditTraceACMEInfo(acmeOrder.getAccount(),
+            acmeOrder,
+            AUDIT_ACME_ORDER_EXPIRED,
             null);
     }
 
@@ -509,6 +517,22 @@ public class AuditService {
         NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),
             AUDIT_ACME_ORDER_PIPELINE_UPDATED,
+            "" + nUpdated,
+            null, "",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+    }
+
+    public AuditTrace createAuditTraceAcmeAcountCreatedOnUpdated(final int nUpdated){
+
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_ACME_ACCOUNT_CREATED_OR_UPDATED,
             "" + nUpdated,
             null, "",
             null,

@@ -376,7 +376,10 @@ public final class ACMEAccountSpecifications {
             }
 
         } else if ("createdOn".equals(attribute)) {
-            logger.debug("ToDo createdOn selection");
+            addNewColumn(selectionList, root.get(ACMEAccount_.createdOn));
+            if (attributeValue.trim().length() > 0) {
+                pred = SpecificationsHelper.buildDatePredicate( attributeSelector, cb, root.get(ACMEAccount_.createdOn), attributeValue);
+            }
 
         } else if ("publicKeyHash".equals(attribute)) {
             addNewColumn(selectionList, root.get(ACMEAccount_.publicKeyHash));

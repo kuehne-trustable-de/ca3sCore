@@ -16,13 +16,14 @@ import javax.validation.Valid;
 
 import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.repository.PipelineRepository;
+import de.trustable.ca3s.core.service.badkeys.BadKeysResult;
+import de.trustable.ca3s.core.service.badkeys.BadKeysService;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.DecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -54,23 +55,29 @@ public class CSRContentProcessor {
 
 	private final Logger LOG = LoggerFactory.getLogger(CSRContentProcessor.class);
 
-	@Autowired
-	private CryptoUtil cryptoUtil;
+	private final CryptoUtil cryptoUtil;
 
-	@Autowired
-	private CSRRepository csrRepository;
+	private final CSRRepository csrRepository;
 
-	@Autowired
-	private CertificateRepository certificateRepository;
+	private final CertificateRepository certificateRepository;
 
-	@Autowired
-	private CertificateUtil certUtil;
+	private final CertificateUtil certUtil;
 
-    @Autowired
-    private PipelineRepository pipelineRepository;
+    private final PipelineRepository pipelineRepository;
 
-    @Autowired
-    private PipelineUtil pvUtil;
+    private final PipelineUtil pvUtil;
+
+    private final BadKeysService badKeysService;
+
+    public CSRContentProcessor(CryptoUtil cryptoUtil, CSRRepository csrRepository, CertificateRepository certificateRepository, CertificateUtil certUtil, PipelineRepository pipelineRepository, PipelineUtil pvUtil, BadKeysService badKeysService) {
+        this.cryptoUtil = cryptoUtil;
+        this.csrRepository = csrRepository;
+        this.certificateRepository = certificateRepository;
+        this.certUtil = certUtil;
+        this.pipelineRepository = pipelineRepository;
+        this.pvUtil = pvUtil;
+        this.badKeysService = badKeysService;
+    }
 
 
     /**
@@ -131,9 +138,20 @@ public class CSRContentProcessor {
 					LOG.debug("public key with hash '{}' used in #{} csrs, yet", p10ReqHolder.getPublicKeyHash(), csrList.size());
 					p10ReqData.setCsrPublicKeyPresentInDB(!csrList.isEmpty());
 
+                    List<String> messageList = new ArrayList<>();
+                    BadKeysResult badKeysResult = badKeysService.checkCSR(content);
+                    if( badKeysResult.isInstallationValid() ){
+                        if( badKeysResult.isValid()) {
+                            LOG.debug("BadKeys is installed and returns OK");
+                        }else{
+                            messageList.add (badKeysResult.getResponse().getResults().getResultType());
+                        }
+                    }else{
+                        LOG.debug("BadKeys not installed");
+                    }
+
                     Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
                     if( optPipeline.isPresent()) {
-                        List<String> messageList = new ArrayList<>();
                         if (pvUtil.isPipelineRestrictionsResolved(optPipeline.get(), p10ReqHolder, uploaded.getArAttributes(), messageList)) {
                             LOG.debug("pipeline restrictions for pipeline '{}' solved", optPipeline.get().getName());
                         }else {

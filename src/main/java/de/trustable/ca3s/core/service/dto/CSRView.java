@@ -10,7 +10,10 @@ import java.util.Set;
 
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvIgnore;
+import com.opencsv.bean.CsvRecurse;
 import de.trustable.ca3s.core.domain.CSR;
+import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
@@ -111,6 +114,9 @@ public class CSRView implements Serializable {
     @CsvBindByName
     private String administrationComment;
 
+    @CsvRecurse
+    private NamedValue[] arArr;
+
     @CsvIgnore
     private String csrBase64;
 
@@ -207,6 +213,22 @@ public class CSRView implements Serializable {
         this.requestorComment = csr.getRequestorComment();
         this.administrationComment = csr.getAdministrationComment();
 
+        this.arArr = copyArAttributes(csr);
+
+    }
+
+    private NamedValue[] copyArAttributes(final CSR csr) {
+
+        List<NamedValue> nvList = new ArrayList<>();
+        for(CsrAttribute csrAttribute: csr.getCsrAttributes()){
+            if(csrAttribute.getName().startsWith(CsrAttribute.ARA_PREFIX) ){
+                NamedValue nv = new NamedValue();
+                nv.setName(csrAttribute.getName().substring(CsrAttribute.ARA_PREFIX.length()));
+                nv.setValue(csrAttribute.getValue());
+                nvList.add(nv);
+            }
+        }
+        return nvList.toArray(new NamedValue[0]);
     }
 
     public Long getId() {
@@ -460,5 +482,13 @@ public class CSRView implements Serializable {
 
     public boolean isAdministrable() {
         return isAdministrable;
+    }
+
+    public NamedValue[] getArArr() {
+        return arArr;
+    }
+
+    public void setArArr(NamedValue[] arArr) {
+        this.arArr = arArr;
     }
 }

@@ -502,8 +502,17 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
     }
 
     public LocomotiveBase selectOptionByText(By by, String text) {
+
         Select box = new Select(waitForElement(by));
         box.selectByVisibleText(text);
+//        box.selectByValue(text);
+        return this;
+    }
+
+    public LocomotiveBase selectOptionByIndex(By by, int index) {
+
+        Select box = new Select(waitForElement(by));
+        box.selectByIndex(index);
         return this;
     }
 

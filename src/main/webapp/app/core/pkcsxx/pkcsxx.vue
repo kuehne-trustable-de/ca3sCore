@@ -33,7 +33,7 @@
                             <!-- if there is no preselected pipeline, show the pipeline selection box and the related description -->
                             <div class="form-group" v-if="preselectedPipelineId === -1">
                                 <select class="form-control" id="pkcsxx-pipeline" name="pkcsxx-pipeline" v-model="upload.pipelineId" required v-on:change="updateCurrentPipelineRestrictions()">
-                                    <option value="-1" disabled selected hidden v-text="$t('pkcsxx.upload.select.pipeline')">{{$t('pkcsxx.upload.select.pipeline')}}</option>
+                                    <!--option value="-1" disabled selected hidden v-text="$t('pkcsxx.upload.select.pipeline')">{{$t('pkcsxx.upload.select.pipeline')}}</option-->
                                     <option v-bind:value="upload && webPipeline.id === upload.pipelineId ? upload.pipelineId : webPipeline.id" v-for="webPipeline in allWebPipelines" :key="webPipeline.id">{{webPipeline.name}}</option>
                                 </select>
                                 <div class="readonly_comment">{{selectPipelineInfo}}</div>

@@ -16,6 +16,7 @@ public class BadKeysService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BadKeysService.class);
 
+    private final boolean useBadkeys;
     private final String badkeysExecutable;
     private final File badkeysDirectory;
 
@@ -23,12 +24,14 @@ public class BadKeysService {
 
     private boolean isInstalled = false;
 
-    public BadKeysService(@Value("${ca3s.badkeys.executable:badkeys-cli}") String badkeysExecutable,
+    public BadKeysService(@Value("${ca3s.badkeys.use:false}") boolean useBadkeys,
+                          @Value("${ca3s.badkeys.executable:badkeys-cli}") String badkeysExecutable,
                           @Value("${ca3s.badkeys.directory:/var/opt/badkeys}") File badkeysDirectory) {
+        this.useBadkeys = useBadkeys;
         this.badkeysExecutable = badkeysExecutable;
         this.badkeysDirectory = badkeysDirectory;
 
-        if( badkeysDirectory.exists() && badkeysDirectory.canRead()){
+        if( useBadkeys && badkeysDirectory.exists() && badkeysDirectory.canRead()){
 
             try {
                 availableChecks = invokeBadKeysInfo();
@@ -45,6 +48,9 @@ public class BadKeysService {
 
     public BadKeysResult checkCSR(final String pemCSR) {
 
+        if( !useBadkeys ){
+            return new BadKeysResult(false, false, "useBadkeys == false");
+        }
         if( !badkeysDirectory.exists() ){
             return new BadKeysResult(false, false, "badkeysDirectory '"+badkeysDirectory.getAbsolutePath()+"' does not exist");
         }

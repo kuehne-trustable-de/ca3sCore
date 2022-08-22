@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2022-07-18 22:52:02.
+// Generated using typescript-generator version 2.19.577 on 2022-08-18 18:11:24.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -192,9 +192,9 @@ export interface ICertificateView extends ISerializable {
   isServersideKeyGeneration?: boolean;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
+  auditPresent?: boolean;
   fullChainAvailable?: boolean;
   serversideKeyGeneration?: boolean;
-  auditPresent?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
@@ -205,6 +205,7 @@ export interface ICryptoConfigView extends ISerializable {
 export interface IUIConfigView extends ISerializable {
   cryptoConfigView?: ICryptoConfigView;
   autoSSOLogin?: boolean;
+  ssoProvider?: string[];
 }
 
 export interface ICSRView extends ISerializable {
@@ -235,6 +236,7 @@ export interface ICSRView extends ISerializable {
   approvedOn?: Date;
   requestorComment?: string;
   administrationComment?: string;
+  arArr?: INamedValue[];
   csrBase64?: string;
   auditViewArr?: IAuditView[];
   isAdministrable?: boolean;
@@ -487,7 +489,7 @@ export type ICsrUsage = 'TLS_SERVER' | 'TLS_CLIENT' | 'DOC_SIGNING' | 'CODE_SIGN
 
 export type ICsrStatus = 'PROCESSING' | 'ISSUED' | 'REJECTED' | 'PENDING';
 
-export type IAdministrationType = 'ACCEPT' | 'REJECT' | 'REVOKE' | 'UPDATE';
+export type IAdministrationType = 'ACCEPT' | 'REJECT' | 'REVOKE' | 'UPDATE' | 'UPDATE_CRL';
 
 export type ICreationMode = 'CSR_AVAILABLE' | 'COMMANDLINE_TOOL' | 'SERVERSIDE_KEY_CREATION';
 

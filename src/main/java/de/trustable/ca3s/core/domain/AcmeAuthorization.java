@@ -36,7 +36,7 @@ public class AcmeAuthorization implements Serializable {
     private String type;
 
     @NotNull
-    @Column(name = "value", nullable = false)
+    @Column(name = "value_", nullable = false)
     private String value;
 
     @OneToMany(mappedBy = "acmeAuthorization")

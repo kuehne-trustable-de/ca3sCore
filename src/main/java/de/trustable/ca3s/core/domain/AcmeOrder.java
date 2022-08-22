@@ -29,6 +29,11 @@ import javax.validation.constraints.*;
         query = "SELECT count(a) FROM AcmeOrder a WHERE " +
             "a.account.accountId = :accountId"
     ),
+    @NamedQuery(name = "AcmeOrder.findByPendingExpiryBefore",
+        query = "SELECT a FROM AcmeOrder a WHERE " +
+            "a.expires < :expiresBefore AND " +
+            "a.status = 'PENDING'"
+    ),
 })
 public class AcmeOrder implements Serializable {
 
@@ -93,11 +98,11 @@ public class AcmeOrder implements Serializable {
     )
     private Certificate certificate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties(value = { "pipelineAttributes", "caConnector", "processInfo" }, allowSetters = true)
     private Pipeline pipeline;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties(value = { "contacts", "orders" }, allowSetters = true)
     private ACMEAccount account;
 
