@@ -65,7 +65,7 @@ public class ACMEAccount implements Serializable {
     @OneToMany(mappedBy = "account")
     private Set<AcmeContact> contacts = new HashSet<>();
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "account")
     private Set<AcmeOrder> orders = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove

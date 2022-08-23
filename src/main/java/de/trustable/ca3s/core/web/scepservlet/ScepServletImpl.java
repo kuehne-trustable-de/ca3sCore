@@ -286,17 +286,27 @@ public class ScepServletImpl extends ScepServlet {
         List<ProtectedContent> listPC = protectedContentRepository.findByTypeRelationId(ProtectedContentType.PASSWORD, ContentRelationType.SCEP_PW,pipeline.getId());
         for(ProtectedContent pc: listPC){
             String expectedPassword = protectedContentUtil.unprotectString(pc.getContentBase64()).trim();
-            LOGGER.debug("Pipeline '{}' defined SCEP password '{}'", pipeline.getName(), expectedPassword);
+//            LOGGER.debug("Pipeline '{}' defined SCEP password '{}'", pipeline.getName(), expectedPassword);
             if( password.trim().equals(expectedPassword)) {
                 LOGGER.debug("Protected Content found matching SCEP password");
                 return; // the only successful exit !!
             } else {
-                LOGGER.debug("Protected Content password does not match SCEP password '{}' != '{}'", expectedPassword, password);
+
+                LOGGER.debug("Protected Content password does not match SCEP password '{}' != '{}'",
+                    truncatePassword(expectedPassword),
+                    truncatePassword(password));
             }
         }
 
         LOGGER.warn("no (active) password present in pipeline '" + pipeline.getName() + "' !");
         throw new OperationFailureException(FailInfo.badRequest);
+    }
+
+    public String truncatePassword(final String password){
+        if( password == null || (password.length() < 5)){
+            return "******r3t";
+        }
+        return password.substring(password.length() - 4);
     }
 
     @Override

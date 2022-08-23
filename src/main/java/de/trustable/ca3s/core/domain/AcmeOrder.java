@@ -86,18 +86,18 @@ public class AcmeOrder implements Serializable {
     @JsonIgnoreProperties(value = { "comment", "rdns", "ras", "csrAttributes", "pipeline", "certificate" }, allowSetters = true)
     private CSR csr;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties(
         value = { "csr", "comment", "certificateAttributes", "issuingCertificate", "rootCertificate", "revocationCA" },
         allowSetters = true
     )
     private Certificate certificate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties(value = { "pipelineAttributes", "caConnector", "processInfo" }, allowSetters = true)
     private Pipeline pipeline;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties(value = { "contacts", "orders" }, allowSetters = true)
     private ACMEAccount account;
 
