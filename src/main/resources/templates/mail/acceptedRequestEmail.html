@@ -17,7 +17,7 @@
             th:text="#{email.request.certificate.download.crt}">Certificate download (DER encoded)</a>
         </p>
         <p>
-            <a th:with="url=(@{|${baseUrl}/publicapi/certPEMChain/${certId}/${filenamePem}|})" th:href="${url}"
+            <a th:with="url=(@{|${baseUrl}/publicapi/certPEM/${certId}/${filenamePem}|})" th:href="${url}"
                th:text="#{email.request.certificate.download.pem}">Certificate download (PEM encoded))</a>
         </p>
         <p>

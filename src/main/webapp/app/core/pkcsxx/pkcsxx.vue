@@ -177,6 +177,10 @@
                                            required="true"
                                            v-model="secret"
                                            v-on:input="updateForm()" />
+                                        <small v-if="showRequiredWarning(true, secret)"
+                                               class="form-text text-danger" v-text="$t('entity.validation.required')">
+                                            This field is required.
+                                        </small>
                                     </div>
                                 </div>
                                 <div class="row" >
