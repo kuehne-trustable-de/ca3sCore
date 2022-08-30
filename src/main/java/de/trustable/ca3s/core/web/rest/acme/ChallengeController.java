@@ -407,7 +407,11 @@ public class ChallengeController extends ACMEController {
 				in.close();
 
 				String actualContent = response.toString().trim();
-				LOG.debug("read challenge response: " + actualContent);
+                if( actualContent.length() > 100){
+                    LOG.debug("read challenge response (truncated): " + actualContent.substring(0,100) + " ...");
+                }else {
+                    LOG.debug("read challenge response: " + actualContent);
+                }
 				LOG.debug("expected content: '{}'", expectedContent);
 
                 boolean matches = expectedContent.equals( actualContent);

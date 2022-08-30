@@ -120,6 +120,15 @@
                         </dd>
                     </Fragment>
 
+                    <dt v-if="icsrView.certificateId">
+                        <span v-text="$t('ca3SApp.cSR.certificate')">Certificate</span>
+                    </dt>
+                    <dd v-if="icsrView.certificateId">
+                        <div>
+                            <router-link :to="{name: 'CertificateView', params: {certificateId: icsrView.certificateId}}">{{icsrView.certificateId}}</router-link>
+                        </div>
+                    </dd>
+
                     <dt v-if="icsrView.pipeline && icsrView.pipeline.name && icsrView.pipeline.name.length > 0">
                         <span v-text="$t('ca3SApp.cSR.pipeline')">Pipeline</span>
                     </dt>
@@ -128,7 +137,6 @@
                             <router-link :to="{name: 'PipelineView', params: {pipelineId: icsrView.pipeline.id}}">{{ icsrView.pipeline.name }}</router-link>
                         </div>
                     </dd>
-
 
                     <dt>
                         <span v-text="$t('ca3SApp.cSR.pipeline')">Pipeline</span>
@@ -143,6 +151,7 @@
                     <dd>
                         <span v-text="$t('ca3SApp.PipelineType.' + icsrView.pipelineType)">{{ icsrView.pipelineType }}</span>
                     </dd>
+
                     <!--dt>
                         <span v-text="$t('ca3SApp.cSR.processInstanceId')">Process Instance Id</span>
                     </dt>
@@ -150,12 +159,22 @@
                         <span>{{cSR.processInstanceId}}</span>
                     </dd-->
 
+                    <Fragment v-for="attr in arAttributes" :key="attr.name" v-if="!(isRAOfficer() || (getUsername() === icsrView.requestedBy))">
+                        <dt>
+                            <span >{{attr.name}}</span>
+                        </dt>
+                        <dd >
+                            <span >{{attr.value}}</span>
+                        </dd>
+                    </Fragment>
+
+
                     <dt v-if="icsrView.csrBase64 && icsrView.csrBase64.trim().length > 0">
                         <span v-text="$t('ca3SApp.cSR.csrBase64')">Csr Base64</span>
                     </dt>
                     <dd v-if="icsrView.csrBase64 && icsrView.csrBase64.trim().length > 0">
                         <div class="form-group wrap">
-                            <textarea class="form-control pem-content" name="certContent" id="csrContent"
+                            <textarea class="form-control pem-content" name="csrContent" id="csrContent"
                                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly
                                       v-model="icsrView.csrBase64" />
 
@@ -176,16 +195,16 @@
             <form name="editForm" role="form" novalidate>
                 <div>
 
-                    <Fragment v-if="icsrView.status === 'PENDING' && (isRAOfficer() || (getUsername() === icsrView.requestedBy))">
+                    <Fragment v-if="isRAOfficer() || (getUsername() === icsrView.requestedBy)">
+
+                        <div v-if="icsrView.status === 'PENDING'" class="form-group">
+                            <label class="form-control-label" v-text="$t('ca3SApp.cSR.rejectionReason')" for="csr-rejectionReason">rejection reason</label>
+                            <input type="text" class="form-control" name="rejectionReason" id="csr-rejectionReason" v-model="csrAdminData.rejectionReason" />
+                        </div>
 
                         <div v-for="attr in csrAdminData.arAttributes" :key="attr.name" class="form-group">
                             <label class="form-control-label"  for="csr-ar-{attr.name}">{{attr.name}}</label>
                             <input type="text" class="form-control" name="rejectionReason" id="csr-ar-{attr.name}" v-model="attr.value" />
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-control-label" v-text="$t('ca3SApp.cSR.rejectionReason')" for="csr-rejectionReason">rejection reason</label>
-                            <input type="text" class="form-control" name="rejectionReason" id="csr-rejectionReason" v-model="csrAdminData.rejectionReason" />
                         </div>
 
                         <div class="form-group">
@@ -211,7 +230,7 @@
                         <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.withdraw')">Withdraw</span>
                     </button>
 
-                    <button type="button" id="update" v-if="icsrView.status === 'PENDING' && isRAOfficer()" class="btn btn-secondary" v-on:click="updateCSR()">
+                    <button type="button" id="update" v-if="isRAOfficer()" class="btn btn-secondary" v-on:click="updateCSR()">
                         <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.edit')">Update</span>
                     </button>
 
