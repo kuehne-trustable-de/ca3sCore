@@ -60,7 +60,7 @@ spring:
     username: ca3s_test
     password: s3cr3t
 
-# recommended configuration for production:
+    # recommended configuration for production:
 # Separate the database rights between the application and liquibase. The application does not need any schema alteration or dump privileges.
 # grant admin rights to liquibase to create / alter the DB scheme (see below at liquibase.user / .password)
 #    url: jdbc:mysql://localhost:3306/ca3s_sep_roles?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true

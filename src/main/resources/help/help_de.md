@@ -245,11 +245,11 @@ Der erste Befehl fordert ein Zertifikat vom eignen ACME-Server <acme-server:port
 
 Für seinen minimalistischen Ansatz bewundert wird acme.sh, mit dem man sogar die ALPN-Challenge testen kann:
 
-acme.sh --issue -d <test-domain> --standalone --alpn --tlsport 8443 --server https://<acme-server:port>/acme/acmeTest/directory
+> acme.sh --issue -d <test-domain> --standalone --alpn --tlsport 8443 --server https://<acme-server:port>/acme/acmeTest/directory
 
 Mit diesem Befehl fordert acme.sh ein Zertifikat für die Adresse <test-domain> an. Hierbei wird die ALPN-Challenge genutzt, die zwar nicht von letsEncrypt angeboten wird, aber den großen Vorteil hat, dass zum HTTPS-Port nicht zusätzlich noch ein HTTP-Port erreichbar sein muss. Z.B. für Cloud-Anwendungen recht praktisch!
 Damit in diesem Beispiel der User acme.sh kein previlegierter Nutzer sein muss, nutzen wir hier den Port 8443 für HTTPS.
 
-acme.sh --renew --force -d <test-domain> --standalone --alpn --tlsport 8443 --server https://<acme-server:port>/acme/acmeTest/directory
+> acme.sh --renew --force -d <test-domain> --standalone --alpn --tlsport 8443 --server https://<acme-server:port>/acme/acmeTest/directory
 
 Um einen Test beliebig häufig laufen zu lassen, biten sich die beiden optionen '--renew' und '--force' an.

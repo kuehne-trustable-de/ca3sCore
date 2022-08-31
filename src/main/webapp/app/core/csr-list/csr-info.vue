@@ -125,7 +125,7 @@
                     </dt>
                     <dd v-if="icsrView.certificateId">
                         <div>
-                            <router-link :to="{name: 'CertificateView', params: {certificateId: icsrView.certificateId}}">{{icsrView.certificateId}}</router-link>
+                            <router-link :to="{name: 'CertInfo', params: {certificateId: icsrView.certificateId}}">{{icsrView.certificateId}}</router-link>
                         </div>
                     </dd>
 
