@@ -90,11 +90,17 @@ public class BadKeysService {
                 int exitValue = process.exitValue();
                 LOGGER.debug("badkeys process returns with code {}", exitValue);
                 BufferedReader output = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                JsonObject jsonObject = JsonParser.parseReader(output).getAsJsonObject();
-                LOGGER.debug("badkeys process returns json:\n{}",jsonObject.toString());
+                if( exitValue != 0){
+                    String errMsg = output.readLine();
+                    LOGGER.warn("badkeys failed with message: {}",errMsg);
+                    return new BadKeysResult(false, errMsg);
+                }else {
+                    JsonObject jsonObject = JsonParser.parseReader(output).getAsJsonObject();
+                    LOGGER.debug("badkeys process returns json:\n{}", jsonObject.toString());
+                    Response response = new Response(jsonObject);
+                    return new BadKeysResult(response);
+                }
 
-                Response response = new Response(jsonObject);
-                return new BadKeysResult(response);
             } catch (IllegalThreadStateException illegalThreadStateException) {
                 try {Thread.sleep(100L);} catch (InterruptedException ignore) {}
             }
