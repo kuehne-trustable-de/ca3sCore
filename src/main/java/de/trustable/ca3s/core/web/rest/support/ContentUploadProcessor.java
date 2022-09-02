@@ -11,6 +11,8 @@ import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.NotificationService;
+import de.trustable.ca3s.core.service.badkeys.BadKeysResult;
+import de.trustable.ca3s.core.service.badkeys.BadKeysService;
 import de.trustable.ca3s.core.service.dto.KeyAlgoLength;
 import de.trustable.ca3s.core.service.dto.NamedValues;
 import de.trustable.ca3s.core.service.dto.PipelineView;
@@ -37,7 +39,6 @@ import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.DecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -70,41 +71,29 @@ public class ContentUploadProcessor {
 
 	private final Logger LOG = LoggerFactory.getLogger(ContentUploadProcessor.class);
 
-	@Autowired
-	private CryptoUtil cryptoUtil;
+    private final CryptoUtil cryptoUtil;
 
-	@Autowired
-	private ProtectedContentUtil protUtil;
+    private final ProtectedContentUtil protUtil;
 
-	@Autowired
-	private CertificateUtil certUtil;
+    private final CertificateUtil certUtil;
 
-    @Autowired
-	private CSRRepository csrRepository;
+    private final CSRRepository csrRepository;
 
-    @Autowired
-    private CertificateRepository certificateRepository;
+    private final CertificateRepository certificateRepository;
 
-    @Autowired
-    private PipelineRepository pipelineRepository;
+    private final PipelineRepository pipelineRepository;
 
-    @Autowired
-    private PipelineUtil pipelineUtil;
+    private final PipelineUtil pipelineUtil;
 
-    @Autowired
-    private PreferenceUtil preferenceUtil;
+    private final PreferenceUtil preferenceUtil;
 
-    @Autowired
-	private CertificateProcessingUtil cpUtil;
+    private final CertificateProcessingUtil cpUtil;
 
-    @Autowired
-    private NotificationService notificationService;
+    private final NotificationService notificationService;
 
-//    @Autowired
-//    private BadKeysService badKeysService;
+    private final BadKeysService badKeysService;
 
-    @Autowired
-    private AuditService auditService;
+    private final AuditService auditService;
 
     private static final String SIGNATURE_ALG = "SHA256withRSA";
     private static final String EC_SIGNATURE_ALG = "SHA256withECDSA";
@@ -124,6 +113,32 @@ public class ContentUploadProcessor {
         nameGeneralNameMap.put("DNS", GeneralName.dNSName);
 		nameGeneralNameMap.put("IP", GeneralName.iPAddress);
 	}
+
+    public ContentUploadProcessor(CryptoUtil cryptoUtil,
+                                  ProtectedContentUtil protUtil,
+                                  CertificateUtil certUtil,
+                                  CSRRepository csrRepository,
+                                  CertificateRepository certificateRepository,
+                                  PipelineRepository pipelineRepository,
+                                  PipelineUtil pipelineUtil,
+                                  PreferenceUtil preferenceUtil,
+                                  CertificateProcessingUtil cpUtil,
+                                  NotificationService notificationService,
+                                  BadKeysService badKeysService,
+                                  AuditService auditService) {
+        this.cryptoUtil = cryptoUtil;
+        this.protUtil = protUtil;
+        this.certUtil = certUtil;
+        this.csrRepository = csrRepository;
+        this.certificateRepository = certificateRepository;
+        this.pipelineRepository = pipelineRepository;
+        this.pipelineUtil = pipelineUtil;
+        this.preferenceUtil = preferenceUtil;
+        this.cpUtil = cpUtil;
+        this.notificationService = notificationService;
+        this.badKeysService = badKeysService;
+        this.auditService = auditService;
+    }
 
     /**
      * {@code POST  /csrContent} : Process a PKCSXX-object encoded as PEM.
@@ -205,21 +220,25 @@ public class ContentUploadProcessor {
             try {
 
                 Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(cryptoUtil.convertPemToPKCS10CertificationRequest(content));
-/*
-disabled for now ...
 
-                if( badKeysService.isInstalled()){
-                    BadKeysResult badKeysResult = badKeysService.checkCSR(content);
-                    if( !badKeysResult.isValid()){
-
-                    }
-                }
-*/
                 List<CSR> csrList = csrRepository.findNonRejectedByPublicKeyHash(p10ReqHolder.getPublicKeyHash());
                 LOG.debug("public key with hash '{}' already used in #{} CSRs.", p10ReqHolder.getPublicKeyHash(), csrList.size());
 
                 Pkcs10RequestHolderShallow p10ReqHolderShallow = new Pkcs10RequestHolderShallow( p10ReqHolder);
                 p10ReqData = new PkcsXXData(p10ReqHolderShallow);
+
+                if( badKeysService.isInstalled()){
+                    BadKeysResult badKeysResult = badKeysService.checkCSR(content);
+                    if( !badKeysResult.isValid()){
+
+                        LOG.debug("badKeysResult '{}'", badKeysResult.getResponse().getResults().getResultType());
+                        String [] messages = ArrayUtils.add( p10ReqData.getWarnings(),
+                            badKeysResult.getResponse().getResults().getResultType());
+                        p10ReqData.setWarnings(messages);
+                    }else{
+                        LOG.debug("BadKeys not installed");
+                    }
+                }
 
                 p10ReqData.setCsrPublicKeyPresentInDB(!csrList.isEmpty());
                 if(csrList.isEmpty()) {

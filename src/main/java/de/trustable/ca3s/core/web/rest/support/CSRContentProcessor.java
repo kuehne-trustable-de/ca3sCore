@@ -139,8 +139,8 @@ public class CSRContentProcessor {
 					p10ReqData.setCsrPublicKeyPresentInDB(!csrList.isEmpty());
 
                     List<String> messageList = new ArrayList<>();
-                    BadKeysResult badKeysResult = badKeysService.checkCSR(content);
-                    if( badKeysResult.isInstallationValid() ){
+                    if( badKeysService.isInstalled()){
+                        BadKeysResult badKeysResult = badKeysService.checkCSR(content);
                         if( badKeysResult.isValid()) {
                             LOG.debug("BadKeys is installed and returns OK");
                         }else{
@@ -232,7 +232,7 @@ public class CSRContentProcessor {
 					LOG.debug("p12 parsing problem of uploaded content: " + de.getMessage());
 				} catch(GeneralSecurityException e3) {
 					LOG.debug("general problem with uploaded content: " + e3.getMessage());
-					return new ResponseEntity<PkcsXXData>(HttpStatus.BAD_REQUEST);
+					return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 				}
 			}
 		}
