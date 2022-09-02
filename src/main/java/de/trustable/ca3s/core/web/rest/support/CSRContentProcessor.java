@@ -144,7 +144,11 @@ public class CSRContentProcessor {
                         if( badKeysResult.isValid()) {
                             LOG.debug("BadKeys is installed and returns OK");
                         }else{
-                            messageList.add (badKeysResult.getResponse().getResults().getResultType());
+                            if( badKeysResult.getResponse() != null &&
+                                badKeysResult.getResponse().getResults() != null &&
+                                badKeysResult.getResponse().getResults().getResultType() != null ) {
+                                messageList.add(badKeysResult.getResponse().getResults().getResultType());
+                            }
                         }
                     }else{
                         LOG.debug("BadKeys not installed");
