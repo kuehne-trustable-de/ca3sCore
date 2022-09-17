@@ -17,7 +17,7 @@
             th:text="#{email.request.certificate.download.crt}">Certificate download (DER encoded)</a>
         </p>
         <p>
-            <a th:with="url=(@{|${baseUrl}/publicapi/certPEM/${certId}/${filenamePem}|})" th:href="${url}"
+            <a th:with="url=(@{|${baseUrl}/publicapi/certPEMChain/${certId}/${filenamePem}|})" th:href="${url}"
                th:text="#{email.request.certificate.download.pem}">Certificate download (PEM encoded))</a>
         </p>
         <p>
@@ -26,7 +26,7 @@
         </p>
         <p th:if="${isServersideKeyGeneration}">
             <a th:if="${isServersideKeyGeneration}"
-               th:with="url=(@{|${baseUrl}/cert-info?certificateId/${certId}|})"
+               th:with="url=(@{|${baseUrl}/publicapi/certPEMFull/${certId}|})"
                th:text="#{email.request.accepted.P12.available}" th:href="${url}">Download your key and certificate container.</a>
         </p>
         <p>

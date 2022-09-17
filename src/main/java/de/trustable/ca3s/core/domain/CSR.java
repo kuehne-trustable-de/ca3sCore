@@ -52,7 +52,14 @@ import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
         " c.requestedOn <= :before and " +
         " c.status = 'PENDING' " +
         " group by YEAR(c.requestedOn), MONTH(c.requestedOn), DAY(c.requestedOn)"
-    )
+    ),
+
+    @NamedQuery(name = "CSR.groupIssuedByIssuanceMonth",
+        query = "SELECT concat(MONTH(requested_on), '.',YEAR(requested_on)), pipelineType, count(c) FROM CSR c WHERE " +
+            " c.status = 'ISSUED' and" +
+            " c.requestedOn > :after" +
+            " group by MONTH(requested_on), YEAR(requested_on), pipelineType"
+    ),
 })
 public class CSR implements Serializable {
 

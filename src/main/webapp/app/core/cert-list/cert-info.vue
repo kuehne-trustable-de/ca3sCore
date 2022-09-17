@@ -188,11 +188,11 @@
                             </dd>
                         </Fragment>
 
-                        <!-- donwload section -->
-                        <dt v-if="certificateView.isServersideKeyGeneration">
+                        <!-- download section -->
+                        <dt v-if="certificateView.isServersideKeyGeneration && isEditable()">
                             <span v-text="$t('ca3SApp.certificate.download.PKCS12')">PKCS12 keystore</span> <help-tag target="ca3SApp.certificate.download.PKCS12"/>
                         </dt>
-                        <dd v-if="certificateView.isServersideKeyGeneration">
+                        <dd v-if="certificateView.isServersideKeyGeneration && isEditable()">
                             <div class="row">
                                 <div class="col">
                                     <label class="form-control-label" v-text="$t('ca3SApp.certificate.download.p12Alias')" for="p12Alias">Alias</label>
@@ -272,7 +272,7 @@
                         <Fragment v-if="isEditable()">
                             <div v-for="attr in certificateView.arArr" :key="attr.name" class="form-group">
                                 <label class="form-control-label"  :for="'cert-ar-'+attr.name">{{attr.name}}</label>
-                                <input type="text" class="form-control" name="rejectionReason" :id="'cert-ar-'+attr.name" v-model="attr.value" />
+                                <input type="text" class="form-control" :name="'cert-ar-'+attr.name" :id="'cert-ar-'+attr.name" v-model="attr.value" />
                             </div>
                         </Fragment>
 
@@ -310,6 +310,10 @@
 
                         <button type="button" id="update" v-if="isRAOfficer()" class="btn btn-secondary" v-on:click="updateCertificate()">
                             <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.update')">Update</span>
+                        </button>
+
+                        <button type="button" id="updateCrl" v-if="isRAOfficer()" class="btn btn-secondary" v-on:click="updateCRL()">
+                            <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.updateCrl')">Update CRL</span>
                         </button>
 
                         <button type="button" id="removeFromCRL" v-if="isRemovableFromCRL()" class="btn btn-secondary" v-on:click="removeCertificateFromCRL()">

@@ -24,7 +24,7 @@ public class CertificateAttribute implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "value")
+    @Column(name = "value_")
     private String value;
 
     @ManyToOne

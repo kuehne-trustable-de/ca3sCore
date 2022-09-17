@@ -119,7 +119,7 @@ export default class AcmeAccountList extends mixins(AlertMixin, Vue) {
     { itemName: 'accountId', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: '' },
     { itemName: 'realm', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: '' },
     { itemName: 'termsOfServiceAgreed', itemType: 'boolean', itemDefaultSelector: 'ISTRUE', itemDefaultValue: '' },
-    { itemName: 'createdOn', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}' },
+    { itemName: 'createdOn', itemType: 'date', itemDefaultSelector: 'ON', itemDefaultValue: '{now}' },
     { itemName: 'publicKeyHash', itemType: 'string', itemDefaultSelector: 'EQUAL', itemDefaultValue: '' }
   ];
 
@@ -222,7 +222,7 @@ export default class AcmeAccountList extends mixins(AlertMixin, Vue) {
         { label: this.$t('ca3SApp.aCMEAccount.accountId'), field: 'accountId' },
         { label: this.$t('status'), field: 'status' },
         { label: this.$t('realm'), field: 'realm' },
-        //        { label: this.$t('createdOn'), field: 'createdOn' },
+        { label: this.$t('createdOn'), field: 'createdOn' },
         { label: this.$t('termsOfServiceAgreed'), field: 'termsOfServiceAgreed' },
         { label: this.$t('publicKeyHash'), field: 'publicKeyHash' },
         { label: this.$t('orderCount'), field: 'orderCount' },

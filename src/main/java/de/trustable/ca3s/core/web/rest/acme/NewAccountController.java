@@ -34,6 +34,7 @@ import static org.springframework.web.servlet.support.ServletUriComponentsBuilde
 
 import java.net.URI;
 import java.security.PublicKey;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -155,6 +156,7 @@ public class NewAccountController extends ACMEController {
 			    ACMEAccount newAcctDao = new ACMEAccount();
 			    newAcctDao.setAccountId(generateId());
 			    newAcctDao.setRealm(realm);
+                newAcctDao.setCreatedOn(Instant.now());
 
 				String pkAsString = Base64.encodeBase64String(pk.getEncoded()).trim();
 				newAcctDao.setPublicKey(pkAsString);

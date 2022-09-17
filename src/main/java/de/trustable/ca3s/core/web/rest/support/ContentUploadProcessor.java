@@ -11,10 +11,9 @@ import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.NotificationService;
-import de.trustable.ca3s.core.service.dto.KeyAlgoLength;
-import de.trustable.ca3s.core.service.dto.NamedValues;
-import de.trustable.ca3s.core.service.dto.PipelineView;
-import de.trustable.ca3s.core.service.dto.Preferences;
+import de.trustable.ca3s.core.service.badkeys.BadKeysResult;
+import de.trustable.ca3s.core.service.badkeys.BadKeysService;
+import de.trustable.ca3s.core.service.dto.*;
 import de.trustable.ca3s.core.service.util.*;
 import de.trustable.ca3s.core.web.rest.data.*;
 import de.trustable.util.CryptoUtil;
@@ -37,7 +36,6 @@ import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.DecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -70,41 +68,29 @@ public class ContentUploadProcessor {
 
 	private final Logger LOG = LoggerFactory.getLogger(ContentUploadProcessor.class);
 
-	@Autowired
-	private CryptoUtil cryptoUtil;
+    private final CryptoUtil cryptoUtil;
 
-	@Autowired
-	private ProtectedContentUtil protUtil;
+    private final ProtectedContentUtil protUtil;
 
-	@Autowired
-	private CertificateUtil certUtil;
+    private final CertificateUtil certUtil;
 
-    @Autowired
-	private CSRRepository csrRepository;
+    private final CSRRepository csrRepository;
 
-    @Autowired
-    private CertificateRepository certificateRepository;
+    private final CertificateRepository certificateRepository;
 
-    @Autowired
-    private PipelineRepository pipelineRepository;
+    private final PipelineRepository pipelineRepository;
 
-    @Autowired
-    private PipelineUtil pipelineUtil;
+    private final PipelineUtil pipelineUtil;
 
-    @Autowired
-    private PreferenceUtil preferenceUtil;
+    private final PreferenceUtil preferenceUtil;
 
-    @Autowired
-	private CertificateProcessingUtil cpUtil;
+    private final CertificateProcessingUtil cpUtil;
 
-    @Autowired
-    private NotificationService notificationService;
+    private final NotificationService notificationService;
 
-//    @Autowired
-//    private BadKeysService badKeysService;
+    private final BadKeysService badKeysService;
 
-    @Autowired
-    private AuditService auditService;
+    private final AuditService auditService;
 
     private static final String SIGNATURE_ALG = "SHA256withRSA";
     private static final String EC_SIGNATURE_ALG = "SHA256withECDSA";
@@ -124,6 +110,32 @@ public class ContentUploadProcessor {
         nameGeneralNameMap.put("DNS", GeneralName.dNSName);
 		nameGeneralNameMap.put("IP", GeneralName.iPAddress);
 	}
+
+    public ContentUploadProcessor(CryptoUtil cryptoUtil,
+                                  ProtectedContentUtil protUtil,
+                                  CertificateUtil certUtil,
+                                  CSRRepository csrRepository,
+                                  CertificateRepository certificateRepository,
+                                  PipelineRepository pipelineRepository,
+                                  PipelineUtil pipelineUtil,
+                                  PreferenceUtil preferenceUtil,
+                                  CertificateProcessingUtil cpUtil,
+                                  NotificationService notificationService,
+                                  BadKeysService badKeysService,
+                                  AuditService auditService) {
+        this.cryptoUtil = cryptoUtil;
+        this.protUtil = protUtil;
+        this.certUtil = certUtil;
+        this.csrRepository = csrRepository;
+        this.certificateRepository = certificateRepository;
+        this.pipelineRepository = pipelineRepository;
+        this.pipelineUtil = pipelineUtil;
+        this.preferenceUtil = preferenceUtil;
+        this.cpUtil = cpUtil;
+        this.notificationService = notificationService;
+        this.badKeysService = badKeysService;
+        this.auditService = auditService;
+    }
 
     /**
      * {@code POST  /csrContent} : Process a PKCSXX-object encoded as PEM.
@@ -205,21 +217,25 @@ public class ContentUploadProcessor {
             try {
 
                 Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(cryptoUtil.convertPemToPKCS10CertificationRequest(content));
-/*
-disabled for now ...
 
-                if( badKeysService.isInstalled()){
-                    BadKeysResult badKeysResult = badKeysService.checkCSR(content);
-                    if( !badKeysResult.isValid()){
-
-                    }
-                }
-*/
                 List<CSR> csrList = csrRepository.findNonRejectedByPublicKeyHash(p10ReqHolder.getPublicKeyHash());
                 LOG.debug("public key with hash '{}' already used in #{} CSRs.", p10ReqHolder.getPublicKeyHash(), csrList.size());
 
                 Pkcs10RequestHolderShallow p10ReqHolderShallow = new Pkcs10RequestHolderShallow( p10ReqHolder);
                 p10ReqData = new PkcsXXData(p10ReqHolderShallow);
+
+                if( badKeysService.isInstalled()){
+                    BadKeysResult badKeysResult = badKeysService.checkCSR(content);
+                    if( !badKeysResult.isValid()){
+
+                        LOG.debug("badKeysResult '{}'", badKeysResult.getResponse().getResults().getResultType());
+                        String [] messages = ArrayUtils.add( p10ReqData.getWarnings(),
+                            badKeysResult.getResponse().getResults().getResultType());
+                        p10ReqData.setWarnings(messages);
+                    }else{
+                        LOG.debug("BadKeys not installed");
+                    }
+                }
 
                 p10ReqData.setCsrPublicKeyPresentInDB(!csrList.isEmpty());
                 if(csrList.isEmpty()) {
@@ -372,32 +388,26 @@ disabled for now ...
                 String name = nv.getName();
                 if( nameOIDMap.containsKey(name)) {
                     ASN1ObjectIdentifier oid = nameOIDMap.get(name);
-                    for( String value: nv.getValues()) {
-                        if( value != null && !value.isEmpty()) {
-                            namebuilder.addRDN(oid, value);
+                    for( TypedValue typedValue: nv.getValues()) {
+                        if( typedValue.getValue() != null && !typedValue.getValue().isEmpty()) {
+                            namebuilder.addRDN(oid, typedValue.getValue());
                         }
                     }
                 }else if( "SAN".equalsIgnoreCase(name)){
 
-                    for( String value: nv.getValues()) {
-                        String content = value.trim();
+                    for( TypedValue typedValue: nv.getValues()) {
+                        String content = typedValue.getValue().trim();
                         if( content.isEmpty()) {
                             continue;
                         }
 
-                        String [] sanParts = content.split(":");
-                        if( sanParts.length == 1) {
-                            gnList.add(new GeneralName(GeneralName.dNSName, content));
-                        } else if( sanParts.length > 1) {
-                            if(nameGeneralNameMap.containsKey(sanParts[0].toUpperCase() )) {
-                                Integer type = nameGeneralNameMap.get(sanParts[0].toUpperCase());
-                                gnList.add(new GeneralName(type, sanParts[1]));
-                            }else {
-                                LOG.warn("SAN certificate attribute has unknown type '{}'", sanParts[0]);
-                            }
+                        Integer sanType = GeneralName.dNSName;
+                        if(nameGeneralNameMap.containsKey(typedValue.getType().toUpperCase() )) {
+                            sanType = nameGeneralNameMap.get(typedValue.getType().toUpperCase());
                         }else {
-                            LOG.warn("unexpected SAN info value '{}'", value);
+                            LOG.warn("SAN certificate attribute has unknown type '{}'", typedValue.getType());
                         }
+                        gnList.add(new GeneralName(sanType, content));
                     }
 
                 }else {

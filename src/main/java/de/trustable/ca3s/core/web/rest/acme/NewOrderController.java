@@ -403,13 +403,20 @@ public class NewOrderController extends ACMEController {
 			Set<AcmeChallenge> challenges = new HashSet<>();
 
             if( isWildcardRequest ){
-                LOG.debug("Wildcard requested, HTTP-01 disabled!");
+                LOG.debug("Wildcard requested, HTTP-01 and ALPN disabled!");
             }else {
                 if( acmeConfigItems.isAllowChallengeHTTP01() ) {
                     LOG.debug("Offering HTTP-01 challenge");
                     challenges.add(createChallenge(AcmeChallenge.CHALLENGE_TYPE_HTTP_01, identDao.getValue(), authorizationDao));
                     challengeTypeSet.add(AcmeChallenge.CHALLENGE_TYPE_HTTP_01);
                 }
+
+                if( acmeConfigItems.isAllowChallengeHTTP01() ) {
+                    LOG.debug("Offering ALPN-01 challenge");
+                    challenges.add(createChallenge(AcmeChallenge.CHALLENGE_TYPE_ALPN_01, identDao.getValue(), authorizationDao));
+                    challengeTypeSet.add(AcmeChallenge.CHALLENGE_TYPE_ALPN_01);
+                }
+
             }
 
             if( resolverHost != null && !resolverHost.isEmpty()) {

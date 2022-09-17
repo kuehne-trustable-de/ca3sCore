@@ -15,6 +15,16 @@
     <property name="blobType" value="blob" dbms="h2"/>
     <property name="blobType" value="blob" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
     <property name="uuidType" value="varchar(36)" dbms="h2, mysql, mariadb"/>
+    <property name="intType" value="INT(10)" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
+    <property name="intType" value="INT" dbms="h2"/>
+    <property name="bigIntType" value="BIGINT(19)" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
+    <property name="bigIntType" value="BIGINT" dbms="h2"/>
+
+    <property name="doubleType" value="DOUBLE(17)" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
+    <property name="doubleType" value="DOUBLE" dbms="h2"/>
+
+    <property name="booleanType" value="BOOLEAN(1)" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
+    <property name="booleanType" value="BOOLEAN" dbms="h2"/>
 
     <property name="datetimeType" value="datetime(6)" dbms="mysql, mariadb"/>
     <property name="datetimeType" value="datetime" dbms="oracle, mssql, postgresql, h2"/>
@@ -104,5 +114,8 @@
     <include file="config/liquibase/changelog/20220322124500_change_content_field_type.xml" relativeToChangelogFile="false"/>
 
     <include file="config/liquibase/changelog/20220410220000_added_columns_User.xml" relativeToChangelogFile="false"/>
+
+    <include file="config/liquibase/changelog/20220822110000_change_value_field_name.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>

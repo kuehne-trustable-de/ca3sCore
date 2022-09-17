@@ -249,6 +249,11 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
     this.certificateAdminData.trusted = this.certificateView.trusted;
     this.sendAdministrationAction('api/administerCertificate');
   }
+  public updateCRL() {
+    this.certificateAdminData.certificateId = this.certificateView.id;
+    this.certificateAdminData.administrationType = 'UPDATE_CRL';
+    this.sendAdministrationAction('api/administerCertificate');
+  }
 
   public removeCertificateFromCRL() {
     this.certificateAdminData.certificateId = this.certificateView.id;

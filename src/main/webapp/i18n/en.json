@@ -623,6 +623,7 @@
   "entity.action.delete": "Delete",
   "entity.action.edit": "Edit",
   "entity.action.update": "Save",
+  "entity.action.updateCrl": "Check CRL",
   "entity.action.open": "Open",
   "entity.action.reject": "Reject Request",
   "entity.action.revoke": "Revoke",

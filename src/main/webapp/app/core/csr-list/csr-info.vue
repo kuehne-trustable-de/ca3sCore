@@ -110,15 +110,16 @@
                         <span>{{ icsrView.publicKeyAlgorithm }} / {{ icsrView.keyLength }} bits</span>
                     </dd>
 
-                    <Fragment v-for="attr in arAttributes" :key="attr.name" v-if="!(icsrView.status === 'PENDING' && (isRAOfficer() || (getUsername() === icsrView.requestedBy)))">
 
-                        <dt>
-                            <span >{{attr.name}}</span>
-                        </dt>
-                        <dd >
-                            <span >{{attr.value}}</span>
-                        </dd>
-                    </Fragment>
+
+                    <dt v-if="icsrView.certificateId">
+                        <span v-text="$t('ca3SApp.cSR.certificate')">Certificate</span>
+                    </dt>
+                    <dd v-if="icsrView.certificateId">
+                        <div>
+                            <router-link :to="{name: 'CertificateView', params: {pipelineId: icsrView.certificateId}}">{{icsrView.certificateId}}</router-link>
+                        </div>
+                    </dd>
 
                     <dt v-if="icsrView.certificateId">
                         <span v-text="$t('ca3SApp.cSR.certificate')">Certificate</span>

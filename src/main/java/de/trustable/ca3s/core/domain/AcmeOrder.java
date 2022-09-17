@@ -29,6 +29,11 @@ import javax.validation.constraints.*;
         query = "SELECT count(a) FROM AcmeOrder a WHERE " +
             "a.account.accountId = :accountId"
     ),
+    @NamedQuery(name = "AcmeOrder.findByPendingExpiryBefore",
+        query = "SELECT a FROM AcmeOrder a WHERE " +
+            "a.expires < :expiresBefore AND " +
+            "a.status = 'PENDING'"
+    ),
 })
 public class AcmeOrder implements Serializable {
 

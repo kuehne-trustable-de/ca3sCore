@@ -12,22 +12,30 @@ public class NamedValues {
 	public NamedValues() {
 	}
 
-	public NamedValues( final String name, final String[] values) {
-		this.name = name;
-		this.values = values;
-	}
+    public NamedValues( final String name, final TypedValue[] values) {
+        this.name = name;
+        this.values = values;
+    }
 
-	@JsonProperty("name")
+    public NamedValues( final String name, final String[] stringValues) {
+        this.name = name;
+        this.values = new TypedValue[stringValues.length];
+        for( int i = 0; i < stringValues.length; i++){
+            this.values[i] = new TypedValue(stringValues[i]);
+        }
+    }
+
+    @JsonProperty("name")
 	private String name;
 
 	@JsonProperty("values")
-	private String[] values;
+	private TypedValue[] values;
 
 	public String getName() {
 		return name;
 	}
 
-	public String[] getValues() {
+	public TypedValue[] getValues() {
 		return values;
 	}
 
@@ -35,7 +43,7 @@ public class NamedValues {
 		this.name = name;
 	}
 
-	public void setValues(String[] values) {
+	public void setValues(TypedValue[] values) {
 		this.values = values;
 	}
 

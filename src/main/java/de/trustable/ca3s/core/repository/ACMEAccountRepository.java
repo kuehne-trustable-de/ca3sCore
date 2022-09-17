@@ -12,7 +12,6 @@ import de.trustable.ca3s.core.domain.ACMEAccount;
 /**
  * Spring Data  repository for the ACMEAccount entity.
  */
-@SuppressWarnings("unused")
 @Repository
 public interface ACMEAccountRepository extends JpaRepository<ACMEAccount, Long> {
 
@@ -21,5 +20,8 @@ public interface ACMEAccountRepository extends JpaRepository<ACMEAccount, Long> 
 
 	@Query(name = "Account.findByPublicKeyHash")
 	List<ACMEAccount> findByPublicKeyHashBase64(@Param("publicKeyHashBase64") String publicKeyHashBase64);
+
+    @Query(name = "Account.findByCreatedOnIsNull")
+    List<ACMEAccount> findByCreatedOnIsNull();
 
 }
