@@ -9,7 +9,7 @@
             <column name="NAME_" type="VARCHAR(255)"/>
             <column name="DEPLOYMENT_ID_" type="VARCHAR(64)"/>
             <column name="BYTES_" type="${blobType}"/>
-            <column name="GENERATED_" type="BOOLEAN(1)"/>
+            <column name="GENERATED_" type="${booleanType}"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
             <column name="TYPE_" type="${intType}"/>
             <column name="CREATE_TIME_" type="TIMESTAMP"/>
@@ -67,7 +67,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="END_TIME_" type="TIMESTAMP"/>
-            <column name="DURATION_" type="BIGINT(19)"/>
+            <column name="DURATION_" type="${bigIntType}"/>
             <column name="ACT_INST_STATE_" type="${intType}"/>
             <column name="SEQUENCE_COUNTER_" type="${intType}"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
@@ -139,9 +139,9 @@
                 <constraints nullable="false"/>
             </column>
             <column name="END_TIME_" type="TIMESTAMP"/>
-            <column name="DURATION_" type="BIGINT(19)"/>
+            <column name="DURATION_" type="${bigIntType}"/>
             <column name="STATE_" type="${intType}"/>
-            <column name="REQUIRED_" type="BOOLEAN(1)"/>
+            <column name="REQUIRED_" type="${booleanType}"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
@@ -161,7 +161,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="CLOSE_TIME_" type="TIMESTAMP"/>
-            <column name="DURATION_" type="BIGINT(19)"/>
+            <column name="DURATION_" type="${bigIntType}"/>
             <column name="STATE_" type="${intType}"/>
             <column name="CREATE_USER_ID_" type="VARCHAR(255)"/>
             <column name="SUPER_CASE_INSTANCE_ID_" type="VARCHAR(64)"/>
@@ -213,7 +213,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="REMOVAL_TIME_" type="TIMESTAMP"/>
-            <column name="COLLECT_VALUE_" type="DOUBLE(17)"/>
+            <column name="COLLECT_VALUE_" type="${doubleType}"/>
             <column name="USER_ID_" type="VARCHAR(255)"/>
             <column name="ROOT_DEC_INST_ID_" type="VARCHAR(64)"/>
             <column name="ROOT_PROC_INST_ID_" type="VARCHAR(64)"/>
@@ -234,8 +234,8 @@
             <column name="CLAUSE_NAME_" type="VARCHAR(255)"/>
             <column name="VAR_TYPE_" type="VARCHAR(100)"/>
             <column name="BYTEARRAY_ID_" type="VARCHAR(64)"/>
-            <column name="DOUBLE_" type="DOUBLE(17)"/>
-            <column name="LONG_" type="BIGINT(19)"/>
+            <column name="DOUBLE_" type="${doubleType}"/>
+            <column name="LONG_" type="${bigIntType}"/>
             <column name="TEXT_" type="VARCHAR(4000)"/>
             <column name="TEXT2_" type="VARCHAR(4000)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
@@ -259,8 +259,8 @@
             <column name="VAR_NAME_" type="VARCHAR(255)"/>
             <column name="VAR_TYPE_" type="VARCHAR(100)"/>
             <column name="BYTEARRAY_ID_" type="VARCHAR(64)"/>
-            <column name="DOUBLE_" type="DOUBLE(17)"/>
-            <column name="LONG_" type="BIGINT(19)"/>
+            <column name="DOUBLE_" type="${doubleType}"/>
+            <column name="LONG_" type="${bigIntType}"/>
             <column name="TEXT_" type="VARCHAR(4000)"/>
             <column name="TEXT2_" type="VARCHAR(4000)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
@@ -298,8 +298,8 @@
             <column name="VAR_TYPE_" type="VARCHAR(255)"/>
             <column name="REV_" type="${intType}"/>
             <column name="BYTEARRAY_ID_" type="VARCHAR(64)"/>
-            <column name="DOUBLE_" type="DOUBLE(17)"/>
-            <column name="LONG_" type="BIGINT(19)"/>
+            <column name="DOUBLE_" type="${doubleType}"/>
+            <column name="LONG_" type="${bigIntType}"/>
             <column name="TEXT_" type="VARCHAR(4000)"/>
             <column name="TEXT2_" type="VARCHAR(4000)"/>
             <column name="SEQUENCE_COUNTER_" type="${intType}"/>
@@ -322,7 +322,7 @@
             <column name="RETRIES_" type="${intType}"/>
             <column name="TOPIC_NAME_" type="VARCHAR(255)"/>
             <column name="WORKER_ID_" type="VARCHAR(255)"/>
-            <column defaultValueNumeric="0" name="PRIORITY_" type="BIGINT(19)">
+            <column defaultValueNumeric="0" name="PRIORITY_" type="${bigIntType}">
                 <constraints nullable="false"/>
             </column>
             <column name="ERROR_MSG_" type="VARCHAR(4000)"/>
@@ -402,7 +402,7 @@
             </column>
             <column name="JOB_DUEDATE_" type="TIMESTAMP"/>
             <column name="JOB_RETRIES_" type="${intType}"/>
-            <column defaultValueNumeric="0" name="JOB_PRIORITY_" type="BIGINT(19)">
+            <column defaultValueNumeric="0" name="JOB_PRIORITY_" type="${bigIntType}">
                 <constraints nullable="false"/>
             </column>
             <column name="JOB_EXCEPTION_MSG_" type="VARCHAR(4000)"/>
@@ -476,7 +476,7 @@
             </column>
             <column name="END_TIME_" type="TIMESTAMP"/>
             <column name="REMOVAL_TIME_" type="TIMESTAMP"/>
-            <column name="DURATION_" type="BIGINT(19)"/>
+            <column name="DURATION_" type="${bigIntType}"/>
             <column name="START_USER_ID_" type="VARCHAR(255)"/>
             <column name="START_ACT_ID_" type="VARCHAR(255)"/>
             <column name="END_ACT_ID_" type="VARCHAR(255)"/>
@@ -514,7 +514,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="END_TIME_" type="TIMESTAMP"/>
-            <column name="DURATION_" type="BIGINT(19)"/>
+            <column name="DURATION_" type="${bigIntType}"/>
             <column name="DELETE_REASON_" type="VARCHAR(4000)"/>
             <column name="PRIORITY_" type="${intType}"/>
             <column name="DUE_DATE_" type="TIMESTAMP"/>
@@ -546,8 +546,8 @@
             <column name="CREATE_TIME_" type="TIMESTAMP"/>
             <column name="REV_" type="${intType}"/>
             <column name="BYTEARRAY_ID_" type="VARCHAR(64)"/>
-            <column name="DOUBLE_" type="DOUBLE(17)"/>
-            <column name="LONG_" type="BIGINT(19)"/>
+            <column name="DOUBLE_" type="${doubleType}"/>
+            <column name="LONG_" type="${bigIntType}"/>
             <column name="TEXT_" type="VARCHAR(4000)"/>
             <column name="TEXT2_" type="VARCHAR(4000)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
@@ -877,7 +877,7 @@
             <column name="ACT_ID_" type="VARCHAR(255)"/>
             <column name="ACT_INST_ID_" type="VARCHAR(64)"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
-            <column defaultValueNumeric="0" name="PRIORITY_" type="BIGINT(19)">
+            <column defaultValueNumeric="0" name="PRIORITY_" type="${bigIntType}">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -964,7 +964,7 @@
             <column name="EXCEPTION_MSG_" type="VARCHAR(4000)"/>
             <column name="DUEDATE_" type="TIMESTAMP"/>
             <column name="REPEAT_" type="VARCHAR(255)"/>
-            <column defaultValueNumeric="0" name="REPEAT_OFFSET_" type="BIGINT(19)"/>
+            <column defaultValueNumeric="0" name="REPEAT_OFFSET_" type="${bigIntType}"/>
             <column name="HANDLER_TYPE_" type="VARCHAR(255)"/>
             <column name="HANDLER_CFG_" type="VARCHAR(4000)"/>
             <column name="DEPLOYMENT_ID_" type="VARCHAR(64)"/>
@@ -972,7 +972,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="JOB_DEF_ID_" type="VARCHAR(64)"/>
-            <column defaultValueNumeric="0" name="PRIORITY_" type="BIGINT(19)">
+            <column defaultValueNumeric="0" name="PRIORITY_" type="${bigIntType}">
                 <constraints nullable="false"/>
             </column>
             <column name="SEQUENCE_COUNTER_" type="${intType}"/>
@@ -994,7 +994,7 @@
             </column>
             <column name="JOB_CONFIGURATION_" type="VARCHAR(255)"/>
             <column name="SUSPENSION_STATE_" type="${intType}"/>
-            <column name="JOB_PRIORITY_" type="BIGINT(19)"/>
+            <column name="JOB_PRIORITY_" type="${bigIntType}"/>
             <column name="TENANT_ID_" type="VARCHAR(64)"/>
         </createTable>
     </changeSet>
@@ -1007,9 +1007,9 @@
                 <constraints nullable="false"/>
             </column>
             <column name="REPORTER_" type="VARCHAR(255)"/>
-            <column name="VALUE_" type="BIGINT(19)"/>
+            <column name="VALUE_" type="${bigIntType}"/>
             <column name="TIMESTAMP_" type="TIMESTAMP"/>
-            <column defaultValueNumeric="0" name="MILLISECONDS_" type="BIGINT(19)"/>
+            <column defaultValueNumeric="0" name="MILLISECONDS_" type="${bigIntType}"/>
         </createTable>
     </changeSet>
     <changeSet author="kuehn (generated)" id="1580410283605-46">
@@ -1057,8 +1057,8 @@
             <column name="CASE_INST_ID_" type="VARCHAR(64)"/>
             <column name="TASK_ID_" type="VARCHAR(64)"/>
             <column name="BYTEARRAY_ID_" type="VARCHAR(64)"/>
-            <column name="DOUBLE_" type="DOUBLE(17)"/>
-            <column name="LONG_" type="BIGINT(19)"/>
+            <column name="DOUBLE_" type="${doubleType}"/>
+            <column name="LONG_" type="${bigIntType}"/>
             <column name="TEXT_" type="VARCHAR(4000)"/>
             <column name="TEXT2_" type="VARCHAR(4000)"/>
             <column name="VAR_SCOPE_" type="VARCHAR(64)">

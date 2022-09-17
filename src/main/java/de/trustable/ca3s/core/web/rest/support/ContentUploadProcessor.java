@@ -13,10 +13,7 @@ import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.NotificationService;
 import de.trustable.ca3s.core.service.badkeys.BadKeysResult;
 import de.trustable.ca3s.core.service.badkeys.BadKeysService;
-import de.trustable.ca3s.core.service.dto.KeyAlgoLength;
-import de.trustable.ca3s.core.service.dto.NamedValues;
-import de.trustable.ca3s.core.service.dto.PipelineView;
-import de.trustable.ca3s.core.service.dto.Preferences;
+import de.trustable.ca3s.core.service.dto.*;
 import de.trustable.ca3s.core.service.util.*;
 import de.trustable.ca3s.core.web.rest.data.*;
 import de.trustable.util.CryptoUtil;
@@ -391,32 +388,26 @@ public class ContentUploadProcessor {
                 String name = nv.getName();
                 if( nameOIDMap.containsKey(name)) {
                     ASN1ObjectIdentifier oid = nameOIDMap.get(name);
-                    for( String value: nv.getValues()) {
-                        if( value != null && !value.isEmpty()) {
-                            namebuilder.addRDN(oid, value);
+                    for( TypedValue typedValue: nv.getValues()) {
+                        if( typedValue.getValue() != null && !typedValue.getValue().isEmpty()) {
+                            namebuilder.addRDN(oid, typedValue.getValue());
                         }
                     }
                 }else if( "SAN".equalsIgnoreCase(name)){
 
-                    for( String value: nv.getValues()) {
-                        String content = value.trim();
+                    for( TypedValue typedValue: nv.getValues()) {
+                        String content = typedValue.getValue().trim();
                         if( content.isEmpty()) {
                             continue;
                         }
 
-                        String [] sanParts = content.split(":");
-                        if( sanParts.length == 1) {
-                            gnList.add(new GeneralName(GeneralName.dNSName, content));
-                        } else if( sanParts.length > 1) {
-                            if(nameGeneralNameMap.containsKey(sanParts[0].toUpperCase() )) {
-                                Integer type = nameGeneralNameMap.get(sanParts[0].toUpperCase());
-                                gnList.add(new GeneralName(type, sanParts[1]));
-                            }else {
-                                LOG.warn("SAN certificate attribute has unknown type '{}'", sanParts[0]);
-                            }
+                        Integer sanType = GeneralName.dNSName;
+                        if(nameGeneralNameMap.containsKey(typedValue.getType().toUpperCase() )) {
+                            sanType = nameGeneralNameMap.get(typedValue.getType().toUpperCase());
                         }else {
-                            LOG.warn("unexpected SAN info value '{}'", value);
+                            LOG.warn("SAN certificate attribute has unknown type '{}'", typedValue.getType());
                         }
+                        gnList.add(new GeneralName(sanType, content));
                     }
 
                 }else {

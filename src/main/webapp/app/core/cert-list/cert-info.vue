@@ -189,10 +189,10 @@
                         </Fragment>
 
                         <!-- download section -->
-                        <dt v-if="certificateView.isServersideKeyGeneration">
+                        <dt v-if="certificateView.isServersideKeyGeneration && isEditable()">
                             <span v-text="$t('ca3SApp.certificate.download.PKCS12')">PKCS12 keystore</span> <help-tag target="ca3SApp.certificate.download.PKCS12"/>
                         </dt>
-                        <dd v-if="certificateView.isServersideKeyGeneration">
+                        <dd v-if="certificateView.isServersideKeyGeneration && isEditable()">
                             <div class="row">
                                 <div class="col">
                                     <label class="form-control-label" v-text="$t('ca3SApp.certificate.download.p12Alias')" for="p12Alias">Alias</label>

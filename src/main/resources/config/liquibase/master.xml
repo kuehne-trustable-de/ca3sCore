@@ -17,6 +17,12 @@
     <property name="uuidType" value="varchar(36)" dbms="h2, mysql, mariadb"/>
     <property name="intType" value="INT(10)" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
     <property name="intType" value="INT" dbms="h2"/>
+    <property name="bigIntType" value="BIGINT(19)" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
+    <property name="bigIntType" value="BIGINT" dbms="h2"/>
+
+    <property name="doubleType" value="DOUBLE(17)" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
+    <property name="doubleType" value="DOUBLE" dbms="h2"/>
+
     <property name="booleanType" value="BOOLEAN(1)" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
     <property name="booleanType" value="BOOLEAN" dbms="h2"/>
 

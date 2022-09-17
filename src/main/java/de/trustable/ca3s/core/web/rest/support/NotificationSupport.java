@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * REST controller for processing PKCS10 requests and Certificates.
+ * REST controller for test sending of notification.
  */
 @RestController
 @RequestMapping("/api")

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2022-08-18 18:11:24.
+// Generated using typescript-generator version 2.19.577 on 2022-09-15 18:57:10.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -192,9 +192,9 @@ export interface ICertificateView extends ISerializable {
   isServersideKeyGeneration?: boolean;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
-  auditPresent?: boolean;
   fullChainAvailable?: boolean;
   serversideKeyGeneration?: boolean;
+  auditPresent?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
@@ -430,7 +430,7 @@ export interface INamedValue {
 
 export interface INamedValues {
   name?: string;
-  values?: string[];
+  values?: ITypedValue[];
 }
 
 export interface IPkcs10RequestHolderShallow {
@@ -452,6 +452,11 @@ export interface IPkcs10RequestHolderShallow {
 export interface ICertificateNameId extends ISerializable {
   id?: number;
   name?: string;
+}
+
+export interface ITypedValue {
+  type?: string;
+  value?: string;
 }
 
 export interface IComparable<T> {}

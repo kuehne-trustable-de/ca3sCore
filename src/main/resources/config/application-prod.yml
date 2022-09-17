@@ -205,9 +205,9 @@ ca3s:
 
 # define an alternative location for the email templates
 # the default location is the internal reference within the jar
-  template:
-    email:
-      filePrefix: file://\Users\kuehn\tmp\templates\
+#  template:
+#    email:
+#      filePrefix: file://\Users\kuehn\tmp\templates\
 # what's the extension of the template files. See the thymeleaf docs for supported types
 #      filePostfix: .html
 

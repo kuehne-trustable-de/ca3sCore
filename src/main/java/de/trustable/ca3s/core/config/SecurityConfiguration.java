@@ -203,6 +203,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers("/management/prometheus").permitAll()
 
             .requestMatchers(forPortAndPath(adminPort, "/api/notification/**")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/schedule/**")).hasAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/api/notification/**").denyAll()
 
             .requestMatchers(forPortAndPath(adminPort, "/management/**")).hasAuthority(AuthoritiesConstants.ADMIN)

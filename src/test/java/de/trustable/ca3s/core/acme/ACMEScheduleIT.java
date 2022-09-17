@@ -1,4 +1,4 @@
-package de.trustable.ca3s.core.schadule;
+package de.trustable.ca3s.core.acme;
 
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.AcmeOrder;

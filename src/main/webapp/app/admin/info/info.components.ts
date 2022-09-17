@@ -52,4 +52,19 @@ export default class Info extends Vue {
       window.console.info('management/info returns ' + self.info);
     });
   }
+
+  public postSchedule(methodName: string): void {
+    window.console.info('calling schedule ...');
+    const self = this;
+
+    axios({
+      method: 'post',
+      url: 'api/schedule/' + methodName,
+      responseType: 'stream'
+    }).then(function(response) {
+      window.console.info('api/schedule returns ' + response.data);
+      self.info = response.data;
+      window.console.info('api/schedule returns ' + self.info);
+    });
+  }
 }

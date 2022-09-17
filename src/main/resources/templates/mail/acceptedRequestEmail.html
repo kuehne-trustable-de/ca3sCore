@@ -26,8 +26,8 @@
         </p>
         <p th:if="${isServersideKeyGeneration}">
             <a th:if="${isServersideKeyGeneration}"
-               th:with="url=(@{|${baseUrl}/publicapi/certPEMFull/${certId}|})"
-               th:text="#{email.request.accepted.P12.available}" th:href="${url}">Download your key and certificate container.</a>
+               th:with="url=(@{|${baseUrl}/cert-info?certificateId=${certId}&showNavBar=false|})"
+               th:text="#{email.request.accepted.P12.available}" th:href="${url}">Download your key and certificate container from the certificate website.</a>
         </p>
         <p>
             <span th:text="#{email.activation.text2}">Regards, </span>
