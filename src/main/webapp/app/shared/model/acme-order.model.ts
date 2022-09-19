@@ -2,7 +2,7 @@ import { IAcmeAuthorization } from '@/shared/model/acme-authorization.model';
 import { IAcmeIdentifier } from '@/shared/model/acme-identifier.model';
 import { ICSR } from '@/shared/model/csr.model';
 import { ICertificate } from '@/shared/model/certificate.model';
-import { IACMEAccount } from '@/shared/model/acme-account.model';
+import { IAcmeAccount } from '@/shared/model/acme-account.model';
 
 export const enum AcmeOrderStatus {
   PENDING = 'PENDING',
@@ -26,7 +26,7 @@ export interface IAcmeOrder {
   acmeIdentifiers?: IAcmeIdentifier[];
   csr?: ICSR;
   certificate?: ICertificate;
-  account?: IACMEAccount;
+  account?: IAcmeAccount;
 }
 
 export class AcmeOrder implements IAcmeOrder {
@@ -44,6 +44,6 @@ export class AcmeOrder implements IAcmeOrder {
     public acmeIdentifiers?: IAcmeIdentifier[],
     public csr?: ICSR,
     public certificate?: ICertificate,
-    public account?: IACMEAccount
+    public account?: IAcmeAccount
   ) {}
 }

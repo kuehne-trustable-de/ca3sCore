@@ -2,8 +2,8 @@ import { Component, Vue, Inject } from 'vue-property-decorator';
 
 import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
 
-import ACMEAccountService from '../acme-account/acme-account.service';
-import { IACMEAccount } from '@/shared/model/acme-account.model';
+import AcmeAccountService from '../acme-account/acme-account.service';
+import { IAcmeAccount } from '@/shared/model/acme-account.model';
 
 import AlertService from '@/shared/alert/alert.service';
 import { IAcmeContact, AcmeContact } from '@/shared/model/acme-contact.model';
@@ -29,9 +29,9 @@ export default class AcmeContactUpdate extends Vue {
   @Inject('acmeContactService') private acmeContactService: () => AcmeContactService;
   public acmeContact: IAcmeContact = new AcmeContact();
 
-  @Inject('aCMEAccountService') private aCMEAccountService: () => ACMEAccountService;
+  @Inject('aCMEAccountService') private aCMEAccountService: () => AcmeAccountService;
 
-  public aCMEAccounts: IACMEAccount[] = [];
+  public aCMEAccounts: IAcmeAccount[] = [];
   public isSaving = false;
 
   beforeRouteEnter(to, from, next) {

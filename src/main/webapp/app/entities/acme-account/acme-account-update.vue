@@ -2,7 +2,7 @@
     <div class="row justify-content-center">
         <div class="col-8">
             <form name="editForm" role="form" novalidate v-on:submit.prevent="save()" >
-                <h2 id="ca3SApp.aCMEAccount.home.createOrEditLabel" v-text="$t('ca3SApp.aCMEAccount.home.createOrEditLabel')">Create or edit a ACMEAccount</h2>
+                <h2 id="ca3SApp.aCMEAccount.home.createOrEditLabel" v-text="$t('ca3SApp.aCMEAccount.home.createOrEditLabel')">Create or edit a AcmeAccount</h2>
                 <div>
                     <div class="form-group" v-if="aCMEAccount.id">
                         <label for="id" v-text="$t('global.field.id')">ID</label>

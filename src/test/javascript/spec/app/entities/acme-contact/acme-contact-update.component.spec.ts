@@ -9,7 +9,7 @@ import AcmeContactUpdateComponent from '@/entities/acme-contact/acme-contact-upd
 import AcmeContactClass from '@/entities/acme-contact/acme-contact-update.component';
 import AcmeContactService from '@/entities/acme-contact/acme-contact.service';
 
-import ACMEAccountService from '@/entities/acme-account/acme-account.service';
+import AcmeAccountService from '@/entities/acme-account/acme-account.service';
 
 const localVue = createLocalVue();
 
@@ -38,7 +38,7 @@ describe('Component Tests', () => {
           alertService: () => new AlertService(store),
           acmeContactService: () => acmeContactServiceStub,
 
-          aCMEAccountService: () => new ACMEAccountService()
+          aCMEAccountService: () => new AcmeAccountService()
         }
       });
       comp = wrapper.vm;

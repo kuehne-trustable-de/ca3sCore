@@ -2,30 +2,30 @@ import { mixins } from 'vue-class-component';
 
 import { Component, Inject } from 'vue-property-decorator';
 import Vue2Filters from 'vue2-filters';
-import { IACMEAccount } from '@/shared/model/acme-account.model';
+import { IAcmeAccount } from '@/shared/model/acme-account.model';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
 import JhiDataUtils from '@/shared/data/data-utils.service';
 
-import ACMEAccountService from './acme-account.service';
+import AcmeAccountService from './acme-account.service';
 
 @Component
-export default class ACMEAccount extends mixins(JhiDataUtils, Vue2Filters.mixin, AlertMixin) {
-  @Inject('aCMEAccountService') private aCMEAccountService: () => ACMEAccountService;
+export default class AcmeAccount extends mixins(JhiDataUtils, Vue2Filters.mixin, AlertMixin) {
+  @Inject('aCMEAccountService') private aCMEAccountService: () => AcmeAccountService;
   private removeId: number = null;
-  public aCMEAccounts: IACMEAccount[] = [];
+  public aCMEAccounts: IAcmeAccount[] = [];
 
   public isFetching = false;
 
   public mounted(): void {
-    this.retrieveAllACMEAccounts();
+    this.retrieveAllAcmeAccounts();
   }
 
   public clear(): void {
-    this.retrieveAllACMEAccounts();
+    this.retrieveAllAcmeAccounts();
   }
 
-  public retrieveAllACMEAccounts(): void {
+  public retrieveAllAcmeAccounts(): void {
     this.isFetching = true;
 
     this.aCMEAccountService()
@@ -41,11 +41,11 @@ export default class ACMEAccount extends mixins(JhiDataUtils, Vue2Filters.mixin,
       );
   }
 
-  public prepareRemove(instance: IACMEAccount): void {
+  public prepareRemove(instance: IAcmeAccount): void {
     this.removeId = instance.id;
   }
 
-  public removeACMEAccount(): void {
+  public removeAcmeAccount(): void {
     this.aCMEAccountService()
       .delete(this.removeId)
       .then(() => {
@@ -54,7 +54,7 @@ export default class ACMEAccount extends mixins(JhiDataUtils, Vue2Filters.mixin,
         this.getAlertFromStore();
 
         this.removeId = null;
-        this.retrieveAllACMEAccounts();
+        this.retrieveAllAcmeAccounts();
         this.closeDialog();
       });
   }

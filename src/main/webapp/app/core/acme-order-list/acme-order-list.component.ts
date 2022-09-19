@@ -7,7 +7,7 @@ import {
   ICertificateFilterList,
   ISelector,
   ICertificateSelectionData,
-  IACMEOrderView
+  IAcmeOrderView
 } from '@/shared/model/transfer-object.model';
 
 import { colFieldToStr, makeQueryStringFromObj } from '@/shared/utils';
@@ -67,7 +67,7 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('orders-table',
       return {
         rows: data,
         totalRowCount: parseInt(totalCount, 10)
-      } as ITableContentParam<IACMEOrderView>;
+      } as ITableContentParam<IAcmeOrderView>;
     })
     .mergeSettings({
       table: {
@@ -224,7 +224,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
         { label: this.$t('expires'), field: 'expires' },
         { label: this.$t('notBefore'), field: 'notBefore' },
         { label: this.$t('notAfter'), field: 'notAfter' }
-      ] as TColumnsDefinition<IACMEOrderView>,
+      ] as TColumnsDefinition<IAcmeOrderView>,
       page: 1,
       filter: '',
       contentAccessUrl: '',

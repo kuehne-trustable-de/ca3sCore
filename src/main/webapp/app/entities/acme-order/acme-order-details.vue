@@ -73,7 +73,7 @@
                     </dt>
                     <dd>
                         <div v-if="acmeOrder.account">
-                            <router-link :to="{name: 'ACMEAccountView', params: {aCMEAccountId: acmeOrder.account.id}}">{{acmeOrder.account.id}}</router-link>
+                            <router-link :to="{name: 'AcmeAccountView', params: {aCMEAccountId: acmeOrder.account.id}}">{{acmeOrder.account.id}}</router-link>
                         </div>
                     </dd>
                 </dl>

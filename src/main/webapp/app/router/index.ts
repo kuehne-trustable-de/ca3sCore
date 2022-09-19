@@ -16,9 +16,9 @@ const BpmnInfo = () => import('../core/bpmn/bpmn-info.vue');
 const BpmnNew = () => import('../core/bpmn/bpmn-new.vue');
 const CertList = () => import('../core/cert-list/cert-list.vue');
 const CertInfo = () => import('../core/cert-list/cert-info.vue');
-const ACMEAccountList = () => import('../core/acme-account-list/acme-account-list.vue');
-const ACMEAccountInfo = () => import('../core/acme-account-list/acme-account-info.vue');
-const ACMEOrderList = () => import('../core/acme-order-list/acme-order-list.vue');
+const AcmeAccountList = () => import('../core/acme-account-list/acme-account-list.vue');
+const AcmeAccountInfo = () => import('../core/acme-account-list/acme-account-info.vue');
+const AcmeOrderList = () => import('../core/acme-order-list/acme-order-list.vue');
 const AcmeOrderInfo = () => import('../core/acme-order-list/acme-order-info.vue');
 const ScepOrderList = () => import('../core/scep-order-list/scep-order-list.vue');
 const ScepOrderInfo = () => import('../core/scep-order-list/scep-order-info.vue');
@@ -127,11 +127,11 @@ const PipelineAttributeUpdate = () => import('../entities/pipeline-attribute/pip
 // prettier-ignore
 const PipelineAttributeDetails = () => import('../entities/pipeline-attribute/pipeline-attribute-details.vue');
 // prettier-ignore
-const ACMEAccount = () => import('../entities/acme-account/acme-account.vue');
+const AcmeAccount = () => import('../entities/acme-account/acme-account.vue');
 // prettier-ignore
-const ACMEAccountUpdate = () => import('../entities/acme-account/acme-account-update.vue');
+const AcmeAccountUpdate = () => import('../entities/acme-account/acme-account-update.vue');
 // prettier-ignore
-const ACMEAccountDetails = () => import('../entities/acme-account/acme-account-details.vue');
+const AcmeAccountDetails = () => import('../entities/acme-account/acme-account-details.vue');
 // prettier-ignore
 const AcmeContact = () => import('../entities/acme-contact/acme-contact.vue');
 // prettier-ignore
@@ -773,26 +773,26 @@ export default new Router({
     ,
     {
       path: '/acme-account',
-      name: 'ACMEAccount',
-      component: ACMEAccount,
+      name: 'AcmeAccount',
+      component: AcmeAccount,
       meta: { authorities: ['ROLE_USER'] }
     },
     {
       path: '/acme-account-list',
-      name: 'ACMEAccountList',
-      component: ACMEAccountList,
+      name: 'AcmeAccountList',
+      component: AcmeAccountList,
       meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/acme-account-info/:accountId',
-      name: 'ACMEAccountInfo',
-      component: ACMEAccountInfo,
+      name: 'AcmeAccountInfo',
+      component: AcmeAccountInfo,
       meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/acme-order-list',
-      name: 'ACMEOrderList',
-      component: ACMEOrderList,
+      name: 'AcmeOrderList',
+      component: AcmeOrderList,
       meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
@@ -817,20 +817,20 @@ export default new Router({
 
     {
       path: '/acme-account/new',
-      name: 'ACMEAccountCreate',
-      component: ACMEAccountUpdate,
+      name: 'AcmeAccountCreate',
+      component: AcmeAccountUpdate,
       meta: { authorities: ['ROLE_USER'] }
     },
     {
       path: '/acme-account/:aCMEAccountId/edit',
-      name: 'ACMEAccountEdit',
-      component: ACMEAccountUpdate,
+      name: 'AcmeAccountEdit',
+      component: AcmeAccountUpdate,
       meta: { authorities: ['ROLE_USER'] }
     },
     {
       path: '/acme-account/:aCMEAccountId/view',
-      name: 'ACMEAccountView',
-      component: ACMEAccountDetails,
+      name: 'AcmeAccountView',
+      component: AcmeAccountDetails,
       meta: { authorities: ['ROLE_USER'] }
     }
     ,

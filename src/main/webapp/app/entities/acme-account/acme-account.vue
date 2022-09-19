@@ -2,7 +2,7 @@
     <div>
         <h2 id="page-heading">
             <span v-text="$t('ca3SApp.aCMEAccount.home.title')" id="acme-account-heading">ACME Accounts</span>
-            <router-link :to="{name: 'ACMEAccountCreate'}" tag="button" id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-acme-account">
+            <router-link :to="{name: 'AcmeAccountCreate'}" tag="button" id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-acme-account">
                 <font-awesome-icon icon="plus"></font-awesome-icon>
                 <span  v-text="$t('ca3SApp.aCMEAccount.home.createLabel')">
                     Create a new ACME Account
@@ -38,7 +38,7 @@
                 <tr v-for="aCMEAccount in aCMEAccounts"
                     :key="aCMEAccount.id">
                     <td>
-                        <router-link :to="{name: 'ACMEAccountView', params: {aCMEAccountId: aCMEAccount.id}}">{{aCMEAccount.id}}</router-link>
+                        <router-link :to="{name: 'AcmeAccountView', params: {aCMEAccountId: aCMEAccount.id}}">{{aCMEAccount.id}}</router-link>
                     </td>
                     <td>{{aCMEAccount.accountId}}</td>
                     <td>{{aCMEAccount.realm}}</td>
@@ -48,11 +48,11 @@
                     <td>{{aCMEAccount.publicKey}}</td>
                     <td class="text-right">
                         <div class="btn-group">
-                            <router-link :to="{name: 'ACMEAccountView', params: {aCMEAccountId: aCMEAccount.id}}" tag="button" class="btn btn-info btn-sm details">
+                            <router-link :to="{name: 'AcmeAccountView', params: {aCMEAccountId: aCMEAccount.id}}" tag="button" class="btn btn-info btn-sm details">
                                 <font-awesome-icon icon="eye"></font-awesome-icon>
                                 <span class="d-none d-md-inline" v-text="$t('entity.action.view')">View</span>
                             </router-link>
-                            <router-link :to="{name: 'ACMEAccountEdit', params: {aCMEAccountId: aCMEAccount.id}}"  tag="button" class="btn btn-primary btn-sm edit">
+                            <router-link :to="{name: 'AcmeAccountEdit', params: {aCMEAccountId: aCMEAccount.id}}"  tag="button" class="btn btn-primary btn-sm edit">
                                 <font-awesome-icon icon="pencil-alt"></font-awesome-icon>
                                 <span class="d-none d-md-inline" v-text="$t('entity.action.edit')">Edit</span>
                             </router-link>
@@ -76,7 +76,7 @@
             </div>
             <div slot="modal-footer">
                 <button type="button" class="btn btn-secondary" v-text="$t('entity.action.cancel')" v-on:click="closeDialog()">Cancel</button>
-                <button type="button" class="btn btn-primary" id="jhi-confirm-delete-aCMEAccount" v-text="$t('entity.action.delete')" v-on:click="removeACMEAccount()">Delete</button>
+                <button type="button" class="btn btn-primary" id="jhi-confirm-delete-aCMEAccount" v-text="$t('entity.action.delete')" v-on:click="removeAcmeAccount()">Delete</button>
             </div>
         </b-modal>
     </div>
