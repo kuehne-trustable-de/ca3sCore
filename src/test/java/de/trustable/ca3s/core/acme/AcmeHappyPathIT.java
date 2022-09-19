@@ -56,9 +56,9 @@ import de.trustable.util.JCAManager;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("dev")
-public class ACMEHappyPathIT {
+public class AcmeHappyPathIT {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ACMEHappyPathIT.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AcmeHappyPathIT.class);
 
 	@LocalServerPort
 	int serverPort; // random port chosen by spring test

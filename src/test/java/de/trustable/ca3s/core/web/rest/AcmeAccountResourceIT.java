@@ -30,17 +30,17 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
 import de.trustable.ca3s.core.Ca3SApp;
-import de.trustable.ca3s.core.domain.ACMEAccount;
+import de.trustable.ca3s.core.domain.AcmeAccount;
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
-import de.trustable.ca3s.core.repository.ACMEAccountRepository;
-import de.trustable.ca3s.core.service.ACMEAccountService;
+import de.trustable.ca3s.core.repository.AcmeAccountRepository;
+import de.trustable.ca3s.core.service.AcmeAccountService;
 import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 /**
- * Integration tests for the {@link ACMEAccountResource} REST controller.
+ * Integration tests for the {@link AcmeAccountResource} REST controller.
  */
 @SpringBootTest(classes = Ca3SApp.class)
 @ActiveProfiles("dev")
-public class ACMEAccountResourceIT {
+public class AcmeAccountResourceIT {
 
     private static final Long DEFAULT_ACCOUNT_ID = 1L;
     private static final Long UPDATED_ACCOUNT_ID = 2L;
@@ -61,10 +61,10 @@ public class ACMEAccountResourceIT {
     private static final String UPDATED_PUBLIC_KEY = "BBBBBBBBBB";
 
     @Autowired
-    private ACMEAccountRepository aCMEAccountRepository;
+    private AcmeAccountRepository aCMEAccountRepository;
 
     @Autowired
-    private ACMEAccountService aCMEAccountService;
+    private AcmeAccountService aCMEAccountService;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -81,15 +81,15 @@ public class ACMEAccountResourceIT {
     @Autowired
     private Validator validator;
 
-    private MockMvc restACMEAccountMockMvc;
+    private MockMvc restAcmeAccountMockMvc;
 
-    private ACMEAccount aCMEAccount;
+    private AcmeAccount aCMEAccount;
 
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final ACMEAccountResource aCMEAccountResource = new ACMEAccountResource(aCMEAccountService);
-        this.restACMEAccountMockMvc = MockMvcBuilders.standaloneSetup(aCMEAccountResource)
+        final AcmeAccountResource aCMEAccountResource = new AcmeAccountResource(aCMEAccountService);
+        this.restAcmeAccountMockMvc = MockMvcBuilders.standaloneSetup(aCMEAccountResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
             .setConversionService(createFormattingConversionService())
@@ -103,8 +103,8 @@ public class ACMEAccountResourceIT {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static ACMEAccount createEntity(EntityManager em) {
-        ACMEAccount aCMEAccount = new ACMEAccount()
+    public static AcmeAccount createEntity(EntityManager em) {
+        AcmeAccount aCMEAccount = new AcmeAccount()
             .accountId(DEFAULT_ACCOUNT_ID)
             .realm(DEFAULT_REALM)
             .status(DEFAULT_STATUS)
@@ -119,8 +119,8 @@ public class ACMEAccountResourceIT {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static ACMEAccount createUpdatedEntity(EntityManager em) {
-        ACMEAccount aCMEAccount = new ACMEAccount()
+    public static AcmeAccount createUpdatedEntity(EntityManager em) {
+        AcmeAccount aCMEAccount = new AcmeAccount()
             .accountId(UPDATED_ACCOUNT_ID)
             .realm(UPDATED_REALM)
             .status(UPDATED_STATUS)
@@ -137,43 +137,43 @@ public class ACMEAccountResourceIT {
 
     @Test
     @Transactional
-    public void createACMEAccount() throws Exception {
+    public void createAcmeAccount() throws Exception {
         int databaseSizeBeforeCreate = aCMEAccountRepository.findAll().size();
 
-        // Create the ACMEAccount
-        restACMEAccountMockMvc.perform(post("/api/acme-accounts")
+        // Create the AcmeAccount
+        restAcmeAccountMockMvc.perform(post("/api/acme-accounts")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(aCMEAccount)))
             .andExpect(status().isCreated());
 
-        // Validate the ACMEAccount in the database
-        List<ACMEAccount> aCMEAccountList = aCMEAccountRepository.findAll();
+        // Validate the AcmeAccount in the database
+        List<AcmeAccount> aCMEAccountList = aCMEAccountRepository.findAll();
         assertThat(aCMEAccountList).hasSize(databaseSizeBeforeCreate + 1);
-        ACMEAccount testACMEAccount = aCMEAccountList.get(aCMEAccountList.size() - 1);
-        assertThat(testACMEAccount.getAccountId()).isEqualTo(DEFAULT_ACCOUNT_ID);
-        assertThat(testACMEAccount.getRealm()).isEqualTo(DEFAULT_REALM);
-        assertThat(testACMEAccount.getStatus()).isEqualTo(DEFAULT_STATUS);
-        assertThat(testACMEAccount.isTermsOfServiceAgreed()).isEqualTo(DEFAULT_TERMS_OF_SERVICE_AGREED);
-        assertThat(testACMEAccount.getPublicKeyHash()).isEqualTo(DEFAULT_PUBLIC_KEY_HASH);
-        assertThat(testACMEAccount.getPublicKey()).isEqualTo(DEFAULT_PUBLIC_KEY);
+        AcmeAccount testAcmeAccount = aCMEAccountList.get(aCMEAccountList.size() - 1);
+        assertThat(testAcmeAccount.getAccountId()).isEqualTo(DEFAULT_ACCOUNT_ID);
+        assertThat(testAcmeAccount.getRealm()).isEqualTo(DEFAULT_REALM);
+        assertThat(testAcmeAccount.getStatus()).isEqualTo(DEFAULT_STATUS);
+        assertThat(testAcmeAccount.isTermsOfServiceAgreed()).isEqualTo(DEFAULT_TERMS_OF_SERVICE_AGREED);
+        assertThat(testAcmeAccount.getPublicKeyHash()).isEqualTo(DEFAULT_PUBLIC_KEY_HASH);
+        assertThat(testAcmeAccount.getPublicKey()).isEqualTo(DEFAULT_PUBLIC_KEY);
     }
 
     @Test
     @Transactional
-    public void createACMEAccountWithExistingId() throws Exception {
+    public void createAcmeAccountWithExistingId() throws Exception {
         int databaseSizeBeforeCreate = aCMEAccountRepository.findAll().size();
 
-        // Create the ACMEAccount with an existing ID
+        // Create the AcmeAccount with an existing ID
         aCMEAccount.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restACMEAccountMockMvc.perform(post("/api/acme-accounts")
+        restAcmeAccountMockMvc.perform(post("/api/acme-accounts")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(aCMEAccount)))
             .andExpect(status().isBadRequest());
 
-        // Validate the ACMEAccount in the database
-        List<ACMEAccount> aCMEAccountList = aCMEAccountRepository.findAll();
+        // Validate the AcmeAccount in the database
+        List<AcmeAccount> aCMEAccountList = aCMEAccountRepository.findAll();
         assertThat(aCMEAccountList).hasSize(databaseSizeBeforeCreate);
     }
 
@@ -185,14 +185,14 @@ public class ACMEAccountResourceIT {
         // set the field null
         aCMEAccount.setAccountId(null);
 
-        // Create the ACMEAccount, which fails.
+        // Create the AcmeAccount, which fails.
 
-        restACMEAccountMockMvc.perform(post("/api/acme-accounts")
+        restAcmeAccountMockMvc.perform(post("/api/acme-accounts")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(aCMEAccount)))
             .andExpect(status().isBadRequest());
 
-        List<ACMEAccount> aCMEAccountList = aCMEAccountRepository.findAll();
+        List<AcmeAccount> aCMEAccountList = aCMEAccountRepository.findAll();
         assertThat(aCMEAccountList).hasSize(databaseSizeBeforeTest);
     }
 
@@ -203,14 +203,14 @@ public class ACMEAccountResourceIT {
         // set the field null
         aCMEAccount.setRealm(null);
 
-        // Create the ACMEAccount, which fails.
+        // Create the AcmeAccount, which fails.
 
-        restACMEAccountMockMvc.perform(post("/api/acme-accounts")
+        restAcmeAccountMockMvc.perform(post("/api/acme-accounts")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(aCMEAccount)))
             .andExpect(status().isBadRequest());
 
-        List<ACMEAccount> aCMEAccountList = aCMEAccountRepository.findAll();
+        List<AcmeAccount> aCMEAccountList = aCMEAccountRepository.findAll();
         assertThat(aCMEAccountList).hasSize(databaseSizeBeforeTest);
     }
 
@@ -221,14 +221,14 @@ public class ACMEAccountResourceIT {
         // set the field null
         aCMEAccount.setTermsOfServiceAgreed(null);
 
-        // Create the ACMEAccount, which fails.
+        // Create the AcmeAccount, which fails.
 
-        restACMEAccountMockMvc.perform(post("/api/acme-accounts")
+        restAcmeAccountMockMvc.perform(post("/api/acme-accounts")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(aCMEAccount)))
             .andExpect(status().isBadRequest());
 
-        List<ACMEAccount> aCMEAccountList = aCMEAccountRepository.findAll();
+        List<AcmeAccount> aCMEAccountList = aCMEAccountRepository.findAll();
         assertThat(aCMEAccountList).hasSize(databaseSizeBeforeTest);
     }
 
@@ -239,25 +239,25 @@ public class ACMEAccountResourceIT {
         // set the field null
         aCMEAccount.setPublicKeyHash(null);
 
-        // Create the ACMEAccount, which fails.
+        // Create the AcmeAccount, which fails.
 
-        restACMEAccountMockMvc.perform(post("/api/acme-accounts")
+        restAcmeAccountMockMvc.perform(post("/api/acme-accounts")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(aCMEAccount)))
             .andExpect(status().isBadRequest());
 
-        List<ACMEAccount> aCMEAccountList = aCMEAccountRepository.findAll();
+        List<AcmeAccount> aCMEAccountList = aCMEAccountRepository.findAll();
         assertThat(aCMEAccountList).hasSize(databaseSizeBeforeTest);
     }
 
     @Test
     @Transactional
-    public void getAllACMEAccounts() throws Exception {
+    public void getAllAcmeAccounts() throws Exception {
         // Initialize the database
         aCMEAccountRepository.saveAndFlush(aCMEAccount);
 
         // Get all the aCMEAccountList
-        restACMEAccountMockMvc.perform(get("/api/acme-accounts?sort=id,desc"))
+        restAcmeAccountMockMvc.perform(get("/api/acme-accounts?sort=id,desc"))
             .andExpect(status().isOk())
 //            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(aCMEAccount.getId().intValue())))
@@ -271,12 +271,12 @@ public class ACMEAccountResourceIT {
 
     @Test
     @Transactional
-    public void getACMEAccount() throws Exception {
+    public void getAcmeAccount() throws Exception {
         // Initialize the database
         aCMEAccountRepository.saveAndFlush(aCMEAccount);
 
         // Get the aCMEAccount
-        restACMEAccountMockMvc.perform(get("/api/acme-accounts/{id}", aCMEAccount.getId()))
+        restAcmeAccountMockMvc.perform(get("/api/acme-accounts/{id}", aCMEAccount.getId()))
             .andExpect(status().isOk())
 //            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(aCMEAccount.getId().intValue()))
@@ -290,25 +290,25 @@ public class ACMEAccountResourceIT {
 
     @Test
     @Transactional
-    public void getNonExistingACMEAccount() throws Exception {
+    public void getNonExistingAcmeAccount() throws Exception {
         // Get the aCMEAccount
-        restACMEAccountMockMvc.perform(get("/api/acme-accounts/{id}", Long.MAX_VALUE))
+        restAcmeAccountMockMvc.perform(get("/api/acme-accounts/{id}", Long.MAX_VALUE))
             .andExpect(status().isNotFound());
     }
 
     @Test
     @Transactional
-    public void updateACMEAccount() throws Exception {
+    public void updateAcmeAccount() throws Exception {
         // Initialize the database
         aCMEAccountService.save(aCMEAccount);
 
         int databaseSizeBeforeUpdate = aCMEAccountRepository.findAll().size();
 
         // Update the aCMEAccount
-        ACMEAccount updatedACMEAccount = aCMEAccountRepository.findById(aCMEAccount.getId()).get();
-        // Disconnect from session so that the updates on updatedACMEAccount are not directly saved in db
-        em.detach(updatedACMEAccount);
-        updatedACMEAccount
+        AcmeAccount updatedAcmeAccount = aCMEAccountRepository.findById(aCMEAccount.getId()).get();
+        // Disconnect from session so that the updates on updatedAcmeAccount are not directly saved in db
+        em.detach(updatedAcmeAccount);
+        updatedAcmeAccount
             .accountId(UPDATED_ACCOUNT_ID)
             .realm(UPDATED_REALM)
             .status(UPDATED_STATUS)
@@ -316,56 +316,56 @@ public class ACMEAccountResourceIT {
             .publicKeyHash(UPDATED_PUBLIC_KEY_HASH)
             .publicKey(UPDATED_PUBLIC_KEY);
 
-        restACMEAccountMockMvc.perform(put("/api/acme-accounts")
+        restAcmeAccountMockMvc.perform(put("/api/acme-accounts")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(updatedACMEAccount)))
+            .content(TestUtil.convertObjectToJsonBytes(updatedAcmeAccount)))
             .andExpect(status().isOk());
 
-        // Validate the ACMEAccount in the database
-        List<ACMEAccount> aCMEAccountList = aCMEAccountRepository.findAll();
+        // Validate the AcmeAccount in the database
+        List<AcmeAccount> aCMEAccountList = aCMEAccountRepository.findAll();
         assertThat(aCMEAccountList).hasSize(databaseSizeBeforeUpdate);
-        ACMEAccount testACMEAccount = aCMEAccountList.get(aCMEAccountList.size() - 1);
-        assertThat(testACMEAccount.getAccountId()).isEqualTo(UPDATED_ACCOUNT_ID);
-        assertThat(testACMEAccount.getRealm()).isEqualTo(UPDATED_REALM);
-        assertThat(testACMEAccount.getStatus()).isEqualTo(UPDATED_STATUS);
-        assertThat(testACMEAccount.isTermsOfServiceAgreed()).isEqualTo(UPDATED_TERMS_OF_SERVICE_AGREED);
-        assertThat(testACMEAccount.getPublicKeyHash()).isEqualTo(UPDATED_PUBLIC_KEY_HASH);
-        assertThat(testACMEAccount.getPublicKey()).isEqualTo(UPDATED_PUBLIC_KEY);
+        AcmeAccount testAcmeAccount = aCMEAccountList.get(aCMEAccountList.size() - 1);
+        assertThat(testAcmeAccount.getAccountId()).isEqualTo(UPDATED_ACCOUNT_ID);
+        assertThat(testAcmeAccount.getRealm()).isEqualTo(UPDATED_REALM);
+        assertThat(testAcmeAccount.getStatus()).isEqualTo(UPDATED_STATUS);
+        assertThat(testAcmeAccount.isTermsOfServiceAgreed()).isEqualTo(UPDATED_TERMS_OF_SERVICE_AGREED);
+        assertThat(testAcmeAccount.getPublicKeyHash()).isEqualTo(UPDATED_PUBLIC_KEY_HASH);
+        assertThat(testAcmeAccount.getPublicKey()).isEqualTo(UPDATED_PUBLIC_KEY);
     }
 
     @Test
     @Transactional
-    public void updateNonExistingACMEAccount() throws Exception {
+    public void updateNonExistingAcmeAccount() throws Exception {
         int databaseSizeBeforeUpdate = aCMEAccountRepository.findAll().size();
 
-        // Create the ACMEAccount
+        // Create the AcmeAccount
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restACMEAccountMockMvc.perform(put("/api/acme-accounts")
+        restAcmeAccountMockMvc.perform(put("/api/acme-accounts")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(aCMEAccount)))
             .andExpect(status().isBadRequest());
 
-        // Validate the ACMEAccount in the database
-        List<ACMEAccount> aCMEAccountList = aCMEAccountRepository.findAll();
+        // Validate the AcmeAccount in the database
+        List<AcmeAccount> aCMEAccountList = aCMEAccountRepository.findAll();
         assertThat(aCMEAccountList).hasSize(databaseSizeBeforeUpdate);
     }
 
     @Test
     @Transactional
-    public void deleteACMEAccount() throws Exception {
+    public void deleteAcmeAccount() throws Exception {
         // Initialize the database
         aCMEAccountService.save(aCMEAccount);
 
         int databaseSizeBeforeDelete = aCMEAccountRepository.findAll().size();
 
         // Delete the aCMEAccount
-        restACMEAccountMockMvc.perform(delete("/api/acme-accounts/{id}", aCMEAccount.getId())
+        restAcmeAccountMockMvc.perform(delete("/api/acme-accounts/{id}", aCMEAccount.getId())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item
-        List<ACMEAccount> aCMEAccountList = aCMEAccountRepository.findAll();
+        List<AcmeAccount> aCMEAccountList = aCMEAccountRepository.findAll();
         assertThat(aCMEAccountList).hasSize(databaseSizeBeforeDelete - 1);
     }
 }

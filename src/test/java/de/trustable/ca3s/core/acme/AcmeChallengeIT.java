@@ -36,9 +36,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("dev")
-public class ACMEChallengeIT {
+public class AcmeChallengeIT {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ACMEChallengeIT.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AcmeChallengeIT.class);
 
     static int dnsPort = 0;
 
