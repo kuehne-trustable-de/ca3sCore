@@ -40,7 +40,7 @@ export interface IAuditTraceView extends ISerializable {
   processInfoId?: number;
 }
 
-export interface IACMEAccountView extends ISerializable {
+export interface IAcmeAccountView extends ISerializable {
   id?: number;
   accountId?: number;
   realm?: string;
@@ -53,12 +53,12 @@ export interface IACMEAccountView extends ISerializable {
   orderCount?: number;
 }
 
-export interface IACMEOrderView extends ISerializable {
+export interface IAcmeOrderView extends ISerializable {
   id?: number;
   orderId?: number;
   status?: IAcmeOrderStatus;
   realm?: string;
-  challenges?: IACMEChallengeView[];
+  challenges?: IAcmeChallengeView[];
   challengeTypes?: string;
   challengeUrls?: string;
   wildcard?: boolean;
@@ -121,7 +121,7 @@ export interface IPipelineView extends ISerializable {
   toPendingOnFailedRestrictions?: boolean;
   ipAsSubjectAllowed?: boolean;
   ipAsSANAllowed?: boolean;
-  acmeConfigItems?: IACMEConfigItems;
+  acmeConfigItems?: IAcmeConfigItems;
   scepConfigItems?: ISCEPConfigItems;
   webConfigItems?: IWebConfigItems;
   auditViewArr?: IAuditView[];
@@ -364,7 +364,7 @@ export interface ISerializable {}
 
 export interface IURI extends IComparable<IURI>, ISerializable {}
 
-export interface IACMEChallengeView extends ISerializable {
+export interface IAcmeChallengeView extends ISerializable {
   authorizationType?: string;
   authorizationValue?: string;
   challengeId?: number;
@@ -391,7 +391,7 @@ export interface IARARestriction {
   required?: boolean;
 }
 
-export interface IACMEConfigItems extends ISerializable {
+export interface IAcmeConfigItems extends ISerializable {
   allowChallengeHTTP01?: boolean;
   allowChallengeDNS?: boolean;
   allowWildcards?: boolean;

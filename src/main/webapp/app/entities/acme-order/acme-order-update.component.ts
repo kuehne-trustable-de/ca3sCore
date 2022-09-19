@@ -18,8 +18,8 @@ import { ICSR } from '@/shared/model/csr.model';
 import CertificateService from '../certificate/certificate.service';
 import { ICertificate } from '@/shared/model/certificate.model';
 
-import ACMEAccountService from '../acme-account/acme-account.service';
-import { IACMEAccount } from '@/shared/model/acme-account.model';
+import AcmeAccountService from '../acme-account/acme-account.service';
+import { IAcmeAccount } from '@/shared/model/acme-account.model';
 
 import AlertService from '@/shared/alert/alert.service';
 import { IAcmeOrder, AcmeOrder } from '@/shared/model/acme-order.model';
@@ -67,9 +67,9 @@ export default class AcmeOrderUpdate extends Vue {
 
   public certificates: ICertificate[] = [];
 
-  @Inject('aCMEAccountService') private aCMEAccountService: () => ACMEAccountService;
+  @Inject('aCMEAccountService') private aCMEAccountService: () => AcmeAccountService;
 
-  public aCMEAccounts: IACMEAccount[] = [];
+  public aCMEAccounts: IAcmeAccount[] = [];
   public isSaving = false;
 
   beforeRouteEnter(to, from, next) {

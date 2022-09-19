@@ -12,8 +12,8 @@ import AcmeOrderService from '../acme-order/acme-order.service';
 import { IAcmeOrder } from '@/shared/model/acme-order.model';
 
 import AlertService from '@/shared/alert/alert.service';
-import { IACMEAccount, ACMEAccount } from '@/shared/model/acme-account.model';
-import ACMEAccountService from './acme-account.service';
+import { IAcmeAccount, AcmeAccount } from '@/shared/model/acme-account.model';
+import AcmeAccountService from './acme-account.service';
 
 const validations: any = {
   aCMEAccount: {
@@ -40,10 +40,10 @@ const validations: any = {
 @Component({
   validations
 })
-export default class ACMEAccountUpdate extends mixins(JhiDataUtils) {
+export default class AcmeAccountUpdate extends mixins(JhiDataUtils) {
   @Inject('alertService') private alertService: () => AlertService;
-  @Inject('aCMEAccountService') private aCMEAccountService: () => ACMEAccountService;
-  public aCMEAccount: IACMEAccount = new ACMEAccount();
+  @Inject('aCMEAccountService') private aCMEAccountService: () => AcmeAccountService;
+  public aCMEAccount: IAcmeAccount = new AcmeAccount();
 
   @Inject('acmeContactService') private acmeContactService: () => AcmeContactService;
 
@@ -57,7 +57,7 @@ export default class ACMEAccountUpdate extends mixins(JhiDataUtils) {
   beforeRouteEnter(to, from, next) {
     next(vm => {
       if (to.params.aCMEAccountId) {
-        vm.retrieveACMEAccount(to.params.aCMEAccountId);
+        vm.retrieveAcmeAccount(to.params.aCMEAccountId);
       }
       vm.initRelationships();
     });
@@ -87,7 +87,7 @@ export default class ACMEAccountUpdate extends mixins(JhiDataUtils) {
     }
   }
 
-  public retrieveACMEAccount(aCMEAccountId): void {
+  public retrieveAcmeAccount(aCMEAccountId): void {
     this.aCMEAccountService()
       .find(aCMEAccountId)
       .then(res => {

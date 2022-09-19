@@ -7,7 +7,7 @@ import {
   ICertificateFilterList,
   ISelector,
   ICertificateSelectionData,
-  IACMEAccountView
+  IAcmeAccountView
 } from '@/shared/model/transfer-object.model';
 
 import { colFieldToStr, makeQueryStringFromObj } from '@/shared/utils';
@@ -69,7 +69,7 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('account', tabl
       return {
         rows: data,
         totalRowCount: parseInt(totalCount, 10)
-      } as ITableContentParam<IACMEAccountView>;
+      } as ITableContentParam<IAcmeAccountView>;
     })
     .mergeSettings({
       table: {
@@ -227,7 +227,7 @@ export default class AcmeAccountList extends mixins(AlertMixin, Vue) {
         { label: this.$t('publicKeyHash'), field: 'publicKeyHash' },
         { label: this.$t('orderCount'), field: 'orderCount' },
         { label: this.$t('contactUrls'), field: 'contactUrls' }
-      ] as TColumnsDefinition<IACMEAccountView>,
+      ] as TColumnsDefinition<IAcmeAccountView>,
       page: 1,
       filter: '',
       contentAccessUrl: '',

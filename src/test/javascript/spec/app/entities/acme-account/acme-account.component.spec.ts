@@ -4,9 +4,9 @@ import sinon, { SinonStubbedInstance } from 'sinon';
 
 import AlertService from '@/shared/alert/alert.service';
 import * as config from '@/shared/config/config';
-import ACMEAccountComponent from '@/entities/acme-account/acme-account.vue';
-import ACMEAccountClass from '@/entities/acme-account/acme-account.component';
-import ACMEAccountService from '@/entities/acme-account/acme-account.service';
+import AcmeAccountComponent from '@/entities/acme-account/acme-account.vue';
+import AcmeAccountClass from '@/entities/acme-account/acme-account.component';
+import AcmeAccountService from '@/entities/acme-account/acme-account.service';
 
 const localVue = createLocalVue();
 
@@ -28,16 +28,16 @@ const bModalStub = {
 };
 
 describe('Component Tests', () => {
-  describe('ACMEAccount Management Component', () => {
-    let wrapper: Wrapper<ACMEAccountClass>;
-    let comp: ACMEAccountClass;
-    let aCMEAccountServiceStub: SinonStubbedInstance<ACMEAccountService>;
+  describe('AcmeAccount Management Component', () => {
+    let wrapper: Wrapper<AcmeAccountClass>;
+    let comp: AcmeAccountClass;
+    let aCMEAccountServiceStub: SinonStubbedInstance<AcmeAccountService>;
 
     beforeEach(() => {
-      aCMEAccountServiceStub = sinon.createStubInstance<ACMEAccountService>(ACMEAccountService);
+      aCMEAccountServiceStub = sinon.createStubInstance<AcmeAccountService>(AcmeAccountService);
       aCMEAccountServiceStub.retrieve.resolves({ headers: {} });
 
-      wrapper = shallowMount<ACMEAccountClass>(ACMEAccountComponent, {
+      wrapper = shallowMount<AcmeAccountClass>(AcmeAccountComponent, {
         store,
         i18n,
         localVue,
@@ -59,7 +59,7 @@ describe('Component Tests', () => {
       aCMEAccountServiceStub.retrieve.resolves({ headers: {}, data: [{ id: 123 }] });
 
       // WHEN
-      comp.retrieveAllACMEAccounts();
+      comp.retrieveAllAcmeAccounts();
       await comp.$nextTick();
 
       // THEN
@@ -72,7 +72,7 @@ describe('Component Tests', () => {
 
       // WHEN
       comp.prepareRemove({ id: 123 });
-      comp.removeACMEAccount();
+      comp.removeAcmeAccount();
       await comp.$nextTick();
 
       // THEN

@@ -3,8 +3,8 @@ import axios from 'axios';
 
 import * as config from '@/shared/config/config';
 import {} from '@/shared/date/filters';
-import ACMEAccountService from '@/entities/acme-account/acme-account.service';
-import { ACMEAccount, AccountStatus } from '@/shared/model/acme-account.model';
+import AcmeAccountService from '@/entities/acme-account/acme-account.service';
+import { AcmeAccount, AccountStatus } from '@/shared/model/acme-account.model';
 
 const mockedAxios: any = axios;
 jest.mock('axios', () => ({
@@ -15,13 +15,13 @@ jest.mock('axios', () => ({
 }));
 
 describe('Service Tests', () => {
-  describe('ACMEAccount Service', () => {
-    let service: ACMEAccountService;
+  describe('AcmeAccount Service', () => {
+    let service: AcmeAccountService;
     let elemDefault;
     beforeEach(() => {
-      service = new ACMEAccountService();
+      service = new AcmeAccountService();
 
-      elemDefault = new ACMEAccount(0, 0, 'AAAAAAA', AccountStatus.VALID, false, 'AAAAAAA', 'AAAAAAA');
+      elemDefault = new AcmeAccount(0, 0, 'AAAAAAA', AccountStatus.VALID, false, 'AAAAAAA', 'AAAAAAA');
     });
 
     describe('Service methods', () => {
@@ -33,7 +33,7 @@ describe('Service Tests', () => {
           expect(res).toMatchObject(elemDefault);
         });
       });
-      it('should create a ACMEAccount', async () => {
+      it('should create a AcmeAccount', async () => {
         const returnedFromService = Object.assign(
           {
             id: 0
@@ -48,7 +48,7 @@ describe('Service Tests', () => {
         });
       });
 
-      it('should update a ACMEAccount', async () => {
+      it('should update a AcmeAccount', async () => {
         const returnedFromService = Object.assign(
           {
             accountId: 1,
@@ -68,7 +68,7 @@ describe('Service Tests', () => {
           expect(res).toMatchObject(expected);
         });
       });
-      it('should return a list of ACMEAccount', async () => {
+      it('should return a list of AcmeAccount', async () => {
         const returnedFromService = Object.assign(
           {
             accountId: 1,
@@ -86,7 +86,7 @@ describe('Service Tests', () => {
           expect(res).toContainEqual(expected);
         });
       });
-      it('should delete a ACMEAccount', async () => {
+      it('should delete a AcmeAccount', async () => {
         mockedAxios.delete.mockReturnValue(Promise.resolve({ ok: true }));
         return service.delete(123).then(res => {
           expect(res.ok).toBeTruthy();

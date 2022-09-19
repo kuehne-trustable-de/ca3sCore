@@ -21,7 +21,7 @@
                     </dt>
                     <dd>
                         <div v-if="acmeContact.account">
-                            <router-link :to="{name: 'ACMEAccountView', params: {aCMEAccountId: acmeContact.account.id}}">{{acmeContact.account.id}}</router-link>
+                            <router-link :to="{name: 'AcmeAccountView', params: {aCMEAccountId: acmeContact.account.id}}">{{acmeContact.account.id}}</router-link>
                         </div>
                     </dd>
                 </dl>
