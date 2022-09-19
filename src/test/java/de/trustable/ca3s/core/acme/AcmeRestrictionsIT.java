@@ -39,9 +39,9 @@ import static org.junit.Assert.*;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("dev")
-public class ACMERestrictionsIT {
+public class AcmeRestrictionsIT {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ACMERestrictionsIT.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AcmeRestrictionsIT.class);
 
 	@LocalServerPort
 	int serverPort; // random port chosen by spring test
