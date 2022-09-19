@@ -5,7 +5,7 @@ import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 import java.io.Serializable;
 import java.time.Instant;
 
-public class ACMEAccountView implements Serializable {
+public class AcmeAccountView implements Serializable {
 
     private Long id;
     private Long accountId;
@@ -18,7 +18,7 @@ public class ACMEAccountView implements Serializable {
     private String[] contactUrls;
     private Long orderCount;
 
-    public ACMEAccountView() {}
+    public AcmeAccountView() {}
 
     public Long getId() {
         return id;

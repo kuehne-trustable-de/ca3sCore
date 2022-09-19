@@ -5,7 +5,7 @@ import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
 import java.io.Serializable;
 import java.time.Instant;
 
-public class ACMEChallengeView implements Serializable {
+public class AcmeChallengeView implements Serializable {
 
     private String authorizationType;
     private String authorizationValue;

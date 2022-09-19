@@ -3,8 +3,8 @@ package de.trustable.ca3s.core.service.util;
 import de.trustable.ca3s.core.domain.AcmeAuthorization;
 import de.trustable.ca3s.core.domain.AcmeChallenge;
 import de.trustable.ca3s.core.domain.AcmeOrder;
-import de.trustable.ca3s.core.service.dto.ACMEChallengeView;
-import de.trustable.ca3s.core.service.dto.ACMEOrderView;
+import de.trustable.ca3s.core.service.dto.AcmeChallengeView;
+import de.trustable.ca3s.core.service.dto.AcmeOrderView;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
@@ -14,11 +14,11 @@ import java.util.Iterator;
 import java.util.List;
 
 @Service
-public class ACMEOrderUtil {
+public class AcmeOrderUtil {
 
-    public ACMEOrderView from(AcmeOrder acmeOrder){
+    public AcmeOrderView from(AcmeOrder acmeOrder){
 
-        ACMEOrderView acmeOrderView = new ACMEOrderView();
+        AcmeOrderView acmeOrderView = new AcmeOrderView();
 
         acmeOrderView.setId(acmeOrder.getId());
         acmeOrderView.setOrderId(acmeOrder.getOrderId());
@@ -74,13 +74,13 @@ public class ACMEOrderUtil {
     }
 
 
-    public List<ACMEChallengeView> challengeListfrom(AcmeOrder acmeOrder) {
+    public List<AcmeChallengeView> challengeListfrom(AcmeOrder acmeOrder) {
 
-        List<ACMEChallengeView> acmeChallengeViewList = new ArrayList<>();
+        List<AcmeChallengeView> acmeChallengeViewList = new ArrayList<>();
         for (AcmeAuthorization acmeAuthorization : acmeOrder.getAcmeAuthorizations()) {
 
             for (AcmeChallenge acmeChallenge : acmeAuthorization.getChallenges()) {
-                ACMEChallengeView acmeChallengeView = getAcmeChallengeView(acmeAuthorization, acmeChallenge);
+                AcmeChallengeView acmeChallengeView = getAcmeChallengeView(acmeAuthorization, acmeChallenge);
                 acmeChallengeViewList.add(acmeChallengeView);
             }
         }
@@ -88,8 +88,8 @@ public class ACMEOrderUtil {
     }
 
     @NotNull
-    private ACMEChallengeView getAcmeChallengeView(AcmeAuthorization acmeAuthorization, AcmeChallenge acmeChallenge) {
-        ACMEChallengeView acmeChallengeView = new ACMEChallengeView();
+    private AcmeChallengeView getAcmeChallengeView(AcmeAuthorization acmeAuthorization, AcmeChallenge acmeChallenge) {
+        AcmeChallengeView acmeChallengeView = new AcmeChallengeView();
         acmeChallengeView.setAuthorizationType(acmeAuthorization.getType());
         acmeChallengeView.setAuthorizationValue(acmeAuthorization.getValue());
 

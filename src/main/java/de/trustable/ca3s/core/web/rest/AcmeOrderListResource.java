@@ -1,7 +1,7 @@
 package de.trustable.ca3s.core.web.rest;
 
-import de.trustable.ca3s.core.repository.ACMEOrderViewRepository;
-import de.trustable.ca3s.core.service.dto.ACMEOrderView;
+import de.trustable.ca3s.core.repository.AcmeOrderViewRepository;
+import de.trustable.ca3s.core.service.dto.AcmeOrderView;
 import de.trustable.ca3s.core.service.dto.CSRView;
 import tech.jhipster.web.util.PaginationUtil;
 import org.slf4j.Logger;
@@ -25,14 +25,14 @@ import java.util.List;
 @Transactional
 @RestController
 @RequestMapping("/api")
-public class ACMEOrderListResource {
+public class AcmeOrderListResource {
 
-    private final ACMEOrderViewRepository acmeOrderViewRepository;
+    private final AcmeOrderViewRepository acmeOrderViewRepository;
 
 
-    private final Logger log = LoggerFactory.getLogger(ACMEOrderListResource.class);
+    private final Logger log = LoggerFactory.getLogger(AcmeOrderListResource.class);
 
-    public ACMEOrderListResource(ACMEOrderViewRepository acmeOrderViewRepository) {
+    public AcmeOrderListResource(AcmeOrderViewRepository acmeOrderViewRepository) {
         this.acmeOrderViewRepository = acmeOrderViewRepository;
     }
 
@@ -45,9 +45,9 @@ public class ACMEOrderListResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of ACME orders in body.
      */
     @GetMapping("/acmeOrderList")
-    public ResponseEntity<List<ACMEOrderView>> getAllACMEOrders(Pageable pageable, HttpServletRequest request) {
-        log.debug("REST request to get a page of ACMEAccountViews");
-        Page<ACMEOrderView> page = acmeOrderViewRepository.findSelection(request.getParameterMap());
+    public ResponseEntity<List<AcmeOrderView>> getAllAcmeOrders(Pageable pageable, HttpServletRequest request) {
+        log.debug("REST request to get a page of AcmeAccountViews");
+        Page<AcmeOrderView> page = acmeOrderViewRepository.findSelection(request.getParameterMap());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

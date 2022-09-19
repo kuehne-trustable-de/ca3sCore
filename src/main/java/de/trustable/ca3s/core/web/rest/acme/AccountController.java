@@ -56,7 +56,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import de.trustable.ca3s.core.domain.ACMEAccount;
+import de.trustable.ca3s.core.domain.AcmeAccount;
 import de.trustable.ca3s.core.domain.AcmeOrder;
 import de.trustable.ca3s.core.service.dto.acme.AccountRequest;
 import de.trustable.ca3s.core.service.dto.acme.AccountResponse;
@@ -64,7 +64,7 @@ import de.trustable.ca3s.core.service.dto.acme.ChangeKeyRequest;
 import de.trustable.ca3s.core.service.dto.acme.OrderSetResponse;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
-import de.trustable.ca3s.core.service.util.ACMEUtil;
+import de.trustable.ca3s.core.service.util.AcmeUtil;
 import de.trustable.ca3s.core.service.util.JwtUtil;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -110,7 +110,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Transactional
 @Controller
 @RequestMapping("/acme/{realm}/acct")
-public class AccountController extends ACMEController {
+public class AccountController extends AcmeController {
 
   private static final Logger LOG = LoggerFactory.getLogger(AccountController.class);
   private static final int CURSOR_CHUNK = 10;
@@ -125,7 +125,7 @@ public class AccountController extends ACMEController {
     additionalHeaders.set("Link", "<" + directoryResourceUriBuilderFrom(fromCurrentRequestUri().path("/..")).build()
             .normalize() + ">;rel=\"index\"");
 
-    Optional<ACMEAccount> acct = acctRepository.findById(accountId);
+    Optional<AcmeAccount> acct = acctRepository.findById(accountId);
     if( acct.isPresent()) {
         AccountResponse accResp = new AccountResponse(acct.get(), fromCurrentRequestUri());
         return ok().headers(additionalHeaders).body(accResp);
@@ -145,7 +145,7 @@ public class AccountController extends ACMEController {
 		try {
 			JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
 
-			ACMEAccount acctByKidDao = checkJWTSignatureForAccount(context, realm);
+			AcmeAccount acctByKidDao = checkJWTSignatureForAccount(context, realm);
 
 			JwtClaims claims = context.getJwtClaims();
 			/*
@@ -167,8 +167,8 @@ public class AccountController extends ACMEController {
 						claims.getClaimValue("signature", String.class);
 				LOG.debug( "change key compactInnerJWT : " + compactInnerJWT);
 			} catch (MalformedClaimException e) {
-				final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "change key: error reading compactInnerJWT " + e.getMessage(),
-						BAD_REQUEST, "", ACMEController.NO_INSTANCE);
+				final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "change key: error reading compactInnerJWT " + e.getMessage(),
+						BAD_REQUEST, "", AcmeController.NO_INSTANCE);
 				throw new AcmeProblemException(problem);
 			}
 
@@ -180,8 +180,8 @@ public class AccountController extends ACMEController {
 			try {
 				accountURL = innerContext.getJwtClaims().getClaimValue("account", String.class);
 			} catch (MalformedClaimException e) {
-				final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "change key: error reading claim value for 'account' " + e.getMessage(),
-						BAD_REQUEST, "", ACMEController.NO_INSTANCE);
+				final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "change key: error reading claim value for 'account' " + e.getMessage(),
+						BAD_REQUEST, "", AcmeController.NO_INSTANCE);
 				throw new AcmeProblemException(problem);
 			}
 
@@ -193,8 +193,8 @@ public class AccountController extends ACMEController {
 			if( !(oldWebKey instanceof PublicJsonWebKey)) {
 			    String msg = "change Key request: old key is NOT a PublicJsonWebKey (but of class " + oldWebKey.getClass().getName();
 			    LOG.warn(msg);
-		        final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "msg",
-		                BAD_REQUEST, "", ACMEController.NO_INSTANCE);
+		        final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "msg",
+		                BAD_REQUEST, "", AcmeController.NO_INSTANCE);
 		    	throw new AcmeProblemException(problem);
 			}
 			PublicKey oldPK = ((PublicJsonWebKey)oldWebKey).getPublicKey();
@@ -202,30 +202,30 @@ public class AccountController extends ACMEController {
 			LOG.debug( "change key, new key : thumb {} : {}", jwtUtil.getJWKThumbPrint(newPK), newPK);
 			LOG.debug( "change key, old key : thumb {} : {}", jwtUtil.getJWKThumbPrint(oldPK), oldPK );
 
-			List<ACMEAccount> accListByOldPK = acctRepository.findByPublicKeyHashBase64(jwtUtil.getJWKThumbPrint(oldPK));
+			List<AcmeAccount> accListByOldPK = acctRepository.findByPublicKeyHashBase64(jwtUtil.getJWKThumbPrint(oldPK));
 			if( accListByOldPK.isEmpty() ) {
 			    LOG.warn("change Key request: old key does NOT identify given account");
-		        final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "old key does NOT identify given account",
-		                BAD_REQUEST, "", ACMEController.NO_INSTANCE);
+		        final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "old key does NOT identify given account",
+		                BAD_REQUEST, "", AcmeController.NO_INSTANCE);
 		    	throw new AcmeProblemException(problem);
 			}
 
-			ACMEAccount accountDao = accListByOldPK.get(0);
+			AcmeAccount accountDao = accListByOldPK.get(0);
 
 			String[] urlParts = accountURL.split("/");
 			long accountId = Long.parseLong(urlParts[urlParts.length -1]);
 
 			if(!accountDao.getAccountId().equals(acctByKidDao.getAccountId()) ) {
 			    LOG.warn("change Key request: account identified by old key {} does not match account identified by URL : {}", accountDao.getAccountId(), acctByKidDao.getAccountId());
-		        final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "old key does NOT identify kid-identified account",
-		                BAD_REQUEST, "", ACMEController.NO_INSTANCE);
+		        final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "old key does NOT identify kid-identified account",
+		                BAD_REQUEST, "", AcmeController.NO_INSTANCE);
 		    	throw new AcmeProblemException(problem);
 			}
 
 			if(accountDao.getAccountId() != accountId ) {
 			    LOG.warn("change Key request: account identified by old key {} does not match account isetified by URL : {}", accountDao.getAccountId(), accountId);
-		        final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "old key does NOT identify payload URL-defined account",
-		                BAD_REQUEST, "", ACMEController.NO_INSTANCE);
+		        final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "old key does NOT identify payload URL-defined account",
+		                BAD_REQUEST, "", AcmeController.NO_INSTANCE);
 		    	throw new AcmeProblemException(problem);
 			}
 
@@ -249,8 +249,8 @@ public class AccountController extends ACMEController {
 			return buildProblemResponseEntity(e);
 		} catch (JoseException e) {
 		    LOG.error("Problem verifying JWT", e);
-	        final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "Internal crypto problem",
-	                 HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), ACMEController.NO_INSTANCE);
+	        final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "Internal crypto problem",
+	                 HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), AcmeController.NO_INSTANCE);
 			return buildProblemResponseEntity(new AcmeProblemException(problem));
 		}
 
@@ -311,7 +311,7 @@ Link: <https://example.com/acme/acct/evOfKhNU60wg/orders?cursor=2>;rel="next"
 		try {
 			JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
 
-			ACMEAccount acctDao = checkJWTSignatureForAccount(context, realm, accountId);
+			AcmeAccount acctDao = checkJWTSignatureForAccount(context, realm, accountId);
 
 		    final HttpHeaders additionalHeaders = buildNonceHeader();
 
@@ -361,7 +361,7 @@ Link: <https://example.com/acme/acct/evOfKhNU60wg/orders?cursor=2>;rel="next"
 
             AccountRequest updateAccountReq = jwtUtil.getAccountRequest(context.getJwtClaims());
 
-            ACMEAccount acctDao = checkJWTSignatureForAccount(context, realm, accountId);
+            AcmeAccount acctDao = checkJWTSignatureForAccount(context, realm, accountId);
 
             contactsFromRequest(acctDao, updateAccountReq);
 

@@ -1,8 +1,8 @@
 package de.trustable.ca3s.core.repository;
 
 import de.trustable.ca3s.core.domain.AcmeOrder;
-import de.trustable.ca3s.core.service.dto.ACMEOrderView;
-import de.trustable.ca3s.core.service.util.ACMEOrderUtil;
+import de.trustable.ca3s.core.service.dto.AcmeOrderView;
+import de.trustable.ca3s.core.service.util.AcmeOrderUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -14,25 +14,25 @@ import java.util.Optional;
 
 
 @Service
-public class ACMEOrderViewRepository {
+public class AcmeOrderViewRepository {
 
     final private EntityManager entityManager;
     final private AcmeOrderRepository acmeOrderRepository;
-    final private ACMEOrderUtil acmeOrderUtil;
+    final private AcmeOrderUtil acmeOrderUtil;
 
-    public ACMEOrderViewRepository(EntityManager entityManager,
+    public AcmeOrderViewRepository(EntityManager entityManager,
                                    AcmeOrderRepository acmeOrderRepository,
-                                   ACMEOrderUtil acmeOrderUtil) {
+                                   AcmeOrderUtil acmeOrderUtil) {
         this.entityManager = entityManager;
         this.acmeOrderRepository = acmeOrderRepository;
         this.acmeOrderUtil = acmeOrderUtil;
     }
 
-    public Page<ACMEOrderView> findSelection(Map<String, String[]> parameterMap) {
+    public Page<AcmeOrderView> findSelection(Map<String, String[]> parameterMap) {
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
-        return ACMEOrderSpecifications.handleQueryParamsACMEOrderView(entityManager,
+        return AcmeOrderSpecifications.handleQueryParamsAcmeOrderView(entityManager,
             acmeOrderRepository,
             acmeOrderUtil,
             cb,
@@ -40,7 +40,7 @@ public class ACMEOrderViewRepository {
             new ArrayList<>());
     }
 
-    public Optional<ACMEOrderView> findbyACMEOrderId(final Long acmeOrderId) {
+    public Optional<AcmeOrderView> findbyAcmeOrderId(final Long acmeOrderId) {
 
         Optional<AcmeOrder> optCert = acmeOrderRepository.findById(acmeOrderId);
         return optCert.map(acmeOrderUtil::from);

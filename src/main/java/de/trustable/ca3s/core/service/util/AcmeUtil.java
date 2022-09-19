@@ -2,7 +2,7 @@ package de.trustable.ca3s.core.service.util;
 
 import java.net.URI;
 
-public class ACMEUtil {
+public class AcmeUtil {
 
 	  public static final URI NO_INSTANCE = null;
 

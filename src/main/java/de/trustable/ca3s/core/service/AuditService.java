@@ -192,8 +192,8 @@ public class AuditService {
         return createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_ACME_CERTIFICATE_REQUESTED, csr);
     }
 
-    public AuditTrace createAuditTraceACMEOrderSucceeded(final ACMEAccount acmeAccount,
-                                                         final AcmeOrder acmeOrder) {
+    public AuditTrace createAuditTraceAcmeOrderSucceeded(final AcmeAccount acmeAccount,
+                                                             final AcmeOrder acmeOrder) {
         return createAuditTraceACMEInfo(acmeAccount,
             acmeOrder,
             AUDIT_ACME_ORDER_SUCCEEDED,
@@ -207,7 +207,7 @@ public class AuditService {
             null);
     }
 
-    public AuditTrace createAuditTraceACMEChallengeSucceeded(final ACMEAccount acmeAccount,
+    public AuditTrace createAuditTraceAcmeChallengeSucceeded(final AcmeAccount acmeAccount,
                                                              final AcmeOrder acmeOrder,
                                                              final String msg) {
         return createAuditTraceACMEInfo(acmeAccount,
@@ -216,7 +216,7 @@ public class AuditService {
             msg);
     }
 
-    public AuditTrace createAuditTraceACMEChallengeFailed(final ACMEAccount acmeAccount,
+    public AuditTrace createAuditTraceAcmeChallengeFailed(final AcmeAccount acmeAccount,
                                                           final AcmeOrder acmeOrder,
                                                           final String msg) {
         return createAuditTraceACMEInfo(acmeAccount,
@@ -226,7 +226,7 @@ public class AuditService {
     }
 
 
-    public AuditTrace createAuditTraceACMEOrderExpired(final ACMEAccount acmeAccount,
+    public AuditTrace createAuditTraceAcmeOrderExpired(final AcmeAccount acmeAccount,
                                                        final AcmeOrder acmeOrder) {
         return createAuditTraceACMEInfo(acmeAccount,
             acmeOrder,
@@ -234,7 +234,7 @@ public class AuditService {
             null);
     }
 
-    public AuditTrace createAuditTraceACMEOrderInvalid(final ACMEAccount acmeAccount,
+    public AuditTrace createAuditTraceAcmeOrderInvalid(final AcmeAccount acmeAccount,
                                                           final AcmeOrder acmeOrder,
                                                           final String msg) {
         return createAuditTraceACMEInfo(acmeAccount,
@@ -244,7 +244,7 @@ public class AuditService {
     }
 
 
-    public AuditTrace createAuditTraceACMEInfo(final ACMEAccount acmeAccount,
+    public AuditTrace createAuditTraceACMEInfo(final AcmeAccount acmeAccount,
                                                final AcmeOrder acmeOrder,
                                                final String template,
                                                final String msg){
@@ -587,7 +587,7 @@ public class AuditService {
         final Pipeline pipeline,
         final CAConnectorConfig caConnector,
         final BPMNProcessInfo processInfo,
-           final ACMEAccount acmeAccount,
+           final AcmeAccount acmeAccount,
            final AcmeOrder acmeOrder
            ){
 

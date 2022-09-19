@@ -2,7 +2,7 @@ package de.trustable.ca3s.core.repository;
 
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
-import de.trustable.ca3s.core.service.dto.ACMEAccountView;
+import de.trustable.ca3s.core.service.dto.AcmeAccountView;
 import de.trustable.ca3s.core.service.dto.Selector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,18 +20,18 @@ import java.util.Map;
 import static de.trustable.ca3s.core.repository.SpecificationsHelper.*;
 
 
-public final class ACMEAccountSpecifications {
+public final class AcmeAccountSpecifications {
 
-    static Logger logger = LoggerFactory.getLogger(ACMEAccountSpecifications.class);
+    static Logger logger = LoggerFactory.getLogger(AcmeAccountSpecifications.class);
 
     static final String SORT = "sort";
     static final String ORDER = "order";
 
-    private ACMEAccountSpecifications() {
+    private AcmeAccountSpecifications() {
     }
 
 
-    public static Page<ACMEAccountView> handleQueryParamsACMEAccountView(EntityManager entityManager,
+    public static Page<AcmeAccountView> handleQueryParamsAcmeAccountView(EntityManager entityManager,
                                                                          AcmeOrderRepository acmeOrderRepository,
                                                                          AcmeContactRepository acmeContactRepository,
                                                                          CriteriaBuilder cb,
@@ -39,7 +39,7 @@ public final class ACMEAccountSpecifications {
                                                                          List<String> additionalSelectionAttributes) {
 
         CriteriaQuery<Object[]> query = cb.createQuery(Object[].class);
-        Root<ACMEAccount> root = query.from(ACMEAccount.class);
+        Root<AcmeAccount> root = query.from(AcmeAccount.class);
 
         String sortCol = getStringValue(parameterMap.get("sort"), "id").trim();
         Selection<?> orderSelection = null;
@@ -143,14 +143,14 @@ public final class ACMEAccountSpecifications {
         List<Object[]> listResponse = typedQuery.getResultList();
 
         // use the result set to fill the response object
-        List<ACMEAccountView> acmeAccountViewList = new ArrayList<>();
+        List<AcmeAccountView> acmeAccountViewList = new ArrayList<>();
         for (Object[] objArr : listResponse) {
 
             if (logger.isDebugEnabled() && (objArr.length != colList.size())) {
                 logger.debug("objArr len {}, colList len {}", objArr.length, colList.size());
             }
 
-            ACMEAccountView acmeAccountView = buildCSRViewFromObjArr(colList, objArr, acmeOrderRepository, acmeContactRepository);
+            AcmeAccountView acmeAccountView = buildCSRViewFromObjArr(colList, objArr, acmeOrderRepository, acmeContactRepository);
             acmeAccountViewList.add(acmeAccountView);
         }
 
@@ -160,7 +160,7 @@ public final class ACMEAccountSpecifications {
         Long nTotalElements;
 
         CriteriaQuery<Long> queryCount = cb.createQuery(Long.class);
-        Root<ACMEAccount> iRoot = queryCount.from(ACMEAccount.class);
+        Root<AcmeAccount> iRoot = queryCount.from(AcmeAccount.class);
 
         List<Predicate> predCountList = new ArrayList<>();
 
@@ -221,11 +221,11 @@ public final class ACMEAccountSpecifications {
 
     }
 
-    private static ACMEAccountView buildCSRViewFromObjArr(ArrayList<String> colList,
+    private static AcmeAccountView buildCSRViewFromObjArr(ArrayList<String> colList,
                                                           Object[] objArr,
                                                           AcmeOrderRepository acmeOrderRepository,
                                                           AcmeContactRepository acmeContactRepository) {
-        ACMEAccountView acmeAccountView = new ACMEAccountView();
+        AcmeAccountView acmeAccountView = new AcmeAccountView();
         int i = 0;
 
         for (String attribute : colList) {
@@ -338,7 +338,7 @@ public final class ACMEAccountSpecifications {
      * @return
      */
     private static Predicate buildPredicate(
-        Root<ACMEAccount> root,
+        Root<AcmeAccount> root,
         CriteriaBuilder cb,
         CriteriaQuery<?> csrQuery,
         final String attribute,
@@ -350,29 +350,29 @@ public final class ACMEAccountSpecifications {
         Predicate pred = cb.conjunction();
 
         if ("id".equals(attribute)) {
-            addNewColumn(selectionList, root.get(ACMEAccount_.id));
+            addNewColumn(selectionList, root.get(AcmeAccount_.id));
             if (attributeValue.trim().length() > 0) {
-                pred = buildPredicateLong(attributeSelector, cb, root.get(ACMEAccount_.id), attributeValue);
+                pred = buildPredicateLong(attributeSelector, cb, root.get(AcmeAccount_.id), attributeValue);
             }
         } else if ("accountId".equals(attribute)) {
-            addNewColumn(selectionList, root.get(ACMEAccount_.accountId));
+            addNewColumn(selectionList, root.get(AcmeAccount_.accountId));
             if (attributeValue.trim().length() > 0) {
-                pred = buildPredicateLong(attributeSelector, cb, root.get(ACMEAccount_.accountId), attributeValue);
+                pred = buildPredicateLong(attributeSelector, cb, root.get(AcmeAccount_.accountId), attributeValue);
             }
         } else if ("status".equals(attribute)) {
-            addNewColumn(selectionList, root.get(ACMEAccount_.status));
+            addNewColumn(selectionList, root.get(AcmeAccount_.status));
             if (attributeValue.trim().length() > 0) {
-                pred = buildPredicateAccountStatus(attributeSelector, cb, root.get(ACMEAccount_.status), attributeValue);
+                pred = buildPredicateAccountStatus(attributeSelector, cb, root.get(AcmeAccount_.status), attributeValue);
             }
         } else if ("realm".equals(attribute)) {
-            addNewColumn(selectionList, root.get(ACMEAccount_.realm));
+            addNewColumn(selectionList, root.get(AcmeAccount_.realm));
             if (attributeValue.trim().length() > 0) {
-                pred = buildPredicateString(attributeSelector, cb, root.get(ACMEAccount_.realm), attributeValue);
+                pred = buildPredicateString(attributeSelector, cb, root.get(AcmeAccount_.realm), attributeValue);
             }
         } else if ("termsOfServiceAgreed".equals(attribute)) {
-            addNewColumn(selectionList, root.get(ACMEAccount_.termsOfServiceAgreed));
+            addNewColumn(selectionList, root.get(AcmeAccount_.termsOfServiceAgreed));
             if (attributeValue.trim().length() > 0) {
-                pred = SpecificationsHelper.buildBooleanPredicate( attributeSelector, cb, root.get(ACMEAccount_.termsOfServiceAgreed), attributeValue);
+                pred = SpecificationsHelper.buildBooleanPredicate( attributeSelector, cb, root.get(AcmeAccount_.termsOfServiceAgreed), attributeValue);
             }
 
         } else if ("createdOn".equals(attribute)) {
@@ -382,20 +382,20 @@ public final class ACMEAccountSpecifications {
             }
 
         } else if ("publicKeyHash".equals(attribute)) {
-            addNewColumn(selectionList, root.get(ACMEAccount_.publicKeyHash));
+            addNewColumn(selectionList, root.get(AcmeAccount_.publicKeyHash));
             if (attributeValue.trim().length() > 0) {
-                pred = buildPredicateString(attributeSelector, cb, root.get(ACMEAccount_.publicKeyHash), attributeValue);
+                pred = buildPredicateString(attributeSelector, cb, root.get(AcmeAccount_.publicKeyHash), attributeValue);
             }
 
         } else if ("contactUrls".equals(attribute)) {
-            selectionList.add(root.get(ACMEAccount_.accountId));
+            selectionList.add(root.get(AcmeAccount_.accountId));
 
             if (attributeValue.trim().length() > 0) {
-                Join<ACMEAccount, AcmeContact> contactJoin = root.join(ACMEAccount_.contacts, JoinType.LEFT);
+                Join<AcmeAccount, AcmeContact> contactJoin = root.join(AcmeAccount_.contacts, JoinType.LEFT);
                 pred = buildPredicateString( attributeSelector, cb, contactJoin.<String>get(AcmeContact_.contactUrl), attributeValue.toLowerCase());
             }
         } else if ("orderCount".equals(attribute)) {
-            selectionList.add(root.get(ACMEAccount_.accountId));
+            selectionList.add(root.get(AcmeAccount_.accountId));
         } else {
             logger.warn("fall-thru clause adding 'true' condition for {} ", attribute);
         }

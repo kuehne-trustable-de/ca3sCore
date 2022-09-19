@@ -5,13 +5,13 @@ import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 import java.io.Serializable;
 import java.time.Instant;
 
-public class ACMEOrderView implements Serializable {
+public class AcmeOrderView implements Serializable {
 
     private Long id;
     private Long orderId;
     private AcmeOrderStatus status;
     private String realm;
-    private ACMEChallengeView[] challenges;
+    private AcmeChallengeView[] challenges;
     private String challengeTypes;
     private String challengeUrls;
 
@@ -30,7 +30,7 @@ public class ACMEOrderView implements Serializable {
     private Long certificateId;
     private Long accountId;
 
-    public ACMEOrderView() {}
+    public AcmeOrderView() {}
 
     public Long getId() {
         return id;
@@ -144,11 +144,11 @@ public class ACMEOrderView implements Serializable {
         this.realm = realm;
     }
 
-    public ACMEChallengeView[] getChallenges() {
+    public AcmeChallengeView[] getChallenges() {
         return challenges;
     }
 
-    public void setChallenges(ACMEChallengeView[] challenges) {
+    public void setChallenges(AcmeChallengeView[] challenges) {
         this.challenges = challenges;
     }
 

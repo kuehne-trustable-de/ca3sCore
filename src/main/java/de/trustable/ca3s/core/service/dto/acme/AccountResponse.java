@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import de.trustable.ca3s.core.domain.ACMEAccount;
+import de.trustable.ca3s.core.domain.AcmeAccount;
 import de.trustable.ca3s.core.domain.AcmeContact;
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -64,7 +64,7 @@ public class AccountResponse {
 	private String orders;
 
 
-	public AccountResponse(ACMEAccount accountDao, UriComponentsBuilder uriComponentsBuilder) {
+	public AccountResponse(AcmeAccount accountDao, UriComponentsBuilder uriComponentsBuilder) {
 		this.setId( accountDao.getAccountId());
 		this.setStatus(accountDao.getStatus());
 		String[] contacts = new String[accountDao.getContacts().size()];

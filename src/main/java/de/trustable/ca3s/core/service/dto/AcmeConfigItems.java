@@ -2,7 +2,7 @@ package de.trustable.ca3s.core.service.dto;
 
 import java.io.Serializable;
 
-public class ACMEConfigItems implements Serializable {
+public class AcmeConfigItems implements Serializable {
 
 	/**
 	 * 
@@ -22,7 +22,7 @@ public class ACMEConfigItems implements Serializable {
     private String processInfoNameOrderValidation;
     private String processInfoNameChallengeValidation;
 
-    public ACMEConfigItems() {}
+    public AcmeConfigItems() {}
 
 	public boolean isAllowChallengeHTTP01() {
 		return allowChallengeHTTP01;

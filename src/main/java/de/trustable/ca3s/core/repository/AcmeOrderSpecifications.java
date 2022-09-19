@@ -3,10 +3,10 @@ package de.trustable.ca3s.core.repository;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
-import de.trustable.ca3s.core.service.dto.ACMEAccountView;
-import de.trustable.ca3s.core.service.dto.ACMEOrderView;
+import de.trustable.ca3s.core.service.dto.AcmeAccountView;
+import de.trustable.ca3s.core.service.dto.AcmeOrderView;
 import de.trustable.ca3s.core.service.dto.Selector;
-import de.trustable.ca3s.core.service.util.ACMEOrderUtil;
+import de.trustable.ca3s.core.service.util.AcmeOrderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.*;
@@ -20,20 +20,20 @@ import java.util.*;
 import static de.trustable.ca3s.core.repository.SpecificationsHelper.*;
 
 
-public final class ACMEOrderSpecifications {
+public final class AcmeOrderSpecifications {
 
-    static Logger logger = LoggerFactory.getLogger(ACMEOrderSpecifications.class);
+    static Logger logger = LoggerFactory.getLogger(AcmeOrderSpecifications.class);
 
     static final String SORT = "sort";
     static final String ORDER = "order";
 
-    private ACMEOrderSpecifications() {
+    private AcmeOrderSpecifications() {
     }
 
 
-    public static Page<ACMEOrderView> handleQueryParamsACMEOrderView(EntityManager entityManager,
+    public static Page<AcmeOrderView> handleQueryParamsAcmeOrderView(EntityManager entityManager,
                                                                      AcmeOrderRepository acmeOrderRepository,
-                                                                     ACMEOrderUtil acmeOrderUtil,
+                                                                     AcmeOrderUtil acmeOrderUtil,
                                                                      CriteriaBuilder cb,
                                                                      Map<String, String[]> parameterMap,
                                                                      List<String> additionalSelectionAttributes) {
@@ -143,14 +143,14 @@ public final class ACMEOrderSpecifications {
         List<Object[]> listResponse = typedQuery.getResultList();
 
         // use the result set to fill the response object
-        List<ACMEOrderView> acmeOrderViewList = new ArrayList<>();
+        List<AcmeOrderView> acmeOrderViewList = new ArrayList<>();
         for (Object[] objArr : listResponse) {
 
             if (logger.isDebugEnabled() && (objArr.length != colList.size())) {
                 logger.debug("objArr len {}, colList len {}", objArr.length, colList.size());
             }
 
-            ACMEOrderView acmeOrderView =  buildACMEOrderViewFromObjArr(colList, objArr, acmeOrderRepository, acmeOrderUtil);
+            AcmeOrderView acmeOrderView =  buildAcmeOrderViewFromObjArr(colList, objArr, acmeOrderRepository, acmeOrderUtil);
             acmeOrderViewList.add(acmeOrderView);
         }
 
@@ -221,11 +221,11 @@ public final class ACMEOrderSpecifications {
 
     }
 
-    private static ACMEOrderView buildACMEOrderViewFromObjArr(ArrayList<String> colList,
+    private static AcmeOrderView buildAcmeOrderViewFromObjArr(ArrayList<String> colList,
                                                                Object[] objArr,
                                                               AcmeOrderRepository acmeOrderRepository,
-                                                              ACMEOrderUtil acmeOrderUtil) {
-        ACMEOrderView acmeOrderView = new ACMEOrderView();
+                                                              AcmeOrderUtil acmeOrderUtil) {
+        AcmeOrderView acmeOrderView = new AcmeOrderView();
         int i = 0;
 
         for( int n = 0; n < colList.size(); n++){
@@ -371,11 +371,11 @@ public final class ACMEOrderSpecifications {
                 pred = buildPredicateOrderStatus(attributeSelector, cb, root.get(AcmeOrder_.status), attributeValue);
             }
         } else if ("realm".equals(attribute)) {
-            Join<AcmeOrder, ACMEAccount> accJoin = root.join(AcmeOrder_.account, JoinType.LEFT);
-            addNewColumn(selectionList,accJoin.get(ACMEAccount_.realm));
+            Join<AcmeOrder, AcmeAccount> accJoin = root.join(AcmeOrder_.account, JoinType.LEFT);
+            addNewColumn(selectionList,accJoin.get(AcmeAccount_.realm));
 
             if (attributeValue.trim().length() > 0) {
-                pred = buildPredicateString( attributeSelector, cb, accJoin.<String>get(ACMEAccount_.realm), attributeValue.toLowerCase());
+                pred = buildPredicateString( attributeSelector, cb, accJoin.<String>get(AcmeAccount_.realm), attributeValue.toLowerCase());
             }
 
         } else if ("expires".equals(attribute)) {

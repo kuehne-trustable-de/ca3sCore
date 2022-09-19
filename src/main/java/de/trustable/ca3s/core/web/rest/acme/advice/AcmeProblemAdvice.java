@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
-import de.trustable.ca3s.core.web.rest.acme.ACMEController;
+import de.trustable.ca3s.core.web.rest.acme.AcmeController;
 
 /**
  * Handle the restification of ACME exception centrally
@@ -52,6 +52,6 @@ public final class AcmeProblemAdvice {
 
 		final ProblemDetail problem = exception.getProblem();
 		final HttpStatus status = problem.getStatus();
-		return ResponseEntity.status(status).contentType(ACMEController.APPLICATION_PROBLEM_JSON).body(problem);
+		return ResponseEntity.status(status).contentType(AcmeController.APPLICATION_PROBLEM_JSON).body(problem);
 	}
 }

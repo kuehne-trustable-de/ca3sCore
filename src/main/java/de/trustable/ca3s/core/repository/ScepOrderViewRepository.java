@@ -2,9 +2,9 @@ package de.trustable.ca3s.core.repository;
 
 import de.trustable.ca3s.core.domain.AcmeOrder;
 import de.trustable.ca3s.core.domain.ScepOrder;
-import de.trustable.ca3s.core.service.dto.ACMEOrderView;
+import de.trustable.ca3s.core.service.dto.AcmeOrderView;
 import de.trustable.ca3s.core.service.dto.ScepOrderView;
-import de.trustable.ca3s.core.service.util.ACMEOrderUtil;
+import de.trustable.ca3s.core.service.util.AcmeOrderUtil;
 import de.trustable.ca3s.core.service.util.ScepOrderUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;

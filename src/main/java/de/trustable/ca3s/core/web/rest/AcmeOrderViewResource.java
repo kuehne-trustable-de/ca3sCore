@@ -2,9 +2,9 @@ package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.AcmeOrder;
 import de.trustable.ca3s.core.service.AcmeOrderService;
-import de.trustable.ca3s.core.service.dto.ACMEChallengeView;
-import de.trustable.ca3s.core.service.dto.ACMEOrderView;
-import de.trustable.ca3s.core.service.util.ACMEOrderUtil;
+import de.trustable.ca3s.core.service.dto.AcmeChallengeView;
+import de.trustable.ca3s.core.service.dto.AcmeOrderView;
+import de.trustable.ca3s.core.service.util.AcmeOrderUtil;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -27,15 +27,15 @@ import java.util.Optional;
 @Transactional
 @RestController
 @RequestMapping("/api")
-public class ACMEOrderViewResource {
+public class AcmeOrderViewResource {
 
-    private final Logger log = LoggerFactory.getLogger(ACMEOrderViewResource.class);
+    private final Logger log = LoggerFactory.getLogger(AcmeOrderViewResource.class);
 
     private final AcmeOrderService acmeOrderService;
 
-    private final ACMEOrderUtil acmeOrderUtil;
+    private final AcmeOrderUtil acmeOrderUtil;
 
-    public ACMEOrderViewResource(AcmeOrderService acmeOrderService, ACMEOrderUtil acmeOrderUtil) {
+    public AcmeOrderViewResource(AcmeOrderService acmeOrderService, AcmeOrderUtil acmeOrderUtil) {
         this.acmeOrderService = acmeOrderService;
         this.acmeOrderUtil = acmeOrderUtil;
     }
@@ -46,9 +46,9 @@ public class ACMEOrderViewResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of ACME accounts in body.
      */
     @GetMapping("/acmeOrderViews")
-    public List<ACMEOrderView> getAllACMEOrderViews() {
-        log.debug("REST request to get all ACMEOrderViews");
-        List<ACMEOrderView> avList = new ArrayList<>();
+    public List<AcmeOrderView> getAllAcmeOrderViews() {
+        log.debug("REST request to get all AcmeOrderViews");
+        List<AcmeOrderView> avList = new ArrayList<>();
         for( AcmeOrder acmeOrder: acmeOrderService.findAll()){
             avList.add(acmeOrderUtil.from(acmeOrder));
         }
@@ -62,13 +62,13 @@ public class ACMEOrderViewResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the ACME account, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/acmeOrderViews/{id}")
-    public ResponseEntity<ACMEOrderView> getacmeOrder(@PathVariable Long id) {
+    public ResponseEntity<AcmeOrderView> getacmeOrder(@PathVariable Long id) {
         log.debug("REST request to get acmeOrderView : {}", id);
         Optional<AcmeOrder> acmeOrderOptional = acmeOrderService.findOne(id);
-        Optional<ACMEOrderView> avOpt = Optional.empty();
+        Optional<AcmeOrderView> avOpt = Optional.empty();
         if( acmeOrderOptional.isPresent()){
             AcmeOrder acmeOrder = acmeOrderOptional.get();
-            ACMEOrderView acmeOrderView = acmeOrderUtil.from(acmeOrder);
+            AcmeOrderView acmeOrderView = acmeOrderUtil.from(acmeOrder);
             avOpt = Optional.of(acmeOrderView);
         }else{
             log.info("acme order not found, order id '{}' unknown!", id);
@@ -83,12 +83,12 @@ public class ACMEOrderViewResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the ACME order, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/acmeOrderView/{id}/challenges")
-    public ResponseEntity<List<ACMEChallengeView>> getAcmeChallenges(@PathVariable Long id) {
+    public ResponseEntity<List<AcmeChallengeView>> getAcmeChallenges(@PathVariable Long id) {
         log.debug("REST request to get challenges of acme order : {}", id);
         Optional<AcmeOrder> acmeOrderOptional = acmeOrderService.findOne(id);
         if( acmeOrderOptional.isPresent()){
             AcmeOrder acmeOrder = acmeOrderOptional.get();
-            List<ACMEChallengeView> acmeChallengeViewList = acmeOrderUtil.challengeListfrom(acmeOrder);
+            List<AcmeChallengeView> acmeChallengeViewList = acmeOrderUtil.challengeListfrom(acmeOrder);
 
             final HttpHeaders additionalHeaders = new HttpHeaders();
             additionalHeaders.add("X-Total-Count", Long.toString(acmeChallengeViewList.size()));
