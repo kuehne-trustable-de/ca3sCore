@@ -64,7 +64,7 @@ import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.CryptoService;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
-import de.trustable.ca3s.core.web.rest.acme.ACMEController;
+import de.trustable.ca3s.core.web.rest.acme.AcmeController;
 
 import javax.crypto.spec.PBEParameterSpec;
 
@@ -102,7 +102,7 @@ public class CertificateDownloadController  {
      */
     @RequestMapping(value = "/certPKIX/{certId}/{filename}",
     		method = GET,
-    		produces = ACMEController.APPLICATION_PKIX_CERT_VALUE)
+    		produces = AcmeController.APPLICATION_PKIX_CERT_VALUE)
     public ResponseEntity<byte[]> getCertificatePKIX(@PathVariable final long certId, @PathVariable final String filename) throws NotFoundException {
 
 		LOG.info("Received certificate download request (PKIX) for id {} as file '{}' ", certId, filename);
@@ -112,7 +112,7 @@ public class CertificateDownloadController  {
     	}
 
 		try {
-			return buildByteArrayResponseForId(certId, ACMEController.APPLICATION_PKIX_CERT_VALUE, "", filename);
+			return buildByteArrayResponseForId(certId, AcmeController.APPLICATION_PKIX_CERT_VALUE, "", filename);
 		} catch (HttpClientErrorException | AcmeProblemException | GeneralSecurityException e) {
 			throw new NotFoundException(e.getMessage());
 		}
@@ -130,7 +130,7 @@ public class CertificateDownloadController  {
     public ResponseEntity<?> getCertificatePEMChain(@PathVariable final long certId, @PathVariable final String filename) {
 
         LOG.info("Received certificate download request (PEM with chain) for id {} as file '{}'", certId, filename);
-        return buildCertResponseForId(certId, ACMEController.APPLICATION_PEM_CERT_CHAIN_VALUE, filename);
+        return buildCertResponseForId(certId, AcmeController.APPLICATION_PEM_CERT_CHAIN_VALUE, filename);
     }
 
     /**
@@ -143,7 +143,7 @@ public class CertificateDownloadController  {
     public ResponseEntity<?> getCertificatePEMPart(@PathVariable final long certId, @PathVariable final String filename) {
 
         LOG.info("Received certificate download request (PEM with partial chain) for id {} as file '{}'", certId, filename);
-        return buildCertResponseForId(certId, ACMEController.APPLICATION_X_PEM_CERT_CHAIN_VALUE, filename);
+        return buildCertResponseForId(certId, AcmeController.APPLICATION_X_PEM_CERT_CHAIN_VALUE, filename);
     }
 
     /**
@@ -156,7 +156,7 @@ public class CertificateDownloadController  {
     public ResponseEntity<?> getCertificatePEMFull(@PathVariable final long certId, @PathVariable final String filename) {
 
         LOG.info("Received certificate download request (PEM with full chain) for id {} as file '{}'", certId, filename);
-        return buildCertResponseForId(certId, ACMEController.APPLICATION_PEM_CERT_CHAIN_VALUE, filename);
+        return buildCertResponseForId(certId, AcmeController.APPLICATION_PEM_CERT_CHAIN_VALUE, filename);
     }
 
     /**
@@ -169,7 +169,7 @@ public class CertificateDownloadController  {
     public ResponseEntity<?> getCertificatePEM(@PathVariable final long certId, @PathVariable final String filename) {
 
 		LOG.info("Received certificate download request (PEM) for id {} as file '{}'", certId, filename);
-    	return buildCertResponseForId(certId, ACMEController.APPLICATION_PEM_CERT_VALUE, filename);
+    	return buildCertResponseForId(certId, AcmeController.APPLICATION_PEM_CERT_VALUE, filename);
     }
 
     /**
@@ -181,7 +181,7 @@ public class CertificateDownloadController  {
      */
     @RequestMapping(value = "/cert/{certId}", method = GET)
     public ResponseEntity<?> getCertificate(@PathVariable final long certId,
-    		@RequestHeader(name="Accept", defaultValue=ACMEController.APPLICATION_PKIX_CERT_VALUE) final String accept) {
+    		@RequestHeader(name="Accept", defaultValue=AcmeController.APPLICATION_PKIX_CERT_VALUE) final String accept) {
 
 		LOG.info("Received certificate request for id {}", certId);
 
@@ -201,11 +201,11 @@ public class CertificateDownloadController  {
      */
     @RequestMapping(value = "/keystore/{certId}/{filename}/{alias}",
     		method = GET,
-    		produces = ACMEController.APPLICATION_PKCS12_VALUE)
+    		produces = AcmeController.APPLICATION_PKCS12_VALUE)
     public ResponseEntity<byte[]> getKeystore(@PathVariable final long certId,
     		@PathVariable final String filename,
     		@PathVariable final String alias,
-    		@RequestHeader(name="Accept", defaultValue=ACMEController.APPLICATION_PKCS12_VALUE) final String accept) throws NotFoundException, UnauthorizedException {
+    		@RequestHeader(name="Accept", defaultValue=AcmeController.APPLICATION_PKCS12_VALUE) final String accept) throws NotFoundException, UnauthorizedException {
 
 		LOG.info("Received keystore request for id '{}' for filename '{}' with alias '{}'", certId, filename, alias);
 
@@ -277,9 +277,9 @@ public class CertificateDownloadController  {
   			final HttpHeaders headers = new HttpHeaders();
 			headers.set("content-disposition", "inline; filename=\"" + filename + "\"");
 
-			if(ACMEController.APPLICATION_PKIX_CERT_VALUE.equalsIgnoreCase(accept)){
+			if(AcmeController.APPLICATION_PKIX_CERT_VALUE.equalsIgnoreCase(accept)){
 				return buildPkixCertResponse(certDao, headers);
-			}else if(ACMEController.APPLICATION_PKCS12_VALUE.equalsIgnoreCase(accept)){
+			}else if(AcmeController.APPLICATION_PKCS12_VALUE.equalsIgnoreCase(accept)){
 				return  buildPKCS12Response(certDao, alias, headers);
 			}
 
@@ -295,16 +295,16 @@ public class CertificateDownloadController  {
 	public ResponseEntity<?> buildCertifcateResponse(final String accept, Certificate certDao, final HttpHeaders headers) {
 
 		if("*/*".equalsIgnoreCase(accept)){
-			return buildPEMResponse(certDao, headers, ACMEController.APPLICATION_PEM_CERT_CHAIN,true, false);
-//		}else if(ACMEController.APPLICATION_PKIX_CERT_VALUE.equalsIgnoreCase(accept)){
+			return buildPEMResponse(certDao, headers, AcmeController.APPLICATION_PEM_CERT_CHAIN,true, false);
+//		}else if(AcmeController.APPLICATION_PKIX_CERT_VALUE.equalsIgnoreCase(accept)){
 //			return buildPkixCertResponse(certDao, headers);
-        }else if(ACMEController.APPLICATION_X_PEM_CERT_CHAIN_VALUE.equalsIgnoreCase(accept)){
-            return buildPEMResponse(certDao, headers, ACMEController.APPLICATION_PEM_CERT_CHAIN,true, false);
-        }else if(ACMEController.APPLICATION_PEM_CERT_CHAIN_VALUE.equalsIgnoreCase(accept)){
-            return buildPEMResponse(certDao, headers, ACMEController.APPLICATION_PEM_CERT_CHAIN,true, true);
-		}else if(ACMEController.APPLICATION_PEM_CERT_VALUE.equalsIgnoreCase(accept)){
-			return buildPEMResponse(certDao, headers, ACMEController.APPLICATION_PEM_CERT, false, false);
-//		}else if(ACMEController.APPLICATION_PKCS12_VALUE.equalsIgnoreCase(accept)){
+        }else if(AcmeController.APPLICATION_X_PEM_CERT_CHAIN_VALUE.equalsIgnoreCase(accept)){
+            return buildPEMResponse(certDao, headers, AcmeController.APPLICATION_PEM_CERT_CHAIN,true, false);
+        }else if(AcmeController.APPLICATION_PEM_CERT_CHAIN_VALUE.equalsIgnoreCase(accept)){
+            return buildPEMResponse(certDao, headers, AcmeController.APPLICATION_PEM_CERT_CHAIN,true, true);
+		}else if(AcmeController.APPLICATION_PEM_CERT_VALUE.equalsIgnoreCase(accept)){
+			return buildPEMResponse(certDao, headers, AcmeController.APPLICATION_PEM_CERT, false, false);
+//		}else if(AcmeController.APPLICATION_PKCS12_VALUE.equalsIgnoreCase(accept)){
 //			return buildPKCS12Response(certDao, headers);
 		}
 
@@ -366,7 +366,7 @@ public class CertificateDownloadController  {
 			X509Certificate x509Cert = CryptoService.convertPemToCertificate(certDao.getContent());
 			byte[] contentBytes = x509Cert.getEncoded();
 			headers.set("content-length", String.valueOf(contentBytes.length));
-			return ResponseEntity.ok().contentType(ACMEController.APPLICATION_PKIX_CERT).headers(headers).body(contentBytes);
+			return ResponseEntity.ok().contentType(AcmeController.APPLICATION_PKIX_CERT).headers(headers).body(contentBytes);
 		}catch(GeneralSecurityException gse) {
 			LOG.info("problem downloading certificate content for cert id " + certDao.getId(), gse);
 			throw gse;
@@ -467,7 +467,7 @@ public class CertificateDownloadController  {
 
 				byte[] contentBytes = baos.toByteArray();
 				headers.set("content-length", String.valueOf(contentBytes.length));
-				return ResponseEntity.ok().contentType(ACMEController.APPLICATION_PKCS12).headers(headers).body(contentBytes);
+				return ResponseEntity.ok().contentType(AcmeController.APPLICATION_PKCS12).headers(headers).body(contentBytes);
 			}
 
 		} catch (IOException gse) {

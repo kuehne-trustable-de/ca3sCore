@@ -1,7 +1,7 @@
 package de.trustable.ca3s.core.web.rest;
 
-import de.trustable.ca3s.core.repository.ACMEAccountViewRepository;
-import de.trustable.ca3s.core.service.dto.ACMEAccountView;
+import de.trustable.ca3s.core.repository.AcmeAccountViewRepository;
+import de.trustable.ca3s.core.service.dto.AcmeAccountView;
 import de.trustable.ca3s.core.service.dto.CSRView;
 import tech.jhipster.web.util.PaginationUtil;
 import org.slf4j.Logger;
@@ -23,14 +23,14 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api")
-public class ACMEAccountListResource {
+public class AcmeAccountListResource {
 
-    private final ACMEAccountViewRepository acmeAccountViewRepository;
+    private final AcmeAccountViewRepository acmeAccountViewRepository;
 
 
-    private final Logger log = LoggerFactory.getLogger(ACMEAccountListResource.class);
+    private final Logger log = LoggerFactory.getLogger(AcmeAccountListResource.class);
 
-    public ACMEAccountListResource(ACMEAccountViewRepository acmeAccountViewRepository) {
+    public AcmeAccountListResource(AcmeAccountViewRepository acmeAccountViewRepository) {
         this.acmeAccountViewRepository = acmeAccountViewRepository;
     }
 
@@ -43,9 +43,9 @@ public class ACMEAccountListResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of ACME account in body.
      */
     @GetMapping("/acmeAccountList")
-    public ResponseEntity<List<ACMEAccountView>> getAllACMEAccounts(Pageable pageable, HttpServletRequest request) {
-        log.debug("REST request to get a page of ACMEAccountViews");
-        Page<ACMEAccountView> page = acmeAccountViewRepository.findSelection(request.getParameterMap());
+    public ResponseEntity<List<AcmeAccountView>> getAllAcmeAccounts(Pageable pageable, HttpServletRequest request) {
+        log.debug("REST request to get a page of AcmeAccountViews");
+        Page<AcmeAccountView> page = acmeAccountViewRepository.findSelection(request.getParameterMap());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

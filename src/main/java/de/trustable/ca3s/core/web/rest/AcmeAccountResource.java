@@ -1,7 +1,7 @@
 package de.trustable.ca3s.core.web.rest;
 
-import de.trustable.ca3s.core.domain.ACMEAccount;
-import de.trustable.ca3s.core.service.ACMEAccountService;
+import de.trustable.ca3s.core.domain.AcmeAccount;
+import de.trustable.ca3s.core.service.AcmeAccountService;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 
 import tech.jhipster.web.util.HeaderUtil;
@@ -20,22 +20,22 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * REST controller for managing {@link de.trustable.ca3s.core.domain.ACMEAccount}.
+ * REST controller for managing {@link de.trustable.ca3s.core.domain.AcmeAccount}.
  */
 @RestController
 @RequestMapping("/api")
-public class ACMEAccountResource {
+public class AcmeAccountResource {
 
-    private final Logger log = LoggerFactory.getLogger(ACMEAccountResource.class);
+    private final Logger log = LoggerFactory.getLogger(AcmeAccountResource.class);
 
     private static final String ENTITY_NAME = "aCMEAccount";
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
-    private final ACMEAccountService aCMEAccountService;
+    private final AcmeAccountService aCMEAccountService;
 
-    public ACMEAccountResource(ACMEAccountService aCMEAccountService) {
+    public AcmeAccountResource(AcmeAccountService aCMEAccountService) {
         this.aCMEAccountService = aCMEAccountService;
     }
 
@@ -47,12 +47,12 @@ public class ACMEAccountResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/acme-accounts")
-    public ResponseEntity<ACMEAccount> createACMEAccount(@Valid @RequestBody ACMEAccount aCMEAccount) throws URISyntaxException {
-        log.debug("REST request to save ACMEAccount : {}", aCMEAccount);
+    public ResponseEntity<AcmeAccount> createAcmeAccount(@Valid @RequestBody AcmeAccount aCMEAccount) throws URISyntaxException {
+        log.debug("REST request to save AcmeAccount : {}", aCMEAccount);
         if (aCMEAccount.getId() != null) {
             throw new BadRequestAlertException("A new aCMEAccount cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        ACMEAccount result = aCMEAccountService.save(aCMEAccount);
+        AcmeAccount result = aCMEAccountService.save(aCMEAccount);
         return ResponseEntity.created(new URI("/api/acme-accounts/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -68,12 +68,12 @@ public class ACMEAccountResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/acme-accounts")
-    public ResponseEntity<ACMEAccount> updateACMEAccount(@Valid @RequestBody ACMEAccount aCMEAccount) throws URISyntaxException {
-        log.debug("REST request to update ACMEAccount : {}", aCMEAccount);
+    public ResponseEntity<AcmeAccount> updateAcmeAccount(@Valid @RequestBody AcmeAccount aCMEAccount) throws URISyntaxException {
+        log.debug("REST request to update AcmeAccount : {}", aCMEAccount);
         if (aCMEAccount.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        ACMEAccount result = aCMEAccountService.save(aCMEAccount);
+        AcmeAccount result = aCMEAccountService.save(aCMEAccount);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, aCMEAccount.getId().toString()))
             .body(result);
@@ -86,8 +86,8 @@ public class ACMEAccountResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of aCMEAccounts in body.
      */
     @GetMapping("/acme-accounts")
-    public List<ACMEAccount> getAllACMEAccounts() {
-        log.debug("REST request to get all ACMEAccounts");
+    public List<AcmeAccount> getAllAcmeAccounts() {
+        log.debug("REST request to get all AcmeAccounts");
         return aCMEAccountService.findAll();
     }
 
@@ -98,9 +98,9 @@ public class ACMEAccountResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the aCMEAccount, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/acme-accounts/{id}")
-    public ResponseEntity<ACMEAccount> getACMEAccount(@PathVariable Long id) {
-        log.debug("REST request to get ACMEAccount : {}", id);
-        Optional<ACMEAccount> aCMEAccount = aCMEAccountService.findOne(id);
+    public ResponseEntity<AcmeAccount> getAcmeAccount(@PathVariable Long id) {
+        log.debug("REST request to get AcmeAccount : {}", id);
+        Optional<AcmeAccount> aCMEAccount = aCMEAccountService.findOne(id);
         return ResponseUtil.wrapOrNotFound(aCMEAccount);
     }
 
@@ -111,8 +111,8 @@ public class ACMEAccountResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/acme-accounts/{id}")
-    public ResponseEntity<Void> deleteACMEAccount(@PathVariable Long id) {
-        log.debug("REST request to delete ACMEAccount : {}", id);
+    public ResponseEntity<Void> deleteAcmeAccount(@PathVariable Long id) {
+        log.debug("REST request to delete AcmeAccount : {}", id);
         aCMEAccountService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }

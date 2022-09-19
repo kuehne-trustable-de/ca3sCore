@@ -62,14 +62,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import de.trustable.ca3s.core.domain.ACMEAccount;
+import de.trustable.ca3s.core.domain.AcmeAccount;
 import de.trustable.ca3s.core.domain.AcmeChallenge;
 import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
 import de.trustable.ca3s.core.repository.AcmeChallengeRepository;
 import de.trustable.ca3s.core.service.dto.acme.ChallengeResponse;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
-import de.trustable.ca3s.core.service.util.ACMEUtil;
+import de.trustable.ca3s.core.service.util.AcmeUtil;
 import de.trustable.ca3s.core.service.util.PreferenceUtil;
 import org.xbill.DNS.*;
 
@@ -82,7 +82,7 @@ import static org.xbill.DNS.Type.string;
 
 @Controller
 @RequestMapping("/acme/{realm}/challenge")
-public class ChallengeController extends ACMEController {
+public class ChallengeController extends AcmeController {
 
     private static final Logger LOG = LoggerFactory.getLogger(ChallengeController.class);
 
@@ -158,7 +158,7 @@ public class ChallengeController extends ACMEController {
         try {
             JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
 
-            ACMEAccount acctDao = checkJWTSignatureForAccount(context, realm);
+            AcmeAccount acctDao = checkJWTSignatureForAccount(context, realm);
 
             final HttpHeaders additionalHeaders = buildNonceHeader();
 
@@ -172,8 +172,8 @@ public class ChallengeController extends ACMEController {
 
                 if(!order.getAccount().getAccountId().equals(acctDao.getAccountId())) {
                     LOG.warn("Account of signing key {} does not match account id {} associated to given challenge{}", acctDao.getAccountId(), challengeDao.getAcmeAuthorization().getOrder().getAccount().getAccountId(), challengeId);
-                    final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "Account / Auth mismatch",
-                        BAD_REQUEST, "", ACMEController.NO_INSTANCE);
+                    final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "Account / Auth mismatch",
+                        BAD_REQUEST, "", AcmeController.NO_INSTANCE);
                     throw new AcmeProblemException(problem);
                 }
 
@@ -276,7 +276,7 @@ public class ChallengeController extends ACMEController {
         if( orderReady ){
           LOG.debug("order status set to READY" );
             auditService.saveAuditTrace(
-                auditService.createAuditTraceACMEOrderSucceeded(orderDao.getAccount(), orderDao));
+                auditService.createAuditTraceAcmeOrderSucceeded(orderDao.getAccount(), orderDao));
 
             orderDao.setStatus(AcmeOrderStatus.READY);
           orderRepository.save(orderDao);
@@ -418,11 +418,11 @@ public class ChallengeController extends ACMEController {
 
                 if(matches) {
                     auditService.saveAuditTrace(
-                        auditService.createAuditTraceACMEChallengeSucceeded(acmeOrder.getAccount(), acmeOrder,
+                        auditService.createAuditTraceAcmeChallengeSucceeded(acmeOrder.getAccount(), acmeOrder,
                             "challenge response matches at host '" + host + ":" + port + "'"));
                 }else{
                     auditService.saveAuditTrace(
-                        auditService.createAuditTraceACMEChallengeFailed(acmeOrder.getAccount(), acmeOrder,
+                        auditService.createAuditTraceAcmeChallengeFailed(acmeOrder.getAccount(), acmeOrder,
                             "challenge response mismatch at host '" + host + ":" + port + "'"));
                 }
 				return matches;
@@ -430,7 +430,7 @@ public class ChallengeController extends ACMEController {
 		    } catch(UnknownHostException uhe) {
 				LOG.debug("unable to resolve hostname ", uhe);
                 auditService.saveAuditTrace(
-                    auditService.createAuditTraceACMEChallengeFailed(acmeOrder.getAccount(), acmeOrder, "unable to resolve hostname '" + host + "'"));
+                    auditService.createAuditTraceAcmeChallengeFailed(acmeOrder.getAccount(), acmeOrder, "unable to resolve hostname '" + host + "'"));
                 return false;
 		    } catch(IOException ioe) {
                 ioExceptionMsg += "unable to read challenge response on '" + host + ":" + port + "' ";
@@ -440,7 +440,7 @@ public class ChallengeController extends ACMEController {
 	    }
 
 //        auditService.saveAuditTrace(
-//            auditService.createAuditTraceACMEChallengeFailed(acmeOrder.getAccount(), acmeOrder, ioExceptionMsg));
+//            auditService.createAuditTraceAcmeChallengeFailed(acmeOrder.getAccount(), acmeOrder, ioExceptionMsg));
 
 		return false;
 	}

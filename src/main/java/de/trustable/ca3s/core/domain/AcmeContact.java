@@ -35,7 +35,7 @@ public class AcmeContact implements Serializable {
 
     @ManyToOne
     @JsonIgnoreProperties("contacts")
-    private ACMEAccount account;
+    private AcmeAccount account;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -72,16 +72,16 @@ public class AcmeContact implements Serializable {
         this.contactUrl = contactUrl;
     }
 
-    public ACMEAccount getAccount() {
+    public AcmeAccount getAccount() {
         return account;
     }
 
-    public AcmeContact account(ACMEAccount aCMEAccount) {
+    public AcmeContact account(AcmeAccount aCMEAccount) {
         this.account = aCMEAccount;
         return this;
     }
 
-    public void setAccount(ACMEAccount aCMEAccount) {
+    public void setAccount(AcmeAccount aCMEAccount) {
         this.account = aCMEAccount;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove

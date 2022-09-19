@@ -1,8 +1,8 @@
 package de.trustable.ca3s.core.repository;
 
-import de.trustable.ca3s.core.domain.ACMEAccount;
-import de.trustable.ca3s.core.service.dto.ACMEAccountView;
-import de.trustable.ca3s.core.service.util.ACMEAccountUtil;
+import de.trustable.ca3s.core.domain.AcmeAccount;
+import de.trustable.ca3s.core.service.dto.AcmeAccountView;
+import de.trustable.ca3s.core.service.util.AcmeAccountUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -14,17 +14,17 @@ import java.util.Optional;
 
 
 @Service
-public class ACMEAccountViewRepository {
+public class AcmeAccountViewRepository {
 
     final private EntityManager entityManager;
     final private AcmeOrderRepository acmeOrderRepository;
-    final private ACMEAccountRepository acmeAccountRepository;
+    final private AcmeAccountRepository acmeAccountRepository;
     final private AcmeContactRepository acmeContactRepository;
-    final private ACMEAccountUtil acmeAccountUtil;
+    final private AcmeAccountUtil acmeAccountUtil;
 
-    public ACMEAccountViewRepository(EntityManager entityManager,
-                                     AcmeOrderRepository acmeOrderRepository, ACMEAccountRepository acmeAccountRepository,
-                                     AcmeContactRepository acmeContactRepository, ACMEAccountUtil acmeAccountUtil) {
+    public AcmeAccountViewRepository(EntityManager entityManager,
+                                     AcmeOrderRepository acmeOrderRepository, AcmeAccountRepository acmeAccountRepository,
+                                     AcmeContactRepository acmeContactRepository, AcmeAccountUtil acmeAccountUtil) {
         this.entityManager = entityManager;
         this.acmeOrderRepository = acmeOrderRepository;
         this.acmeAccountRepository = acmeAccountRepository;
@@ -32,11 +32,11 @@ public class ACMEAccountViewRepository {
         this.acmeAccountUtil = acmeAccountUtil;
     }
 
-    public Page<ACMEAccountView> findSelection(Map<String, String[]> parameterMap) {
+    public Page<AcmeAccountView> findSelection(Map<String, String[]> parameterMap) {
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
-        return ACMEAccountSpecifications.handleQueryParamsACMEAccountView(entityManager,
+        return AcmeAccountSpecifications.handleQueryParamsAcmeAccountView(entityManager,
             acmeOrderRepository,
             acmeContactRepository,
             cb,
@@ -44,9 +44,9 @@ public class ACMEAccountViewRepository {
             new ArrayList<>());
     }
 
-    public Optional<ACMEAccountView> findbyCertificateId(final Long acmeAccountId) {
+    public Optional<AcmeAccountView> findbyCertificateId(final Long acmeAccountId) {
 
-        Optional<ACMEAccount> optCert = acmeAccountRepository.findById(acmeAccountId);
+        Optional<AcmeAccount> optCert = acmeAccountRepository.findById(acmeAccountId);
         return optCert.map(acmeAccountUtil::from);
     }
 }

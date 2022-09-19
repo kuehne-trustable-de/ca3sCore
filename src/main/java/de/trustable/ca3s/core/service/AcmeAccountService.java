@@ -1,14 +1,14 @@
 package de.trustable.ca3s.core.service;
 
-import de.trustable.ca3s.core.domain.ACMEAccount;
+import de.trustable.ca3s.core.domain.AcmeAccount;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Service Interface for managing {@link ACMEAccount}.
+ * Service Interface for managing {@link AcmeAccount}.
  */
-public interface ACMEAccountService {
+public interface AcmeAccountService {
 
     /**
      * Save a aCMEAccount.
@@ -16,14 +16,14 @@ public interface ACMEAccountService {
      * @param aCMEAccount the entity to save.
      * @return the persisted entity.
      */
-    ACMEAccount save(ACMEAccount aCMEAccount);
+    AcmeAccount save(AcmeAccount aCMEAccount);
 
     /**
      * Get all the aCMEAccounts.
      *
      * @return the list of entities.
      */
-    List<ACMEAccount> findAll();
+    List<AcmeAccount> findAll();
 
 
     /**
@@ -32,7 +32,7 @@ public interface ACMEAccountService {
      * @param id the id of the entity.
      * @return the entity.
      */
-    Optional<ACMEAccount> findOne(Long id);
+    Optional<AcmeAccount> findOne(Long id);
 
     /**
      * Delete the "id" aCMEAccount.

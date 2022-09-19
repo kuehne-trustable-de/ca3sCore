@@ -1,8 +1,8 @@
 package de.trustable.ca3s.core.service.util;
 
-import de.trustable.ca3s.core.domain.ACMEAccount;
+import de.trustable.ca3s.core.domain.AcmeAccount;
 import de.trustable.ca3s.core.domain.AcmeContact;
-import de.trustable.ca3s.core.service.dto.ACMEAccountView;
+import de.trustable.ca3s.core.service.dto.AcmeAccountView;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -10,11 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class ACMEAccountUtil {
+public class AcmeAccountUtil {
 
-    public ACMEAccountView from(ACMEAccount acmeAccount){
+    public AcmeAccountView from(AcmeAccount acmeAccount){
 
-        ACMEAccountView acmeAccountView = new ACMEAccountView();
+        AcmeAccountView acmeAccountView = new AcmeAccountView();
 
         acmeAccountView.setId(acmeAccountView.getId());
         acmeAccountView.setAccountId(acmeAccount.getAccountId());

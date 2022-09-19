@@ -26,14 +26,14 @@
 
 package de.trustable.ca3s.core.web.rest.acme;
 
-import de.trustable.ca3s.core.domain.ACMEAccount;
+import de.trustable.ca3s.core.domain.AcmeAccount;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.service.dto.acme.RevokeRequest;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
-import de.trustable.ca3s.core.service.util.ACMEUtil;
+import de.trustable.ca3s.core.service.util.AcmeUtil;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import org.apache.commons.codec.binary.Base64;
@@ -70,9 +70,9 @@ import static org.springframework.web.servlet.support.ServletUriComponentsBuilde
 
 @Controller
 @RequestMapping("/acme/{realm}/cert")
-public class ACMECertificateController extends ACMEController {
+public class AcmeCertificateController extends AcmeController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ACMECertificateController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AcmeCertificateController.class);
 
     private boolean chainIncludeRoot = true;
 
@@ -84,7 +84,7 @@ public class ACMECertificateController extends ACMEController {
 
     final private boolean certificateLocationBackwardCompat;
 
-    public ACMECertificateController(CertificateRepository certificateRepository,
+    public AcmeCertificateController(CertificateRepository certificateRepository,
                                      BPMNUtil bpmnUtil,
                                      CertificateUtil certUtil,
                                      @Value("${ca3s.acme.backward.certificate.location:false}") boolean certificateLocationBackwardCompat) {
@@ -125,8 +125,8 @@ public class ACMECertificateController extends ACMEController {
 			if( resp == null) {
 				String msg = "problem returning certificate with accepting type " + accept;
 				LOG.info(msg);
-				final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, msg,
-						UNSUPPORTED_MEDIA_TYPE, "", ACMEController.NO_INSTANCE);
+				final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, msg,
+						UNSUPPORTED_MEDIA_TYPE, "", AcmeController.NO_INSTANCE);
 				throw new AcmeProblemException(problem);
 			}
 
@@ -168,7 +168,7 @@ public class ACMECertificateController extends ACMEController {
 		try {
 			JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
 
-            ACMEAccount acctDao = checkJWTSignatureForAccount(context, realm);
+            AcmeAccount acctDao = checkJWTSignatureForAccount(context, realm);
 
             RevokeRequest revokeReq = jwtUtil.getRevokeReq(context.getJwtClaims());
 
@@ -183,8 +183,8 @@ public class ACMECertificateController extends ACMEController {
 				tbsDigestBase64 = Base64.encodeBase64String(cryptoUtil.getSHA256Digest(x509Cert.getTBSCertificate())).toLowerCase();
 			} catch (CertificateEncodingException | NoSuchAlgorithmException e) {
 				LOG.info("problem selecting certificate for RevokeRequest", e);
-				final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "problem selecting certificate for RevokeRequest",
-						BAD_REQUEST, "", ACMEController.NO_INSTANCE);
+				final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "problem selecting certificate for RevokeRequest",
+						BAD_REQUEST, "", AcmeController.NO_INSTANCE);
 				throw new AcmeProblemException(problem);
 			}
 
@@ -217,8 +217,8 @@ public class ACMECertificateController extends ACMEController {
 		    return buildProblemResponseEntity(e);
 		} catch (Exception e) {
 			LOG.info("problem revoking certificate ", e);
-			final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "problem revoking certificate ",
-					BAD_REQUEST, "", ACMEController.NO_INSTANCE);
+			final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "problem revoking certificate ",
+					BAD_REQUEST, "", AcmeController.NO_INSTANCE);
 			throw new AcmeProblemException(problem);
 		}
 
@@ -240,7 +240,7 @@ public class ACMECertificateController extends ACMEController {
 		try {
 			JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
 
-			ACMEAccount acctDao = checkJWTSignatureForAccount(context, realm);
+			AcmeAccount acctDao = checkJWTSignatureForAccount(context, realm);
 			// check order for certificate matches account identified by JWT protecting key
 			// ... or not, as certs a public ...
 
@@ -313,8 +313,8 @@ public class ACMECertificateController extends ACMEController {
 		} catch (GeneralSecurityException ge) {
 			String msg = "problem building certificate chain";
 			LOG.info(msg, ge);
-			final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, msg,
-					INTERNAL_SERVER_ERROR, msg, ACMEController.NO_INSTANCE);
+			final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, msg,
+					INTERNAL_SERVER_ERROR, msg, AcmeController.NO_INSTANCE);
 			throw new AcmeProblemException(problem);
 		}
 

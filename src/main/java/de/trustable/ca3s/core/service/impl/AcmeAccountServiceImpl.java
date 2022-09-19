@@ -1,8 +1,8 @@
 package de.trustable.ca3s.core.service.impl;
 
-import de.trustable.ca3s.core.service.ACMEAccountService;
-import de.trustable.ca3s.core.domain.ACMEAccount;
-import de.trustable.ca3s.core.repository.ACMEAccountRepository;
+import de.trustable.ca3s.core.service.AcmeAccountService;
+import de.trustable.ca3s.core.domain.AcmeAccount;
+import de.trustable.ca3s.core.repository.AcmeAccountRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,17 +13,17 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Service Implementation for managing {@link ACMEAccount}.
+ * Service Implementation for managing {@link AcmeAccount}.
  */
 @Service
 @Transactional
-public class ACMEAccountServiceImpl implements ACMEAccountService {
+public class AcmeAccountServiceImpl implements AcmeAccountService {
 
-    private final Logger log = LoggerFactory.getLogger(ACMEAccountServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(AcmeAccountServiceImpl.class);
 
-    private final ACMEAccountRepository aCMEAccountRepository;
+    private final AcmeAccountRepository aCMEAccountRepository;
 
-    public ACMEAccountServiceImpl(ACMEAccountRepository aCMEAccountRepository) {
+    public AcmeAccountServiceImpl(AcmeAccountRepository aCMEAccountRepository) {
         this.aCMEAccountRepository = aCMEAccountRepository;
     }
 
@@ -34,8 +34,8 @@ public class ACMEAccountServiceImpl implements ACMEAccountService {
      * @return the persisted entity.
      */
     @Override
-    public ACMEAccount save(ACMEAccount aCMEAccount) {
-        log.debug("Request to save ACMEAccount : {}", aCMEAccount);
+    public AcmeAccount save(AcmeAccount aCMEAccount) {
+        log.debug("Request to save AcmeAccount : {}", aCMEAccount);
         return aCMEAccountRepository.save(aCMEAccount);
     }
 
@@ -46,8 +46,8 @@ public class ACMEAccountServiceImpl implements ACMEAccountService {
      */
     @Override
     @Transactional(readOnly = true)
-    public List<ACMEAccount> findAll() {
-        log.debug("Request to get all ACMEAccounts");
+    public List<AcmeAccount> findAll() {
+        log.debug("Request to get all AcmeAccounts");
         return aCMEAccountRepository.findAll();
     }
 
@@ -60,8 +60,8 @@ public class ACMEAccountServiceImpl implements ACMEAccountService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Optional<ACMEAccount> findOne(Long id) {
-        log.debug("Request to get ACMEAccount : {}", id);
+    public Optional<AcmeAccount> findOne(Long id) {
+        log.debug("Request to get AcmeAccount : {}", id);
         return aCMEAccountRepository.findById(id);
     }
 
@@ -72,7 +72,7 @@ public class ACMEAccountServiceImpl implements ACMEAccountService {
      */
     @Override
     public void delete(Long id) {
-        log.debug("Request to delete ACMEAccount : {}", id);
+        log.debug("Request to delete AcmeAccount : {}", id);
         aCMEAccountRepository.deleteById(id);
     }
 }

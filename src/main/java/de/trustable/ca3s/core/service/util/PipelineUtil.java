@@ -196,7 +196,7 @@ public class PipelineUtil {
 
 		pv.setAraRestrictions(new ARARestriction[0]);
 
-    	ACMEConfigItems acmeConfigItems = new ACMEConfigItems();
+    	AcmeConfigItems acmeConfigItems = new AcmeConfigItems();
         SCEPConfigItems scepConfigItems = new SCEPConfigItems();
         WebConfigItems webConfigItems = new WebConfigItems();
 
@@ -670,7 +670,7 @@ public class PipelineUtil {
 
 
 		if( pv.getAcmeConfigItems() == null) {
-			ACMEConfigItems acmeConfigItems = new ACMEConfigItems();
+			AcmeConfigItems acmeConfigItems = new AcmeConfigItems();
 			pv.setAcmeConfigItems(acmeConfigItems );
 		}
 

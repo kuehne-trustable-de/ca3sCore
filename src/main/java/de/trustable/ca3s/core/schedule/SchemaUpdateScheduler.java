@@ -76,8 +76,8 @@ public class SchemaUpdateScheduler {
         LOG.info("updateCSRAttributes took {} ms", Duration.between(now, Instant.now()));
 
         now = Instant.now();
-        updateACMEOrder();
-        LOG.info("updateACMEOrder took {} ms", Duration.between(now, Instant.now()));
+        updateAcmeOrder();
+        LOG.info("updateAcmeOrder took {} ms", Duration.between(now, Instant.now()));
 
     }
 
@@ -174,7 +174,7 @@ public class SchemaUpdateScheduler {
         }
     }
 
-    public void updateACMEOrder() {
+    public void updateAcmeOrder() {
 
         Instant now = Instant.now();
         List<AcmeOrder> acmeOrderList = acmeOrderRepository.findPipelineIsNull();

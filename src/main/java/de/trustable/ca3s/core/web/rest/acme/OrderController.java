@@ -80,7 +80,7 @@ import static org.springframework.web.servlet.support.ServletUriComponentsBuilde
 @Transactional
 @Controller
 @RequestMapping("/acme/{realm}/order")
-public class OrderController extends ACMEController {
+public class OrderController extends AcmeController {
 
     private static final Logger LOG = LoggerFactory.getLogger(OrderController.class);
 
@@ -132,7 +132,7 @@ public class OrderController extends ACMEController {
       	try {
       		JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
 
-    		ACMEAccount acctDao = checkJWTSignatureForAccount(context, realm);
+    		AcmeAccount acctDao = checkJWTSignatureForAccount(context, realm);
 
       	    final HttpHeaders additionalHeaders = buildNonceHeader();
 
@@ -168,7 +168,7 @@ public class OrderController extends ACMEController {
             if( !AcmeOrderStatus.INVALID.equals(acmeOrderStatus)){
                 LOG.debug("pending order {} expired on {}, setting to state 'INVALID'", orderDao.getOrderId(), orderDao.getExpires().toString());
                 auditService.saveAuditTrace(
-                    auditService.createAuditTraceACMEOrderExpired(orderDao.getAccount(), orderDao));
+                    auditService.createAuditTraceAcmeOrderExpired(orderDao.getAccount(), orderDao));
                 orderDao.setStatus(AcmeOrderStatus.INVALID);
                 orderRepository.save(orderDao);
                 // @ToDo
@@ -190,7 +190,7 @@ public class OrderController extends ACMEController {
   		JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
   		FinalizeRequest finalizeReq = jwtUtil.getFinalizeReq(context.getJwtClaims());
 
-		ACMEAccount acctDao = checkJWTSignatureForAccount(context, realm);
+		AcmeAccount acctDao = checkJWTSignatureForAccount(context, realm);
 
         /*
   	     * Prepare the response header, e.g. add a nonce
@@ -235,11 +235,11 @@ public class OrderController extends ACMEController {
 
                 LOG.debug("csr decoded: " + p10Holder);
 
-                List<ACMEAccount> accListExisting = acctRepository.findByPublicKeyHashBase64(jwtUtil.getJWKThumbPrint(p10Holder.getPublicSigningKey()));
+                List<AcmeAccount> accListExisting = acctRepository.findByPublicKeyHashBase64(jwtUtil.getJWKThumbPrint(p10Holder.getPublicSigningKey()));
                 if(!accListExisting.isEmpty()) {
                     LOG.debug("public key in csr already used for account #" + accListExisting.get(0).getAccountId());
 
-                    final ProblemDetail problem = new ProblemDetail(ACMEUtil.BAD_CSR, "CSR rejected.",
+                    final ProblemDetail problem = new ProblemDetail(AcmeUtil.BAD_CSR, "CSR rejected.",
                         BAD_REQUEST, "Public key of CSR already in use ", NO_INSTANCE);
                     throw new AcmeProblemException(problem);
                 }
@@ -261,7 +261,7 @@ public class OrderController extends ACMEController {
                         orderDao.setStatus(AcmeOrderStatus.INVALID);
                         orderRepository.save(orderDao);
 
-                        throw new AcmeProblemException(new ProblemDetail(ACMEUtil.BAD_CSR, msg,
+                        throw new AcmeProblemException(new ProblemDetail(AcmeUtil.BAD_CSR, msg,
                             BAD_REQUEST, NO_DETAIL, NO_INSTANCE));
                     }
                 }
@@ -296,7 +296,7 @@ public class OrderController extends ACMEController {
                     if( !messageList.isEmpty()){
                         detail = messageList.get(0);
                     }
-                    final ProblemDetail problem = new ProblemDetail(ACMEUtil.BAD_CSR, "Restriction check failed.",
+                    final ProblemDetail problem = new ProblemDetail(AcmeUtil.BAD_CSR, "Restriction check failed.",
                         BAD_REQUEST, detail, NO_INSTANCE);
                     throw new AcmeProblemException(problem);
                 }
@@ -316,7 +316,7 @@ public class OrderController extends ACMEController {
 			}else {
                 String msg = "unexpected finalize call at order status "+orderDao.getStatus()+" for order "+ orderDao.getOrderId();
                 LOG.debug(msg);
-                throw new AcmeProblemException(new ProblemDetail(ACMEUtil.ORDER_NOT_READY, msg,
+                throw new AcmeProblemException(new ProblemDetail(AcmeUtil.ORDER_NOT_READY, msg,
                     BAD_REQUEST, NO_DETAIL, NO_INSTANCE));
 			}
 
@@ -330,7 +330,7 @@ public class OrderController extends ACMEController {
 	} catch (AcmeProblemException e) {
 	    return buildProblemResponseEntity(e);
 	} catch (JoseException| IOException | GeneralSecurityException e) {
-        final ProblemDetail problem = new ProblemDetail(ACMEUtil.SERVER_INTERNAL, e.getMessage(),
+        final ProblemDetail problem = new ProblemDetail(AcmeUtil.SERVER_INTERNAL, e.getMessage(),
                 BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
         return buildProblemResponseEntity(new AcmeProblemException(problem));
     }
@@ -446,8 +446,8 @@ public class OrderController extends ACMEController {
 			if( !messageList.isEmpty()) {
 				msg = messageList.get(0);
 			}
-			final ProblemDetail problem = new ProblemDetail(ACMEUtil.BAD_CSR, msg,
-					BAD_REQUEST, "", ACMEController.NO_INSTANCE);
+			final ProblemDetail problem = new ProblemDetail(AcmeUtil.BAD_CSR, msg,
+					BAD_REQUEST, "", AcmeController.NO_INSTANCE);
 			throw new AcmeProblemException(problem);
 		}
 
@@ -458,12 +458,12 @@ public class OrderController extends ACMEController {
 		if( cert == null) {
             LOG.warn("creation of certificate by ACME order {} failed ", orderDao.getOrderId());
             auditService.saveAuditTrace(
-                auditService.createAuditTraceACMEOrderInvalid(orderDao.getAccount(), orderDao, "certificate creation failed"));
+                auditService.createAuditTraceAcmeOrderInvalid(orderDao.getAccount(), orderDao, "certificate creation failed"));
 			orderDao.setStatus(AcmeOrderStatus.INVALID);
 		}else {
 			LOG.debug("updating order id {} with new certificate id {}", orderDao.getOrderId(), cert.getId());
             auditService.saveAuditTrace(
-                auditService.createAuditTraceACMEOrderSucceeded(orderDao.getAccount(), orderDao));
+                auditService.createAuditTraceAcmeOrderSucceeded(orderDao.getAccount(), orderDao));
 			orderDao.setCertificate(cert);
 			orderDao.setStatus(AcmeOrderStatus.VALID);
 

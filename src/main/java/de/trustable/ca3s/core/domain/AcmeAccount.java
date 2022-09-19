@@ -11,21 +11,21 @@ import java.util.Set;
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 
 /**
- * A ACMEAccount.
+ * A AcmeAccount.
  */
 @Entity
 @Table(name = "acme_account")
 @NamedQueries({
 	@NamedQuery(name = "Account.findByPublicKeyHash",
-	query = "SELECT a FROM ACMEAccount a WHERE " +
+	query = "SELECT a FROM AcmeAccount a WHERE " +
 			"a.publicKeyHash = :publicKeyHashBase64"
     ),
 	@NamedQuery(name = "Account.findByAccountId",
-	query = "SELECT a FROM ACMEAccount a WHERE " +
+	query = "SELECT a FROM AcmeAccount a WHERE " +
 			"a.accountId = :accountId"
     ),
 })
-public class ACMEAccount implements Serializable {
+public class AcmeAccount implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -81,7 +81,7 @@ public class ACMEAccount implements Serializable {
         return accountId;
     }
 
-    public ACMEAccount accountId(Long accountId) {
+    public AcmeAccount accountId(Long accountId) {
         this.accountId = accountId;
         return this;
     }
@@ -94,7 +94,7 @@ public class ACMEAccount implements Serializable {
         return realm;
     }
 
-    public ACMEAccount realm(String realm) {
+    public AcmeAccount realm(String realm) {
         this.realm = realm;
         return this;
     }
@@ -107,7 +107,7 @@ public class ACMEAccount implements Serializable {
         return status;
     }
 
-    public ACMEAccount status(AccountStatus status) {
+    public AcmeAccount status(AccountStatus status) {
         this.status = status;
         return this;
     }
@@ -120,7 +120,7 @@ public class ACMEAccount implements Serializable {
         return termsOfServiceAgreed;
     }
 
-    public ACMEAccount termsOfServiceAgreed(Boolean termsOfServiceAgreed) {
+    public AcmeAccount termsOfServiceAgreed(Boolean termsOfServiceAgreed) {
         this.termsOfServiceAgreed = termsOfServiceAgreed;
         return this;
     }
@@ -133,7 +133,7 @@ public class ACMEAccount implements Serializable {
         return publicKeyHash;
     }
 
-    public ACMEAccount publicKeyHash(String publicKeyHash) {
+    public AcmeAccount publicKeyHash(String publicKeyHash) {
         this.publicKeyHash = publicKeyHash;
         return this;
     }
@@ -146,7 +146,7 @@ public class ACMEAccount implements Serializable {
         return publicKey;
     }
 
-    public ACMEAccount publicKey(String publicKey) {
+    public AcmeAccount publicKey(String publicKey) {
         this.publicKey = publicKey;
         return this;
     }
@@ -159,7 +159,7 @@ public class ACMEAccount implements Serializable {
         return this.createdOn;
     }
 
-    public ACMEAccount createdOn(Instant createdOn) {
+    public AcmeAccount createdOn(Instant createdOn) {
         this.setCreatedOn(createdOn);
         return this;
     }
@@ -172,18 +172,18 @@ public class ACMEAccount implements Serializable {
         return contacts;
     }
 
-    public ACMEAccount contacts(Set<AcmeContact> acmeContacts) {
+    public AcmeAccount contacts(Set<AcmeContact> acmeContacts) {
         this.contacts = acmeContacts;
         return this;
     }
 
-    public ACMEAccount addContacts(AcmeContact acmeContact) {
+    public AcmeAccount addContacts(AcmeContact acmeContact) {
         this.contacts.add(acmeContact);
         acmeContact.setAccount(this);
         return this;
     }
 
-    public ACMEAccount removeContacts(AcmeContact acmeContact) {
+    public AcmeAccount removeContacts(AcmeContact acmeContact) {
         this.contacts.remove(acmeContact);
         acmeContact.setAccount(null);
         return this;
@@ -197,18 +197,18 @@ public class ACMEAccount implements Serializable {
         return orders;
     }
 
-    public ACMEAccount orders(Set<AcmeOrder> acmeOrders) {
+    public AcmeAccount orders(Set<AcmeOrder> acmeOrders) {
         this.orders = acmeOrders;
         return this;
     }
 
-    public ACMEAccount addOrders(AcmeOrder acmeOrder) {
+    public AcmeAccount addOrders(AcmeOrder acmeOrder) {
         this.orders.add(acmeOrder);
         acmeOrder.setAccount(this);
         return this;
     }
 
-    public ACMEAccount removeOrders(AcmeOrder acmeOrder) {
+    public AcmeAccount removeOrders(AcmeOrder acmeOrder) {
         this.orders.remove(acmeOrder);
         acmeOrder.setAccount(null);
         return this;
@@ -224,10 +224,10 @@ public class ACMEAccount implements Serializable {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof ACMEAccount)) {
+        if (!(o instanceof AcmeAccount)) {
             return false;
         }
-        return id != null && id.equals(((ACMEAccount) o).id);
+        return id != null && id.equals(((AcmeAccount) o).id);
     }
 
     @Override
@@ -237,7 +237,7 @@ public class ACMEAccount implements Serializable {
 
     @Override
     public String toString() {
-        return "ACMEAccount{" +
+        return "AcmeAccount{" +
             "id=" + getId() +
             ", accountId=" + getAccountId() +
             ", realm='" + getRealm() + "'" +

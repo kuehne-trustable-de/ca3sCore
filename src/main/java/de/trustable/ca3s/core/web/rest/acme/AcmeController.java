@@ -28,29 +28,29 @@ import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import de.trustable.ca3s.core.domain.ACMEAccount;
+import de.trustable.ca3s.core.domain.AcmeAccount;
 import de.trustable.ca3s.core.domain.AcmeContact;
 import de.trustable.ca3s.core.domain.AcmeNonce;
 import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
-import de.trustable.ca3s.core.repository.ACMEAccountRepository;
+import de.trustable.ca3s.core.repository.AcmeAccountRepository;
 import de.trustable.ca3s.core.repository.AcmeContactRepository;
 import de.trustable.ca3s.core.repository.AcmeNonceRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.service.dto.acme.AccountRequest;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
-import de.trustable.ca3s.core.service.util.ACMEUtil;
+import de.trustable.ca3s.core.service.util.AcmeUtil;
 import de.trustable.ca3s.core.service.util.DateUtil;
 import de.trustable.ca3s.core.service.util.JwtUtil;
 import de.trustable.util.CryptoUtil;
 
 @Transactional
 @Controller
-public class ACMEController {
+public class AcmeController {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ACMEController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AcmeController.class);
 
 	public static final URI NO_INSTANCE = null;
 	public static final String NO_DETAIL = null;
@@ -99,7 +99,7 @@ public class ACMEController {
 	String CHALLENGE_RESOURCE_MAPPING = afterPrefix(
 			ChallengeController.class.getAnnotation(RequestMapping.class).value()[0]);
 	String CERTIFICATE_RESOURCE_MAPPING = afterPrefix(
-			ACMECertificateController.class.getAnnotation(RequestMapping.class).value()[0]);
+			AcmeCertificateController.class.getAnnotation(RequestMapping.class).value()[0]);
 
 	static String afterPrefix(String url) {
 
@@ -121,7 +121,7 @@ public class ACMEController {
 	AcmeNonceRepository nonceRepository;
 
 	@Autowired
-	ACMEAccountRepository acctRepository;
+	AcmeAccountRepository acctRepository;
 
 	@Autowired
 	AcmeContactRepository contactRepo;
@@ -217,15 +217,15 @@ public class ACMEController {
 
 		if(pipelineList.isEmpty()) {
 			LOG.warn("realm {} is not known", realm);
-			final ProblemDetail problem = new ProblemDetail(ACMEUtil.REALM_DOES_NOT_EXIST, "realm not found",
-					BAD_REQUEST, "", ACMEController.NO_INSTANCE);
+			final ProblemDetail problem = new ProblemDetail(AcmeUtil.REALM_DOES_NOT_EXIST, "realm not found",
+					BAD_REQUEST, "", AcmeController.NO_INSTANCE);
 			throw new AcmeProblemException(problem);
 		}
 
 		if(pipelineList.size() > 1) {
 			LOG.warn("misconfiguration for realm '{}', multiple configurations handling this realm", realm);
-			final ProblemDetail problem = new ProblemDetail(ACMEUtil.SERVER_INTERNAL, "Pipeline configuration broken",
-					BAD_REQUEST, "", ACMEController.NO_INSTANCE);
+			final ProblemDetail problem = new ProblemDetail(AcmeUtil.SERVER_INTERNAL, "Pipeline configuration broken",
+					BAD_REQUEST, "", AcmeController.NO_INSTANCE);
 			throw new AcmeProblemException(problem);
 		}
 
@@ -237,7 +237,7 @@ public class ACMEController {
 	 * @param acctDao
 	 * @param updatedAcct
 	 */
-	public void contactsFromRequest(ACMEAccount acctDao, AccountRequest updatedAcct) {
+	public void contactsFromRequest(AcmeAccount acctDao, AccountRequest updatedAcct) {
 
 		Set<AcmeContact> contactSet = acctDao.getContacts();
 		if (contactSet == null) {
@@ -279,11 +279,11 @@ public class ACMEController {
 
 	}
 
-//	ACMEAccount checkJWTSignatureForAccount(JwtContext context) {
+//	AcmeAccount checkJWTSignatureForAccount(JwtContext context) {
 //		return checkJWTSignatureForAccount(context, null, null);
 //	}
 
-	ACMEAccount checkJWTSignatureForAccount(JwtContext context, final String realm) {
+	AcmeAccount checkJWTSignatureForAccount(JwtContext context, final String realm) {
 		return checkJWTSignatureForAccount(context, realm, null);
 	}
 
@@ -293,7 +293,7 @@ public class ACMEController {
 	 * @param context
 	 * @return
      */
-	ACMEAccount checkJWTSignatureForAccount(JwtContext context, final String realm, Long accountIdReq) {
+	AcmeAccount checkJWTSignatureForAccount(JwtContext context, final String realm, Long accountIdReq) {
 
 		try {
 			JsonWebStructure webStruct = jwtUtil.getJsonWebStructure(context);
@@ -307,26 +307,26 @@ public class ACMEController {
 				throw new AccountDoesNotExistException(accountId);
 			}
 
-			List<ACMEAccount> accListExisting = acctRepository.findByAccountId(accountId.longValue());
+			List<AcmeAccount> accListExisting = acctRepository.findByAccountId(accountId.longValue());
 			if (accListExisting.isEmpty()) {
 				LOG.error("Missing required key ID");
 				throw new AccountDoesNotExistException(accountId);
 			}
 
-			ACMEAccount acctDao = accListExisting.get(0);
+			AcmeAccount acctDao = accListExisting.get(0);
 			LOG.debug("request signature identifies account id {} ", acctDao.getAccountId());
 
 			if ((realm != null) && !realm.equals(acctDao.getRealm())) {
 				LOG.warn("Account {} of {} does not match realm {}", acctDao.getAccountId(), acctDao.getRealm(), realm);
-				final ProblemDetail problem = new ProblemDetail(ACMEUtil.ACCOUNT_DOES_NOT_EXIST, "Account not found",
-						BAD_REQUEST, "", ACMEController.NO_INSTANCE);
+				final ProblemDetail problem = new ProblemDetail(AcmeUtil.ACCOUNT_DOES_NOT_EXIST, "Account not found",
+						BAD_REQUEST, "", AcmeController.NO_INSTANCE);
 				throw new AcmeProblemException(problem);
 			}
 
 			if (AccountStatus.DEACTIVATED.equals(acctDao.getStatus())) {
 				LOG.warn("Account {} is deactivated", acctDao.getAccountId());
-				final ProblemDetail problem = new ProblemDetail(ACMEUtil.ACCOUNT_DEACTIVATED, "Account deactivated",
-						BAD_REQUEST, "", ACMEController.NO_INSTANCE);
+				final ProblemDetail problem = new ProblemDetail(AcmeUtil.ACCOUNT_DEACTIVATED, "Account deactivated",
+						BAD_REQUEST, "", AcmeController.NO_INSTANCE);
 				throw new AcmeProblemException(problem);
 			}
 
@@ -335,8 +335,8 @@ public class ACMEController {
             if(!pipeline.isActive()) {
                 String msg = "Deactivated pipeline '"+pipeline.getName()+"' found for request realm '"+realm+"'" ;
                 LOG.info(msg);
-                final ProblemDetail problemDetail = new ProblemDetail(ACMEUtil.MALFORMED, "Realm unknown",
-                    BAD_REQUEST, msg, ACMEController.NO_INSTANCE);
+                final ProblemDetail problemDetail = new ProblemDetail(AcmeUtil.MALFORMED, "Realm unknown",
+                    BAD_REQUEST, msg, AcmeController.NO_INSTANCE);
                 throw new AcmeProblemException(problemDetail);
             }
 
@@ -347,8 +347,8 @@ public class ACMEController {
 		} catch (IOException | JoseException | InvalidJwtException e) {
 
 			LOG.debug("Problem processing JWT payload for Account ", e);
-			final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "JWT validation problem", BAD_REQUEST,
-					e.getMessage(), ACMEController.NO_INSTANCE);
+			final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "JWT validation problem", BAD_REQUEST,
+					e.getMessage(), AcmeController.NO_INSTANCE);
 			throw new AcmeProblemException(problem);
 		}
 
@@ -364,7 +364,7 @@ public class ACMEController {
 		List<AcmeNonce> nonceList = nonceRepository.findByNonceValue(reqNonce);
 		if (nonceList.isEmpty()) {
 			LOG.debug("Nonce {} not found in database", reqNonce);
-			final ProblemDetail problem = new ProblemDetail(ACMEUtil.BAD_NONCE, "Nonce not known.", BAD_REQUEST,
+			final ProblemDetail problem = new ProblemDetail(AcmeUtil.BAD_NONCE, "Nonce not known.", BAD_REQUEST,
 					NO_DETAIL, NO_INSTANCE);
 			throw new AcmeProblemException(problem);
 		} else {

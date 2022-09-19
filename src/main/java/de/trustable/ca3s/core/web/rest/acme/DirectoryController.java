@@ -130,7 +130,7 @@ import de.trustable.ca3s.core.service.dto.acme.DirectoryResponse;
 
 @Controller
 @RequestMapping("/acme/{realm}/directory")
-public class DirectoryController extends ACMEController {
+public class DirectoryController extends AcmeController {
 
 	private static final Logger LOG = LoggerFactory.getLogger(DirectoryController.class);
 
