@@ -43,7 +43,7 @@ import de.trustable.util.PKILevel;
 public class CaInternalConnector {
 
 
-	private static final Logger LOG = LoggerFactory.getLogger(ScepServletImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(CaInternalConnector.class);
 
     @Autowired
     CertificateRepository certRepository;
