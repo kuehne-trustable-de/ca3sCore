@@ -86,7 +86,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
   public creationTool = 'keytool';
   public cnAsSAN = false;
-  public addedCnAsSAN: string = '';
+  public addedCnAsSAN = '';
   public secretRepeat = '';
   public secret = '';
   public creationMode: ICreationMode = 'CSR_AVAILABLE';
