@@ -86,6 +86,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
   public creationTool = 'keytool';
   public cnAsSAN = false;
+  public addedCnAsSAN: string = '';
   public secretRepeat = '';
   public secret = '';
   public creationMode: ICreationMode = 'CSR_AVAILABLE';
@@ -418,9 +419,8 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
         if (this.cnAsSAN) {
           let matchingSanPresent = false;
           for (const nvValue of nv.values) {
-            if (nvValue.value.indexOf(nvCN.values[0].value) !== -1) {
+            if (nvValue.value === nvCN.values[0].value) {
               matchingSanPresent = true;
-              break;
             }
           }
 
@@ -429,9 +429,22 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
             if (nv.values.length === 0) {
               nvSAN.values = [cnVal];
             } else {
-              nvSAN.values = [cnVal, ...nv.values];
+              let matchingSanUpdated = false;
+              for (const nvValue of nv.values) {
+                if (nvValue.value === this.addedCnAsSAN) {
+                  nvValue.value = nvCN.values[0].value;
+                  matchingSanUpdated = true;
+                }
+
+                if (!matchingSanUpdated) {
+                  nvSAN.values = [cnVal, ...nv.values];
+                }
+              }
             }
           }
+          this.addedCnAsSAN = nvCN.values[0].value;
+        } else {
+          this.addedCnAsSAN = '';
         }
         break;
       }
@@ -577,8 +590,8 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
         reqConf += '2.5.29.17 = "{text}"\n';
 
         for (const san of nvSAN.values) {
-          let type = san.type;
-          let sanValue = san.value;
+          const type = san.type;
+          const sanValue = san.value;
 
           if (sanValue.length > 0) {
             reqConf += '_continue_ = "' + type + '=' + sanValue + '&"\n';
@@ -637,7 +650,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
         for (const san of nvSAN.values) {
           let idx = 1;
           let type = 'DNS';
-          let sanValue = san.value;
+          const sanValue = san.value;
 
           if (san.type.toUpperCase().trim() === 'DNS') {
             idx = dnsNo;

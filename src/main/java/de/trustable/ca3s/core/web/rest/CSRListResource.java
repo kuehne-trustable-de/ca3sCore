@@ -12,6 +12,7 @@ import de.trustable.ca3s.core.repository.PipelineAttributeRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.dto.CSRView;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -44,11 +45,17 @@ public class CSRListResource {
     private final CSRViewRepository csrViewRepository;
     private final UserRepository userRepository;
     private final PipelineAttributeRepository pipelineAttributeRepository;
+    final private int maxCSVRows;
 
-    public CSRListResource(CSRViewRepository csrViewRepository, UserRepository userRepository, PipelineAttributeRepository pipelineAttributeRepository) {
+    public CSRListResource(CSRViewRepository csrViewRepository,
+                           UserRepository userRepository,
+                           PipelineAttributeRepository pipelineAttributeRepository,
+                           @Value("${ca3s.ui.rows.max:1000}") int maxCSVRows) {
+
         this.csrViewRepository = csrViewRepository;
         this.userRepository = userRepository;
         this.pipelineAttributeRepository = pipelineAttributeRepository;
+        this.maxCSVRows = maxCSVRows;
     }
 
 
@@ -97,13 +104,13 @@ public class CSRListResource {
 
         Map<String, String[]> paramMap = new HashMap<>();
         for( String key: request.getParameterMap().keySet()){
-            if( key == "offset" || key == "limit"){
+            if(Objects.equals(key, "offset") || Objects.equals(key, "limit")){
                 continue;
             }
             paramMap.put(key, request.getParameterMap().get(key));
         }
         paramMap.put("offset", new String[]{"0"});
-        paramMap.put("limit", new String[]{"1000"});
+        paramMap.put("limit", new String[]{"" + maxCSVRows});
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String userName = auth.getName();

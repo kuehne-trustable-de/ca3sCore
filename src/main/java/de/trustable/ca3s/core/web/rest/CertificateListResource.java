@@ -8,6 +8,7 @@ import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import de.trustable.ca3s.core.repository.CertificateViewRepository;
 import de.trustable.ca3s.core.service.dto.CertificateView;
+import org.springframework.beans.factory.annotation.Value;
 import tech.jhipster.web.util.PaginationUtil;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -37,13 +38,16 @@ public class CertificateListResource {
     public final static MediaType TEXT_CSV_TYPE = new MediaType("text", "csv");
 
 
-    final CertificateViewRepository certificateViewRepository;
+    final private CertificateViewRepository certificateViewRepository;
+    final private int maxCSVRows;
 
 
     private final Logger log = LoggerFactory.getLogger(CertificateListResource.class);
 
-    public CertificateListResource(CertificateViewRepository certificateViewRepository) {
+    public CertificateListResource(CertificateViewRepository certificateViewRepository,
+                                   @Value("${ca3s.ui.rows.max:1000}") int maxCSVRows) {
         this.certificateViewRepository = certificateViewRepository;
+        this.maxCSVRows = maxCSVRows;
     }
 
 
@@ -79,13 +83,13 @@ public class CertificateListResource {
 
         Map<String, String[]> paramMap = new HashMap<>();
         for( String key: request.getParameterMap().keySet()){
-            if( key == "offset" || key == "limit"){
+            if(Objects.equals(key, "offset") || Objects.equals(key, "limit")){
                 continue;
             }
             paramMap.put(key, request.getParameterMap().get(key));
         }
         paramMap.put("offset", new String[]{"0"});
-        paramMap.put("limit", new String[]{"1000"});
+        paramMap.put("limit", new String[]{"" + maxCSVRows});
 
         Page<CertificateView> page = certificateViewRepository.findSelection(paramMap);
 

@@ -212,7 +212,10 @@ ca3s:
 #      filePostfix: .html
 
   ui:
-# limit the set of selectable languages, available languages are de, en, pl
+    rows:
+      max: 65535
+
+    # limit the set of selectable languages, available languages are de, en, pl
 # if only one language is selected, the user form for selection is disabled / hidden.
 #    languages: de
 # provide a custom image for the upper left corner of the user interface
