@@ -161,7 +161,7 @@
 
         <nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
         <jose4jVersion>0.7.6</jose4jVersion>
-        <acme4jVersion>2.13</acme4jVersion>
+        <acme4jVersion>2.14</acme4jVersion>
         <takesVersion>1.16</takesVersion>
         <jscepVersion>2.5.4</jscepVersion>
         <jasyptVersion>1.9.3</jasyptVersion>
