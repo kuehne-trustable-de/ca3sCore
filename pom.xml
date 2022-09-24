@@ -156,8 +156,8 @@
         <bouncyCastleVersion>1.68</bouncyCastleVersion>
         <cryptoUtilVersion>1.3.4</cryptoUtilVersion>
         <certBundleVersion>1.1.1</certBundleVersion>
-        <adcsUtilVersion>1.2.7</adcsUtilVersion>
-        <adcsProxyClientVersion>1.2.7</adcsProxyClientVersion>
+        <adcsUtilVersion>1.2.8</adcsUtilVersion>
+        <adcsProxyClientVersion>1.2.8</adcsProxyClientVersion>
 
         <nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
         <jose4jVersion>0.7.6</jose4jVersion>

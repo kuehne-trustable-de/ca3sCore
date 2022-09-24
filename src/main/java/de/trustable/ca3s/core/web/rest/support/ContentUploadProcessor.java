@@ -18,7 +18,7 @@ import de.trustable.ca3s.core.service.util.*;
 import de.trustable.ca3s.core.web.rest.data.*;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.Pkcs10RequestHolder;
-import liquibase.repackaged.org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.X500Name;
