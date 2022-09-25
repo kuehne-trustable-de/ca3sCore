@@ -495,7 +495,7 @@ public class ChallengeController extends AcmeController {
             } catch(UnknownHostException uhe) {
                 LOG.debug("unable to resolve hostname ", uhe);
                 auditService.saveAuditTrace(
-                    auditService.createAuditTraceACMEChallengeFailed(acmeOrder.getAccount(), acmeOrder, "unable to resolve hostname '" + host + "'"));
+                    auditService.createAuditTraceAcmeChallengeFailed(acmeOrder.getAccount(), acmeOrder, "unable to resolve hostname '" + host + "'"));
                 return false;
             } catch(IOException ioe) {
                 ioExceptionMsg += "unable to read challenge response on '" + host + ":" + port + "' ";
@@ -509,7 +509,7 @@ public class ChallengeController extends AcmeController {
         }
 
 //        auditService.saveAuditTrace(
-//            auditService.createAuditTraceACMEChallengeFailed(acmeOrder.getAccount(), acmeOrder, ioExceptionMsg));
+//            auditService.createAuditTraceAcmeChallengeFailed(acmeOrder.getAccount(), acmeOrder, ioExceptionMsg));
 
         return false;
     }
@@ -600,11 +600,11 @@ public class ChallengeController extends AcmeController {
 
         if(matches) {
             auditService.saveAuditTrace(
-                auditService.createAuditTraceACMEChallengeSucceeded(acmeOrder.getAccount(), acmeOrder,
+                auditService.createAuditTraceAcmeChallengeSucceeded(acmeOrder.getAccount(), acmeOrder,
                     "alpn challenge response matches at host '" + host + ":" + port + "'"));
         }else{
             auditService.saveAuditTrace(
-                auditService.createAuditTraceACMEChallengeFailed(acmeOrder.getAccount(), acmeOrder,
+                auditService.createAuditTraceAcmeChallengeFailed(acmeOrder.getAccount(), acmeOrder,
                     "alpn challenge response mismatch at host '" + host + ":" + port + "'"));
         }
         return matches;

@@ -4,7 +4,7 @@ import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.AcmeOrder;
 import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 import de.trustable.ca3s.core.repository.AcmeOrderRepository;
-import de.trustable.ca3s.core.schedule.ACMEExpiryScheduler;
+import de.trustable.ca3s.core.schedule.AcmeExpiryScheduler;
 import org.jscep.client.ClientException;
 import org.jscep.transaction.TransactionException;
 import org.junit.jupiter.api.Assertions;
@@ -22,13 +22,13 @@ import java.util.Random;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("dev")
-public class ACMEScheduleIT {
+public class AcmeScheduleIT {
 
     Random random = new SecureRandom();
     String realm = "TestRealm_" + random.nextInt();
 
     @Autowired
-    ACMEExpiryScheduler acmeExpiryScheduler;
+    AcmeExpiryScheduler acmeExpiryScheduler;
 
     @Autowired
     AcmeOrderRepository acmeOrderRepository;

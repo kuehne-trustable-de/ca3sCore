@@ -23,14 +23,14 @@ import java.util.Optional;
  *
  */
 @Component
-public class ACMEExpiryScheduler {
+public class AcmeExpiryScheduler {
 
-	transient Logger LOG = LoggerFactory.getLogger(ACMEExpiryScheduler.class);
+	transient Logger LOG = LoggerFactory.getLogger(AcmeExpiryScheduler.class);
 
     final private AcmeOrderRepository acmeOrderRepository;
     final private AuditService auditService;
 
-    public ACMEExpiryScheduler(AcmeOrderRepository acmeOrderRepository, AuditService auditService) {
+    public AcmeExpiryScheduler(AcmeOrderRepository acmeOrderRepository, AuditService auditService) {
         this.acmeOrderRepository = acmeOrderRepository;
         this.auditService = auditService;
     }

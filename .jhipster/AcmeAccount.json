@@ -1,5 +1,5 @@
 {
-  "name": "ACMEAccount",
+  "name": "AcmeAccount",
   "fields": [
     {
       "fieldName": "accountId",

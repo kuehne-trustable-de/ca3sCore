@@ -21,7 +21,7 @@ public interface AcmeAccountRepository extends JpaRepository<AcmeAccount, Long> 
 	@Query(name = "Account.findByPublicKeyHash")
 	List<AcmeAccount> findByPublicKeyHashBase64(@Param("publicKeyHashBase64") String publicKeyHashBase64);
 
-    @Query(name = "Account.findByCreatedOnIsNull")
-    List<ACMEAccount> findByCreatedOnIsNull();
+  @Query(name = "Account.findByCreatedOnIsNull")
+  List<AcmeAccount> findByCreatedOnIsNull();
 
 }

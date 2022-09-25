@@ -376,9 +376,9 @@ public final class AcmeAccountSpecifications {
             }
 
         } else if ("createdOn".equals(attribute)) {
-            addNewColumn(selectionList, root.get(ACMEAccount_.createdOn));
+            addNewColumn(selectionList, root.get(AcmeAccount_.createdOn));
             if (attributeValue.trim().length() > 0) {
-                pred = SpecificationsHelper.buildDatePredicate( attributeSelector, cb, root.get(ACMEAccount_.createdOn), attributeValue);
+                pred = SpecificationsHelper.buildDatePredicate( attributeSelector, cb, root.get(AcmeAccount_.createdOn), attributeValue);
             }
 
         } else if ("publicKeyHash".equals(attribute)) {

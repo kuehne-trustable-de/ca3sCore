@@ -47,13 +47,13 @@ public class SchemaUpdateScheduler {
     final private CSRUtil csrUtil;
 
     final private AcmeOrderRepository acmeOrderRepository;
-    final private ACMEAccountRepository acmeAccountRepository;
+    final private AcmeAccountRepository acmeAccountRepository;
 
     final private PipelineRepository pipelineRepository;
 
     final private AuditService auditService;
 
-    public SchemaUpdateScheduler(CertificateRepository certificateRepo, CertificateUtil certUtil, CSRRepository csrRepository, CsrAttributeRepository csrAttributeRepository, CSRUtil csrUtil, AcmeOrderRepository acmeOrderRepository, ACMEAccountRepository acmeAccountRepository, PipelineRepository pipelineRepository, AuditService auditService) {
+    public SchemaUpdateScheduler(CertificateRepository certificateRepo, CertificateUtil certUtil, CSRRepository csrRepository, CsrAttributeRepository csrAttributeRepository, CSRUtil csrUtil, AcmeOrderRepository acmeOrderRepository, AcmeAccountRepository acmeAccountRepository, PipelineRepository pipelineRepository, AuditService auditService) {
         this.certificateRepo = certificateRepo;
         this.certUtil = certUtil;
         this.csrRepository = csrRepository;
@@ -212,10 +212,10 @@ public class SchemaUpdateScheduler {
     public void updateACMEAccount() {
 
         Instant now = Instant.now();
-        List<ACMEAccount> acmeAccountList = acmeAccountRepository.findByCreatedOnIsNull();
+        List<AcmeAccount> acmeAccountList = acmeAccountRepository.findByCreatedOnIsNull();
 
         int count = 0;
-        for (ACMEAccount acmeAccount : acmeAccountList) {
+        for (AcmeAccount acmeAccount : acmeAccountList) {
 
             Instant oldestOrder = now;
 

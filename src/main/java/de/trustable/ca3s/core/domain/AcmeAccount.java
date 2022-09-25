@@ -26,7 +26,7 @@ import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
     ),
     @NamedQuery(name = "Account.findByCreatedOnIsNull",
         query = "SELECT a FROM AcmeAccount a WHERE " +
-            "a.createdOn is null"
+            "a.createdOn is null"),
 })
 public class AcmeAccount implements Serializable {
 
