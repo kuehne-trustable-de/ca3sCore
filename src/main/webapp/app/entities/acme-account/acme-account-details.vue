@@ -2,7 +2,7 @@
     <div class="row justify-content-center">
         <div class="col-8">
             <div v-if="aCMEAccount">
-                <h2 class="jh-entity-heading"><span v-text="$t('ca3SApp.aCMEAccount.detail.title')">ACMEAccount</span> {{aCMEAccount.id}}</h2>
+                <h2 class="jh-entity-heading"><span v-text="$t('ca3SApp.aCMEAccount.detail.title')">AcmeAccount</span> {{aCMEAccount.id}}</h2>
                 <dl class="row jh-entity-details">
                     <dt>
                         <span v-text="$t('ca3SApp.aCMEAccount.accountId')">Account Id</span>
@@ -46,7 +46,7 @@
                         class="btn btn-info">
                     <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.back')"> Back</span>
                 </button>
-                <router-link v-if="aCMEAccount.id" :to="{name: 'ACMEAccountEdit', params: {aCMEAccountId: aCMEAccount.id}}" tag="button" class="btn btn-primary">
+                <router-link v-if="aCMEAccount.id" :to="{name: 'AcmeAccountEdit', params: {aCMEAccountId: aCMEAccount.id}}" tag="button" class="btn btn-primary">
                     <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.edit')"> Edit</span>
                 </router-link>
             </div>

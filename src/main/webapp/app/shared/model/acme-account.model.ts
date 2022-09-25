@@ -7,7 +7,7 @@ export const enum AccountStatus {
   REVOKED = 'REVOKED'
 }
 
-export interface IACMEAccount {
+export interface IAcmeAccount {
   id?: number;
   accountId?: number;
   realm?: string;
@@ -19,7 +19,7 @@ export interface IACMEAccount {
   orders?: IAcmeOrder[];
 }
 
-export class ACMEAccount implements IACMEAccount {
+export class AcmeAccount implements IAcmeAccount {
   constructor(
     public id?: number,
     public accountId?: number,

@@ -51,7 +51,7 @@ import de.trustable.ca3s.core.domain.AcmeNonce;
  * Produces <a href="https://de.wikipedia.org/wiki/Nonce">Nonces</a> containing
  * 16 random bytes followed by 8 bytes from epoch seconds.
  */
-public class NewNonceController extends ACMEController {
+public class NewNonceController extends AcmeController {
 
 	public static final String REPLAY_NONCE_HEADER = "Replay-Nonce";
 

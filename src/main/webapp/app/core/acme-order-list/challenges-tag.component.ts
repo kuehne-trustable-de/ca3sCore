@@ -3,7 +3,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator';
 import { ITableContentParam, TColumnsDefinition, VuejsDatatableFactory } from 'vuejs-datatable';
 import { colFieldToStr, makeQueryStringFromObj } from '@/shared/utils';
 import axios from 'axios';
-import { IACMEChallengeView } from '@/shared/model/transfer-object.model';
+import { IAcmeChallengeView } from '@/shared/model/transfer-object.model';
 
 import { mixins } from 'vue-class-component';
 import AlertMixin from '@/shared/alert/alert.mixin';
@@ -56,7 +56,7 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('challenges-tab
       return {
         rows: data,
         totalRowCount: data.numberOfElements
-      } as ITableContentParam<IACMEChallengeView>;
+      } as ITableContentParam<IAcmeChallengeView>;
     })
 
     .mergeSettings({
@@ -135,7 +135,7 @@ export default class ChallengesTag extends mixins(AlertMixin, Vue) {
         { label: this.$t('ca3SApp.acmeChallenge.type'), field: 'type' },
         { label: this.$t('ca3SApp.acmeChallenge.target'), field: 'value' },
         { label: this.$t('ca3SApp.acmeChallenge.updatedOn'), field: 'validated' }
-      ] as TColumnsDefinition<IACMEChallengeView>,
+      ] as TColumnsDefinition<IAcmeChallengeView>,
 
       get challengesApiUrl() {
         console.log('challengesApiUrl returning ' + self.buildContentAccessUrl());

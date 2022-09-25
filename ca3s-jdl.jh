@@ -253,7 +253,7 @@ enum AccountStatus {
 }
 
 
-entity ACMEAccount {
+entity AcmeAccount {
 
 //	@Id
 //	@GenericGenerator(name="RandomGenerator.generatorName", strategy="de.trustable.ca3s.acme.server.entity.RandomGenerator")
@@ -403,13 +403,13 @@ relationship OneToMany {
 //  account.  For example, the server may wish to notify the client
 //  about server-initiated revocation or certificate expiration.  For
 //  information on supported URL schemes, see Section 7.3
-	ACMEAccount{contacts} to AcmeContact{account}
+	AcmeAccount{contacts} to AcmeContact{account}
 
 
 //  orders (required, string):  A URL from which a list of orders
 //  submitted by this account can be fetched via a POST-as-GET
 //  request, as described in Section 7.1.2.1.
-	ACMEAccount{orders} to AcmeOrder{account}
+	AcmeAccount{orders} to AcmeOrder{account}
 
 // AcmeAuthorizations (required, array of string): For pending orders, the
 // AcmeAuthorizations that the client needs to complete before the requested

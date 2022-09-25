@@ -21,7 +21,7 @@ import CSRService from '@/entities/csr/csr.service';
 
 import CertificateService from '@/entities/certificate/certificate.service';
 
-import ACMEAccountService from '@/entities/acme-account/acme-account.service';
+import AcmeAccountService from '@/entities/acme-account/acme-account.service';
 
 const localVue = createLocalVue();
 
@@ -58,7 +58,7 @@ describe('Component Tests', () => {
 
           certificateService: () => new CertificateService(),
 
-          aCMEAccountService: () => new ACMEAccountService()
+          aCMEAccountService: () => new AcmeAccountService()
         }
       });
       comp = wrapper.vm;

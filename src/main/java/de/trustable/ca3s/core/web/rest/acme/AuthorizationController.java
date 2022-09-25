@@ -54,7 +54,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import de.trustable.ca3s.core.domain.ACMEAccount;
+import de.trustable.ca3s.core.domain.AcmeAccount;
 import de.trustable.ca3s.core.domain.AcmeAuthorization;
 import de.trustable.ca3s.core.domain.AcmeChallenge;
 import de.trustable.ca3s.core.domain.AcmeOrder;
@@ -66,14 +66,14 @@ import de.trustable.ca3s.core.service.dto.acme.ChallengeResponse;
 import de.trustable.ca3s.core.service.dto.acme.IdentifierResponse;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
-import de.trustable.ca3s.core.service.util.ACMEUtil;
+import de.trustable.ca3s.core.service.util.AcmeUtil;
 import de.trustable.ca3s.core.service.util.DateUtil;
 
 
 @Transactional
 @Controller
 @RequestMapping("/acme/{realm}/authorization")
-public class AuthorizationController extends ACMEController {
+public class AuthorizationController extends AcmeController {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthorizationController.class);
 
@@ -142,7 +142,7 @@ public class AuthorizationController extends ACMEController {
 	try {
 		JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
 
-		ACMEAccount acctDao = checkJWTSignatureForAccount(context, realm);
+		AcmeAccount acctDao = checkJWTSignatureForAccount(context, realm);
 
 	    final HttpHeaders additionalHeaders = buildNonceHeader();
 
@@ -160,8 +160,8 @@ public class AuthorizationController extends ACMEController {
 
 			if( authDao.getOrder().getAccount().getAccountId() != acctDao.getAccountId()) {
 				LOG.warn("Account of signing key {} does not match account id {} associated to given auth{}", acctDao.getAccountId(), authDao.getOrder().getAccount().getAccountId(), authorizationId );
-				final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "Account / Auth mismatch",
-						BAD_REQUEST, "", ACMEController.NO_INSTANCE);
+				final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "Account / Auth mismatch",
+						BAD_REQUEST, "", AcmeController.NO_INSTANCE);
 				throw new AcmeProblemException(problem);
 
 			}

@@ -54,7 +54,7 @@ public class PipelineView implements Serializable {
     private boolean ipAsSubjectAllowed = false;
     private boolean ipAsSANAllowed = false ;
 
-    private ACMEConfigItems acmeConfigItems;
+    private AcmeConfigItems acmeConfigItems;
 
     private SCEPConfigItems scepConfigItems;
 
@@ -155,7 +155,7 @@ public class PipelineView implements Serializable {
 	}
 
 
-	public ACMEConfigItems getAcmeConfigItems() {
+	public AcmeConfigItems getAcmeConfigItems() {
 		return acmeConfigItems;
 	}
 
@@ -259,7 +259,7 @@ public class PipelineView implements Serializable {
 	}
 
 
-	public void setAcmeConfigItems(ACMEConfigItems acmeConfigItems) {
+	public void setAcmeConfigItems(AcmeConfigItems acmeConfigItems) {
 		this.acmeConfigItems = acmeConfigItems;
 	}
 

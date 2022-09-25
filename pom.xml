@@ -1473,8 +1473,8 @@
 
                         <class>de.trustable.ca3s.core.service.dto.AuditView</class>
                         <class>de.trustable.ca3s.core.service.dto.AuditTraceView</class>
-                        <class>de.trustable.ca3s.core.service.dto.ACMEAccountView</class>
-                        <class>de.trustable.ca3s.core.service.dto.ACMEOrderView</class>
+                        <class>de.trustable.ca3s.core.service.dto.AcmeAccountView</class>
+                        <class>de.trustable.ca3s.core.service.dto.AcmeOrderView</class>
                         <class>de.trustable.ca3s.core.service.dto.ScepOrderView</class>
 
                         <class>de.trustable.ca3s.core.service.dto.BPMNUpload</class>

@@ -104,7 +104,7 @@ public class AcmeOrder implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties(value = { "contacts", "orders" }, allowSetters = true)
-    private ACMEAccount account;
+    private AcmeAccount account;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -371,15 +371,15 @@ public class AcmeOrder implements Serializable {
         return this;
     }
 
-    public ACMEAccount getAccount() {
+    public AcmeAccount getAccount() {
         return this.account;
     }
 
-    public void setAccount(ACMEAccount aCMEAccount) {
+    public void setAccount(AcmeAccount aCMEAccount) {
         this.account = aCMEAccount;
     }
 
-    public AcmeOrder account(ACMEAccount aCMEAccount) {
+    public AcmeOrder account(AcmeAccount aCMEAccount) {
         this.setAccount(aCMEAccount);
         return this;
     }

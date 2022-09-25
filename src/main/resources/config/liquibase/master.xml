@@ -44,7 +44,7 @@
     <include file="config/liquibase/changelog/20200110170118_added_entity_RequestAttributeValue.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170119_added_entity_Pipeline.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170120_added_entity_PipelineAttribute.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20200110170121_added_entity_ACMEAccount.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200110170121_added_entity_AcmeAccount.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170122_added_entity_AcmeContact.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170123_added_entity_AcmeOrder.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200110170126_added_entity_AcmeChallenge.xml" relativeToChangelogFile="false"/>
@@ -99,7 +99,7 @@
     <include file="config/liquibase/changelog/20220211170512_added_entity_ScepOrderAttribute.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220211170512_added_entity_constraints_ScepOrderAttribute.xml" relativeToChangelogFile="false"/>
 
-    <include file="config/liquibase/changelog/20220124203942_added_columns_ACMEAccount.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220124203942_added_columns_AcmeAccount.xml" relativeToChangelogFile="false"/>
 
     <include file="config/liquibase/changelog/20220124203944_added_columns_AcmeOrder.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220124203944_added_entity_constraints_AcmeOrder.xml" relativeToChangelogFile="false"/>
