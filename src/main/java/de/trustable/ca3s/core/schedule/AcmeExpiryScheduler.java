@@ -35,7 +35,7 @@ public class AcmeExpiryScheduler {
         this.auditService = auditService;
     }
 
-    @Scheduled(fixedDelay = 60000)
+    @Scheduled(fixedRateString="${ca3s.schedule.rate.acmeOrderExpiry:600000}")
 	public void runMinute() {
 
         Instant now = Instant.now();

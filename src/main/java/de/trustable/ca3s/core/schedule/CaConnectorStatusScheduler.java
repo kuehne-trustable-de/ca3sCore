@@ -29,7 +29,7 @@ public class CaConnectorStatusScheduler {
 	@Autowired
 	private CaConnectorAdapter caConnAd;
 
-	@Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedRateString="${ca3s.schedule.rate.caConnectorStatus:10000}")
 	public void updateCAConnectorStatus() {
 
         LOG.debug("starting to update the CA connector status list");

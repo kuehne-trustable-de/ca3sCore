@@ -31,10 +31,11 @@ logging:
     de.trustable.ca3s.core.service.dir: WARN
     de.trustable.ca3s.core.security.provider.Ca3sTrustManager: WARN
     de.trustable.ca3s.core.repository.CSRSpecifications: WARN
-    de.trustable.ca3s.core.repository.CertificateSpecifications: WARN
+    de.trustable.ca3s.core.repository.CertificateSpecifications: DEBUG
     de.trustable.util.CryptoUtil: WARN
     org.keycloak.adapters: DEBUG
     org.springframework.security: INFO
+    net.ttddyy.dsproxy.listener: INFO
 
 management:
   metrics:
@@ -80,11 +81,20 @@ spring:
     database: MYSQL
     show-sql: false
     properties:
-      hibernate.id.new_generator_mappings: true
-      hibernate.connection.provider_disables_autocommit: true
-      hibernate.cache.use_second_level_cache: false
-      hibernate.cache.use_query_cache: false
-      hibernate.generate_statistics: false
+      hibernate:
+        id:
+          new_generator_mappings: true
+        connection:
+          provider_disables_autocommit: true
+        cache:
+          use_second_level_cache: false
+          use_query_cache: false
+        generate_statistics: false
+        session:
+          events:
+             log:
+               LOG_QUERIES_SLOWER_THAN_MS: 25
+
   # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
   liquibase:
     contexts: prod
@@ -198,7 +208,19 @@ ca3s:
   batch:
     maxRecordsPerTransaction: 1000
 
-# enable the creation of the PKCS12 download container with specific algorithms
+  schedule:
+    rate:
+      caConnectorStatus:         60000
+      protectedContentCleanup: 3600000
+      acmeOrderExpiry:         3600000
+      certBundleCheck:          600000
+      certRetrieval:           3600000
+      revocationCheck:         3600000
+    cron:
+      expiryNotificationCron: 0 15 2 * * ?
+      dropUnrelatedUsersCron: 0 20 02 * * ?
+
+  # enable the creation of the PKCS12 download container with specific algorithms
   pkcs12:
     pbe:
       algos: PBEWithHmacSHA256AndAES_256, pbeWithSHAAnd3_KeyTripleDES_CBC

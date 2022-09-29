@@ -34,6 +34,7 @@ public class CacheConfiguration {
             createCache(cm, de.trustable.ca3s.core.repository.UserRepository.USERS_BY_LOGIN_CACHE);
             createCache(cm, de.trustable.ca3s.core.repository.UserRepository.USERS_BY_EMAIL_CACHE);
             createCache(cm, de.trustable.ca3s.core.domain.CAConnectorConfig.class.getName());
+            createCache(cm, "AcceptedIssuer");
             createCache(cm, "CRLs");
             createCache(cm, de.trustable.ca3s.core.domain.CSR.class.getName());
             createCache(cm, de.trustable.ca3s.core.domain.CSR.class.getName() + ".rdns");

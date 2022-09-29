@@ -48,8 +48,6 @@ public class CertificateAdministration {
 
     final private CertificateRepository certificateRepository;
 
-    final private CertificateCommentRepository certificateCommentRepository;
-
     final private CertificateAttributeRepository certificateAttributeRepository;
 
     final private BPMNUtil bpmnUtil;
@@ -69,7 +67,6 @@ public class CertificateAdministration {
     final private AuditService auditService;
 
     public CertificateAdministration(CertificateRepository certificateRepository,
-                                     CertificateCommentRepository certificateCommentRepository,
                                      CertificateAttributeRepository certificateAttributeRepository,
                                      BPMNUtil bpmnUtil, CryptoUtil cryptoUtil,
                                      CertificateUtil certUtil,
@@ -78,7 +75,6 @@ public class CertificateAdministration {
                                      NotificationService notificationService,
                                      AuditService auditService) {
         this.certificateRepository = certificateRepository;
-        this.certificateCommentRepository = certificateCommentRepository;
         this.certificateAttributeRepository = certificateAttributeRepository;
         this.bpmnUtil = bpmnUtil;
         this.cryptoUtil = cryptoUtil;
@@ -100,7 +96,7 @@ public class CertificateAdministration {
 	@Transactional
     public ResponseEntity<Long> administerCertificate(@Valid @RequestBody CertificateAdministrationData adminData) throws MessagingException {
 
-    	LOG.debug("REST request to revoke certificate : {}", adminData);
+    	LOG.debug("REST request to revoke / update certificate : {}", adminData);
 
     	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     	String raOfficerName = auth.getName();

@@ -355,7 +355,7 @@ public class CertificateView implements Serializable {
                 } else if (CertificateAttribute.ATTRIBUTE_REPLACED_BY.equalsIgnoreCase(certAttr.getName())) {
                     replacedCertList.add(certAttr.getValue());
                 } else {
-                    LOG.debug("Irrelevant certificate attribute '{}' with value '{}'", certAttr.getName(), certAttr.getValue());
+ //                   LOG.debug("Irrelevant certificate attribute '{}' with value '{}'", certAttr.getName(), certAttr.getValue());
 
                 }
             }catch(NumberFormatException nfe){

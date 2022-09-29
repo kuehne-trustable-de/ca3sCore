@@ -156,17 +156,17 @@ public class CSR implements Serializable {
     @JoinColumn(unique = true)
     private CSRComment comment;
 
-    @OneToMany(mappedBy = "csr")
+    @OneToMany(mappedBy = "csr", fetch = FetchType.LAZY)
     private Set<RDN> rdns = new HashSet<>();
 
-    @OneToMany(mappedBy = "csr")
+    @OneToMany(mappedBy = "csr", fetch = FetchType.LAZY)
     private Set<RequestAttribute> ras = new HashSet<>();
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "csr", cascade = {CascadeType.ALL})
     @JsonIgnoreProperties({"csr"})
     private Set<CsrAttribute> csrAttributes = new HashSet<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties("cSRS")
     private Pipeline pipeline;
 

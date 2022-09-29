@@ -151,6 +151,7 @@
         <junit.itReportFolder>${project.testresult.directory}/integrationTest</junit.itReportFolder>
         <!-- jhipster-needle-maven-property -->
 
+        <ds-proxy-spring-boot-starter.version>1.8.1</ds-proxy-spring-boot-starter.version>
         <keycloak.version>19.0.2</keycloak.version>
 
         <bouncyCastleVersion>1.68</bouncyCastleVersion>
@@ -710,6 +711,12 @@
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-spring-boot-starter</artifactId>
         </dependency-->
+
+        <dependency>
+            <groupId>com.github.gavlyukovskiy</groupId>
+            <artifactId>datasource-proxy-spring-boot-starter</artifactId>
+            <version>${ds-proxy-spring-boot-starter.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.keycloak</groupId>

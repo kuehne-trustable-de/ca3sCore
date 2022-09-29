@@ -119,10 +119,11 @@ public class CertificateListResource {
     private List<CertificateView> getFullCertificateViews(Page<CertificateView> page) {
         List<CertificateView> cvList = new ArrayList<>();
         for( CertificateView cv: page.getContent()){
+
             Optional<CertificateView> optionalCertificateView = certificateViewRepository.findbyCertificateId(cv.getId());
             if(optionalCertificateView.isPresent()){
                 cvList.add(optionalCertificateView.get());
-                log.debug("returning certificate #{}", cv.getId());
+                log.debug("returning full certificate view  #{}", cv.getId());
             }
         }
         return cvList;
