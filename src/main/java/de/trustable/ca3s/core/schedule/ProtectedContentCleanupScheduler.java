@@ -43,7 +43,7 @@ public class ProtectedContentCleanupScheduler {
         this.auditService = auditService;
     }
 
-    @Scheduled(fixedDelay = 60000)
+    @Scheduled(fixedRateString="${ca3s.schedule.rate.protectedContentCleanup:600000}")
 	public void runMinute() {
 
         Instant now = Instant.now();

@@ -80,7 +80,7 @@ public class CertExpiryScheduler {
     }
 
 
-    @Scheduled(fixedDelay = 3600000)
+    @Scheduled(fixedRateString="${ca3s.schedule.rate.certRetrieval:3600000}")
 	public void retrieveCertificates() {
 
 		Instant now = Instant.now();
@@ -116,7 +116,7 @@ public class CertExpiryScheduler {
 	}
 
 
-	@Scheduled(fixedDelay = 3600000)
+    @Scheduled(fixedRateString="${ca3s.schedule.rate.revocationCheck:3600000}")
 	public void updateRevocationStatus() {
 
 		if( !preferenceUtil.isCheckCrl()){
@@ -254,9 +254,10 @@ public class CertExpiryScheduler {
 	/**
 	 * @return number of expiring certificates
 	 */
-	@Scheduled(cron = "0 15 2 * * ?")
+//	@Scheduled(cron = "0 15 2 * * ?")
 //	@Scheduled(cron = "0 15 2 * * ?")
 //	@Scheduled(fixedDelay = 60000)
+    @Scheduled(cron="${ca3s.schedule.cron.expiryNotificationCron:0 15 2 * * ?}")
 	public int notifyRAOfficerHolderOnExpiry() {
 
         try {

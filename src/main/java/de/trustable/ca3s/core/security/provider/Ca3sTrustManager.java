@@ -13,6 +13,7 @@ import javax.net.ssl.X509TrustManager;
 import de.trustable.ca3s.core.service.AuditService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import de.trustable.ca3s.core.domain.Certificate;
@@ -170,6 +171,7 @@ public class Ca3sTrustManager implements X509TrustManager {
     }
 
     @Override
+    @Cacheable("AcceptedIssuer")
 	public X509Certificate[] getAcceptedIssuers() {
 		LOGGER.debug("getAcceptedIssuers call !");
 

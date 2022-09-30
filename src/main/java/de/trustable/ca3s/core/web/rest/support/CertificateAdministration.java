@@ -33,6 +33,7 @@ import javax.validation.Valid;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Optional;
 
 /**
@@ -84,7 +85,7 @@ public class CertificateAdministration {
 	@Transactional
     public ResponseEntity<Long> administerCertificate(@Valid @RequestBody CertificateAdministrationData adminData) throws MessagingException {
 
-    	LOG.debug("REST request to revoke certificate : {}", adminData);
+    	LOG.debug("REST request to revoke / update certificate : {}", adminData);
 
     	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     	String raOfficerName = auth.getName();

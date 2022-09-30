@@ -23,6 +23,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.springframework.cache.annotation.CacheEvict;
 
 /**
  * A Certificate.
@@ -664,11 +665,13 @@ public class Certificate implements Serializable {
         return trusted;
     }
 
+    @CacheEvict(value="AcceptedIssuer", allEntries=true)
     public Certificate trusted(Boolean trusted) {
         this.trusted = trusted;
         return this;
     }
 
+    @CacheEvict(value="AcceptedIssuer", allEntries=true)
     public void setTrusted(Boolean trusted) {
         this.trusted = trusted;
     }

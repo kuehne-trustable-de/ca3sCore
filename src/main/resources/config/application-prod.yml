@@ -198,6 +198,18 @@ ca3s:
   batch:
     maxRecordsPerTransaction: 1000
 
+  schedule:
+    rate:
+      caConnectorStatus:         60000
+      protectedContentCleanup: 3600000
+      acmeOrderExpiry:         3600000
+      certBundleCheck:          600000
+      certRetrieval:           3600000
+      revocationCheck:         3600000
+    cron:
+      expiryNotificationCron: 0 15 2 * * ?
+      dropUnrelatedUsersCron: 0 20 02 * * ?
+
 # enable the creation of the PKCS12 download container with specific algorithms
   pkcs12:
     pbe:
@@ -205,20 +217,22 @@ ca3s:
 
 # define an alternative location for the email templates
 # the default location is the internal reference within the jar
-  template:
-    email:
-      filePrefix: file://\Users\kuehn\tmp\templates\
+#  template:
+#    email:
+#      filePrefix: file://\Users\kuehn\tmp\templates\
 # what's the extension of the template files. See the thymeleaf docs for supported types
 #      filePostfix: .html
 
   ui:
+    rows:
+      max: 65535
+
 # limit the set of selectable languages, available languages are de, en, pl
 # if only one language is selected, the user form for selection is disabled / hidden.
 #    languages: de
 # provide a custom image for the upper left corner of the user interface
 # Remark: PNG format, only
 #    logo: custom_logo.
-    logo: file:///Users/kuehn/tmp/BKA_Logo_weiss.png
 
 # The help content may need some mor details or additional explanations.
 # external help file location:

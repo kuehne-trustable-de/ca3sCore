@@ -8,6 +8,7 @@ import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import de.trustable.ca3s.core.repository.CertificateViewRepository;
 import de.trustable.ca3s.core.service.dto.CertificateView;
+import org.springframework.beans.factory.annotation.Value;
 import tech.jhipster.web.util.PaginationUtil;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -79,7 +80,7 @@ public class CertificateListResource {
 
         Map<String, String[]> paramMap = new HashMap<>();
         for( String key: request.getParameterMap().keySet()){
-            if( key == "offset" || key == "limit"){
+            if(Objects.equals(key, "offset") || Objects.equals(key, "limit")){
                 continue;
             }
             paramMap.put(key, request.getParameterMap().get(key));

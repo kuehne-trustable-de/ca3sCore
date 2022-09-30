@@ -51,7 +51,7 @@ public class UserRetentionScheduler {
         this.certificateOwnerRetentionPeriod = certificateOwnerRetentionPeriod;
     }
 
-    @Scheduled(cron = "0 20 02 * * ?")
+    @Scheduled(cron="${ca3s.schedule.cron.dropUnrelatedUsersCron:0 20 02 * * ?}")
 //    @Scheduled(fixedDelay = 60000)
     public void retrieveUnrelatedUsers() {
 

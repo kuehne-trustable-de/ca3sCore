@@ -24,12 +24,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public class CaConnectorStatusScheduler {
 
-	transient Logger LOG = LoggerFactory.getLogger(CertificateImportScheduler.class);
+	transient Logger LOG = LoggerFactory.getLogger(CaConnectorStatusScheduler.class);
 
 	@Autowired
 	private CaConnectorAdapter caConnAd;
 
-	@Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedRateString="${ca3s.schedule.rate.caConnectorStatus:10000}")
 	public void updateCAConnectorStatus() {
 
         LOG.debug("starting to update the CA connector status list");

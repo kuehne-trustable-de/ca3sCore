@@ -349,13 +349,13 @@ public class CertificateView implements Serializable {
                 } else if (CertificateAttribute.ATTRIBUTE_EXTENDED_USAGE.equalsIgnoreCase(certAttr.getName())) {
                     extUsageList.add(certAttr.getValue());
                     this.extUsageString = this.extUsageString.isEmpty() ? certAttr.getValue() : this.extUsageString + ", " + certAttr.getValue();
-                } else if (CertificateAttribute.ATTRIBUTE_SAN.equalsIgnoreCase(certAttr.getName())) {
+                } else if (CsrAttribute.ATTRIBUTE_TYPED_SAN.equalsIgnoreCase(certAttr.getName())) {
                     sanList.add(certAttr.getValue());
                     this.sansString = this.sansString.isEmpty() ? certAttr.getValue() : this.sansString + ", " + certAttr.getValue();
                 } else if (CertificateAttribute.ATTRIBUTE_REPLACED_BY.equalsIgnoreCase(certAttr.getName())) {
                     replacedCertList.add(certAttr.getValue());
                 } else {
-                    LOG.debug("Irrelevant certificate attribute '{}' with value '{}'", certAttr.getName(), certAttr.getValue());
+ //                   LOG.debug("Irrelevant certificate attribute '{}' with value '{}'", certAttr.getName(), certAttr.getValue());
 
                 }
             }catch(NumberFormatException nfe){

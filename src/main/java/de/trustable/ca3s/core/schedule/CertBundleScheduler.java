@@ -56,7 +56,7 @@ public class CertBundleScheduler {
         this.persist = persist;
     }
 
-    @Scheduled(fixedDelay = 60000)
+    @Scheduled(fixedRateString="${ca3s.schedule.rate.certBundleCheck:600000}")
 	public void retrieveCertificates() {
 
 		for (CAConnectorConfig caConfigDao : caConfigRepo.findAll()) {
