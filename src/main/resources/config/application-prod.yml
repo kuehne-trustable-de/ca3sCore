@@ -220,7 +220,8 @@ ca3s:
       expiryNotificationCron: 0 15 2 * * ?
       dropUnrelatedUsersCron: 0 20 02 * * ?
 
-  # enable the creation of the PKCS12 download container with specific algorithms
+# enable the creation of the PKCS12 download container with specific algorithms
+
   pkcs12:
     pbe:
       algos: PBEWithHmacSHA256AndAES_256, pbeWithSHAAnd3_KeyTripleDES_CBC
@@ -237,7 +238,8 @@ ca3s:
     rows:
       max: 65535
 
-    # limit the set of selectable languages, available languages are de, en, pl
+# limit the set of selectable languages, available languages are de, en, pl
+
 # if only one language is selected, the user form for selection is disabled / hidden.
 #    languages: de
 # provide a custom image for the upper left corner of the user interface

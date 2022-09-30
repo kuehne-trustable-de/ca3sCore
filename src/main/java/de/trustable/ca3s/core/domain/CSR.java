@@ -162,7 +162,7 @@ public class CSR implements Serializable {
     @OneToMany(mappedBy = "csr", fetch = FetchType.LAZY)
     private Set<RequestAttribute> ras = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "csr", cascade = {CascadeType.ALL})
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "csr", cascade = {CascadeType.ALL})
     @JsonIgnoreProperties({"csr"})
     private Set<CsrAttribute> csrAttributes = new HashSet<>();
 

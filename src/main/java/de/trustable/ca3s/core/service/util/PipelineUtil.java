@@ -17,6 +17,7 @@ import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.GeneralName;
+import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -239,15 +240,20 @@ public class PipelineUtil {
                 Optional<ProtectedContent> optPC = protectedContentRepository.findById( Long.parseLong(plAtt.getValue()));
                 if(optPC.isPresent()){
                     ProtectedContent pc = optPC.get();
-                    String clearContent = protectedContentUtil.unprotectString(pc.getContentBase64());
-                    scepConfigItems.setScepSecret(clearContent);
-                    scepConfigItems.setScepSecretPCId(pc.getId().toString());
-                    LOG.debug("pc id : " +  pc.getId() + ", clearContent: " + clearContent);
-                    if( pc.getValidTo() == null){
-                        // Initialize to midnight
-                        scepConfigItems.setScepSecretValidTo(Instant.now().truncatedTo(ChronoUnit.DAYS).plus(1,ChronoUnit.DAYS));
-                    }else {
-                        scepConfigItems.setScepSecretValidTo(pc.getValidTo());
+                    try {
+                        String clearContent = protectedContentUtil.unprotectString(pc.getContentBase64());
+                        scepConfigItems.setScepSecret(clearContent);
+                        scepConfigItems.setScepSecretPCId(pc.getId().toString());
+                        LOG.debug("pc id : " + pc.getId() + ", clearContent retrieved");
+                        if (pc.getValidTo() == null) {
+                            // Initialize to midnight
+                            scepConfigItems.setScepSecretValidTo(Instant.now().truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS));
+                        } else {
+                            scepConfigItems.setScepSecretValidTo(pc.getValidTo());
+                        }
+                    }catch( EncryptionOperationNotPossibleException eonpe){
+                        LOG.error("pc id : " + pc.getId() + ", clearContent retrieval failed: " + eonpe.getMessage());
+
                     }
                 }else{
                     scepConfigItems.setScepSecret("-- expired --");
