@@ -98,13 +98,13 @@
 
         <!-- The hibernate version should match the one managed by
         https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
-        <hibernate.version>5.6.5.Final</hibernate.version>
+        <hibernate.version>5.6.11.Final</hibernate.version>
         <hibernate-core.version>${hibernate.version}</hibernate-core.version>
         <!-- The javassist version should match the one managed by
         https://mvnrepository.com/artifact/org.hibernate/hibernate-core/${hibernate.version} -->
         <javassist.version>3.27.0-GA</javassist.version>
 
-        <liquibase.version>4.8.0</liquibase.version>
+        <liquibase.version>4.16.1</liquibase.version>
         <liquibase-hibernate5.version>${liquibase.version}</liquibase-hibernate5.version>
 
         <mssql.jdbc.version>9.4.0.jre11</mssql.jdbc.version>
@@ -151,22 +151,23 @@
         <junit.itReportFolder>${project.testresult.directory}/integrationTest</junit.itReportFolder>
         <!-- jhipster-needle-maven-property -->
 
-        <keycloak.version>18.0.2</keycloak.version>
+        <ds-proxy-spring-boot-starter.version>1.8.1</ds-proxy-spring-boot-starter.version>
+        <keycloak.version>19.0.2</keycloak.version>
 
         <bouncyCastleVersion>1.68</bouncyCastleVersion>
         <cryptoUtilVersion>1.3.4</cryptoUtilVersion>
         <certBundleVersion>1.1.1</certBundleVersion>
-        <adcsUtilVersion>1.2.7</adcsUtilVersion>
-        <adcsProxyClientVersion>1.2.7</adcsProxyClientVersion>
+        <adcsUtilVersion>1.2.8</adcsUtilVersion>
+        <adcsProxyClientVersion>1.2.8</adcsProxyClientVersion>
 
         <nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
         <jose4jVersion>0.7.6</jose4jVersion>
-        <acme4jVersion>2.13</acme4jVersion>
+        <acme4jVersion>2.14</acme4jVersion>
         <takesVersion>1.16</takesVersion>
         <jscepVersion>2.5.4</jscepVersion>
         <jasyptVersion>1.9.3</jasyptVersion>
 
-        <log4j.version>2.17.2</log4j.version>
+        <log4j.version>2.19.0</log4j.version>
         <commons-logging.version>1.2</commons-logging.version>
 
         <dnsjava.version>3.5.1</dnsjava.version>
@@ -192,6 +193,7 @@
         <crawler4jVersion>4.4.0</crawler4jVersion>
         <flexmarkVersion>0.62.2</flexmarkVersion>
         <pdfbox.version>2.0.26</pdfbox.version>
+        <jsoup.version>1.15.3</jsoup.version>
 
         <conductorVersion>3.0.1</conductorVersion>
 
@@ -239,7 +241,7 @@
             <dependency>
                 <groupId>net.minidev</groupId>
                 <artifactId>json-smart</artifactId>
-                <version>2.4.7</version>
+                <version>2.4.8</version>
             </dependency>
 
             <!-- Fix for CVE-2021-31811 & CVE-2021-31812
@@ -344,7 +346,7 @@
             <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
-                <version>1.28</version>
+                <version>1.31</version>
             </dependency>
             <!--dependency>
                 <groupId>org.hibernate</groupId>
@@ -571,7 +573,7 @@
             <dependency>
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>
-                <version>1.14.2</version>
+                <version>${jsoup.version}</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.apache.pdfbox/xmpbox -->
@@ -711,6 +713,12 @@
         </dependency-->
 
         <dependency>
+            <groupId>com.github.gavlyukovskiy</groupId>
+            <artifactId>datasource-proxy-spring-boot-starter</artifactId>
+            <version>${ds-proxy-spring-boot-starter.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-core</artifactId>
             <version>${keycloak.version}</version>
@@ -760,7 +768,6 @@
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.14.3</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/dnsjava/dnsjava -->
@@ -1473,8 +1480,8 @@
 
                         <class>de.trustable.ca3s.core.service.dto.AuditView</class>
                         <class>de.trustable.ca3s.core.service.dto.AuditTraceView</class>
-                        <class>de.trustable.ca3s.core.service.dto.ACMEAccountView</class>
-                        <class>de.trustable.ca3s.core.service.dto.ACMEOrderView</class>
+                        <class>de.trustable.ca3s.core.service.dto.AcmeAccountView</class>
+                        <class>de.trustable.ca3s.core.service.dto.AcmeOrderView</class>
                         <class>de.trustable.ca3s.core.service.dto.ScepOrderView</class>
 
                         <class>de.trustable.ca3s.core.service.dto.BPMNUpload</class>

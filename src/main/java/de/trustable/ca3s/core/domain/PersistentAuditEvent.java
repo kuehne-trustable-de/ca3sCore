@@ -35,7 +35,7 @@ public class PersistentAuditEvent implements Serializable {
 
     @ElementCollection
     @MapKeyColumn(name = "name")
-    @Column(name = "value")
+    @Column(name = "value_")
     @CollectionTable(name = "jhi_persistent_audit_evt_data", joinColumns=@JoinColumn(name="event_id"))
     private Map<String, String> data = new HashMap<>();
 

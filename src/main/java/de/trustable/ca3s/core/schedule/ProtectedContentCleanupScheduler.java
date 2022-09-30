@@ -1,12 +1,10 @@
 package de.trustable.ca3s.core.schedule;
 
 import de.trustable.ca3s.core.domain.CSR;
-import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.ProtectedContent;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.CSRRepository;
-import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.util.CSRUtil;
@@ -31,14 +29,12 @@ public class ProtectedContentCleanupScheduler {
 
     final private ProtectedContentRepository protectedContentRepository;
     final private CSRRepository csrRepository;
-    final private CertificateRepository certificateRepository;
     final private CSRUtil csrUtil;
     final private AuditService auditService;
 
-    public ProtectedContentCleanupScheduler(ProtectedContentRepository protectedContentRepository, CSRRepository csrRepository, CertificateRepository certificateRepository, CSRUtil csrUtil, AuditService auditService) {
+    public ProtectedContentCleanupScheduler(ProtectedContentRepository protectedContentRepository, CSRRepository csrRepository, CSRUtil csrUtil, AuditService auditService) {
         this.protectedContentRepository = protectedContentRepository;
         this.csrRepository = csrRepository;
-        this.certificateRepository = certificateRepository;
         this.csrUtil = csrUtil;
         this.auditService = auditService;
     }

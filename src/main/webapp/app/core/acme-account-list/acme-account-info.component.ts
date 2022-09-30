@@ -10,7 +10,7 @@ import CopyClipboardButton from '@/shared/clipboard/clipboard.vue';
 import HelpTag from '@/core/help/help-tag.vue';
 import AuditTag from '@/core/audit/audit-tag.vue';
 
-import { IACMEAccountView, INamedValue } from '@/shared/model/transfer-object.model';
+import { IAcmeAccountView, INamedValue } from '@/shared/model/transfer-object.model';
 
 import ArItem from '../csr-list/ar-item.component';
 
@@ -25,7 +25,7 @@ import ArItem from '../csr-list/ar-item.component';
 })
 export default class AcmeAccountInfo extends mixins(JhiDataUtils, Vue) {
   @Inject('alertService') private alertService: () => AlertService;
-  public acmeAccountView: IACMEAccountView = {};
+  public acmeAccountView: IAcmeAccountView = {};
 
   beforeRouteEnter(to, from, next) {
     next(vm => {

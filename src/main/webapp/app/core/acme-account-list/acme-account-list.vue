@@ -45,15 +45,15 @@
                 <account :columns="columns" :data="acmeAccountApiUrl" :per-page="20" name="accounts">
 					<template slot-scope="{ row }">
 						<tr>
-                            <td @click="$router.push({name: 'ACMEAccountInfo', params: {accountId: row.id}})">{{ row.id }}</td>
-                            <td @click="$router.push({name: 'ACMEAccountInfo', params: {accountId: row.id}})">{{ row.accountId }}</td>
-							<td @click="$router.push({name: 'ACMEAccountInfo', params: {accountId: row.id}})" >{{ $t(row.status) }}</td>
-							<td @click="$router.push({name: 'ACMEAccountInfo', params: {accountId: row.id}})" >{{ row.realm }}</td>
-							<!--td @click="$router.push({name: 'ACMEAccountInfo', params: {accountId: row.id}})" >{{ toLocalDate(row.createdOn) }}</td-->
-							<td @click="$router.push({name: 'ACMEAccountInfo', params: {accountId: row.id}})" >{{ row.termsOfServiceAgreed }}</td>
-							<td @click="$router.push({name: 'ACMEAccountInfo', params: {accountId: row.id}})" >{{ row.publicKeyHash }}</td>
-                            <td @click="$router.push({name: 'ACMEAccountInfo', params: {accountId: row.id}})" >{{ row.orderCount }}</td>
-                            <td @click="$router.push({name: 'ACMEAccountInfo', params: {accountId: row.id}})" >{{ row.contactUrls }}</td>
+                            <td @click="$router.push({name: 'AcmeAccountInfo', params: {accountId: row.id}})">{{ row.id }}</td>
+                            <td @click="$router.push({name: 'AcmeAccountInfo', params: {accountId: row.id}})">{{ row.accountId }}</td>
+							<td @click="$router.push({name: 'AcmeAccountInfo', params: {accountId: row.id}})" >{{ $t(row.status) }}</td>
+							<td @click="$router.push({name: 'AcmeAccountInfo', params: {accountId: row.id}})" >{{ row.realm }}</td>
+							<td @click="$router.push({name: 'AcmeAccountInfo', params: {accountId: row.id}})" >{{ toLocalDate(row.createdOn) }}</td>
+							<td @click="$router.push({name: 'AcmeAccountInfo', params: {accountId: row.id}})" >{{ row.termsOfServiceAgreed }}</td>
+							<td @click="$router.push({name: 'AcmeAccountInfo', params: {accountId: row.id}})" >{{ row.publicKeyHash }}</td>
+                            <td @click="$router.push({name: 'AcmeAccountInfo', params: {accountId: row.id}})" >{{ row.orderCount }}</td>
+                            <td @click="$router.push({name: 'AcmeAccountInfo', params: {accountId: row.id}})" >{{ row.contactUrls }}</td>
 						</tr>
 					</template>
 

@@ -2,6 +2,17 @@
     <div>
         <h2 id="configuration-page-heading" v-text="$t('ca3SApp.info.title')">Info</h2>
 
+        <form>
+            <button type="button" id="retrieveCertificates" class="btn btn-primary" v-on:click="postSchedule('retrieveCertificates')">
+                <font-awesome-icon icon="save"></font-awesome-icon>&nbsp;<span v-text="$t('ca3SApp.schedule.action.retrieveCertificates')">Retrieve Certificates</span>
+            </button>
+
+            <button type="button" id="updateRevocationStatus" class="btn btn-primary" v-on:click="postSchedule('updateRevocationStatus')">
+                <font-awesome-icon icon="save"></font-awesome-icon>&nbsp;<span v-text="$t('ca3SApp.schedule.action.updateRevocationStatus')">Update Revocation Status</span>
+            </button>
+
+        </form>
+
         <table v-if="info.git" class="table table-striped table-bordered table-responsive d-table">
             <thead>
             <tr>

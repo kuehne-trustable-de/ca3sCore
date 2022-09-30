@@ -612,6 +612,7 @@
   "entity.action.delete": "Löschen",
   "entity.action.edit": "Bearbeiten",
   "entity.action.update": "Speichern",
+  "entity.action.updateCrl": "CRL Abgleich",
   "entity.action.open": "Öffnen",
   "entity.action.reject": "Anfrage ablehnen",
   "entity.action.revoke": "Widerrufen",

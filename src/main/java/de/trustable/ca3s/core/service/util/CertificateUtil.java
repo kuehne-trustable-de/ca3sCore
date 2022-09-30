@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
@@ -17,20 +18,16 @@ import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SignatureException;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.CertificateParsingException;
-import java.security.cert.X509Certificate;
+import java.security.cert.*;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.ECParameterSpec;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import javax.naming.InvalidNameException;
+import javax.naming.NamingException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
@@ -38,6 +35,7 @@ import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.repository.CertificateCommentRepository;
 import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.dto.CRLUpdateInfo;
 import de.trustable.util.AlgorithmInfo;
 import io.micrometer.core.instrument.util.StringUtils;
 import org.apache.commons.codec.binary.Base64;
@@ -62,6 +60,8 @@ import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStrictStyle;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.*;
+import org.bouncycastle.asn1.x509.CRLReason;
+import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -126,17 +126,20 @@ public class CertificateUtil {
 
     final private ProtectedContentUtil protUtil;
 
+    private final PreferenceUtil preferenceUtil;
+
     final private CryptoService cryptoUtil;
 
     final private AuditService auditService;
 
     @Autowired
-    public CertificateUtil(CertificateRepository certificateRepository, CertificateAttributeRepository certificateAttributeRepository, CertificateCommentRepository certificateCommentRepository, ProtectedContentRepository protContentRepository, ProtectedContentUtil protUtil, CryptoService cryptoUtil, AuditService auditService) {
+    public CertificateUtil(CertificateRepository certificateRepository, CertificateAttributeRepository certificateAttributeRepository, CertificateCommentRepository certificateCommentRepository, ProtectedContentRepository protContentRepository, ProtectedContentUtil protUtil, PreferenceUtil preferenceUtil, CryptoService cryptoUtil, AuditService auditService) {
         this.certificateRepository = certificateRepository;
         this.certificateAttributeRepository = certificateAttributeRepository;
         this.certificateCommentRepository = certificateCommentRepository;
         this.protContentRepository = protContentRepository;
         this.protUtil = protUtil;
+        this.preferenceUtil = preferenceUtil;
         this.cryptoUtil = cryptoUtil;
         this.auditService = auditService;
     }
@@ -2189,4 +2192,77 @@ public class CertificateUtil {
         return new GeneralName(GeneralName.dNSName, name);
     }
 
+    public CRLUpdateInfo checkAllCRLsForCertificate(final Certificate cert,
+                                                    final X509Certificate x509Cert,
+                                                    final CRLUtil crlUtil,
+                                                    final HashSet<String> brokenCrlUrlList){
+
+        CRLUpdateInfo info = new CRLUpdateInfo();
+        long maxNextUpdate = System.currentTimeMillis() + 1000L * preferenceUtil.getMaxNextUpdatePeriodCRLSec();
+
+        for( CertificateAttribute certAtt: cert.getCertificateAttributes()) {
+
+
+            // iterate all CRL URLs
+            if( CertificateAttribute.ATTRIBUTE_CRL_URL.equals(certAtt.getName())) {
+                String crlUrl = certAtt.getValue();
+
+                if(brokenCrlUrlList.contains(crlUrl)){
+                    LOG.debug("CRL URL'{}' already marked as broken / inaccessible", crlUrl);
+                    continue;
+                }
+
+                info.incUrlCount();
+                try {
+                    LOG.debug("downloading CRL '{}'", crlUrl);
+                    X509CRL crl = crlUtil.downloadCRL(crlUrl);
+                    if( crl == null) {
+                        LOG.debug("downloaded CRL == null ");
+                        continue;
+                    }
+
+                    long nextUpdate = crl.getNextUpdate().getTime();
+                    if( nextUpdate > maxNextUpdate ){
+                        LOG.debug("nextUpdate {} from CRL limited to {}", crl.getNextUpdate(), new Date(maxNextUpdate));
+                        nextUpdate = maxNextUpdate;
+                    }
+
+                    // set the crl's 'next update' timestamp to the certificate
+                    setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE, Long.toString(nextUpdate), false);
+
+                    X509CRLEntry crlItem = crl.getRevokedCertificate(new BigInteger(cert.getSerial()));
+
+                    if( (crlItem != null) && (crl.isRevoked(x509Cert) ) ) {
+
+                        String revocationReason = "unspecified";
+                        if( crlItem.getRevocationReason() != null ) {
+                            if( cryptoUtil.crlReasonAsString(CRLReason.lookup(crlItem.getRevocationReason().ordinal())) != null ) {
+                                revocationReason = cryptoUtil.crlReasonAsString(CRLReason.lookup(crlItem.getRevocationReason().ordinal()));
+                            }
+                        }
+
+                        Date revocationDate = new Date();
+                        if( crlItem.getRevocationDate() != null) {
+                            revocationDate = crlItem.getRevocationDate();
+                        }else {
+                            LOG.debug("Checking certificate {}: no RevocationDate present for reason {}!", cert.getId(), revocationReason);
+                        }
+
+                        setRevocationStatus(cert, revocationReason, revocationDate);
+
+                        auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_CERTIFICATE_REVOKED_BY_CRL, cert));
+                    }
+                    info.setSuccess();
+                    break;
+                } catch (CertificateException | CRLException | IOException | NamingException e2) {
+                    LOG.info("Problem retrieving CRL for certificate "+ cert.getId());
+                    LOG.debug("CRL retrieval for certificate "+ cert.getId() + " failed", e2);
+                    brokenCrlUrlList.add(crlUrl);
+                }
+            }
+        }
+
+        return info;
+    }
 }
+

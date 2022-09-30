@@ -229,3 +229,27 @@ Falls ein Zertifikat zurückgerufen werden muss, wählen Sie hier den passenden 
 #### <a id="ca3SApp.certificate.comment"></a> Rückrufkommentar
 
 Geben Sie hier zusätzlich Informationen zum Zertifikatsrückruf an. Das kann nützlich für den RA Officer sein und / oder bei einer späteren Analyse helfen.
+
+### ACME Clients
+
+#### certbot
+
+CertBot ist ein wichtiger -lient, deshalb wird ca3s mit certbot getestet. Für einen schnellen Test mi certBot reichen die beiden folgenden Zeilen:
+
+> sudo certbot certonly -n -v --debug --agree-tos --server https://<acme-server:port>/acme/acmeTest/directory --standalone --force-renewal --email <your@email.com> --preferred-challenges http --webroot-path test -d <test-domain>
+> sudo certbot revoke -n -v --debug --server https://<acme-server:port>/acme/acmeTest/directory --cert-name <test-domain>
+
+Der erste Befehl fordert ein Zertifikat vom eignen ACME-Server <acme-server:port> für die Adresse <test-domain> an. Dabei wird die HTTP01-Challenge genutzt, für die certbot einen eignen WebServer startet. Der zweite Befehl ruft das eben ausgetsellte Zertifikat wieder zurück.
+
+#### acme.sh
+
+Für seinen minimalistischen Ansatz bewundert wird acme.sh, mit dem man sogar die ALPN-Challenge testen kann:
+
+> acme.sh --issue -d <test-domain> --standalone --alpn --tlsport 8443 --server https://<acme-server:port>/acme/acmeTest/directory
+
+Mit diesem Befehl fordert acme.sh ein Zertifikat für die Adresse <test-domain> an. Hierbei wird die ALPN-Challenge genutzt, die zwar nicht von letsEncrypt angeboten wird, aber den großen Vorteil hat, dass zum HTTPS-Port nicht zusätzlich noch ein HTTP-Port erreichbar sein muss. Z.B. für Cloud-Anwendungen recht praktisch!
+Damit in diesem Beispiel der User acme.sh kein previlegierter Nutzer sein muss, nutzen wir hier den Port 8443 für HTTPS.
+
+> acme.sh --renew --force -d <test-domain> --standalone --alpn --tlsport 8443 --server https://<acme-server:port>/acme/acmeTest/directory
+
+Um einen Test beliebig häufig laufen zu lassen, biten sich die beiden optionen '--renew' und '--force' an.

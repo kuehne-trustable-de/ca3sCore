@@ -41,10 +41,10 @@ import java.util.Set;
 
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.repository.*;
-import de.trustable.ca3s.core.service.dto.ACMEConfigItems;
+import de.trustable.ca3s.core.service.dto.AcmeConfigItems;
 import de.trustable.ca3s.core.service.dto.PipelineView;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
-import de.trustable.ca3s.core.service.util.ACMEUtil;
+import de.trustable.ca3s.core.service.util.AcmeUtil;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
 import org.jose4j.jwt.consumer.JwtContext;
 import org.slf4j.Logger;
@@ -273,7 +273,7 @@ If the server is willing to issue the requested certificate, it
 @Transactional
 @Controller
 @RequestMapping("/acme/{realm}/newOrder")
-public class NewOrderController extends ACMEController {
+public class NewOrderController extends AcmeController {
 
     private static final Logger LOG = LoggerFactory.getLogger(NewOrderController.class);
 
@@ -335,7 +335,7 @@ public class NewOrderController extends ACMEController {
         Pipeline pipeline = getPipelineForRealm(realm);
         LOG.debug("ACME pipeline '{}' found for request realm '{}'", pipeline.getName(), realm);
 
-        ACMEAccount acctDao = checkJWTSignatureForAccount(context, realm);
+        AcmeAccount acctDao = checkJWTSignatureForAccount(context, realm);
 
         AcmeOrder orderDao = new AcmeOrder();
 		orderDao.setOrderId(generateId());
@@ -375,7 +375,7 @@ public class NewOrderController extends ACMEController {
 		Set<String> authorizationsResp = new HashSet<>();
 
         PipelineView pipelineView = pipelineUtil.from(pipeline);
-        ACMEConfigItems acmeConfigItems = pipelineView.getAcmeConfigItems();
+        AcmeConfigItems acmeConfigItems = pipelineView.getAcmeConfigItems();
 
         Set<AcmeOrderAttribute> acmeOrderAttributeSet = new HashSet<>();
         Set<String> challengeTypeSet = new HashSet<>();
@@ -390,8 +390,8 @@ public class NewOrderController extends ACMEController {
             hasWildcardRequest |= isWildcardRequest;
             if( isWildcardRequest && !acmeConfigItems.isAllowWildcards() ) {
                 LOG.info("Wildcard requested, but no allowed for pipeline '{}'!", pipeline.getName());
-                final ProblemDetail problemDetail = new ProblemDetail(ACMEUtil.MALFORMED, "Wildcard request not supported",
-                    BAD_REQUEST, "Wildcard requested, but no allowed.", ACMEController.NO_INSTANCE);
+                final ProblemDetail problemDetail = new ProblemDetail(AcmeUtil.MALFORMED, "Wildcard request not supported",
+                    BAD_REQUEST, "Wildcard requested, but no allowed.", AcmeController.NO_INSTANCE);
                 throw new AcmeProblemException(problemDetail);
             }
 
@@ -403,13 +403,20 @@ public class NewOrderController extends ACMEController {
 			Set<AcmeChallenge> challenges = new HashSet<>();
 
             if( isWildcardRequest ){
-                LOG.debug("Wildcard requested, HTTP-01 disabled!");
+                LOG.debug("Wildcard requested, HTTP-01 and ALPN disabled!");
             }else {
                 if( acmeConfigItems.isAllowChallengeHTTP01() ) {
                     LOG.debug("Offering HTTP-01 challenge");
                     challenges.add(createChallenge(AcmeChallenge.CHALLENGE_TYPE_HTTP_01, identDao.getValue(), authorizationDao));
                     challengeTypeSet.add(AcmeChallenge.CHALLENGE_TYPE_HTTP_01);
                 }
+
+                if( acmeConfigItems.isAllowChallengeHTTP01() ) {
+                    LOG.debug("Offering ALPN-01 challenge");
+                    challenges.add(createChallenge(AcmeChallenge.CHALLENGE_TYPE_ALPN_01, identDao.getValue(), authorizationDao));
+                    challengeTypeSet.add(AcmeChallenge.CHALLENGE_TYPE_ALPN_01);
+                }
+
             }
 
             if( resolverHost != null && !resolverHost.isEmpty()) {
@@ -422,16 +429,16 @@ public class NewOrderController extends ACMEController {
                 LOG.debug("DNS-01 challenge skipped, no dns resolver configured.");
                 if( isWildcardRequest ) {
                     LOG.info("Wildcard requested, but no dns resolver configured!");
-                    final ProblemDetail problemDetail = new ProblemDetail(ACMEUtil.MALFORMED, "DNS auth not supported",
-                        BAD_REQUEST, "DNS-01 challenge skipped, no dns resolver configured.", ACMEController.NO_INSTANCE);
+                    final ProblemDetail problemDetail = new ProblemDetail(AcmeUtil.MALFORMED, "DNS auth not supported",
+                        BAD_REQUEST, "DNS-01 challenge skipped, no dns resolver configured.", AcmeController.NO_INSTANCE);
                     throw new AcmeProblemException(problemDetail);
                 }
             }
 
             if( challenges.isEmpty()){
                 LOG.info("No challenge available for the given configuration of pipeline '{}'", pipeline.getName());
-                final ProblemDetail problemDetail = new ProblemDetail(ACMEUtil.MALFORMED, "No challenge available",
-                    BAD_REQUEST, "No challenge available for the given configuration.", ACMEController.NO_INSTANCE);
+                final ProblemDetail problemDetail = new ProblemDetail(AcmeUtil.MALFORMED, "No challenge available",
+                    BAD_REQUEST, "No challenge available for the given configuration.", AcmeController.NO_INSTANCE);
                 throw new AcmeProblemException(problemDetail);
             }
 

@@ -62,6 +62,8 @@ public class UIDatasetSupport {
 
     private final boolean autoSSOLogin;
 
+    private final String[] ssoProvider;
+
     public UIDatasetSupport(CAConnectorConfigRepository caConnConfRepo,
                             CaConnectorAdapter caConnectorAdapter,
                             PipelineRepository pipelineRepo,
@@ -71,7 +73,8 @@ public class UIDatasetSupport {
                             UserService userService,
                             CertificateSelectionUtil certificateSelectionAttributeList,
                             CryptoConfiguration cryptoConfiguration,
-                            @Value("${ca3s.ui.sso.autologin:false}") boolean autoSSOLogin) {
+                            @Value("${ca3s.ui.sso.autologin:false}") boolean autoSSOLogin,
+                            @Value("${ca3s.ui.sso.provider:}") String[] ssoProvider) {
         this.caConnConfRepo = caConnConfRepo;
         this.caConnectorAdapter = caConnectorAdapter;
         this.pipelineRepo = pipelineRepo;
@@ -82,6 +85,7 @@ public class UIDatasetSupport {
         this.certificateSelectionAttributeList = certificateSelectionAttributeList;
         this.cryptoConfiguration = cryptoConfiguration;
         this.autoSSOLogin = autoSSOLogin;
+        this.ssoProvider = ssoProvider;
     }
 
     /**
@@ -95,7 +99,7 @@ public class UIDatasetSupport {
 
         CryptoConfigView cryptoConfigView = cryptoConfiguration.getCryptoConfigView();
 
-        UIConfigView uiConfigView = new UIConfigView(cryptoConfigView, autoSSOLogin);
+        UIConfigView uiConfigView = new UIConfigView(cryptoConfigView, autoSSOLogin, ssoProvider);
         LOG.debug("returning uiConfigView: {}", uiConfigView);
 
         return uiConfigView;

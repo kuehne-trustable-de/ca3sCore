@@ -5,9 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertTrue;
-
-class CrawlerTest {
+public class CrawlerTest {
 
     @Test
     void search() {

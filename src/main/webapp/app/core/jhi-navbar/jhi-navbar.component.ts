@@ -20,6 +20,7 @@ export default class JhiNavbar extends Vue {
 
   public showNavBar = true;
   public instantLogin = true;
+  public ssoProvider: any = [];
 
   public mounted(): void {
     window.document.cookie = 'instantLogin';
@@ -41,6 +42,8 @@ export default class JhiNavbar extends Vue {
       window.console.info('ui/config returns ' + response.data);
       const uiConfig: IUIConfigView = response.data;
       self.$store.commit('updateCV', uiConfig);
+
+      self.ssoProvider = uiConfig.ssoProvider;
 
       window.console.info('self.authenticated: ' + self.authenticated + ', self.instantLogin ' + self.instantLogin);
 

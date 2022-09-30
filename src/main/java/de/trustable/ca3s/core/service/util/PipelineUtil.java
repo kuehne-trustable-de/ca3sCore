@@ -197,7 +197,7 @@ public class PipelineUtil {
 
 		pv.setAraRestrictions(new ARARestriction[0]);
 
-    	ACMEConfigItems acmeConfigItems = new ACMEConfigItems();
+    	AcmeConfigItems acmeConfigItems = new AcmeConfigItems();
         SCEPConfigItems scepConfigItems = new SCEPConfigItems();
         WebConfigItems webConfigItems = new WebConfigItems();
 
@@ -676,7 +676,7 @@ public class PipelineUtil {
 
 
 		if( pv.getAcmeConfigItems() == null) {
-			ACMEConfigItems acmeConfigItems = new ACMEConfigItems();
+			AcmeConfigItems acmeConfigItems = new AcmeConfigItems();
 			pv.setAcmeConfigItems(acmeConfigItems );
 		}
 
@@ -1121,15 +1121,15 @@ public class PipelineUtil {
                 LOG.debug(msg);
                 outcome = false;
             }else{
-                for( String value: nvAR.getValues()){
-                    if( value.isEmpty()) {
+                for( TypedValue typedValue: nvAR.getValues()){
+                    if( typedValue.getValue().isEmpty()) {
                         String msg = "additional restriction mismatch: An value for '" + nvAR.getName() + "' MUST be present!";
                         messageList.add(msg);
                         LOG.debug(msg);
                         outcome = false;
                     }
                     if( hasRegEx ) {
-                        if (!checkRegEx(araRestriction, value, messageList)) {
+                        if (!checkRegEx(araRestriction, typedValue.getValue(), messageList)) {
                             outcome = false;
                         }
                     }

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2022-07-18 22:52:02.
+// Generated using typescript-generator version 2.19.577 on 2022-09-15 18:57:10.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -40,7 +40,7 @@ export interface IAuditTraceView extends ISerializable {
   processInfoId?: number;
 }
 
-export interface IACMEAccountView extends ISerializable {
+export interface IAcmeAccountView extends ISerializable {
   id?: number;
   accountId?: number;
   realm?: string;
@@ -53,12 +53,12 @@ export interface IACMEAccountView extends ISerializable {
   orderCount?: number;
 }
 
-export interface IACMEOrderView extends ISerializable {
+export interface IAcmeOrderView extends ISerializable {
   id?: number;
   orderId?: number;
   status?: IAcmeOrderStatus;
   realm?: string;
-  challenges?: IACMEChallengeView[];
+  challenges?: IAcmeChallengeView[];
   challengeTypes?: string;
   challengeUrls?: string;
   wildcard?: boolean;
@@ -121,7 +121,7 @@ export interface IPipelineView extends ISerializable {
   toPendingOnFailedRestrictions?: boolean;
   ipAsSubjectAllowed?: boolean;
   ipAsSANAllowed?: boolean;
-  acmeConfigItems?: IACMEConfigItems;
+  acmeConfigItems?: IAcmeConfigItems;
   scepConfigItems?: ISCEPConfigItems;
   webConfigItems?: IWebConfigItems;
   auditViewArr?: IAuditView[];
@@ -205,6 +205,7 @@ export interface ICryptoConfigView extends ISerializable {
 export interface IUIConfigView extends ISerializable {
   cryptoConfigView?: ICryptoConfigView;
   autoSSOLogin?: boolean;
+  ssoProvider?: string[];
 }
 
 export interface ICSRView extends ISerializable {
@@ -235,6 +236,7 @@ export interface ICSRView extends ISerializable {
   approvedOn?: Date;
   requestorComment?: string;
   administrationComment?: string;
+  arArr?: INamedValue[];
   csrBase64?: string;
   auditViewArr?: IAuditView[];
   isAdministrable?: boolean;
@@ -364,7 +366,7 @@ export interface ISerializable {}
 
 export interface IURI extends IComparable<IURI>, ISerializable {}
 
-export interface IACMEChallengeView extends ISerializable {
+export interface IAcmeChallengeView extends ISerializable {
   authorizationType?: string;
   authorizationValue?: string;
   challengeId?: number;
@@ -391,7 +393,7 @@ export interface IARARestriction {
   required?: boolean;
 }
 
-export interface IACMEConfigItems extends ISerializable {
+export interface IAcmeConfigItems extends ISerializable {
   allowChallengeHTTP01?: boolean;
   allowChallengeDNS?: boolean;
   allowWildcards?: boolean;
@@ -428,7 +430,7 @@ export interface INamedValue {
 
 export interface INamedValues {
   name?: string;
-  values?: string[];
+  values?: ITypedValue[];
 }
 
 export interface IPkcs10RequestHolderShallow {
@@ -450,6 +452,11 @@ export interface IPkcs10RequestHolderShallow {
 export interface ICertificateNameId extends ISerializable {
   id?: number;
   name?: string;
+}
+
+export interface ITypedValue {
+  type?: string;
+  value?: string;
 }
 
 export interface IComparable<T> {}
@@ -487,7 +494,7 @@ export type ICsrUsage = 'TLS_SERVER' | 'TLS_CLIENT' | 'DOC_SIGNING' | 'CODE_SIGN
 
 export type ICsrStatus = 'PROCESSING' | 'ISSUED' | 'REJECTED' | 'PENDING';
 
-export type IAdministrationType = 'ACCEPT' | 'REJECT' | 'REVOKE' | 'UPDATE';
+export type IAdministrationType = 'ACCEPT' | 'REJECT' | 'REVOKE' | 'UPDATE' | 'UPDATE_CRL';
 
 export type ICreationMode = 'CSR_AVAILABLE' | 'COMMANDLINE_TOOL' | 'SERVERSIDE_KEY_CREATION';
 

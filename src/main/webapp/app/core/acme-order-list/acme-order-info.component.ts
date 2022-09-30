@@ -10,7 +10,7 @@ import CopyClipboardButton from '@/shared/clipboard/clipboard.vue';
 import HelpTag from '@/core/help/help-tag.vue';
 import ChallengesTag from './challenges-tag.vue';
 
-import { IACMEOrderView, INamedValue } from '@/shared/model/transfer-object.model';
+import { IAcmeOrderView, INamedValue } from '@/shared/model/transfer-object.model';
 
 @Component({
   components: {
@@ -22,7 +22,7 @@ import { IACMEOrderView, INamedValue } from '@/shared/model/transfer-object.mode
 })
 export default class AcmeOrderInfo extends mixins(JhiDataUtils, Vue) {
   @Inject('alertService') private alertService: () => AlertService;
-  public acmeOrderView: IACMEOrderView = {};
+  public acmeOrderView: IAcmeOrderView = {};
 
   beforeRouteEnter(to, from, next) {
     next(vm => {

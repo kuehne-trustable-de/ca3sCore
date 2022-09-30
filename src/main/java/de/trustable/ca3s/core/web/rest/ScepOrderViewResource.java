@@ -44,8 +44,8 @@ public class ScepOrderViewResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of ACME accounts in body.
      */
     @GetMapping("/scepOrderViews")
-    public List<ScepOrderView> getAllACMEOrderViews() {
-        log.debug("REST request to get all ACMEOrderViews");
+    public List<ScepOrderView> getAllAcmeOrderViews() {
+        log.debug("REST request to get all AcmeOrderViews");
         List<ScepOrderView> avList = new ArrayList<>();
         for( ScepOrder scepOrder: scepOrderService.findAll()){
             avList.add(scepOrderUtil.from(scepOrder));

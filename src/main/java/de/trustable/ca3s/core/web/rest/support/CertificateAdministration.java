@@ -8,7 +8,9 @@ import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.schedule.CertExpiryScheduler;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.NotificationService;
+import de.trustable.ca3s.core.service.dto.CRLUpdateInfo;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
+import de.trustable.ca3s.core.service.util.CRLUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.web.rest.data.AdministrationType;
 import de.trustable.ca3s.core.web.rest.data.CertificateAdministrationData;
@@ -17,7 +19,6 @@ import de.trustable.util.CryptoUtil;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -45,35 +46,45 @@ public class CertificateAdministration {
 
 	private final Logger LOG = LoggerFactory.getLogger(CertificateAdministration.class);
 
-    @Autowired
-    private CertificateRepository certificateRepository;
+    final private CertificateRepository certificateRepository;
 
-    @Autowired
-    private CertificateCommentRepository certificateCommentRepository;
+    final private CertificateAttributeRepository certificateAttributeRepository;
 
-    @Autowired
-    private CertificateAttributeRepository certificateAttributeRepository;
+    final private BPMNUtil bpmnUtil;
 
-    @Autowired
-	private BPMNUtil bpmnUtil;
+    final private CryptoUtil cryptoUtil;
 
-	@Autowired
-	private CryptoUtil cryptoUtil;
+    final private CertificateUtil certUtil;
 
-  	@Autowired
-  	private CertificateUtil certUtil;
+    private final CRLUtil crlUtil;
 
-	@Autowired
-	private UserRepository userRepository;
+    final private UserRepository userRepository;
 
-	@Autowired
-	private CertExpiryScheduler certExpiryScheduler;
+    final private CertExpiryScheduler certExpiryScheduler;
 
-    @Autowired
-    private NotificationService notificationService;
+    final private NotificationService notificationService;
 
-    @Autowired
-    private AuditService auditService;
+    final private AuditService auditService;
+
+    public CertificateAdministration(CertificateRepository certificateRepository,
+                                     CertificateAttributeRepository certificateAttributeRepository,
+                                     BPMNUtil bpmnUtil, CryptoUtil cryptoUtil,
+                                     CertificateUtil certUtil,
+                                     CRLUtil crlUtil, UserRepository userRepository,
+                                     CertExpiryScheduler certExpiryScheduler,
+                                     NotificationService notificationService,
+                                     AuditService auditService) {
+        this.certificateRepository = certificateRepository;
+        this.certificateAttributeRepository = certificateAttributeRepository;
+        this.bpmnUtil = bpmnUtil;
+        this.cryptoUtil = cryptoUtil;
+        this.certUtil = certUtil;
+        this.crlUtil = crlUtil;
+        this.userRepository = userRepository;
+        this.certExpiryScheduler = certExpiryScheduler;
+        this.notificationService = notificationService;
+        this.auditService = auditService;
+    }
 
     /**
      * {@code POST  /administerCertificate} : revoke a certificate.
@@ -116,6 +127,16 @@ public class CertificateAdministration {
                 } else if(AdministrationType.UPDATE.equals(adminData.getAdministrationType())){
                     updateARAttributes(adminData, cert);
                     updateTrustedFlag(adminData, cert);
+                } else if(AdministrationType.UPDATE_CRL.equals(adminData.getAdministrationType())){
+
+                    CRLUpdateInfo crlInfo = certUtil.checkAllCRLsForCertificate( cert,
+                        CertificateUtil.convertPemToCertificate(cert.getContent()),
+                        crlUtil,
+                        new HashSet<>());
+
+                    if( !crlInfo.isbCRLDownloadSuccess() ) {
+                        LOG.info("Downloading all CRL #{} for certificate {} failed", crlInfo.getCrlUrlCount(), cert.getId());
+                    }
                 } else {
                     LOG.info("administration type '{}' unexpected!", adminData.getAdministrationType());
                     return ResponseEntity.badRequest().build();
@@ -257,16 +278,17 @@ public class CertificateAdministration {
 
 	}
 
+
     /**
      * {@code POST  /withdrawOwnCertificate} : Withdraw own certificate.
      *
      * @return the {@link ResponseEntity} .
      */
     @PostMapping("/sendExpiringCertificateEmail")
-	@Transactional
+    @Transactional
     public ResponseEntity<Integer> sendExpiringCertificateEmail() {
-    	int nExpiringCerts = certExpiryScheduler.notifyRAOfficerHolderOnExpiry();
-		return new ResponseEntity<>(nExpiringCerts, HttpStatus.OK);
+        int nExpiringCerts = certExpiryScheduler.notifyRAOfficerHolderOnExpiry();
+        return new ResponseEntity<>(nExpiringCerts, HttpStatus.OK);
     }
 
 //    selfAdministerCertificate

@@ -38,13 +38,16 @@ public class CertificateListResource {
     public final static MediaType TEXT_CSV_TYPE = new MediaType("text", "csv");
 
 
-    final CertificateViewRepository certificateViewRepository;
+    final private CertificateViewRepository certificateViewRepository;
+    final private int maxCSVRows;
 
 
     private final Logger log = LoggerFactory.getLogger(CertificateListResource.class);
 
-    public CertificateListResource(CertificateViewRepository certificateViewRepository) {
+    public CertificateListResource(CertificateViewRepository certificateViewRepository,
+                                   @Value("${ca3s.ui.rows.max:1000}") int maxCSVRows) {
         this.certificateViewRepository = certificateViewRepository;
+        this.maxCSVRows = maxCSVRows;
     }
 
 
@@ -86,7 +89,7 @@ public class CertificateListResource {
             paramMap.put(key, request.getParameterMap().get(key));
         }
         paramMap.put("offset", new String[]{"0"});
-        paramMap.put("limit", new String[]{"1000"});
+        paramMap.put("limit", new String[]{"" + maxCSVRows});
 
         Page<CertificateView> page = certificateViewRepository.findSelection(paramMap);
 
@@ -116,10 +119,11 @@ public class CertificateListResource {
     private List<CertificateView> getFullCertificateViews(Page<CertificateView> page) {
         List<CertificateView> cvList = new ArrayList<>();
         for( CertificateView cv: page.getContent()){
+
             Optional<CertificateView> optionalCertificateView = certificateViewRepository.findbyCertificateId(cv.getId());
             if(optionalCertificateView.isPresent()){
                 cvList.add(optionalCertificateView.get());
-                log.debug("returning certificate #{}", cv.getId());
+                log.debug("returning full certificate view  #{}", cv.getId());
             }
         }
         return cvList;

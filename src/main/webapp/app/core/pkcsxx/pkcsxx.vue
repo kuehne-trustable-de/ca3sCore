@@ -33,7 +33,7 @@
                             <!-- if there is no preselected pipeline, show the pipeline selection box and the related description -->
                             <div class="form-group" v-if="preselectedPipelineId === -1">
                                 <select class="form-control" id="pkcsxx-pipeline" name="pkcsxx-pipeline" v-model="upload.pipelineId" required v-on:change="updateCurrentPipelineRestrictions()">
-                                    <option value="-1" disabled selected hidden v-text="$t('pkcsxx.upload.select.pipeline')">{{$t('pkcsxx.upload.select.pipeline')}}</option>
+                                    <!--option value="-1" disabled selected hidden v-text="$t('pkcsxx.upload.select.pipeline')">{{$t('pkcsxx.upload.select.pipeline')}}</option-->
                                     <option v-bind:value="upload && webPipeline.id === upload.pipelineId ? upload.pipelineId : webPipeline.id" v-for="webPipeline in allWebPipelines" :key="webPipeline.id">{{webPipeline.name}}</option>
                                 </select>
                                 <div class="readonly_comment">{{selectPipelineInfo}}</div>
@@ -62,16 +62,14 @@
                                 </select>
                             </div>
 
-                            <div class="form-group" v-if="(creationMode === 'COMMANDLINE_TOOL') && isSANAllowed()">
+                            <!--div class="form-group" v-if="(creationMode === 'COMMANDLINE_TOOL') && isSANAllowed()">
                                 <label class="form-control-label" v-text="$t('pkcsxx.upload.cn.as.san')" for="pkcsxx-cn-as-san">CN as SAN</label> <help-tag target="pkcsxx.upload.creationTool.cn.as.san"/>
                                 <input type="checkbox" class="form-check-inline" name="pkcsxx-cn-as-san" id="pkcsxx-cn-as-san" v-model="cnAsSAN" v-on:change="updateCmdLine()"/>
-                            </div>
+                            </div-->
                             <div class="form-group" v-if="(creationMode === 'COMMANDLINE_TOOL') && (creationTool === 'certreq') ">
                                 <label class="form-control-label" v-text="$t('pkcsxx.upload.machine.key.set')" for="pkcsxx-machine-key-set">Use machine key set</label> <help-tag target="pkcsxx.upload.machine.key.set"/>
                                 <input type="checkbox" class="form-check-inline" name="pkcsxx-machine-key-set" id="pkcsxx-machine-key-set" v-model="machineKeySet" v-on:change="updateCmdLine()"/>
                             </div>
-
-
 
                             <div class="form-group" v-if="(creationMode === 'COMMANDLINE_TOOL') || (creationMode === 'SERVERSIDE_KEY_CREATION')" >
                                 <label class="form-control-label" v-text="$t('pkcsxx.upload.certificateParams')" >certificateParams</label>
@@ -95,24 +93,38 @@
                                     </div>
                                     <div class="col colContent">
                                         <Fragment v-for="(val, valueIndex) in upload.certificateAttributes[index].values" :key="valueIndex">
-                                            <input
-                                                type="text" :class="(showProblemWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])) ? 'invalid' : ' valid'" class="form-control form-check-inline"
-                                                autocomplete="false"
-                                                :name="'pkcsxx.upload.' + rr.name" :id="'pkcsxx.upload.' + rr.name"
-                                                v-model="upload.certificateAttributes[index].values[valueIndex]"
-                                                :readonly="rr.readOnly"
-                                                :required="rr.required"
-                                                v-on:input="alignRDNArraySize(index, valueIndex)"/>
 
-                                            <small v-if="showContentOrSANWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])"
+                                            <div>
+                                                <select v-if="rr.name === 'SAN'"
+                                                    class="form-control colTypePrefix"
+                                                        :name="'pkcsxx.upload.type.' + rr.name" :id="'pkcsxx.upload.type.' + rr.name"
+                                                        v-model="upload.certificateAttributes[index].values[valueIndex].type"
+                                                        required v-on:change="updateSANType(index, valueIndex, $event)">
+                                                    <option key="DNS" selected="selected">DNS</option>
+                                                    <option key="IP">IP</option>
+                                                </select>
+
+                                                <input
+                                                    type="text"
+                                                    :class="((showProblemWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex].value)) ? 'invalid' : ' valid') + ((rr.name === 'SAN') ? ' colTypedValue' :'')"
+                                                    class="form-control form-check-inline"
+                                                    autocomplete="false"
+                                                    :name="'pkcsxx.upload.' + rr.name" :id="'pkcsxx.upload.' + rr.name"
+                                                    v-model="upload.certificateAttributes[index].values[valueIndex].value"
+                                                    :readonly="rr.readOnly"
+                                                    :required="rr.required"
+                                                    v-on:input="alignRDNArraySize(index, valueIndex)"/>
+                                            </div>
+
+                                            <small v-if="showContentOrSANWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex].value)"
                                                    class="form-text text-danger" v-text="$t('entity.validation.requiredOrSAN')">
                                                 This field is required.
                                             </small>
-                                            <small v-if="showContentWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])"
+                                            <small v-if="showContentWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex].value)"
                                                    class="form-text text-danger" v-text="$t('entity.validation.required')">
                                                 This field is required.
                                             </small>
-                                            <small v-else-if="showRegExpWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])"
+                                            <small v-else-if="showRegExpWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex].value)"
                                                    class="form-text text-danger" v-text="$t('entity.validation.pattern', {'pattern': rr.regEx})">
                                                 This field should follow pattern for {{ rr.regEx }}.
                                             </small>
@@ -134,18 +146,18 @@
                                     </div>
                                     <div class="col colContent">
                                         <input type="text"
-                                           :class="(showProblemWarning(item, 0, upload.arAttributes[index].values[0])) ? 'invalid' : ' valid'"
+                                           :class="(showProblemWarning(item, 0, upload.arAttributes[index].values[0].value)) ? 'invalid' : ' valid'"
                                            class="form-control form-check-inline"
                                            :name="'pkcsxx.upload.ara.' + item.name" :id="'pkcsxx.upload.ara.' + item.name"
                                            :readonly="item.readOnly"
                                            :required="item.required"
-                                           v-model="upload.arAttributes[index].values[0]"
+                                           v-model="upload.arAttributes[index].values[0].value"
                                            v-on:input="updateAdditionalRestriction()" />
-                                        <small v-if="showContentWarning(item, 0, upload.arAttributes[index].values[0])"
+                                        <small v-if="showContentWarning(item, 0, upload.arAttributes[index].values[0].value)"
                                                class="form-text text-danger" v-text="$t('entity.validation.required')">
                                             This field is required.
                                         </small>
-                                        <small v-else-if="showRegExpWarning(item, 0, upload.arAttributes[index].values[0])"
+                                        <small v-else-if="showRegExpWarning(item, 0, upload.arAttributes[index].values[0].value)"
                                                class="form-text text-danger" v-text="$t('entity.validation.pattern', {'pattern': item.regEx})">
                                             This field should follow pattern for {{ item.regEx }}.
                                         </small>
@@ -177,6 +189,10 @@
                                            required="true"
                                            v-model="secret"
                                            v-on:input="updateForm()" />
+                                        <small v-if="showRequiredWarning(true, secret)"
+                                               class="form-text text-danger" v-text="$t('entity.validation.required')">
+                                            This field is required.
+                                        </small>
                                     </div>
                                 </div>
                                 <div class="row" >
@@ -492,8 +508,20 @@
 <style scoped>
 
 .colContent{
-	flex-grow: 4;
+    flex-grow: 4;
 }
+
+.colTypePrefix{
+    width: 10%;
+    float: left;
+}
+
+.colTypedValue{
+    width: 88%;
+    float: right;
+    margin-right: 0px;
+}
+
 .pem-content {
 	height: 200px;
 	width: 600px;

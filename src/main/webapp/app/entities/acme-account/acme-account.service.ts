@@ -1,12 +1,12 @@
 import axios from 'axios';
 
-import { IACMEAccount } from '@/shared/model/acme-account.model';
+import { IAcmeAccount } from '@/shared/model/acme-account.model';
 
 const baseApiUrl = 'api/acme-accounts';
 
-export default class ACMEAccountService {
-  public find(id: number): Promise<IACMEAccount> {
-    return new Promise<IACMEAccount>(resolve => {
+export default class AcmeAccountService {
+  public find(id: number): Promise<IAcmeAccount> {
+    return new Promise<IAcmeAccount>(resolve => {
       axios.get(`${baseApiUrl}/${id}`).then(function(res) {
         resolve(res.data);
       });
@@ -29,16 +29,16 @@ export default class ACMEAccountService {
     });
   }
 
-  public create(entity: IACMEAccount): Promise<IACMEAccount> {
-    return new Promise<IACMEAccount>(resolve => {
+  public create(entity: IAcmeAccount): Promise<IAcmeAccount> {
+    return new Promise<IAcmeAccount>(resolve => {
       axios.post(`${baseApiUrl}`, entity).then(function(res) {
         resolve(res.data);
       });
     });
   }
 
-  public update(entity: IACMEAccount): Promise<IACMEAccount> {
-    return new Promise<IACMEAccount>(resolve => {
+  public update(entity: IAcmeAccount): Promise<IAcmeAccount> {
+    return new Promise<IAcmeAccount>(resolve => {
       axios.put(`${baseApiUrl}`, entity).then(function(res) {
         resolve(res.data);
       });

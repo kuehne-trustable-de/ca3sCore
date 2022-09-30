@@ -28,8 +28,8 @@ package de.trustable.ca3s.core.web.rest.advice;
 
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.exception.IntegrityException;
-import de.trustable.ca3s.core.service.util.ACMEUtil;
-import de.trustable.ca3s.core.web.rest.acme.ACMEController;
+import de.trustable.ca3s.core.service.util.AcmeUtil;
+import de.trustable.ca3s.core.web.rest.acme.AcmeController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -52,9 +52,9 @@ public final class IntegrityExceptionAdvice {
 	@ExceptionHandler(value = IntegrityException.class)
 	public ResponseEntity<ProblemDetail> respondTo(final IntegrityException exception) {
 
-        final ProblemDetail problem = new ProblemDetail(ACMEUtil.SERVER_INTERNAL, "Data integrity problem",
-            BAD_REQUEST, exception.getMessage(), ACMEUtil.NO_INSTANCE);
+        final ProblemDetail problem = new ProblemDetail(AcmeUtil.SERVER_INTERNAL, "Data integrity problem",
+            BAD_REQUEST, exception.getMessage(), AcmeUtil.NO_INSTANCE);
         final HttpStatus status = problem.getStatus();
-		return ResponseEntity.status(status).contentType(ACMEController.APPLICATION_PROBLEM_JSON).body(problem);
+		return ResponseEntity.status(status).contentType(AcmeController.APPLICATION_PROBLEM_JSON).body(problem);
 	}
 }

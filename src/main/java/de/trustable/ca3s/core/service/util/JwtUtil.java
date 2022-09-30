@@ -124,8 +124,8 @@ public class JwtUtil {
 	    } catch (IOException | InvalidJwtException e) {
 
 		    LOG.debug("Problem processing JWT from flattenedJwsJson : " + flattenedJwsJson, e);
-	        final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "JWT processing problem",
-	                BAD_REQUEST, e.getMessage(), ACMEUtil.NO_INSTANCE);
+	        final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "JWT processing problem",
+	                BAD_REQUEST, e.getMessage(), AcmeUtil.NO_INSTANCE);
 	    	throw new AcmeProblemException(problem);
 
 	    }
@@ -141,8 +141,8 @@ public class JwtUtil {
 	    } catch (InvalidJwtException e) {
 
 		    LOG.debug("Problem processing JWT from compactJwsSerialization : " + compactJwsSerialization, e);
-	        final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "JWT processing problem",
-	                BAD_REQUEST, e.getMessage(), ACMEUtil.NO_INSTANCE);
+	        final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "JWT processing problem",
+	                BAD_REQUEST, e.getMessage(), AcmeUtil.NO_INSTANCE);
 	    	throw new AcmeProblemException(problem);
 
 	    }
@@ -220,8 +220,8 @@ public class JwtUtil {
 			jwtConsumer.processContext(context);
 		} catch (InvalidJwtException e) {
 		    LOG.info("Problem verifying JWT", e);
-	        final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "Problem verifying JWT",
-	                BAD_REQUEST, e.getMessage(), ACMEUtil.NO_INSTANCE);
+	        final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "Problem verifying JWT",
+	                BAD_REQUEST, e.getMessage(), AcmeUtil.NO_INSTANCE);
 	    	throw new AcmeProblemException(problem);
 		}
 	}
@@ -233,8 +233,8 @@ public class JwtUtil {
 	        return objectReader.readValue(jwtClaims.toJson());
 	    } catch (IOException e) {
 		    LOG.debug("Problem processing JWT payload for Account ", e);
-	        final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "JWT processing problem",
-	                BAD_REQUEST, e.getMessage(), ACMEUtil.NO_INSTANCE);
+	        final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "JWT processing problem",
+	                BAD_REQUEST, e.getMessage(), AcmeUtil.NO_INSTANCE);
 	    	throw new AcmeProblemException(problem);
 	    }
     }
@@ -284,8 +284,8 @@ public class JwtUtil {
 	    } catch (IOException e) {
 
 		    LOG.debug("Problem processing JWT payload for ChangeKeyRequest", e);
-	        final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "JWT processing problem",
-	                BAD_REQUEST, e.getMessage(), ACMEUtil.NO_INSTANCE);
+	        final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "JWT processing problem",
+	                BAD_REQUEST, e.getMessage(), AcmeUtil.NO_INSTANCE);
 	    	throw new AcmeProblemException(problem);
 	    }
     }
@@ -296,8 +296,8 @@ public class JwtUtil {
         try {
 			return objectReader.readValue(jwtClaims.toJson());
 		} catch (IOException e) {
-			final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "problem parsing RevokeRequest",
-					BAD_REQUEST, "", ACMEUtil.NO_INSTANCE);
+			final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "problem parsing RevokeRequest",
+					BAD_REQUEST, "", AcmeUtil.NO_INSTANCE);
 			throw new AcmeProblemException(problem);
 		}
     }
@@ -307,8 +307,8 @@ public class JwtUtil {
         try {
 			return objectReader.readValue(jwtClaims.toJson());
 		} catch (IOException e) {
-			final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "problem parsing RevokeRequest",
-					BAD_REQUEST, "", ACMEUtil.NO_INSTANCE);
+			final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "problem parsing RevokeRequest",
+					BAD_REQUEST, "", AcmeUtil.NO_INSTANCE);
 			throw new AcmeProblemException(problem);
 		}
     }
@@ -319,8 +319,8 @@ public class JwtUtil {
         try {
 			return objectReader.readValue(jwtClaims.toJson());
 		} catch (IOException e) {
-			final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "problem parsing RevokeRequest",
-					BAD_REQUEST, "", ACMEUtil.NO_INSTANCE);
+			final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "problem parsing RevokeRequest",
+					BAD_REQUEST, "", AcmeUtil.NO_INSTANCE);
 			throw new AcmeProblemException(problem);
 		}
     }
@@ -328,13 +328,13 @@ public class JwtUtil {
 
     public JsonWebStructure getJsonWebStructure(JwtContext context) {
 	    if( context.getJoseObjects().isEmpty()) {
-			final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "JsonWebStructure missing",
-					BAD_REQUEST, "", ACMEUtil.NO_INSTANCE);
+			final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "JsonWebStructure missing",
+					BAD_REQUEST, "", AcmeUtil.NO_INSTANCE);
 			throw new AcmeProblemException(problem);
 	    }
 	    if( context.getJoseObjects().size() > 1) {
-			final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "JsonWebStructure contains more than one (" + context.getJoseObjects().size() + ") elements",
-					BAD_REQUEST, "", ACMEUtil.NO_INSTANCE);
+			final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "JsonWebStructure contains more than one (" + context.getJoseObjects().size() + ") elements",
+					BAD_REQUEST, "", AcmeUtil.NO_INSTANCE);
 			throw new AcmeProblemException(problem);
 	    }
 
@@ -366,8 +366,8 @@ public class JwtUtil {
 			final PublicJsonWebKey jwk = webStruct.getHeaders().getPublicJwkHeaderValue(JWK, NO_EXPLICIT_JCA_PROVIDER);
 			return (jwk.getPublicKey());
 		} catch( NullPointerException | JoseException npe) {
-			final ProblemDetail problem = new ProblemDetail(ACMEUtil.MALFORMED, "problem reading / parsing JWK",
-					BAD_REQUEST, "", ACMEUtil.NO_INSTANCE);
+			final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "problem reading / parsing JWK",
+					BAD_REQUEST, "", AcmeUtil.NO_INSTANCE);
 			throw new AcmeProblemException(problem);
 		}
 	}

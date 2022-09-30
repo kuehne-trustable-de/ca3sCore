@@ -17,7 +17,7 @@ import de.trustable.ca3s.core.service.scep.ScepServiceIT;
 @TestConfiguration
 public class CaConfigTestConfiguration {
 
-	public static final Logger LOGGER = LogManager.getLogger(ScepServiceIT.class);
+	public static final Logger LOGGER = LogManager.getLogger(CaConfigTestConfiguration.class);
 
 	public static final long CONFIG_ID = 222L;
 	

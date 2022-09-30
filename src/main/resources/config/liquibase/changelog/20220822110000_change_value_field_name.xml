@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+
+    <changeSet id="20220822111000-1" author="ak">
+
+        <!--preConditions onFail="MARK_RAN" >
+            <columnExists tableName="csr_attribute" columnName="value_" />
+        </preConditions-->
+
+        <renameColumn  newColumnName="value_"
+                       oldColumnName="value"
+                       columnDataType="varchar(255)"
+                       remarks="H2 is picky in SQL standard"
+                       tableName="csr_attribute"/>
+
+        <renameColumn  newColumnName="value_"
+                       oldColumnName="value"
+                       columnDataType="varchar(255)"
+                       remarks="H2 is picky in SQL standard"
+                       tableName="acme_authorization"/>
+
+        <renameColumn  newColumnName="value_"
+                       oldColumnName="value"
+                       columnDataType="varchar(255)"
+                       remarks="H2 is picky in SQL standard"
+                       tableName="acme_challenge"/>
+
+        <renameColumn  newColumnName="value_"
+                       oldColumnName="value"
+                       columnDataType="varchar(255)"
+                       remarks="H2 is picky in SQL standard"
+                       tableName="acme_identifier"/>
+
+        <renameColumn  newColumnName="value_"
+                       oldColumnName="value"
+                       columnDataType="varchar(255)"
+                       remarks="H2 is picky in SQL standard"
+                       tableName="acme_order_attribute"/>
+
+        <renameColumn  newColumnName="value_"
+                       oldColumnName="value"
+                       columnDataType="varchar(255)"
+                       remarks="H2 is picky in SQL standard"
+                       tableName="certificate_attribute"/>
+
+        <renameColumn  newColumnName="value_"
+                       oldColumnName="value"
+                       columnDataType="varchar(255)"
+                       remarks="H2 is picky in SQL standard"
+                       tableName="jhi_persistent_audit_evt_data"/>
+
+        <renameColumn  newColumnName="value_"
+                       oldColumnName="value"
+                       columnDataType="varchar(255)"
+                       remarks="H2 is picky in SQL standard"
+                       tableName="pipeline_attribute"/>
+
+        <renameColumn  newColumnName="value_"
+                       oldColumnName="value"
+                       columnDataType="varchar(255)"
+                       remarks="H2 is picky in SQL standard"
+                       tableName="scep_order_attribute"/>
+
+    </changeSet>
+</databaseChangeLog>

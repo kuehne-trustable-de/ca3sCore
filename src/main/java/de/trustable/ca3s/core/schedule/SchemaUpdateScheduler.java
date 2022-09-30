@@ -47,17 +47,20 @@ public class SchemaUpdateScheduler {
     final private CSRUtil csrUtil;
 
     final private AcmeOrderRepository acmeOrderRepository;
+    final private AcmeAccountRepository acmeAccountRepository;
+
     final private PipelineRepository pipelineRepository;
 
     final private AuditService auditService;
 
-    public SchemaUpdateScheduler(CertificateRepository certificateRepo, CertificateUtil certUtil, CSRRepository csrRepository, CsrAttributeRepository csrAttributeRepository, CSRUtil csrUtil, AcmeOrderRepository acmeOrderRepository, PipelineRepository pipelineRepository, AuditService auditService) {
+    public SchemaUpdateScheduler(CertificateRepository certificateRepo, CertificateUtil certUtil, CSRRepository csrRepository, CsrAttributeRepository csrAttributeRepository, CSRUtil csrUtil, AcmeOrderRepository acmeOrderRepository, AcmeAccountRepository acmeAccountRepository, PipelineRepository pipelineRepository, AuditService auditService) {
         this.certificateRepo = certificateRepo;
         this.certUtil = certUtil;
         this.csrRepository = csrRepository;
         this.csrAttributeRepository = csrAttributeRepository;
         this.csrUtil = csrUtil;
         this.acmeOrderRepository = acmeOrderRepository;
+        this.acmeAccountRepository = acmeAccountRepository;
         this.pipelineRepository = pipelineRepository;
         this.auditService = auditService;
     }
@@ -76,8 +79,12 @@ public class SchemaUpdateScheduler {
         LOG.info("updateCSRAttributes took {} ms", Duration.between(now, Instant.now()));
 
         now = Instant.now();
-        updateACMEOrder();
-        LOG.info("updateACMEOrder took {} ms", Duration.between(now, Instant.now()));
+        updateAcmeOrder();
+        LOG.info("updateAcmeOrder took {} ms", Duration.between(now, Instant.now()));
+
+        now = Instant.now();
+        updateACMEAccount();
+        LOG.info("updateACMEAccount took {} ms", Duration.between(now, Instant.now()));
 
     }
 
@@ -174,7 +181,7 @@ public class SchemaUpdateScheduler {
         }
     }
 
-    public void updateACMEOrder() {
+    public void updateAcmeOrder() {
 
         Instant now = Instant.now();
         List<AcmeOrder> acmeOrderList = acmeOrderRepository.findPipelineIsNull();
@@ -197,6 +204,39 @@ public class SchemaUpdateScheduler {
         }
         if (count > 0) {
             auditService.saveAuditTrace(auditService.createAuditTraceAcmeOrderPipelineUpdated(count));
+            LOG.info("AcmeOrder pipeline / realm processing of {} orders", count);
+        }
+
+    }
+
+    public void updateACMEAccount() {
+
+        Instant now = Instant.now();
+        List<AcmeAccount> acmeAccountList = acmeAccountRepository.findByCreatedOnIsNull();
+
+        int count = 0;
+        for (AcmeAccount acmeAccount : acmeAccountList) {
+
+            Instant oldestOrder = now;
+
+            for( AcmeOrder acmeOrder: acmeAccount.getOrders()){
+                if( acmeOrder.getNotBefore().isBefore(oldestOrder) ){
+                    oldestOrder = acmeOrder.getNotBefore();
+                }
+            }
+
+            acmeAccount.setCreatedOn(oldestOrder);
+            acmeAccountRepository.save(acmeAccount);
+            LOG.info("CreatedOn date updated for acme account {} ", acmeAccount.getAccountId());
+
+            if (count++ > MAX_RECORDS_PER_TRANSACTION) {
+                LOG.info("limited AcmeAccount processing to {} per call", MAX_RECORDS_PER_TRANSACTION);
+                break;
+            }
+        }
+        if (count > 0) {
+            auditService.saveAuditTrace(auditService.createAuditTraceAcmeAcountCreatedOnUpdated(count));
+            LOG.info("AcmeAccount createdOn update of {} accounts", count);
         }
 
     }

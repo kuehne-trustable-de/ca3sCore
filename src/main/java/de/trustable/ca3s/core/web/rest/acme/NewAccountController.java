@@ -34,6 +34,7 @@ import static org.springframework.web.servlet.support.ServletUriComponentsBuilde
 
 import java.net.URI;
 import java.security.PublicKey;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,26 +54,26 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import de.trustable.ca3s.core.domain.ACMEAccount;
+import de.trustable.ca3s.core.domain.AcmeAccount;
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
-import de.trustable.ca3s.core.repository.ACMEAccountRepository;
+import de.trustable.ca3s.core.repository.AcmeAccountRepository;
 import de.trustable.ca3s.core.repository.AcmeContactRepository;
 import de.trustable.ca3s.core.service.dto.acme.AccountRequest;
 import de.trustable.ca3s.core.service.dto.acme.AccountResponse;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
-import de.trustable.ca3s.core.service.util.ACMEUtil;
+import de.trustable.ca3s.core.service.util.AcmeUtil;
 
 @Transactional
 @Controller
 @RequestMapping("/acme/{realm}/newAccount")
-public class NewAccountController extends ACMEController {
+public class NewAccountController extends AcmeController {
 
   private static final Logger LOG = LoggerFactory.getLogger(NewAccountController.class);
 
 
   @Autowired
-  private ACMEAccountRepository acctRepository;
+  private AcmeAccountRepository acctRepository;
 
   @Autowired
   AcmeContactRepository contactRepo;
@@ -96,7 +97,7 @@ public class NewAccountController extends ACMEController {
 
     LOG.info("New ACCOUNT requested for realm {} using requestbody \n {}", realm, requestBody);
 
-	ACMEAccount acctDaoReturn;
+	AcmeAccount acctDaoReturn;
 
     final HttpHeaders additionalHeaders = buildNonceHeader();
 //    additionalHeaders.set("Link", "<" + directoryResourceUriBuilderFrom(fromCurrentRequestUri()).build().normalize() + ">;rel=\"index\"");
@@ -106,7 +107,7 @@ public class NewAccountController extends ACMEController {
 	    AccountRequest newAcct = jwtUtil.getAccountRequest(context.getJwtClaims());
 	    LOG.debug("New ACCOUNT reads NewAccountRequest: " + newAcct);
 
-	    List<ACMEAccount> accListExisting;
+	    List<AcmeAccount> accListExisting;
 		PublicKey pk;
 		JsonWebStructure webStruct = jwtUtil.getJsonWebStructure(context);
 		pk = jwtUtil.getPublicKey(webStruct);
@@ -117,7 +118,7 @@ public class NewAccountController extends ACMEController {
 			accListExisting.add(checkJWTSignatureForAccount(context, realm));
 			if( accListExisting.isEmpty()) {
 			    LOG.debug("NewAccountRequest does NOT provide key, no matching account found ");
-		        final ProblemDetail problem = new ProblemDetail(ACMEUtil.ACCOUNT_DOES_NOT_EXIST, "Account does not exist.",
+		        final ProblemDetail problem = new ProblemDetail(AcmeUtil.ACCOUNT_DOES_NOT_EXIST, "Account does not exist.",
 		                BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
 				throw new AcmeProblemException(problem);
 			}
@@ -132,7 +133,7 @@ public class NewAccountController extends ACMEController {
 
 		if(Boolean.TRUE.equals( newAcct.isOnlyReturnExisting())) {
 			if( accListExisting.isEmpty()) {
-		        final ProblemDetail problem = new ProblemDetail(ACMEUtil.ACCOUNT_DOES_NOT_EXIST, "Account does not exist.",
+		        final ProblemDetail problem = new ProblemDetail(AcmeUtil.ACCOUNT_DOES_NOT_EXIST, "Account does not exist.",
 		                BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
 				throw new AcmeProblemException(problem);
 			}else {
@@ -152,9 +153,10 @@ public class NewAccountController extends ACMEController {
 		//	    LOG.info("New ACCOUNT jwk: " + webStruct.getHeader("jwk"));
 		//	    LOG.info("New ACCOUNT kid: " + webStruct.getKeyIdHeaderValue());
 
-			    ACMEAccount newAcctDao = new ACMEAccount();
+			    AcmeAccount newAcctDao = new AcmeAccount();
 			    newAcctDao.setAccountId(generateId());
 			    newAcctDao.setRealm(realm);
+                newAcctDao.setCreatedOn(Instant.now());
 
 				String pkAsString = Base64.encodeBase64String(pk.getEncoded()).trim();
 				newAcctDao.setPublicKey(pkAsString);
@@ -200,7 +202,7 @@ public class NewAccountController extends ACMEController {
 
 
 	} catch (JoseException e) {
-        final ProblemDetail problem = new ProblemDetail(ACMEUtil.SERVER_INTERNAL, "Algorithm mismatch.",
+        final ProblemDetail problem = new ProblemDetail(AcmeUtil.SERVER_INTERNAL, "Algorithm mismatch.",
                 BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
         return buildProblemResponseEntity(new AcmeProblemException(problem));
 	} catch (AcmeProblemException e) {

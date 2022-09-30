@@ -5,9 +5,9 @@ import Router from 'vue-router';
 
 import AlertService from '@/shared/alert/alert.service';
 import * as config from '@/shared/config/config';
-import ACMEAccountUpdateComponent from '@/entities/acme-account/acme-account-update.vue';
-import ACMEAccountClass from '@/entities/acme-account/acme-account-update.component';
-import ACMEAccountService from '@/entities/acme-account/acme-account.service';
+import AcmeAccountUpdateComponent from '@/entities/acme-account/acme-account-update.vue';
+import AcmeAccountClass from '@/entities/acme-account/acme-account-update.component';
+import AcmeAccountService from '@/entities/acme-account/acme-account.service';
 
 import AcmeContactService from '@/entities/acme-contact/acme-contact.service';
 
@@ -23,15 +23,15 @@ localVue.use(Router);
 localVue.component('font-awesome-icon', {});
 
 describe('Component Tests', () => {
-  describe('ACMEAccount Management Update Component', () => {
-    let wrapper: Wrapper<ACMEAccountClass>;
-    let comp: ACMEAccountClass;
-    let aCMEAccountServiceStub: SinonStubbedInstance<ACMEAccountService>;
+  describe('AcmeAccount Management Update Component', () => {
+    let wrapper: Wrapper<AcmeAccountClass>;
+    let comp: AcmeAccountClass;
+    let aCMEAccountServiceStub: SinonStubbedInstance<AcmeAccountService>;
 
     beforeEach(() => {
-      aCMEAccountServiceStub = sinon.createStubInstance<ACMEAccountService>(ACMEAccountService);
+      aCMEAccountServiceStub = sinon.createStubInstance<AcmeAccountService>(AcmeAccountService);
 
-      wrapper = shallowMount<ACMEAccountClass>(ACMEAccountUpdateComponent, {
+      wrapper = shallowMount<AcmeAccountClass>(AcmeAccountUpdateComponent, {
         store,
         i18n,
         localVue,

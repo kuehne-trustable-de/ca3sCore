@@ -91,7 +91,7 @@ public class AuditTrace implements Serializable {
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "contacts", "orders" }, allowSetters = true)
-    private ACMEAccount acmeAccount;
+    private AcmeAccount acmeAccount;
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "acmeAuthorizations", "acmeIdentifiers", "csr", "certificate", "account" }, allowSetters = true)
@@ -240,15 +240,15 @@ public class AuditTrace implements Serializable {
         this.processInfo = bPMNProcessInfo;
     }
 
-    public ACMEAccount getAcmeAccount() {
+    public AcmeAccount getAcmeAccount() {
         return this.acmeAccount;
     }
 
-    public void setAcmeAccount(ACMEAccount aCMEAccount) {
+    public void setAcmeAccount(AcmeAccount aCMEAccount) {
         this.acmeAccount = aCMEAccount;
     }
 
-    public AuditTrace acmeAccount(ACMEAccount aCMEAccount) {
+    public AuditTrace acmeAccount(AcmeAccount aCMEAccount) {
         this.setAcmeAccount(aCMEAccount);
         return this;
     }

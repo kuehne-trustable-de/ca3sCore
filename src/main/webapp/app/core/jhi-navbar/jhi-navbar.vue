@@ -123,11 +123,11 @@
                     </b-dropdown-item -->
                     <b-dropdown-item to="/acme-account-list">
                         <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.acmeAccount')">ACMEAccount</span>
+                        <span v-text="$t('global.menu.entities.acmeAccount')">AcmeAccount</span>
                     </b-dropdown-item>
                     <!--b-dropdown-item to="/acme-account">
                         <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.acmeAccount')">ACMEAccount</span>
+                        <span v-text="$t('global.menu.entities.acmeAccount')">AcmeAccount</span>
                     </b-dropdown-item>
                     <b-dropdown-item to="/acme-contact">
                         <font-awesome-icon icon="asterisk" />
@@ -292,7 +292,7 @@
                         <font-awesome-icon icon="sign-out-alt" />
                         <span v-text="$t('global.menu.account.logout')">Sign out</span>
                     </b-dropdown-item>
-                    <b-dropdown-item v-if="!authenticated"  v-on:click="doOIDCLogin()" id="oidcLogin">
+                    <b-dropdown-item v-if="!authenticated && (ssoProvider.length > 0)"  v-on:click="doOIDCLogin()" id="oidcLogin">
                         <font-awesome-icon icon="sign-in-alt" />
                         <span v-text="$t('global.menu.account.SSOLogin')">SSO Login</span>
                     </b-dropdown-item>

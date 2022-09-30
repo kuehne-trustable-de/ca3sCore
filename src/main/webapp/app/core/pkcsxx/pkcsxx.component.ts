@@ -18,7 +18,8 @@ import {
   ICreationMode,
   IKeyAlgoLength,
   IPipelineView,
-  IPreferences
+  IPreferences,
+  ITypedValue
 } from '@/shared/model/transfer-object.model';
 import { IPipelineRestrictions, PipelineRestrictions } from '@/shared/model/pipeline-restrictions';
 import { IPipelineRestriction, PipelineRestriction } from '@/shared/model/pipeline-restriction';
@@ -85,6 +86,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
   public creationTool = 'keytool';
   public cnAsSAN = false;
+  public addedCnAsSAN = '';
   public secretRepeat = '';
   public secret = '';
   public creationMode: ICreationMode = 'CSR_AVAILABLE';
@@ -202,7 +204,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     console.log('showContentOrSANWarning( ' + rr.required + ', ' + valueIndex + ', "' + value + '")');
     if (rr.cardinality === 'ONE_OR_SAN' && valueIndex === 0 && value.trim().length === 0) {
       for (const nv of this.upload.certificateAttributes) {
-        if (nv.name === 'SAN' && nv.values.length > 0 && nv.values[0].trim().length > 0) {
+        if (nv.name === 'SAN' && nv.values.length > 0 && nv.values[0].value.trim().length > 0) {
           console.log('showContentWarning: CN empty, SAN present');
           return false;
         }
@@ -232,7 +234,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     if (restriction.multipleValues) {
       const namedValue = this.upload.certificateAttributes[restrictionIndex];
       const currentSize = namedValue.values.length;
-      const currentValue = namedValue.values[valueIndex] || '';
+      const currentValue = namedValue.values[valueIndex].value || '';
 
       if (currentValue.trim().length === 0) {
         if (currentSize > 1) {
@@ -242,12 +244,17 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
         }
       } else {
         if (valueIndex + 1 === currentSize) {
-          namedValue.values.push('');
+          const typedValue: ITypedValue = { value: '', type: 'DNS' };
+          namedValue.values.push(typedValue);
         }
       }
     }
     this.updateForm();
     this.updateCmdLine();
+  }
+
+  public updateSANType(restrictionIndex: number, valueIndex: number, event): void {
+    window.console.info('in updateSANType, event.target.value: ' + event.target.value);
   }
 
   public updateForm(): void {
@@ -341,9 +348,12 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       const nv: INamedValues = {};
       nv.name = rr.name;
       if (rr.readOnly) {
-        nv.values = [rr.template];
+        nv.values = [{ value: rr.template }];
       } else {
-        nv.values = [''];
+        nv.values = [{ value: '' }];
+      }
+      if (nv.name === 'SAN') {
+        nv.values[0].type = 'DNS';
       }
       this.upload.certificateAttributes.push(nv);
       window.console.info('this.upload.certificateAttributes.push(nv)');
@@ -364,9 +374,9 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       const nv: INamedValues = {};
       nv.name = rr.name;
       if (rr.readOnly) {
-        nv.values = [rr.template];
+        nv.values = [{ value: rr.template }];
       } else {
-        nv.values = [''];
+        nv.values = [{ value: '' }];
       }
       this.upload.arAttributes.push(nv);
     }
@@ -407,32 +417,46 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
         nvSAN = nv;
 
         if (this.cnAsSAN) {
-          if (
-            nv.values.indexOf(nvCN.values[0]) === -1 &&
-            nv.values.indexOf('DNS:' + nvCN.values[0]) === -1 &&
-            nv.values.indexOf('IP:' + nvCN.values[0]) === -1
-          ) {
-            nvSAN = {};
-            nvSAN.name = nv.name;
-            const cnVal = 'DNS:' + nvCN.values[0];
+          let matchingSanPresent = false;
+          for (const nvValue of nv.values) {
+            if (nvValue.value === nvCN.values[0].value) {
+              matchingSanPresent = true;
+            }
+          }
+
+          if (!matchingSanPresent) {
+            const cnVal: ITypedValue = { value: nvCN.values[0].value, type: 'DNS' };
             if (nv.values.length === 0) {
               nvSAN.values = [cnVal];
             } else {
-              nvSAN.values = [cnVal, ...nv.values];
+              let matchingSanUpdated = false;
+              for (const nvValue of nv.values) {
+                if (nvValue.value === this.addedCnAsSAN) {
+                  nvValue.value = nvCN.values[0].value;
+                  matchingSanUpdated = true;
+                }
+
+                if (!matchingSanUpdated) {
+                  nvSAN.values = [cnVal, ...nv.values];
+                }
+              }
             }
           }
+          this.addedCnAsSAN = nvCN.values[0].value;
+        } else {
+          this.addedCnAsSAN = '';
         }
         break;
       }
     }
 
     // is there a SAN set?
-    const hasSAN = nvSAN && nvSAN.values && nvSAN.values.length > 0 && nvSAN.values[0].trim().length > 0;
+    const hasSAN = nvSAN && nvSAN.values && nvSAN.values.length > 0 && nvSAN.values[0].value.trim().length > 0;
 
-    if (nvCN && nvCN.values.length > 0 && nvCN.values[0].trim().length > 0) {
-      fileName = nvCN.values[0];
-    } else if (nvSAN && nvSAN.values && nvSAN.values.length > 0 && nvSAN.values[0].trim().length > 0) {
-      fileName = nvSAN.values[0];
+    if (nvCN && nvCN.values.length > 0 && nvCN.values[0].value.trim().length > 0) {
+      fileName = nvCN.values[0].value;
+    } else if (nvSAN && nvSAN.values && nvSAN.values.length > 0 && nvSAN.values[0].value.trim().length > 0) {
+      fileName = nvSAN.values[0].value;
     }
     fileName += '_' + soon.toISOString().substring(0, 10);
 
@@ -472,12 +496,12 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
           name = 'EMAILADDRESS';
         }
 
-        for (const value of nv.values) {
-          if (value.length > 0) {
+        for (const typedValue of nv.values) {
+          if (typedValue.value.length > 0) {
             if (dname.length > 0) {
               dname += ', ';
             }
-            dname += name + '=' + value;
+            dname += name + '=' + typedValue.value;
           }
         }
       }
@@ -491,18 +515,14 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
       cmdline += 'keytool -certreq' + aliasP12Type;
 
-      if (nvSAN !== undefined && nvSAN.values.length > 0 && nvSAN.values[0].length > 0) {
+      if (nvSAN !== undefined && nvSAN.values.length > 0 && nvSAN.values[0].value.length > 0) {
         let sans = '';
         for (const san of nvSAN.values) {
-          if (san.length > 0) {
+          if (san.value.length > 0) {
             if (sans.length > 0) {
               sans += ',';
             }
-            if (san.includes(':')) {
-              sans += san;
-            } else {
-              sans += 'DNS:' + san;
-            }
+            sans += san.type + ':' + san.value;
           }
         }
         if (sans.length > 0) {
@@ -516,21 +536,16 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       //
       cmdline = this.getOpensslCommon(cmdline, algo, hashAlgo, keyLen, true);
 
-      if (nvSAN !== undefined && nvSAN.values.length > 0 && nvSAN.values[0].length > 0) {
+      if (nvSAN !== undefined && nvSAN.values.length > 0 && nvSAN.values[0].value.length > 0) {
         cmdline += ' -addext "subjectAltName = ';
         let sans = '';
         let idx = 1;
         for (const san of nvSAN.values) {
-          if (san.length > 0) {
+          if (san.value.length > 0) {
             if (sans.length > 0) {
               sans += ',';
             }
-            const parts = san.split(':', 2);
-            if (parts.length < 2) {
-              sans += 'DNS:' + san;
-            } else {
-              sans += parts[0] + ':' + parts[1];
-            }
+            sans += san.type + ':' + san.value;
           }
           idx++;
         }
@@ -548,7 +563,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
         const name = nv.name;
 
         for (const value of nv.values) {
-          if (value.length > 0) {
+          if (value.value.length > 0) {
             if (name === 'SAN') {
               // handle SANS specially, see below
               continue;
@@ -557,7 +572,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
             if (dnLines.length > 0) {
               dnLines += ', ';
             }
-            dnLines += name + '=' + value;
+            dnLines += name + '=' + value.value;
           }
         }
       }
@@ -574,22 +589,11 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
         reqConf += '[Extensions]\n';
         reqConf += '2.5.29.17 = "{text}"\n';
 
-        for (const value of nvSAN.values) {
-          const parts = value.split(':', 2);
-          let type = 'dns';
-          let sanValue = value;
-          window.console.info('parts.length : ' + parts.length);
+        for (const san of nvSAN.values) {
+          const type = san.type;
+          const sanValue = san.value;
 
-          if (parts.length < 2) {
-            // defaults match
-          } else if (parts[0].toUpperCase().trim() === 'DNS') {
-            sanValue = parts[1];
-          } else {
-            type = 'IP';
-            sanValue = parts[1];
-          }
-
-          if (value.length > 0) {
+          if (sanValue.length > 0) {
             reqConf += '_continue_ = "' + type + '=' + sanValue + '&"\n';
           }
         }
@@ -613,15 +617,15 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
         const name = nv.name;
 
         for (const value of nv.values) {
-          if (value.length > 0) {
+          if (value.value.length > 0) {
             if (name === 'SAN') {
               // handle SANS specially, see below
               continue;
             }
             if ('E' === name.toUpperCase()) {
-              dnLines += 'emailAddress=' + value + '\n';
+              dnLines += 'emailAddress=' + value.value + '\n';
             } else {
-              dnLines += name + '=' + value + '\n';
+              dnLines += name + '=' + value.value + '\n';
             }
           }
         }
@@ -643,29 +647,21 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
         let dnsNo = 1;
         let ipNo = 1;
-        for (const value of nvSAN.values) {
-          const parts = value.split(':', 2);
+        for (const san of nvSAN.values) {
           let idx = 1;
           let type = 'DNS';
-          let sanValue = value;
-          window.console.info('parts.length : ' + parts.length);
+          const sanValue = san.value;
 
-          if (parts.length < 2) {
-            // defaults match
-            idx = dnsNo;
-            dnsNo++;
-          } else if (parts[0].toUpperCase().trim() === 'DNS') {
-            sanValue = parts[1];
+          if (san.type.toUpperCase().trim() === 'DNS') {
             idx = dnsNo;
             dnsNo++;
           } else {
             type = 'IP';
-            sanValue = parts[1];
             idx = ipNo;
             ipNo++;
           }
 
-          if (value.length > 0) {
+          if (san.value.length > 0) {
             reqConf += type + '.' + idx + ' = ' + sanValue + '\n';
           }
         }
@@ -724,14 +720,14 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
           continue;
         }
         for (const value of nv.values) {
-          if (value.length > 0) {
+          if (value.value.length > 0) {
             if ('E' === name.toUpperCase()) {
               subject += '/emailAddress=';
             } else {
               subject += '/' + name.toUpperCase() + '=';
             }
             const re = new RegExp(/\//, 'g');
-            subject += value.replace(re, '\\/');
+            subject += value.value.replace(re, '\\/');
           }
         }
       }
@@ -818,7 +814,10 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
         for (const nv of this.upload.certificateAttributes) {
           if (nv.name === 'SAN') {
-            nv.values = this.precheckResponse.certificates[0].sans;
+            nv.values = [];
+            for (const san of this.precheckResponse.certificates[0].sans) {
+              nv.values.push({ value: san, type: '' });
+            }
           } else {
             for (const subjectPart of this.precheckResponse.certificates[0].subjectParts) {
               if (subjectPart.name.toUpperCase() === nv.name.toUpperCase()) {
@@ -937,17 +936,17 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
             this.showContentWarning(
               this.rdnRestrictions[rdnIndex],
               valueIndex,
-              this.upload.certificateAttributes[rdnIndex].values[valueIndex]
+              this.upload.certificateAttributes[rdnIndex].values[valueIndex].value
             ) ||
             this.showContentOrSANWarning(
               this.rdnRestrictions[rdnIndex],
               valueIndex,
-              this.upload.certificateAttributes[rdnIndex].values[valueIndex]
+              this.upload.certificateAttributes[rdnIndex].values[valueIndex].value
             ) ||
             this.showRegExpWarning(
               this.rdnRestrictions[rdnIndex],
               valueIndex,
-              this.upload.certificateAttributes[rdnIndex].values[valueIndex]
+              this.upload.certificateAttributes[rdnIndex].values[valueIndex].value
             )
           ) {
             window.console.info('attribute "' + this.rdnRestrictions[rdnIndex].name + '" does not match requirements!');
@@ -959,8 +958,8 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
     for (let araIndex = 0; araIndex < this.araRestrictions.length; araIndex++) {
       if (
-        this.showContentWarning(this.araRestrictions[araIndex], 0, this.upload.arAttributes[araIndex].values[0]) ||
-        this.showRegExpWarning(this.araRestrictions[araIndex], 0, this.upload.arAttributes[araIndex].values[0])
+        this.showContentWarning(this.araRestrictions[araIndex], 0, this.upload.arAttributes[araIndex].values[0].value) ||
+        this.showRegExpWarning(this.araRestrictions[araIndex], 0, this.upload.arAttributes[araIndex].values[0].value)
       ) {
         window.console.info('attribute "' + this.araRestrictions[araIndex].name + '" does not match requirements!');
         return true;

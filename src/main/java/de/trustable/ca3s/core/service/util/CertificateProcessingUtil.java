@@ -11,6 +11,7 @@ import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.ARARestriction;
 import de.trustable.ca3s.core.service.dto.NamedValues;
 import de.trustable.ca3s.core.exception.CAFailureException;
+import de.trustable.ca3s.core.service.dto.TypedValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,11 +124,11 @@ public class CertificateProcessingUtil {
 			for( NamedValues nvs: araArr){
 			    // insert expected elements, only
                 if( Arrays.stream(restrictionArr).anyMatch(r->(r.getName().equals(nvs.getName())))) {
-                    for (String value : nvs.getValues()) {
+                    for (TypedValue typedValue : nvs.getValues()) {
                         CsrAttribute csrAttr = new CsrAttribute();
                         csrAttr.setCsr(csr);
                         csrAttr.setName(CsrAttribute.ARA_PREFIX + nvs.getName());
-                        csrAttr.setValue(value);
+                        csrAttr.setValue(typedValue.getValue());
                         csr.getCsrAttributes().add(csrAttr);
                     }
                 }else{

@@ -87,6 +87,7 @@ public class AuditService {
     public static final String AUDIT_CA_CONNECTOR_ATTRIBUTE_CHANGED = "CA_CONNECTOR_ATTRIBUTE_CHANGED";
     public static final String AUDIT_CERTIFICATE_SCHEMA_UPDATED = "CERTIFICATE_SCHEMA_UPDATED";
     public static final String AUDIT_ACME_ORDER_PIPELINE_UPDATED = "AUDIT_ACME_ORDER_PIPELINE_UPDATED";
+    public static final String AUDIT_ACME_ACCOUNT_CREATED_OR_UPDATED = "AUDIT_ACME_ACCOUNT_CREATED_OR_UPDATED";
 
 
     private final Logger log = LoggerFactory.getLogger(AuditService.class);
@@ -191,7 +192,7 @@ public class AuditService {
         return createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_ACME_CERTIFICATE_REQUESTED, csr);
     }
 
-    public AuditTrace createAuditTraceACMEOrderSucceeded(final ACMEAccount acmeAccount,
+    public AuditTrace createAuditTraceAcmeOrderSucceeded(final AcmeAccount acmeAccount,
                                                              final AcmeOrder acmeOrder) {
         return createAuditTraceACMEInfo(acmeAccount,
             acmeOrder,
@@ -199,7 +200,14 @@ public class AuditService {
             null);
     }
 
-    public AuditTrace createAuditTraceACMEChallengeSucceeded(final ACMEAccount acmeAccount,
+    public AuditTrace createAuditTraceACMEOrderExpired(final AcmeOrder acmeOrder) {
+        return createAuditTraceACMEInfo(acmeOrder.getAccount(),
+            acmeOrder,
+            AUDIT_ACME_ORDER_EXPIRED,
+            null);
+    }
+
+    public AuditTrace createAuditTraceAcmeChallengeSucceeded(final AcmeAccount acmeAccount,
                                                              final AcmeOrder acmeOrder,
                                                              final String msg) {
         return createAuditTraceACMEInfo(acmeAccount,
@@ -208,7 +216,7 @@ public class AuditService {
             msg);
     }
 
-    public AuditTrace createAuditTraceACMEChallengeFailed(final ACMEAccount acmeAccount,
+    public AuditTrace createAuditTraceAcmeChallengeFailed(final AcmeAccount acmeAccount,
                                                           final AcmeOrder acmeOrder,
                                                           final String msg) {
         return createAuditTraceACMEInfo(acmeAccount,
@@ -218,7 +226,7 @@ public class AuditService {
     }
 
 
-    public AuditTrace createAuditTraceACMEOrderExpired(final ACMEAccount acmeAccount,
+    public AuditTrace createAuditTraceAcmeOrderExpired(final AcmeAccount acmeAccount,
                                                        final AcmeOrder acmeOrder) {
         return createAuditTraceACMEInfo(acmeAccount,
             acmeOrder,
@@ -226,7 +234,7 @@ public class AuditService {
             null);
     }
 
-    public AuditTrace createAuditTraceACMEOrderInvalid(final ACMEAccount acmeAccount,
+    public AuditTrace createAuditTraceAcmeOrderInvalid(final AcmeAccount acmeAccount,
                                                           final AcmeOrder acmeOrder,
                                                           final String msg) {
         return createAuditTraceACMEInfo(acmeAccount,
@@ -236,7 +244,7 @@ public class AuditService {
     }
 
 
-    public AuditTrace createAuditTraceACMEInfo(final ACMEAccount acmeAccount,
+    public AuditTrace createAuditTraceACMEInfo(final AcmeAccount acmeAccount,
                                                final AcmeOrder acmeOrder,
                                                final String template,
                                                final String msg){
@@ -520,6 +528,22 @@ public class AuditService {
             null);
     }
 
+    public AuditTrace createAuditTraceAcmeAcountCreatedOnUpdated(final int nUpdated){
+
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_ACME_ACCOUNT_CREATED_OR_UPDATED,
+            "" + nUpdated,
+            null, "",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+    }
+
 
     public AuditTrace createAuditTrace(final String actor, final String actorRole, final String template,
                             final CSR csr,
@@ -563,7 +587,7 @@ public class AuditService {
         final Pipeline pipeline,
         final CAConnectorConfig caConnector,
         final BPMNProcessInfo processInfo,
-           final ACMEAccount acmeAccount,
+           final AcmeAccount acmeAccount,
            final AcmeOrder acmeOrder
            ){
 

@@ -92,15 +92,16 @@ export default class CsrInfo extends mixins(AlertMixin, JhiDataUtils) {
   }
 
   public getArAttributes(): INamedValue[] {
+    return this.icsrView.arArr;
+    /*
     const resultArr: INamedValue[] = new Array<INamedValue>();
 
-    /*
-    if (this.icsrView.csrAttributes === undefined) {
+    if (this.icsrView.arArr === undefined) {
       return resultArr;
     }
 
-    for (let i = 0; i < this.icsrView.csrAttributes.length; i++) {
-      const attr = this.icsrView.csrAttributes[i];
+    for (let i = 0; i < this.icsrView.arArr.length; i++) {
+      const attr = this.icsrView.arArr[i];
       if (attr.name.startsWith('_ARA_')) {
         const nv: INamedValue = {};
         nv.name = attr.name.substr(5);
@@ -139,8 +140,8 @@ export default class CsrInfo extends mixins(AlertMixin, JhiDataUtils) {
         }
       }
     }
-*/
     return resultArr;
+*/
   }
 
   public async withdrawCSR() {

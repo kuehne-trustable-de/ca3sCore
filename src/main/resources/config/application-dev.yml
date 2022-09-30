@@ -32,14 +32,15 @@ spring:
       indent-output: true
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-#    url: jdbc:h2:file:./target/h2db/db/ca3s_jh;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-#    url: jdbc:h2:mem:ca3sTestDB
-#    username: root
-#    password:
 
-    url: jdbc:mysql://localhost:3306/int_test?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: ca3s_test
-    password: s3cr3t
+#    url: jdbc:h2:file:./target/h2db/db/ca3s_jh;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MariaDB
+    url: jdbc:h2:mem:ca3sTestDB;DB_CLOSE_ON_EXIT=FALSE;MODE=MariaDB
+    username: root
+    password:
+
+#    url: jdbc:mysql://localhost:3306/int_test?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+#    username: ca3s_test
+#    password: s3cr3t
 
     hikari:
       poolName: Hikari
@@ -49,6 +50,9 @@ spring:
         prepStmtCacheSize: 250
         prepStmtCacheSqlLimit: 2048
         useServerPrepStmts: true
+  h2:
+    console:
+      enabled: false
   jpa:
     database-platform: tech.jhipster.domain.util.FixedH2Dialect
     database: H2
