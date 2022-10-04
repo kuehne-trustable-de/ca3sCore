@@ -26,14 +26,7 @@
 
 package de.trustable.ca3s.core.web.rest.acme;
 
-import static org.springframework.http.CacheControl.noStore;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.HEAD;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
-
-import java.util.List;
-
-
+import de.trustable.ca3s.core.domain.AcmeNonce;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -42,47 +35,54 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import de.trustable.ca3s.core.domain.AcmeNonce;
+import java.util.List;
+
+import static org.springframework.http.CacheControl.noStore;
+import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 
-@Controller
-@RequestMapping("/acme/{realm}/newNonce")
 /**
  * Produces <a href="https://de.wikipedia.org/wiki/Nonce">Nonces</a> containing
  * 16 random bytes followed by 8 bytes from epoch seconds.
  */
+@Controller
+@RequestMapping("/acme/{realm}/newNonce")
 public class NewNonceController extends AcmeController {
-
-	public static final String REPLAY_NONCE_HEADER = "Replay-Nonce";
 
 	private static final Logger LOG = LoggerFactory.getLogger(NewNonceController.class);
 
-	@RequestMapping(method = { GET, POST, HEAD })
-	public ResponseEntity<String> viaGet() {
-		LOG.info("New NONCE requested");
+    @RequestMapping(method = HEAD)
+    public ResponseEntity<String> viaHead() {
+        LOG.info("New NONCE requested using Head");
 
-		AcmeNonce nonce = getNewNonce();
+        return ok().headers(buildNonceHeader()).cacheControl(noStore()).build();
+    }
 
-		return ResponseEntity.noContent().header(REPLAY_NONCE_HEADER, nonce.getNonceValue())
-				.cacheControl(noStore()).build();
-	}
+    @RequestMapping(method = { GET, POST})
+    public ResponseEntity<String> viaGet() {
+        LOG.info("New NONCE requested");
 
-	
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+        return ResponseEntity.noContent().headers(buildNonceHeader())
+            .cacheControl(noStore()).build();
+    }
+
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void cleanupNonces() {
 		long startTime = System.currentTimeMillis();
 		List<AcmeNonce> expiredNonceList = nonceRepository.findByNonceExpiryDate(new java.util.Date());
 		if(expiredNonceList.isEmpty()) {
 			return;
 		}
-		
+
 		LOG.debug("CleanupScheduler.cleanupNonce called ...");
 		for (AcmeNonce nonce : expiredNonceList) {
 			LOG.debug("cleanupNonce {} deleting", nonce.getNonceValue());
-			
+
 			nonceRepository.delete(nonce);
 		}
-		
+
 		LOG.debug("CleanupScheduler.cleanupNonce finishes in {} ms", System.currentTimeMillis() - startTime);
 	}
 

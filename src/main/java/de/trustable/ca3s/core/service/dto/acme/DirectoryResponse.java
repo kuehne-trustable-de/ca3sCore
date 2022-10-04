@@ -26,9 +26,10 @@
 
 package de.trustable.ca3s.core.service.dto.acme;
 
-import java.net.URI;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.net.URI;
 
 /*
  * 7.1.1.  Directory
@@ -53,7 +54,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
    }
  */
 
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DirectoryResponse {
 
 	private URI newNonceUri, newAccountUri, newOrderUri, newAuthzUri, revokeUri, keyChangeUri;
@@ -148,5 +149,5 @@ public class DirectoryResponse {
 		this.keyChangeUri = keyChangeUri;
 	}
 
-	
+
 }

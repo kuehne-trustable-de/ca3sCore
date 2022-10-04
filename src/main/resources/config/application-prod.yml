@@ -93,7 +93,7 @@ spring:
         session:
           events:
              log:
-               LOG_QUERIES_SLOWER_THAN_MS: 25
+               LOG_QUERIES_SLOWER_THAN_MS: 250
 
   # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
   liquibase:
@@ -234,8 +234,9 @@ ca3s:
 #      filePostfix: .html
 
   ui:
-    rows:
-      max: 65535
+    download:
+      rows:
+        max: 65535
 
     # limit the set of selectable languages, available languages are de, en, pl
 # if only one language is selected, the user form for selection is disabled / hidden.

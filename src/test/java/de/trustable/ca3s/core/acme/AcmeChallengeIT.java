@@ -4,11 +4,9 @@ import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import de.trustable.util.JCAManager;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.shredzone.acme4j.*;
+import org.shredzone.acme4j.Order;
 import org.shredzone.acme4j.challenge.Dns01Challenge;
 import org.shredzone.acme4j.challenge.Http01Challenge;
 import org.shredzone.acme4j.exception.AcmeException;
@@ -83,7 +81,6 @@ public class AcmeChallengeIT {
         LOG.info("DNS server set to {}", "localhost:" + dnsPort);
     }
 
-
     @Test
     public void testAccountKeyHandling() throws AcmeException {
 
@@ -102,7 +99,7 @@ public class AcmeChallengeIT {
             .agreeToTermsOfService()
             .useKeyPair(accountKeyPair)
             .create(session);
-        assertNotNull("created account MUST NOT be null", account);
+        Assertions.assertNotNull(account, "created account MUST NOT be null");
 
         URL accountLocationUrl = account.getLocation();
         LOG.debug("accountLocationUrl {}", accountLocationUrl);
@@ -114,8 +111,8 @@ public class AcmeChallengeIT {
             .onlyExisting()
             .create(session);
 
-        assertNotNull("retrieved account MUST NOT be null", existingAccount);
-        assertEquals(account.getContacts().get(0), existingAccount.getContacts().get(0));
+        Assertions.assertNotNull(existingAccount, "retrieved account MUST NOT be null");
+        Assertions.assertEquals(account.getContacts().get(0), existingAccount.getContacts().get(0));
 
         Account newAccount = new AccountBuilder()
             .addContact("mailto:acmeCollidingKey@ca3s.org")
@@ -123,7 +120,7 @@ public class AcmeChallengeIT {
             .useKeyPair(accountKeyPair)
             .create(session);
 
-        assertNotNull("retrieved account MUST NOT be null", newAccount);
+        Assertions.assertNotNull(newAccount, "retrieved account MUST NOT be null");
 
     }
 
@@ -146,7 +143,7 @@ public class AcmeChallengeIT {
             .agreeToTermsOfService()
             .useKeyPair(accountKeyPair)
             .create(session);
-        assertNotNull("created account MUST NOT be null", account);
+        Assertions.assertNotNull(account, "created account MUST NOT be null");
 
         URL accountLocationUrl = account.getLocation();
         LOG.debug("accountLocationUrl {}", accountLocationUrl);
@@ -157,8 +154,8 @@ public class AcmeChallengeIT {
             .useKeyPair(accountKeyPair)
             .create(session);
 
-        assertNotNull("created account MUST NOT be null", retrievedAccount);
-        assertEquals("expected to fimnd the smae account (URL)", accountLocationUrl, retrievedAccount.getLocation());
+        Assertions.assertNotNull(retrievedAccount, "created account MUST NOT be null");
+        Assertions.assertEquals(accountLocationUrl, retrievedAccount.getLocation(), "expected to fimnd the smae account (URL)");
 
         // #########################
         // unreachable http endpoint
@@ -177,14 +174,14 @@ public class AcmeChallengeIT {
             if (auth.getStatus() == Status.PENDING) {
 
                 Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
-                assertNotNull("expected to find a challenge", challenge);
+                Assertions.assertNotNull(challenge, "expected to find a challenge");
 
                 LOG.debug("challenge status (pre): {}", challenge.getStatus());
 
                 challenge.trigger();
 
                 LOG.debug("challenge status (post): {}", challenge.getStatus());
-                assertEquals(Status.PENDING, challenge.getStatus());
+                Assertions.assertEquals(Status.PENDING, challenge.getStatus());
             }
         }
 
@@ -203,7 +200,7 @@ public class AcmeChallengeIT {
             if (auth.getStatus() == Status.PENDING) {
 
                 Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
-                assertNotNull("expected to find a challenge", challenge);
+                Assertions.assertNotNull(challenge, "expected to find a challenge");
 
                 LOG.debug("correct response would be {}, but it's prepended with 'xxx' ...", challenge.getAuthorization());
 
@@ -213,7 +210,7 @@ public class AcmeChallengeIT {
                 challenge.trigger();
 
                 LOG.debug("challenge status (post): {}", challenge.getStatus());
-                assertEquals(Status.PENDING, challenge.getStatus());
+                Assertions.assertEquals(Status.PENDING, challenge.getStatus());
 
                 webThread.stop();
             }
@@ -260,14 +257,14 @@ public class AcmeChallengeIT {
 
         try{
             order.execute(csr);
-            fail("AcmeServerException  expected");
+            Assertions.fail("AcmeServerException  expected");
         }catch( AcmeServerException acmeServerException){
-            assertEquals("Public key of CSR already in use ", acmeServerException.getMessage());
+            Assertions.assertEquals("Public key of CSR already in use ", acmeServerException.getMessage());
         }
 
         account.deactivate();
 
-        assertEquals("account status 'deactivated' expected", Status.DEACTIVATED, account.getStatus() );
+        Assertions.assertEquals(Status.DEACTIVATED, account.getStatus(), "account status 'deactivated' expected");
     }
 
     @SuppressWarnings("deprecation")
@@ -288,7 +285,7 @@ public class AcmeChallengeIT {
             .agreeToTermsOfService()
             .useKeyPair(accountKeyPair)
             .create(session);
-        assertNotNull("created account MUST NOT be null", account);
+        Assertions.assertNotNull(account, "created account MUST NOT be null");
 
         URL accountLocationUrl = account.getLocation();
         LOG.debug("accountLocationUrl {}", accountLocationUrl);
@@ -299,8 +296,8 @@ public class AcmeChallengeIT {
             .useKeyPair(accountKeyPair)
             .create(session);
 
-        assertNotNull("created account MUST NOT be null", retrievedAccount);
-        assertEquals("expected to find the same account (URL)", accountLocationUrl, retrievedAccount.getLocation());
+        Assertions.assertNotNull(retrievedAccount, "created account MUST NOT be null");
+        Assertions.assertEquals(accountLocationUrl, retrievedAccount.getLocation(), "expected to find the same account (URL)");
 
         // #########################
         // valid http endpoint
@@ -352,17 +349,17 @@ public class AcmeChallengeIT {
 
             try {
                 order.execute(csr);
-                fail("AcmeServerException expected");
+                Assertions.fail("AcmeServerException expected");
             } catch (AcmeServerException acmeServerException) {
                 assertTrue(acmeServerException.getMessage().startsWith("failed to find requested hostname 'foo.com' (from CSR) in authorization for order"),
                     "failed to find requested hostname 'foo.com' (from CSR) in authorization for order ");
                 order.update();
-                assertEquals(Status.INVALID, order.getStatus());
+                Assertions.assertEquals(Status.INVALID, order.getStatus());
             }
 
         account.deactivate();
 
-        assertEquals("account status 'deactivated' expected", Status.DEACTIVATED, account.getStatus() );
+        Assertions.assertEquals(Status.DEACTIVATED, account.getStatus(), "account status 'deactivated' expected");
     }
 
     @Disabled
@@ -383,7 +380,7 @@ public class AcmeChallengeIT {
             .agreeToTermsOfService()
             .useKeyPair(accountKeyPair)
             .create(session);
-        assertNotNull("created account MUST NOT be null", account);
+        Assertions.assertNotNull(account, "created account MUST NOT be null");
 
         URL accountLocationUrl = account.getLocation();
         LOG.debug("accountLocationUrl {}", accountLocationUrl);
@@ -394,8 +391,8 @@ public class AcmeChallengeIT {
             .useKeyPair(accountKeyPair)
             .create(session);
 
-        assertNotNull("created account MUST NOT be null", retrievedAccount);
-        assertEquals("expected to fimnd the smae account (URL)", accountLocationUrl, retrievedAccount.getLocation());
+        Assertions.assertNotNull(retrievedAccount, "created account MUST NOT be null");
+        Assertions.assertEquals(accountLocationUrl, retrievedAccount.getLocation(), "expected to fimnd the smae account (URL)");
 
         // #########################
         // http endpoint serving wrong content
@@ -412,14 +409,14 @@ public class AcmeChallengeIT {
             if (auth.getStatus() == Status.PENDING) {
 
                 Dns01Challenge challenge = auth.findChallenge(Dns01Challenge.TYPE);
-                assertNotNull("expected to find a challenge", challenge);
+                Assertions.assertNotNull(challenge, "expected to find a challenge");
 
                 dnsChallengeHelper.setChallengeDetails( challenge.getDigest(), auth.getIdentifier().toString());
                 dnsChallengeHelper.start();
 
                 try {
                     challenge.trigger();
-                    assertEquals(Status.VALID, challenge.getStatus());
+                    Assertions.assertEquals(Status.VALID, challenge.getStatus());
                 }finally {
                     dnsChallengeHelper.stop();
                 }
@@ -442,14 +439,14 @@ public class AcmeChallengeIT {
 
         try{
             order.execute(csr);
-            fail("AcmeServerException expected");
+            Assertions.fail("AcmeServerException expected");
         }catch( AcmeServerException acmeServerException){
-            assertEquals("Public key of CSR already in use ", acmeServerException.getMessage());
+            Assertions.assertEquals("Public key of CSR already in use ", acmeServerException.getMessage());
         }
 
         account.deactivate();
 
-        assertEquals("account status 'deactivated' expected", Status.DEACTIVATED, account.getStatus() );
+        Assertions.assertEquals(Status.DEACTIVATED, account.getStatus(), "account status 'deactivated' expected");
     }
 
     void buildOrder(Account account, int n) throws AcmeException {
