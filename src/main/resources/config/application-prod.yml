@@ -210,7 +210,7 @@ ca3s:
 
   schedule:
     rate:
-      caConnectorStatus:         60000
+      caConnectorStatus:        600000
       protectedContentCleanup: 3600000
       acmeOrderExpiry:         3600000
       certBundleCheck:          600000

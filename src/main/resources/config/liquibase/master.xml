@@ -117,5 +117,7 @@
 
     <include file="config/liquibase/changelog/20220822110000_change_value_field_name.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/20221006170000_added_columns_Challenge.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>

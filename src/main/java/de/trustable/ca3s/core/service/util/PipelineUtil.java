@@ -97,7 +97,8 @@ public class PipelineUtil {
     public static final String NOTIFY_RA_OFFICER_ON_PENDING = "NOTIFY_RA_OFFICER_ON_PENDING";
     public static final String ADDITIONAL_EMAIL_RECIPIENTS = "ADDITIONAL_EMAIL_RECIPIENTS";
 
-	public static final String ACME_ALLOW_CHALLENGE_HTTP01 = "ACME_ALLOW_CHALLENGE_HTTP01";
+    public static final String ACME_ALLOW_CHALLENGE_HTTP01 = "ACME_ALLOW_CHALLENGE_HTTP01";
+    public static final String ACME_ALLOW_CHALLENGE_ALPN = "ACME_ALLOW_CHALLENGE_ALPN";
 	public static final String ACME_ALLOW_CHALLENGE_DNS = "ACME_ALLOW_CHALLENGE_DNS";
 
 	public static final String ACME_ALLOW_CHALLENGE_WILDCARDS = "ACME_ALLOW_WILDCARDS";
@@ -211,8 +212,10 @@ public class PipelineUtil {
 
     		if( ACME_ALLOW_CHALLENGE_HTTP01.equals(plAtt.getName())) {
     			acmeConfigItems.setAllowChallengeHTTP01(Boolean.parseBoolean(plAtt.getValue()));
-    		}else if( ACME_ALLOW_CHALLENGE_DNS.equals(plAtt.getName())) {
-    			acmeConfigItems.setAllowChallengeDNS(Boolean.parseBoolean(plAtt.getValue()));
+            }else if( ACME_ALLOW_CHALLENGE_ALPN.equals(plAtt.getName())) {
+                acmeConfigItems.setAllowChallengeAlpn(Boolean.parseBoolean(plAtt.getValue()));
+            }else if( ACME_ALLOW_CHALLENGE_DNS.equals(plAtt.getName())) {
+                acmeConfigItems.setAllowChallengeDNS(Boolean.parseBoolean(plAtt.getValue()));
     		}else if( ACME_ALLOW_CHALLENGE_WILDCARDS.equals(plAtt.getName())) {
     			acmeConfigItems.setAllowWildcards(Boolean.parseBoolean(plAtt.getValue()));
     		}else if( ACME_CHECK_CAA.equals(plAtt.getName())) {
@@ -687,6 +690,7 @@ public class PipelineUtil {
                 pv.getAcmeConfigItems().setAllowWildcards(false);
             }
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_HTTP01, pv.getAcmeConfigItems().isAllowChallengeHTTP01());
+            addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_ALPN, pv.getAcmeConfigItems().isAllowChallengeAlpn());
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_DNS, pv.getAcmeConfigItems().isAllowChallengeDNS());
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_WILDCARDS, pv.getAcmeConfigItems().isAllowWildcards());
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_CHECK_CAA, pv.getAcmeConfigItems().isCheckCAA());

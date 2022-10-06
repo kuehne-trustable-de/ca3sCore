@@ -363,6 +363,9 @@
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.allowChallengeHTTP01')" for="pipeline-allowChallengeHTTP01">Challenge HTTP01</label>
                         <input type="checkbox" class="form-check-inline" name="allowChallengeHTTP01" id="pipeline-allowChallengeHTTP01" v-model="pipeline.acmeConfigItems.allowChallengeHTTP01" />
 
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.allowChallengeAlpn')" for="pipeline-allowChallengeAlpn">Challenge Alpn</label>
+                        <input type="checkbox" class="form-check-inline" name="allowChallengeAlpn" id="pipeline-allowChallengeAlpn" v-model="pipeline.acmeConfigItems.allowChallengeAlpn" />
+
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.allowChallengeDNS')" for="pipeline-allowChallengeDNS">Challenge DNS</label>
                         <input type="checkbox" class="form-check-inline" name="allowChallengeDNS" id="pipeline-allowChallengeDNS" v-model="pipeline.acmeConfigItems.allowChallengeDNS" />
 

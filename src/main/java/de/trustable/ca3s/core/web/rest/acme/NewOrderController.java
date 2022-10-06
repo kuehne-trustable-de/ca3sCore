@@ -411,7 +411,7 @@ public class NewOrderController extends AcmeController {
                     challengeTypeSet.add(AcmeChallenge.CHALLENGE_TYPE_HTTP_01);
                 }
 
-                if( acmeConfigItems.isAllowChallengeHTTP01() ) {
+                if( acmeConfigItems.isAllowChallengeAlpn() ) {
                     LOG.debug("Offering ALPN-01 challenge");
                     challenges.add(createChallenge(AcmeChallenge.CHALLENGE_TYPE_ALPN_01, identDao.getValue(), authorizationDao));
                     challengeTypeSet.add(AcmeChallenge.CHALLENGE_TYPE_ALPN_01);

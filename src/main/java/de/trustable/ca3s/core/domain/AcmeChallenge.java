@@ -41,6 +41,10 @@ public class AcmeChallenge implements Serializable {
     @Column(name = "validated")
     private Instant validated;
 
+    @Column(name = "last_error", nullable = true)
+    private String lastError;
+
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -131,6 +135,14 @@ public class AcmeChallenge implements Serializable {
     public AcmeChallenge status(ChallengeStatus status) {
         this.status = status;
         return this;
+    }
+
+    public String getLastError() {
+        return lastError;
+    }
+
+    public void setLastError(String lastError) {
+        this.lastError = lastError;
     }
 
     public void setStatus(ChallengeStatus status) {
