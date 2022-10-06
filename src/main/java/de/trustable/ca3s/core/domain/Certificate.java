@@ -291,6 +291,7 @@ public class Certificate implements Serializable {
     private String content;
 
     @OneToOne
+    @JsonIgnoreProperties("csrAttributes")
     @JoinColumn(unique = true)
     private CSR csr;
 

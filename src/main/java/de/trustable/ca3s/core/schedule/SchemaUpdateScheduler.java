@@ -188,18 +188,22 @@ public class SchemaUpdateScheduler {
 
         int count = 0;
         for (AcmeOrder acmeOrder : acmeOrderList) {
-            String realm = acmeOrder.getAccount().getRealm();
-            List<Pipeline> pipelineList = pipelineRepository.findByTypeUrl(PipelineType.ACME, realm);
-            if( !pipelineList.isEmpty() ){
-                acmeOrder.setPipeline(pipelineList.get(0));
-                acmeOrder.setRealm(realm);
-                acmeOrderRepository.save(acmeOrder);
-                LOG.info("realm and pipeljne updated for acme order {} ", acmeOrder);
-            }
+            if( acmeOrder.getAccount() != null ) {
+                String realm = acmeOrder.getAccount().getRealm();
+                List<Pipeline> pipelineList = pipelineRepository.findByTypeUrl(PipelineType.ACME, realm);
+                if (!pipelineList.isEmpty()) {
+                    acmeOrder.setPipeline(pipelineList.get(0));
+                    acmeOrder.setRealm(realm);
+                    acmeOrderRepository.save(acmeOrder);
+                    LOG.info("realm and pipeline updated for acme order {} ", acmeOrder);
+                }
 
-            if (count++ > MAX_RECORDS_PER_TRANSACTION) {
-                LOG.info("limited AcmeOrder processing to {} per call", MAX_RECORDS_PER_TRANSACTION);
-                break;
+                if (count++ > MAX_RECORDS_PER_TRANSACTION) {
+                    LOG.info("limited AcmeOrder processing to {} per call", MAX_RECORDS_PER_TRANSACTION);
+                    break;
+                }
+            }else{
+                LOG.info("acme order {} has no account!", acmeOrder.getId());
             }
         }
         if (count > 0) {

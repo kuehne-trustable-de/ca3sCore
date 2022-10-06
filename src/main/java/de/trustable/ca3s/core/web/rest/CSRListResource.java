@@ -12,21 +12,20 @@ import de.trustable.ca3s.core.repository.PipelineAttributeRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.dto.CSRView;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.repository.query.Param;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import tech.jhipster.web.util.PaginationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import tech.jhipster.web.util.PaginationUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.StringWriter;
@@ -50,7 +49,7 @@ public class CSRListResource {
     public CSRListResource(CSRViewRepository csrViewRepository,
                            UserRepository userRepository,
                            PipelineAttributeRepository pipelineAttributeRepository,
-                           @Value("${ca3s.ui.rows.max:1000}") int maxCSVRows) {
+                           @Value("${ca3s.ui.download.rows.max:1000}") int maxCSVRows) {
 
         this.csrViewRepository = csrViewRepository;
         this.userRepository = userRepository;

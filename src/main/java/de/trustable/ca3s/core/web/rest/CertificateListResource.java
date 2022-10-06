@@ -45,7 +45,7 @@ public class CertificateListResource {
     private final Logger log = LoggerFactory.getLogger(CertificateListResource.class);
 
     public CertificateListResource(CertificateViewRepository certificateViewRepository,
-                                   @Value("${ca3s.ui.rows.max:1000}") int maxCSVRows) {
+                                   @Value("${ca3s.ui.download.rows.max:1000}") int maxCSVRows) {
         this.certificateViewRepository = certificateViewRepository;
         this.maxCSVRows = maxCSVRows;
     }

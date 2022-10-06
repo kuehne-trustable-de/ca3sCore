@@ -385,19 +385,25 @@ public class OIDCAuthenticationResource {
     @PostMapping("/logout")
     public ResponseEntity logout(HttpServletRequest request) {
 
+        HttpHeaders httpHeaders = new HttpHeaders();
+
         ServletUriComponentsBuilder servletUriComponentsBuilder = ServletUriComponentsBuilder.fromRequestUri(request);
         String redirectCodeUri = servletUriComponentsBuilder.path("/../..").queryParam("instantLogin","false").build().normalize().toString();
-        KeycloakUriBuilder builder = deployment.getLogoutUrl().clone()
-            .queryParam(OAuth2Constants.REDIRECT_URI, redirectCodeUri);
+        if( deployment == null || deployment.getLogoutUrl() == null) {
+            log.info("logout call without OIDC info");
+        }else {
 
-        String redirectUrl = builder.build().toString();
-        log.info("logout redirectUrl : '{}'", redirectUrl);
+            KeycloakUriBuilder builder = deployment.getLogoutUrl().clone()
+                .queryParam(OAuth2Constants.REDIRECT_URI, redirectCodeUri);
 
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Access-Control-Allow-Origin", "*");
-        httpHeaders.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        httpHeaders.add("Access-Control-Allow-Headers", "Origin, Content-Type, X-Auth-Token");
-        httpHeaders.add("Location", redirectUrl);
+            String redirectUrl = builder.build().toString();
+            log.info("logout redirectUrl : '{}'", redirectUrl);
+
+            httpHeaders.add("Access-Control-Allow-Origin", "*");
+            httpHeaders.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+            httpHeaders.add("Access-Control-Allow-Headers", "Origin, Content-Type, X-Auth-Token");
+            httpHeaders.add("Location", redirectUrl);
+        }
 
         return new ResponseEntity<>(httpHeaders, HttpStatus.OK);
     }
