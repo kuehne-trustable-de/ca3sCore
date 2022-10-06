@@ -97,6 +97,10 @@ If you need to re-run the Sonar phase, please be sure to specify at least the `i
 or
 For more information, refer to the [Code quality page][].
 
+## Tooling
+
+We are using IntelliJ IDEA. Many thanks to [JetBrain's open source support](https://www.jetbrains.com/community/opensource/#support) !
+
 ## Continuous Integration (optional)
 
 To configure CI for your project, run the ci-cd sub-generator (`jhipster ci-cd`), this will let you generate configuration files for a number of Continuous Integration systems. Consult the [Setting up Continuous Integration][] page for more information.
