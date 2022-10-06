@@ -155,7 +155,7 @@
         <keycloak.version>19.0.2</keycloak.version>
 
         <bouncyCastleVersion>1.68</bouncyCastleVersion>
-        <cryptoUtilVersion>1.3.4</cryptoUtilVersion>
+        <cryptoUtilVersion>1.3.6</cryptoUtilVersion>
         <certBundleVersion>1.1.1</certBundleVersion>
         <adcsUtilVersion>1.2.8</adcsUtilVersion>
         <adcsProxyClientVersion>1.2.8</adcsProxyClientVersion>
