@@ -262,6 +262,7 @@ ca3s:
 
     sso:
       autologin: false
+      provider: keyCloak
 
   acme:
     finalizelocationBackwardCompat: true
