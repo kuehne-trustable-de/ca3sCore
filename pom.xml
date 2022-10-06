@@ -200,7 +200,7 @@
         <kerby.version>2.0.2</kerby.version>
         <embedded-ldap.version>0.8.1</embedded-ldap.version>
 
-        <xml.maven.saxon.version>9.7.0-18</xml.maven.saxon.version>
+        <xml.maven.saxon.version>9.9.1-8</xml.maven.saxon.version>
         <xml.maven.plugin.version>1.0.2</xml.maven.plugin.version>
 
         <dependencyCheck.version>7.0.0</dependencyCheck.version>
