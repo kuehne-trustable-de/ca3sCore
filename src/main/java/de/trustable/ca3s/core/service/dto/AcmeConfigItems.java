@@ -5,19 +5,20 @@ import java.io.Serializable;
 public class AcmeConfigItems implements Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -4813895760525985553L;
 
-	private boolean allowChallengeHTTP01;
+    private boolean allowChallengeHTTP01;
+    private boolean allowChallengeAlpn;
 	private boolean allowChallengeDNS;
-	
+
 	private boolean allowWildcards;
-	
+
 	private boolean checkCAA;
-	
+
 	private String caNameCAA;
-	
+
     private String processInfoNameAccountValidation;
     private String processInfoNameOrderValidation;
     private String processInfoNameChallengeValidation;
@@ -56,7 +57,16 @@ public class AcmeConfigItems implements Serializable {
 		return processInfoNameChallengeValidation;
 	}
 
-	public void setAllowChallengeHTTP01(boolean allowChallengeHTTP01) {
+    public boolean isAllowChallengeAlpn() {
+        return allowChallengeAlpn;
+    }
+
+    public void setAllowChallengeAlpn(boolean allowChallengeAlpn) {
+        this.allowChallengeAlpn = allowChallengeAlpn;
+    }
+
+
+    public void setAllowChallengeHTTP01(boolean allowChallengeHTTP01) {
 		this.allowChallengeHTTP01 = allowChallengeHTTP01;
 	}
 
@@ -87,7 +97,7 @@ public class AcmeConfigItems implements Serializable {
 	public void setProcessInfoNameChallengeValidation(String processInfoNameChallengeValidation) {
 		this.processInfoNameChallengeValidation = processInfoNameChallengeValidation;
 	}
-    
-    
+
+
 
 }

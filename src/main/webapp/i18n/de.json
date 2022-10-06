@@ -452,6 +452,7 @@
   "ca3SApp.nonce.updated": "Nonce aktualisiert mit ID {{ param }}",
   "ca3SApp.pipeline.allowChallengeDNS": "DNS-01 Challenge",
   "ca3SApp.pipeline.allowChallengeHTTP01": "HTTP-01 Challenge",
+  "ca3SApp.pipeline.allowChallengeAlpn": "ÂLPN Challenge",
   "ca3SApp.pipeline.allowWildcards": "Wildcards zulassen",
   "ca3SApp.pipeline.approvalInfo": "Freigabeinfo",
   "ca3SApp.pipeline.approvalRequired": "Freigabe erforderlich",
