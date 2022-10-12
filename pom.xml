@@ -160,7 +160,7 @@
         <adcsUtilVersion>1.2.8</adcsUtilVersion>
         <adcsProxyClientVersion>1.2.8</adcsProxyClientVersion>
 
-        <nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
+        <nimbus-jose-jwt-version>8.23</nimbus-jose-jwt-version>
         <jose4jVersion>0.9.0</jose4jVersion>
         <acme4jVersion>2.14</acme4jVersion>
         <takesVersion>1.16</takesVersion>
