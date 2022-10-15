@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.19.577 on 2022-10-05 22:47:24.
+// Generated using typescript-generator version 3.0.1157 on 2022-10-11 22:57:59.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -192,14 +192,16 @@ export interface ICertificateView extends ISerializable {
   isServersideKeyGeneration?: boolean;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
-  serversideKeyGeneration?: boolean;
   fullChainAvailable?: boolean;
+  serversideKeyGeneration?: boolean;
   auditPresent?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
   validPBEAlgoArr?: string[];
   defaultPBEAlgo?: string;
+  allHashAlgoArr?: string[];
+  allSignAlgoArr?: string[];
 }
 
 export interface IUIConfigView extends ISerializable {
@@ -263,6 +265,13 @@ export interface ICSRAdministrationData extends ISerializable {
   arAttributes?: INamedValue[];
 }
 
+export interface ICSRAdministrationResponse extends ISerializable {
+  csrId?: number;
+  certId?: number;
+  administrationType?: IAdministrationType;
+  problemOccured?: string;
+}
+
 export interface ICertificateAdministrationData extends ISerializable {
   certificateId?: number;
   revocationReason?: string;
@@ -302,6 +311,7 @@ export interface IX509CertificateHolderShallow {
   publicKeyPresentInDB?: boolean;
   pemCertrificate?: string;
   sans?: string[];
+  pemCertificate?: string;
 }
 
 export interface ICertificateFilter extends ISerializable {

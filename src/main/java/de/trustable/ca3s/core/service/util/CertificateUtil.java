@@ -2197,6 +2197,7 @@ public class CertificateUtil {
                                                     final CRLUtil crlUtil,
                                                     final HashSet<String> brokenCrlUrlList){
 
+        long now = System.currentTimeMillis();
         CRLUpdateInfo info = new CRLUpdateInfo();
         long maxNextUpdate = System.currentTimeMillis() + 1000L * preferenceUtil.getMaxNextUpdatePeriodCRLSec();
 
@@ -2221,14 +2222,23 @@ public class CertificateUtil {
                         continue;
                     }
 
-                    long nextUpdate = crl.getNextUpdate().getTime();
-                    if( nextUpdate > maxNextUpdate ){
-                        LOG.debug("nextUpdate {} from CRL limited to {}", crl.getNextUpdate(), new Date(maxNextUpdate));
-                        nextUpdate = maxNextUpdate;
-                    }
+                    if( crl.getNextUpdate() == null){
+                        LOG.warn("nextUpdate missing in CRL '{}' of certificate #{}", crlUrl, cert.getId());
+                    }else {
+                        long nextUpdate = crl.getNextUpdate().getTime();
+                        if (nextUpdate > maxNextUpdate) {
+                            LOG.debug("nextUpdate {} from CRL limited to {}", crl.getNextUpdate(), new Date(maxNextUpdate));
+                            nextUpdate = maxNextUpdate;
+                        }
 
-                    // set the crl's 'next update' timestamp to the certificate
-                    setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE, Long.toString(nextUpdate), false);
+                        if (nextUpdate < now) {
+                            LOG.warn("nextUpdate {} of CRL '{}' of certificate #{} already expired", crl.getNextUpdate(), crlUrl, cert.getId());
+                            nextUpdate = maxNextUpdate;
+                        }
+
+                        // set the crl's 'next update' timestamp to the certificate
+                        setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE, Long.toString(nextUpdate), false);
+                    }
 
                     X509CRLEntry crlItem = crl.getRevokedCertificate(new BigInteger(cert.getSerial()));
 

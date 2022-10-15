@@ -1,12 +1,5 @@
 <template>
     <div>
-        <b-alert :show="dismissCountDown"
-                 dismissible
-                 :variant="alertType"
-                 @dismissed="dismissCountDown=0"
-                 @dismiss-count-down="countDownChanged">
-            {{alertMessage}}
-        </b-alert>
         <div class="row justify-content-center">
             <div class="col-8">
                 <div v-if="certificateView">
@@ -294,9 +287,16 @@
                             <label class="form-control-label" v-text="$t('ca3SApp.certificate.comment')" for="comment">Comment</label> <help-tag target="ca3SApp.certificate.comment"/>
                             <textarea class="form-control" name="content" id="comment"
                                 autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                                v-model="certificateAdminData.comment" />
+                                v-model="comment" />
                         </div>
 
+                        <b-alert :show="dismissCountDown"
+                                 dismissible
+                                 :variant="alertType"
+                                 @dismissed="dismissCountDown=0"
+                                 @dismiss-count-down="countDownChanged">
+                            {{alertMessage}}
+                        </b-alert>
 
                         <button type="submit"
                                 v-on:click.prevent="previousState()"
@@ -304,19 +304,23 @@
                             <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.back')"> Back</span>
                         </button>
 
-                        <button type="button" id="edit" v-if="isOwnCertificate()" class="btn btn-secondary" v-on:click="selfAdministerCertificate()">
-                            <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.edit')">Update</span>
-                        </button>
-
-                        <button type="button" id="update" v-if="isRAOfficer()" class="btn btn-secondary" v-on:click="updateCertificate()">
+                        <button type="button" id="edit" v-if="isOwnCertificate()"
+                                class="btn btn-secondary" v-on:click="selfAdministerCertificate()">
                             <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.update')">Update</span>
                         </button>
 
-                        <button type="button" id="updateCrl" v-if="isRAOfficer()" class="btn btn-secondary" v-on:click="updateCRL()">
+                        <button type="button" id="update" v-if="isRAOfficer() && (comment !== certificateView.comment)"
+                                class="btn btn-secondary" v-on:click="updateCertificate()">
+                            <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.update')">Update</span>
+                        </button>
+
+                        <button type="button" id="updateCrl" v-if="isRAOfficer()"
+                                class="btn btn-secondary" v-on:click="updateCRL()">
                             <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.updateCrl')">Update CRL</span>
                         </button>
 
-                        <button type="button" id="removeFromCRL" v-if="isRemovableFromCRL()" class="btn btn-secondary" v-on:click="removeCertificateFromCRL()">
+                        <button type="button" id="removeFromCRL" v-if="isRemovableFromCRL()"
+                                class="btn btn-secondary" v-on:click="removeCertificateFromCRL()">
                             <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.removeCertificateFromCRL')">Remove from CRL</span>
                         </button>
 

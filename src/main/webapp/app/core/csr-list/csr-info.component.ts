@@ -5,12 +5,11 @@ import axios, { AxiosError } from 'axios';
 
 import { mixins } from 'vue-class-component';
 import JhiDataUtils from '@/shared/data/data-utils.service';
-import AlertService from '@/shared/alert/alert.service';
 import CopyClipboardButton from '@/shared/clipboard/clipboard.vue';
 import HelpTag from '@/core/help/help-tag.vue';
 import AuditTag from '@/core/audit/audit-tag.vue';
 
-import { ICSRAdministrationData, INamedValue, ICSRView } from '@/shared/model/transfer-object.model';
+import { ICSRAdministrationData, INamedValue, ICSRView, ICSRAdministrationResponse } from '@/shared/model/transfer-object.model';
 
 import ArItem from './ar-item.component';
 
@@ -199,28 +198,36 @@ export default class CsrInfo extends mixins(AlertMixin, JhiDataUtils) {
         console.log(response.status);
 
         if (response.status === 201) {
-          self.$router.push({ name: 'CertInfo', params: { certificateId: response.data.toString() } });
+          const csrAdministrationResponse: ICSRAdministrationResponse = response.data;
+          self.$router.push({ name: 'CertInfo', params: { certificateId: csrAdministrationResponse.certId.toString() } });
+        } else if (response.status === 202) {
+          const csrAdministrationResponse: ICSRAdministrationResponse = response.data;
+          const message = self.$t('problem processing request: ' + csrAdministrationResponse.problemOccured);
+          self.alertService().showAlert(message, 'danger');
+          self.getAlertFromStore();
+          //          self.previousState();
         } else {
           self.previousState();
         }
       })
       .catch(function(error) {
         console.log(error);
-        self.previousState();
+        //        self.previousState();
         const message = self.$t('problem processing request: ' + error);
 
         const err = error as AxiosError;
         if (err.response) {
           console.log(err.response.status);
           console.log(err.response.data);
-          if (err.response.status === 401) {
-            self.alertService().showAlert('Action not allowed', 'warn');
+          if (err.response.status === 401 || err.response.status === 403) {
+            self.alertService().showAlert('Action not allowed', 'danger');
           } else {
             self.alertService().showAlert(message, 'info');
           }
         } else {
           self.alertService().showAlert(message, 'info');
         }
+        self.getAlertFromStore();
       })
       .then(function() {
         // always executed

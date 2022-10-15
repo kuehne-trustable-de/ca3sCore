@@ -267,7 +267,7 @@ ca3s:
   acme:
     finalizelocationBackwardCompat: true
 
-# determine the status of an Authentication or an Order by prooving the status of the challenges.
+# determine the status of an Authentication or an Order by proving the status of the challenges.
 # this may trigger a challenge validation call to the client
     iterate:
       authentications: true

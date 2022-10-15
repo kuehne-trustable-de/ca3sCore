@@ -17,6 +17,7 @@ import de.trustable.ca3s.core.service.util.PipelineUtil;
 import de.trustable.ca3s.core.web.rest.data.AdministrationType;
 import de.trustable.ca3s.core.web.rest.data.CSRAdministrationData;
 import de.trustable.ca3s.core.service.dto.NamedValue;
+import de.trustable.ca3s.core.web.rest.data.CSRAdministrationResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -91,14 +92,14 @@ public class CSRAdministration {
     }
 
     /**
-     * {@code POST  /administerRequest} : Process a PKCSXX-object encoded as PEM.
+     * {@code POST  /administerRequest} : Process or comment a CSR.
      *
      * @param adminData a structure holding some crypto-related content, e.g. CSR, certificate, P12 container
      * @return the {@link ResponseEntity} .
      */
     @PostMapping("/administerRequest")
 	@Transactional
-    public ResponseEntity<Long> administerRequest(@Valid @RequestBody CSRAdministrationData adminData) throws MessagingException {
+    public ResponseEntity<CSRAdministrationResponse> administerRequest(@Valid @RequestBody CSRAdministrationData adminData) throws MessagingException {
 
     	LOG.debug("REST request to reject / accept CSR : {}", adminData);
 
@@ -152,7 +153,11 @@ public class CSRAdministration {
                     cert = cpUtil.processCertificateRequestImmediate( csr, userName, AuditService.AUDIT_RA_CERTIFICATE_CREATED );
                 }catch (CAFailureException caFailureException) {
                     LOG.info("problem creating certificate", caFailureException);
-                    return new ResponseEntity<>(adminData.getCsrId(), HttpStatus.BAD_REQUEST);
+                    CSRAdministrationResponse csrAdministrationResponse = new CSRAdministrationResponse();
+                    csrAdministrationResponse.setAdministrationType(adminData.getAdministrationType());
+                    csrAdministrationResponse.setCsrId(adminData.getCsrId());
+                    csrAdministrationResponse.setProblemOccured(caFailureException.getMessage());
+                    return new ResponseEntity<>(csrAdministrationResponse, HttpStatus.ACCEPTED);
                 }
 
     			if(cert != null) {
@@ -180,11 +185,17 @@ public class CSRAdministration {
         			} else {
         				LOG.warn("certificate requestor '{}' unknown!", csr.getRequestedBy());
         			}
-    	    		return new ResponseEntity<>(cert.getId(), HttpStatus.CREATED);
+                    CSRAdministrationResponse csrAdministrationResponse = new CSRAdministrationResponse();
+                    csrAdministrationResponse.setAdministrationType(adminData.getAdministrationType());
+                    csrAdministrationResponse.setCertId(cert.getId());
+    	    		return new ResponseEntity<>(csrAdministrationResponse, HttpStatus.CREATED);
 
     			} else {
     				LOG.warn("creation of certificate requested for CSR {} failed ", csr.getId());
-    	    		return new ResponseEntity<>(adminData.getCsrId(), HttpStatus.BAD_REQUEST);
+                    CSRAdministrationResponse csrAdministrationResponse = new CSRAdministrationResponse();
+                    csrAdministrationResponse.setAdministrationType(adminData.getAdministrationType());
+                    csrAdministrationResponse.setCsrId(adminData.getCsrId());
+    	    		return new ResponseEntity<>(csrAdministrationResponse, HttpStatus.BAD_REQUEST);
     			}
 
     		}else if(AdministrationType.REJECT.equals(adminData.getAdministrationType())){
@@ -209,13 +220,19 @@ public class CSRAdministration {
 
                 auditService.saveAuditTrace(auditService.createAuditTraceCsrRejected(csr));
 
-        		return new ResponseEntity<>(adminData.getCsrId(), HttpStatus.OK);
+                CSRAdministrationResponse csrAdministrationResponse = new CSRAdministrationResponse();
+                csrAdministrationResponse.setAdministrationType(adminData.getAdministrationType());
+                csrAdministrationResponse.setCsrId(adminData.getCsrId());
+        		return new ResponseEntity<>(csrAdministrationResponse, HttpStatus.OK);
 
             }else if(AdministrationType.UPDATE.equals(adminData.getAdministrationType())){
                 updateARAttributes(adminData, csr);
                 csrUtil.setCSRComment(csr, adminData.getComment());
 
-                return new ResponseEntity<>(adminData.getCsrId(), HttpStatus.OK);
+                CSRAdministrationResponse csrAdministrationResponse = new CSRAdministrationResponse();
+                csrAdministrationResponse.setAdministrationType(adminData.getAdministrationType());
+                csrAdministrationResponse.setCsrId(adminData.getCsrId());
+                return new ResponseEntity<>(csrAdministrationResponse, HttpStatus.OK);
             } else {
                 LOG.info("administration type '{}' unexpected!", adminData.getAdministrationType());
                 return ResponseEntity.badRequest().build();

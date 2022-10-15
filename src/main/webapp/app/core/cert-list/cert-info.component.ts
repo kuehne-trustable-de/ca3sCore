@@ -32,6 +32,8 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
   public p12KeyEx = false;
   public downloadFormat = 'pkix';
 
+  public comment = '';
+
   public collapsed = true;
   public setCollapsed(collapsed: boolean) {
     this.collapsed = collapsed;
@@ -244,6 +246,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
   }
 
   public updateCertificate() {
+    this.certificateAdminData.comment = this.comment;
     this.certificateAdminData.certificateId = this.certificateView.id;
     this.certificateAdminData.administrationType = 'UPDATE';
     this.certificateAdminData.trusted = this.certificateView.trusted;
@@ -309,9 +312,20 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
       })
       .catch(function(error) {
         console.log(error);
-        self.previousState();
         const message = self.$t('problem processing request: ' + error);
-        self.alertService().showAlert(message, 'info');
+        const err = error as AxiosError;
+        if (err.response) {
+          console.log(err.response.status);
+          console.log(err.response.data);
+          if (err.response.status === 401 || err.response.status === 403) {
+            self.alertService().showAlert('Action not allowed', 'danger');
+          } else {
+            self.alertService().showAlert(message, 'info');
+          }
+        } else {
+          self.alertService().showAlert(message, 'info');
+        }
+        self.getAlertFromStore();
       })
       .then(function() {
         // always executed

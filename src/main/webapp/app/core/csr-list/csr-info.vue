@@ -1,13 +1,5 @@
 <template>
     <div>
-    <b-alert :show="dismissCountDown"
-             dismissible
-             :variant="alertType"
-             @dismissed="dismissCountDown=0"
-             @dismiss-count-down="countDownChanged">
-        {{alertMessage}}
-    </b-alert>
-    <br/>
     <div class="row justify-content-center">
         <div class="col-8">
             <div v-if="icsrView">
@@ -216,11 +208,28 @@
                         </div>
                     </Fragment>
 
+                    <b-alert :show="dismissCountDown"
+                             dismissible
+                             :variant="alertType"
+                             @dismissed="dismissCountDown=0"
+                             @dismiss-count-down="countDownChanged">
+                        {{alertMessage}}
+                    </b-alert>
+                    <br/>
 
                     <button type="submit"
                             v-on:click.prevent="previousState()"
                             class="btn btn-info">
                         <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.back')"> Back</span>
+                    </button>
+
+                    <button type="button" id="update" v-if="isRAOfficer()" class="btn btn-secondary" v-on:click="updateCSR()">
+                        <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.update')">Update</span>
+                    </button>
+
+                    <button type="button" id="selfAdminister" v-if="icsrView.status === 'PENDING' && getUsername() === icsrView.requestedBy && !isRAOfficer()"
+                            class="btn btn-secondary" v-on:click="selfAdministerRequest()">
+                        <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.update')">Update</span>
                     </button>
 
                     <button type="button" id="reject" v-if="icsrView.status === 'PENDING' && isRAOfficer() && !(getUsername() === icsrView.requestedBy)" class="btn btn-secondary" v-on:click="rejectCSR()">
@@ -229,15 +238,6 @@
 
                     <button type="button" id="withdraw" v-if="icsrView.status === 'PENDING' && getUsername() === icsrView.requestedBy" class="btn btn-secondary" v-on:click="withdrawCSR()">
                         <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.withdraw')">Withdraw</span>
-                    </button>
-
-                    <button type="button" id="update" v-if="isRAOfficer()" class="btn btn-secondary" v-on:click="updateCSR()">
-                        <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.edit')">Update</span>
-                    </button>
-
-                    <button type="button" id="selfAdminister" v-if="icsrView.status === 'PENDING' && getUsername() === icsrView.requestedBy && !isRAOfficer()"
-                            class="btn btn-secondary" v-on:click="selfAdministerRequest()">
-                        <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.update')">Update</span>
                     </button>
 
                     <button type="button" id="confirm" v-if="icsrView.status === 'PENDING' && isRAOfficer()" class="btn btn-primary"

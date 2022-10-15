@@ -34,8 +34,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.TrustManager;
+import javax.ws.rs.ProcessingException;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.ConnectException;
@@ -174,7 +176,7 @@ public class ADCSConnector {
 				LOGGER.debug("csr normalization changes content to : " + normalizedCsrString);
 			}
 
-			Map<String, String> attrMap = new HashMap<String, String>();
+			Map<String, String> attrMap = new HashMap<>();
 
 			String template = config.getSelector();
 			if( (template != null) && (template.trim().length() > 0) ) {
@@ -211,7 +213,9 @@ public class ADCSConnector {
 				createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_FINISHED_TIMESTAMP,"" + System.currentTimeMillis());
 				createCsrAttribute(csr,CsrAttribute.ATTRIBUTE_CA_PROCESSING_ID,"" + certResponse.getReqId());
 
-			} else if ((SubmitStatus.DENIED.equals(certResponse.getStatus()))
+                LOGGER.debug("returning certDao : " + certDao.getId());
+
+            } else if ((SubmitStatus.DENIED.equals(certResponse.getStatus()))
 					|| (SubmitStatus.INCOMPLETE.equals(certResponse.getStatus()))
 					|| (SubmitStatus.ERROR.equals(certResponse.getStatus()))) {
 
@@ -258,8 +262,6 @@ public class ADCSConnector {
 		}finally {
 			csrRepository.save(csr);
 		}
-
-		LOGGER.debug("returning certDao : " + certDao.getId());
 
 		return (certDao);
 
@@ -362,10 +364,8 @@ public class ADCSConnector {
 				}
 			}
 
-		} catch (OODBConnectionsADCSException oodbc) {
+		} catch (OODBConnectionsADCSException | ADCSProxyUnavailableException oodbc) {
 			throw oodbc;
-		} catch (ADCSProxyUnavailableException pue) {
-			throw pue;
 		} catch (ADCSException e) {
 			LOGGER.info("polling certificate list starting from {} with a limit of {} causes {}", pollingOffset,
 					limit, e.getLocalizedMessage());
@@ -471,10 +471,8 @@ public class ADCSConnector {
 				}
 			}
 
-		} catch (OODBConnectionsADCSException oodbc) {
+		} catch (OODBConnectionsADCSException | ADCSProxyUnavailableException oodbc) {
 			throw oodbc;
-		} catch (ADCSProxyUnavailableException pue) {
-			throw pue;
 		} catch (ADCSException e) {
 			LOGGER.info("importing certificate list by resolved date with a limit of {} causes {}", limit, e.getLocalizedMessage());
 			LOGGER.warn("ACDSException : ", e);
@@ -541,7 +539,7 @@ public class ADCSConnector {
 							CertificateAttribute.ATTRIBUTE_PROCESSING_CA, info,
 							CertificateAttribute.ATTRIBUTE_CA_PROCESSING_ID, reqId);
 
-					Certificate certRevoked = null;
+					Certificate certRevoked;
 					if (certDaoList.isEmpty()) {
 						LOGGER.warn("certificate with revocation status to be updated with requestID '{}' from ca '{}' not present in database!", reqId, info);
 						certRevoked = importCertificate(adcsConnector, info, reqId, config);
@@ -577,10 +575,8 @@ public class ADCSConnector {
 				}
 			}
 
-		} catch (OODBConnectionsADCSException oodbc) {
+		} catch (OODBConnectionsADCSException | ADCSProxyUnavailableException oodbc) {
 			throw oodbc;
-		} catch (ADCSProxyUnavailableException pue) {
-			throw pue;
 		} catch (ADCSException e) {
 			LOGGER.info("importing certificate list by revoked date with a limit of {} causes {}", limit, e.getLocalizedMessage());
 			LOGGER.warn("ACDSException : ", e);
@@ -869,25 +865,27 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 			de.trustable.ca3s.client.model.GetCertificateResponse gcr = remoteClient.getRequestById(reqId);
 			GetCertificateResponse resp = new GetCertificateResponse();
 
-			for( GetCertificateResponseValues value: gcr.getValues()) {
-				if( "ReqId".equals(value.getName())){
-					resp.setReqId(value.getValue());
-				} else if( "Template".equals(value.getName())){
-					resp.setTemplate(value.getValue());
-				} else if( "Cert".equals(value.getName())){
-					resp.setB64Cert(value.getValue());
-				} else if( "ResolvedDate".equals(value.getName())){
-					resp.setResolvedDate(value.getValue());
-				} else if( "RevokedDate".equals(value.getName())){
-					resp.setRevokedDate(value.getValue());
-				} else if( "RevokedReason".equals(value.getName())){
-					resp.setRevokedReason(value.getValue());
-				} else if( "Disposition".equals(value.getName())){
-					resp.setDisposition(value.getValue());
-				} else if( "DispositionMessage".equals(value.getName())){
-					resp.setDispositionMessage(value.getValue());
-				}
-			}
+            if( gcr.getValues() != null) {
+                for (GetCertificateResponseValues value : gcr.getValues()) {
+                    if ("ReqId".equals(value.getName())) {
+                        resp.setReqId(value.getValue());
+                    } else if ("Template".equals(value.getName())) {
+                        resp.setTemplate(value.getValue());
+                    } else if ("Cert".equals(value.getName())) {
+                        resp.setB64Cert(value.getValue());
+                    } else if ("ResolvedDate".equals(value.getName())) {
+                        resp.setResolvedDate(value.getValue());
+                    } else if ("RevokedDate".equals(value.getName())) {
+                        resp.setRevokedDate(value.getValue());
+                    } else if ("RevokedReason".equals(value.getName())) {
+                        resp.setRevokedReason(value.getValue());
+                    } else if ("Disposition".equals(value.getName())) {
+                        resp.setDisposition(value.getValue());
+                    } else if ("DispositionMessage".equals(value.getName())) {
+                        resp.setDispositionMessage(value.getValue());
+                    }
+                }
+            }
 			return resp;
 		} catch (ApiException e) {
 			if( e.getCode() == 503) {
@@ -903,9 +901,14 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 	@Override
 	public String getInfo() throws ADCSException {
 		try {
-			String info = remoteClient.getADCSInfo();
-			return info;
-		} catch (ApiException e) {
+            return remoteClient.getADCSInfo();
+        } catch (ProcessingException pe) {
+            if( pe.getCause() instanceof SSLException ) {
+                LOGGER.info("info call for ADCS proxy did not succeeded! Trying later ...");
+                throw new ADCSProxyUnavailableException("connection problem accessing ca : " + pe.getCause().getLocalizedMessage());
+            }
+            throw pe;
+        } catch (ApiException e) {
 			if( e.getCause() instanceof ConnectException ) {
 				LOGGER.info("info call for ADCS proxy did not succeeded! Trying later ...");
 				throw new ADCSProxyUnavailableException("connection problem accessing ca : " + e.getCause().getLocalizedMessage());
@@ -945,7 +948,7 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 	}
 
 	@Override
-	public ADCSInstanceDetails getCAInstanceDetails() throws ADCSException {
+	public ADCSInstanceDetails getCAInstanceDetails() {
         ADCSInstanceDetails details = new ADCSInstanceDetails();
 /*
 		try {

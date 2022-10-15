@@ -54,6 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -317,7 +318,7 @@ public class OrderController extends AcmeController {
                 String msg = "unexpected finalize call at order status "+orderDao.getStatus()+" for order "+ orderDao.getOrderId();
                 LOG.debug(msg);
                 throw new AcmeProblemException(new ProblemDetail(AcmeUtil.ORDER_NOT_READY, msg,
-                    BAD_REQUEST, NO_DETAIL, NO_INSTANCE));
+                    HttpStatus.FORBIDDEN, NO_DETAIL, NO_INSTANCE));
 			}
 
   			boolean valid = true;

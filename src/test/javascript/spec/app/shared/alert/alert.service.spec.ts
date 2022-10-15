@@ -35,8 +35,8 @@ describe('Alert service', () => {
 
   it('should change countdown', () => {
     alertService = new AlertService(store);
-    alertService.countDownChanged(15);
+    alertService.countDownChanged(30);
 
-    expect(store.getters.dismissCountDown).toBe(15);
+    expect(store.getters.dismissCountDown).toBe(30);
   });
 });

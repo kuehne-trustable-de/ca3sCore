@@ -9,15 +9,22 @@ import org.springframework.context.annotation.Configuration;
 public class CryptoConfiguration {
 
     private final String[] validPBEAlgoArr;
+    private final String[] allHashAlgoArr;
+    private final String[] allSignAlgoArr;
 
-    public CryptoConfiguration(@Value("${ca3s.pkcs12.pbe.algos:PBEWithHmacSHA256AndAES_256}") String[] validPBEAlgoArr
+    public CryptoConfiguration(@Value("${ca3s.pkcs12.pbe.algos:PBEWithHmacSHA256AndAES_256}") String[] validPBEAlgoArr,
+                               @Value("${ca3s.catalog.hash.algos:sha-1,sha-256,sha-384,sha-512}") String[] allHashAlgoArr,
+                               @Value("${ca3s.catalog.sign.algos:rsa-1024,rsa-2048,rsa-3072,rsa-4096,rsa-8192}") String[] allSignAlgoArr
         ) {
 
         this.validPBEAlgoArr = validPBEAlgoArr;
+        this.allHashAlgoArr = allHashAlgoArr;
+        this.allSignAlgoArr = allSignAlgoArr;
     }
 
     public CryptoConfigView getCryptoConfigView() {
-        return new CryptoConfigView(validPBEAlgoArr, getDefaultPBEAlgo());
+        return new CryptoConfigView(validPBEAlgoArr, getDefaultPBEAlgo(),
+            allHashAlgoArr, allSignAlgoArr);
     }
 
     public String getDefaultPBEAlgo(){

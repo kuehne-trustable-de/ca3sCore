@@ -63,6 +63,23 @@ export default class Preference extends mixins(AlertMixin, JhiDataUtils) {
     });
   }
 
+  created(): void {
+    const config = this.$store.getters.config;
+    if (config.cryptoConfigView.allHashAlgoArr != undefined) {
+      this.allHashes = [];
+      for (const algo of config.cryptoConfigView.allHashAlgoArr) {
+        this.allHashes.push({ id: algo, name: algo });
+      }
+    }
+
+    if (config.cryptoConfigView.allSignAlgoArr != undefined) {
+      this.allSignAlgos = [];
+      for (const algo of config.cryptoConfigView.allSignAlgoArr) {
+        this.allSignAlgos.push({ id: algo, name: algo });
+      }
+    }
+  }
+
   public save(): void {
     this.isSaving = true;
     this.update(1, this.preferences).then(param => {

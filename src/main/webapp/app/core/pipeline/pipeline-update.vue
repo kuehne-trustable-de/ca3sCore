@@ -30,6 +30,12 @@
                         <input type="checkbox" class="form-check-inline" name="active" id="pipeline-active"
                                v-model="$v.pipeline.active.$model" />
                     </div>
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.approvalRequired')" for="pipeline-approvalRequired">Approval Required</label>
+                        <input type="checkbox" class="form-check-inline" name="approvalRequired" id="pipeline-approvalRequired"
+                               :class="{'valid': !$v.pipeline.approvalRequired.$invalid, 'invalid': $v.pipeline.approvalRequired.$invalid }" v-model="$v.pipeline.approvalRequired.$model" />
+                    </div>
+
 
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.type')" for="pipeline-type">Type</label>
@@ -337,10 +343,6 @@
 
 
                     <div class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.approvalRequired')" for="pipeline-approvalRequired">Approval Required</label>
-                        <input type="checkbox" class="form-check-inline" name="approvalRequired" id="pipeline-approvalRequired"
-                            :class="{'valid': !$v.pipeline.approvalRequired.$invalid, 'invalid': $v.pipeline.approvalRequired.$invalid }" v-model="$v.pipeline.approvalRequired.$model" />
-
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ipAsSubjectAllowed')" for="pipeline-ipAsSubjectAllowed">IP as Subject Allowed</label>
                         <input type="checkbox" class="form-check-inline" name="ipAsSubjectAllowed" id="pipeline-ipAsSubjectAllowed"
                             :class="{'valid': !$v.pipeline.ipAsSubjectAllowed.$invalid, 'invalid': $v.pipeline.ipAsSubjectAllowed.$invalid }" v-model="$v.pipeline.ipAsSubjectAllowed.$model" />
