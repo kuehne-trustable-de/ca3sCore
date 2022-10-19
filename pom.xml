@@ -117,7 +117,7 @@
 
         <h2.version>2.1.214</h2.version>
 
-        <json.version>2.6.0</json.version>
+        <json.version>2.7.0</json.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
         <jaxb-runtime.version>2.3.3</jaxb-runtime.version>
         <archunit-junit5.version>0.14.1</archunit-junit5.version>
@@ -134,7 +134,7 @@
         <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>
         <maven-war-plugin.version>3.3.2</maven-war-plugin.version>
         <maven-checkstyle.version>3.2.0</maven-checkstyle.version>
-        <checkstyle.version>8.32</checkstyle.version>
+        <checkstyle.version>8.45.1</checkstyle.version>
         <spring-nohttp-checkstyle.version>0.0.4.RELEASE</spring-nohttp-checkstyle.version>
         <frontend-maven-plugin.version>1.10.0</frontend-maven-plugin.version>
         <git-commit-id-plugin.version>4.9.10</git-commit-id-plugin.version>
@@ -160,7 +160,7 @@
         <adcsUtilVersion>1.2.8</adcsUtilVersion>
         <adcsProxyClientVersion>1.2.9</adcsProxyClientVersion>
 
-        <nimbus-jose-jwt-version>8.2.1</nimbus-jose-jwt-version>
+        <nimbus-jose-jwt-version>8.23</nimbus-jose-jwt-version>
         <jose4jVersion>0.9.0</jose4jVersion>
         <acme4jVersion>2.14</acme4jVersion>
         <takesVersion>1.16</takesVersion>
@@ -191,7 +191,7 @@
         <camunda.spring-boot.version>3.2.0</camunda.spring-boot.version>
 
         <crawler4jVersion>4.4.0</crawler4jVersion>
-        <flexmarkVersion>0.62.2</flexmarkVersion>
+        <flexmarkVersion>0.64.0</flexmarkVersion>
         <pdfbox.version>2.0.27</pdfbox.version>
         <jsoup.version>1.15.3</jsoup.version>
 
