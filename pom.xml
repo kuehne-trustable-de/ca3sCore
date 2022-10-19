@@ -191,7 +191,7 @@
         <camunda.spring-boot.version>3.2.0</camunda.spring-boot.version>
 
         <crawler4jVersion>4.4.0</crawler4jVersion>
-        <flexmarkVersion>0.62.2</flexmarkVersion>
+        <flexmarkVersion>0.64.0</flexmarkVersion>
         <pdfbox.version>2.0.27</pdfbox.version>
         <jsoup.version>1.15.3</jsoup.version>
 
