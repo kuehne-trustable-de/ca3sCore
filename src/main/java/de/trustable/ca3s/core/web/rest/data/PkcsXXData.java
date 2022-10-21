@@ -178,7 +178,7 @@ public class PkcsXXData {
 		this.replacementCandidates = replacementCandidates;
 	}
 
-	public void setReplacementCandidates(List<Certificate> candidates) {
+	public void setReplacementCandidatesFromList(List<Certificate> candidates) {
 
 		this.replacementCandidates = new CertificateNameId[candidates.size()];
 		int i = 0;

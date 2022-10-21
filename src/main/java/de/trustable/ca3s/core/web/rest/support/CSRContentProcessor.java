@@ -143,6 +143,7 @@ public class CSRContentProcessor {
                         BadKeysResult badKeysResult = badKeysService.checkCSR(content);
                         if( badKeysResult.isValid()) {
                             LOG.debug("BadKeys is installed and returns OK");
+                            messageList.add("BadKeys check: no findings");
                         }else{
                             if( badKeysResult.getResponse() != null &&
                                 badKeysResult.getResponse().getResults() != null &&
@@ -167,7 +168,7 @@ public class CSRContentProcessor {
                     }
 
 					List<Certificate> candidates = certUtil.findReplaceCandidates(p10ReqData.getP10Holder().getSans());
-					p10ReqData.setReplacementCandidates(candidates);
+					p10ReqData.setReplacementCandidatesFromList(candidates);
 				}
 
 			} catch (IOException | GeneralSecurityException e2) {
