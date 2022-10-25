@@ -204,7 +204,7 @@
         <xml.maven.saxon.version>9.9.1-8</xml.maven.saxon.version>
         <xml.maven.plugin.version>1.0.2</xml.maven.plugin.version>
 
-        <dependencyCheck.version>7.2.1</dependencyCheck.version>
+        <dependencyCheck.version>7.3.0</dependencyCheck.version>
         <dependencyCheck.skip>false</dependencyCheck.skip>
 
     </properties>
