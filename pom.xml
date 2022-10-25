@@ -173,7 +173,7 @@
 
         <dnsjava.version>3.5.1</dnsjava.version>
 
-        <opencsvVersion>5.7.0</opencsvVersion>
+        <opencsvVersion>5.7.1</opencsvVersion>
 
         <kerberosCoreVersion>1.0.1.RELEASE</kerberosCoreVersion>
         <kerberosWebVersion>1.0.1.RELEASE</kerberosWebVersion>
