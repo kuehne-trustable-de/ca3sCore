@@ -70,7 +70,7 @@
     "jest-vue-preprocessor": "1.4.0",
     "jquery": "^3.6.0",
     "lint-staged": "12.1.6",
-    "merge-jsons-webpack-plugin": "1.0.18",
+    "merge-jsons-webpack-plugin": "1.0.21",
     "mini-css-extract-plugin": "0.5.0",
     "node-notifier": "8.0.1",
     "numeral": "2.0.6",
