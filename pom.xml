@@ -113,7 +113,7 @@
         <jaxb-runtime.version>2.3.3</jaxb-runtime.version>
 
         <spring.version>5.3.21</spring.version>
-        <spring.security.version>5.6.6</spring.security.version>
+        <spring.security.version>5.6.9</spring.security.version>
 
         <h2.version>2.1.214</h2.version>
 
