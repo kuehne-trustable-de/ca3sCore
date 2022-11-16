@@ -40,7 +40,7 @@ import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 
 
 /*
- * 
+ *
  * {
      "status": "valid",
      "expires": "2015-03-01T14:09:07.99Z",
@@ -63,7 +63,7 @@ import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
      "wildcard": false
    }
 
- * 
+ *
  */
 @Immutable
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -73,16 +73,16 @@ public class AuthorizationResponse {
 	private AcmeOrderStatus status;
 
 	@JsonProperty("expires")
-	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")	
+	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")
     private Date expires;
 
 	@JsonProperty("identifier")
     private IdentifierResponse identifier;
-    
+
 	@JsonProperty("challenges")
     private Set<ChallengeResponse> challenges;
-    
-	@JsonProperty("wildcard") 
+
+	@JsonProperty("wildcard")
 	private boolean wildcard = false;
 
 	/**
@@ -154,7 +154,7 @@ public class AuthorizationResponse {
 	public void setWildcard(boolean wildcard) {
 		this.wildcard = wildcard;
 	}
-	
-	
+
+
   }
 

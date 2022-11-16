@@ -66,7 +66,6 @@ import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.AcmeUtil;
 import de.trustable.ca3s.core.service.util.JwtUtil;
-import org.springframework.web.util.UriComponentsBuilder;
 
 
 /*

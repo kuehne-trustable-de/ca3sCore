@@ -6,7 +6,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>0.2.0</version>
+    <version>0.2.3</version>
     <packaging>jar</packaging>
 
 
@@ -618,7 +618,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>2.13.4.2</version>
+                <version>2.12.6.1</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
@@ -1392,7 +1392,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>${start-class}</mainClass>
+                    <!--mainClass>${start-class}</mainClass-->
                     <fork>true</fork>
                     <executable>${packaging.executable}</executable>
                     <!--
@@ -1995,7 +1995,8 @@
                     <artifactId>sonar-maven-plugin</artifactId>
                     <version>${sonar-maven-plugin.version}</version>
                 </plugin>
-                <plugin>
+
+                <!--plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <version>${spring-boot.version}</version>
@@ -2009,13 +2010,10 @@
                     <configuration>
                         <mainClass>${start-class}</mainClass>
                         <fork>true</fork>
-                        <!--
-                        Enable the line below to have remote debugging of your application on port 5005
-                        <jvmArguments>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</jvmArguments>
-                        -->
                     </configuration>
 
-                </plugin>
+                </plugin-->
+
                 <!-- jhipster-needle-maven-add-plugin-management -->
                 <plugin>
                     <groupId>org.owasp</groupId>
@@ -2294,6 +2292,7 @@
             <properties>
                 <!-- default Spring profiles -->
                 <spring.profiles.active>prod${profile.swagger}${profile.no-liquibase}</spring.profiles.active>
+                <!--packaging.executable>true</packaging.executable-->
             </properties>
         </profile>
         <profile>

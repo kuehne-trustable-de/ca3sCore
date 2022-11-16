@@ -32,7 +32,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 import de.trustable.ca3s.core.service.dto.acme.ChallengeResponse;
-import de.trustable.ca3s.core.service.dto.acme.IdentifierResponse;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Date;
@@ -63,7 +62,7 @@ public class OrderView {
     @JsonProperty("challengeResponses")
     private ChallengeResponse[] challengeResponses;
 
-    
+
     public OrderView() {
 		super();
 	}

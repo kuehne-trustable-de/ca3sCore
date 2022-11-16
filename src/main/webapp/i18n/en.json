@@ -440,6 +440,12 @@
   "ca3SApp.messages.validate.login.minlength": "",
   "ca3SApp.messages.validate.login.pattern": "",
   "ca3SApp.messages.validate.login.required": "",
+
+  "ca3SApp.messages.badkeys.fermat": "Fermat factorization successful, key weak!",
+  "ca3SApp.messages.badkeys.rsainvalid": "RSA key invalid!",
+  "ca3SApp.messages.badkeys.roca": "ROCA vulnerability found!",
+  "ca3SApp.messages.badkeys.blocklist": "Key found in list of compromised keys!",
+
   "ca3SApp.nonce.created": "A new Nonce is created with identifier {{ param }}",
   "ca3SApp.nonce.delete.question": "Are you sure you want to delete Nonce {{ id }}?",
   "ca3SApp.nonce.deleted": "A Nonce is deleted with identifier {{ param }}",

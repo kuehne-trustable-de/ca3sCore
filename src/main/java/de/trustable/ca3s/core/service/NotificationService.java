@@ -12,6 +12,7 @@ import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
@@ -39,16 +40,22 @@ public class NotificationService {
     private final PipelineUtil pipelineUtil;
     private final MailService mailService;
     private final AuditService auditService;
+    private final int nDaysExpiry;
+    private final int nDaysPending;
 
     public NotificationService(CertificateRepository certificateRepo, CSRRepository csrRepo,
                                UserRepository userRepository, PipelineUtil pipelineUtil,
-                               MailService mailService, AuditService auditService) {
+                               MailService mailService, AuditService auditService,
+                               @Value("${ca3s.schedule.ra-officer-notification.days-before-expiry:30}") int nDaysExpiry,
+                               @Value("${ca3s.schedule.ra-officer-notification.days-pending:30}") int nDaysPending) {
         this.certificateRepo = certificateRepo;
         this.csrRepo = csrRepo;
         this.userRepository = userRepository;
         this.pipelineUtil = pipelineUtil;
         this.mailService = mailService;
         this.auditService = auditService;
+        this.nDaysExpiry = nDaysExpiry;
+        this.nDaysPending = nDaysPending;
     }
 
 
@@ -60,21 +67,20 @@ public class NotificationService {
     }
 
     @Transactional
-    public int notifyRAOfficerHolderOnExpiry(List<User> raOfficerList, List<User> domainOfficerList, boolean logNotification) throws MessagingException {
+    public int notifyRAOfficerHolderOnExpiry(List<User> raOfficerList, List<User> domainOfficerList, boolean logNotification) {
 
         Instant now = Instant.now();
-        int nDays = 30;
         Instant after = now;
-        Instant before = now.plus(nDays, ChronoUnit.DAYS);
-        Instant relevantPendingStart = now.minus(nDays, ChronoUnit.DAYS);
+        Instant before = now.plus(nDaysExpiry, ChronoUnit.DAYS);
+        Instant relevantPendingStart = now.minus(nDaysPending, ChronoUnit.DAYS);
         List<Certificate> expiringCertList = certificateRepo.findByValidTo(after, before);
 
         List<CSR> pendingCsrList = csrRepo.findPendingByDay(relevantPendingStart, now);
 
         if( expiringCertList.isEmpty() && pendingCsrList.isEmpty()) {
-            LOG.info("No expiring certificates in the next {} days / no pending requests. No need to send a notificaton eMail to RA officers", nDays);
+            LOG.info("No expiring certificates in the next {} days / no pending requests requested in the last {} days. No need to send a notification eMail to RA officers", nDaysExpiry, nDaysPending);
         }else {
-            LOG.info("#{} expiring certificate in the next {} days, #{} pending requests", expiringCertList.size(), nDays, pendingCsrList.size());
+            LOG.info("#{} expiring certificate in the next {} days, #{} pending requests issued in the last {} days.", expiringCertList.size(), nDaysExpiry, pendingCsrList.size(), nDaysPending);
 
             // Process all CSRs for RA officers
             for( User raOfficer: raOfficerList) {
@@ -82,6 +88,8 @@ public class NotificationService {
                 Context context = new Context(locale);
                 context.setVariable("expiringCertList", expiringCertList);
                 context.setVariable("pendingCsrList", pendingCsrList);
+                context.setVariable("nDaysPending", nDaysPending);
+                context.setVariable("nDaysExpiry", nDaysExpiry);
                 try {
                     mailService.sendEmailFromTemplate(context, raOfficer, null, "mail/pendingReqExpiringCertificateEmail", "email.allExpiringCertificate.subject");
                 }catch (Throwable throwable){

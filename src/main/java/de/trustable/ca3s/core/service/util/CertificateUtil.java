@@ -2088,15 +2088,13 @@ public class CertificateUtil {
 
         List<Certificate> candidateList = new ArrayList<>();
 
-        LOG.warn("findReplaceCandidates disabled!");
-
-
         if (sans.size() == 0) {
             return candidateList;
         }
-/*
+
         List<Certificate> matchingCertList = certificateRepository.findActiveCertificatesBySANs(validOn, sans);
         LOG.debug("objArrList contains {} elements", matchingCertList.size());
+
 
         for (Certificate cert : matchingCertList) {
             LOG.debug("replacement candidate {}: {} ", cert.getId(), cert.getSubject());
@@ -2117,10 +2115,8 @@ public class CertificateUtil {
                 candidateList.add(cert);
                 LOG.debug("replacement candidate {}: contains all SANs", cert.getId());
             }
-
         }
 
- */
         return candidateList;
     }
 

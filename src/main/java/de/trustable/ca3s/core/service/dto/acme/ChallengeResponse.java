@@ -40,10 +40,9 @@ import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
 import de.trustable.ca3s.core.service.util.DateUtil;
 
 
-
 /*
- * 
- * 
+ *
+ *
      "challenges": [
        {
          "url": "https://example.com/acme/chall/prV_B7yEyA4",
@@ -53,7 +52,7 @@ import de.trustable.ca3s.core.service.util.DateUtil;
          "validated": "2014-12-01T12:05:58.16Z"
        }
      ],
- * 
+ *
  */
 @Immutable
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -73,11 +72,11 @@ public class ChallengeResponse {
     private String token = null;
 
 	@JsonProperty("validated")
-	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")	
+	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")
     private Date validated = null;
 
 	public ChallengeResponse() {}
-	
+
 	public ChallengeResponse(final AcmeChallenge challengeDao, final String url) {
 		this.setStatus(challengeDao.getStatus());
 		this.setToken(challengeDao.getToken());
@@ -89,7 +88,7 @@ public class ChallengeResponse {
 			this.setValidated( DateUtil.asDate(challengeDao.getValidated()));
 		}
 	}
-	
+
 	/**
 	 * @return the url
 	 */
@@ -163,6 +162,6 @@ public class ChallengeResponse {
 
 	}
 
-	
+
 }
 

@@ -69,5 +69,4 @@ public class DateUtil {
 		return instant.atZone(ZoneId.of("UTC").normalized()).toLocalDateTime();
 	}
 
-
 }

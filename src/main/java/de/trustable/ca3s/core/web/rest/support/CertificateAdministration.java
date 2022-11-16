@@ -2,7 +2,6 @@ package de.trustable.ca3s.core.web.rest.support;
 
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.repository.CertificateAttributeRepository;
-import de.trustable.ca3s.core.repository.CertificateCommentRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.schedule.CertExpiryScheduler;

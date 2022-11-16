@@ -150,10 +150,8 @@ public class ChallengeController extends AcmeController {
 			if(challengeDao.getStatus() == ChallengeStatus.VALID ) {
 				URI authUri = locationUriOfAuthorization(challengeDao.getAcmeAuthorization().getAcmeAuthorizationId(), fromCurrentRequestUri());
 			    additionalHeaders.set("Link", "<" + authUri.toASCIIString() + ">;rel=\"up\"");
-			    return ok().headers(additionalHeaders).body(challenge);
-			}else {
-			    return ok().headers(additionalHeaders).body(challenge);
 			}
+            return ok().headers(additionalHeaders).body(challenge);
 		}
 
     }
@@ -312,7 +310,8 @@ public class ChallengeController extends AcmeController {
     private boolean checkChallengeDNS(AcmeChallenge challengeDao) {
 
         String identifierValue = challengeDao.getValue();
-        String token = challengeDao.getToken();
+        String expectedContent = buildKeyAuthorizationHashBase64(challengeDao);
+        LOG.info("DNS lookup: expectedContent '{}'", expectedContent);
 
         final Name nameToLookup;
         try {
@@ -340,11 +339,16 @@ public class ChallengeController extends AcmeController {
             challengeDao.setLastError(msg);
             return false;
         } else {
-            final boolean matchingDnsEntryFound = retrievedToken.stream().anyMatch(token::equals);
+            final boolean matchingDnsEntryFound = retrievedToken.stream().anyMatch(expectedContent::equals);
+
+            logChallengeValidationOutcome(matchingDnsEntryFound, challengeDao,
+                "dns challenge response matches for host '" + identifierValue + "'",
+                "dns challenge response mismatch for host '" + identifierValue + "'");
+
             if (matchingDnsEntryFound) {
                 return true;
             } else {
-                String msg = "Did not find matching token '"+token+"' in TXT record DNS response";
+                String msg = "Did not find matching token '"+expectedContent+"' in TXT record DNS response";
                 LOG.info(msg);
                 challengeDao.setLastError(msg);
                 return false;
@@ -398,7 +402,6 @@ public class ChallengeController extends AcmeController {
 	    String fileNamePath = "/.well-known/acme-challenge/" + token;
 	    String host = challengeDao.getAcmeAuthorization().getValue();
 
-        String ioExceptionMsg = "";
 	    for( int port: ports) {
 
 		    try {
@@ -428,37 +431,15 @@ public class ChallengeController extends AcmeController {
 					continue;
 				}
 
-				BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-				String inputLine;
-				StringBuffer response = new StringBuffer();
+                String actualContent = readChallengeResponse(con);
 
-				while ((inputLine = in.readLine()) != null) {
-					response.append(inputLine);
-				}
-				in.close();
-
-				String actualContent = response.toString().trim();
-                if( actualContent.length() > 100){
-                    LOG.debug("read challenge response (truncated): " + actualContent.substring(0,100) + " ...");
-                }else {
-                    LOG.debug("read challenge response: " + actualContent);
-                }
-				LOG.debug("expected content: '{}'", expectedContent);
-
+                LOG.debug("expected content: '{}'", expectedContent);
                 boolean matches = expectedContent.equals( actualContent);
-
-                if(matches) {
-                    auditService.saveAuditTrace(
-                        auditService.createAuditTraceAcmeChallengeSucceeded(acmeOrder.getAccount(), acmeOrder,
-                            "challenge response matches at host '" + host + ":" + port + "'"));
-                }else{
-                    String msg = "challenge response mismatch at host '" + host + ":" + port + "'";
-                    auditService.saveAuditTrace(
-                        auditService.createAuditTraceAcmeChallengeFailed(acmeOrder.getAccount(), acmeOrder, msg));
-                    LOG.info(msg);
-                    challengeDao.setLastError(msg);
-                }
-				return matches;
+                logChallengeValidationOutcome(matches,
+                    challengeDao,
+                    "http challenge response matches at host '" + host + ":" + port + "'",
+                    "http challenge response mismatch at host '" + host + ":" + port + "'");
+                return matches;
 
 		    } catch(UnknownHostException uhe) {
 				String msg = "unable to resolve hostname: '" + host + "'";
@@ -468,7 +449,6 @@ public class ChallengeController extends AcmeController {
                 challengeDao.setLastError(msg);
                 return false;
 		    } catch(IOException ioe) {
-                ioExceptionMsg += "unable to read challenge response on '" + host + ":" + port + "' ";
 				String msg = "problem reading challenge response on "+host+":"+port+" for challenge id " +challengeDao.getId()+" : " + ioe.getMessage();
                 LOG.info(msg);
                 challengeDao.setLastError(msg);
@@ -482,12 +462,51 @@ public class ChallengeController extends AcmeController {
 		return false;
 	}
 
+    private void logChallengeValidationOutcome(boolean matches, AcmeChallenge challengeDao, String matchMsg, String mismatchMsg) {
+        AcmeOrder acmeOrder = challengeDao.getAcmeAuthorization().getOrder();
+        if(matches) {
+            auditService.saveAuditTrace(
+                auditService.createAuditTraceAcmeChallengeSucceeded(acmeOrder.getAccount(), acmeOrder,
+                    matchMsg));
+        }else{
+            auditService.saveAuditTrace(
+                auditService.createAuditTraceAcmeChallengeFailed(acmeOrder.getAccount(), acmeOrder, mismatchMsg));
+            LOG.info(mismatchMsg);
+            challengeDao.setLastError(mismatchMsg);
+        }
+    }
+
+    private String readChallengeResponse(HttpURLConnection con) throws IOException {
+        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        StringBuffer response = new StringBuffer();
+
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+            if (response.length() > 1000) {
+                LOG.debug("limiting read of challenge response to 1000 characters.");
+                break;
+            }
+        }
+        in.close();
+
+        String actualContent = response.toString().trim();
+
+        if( actualContent.length() > 100){
+            LOG.debug("read challenge response (truncated): " + actualContent.substring(0,100) + " ...");
+        }else {
+            LOG.debug("read challenge response: " + actualContent);
+        }
+
+        return actualContent;
+    }
+
     private boolean checkChallengeALPN(AcmeChallenge challengeDao) {
 
         int[] ports = {443, 8443};
 
         AcmeOrder acmeOrder = challengeDao.getAcmeAuthorization().getOrder();
-        String expectedContent = Base64.getEncoder().encodeToString(buildKeyAuthorizationHash(challengeDao));
+        String expectedContent = buildKeyAuthorizationHashBase64(challengeDao);
 
         String host = challengeDao.getAcmeAuthorization().getValue();
 
@@ -505,11 +524,10 @@ public class ChallengeController extends AcmeController {
             }
         } };
 
-        String ioExceptionMsg = "";
         for( int port: ports) {
 
             try {
-                if(validateALPNChallenge(acmeOrder, challengeDao, expectedContent, host, trustAllCerts, port)){
+                if(validateALPNChallenge(challengeDao, expectedContent, host, trustAllCerts, port)){
                     LOG.debug("alpn challenge validation successful on '" + host + ":" + port + "' ");
                     return true;
                 }
@@ -522,13 +540,11 @@ public class ChallengeController extends AcmeController {
                 challengeDao.setLastError(msg);
                 return false;
             } catch(IOException ioe) {
-                ioExceptionMsg += "unable to read alpn certificate on '" + host + ":" + port + "' ";
                 String msg = "problem reading alpn certificate on "+host+":"+port+" for challenge id " +challengeDao.getId()+" : " + ioe.getMessage();
                 LOG.info(msg);
                 challengeDao.setLastError(msg);
                 LOG.debug("exception occurred reading challenge response", ioe);
             } catch (CertificateException ce) {
-                ioExceptionMsg += "unable to read alpn challenge response in certificate provided by '" + host + ":" + port + "' ";
                 String msg = "problem reading alpn challenge response in certificate provided by "+host+":"+port+" for challenge id " +challengeDao.getId()+" : " + ce.getMessage();
                 LOG.info(msg);
                 challengeDao.setLastError(msg);
@@ -542,10 +558,10 @@ public class ChallengeController extends AcmeController {
         return false;
     }
 
-    private boolean validateALPNChallenge(AcmeOrder acmeOrder, AcmeChallenge challengeDao, String expectedContent, String host, TrustManager[] trustAllCerts, int port) throws IOException, CertificateException {
+    private boolean validateALPNChallenge(AcmeChallenge challengeDao, String expectedContent, String host, TrustManager[] trustAllCerts, int port) throws IOException, CertificateException {
         LOG.debug("Opening ALPN connection to {}:{} ", host, port);
 
-        Certificate[] serverCerts = new Certificate[0];
+        Certificate[] serverCerts;
         SSLSocket sslSocket = null;
         try {
             // Code for creating a client side SSLSocket
@@ -632,17 +648,9 @@ public class ChallengeController extends AcmeController {
 
         boolean matches = expectedContent.equals(actualContent);
 
-        if(matches) {
-            auditService.saveAuditTrace(
-                auditService.createAuditTraceAcmeChallengeSucceeded(acmeOrder.getAccount(), acmeOrder,
-                    "alpn challenge response matches at host '" + host + ":" + port + "'"));
-        }else{
-            String msg = "alpn challenge response mismatch at host '" + host + ":" + port + "'";
-            auditService.saveAuditTrace(
-                auditService.createAuditTraceAcmeChallengeFailed(acmeOrder.getAccount(), acmeOrder, msg));
-            LOG.info(msg);
-            challengeDao.setLastError(msg);
-        }
+        logChallengeValidationOutcome(matches, challengeDao,
+            "alpn challenge response matches at host '" + host + ":" + port + "'",
+            "alpn challenge response mismatch at host '" + host + ":" + port + "'");
         return matches;
     }
 
@@ -716,6 +724,9 @@ public class ChallengeController extends AcmeController {
         return true;
     }
 
+    private String buildKeyAuthorizationHashBase64(AcmeChallenge challengeDao) {
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(buildKeyAuthorizationHash(challengeDao));
+    }
 
     private byte[] buildKeyAuthorizationHash(AcmeChallenge challengeDao) {
 

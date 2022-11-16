@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import de.trustable.ca3s.core.domain.Pipeline;
-import de.trustable.ca3s.core.domain.PipelineAttribute;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.service.PipelineViewService;
 import de.trustable.ca3s.core.service.dto.PipelineView;
@@ -68,7 +67,7 @@ public class PipelineViewServiceImpl implements PipelineViewService {
     public List<PipelineView> findAll() {
         log.debug("Request to get all Pipelines");
 
-        ArrayList<PipelineView> pvList = new ArrayList<PipelineView>();
+        ArrayList<PipelineView> pvList = new ArrayList<>();
         for(Pipeline p: pipelineRepository.findAll()) {
         	PipelineView pv = pvUtil.from(p);
         	pvList.add(pv);
@@ -89,10 +88,7 @@ public class PipelineViewServiceImpl implements PipelineViewService {
         log.debug("Request to get Pipeline : {}", id);
 
        	Optional<Pipeline> optP = pipelineRepository.findById(id);
-        if(optP.isPresent()) {
-        	return Optional.of(pvUtil.from(optP.get()));
-        }
-        return Optional.empty();
+        return optP.map(pvUtil::from);
 
     }
 

@@ -10,8 +10,6 @@ import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.security.SecurityUtils;
 import de.trustable.ca3s.core.service.dto.UserDTO;
 
-import de.trustable.ca3s.core.web.rest.vm.ManagedUserVM;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import tech.jhipster.security.RandomUtil;
 

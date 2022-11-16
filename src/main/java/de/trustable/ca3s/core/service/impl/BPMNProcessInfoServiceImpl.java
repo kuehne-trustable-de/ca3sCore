@@ -1,9 +1,9 @@
 package de.trustable.ca3s.core.service.impl;
 
+import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.BPMNProcessInfoService;
 import de.trustable.ca3s.core.domain.BPMNProcessInfo;
 import de.trustable.ca3s.core.repository.BPMNProcessInfoRepository;
-import de.trustable.ca3s.core.service.util.BPMNUtil;
 import org.camunda.bpm.engine.exception.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

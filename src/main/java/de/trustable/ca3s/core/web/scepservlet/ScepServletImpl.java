@@ -12,7 +12,6 @@ import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.util.*;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.Pkcs10RequestHolder;
-import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;

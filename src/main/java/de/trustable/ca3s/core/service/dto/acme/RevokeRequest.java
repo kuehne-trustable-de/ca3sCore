@@ -32,13 +32,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /*
- * 
+ *
 	{
        "certificate": "MIIEDTCCAvegAwIBAgIRAP8...",
        "reason": 4
 
      }
- * 
+ *
  */
 @Immutable
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -78,7 +78,7 @@ public class RevokeRequest {
 		this.reason = reason;
 	}
 
-	
-	
+
+
   }
 

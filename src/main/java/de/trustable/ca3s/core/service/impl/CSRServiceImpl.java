@@ -59,7 +59,7 @@ public class CSRServiceImpl implements CSRService {
     *  Get all the cSRS where Certificate is {@code null}.
      *  @return the list of entities.
      */
-    @Transactional(readOnly = true) 
+    @Transactional(readOnly = true)
     public List<CSR> findAllWhereCertificateIsNull() {
         log.debug("Request to get all cSRS where Certificate is null");
         return StreamSupport

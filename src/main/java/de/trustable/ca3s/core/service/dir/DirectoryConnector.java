@@ -24,6 +24,9 @@ import java.util.regex.Pattern;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.schedule.spider.Crawler;
 import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.dto.CAStatus;
+import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.ca3s.core.service.util.TransactionHandler;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +41,6 @@ import de.trustable.ca3s.core.repository.CertificateAttributeRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.ImportedURLRepository;
 import de.trustable.ca3s.core.schedule.ImportInfo;
-import de.trustable.ca3s.core.service.dto.CAStatus;
-import de.trustable.ca3s.core.service.util.CertificateUtil;
-import de.trustable.ca3s.core.service.util.TransactionHandler;
 
 @Service
 public class DirectoryConnector {
@@ -54,7 +54,7 @@ public class DirectoryConnector {
 	Logger LOGGER = LoggerFactory.getLogger(DirectoryConnector.class);
 
 	@Autowired
-	CertificateUtil certUtil;
+    CertificateUtil certUtil;
 
 	@Autowired
 	private CertificateRepository certificateRepository;
@@ -337,8 +337,7 @@ public class DirectoryConnector {
 
 	    Files.walkFileTree(Paths.get(dir), new SimpleFileVisitor<Path>() {
 	        @Override
-	        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-	          throws IOException {
+	        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
 	            if (!Files.isDirectory(file) && Files.isReadable(file)) {
 	            	String filename = file.getFileName().toString().toLowerCase().trim();
 
@@ -390,7 +389,7 @@ public class DirectoryConnector {
         return new DownloadedContent(baos.toByteArray(), conn.getDate());
     }
 
-    class DownloadedContent{
+    static class DownloadedContent{
 	    private byte[] content;
 	    private long date;
 

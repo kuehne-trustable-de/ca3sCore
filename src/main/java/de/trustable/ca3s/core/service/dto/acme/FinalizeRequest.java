@@ -32,11 +32,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /*
- * 
+ *
 	{
        "csr": "MIIBPTCBxAIBADBFMQ...FS6aKdZeGsysoCo4H9P",
      }
- * 
+ *
  */
 @Immutable
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -59,6 +59,6 @@ public class FinalizeRequest {
 		this.csr = csr;
 	}
 
-	
+
   }
 

@@ -33,7 +33,7 @@ import java.io.Writer;
 import java.util.*;
 
 /**
- * REST controller for managing {@link de.trustable.ca3s.core.service.dto.CSRView}.
+ * REST controller for managing {@link CSRView}.
  */
 @RestController
 @RequestMapping("/api")

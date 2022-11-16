@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
+import de.trustable.ca3s.core.service.cmp.CaCmpConnector;
 import de.trustable.ca3s.core.service.dto.CAConnectorStatus;
 import de.trustable.ca3s.core.service.dto.CAStatus;
 import org.bouncycastle.asn1.x509.CRLReason;
@@ -23,7 +24,6 @@ import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.service.adcs.ADCSConnector;
-import de.trustable.ca3s.core.service.cmp.CaCmpConnector;
 import de.trustable.ca3s.core.service.dir.DirectoryConnector;
 
 @Service

@@ -33,8 +33,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /*
- * 
- * 
+ *
+ *
      "challenges": [
        {
          "url": "https://example.com/acme/chall/prV_B7yEyA4",
@@ -44,7 +44,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
          "validated": "2014-12-01T12:05:58.16Z"
        }
      ],
- * 
+ *
  */
 @Immutable
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -56,7 +56,7 @@ public class OrderSetResponse {
 
 
 	public OrderSetResponse() {}
-	
+
 
 	/**
 	 * @return the orderUrls
@@ -71,7 +71,7 @@ public class OrderSetResponse {
 	public void setOrderUrls(String[] orderUrls) {
 		this.orderUrls = orderUrls;
 	}
-	
-	
+
+
 }
 

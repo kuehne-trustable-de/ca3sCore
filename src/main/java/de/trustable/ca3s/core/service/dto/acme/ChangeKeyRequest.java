@@ -34,12 +34,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /*
- * 
+ *
 	{
       "account": "http://localhost:57471/acct/1",
   	  "oldKey": { ...}
      }
- * 
+ *
  */
 @Immutable
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -79,6 +79,6 @@ public class ChangeKeyRequest {
 		this.oldKey = oldKey;
 	}
 
-	
+
   }
 

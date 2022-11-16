@@ -439,6 +439,12 @@
   "ca3SApp.messages.validate.login.minlength": "Ihr Benutzername muss mindestens 1 Zeichen lang sein",
   "ca3SApp.messages.validate.login.pattern": "Ihr Benutzername darf nur Kleinbuchstaben und Ziffern enthalten",
   "ca3SApp.messages.validate.login.required": "Ihr Benutzername wird benötigt.",
+
+  "ca3SApp.messages.badkeys.fermat": "Fermat Faktorisierung erfolgreich angewandt, Schlüssel schwach!",
+  "ca3SApp.messages.badkeys.rsainvalid": "RSA Schlüssel unbrauchbar!",
+  "ca3SApp.messages.badkeys.roca": "ROCA Schwachstelle gefunden!",
+  "ca3SApp.messages.badkeys.blocklist": "Schlüssel gefunden in der Liste kompromittierten Schlüssel!",
+
   "ca3SApp.nonce.created": "Nonce erstellt mit ID {{ param }}",
   "ca3SApp.nonce.delete.question": "Soll Nonce {{ id }} wirklich dauerhaft gelöscht werden?",
   "ca3SApp.nonce.deleted": "Nonce gelöscht mit ID {{ param }}",

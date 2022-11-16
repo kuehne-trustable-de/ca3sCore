@@ -1,7 +1,5 @@
 package de.trustable.ca3s.core.web.rest;
 
-import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

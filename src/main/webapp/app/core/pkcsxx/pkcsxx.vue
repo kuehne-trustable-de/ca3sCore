@@ -193,6 +193,9 @@
                                                class="form-text text-danger" v-text="$t('entity.validation.required')">
                                             This field is required.
                                         </small>
+                                        <small class="form-text text-danger" v-if="showRegExpFieldWarning(secret, regExpSecret())" v-text="$t('entity.validation.pattern', {'pattern': regExpSecret()})">
+                                            secret must match RegEx!
+                                        </small>
                                     </div>
                                 </div>
                                 <div class="row" >
@@ -453,7 +456,7 @@
                             <dd>
                                 <div>
                                     <ul>
-                                        <li v-for="warning in precheckResponse.warnings" >{{warning}}</li>
+                                        <li v-for="warning in precheckResponse.warnings" v-text="$t(warning)">{{warning}}</li>
                                     </ul>
                                 </div>
                             </dd>

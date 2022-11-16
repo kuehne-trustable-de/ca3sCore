@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
@@ -98,7 +97,7 @@ public class CaBackendTask implements JavaDelegate {
 				if( revokeCert == null ) {
 					String revokeCertIdStr = execution.getVariable("certificateId").toString();
 
-					long certificateId = -1;
+					long certificateId;
 					try {
 						certificateId = Long.parseLong(revokeCertIdStr);
 						LOGGER.debug("execution.getVariable('certificateId') : " + certificateId);

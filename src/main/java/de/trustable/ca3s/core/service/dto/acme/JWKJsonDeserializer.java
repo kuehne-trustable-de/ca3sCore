@@ -14,9 +14,9 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
 public class JWKJsonDeserializer extends StdDeserializer<JsonWebKey> {
-	
+
     /**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -6791583612249649908L;
 
@@ -25,7 +25,7 @@ public class JWKJsonDeserializer extends StdDeserializer<JsonWebKey> {
     }
 
     @Override
-    public JsonWebKey deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+    public JsonWebKey deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         final JsonLocation currentLocation = jsonParser.getCurrentLocation();
         try {
             return JsonWebKey.Factory.newJwk((Map<String, Object>) jsonParser.readValueAs(Map.class));

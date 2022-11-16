@@ -40,9 +40,8 @@ import de.trustable.ca3s.core.domain.AcmeOrder;
 import de.trustable.ca3s.core.service.util.DateUtil;
 
 
-
 /*
- * 
+ *
 
 {
      "status": "valid",
@@ -65,8 +64,8 @@ import de.trustable.ca3s.core.service.util.DateUtil;
 
      "certificate": "https://example.com/acme/cert/mAt3xBGaobw"
    }
-   
- * 
+
+ *
  */
 @Immutable
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -74,14 +73,14 @@ import de.trustable.ca3s.core.service.util.DateUtil;
 public class OrderResponse extends NewOrderResponse {
 
 	@JsonProperty("notBefore")
-	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")	
+	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")
     private Date notBefore;
-    
+
 	@JsonProperty("notAfter")
-	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")	
+	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")
     private Date notAfter;
-    
-	@JsonProperty("certificate") 
+
+	@JsonProperty("certificate")
 	private String certificate;
 
 	public OrderResponse (AcmeOrder orderDao, Set<String> authUrlSet, String finalizeUrl, String certificateUrl) {
@@ -90,7 +89,7 @@ public class OrderResponse extends NewOrderResponse {
 		this.setNotAfter(DateUtil.asDate(orderDao.getNotAfter()));
 		this.setCertificate(certificateUrl);
 	}
-		
+
 	public OrderResponse() {
 		super();
 	}
@@ -98,7 +97,7 @@ public class OrderResponse extends NewOrderResponse {
 	/**
 	 * @return the notBefore
 	 */
-	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")	
+	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")
 	public Date getNotBefore() {
 		return notBefore;
 	}
@@ -115,7 +114,7 @@ public class OrderResponse extends NewOrderResponse {
 	/**
 	 * @return the notAfter
 	 */
-	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")	
+	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")
 	public Date getNotAfter() {
 		return notAfter;
 	}
@@ -143,6 +142,6 @@ public class OrderResponse extends NewOrderResponse {
 		this.certificate = certificate;
 	}
 
-	
+
   }
 

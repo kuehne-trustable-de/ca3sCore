@@ -1,11 +1,7 @@
 package de.trustable.ca3s.core.schedule;
 
 import de.trustable.ca3s.core.domain.AcmeOrder;
-import de.trustable.ca3s.core.domain.CSR;
-import de.trustable.ca3s.core.domain.ProtectedContent;
 import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
-import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
-import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.AcmeOrderRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import org.slf4j.Logger;
@@ -15,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 /**
  *

@@ -1,12 +1,8 @@
 package de.trustable.ca3s.core.web.rest;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
-import de.trustable.ca3s.core.domain.AuditTrace;
 import de.trustable.ca3s.core.repository.AuditTraceRepository;
-import de.trustable.ca3s.core.service.dto.AuditView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -80,7 +76,7 @@ public class CertificateViewResource {
 
             certView.setAuditPresent( !auditTraceRepository.findByCsrAndCert(cert, cert.getCsr()).isEmpty());
 
-    		return new ResponseEntity<CertificateView>(certView, HttpStatus.OK);
+    		return new ResponseEntity<>(certView, HttpStatus.OK);
         }
 
 		return ResponseEntity.notFound().build();

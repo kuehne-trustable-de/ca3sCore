@@ -46,7 +46,6 @@ import javax.security.auth.x500.X500Principal;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.cert.*;
@@ -110,7 +109,7 @@ public class CRLUtil {
 //    			entityManager.getCriteriaBuilder(),
 //    			new LdapName(principal.getName()).getRdns());
 
-        String subjectRfc2253 = certUtil.getNormalizedName(principal.getName());
+        String subjectRfc2253 = CertificateUtil.getNormalizedName(principal.getName());
         LOG.debug("CRL principal '{}', \nnormalized to '{}'", principal.getName(), subjectRfc2253);
 
         List<Certificate> certList = certUtil.findCertsBySubjectRFC2253(subjectRfc2253);
@@ -175,12 +174,9 @@ public class CRLUtil {
     	LOG.debug("loading CRL from URL {}", crlURL);
 
         URL url = new URL(crlURL);
-        InputStream crlStream = url.openStream();
-        try {
+        try (InputStream crlStream = url.openStream()) {
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
             return (X509CRL) cf.generateCRL(crlStream);
-        } finally {
-            crlStream.close();
         }
     }
 

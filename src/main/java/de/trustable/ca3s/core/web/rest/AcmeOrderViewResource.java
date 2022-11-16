@@ -5,7 +5,6 @@ import de.trustable.ca3s.core.service.AcmeOrderService;
 import de.trustable.ca3s.core.service.dto.AcmeChallengeView;
 import de.trustable.ca3s.core.service.dto.AcmeOrderView;
 import de.trustable.ca3s.core.service.util.AcmeOrderUtil;
-import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

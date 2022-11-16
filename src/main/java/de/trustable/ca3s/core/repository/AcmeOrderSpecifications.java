@@ -1,9 +1,7 @@
 package de.trustable.ca3s.core.repository;
 
 import de.trustable.ca3s.core.domain.*;
-import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
-import de.trustable.ca3s.core.service.dto.AcmeAccountView;
 import de.trustable.ca3s.core.service.dto.AcmeOrderView;
 import de.trustable.ca3s.core.service.dto.Selector;
 import de.trustable.ca3s.core.service.util.AcmeOrderUtil;

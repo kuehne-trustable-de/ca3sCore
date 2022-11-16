@@ -1,7 +1,6 @@
 package de.trustable.ca3s.core.web.scepservlet;
 
 import java.io.IOException;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
-import de.trustable.ca3s.core.repository.PipelineRepository;
 
 @Transactional
 @RestController

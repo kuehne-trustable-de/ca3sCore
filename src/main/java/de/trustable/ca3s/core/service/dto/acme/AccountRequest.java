@@ -43,20 +43,20 @@ public class AccountRequest {
 
 	@JsonProperty("status")
     private AccountStatus status = null;
-    
+
 	@JsonProperty("contact")
-    private final Set<String> contacts = new HashSet<String>();
-    
-	@JsonProperty("termsOfServiceAgreed") 
+    private final Set<String> contacts = new HashSet<>();
+
+	@JsonProperty("termsOfServiceAgreed")
 	private Boolean termsAgreed;
-	
-	@JsonProperty("onlyReturnExisting") 
+
+	@JsonProperty("onlyReturnExisting")
 	private Boolean onlyReturnExisting;
-	
-	@JsonProperty("externalAccountBinding") 
+
+	@JsonProperty("externalAccountBinding")
     private Object externalAccountBinding = null;
 
-	
+
     @Override
     public String toString() {
       return "AccountRequest{" +
@@ -66,8 +66,8 @@ public class AccountRequest {
               '}';
     }
 
-    
-	
+
+
 
 	/**
 	 * @return the status

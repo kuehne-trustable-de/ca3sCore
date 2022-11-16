@@ -26,7 +26,7 @@ class BadKeysServiceTest {
 
         assertTrue(subject.getAvailableChecks().size() > 5, "more than 5 checks expected to available in badkeys");
         BadKeysService subjectBroken = new BadKeysService(true,"./badkeys-cli", new File("/unavail/badkeys"));
-        BadKeysResult badKeysResult = subjectBroken.checkCSR(validCertificate);
+        BadKeysResult badKeysResult = subjectBroken.checkContent(validCertificate);
         assertNotNull(badKeysResult);
         assertFalse(badKeysResult.isInstallationValid(), "should not be valid on broken installation");
     }
@@ -41,7 +41,7 @@ class BadKeysServiceTest {
     @Test
     void checkValidCertificate() {
         if(!subject.isInstalled()){return;}
-        BadKeysResult badKeysResult = subject.checkCSR(validCertificate);
+        BadKeysResult badKeysResult = subject.checkContent(validCertificate);
         assertNotNull(badKeysResult);
         assertTrue(badKeysResult.isInstallationValid());
         assertTrue(badKeysResult.isValid());
@@ -50,7 +50,17 @@ class BadKeysServiceTest {
     @Test
     void checkROCAKey() {
         if(!subject.isInstalled()){return;}
-        BadKeysResult badKeysResult = subject.checkCSR(rocaKey);
+        BadKeysResult badKeysResult = subject.checkContent(rocaKey);
+        assertNotNull(badKeysResult);
+        assertTrue(badKeysResult.isInstallationValid());
+        assertFalse(badKeysResult.isValid());
+        assertEquals("roca", badKeysResult.getResponse().getResults().getResultType() );
+    }
+
+    @Test
+    void checkROCACert() {
+        if(!subject.isInstalled()){return;}
+        BadKeysResult badKeysResult = subject.checkContent(rocaCert);
         assertNotNull(badKeysResult);
         assertTrue(badKeysResult.isInstallationValid());
         assertFalse(badKeysResult.isValid());
@@ -60,7 +70,7 @@ class BadKeysServiceTest {
     @Test
     void checkEC_P256() {
         if(!subject.isInstalled()){return;}
-        BadKeysResult badKeysResult = subject.checkCSR(ec_p256);
+        BadKeysResult badKeysResult = subject.checkContent(ec_p256);
         assertNotNull(badKeysResult);
         assertTrue(badKeysResult.isInstallationValid());
         assertFalse(badKeysResult.isValid());
@@ -70,7 +80,7 @@ class BadKeysServiceTest {
     @Test
     void checkDebianweak() {
         if(!subject.isInstalled()){return;}
-        BadKeysResult badKeysResult = subject.checkCSR(debianweak);
+        BadKeysResult badKeysResult = subject.checkContent(debianweak);
         assertNotNull(badKeysResult);
         assertTrue(badKeysResult.isInstallationValid());
         assertFalse(badKeysResult.isValid());
@@ -80,7 +90,7 @@ class BadKeysServiceTest {
     @Test
     void checkEd25519() {
         if(!subject.isInstalled()){return;}
-        BadKeysResult badKeysResult = subject.checkCSR(Ed25519);
+        BadKeysResult badKeysResult = subject.checkContent(Ed25519);
         assertNotNull(badKeysResult);
         assertTrue(badKeysResult.isInstallationValid());
         assertFalse(badKeysResult.isValid());
@@ -90,7 +100,7 @@ class BadKeysServiceTest {
     @Test
     void checkRSA_E1() {
         if(!subject.isInstalled()){return;}
-        BadKeysResult badKeysResult = subject.checkCSR(rsa_e1);
+        BadKeysResult badKeysResult = subject.checkContent(rsa_e1);
         assertNotNull(badKeysResult);
         assertTrue(badKeysResult.isInstallationValid());
         assertFalse(badKeysResult.isValid());
@@ -100,7 +110,7 @@ class BadKeysServiceTest {
     @Test
     void checkRSA_Fermat() {
         if(!subject.isInstalled()){return;}
-        BadKeysResult badKeysResult = subject.checkCSR(rsa_fermat);
+        BadKeysResult badKeysResult = subject.checkContent(rsa_fermat);
         assertNotNull(badKeysResult);
         assertTrue(badKeysResult.isInstallationValid());
         assertFalse(badKeysResult.isValid());
@@ -110,7 +120,7 @@ class BadKeysServiceTest {
     @Test
     void checkRSA_Prime_N() {
         if(!subject.isInstalled()){return;}
-        BadKeysResult badKeysResult = subject.checkCSR(rsa_prime_n);
+        BadKeysResult badKeysResult = subject.checkContent(rsa_prime_n);
         assertNotNull(badKeysResult);
         assertTrue(badKeysResult.isInstallationValid());
         assertFalse(badKeysResult.isValid());
@@ -120,7 +130,7 @@ class BadKeysServiceTest {
     @Test
     void checkRSA_Pattern() {
         if(!subject.isInstalled()){return;}
-        BadKeysResult badKeysResult = subject.checkCSR(rsa_pattern);
+        BadKeysResult badKeysResult = subject.checkContent(rsa_pattern);
         assertNotNull(badKeysResult);
         assertTrue(badKeysResult.isInstallationValid());
         assertFalse(badKeysResult.isValid());
@@ -196,6 +206,24 @@ class BadKeysServiceTest {
         "a1/8k/A8otPfrNIipfAoq0MKJ+oxE2wML1DDxIGTGmNaN3gPANJyeuca7ptA+NGq\n" +
         "5oU1x3pWMXgSvrVSXUooNk8xIkrKxSz3LQIDAQAB\n" +
         "-----END RSA PUBLIC KEY-----";
+
+    static final String rocaCert = "-----BEGIN CERTIFICATE-----\n" +
+        "MIICpTCCAYwCCQC2u0PIfFaGMjANBgkqhkiG9w0BAQsFADAUMRIwEAYDVQQDDAls\n" +
+        "b2NhbGhvc3QwHhcNMTcxMDE2MTkzODIxWhcNMTgxMDE2MTkzODIxWjAUMRIwEAYD\n" +
+        "VQQDDAlsb2NhbGhvc3QwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQJZ\n" +
+        "J7UrpeaMjJJou5IY83ZzYUymVBj0dFsUPNTuU/lJHJoOHC8jqVFjBq/784ZnuHG8\n" +
+        "DMguYPW7Gp+hWlZxp2XJ8huVh9gBFZZDcqODyIOw3L9sd1cGsx6v8+P9SIVZoIze\n" +
+        "og+al8TFm2uKjuykV9SoINSVCfdZM2MCvKGjaQsICRgR+Fjy6M6lpiNVrW4EHRk1\n" +
+        "7aWSibWXaDtz4mV650v/x2Dk1RPMh9uTVZGOqgjTmLvl9oNdyHElIRubNrOgvHC5\n" +
+        "k6bLP30stAYd5z25cslCrfmVW2/kzZDwDQiK7ASvH17/kfIa9e1EYXx9uAk/lTZt\n" +
+        "smWAxK85neuU+bFBMFvhAgMBAAEwDQYJKoZIhvcNAQELBQADggECAAG7W49CYRUk\n" +
+        "YAFRGXu3M85MKOISyc/kkJ8nbHdV6GxJ05FkoDKbcbZ7nncJiIp2VMAMEIP4bRTJ\n" +
+        "5U4g4vSZlmCs8BDmV3Ts/tbDCM6eqK+2hwjhUnCnmmsLt4xVUeAAsWUHl9AVtjzd\n" +
+        "oYlm1Kk20QBzNpsvM/gFS5B+duHvTSfELfoq9Pdfvmn2gEXJHe9scO8bfT3fm15z\n" +
+        "R6AUYsSsxAhup2Rix6jgJ14KGsh6uVm6jhz9aBTBcgx7iMuuP8zUbUE6nryHYXnR\n" +
+        "cSvuYSesTCoFfnL7elrZDak/n0jLfwUD80aWnReJfu9QQGdqdDnSG8lSQ1XPOC7O\n" +
+        "/hFW9l0TCzOE\n" +
+        "-----END CERTIFICATE-----";
 
     static final String validCertificate = "-----BEGIN CERTIFICATE-----\n" +
         "MIIHVTCCBT2gAwIBAgITZgAAB5YiPUi+zZzZMwAAAAAHljANBgkqhkiG9w0BAQsF\n" +

@@ -3,8 +3,8 @@ package de.trustable.ca3s.core.service.util;
 import de.trustable.ca3s.core.domain.AcmeAuthorization;
 import de.trustable.ca3s.core.domain.AcmeChallenge;
 import de.trustable.ca3s.core.domain.AcmeOrder;
-import de.trustable.ca3s.core.service.dto.AcmeChallengeView;
 import de.trustable.ca3s.core.service.dto.AcmeOrderView;
+import de.trustable.ca3s.core.service.dto.AcmeChallengeView;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 

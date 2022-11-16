@@ -219,10 +219,17 @@ ca3s:
     cron:
       expiryNotificationCron: 0 15 2 * * ?
       dropUnrelatedUsersCron: 0 20 02 * * ?
+    ra-officer-notification:
+      days-before-expiry: 30
+      days-pending: 30
 
 # enable the creation of the PKCS12 download container with specific algorithms
 
   pkcs12:
+    # the restriction on the input 'secret' protecting the PKCS12 container
+    secret:
+      regexp: ^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,100}$
+    # the list of algorithm selectable for the PKCS12 encryption
     pbe:
       algos: PBEWithHmacSHA256AndAES_256, pbeWithSHAAnd3_KeyTripleDES_CBC
 

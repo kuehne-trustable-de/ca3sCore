@@ -46,7 +46,7 @@ public class BadKeysService {
         }
     }
 
-    public BadKeysResult checkCSR(final String pemCSR) {
+    public BadKeysResult checkContent(final String pemContent) {
 
         if( !useBadkeys ){
             return new BadKeysResult(false, false, "useBadkeys == false");
@@ -62,7 +62,7 @@ public class BadKeysService {
         try {
             inputFile = File.createTempFile("badKeysInput", "pem");
             try (FileOutputStream fos = new FileOutputStream(inputFile)) {
-                fos.write(pemCSR.getBytes());
+                fos.write(pemContent.getBytes());
                 fos.flush();
                 return invokeBadKeys(inputFile);
             }

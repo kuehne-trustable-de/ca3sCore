@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.0.1157 on 2022-10-11 22:57:59.
+// Generated using typescript-generator version 3.0.1157 on 2022-11-14 18:12:48.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -192,8 +192,8 @@ export interface ICertificateView extends ISerializable {
   isServersideKeyGeneration?: boolean;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
-  fullChainAvailable?: boolean;
   serversideKeyGeneration?: boolean;
+  fullChainAvailable?: boolean;
   auditPresent?: boolean;
 }
 
@@ -202,6 +202,7 @@ export interface ICryptoConfigView extends ISerializable {
   defaultPBEAlgo?: string;
   allHashAlgoArr?: string[];
   allSignAlgoArr?: string[];
+  pkcs12SecretRegexp?: string;
 }
 
 export interface IUIConfigView extends ISerializable {
@@ -242,8 +243,8 @@ export interface ICSRView extends ISerializable {
   csrBase64?: string;
   auditViewArr?: IAuditView[];
   isAdministrable?: boolean;
-  administrable?: boolean;
   csrvalid?: boolean;
+  administrable?: boolean;
 }
 
 export interface IPreferences extends ISerializable {
@@ -351,6 +352,7 @@ export interface IPkcsXXData {
   messages?: string[];
   warnings?: string[];
   replacementCandidates?: ICertificateNameId[];
+  replacementCandidatesFromList?: ICertificate[];
 }
 
 export interface IDataCollection {
@@ -465,12 +467,182 @@ export interface ICertificateNameId extends ISerializable {
   name?: string;
 }
 
+export interface ICertificate extends ISerializable {
+  id?: number;
+  tbsDigest?: string;
+  subject?: string;
+  sans?: string;
+  issuer?: string;
+  root?: string;
+  type?: string;
+  description?: string;
+  fingerprint?: string;
+  serial?: string;
+  validFrom?: Date;
+  validTo?: Date;
+  keyAlgorithm?: string;
+  keyLength?: number;
+  curveName?: string;
+  hashingAlgorithm?: string;
+  paddingAlgorithm?: string;
+  signingAlgorithm?: string;
+  creationExecutionId?: string;
+  contentAddedAt?: Date;
+  revokedSince?: Date;
+  revocationReason?: string;
+  revoked?: boolean;
+  revocationExecutionId?: string;
+  administrationComment?: string;
+  endEntity?: boolean;
+  selfsigned?: boolean;
+  trusted?: boolean;
+  active?: boolean;
+  content?: string;
+  csr?: ICSR;
+  comment?: ICertificateComment;
+  certificateAttributes?: ICertificateAttribute[];
+  issuingCertificate?: ICertificate;
+  rootCertificate?: ICertificate;
+  revocationCA?: ICAConnectorConfig;
+}
+
 export interface ITypedValue {
   type?: string;
   value?: string;
 }
 
+export interface ICSR extends ISerializable {
+  id?: number;
+  csrBase64?: string;
+  subject?: string;
+  sans?: string;
+  requestedOn?: Date;
+  requestedBy?: string;
+  pipelineType?: IPipelineType;
+  status?: ICsrStatus;
+  administeredBy?: string;
+  approvedOn?: Date;
+  rejectedOn?: Date;
+  rejectionReason?: string;
+  processInstanceId?: string;
+  signingAlgorithm?: string;
+  isCSRValid?: boolean;
+  x509KeySpec?: string;
+  publicKeyAlgorithm?: string;
+  keyAlgorithm?: string;
+  keyLength?: number;
+  publicKeyHash?: string;
+  serversideKeyGeneration?: boolean;
+  subjectPublicKeyInfoBase64?: string;
+  requestorComment?: string;
+  administrationComment?: string;
+  comment?: ICSRComment;
+  rdns?: IRDN[];
+  ras?: IRequestAttribute[];
+  csrAttributes?: ICsrAttribute[];
+  pipeline?: IPipeline;
+}
+
+export interface ICertificateComment extends ISerializable {
+  id?: number;
+  comment?: string;
+  certificate?: ICertificate;
+}
+
+export interface ICertificateAttribute extends ISerializable {
+  id?: number;
+  name?: string;
+  value?: string;
+  certificate?: ICertificate;
+}
+
+export interface ICAConnectorConfig extends ISerializable {
+  id?: number;
+  name?: string;
+  caConnectorType?: ICAConnectorType;
+  caUrl?: string;
+  pollingOffset?: number;
+  defaultCA?: boolean;
+  trustSelfsignedCertificates?: boolean;
+  active?: boolean;
+  selector?: string;
+  interval?: IInterval;
+  plainSecret?: string;
+}
+
 export interface IComparable<T> {}
+
+export interface ICSRComment extends ISerializable {
+  id?: number;
+  comment?: string;
+  csr?: ICSR;
+}
+
+export interface IRDN extends ISerializable {
+  id?: number;
+  rdnAttributes?: IRDNAttribute[];
+  csr?: ICSR;
+}
+
+export interface IRequestAttribute extends ISerializable {
+  id?: number;
+  attributeType?: string;
+  requestAttributeValues?: IRequestAttributeValue[];
+  holdingRequestAttribute?: IRequestAttributeValue;
+  csr?: ICSR;
+}
+
+export interface ICsrAttribute extends ISerializable {
+  id?: number;
+  name?: string;
+  value?: string;
+  csr?: ICSR;
+}
+
+export interface IPipeline extends ISerializable {
+  id?: number;
+  name?: string;
+  type?: IPipelineType;
+  urlPart?: string;
+  description?: string;
+  approvalRequired?: boolean;
+  active?: boolean;
+  pipelineAttributes?: IPipelineAttribute[];
+  caConnector?: ICAConnectorConfig;
+  processInfo?: IBPMNProcessInfo;
+}
+
+export interface IRDNAttribute extends ISerializable {
+  id?: number;
+  attributeType?: string;
+  attributeValue?: string;
+  rdn?: IRDN;
+}
+
+export interface IRequestAttributeValue extends ISerializable {
+  id?: number;
+  attributeValue?: string;
+  reqAttr?: IRequestAttribute;
+}
+
+export interface IPipelineAttribute extends ISerializable {
+  id?: number;
+  name?: string;
+  value?: string;
+  pipeline?: IPipeline;
+}
+
+export interface IBPMNProcessInfo extends ISerializable {
+  id?: number;
+  name?: string;
+  version?: string;
+  type?: IBPMNProcessType;
+  author?: string;
+  lastChange?: Date;
+  signatureBase64?: string;
+  bpmnHashBase64?: string;
+  processId?: string;
+}
 
 export type ICAStatus = 'Active' | 'Deactivated' | 'Problem' | 'Unknown';
 
@@ -524,3 +696,7 @@ export type IPKCSDataType =
 export type IChallengeStatus = 'pending' | 'valid' | 'invalid' | 'deactivated' | 'expired' | 'revoked';
 
 export type IRDNCardinalityRestriction = 'NOT_ALLOWED' | 'ZERO_OR_ONE' | 'ONE' | 'ONE_OR_SAN' | 'ZERO_OR_MANY' | 'ONE_OR_MANY';
+
+export type ICAConnectorType = 'INTERNAL' | 'CMP' | 'ADCS' | 'ADCS_CERTIFICATE_INVENTORY' | 'DIRECTORY';
+
+export type IInterval = 'MINUTE' | 'HOUR' | 'DAY' | 'WEEK' | 'MONTH';

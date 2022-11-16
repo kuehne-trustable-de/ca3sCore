@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core.web.rest;
 
-import de.trustable.ca3s.core.repository.ScepOrderRepository;
 import de.trustable.ca3s.core.repository.ScepOrderViewRepository;
 import de.trustable.ca3s.core.service.dto.ScepOrderView;
 import org.slf4j.Logger;

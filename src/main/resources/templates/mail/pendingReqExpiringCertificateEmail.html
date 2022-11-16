@@ -29,7 +29,9 @@
             this is the daily notification eMail informing about pending requests and expiring certificates.
         </p>
 
-        <p th:if="${#lists.isEmpty(pendingCsrList) and #lists.isEmpty(expiringCertList)}" th:text="#{email.notification.greeting.RA.empty.set}">
+        <p th:text="#{email.request.accepted.text1(${subject}, ${requestedOn})}">
+
+        <p th:if="${#lists.isEmpty(pendingCsrList) and #lists.isEmpty(expiringCertList)}" th:text="#{email.notification.greeting.RA.empty.set(${nDaysExpiry},${nDaysPending})}">
             Currently there are no pending requests and or expiring certificates.
         </p>
 

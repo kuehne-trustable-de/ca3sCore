@@ -1,7 +1,9 @@
 package de.trustable.ca3s.core.web.rest.support;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.KeyStore;
@@ -20,10 +22,12 @@ import de.trustable.ca3s.core.service.badkeys.BadKeysResult;
 import de.trustable.ca3s.core.service.badkeys.BadKeysService;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
 import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.DecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -69,7 +73,16 @@ public class CSRContentProcessor {
 
     private final BadKeysService badKeysService;
 
-    public CSRContentProcessor(CryptoUtil cryptoUtil, CSRRepository csrRepository, CertificateRepository certificateRepository, CertificateUtil certUtil, PipelineRepository pipelineRepository, PipelineUtil pvUtil, BadKeysService badKeysService) {
+    private final boolean findReplacementCandidates;
+
+    public CSRContentProcessor(CryptoUtil cryptoUtil,
+                               CSRRepository csrRepository,
+                               CertificateRepository certificateRepository,
+                               CertificateUtil certUtil,
+                               PipelineRepository pipelineRepository,
+                               PipelineUtil pvUtil,
+                               BadKeysService badKeysService,
+                               @Value("${ca3s.issuance.findReplacements:false}") boolean findReplacementCandidates) {
         this.cryptoUtil = cryptoUtil;
         this.csrRepository = csrRepository;
         this.certificateRepository = certificateRepository;
@@ -77,6 +90,7 @@ public class CSRContentProcessor {
         this.pipelineRepository = pipelineRepository;
         this.pvUtil = pvUtil;
         this.badKeysService = badKeysService;
+        this.findReplacementCandidates = findReplacementCandidates;
     }
 
 
@@ -102,8 +116,24 @@ public class CSRContentProcessor {
 		try {
 
 	    	try {
-		    	CertificateFactory factory = CertificateFactory.getInstance("X.509");
-		    	X509Certificate cert = (X509Certificate) factory.generateCertificate(new ByteArrayInputStream(Base64.decode(content)));
+
+                BufferedReader reader = new BufferedReader( new StringReader(content));
+                String rawBase64 = "";
+                String line = reader.readLine();
+                while(line != null){
+                    if( line.toUpperCase().contains("-BEGIN CERTIFICATE-")){
+                        LOG.debug("PEM certificate start found");
+                    } else if( line.toUpperCase().contains("-END CERTIFICATE-")){
+                        LOG.debug("PEM certificate end found");
+                    }else{
+                        rawBase64 += line.replace("\n", "").replace("\r", "");
+                    }
+                    line = reader.readLine();
+                }
+                LOG.debug("stripped PEM: {}", rawBase64);
+
+                CertificateFactory factory = CertificateFactory.getInstance("X.509");
+		    	X509Certificate cert = (X509Certificate) factory.generateCertificate(new ByteArrayInputStream(Base64.decode(rawBase64)));
 		    	content = cryptoUtil.x509CertToPem(cert);
 		    	LOG.debug("certificate parsed from base64 (non-pem) content");
 	    	} catch (GeneralSecurityException | IOException | DecoderException gse) {
@@ -118,6 +148,27 @@ public class CSRContentProcessor {
 				// no information leakage to the outside if not authenticated
 				p10ReqData = new PkcsXXData(certHolder, content, false);
 			}
+            if( badKeysService.isInstalled()){
+                List<String> messageList = new ArrayList<>();
+
+                BadKeysResult badKeysResult = badKeysService.checkContent(content);
+                if( badKeysResult.isValid()) {
+                    LOG.debug("BadKeys is installed and returns OK");
+                    messageList.add("BadKeys check: no findings");
+                }else{
+                    if( badKeysResult.getResponse() != null &&
+                        badKeysResult.getResponse().getResults() != null &&
+                        badKeysResult.getResponse().getResults().getResultType() != null ) {
+                        messageList.add("ca3SApp.messages.badkeys." + badKeysResult.getResponse().getResults().getResultType());
+
+                    }
+                }
+                p10ReqData.setWarnings(messageList.toArray(new String[0]));
+
+            }else{
+                LOG.debug("BadKeys not installed");
+            }
+
             LOG.debug("certificate parsed from uploaded PEM content : " + certHolder.getSubject());
 		} catch (org.bouncycastle.util.encoders.DecoderException de){
 			// no parseable ...
@@ -127,7 +178,8 @@ public class CSRContentProcessor {
 			LOG.debug("not a certificate, trying to parse it as CSR ");
 
 			try {
-				Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(cryptoUtil.convertPemToPKCS10CertificationRequest(content));
+                PKCS10CertificationRequest pkcs10CertificationRequest = cryptoUtil.convertPemToPKCS10CertificationRequest(content);
+				Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(pkcs10CertificationRequest);
 
 				Pkcs10RequestHolderShallow p10ReqHolderShallow = new Pkcs10RequestHolderShallow( p10ReqHolder);
 
@@ -140,7 +192,7 @@ public class CSRContentProcessor {
 
                     List<String> messageList = new ArrayList<>();
                     if( badKeysService.isInstalled()){
-                        BadKeysResult badKeysResult = badKeysService.checkCSR(content);
+                        BadKeysResult badKeysResult = badKeysService.checkContent(CryptoUtil.pkcs10RequestToPem(pkcs10CertificationRequest));
                         if( badKeysResult.isValid()) {
                             LOG.debug("BadKeys is installed and returns OK");
                             messageList.add("BadKeys check: no findings");
@@ -148,7 +200,8 @@ public class CSRContentProcessor {
                             if( badKeysResult.getResponse() != null &&
                                 badKeysResult.getResponse().getResults() != null &&
                                 badKeysResult.getResponse().getResults().getResultType() != null ) {
-                                messageList.add(badKeysResult.getResponse().getResults().getResultType());
+                                messageList.add("ca3SApp.messages.badkeys." + badKeysResult.getResponse().getResults().getResultType());
+
                             }
                         }
                     }else{
@@ -167,8 +220,13 @@ public class CSRContentProcessor {
                         LOG.info("pipeline id '{}' not found", uploaded.getPipelineId());
                     }
 
-					List<Certificate> candidates = certUtil.findReplaceCandidates(p10ReqData.getP10Holder().getSans());
-					p10ReqData.setReplacementCandidatesFromList(candidates);
+                    if( findReplacementCandidates) {
+                        List<Certificate> candidates = certUtil.findReplaceCandidates(p10ReqData.getP10Holder().getSans());
+                        p10ReqData.setReplacementCandidatesFromList(candidates);
+                        LOG.debug("#{} replacement candidates found", candidates);
+                    }else{
+                        LOG.debug("retrieval of replacement candidates disabled");
+                    }
 				}
 
 			} catch (IOException | GeneralSecurityException e2) {

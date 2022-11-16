@@ -36,6 +36,7 @@ import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.DecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -56,6 +57,7 @@ import java.security.interfaces.ECKey;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import static de.trustable.ca3s.core.service.util.PipelineUtil.NOTIFY_RA_OFFICER_ON_PENDING;
 
@@ -92,6 +94,10 @@ public class ContentUploadProcessor {
 
     private final AuditService auditService;
 
+    private final String pkcs12SecretRegexp;
+    private final Pattern pkcs12SecretPattern;
+
+
     private static final String SIGNATURE_ALG = "SHA256withRSA";
     private static final String EC_SIGNATURE_ALG = "SHA256withECDSA";
 
@@ -122,7 +128,8 @@ public class ContentUploadProcessor {
                                   CertificateProcessingUtil cpUtil,
                                   NotificationService notificationService,
                                   BadKeysService badKeysService,
-                                  AuditService auditService) {
+                                  AuditService auditService,
+                                  @Value("${ca3s.pkcs12.secret.regexp:^(?=.*\\d)(?=.*[a-z]).{6,100}$}") String pkcs12SecretRegexp ) {
         this.cryptoUtil = cryptoUtil;
         this.protUtil = protUtil;
         this.certUtil = certUtil;
@@ -135,6 +142,8 @@ public class ContentUploadProcessor {
         this.notificationService = notificationService;
         this.badKeysService = badKeysService;
         this.auditService = auditService;
+        this.pkcs12SecretRegexp = pkcs12SecretRegexp;
+        this.pkcs12SecretPattern = Pattern.compile(pkcs12SecretRegexp);
     }
 
     /**
@@ -197,6 +206,27 @@ public class ContentUploadProcessor {
                 return new ResponseEntity<>(HttpStatus.CONFLICT);
             }
 
+            if( badKeysService.isInstalled()){
+                List<String> messageList = new ArrayList<>();
+
+                BadKeysResult badKeysResult = badKeysService.checkContent(content);
+                if( badKeysResult.isValid()) {
+                    LOG.debug("BadKeys is installed and returns OK");
+                    messageList.add("BadKeys check: no findings");
+                }else{
+                    if( badKeysResult.getResponse() != null &&
+                        badKeysResult.getResponse().getResults() != null &&
+                        badKeysResult.getResponse().getResults().getResultType() != null ) {
+                        messageList.add("ca3SApp.messages.badkeys." + badKeysResult.getResponse().getResults().getResultType());
+                        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                    }
+                }
+                p10ReqData.setWarnings(messageList.toArray(new String[0]));
+
+            }else{
+                LOG.debug("BadKeys not installed");
+            }
+
             // insert or read a certificate and return Certificate object
             Certificate cert = insertCertificate(content, requestorName);
 
@@ -225,7 +255,7 @@ public class ContentUploadProcessor {
                 p10ReqData = new PkcsXXData(p10ReqHolderShallow);
 
                 if( badKeysService.isInstalled()){
-                    BadKeysResult badKeysResult = badKeysService.checkCSR(content);
+                    BadKeysResult badKeysResult = badKeysService.checkContent(CryptoUtil.pkcs10RequestToPem(p10ReqHolder.getP10Req()));
                     if( !badKeysResult.isValid()){
 
                         LOG.debug("badKeysResult '{}'", badKeysResult.getResponse().getResults().getResultType());
@@ -373,6 +403,11 @@ public class ContentUploadProcessor {
     private ResponseEntity<PkcsXXData> buildServerSideKeyAndRequest(UploadPrecheckData uploaded, String requestorName) {
 
         try{
+
+            if( !pkcs12SecretPattern.matcher(uploaded.getSecret()).matches()){
+                throw new GeneralSecurityException("PKCS12 secret does not match pattern '" + pkcs12SecretRegexp + "'");
+            }
+
             Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
 
             KeyAlgoLength keyAlgoLength = uploaded.getKeyAlgoLength();
@@ -477,6 +512,7 @@ public class ContentUploadProcessor {
                 Instant validTo = Instant.now().plus(30, ChronoUnit.DAYS);
 
                 certUtil.storePrivateKey(csr, keypair, validTo);
+
                 protUtil.createProtectedContent(uploaded.getSecret(),
                     ProtectedContentType.PASSWORD,
                     ContentRelationType.CSR,

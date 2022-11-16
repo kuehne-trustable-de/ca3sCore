@@ -254,7 +254,7 @@ public class CaCmpConnector {
 		List<RDN> rdnList = new ArrayList<>();
 		for (de.trustable.ca3s.core.domain.RDN rdnDao : csr.getRdns()) {
 			LOGGER.debug("rdnDao : " + rdnDao.getRdnAttributes());
-			List<AttributeTypeAndValue> attrTVList = new ArrayList<AttributeTypeAndValue>();
+			List<AttributeTypeAndValue> attrTVList = new ArrayList<>();
 			if (rdnDao != null && rdnDao.getRdnAttributes() != null) {
 				for (RDNAttribute rdnAttr : rdnDao.getRdnAttributes()) {
 					ASN1ObjectIdentifier aoi = new ASN1ObjectIdentifier(rdnAttr.getAttributeType());
@@ -263,12 +263,12 @@ public class CaCmpConnector {
 					attrTVList.add(attrTV);
 				}
 			}
-			RDN rdn = new RDN(attrTVList.toArray(new AttributeTypeAndValue[attrTVList.size()]));
+			RDN rdn = new RDN(attrTVList.toArray(new AttributeTypeAndValue[0]));
 			LOGGER.debug("rdn : " + rdn.size() + " elements");
 			rdnList.add(rdn);
 		}
 
-		X500Name subjectDN = new X500Name(rdnList.toArray(new RDN[rdnList.size()]));
+		X500Name subjectDN = new X500Name(rdnList.toArray(new RDN[0]));
 		LOGGER.debug("subjectDN : " + subjectDN);
 
 		Collection<Extension> certExtList = new ArrayList<>();
@@ -485,25 +485,11 @@ public class CaCmpConnector {
 			// certificate successfully generated
 			CertRepMessage certRepMessage = CertRepMessage.getInstance(body.getContent());
 
-			try {
-				// CMPCertificate[] cmpCertArr = certRepMessage.getCaPubs();
-				CMPCertificate[] cmpCertArr = pkiMessage.getExtraCerts();
-				LOGGER.info("CMP Response body contains " + cmpCertArr.length + " extra certificates");
-				for (int i = 0; i < cmpCertArr.length; i++) {
-					CMPCertificate cmpCert = cmpCertArr[i];
-					LOGGER.info("Added CA '" + cmpCert.getX509v3PKCert().getSubject() + "' from CMP Response body");
+            // grep interesting certs, e.g. chain members
+            handleExtraCerts(certRepMessage.getCaPubs());
+            handleExtraCerts(pkiMessage.getExtraCerts());
 
-					de.trustable.ca3s.core.domain.Certificate certDao = certUtil.createCertificate(cmpCert.getEncoded(),
-							null, null, true);
-					certificateRepository.save(certDao);
-
-					LOGGER.debug("Additional CA '" + certDao.getSubject() + "' from CMP Response body");
-				}
-			} catch (NullPointerException npe) { // NOSONAR
-				// just ignore
-			}
-
-			CertResponse[] respArr = certRepMessage.getResponse();
+            CertResponse[] respArr = certRepMessage.getResponse();
 			if (respArr == null || (respArr.length == 0)) {
 				throw new GeneralSecurityException("No CMP response found.");
 			}
@@ -578,7 +564,30 @@ public class CaCmpConnector {
 		return null;
 	}
 
-	/**
+    private void handleExtraCerts(final CMPCertificate[] cmpCertArr) throws GeneralSecurityException, IOException {
+        if( cmpCertArr == null){
+            // no additional certs
+            return;
+        }
+
+        LOGGER.info("CMP response contains " + cmpCertArr.length + " extra certificates");
+        for (int i = 0; i < cmpCertArr.length; i++) {
+            try {
+                CMPCertificate cmpCert = cmpCertArr[i];
+                LOGGER.info("Additional cert '" + cmpCert.getX509v3PKCert().getSubject() + "' included in CMP response");
+
+                Certificate certDao = certUtil.createCertificate(cmpCert.getEncoded(),
+                    null, null, true);
+                certificateRepository.save(certDao);
+
+                LOGGER.debug("Additional cert '" + certDao.getSubject() + "' from CMP response");
+            } catch (NullPointerException npe) { // NOSONAR
+                // just ignore
+            }
+        }
+    }
+
+    /**
 	 * @param body
 	 * @throws GeneralSecurityException
 	 */

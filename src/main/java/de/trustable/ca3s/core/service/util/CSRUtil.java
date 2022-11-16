@@ -3,7 +3,6 @@ package de.trustable.ca3s.core.service.util;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.InetAddress;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.Collection;

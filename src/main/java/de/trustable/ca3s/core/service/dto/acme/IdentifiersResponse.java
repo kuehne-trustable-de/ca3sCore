@@ -34,12 +34,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /*
- * 
- * 
+ *
+ *
      "identifiers": [
          { "type": "dns", "value": "example.com" }
        ],
- * 
+ *
  */
 @Immutable
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -61,6 +61,6 @@ public class IdentifiersResponse {
 	public void setIdentifiers(Set<IdentifierResponse> identifiers) {
 		this.identifiers = identifiers;
 	}
-	
+
 }
 

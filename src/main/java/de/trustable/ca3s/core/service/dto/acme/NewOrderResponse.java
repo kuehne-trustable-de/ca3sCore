@@ -44,7 +44,7 @@ import de.trustable.ca3s.core.service.util.DateUtil;
 
 
 /*
- * 
+ *
  * {
      "status": "valid",
      "expires": "2015-03-01T14:09:07.99Z",
@@ -61,11 +61,11 @@ import de.trustable.ca3s.core.service.util.DateUtil;
 	   "authorizations": [
 	     "https://example.com/acme/authz/PAniVnsZcis",
 	   ],
-	
+
 	   "finalize": "https://example.com/acme/order/TOlocE8rfgo/finalize"
    }
 
- * 
+ *
  */
 @Immutable
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -76,25 +76,25 @@ public class NewOrderResponse {
 	private AcmeOrderStatus status;
 
 	@JsonProperty("expires")
-	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")	
+	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")
     private Date expires;
-    
+
 	@JsonProperty("identifiers")
     private Set<IdentifierResponse> identifiers;
-    
+
 	@JsonProperty("authorizations")
     private Set<String> authorizations;
-    
-	@JsonProperty("finalize") 
+
+	@JsonProperty("finalize")
 	private String finalize;
 
 	public NewOrderResponse() {}
-	
+
 	public NewOrderResponse( AcmeOrder orderDao, Set<String> authUrlSet, String finalizeUrl) {
 		this.setStatus(orderDao.getStatus());
 		this.setExpires(DateUtil.asDate(orderDao.getExpires()));
-	
-		Set<IdentifierResponse> identifiersResp = new HashSet<IdentifierResponse>();
+
+		Set<IdentifierResponse> identifiersResp = new HashSet<>();
 		for( AcmeIdentifier ident: orderDao.getAcmeIdentifiers()) {
 			identifiersResp.add(new IdentifierResponse(ident.getType(), ident.getValue()));
 		}
@@ -102,7 +102,7 @@ public class NewOrderResponse {
 		this.setAuthorizations(authUrlSet);
 		this.setFinalize(finalizeUrl);
 	}
-	
+
 	/**
 	 * @return the status
 	 */
@@ -120,7 +120,7 @@ public class NewOrderResponse {
 	/**
 	 * @return the expires
 	 */
-	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")	
+	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")
 	public Date getExpires() {
 		return expires;
 	}
@@ -176,8 +176,8 @@ public class NewOrderResponse {
 	public void setFinalize(String finalize) {
 		this.finalize = finalize;
 	}
-	
-	
-	
+
+
+
   }
 

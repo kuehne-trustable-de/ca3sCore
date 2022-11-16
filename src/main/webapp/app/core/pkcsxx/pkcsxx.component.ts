@@ -219,12 +219,28 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     console.log('showRegExpWarning( ' + rr.regExMatch + ', ' + valueIndex + ', "' + value + '")');
     console.log('showRegExpWarning : rr.regEx = ' + rr.regEx);
     if (rr.regExMatch && valueIndex === 0 && rr.regEx.trim().length > 0) {
-      const regexp = new RegExp(rr.regEx);
-      const valid = regexp.test(value);
+      const valid = !this.showRegExpFieldWarning(value, rr.regEx);
       console.log('showRegExpWarning( ' + rr.regExMatch + ', ' + valueIndex + ', "' + value + '") -> ' + valid);
       return !valid;
     }
     return false;
+  }
+
+  public regExpSecret(value: string): string {
+    if (
+      this.$store.state.uiConfigStore.config.cryptoConfigView !== undefined &&
+      this.$store.state.uiConfigStore.config.cryptoConfigView.pkcs12SecretRegexp !== undefined
+    ) {
+      return this.$store.state.uiConfigStore.config.cryptoConfigView.pkcs12SecretRegexp;
+    }
+    return '';
+  }
+
+  public showRegExpFieldWarning(value: string, regEx: string): boolean {
+    const regexp = new RegExp(regEx);
+    const valid = regexp.test(value);
+    console.log('showRegExpFieldWarning( ' + regEx + ', "' + value + '") -> ' + valid);
+    return !valid;
   }
 
   public alignRDNArraySize(restrictionIndex: number, valueIndex: number): void {

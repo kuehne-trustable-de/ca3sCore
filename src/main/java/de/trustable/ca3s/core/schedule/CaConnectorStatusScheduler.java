@@ -1,12 +1,6 @@
 package de.trustable.ca3s.core.schedule;
 
-import de.trustable.ca3s.core.domain.CAConnectorConfig;
-import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
-import de.trustable.ca3s.core.security.provider.Ca3sBundleFactory;
-import de.trustable.ca3s.core.security.provider.TimedRenewalCertMapHolder;
-import de.trustable.ca3s.core.service.dto.CAStatus;
 import de.trustable.ca3s.core.service.util.CaConnectorAdapter;
-import de.trustable.ca3s.core.service.util.CertificateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

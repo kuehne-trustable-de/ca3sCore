@@ -63,7 +63,7 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
 	    return userPreferenceRepository.findByUser(id);
 	}
 
-    
+
     /**
      * Get a specific userPreferences for a user id.
      *

@@ -32,11 +32,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 public class AcmeProblemException extends RuntimeException {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -3421378539503434188L;
 
-	private ProblemDetail problem;
+	private final ProblemDetail problem;
 
 	public AcmeProblemException(final ProblemDetail problem) {
 		this.problem = problem;

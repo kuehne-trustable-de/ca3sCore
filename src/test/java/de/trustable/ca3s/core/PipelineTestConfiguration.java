@@ -20,7 +20,6 @@ import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.List;
 
@@ -287,7 +286,7 @@ public class PipelineTestConfiguration {
         pAtt.setValue(value);
 
         if( p.getPipelineAttributes() == null){
-            p.setPipelineAttributes( new HashSet<PipelineAttribute>() );
+            p.setPipelineAttributes(new HashSet<>() );
         }
         p.getPipelineAttributes().add(pAtt);
 

@@ -15,9 +15,9 @@ public class ConfigUtil {
 
 	@Autowired
 	private CAConnectorConfigRepository caccRepo;
-	
+
 	public CAConnectorConfig getDefaultConfig() {
-		
+
 		CAConnectorConfig caConfigDefault = null;
 		for( CAConnectorConfig caConfig: caccRepo.findAll()) {
 			LOG.debug("checking CA configuration {}, default {}", caConfig.getName(), caConfig.isDefaultCA() );
@@ -31,7 +31,7 @@ public class ConfigUtil {
 		if(caConfigDefault == null ) {
 			LOG.error("no default and active CA configured" );
 		}
-		
+
 		return caConfigDefault;
 	}
 }

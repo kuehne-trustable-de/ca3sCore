@@ -29,7 +29,7 @@ class DirectoryConnectorIT {
 	private static final String SUBJECT_A_SIGN_STRONG = "a-sign strong";
 
 	@Autowired
-	DirectoryConnector dc;
+    DirectoryConnector dc;
 
 	@Autowired
 	CertificateRepository cr;

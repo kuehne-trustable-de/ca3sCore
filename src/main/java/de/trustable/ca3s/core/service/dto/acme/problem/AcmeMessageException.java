@@ -32,7 +32,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 public abstract class AcmeMessageException extends RuntimeException {
 
   /**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 7746833100742961831L;
 

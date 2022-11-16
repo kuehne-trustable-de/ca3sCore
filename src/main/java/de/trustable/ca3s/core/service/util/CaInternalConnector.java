@@ -35,7 +35,6 @@ import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.web.scepservlet.ScepServletImpl;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.PKILevel;
 
@@ -96,7 +95,7 @@ public class CaInternalConnector {
 				+ ", OU=Internal Only, OU=Dev/Test Only, O=trustable solutions, C=DE");
 
 		PrivateKey privKeyRoot = certUtil.getPrivateKey(root);
-		KeyPair kpRoot = new KeyPair(certUtil.convertPemToCertificate(root.getContent()).getPublicKey(), privKeyRoot);
+		KeyPair kpRoot = new KeyPair(CertificateUtil.convertPemToCertificate(root.getContent()).getPublicKey(), privKeyRoot);
 
 		X509Certificate x509Cert = cryptoUtil.issueCertificate(normalizeX500Name(new X500Name(root.getSubject())), kpRoot, normalizeX500Name(subject), keyPair.getPublic().getEncoded(), Calendar.YEAR, 1, PKILevel.INTERMEDIATE);
 
@@ -192,7 +191,7 @@ public class CaInternalConnector {
 			Certificate intermediate = getIntermediate();
 
 			PrivateKey privKeyIntermediate = certUtil.getPrivateKey(intermediate);
-			KeyPair kpIntermediate = new KeyPair(certUtil.convertPemToCertificate(intermediate.getContent()).getPublicKey(), privKeyIntermediate);
+			KeyPair kpIntermediate = new KeyPair(CertificateUtil.convertPemToCertificate(intermediate.getContent()).getPublicKey(), privKeyIntermediate);
 
 			PKCS10CertificationRequest p10 = cryptoUtil.convertPemToPKCS10CertificationRequest(csr.getCsrBase64());
 
