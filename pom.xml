@@ -162,7 +162,7 @@
         <adcsProxyClientVersion>1.2.9</adcsProxyClientVersion>
 
         <nimbus-jose-jwt-version>8.23</nimbus-jose-jwt-version>
-        <jose4jVersion>0.9.1</jose4jVersion>
+        <jose4jVersion>0.9.2</jose4jVersion>
         <acme4jVersion>2.14</acme4jVersion>
         <takesVersion>1.24.4</takesVersion>
         <jscepVersion>2.5.4</jscepVersion>
