@@ -53,7 +53,7 @@ spring:
     console:
       enabled: false
   jpa:
-    database-platform: tech.jhipster.domain.util.FixedH2Dialect
+#    database-platform: tech.jhipster.domain.util.FixedH2Dialect
     database: H2
     show-sql: false
     properties:
@@ -65,6 +65,9 @@ spring:
   liquibase:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
     contexts: dev
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   mail:
     host: localhost
     port: 25

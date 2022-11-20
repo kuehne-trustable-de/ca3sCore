@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
+import de.trustable.ca3s.core.service.AuditService;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1OctetString;
@@ -43,7 +44,6 @@ import org.bouncycastle.cert.jcajce.JcaX500NameUtil;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
@@ -64,30 +64,37 @@ public class CaCmpConnector {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CaCmpConnector.class);
 
-	@Autowired
-	private RemoteConnector remoteConnector;
+	private final RemoteConnector remoteConnector;
 
-	@Autowired
-	private CryptoUtil cryptoUtil;
+	private final CryptoUtil cryptoUtil;
 
-	@Autowired
-	private CertificateUtil certUtil;
+	private final CertificateUtil certUtil;
 
-	@Autowired
-	private CSRUtil csrUtil;
+	private final CSRUtil csrUtil;
 
-	@Autowired
-	private ProtectedContentUtil protUtil;
+	private final ProtectedContentUtil protUtil;
 
-	@Autowired
-	private CertificateRepository certificateRepository;
+	private final CertificateRepository certificateRepository;
 
-	/**
+    /**
 	 *
-	 */
-	public CaCmpConnector() {
+     * @param remoteConnector
+     * @param cryptoUtil
+     * @param certUtil
+     * @param csrUtil
+     * @param protUtil
+     * @param certificateRepository
+     * @param auditService
+     */
+	public CaCmpConnector(RemoteConnector remoteConnector, CryptoUtil cryptoUtil, CertificateUtil certUtil, CSRUtil csrUtil, ProtectedContentUtil protUtil, CertificateRepository certificateRepository, AuditService auditService) {
+        this.remoteConnector = remoteConnector;
+        this.cryptoUtil = cryptoUtil;
+        this.certUtil = certUtil;
+        this.csrUtil = csrUtil;
+        this.protUtil = protUtil;
+        this.certificateRepository = certificateRepository;
 
-		LOGGER.info("CaCmpConnector cTor ...");
+        LOGGER.info("CaCmpConnector cTor ...");
 	}
 
 	/**
@@ -216,8 +223,6 @@ public class CaCmpConnector {
 
 			// handle the response
 			cryptoUtil.readRevResponse(responseBytes, hmacSecret);
-
-			return;
 
 		} catch (CRMFException e) {
 			LOGGER.info("CMS format problem", e);
@@ -520,6 +525,7 @@ public class CaCmpConnector {
 
 					csrUtil.setStatus(csr, CsrStatus.REJECTED);
 					csrUtil.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_FAILURE_INFO, statusText, true);
+
 					throw new GeneralSecurityException(
 							"CMP response contains no certificate, status :" + status + "\n" + statusText);
 				}

@@ -66,6 +66,9 @@ spring:
   liquibase:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
     contexts: dev
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   mail:
     host: localhost
     port: 25

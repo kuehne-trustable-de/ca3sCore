@@ -165,6 +165,9 @@ jhipster:
         # Token is valid 24 hours
         token-validity-in-seconds: 86400
         token-validity-in-seconds-for-remember-me: 2592000
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   mail: # specific JHipster mail property, for standard properties see MailProperties
     base-url: http://localhost:8080 # Modify according to your server's URL
   logging:
@@ -228,6 +231,7 @@ ca3s:
   pkcs12:
     # the restriction on the input 'secret' protecting the PKCS12 container
     secret:
+      description: min6NumberUpperLower
       regexp: ^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,100}$
     # the list of algorithm selectable for the PKCS12 encryption
     pbe:
@@ -261,7 +265,9 @@ ca3s:
 
     password:
       check:
+#        description: min6NumberUpperLower
 #        regexp: ^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,100}$
+        description: min8NumberUpperLowerSpecial
         regexp: ^(?:(?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))(?!.*(.)\1{2,})[A-Za-z0-9!~<>,;:_=?*+#.”&§%°()\|\[\]\-\$\^\@\/]{8,32}$
 
     csr:

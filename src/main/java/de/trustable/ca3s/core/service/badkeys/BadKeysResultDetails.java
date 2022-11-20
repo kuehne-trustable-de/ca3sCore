@@ -13,79 +13,79 @@ import java.io.Serializable;
          "debug":"Truncated Hash: 31c152529eb033a010f8c272fd8d42"
       }
  */
-public class Result implements Serializable {
+public class BadKeysResultDetails implements Serializable {
 
-    private Blocklist blocklist;
-    private Invalid rsaInvalid;
-    private Invalid roca;
-    private Invalid pattern;
-    private Fermat fermat;
+    private BadKeysBlocklist blocklist;
+    private BadKeysResultInvalid rsaInvalid;
+    private BadKeysResultInvalid roca;
+    private BadKeysResultInvalid pattern;
+    private BadKeysResultFermat fermat;
     private String resultType = "valid";
 
-    public Result(JsonObject jsonObject){
+    public BadKeysResultDetails(JsonObject jsonObject){
 
         if( jsonObject.has("blocklist")){
-            blocklist = new Blocklist(jsonObject.getAsJsonObject("blocklist"));
+            blocklist = new BadKeysBlocklist(jsonObject.getAsJsonObject("blocklist"));
             resultType = "blocklist";
         }
         if( jsonObject.has("rsainvalid")){
-            rsaInvalid = new Invalid(jsonObject.getAsJsonObject("rsainvalid"));
+            rsaInvalid = new BadKeysResultInvalid(jsonObject.getAsJsonObject("rsainvalid"));
             resultType = "rsainvalid";
         }
         if( jsonObject.has("roca")){
-            roca = new Invalid(jsonObject.getAsJsonObject("roca"));
+            roca = new BadKeysResultInvalid(jsonObject.getAsJsonObject("roca"));
             resultType = "roca";
         }
         if( jsonObject.has("pattern")){
-            pattern = new Invalid(jsonObject.getAsJsonObject("pattern"));
+            pattern = new BadKeysResultInvalid(jsonObject.getAsJsonObject("pattern"));
             resultType = "pattern";
         }
 
         if( jsonObject.has("fermat")){
-            fermat = new Fermat(jsonObject.getAsJsonObject("fermat"));
+            fermat = new BadKeysResultFermat(jsonObject.getAsJsonObject("fermat"));
             resultType = "fermat";
         }
 
     }
 
 
-    public Blocklist getBlocklist() {
+    public BadKeysBlocklist getBlocklist() {
         return blocklist;
     }
 
-    public void setBlocklist(Blocklist blocklist) {
+    public void setBlocklist(BadKeysBlocklist blocklist) {
         this.blocklist = blocklist;
     }
 
-    public Invalid getRsaInvalid() {
+    public BadKeysResultInvalid getRsaInvalid() {
         return rsaInvalid;
     }
 
-    public void setRsaInvalid(Invalid rsaInvalid) {
+    public void setRsaInvalid(BadKeysResultInvalid rsaInvalid) {
         this.rsaInvalid = rsaInvalid;
     }
 
-    public Invalid getRoca() {
+    public BadKeysResultInvalid getRoca() {
         return roca;
     }
 
-    public void setRoca(Invalid roca) {
+    public void setRoca(BadKeysResultInvalid roca) {
         this.roca = roca;
     }
 
-    public Invalid getPattern() {
+    public BadKeysResultInvalid getPattern() {
         return pattern;
     }
 
-    public void setPattern(Invalid pattern) {
+    public void setPattern(BadKeysResultInvalid pattern) {
         this.pattern = pattern;
     }
 
-    public Fermat getFermat() {
+    public BadKeysResultFermat getFermat() {
         return fermat;
     }
 
-    public void setFermat(Fermat fermat) {
+    public void setFermat(BadKeysResultFermat fermat) {
         this.fermat = fermat;
     }
 

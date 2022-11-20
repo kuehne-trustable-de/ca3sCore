@@ -12,13 +12,13 @@ import com.google.gson.JsonObject;
       }
  */
 
-public class Blocklist extends Invalid {
+public class BadKeysBlocklist extends BadKeysResultInvalid {
 
     private int blid;
     private String lookup;
     private String debug;
 
-    public Blocklist(JsonObject jsonObject){
+    public BadKeysBlocklist(JsonObject jsonObject){
 
         super(jsonObject);
 

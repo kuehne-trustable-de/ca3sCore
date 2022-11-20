@@ -8,9 +8,9 @@ public class BadKeysResult implements Serializable {
     final private boolean installationValid;
     final private String messsage;
 
-    final Response response;
+    final BadKeysResultResponse response;
 
-    public BadKeysResult(Response response) {
+    public BadKeysResult(BadKeysResultResponse response) {
         this.installationValid = true;
         this.valid = "valid".equals(response.getResults().getResultType());
 
@@ -46,7 +46,7 @@ public class BadKeysResult implements Serializable {
         return messsage;
     }
 
-    public Response getResponse() {
+    public BadKeysResultResponse getResponse() {
         return response;
     }
 }

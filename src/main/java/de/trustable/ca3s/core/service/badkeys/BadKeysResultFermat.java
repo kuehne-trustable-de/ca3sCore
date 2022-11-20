@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import java.io.Serializable;
 import java.math.BigInteger;
 
-public class Fermat implements Serializable {
+public class BadKeysResultFermat implements Serializable {
 
     private BigInteger p;
     private BigInteger q;
@@ -13,7 +13,7 @@ public class Fermat implements Serializable {
     private BigInteger b;
     private String debug;
 
-    public Fermat(JsonObject jsonObject){
+    public BadKeysResultFermat(JsonObject jsonObject){
 
         if( jsonObject.has("p")){
             p = jsonObject.getAsJsonPrimitive("p").getAsBigInteger();

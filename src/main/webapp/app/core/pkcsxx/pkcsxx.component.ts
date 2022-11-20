@@ -236,6 +236,17 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     return '';
   }
 
+  public regExpSecretDescription(): string {
+    if (
+      this.$store.state.uiConfigStore.config.cryptoConfigView !== undefined &&
+      this.$store.state.uiConfigStore.config.cryptoConfigView.regexpPkcs12SecretDescription !== undefined
+    ) {
+      console.log('regExpSecretDescription : ' + this.$store.state.uiConfigStore.config.cryptoConfigView.regexpPkcs12SecretDescription);
+      return this.$store.state.uiConfigStore.config.cryptoConfigView.regexpPkcs12SecretDescription;
+    }
+    return '';
+  }
+
   public showRegExpFieldWarning(value: string, regEx: string): boolean {
     const regexp = new RegExp(regEx);
     const valid = regexp.test(value);

@@ -22,7 +22,7 @@ import java.math.BigInteger;
    },
    "spkisha256":"9449eb4873a6a19a803682bcadbdca86e8c54b139e6105c1f9dc00e7b2b997a2"
  */
-public class Response implements Serializable {
+public class BadKeysResultResponse implements Serializable {
     private String type;
     private BigInteger n;
     private BigInteger e;
@@ -30,16 +30,16 @@ public class Response implements Serializable {
     private BigInteger y;
     private long bits;
     private String spkisha256;
-    private Result results;
+    private BadKeysResultDetails results;
 
-    public Response(JsonObject jsonObject){
+    public BadKeysResultResponse(JsonObject jsonObject){
 
         if( jsonObject.has("type")){
             type = jsonObject.getAsJsonPrimitive("type").getAsString();
         }
 
         if( jsonObject.has("results")){
-            results = new Result(jsonObject.getAsJsonObject("results"));
+            results = new BadKeysResultDetails(jsonObject.getAsJsonObject("results"));
         }
 
     }
@@ -100,11 +100,11 @@ public class Response implements Serializable {
         this.spkisha256 = spkisha256;
     }
 
-    public Result getResults() {
+    public BadKeysResultDetails getResults() {
         return results;
     }
 
-    public void setResults(Result results) {
+    public void setResults(BadKeysResultDetails results) {
         this.results = results;
     }
 }

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.0.1157 on 2022-11-14 18:12:48.
+// Generated using typescript-generator version 3.0.1157 on 2022-11-20 18:19:56.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -192,8 +192,8 @@ export interface ICertificateView extends ISerializable {
   isServersideKeyGeneration?: boolean;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
-  serversideKeyGeneration?: boolean;
   fullChainAvailable?: boolean;
+  serversideKeyGeneration?: boolean;
   auditPresent?: boolean;
 }
 
@@ -203,6 +203,9 @@ export interface ICryptoConfigView extends ISerializable {
   allHashAlgoArr?: string[];
   allSignAlgoArr?: string[];
   pkcs12SecretRegexp?: string;
+  regexpPkcs12SecretDescription?: string;
+  regexpPasswordDescription?: string;
+  passwordRegexp?: string;
 }
 
 export interface IUIConfigView extends ISerializable {
@@ -243,8 +246,8 @@ export interface ICSRView extends ISerializable {
   csrBase64?: string;
   auditViewArr?: IAuditView[];
   isAdministrable?: boolean;
-  csrvalid?: boolean;
   administrable?: boolean;
+  csrvalid?: boolean;
 }
 
 export interface IPreferences extends ISerializable {
@@ -351,6 +354,7 @@ export interface IPkcsXXData {
   createdCSRId?: string;
   messages?: string[];
   warnings?: string[];
+  badKeysResult?: IBadKeysResult;
   replacementCandidates?: ICertificateNameId[];
   replacementCandidatesFromList?: ICertificate[];
 }
@@ -462,6 +466,13 @@ export interface IPkcs10RequestHolderShallow {
   publicKeyAlgorithmName?: string;
 }
 
+export interface IBadKeysResult extends ISerializable {
+  valid?: boolean;
+  installationValid?: boolean;
+  messsage?: string;
+  response?: IBadKeysResultResponse;
+}
+
 export interface ICertificateNameId extends ISerializable {
   id?: number;
   name?: string;
@@ -509,6 +520,17 @@ export interface ICertificate extends ISerializable {
 export interface ITypedValue {
   type?: string;
   value?: string;
+}
+
+export interface IBadKeysResultResponse extends ISerializable {
+  type?: string;
+  n?: number;
+  e?: number;
+  x?: number;
+  y?: number;
+  bits?: number;
+  spkisha256?: string;
+  results?: IBadKeysResultDetails;
 }
 
 export interface ICSR extends ISerializable {
@@ -572,6 +594,15 @@ export interface ICAConnectorConfig extends ISerializable {
 
 export interface IComparable<T> {}
 
+export interface IBadKeysResultDetails extends ISerializable {
+  blocklist?: IBadKeysBlocklist;
+  rsaInvalid?: IBadKeysResultInvalid;
+  roca?: IBadKeysResultInvalid;
+  pattern?: IBadKeysResultInvalid;
+  fermat?: IBadKeysResultFermat;
+  resultType?: string;
+}
+
 export interface ICSRComment extends ISerializable {
   id?: number;
   comment?: string;
@@ -610,6 +641,25 @@ export interface IPipeline extends ISerializable {
   pipelineAttributes?: IPipelineAttribute[];
   caConnector?: ICAConnectorConfig;
   processInfo?: IBPMNProcessInfo;
+}
+
+export interface IBadKeysBlocklist extends IBadKeysResultInvalid {
+  blid?: number;
+  lookup?: string;
+  debug?: string;
+}
+
+export interface IBadKeysResultInvalid extends ISerializable {
+  detected?: boolean;
+  subtest?: string;
+}
+
+export interface IBadKeysResultFermat extends ISerializable {
+  p?: number;
+  q?: number;
+  a?: number;
+  b?: number;
+  debug?: string;
 }
 
 export interface IRDNAttribute extends ISerializable {

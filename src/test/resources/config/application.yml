@@ -53,7 +53,7 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
 #    url: jdbc:h2:file:./target/h2db/db/ca3s_jh;DB_CLOSE_DELAY=-1
-    url: jdbc:h2:mem:ca3s;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:ca3s;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
     username: root
     password:
     hikari:
@@ -65,7 +65,6 @@ spring:
         prepStmtCacheSqlLimit: 2048
         useServerPrepStmts: true
   jpa:
-    database-platform: tech.jhipster.domain.util.FixedH2Dialect
     database: H2
     show-sql: false
     properties:
@@ -84,9 +83,6 @@ spring:
     allow-bean-definition-overriding: true
   messages:
     basename: i18n/messages
-  mvc:
-    favicon:
-      enabled: false
   task:
     execution:
       thread-name-prefix: ca-3-s-task-

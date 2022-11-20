@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.trustable.ca3s.core.service.badkeys.BadKeysResult;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,9 @@ public class PkcsXXData {
 
     @JsonProperty("warnings")
     private String[] warnings;
+
+    @JsonProperty("badKeysResult")
+    private BadKeysResult badKeysResult;
 
     @JsonProperty("replacementCandidates")
 	CertificateNameId[] replacementCandidates;
@@ -168,6 +172,14 @@ public class PkcsXXData {
 
     public void setMessages(String[] messages) {
         this.messages = messages;
+    }
+
+    public BadKeysResult getBadKeysResult() {
+        return badKeysResult;
+    }
+
+    public void setBadKeysResult(BadKeysResult badKeysResult) {
+        this.badKeysResult = badKeysResult;
     }
 
     public CertificateNameId[] getReplacementCandidates() {

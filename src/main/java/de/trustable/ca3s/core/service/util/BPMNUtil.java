@@ -15,6 +15,7 @@ import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.BPMNProcessType;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.exception.CAFailureException;
+import de.trustable.ca3s.core.service.AuditService;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
@@ -63,8 +64,10 @@ public class BPMNUtil{
 
     private final NameAndRoleUtil nameAndRoleUtil;
 
+    final private AuditService auditService;
+
     @Autowired
-    public BPMNUtil(ConfigUtil configUtil, CaConnectorAdapter caConnAdapter, CAConnectorConfigRepository caConnConRepo, CryptoUtil cryptoUtil, RuntimeService runtimeService, RepositoryService repoService, BPMNProcessInfoRepository bpnmInfoRepo, CSRRepository csrRepository, CertificateRepository certRepository, CertificateUtil certUtil, NameAndRoleUtil nameAndRoleUtil) {
+    public BPMNUtil(ConfigUtil configUtil, CaConnectorAdapter caConnAdapter, CAConnectorConfigRepository caConnConRepo, CryptoUtil cryptoUtil, RuntimeService runtimeService, RepositoryService repoService, BPMNProcessInfoRepository bpnmInfoRepo, CSRRepository csrRepository, CertificateRepository certRepository, CertificateUtil certUtil, NameAndRoleUtil nameAndRoleUtil, AuditService auditService) {
         this.configUtil = configUtil;
         this.caConnAdapter = caConnAdapter;
         this.caConnConRepo = caConnConRepo;
@@ -76,6 +79,7 @@ public class BPMNUtil{
         this.certRepository = certRepository;
         this.certUtil = certUtil;
         this.nameAndRoleUtil = nameAndRoleUtil;
+        this.auditService = auditService;
     }
 
     public String addModel(final String bpmnString, final String name){
@@ -291,6 +295,7 @@ public class BPMNUtil{
 
 		} else {
 			LOG.warn("creation of certificate by BPMN process {} failed with reason '{}' ", processInstanceId, failureReason);
+            auditService.saveAuditTrace(auditService.createAuditTraceCsrRejected(csr, failureReason));
             throw new CAFailureException(failureReason);
 		}
 	}

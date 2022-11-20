@@ -97,7 +97,7 @@ public class BadKeysService {
                 }else {
                     JsonObject jsonObject = JsonParser.parseReader(output).getAsJsonObject();
                     LOGGER.debug("badkeys process returns json:\n{}", jsonObject.toString());
-                    Response response = new Response(jsonObject);
+                    BadKeysResultResponse response = new BadKeysResultResponse(jsonObject);
                     return new BadKeysResult(response);
                 }
 

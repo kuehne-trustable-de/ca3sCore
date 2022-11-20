@@ -207,22 +207,17 @@ public class ContentUploadProcessor {
             }
 
             if( badKeysService.isInstalled()){
-                List<String> messageList = new ArrayList<>();
-
                 BadKeysResult badKeysResult = badKeysService.checkContent(content);
+                p10ReqData.setBadKeysResult(badKeysResult);
                 if( badKeysResult.isValid()) {
                     LOG.debug("BadKeys is installed and returns OK");
-                    messageList.add("BadKeys check: no findings");
                 }else{
                     if( badKeysResult.getResponse() != null &&
                         badKeysResult.getResponse().getResults() != null &&
                         badKeysResult.getResponse().getResults().getResultType() != null ) {
-                        messageList.add("ca3SApp.messages.badkeys." + badKeysResult.getResponse().getResults().getResultType());
                         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
                     }
                 }
-                p10ReqData.setWarnings(messageList.toArray(new String[0]));
-
             }else{
                 LOG.debug("BadKeys not installed");
             }
@@ -257,14 +252,11 @@ public class ContentUploadProcessor {
                 if( badKeysService.isInstalled()){
                     BadKeysResult badKeysResult = badKeysService.checkContent(CryptoUtil.pkcs10RequestToPem(p10ReqHolder.getP10Req()));
                     if( !badKeysResult.isValid()){
-
                         LOG.debug("badKeysResult '{}'", badKeysResult.getResponse().getResults().getResultType());
-                        String [] messages = ArrayUtils.add( p10ReqData.getWarnings(),
-                            badKeysResult.getResponse().getResults().getResultType());
-                        p10ReqData.setWarnings(messages);
                     }else{
                         LOG.debug("BadKeys not installed");
                     }
+                    p10ReqData.setBadKeysResult(badKeysResult);
                 }
 
                 p10ReqData.setCsrPublicKeyPresentInDB(!csrList.isEmpty());

@@ -10,6 +10,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermission;
+import java.time.Duration;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,12 +31,15 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.ie.InternetExplorerOptions;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
+import org.openqa.selenium.safari.SafariOptions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
@@ -173,8 +177,6 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
 
     public void startWebDriver(){
 
-        Capabilities capabilities;
-
         baseUrl = configuration.url();
 
         LOGGER.info(String.format("\n=== Configuration ===\n" +
@@ -185,8 +187,6 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
 
         switch (configuration.browser()) {
             case CHROME:
-                capabilities = new ChromeOptions();
-
                 String driverName = "chromedriver";
                 if( SystemUtils.IS_OS_WINDOWS ){
                     driverName = "chromedriver.exe";
@@ -235,39 +235,36 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
                     System.exit(1);
                 }
                 break;
-            case FIREFOX:
-                capabilities = DesiredCapabilities.firefox();
-                if (isLocal) driver = new FirefoxDriver(capabilities);
+            case FIREFOX: {
+                FirefoxOptions options = new FirefoxOptions();
+                if (isLocal) driver = new FirefoxDriver(options);
                 break;
-            case INTERNET_EXPLORER:
+            }
+            case INTERNET_EXPLORER: {
                 logFatal("iedriver not found. See https://github.com/ddavison/conductor/wiki/WebDriver-Executables for more information.");
                 System.exit(1);
-                capabilities = DesiredCapabilities.internetExplorer();
-                if (isLocal) driver = new InternetExplorerDriver(capabilities);
+                InternetExplorerOptions options = new InternetExplorerOptions();
+                if (isLocal) driver = new InternetExplorerDriver(options);
                 break;
-            case SAFARI:
+            }
+            case SAFARI: {
                 logFatal("safaridriver not found. See https://github.com/ddavison/conductor/wiki/WebDriver-Executables for more information.");
                 System.exit(1);
-                capabilities = DesiredCapabilities.safari();
-                if (isLocal) driver = new SafariDriver(capabilities);
+                SafariOptions options = new SafariOptions();
+                if (isLocal) driver = new SafariDriver(options);
                 break;
-            case PHANTOMJS:
-                capabilities = DesiredCapabilities.phantomjs();
-                if (isLocal)
-                    try {
-                        driver = new PhantomJSDriver(capabilities);
-                    } catch (Exception x) {
-                        logFatal("phantomjs not found. Download them from https://bitbucket.org/ariya/phantomjs/downloads/ and extract the binary as phantomjs.exe, phantomjs.linux, or phantomjs.mac at project root for Windows, Linux, or MacOS.");
-                        System.exit(1);
-                    }
-                break;
+            }
             default:
                 System.err.println("Unknown browser: " + configuration.browser());
                 return;
         }
 
-        if (!isLocal)
+        if (!isLocal) {
+            logFatal("RemoteWebDriver not implemented, sorry ...");
+            System.exit(1);
+            /*
             // they are using a hub.
+            RemoteWebDriverOptions options = new RemoteWebDriverOptions();
             try {
                 driver = new RemoteWebDriver(new URL(configuration.hub()), capabilities); // just override the driver.
             } catch (Exception x) {
@@ -275,7 +272,9 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
                 x.printStackTrace();
                 return;
             }
+            */
 
+        }
         actions = new Actions(driver);
 
         if (StringUtils.isNotEmpty(baseUrl)) driver.navigate().to(baseUrl);
@@ -396,7 +395,8 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
             element.sendKeys(text);
         }catch( ElementNotInteractableException enie){
             System.out.println("NotInteractable, trying to execute script");
-            new WebDriverWait(driver, 30).until((ExpectedCondition<Boolean>) wd ->
+            Duration duration30Sec = Duration.ofSeconds(30);
+            new WebDriverWait(driver, duration30Sec).until((ExpectedCondition<Boolean>) wd ->
                 ((org.openqa.selenium.JavascriptExecutor) wd).executeScript("return document.readyState").equals("complete"));
 
 //            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript( "arguments[0].value = arguments[1];arguments[0].click()", element, text);

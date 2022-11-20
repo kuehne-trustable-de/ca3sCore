@@ -4,12 +4,12 @@ import com.google.gson.JsonObject;
 
 import java.io.Serializable;
 
-public class Invalid implements Serializable {
+public class BadKeysResultInvalid implements Serializable {
 
     private boolean detected;
     private String subtest;
 
-    public Invalid(JsonObject jsonObject){
+    public BadKeysResultInvalid(JsonObject jsonObject){
 
         if( jsonObject.has("detected")){
             detected = jsonObject.getAsJsonPrimitive("detected").getAsBoolean();

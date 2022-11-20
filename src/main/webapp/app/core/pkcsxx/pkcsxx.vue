@@ -193,7 +193,7 @@
                                                class="form-text text-danger" v-text="$t('entity.validation.required')">
                                             This field is required.
                                         </small>
-                                        <small class="form-text text-danger" v-if="showRegExpFieldWarning(secret, regExpSecret())" v-text="$t('entity.validation.pattern', {'pattern': regExpSecret()})">
+                                        <small class="form-text text-danger" v-if="showRegExpFieldWarning(secret, regExpSecret())" v-text="$t('ca3SApp.messages.password.requirement.' + regExpSecretDescription())">
                                             secret must match RegEx!
                                         </small>
                                     </div>

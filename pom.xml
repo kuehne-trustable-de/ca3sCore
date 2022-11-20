@@ -6,7 +6,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>0.2.3</version>
+    <version>0.2.4</version>
     <packaging>jar</packaging>
 
 
@@ -85,16 +85,20 @@
         <profile.tls/>
 
         <!-- Dependency versions -->
-        <!--jhipster-dependencies.version>7.8.1</jhipster-dependencies.version-->
-        <jhipster-dependencies.version>7.5.1</jhipster-dependencies.version>
 
+        <jhipster-dependencies.version>7.9.3</jhipster-dependencies.version>
         <!-- The spring-boot version should match the one managed by
         https://mvnrepository.com/artifact/tech.jhipster/jhipster-dependencies/${jhipster-dependencies.version} -->
-        <spring-boot.version>2.7.0</spring-boot.version>
+        <spring-boot.version>2.7.3</spring-boot.version>
+
+        <!--jhipster-dependencies.version>7.5.1</jhipster-dependencies.version>
+        <spring-boot.version>2.7.0</spring-boot.version-->
+
         <archunit-junit5.version>0.23.1</archunit-junit5.version>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
 
-        <jhipster-framework.version>3.9.1</jhipster-framework.version>
+        <jhipster-framework.version>7.9.4-SNAPSHOT</jhipster-framework.version>
+        <!--jhipster-framework.version>3.9.1</jhipster-framework.version-->
 
         <!-- The hibernate version should match the one managed by
         https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
@@ -119,7 +123,6 @@
 
         <json.version>2.7.0</json.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
-        <jaxb-runtime.version>2.3.3</jaxb-runtime.version>
         <archunit-junit5.version>0.23.1</archunit-junit5.version>
 
         <mapstruct.version>1.5.3.Final</mapstruct.version>
@@ -364,7 +367,7 @@
                 <version>${hibernate.version}</version>
             </dependency>
 
-            <dependency>
+            <!--dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
                 <version>${spring.version}</version>
@@ -383,7 +386,7 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-beans</artifactId>
                 <version>${spring.version}</version>
-            </dependency>
+            </dependency-->
 
             <dependency>
                 <groupId>org.springframework.security</groupId>
@@ -615,11 +618,11 @@
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
-            <dependency>
+            <!--dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>2.12.7.1</version>
-            </dependency>
+            </dependency-->
 
             <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
             <dependency>
