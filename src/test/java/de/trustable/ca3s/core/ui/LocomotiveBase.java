@@ -20,14 +20,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.AfterAll;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Capabilities;
-import org.openqa.selenium.ElementNotInteractableException;
+import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.NoSuchWindowException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebDriverException;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -55,6 +49,7 @@ import io.ddavison.conductor.Conductor;
 import io.ddavison.conductor.Config;
 import org.springframework.util.ResourceUtils;
 
+import static javax.xml.datatype.DatatypeConstants.DURATION;
 import static org.junit.Assert.*;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
@@ -86,6 +81,7 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
     @Value("${local.server.port}")
     int port; //random port chosen by spring test
 
+    File downloadDir;
 
     private Pattern p;
     private Matcher m;
@@ -96,6 +92,12 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
             props.load(getClass().getResourceAsStream("/default.properties"));
         } catch (Exception e) {
             logFatal("Couldn't load default properties");
+        }
+        try {
+            downloadDir = new File(FileUtils.getUserDirectory(), "Downloads");
+//            downloadDir = Files.createTempDirectory("tmpDirPrefix").toFile();
+        } catch (Exception e) {
+            logFatal("Couldn't create downloadDir");
         }
 
         /**
@@ -220,6 +222,24 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
                             options.addArguments("--no-sandbox");
                             options.addArguments("--disable-dev-shm-usage");
 
+                            options.addArguments("safebrowsing.enabled=false");
+                            options.addArguments("safebrowsing_for_trusted_sources_enabled=false");
+                            options.addArguments("download.prompt_for_download=false");
+                            options.addArguments("download.directory_upgrade=true");
+
+                            options.addArguments("download.default_directory=" + downloadDir.getAbsolutePath() + File.separator);
+
+ //                           options.setExperimentalOption("download.default_directory", downloadDir.getAbsolutePath());
+ //                           options.setExperimentalOption("download.prompt_for_download", false);
+ //                           options.setExperimentalOption("download.directory_upgrade", true);
+ //                           options.setExperimentalOption("safebrowsing.enabled", false);
+
+                            /*
+                            options.addArguments("--download.default_directory --" +
+                                downloadDir.getAbsolutePath());
+                            options.addArguments("--safebrowsing-disable-download-protection");
+                            options.addArguments("--safebrowsing-disable-extension-blacklist");
+*/
                             driver = new ChromeDriver(options);
 
                         } catch (Exception x) {
@@ -503,16 +523,35 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
 
     public LocomotiveBase selectOptionByText(By by, String text) {
 
-        Select box = new Select(waitForElement(by));
-        box.selectByVisibleText(text);
-//        box.selectByValue(text);
+        WebElement selectElement = waitForElement(by);
+        Select box = new Select(selectElement);
+        try {
+            box.selectByVisibleText(text);
+        }catch (ElementNotInteractableException enie){
+
+            ((JavascriptExecutor) driver).executeScript("arguments[0].style.cssText = {'overflow': 'visible', 'position': 'static'}", box);
+            box.selectByVisibleText(text);
+        }
         return this;
     }
 
-    public LocomotiveBase selectOptionByIndex(By by, int index) {
+    public LocomotiveBase selectOptionById(By by, int idx) {
 
         Select box = new Select(waitForElement(by));
-        box.selectByIndex(index);
+
+        LOGGER.debug("selection box is visible: " + box.getWrappedElement().isDisplayed());
+
+        for( WebElement we: box.getOptions()){
+            LOGGER.debug("option: " + we + " is visible: " + we.isDisplayed());
+        }
+
+        waitForElement(by).click();
+
+        try {
+            box.selectByIndex(idx);
+        }catch (ElementNotInteractableException enie){
+            box.selectByIndex(idx);
+        }
         return this;
     }
 

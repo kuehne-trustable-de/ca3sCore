@@ -31,6 +31,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
   public p12Pbe = 'aes-sha256';
   public p12KeyEx = false;
   public downloadFormat = 'pkix';
+  public downloadUrlOnServer = '';
 
   public comment = '';
 
@@ -65,6 +66,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
     } else if (this.downloadFormat === 'pemFull') {
       extension = '.full.pem';
     }
+    window.console.info('downloadFilename : ' + this.certificateView.downloadFilename + extension);
     return this.certificateView.downloadFilename + extension;
   }
 
@@ -105,13 +107,13 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
   }
 
   public download(url: string, filename: string, mimetype: string, headers: any) {
+    this.downloadUrlOnServer = url;
     const self = this;
-    const config = new Object();
+    const config = {};
     config['responseType'] = 'blob';
     config['headers'] = headers;
 
     axios
-      //      .get(url, { responseType: 'blob', headers: headers })
       .get(url, config)
       .then(response => {
         const blob = new Blob([response.data], { type: mimetype, endings: 'transparent' });
@@ -331,5 +333,12 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
         // always executed
         document.body.style.cursor = 'default';
       });
+  }
+
+  public showRegExpFieldWarning(value: string, regEx: string): boolean {
+    const regexp = new RegExp(regEx);
+    const valid = regexp.test(value);
+    console.log('showRegExpFieldWarning( ' + regEx + ', "' + value + '") -> ' + valid);
+    return !valid;
   }
 }

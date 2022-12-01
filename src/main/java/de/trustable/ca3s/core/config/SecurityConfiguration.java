@@ -3,12 +3,17 @@ package de.trustable.ca3s.core.config;
 import de.trustable.ca3s.core.security.AuthenticationProviderWrapper;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.security.DomainUserDetailsService;
+import de.trustable.ca3s.core.security.apikey.APIKeyAuthFilter;
+import de.trustable.ca3s.core.security.apikey.APIKeyAuthenticationManager;
+import de.trustable.ca3s.core.security.apikey.NullAuthFilter;
 import de.trustable.ca3s.core.security.jwt.JWTConfigurer;
 import de.trustable.ca3s.core.security.jwt.TokenProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.source.InvalidConfigurationPropertyValueException;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
@@ -16,13 +21,14 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -33,11 +39,12 @@ import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 
+@Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @Import(SecurityProblemSupport.class)
 @Order(2)
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration{
 
 	private final Logger LOG = LoggerFactory.getLogger(SecurityConfiguration.class);
 
@@ -65,15 +72,33 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final CorsFilter corsFilter;
     private final SecurityProblemSupport problemSupport;
     private final DomainUserDetailsService userDetailsService;
+    private final boolean apiKeyEnabled;
+    private final String apiKeyRequestHeader;
+    private final String apiKeyAdminValue;
 
     public SecurityConfiguration(TokenProvider tokenProvider,
     		CorsFilter corsFilter,
     		SecurityProblemSupport problemSupport,
-    		DomainUserDetailsService userDetailsService) {
+    		DomainUserDetailsService userDetailsService,
+             @Value("${ca3s.auth.api-key.enabled:false}") boolean apiKeyEnabled,
+             @Value("${ca3s.auth.api-key.auth-token-header-name:X-API-KEY}")String apiKeyRequestHeader,
+             @Value("${ca3s.auth.api-key.auth-token-admin:}") String apiKeyAdminValue) {
+
         this.tokenProvider = tokenProvider;
         this.corsFilter = corsFilter;
         this.problemSupport = problemSupport;
         this.userDetailsService = userDetailsService;
+        this.apiKeyEnabled = apiKeyEnabled;
+        this.apiKeyRequestHeader = apiKeyRequestHeader;
+        this.apiKeyAdminValue = apiKeyAdminValue;
+        if( apiKeyAdminValue != null && apiKeyAdminValue.trim().isEmpty()){
+            apiKeyAdminValue = null;
+        }
+
+        if( apiKeyAdminValue != null && apiKeyAdminValue.trim().length() < 100) {
+            throw new InvalidConfigurationPropertyValueException("ca3s.auth.api-key.auth-token-admin", apiKeyAdminValue,
+                "API Key too short, at least 100 character required");
+        }
     }
 
     @Bean
@@ -92,25 +117,27 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return new AuthenticationProviderWrapper(daoAuthenticationProvider);
     }
 
-    @Override
-    public void configure(WebSecurity web) {
-        web.ignoring()
-            .antMatchers(HttpMethod.OPTIONS, "/**")
-            .antMatchers("/app/**/*.{js,html}")
-            .antMatchers("/images/*.{jpg,png}")
-            .antMatchers("/css/*.css")
-            .antMatchers("/i18n/**")
-            .antMatchers("/content/**")
-            .antMatchers("/h2-console/**")
-            .antMatchers("/swagger-ui/index.html")
-            .antMatchers("/test/**")
-        ;
+    @Bean
+    public WebSecurityCustomizer configure() {
+
+        return (web) ->
+            web.ignoring()
+                .antMatchers(HttpMethod.OPTIONS, "/**")
+                .antMatchers("/app/**/*.{js,html}")
+                .antMatchers("/images/*.{jpg,png}")
+                .antMatchers("/css/*.css")
+                .antMatchers("/i18n/**")
+                .antMatchers("/content/**")
+                .antMatchers("/h2-console/**")
+                .antMatchers("/swagger-ui/index.html")
+                .antMatchers("/test/**")
+            ;
     }
 
-    @Override
-    public void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-    	LOG.info("SecurityConfiguration.configure ");
+    	LOG.info("SecurityConfiguration.filterChain ");
 
     	if(scepPort == 0 ) {
     		scepPort = httpPort;
@@ -132,6 +159,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
             .csrf().disable()
             .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(apiKeyAuthFilter(), UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling()
             .accessDeniedHandler(problemSupport)
         .and()
@@ -213,10 +241,27 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         .and()
             .apply(securityConfigurerAdapter());
         // @formatter:on
+
+        LOG.info("registered JWT-based configuration ");
+
+        return http.build();
     }
 
     private JWTConfigurer securityConfigurerAdapter() {
         return new JWTConfigurer(tokenProvider);
+    }
+
+    private AbstractPreAuthenticatedProcessingFilter apiKeyAuthFilter() {
+
+        if (apiKeyEnabled) {
+            APIKeyAuthFilter filter = new APIKeyAuthFilter(apiKeyRequestHeader);
+            filter.setAuthenticationManager(new APIKeyAuthenticationManager(apiKeyAdminValue));
+            LOG.info("registered authentication by APIKey");
+            return filter;
+        } else {
+            LOG.info("authentication by APIKey disabled");
+            return new NullAuthFilter();
+        }
     }
 
     /**

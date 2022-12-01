@@ -4,6 +4,7 @@ import de.trustable.ca3s.core.config.Constants;
 
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.User;
+import org.springframework.test.context.ActiveProfiles;
 import tech.jhipster.config.JHipsterProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.*;
  * Integration tests for {@link MailService}.
  */
 @SpringBootTest(classes = Ca3SApp.class)
+@ActiveProfiles("dev")
 public class MailServiceIT {
 
     private static String[] languages = {
@@ -192,16 +194,6 @@ public class MailServiceIT {
         assertThat(message.getFrom()[0].toString()).isEqualTo(jHipsterProperties.getMail().getFrom());
         assertThat(message.getContent().toString()).isNotEmpty();
         assertThat(message.getDataHandler().getContentType()).isEqualTo("text/html;charset=UTF-8");
-    }
-
-    @Test
-    public void testSendEmailWithException() throws Exception {
-        doThrow(MailSendException.class).when(javaMailSender).send(any(MimeMessage.class));
-        try {
-            mailService.sendEmail("john.doe@example.com", null, "testSubject", "testContent", false, false);
-        } catch (Exception e) {
-            fail("Exception shouldn't have been thrown");
-        }
     }
 
     @Test

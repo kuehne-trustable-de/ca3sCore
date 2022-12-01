@@ -319,7 +319,7 @@
   "ca3SApp.certificate.download.pem": "PEM-codiert",
   "ca3SApp.certificate.download.pemPartChain": "PEM-codiert (inkl. Zertifikatskette, ohne Root)",
   "ca3SApp.certificate.download.pemFullChain": "PEM-codiert (inkl. Zertifikatskette)",
-  "ca3SApp.certificate.download.pkix": "PKIX (DER-codiert)",
+  "ca3SApp.certificate.download.pkix": "Zertifikat",
   "ca3SApp.certificate.download.p12pbe": "PKCS12 Verschlüsselung",
   "ca3SApp.certificate.download.p12keyex": "'KeyEx'-Option",
 
@@ -445,8 +445,9 @@
   "ca3SApp.messages.badkeys.roca": "ROCA Schwachstelle gefunden!",
   "ca3SApp.messages.badkeys.blocklist": "Schlüssel gefunden in der Liste kompromittierten Schlüssel!",
 
-  "ca3SApp.messages.password.requirement.min6NumberUpperLower": "Mindestens 6 Zeichen, Groß-ud Kleinbuchstaben und Zahlen",
-  "ca3SApp.messages.password.requirement.min8NumberUpperLowerSpecial": "Mindestens 8 Zeichen, Groß-ud Kleinbuchstaben, Zahlen und Sonderzeichen",
+  "ca3SApp.messages.password.requirement.min5NumberOrChars": "Mindestens 5 Groß- oder Kleinbuchstaben oder Zahlen",
+  "ca3SApp.messages.password.requirement.min6NumberUpperLower": "Mindestens 6 Zeichen, Groß- und Kleinbuchstaben und Zahlen",
+  "ca3SApp.messages.password.requirement.min8NumberUpperLowerSpecial": "Mindestens 8 Zeichen, Groß- und Kleinbuchstaben, Zahlen und Sonderzeichen",
 
   "ca3SApp.nonce.created": "Nonce erstellt mit ID {{ param }}",
   "ca3SApp.nonce.delete.question": "Soll Nonce {{ id }} wirklich dauerhaft gelöscht werden?",
@@ -461,7 +462,7 @@
   "ca3SApp.nonce.updated": "Nonce aktualisiert mit ID {{ param }}",
   "ca3SApp.pipeline.allowChallengeDNS": "DNS-01 Challenge",
   "ca3SApp.pipeline.allowChallengeHTTP01": "HTTP-01 Challenge",
-  "ca3SApp.pipeline.allowChallengeAlpn": "ÂLPN Challenge",
+  "ca3SApp.pipeline.allowChallengeAlpn": "ALPN Challenge",
   "ca3SApp.pipeline.allowWildcards": "Wildcards zulassen",
   "ca3SApp.pipeline.approvalInfo": "Freigabeinfo",
   "ca3SApp.pipeline.approvalRequired": "Freigabe erforderlich",

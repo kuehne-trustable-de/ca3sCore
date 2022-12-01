@@ -1,21 +1,25 @@
 package de.trustable.ca3s.core.ui;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.security.*;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 import javax.security.auth.x500.X500Principal;
 
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
+import de.trustable.ca3s.core.service.util.CryptoService;
 import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +37,8 @@ import de.trustable.util.CryptoUtil;
 import de.trustable.util.JCAManager;
 import io.ddavison.conductor.Browser;
 import org.springframework.test.context.ActiveProfiles;
+
+import static org.junit.Assert.*;
 
 // @ContextConfiguration(classes=PipelineTestConfiguration.class)
 
@@ -63,10 +69,14 @@ public class CSRSubmitIT extends WebTestBase{
     public static final By LOC_TEXT_CONTENT_TYPE = By.xpath("//form//dl [dt[span [text() = 'Content type']]]/dd/span");
 
     public static final By LOC_TA_UPLOAD_CONTENT = By.xpath("//form//textarea [@name = 'content']");
-    public static final By LOC_SEL_PIPELINE = By.xpath("//form//select [@name = 'pkcsxx-pipeline']");
+    public static final By LOC_SEL_PIPELINE = By.xpath("//form//select [@id = 'pkcsxx-pipeline']");
+
 
     public static final By LOC_TEXT_CERT_HEADER = By.xpath("//div/h2/span [text() = 'Certificate']");
-    public static final By LOC_TEXT_PKIX_LABEL = By.xpath("//div//dl [dt[span [text() = 'PKIX (DER encoded)']]]");
+    public static final By LOC_TEXT_PKIX_LABEL = By.xpath("//div//dl [dt[span [text() = 'Certificate']]]");
+    public static final By LOC_SEL_CERT_FORMAT = By.xpath("//div//select [@name = 'download-format']");
+    public static final By LOC_LNK_DOWNLOAD_CERT_ANCHOR = By.xpath("//dd/div/div/div/a [@id = 'certificate-download']");
+
     public static final By LOC_SEL_REVOCATION_REASON = By.xpath("//form//select [@name = 'revocationReason']");
 
     public static final By LOC_TEXT_CSR_HEADER = By.xpath("//div/h2/span [text() = 'CSR']");
@@ -92,11 +102,16 @@ public class CSRSubmitIT extends WebTestBase{
 
     public static final By LOC_TD_CSR_ITEM_PENDING = By.xpath("//table//td [starts-with(text(), 'Pending')]");
 
-    public static final By LOC_TA_DOWNLOAD_CERT_CONTENT = By.xpath("//dd/div/textarea [@name = 'certContent']");
+    public static final By LOC_TA_DOWNLOAD_CERT_CONTENT = By.xpath("//dd/div/div/div/a [@id = 'certificate-download']");
+
+    public static final By LOC_INP_PKCS12_ALIAS = By.xpath("//div/input [@name = 'p12Alias']");
+    public static final By LOC_LNK_DOWNLOAD_PKCS12 = By.xpath("//dd/div/div/a [@id = 'pkcs12-download']");
+
     public static final By LOC_TEXT_CERT_REVOCATION_REASON = By.xpath("//div//dd/span[@name = 'revocationReason']");
 
+    public static final By LOC_SHOW_HIDE_AUDIT = By.xpath("//button[@id='showHideAudit']");
 //    public static final By LOC_TABLE_AUDIT = By.xpath("//div/table [thead/tr/th/span[text() = 'Role']] [tbody/tr]");
-    public static final By LOC_TABLE_AUDIT = By.xpath("//div/table [thead/tr/th/span [contains(text(), 'Role')] ] [tbody/tr]");
+    public static final By LOC_TABLE_AUDIT = By.xpath("//div//div [.//tr/th/span [contains(text(), 'Role')] ] [tbody/tr]");
 
     public static final By LOC_TABLE_AUDIT_REVOCATION_PRESENT = By.xpath("//div/table [thead/tr/th/span [contains(text(), 'Role')] ] [tbody/tr/td [contains(text(), 'Certificate revoked')]]");
 
@@ -120,9 +135,7 @@ public class CSRSubmitIT extends WebTestBase{
     public static final By LOC_INP_SECRET_REPEAT_VALUE = By.xpath("//div/input [@name = 'upload-secret-repeat']");
 
 
-
     private static final Logger LOG = LoggerFactory.getLogger(CSRSubmitIT.class);
-
 
 	private static final String USER_NAME_USER = "user";
 	private static final String USER_PASSWORD_USER = "user";
@@ -162,7 +175,7 @@ public class CSRSubmitIT extends WebTestBase{
 	}
 
 	@Test
-	public void testCSRSubmitServersideDirect() throws GeneralSecurityException {
+	public void testCSRSubmitServersideDirect() throws GeneralSecurityException, IOException, InterruptedException {
 
 		String c = "DE";
 		String cn = "reqTest" + System.currentTimeMillis();
@@ -177,19 +190,17 @@ public class CSRSubmitIT extends WebTestBase{
 
 		byte[] secretBytes = new byte[6];
 		rand.nextBytes(secretBytes);
-		String secret = Base64.getEncoder().encodeToString(secretBytes);
+		String secret = "1Aa" + Base64.getEncoder().encodeToString(secretBytes);
 
 		signIn(USER_NAME_USER, USER_PASSWORD_USER);
 
 		validatePresent(LOC_LNK_REQ_CERT_MENUE);
 		click(LOC_LNK_REQ_CERT_MENUE);
 
-        try {
-            System.out.println("... waiting ...");
-            System.in.read();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        validatePresent(LOC_SEL_PIPELINE );
+
+        click(LOC_SEL_PIPELINE);
+        selectOptionByText(LOC_SEL_PIPELINE, PipelineTestConfiguration.PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
 
         validatePresent(LOC_TA_UPLOAD_CONTENT);
 
@@ -203,16 +214,17 @@ public class CSRSubmitIT extends WebTestBase{
 	    validatePresent(LOC_SEL_KEY_LENGTH_CHOICE);
 	    selectOptionByText(LOC_SEL_KEY_LENGTH_CHOICE, "RSA_2048");
 
-/*
-		try {
-			System.out.println("... waiting ...");
-			System.in.read();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-*/
+        setText(LOC_INP_SECRET_VALUE, secret);
+        setText(LOC_INP_SECRET_REPEAT_VALUE, secret);
 
-	    setText(LOC_INP_C_VALUE, c);
+        // mismatch of secret
+        setText(LOC_INP_SECRET_REPEAT_VALUE, "aa"+secret+"zz");
+        Assertions.assertFalse(isEnabled(LOC_BTN_REQUEST_CERTIFICATE), "Expecting request button disabled");
+
+        setText(LOC_INP_SECRET_REPEAT_VALUE, secret);
+        Assertions.assertTrue(isEnabled(LOC_BTN_REQUEST_CERTIFICATE), "Expecting request button enabled");
+
+        setText(LOC_INP_C_VALUE, c);
 
         System.out.println(" ---------------- country = " + c + ", found in input field " + getText(LOC_INP_C_VALUE) );
 
@@ -223,46 +235,28 @@ public class CSRSubmitIT extends WebTestBase{
 	    setText(LOC_INP_ST_VALUE, st);
 	    setText(LOC_INP_SAN_VALUE, san);
 
-	    setText(LOC_INP_SECRET_VALUE, secret);
-	    setText(LOC_INP_SECRET_REPEAT_VALUE, secret);
-
 	    validatePresent(LOC_BTN_REQUEST_CERTIFICATE);
 
-	    assertTrue("Expecting request button enabled", isEnabled(LOC_BTN_REQUEST_CERTIFICATE));
-
-	    // mismatch of secret
-        setText(LOC_INP_SECRET_REPEAT_VALUE, "aa"+secret+"zz");
-        assertFalse("Expecting request button disabled", isEnabled(LOC_BTN_REQUEST_CERTIFICATE));
-
-        setText(LOC_INP_SECRET_REPEAT_VALUE, secret);
-        assertTrue("Expecting request button enabled", isEnabled(LOC_BTN_REQUEST_CERTIFICATE));
-
+	    Assertions.assertTrue(isEnabled(LOC_BTN_REQUEST_CERTIFICATE), "Expecting request button enabled");
 
         click(LOC_BTN_REQUEST_CERTIFICATE);
-
 
         waitForElement(LOC_TEXT_CERT_HEADER);
 	    validatePresent(LOC_TEXT_CERT_HEADER);
 		validatePresent(LOC_TEXT_PKIX_LABEL);
 
+        X509Certificate newCert = checkPEMDownload(cn, "pem");
 
-		String certAsPem = getText(LOC_TA_DOWNLOAD_CERT_CONTENT);
-//		System.out.println("PEM cert = \n" + certAsPem );
+        checkPEMDownload(cn, "pemPart");
 
-	    X509Certificate newCert = CryptoUtil.convertPemToCertificate(certAsPem);
+        checkPEMDownload(cn, "pemFull");
 
-		System.out.println("subject = " + newCert.getSubjectDN().toString() );
+        checkPKCS12Download(cn, secret);
 
-	    boolean match = equalsIgnoreOrdering(subjectPrincipal, new X500Principal(newCert.getSubjectDN().toString()));
-	    assertTrue("Expect cert's subject to be as requested (ignoring order)", match);
-
-		validatePresent(LOC_SEL_REVOCATION_REASON);
+        validatePresent(LOC_SEL_REVOCATION_REASON);
 	    selectOptionByText(LOC_SEL_REVOCATION_REASON, "superseded");
 
 	    click(LOC_BTN_WITHDRAW_CERTIFICATE);
-
-	    // waiting for the form to rebuild ...
-		validatePresent(LOC_TA_UPLOAD_CONTENT);
 
         waitForElement(LOC_LNK_CERTIFICATES_MENUE);
         validatePresent(LOC_LNK_CERTIFICATES_MENUE);
@@ -285,7 +279,8 @@ public class CSRSubmitIT extends WebTestBase{
 
         validatePresent(LOC_TEXT_CERT_REVOCATION_REASON);
 
-        validatePresent(LOC_TABLE_AUDIT);
+        validatePresent(LOC_SHOW_HIDE_AUDIT);
+        click(LOC_SHOW_HIDE_AUDIT);
 
         // ensure a revocation item regarding revocation is present
         validatePresent(LOC_TABLE_AUDIT_REVOCATION_PRESENT);
@@ -325,7 +320,7 @@ public class CSRSubmitIT extends WebTestBase{
     }
 
 	@Test
-	public void testCSRSubmitDirect() throws GeneralSecurityException, IOException {
+	public void testCSRSubmitDirect() throws GeneralSecurityException, IOException, InterruptedException {
 
 		signIn(USER_NAME_USER, USER_PASSWORD_USER);
 
@@ -333,16 +328,13 @@ public class CSRSubmitIT extends WebTestBase{
 		click(LOC_LNK_REQ_CERT_MENUE);
 
         validatePresent(LOC_SEL_PIPELINE );
-//        validatePresent(LOC_SEL_PIPELINE + "[option/text()='" + PipelineTestConfiguration.PIPELINE_NAME_WEB_DIRECT_ISSUANCE + "']");
 
         click(LOC_SEL_PIPELINE);
         selectOptionByText(LOC_SEL_PIPELINE, PipelineTestConfiguration.PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
-//        selectOptionByIndex(LOC_SEL_PIPELINE, 1);
-
 
         validatePresent(LOC_TA_UPLOAD_CONTENT);
 
-		String cn = "reqTest" + System.currentTimeMillis();
+		String cn = "reqtest" + System.currentTimeMillis();
 	    String subject = "CN=" + cn + ", O=trustable solutions, C=DE";
 	    X500Principal subjectPrincipal = new X500Principal(subject);
 	    String csr = buildCSRAsPEM(subjectPrincipal);
@@ -359,21 +351,27 @@ public class CSRSubmitIT extends WebTestBase{
 		validatePresent(LOC_TEXT_PKIX_LABEL);
 
 
-		String certAsPem = getText(LOC_TA_DOWNLOAD_CERT_CONTENT);
-		System.out.println("PEM cert = \n" + certAsPem );
+        click(LOC_SEL_CERT_FORMAT);
 
-	    X509Certificate newCert = CryptoUtil.convertPemToCertificate(certAsPem);
+        checkPEMDownload(cn, "pem");
 
-	    boolean match = equalsIgnoreOrdering(subjectPrincipal, new X500Principal(newCert.getSubjectDN().toString()));
-	    assertTrue("Expect cert's subject to be as requested (ignoring order)", match);
+        selectOptionByValue(LOC_SEL_CERT_FORMAT, "pkix");
+        String certTypeName = getText(LOC_LNK_DOWNLOAD_CERT_ANCHOR);
+        Assertions.assertEquals(cn + ".crt", certTypeName, "Expect a informing name of the link");
+
+        selectOptionByValue(LOC_SEL_CERT_FORMAT, "pemPart");
+        certTypeName = getText(LOC_LNK_DOWNLOAD_CERT_ANCHOR);
+        Assertions.assertEquals(cn + ".part.pem", certTypeName, "Expect a informing name of the link");
+
+        selectOptionByValue(LOC_SEL_CERT_FORMAT, "pemFull");
+        certTypeName = getText(LOC_LNK_DOWNLOAD_CERT_ANCHOR);
+        Assertions.assertEquals(cn + ".full.pem", certTypeName, "Expect a informing name of the link");
+
 
 		validatePresent(LOC_SEL_REVOCATION_REASON);
 	    selectOptionByText(LOC_SEL_REVOCATION_REASON, "superseded");
 
 	    click(LOC_BTN_WITHDRAW_CERTIFICATE);
-
-	    // waiting for the form to rebuild ...
-		validatePresent(LOC_TA_UPLOAD_CONTENT);
 
 		waitForElement(LOC_LNK_CERTIFICATES_MENUE);
 		validatePresent(LOC_LNK_CERTIFICATES_MENUE);
@@ -385,7 +383,7 @@ public class CSRSubmitIT extends WebTestBase{
 
 	    validatePresent(LOC_SEL_CERT_CHOICE);
 
-	    selectOptionByText(LOC_SEL_CERT_CHOICE, "equals");
+	    selectOptionByText(LOC_SEL_CERT_CHOICE, "like");
 
 	    validatePresent(LOC_INP_CERT_VALUE);
 	    setText(LOC_INP_CERT_VALUE, cn);
@@ -397,6 +395,73 @@ public class CSRSubmitIT extends WebTestBase{
 	    validatePresent(LOC_TEXT_CERT_REVOCATION_REASON);
 	}
 
+    private X509Certificate checkPEMDownload(String cn, String format) throws InterruptedException, GeneralSecurityException, IOException {
+
+        selectOptionByValue(LOC_SEL_CERT_FORMAT, format);
+
+        int expectedChainLength = 1;
+        String fileEx = format;
+        if( "pemPart".equals(format)){
+            expectedChainLength = 2;
+            fileEx = "part.pem";
+        }else if( "pemFull".equals(format)){
+            expectedChainLength = 3;
+            fileEx = "full.pem";
+        }
+
+        String certTypeName = getText(LOC_LNK_DOWNLOAD_CERT_ANCHOR);
+        Assertions.assertEquals(cn + "." + fileEx, certTypeName, "Expect an informing name of the link");
+
+        click(LOC_LNK_DOWNLOAD_CERT_ANCHOR);
+        Thread.sleep(500);
+
+        File certFile = new File(downloadDir, certTypeName);
+        LOG.info("downloaded certFile: {}", certFile.getAbsolutePath());
+
+        Assertions.assertTrue(certFile.exists());
+        List<X509Certificate> certificateList = convertPemToCertificateChain(new String(Files.readAllBytes(certFile.toPath())));
+
+        Assertions.assertEquals(expectedChainLength, certificateList.size(), "Expected chain length");
+
+//        assertTrue( "Expecting the requested Common Name included in the subject", x509Cert.getSubjectDN().getName().contains(cn) );
+
+        return certificateList.get(0);
+    }
+
+    private void checkPKCS12Download(String cn, String secret) throws InterruptedException, GeneralSecurityException, IOException {
+
+        byte[] secretBytes = new byte[6];
+        String alias = Base64.getEncoder().encodeToString(secretBytes).replaceAll("/", "X").replaceAll("\\+", "x");
+
+        setText(LOC_INP_PKCS12_ALIAS, alias);
+
+        String pkcs12FileName = getText(LOC_LNK_DOWNLOAD_PKCS12);
+        Assertions.assertEquals(cn + ".p12", pkcs12FileName, "Expect an informing name of the link");
+
+/*
+        try {
+            System.out.println("... waiting ...");
+            System.in.read();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        click(LOC_LNK_DOWNLOAD_PKCS12);
+        Thread.sleep(500);
+
+        File pkcs12File = new File(downloadDir, pkcs12FileName);
+        LOG.info("downloaded pkcs12 file name: {}", pkcs12File.getAbsolutePath());
+
+        Assertions.assertTrue(pkcs12File.exists());
+
+*/
+/*
+        X509Certificate x509Cert = CryptoService.convertPemToCertificate(new String(Files.readAllBytes(pkcs12File.toPath())));
+
+        assertTrue( "Expecting the requested Common Name included in the subject", x509Cert.getSubjectDN().getName().contains(cn) );
+*/
+    }
+
     @Test
     public void testCSRSubmitDirectRestrictionViolated() throws GeneralSecurityException, IOException {
 
@@ -404,6 +469,11 @@ public class CSRSubmitIT extends WebTestBase{
 
         validatePresent(LOC_LNK_REQ_CERT_MENUE);
         click(LOC_LNK_REQ_CERT_MENUE);
+
+        validatePresent(LOC_SEL_PIPELINE );
+
+        click(LOC_SEL_PIPELINE);
+        selectOptionByText(LOC_SEL_PIPELINE, PipelineTestConfiguration.PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
 
         validatePresent(LOC_TA_UPLOAD_CONTENT);
 
@@ -439,12 +509,10 @@ public class CSRSubmitIT extends WebTestBase{
 		validatePresent(LOC_LNK_REQ_CERT_MENUE);
 		click(LOC_LNK_REQ_CERT_MENUE);
 
-        try {
-            System.out.println("... waiting ...");
-            System.in.read();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        validatePresent(LOC_SEL_PIPELINE );
+
+        click(LOC_SEL_PIPELINE);
+        selectOptionByText(LOC_SEL_PIPELINE, PipelineTestConfiguration.PIPELINE_NAME_WEB_RA_ISSUANCE);
 
         validatePresent(LOC_TA_UPLOAD_CONTENT);
 
@@ -596,5 +664,44 @@ public class CSRSubmitIT extends WebTestBase{
             return CryptoUtil.pkcs10RequestToPem(req);
 
         }
+
+    public static List<X509Certificate> convertPemToCertificateChain(String pem) throws GeneralSecurityException {
+        ByteArrayInputStream pemStream = new ByteArrayInputStream(pem.getBytes(StandardCharsets.UTF_8));
+        Reader pemReader = new InputStreamReader(pemStream);
+        PEMParser pemParser = new PEMParser(pemReader);
+
+        List<X509Certificate> x509CertificateList = new ArrayList<>();
+
+        try {
+            Object parsedObj;
+            while((parsedObj = pemParser.readObject())!=null){
+
+                if (parsedObj == null) {
+                    throw new GeneralSecurityException("Parsing of certificate failed! Not PEM encoded?");
+                }
+
+                LOG.debug("PemParser returned: " + parsedObj);
+                if (!(parsedObj instanceof X509CertificateHolder)) {
+                    throw new GeneralSecurityException("Unexpected parsing result: " + parsedObj.getClass().getName());
+                }
+
+                X509Certificate cert = (new JcaX509CertificateConverter()).setProvider("BC").getCertificate((X509CertificateHolder) parsedObj);
+                x509CertificateList.add(cert);
+            };
+        } catch (IOException var13) {
+            LOG.error("IOException, convertPemToCertificate", var13);
+            throw new GeneralSecurityException("Parsing of certificate failed! Not PEM encoded?");
+        } finally {
+            try {
+                if(pemParser != null){
+                    pemParser.close();
+                }
+            } catch (IOException var12) {
+                LOG.debug("IOException on close()", var12);
+            }
+        }
+
+        return x509CertificateList;
+    }
 
 }

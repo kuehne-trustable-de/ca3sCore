@@ -217,7 +217,7 @@ public class AcmeIdentifierResourceIT {
         // Get all the acmeIdentifierList
         restAcmeIdentifierMockMvc.perform(get("/api/acme-identifiers?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(acmeIdentifier.getId().intValue())))
             .andExpect(jsonPath("$.[*].acmeIdentifierId").value(hasItem(DEFAULT_ACME_IDENTIFIER_ID.intValue())))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
@@ -233,7 +233,7 @@ public class AcmeIdentifierResourceIT {
         // Get the acmeIdentifier
         restAcmeIdentifierMockMvc.perform(get("/api/acme-identifiers/{id}", acmeIdentifier.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(acmeIdentifier.getId().intValue()))
             .andExpect(jsonPath("$.acmeIdentifierId").value(DEFAULT_ACME_IDENTIFIER_ID.intValue()))
             .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))

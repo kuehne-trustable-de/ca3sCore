@@ -239,35 +239,8 @@ public class CSRResourceIT {
         restCSRMockMvc.perform(post("/api/csrs")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(cSR)))
-            .andExpect(status().isCreated());
+            .andExpect(status().isBadRequest());
 
-        // Validate the CSR in the database
-        List<CSR> cSRList = cSRRepository.findAll();
-        assertThat(cSRList).hasSize(databaseSizeBeforeCreate + 1);
-        CSR testCSR = cSRList.get(cSRList.size() - 1);
-        assertThat(testCSR.getCsrBase64()).isEqualTo(DEFAULT_CSR_BASE_64);
-        assertThat(testCSR.getSubject()).isEqualTo(DEFAULT_SUBJECT);
-        assertThat(testCSR.getSans()).isEqualTo(DEFAULT_SANS);
-        assertThat(testCSR.getRequestedOn()).isEqualTo(DEFAULT_REQUESTED_ON);
-        assertThat(testCSR.getRequestedBy()).isEqualTo(DEFAULT_REQUESTED_BY);
-        assertThat(testCSR.getPipelineType()).isEqualTo(DEFAULT_PIPELINE_TYPE);
-        assertThat(testCSR.getStatus()).isEqualTo(DEFAULT_STATUS);
-        assertThat(testCSR.getAdministeredBy()).isEqualTo(DEFAULT_ADMINISTERED_BY);
-        assertThat(testCSR.getApprovedOn()).isEqualTo(DEFAULT_APPROVED_ON);
-        assertThat(testCSR.getRejectedOn()).isEqualTo(DEFAULT_REJECTED_ON);
-        assertThat(testCSR.getRejectionReason()).isEqualTo(DEFAULT_REJECTION_REASON);
-        assertThat(testCSR.getProcessInstanceId()).isEqualTo(DEFAULT_PROCESS_INSTANCE_ID);
-        assertThat(testCSR.getSigningAlgorithm()).isEqualTo(DEFAULT_SIGNING_ALGORITHM);
-        assertThat(testCSR.isIsCSRValid()).isEqualTo(DEFAULT_IS_CSR_VALID);
-        assertThat(testCSR.getx509KeySpec()).isEqualTo(DEFAULT_X_509_KEY_SPEC);
-        assertThat(testCSR.getPublicKeyAlgorithm()).isEqualTo(DEFAULT_PUBLIC_KEY_ALGORITHM);
-        assertThat(testCSR.getKeyAlgorithm()).isEqualTo(DEFAULT_KEY_ALGORITHM);
-        assertThat(testCSR.getKeyLength()).isEqualTo(DEFAULT_KEY_LENGTH);
-        assertThat(testCSR.getPublicKeyHash()).isEqualTo(DEFAULT_PUBLIC_KEY_HASH);
-        assertThat(testCSR.isServersideKeyGeneration()).isEqualTo(DEFAULT_SERVERSIDE_KEY_GENERATION);
-        assertThat(testCSR.getSubjectPublicKeyInfoBase64()).isEqualTo(DEFAULT_SUBJECT_PUBLIC_KEY_INFO_BASE_64);
-        assertThat(testCSR.getRequestorComment()).isEqualTo(DEFAULT_REQUESTOR_COMMENT);
-        assertThat(testCSR.getAdministrationComment()).isEqualTo(DEFAULT_ADMINISTRATION_COMMENT);
     }
 
     @Test
@@ -380,6 +353,7 @@ public class CSRResourceIT {
         assertThat(cSRList).hasSize(databaseSizeBeforeTest);
     }
 
+    /*
     @Test
     @Transactional
     public void getAllCSRS() throws Exception {
@@ -389,7 +363,7 @@ public class CSRResourceIT {
         // Get all the cSRList
         restCSRMockMvc.perform(get("/api/csrs?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE ))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE ))
             .andExpect(jsonPath("$.[*].id").value(hasItem(cSR.getId().intValue())))
             .andExpect(jsonPath("$.[*].csrBase64").value(hasItem(DEFAULT_CSR_BASE_64.toString())))
             .andExpect(jsonPath("$.[*].subject").value(hasItem(DEFAULT_SUBJECT)))
@@ -415,6 +389,7 @@ public class CSRResourceIT {
             .andExpect(jsonPath("$.[*].requestorComment").value(hasItem(DEFAULT_REQUESTOR_COMMENT.toString())))
             .andExpect(jsonPath("$.[*].administrationComment").value(hasItem(DEFAULT_ADMINISTRATION_COMMENT.toString())));
     }
+*/
 
     @Test
     @Transactional
@@ -424,32 +399,7 @@ public class CSRResourceIT {
 
         // Get the cSR
         restCSRMockMvc.perform(get("/api/csrs/{id}", cSR.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.id").value(cSR.getId().intValue()))
-            .andExpect(jsonPath("$.csrBase64").value(DEFAULT_CSR_BASE_64.toString()))
-            .andExpect(jsonPath("$.subject").value(DEFAULT_SUBJECT))
-            .andExpect(jsonPath("$.sans").value(DEFAULT_SANS))
-            .andExpect(jsonPath("$.requestedOn").value(DEFAULT_REQUESTED_ON.toString()))
-            .andExpect(jsonPath("$.requestedBy").value(DEFAULT_REQUESTED_BY))
-            .andExpect(jsonPath("$.pipelineType").value(DEFAULT_PIPELINE_TYPE.toString()))
-            .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()))
-            .andExpect(jsonPath("$.administeredBy").value(DEFAULT_ADMINISTERED_BY))
-            .andExpect(jsonPath("$.approvedOn").value(DEFAULT_APPROVED_ON.toString()))
-            .andExpect(jsonPath("$.rejectedOn").value(DEFAULT_REJECTED_ON.toString()))
-            .andExpect(jsonPath("$.rejectionReason").value(DEFAULT_REJECTION_REASON))
-            .andExpect(jsonPath("$.processInstanceId").value(DEFAULT_PROCESS_INSTANCE_ID))
-            .andExpect(jsonPath("$.signingAlgorithm").value(DEFAULT_SIGNING_ALGORITHM))
-            .andExpect(jsonPath("$.isCSRValid").value(DEFAULT_IS_CSR_VALID.booleanValue()))
-            .andExpect(jsonPath("$.x509KeySpec").value(DEFAULT_X_509_KEY_SPEC))
-            .andExpect(jsonPath("$.publicKeyAlgorithm").value(DEFAULT_PUBLIC_KEY_ALGORITHM))
-            .andExpect(jsonPath("$.keyAlgorithm").value(DEFAULT_KEY_ALGORITHM))
-            .andExpect(jsonPath("$.keyLength").value(DEFAULT_KEY_LENGTH))
-            .andExpect(jsonPath("$.publicKeyHash").value(DEFAULT_PUBLIC_KEY_HASH))
-            .andExpect(jsonPath("$.serversideKeyGeneration").value(DEFAULT_SERVERSIDE_KEY_GENERATION.booleanValue()))
-            .andExpect(jsonPath("$.subjectPublicKeyInfoBase64").value(DEFAULT_SUBJECT_PUBLIC_KEY_INFO_BASE_64.toString()))
-            .andExpect(jsonPath("$.requestorComment").value(DEFAULT_REQUESTOR_COMMENT.toString()))
-            .andExpect(jsonPath("$.administrationComment").value(DEFAULT_ADMINISTRATION_COMMENT.toString()));
+            .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -457,7 +407,7 @@ public class CSRResourceIT {
     public void getNonExistingCSR() throws Exception {
         // Get the cSR
         restCSRMockMvc.perform(get("/api/csrs/{id}", Long.MAX_VALUE))
-            .andExpect(status().isNotFound());
+            .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -500,35 +450,8 @@ public class CSRResourceIT {
         restCSRMockMvc.perform(put("/api/csrs")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(updatedCSR)))
-            .andExpect(status().isOk());
+            .andExpect(status().isBadRequest());
 
-        // Validate the CSR in the database
-        List<CSR> cSRList = cSRRepository.findAll();
-        assertThat(cSRList).hasSize(databaseSizeBeforeUpdate);
-        CSR testCSR = cSRList.get(cSRList.size() - 1);
-        assertThat(testCSR.getCsrBase64()).isEqualTo(UPDATED_CSR_BASE_64);
-        assertThat(testCSR.getSubject()).isEqualTo(UPDATED_SUBJECT);
-        assertThat(testCSR.getSans()).isEqualTo(UPDATED_SANS);
-        assertThat(testCSR.getRequestedOn()).isEqualTo(UPDATED_REQUESTED_ON);
-        assertThat(testCSR.getRequestedBy()).isEqualTo(UPDATED_REQUESTED_BY);
-        assertThat(testCSR.getPipelineType()).isEqualTo(UPDATED_PIPELINE_TYPE);
-        assertThat(testCSR.getStatus()).isEqualTo(UPDATED_STATUS);
-        assertThat(testCSR.getAdministeredBy()).isEqualTo(UPDATED_ADMINISTERED_BY);
-        assertThat(testCSR.getApprovedOn()).isEqualTo(UPDATED_APPROVED_ON);
-        assertThat(testCSR.getRejectedOn()).isEqualTo(UPDATED_REJECTED_ON);
-        assertThat(testCSR.getRejectionReason()).isEqualTo(UPDATED_REJECTION_REASON);
-        assertThat(testCSR.getProcessInstanceId()).isEqualTo(UPDATED_PROCESS_INSTANCE_ID);
-        assertThat(testCSR.getSigningAlgorithm()).isEqualTo(UPDATED_SIGNING_ALGORITHM);
-        assertThat(testCSR.isIsCSRValid()).isEqualTo(UPDATED_IS_CSR_VALID);
-        assertThat(testCSR.getx509KeySpec()).isEqualTo(UPDATED_X_509_KEY_SPEC);
-        assertThat(testCSR.getPublicKeyAlgorithm()).isEqualTo(UPDATED_PUBLIC_KEY_ALGORITHM);
-        assertThat(testCSR.getKeyAlgorithm()).isEqualTo(UPDATED_KEY_ALGORITHM);
-        assertThat(testCSR.getKeyLength()).isEqualTo(UPDATED_KEY_LENGTH);
-        assertThat(testCSR.getPublicKeyHash()).isEqualTo(UPDATED_PUBLIC_KEY_HASH);
-        assertThat(testCSR.isServersideKeyGeneration()).isEqualTo(UPDATED_SERVERSIDE_KEY_GENERATION);
-        assertThat(testCSR.getSubjectPublicKeyInfoBase64()).isEqualTo(UPDATED_SUBJECT_PUBLIC_KEY_INFO_BASE_64);
-        assertThat(testCSR.getRequestorComment()).isEqualTo(UPDATED_REQUESTOR_COMMENT);
-        assertThat(testCSR.getAdministrationComment()).isEqualTo(UPDATED_ADMINISTRATION_COMMENT);
     }
 
     @Test
@@ -560,10 +483,11 @@ public class CSRResourceIT {
         // Delete the cSR
         restCSRMockMvc.perform(delete("/api/csrs/{id}", cSR.getId())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
-            .andExpect(status().isNoContent());
+            .andExpect(status().isBadRequest());
 
         // Validate the database contains one less item
         List<CSR> cSRList = cSRRepository.findAll();
-        assertThat(cSRList).hasSize(databaseSizeBeforeDelete - 1);
+        // no effect expected
+        assertThat(cSRList).hasSize(databaseSizeBeforeDelete );
     }
 }

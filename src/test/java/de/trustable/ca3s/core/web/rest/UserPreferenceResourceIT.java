@@ -199,7 +199,7 @@ public class UserPreferenceResourceIT {
         // Get the userPreference
         restUserPreferenceMockMvc.perform(get("/api/user-preferences/{id}", userPreference.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(userPreference.getId().intValue()))
             .andExpect(jsonPath("$.userId").value(DEFAULT_USER_ID.intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))

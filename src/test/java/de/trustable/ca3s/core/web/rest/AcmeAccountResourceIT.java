@@ -257,7 +257,7 @@ public class AcmeAccountResourceIT {
         // Get all the aCMEAccountList
         restAcmeAccountMockMvc.perform(get("/api/acme-accounts?sort=id,desc"))
             .andExpect(status().isOk())
-//            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+//            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(aCMEAccount.getId().intValue())))
             .andExpect(jsonPath("$.[*].accountId").value(hasItem(DEFAULT_ACCOUNT_ID.intValue())))
             .andExpect(jsonPath("$.[*].realm").value(hasItem(DEFAULT_REALM)))
@@ -276,7 +276,7 @@ public class AcmeAccountResourceIT {
         // Get the aCMEAccount
         restAcmeAccountMockMvc.perform(get("/api/acme-accounts/{id}", aCMEAccount.getId()))
             .andExpect(status().isOk())
-//            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+//            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(aCMEAccount.getId().intValue()))
             .andExpect(jsonPath("$.accountId").value(DEFAULT_ACCOUNT_ID.intValue()))
             .andExpect(jsonPath("$.realm").value(DEFAULT_REALM))

@@ -11,6 +11,7 @@ import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
 import de.trustable.ca3s.core.Ca3SApp;
@@ -21,6 +22,7 @@ import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.schedule.ImportInfo;
 
 @SpringBootTest(classes = Ca3SApp.class)
+@ActiveProfiles("dev")
 @ContextConfiguration(classes=CaConfigTestConfiguration.class)
 class DirectoryConnectorIT {
 

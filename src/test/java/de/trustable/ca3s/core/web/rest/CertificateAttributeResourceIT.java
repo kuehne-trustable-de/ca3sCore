@@ -171,7 +171,7 @@ public class CertificateAttributeResourceIT {
         // Get all the certificateAttributeList
         restCertificateAttributeMockMvc.perform(get("/api/certificate-attributes?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(certificateAttribute.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE)));
@@ -186,7 +186,7 @@ public class CertificateAttributeResourceIT {
         // Get the certificateAttribute
         restCertificateAttributeMockMvc.perform(get("/api/certificate-attributes/{id}", certificateAttribute.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(certificateAttribute.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.value").value(DEFAULT_VALUE));

@@ -97,7 +97,7 @@ public class UserServiceIT {
         }
         try {
             userService.checkPassword("foobarbaz1");
-            fail("password check MUST fail, lowerecase chars only");
+            fail("password check MUST fail, lowercase chars only");
         }catch(PasswordRestrictionMismatch passwordRestrictionMismatch){
             // as expected
         }

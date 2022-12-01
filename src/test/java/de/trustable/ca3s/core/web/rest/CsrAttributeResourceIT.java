@@ -86,10 +86,9 @@ public class CsrAttributeResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static CsrAttribute createEntity(EntityManager em) {
-        CsrAttribute csrAttribute = new CsrAttribute()
+        return new CsrAttribute()
             .name(DEFAULT_NAME)
             .value(DEFAULT_VALUE);
-        return csrAttribute;
     }
     /**
      * Create an updated entity for this test.
@@ -98,10 +97,9 @@ public class CsrAttributeResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static CsrAttribute createUpdatedEntity(EntityManager em) {
-        CsrAttribute csrAttribute = new CsrAttribute()
+        return new CsrAttribute()
             .name(UPDATED_NAME)
             .value(UPDATED_VALUE);
-        return csrAttribute;
     }
 
     @BeforeEach
@@ -175,7 +173,7 @@ public class CsrAttributeResourceIT {
         // Get all the csrAttributeList
         restCsrAttributeMockMvc.perform(get("/api/csr-attributes?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(csrAttribute.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE)));
@@ -190,7 +188,7 @@ public class CsrAttributeResourceIT {
         // Get the csrAttribute
         restCsrAttributeMockMvc.perform(get("/api/csr-attributes/{id}", csrAttribute.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(csrAttribute.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.value").value(DEFAULT_VALUE));

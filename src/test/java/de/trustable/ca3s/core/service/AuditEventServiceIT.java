@@ -3,6 +3,7 @@ package de.trustable.ca3s.core.service;
 import de.trustable.ca3s.core.domain.PersistentAuditEvent;
 import de.trustable.ca3s.core.repository.PersistenceAuditEventRepository;
 import de.trustable.ca3s.core.Ca3SApp;
+import org.springframework.test.context.ActiveProfiles;
 import tech.jhipster.config.JHipsterProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Integration tests for {@link AuditEventService}.
  */
 @SpringBootTest(classes = Ca3SApp.class)
+@ActiveProfiles("dev")
 @Transactional
 public class AuditEventServiceIT {
     @Autowired
@@ -45,7 +47,7 @@ public class AuditEventServiceIT {
         auditEventWithinRetention = new PersistentAuditEvent();
         auditEventWithinRetention.setAuditEventDate(Instant.now().minus(jHipsterProperties.getAuditEvents().getRetentionPeriod() - 1, ChronoUnit.DAYS));
         auditEventWithinRetention.setPrincipal("test-user-retention");
-        auditEventWithinRetention.setAuditEventType("test-type");;
+        auditEventWithinRetention.setAuditEventType("test-type");
 
         auditEventNew = new PersistentAuditEvent();
         auditEventNew.setAuditEventDate(Instant.now());

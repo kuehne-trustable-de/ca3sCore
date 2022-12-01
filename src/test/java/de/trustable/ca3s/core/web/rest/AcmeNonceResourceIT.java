@@ -159,7 +159,7 @@ public class AcmeNonceResourceIT {
         // Get all the acmeNonceList
         restAcmeNonceMockMvc.perform(get("/api/acme-nonces?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(acmeNonce.getId().intValue())))
             .andExpect(jsonPath("$.[*].nonceValue").value(hasItem(DEFAULT_NONCE_VALUE)))
             .andExpect(jsonPath("$.[*].expiresAt").value(hasItem(DEFAULT_EXPIRES_AT.toString())));
@@ -174,7 +174,7 @@ public class AcmeNonceResourceIT {
         // Get the acmeNonce
         restAcmeNonceMockMvc.perform(get("/api/acme-nonces/{id}", acmeNonce.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(acmeNonce.getId().intValue()))
             .andExpect(jsonPath("$.nonceValue").value(DEFAULT_NONCE_VALUE))
             .andExpect(jsonPath("$.expiresAt").value(DEFAULT_EXPIRES_AT.toString()));

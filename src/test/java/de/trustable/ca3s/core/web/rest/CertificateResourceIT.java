@@ -447,7 +447,7 @@ public class CertificateResourceIT {
         // Get all the certificateList
         restCertificateMockMvc.perform(get("/api/certificates?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(certificate.getId().intValue())))
             .andExpect(jsonPath("$.[*].tbsDigest").value(hasItem(DEFAULT_TBS_DIGEST)))
             .andExpect(jsonPath("$.[*].subject").value(hasItem(DEFAULT_SUBJECT)))
@@ -489,7 +489,7 @@ public class CertificateResourceIT {
         // Get the certificate
         restCertificateMockMvc.perform(get("/api/certificates/{id}", certificate.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(certificate.getId().intValue()))
             .andExpect(jsonPath("$.tbsDigest").value(DEFAULT_TBS_DIGEST))
             .andExpect(jsonPath("$.subject").value(DEFAULT_SUBJECT))

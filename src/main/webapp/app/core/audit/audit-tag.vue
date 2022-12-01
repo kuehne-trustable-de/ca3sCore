@@ -3,7 +3,7 @@
 
     <div>
         <div v-if="collapsed">
-            <button type="button" class="addRemoveSelector" v-on:click="setCollapsed(false)">
+            <button type="button" id="showHideAudit" class="addRemoveSelector" v-on:click="setCollapsed(false)">
                 <font-awesome-icon icon="plus"></font-awesome-icon>
             </button> <b>{{titleContent}}</b>
             <p/>

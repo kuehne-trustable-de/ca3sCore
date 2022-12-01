@@ -189,7 +189,7 @@ public class ProtectedContentResourceIT {
         // Get all the protectedContentList
         restProtectedContentMockMvc.perform(get("/api/protected-contents?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(protectedContent.getId().intValue())))
             .andExpect(jsonPath("$.[*].contentBase64").value(hasItem(DEFAULT_CONTENT_BASE_64.toString())))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
@@ -206,7 +206,7 @@ public class ProtectedContentResourceIT {
         // Get the protectedContent
         restProtectedContentMockMvc.perform(get("/api/protected-contents/{id}", protectedContent.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(protectedContent.getId().intValue()))
             .andExpect(jsonPath("$.contentBase64").value(DEFAULT_CONTENT_BASE_64.toString()))
             .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))

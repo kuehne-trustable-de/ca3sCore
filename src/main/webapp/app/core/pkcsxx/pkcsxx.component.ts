@@ -1000,6 +1000,14 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     return false;
   }
 
+  public isSelectPipeline() {
+    return this.authenticated && this.allWebPipelines && this.allWebPipelines.length > 0;
+  }
+
+  public isPipelineChoosen() {
+    return this.upload.pipelineId >= 0;
+  }
+
   public isRAOfficer() {
     return this.hasRole('ROLE_RA') || this.hasRole('ROLE_RA_DOMAIN');
   }

@@ -2126,19 +2126,24 @@ public class CertificateUtil {
         String e = null;
         String firstSAN = null;
         for( CertificateAttribute certificateAttribute: cert.getCertificateAttributes()){
-            if( CertificateAttribute.ATTRIBUTE_SUBJECT.equals(certificateAttribute.getName())){
-                if( certificateAttribute.getValue().startsWith("cn=") &&
-                    cn == null){
-                    cn = certificateAttribute.getValue().substring(3);
+
+            if( CertificateAttribute.ATTRIBUTE_RDN_CN.equals(certificateAttribute.getName())) {
+                if(cn == null) {
+                    cn = certificateAttribute.getValue();
+                    LOG.debug("getDownloadFilename: cn = {}", cn);
                 }
+            }
+            if( CertificateAttribute.ATTRIBUTE_SUBJECT.equals(certificateAttribute.getName())){
                 if( certificateAttribute.getValue().startsWith("e=") &&
                     e == null ){
                     e = certificateAttribute.getValue().substring(2);
+                    LOG.debug("getDownloadFilename: e = {}", e);
                 }
             }
             if( CertificateAttribute.ATTRIBUTE_SAN.equals(certificateAttribute.getName()) &&
                 firstSAN == null){
                 firstSAN = certificateAttribute.getValue();
+                LOG.debug("getDownloadFilename: firstSAN = {}", firstSAN);
             }
         }
 

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,7 +61,7 @@ public class CSRResource {
     @PostMapping("/csrs")
     public ResponseEntity<CSR> createCSR(@Valid @RequestBody CSR cSR) throws URISyntaxException {
 
-        return (ResponseEntity<CSR>) ResponseEntity.badRequest();
+        return ResponseEntity.badRequest().build();
 /*
         log.debug("REST request to save CSR : {}", cSR);
         if (cSR.getId() != null) {
@@ -85,8 +86,7 @@ public class CSRResource {
     @PutMapping("/csrs")
     public ResponseEntity<CSR> updateCSR(@Valid @RequestBody CSR cSR) throws URISyntaxException {
         log.debug("REST request to update CSR : {}", cSR);
-        return (ResponseEntity<CSR>) ResponseEntity.badRequest();
-
+        return ResponseEntity.badRequest().build();
     }
 
     /**
@@ -98,7 +98,7 @@ public class CSRResource {
     @GetMapping("/csrs")
     public List<CSR> getAllCSRS(@RequestParam(required = false) String filter) {
 
-        return (List<CSR>) ResponseEntity.badRequest();
+        return Collections.emptyList();
 
     }
 
@@ -149,7 +149,7 @@ public class CSRResource {
     @GetMapping("/csrs/{id}")
     public ResponseEntity<CSR> getCSR(@PathVariable Long id) {
         log.debug("REST request to get CSR : {}", id);
-        return (ResponseEntity<CSR>) ResponseEntity.badRequest();
+        return ResponseEntity.badRequest().build();
 
 /*
         Optional<CSR> cSROptional = cSRService.findOne(id);
@@ -176,12 +176,7 @@ public class CSRResource {
      */
     @DeleteMapping("/csrs/{id}")
     public ResponseEntity<Void> deleteCSR(@PathVariable Long id) {
-        log.debug("REST request to delete CSR : {}", id);
-        return (ResponseEntity<Void>) ResponseEntity.badRequest();
-/*
-        cSRService.delete(id);
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
-
- */
+        log.debug("REST request to delete CSR : {} rejected", id);
+        return ResponseEntity.badRequest().build();
     }
 }

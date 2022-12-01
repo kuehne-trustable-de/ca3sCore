@@ -199,7 +199,7 @@ public class RequestProxyConfigResourceIT {
         // Get all the requestProxyConfigList
         restRequestProxyConfigMockMvc.perform(get("/api/request-proxy-configs?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect((content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)))
+            .andExpect((content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE)))
             .andExpect(jsonPath("$.[*].id").value(hasItem(requestProxyConfig.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].requestProxyUrl").value(hasItem(DEFAULT_REQUEST_PROXY_URL)))
@@ -215,7 +215,7 @@ public class RequestProxyConfigResourceIT {
         // Get the requestProxyConfig
         restRequestProxyConfigMockMvc.perform(get("/api/request-proxy-configs/{id}", requestProxyConfig.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(requestProxyConfig.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.requestProxyUrl").value(DEFAULT_REQUEST_PROXY_URL))

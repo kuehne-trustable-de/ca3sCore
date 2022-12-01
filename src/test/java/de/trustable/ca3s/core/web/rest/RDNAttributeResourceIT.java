@@ -193,7 +193,7 @@ public class RDNAttributeResourceIT {
         // Get all the rDNAttributeList
         restRDNAttributeMockMvc.perform(get("/api/rdn-attributes?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(rDNAttribute.getId().intValue())))
             .andExpect(jsonPath("$.[*].attributeType").value(hasItem(DEFAULT_ATTRIBUTE_TYPE)))
             .andExpect(jsonPath("$.[*].attributeValue").value(hasItem(DEFAULT_ATTRIBUTE_VALUE)));
@@ -208,7 +208,7 @@ public class RDNAttributeResourceIT {
         // Get the rDNAttribute
         restRDNAttributeMockMvc.perform(get("/api/rdn-attributes/{id}", rDNAttribute.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(rDNAttribute.getId().intValue()))
             .andExpect(jsonPath("$.attributeType").value(DEFAULT_ATTRIBUTE_TYPE))
             .andExpect(jsonPath("$.attributeValue").value(DEFAULT_ATTRIBUTE_VALUE));

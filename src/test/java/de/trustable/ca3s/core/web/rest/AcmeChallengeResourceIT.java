@@ -274,7 +274,7 @@ public class AcmeChallengeResourceIT {
         // Get all the acmeChallengeList
         restAcmeChallengeMockMvc.perform(get("/api/acme-challenges?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(acmeChallenge.getId().intValue())))
             .andExpect(jsonPath("$.[*].challengeId").value(hasItem(DEFAULT_CHALLENGE_ID.intValue())))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
@@ -293,7 +293,7 @@ public class AcmeChallengeResourceIT {
         // Get the acmeChallenge
         restAcmeChallengeMockMvc.perform(get("/api/acme-challenges/{id}", acmeChallenge.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(acmeChallenge.getId().intValue()))
             .andExpect(jsonPath("$.challengeId").value(DEFAULT_CHALLENGE_ID.intValue()))
             .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))

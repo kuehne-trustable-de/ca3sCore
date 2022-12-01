@@ -232,7 +232,7 @@ public class AcmeOrderResourceIT {
         // Get all the acmeOrderList
         restAcmeOrderMockMvc.perform(get("/api/acme-orders?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(acmeOrder.getId().intValue())))
             .andExpect(jsonPath("$.[*].orderId").value(hasItem(DEFAULT_ORDER_ID.intValue())))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString().toLowerCase())))
@@ -253,7 +253,7 @@ public class AcmeOrderResourceIT {
         // Get the acmeOrder
         restAcmeOrderMockMvc.perform(get("/api/acme-orders/{id}", acmeOrder.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(acmeOrder.getId().intValue()))
             .andExpect(jsonPath("$.orderId").value(DEFAULT_ORDER_ID.intValue()))
             .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString().toLowerCase()))

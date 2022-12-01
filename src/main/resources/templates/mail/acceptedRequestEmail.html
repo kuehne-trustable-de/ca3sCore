@@ -26,7 +26,7 @@
         </p>
         <p th:if="${isServersideKeyGeneration}">
             <a th:if="${isServersideKeyGeneration}"
-               th:with="url=(@{|${baseUrl}/cert-infi?certificateId=${certId}|})"
+               th:with="url=(@{|${baseUrl}/cert-info?certificateId=${certId}|})"
                th:text="#{email.request.accepted.P12.available}" th:href="${url}">Download your key and certificate container.</a>
         </p>
         <p>

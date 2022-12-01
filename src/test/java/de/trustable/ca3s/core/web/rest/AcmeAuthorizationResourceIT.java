@@ -217,7 +217,7 @@ public class AcmeAuthorizationResourceIT {
         // Get all the acmeAuthorizationList
         restAcmeAuthorizationMockMvc.perform(get("/api/acme-authorizations?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(acmeAuthorization.getId().intValue())))
             .andExpect(jsonPath("$.[*].acmeAuthorizationId").value(hasItem(DEFAULT_ACME_AUTHORIZATION_ID.intValue())))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
@@ -233,7 +233,7 @@ public class AcmeAuthorizationResourceIT {
         // Get the acmeAuthorization
         restAcmeAuthorizationMockMvc.perform(get("/api/acme-authorizations/{id}", acmeAuthorization.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(acmeAuthorization.getId().intValue()))
             .andExpect(jsonPath("$.acmeAuthorizationId").value(DEFAULT_ACME_AUTHORIZATION_ID.intValue()))
             .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))

@@ -320,7 +320,7 @@
   "ca3SApp.certificate.download.pem": "PEM encoded",
   "ca3SApp.certificate.download.pemPartChain": "PEM encoded (with certificate chain, without root)",
   "ca3SApp.certificate.download.pemFullChain": "PEM encoded (with certificate chain)",
-  "ca3SApp.certificate.download.pkix": "PKIX (DER encoded)",
+  "ca3SApp.certificate.download.pkix": "Certificate",
   "ca3SApp.certificate.download.p12pbe": "PKCS12 protection",
   "ca3SApp.certificate.download.p12keyex": "'KeyEx' option",
 
@@ -446,6 +446,7 @@
   "ca3SApp.messages.badkeys.roca": "ROCA vulnerability found!",
   "ca3SApp.messages.badkeys.blocklist": "Key found in list of compromised keys!",
 
+  "ca3SApp.messages.password.requirement.min5NumberOrChars": "5 or more characters or numbers",
   "ca3SApp.messages.password.requirement.min6NumberUpperLower": "6 or more character, uppercase, lowercase and numbers",
   "ca3SApp.messages.password.requirement.min8NumberUpperLowerSpecial": "8 or more character, uppercase, lowercase, numbers and special character",
 
@@ -462,7 +463,7 @@
   "ca3SApp.nonce.updated": "A Nonce is updated with identifier {{ param }}",
   "ca3SApp.pipeline.allowChallengeDNS": "Challenge DNS",
   "ca3SApp.pipeline.allowChallengeHTTP01": "Challenge HTTP01",
-  "ca3SApp.pipeline.allowChallengeAlpn": "ÂLPN Challenge",
+  "ca3SApp.pipeline.allowChallengeAlpn": "ALPN Challenge",
   "ca3SApp.pipeline.allowWildcards": "Allow Wildcards",
   "ca3SApp.pipeline.approvalInfo": "Approval Info",
   "ca3SApp.pipeline.approvalRequired": "Approval Required",

@@ -86,10 +86,9 @@ public class AcmeContactResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static AcmeContact createEntity(EntityManager em) {
-        AcmeContact acmeContact = new AcmeContact()
+        return new AcmeContact()
             .contactId(DEFAULT_CONTACT_ID)
             .contactUrl(DEFAULT_CONTACT_URL);
-        return acmeContact;
     }
     /**
      * Create an updated entity for this test.
@@ -98,10 +97,9 @@ public class AcmeContactResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static AcmeContact createUpdatedEntity(EntityManager em) {
-        AcmeContact acmeContact = new AcmeContact()
+        return new AcmeContact()
             .contactId(UPDATED_CONTACT_ID)
             .contactUrl(UPDATED_CONTACT_URL);
-        return acmeContact;
     }
 
     @BeforeEach
@@ -193,7 +191,7 @@ public class AcmeContactResourceIT {
         // Get all the acmeContactList
         restAcmeContactMockMvc.perform(get("/api/acme-contacts?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(acmeContact.getId().intValue())))
             .andExpect(jsonPath("$.[*].contactId").value(hasItem(DEFAULT_CONTACT_ID.intValue())))
             .andExpect(jsonPath("$.[*].contactUrl").value(hasItem(DEFAULT_CONTACT_URL)));
@@ -208,7 +206,7 @@ public class AcmeContactResourceIT {
         // Get the acmeContact
         restAcmeContactMockMvc.perform(get("/api/acme-contacts/{id}", acmeContact.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(acmeContact.getId().intValue()))
             .andExpect(jsonPath("$.contactId").value(DEFAULT_CONTACT_ID.intValue()))
             .andExpect(jsonPath("$.contactUrl").value(DEFAULT_CONTACT_URL));

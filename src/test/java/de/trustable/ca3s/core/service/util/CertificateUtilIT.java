@@ -1,33 +1,29 @@
 package de.trustable.ca3s.core.service.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.security.cert.X509Certificate;
-
-import org.apache.commons.codec.binary.Base64;
-import org.bouncycastle.asn1.x509.AuthorityKeyIdentifier;
-import org.bouncycastle.asn1.x509.GeneralName;
-import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
-import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.JCAManager;
+import org.apache.commons.codec.binary.Base64;
+import org.bouncycastle.asn1.x509.AuthorityKeyIdentifier;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
+import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import javax.naming.InvalidNameException;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.cert.X509Certificate;
 
 @SpringBootTest(classes = Ca3SApp.class)
+@ActiveProfiles("dev")
 public class CertificateUtilIT {
 
     @Autowired
@@ -290,47 +286,39 @@ public class CertificateUtilIT {
 	public void testAKIandSKIGeneration() throws GeneralSecurityException {
 
 		X509Certificate x509Cert = CryptoUtil.convertPemToCertificate(testCert);
-		assertNotNull(x509Cert);
+		Assertions.assertNotNull(x509Cert);
 
 		JcaX509ExtensionUtils util = new JcaX509ExtensionUtils();
 
 		SubjectKeyIdentifier ski = util.createSubjectKeyIdentifier(x509Cert.getPublicKey());
 		String b46Ski = Base64.encodeBase64String(ski.getKeyIdentifier());
-		assertNotNull(b46Ski);
+		Assertions.assertNotNull(b46Ski);
 
 		AuthorityKeyIdentifier aki = util.createAuthorityKeyIdentifier(x509Cert.getPublicKey());
 		String b46Aki = Base64.encodeBase64String(aki.getKeyIdentifier());
-		assertNotNull(b46Aki);
-		assertEquals(b46Ski, b46Aki);
+		Assertions.assertNotNull(b46Aki);
+		Assertions.assertEquals(b46Ski, b46Aki);
 	}
 
 	@Test
 	public void testGetKeyLength() throws GeneralSecurityException {
 
 		X509Certificate x509Cert = CryptoUtil.convertPemToCertificate(testCert);
-		assertNotNull(x509Cert);
+		Assertions.assertNotNull(x509Cert);
 
 		int keyLength = CertificateUtil.getAlignedKeyLength(x509Cert.getPublicKey());
-		assertEquals(2048, keyLength);
+		Assertions.assertEquals(2048, keyLength);
 
 	}
 
-/*
-	@Test
-	public void testFileUrl() throws MalformedURLException {
-
-		File dir = new File("c:/tmp");
-		assertTrue( dir.exists() && dir.canRead());
-	}
-*/
 
 	@Test
 	public void testBuildCertificate() throws GeneralSecurityException, IOException{
 
 		String executionId = "";
 		Certificate cert = certificateUtil.createCertificate(testCert, null, executionId);
-		assertNotNull(cert);
-		assertTrue(cert.getSans().isEmpty());
+		Assertions.assertNotNull(cert);
+		Assertions.assertTrue(cert.getSans().isEmpty());
 	}
 
 	@Test
@@ -338,20 +326,21 @@ public class CertificateUtilIT {
 
 		String executionId = "";
 		Certificate cert = certificateUtil.createCertificate(testCertWithSAN, null, executionId);
-		assertNotNull(cert);
+		Assertions.assertNotNull(cert);
 
-		assertFalse(cert.getSans().isEmpty());
-		assertEquals("ca@trustable.de", cert.getSans());
+		Assertions.assertFalse(cert.getSans().isEmpty());
+		Assertions.assertEquals("ca@trustable.de", cert.getSans());
 
 		boolean sanPresent = false;
 		for(CertificateAttribute certAtt : cert.getCertificateAttributes()) {
 			if( CertificateAttribute.ATTRIBUTE_SAN.equals(certAtt.getName())) {
-				assertEquals("ca@trustable.de", certAtt.getValue());
+				Assertions.assertEquals("ca@trustable.de", certAtt.getValue());
 				System.out.println("::: " + certAtt.getValue());
 				sanPresent = true;
 			}
 		}
-		assertTrue(sanPresent);
+		Assertions.assertTrue(sanPresent);
+        Assertions.assertEquals("Mail_signing_certificate", CertificateUtil.getDownloadFilename (cert));
 	}
 
 
@@ -360,10 +349,10 @@ public class CertificateUtilIT {
 
 		String executionId = "";
 		Certificate cert = certificateUtil.createCertificate(testCertWithSAN2, null, executionId);
-		assertNotNull(cert);
+		Assertions.assertNotNull(cert);
 
-		assertFalse(cert.getSans().isEmpty());
-		assertEquals("info@ramthun.net", cert.getSans());
+		Assertions.assertFalse(cert.getSans().isEmpty());
+		Assertions.assertEquals("info@ramthun.net", cert.getSans());
 
 		boolean sanPresent = false;
 		for(CertificateAttribute certAtt : cert.getCertificateAttributes()) {
@@ -373,7 +362,8 @@ public class CertificateUtilIT {
 				sanPresent = true;
 			}
 		}
-		assertTrue(sanPresent);
+		Assertions.assertTrue(sanPresent);
+        Assertions.assertEquals("Heiko_Ramthun", CertificateUtil.getDownloadFilename (cert));
 	}
 
 
@@ -382,10 +372,10 @@ public class CertificateUtilIT {
 
 		String executionId = "";
 		Certificate cert = certificateUtil.createCertificate(testCertECCWithManySANs, null, executionId);
-		assertNotNull(cert);
+		Assertions.assertNotNull(cert);
 
-		assertFalse(cert.getSans().isEmpty());
-		assertEquals("*.google.com;*.android.com;*.appengine.google.com;*.cloud.google.com;*.google-analytics.com;*.google.ca;*.google.cl;*.google.co.in;*.google.co.jp;*.google.co.uk;*.google.com.ar;*.google.com.au;*.google.com.br;*.google.com.co;*.google.com.mx;*.google.", cert.getSans());
+		Assertions.assertFalse(cert.getSans().isEmpty());
+		Assertions.assertEquals("*.google.com;*.android.com;*.appengine.google.com;*.cloud.google.com;*.google-analytics.com;*.google.ca;*.google.cl;*.google.co.in;*.google.co.jp;*.google.co.uk;*.google.com.ar;*.google.com.au;*.google.com.br;*.google.com.co;*.google.com.mx;*.google.", cert.getSans());
 
 		int sanCount = 0;
 		for(CertificateAttribute certAtt : cert.getCertificateAttributes()) {
@@ -393,15 +383,16 @@ public class CertificateUtilIT {
 				sanCount++;
 			}
 		}
-		assertEquals(45, sanCount);
+		Assertions.assertEquals(45, sanCount);
 
-		assertEquals("ec", cert.getKeyAlgorithm());
-		assertEquals("rsa", cert.getSigningAlgorithm());
-		assertEquals("sha1", cert.getHashingAlgorithm());
-		assertEquals("prime256v1", cert.getCurveName());
-		assertEquals("256", cert.getKeyLength().toString());
-		assertEquals("pkcs1", cert.getPaddingAlgorithm());
+		Assertions.assertEquals("ec", cert.getKeyAlgorithm());
+		Assertions.assertEquals("rsa", cert.getSigningAlgorithm());
+		Assertions.assertEquals("sha-1", cert.getHashingAlgorithm());
+		Assertions.assertEquals("prime256v1", cert.getCurveName());
+		Assertions.assertEquals("256", cert.getKeyLength().toString());
+		Assertions.assertEquals("PKCS1", cert.getPaddingAlgorithm());
 
+        Assertions.assertEquals("_.google.com", CertificateUtil.getDownloadFilename (cert));
 	}
 
 
@@ -410,10 +401,10 @@ public class CertificateUtilIT {
 
 		String executionId = "";
 		Certificate cert = certificateUtil.createCertificate(testCertWithLongSAN, null, executionId);
-		assertNotNull(cert);
+		Assertions.assertNotNull(cert);
 
-		assertFalse(cert.getSans().isEmpty());
-		assertEquals("2.16.724.1.3.5.1.2.1=sede electrónica,2.16.724.1.3.5.1.2.2=ministerio de industria energia y turismo,2.16.724.1.3.5.1.2.3=s2800214e,2.16.724.1.3.5.1.2.4=sede electronica del ministerio de industria energia y turismo,2.16.724.1.3.5.1.2.5=sede.minetur.", cert.getSans());
+		Assertions.assertFalse(cert.getSans().isEmpty());
+		Assertions.assertEquals("2.16.724.1.3.5.1.2.1=sede electrónica,2.16.724.1.3.5.1.2.2=ministerio de industria energia y turismo,2.16.724.1.3.5.1.2.3=s2800214e,2.16.724.1.3.5.1.2.4=sede electronica del ministerio de industria energia y turismo,2.16.724.1.3.5.1.2.5=sede.minetur.", cert.getSans());
 
 		int sanCount = 0;
 		for(CertificateAttribute certAtt : cert.getCertificateAttributes()) {
@@ -424,14 +415,15 @@ public class CertificateUtilIT {
 				System.out.println("ATTRIBUTE_CRL_URL" + certAtt.getValue());
 			}
 		}
-		assertEquals(2, sanCount);
+		Assertions.assertEquals(2, sanCount);
 
-		assertEquals("rsa", cert.getKeyAlgorithm());
-		assertEquals("rsa", cert.getSigningAlgorithm());
-		assertEquals("sha1", cert.getHashingAlgorithm());
-		assertEquals("2048", cert.getKeyLength().toString());
-		assertEquals("pkcs1", cert.getPaddingAlgorithm());
+		Assertions.assertEquals("rsa", cert.getKeyAlgorithm());
+		Assertions.assertEquals("rsa", cert.getSigningAlgorithm());
+		Assertions.assertEquals("sha-1", cert.getHashingAlgorithm());
+		Assertions.assertEquals("2048", cert.getKeyLength().toString());
+		Assertions.assertEquals("PKCS1", cert.getPaddingAlgorithm());
 
+        Assertions.assertEquals("sede.minetur.gob.es", CertificateUtil.getDownloadFilename (cert));
 	}
 
 	@Test
@@ -439,7 +431,7 @@ public class CertificateUtilIT {
 
 		String executionId = "";
 		Certificate cert = certificateUtil.createCertificate(testCertWithNullKeyLength, null, executionId);
-		assertNotNull(cert);
+		Assertions.assertNotNull(cert);
 
 
 		int sanCount = 0;
@@ -451,13 +443,13 @@ public class CertificateUtilIT {
 				System.out.println("ATTRIBUTE_CRL_URL" + certAtt.getValue());
 			}
 		}
-		assertEquals(2, sanCount);
+		Assertions.assertEquals(2, sanCount);
 
-		assertEquals("rsa", cert.getKeyAlgorithm());
-		assertEquals("rsa", cert.getSigningAlgorithm());
-		assertEquals("sha256", cert.getHashingAlgorithm());
-		assertEquals("2048", cert.getKeyLength().toString());
-		assertEquals("pkcs1", cert.getPaddingAlgorithm());
+		Assertions.assertEquals("rsa", cert.getKeyAlgorithm());
+		Assertions.assertEquals("rsa", cert.getSigningAlgorithm());
+		Assertions.assertEquals("sha-256", cert.getHashingAlgorithm());
+		Assertions.assertEquals("2048", cert.getKeyLength().toString());
+		Assertions.assertEquals("PKCS1", cert.getPaddingAlgorithm());
 
 	}
 
@@ -466,7 +458,7 @@ public class CertificateUtilIT {
 
 		String executionId = "";
 		Certificate cert = certificateUtil.createCertificate(testLocalhost, null, executionId);
-		assertNotNull(cert);
+		Assertions.assertNotNull(cert);
 
 
 		for(CertificateAttribute certAtt : cert.getCertificateAttributes()) {
@@ -475,32 +467,33 @@ public class CertificateUtilIT {
 			}
 		}
 
-		assertEquals("rsa", cert.getKeyAlgorithm());
-		assertEquals("rsa", cert.getSigningAlgorithm());
-		assertEquals("sha256", cert.getHashingAlgorithm());
-		assertEquals("2048", cert.getKeyLength().toString());
-		assertEquals("pkcs1", cert.getPaddingAlgorithm());
+		Assertions.assertEquals("rsa", cert.getKeyAlgorithm());
+		Assertions.assertEquals("rsa", cert.getSigningAlgorithm());
+		Assertions.assertEquals("sha-256", cert.getHashingAlgorithm());
+		Assertions.assertEquals("2048", cert.getKeyLength().toString());
+		Assertions.assertEquals("PKCS1", cert.getPaddingAlgorithm());
 
+        Assertions.assertEquals("DESKTOP-J2CF74V", CertificateUtil.getDownloadFilename (cert));
 	}
 
     @Test
 	public void testNameNormalization() throws InvalidNameException {
 
-        String a = certificateUtil.getNormalizedName("C=DE,O=T-Systems International GmbH,OU=T-Systems Trust Center,CN=TeleSec Business CA 1");
-        String b = certificateUtil.getNormalizedName("CN=TeleSec Business CA 1,OU=T-Systems Trust Center,O=T-Systems International GmbH,C=DE");
+        String a = CertificateUtil.getNormalizedName("C=DE,O=T-Systems International GmbH,OU=T-Systems Trust Center,CN=TeleSec Business CA 1");
+        String b = CertificateUtil.getNormalizedName("CN=TeleSec Business CA 1,OU=T-Systems Trust Center,O=T-Systems International GmbH,C=DE");
 
 //        System.out.println("Normalized name: " + a);
 //        System.out.println("Normalized name: " + b);
 
-        assertEquals("normalizing names expected to be identical ", a, b);
+        Assertions.assertEquals(a, b, "normalizing names expected to be identical ");
 	}
 
 
     @Test
     public void testNameHandling() {
 
-        GeneralName[] generalNames = certificateUtil.splitSANString(" foo.de, bar.de , baz.de", null);
-        assertEquals(" expected to see 3 GeneralNames ", 3, generalNames.length);
+        GeneralName[] generalNames = CertificateUtil.splitSANString(" foo.de, bar.de , baz.de", null);
+        Assertions.assertEquals(3, generalNames.length, " expected to see 3 GeneralNames ");
 
     }
 }

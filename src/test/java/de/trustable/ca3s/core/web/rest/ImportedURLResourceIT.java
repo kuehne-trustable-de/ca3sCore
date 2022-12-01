@@ -195,7 +195,7 @@ public class ImportedURLResourceIT {
         // Get all the importedURLList
         restImportedURLMockMvc.perform(get("/api/imported-urls?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(importedURL.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].importDate").value(hasItem(DEFAULT_IMPORT_DATE.toString())));
@@ -210,7 +210,7 @@ public class ImportedURLResourceIT {
         // Get the importedURL
         restImportedURLMockMvc.perform(get("/api/imported-urls/{id}", importedURL.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(importedURL.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.importDate").value(DEFAULT_IMPORT_DATE.toString()));

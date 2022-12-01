@@ -32,7 +32,8 @@ spring:
       indent-output: true
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:h2:file:./target/h2db/db/ca3s_jh;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
+#    url: jdbc:h2:file:./target/h2db/db/ca3s_jh;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
+    url: jdbc:h2:mem:ca3sTestDB;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
 #    url: jdbc:h2:mem:ca3sTestDB
     username: root
     password:
@@ -120,6 +121,13 @@ jhipster:
       queue-size: 512
   audit-events:
     retention-period: 30 # Number of days before audit events are deleted.
+
+ca3s:
+  ui:
+    password:
+      check:
+        description: min6NumberUpperLower
+        regexp: ^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,100}$
 
 # ===================================================================
 # Application specific properties

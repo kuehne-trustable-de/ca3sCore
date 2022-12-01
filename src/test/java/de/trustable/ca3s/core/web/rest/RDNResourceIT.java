@@ -145,7 +145,7 @@ public class RDNResourceIT {
         // Get all the rDNList
         restRDNMockMvc.perform(get("/api/rdns?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(rDN.getId().intValue())));
     }
 
@@ -158,7 +158,7 @@ public class RDNResourceIT {
         // Get the rDN
         restRDNMockMvc.perform(get("/api/rdns/{id}", rDN.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(rDN.getId().intValue()));
     }
 

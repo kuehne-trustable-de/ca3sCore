@@ -169,7 +169,7 @@ public class RequestAttributeValueResourceIT {
         // Get all the requestAttributeValueList
         restRequestAttributeValueMockMvc.perform(get("/api/request-attribute-values?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(requestAttributeValue.getId().intValue())))
             .andExpect(jsonPath("$.[*].attributeValue").value(hasItem(DEFAULT_ATTRIBUTE_VALUE)));
     }
@@ -183,7 +183,7 @@ public class RequestAttributeValueResourceIT {
         // Get the requestAttributeValue
         restRequestAttributeValueMockMvc.perform(get("/api/request-attribute-values/{id}", requestAttributeValue.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(requestAttributeValue.getId().intValue()))
             .andExpect(jsonPath("$.attributeValue").value(DEFAULT_ATTRIBUTE_VALUE));
     }

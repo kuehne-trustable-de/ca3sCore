@@ -98,6 +98,11 @@ spring:
   # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
   liquibase:
     contexts: prod
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
 # connect to the database with admin privileges
 #    default-schema: ca3s_sep_roles
 #    user: ca3s_sr_admin
@@ -165,9 +170,6 @@ jhipster:
         # Token is valid 24 hours
         token-validity-in-seconds: 86400
         token-validity-in-seconds-for-remember-me: 2592000
-  mvc:
-    pathmatch:
-      matching-strategy: ant_path_matcher
   mail: # specific JHipster mail property, for standard properties see MailProperties
     base-url: http://localhost:8080 # Modify according to your server's URL
   logging:
@@ -304,6 +306,11 @@ ca3s:
         cnSuffix: .trustable.de
 
   auth:
+    api-key:
+      enabled: true
+      auth-token-header-name: X-API-KEY
+      auth-token-admin: gTYvGKIfzLpWQSSIMT1XBaRfzdSLZmvFMNlfo6zeddYyg3FYmq7BH6qqB4dy75uYbLb0KXOU7jV50a360R4CB4UXriX085usWJnto5CMpOu34rxx0b5v2Xd97hpzDQdJ
+
     kerberos:
       service-principal: HTTP/admin@ci-adcs
       keytab-location: ca3s.keytab
