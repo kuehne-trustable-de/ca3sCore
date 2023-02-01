@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+    <!--
+        Removed the constraints for entity AuditTrace.
+    -->
+    <changeSet id="20221206180000-1" author="ak">
+
+        <dropForeignKeyConstraint baseTableName="audit_trace"
+                                 constraintName="fk_audit_trace_csr_id"/>
+
+        <dropForeignKeyConstraint baseTableName="audit_trace"
+                                 constraintName="fk_audit_trace_certificate_id"/>
+
+        <dropForeignKeyConstraint baseTableName="audit_trace"
+                                 constraintName="fk_audit_trace_pipeline_id"/>
+
+        <dropForeignKeyConstraint baseTableName="audit_trace"
+                                 constraintName="fk_audit_trace_ca_connector_id"/>
+
+        <dropForeignKeyConstraint baseTableName="audit_trace"
+                                 constraintName="fk_audit_trace_process_info_id"/>
+
+    </changeSet>
+</databaseChangeLog>
