@@ -265,7 +265,10 @@ public class CAConnectorConfigResource {
             logDiff("Interval", oldConnector.getInterval(), cAConnectorConfig.getInterval(), cAConnectorConfig);
             logDiff("PollingOffset", "" + oldConnector.getPollingOffset(), "" + cAConnectorConfig.getPollingOffset(), cAConnectorConfig);
             logDiff("Selector", oldConnector.getSelector(), cAConnectorConfig.getSelector(), cAConnectorConfig);
-            logDiff("TrustSelfSigned", oldConnector.getTrustSelfsignedCertificates().toString(), cAConnectorConfig.getTrustSelfsignedCertificates().toString(), cAConnectorConfig);
+            logDiff("TrustSelfSigned",
+                oldConnector.getTrustSelfsignedCertificates() == null ? "": oldConnector.getTrustSelfsignedCertificates().toString(),
+                cAConnectorConfig.getTrustSelfsignedCertificates() == null ? "": cAConnectorConfig.getTrustSelfsignedCertificates().toString(),
+                cAConnectorConfig);
         }
     }
 

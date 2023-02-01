@@ -234,7 +234,7 @@ public class PipelineUtil {
             }else if( SCEP_RECIPIENT_DN.equals(plAtt.getName())) {
                 scepConfigItems.setScepRecipientDN(plAtt.getValue());
             }else if( SCEP_RECIPIENT_KEY_TYPE_LEN.equals(plAtt.getName())) {
-                KeyAlgoLength keyAlgoLength = KeyAlgoLength.valueOf(plAtt.getValue());
+                KeyAlgoLength keyAlgoLength = KeyAlgoLength.from(plAtt.getValue());
                 scepConfigItems.setKeyAlgoLength(keyAlgoLength);
             }else if( SCEP_CA_CONNECTOR_RECIPIENT_NAME.equals(plAtt.getName())) {
                 scepConfigItems.setCaConnectorRecipientName(plAtt.getValue());
@@ -736,7 +736,8 @@ public class PipelineUtil {
             pc.setType(ProtectedContentType.PASSWORD);
             pc.setRelationType(ContentRelationType.SCEP_PW);
             pc.setRelatedId(p.getId());
-            pc.setLeftUsages(-1);
+            pc.setCreatedOn(Instant.now());
+            pc.setLeftUsages(-1L);
             pc.setValidTo(ProtectedContentUtil.MAX_INSTANT);
             pc.setDeleteAfter(ProtectedContentUtil.MAX_INSTANT);
 
@@ -1359,6 +1360,8 @@ public class PipelineUtil {
 
     public Certificate getSCEPRecipientCertificate( Pipeline pipeline, CertificateProcessingUtil cpUtil) throws IOException, GeneralSecurityException {
 
+        LOG.debug("getSCEPRecipientCertificate() ...");
+
         if( pipeline == null){
             throw new GeneralSecurityException("pipeline argument == null!");
         }
@@ -1387,6 +1390,7 @@ public class PipelineUtil {
     private Certificate createSCEPRecipientCertificate(final Pipeline pipeline, CertificateProcessingUtil cpUtil) throws IOException, GeneralSecurityException {
 
         String scepRecipientDN = getPipelineAttribute( pipeline, SCEP_RECIPIENT_DN, "CN=SCEPRecepient_"+ pipeline.getId());
+        LOG.debug("createSCEPRecipientCertificate() with scepRecipientDN '{}'", scepRecipientDN);
         X500Principal subject = new X500Principal(scepRecipientDN);
 
         CAConnectorConfig caConfig;
@@ -1400,9 +1404,9 @@ public class PipelineUtil {
         }
 
         String scepRecipientKeyLength = getPipelineAttribute( pipeline, SCEP_RECIPIENT_KEY_TYPE_LEN, "RSA_2048");
-        KeyAlgoLength kal = KeyAlgoLength.valueOf(scepRecipientKeyLength);
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(kal.algoName());
-        keyPairGenerator.initialize(kal.keyLength());
+        KeyAlgoLength kal = KeyAlgoLength.from(scepRecipientKeyLength);
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(kal.getAlgoName());
+        keyPairGenerator.initialize(kal.getKeyLength());
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
         String p10ReqPem = CryptoUtil.getCsrAsPEM(subject,

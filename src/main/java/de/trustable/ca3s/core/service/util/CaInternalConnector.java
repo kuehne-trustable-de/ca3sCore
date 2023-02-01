@@ -107,6 +107,8 @@ public class CaInternalConnector {
 
 		certRepository.save(intermediateCert);
 
+        LOG.info("############# createNewIntermediate returns cert #{}, serial {}", intermediateCert.getId(), intermediateCert.getSerial());
+
 		return intermediateCert;
 	}
 
@@ -154,7 +156,9 @@ public class CaInternalConnector {
 
 		certRepository.save(rootCert);
 
-		return rootCert;
+        LOG.info("############# createNewRoot returns cert #{}, serial {}", rootCert.getId(), rootCert.getSerial());
+
+        return rootCert;
 	}
 
 	/**

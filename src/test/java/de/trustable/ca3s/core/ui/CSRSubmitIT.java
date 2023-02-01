@@ -212,7 +212,7 @@ public class CSRSubmitIT extends WebTestBase{
 	    selectOptionByText(LOC_SEL_KEY_CREATION_CHOICE, "Serverside key creation");
 
 	    validatePresent(LOC_SEL_KEY_LENGTH_CHOICE);
-	    selectOptionByText(LOC_SEL_KEY_LENGTH_CHOICE, "RSA_2048");
+	    selectOptionByText(LOC_SEL_KEY_LENGTH_CHOICE, "rsa-2048");
 
         setText(LOC_INP_SECRET_VALUE, secret);
         setText(LOC_INP_SECRET_REPEAT_VALUE, secret);
@@ -418,7 +418,7 @@ public class CSRSubmitIT extends WebTestBase{
         File certFile = new File(downloadDir, certTypeName);
         LOG.info("downloaded certFile: {}", certFile.getAbsolutePath());
 
-        Assertions.assertTrue(certFile.exists());
+        waitForFileExists(certFile);
         List<X509Certificate> certificateList = convertPemToCertificateChain(new String(Files.readAllBytes(certFile.toPath())));
 
         Assertions.assertEquals(expectedChainLength, certificateList.size(), "Expected chain length");
@@ -428,6 +428,23 @@ public class CSRSubmitIT extends WebTestBase{
         return certificateList.get(0);
     }
 
+    void waitForFileExists(final File certFile){
+        for(int i = 0; i < 10; i++){
+
+            if( certFile.exists()){
+                return;
+            }
+
+            try {
+                Thread.sleep(500); // sleep for 1 second.
+            } catch (Exception x) {
+                fail("Failed due to an exception during Thread.sleep!");
+                x.printStackTrace();
+            }
+        }
+        Assertions.assertTrue(certFile.exists());
+
+    }
     private void checkPKCS12Download(String cn, String secret) throws InterruptedException, GeneralSecurityException, IOException {
 
         byte[] secretBytes = new byte[6];

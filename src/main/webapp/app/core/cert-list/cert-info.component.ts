@@ -147,6 +147,42 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
       });
   }
 
+  public crlExpiryNotification(certificateId) {
+    window.console.info('crlExpiryNotification for certificateId ' + certificateId);
+    const self = this;
+
+    axios({
+      method: 'post',
+      url: 'api/crl-expiration-notifications/certificate',
+      data: certificateId,
+      responseType: 'stream'
+    })
+      .then(function(response) {
+        console.log(response.status);
+      })
+      .catch(function(error) {
+        console.log(error);
+        const message = self.$t('problem processing request: ' + error);
+        const err = error as AxiosError;
+        if (err.response) {
+          console.log(err.response.status);
+          console.log(err.response.data);
+          if (err.response.status === 401 || err.response.status === 403) {
+            self.alertService().showAlert('Action not allowed', 'danger');
+          } else {
+            self.alertService().showAlert(message, 'info');
+          }
+        } else {
+          self.alertService().showAlert(message, 'info');
+        }
+        self.getAlertFromStore();
+      })
+      .then(function() {
+        // always executed
+        // document.body.style.cursor = 'default';
+      });
+  }
+
   beforeRouteEnter(to, from, next) {
     next(vm => {
       window.console.info('################ to.params : ' + to.params.certificateId);
@@ -175,6 +211,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
         }
         self.certificateAdminData.arAttributes = this.certificateView.arArr;
         self.certificateAdminData.comment = this.certificateView.comment;
+        self.comment = this.certificateView.comment;
         self.certificateAdminData.trusted = this.certificateView.trusted;
         window.console.info('certificate loaded successfully : ' + self.certificateView.id);
       });

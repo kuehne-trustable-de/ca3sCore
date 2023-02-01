@@ -323,12 +323,19 @@ public class AcmeController {
 				throw new AcmeProblemException(problem);
 			}
 
-			if (AccountStatus.DEACTIVATED.equals(acctDao.getStatus())) {
-				LOG.warn("Account {} is deactivated", acctDao.getAccountId());
-				final ProblemDetail problem = new ProblemDetail(AcmeUtil.ACCOUNT_DEACTIVATED, "Account deactivated",
-						BAD_REQUEST, "", AcmeController.NO_INSTANCE);
-				throw new AcmeProblemException(problem);
-			}
+            if (!AccountStatus.VALID.equals(acctDao.getStatus())) {
+                String title = "Account not activate";
+                if (AccountStatus.PENDING.equals(acctDao.getStatus())){
+                    LOG.warn("Account {} activation still pending", acctDao.getAccountId());
+                    title = "Account not activate, yet";
+                }else{
+                    LOG.warn("Account {} is NOT activate (status {})", acctDao.getAccountId(), acctDao.getStatus());
+                }
+
+                final ProblemDetail problem = new ProblemDetail(AcmeUtil.ACCOUNT_DEACTIVATED, title,
+                    BAD_REQUEST, "", AcmeController.NO_INSTANCE);
+                throw new AcmeProblemException(problem);
+            }
 
             Pipeline pipeline = getPipelineForRealm(realm);
 

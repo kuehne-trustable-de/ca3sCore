@@ -31,11 +31,10 @@ public class UploadPrecheckData {
 	private CreationMode creationMode = CreationMode.CSR_AVAILABLE;
 
 	@JsonProperty("keyAlgoLength")
-	private KeyAlgoLength keyAlgoLength = KeyAlgoLength.RSA_2048;
+	private String keyAlgoLength = KeyAlgoLength.RSA_2048.toString();
 
 	@JsonProperty("containerType")
 	private ContainerType containerType = ContainerType.PKCS_12;
-
 
 	@JsonProperty("namedValues")
 	private NamedValue[] namedValues;
@@ -82,7 +81,7 @@ public class UploadPrecheckData {
 		return creationMode;
 	}
 
-	public KeyAlgoLength getKeyAlgoLength() {
+	public String getKeyAlgoLength() {
 		return keyAlgoLength;
 	}
 
@@ -106,7 +105,7 @@ public class UploadPrecheckData {
 		this.creationMode = creationMode;
 	}
 
-	public void setKeyAlgoLength(KeyAlgoLength keyAlgoLength) {
+	public void setKeyAlgoLength(String keyAlgoLength) {
 		this.keyAlgoLength = keyAlgoLength;
 	}
 

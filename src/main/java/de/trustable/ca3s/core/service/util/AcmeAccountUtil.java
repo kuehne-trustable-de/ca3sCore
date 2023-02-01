@@ -16,12 +16,12 @@ public class AcmeAccountUtil {
 
         AcmeAccountView acmeAccountView = new AcmeAccountView();
 
-        acmeAccountView.setId(acmeAccountView.getId());
+        acmeAccountView.setId(acmeAccount.getId());
         acmeAccountView.setAccountId(acmeAccount.getAccountId());
         acmeAccountView.setRealm(acmeAccount.getRealm());
         acmeAccountView.setStatus(acmeAccount.getStatus());
         acmeAccountView.setTermsOfServiceAgreed(acmeAccount.isTermsOfServiceAgreed());
-        acmeAccountView.setCreatedOn(Instant.now());
+        acmeAccountView.setCreatedOn(acmeAccount.getCreatedOn());
         acmeAccountView.setPublicKeyHash(acmeAccount.getPublicKeyHash());
         acmeAccountView.setPublicKey(acmeAccount.getPublicKey());
 

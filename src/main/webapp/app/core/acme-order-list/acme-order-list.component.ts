@@ -345,4 +345,25 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
       })
       .catch(console.error);
   }
+
+  public getStatusStyle(status: string): string {
+    if (status === 'valid') {
+      return 'color:green; font-weight: bold;';
+    } else if (status === 'ready' || status === 'processing' || status === 'ready') {
+      return 'color:yellow; font-weight: bold;';
+    } else if (status === 'invalid') {
+      return 'color:red;font-weight: bold;';
+    } else if (status === 'pending') {
+      return 'font-weight: bold;';
+    }
+  }
+
+  public getExpiresStyle(expiresString: string): string {
+    const expires = new Date(expiresString);
+
+    if (expires < this.now) {
+      return 'color:red;font-weight: bold;';
+    }
+    return '';
+  }
 }

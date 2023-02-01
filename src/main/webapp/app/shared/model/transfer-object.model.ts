@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.0.1157 on 2022-11-20 18:19:56.
+// Generated using typescript-generator version 3.0.1157 on 2023-01-31 14:11:01.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -186,15 +186,16 @@ export interface ICertificateView extends ISerializable {
   revokedBy?: string;
   requestedBy?: string;
   crlUrl?: string;
+  crlExpirationNotificationId?: number;
   crlNextUpdate?: Date;
   certB64?: string;
   downloadFilename?: string;
   isServersideKeyGeneration?: boolean;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
-  fullChainAvailable?: boolean;
-  serversideKeyGeneration?: boolean;
   auditPresent?: boolean;
+  serversideKeyGeneration?: boolean;
+  fullChainAvailable?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
@@ -246,8 +247,8 @@ export interface ICSRView extends ISerializable {
   csrBase64?: string;
   auditViewArr?: IAuditView[];
   isAdministrable?: boolean;
-  administrable?: boolean;
   csrvalid?: boolean;
+  administrable?: boolean;
 }
 
 export interface IPreferences extends ISerializable {
@@ -292,7 +293,7 @@ export interface IUploadPrecheckData {
   pipelineId?: number;
   content?: string;
   creationMode?: ICreationMode;
-  keyAlgoLength?: IKeyAlgoLength;
+  keyAlgoLength?: string;
   containerType?: IContainerType;
   namedValues?: INamedValue[];
   certificateAttributes?: INamedValues[];
@@ -376,6 +377,17 @@ export interface IBpmnCheckResult extends ISerializable {
   isActive?: boolean;
   status?: string;
   csrAttributes?: { [index: string]: any }[];
+}
+
+export interface IAcmeAccountStatusAdministration extends ISerializable {
+  status?: IAccountStatus;
+  comment?: string;
+}
+
+export interface ICsrReqAttribute extends ISerializable {
+  oid?: string;
+  oidName?: string;
+  value?: string;
 }
 
 export interface ISerializable {}
@@ -463,6 +475,7 @@ export interface IPkcs10RequestHolderShallow {
   keyLength?: number;
   sans?: string[];
   subject?: string;
+  csrExtensionRequests?: ICsrReqAttribute[];
   publicKeyAlgorithmName?: string;
 }
 
@@ -515,6 +528,11 @@ export interface ICertificate extends ISerializable {
   issuingCertificate?: ICertificate;
   rootCertificate?: ICertificate;
   revocationCA?: ICAConnectorConfig;
+}
+
+export interface IKeyAlgoLength {
+  algoName?: string;
+  keyLength?: number;
 }
 
 export interface ITypedValue {
@@ -730,8 +748,6 @@ export type ICsrStatus = 'PROCESSING' | 'ISSUED' | 'REJECTED' | 'PENDING';
 export type IAdministrationType = 'ACCEPT' | 'REJECT' | 'REVOKE' | 'UPDATE' | 'UPDATE_CRL';
 
 export type ICreationMode = 'CSR_AVAILABLE' | 'COMMANDLINE_TOOL' | 'SERVERSIDE_KEY_CREATION';
-
-export type IKeyAlgoLength = 'RSA_2048' | 'RSA_4096';
 
 export type IContainerType = 'PKCS_12' | 'JKS';
 

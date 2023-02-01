@@ -253,3 +253,7 @@ Damit in diesem Beispiel der User acme.sh kein previlegierter Nutzer sein muss, 
 > acme.sh --renew --force -d <test-domain> --standalone --alpn --tlsport 8443 --server https://<acme-server:port>/acme/acmeTest/directory
 
 Um einen Test beliebig häufig laufen zu lassen, biten sich die beiden optionen '--renew' und '--force' an.
+
+### <a id="ca3SApp.badkeys.integration"></a> Badkeys Integration
+
+Mit dem [badkeys](https://badkeys.info/) Werkzeug können Schlüssel gegen bekannte Schwächen geprüft werden. Lediglich badkeys auf dem gleichen Server wie ca3s installieren und den Installationspfad in ca3s-Konfiguration angeben.

@@ -24,6 +24,8 @@ import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  * A Certificate.
@@ -92,8 +94,16 @@ import org.springframework.cache.annotation.CacheEvict;
             " c.validTo <= :before " +
             " group by YEAR(c.validTo), MONTH(c.validTo), DAY(c.validTo)"
     ),
+    @NamedQuery(name = "Certificate.findByTypeAndValidTo",
+        query = "SELECT c FROM Certificate c WHERE " +
+            " c.validTo >= :after and " +
+            " c.validTo <= :before and " +
+            " c.endEntity = :isEndEntity and " +
+            " c.revoked = FALSE " +
+            " order by c.validTo asc"
+    ),
     @NamedQuery(name = "Certificate.countAll",
-    query = "SELECT count(c) FROM Certificate c "
+        query = "SELECT count(c) FROM Certificate c "
     ),
     @NamedQuery(name = "Certificate.findActiveCertificatesByHashAlgo",
     query = "SELECT c.hashingAlgorithm, count(c) as total FROM Certificate c WHERE " +
@@ -597,8 +607,8 @@ public class Certificate implements Serializable {
         this.revocationReason = revocationReason;
     }
 
-    public Boolean isRevoked() {
-        return revoked;
+    public boolean isRevoked() {
+        return (revoked == null)?false:revoked;
     }
 
     public Certificate revoked(Boolean revoked) {
@@ -636,8 +646,9 @@ public class Certificate implements Serializable {
         this.administrationComment = administrationComment;
     }
 
-    public Boolean isEndEntity() {
-        return endEntity;
+    public boolean isEndEntity() {
+
+        return (endEntity == null)?false:endEntity;
     }
 
     public Certificate endEntity(Boolean endEntity) {
@@ -649,8 +660,9 @@ public class Certificate implements Serializable {
         this.endEntity = endEntity;
     }
 
-    public Boolean isSelfsigned() {
-        return selfsigned;
+    public boolean isSelfsigned() {
+
+        return (selfsigned == null)?false:selfsigned;
     }
 
     public Certificate selfsigned(Boolean selfsigned) {
@@ -662,8 +674,8 @@ public class Certificate implements Serializable {
         this.selfsigned = selfsigned;
     }
 
-    public Boolean isTrusted() {
-        return trusted;
+    public boolean isTrusted() {
+        return (trusted == null)?false:trusted;
     }
 
     @CacheEvict(value="AcceptedIssuer", allEntries=true)
@@ -677,8 +689,9 @@ public class Certificate implements Serializable {
         this.trusted = trusted;
     }
 
-    public Boolean isActive() {
-        return active;
+    public boolean isActive() {
+
+        return (active == null)?false:active;
     }
 
     public Certificate active(Boolean active) {

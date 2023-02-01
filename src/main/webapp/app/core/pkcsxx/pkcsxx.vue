@@ -77,10 +77,15 @@
                                     <label class="form-control-label" v-text="$t('pkcsxx.upload.key-length')" for="pkcsxx.upload.key-length">Key length</label>
                                 </div>
                                 <div class="col colContent">
-                                    <select class="form-control w-50" id="pkcsxx.upload.key-length" name="pkcsxx.upload.key-length" v-model="keyAlgoLength" v-on:change="updateCmdLine()">
+                                    <!--select class="form-control w-50" id="pkcsxx.upload.key-length" name="pkcsxx.upload.key-length" v-model="keyAlgoLength" v-on:change="updateCmdLine()">
                                         <option value="RSA_2048">RSA_2048</option>
                                         <option value="RSA_4096" selected="selected">RSA_4096</option>
+                                    </select-->
+
+                                    <select class="form-control w-50"  id="pkcsxx.upload.key-length" name="pkcsxx.upload.key-length" v-model="keyAlgoLength" v-on:change="updateCmdLine()">
+                                        <option v-bind:value="algo" v-for="algo in preferences.selectedSigningAlgos" :key="algo">{{algo}}</option>
                                     </select>
+
                                 </div>
                             </div>
 
@@ -355,14 +360,41 @@
                                 <span v-if="precheckResponse.p10Holder.paddingAlgName === 'pss'">, {{precheckResponse.p10Holder.paddingAlgName}}, {{precheckResponse.p10Holder.mfgName}}</span>
 							</dd>
 
-							<dt v-if="precheckResponse.p10Holder.sans.length > 0">
-								<span v-text="$t('pkcsxx.upload.sans')">Subject alternative names</span>
-							</dt>
-							<dd v-if="precheckResponse.p10Holder.sans.length > 0">
-								<ul>
-									<li v-for="san in precheckResponse.p10Holder.sans" :key="san">{{san}}</li>
-								</ul>
-							</dd>
+                            <dt v-if="precheckResponse.p10Holder.sans.length > 0">
+                                <span v-text="$t('pkcsxx.upload.sans')">Subject alternative names</span>
+                            </dt>
+                            <dd v-if="precheckResponse.p10Holder.sans.length > 0">
+                                <ul>
+                                    <li v-for="san in precheckResponse.p10Holder.sans" :key="san">{{san}}</li>
+                                </ul>
+                            </dd>
+
+                            <dt v-if="getKeyUsage()">
+                                <span v-text="$t('pkcsxx.upload.usage')">Key usages</span>
+                            </dt>
+                            <dd v-if="getKeyUsage()">
+                                <span>{{getKeyUsage().value}}</span>
+                            </dd>
+
+                            <dt v-if="getExtKeyUsage()">
+                                <span v-text="$t('pkcsxx.upload.eku')">Extended key usages</span>
+                            </dt>
+                            <dd v-if="getExtKeyUsage()">
+                                <span>{{getExtKeyUsage().value}}</span>
+                            </dd>
+
+                            <dt v-if="precheckResponse.badKeysResult && precheckResponse.badKeysResult.installationValid">
+                                <img width="16" height="16" src="../../../content/images/badkeys.svg"/>
+                                <span v-text="$t('pkcsxx.upload.badkeys')">BadKeys Result</span>
+                            </dt>
+                            <dd v-if="precheckResponse.badKeysResult && precheckResponse.badKeysResult.installationValid">
+
+                                <span v-if="precheckResponse.badKeysResult.valid" v-text="$t('pkcsxx.upload.badkeys.valid')">BadKeys check successful</span>
+                                <ul v-else>
+                                    <li v-text="$t('pkcsxx.upload.badkeys.failed')">BadKeys check failed</li>
+                                    <li v-if="precheckResponse.badKeysResult.messsage">{{precheckResponse.badKeysResult.messsage}}</li>
+                                </ul>
+                            </dd>
 						</dl>
 
 						<dl class="row jh-entity-details" v-if="isChecked === true && precheckResponse.dataType === 'X509_CERTIFICATE'">
@@ -417,6 +449,19 @@
 									<li v-for="san in precheckResponse.certificates[0].sans" :key="san">{{san}}</li>
 								</ul>
 							</dd>
+
+                            <dt v-if="precheckResponse.badKeysResult && precheckResponse.badKeysResult.installationValid">
+                                <a href="https://badkeys.info/" target="_blank"><img width="16" height="16" src="../../../content/images/badkeys.svg"/></a>
+                                <span v-text="$t('pkcsxx.upload.badkeys')">BadKeys Result</span>
+                            </dt>
+                            <dd v-if="precheckResponse.badKeysResult && precheckResponse.badKeysResult.installationValid">
+
+                                <span v-if="precheckResponse.badKeysResult.valid" v-text="$t('pkcsxx.upload.badkeys.valid')">BadKeys check successful</span>
+                                <ul v-else>
+                                    <li v-text="$t('pkcsxx.upload.badkeys.failed')">BadKeys check failed</li>
+                                    <li v-if="precheckResponse.badKeysResult.messsage">{{precheckResponse.badKeysResult.messsage}}</li>
+                                </ul>
+                            </dd>
 						</dl>
 
 						<dl class="row jh-entity-details" v-if="precheckResponse.dataType === 'CONTAINER'">

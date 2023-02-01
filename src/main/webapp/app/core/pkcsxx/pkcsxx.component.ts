@@ -16,14 +16,15 @@ import {
   IPkcsXXData,
   INamedValues,
   ICreationMode,
-  IKeyAlgoLength,
   IPipelineView,
   IPreferences,
-  ITypedValue
+  ITypedValue,
+  ICsrReqAttribute
 } from '@/shared/model/transfer-object.model';
 import { IPipelineRestrictions, PipelineRestrictions } from '@/shared/model/pipeline-restrictions';
 import { IPipelineRestriction, PipelineRestriction } from '@/shared/model/pipeline-restriction';
 
+const preferenceUrl = '/api/admin/preference';
 const precheckUrl = 'publicapi/describeContent';
 const uploadUrl = 'api/uploadContent';
 
@@ -90,7 +91,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   public secretRepeat = '';
   public secret = '';
   public creationMode: ICreationMode = 'CSR_AVAILABLE';
-  public keyAlgoLength: IKeyAlgoLength = 'RSA_2048';
+  public keyAlgoLength = 'rsa-4096';
   public machineKeySet = true;
 
   public cmdline = '';
@@ -103,7 +104,6 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
   public responseStatus = 0;
   public isChecked = false;
-  public isChecking = false;
   public isSaving = false;
   public warnings: string[] = [];
 
@@ -124,6 +124,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     console.log('initialized with pipelineId : ' + pipelineId);
   }
   public get authenticated(): boolean {
+    console.log('authenticated() : ' + this.$store.getters.authenticated);
     return this.$store.getters.authenticated;
   }
 
@@ -410,7 +411,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
     //    this.creationMode = 'CSR_AVAILABLE';
     this.upload.containerType = 'PKCS_12';
-    this.keyAlgoLength = 'RSA_4096';
+    this.keyAlgoLength = 'rsa-4096';
 
     this.updateForm();
 
@@ -491,12 +492,16 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     fileName = fileName.replace(re, '_');
 
     let algo = 'undefined';
-    if (this.keyAlgoLength.startsWith('RSA')) {
+    if (this.keyAlgoLength.startsWith('rsa')) {
       algo = 'RSA';
     }
     let keyLen = '4096';
-    if (this.keyAlgoLength.endsWith('2048')) {
+    if (this.keyAlgoLength.endsWith('1024')) {
+      keyLen = '1024';
+    } else if (this.keyAlgoLength.endsWith('2048')) {
       keyLen = '2048';
+    } else if (this.keyAlgoLength.endsWith('3072')) {
+      keyLen = '3072';
     }
 
     const hashAlgo = 'sha256';
@@ -877,12 +882,19 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
     axios({
       method: 'get',
-      url: 'api/pipeline/getActiveWebPipelines',
+      url: 'api/pipeline/activeWeb',
       responseType: 'stream'
     }).then(function(response) {
       window.console.info('getWebPipelines returns ' + response.data);
       self.upload.pipelineId = -1;
       self.allWebPipelines = response.data;
+
+      if (self.allWebPipelines.length === 1) {
+        self.preselectedPipelineId = self.allWebPipelines[0].id;
+        self.upload.pipelineId = self.allWebPipelines[0].id;
+
+        self.updateCurrentPipelineRestrictions();
+      }
 
       /*
       if (self.allWebPipelines.length > 0) {
@@ -1036,6 +1048,23 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       }
     }
     return false;
+  }
+
+  public getKeyUsage(): ICsrReqAttribute {
+    return this.getCsrExtension('2.5.29.15');
+  }
+
+  public getExtKeyUsage(): ICsrReqAttribute {
+    return this.getCsrExtension('2.5.29.37');
+  }
+
+  public getCsrExtension(oid: string): ICsrReqAttribute {
+    for (const csrReqAttribute of this.precheckResponse.p10Holder.csrExtensionRequests) {
+      if (csrReqAttribute.oid === oid) {
+        return csrReqAttribute;
+      }
+    }
+    return null;
   }
 
   public updateValue(key, value) {

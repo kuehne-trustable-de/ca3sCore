@@ -41,6 +41,7 @@ import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.service.dto.AcmeConfigItems;
 import de.trustable.ca3s.core.service.dto.PipelineView;
+import de.trustable.ca3s.core.service.dto.acme.NewOrderRequest;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.AcmeUtil;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
@@ -326,9 +327,10 @@ public class NewOrderController extends AcmeController {
 	LOG.info("Received NewOrder request for realm {}", realm);
 
 	try {
+
 		JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
-	    IdentifiersResponse newIdentifiers = jwtUtil.getIdentifiers(context.getJwtClaims());
-	    LOG.debug("New Order reads Identifiers: " + newIdentifiers);
+        NewOrderRequest newOrderRequest = jwtUtil.getNewOrderRequest(context.getJwtClaims());
+	    LOG.debug("New Order reads newOrderRequest: " + newOrderRequest);
 
         Pipeline pipeline = getPipelineForRealm(realm);
         LOG.debug("ACME pipeline '{}' found for request realm '{}'", pipeline.getName(), realm);
@@ -350,13 +352,18 @@ public class NewOrderController extends AcmeController {
             600);
 
         orderDao.setExpires(now.plus(orderValiditySeconds, ChronoUnit.SECONDS));
-		orderDao.setNotBefore(now);
-		orderDao.setNotAfter(orderDao.getExpires());
+
+        if( newOrderRequest.getNotBefore() != null ) {
+            orderDao.setNotBefore(newOrderRequest.getNotBefore().toInstant());
+        }
+        if( newOrderRequest.getNotAfter() != null ) {
+            orderDao.setNotAfter(newOrderRequest.getNotAfter().toInstant());
+        }
 
 		orderRepository.save(orderDao);
 
 		Set<AcmeIdentifier> identifiers = new HashSet<>();
-		for( IdentifierResponse ident: newIdentifiers.getIdentifiers()) {
+		for( IdentifierResponse ident: newOrderRequest.getIdentifiers()) {
 			AcmeIdentifier identDao = new AcmeIdentifier();
 			identDao.setAcmeIdentifierId(generateId());
 			identDao.setOrder(orderDao);

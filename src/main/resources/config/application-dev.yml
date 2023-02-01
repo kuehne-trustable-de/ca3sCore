@@ -34,7 +34,6 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
 #    url: jdbc:h2:file:./target/h2db/db/ca3s_jh;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
     url: jdbc:h2:mem:ca3sTestDB;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
-#    url: jdbc:h2:mem:ca3sTestDB
     username: root
     password:
 

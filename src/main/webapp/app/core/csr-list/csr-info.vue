@@ -102,17 +102,6 @@
                         <span>{{ icsrView.publicKeyAlgorithm }} / {{ icsrView.keyLength }} bits</span>
                     </dd>
 
-
-
-                    <dt v-if="icsrView.certificateId">
-                        <span v-text="$t('ca3SApp.cSR.certificate')">Certificate</span>
-                    </dt>
-                    <dd v-if="icsrView.certificateId">
-                        <div>
-                            <router-link :to="{name: 'CertificateView', params: {pipelineId: icsrView.certificateId}}">{{icsrView.certificateId}}</router-link>
-                        </div>
-                    </dd>
-
                     <dt v-if="icsrView.certificateId">
                         <span v-text="$t('ca3SApp.cSR.certificate')">Certificate</span>
                     </dt>

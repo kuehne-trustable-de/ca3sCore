@@ -19,7 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
+
 import javax.transaction.Transactional;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 
@@ -396,7 +398,8 @@ public class PipelineTestConfiguration {
         ProtectedContent pc = new ProtectedContent();
         pc.setType(ProtectedContentType.PASSWORD);
         pc.setRelationType(ContentRelationType.SCEP_PW);
-        pc.setLeftUsages(-1);
+        pc.setCreatedOn(Instant.now());
+        pc.setLeftUsages(-1L);
         pc.setValidTo(ProtectedContentUtil.MAX_INSTANT);
         pc.setDeleteAfter(ProtectedContentUtil.MAX_INSTANT);
         pc.setContentBase64( protectedContentUtil.protectString(SCEP_PASSWORD));

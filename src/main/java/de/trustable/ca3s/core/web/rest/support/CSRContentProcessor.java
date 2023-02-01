@@ -152,9 +152,10 @@ public class CSRContentProcessor {
                 List<String> messageList = new ArrayList<>();
 
                 BadKeysResult badKeysResult = badKeysService.checkContent(content);
+                p10ReqData.setBadKeysResult(badKeysResult);
                 if( badKeysResult.isValid()) {
                     LOG.debug("BadKeys is installed and returns OK");
-                    messageList.add("BadKeys check: no findings");
+//                    messageList.add("BadKeys check: no findings");
                 }else{
                     if( badKeysResult.getResponse() != null &&
                         badKeysResult.getResponse().getResults() != null &&
@@ -191,33 +192,20 @@ public class CSRContentProcessor {
 					p10ReqData.setCsrPublicKeyPresentInDB(!csrList.isEmpty());
 
                     List<String> messageList = new ArrayList<>();
-                    if( badKeysService.isInstalled()){
-                        BadKeysResult badKeysResult = badKeysService.checkContent(CryptoUtil.pkcs10RequestToPem(pkcs10CertificationRequest));
-                        if( badKeysResult.isValid()) {
-                            LOG.debug("BadKeys is installed and returns OK");
-                            messageList.add("BadKeys check: no findings");
-                        }else{
-                            if( badKeysResult.getResponse() != null &&
-                                badKeysResult.getResponse().getResults() != null &&
-                                badKeysResult.getResponse().getResults().getResultType() != null ) {
-                                messageList.add("ca3SApp.messages.badkeys." + badKeysResult.getResponse().getResults().getResultType());
+                    handleBadKeys(p10ReqData, pkcs10CertificationRequest, messageList);
 
-                            }
-                        }
-                    }else{
-                        LOG.debug("BadKeys not installed");
-                    }
-
-                    Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
-                    if( optPipeline.isPresent()) {
-                        if (pvUtil.isPipelineRestrictionsResolved(optPipeline.get(), p10ReqHolder, uploaded.getArAttributes(), messageList)) {
-                            LOG.debug("pipeline restrictions for pipeline '{}' solved", optPipeline.get().getName());
-                        }else {
-                            p10ReqData.setWarnings(messageList.toArray(new String[0]));
+                    if( uploaded.getPipelineId() != null) {
+                        Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
+                        if (optPipeline.isPresent()) {
+                            if (pvUtil.isPipelineRestrictionsResolved(optPipeline.get(), p10ReqHolder, uploaded.getArAttributes(), messageList)) {
+                                LOG.debug("pipeline restrictions for pipeline '{}' solved", optPipeline.get().getName());
+                            } else {
+                                p10ReqData.setWarnings(messageList.toArray(new String[0]));
 //                            return new ResponseEntity<>(p10ReqData, HttpStatus.BAD_REQUEST);
+                            }
+                        } else {
+                            LOG.info("pipeline id '{}' not found", uploaded.getPipelineId());
                         }
-                    }else{
-                        LOG.info("pipeline id '{}' not found", uploaded.getPipelineId());
                     }
 
                     if( findReplacementCandidates) {
@@ -302,5 +290,25 @@ public class CSRContentProcessor {
 
 		return new ResponseEntity<>(p10ReqData, HttpStatus.OK);
 	}
+
+    private void handleBadKeys(PkcsXXData p10ReqData, PKCS10CertificationRequest pkcs10CertificationRequest, List<String> messageList) throws IOException {
+        if( badKeysService.isInstalled()){
+            BadKeysResult badKeysResult = badKeysService.checkContent(CryptoUtil.pkcs10RequestToPem(pkcs10CertificationRequest));
+            p10ReqData.setBadKeysResult(badKeysResult);
+            if( badKeysResult.isValid()) {
+                LOG.debug("BadKeys is installed and returns OK");
+//                messageList.add("BadKeys check: no findings");
+            }else{
+                if( badKeysResult.getResponse() != null &&
+                    badKeysResult.getResponse().getResults() != null &&
+                    badKeysResult.getResponse().getResults().getResultType() != null ) {
+                    messageList.add("ca3SApp.messages.badkeys." + badKeysResult.getResponse().getResults().getResultType());
+
+                }
+            }
+        }else{
+            LOG.debug("BadKeys not installed");
+        }
+    }
 
 }

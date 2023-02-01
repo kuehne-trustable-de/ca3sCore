@@ -39,12 +39,14 @@ import de.trustable.ca3s.core.test.util.AcceptAllVerifier;
 import de.trustable.ca3s.core.test.util.X509Certificates;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.JCAManager;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 
 //@Disabled("Integration test fails for unknown reason, running it as a separate client succeeds. Maybe a classloader issue? ")
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("dev")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class ScepServiceIT{
 
 	public static final Logger LOG = LogManager.getLogger(ScepServiceIT.class);

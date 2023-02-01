@@ -33,13 +33,11 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequestUri;
 
 import java.net.URI;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 
+import de.trustable.ca3s.core.web.rest.util.RateLimiter;
 import org.jose4j.jwt.consumer.JwtContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,47 +79,57 @@ public class AuthorizationController extends AcmeController {
     final private boolean rejectGet;
     final private boolean iterateChallengesOnGet;
 
-
     final private ChallengeController challengeController;
 
     final private AcmeAuthorizationRepository authorizationRepository;
 
-   final private HttpServletRequest request;
+    private final RateLimiter rateLimiter;
+
+    final private HttpServletRequest request;
 
     public AuthorizationController(@Value("${ca3s.acme.reject.get:true}") boolean rejectGet,
                                    @Value("${ca3s.acme.iterate.challenges:true}") boolean iterateChallengesOnGet,
-                                    ChallengeController challengeController,
+                                   ChallengeController challengeController,
                                    AcmeAuthorizationRepository authorizationRepository,
-                                   HttpServletRequest request) {
+                                   HttpServletRequest request,
+                                   @Value("${ca3s.acme.ratelimit.second:0}") int rateSec,
+                                   @Value("${ca3s.acme.ratelimit.minute:20}") int rateMin,
+                                   @Value("${ca3s.acme.ratelimit.hour:0}") int rateHour) {
         this.rejectGet = rejectGet;
         this.iterateChallengesOnGet = iterateChallengesOnGet;
         this.challengeController = challengeController;
         this.authorizationRepository = authorizationRepository;
         this.request = request;
+
+        this.rateLimiter = new RateLimiter("Authorization", rateSec, rateMin, rateHour);
     }
 
     @RequestMapping(value = "/{authorizationId}", method = GET, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getAuthorization(@PathVariable final long authorizationId) {
+    public ResponseEntity<?> getAuthorization(@PathVariable final long authorizationId, @PathVariable final String realm) {
 
         LOG.info("Received Authorization request 'get' ");
 
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String key = (String) headerNames.nextElement();
-            String value = request.getHeader(key);
-            LOG.debug("header {} : {} ",key, value);
+        rateLimiter.checkRateLimit(authorizationId, realm);
+
+        if( LOG.isDebugEnabled()) {
+            Enumeration<String> headerNames = request.getHeaderNames();
+            while (headerNames.hasMoreElements()) {
+                String key = headerNames.nextElement();
+                String value = request.getHeader(key);
+                LOG.debug("header {} : {} ", key, value);
+            }
         }
 
         final HttpHeaders additionalHeaders = buildNonceHeader();
 
-        if( rejectGet ){
+        if (rejectGet) {
             return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).headers(additionalHeaders).build();
         }
 
         List<AcmeAuthorization> authList = authorizationRepository.findByAcmeAuthorizationId(authorizationId);
-        if(authList.isEmpty()) {
+        if (authList.isEmpty()) {
             return ResponseEntity.notFound().headers(additionalHeaders).build();
-        }else {
+        } else {
 
             AcmeAuthorization authDao = authList.get(0);
 
@@ -133,89 +141,91 @@ public class AuthorizationController extends AcmeController {
 
     }
 
-  @RequestMapping(value = "/{authorizationId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
-  public ResponseEntity<?> postAuthorization(@RequestBody final String requestBody,
-		  @PathVariable final long authorizationId, @PathVariable final String realm) {
+    @RequestMapping(value = "/{authorizationId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
+    public ResponseEntity<?> postAuthorization(@RequestBody final String requestBody,
+                                               @PathVariable final long authorizationId, @PathVariable final String realm) {
 
-	LOG.debug("Received Authorization request ");
+        LOG.debug("Received Authorization request ");
 
-	try {
-		JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
+        rateLimiter.checkRateLimit(authorizationId, realm);
 
-		AcmeAccount acctDao = checkJWTSignatureForAccount(context, realm);
+        try {
+            JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
 
-	    final HttpHeaders additionalHeaders = buildNonceHeader();
+            AcmeAccount acctDao = checkJWTSignatureForAccount(context, realm);
 
-		LOG.debug("Looking for Authorization id '{}'", authorizationId);
-		List<AcmeAuthorization> authList = authorizationRepository.findByAcmeAuthorizationId(authorizationId);
-		if(authList.isEmpty()) {
-			LOG.debug("Authorization id '{}' unknown", authorizationId);
-		    return ResponseEntity.notFound().headers(additionalHeaders).build();
+            final HttpHeaders additionalHeaders = buildNonceHeader();
 
-		}else {
+            LOG.debug("Looking for Authorization id '{}'", authorizationId);
+            List<AcmeAuthorization> authList = authorizationRepository.findByAcmeAuthorizationId(authorizationId);
+            if (authList.isEmpty()) {
+                LOG.debug("Authorization id '{}' unknown", authorizationId);
+                return ResponseEntity.notFound().headers(additionalHeaders).build();
 
-			AcmeAuthorization authDao = authList.get(0);
+            } else {
 
-			LOG.debug("Authorization id '{}' found", authorizationId);
+                AcmeAuthorization authDao = authList.get(0);
 
-			if( authDao.getOrder().getAccount().getAccountId() != acctDao.getAccountId()) {
-				LOG.warn("Account of signing key {} does not match account id {} associated to given auth{}", acctDao.getAccountId(), authDao.getOrder().getAccount().getAccountId(), authorizationId );
-				final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "Account / Auth mismatch",
-						BAD_REQUEST, "", AcmeController.NO_INSTANCE);
-				throw new AcmeProblemException(problem);
+                LOG.debug("Authorization id '{}' found", authorizationId);
 
-			}
+                if (!Objects.equals(authDao.getOrder().getAccount().getAccountId(), acctDao.getAccountId())) {
+                    LOG.warn("Account of signing key {} does not match account id {} associated to given auth{}", acctDao.getAccountId(), authDao.getOrder().getAccount().getAccountId(), authorizationId);
+                    final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "Account / Auth mismatch",
+                        BAD_REQUEST, "", AcmeController.NO_INSTANCE);
+                    throw new AcmeProblemException(problem);
 
-			AuthorizationResponse authResp = buildAuthResponse(authDao);
+                }
 
-		    return ResponseEntity.ok().headers(additionalHeaders).body(authResp);
-		}
+                AuthorizationResponse authResp = buildAuthResponse(authDao);
 
-	} catch (AcmeProblemException e) {
-	    return buildProblemResponseEntity(e);
-	} catch (Exception e) {
-		LOG.warn("unexpected problem", e);
-		throw e;
-	}
+                return ResponseEntity.ok().headers(additionalHeaders).body(authResp);
+            }
 
-  }
-
-private AuthorizationResponse buildAuthResponse(final AcmeAuthorization authDao) throws AcmeProblemException {
-
-	AuthorizationResponse authResp = new AuthorizationResponse();
-
-	AcmeOrder order = authDao.getOrder();
-	authResp.setExpires(DateUtil.asDate( order.getExpires()));
-
-	AcmeOrderStatus authStatus = AcmeOrderStatus.PENDING;
-	for( AcmeChallenge challDao: authDao.getChallenges()) {
-
-        if(iterateChallengesOnGet) {
-            challengeController.isChallengeSolved(challDao);
+        } catch (AcmeProblemException e) {
+            return buildProblemResponseEntity(e);
+        } catch (Exception e) {
+            LOG.warn("unexpected problem", e);
+            throw e;
         }
-        if( challDao.getStatus() == ChallengeStatus.VALID) {
-			authStatus = AcmeOrderStatus.VALID;
-		}
-	}
-	authResp.setStatus(authStatus);
 
-	Set<ChallengeResponse> challResp = new HashSet<>();
-	for( AcmeChallenge challengeDao: authDao.getChallenges()) {
-		ChallengeResponse challenge = new ChallengeResponse(challengeDao, locationUriOfChallenge(challengeDao.getId(), fromCurrentRequestUri()).toString());
-		challResp.add(challenge );
-	}
-	authResp.setChallenges(challResp);
+    }
 
-	IdentifierResponse identResp = new IdentifierResponse();
-	identResp.setType(authDao.getType());
-	identResp.setValue(authDao.getValue());
+    private AuthorizationResponse buildAuthResponse(final AcmeAuthorization authDao) throws AcmeProblemException {
 
-	authResp.setIdentifier(identResp);
-	return authResp;
-}
+        AuthorizationResponse authResp = new AuthorizationResponse();
 
-  private URI locationUriOfChallenge(final long challengeId, final UriComponentsBuilder uriBuilder) {
-	    return challengeResourceUriBuilderFrom(uriBuilder.path("../..")).path("/").path(Long.toString(challengeId)).build().normalize().toUri();
-	  }
+        AcmeOrder order = authDao.getOrder();
+        authResp.setExpires(DateUtil.asDate(order.getExpires()));
+
+        AcmeOrderStatus authStatus = AcmeOrderStatus.PENDING;
+        for (AcmeChallenge challDao : authDao.getChallenges()) {
+
+            if (iterateChallengesOnGet) {
+                challengeController.isChallengeSolved(challDao);
+            }
+            if (challDao.getStatus() == ChallengeStatus.VALID) {
+                authStatus = AcmeOrderStatus.VALID;
+            }
+        }
+        authResp.setStatus(authStatus);
+
+        Set<ChallengeResponse> challResp = new HashSet<>();
+        for (AcmeChallenge challengeDao : authDao.getChallenges()) {
+            ChallengeResponse challenge = new ChallengeResponse(challengeDao, locationUriOfChallenge(challengeDao.getId(), fromCurrentRequestUri()).toString());
+            challResp.add(challenge);
+        }
+        authResp.setChallenges(challResp);
+
+        IdentifierResponse identResp = new IdentifierResponse();
+        identResp.setType(authDao.getType());
+        identResp.setValue(authDao.getValue());
+
+        authResp.setIdentifier(identResp);
+        return authResp;
+    }
+
+    private URI locationUriOfChallenge(final long challengeId, final UriComponentsBuilder uriBuilder) {
+        return challengeResourceUriBuilderFrom(uriBuilder.path("../..")).path("/").path(Long.toString(challengeId)).build().normalize().toUri();
+    }
 
 }

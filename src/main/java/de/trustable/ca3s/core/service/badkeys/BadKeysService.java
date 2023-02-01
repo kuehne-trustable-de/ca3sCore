@@ -60,7 +60,7 @@ public class BadKeysService {
 
         File inputFile = null;
         try {
-            inputFile = File.createTempFile("badKeysInput", "pem");
+            inputFile = File.createTempFile("badKeysInput_", ".pem");
             try (FileOutputStream fos = new FileOutputStream(inputFile)) {
                 fos.write(pemContent.getBytes());
                 fos.flush();

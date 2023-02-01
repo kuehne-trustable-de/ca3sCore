@@ -40,13 +40,15 @@ public class NotificationService {
     private final PipelineUtil pipelineUtil;
     private final MailService mailService;
     private final AuditService auditService;
-    private final int nDaysExpiry;
+    private final int nDaysExpiryEE;
+    private final int nDaysExpiryCA;
     private final int nDaysPending;
 
     public NotificationService(CertificateRepository certificateRepo, CSRRepository csrRepo,
                                UserRepository userRepository, PipelineUtil pipelineUtil,
                                MailService mailService, AuditService auditService,
-                               @Value("${ca3s.schedule.ra-officer-notification.days-before-expiry:30}") int nDaysExpiry,
+                               @Value("${ca3s.schedule.ra-officer-notification.days-before-expiry.ee:30}") int nDaysExpiryEE,
+                               @Value("${ca3s.schedule.ra-officer-notification.days-before-expiry.ca:90}")int nDaysExpiryCA,
                                @Value("${ca3s.schedule.ra-officer-notification.days-pending:30}") int nDaysPending) {
         this.certificateRepo = certificateRepo;
         this.csrRepo = csrRepo;
@@ -54,7 +56,8 @@ public class NotificationService {
         this.pipelineUtil = pipelineUtil;
         this.mailService = mailService;
         this.auditService = auditService;
-        this.nDaysExpiry = nDaysExpiry;
+        this.nDaysExpiryEE = nDaysExpiryEE;
+        this.nDaysExpiryCA = nDaysExpiryCA;
         this.nDaysPending = nDaysPending;
     }
 
@@ -71,29 +74,34 @@ public class NotificationService {
 
         Instant now = Instant.now();
         Instant after = now;
-        Instant before = now.plus(nDaysExpiry, ChronoUnit.DAYS);
-        Instant relevantPendingStart = now.minus(nDaysPending, ChronoUnit.DAYS);
-        List<Certificate> expiringCertList = certificateRepo.findByValidTo(after, before);
+        Instant beforeCA = now.plus(nDaysExpiryCA, ChronoUnit.DAYS);
+        List<Certificate> expiringCAList = certificateRepo.findByTypeAndValidTo(false, after, beforeCA);
 
+        Instant beforeEE = now.plus(nDaysExpiryEE, ChronoUnit.DAYS);
+        List<Certificate> expiringEECertList = certificateRepo.findByTypeAndValidTo(true, after, beforeEE);
+
+        Instant relevantPendingStart = now.minus(nDaysPending, ChronoUnit.DAYS);
         List<CSR> pendingCsrList = csrRepo.findPendingByDay(relevantPendingStart, now);
 
-        if( expiringCertList.isEmpty() && pendingCsrList.isEmpty()) {
-            LOG.info("No expiring certificates in the next {} days / no pending requests requested in the last {} days. No need to send a notification eMail to RA officers", nDaysExpiry, nDaysPending);
+        if( expiringEECertList.isEmpty() && pendingCsrList.isEmpty()) {
+            LOG.info("No expiring certificates in the next {} days / no pending requests requested in the last {} days. No need to send a notification eMail to RA officers", nDaysExpiryEE, nDaysPending);
         }else {
-            LOG.info("#{} expiring certificate in the next {} days, #{} pending requests issued in the last {} days.", expiringCertList.size(), nDaysExpiry, pendingCsrList.size(), nDaysPending);
+            LOG.info("#{} expiring certificate in the next {} days, #{} pending requests issued in the last {} days.", expiringEECertList.size(), nDaysExpiryEE, pendingCsrList.size(), nDaysPending);
 
             // Process all CSRs for RA officers
             for( User raOfficer: raOfficerList) {
                 Locale locale = Locale.forLanguageTag(raOfficer.getLangKey());
                 Context context = new Context(locale);
-                context.setVariable("expiringCertList", expiringCertList);
+                context.setVariable("expiringCAList", expiringCAList);
+                context.setVariable("expiringEECertList", expiringEECertList);
                 context.setVariable("pendingCsrList", pendingCsrList);
                 context.setVariable("nDaysPending", nDaysPending);
-                context.setVariable("nDaysExpiry", nDaysExpiry);
+                context.setVariable("nDaysExpiryEE", nDaysExpiryEE);
+                context.setVariable("nDaysExpiryCA", nDaysExpiryCA);
                 try {
                     mailService.sendEmailFromTemplate(context, raOfficer, null, "mail/pendingReqExpiringCertificateEmail", "email.allExpiringCertificate.subject");
                 }catch (Throwable throwable){
-                    LOG.warn("Problem occured while sending a notificaton eMail to RA officer address '" + raOfficer.getEmail() + "'", throwable);
+                    LOG.warn("Problem occurred while sending a notification eMail to RA officer address '" + raOfficer.getEmail() + "'", throwable);
                     if(logNotification) {
                         auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(raOfficer.getEmail()));
                     }
@@ -112,8 +120,12 @@ public class NotificationService {
 
                 Locale locale = Locale.forLanguageTag(domainOfficer.getLangKey());
                 Context context = new Context(locale);
-                context.setVariable("expiringCertList", expiringCertList);
-                context.setVariable("pendingCsrList", pendingDomainCsrList);
+                context.setVariable("expiringCAList", expiringCAList);
+                context.setVariable("expiringEECertList", expiringEECertList);
+                context.setVariable("pendingCsrList", pendingCsrList);
+                context.setVariable("nDaysPending", nDaysPending);
+                context.setVariable("nDaysExpiryEE", nDaysExpiryEE);
+                context.setVariable("nDaysExpiryCA", nDaysExpiryCA);
                 try {
                     mailService.sendEmailFromTemplate(context, domainOfficer, null, "mail/pendingReqExpiringCertificateEmail", "email.allExpiringCertificate.subject");
                 }catch (Throwable throwable){
@@ -125,11 +137,11 @@ public class NotificationService {
             }
 
             if(logNotification) {
-                auditService.saveAuditTrace(auditService.createAuditTraceExpiryNotificationSent(expiringCertList.size()));
+                auditService.saveAuditTrace(auditService.createAuditTraceExpiryNotificationSent(expiringEECertList.size()));
             }
         }
 
-        return expiringCertList.size();
+        return expiringEECertList.size();
     }
 
 

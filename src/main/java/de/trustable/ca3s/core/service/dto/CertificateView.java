@@ -195,6 +195,9 @@ public class CertificateView implements Serializable {
     private String crlUrl;
 
     @CsvIgnore
+    private Long crlExpirationNotificationId;
+
+    @CsvIgnore
     private Instant crlNextUpdate;
 
     @CsvIgnore
@@ -923,5 +926,13 @@ public class CertificateView implements Serializable {
 
     public void setFullChainAvailable(Boolean fullChainAvailable) {
         isFullChainAvailable = fullChainAvailable;
+    }
+
+    public Long getCrlExpirationNotificationId() {
+        return crlExpirationNotificationId;
+    }
+
+    public void setCrlExpirationNotificationId(Long crlExpirationNotificationId) {
+        this.crlExpirationNotificationId = crlExpirationNotificationId;
     }
 }

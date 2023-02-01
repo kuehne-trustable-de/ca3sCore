@@ -402,7 +402,7 @@ public class ContentUploadProcessor {
 
             Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
 
-            KeyAlgoLength keyAlgoLength = uploaded.getKeyAlgoLength();
+            KeyAlgoLength keyAlgoLength = KeyAlgoLength.from(uploaded.getKeyAlgoLength());
             KeyPair keypair = generateKeyPair(keyAlgoLength);
 
             NamedValues[] certAttr = uploaded.getCertificateAttributes();
@@ -531,8 +531,8 @@ public class ContentUploadProcessor {
 
 
     private KeyPair generateKeyPair(KeyAlgoLength keyAlgoLength) throws NoSuchAlgorithmException {
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance(keyAlgoLength.algoName());
-        kpg.initialize(keyAlgoLength.keyLength());
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance(keyAlgoLength.getAlgoName());
+        kpg.initialize(keyAlgoLength.getKeyLength());
 		return kpg.generateKeyPair();
 	}
 

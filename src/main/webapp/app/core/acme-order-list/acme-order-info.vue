@@ -12,6 +12,15 @@
                     </dd>
 
                     <dt>
+                        <span v-text="$t('ca3SApp.acmeOrder.accountId')">Account Id</span>
+                    </dt>
+                    <dd>
+                        <div>
+                            <router-link :to="{name: 'AcmeAccountInfo', params: {accountId: acmeOrderView.accountId}}">{{acmeOrderView.accountId}}</router-link>
+                        </div>
+                    </dd>
+
+                    <dt>
                         <span v-text="$t('ca3SApp.aCMEAccount.realm')">Realm</span>
                     </dt>
                     <dd>
@@ -30,15 +39,20 @@
                     private String finalizeUrl;
                     private String certificateUrl;
 
-                    private Long certificateId;
-                    private Long accountId;
 -->
 
-                    <dt>
+                    <dt v-if="acmeOrderView.notBefore && acmeOrderView.notAfter">
                         <span v-text="$t('ca3SApp.acmeOrder.fromTo')">From / To</span>
                     </dt>
-                    <dd>
+                    <dd v-if="acmeOrderView.notBefore && acmeOrderView.notAfter">
                         <span v-if="acmeOrderView.notBefore">{{$d(Date.parse(acmeOrderView.notBefore), 'long') }}</span> -&gt; <span v-if="acmeOrderView.notAfter">{{$d(Date.parse(acmeOrderView.notAfter), 'long') }}</span>
+                    </dd>
+
+                    <dt>
+                        <span v-text="$t('ca3SApp.acmeOrder.expires')">Expires</span>
+                    </dt>
+                    <dd>
+                        <span v-if="acmeOrderView.expires">{{$d(Date.parse(acmeOrderView.expires), 'long') }}</span>
                     </dd>
 
                     <dt v-if="acmeOrderView.error">

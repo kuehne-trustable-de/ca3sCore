@@ -46,6 +46,9 @@ public class AcmeOrderResource {
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new acmeOrder, or with status {@code 400 (Bad Request)} if the acmeOrder has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
+    /*
+    creation support by acme interface, only
+
     @PostMapping("/acme-orders")
     public ResponseEntity<AcmeOrder> createAcmeOrder(@Valid @RequestBody AcmeOrder acmeOrder) throws URISyntaxException {
         log.debug("REST request to save AcmeOrder : {}", acmeOrder);
@@ -57,6 +60,7 @@ public class AcmeOrderResource {
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
+     */
 
     /**
      * {@code PUT  /acme-orders} : Updates an existing acmeOrder.
@@ -67,6 +71,9 @@ public class AcmeOrderResource {
      * or with status {@code 500 (Internal Server Error)} if the acmeOrder couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
+    /*
+    modification by acme interface, only
+
     @PutMapping("/acme-orders")
     public ResponseEntity<AcmeOrder> updateAcmeOrder(@Valid @RequestBody AcmeOrder acmeOrder) throws URISyntaxException {
         log.debug("REST request to update AcmeOrder : {}", acmeOrder);
@@ -78,6 +85,7 @@ public class AcmeOrderResource {
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, acmeOrder.getId().toString()))
             .body(result);
     }
+*/
 
     /**
      * {@code GET  /acme-orders} : get all the acmeOrders.
@@ -110,10 +118,15 @@ public class AcmeOrderResource {
      * @param id the id of the acmeOrder to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
+    /*
+    no deletion supported
+
     @DeleteMapping("/acme-orders/{id}")
     public ResponseEntity<Void> deleteAcmeOrder(@PathVariable Long id) {
         log.debug("REST request to delete AcmeOrder : {}", id);
         acmeOrderService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
+
+     */
 }

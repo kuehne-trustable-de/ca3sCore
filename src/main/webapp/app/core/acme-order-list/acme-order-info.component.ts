@@ -10,7 +10,7 @@ import CopyClipboardButton from '@/shared/clipboard/clipboard.vue';
 import HelpTag from '@/core/help/help-tag.vue';
 import ChallengesTag from './challenges-tag.vue';
 
-import { IAcmeOrderView, INamedValue } from '@/shared/model/transfer-object.model';
+import { IAcmeOrderView } from '@/shared/model/transfer-object.model';
 
 @Component({
   components: {

@@ -5,24 +5,44 @@
             <b-navbar-toggle right class="jh-navbar-toggler d-lg-none float-right" href="javascript:void(0);"  data-toggle="collapse" target="header-tabs" aria-expanded="false" aria-label="Toggle navigation">
                 <font-awesome-icon icon="bars" />
             </b-navbar-toggle>
-            <b-navbar-brand :style="headerColor" class="logo float-left" b-link to="/">
-                <img src='/app/resource/logo.png'/>
-                <!--span class="navbar-version">{{version}}</span-->
-            </b-navbar-brand>
-             <b-navbar-brand class="logo float-left" b-link to="/" v-if="authenticated">
+
+            <b-navbar-nav class="ml-auto">
+                <b-nav-item-dropdown
+                    id="about-menu"
+                    active-class="active"
+                    class="pointer">
+
+                    <span slot="button-content" class="navbar-dropdown-menu">
+                        <img src='/app/resource/logo.png'/>
+                    </span>
+
+                    <b-dropdown-item to="/">
+                        <font-awesome-icon icon="home" />
+                        <span v-text="$t('global.menu.home')">Home</span>
+                    </b-dropdown-item>
+
+                    <b-dropdown-item  to="/core/info">
+                        <font-awesome-icon icon="info-circle" />
+                        <span v-text="$t('global.menu.admin.info')">Info</span>
+                    </b-dropdown-item>
+
+
+                    <b-dropdown-item :to="{ name: 'HelpTarget', params: {hash: '', showNavBar: 'false', lang: $store.getters.currentLanguage}}" tag="b-dropdown-item" id="help" >
+                        <font-awesome-icon icon="question-circle"/>
+                        <span v-text="$t('ca3SApp.help.title')">Help</span>
+                    </b-dropdown-item>
+
+                </b-nav-item-dropdown>
+
+            </b-navbar-nav>
+
+            <b-navbar-brand class="logo float-left" b-link to="/" v-if="authenticated">
                 <span v-if="username" v-text="$t('home.logged.message', { 'username': username, 'roles': roles})" class="navbar-version">"{{username}}", You are logged in as "{{roles}}"</span>
             </b-navbar-brand>
         </div>
 
         <b-collapse v-if="showNavBar" is-nav id="header-tabs">
             <b-navbar-nav class="ml-auto">
-
-                <b-nav-item to="/" exact>
-                    <span>
-                        <font-awesome-icon icon="home" />
-                        <span v-text="$t('global.menu.home')">Home</span>
-                    </span>
-                </b-nav-item>
 
                 <b-nav-item v-if="!authenticated" to="/pkcsxx" exact>
                     <span>
@@ -77,62 +97,10 @@
                         <span v-text="$t('global.menu.config.pipeline')">Pipeline</span>
                     </b-dropdown-item>
 
-                    <!--b-dropdown-item to="/ca-connector-config">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.caConnectorConfig')">CAConnectorConfig</span>
-                    </b-dropdown-item>
-                    <b-dropdown-item to="/certificate-attribute">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.certificateAttribute')">CertificateAttribute</span>
-                    </b-dropdown-item>
-                    <b-dropdown-item to="/certificate">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.certificate')">Certificate</span>
-                    </b-dropdown-item>
-                    <b-dropdown-item to="/csr">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.csr')">CSR</span>
-                    </b-dropdown-item>
-                    <b-dropdown-item to="/csr-attribute">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.csrAttribute')">CsrAttribute</span>
-                    </b-dropdown-item>
-                    <b-dropdown-item to="/rdn">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.rdn')">RDN</span>
-                    </b-dropdown-item>
-                    <b-dropdown-item to="/rdn-attribute">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.rdnAttribute')">RDNAttribute</span>
-                    </b-dropdown-item>
-                    <b-dropdown-item to="/request-attribute">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.requestAttribute')">RequestAttribute</span>
-                    </b-dropdown-item>
-                    <b-dropdown-item to="/request-attribute-value">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.requestAttributeValue')">RequestAttributeValue</span>
-                    </b-dropdown-item>
-                    <b-dropdown-item to="/pipeline">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.pipeline')">Pipeline</span>
-                    </b-dropdown-item>
-                    <b-dropdown-item to="/pipeline-attribute">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.pipelineAttribute')">PipelineAttribute</span>
-                    </b-dropdown-item -->
                     <b-dropdown-item to="/acme-account-list">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.acmeAccount')">AcmeAccount</span>
                     </b-dropdown-item>
-                    <!--b-dropdown-item to="/acme-account">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.acmeAccount')">AcmeAccount</span>
-                    </b-dropdown-item>
-                    <b-dropdown-item to="/acme-contact">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.acmeContact')">AcmeContact</span>
-                    </b-dropdown-item-->
                     <b-dropdown-item to="/acme-order-list">
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.acmeOrder')">AcmeOrder</span>
@@ -141,34 +109,6 @@
                         <font-awesome-icon icon="asterisk" />
                         <span v-text="$t('global.menu.entities.scepOrder')">ScepOrder</span>
                     </b-dropdown-item>
-                    <!--b-dropdown-item to="/acme-order">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.acmeOrder')">AcmeOrder</span>
-                    </b-dropdown-item>
-                    <b-dropdown-item to="/acme-challenge">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.acmeChallenge')">AcmeChallenge</span>
-                    </b-dropdown-item>
-                    <b-dropdown-item to="/imported-url">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.importedUrl')">ImportedURL</span>
-                    </b-dropdown-item>
-                    <b-dropdown-item to="/protected-content">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.protectedContent')">ProtectedContent</span>
-                    </b-dropdown-item>
-                    <b-dropdown-item to="/acme-identifier">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.acmeIdentifier')">AcmeIdentifier</span>
-                    </b-dropdown-item>
-                    <b-dropdown-item to="/acme-authorization">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.acmeAuthorization')">AcmeAuthorization</span>
-                    </b-dropdown-item>
-                    <b-dropdown-item to="/acme-nonce">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.acmeNonce')">AcmeNonce</span>
-                    </b-dropdown-item-->
                     <b-dropdown-item to="/bpmn-list">
                         <font-awesome-icon icon="receipt" />
                         <span v-text="$t('global.menu.entities.bpnmProcessInfo')">BPNMProcessInfo</span>
@@ -177,11 +117,6 @@
                         <font-awesome-icon icon="map" />
                         <span v-text="$t('global.menu.entities.requestProxyConfig')">RequestProxyConfig</span>
                     </b-dropdown-item>
-                    <!--b-dropdown-item to="/user-preference">
-                        <font-awesome-icon icon="asterisk" />
-                        <span v-text="$t('global.menu.entities.userPreference')">UserPreference</span>
-                    </b-dropdown-item-->
-                    <!-- jhipster-needle-add-entity-to-menu - JHipster will add entities to the menu here -->
                 </b-nav-item-dropdown>
                 <b-nav-item-dropdown
                     id="admin-menu"
@@ -220,19 +155,9 @@
                         <span v-text="$t('global.menu.admin.audits')">Audit List</span>
                     </b-dropdown-item>
 
-                    <!--b-dropdown-item  to="/admin/audits">
-                        <font-awesome-icon icon="bell" />
-                        <span v-text="$t('global.menu.admin.audits')">Audits</span>
-                    </b-dropdown-item-->
-
                     <b-dropdown-item  to="/admin/logs">
                         <font-awesome-icon icon="tasks" />
                         <span v-text="$t('global.menu.admin.logs')">Logs</span>
-                    </b-dropdown-item>
-
-                    <b-dropdown-item  to="/admin/info">
-                        <font-awesome-icon icon="info-circle" />
-                        <span v-text="$t('global.menu.admin.info')">Info</span>
                     </b-dropdown-item>
 
                     <b-dropdown-item  to="/admin/notification">
@@ -249,16 +174,6 @@
                         <span v-text="$t('global.menu.admin.database')">Database</span>
                     </b-dropdown-item>
                 </b-nav-item-dropdown>
-                <!--b-nav-item-dropdown id="languagesnavBarDropdown" right v-if="languages && Object.keys(languages).length > 1">
-                    <span slot="button-content">
-                        <font-awesome-icon icon="flag" />
-                        <span v-text="$t('global.menu.language')">Language</span>
-                    </span>
-                    <b-dropdown-item v-for="(value, key) in languages" :key="`lang-${key}`" v-on:click="changeLanguage(key);"
-                        :class="{ active: isActiveLanguage(key)}">
-                        {{value.name}}
-                    </b-dropdown-item>
-                </b-nav-item-dropdown-->
 
                 <b-nav-item-dropdown
                     right
@@ -303,10 +218,6 @@
                     <b-dropdown-item to="/register" tag="b-dropdown-item" id="register" v-if="!authenticated">
                         <font-awesome-icon icon="user-plus" />
                         <span v-text="$t('global.menu.account.register')">Register</span>
-                    </b-dropdown-item>
-                    <b-dropdown-item :to="{ name: 'HelpTarget', params: {hash: '', showNavBar: 'false', lang: $store.getters.currentLanguage}}" tag="b-dropdown-item" id="help" >
-                        <font-awesome-icon icon="question-circle"/>
-                        <span v-text="$t('ca3SApp.help.title')">Help</span>
                     </b-dropdown-item>
                 </b-nav-item-dropdown>
             </b-navbar-nav>

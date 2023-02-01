@@ -21,6 +21,7 @@ public class BadKeysResultDetails implements Serializable {
     private BadKeysResultInvalid pattern;
     private BadKeysResultFermat fermat;
     private String resultType = "valid";
+    private String vulnerabilityUrl;
 
     public BadKeysResultDetails(JsonObject jsonObject){
 
@@ -35,6 +36,7 @@ public class BadKeysResultDetails implements Serializable {
         if( jsonObject.has("roca")){
             roca = new BadKeysResultInvalid(jsonObject.getAsJsonObject("roca"));
             resultType = "roca";
+            vulnerabilityUrl = "https://crocs.fi.muni.cz/public/papers/rsa_ccs17";
         }
         if( jsonObject.has("pattern")){
             pattern = new BadKeysResultInvalid(jsonObject.getAsJsonObject("pattern"));
@@ -44,6 +46,7 @@ public class BadKeysResultDetails implements Serializable {
         if( jsonObject.has("fermat")){
             fermat = new BadKeysResultFermat(jsonObject.getAsJsonObject("fermat"));
             resultType = "fermat";
+            vulnerabilityUrl = "https://fermatattack.secvuln.info";
         }
 
     }

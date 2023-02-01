@@ -148,7 +148,7 @@ public final class AcmeOrderSpecifications {
                 logger.debug("objArr len {}, colList len {}", objArr.length, colList.size());
             }
 
-            AcmeOrderView acmeOrderView =  buildAcmeOrderViewFromObjArr(colList, objArr, acmeOrderRepository, acmeOrderUtil);
+            AcmeOrderView acmeOrderView = buildAcmeOrderViewFromObjArr(colList, objArr, acmeOrderRepository, acmeOrderUtil);
             acmeOrderViewList.add(acmeOrderView);
         }
 

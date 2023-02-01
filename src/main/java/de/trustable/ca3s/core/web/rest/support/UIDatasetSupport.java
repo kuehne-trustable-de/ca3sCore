@@ -127,13 +127,13 @@ public class UIDatasetSupport {
     }
 
     /**
-     * {@code GET  /pipeline/getActiveWebPipelines} : get all active pipelines for web upload.
+     * {@code GET  /pipeline/activeWeb} : get all active pipelines for web upload.
      *
      * @return the {@link Pipeline} .
      */
-    @GetMapping("/pipeline/getActiveWebPipelines")
+    @GetMapping("/pipeline/activeWeb")
     @Transactional
-    public List<PipelineView> getActiveWebPipelines() {
+    public List<PipelineView> activeWeb() {
 
         List<PipelineView> pvList = new ArrayList<>();
         if(SecurityUtils.isAuthenticated()){
@@ -160,7 +160,7 @@ public class UIDatasetSupport {
     List<PipelineView> pipelinesToPipelineViews( List<Pipeline> pipelineList) {
 
         List<PipelineView> pvList = new ArrayList<>();
-        pipelineList.forEach(new Consumer<Pipeline>() {
+        pipelineList.forEach(new Consumer<>() {
             @Override
             public void accept(Pipeline p) {
                 LOG.debug("pipeline {} has #{} attributes", p.getName(), p.getPipelineAttributes().size());
@@ -175,19 +175,36 @@ public class UIDatasetSupport {
         PipelineView pv_LaxRestrictions = new PipelineView();
         pv_LaxRestrictions.setRestriction_C(new RDNRestriction());
         pv_LaxRestrictions.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv_LaxRestrictions.getRestriction_C().setRdnName("C");
         pv_LaxRestrictions.setRestriction_CN(new RDNRestriction());
         pv_LaxRestrictions.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
+        pv_LaxRestrictions.getRestriction_CN().setRdnName("CN");
         pv_LaxRestrictions.setRestriction_L(new RDNRestriction());
         pv_LaxRestrictions.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv_LaxRestrictions.getRestriction_L().setRdnName("L");
         pv_LaxRestrictions.setRestriction_O(new RDNRestriction());
         pv_LaxRestrictions.getRestriction_O().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv_LaxRestrictions.getRestriction_O().setRdnName("O");
         pv_LaxRestrictions.setRestriction_OU(new RDNRestriction());
         pv_LaxRestrictions.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
+        pv_LaxRestrictions.getRestriction_OU().setRdnName("OU");
         pv_LaxRestrictions.setRestriction_S(new RDNRestriction());
         pv_LaxRestrictions.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv_LaxRestrictions.getRestriction_S().setRdnName("ST");
 
         pv_LaxRestrictions.setRestriction_SAN(new RDNRestriction());
         pv_LaxRestrictions.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
+        pv_LaxRestrictions.getRestriction_SAN().setRdnName("SAN");
+
+        RDNRestriction[] rdnRestrictArr = new RDNRestriction[7];
+        rdnRestrictArr[0] = pv_LaxRestrictions.getRestriction_C();
+        rdnRestrictArr[1] = pv_LaxRestrictions.getRestriction_CN();
+        rdnRestrictArr[2] = pv_LaxRestrictions.getRestriction_L();
+        rdnRestrictArr[3] = pv_LaxRestrictions.getRestriction_O();
+        rdnRestrictArr[4] = pv_LaxRestrictions.getRestriction_OU();
+        rdnRestrictArr[5] = pv_LaxRestrictions.getRestriction_S();
+        rdnRestrictArr[6] = pv_LaxRestrictions.getRestriction_SAN();
+        pv_LaxRestrictions.setRdnRestrictions(rdnRestrictArr);
 
         pv_LaxRestrictions.setApprovalRequired(false);
 
@@ -195,6 +212,8 @@ public class UIDatasetSupport {
         pv_LaxRestrictions.setName("noName");
         pv_LaxRestrictions.setType(PipelineType.WEB);
         pv_LaxRestrictions.setUrlPart("noUrl");
+
+        pv_LaxRestrictions.setId((long) Integer.MAX_VALUE);
 
         return pv_LaxRestrictions;
     }

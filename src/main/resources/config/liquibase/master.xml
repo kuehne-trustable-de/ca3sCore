@@ -119,5 +119,13 @@
 
     <include file="config/liquibase/changelog/20221006170000_added_columns_Challenge.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/20221206180000_removed_entity_constraint_AuditTrace.xml" relativeToChangelogFile="false"/>
+
+    <include file="config/liquibase/changelog/20221207171215_added_entity_CRLExpirationNotification.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20221207171216_added_entity_TimedElementNotification.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20221207171216_added_entity_constraints_TimedElementNotification.xml" relativeToChangelogFile="false"/>
+
+    <include file="config/liquibase/changelog/20221215170000_added_column_ProtectedContent.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>

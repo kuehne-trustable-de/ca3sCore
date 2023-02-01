@@ -98,7 +98,7 @@ public class ProtectedContentUtil {
                                                    ProtectedContentType pct,
                                                    ContentRelationType crt,
                                                    long connectionId,
-                                                   int leftUsages,
+                                                   long leftUsages,
                                                    Instant validTo) {
 
         ProtectedContent pc = new ProtectedContent();
@@ -107,6 +107,7 @@ public class ProtectedContentUtil {
         pc.setType(pct);
         pc.setRelationType(crt);
         pc.setRelatedId(connectionId);
+        pc.setCreatedOn(Instant.now());
         pc.setLeftUsages(leftUsages);
         pc.setValidTo(validTo);
         pc.setDeleteAfter(validTo.plus(1, ChronoUnit.DAYS));

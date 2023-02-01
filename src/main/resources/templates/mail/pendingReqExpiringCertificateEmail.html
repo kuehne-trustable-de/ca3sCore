@@ -28,14 +28,13 @@
         <p th:text="#{email.notification.greeting.RA.2}">
             this is the daily notification eMail informing about pending requests and expiring certificates.
         </p>
-
-        <p th:if="${#lists.isEmpty(pendingCsrList) and #lists.isEmpty(expiringCertList)}" th:text="#{email.notification.greeting.RA.empty.set(${nDaysExpiry},${nDaysPending})}">
+        <p th:if="${#lists.isEmpty(pendingCsrList) and #lists.isEmpty(expiringEECertList) and #lists.isEmpty(expiringCAList)}" th:text="#{email.notification.greeting.RA.empty.set(${nDaysExpiryCA},${nDaysExpiryEE},${nDaysPending})}">
             Currently there are no pending requests and or expiring certificates.
         </p>
 
         <th:block th:unless="${#lists.isEmpty(pendingCsrList)}">
             <p/>
-            <h2 th:text="#{email.pending.requests.header}">Pending requests</h2>
+            <h2 th:text="#{email.expiring.ee.certificates.header}">Pending requests</h2>
             <table>
                 <tr>
                     <th>Subject</th>
@@ -55,9 +54,9 @@
             </table>
         </th:block>
 
-        <th:block th:unless="${#lists.isEmpty(expiringCertList)}">
+        <th:block th:unless="${#lists.isEmpty(expiringCAList)}">
             <p/>
-            <h2 th:text="#{email.expiring.certificates.header}">Expiring certificates</h2>
+            <h2 th:text="#{email.expiring.ca.certificates.header(${nDaysExpiryCA})}">Expiring CAs</h2>
             <table>
                 <tr>
                     <th th:text="#{email.cert.expiring.on}">expiring on</th>
@@ -66,7 +65,28 @@
                     <th>SANs</th>
                     <th>details</th>
                 </tr>
-                <tr th:each="cert : ${expiringCertList}">
+                <tr th:each="cert : ${expiringCAList}">
+                    <td th:text="${#dates.format(cert.validTo, 'dd.MM.yyyy, HH:mm')}"></td>
+                    <td th:text="${cert.subject}"></td>
+                    <td th:text="${cert.serial}"></td>
+                    <td th:text="${cert.sans}"></td>
+                    <td><a th:with="url=(@{|${baseUrl}/cert-info?certificateId=${cert.id}|})" th:href="${url}" th:text="#{email.notification.cert.RA.link}">Certificate details</a></td>
+                </tr>
+            </table>
+        </th:block>
+
+        <th:block th:unless="${#lists.isEmpty(expiringEECertList)}">
+            <p/>
+            <h2 th:text="#{email.expiring.ee.certificates.header(${nDaysExpiryEE})}">Expiring certificates</h2>
+            <table>
+                <tr>
+                    <th th:text="#{email.cert.expiring.on}">expiring on</th>
+                    <th>CN</th>
+                    <th>Serial</th>
+                    <th>SANs</th>
+                    <th>details</th>
+                </tr>
+                <tr th:each="cert : ${expiringEECertList}">
                     <td th:text="${#dates.format(cert.validTo, 'dd.MM.yyyy, HH:mm')}"></td>
                     <td th:text="${cert.subject}"></td>
                     <td th:text="${cert.serial}"></td>

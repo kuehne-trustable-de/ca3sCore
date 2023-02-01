@@ -1,21 +1,33 @@
 package de.trustable.ca3s.core.web.rest.data;
 
-import java.util.Set;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.puppetlabs.ssl_utils.ExtensionsUtils;
+import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.util.AlgorithmInfo;
 import de.trustable.util.OidNameMapper;
-import org.bouncycastle.asn1.x509.GeneralName;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.util.Pkcs10RequestHolder;
+import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.pkcs.Attribute;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
+import org.bouncycastle.asn1.x509.Extensions;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class Pkcs10RequestHolderShallow {
 
+    private final Logger LOG = LoggerFactory.getLogger(Pkcs10RequestHolderShallow.class);
 
-	@JsonProperty("signingAlgorithmName")
+
+    @JsonProperty("signingAlgorithmName")
 	private String signingAlgorithmName;
 
 	@JsonProperty("isCSRValid")
@@ -50,7 +62,10 @@ public class Pkcs10RequestHolderShallow {
 
 //	private Attribute[] reqAttributes;
 
-	@JsonProperty("publicKeyAlgorithmName")
+    @JsonProperty("csrExtensionRequests")
+	private CsrReqAttribute[] csrExtensionRequests;
+
+    @JsonProperty("publicKeyAlgorithmName")
 	private String publicKeyAlgorithmName;
 
 	public Pkcs10RequestHolderShallow( Pkcs10RequestHolder p10ReqHolder) {
@@ -80,6 +95,31 @@ public class Pkcs10RequestHolderShallow {
 		for( GeneralName gn : sanSet) {
 			this.sans[i++] = CSRUtil.getGeneralNameDescription(gn);
 		}
+
+        List<CsrReqAttribute> csrReqAttributeList = new ArrayList<>();
+
+        try {
+            List<Map<String, Object>> extList = ExtensionsUtils.getExtensionList(p10ReqHolder.getP10Req());
+            for (Map<String, Object> extMap : extList) {
+                csrReqAttributeList.add(new CsrReqAttribute(extMap));
+            }
+
+        } catch (IOException e) {
+            LOG.info("problem parsing CSR extensions", e);
+        }
+/*
+        Attribute[] attributes = p10ReqHolder.getP10Req().getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest);
+        for (Attribute attribute : attributes) {
+            for (ASN1Encodable value : attribute.getAttributeValues()) {
+                Extensions extensions = Extensions.getInstance(value);
+                for (ASN1ObjectIdentifier asn1ObjectIdentifier : extensions.getExtensionOIDs()) {
+
+                    csrReqAttributeList.add(new CsrReqAttribute(extensions.getExtension(asn1ObjectIdentifier)));
+                }
+            }
+        }
+*/
+        this.setCsrExtensionRequests(csrReqAttributeList.toArray(new CsrReqAttribute[0]));
 	}
 
 	public String getSigningAlgorithmName() {
@@ -128,5 +168,13 @@ public class Pkcs10RequestHolderShallow {
 
     public String getMfgName() {
         return mfgName;
+    }
+
+    public CsrReqAttribute[] getCsrExtensionRequests() {
+        return csrExtensionRequests;
+    }
+
+    public void setCsrExtensionRequests(CsrReqAttribute[] csrExtensionRequests) {
+        this.csrExtensionRequests = csrExtensionRequests;
     }
 }

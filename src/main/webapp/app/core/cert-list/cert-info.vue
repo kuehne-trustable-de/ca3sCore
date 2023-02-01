@@ -134,6 +134,10 @@
                         </dt>
                         <dd v-if="certificateView.crlUrl">
                             <span name="crlUrl">{{certificateView.crlUrl}}</span>
+
+                            <!--a href="crlExpiryNotification" id="crlExpiryNotification"
+                               @click.prevent="crlExpiryNotification(certificateView.id)" >#########</a-->
+
                         </dd>
 
                         <dt>

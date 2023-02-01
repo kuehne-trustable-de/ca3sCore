@@ -45,7 +45,7 @@ entity CertificateComment{
 entity CertificateAttribute {
 //	attributeId Long required
     name String required
-    value_ String
+    value0 String
 }
 
 entity Certificate {
@@ -120,7 +120,7 @@ entity CSR{
 entity CsrAttribute{
 
   	name String required
-  	value_ String
+  	value0 String
 }
 
 enum ProtectedContentType {
@@ -136,8 +136,24 @@ entity ProtectedContent{
 
    	contentBase64 TextBlob required
   	type ProtectedContentType required
+
+	leftUsages Long
+	createdOn Instant
+	validTo Instant
+	deleteAfter Instant
+
   	relationType ContentRelationType
   	relatedId Long
+}
+
+
+@skipClient
+entity CRLExpirationNotification{
+
+  	crlUrl String required
+  	notifyBefore Duration required
+	notifyUntil Instant required
+
 }
 
 enum TimedElementNotificationType {
@@ -222,7 +238,7 @@ entity Pipeline{
 entity PipelineAttribute{
 
   	name String required
-  	value_ String required
+  	value0 String required
 }
 
 enum BPMNProcessType {
@@ -336,7 +352,7 @@ entity AcmeIdentifier {
 // "dns" AcmeIdentifier type. See the registry defined in Section 9.7.7 for any
 // others.
 	type String required
-	value_ String required
+	value0 String required
 
 }
 
@@ -349,7 +365,7 @@ entity AcmeAuthorization {
 
 	type String required
 
-	value_ String required
+	value0 String required
 
 }
 
@@ -363,7 +379,7 @@ entity AcmeChallenge {
 
 	challengeId Long required
 	type String required
-	value_ String required
+	value0 String required
 	token String required
 	validated Instant
 	status ChallengeStatus required
@@ -474,7 +490,7 @@ relationship OneToOne{
 paginate Certificate with infinite-scroll
 // paginate Job with pagination
 
-// Use Data Transfert Objects (DTO)
+// Use Data Transfer Objects (DTO)
 // dto * with mapstruct
 
 // Set service options to all except few

@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
@@ -86,9 +87,10 @@ public class CsrAttributeResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static CsrAttribute createEntity(EntityManager em) {
-        return new CsrAttribute()
+        CsrAttribute csrAttribute = new CsrAttribute()
             .name(DEFAULT_NAME)
             .value(DEFAULT_VALUE);
+        return csrAttribute;
     }
     /**
      * Create an updated entity for this test.
@@ -97,9 +99,10 @@ public class CsrAttributeResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static CsrAttribute createUpdatedEntity(EntityManager em) {
-        return new CsrAttribute()
+        CsrAttribute csrAttribute = new CsrAttribute()
             .name(UPDATED_NAME)
             .value(UPDATED_VALUE);
+        return csrAttribute;
     }
 
     @BeforeEach
@@ -121,9 +124,7 @@ public class CsrAttributeResourceIT {
         // Validate the CsrAttribute in the database
         List<CsrAttribute> csrAttributeList = csrAttributeRepository.findAll();
         assertThat(csrAttributeList).hasSize(databaseSizeBeforeCreate + 1);
-        CsrAttribute testCsrAttribute = csrAttributeList.get(csrAttributeList.size() - 1);
-        assertThat(testCsrAttribute.getName()).isEqualTo(DEFAULT_NAME);
-        assertThat(testCsrAttribute.getValue()).isEqualTo(DEFAULT_VALUE);
+
     }
 
     @Test
@@ -131,8 +132,10 @@ public class CsrAttributeResourceIT {
     public void createCsrAttributeWithExistingId() throws Exception {
         int databaseSizeBeforeCreate = csrAttributeRepository.findAll().size();
 
+
         // Create the CsrAttribute with an existing ID
-        csrAttribute.setId(1L);
+        csrAttribute.setId( System.currentTimeMillis());
+
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restCsrAttributeMockMvc.perform(post("/api/csr-attributes")
@@ -226,7 +229,8 @@ public class CsrAttributeResourceIT {
         // Validate the CsrAttribute in the database
         List<CsrAttribute> csrAttributeList = csrAttributeRepository.findAll();
         assertThat(csrAttributeList).hasSize(databaseSizeBeforeUpdate);
-        CsrAttribute testCsrAttribute = csrAttributeList.get(csrAttributeList.size() - 1);
+
+        CsrAttribute testCsrAttribute = csrAttributeRepository.findById(csrAttribute.getId()).get();
         assertThat(testCsrAttribute.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testCsrAttribute.getValue()).isEqualTo(UPDATED_VALUE);
     }

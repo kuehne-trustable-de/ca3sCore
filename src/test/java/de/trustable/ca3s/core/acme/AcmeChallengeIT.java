@@ -10,6 +10,7 @@ import org.shredzone.acme4j.Order;
 import org.shredzone.acme4j.challenge.Dns01Challenge;
 import org.shredzone.acme4j.challenge.Http01Challenge;
 import org.shredzone.acme4j.exception.AcmeException;
+import org.shredzone.acme4j.exception.AcmeRateLimitedException;
 import org.shredzone.acme4j.exception.AcmeServerException;
 import org.shredzone.acme4j.util.CSRBuilder;
 import org.shredzone.acme4j.util.KeyPairUtils;
@@ -360,6 +361,72 @@ public class AcmeChallengeIT {
         account.deactivate();
 
         Assertions.assertEquals(Status.DEACTIVATED, account.getStatus(), "account status 'deactivated' expected");
+    }
+
+    @Disabled
+    @Test
+    public void testHttpChallengeRateLimit() throws AcmeException, IOException, InterruptedException {
+
+        Session session = new Session(dirUrl);
+        Metadata meta = session.getMetadata();
+
+        URI tos = meta.getTermsOfService();
+        URL website = meta.getWebsite();
+        LOG.debug("TermsOfService {}, website {}", tos, website);
+
+        KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
+
+        Account account = new AccountBuilder()
+            .addContact("mailto:acmeTest@ca3s.org")
+            .agreeToTermsOfService()
+            .useKeyPair(accountKeyPair)
+            .create(session);
+        Assertions.assertNotNull(account, "created account MUST NOT be null");
+
+        URL accountLocationUrl = account.getLocation();
+        LOG.debug("accountLocationUrl {}", accountLocationUrl);
+
+
+        Account retrievedAccount = new AccountBuilder()
+            .onlyExisting()         // Do not create a new account
+            .useKeyPair(accountKeyPair)
+            .create(session);
+
+        Assertions.assertNotNull(retrievedAccount, "created account MUST NOT be null");
+        Assertions.assertEquals(accountLocationUrl, retrievedAccount.getLocation(), "expected to find the same account (URL)");
+
+        // #########################
+        // valid http endpoint
+        // #########################
+
+        Order order = account.newOrder()
+            .domains("localhost")
+            .notAfter(Instant.now().plus(Duration.ofDays(1L)))
+            .create();
+
+        System.out.println("Auth: " + order.getAuthorizations().get(0).toString());
+
+        for (Authorization auth : order.getAuthorizations()) {
+            LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
+            String realmPart = "/" + PipelineTestConfiguration.ACME_REALM + "/";
+            assertTrue(auth.getLocation().toString().contains(realmPart));
+
+            if (auth.getStatus() == Status.PENDING) {
+
+                Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
+
+                try {
+                    for (int i = 0; i < 100; i++) {
+                        // DoS the endpoint
+                        challenge.trigger();
+                    }
+                    fail("AcmeRateLimitedException expected");
+                }catch (AcmeRateLimitedException acmeRateLimitedException){
+                    // as expected
+                    LOG.debug( "AcmeRateLimitedException: {}", acmeRateLimitedException);
+                }
+            }
+        }
     }
 
     @Disabled

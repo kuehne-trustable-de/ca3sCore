@@ -102,7 +102,7 @@ public class CRLExpirationNotificationResource {
     public ResponseEntity<CRLExpirationNotification> updateCRLExpirationNotification(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody CRLExpirationNotification cRLExpirationNotification
-    ) throws URISyntaxException {
+    ) {
         log.debug("REST request to update CRLExpirationNotification : {}, {}", id, cRLExpirationNotification);
         if (cRLExpirationNotification.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");

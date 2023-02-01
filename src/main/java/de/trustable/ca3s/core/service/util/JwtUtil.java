@@ -10,6 +10,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64.Encoder;
 
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import de.trustable.ca3s.core.service.dto.acme.*;
 import org.apache.commons.codec.binary.Base64;
 // import org.apache.tomcat.util.codec.binary.Base64;
 import org.jose4j.jwk.JsonWebKey;
@@ -35,15 +37,6 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import de.trustable.ca3s.core.service.dto.acme.AccountRequest;
-import de.trustable.ca3s.core.service.dto.acme.AccountResponse;
-import de.trustable.ca3s.core.service.dto.acme.ChangeKeyRequest;
-import de.trustable.ca3s.core.service.dto.acme.FinalizeRequest;
-import de.trustable.ca3s.core.service.dto.acme.IdentifiersResponse;
-import de.trustable.ca3s.core.service.dto.acme.JWKJsonDeserializer;
-import de.trustable.ca3s.core.service.dto.acme.NewOrderResponse;
-import de.trustable.ca3s.core.service.dto.acme.OrderResponse;
-import de.trustable.ca3s.core.service.dto.acme.RevokeRequest;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 
@@ -59,7 +52,12 @@ public class JwtUtil {
 
 	 private static final Logger LOG = LoggerFactory.getLogger(JwtUtil.class);
 
-		  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+     private final ObjectMapper objectMapper = new ObjectMapper();
+
+
+     public JwtUtil(){
+         objectMapper.registerModule(new JavaTimeModule());
+     }
 
 //		  private final ObjectReader objectReader;
 
@@ -94,7 +92,7 @@ public class JwtUtil {
 	    LOG.debug("Converting Flattened JWT: {}", flattenedJwsJson);
 	    final String compactJwsSerialization;
 	    try {
-	      final JsonNode jsonRootNode = OBJECT_MAPPER.readTree(flattenedJwsJson);
+	      final JsonNode jsonRootNode = objectMapper.readTree(flattenedJwsJson);
 	      final JsonNode jsonProtectedValue = jsonRootNode.get("protected");
 	      if( jsonProtectedValue == null){
 	    	  throw new IOException("JWT component 'protected' missing");
@@ -229,7 +227,7 @@ public class JwtUtil {
 
     public AccountRequest getAccountRequest(final JwtClaims jwtClaims)  {
     	try {
-	    	ObjectReader objectReader = OBJECT_MAPPER.readerFor(AccountRequest.class);
+	    	ObjectReader objectReader = objectMapper.readerFor(AccountRequest.class);
 	        return objectReader.readValue(jwtClaims.toJson());
 	    } catch (IOException e) {
 		    LOG.debug("Problem processing JWT payload for Account ", e);
@@ -240,7 +238,7 @@ public class JwtUtil {
     }
 
     public String getAccountResponseAsJSON(final AccountResponse accountResponse)  {
-    	ObjectWriter objectWriter = OBJECT_MAPPER.writerFor(AccountResponse.class);
+    	ObjectWriter objectWriter = objectMapper.writerFor(AccountResponse.class);
         try {
 			return objectWriter.writeValueAsString(accountResponse);
 		} catch (JsonProcessingException e) {
@@ -250,7 +248,7 @@ public class JwtUtil {
     }
 
 	public String getOrderResponseAsJSON(NewOrderResponse newOrderResp) {
-    	ObjectWriter objectWriter = OBJECT_MAPPER.writerFor(NewOrderResponse.class);
+    	ObjectWriter objectWriter = objectMapper.writerFor(NewOrderResponse.class);
         try {
 			return objectWriter.writeValueAsString(newOrderResp);
 		} catch (JsonProcessingException e) {
@@ -260,7 +258,7 @@ public class JwtUtil {
 	}
 
 	public String getOrderResponseAsJSON(OrderResponse orderResp) {
-    	ObjectWriter objectWriter = OBJECT_MAPPER.writerFor(OrderResponse.class);
+    	ObjectWriter objectWriter = objectMapper.writerFor(OrderResponse.class);
         try {
 			return objectWriter.writeValueAsString(orderResp);
 		} catch (JsonProcessingException e) {
@@ -291,23 +289,38 @@ public class JwtUtil {
     }
 
 
-    public IdentifiersResponse getIdentifiers(final JwtClaims jwtClaims){
-    	ObjectReader objectReader = OBJECT_MAPPER.readerFor(IdentifiersResponse.class);
+
+    public NewOrderRequest getNewOrderRequest(final JwtClaims jwtClaims){
+        ObjectReader objectReader = objectMapper.readerFor(NewOrderRequest.class);
         try {
-			return objectReader.readValue(jwtClaims.toJson());
-		} catch (IOException e) {
-			final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "problem parsing RevokeRequest",
-					BAD_REQUEST, "", AcmeUtil.NO_INSTANCE);
-			throw new AcmeProblemException(problem);
-		}
+            return objectReader.readValue(jwtClaims.toJson());
+        } catch (IOException e) {
+            LOG.debug("Problem processing JWT payload for NewOrderRequest", e);
+            final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "problem parsing NewOrderRequest",
+                BAD_REQUEST, "", AcmeUtil.NO_INSTANCE);
+            throw new AcmeProblemException(problem);
+        }
+    }
+
+    public IdentifiersResponse getIdentifiers(final JwtClaims jwtClaims){
+        ObjectReader objectReader = objectMapper.readerFor(IdentifiersResponse.class);
+        try {
+            return objectReader.readValue(jwtClaims.toJson());
+        } catch (IOException e) {
+            LOG.debug("Problem processing JWT payload for Identifier", e);
+            final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "problem parsing Identifier",
+                BAD_REQUEST, "", AcmeUtil.NO_INSTANCE);
+            throw new AcmeProblemException(problem);
+        }
     }
 
     public FinalizeRequest getFinalizeReq(final JwtClaims jwtClaims) {
-    	ObjectReader objectReader = OBJECT_MAPPER.readerFor(FinalizeRequest.class);
+    	ObjectReader objectReader = objectMapper.readerFor(FinalizeRequest.class);
         try {
 			return objectReader.readValue(jwtClaims.toJson());
 		} catch (IOException e) {
-			final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "problem parsing RevokeRequest",
+            LOG.debug("Problem processing JWT payload for FinalizeRequest", e);
+			final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "problem parsing FinalizeRequest",
 					BAD_REQUEST, "", AcmeUtil.NO_INSTANCE);
 			throw new AcmeProblemException(problem);
 		}
@@ -315,10 +328,11 @@ public class JwtUtil {
 
     public RevokeRequest getRevokeReq(final JwtClaims jwtClaims) {
 
-    	ObjectReader objectReader = OBJECT_MAPPER.readerFor(RevokeRequest.class);
+    	ObjectReader objectReader = objectMapper.readerFor(RevokeRequest.class);
         try {
 			return objectReader.readValue(jwtClaims.toJson());
 		} catch (IOException e) {
+            LOG.debug("Problem processing JWT payload for RevokeRequest", e);
 			final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "problem parsing RevokeRequest",
 					BAD_REQUEST, "", AcmeUtil.NO_INSTANCE);
 			throw new AcmeProblemException(problem);

@@ -67,7 +67,7 @@ public class SchemaUpdateScheduler {
 
 
     //    @Scheduled(fixedDelay = 3600000)
-    @Scheduled(fixedDelay = 60000)
+    @Scheduled(fixedDelay = 600000)
     public void performSchemaApdates() {
 
         Instant now = Instant.now();

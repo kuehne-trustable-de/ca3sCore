@@ -71,11 +71,16 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
 	  @Query(name = "Certificate.findByTBSDigest")
 	  List<Certificate> findByTBSDigest(@Param("tbsDigest") String tbsDigest);
 
-	  @Query(name = "Certificate.findByValidTo")
-	  List<Certificate> findByValidTo(@Param("after") Instant after,
-		      @Param("before") Instant before);
+    @Query(name = "Certificate.findByValidTo")
+    List<Certificate> findByValidTo(@Param("after") Instant after,
+                                    @Param("before") Instant before);
 
-	  @Query(name = "Certificate.findActiveCertificatesByHashAlgo")
+    @Query(name = "Certificate.findByTypeAndValidTo")
+    List<Certificate> findByTypeAndValidTo(@Param("isEndEntity") boolean isEndEntity,
+                                           @Param("after") Instant after,
+                                           @Param("before") Instant before);
+
+    @Query(name = "Certificate.findActiveCertificatesByHashAlgo")
 	  List<Object[]> findActiveCertificatesByHashAlgo(@Param("now") Instant now);
 
 	  @Query(name = "Certificate.findActiveCertificatesByKeyAlgo")

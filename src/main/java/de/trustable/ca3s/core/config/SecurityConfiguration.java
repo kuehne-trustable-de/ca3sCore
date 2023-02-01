@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -26,6 +27,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.kerberos.web.authentication.SpnegoAuthenticationProcessingFilter;
+import org.springframework.security.kerberos.web.authentication.SpnegoEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
@@ -134,6 +137,22 @@ public class SecurityConfiguration{
             ;
     }
 
+
+    @Bean
+    public SpnegoEntryPoint spnegoEntryPoint() {
+        LOG.debug("in spnegoEntryPoint: forwarding to 'Add header WWW-Authenticate:Negotiate'");
+        return new SpnegoEntryPoint();
+    }
+/*
+    @Bean
+    public SpnegoAuthenticationProcessingFilter spnegoAuthenticationProcessingFilter() throws Exception {
+        LOG.info("in spnegoAuthenticationProcessingFilter");
+
+        SpnegoAuthenticationProcessingFilter filter = new SpnegoAuthenticationProcessingFilter();
+        filter.setAuthenticationManager(super.authenticationManagerBean());
+        return filter;
+    }
+*/
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
@@ -155,6 +174,8 @@ public class SecurityConfiguration{
     		acmePort = tlsPort;
     	}
 
+        AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
+
         // @formatter:off
         http
             .csrf().disable()
@@ -162,7 +183,7 @@ public class SecurityConfiguration{
             .addFilterBefore(apiKeyAuthFilter(), UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling()
             .accessDeniedHandler(problemSupport)
-        .and()
+            .and()
             .headers()
             .contentSecurityPolicy("default-src 'self';" +
                 " frame-src 'self' data:;" +

@@ -50,8 +50,9 @@ Certificates maybe issued for a broad variety of use cases. These use cases may 
 ### <a id="pkcsxx.upload.creationMode.selection"></a> Creation mode
 
 - CSR available  
-  The straight forward mode of the certificate request process is to upload a CSR. Select this option if you got the CSR already available and paste it into the text area below. Alternatively you may search for a CSR file on your computer.\* Serverside key creation
-  If your security policy allows this option you may select to let the server create a key pair for you. You can selct a key type and length and define the details of the certificate subject.
+  The straight forward mode of the certificate request process is to upload a CSR. Select this option if you got the CSR already available and paste it into the text area below. Alternatively you may search for a CSR file on your computer.
+- Serverside key creation
+  If your security policy allows this option you may select to let the server create a key pair for you. You can select a key type and length and define the details of the certificate subject.
 
 The server will create a key and certificate container which protects your private key. To get access to the private key you must define a secret for the container.
 
@@ -163,3 +164,7 @@ In case a certificate needs to be revoked please select an appropriate reason fo
 #### <a id="ca3SApp.certificate.comment"></a> Certificate Comment
 
 Provide additional information for the reasoning of the certificate revocation. This maybe useful for the RA officers and for later analysis.
+
+### <a id="ca3SApp.badkeys.integration"></a> Badkeys Integration
+
+The [badkeys](https://badkeys.info/) tool can used to check keys against known vulnerabilities. Just install badkeys on the same server as ca3s and configure the installation path in ca3s configuration.

@@ -1,8 +1,59 @@
 # ca3s
 
-This application was generated using JHipster 6.5.1, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v6.5.1](https://www.jhipster.tech/documentation-archive/v6.5.1).
+## Mission
+
+ca3s is a CA support system with a flexible RA part using BPM aiming to automate as much as possible.
+Therefore providing ACME and SCEP interfaces in addition to the usual web form. Aggregating certificate sets
+from different sources and using CMP-connected CAs or ADCS instances for certificate creation.</span>
+
+### The feature list
+
+- Manage all your CA instances (CMP and ADCS)
+
+- Keep track of expiration of all your relevant certificates from all sources
+
+- Analyze the key algorithms, key length, hash and padding algorithms in use
+
+- Offer a convenient web interface for the requestors and the RA officers
+
+- Use of the <a href="https://badkeys.info/">badkeys</a> project (if installed locally) to check keys for known weaknesses
+
+And most important for a reliable PKI infrastructure:
+
+- Automate issuance and renewal as far as possible
+
+- Use BPMN to define organization specific rules
+
+- Offer well established interfaces (ACME and SCEP) for easy automation
+
+The project is open sourced under <a href="https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12" target="_blank">EUPL</a> and can be found at <a href="https://github.com/kuehne-trustable-de/ca3sCore" target="_blank">github</a>.
+
+Please file bug reports, questions and feature proposals at github's <a href="https://github.com/kuehne-trustable-de/ca3sCore/issues" target="_blank">issue tracker</a>.
+For professional support please contact <a href="mailto:info@trustable.de">trustable's support</a>.
+
+## Installation
+
+For a quick start there are ready-build package available at [maven central](https://mvnrepository.com/artifact/de.trustable.ca3s.core/ca-3-s). Just download the latest version.
+Install a recent version of the Java runtime (Version >= 11) and run
+
+    java -jar .\target\ca-3-s-{version}.jar
+
+This command starts a ca3s instance with a local h2 database and it's web interface available at http://localhost:8080
+
+You can login with e.g. user/user or admin/admin to get a first impression.
+
+### Configuration
+
+For a more useful setup you need to setup a database (or use a schema in an existing database) and insert the corresponding setting in a configuration file. A convenient way is to make a copy of
+/src/main/resources/config/application-prod.xml to your application directory. Check the settings in this configuration file and adapt it where required (e.g. the database settings).
+
+    java -jar .\target\ca-3-s-{version}.jar --spring.config.location=file://{path}/application-prod.xml
+
+With a database configuration ca3s will create the required tables (thanks to liquibase).
 
 ## Development
+
+This application was generated using JHipster 6.5.1, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v6.5.1](https://www.jhipster.tech/documentation-archive/v6.5.1).
 
 Before you can build this project, you must install and configure the following dependencies on your machine:
 

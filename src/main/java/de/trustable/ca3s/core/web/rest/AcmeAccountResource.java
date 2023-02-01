@@ -1,9 +1,12 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.AcmeAccount;
+import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 import de.trustable.ca3s.core.service.AcmeAccountService;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 
+import de.trustable.ca3s.core.web.rest.data.AcmeAccountStatusAdministration;
+import org.springframework.transaction.annotation.Transactional;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -116,4 +119,32 @@ public class AcmeAccountResource {
         aCMEAccountService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
+
+    /**
+     * {@code POST  /acme-accounts/:id/status} : update the status of the "id" aCMEAccount.
+     *
+     * @param id the id of the aCMEAccount to delete.
+     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+     */
+    @PostMapping("/acme-accounts/{id}/status")
+    @Transactional
+    public ResponseEntity<Void> updateAcmeAccountStatus(@PathVariable Long id, @RequestBody AcmeAccountStatusAdministration statusAdministration) {
+        log.debug("REST request to update the status of AcmeAccount : {} to {}", id, statusAdministration.getStatus());
+        Optional<AcmeAccount> acmeAccountOptional = aCMEAccountService.findOne(id);
+        if( acmeAccountOptional.isPresent()){
+            AcmeAccount acmeAccount = acmeAccountOptional.get();
+            if(AccountStatus.REVOKED.equals(acmeAccount.getStatus())){
+                log.info("AcmeAccount : {} has final state {}. Update to {} ignored", id, acmeAccount.getStatus(), statusAdministration.getStatus());
+            }else{
+                log.info("AcmeAccount : {} updated from state {} to {}.", id, acmeAccount.getStatus(), statusAdministration.getStatus());
+                acmeAccount.setStatus(statusAdministration.getStatus());
+            }
+            return ResponseEntity.noContent().build();
+
+        }else{
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
 }

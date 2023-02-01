@@ -3,6 +3,7 @@ package de.trustable.ca3s.core.web.rest;
 import java.util.Optional;
 
 import de.trustable.ca3s.core.repository.AuditTraceRepository;
+import de.trustable.ca3s.core.repository.CertificateViewRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,10 +34,13 @@ public class CertificateViewResource {
 
     private final CertificateService certificateService;
 
+    private final CertificateViewRepository certificateViewRepository;
+
     private final  AuditTraceRepository auditTraceRepository;
 
-    public CertificateViewResource(CertificateService certificateService, AuditTraceRepository auditTraceRepository) {
+    public CertificateViewResource(CertificateService certificateService, CertificateViewRepository certificateViewRepository, AuditTraceRepository auditTraceRepository) {
         this.certificateService = certificateService;
+        this.certificateViewRepository = certificateViewRepository;
         this.auditTraceRepository = auditTraceRepository;
     }
 
@@ -68,15 +72,11 @@ public class CertificateViewResource {
     @GetMapping("/certificateViews/{id}")
     public ResponseEntity<CertificateView> getCertificate(@PathVariable Long id) {
         log.debug("REST request to get CertificateView : {}", id);
-        Optional<Certificate> certificateOpt = certificateService.findOne(id);
 
-        if( certificateOpt.isPresent() ) {
-            Certificate cert = certificateOpt.get();
-            CertificateView certView = new CertificateView(cert);
+        Optional<CertificateView> optCert = certificateViewRepository.findbyCertificateId(id);
 
-            certView.setAuditPresent( !auditTraceRepository.findByCsrAndCert(cert, cert.getCsr()).isEmpty());
-
-    		return new ResponseEntity<>(certView, HttpStatus.OK);
+        if( optCert.isPresent() ) {
+    		return new ResponseEntity<>(optCert.get(), HttpStatus.OK);
         }
 
 		return ResponseEntity.notFound().build();

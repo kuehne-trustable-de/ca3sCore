@@ -106,7 +106,6 @@ public class CSRUtil {
 
 		csr.setSubject(p10ReqHolder.getSubject());
 
-
 		/**
 		 * produce a readable form of algorithms
 		 */

@@ -10,7 +10,7 @@ import CopyClipboardButton from '@/shared/clipboard/clipboard.vue';
 import HelpTag from '@/core/help/help-tag.vue';
 import AuditTag from '@/core/audit/audit-tag.vue';
 
-import { IAcmeAccountView, INamedValue } from '@/shared/model/transfer-object.model';
+import { IAcmeAccountView, IAcmeAccountStatusAdministration } from '@/shared/model/transfer-object.model';
 
 import ArItem from '../csr-list/ar-item.component';
 
@@ -26,6 +26,8 @@ import ArItem from '../csr-list/ar-item.component';
 export default class AcmeAccountInfo extends mixins(JhiDataUtils, Vue) {
   @Inject('alertService') private alertService: () => AlertService;
   public acmeAccountView: IAcmeAccountView = {};
+
+  public acmeAccountStatusAdministration: IAcmeAccountStatusAdministration = {};
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -89,5 +91,35 @@ export default class AcmeAccountInfo extends mixins(JhiDataUtils, Vue) {
       self.acmeAccountView = response.data;
       window.console.info('acmeAccountView :' + self.acmeAccountView);
     });
+  }
+
+  public deactivateAccount(): void {
+    window.console.info('calling updateAcmeAccountStatus(deactivated)');
+    this.updateAcmeAccountStatus('deactivated');
+  }
+
+  public reactivateAccount(): void {
+    window.console.info('calling updateAcmeAccountStatus(valid)');
+    this.updateAcmeAccountStatus('valid');
+  }
+
+  public async updateAcmeAccountStatus(accountStatus) {
+    const statusUpdateURL = '/api/acme-accounts/' + this.acmeAccountView.id + '/status';
+
+    this.acmeAccountStatusAdministration.status = accountStatus;
+    try {
+      document.body.style.cursor = 'wait';
+      const response = await axios.post(`${statusUpdateURL}`, this.acmeAccountStatusAdministration);
+
+      this.fillAcmeAccountData(this.acmeAccountView.id);
+      this.acmeAccountStatusAdministration.comment = '';
+      document.body.style.cursor = 'default';
+    } catch (error) {
+      console.error('####################' + error);
+      document.body.style.cursor = 'default';
+
+      const message = this.$t('problem processing request: ' + error);
+      this.alertService().showAlert(message, 'info');
+    }
   }
 }

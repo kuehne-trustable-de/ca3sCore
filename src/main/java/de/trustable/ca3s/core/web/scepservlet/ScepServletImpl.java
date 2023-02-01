@@ -446,9 +446,9 @@ public class ScepServletImpl extends ScepServlet {
     protected X509Certificate getRecipient() {
 
         try {
-        	X509Certificate ca = CryptoUtil.convertPemToCertificate(getCurrentRecepientCert().getContent());
-	        LOGGER.debug("getRecipient() returns " + ca.toString());
-	        return ca;
+        	X509Certificate recipient = CryptoUtil.convertPemToCertificate(getCurrentRecepientCert().getContent());
+	        LOGGER.debug("getRecipient() returns " + recipient.toString());
+	        return recipient;
 		} catch (GeneralSecurityException | ServletException | OperationFailureException e) {
 			LOGGER.warn("problem retrieving recipient certificate", e);
 		}

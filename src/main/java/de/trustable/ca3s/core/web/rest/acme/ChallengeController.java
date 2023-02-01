@@ -40,6 +40,13 @@ import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.AcmeUtil;
 import de.trustable.ca3s.core.service.util.PreferenceUtil;
+import de.trustable.ca3s.core.web.rest.util.RateLimiter;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.jose4j.jwt.consumer.JwtContext;
@@ -49,10 +56,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.xbill.DNS.*;
 
@@ -110,26 +120,37 @@ public class ChallengeController extends AcmeController {
 
     private final AuditService auditService;
 
+    private final RateLimiter rateLimiter;
+
     public ChallengeController(AcmeChallengeRepository challengeRepository,
                                AcmeOrderRepository orderRepository,
                                PreferenceUtil preferenceUtil,
                                @Value("${ca3s.dns.server:}") String resolverHost,
                                @Value("${ca3s.dns.port:53}") int resolverPort,
-                               AuditService auditService) throws UnknownHostException {
+                               AuditService auditService,
+                               @Value("${ca3s.acme.ratelimit.second:0}") int rateSec,
+                               @Value("${ca3s.acme.ratelimit.minute:20}") int rateMin,
+                               @Value("${ca3s.acme.ratelimit.hour:0}") int rateHour)
+        throws UnknownHostException {
+
         this.challengeRepository = challengeRepository;
         this.orderRepository = orderRepository;
         this.preferenceUtil = preferenceUtil;
+        this.auditService = auditService;
 
         this.dnsResolver = new SimpleResolver(resolverHost);
-        this.auditService = auditService;
         this.dnsResolver.setPort(resolverPort);
         LOG.info("Applying default DNS resolver {}", this.dnsResolver.getAddress());
+
+        this.rateLimiter = new RateLimiter("Challenge", rateSec, rateMin, rateHour);
     }
 
     @RequestMapping(value = "/{challengeId}", method = GET, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getChallenge(@PathVariable final long challengeId) {
+    public ResponseEntity<?> getChallenge(@PathVariable final long challengeId, @PathVariable final String realm) {
 
 	  	LOG.debug("Received Challenge request ");
+
+        rateLimiter.checkRateLimit(challengeId, realm);
 
 	    final HttpHeaders additionalHeaders = buildNonceHeader();
 
@@ -162,6 +183,8 @@ public class ChallengeController extends AcmeController {
 
         LOG.debug("Received Challenge request ");
 
+        rateLimiter.checkRateLimit(challengeId, realm);
+
         try {
             JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
 
@@ -185,7 +208,7 @@ public class ChallengeController extends AcmeController {
                 }
 
                 boolean solved = false;
-                if( Instant.now().isAfter(order.getNotAfter())){
+                if( Instant.now().isAfter(order.getExpires())){
                     LOG.debug("order of this challenge {} already expired", challengeId);
                 }else {
                     solved = isChallengeSolved(challengeDao);
@@ -405,9 +428,36 @@ public class ChallengeController extends AcmeController {
 	    for( int port: ports) {
 
 		    try {
-				URL url = new URL("http", host, port, fileNamePath);
-				LOG.debug("Opening connection to  : " + url);
+                URL url = new URL("http", host, port, fileNamePath);
+                LOG.debug("Opening connection to  : " + url);
 
+                HttpClient instance = HttpClientBuilder.create()
+                    .setRedirectStrategy(new LaxRedirectStrategy())
+                    .build();
+
+                HttpGet request = new HttpGet(url.toString());
+                request.addHeader(HttpHeaders.USER_AGENT, "CA3S_ACME");
+
+                RequestConfig requestConfig = RequestConfig.custom()
+                    .setConnectionRequestTimeout((int)timeoutMilliSec)
+                    .setConnectTimeout((int)timeoutMilliSec)
+                    .setSocketTimeout((int)timeoutMilliSec)
+                    .build();
+
+                request.setConfig(requestConfig);
+                HttpResponse response = instance.execute(request);
+                int responseCode = response.getStatusLine().getStatusCode();
+
+/*
+                SimpleClientHttpRequestFactory simpleClientHttpRequestFactory = new SimpleClientHttpRequestFactory();
+                simpleClientHttpRequestFactory.setConnectTimeout((int) timeoutMilliSec);
+                simpleClientHttpRequestFactory.setReadTimeout((int) timeoutMilliSec);
+                RestTemplate restTemplate = new RestTemplate(simpleClientHttpRequestFactory);
+
+                ResponseEntity<String> challengeResponse = restTemplate.getForEntity(url.toString(), String.class);
+*/
+
+/*
 				HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
 				// Just wait for two seconds
@@ -421,7 +471,11 @@ public class ChallengeController extends AcmeController {
 				con.setRequestProperty("User-Agent", "CA3S_ACME");
 
 				int responseCode = con.getResponseCode();
-				LOG.debug("\nSending 'GET' request to URL : " + url);
+ */
+
+//                int responseCode = challengeResponse.getStatusCodeValue();
+
+                LOG.debug("\nSending 'GET' request to URL : " + url);
 				LOG.debug("Response Code : " + responseCode);
 
 				if( responseCode != 200) {
@@ -431,7 +485,10 @@ public class ChallengeController extends AcmeController {
 					continue;
 				}
 
-                String actualContent = readChallengeResponse(con);
+                String actualContent = readChallengeResponse(response.getEntity().getContent());
+
+//                String actualContent = readChallengeResponse(con);
+//                String actualContent = challengeResponse.getBody();
 
                 LOG.debug("expected content: '{}'", expectedContent);
                 boolean matches = expectedContent.equals( actualContent);
@@ -441,7 +498,8 @@ public class ChallengeController extends AcmeController {
                     "http challenge response mismatch at host '" + host + ":" + port + "'");
                 return matches;
 
-		    } catch(UnknownHostException uhe) {
+            } catch(UnknownHostException uhe) {
+//            } catch(RestClientException uhe) {
 				String msg = "unable to resolve hostname: '" + host + "'";
                 auditService.saveAuditTrace(
                     auditService.createAuditTraceAcmeChallengeFailed(acmeOrder.getAccount(), acmeOrder, msg));
@@ -477,7 +535,11 @@ public class ChallengeController extends AcmeController {
     }
 
     private String readChallengeResponse(HttpURLConnection con) throws IOException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        return readChallengeResponse(con.getInputStream());
+    }
+
+    private String readChallengeResponse(InputStream is) throws IOException {
+        BufferedReader in = new BufferedReader(new InputStreamReader(is));
         String inputLine;
         StringBuffer response = new StringBuffer();
 

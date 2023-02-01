@@ -57,6 +57,8 @@ public class AcmeOrderResourceIT {
     private static final String DEFAULT_ERROR = "AAAAAAAAAA";
     private static final String UPDATED_ERROR = "BBBBBBBBBB";
 
+    private static final String DEFAULT_REALM = "REAAAAAAAALM";
+
     private static final String DEFAULT_FINALIZE_URL = "AAAAAAAAAA";
     private static final String UPDATED_FINALIZE_URL = "BBBBBBBBBB";
 
@@ -109,6 +111,7 @@ public class AcmeOrderResourceIT {
     public static AcmeOrder createEntity(EntityManager em) {
         AcmeOrder acmeOrder = new AcmeOrder()
             .orderId(DEFAULT_ORDER_ID)
+            .realm(DEFAULT_REALM)
             .status(DEFAULT_STATUS)
             .expires(DEFAULT_EXPIRES)
             .notBefore(DEFAULT_NOT_BEFORE)
@@ -151,20 +154,8 @@ public class AcmeOrderResourceIT {
         restAcmeOrderMockMvc.perform(post("/api/acme-orders")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(acmeOrder)))
-            .andExpect(status().isCreated());
+            .andExpect(status().isMethodNotAllowed());
 
-        // Validate the AcmeOrder in the database
-        List<AcmeOrder> acmeOrderList = acmeOrderRepository.findAll();
-        assertThat(acmeOrderList).hasSize(databaseSizeBeforeCreate + 1);
-        AcmeOrder testAcmeOrder = acmeOrderList.get(acmeOrderList.size() - 1);
-        assertThat(testAcmeOrder.getOrderId()).isEqualTo(DEFAULT_ORDER_ID);
-        assertThat(testAcmeOrder.getStatus()).isEqualTo(DEFAULT_STATUS);
-        assertThat(testAcmeOrder.getExpires()).isEqualTo(DEFAULT_EXPIRES);
-        assertThat(testAcmeOrder.getNotBefore()).isEqualTo(DEFAULT_NOT_BEFORE);
-        assertThat(testAcmeOrder.getNotAfter()).isEqualTo(DEFAULT_NOT_AFTER);
-        assertThat(testAcmeOrder.getError()).isEqualTo(DEFAULT_ERROR);
-        assertThat(testAcmeOrder.getFinalizeUrl()).isEqualTo(DEFAULT_FINALIZE_URL);
-        assertThat(testAcmeOrder.getCertificateUrl()).isEqualTo(DEFAULT_CERTIFICATE_URL);
     }
 
     @Test
@@ -179,7 +170,7 @@ public class AcmeOrderResourceIT {
         restAcmeOrderMockMvc.perform(post("/api/acme-orders")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(acmeOrder)))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isMethodNotAllowed());
 
         // Validate the AcmeOrder in the database
         List<AcmeOrder> acmeOrderList = acmeOrderRepository.findAll();
@@ -199,7 +190,7 @@ public class AcmeOrderResourceIT {
         restAcmeOrderMockMvc.perform(post("/api/acme-orders")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(acmeOrder)))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isMethodNotAllowed());
 
         List<AcmeOrder> acmeOrderList = acmeOrderRepository.findAll();
         assertThat(acmeOrderList).hasSize(databaseSizeBeforeTest);
@@ -217,7 +208,7 @@ public class AcmeOrderResourceIT {
         restAcmeOrderMockMvc.perform(post("/api/acme-orders")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(acmeOrder)))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isMethodNotAllowed());
 
         List<AcmeOrder> acmeOrderList = acmeOrderRepository.findAll();
         assertThat(acmeOrderList).hasSize(databaseSizeBeforeTest);
@@ -298,55 +289,17 @@ public class AcmeOrderResourceIT {
         restAcmeOrderMockMvc.perform(put("/api/acme-orders")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(updatedAcmeOrder)))
-            .andExpect(status().isOk());
+            .andExpect(status().isMethodNotAllowed());
 
-        // Validate the AcmeOrder in the database
-        List<AcmeOrder> acmeOrderList = acmeOrderRepository.findAll();
-        assertThat(acmeOrderList).hasSize(databaseSizeBeforeUpdate);
-        AcmeOrder testAcmeOrder = acmeOrderList.get(acmeOrderList.size() - 1);
-        assertThat(testAcmeOrder.getOrderId()).isEqualTo(UPDATED_ORDER_ID);
-        assertThat(testAcmeOrder.getStatus()).isEqualTo(UPDATED_STATUS);
-        assertThat(testAcmeOrder.getExpires()).isEqualTo(UPDATED_EXPIRES);
-        assertThat(testAcmeOrder.getNotBefore()).isEqualTo(UPDATED_NOT_BEFORE);
-        assertThat(testAcmeOrder.getNotAfter()).isEqualTo(UPDATED_NOT_AFTER);
-        assertThat(testAcmeOrder.getError()).isEqualTo(UPDATED_ERROR);
-        assertThat(testAcmeOrder.getFinalizeUrl()).isEqualTo(UPDATED_FINALIZE_URL);
-        assertThat(testAcmeOrder.getCertificateUrl()).isEqualTo(UPDATED_CERTIFICATE_URL);
-    }
-
-    @Test
-    @Transactional
-    public void updateNonExistingAcmeOrder() throws Exception {
-        int databaseSizeBeforeUpdate = acmeOrderRepository.findAll().size();
-
-        // Create the AcmeOrder
-
-        // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restAcmeOrderMockMvc.perform(put("/api/acme-orders")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(acmeOrder)))
-            .andExpect(status().isBadRequest());
-
-        // Validate the AcmeOrder in the database
-        List<AcmeOrder> acmeOrderList = acmeOrderRepository.findAll();
-        assertThat(acmeOrderList).hasSize(databaseSizeBeforeUpdate);
     }
 
     @Test
     @Transactional
     public void deleteAcmeOrder() throws Exception {
-        // Initialize the database
-        acmeOrderService.save(acmeOrder);
-
-        int databaseSizeBeforeDelete = acmeOrderRepository.findAll().size();
 
         // Delete the acmeOrder
-        restAcmeOrderMockMvc.perform(delete("/api/acme-orders/{id}", acmeOrder.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
-            .andExpect(status().isNoContent());
-
-        // Validate the database contains one less item
-        List<AcmeOrder> acmeOrderList = acmeOrderRepository.findAll();
-        assertThat(acmeOrderList).hasSize(databaseSizeBeforeDelete - 1);
+        restAcmeOrderMockMvc.perform(delete("/api/acme-orders/{id}", 123)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .andExpect(status().isMethodNotAllowed());
     }
 }

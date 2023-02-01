@@ -16,11 +16,19 @@
                     <dd>
                         <span>{{acmeAccountView.realm}}</span>
                     </dd>
+
+                    <dt>
+                        <span v-text="$t('ca3SApp.aCMEAccount.createdOn')">Created On</span>
+                    </dt>
+                    <dd>
+                        <span>{{$d(Date.parse(acmeAccountView.createdOn), 'long') }}</span>
+                    </dd>
+
                     <dt>
                         <span v-text="$t('ca3SApp.aCMEAccount.status')">Status</span>
                     </dt>
                     <dd>
-                        <span v-text="$t('ca3SApp.aCMEAccount.' + acmeAccountView.status)">{{acmeAccountView.status}}</span>
+                        <span v-text="$t('ca3SApp.aCMEAccount.' + acmeAccountView.status)">{{$t(acmeAccountView.status)}}</span>
                     </dd>
                     <dt>
                         <span v-text="$t('ca3SApp.aCMEAccount.termsOfServiceAgreed')">Terms Of Service Agreed</span>
@@ -83,10 +91,26 @@
                     </Fragment>
 -->
 
+                    <div v-if="isRAOfficer() || isAdmin()">
+                        <label class="form-control-label" v-text="$t('ca3SApp.aCMEAccount.statusComment')">Status Comment</label>
+                        <textarea type="text" class="form-control" name="status-comment" id="status-comment"
+                                  autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                  v-model="acmeAccountStatusAdministration.comment" />
+                    </div>
+
                     <button type="submit"
                             v-on:click.prevent="previousState()"
                             class="btn btn-info">
                         <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.back')"> Back</span>
+                    </button>
+
+
+                    <button type="button" id="deactivate" v-if="acmeAccountView.status == 'valid' &&( isRAOfficer() || isAdmin())" class="btn btn-secondary" v-on:click="deactivateAccount()">
+                        <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.deactivate')">deactivate</span>
+                    </button>
+
+                    <button type="button" id="reactivate" v-if="acmeAccountView.status == 'deactivated' &&( isRAOfficer() || isAdmin())" class="btn btn-secondary" v-on:click="reactivateAccount()">
+                        <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.reactivate')">reactivate</span>
                     </button>
 
                     <!--

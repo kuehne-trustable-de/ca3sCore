@@ -1,16 +1,15 @@
 package de.trustable.ca3s.core.domain;
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
-import java.io.Serializable;
-import java.util.Objects;
-import java.time.Instant;
-
-import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
-
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
+import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.time.Instant;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 /**
  * A ProtectedContent.
  */
@@ -43,14 +42,16 @@ import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
     )
 
 })
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@SuppressWarnings("common-java:DuplicatedBlocks")
 public class ProtectedContent implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
-
 
     @Lob
     @Column(name = "content_base_64", nullable = false)
@@ -62,7 +63,10 @@ public class ProtectedContent implements Serializable {
     private ProtectedContentType type;
 
     @Column(name = "left_usages")
-    private Integer leftUsages;
+    private Long leftUsages;
+
+    @Column(name = "created_on")
+    private Instant createdOn;
 
     @Column(name = "valid_to")
     private Instant validTo;
@@ -77,9 +81,15 @@ public class ProtectedContent implements Serializable {
     @Column(name = "related_id")
     private Long relatedId;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public ProtectedContent id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
@@ -87,11 +97,11 @@ public class ProtectedContent implements Serializable {
     }
 
     public String getContentBase64() {
-        return contentBase64;
+        return this.contentBase64;
     }
 
     public ProtectedContent contentBase64(String contentBase64) {
-        this.contentBase64 = contentBase64;
+        this.setContentBase64(contentBase64);
         return this;
     }
 
@@ -100,11 +110,11 @@ public class ProtectedContent implements Serializable {
     }
 
     public ProtectedContentType getType() {
-        return type;
+        return this.type;
     }
 
     public ProtectedContent type(ProtectedContentType type) {
-        this.type = type;
+        this.setType(type);
         return this;
     }
 
@@ -112,25 +122,38 @@ public class ProtectedContent implements Serializable {
         this.type = type;
     }
 
-    public Integer getLeftUsages() {
-        return leftUsages;
+    public Long getLeftUsages() {
+        return this.leftUsages;
     }
 
-    public ProtectedContent leftUsages(Integer leftUsages) {
-        this.leftUsages = leftUsages;
+    public ProtectedContent leftUsages(Long leftUsages) {
+        this.setLeftUsages(leftUsages);
         return this;
     }
 
-    public void setLeftUsages(Integer leftUsages) {
+    public void setLeftUsages(Long leftUsages) {
         this.leftUsages = leftUsages;
     }
 
+    public Instant getCreatedOn() {
+        return this.createdOn;
+    }
+
+    public ProtectedContent createdOn(Instant createdOn) {
+        this.setCreatedOn(createdOn);
+        return this;
+    }
+
+    public void setCreatedOn(Instant createdOn) {
+        this.createdOn = createdOn;
+    }
+
     public Instant getValidTo() {
-        return validTo;
+        return this.validTo;
     }
 
     public ProtectedContent validTo(Instant validTo) {
-        this.validTo = validTo;
+        this.setValidTo(validTo);
         return this;
     }
 
@@ -139,7 +162,12 @@ public class ProtectedContent implements Serializable {
     }
 
     public Instant getDeleteAfter() {
-        return deleteAfter;
+        return this.deleteAfter;
+    }
+
+    public ProtectedContent deleteAfter(Instant deleteAfter) {
+        this.setDeleteAfter(deleteAfter);
+        return this;
     }
 
     public void setDeleteAfter(Instant deleteAfter) {
@@ -147,11 +175,11 @@ public class ProtectedContent implements Serializable {
     }
 
     public ContentRelationType getRelationType() {
-        return relationType;
+        return this.relationType;
     }
 
     public ProtectedContent relationType(ContentRelationType relationType) {
-        this.relationType = relationType;
+        this.setRelationType(relationType);
         return this;
     }
 
@@ -160,18 +188,19 @@ public class ProtectedContent implements Serializable {
     }
 
     public Long getRelatedId() {
-        return relatedId;
+        return this.relatedId;
     }
 
     public ProtectedContent relatedId(Long relatedId) {
-        this.relatedId = relatedId;
+        this.setRelatedId(relatedId);
         return this;
     }
 
     public void setRelatedId(Long relatedId) {
         this.relatedId = relatedId;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -186,9 +215,11 @@ public class ProtectedContent implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "ProtectedContent{" +
@@ -196,6 +227,7 @@ public class ProtectedContent implements Serializable {
             ", contentBase64='" + getContentBase64() + "'" +
             ", type='" + getType() + "'" +
             ", leftUsages=" + getLeftUsages() +
+            ", createdOn='" + getCreatedOn() + "'" +
             ", validTo='" + getValidTo() + "'" +
             ", deleteAfter='" + getDeleteAfter() + "'" +
             ", relationType='" + getRelationType() + "'" +

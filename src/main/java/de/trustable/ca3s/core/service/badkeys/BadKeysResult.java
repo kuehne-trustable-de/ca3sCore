@@ -15,7 +15,6 @@ public class BadKeysResult implements Serializable {
         this.valid = "valid".equals(response.getResults().getResultType());
 
         this.messsage = "";
-
         this.response = response;
     }
 

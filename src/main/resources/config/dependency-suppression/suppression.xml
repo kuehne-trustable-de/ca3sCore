@@ -23,6 +23,14 @@
 
     <suppress>
         <notes><![CDATA[
+   file name: h2-2.1.214.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.h2database/h2@.*$</packageUrl>
+        <cve>CVE-2022-45868</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
    file name: commons-digester-2.1.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/commons\-digester/commons\-digester@.*$</packageUrl>
@@ -43,4 +51,25 @@
         <cpe>cpe:/a:apache:james</cpe>
     </suppress>
 
+
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-codec-1.15.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/commons\-codec/commons\-codec@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/commons\-beanutils/commons\-beanutils@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/commons\-collections/commons\-collections@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons\-compress@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/commons\-dbcp/commons\-dbcp@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/commons\-digester/commons\-digester@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/commons\-fileupload/commons\-fileupload@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/commons\-io/commons\-io@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/commons\-lang/commons\-lang@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/commons\-logging/commons\-logging@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/commons\-pool/commons\-pool@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons\-pool2@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons\-text@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/commons\-validator/commons\-validator@.*$</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
 </suppressions>

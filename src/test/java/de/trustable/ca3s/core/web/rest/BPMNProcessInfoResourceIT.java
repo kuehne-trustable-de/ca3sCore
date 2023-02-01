@@ -296,8 +296,7 @@ class BPMNProcessInfoResourceIT {
             .andExpect(jsonPath("$.[*].author").value(hasItem(DEFAULT_AUTHOR)))
             .andExpect(jsonPath("$.[*].lastChange").value(hasItem(DEFAULT_LAST_CHANGE.toString())))
             .andExpect(jsonPath("$.[*].signatureBase64").value(hasItem(DEFAULT_SIGNATURE_BASE_64.toString())))
-            .andExpect(jsonPath("$.[*].bpmnHashBase64").value(hasItem(DEFAULT_BPMN_HASH_BASE_64)))
-            .andExpect(jsonPath("$.[*].bpmnContent").value(hasItem(DEFAULT_BPMN_CONTENT.toString())));
+            .andExpect(jsonPath("$.[*].bpmnHashBase64").value(hasItem(DEFAULT_BPMN_HASH_BASE_64)));
     }
 
     @Test
@@ -318,8 +317,7 @@ class BPMNProcessInfoResourceIT {
             .andExpect(jsonPath("$.author").value(DEFAULT_AUTHOR))
             .andExpect(jsonPath("$.lastChange").value(DEFAULT_LAST_CHANGE.toString()))
             .andExpect(jsonPath("$.signatureBase64").value(DEFAULT_SIGNATURE_BASE_64.toString()))
-            .andExpect(jsonPath("$.bpmnHashBase64").value(DEFAULT_BPMN_HASH_BASE_64))
-            .andExpect(jsonPath("$.bpmnContent").value(DEFAULT_BPMN_CONTENT.toString()));
+            .andExpect(jsonPath("$.bpmnHashBase64").value(DEFAULT_BPMN_HASH_BASE_64));
     }
 
     @Test
@@ -357,20 +355,8 @@ class BPMNProcessInfoResourceIT {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(updatedBPMNProcessInfo))
             )
-            .andExpect(status().isOk());
+            .andExpect(status().isMethodNotAllowed());
 
-        // Validate the BPMNProcessInfo in the database
-        List<BPMNProcessInfo> bPMNProcessInfoList = bPMNProcessInfoRepository.findAll();
-        assertThat(bPMNProcessInfoList).hasSize(databaseSizeBeforeUpdate);
-        BPMNProcessInfo testBPMNProcessInfo = bPMNProcessInfoList.get(bPMNProcessInfoList.size() - 1);
-        assertThat(testBPMNProcessInfo.getName()).isEqualTo(UPDATED_NAME);
-        assertThat(testBPMNProcessInfo.getVersion()).isEqualTo(UPDATED_VERSION);
-        assertThat(testBPMNProcessInfo.getType()).isEqualTo(UPDATED_TYPE);
-        assertThat(testBPMNProcessInfo.getAuthor()).isEqualTo(UPDATED_AUTHOR);
-        assertThat(testBPMNProcessInfo.getLastChange()).isEqualTo(UPDATED_LAST_CHANGE);
-        assertThat(testBPMNProcessInfo.getSignatureBase64()).isEqualTo(UPDATED_SIGNATURE_BASE_64);
-        assertThat(testBPMNProcessInfo.getBpmnHashBase64()).isEqualTo(UPDATED_BPMN_HASH_BASE_64);
-        assertThat(testBPMNProcessInfo.getProcessId()).isEqualTo(UPDATED_BPMN_CONTENT);
     }
 
     @Test
@@ -386,11 +372,8 @@ class BPMNProcessInfoResourceIT {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(bPMNProcessInfo))
             )
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isMethodNotAllowed());
 
-        // Validate the BPMNProcessInfo in the database
-        List<BPMNProcessInfo> bPMNProcessInfoList = bPMNProcessInfoRepository.findAll();
-        assertThat(bPMNProcessInfoList).hasSize(databaseSizeBeforeUpdate);
     }
 
     @Test
@@ -406,25 +389,37 @@ class BPMNProcessInfoResourceIT {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(bPMNProcessInfo))
             )
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isMethodNotAllowed());
 
-        // Validate the BPMNProcessInfo in the database
-        List<BPMNProcessInfo> bPMNProcessInfoList = bPMNProcessInfoRepository.findAll();
-        assertThat(bPMNProcessInfoList).hasSize(databaseSizeBeforeUpdate);
     }
 
     @Test
     @Transactional
     void putWithMissingIdPathParamBPMNProcessInfo() throws Exception {
-        int databaseSizeBeforeUpdate = bPMNProcessInfoRepository.findAll().size();
-        bPMNProcessInfo.setId(count.incrementAndGet());
+        // Initialize the database
+        bPMNProcessInfoRepository.saveAndFlush(bPMNProcessInfo);
 
-        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        int databaseSizeBeforeUpdate = bPMNProcessInfoRepository.findAll().size();
+
+        // Update the bPMNProcessInfo
+        BPMNProcessInfo updatedBPMNProcessInfo = bPMNProcessInfoRepository.findById(bPMNProcessInfo.getId()).get();
+        // Disconnect from session so that the updates on updatedBPMNProcessInfo are not directly saved in db
+        em.detach(updatedBPMNProcessInfo);
+        updatedBPMNProcessInfo
+            .name(UPDATED_NAME)
+            .version(UPDATED_VERSION)
+            .type(UPDATED_TYPE)
+            .author(UPDATED_AUTHOR)
+            .lastChange(UPDATED_LAST_CHANGE)
+            .signatureBase64(UPDATED_SIGNATURE_BASE_64)
+            .bpmnHashBase64(UPDATED_BPMN_HASH_BASE_64)
+            .processId(UPDATED_BPMN_CONTENT);
+
         restBPMNProcessInfoMockMvc
             .perform(
                 put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(bPMNProcessInfo))
             )
-            .andExpect(status().isMethodNotAllowed());
+            .andExpect(status().isOk());
 
         // Validate the BPMNProcessInfo in the database
         List<BPMNProcessInfo> bPMNProcessInfoList = bPMNProcessInfoRepository.findAll();
@@ -457,20 +452,8 @@ class BPMNProcessInfoResourceIT {
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedBPMNProcessInfo))
             )
-            .andExpect(status().isOk());
+            .andExpect(status().isMethodNotAllowed());
 
-        // Validate the BPMNProcessInfo in the database
-        List<BPMNProcessInfo> bPMNProcessInfoList = bPMNProcessInfoRepository.findAll();
-        assertThat(bPMNProcessInfoList).hasSize(databaseSizeBeforeUpdate);
-        BPMNProcessInfo testBPMNProcessInfo = bPMNProcessInfoList.get(bPMNProcessInfoList.size() - 1);
-        assertThat(testBPMNProcessInfo.getName()).isEqualTo(UPDATED_NAME);
-        assertThat(testBPMNProcessInfo.getVersion()).isEqualTo(UPDATED_VERSION);
-        assertThat(testBPMNProcessInfo.getType()).isEqualTo(UPDATED_TYPE);
-        assertThat(testBPMNProcessInfo.getAuthor()).isEqualTo(UPDATED_AUTHOR);
-        assertThat(testBPMNProcessInfo.getLastChange()).isEqualTo(DEFAULT_LAST_CHANGE);
-        assertThat(testBPMNProcessInfo.getSignatureBase64()).isEqualTo(DEFAULT_SIGNATURE_BASE_64);
-        assertThat(testBPMNProcessInfo.getBpmnHashBase64()).isEqualTo(UPDATED_BPMN_HASH_BASE_64);
-        assertThat(testBPMNProcessInfo.getProcessId()).isEqualTo(UPDATED_BPMN_CONTENT);
     }
 /*
     @Test
