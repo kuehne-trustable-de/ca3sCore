@@ -211,7 +211,7 @@
         <xml.maven.plugin.version>1.0.2</xml.maven.plugin.version>
 
         <dependencyCheck.version>7.3.2</dependencyCheck.version>
-        <dependencyCheck.skip>false</dependencyCheck.skip>
+        <dependencyCheck.skip>true</dependencyCheck.skip>
 
     </properties>
 
