@@ -21,6 +21,16 @@ public class WebTestBase extends LocomotiveBase {
 	public static final String SESSION_COOKIE_NAME = "JSESSIONID";
 	public static final String SESSION_COOKIE_DEFAULT_VALUE = "DummyCookieValue";
 
+    public static final By LOC_TXT_WEBPACK_ERROR = By.xpath("//div//h1 [text() = 'An error has occured :-(']");
+    public static final By LOC_LNK_ACCOUNT_MENUE =          By.xpath("//nav//a [.//span [text() = 'Account']]");
+
+    public static final By LOC_LNK_ACCOUNT_SIGN_IN_MENUE =  By.xpath("//nav//a [span [text() = 'Sign in']]");
+    public static final By LOC_LNK_ACCOUNT_SIGN_OUT_MENUE = By.xpath("//nav//a [span [text() = 'Sign out']]");
+
+    public static final By LOC_LNK_SIGNIN_USERNAME = By.xpath("//form//input [@name = 'username']");
+    public static final By LOC_LNK_SIGNIN_PASSWORD = By.xpath("//form//input [@name = 'password']");
+    public static final By LOC_BTN_SIGNIN_SUBMIT = By.xpath("//form//button [@type='submit'][text() = 'Sign in']");
+
     private static final Logger LOG = LoggerFactory.getLogger(WebTestBase.class);
 
 	public WebTestBase() {
@@ -137,10 +147,10 @@ public class WebTestBase extends LocomotiveBase {
 		WebElement we = waitForElement(loc);
 		String javascript = "arguments[0].value = '"+text.replaceAll("(\\r\\n|\\r|\\n)", "\\\\n")+"';";
 //		String javascript = "arguments[0].value = 'Foo\nBar\nBaz';";
-		
+
 		System.out.println("javascript: " + javascript);
 		((org.openqa.selenium.JavascriptExecutor) driver).executeScript(javascript, we);
-		
+
 		click(loc);
 		driver.findElement(loc).sendKeys(Keys.SPACE);
 		driver.findElement(loc).sendKeys(Keys.BACK_SPACE);
@@ -160,4 +170,44 @@ public class WebTestBase extends LocomotiveBase {
 		WebElement we = waitForElement(loc);
 		return we.isEnabled();
 	}
+
+    void signIn(final String user, final String password) {
+
+        if( isPresent(LOC_TXT_WEBPACK_ERROR) ) {
+            System.err.println(
+                "###########################################################\n"+
+                    "Startup failed, webpack missing. Please build full package.\n"+
+                    "###########################################################\n");
+        }
+
+        validatePresent(LOC_LNK_ACCOUNT_MENUE);
+
+        // log out, if logged in
+        logOut();
+
+        validatePresent(LOC_LNK_ACCOUNT_SIGN_IN_MENUE);
+        click(LOC_LNK_ACCOUNT_SIGN_IN_MENUE);
+
+        validatePresent(LOC_LNK_SIGNIN_USERNAME);
+        validatePresent(LOC_LNK_SIGNIN_PASSWORD);
+        validatePresent(LOC_BTN_SIGNIN_SUBMIT);
+
+        setText(LOC_LNK_SIGNIN_USERNAME, user);
+        setText(LOC_LNK_SIGNIN_PASSWORD, password);
+        click(LOC_BTN_SIGNIN_SUBMIT);
+
+    }
+
+    void logOut() {
+        validatePresent(LOC_LNK_ACCOUNT_MENUE);
+
+        if( isPresent(LOC_LNK_ACCOUNT_SIGN_OUT_MENUE)) {
+            LOG.debug("Logging out ...");
+            validatePresent(LOC_LNK_ACCOUNT_SIGN_OUT_MENUE);
+            click(LOC_LNK_ACCOUNT_SIGN_OUT_MENUE);
+        }else {
+            LOG.debug("Already logged out ...");
+        }
+    }
+
 }

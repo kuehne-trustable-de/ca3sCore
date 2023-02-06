@@ -6,7 +6,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>0.2.5</version>
+    <version>0.2.6</version>
     <packaging>jar</packaging>
 
 
@@ -211,7 +211,7 @@
         <xml.maven.plugin.version>1.0.2</xml.maven.plugin.version>
 
         <dependencyCheck.version>7.3.2</dependencyCheck.version>
-        <dependencyCheck.skip>true</dependencyCheck.skip>
+        <dependencyCheck.skip>false</dependencyCheck.skip>
 
     </properties>
 

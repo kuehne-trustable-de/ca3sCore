@@ -23,10 +23,12 @@ public class ProtectedContentUtil {
 
     private final Logger log = LoggerFactory.getLogger(ProtectedContentUtil.class);
 
-	private final BasicTextEncryptor textEncryptor;
+    private final BasicTextEncryptor textEncryptor;
 
-	// defining our own max instant, as Instant.MAX is out f the range hibernate supports :-(
-//    public static final Instant MAX_INSTANT = Instant.parse("9999-12-30T23:59:59Z");
+	// defining our own max instant, as Instant.MAX is out of the range hibernate supports :-(
+    // the following version fails:
+    // public static final Instant MAX_INSTANT = Instant.parse("9999-12-30T23:59:59Z");
+
     public static final Instant MAX_INSTANT = Instant.parse("9990-12-30T23:59:59Z");
 
 	@Autowired
@@ -35,17 +37,28 @@ public class ProtectedContentUtil {
 	public ProtectedContentUtil(@Value("${protectionSecret:S3cr3t}") String protectionSecretFallback,
                                 @Value("${ca3s.protectionSecret}") String protectionSecret) {
 
-        if( (protectionSecretFallback != null) && !protectionSecretFallback.trim().isEmpty() ) {
-            protectionSecret = protectionSecretFallback;
+        PasswordUtil passwordUtil = new PasswordUtil("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{16,100}$");
+
+        if( (protectionSecret == null) || (protectionSecret.trim().length() == 0)) {
+            if ((protectionSecretFallback != null) && !protectionSecretFallback.trim().isEmpty()) {
+                if("S3cr3t".equals(protectionSecretFallback)){
+                    log.warn("Please provide a secure value for 'ca3s.protectionSecret'!");
+                }else{
+                    log.warn("The configuration parameter 'protectionSecret' is deprecated! Use 'ca3s.protectionSecret'.");
+                }
+                protectionSecret = protectionSecretFallback;
+            }
         }
 
 		if( (protectionSecret == null) || (protectionSecret.trim().length() == 0)) {
             log.warn("Configuration parameter 'protectionSecret' missing or invalid!!");
             throw new UnsupportedOperationException("Configuration parameter 'protectionSecret' missing or invalid");
 		}
+
+        passwordUtil.checkPassword(protectionSecret, "Value of 'ca3s.protectionSecret'");
+
 		if( log.isDebugEnabled()) {
-			String paddedSecret = "******" + protectionSecret;
-			log.debug("using protection secret '{}'", "******" + paddedSecret.substring(paddedSecret.length() - 4));
+			log.debug("using protection secret '{}'", PasswordUtil.maskPassword(protectionSecret) );
 		}
 
         textEncryptor = new BasicTextEncryptor();

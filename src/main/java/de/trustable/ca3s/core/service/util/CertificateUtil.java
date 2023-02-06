@@ -812,7 +812,7 @@ public class CertificateUtil {
                 setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_FINGERPRINT_SHA1,
                     DigestUtils.sha1Hex(x509Cert.getEncoded()).toLowerCase());
                 setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_FINGERPRINT_SHA256,
-                    DigestUtils.sha3_256Hex(x509Cert.getEncoded()).toLowerCase());
+                    DigestUtils.sha256Hex(x509Cert.getEncoded()).toLowerCase());
             } catch (CertificateEncodingException e) {
                 LOG.error("Problem getting encoded certificate '" + x509Cert.getSubjectX500Principal().getName() + "'", e);
             }

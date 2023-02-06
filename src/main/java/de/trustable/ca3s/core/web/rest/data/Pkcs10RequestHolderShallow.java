@@ -100,8 +100,10 @@ public class Pkcs10RequestHolderShallow {
 
         try {
             List<Map<String, Object>> extList = ExtensionsUtils.getExtensionList(p10ReqHolder.getP10Req());
-            for (Map<String, Object> extMap : extList) {
-                csrReqAttributeList.add(new CsrReqAttribute(extMap));
+            if( extList != null) {
+                for (Map<String, Object> extMap : extList) {
+                    csrReqAttributeList.add(new CsrReqAttribute(extMap));
+                }
             }
 
         } catch (IOException e) {

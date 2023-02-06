@@ -40,8 +40,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.Assert.*;
 
-// @ContextConfiguration(classes=PipelineTestConfiguration.class)
-
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @io.ddavison.conductor.Config(
         browser = Browser.CHROME,
@@ -50,18 +48,10 @@ import static org.junit.Assert.*;
 @ActiveProfiles("dev")
 public class CSRSubmitIT extends WebTestBase{
 
-    public static final By LOC_TXT_WEBPACK_ERROR = By.xpath("//div//h1 [text() = 'An error has occured :-(']");
 
-    public static final By LOC_LNK_ACCOUNT_MENUE =          By.xpath("//nav//a [.//span [text() = 'Account']]");
     public static final By LOC_LNK_REQ_CERT_MENUE =         By.xpath("//nav//a [.//span [text() = 'Request certificate']]");
     public static final By LOC_LNK_REQUESTS_MENUE =         By.xpath("//nav//a [.//span [text() = 'Requests']]");
     public static final By LOC_LNK_CERTIFICATES_MENUE =     By.xpath("//nav//a [.//span [text() = 'Certificates']]");
-    public static final By LOC_LNK_ACCOUNT_SIGN_IN_MENUE =  By.xpath("//nav//a [span [text() = 'Sign in']]");
-    public static final By LOC_LNK_ACCOUNT_SIGN_OUT_MENUE = By.xpath("//nav//a [span [text() = 'Sign out']]");
-
-    public static final By LOC_LNK_SIGNIN_USERNAME = By.xpath("//form//input [@name = 'username']");
-    public static final By LOC_LNK_SIGNIN_PASSWORD = By.xpath("//form//input [@name = 'password']");
-    public static final By LOC_BTN_SIGNIN_SUBMIT = By.xpath("//form//button [@type='submit'][text() = 'Sign in']");
 
     public static final By LOC_BTN_REQUEST_CERTIFICATE = By.xpath("//form/div/button [@type='button'][span [text() = 'Request certificate']]");
 
@@ -619,45 +609,6 @@ public class CSRSubmitIT extends WebTestBase{
 		}
 */
 
-	}
-
-	private void signIn(final String user, final String password) {
-
-		if( isPresent(LOC_TXT_WEBPACK_ERROR) ) {
-			System.err.println(
-					"###########################################################\n"+
-					"Startup failed, webpack missing. Please build full package.\n"+
-			        "###########################################################\n");
-		}
-
-		validatePresent(LOC_LNK_ACCOUNT_MENUE);
-
-		// log out, if logged in
-		logOut();
-
-		validatePresent(LOC_LNK_ACCOUNT_SIGN_IN_MENUE);
-		click(LOC_LNK_ACCOUNT_SIGN_IN_MENUE);
-
-		validatePresent(LOC_LNK_SIGNIN_USERNAME);
-		validatePresent(LOC_LNK_SIGNIN_PASSWORD);
-		validatePresent(LOC_BTN_SIGNIN_SUBMIT);
-
-		setText(LOC_LNK_SIGNIN_USERNAME, user);
-		setText(LOC_LNK_SIGNIN_PASSWORD, password);
-		click(LOC_BTN_SIGNIN_SUBMIT);
-
-	}
-
-	private void logOut() {
-		validatePresent(LOC_LNK_ACCOUNT_MENUE);
-
-		if( isPresent(LOC_LNK_ACCOUNT_SIGN_OUT_MENUE)) {
-			LOG.debug("Logging out ...");
-			validatePresent(LOC_LNK_ACCOUNT_SIGN_OUT_MENUE);
-			click(LOC_LNK_ACCOUNT_SIGN_OUT_MENUE);
-		}else {
-			LOG.debug("Already logged out ...");
-		}
 	}
 
     public String buildCSRAsPEM( final X500Principal subjectPrincipal ) throws GeneralSecurityException, IOException{

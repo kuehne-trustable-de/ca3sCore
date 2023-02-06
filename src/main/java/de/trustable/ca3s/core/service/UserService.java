@@ -10,6 +10,7 @@ import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.security.SecurityUtils;
 import de.trustable.ca3s.core.service.dto.UserDTO;
 
+import de.trustable.ca3s.core.service.util.PasswordUtil;
 import org.springframework.beans.factory.annotation.Value;
 import tech.jhipster.security.RandomUtil;
 
@@ -46,9 +47,7 @@ public class UserService {
 
     private final CacheManager cacheManager;
 
-    private final String passwordCheckRegExp;
-    private final Pattern passwordCheckPattern;
-
+    private final PasswordUtil passwordUtil;
 
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
@@ -59,9 +58,8 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
         this.authorityRepository = authorityRepository;
         this.cacheManager = cacheManager;
-        this.passwordCheckRegExp = passwordCheckRegExp;
 
-        this.passwordCheckPattern = Pattern.compile(passwordCheckRegExp);
+        this.passwordUtil = new PasswordUtil(passwordCheckRegExp);
     }
 
     public Optional<User> activateRegistration(String key) {
@@ -323,11 +321,6 @@ public class UserService {
     }
 
     public void checkPassword(String password) {
-
-        if( password != null && passwordCheckPattern.matcher(password).matches() ){
-            log.debug("new password matches restrictions");
-        }else{
-            throw new PasswordRestrictionMismatch("password does not match restriction '" + this.passwordCheckRegExp + "'");
-        }
+        passwordUtil.checkPassword(password, "user password");
     }
 }
