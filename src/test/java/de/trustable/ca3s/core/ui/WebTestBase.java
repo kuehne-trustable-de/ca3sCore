@@ -37,12 +37,16 @@ public class WebTestBase extends LocomotiveBase {
 		super();
 	}
 
-	public static void waitForUrl() {
+    public static void waitForUrl() {
+        waitForUrl(configuration.url());
+    }
+
+    public static void waitForUrl(String target) {
 		for (int i = 0; i < 30; i++) {
 			try {
-				System.out.println("connecting to : " + configuration.url());
+				System.out.println("connecting to : " + target);
 
-				URL url = new URL(configuration.url());
+				URL url = new URL(target);
 				URLConnection connection = url.openConnection();
 
 				connection.connect();

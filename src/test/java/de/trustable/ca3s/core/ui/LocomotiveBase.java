@@ -345,14 +345,14 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
      */
     public WebElement waitForElement(By by) {
         int attempts = 0;
-
+/*
         try {
             Thread.sleep(500); // sleep for 1 second.
         } catch (Exception x) {
             fail("Failed due to an exception during Thread.sleep!");
             x.printStackTrace();
         }
-
+*/
         int size = driver.findElements(by).size();
 
         while (size == 0) {
@@ -845,7 +845,7 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
     public LocomotiveBase navigateTo(String url) {
         // absolute url
         if (url.contains("://"))      driver.navigate().to(url);
-        else if (url.startsWith("/")) driver.navigate().to(baseUrl.concat(url));
+        else if (url.startsWith("/")) driver.navigate().to(baseUrl.concat(url.substring(1))); // drop the leading slash, already included in the base URL
         else                          driver.navigate().to(driver.getCurrentUrl().concat(url));
 
         return this;

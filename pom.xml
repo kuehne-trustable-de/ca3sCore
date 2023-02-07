@@ -206,6 +206,7 @@
 
         <kerby.version>2.0.2</kerby.version>
         <embedded-ldap.version>0.9.0</embedded-ldap.version>
+        <greenmail.version>1.6.13</greenmail.version>
 
         <xml.maven.saxon.version>11.4</xml.maven.saxon.version>
         <xml.maven.plugin.version>1.0.2</xml.maven.plugin.version>
@@ -1301,6 +1302,14 @@
             <groupId>org.zapodot</groupId>
             <artifactId>embedded-ldap-junit</artifactId>
             <version>${embedded-ldap.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.icegreen/greenmail -->
+        <dependency>
+            <groupId>com.icegreen</groupId>
+            <artifactId>greenmail</artifactId>
+            <version>${greenmail.version}</version>
             <scope>test</scope>
         </dependency>
 

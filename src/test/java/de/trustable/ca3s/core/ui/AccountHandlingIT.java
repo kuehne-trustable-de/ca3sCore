@@ -1,5 +1,9 @@
 package de.trustable.ca3s.core.ui;
 
+import com.icegreen.greenmail.util.GreenMail;
+import com.icegreen.greenmail.util.ServerSetup;
+import com.sun.mail.imap.IMAPStore;
+import com.sun.mail.imap.protocol.FLAGS;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import de.trustable.util.JCAManager;
@@ -14,9 +18,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 
+import javax.mail.Folder;
+import javax.mail.Message;
+import javax.mail.MessagingException;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.Base64;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @io.ddavison.conductor.Config(
@@ -37,6 +50,10 @@ public class AccountHandlingIT extends WebTestBase{
 
     public static final By LOC_BTN_REGISTER = By.xpath("//form/button [@type='submit'][text() = 'Register']");
 
+    public static final By LOC_TEXT_REGISTRATION_SUCCESSFUL = By.xpath("//div/strong [text() = 'Registration saved!']");
+
+    public static final By LOC_LNK_NEW_ACCOUNT_SIGN_IN = By.xpath("//div/a [text() = 'sign in']");
+
     public static final By LOC_LNK_SIGNIN_USERNAME = By.xpath("//form//input [@name = 'username']");
     public static final By LOC_LNK_SIGNIN_PASSWORD = By.xpath("//form//input [@name = 'password']");
     public static final By LOC_BTN_SIGNIN_SUBMIT = By.xpath("//form//button [@type='submit'][text() = 'Sign in']");
@@ -53,6 +70,9 @@ public class AccountHandlingIT extends WebTestBase{
 
     private static Random rand = new Random();
 
+    static GreenMail greenMailSMTPIMAP;
+    static String emailAddress;
+    static String emailPassword;
 
     @LocalServerPort
     int serverPort; // random port chosen by spring test
@@ -60,9 +80,44 @@ public class AccountHandlingIT extends WebTestBase{
     @Autowired
     PreferenceTestConfiguration prefTC;
 
+
     @BeforeAll
-    public static void setUpBeforeClass() {
+    public static void setUpBeforeClass() throws IOException {
+
         JCAManager.getInstance();
+
+        ServerSocket ssSMTP = new ServerSocket(0);
+        ServerSocket ssIMAP = new ServerSocket(0);
+        int randomPortSMTP = ssSMTP.getLocalPort();
+        int randomPortIMAP = ssIMAP.getLocalPort();
+        ssSMTP.close();
+        ssIMAP.close();
+
+        ServerSetup smtpSetup = new ServerSetup(randomPortSMTP, null, ServerSetup.PROTOCOL_SMTP);
+        ServerSetup imapSetup = new ServerSetup(randomPortIMAP, null, ServerSetup.PROTOCOL_IMAP);
+        greenMailSMTPIMAP = new GreenMail(new ServerSetup[]{smtpSetup,imapSetup});
+
+        greenMailSMTPIMAP.start();
+
+        System.setProperty("spring.mail.host", "localhost");
+        System.setProperty("spring.mail.port", "" + randomPortSMTP);
+
+        System.out.println("randomPortSMTP : " + randomPortSMTP);
+        System.out.println("randomPortIMAP : " + randomPortIMAP);
+
+        byte[] emailBytes = new byte[6];
+        rand.nextBytes(emailBytes);
+        emailAddress = "User_" + encodeBytesToText(emailBytes) + "@localhost.com";
+
+        byte[] passwordBytes = new byte[6];
+        rand.nextBytes(passwordBytes);
+        emailPassword = "Password1" + encodeBytesToText(passwordBytes);
+
+        // Create user, as connect verifies pwd
+        greenMailSMTPIMAP.setUser(emailAddress, emailAddress, emailPassword);
+
+        System.out.println("create eMAil account '" + emailAddress + "', identified by '" + emailPassword + "'");
+
     }
 
     @BeforeEach
@@ -79,21 +134,26 @@ public class AccountHandlingIT extends WebTestBase{
     }
 
     @Test
-    public void testCreateNewAccount()  {
+    public void testCreateNewAccount() throws MessagingException, IOException {
 
         byte[] loginBytes = new byte[6];
         rand.nextBytes(loginBytes);
-        String loginName = "User_" + Base64.getEncoder().encodeToString(loginBytes);
-
-        byte[] emailBytes = new byte[6];
-        rand.nextBytes(emailBytes);
-        String email = "User_" + Base64.getEncoder().encodeToString(emailBytes) + "@localhost";
+        String loginName = "User_" + encodeBytesToText(loginBytes);
 
         byte[] passwordBytes = new byte[6];
         rand.nextBytes(passwordBytes);
-        String password = "Password_" + Base64.getEncoder().encodeToString(passwordBytes);
+        String password = "Password1" + encodeBytesToText(passwordBytes);
 
-//        signIn(USER_NAME_ADMIN, USER_PASSWORD_ADMIN);
+        IMAPStore imapStore = greenMailSMTPIMAP.getImap().createStore();
+        imapStore.connect(emailAddress, emailPassword);
+        Folder inbox = imapStore.getFolder("INBOX");
+        inbox.open(Folder.READ_WRITE);
+
+        System.out.println("inbox contains " + inbox.getMessageCount() + " messages.");
+        while( inbox.getMessageCount() > 0) {
+            System.out.println("deleting message ...");
+            inbox.getMessage(1).setFlag(FLAGS.Flag.DELETED, true);
+        }
 
         waitForElement(LOC_LNK_ACCOUNT_MENUE);
         validatePresent(LOC_LNK_ACCOUNT_MENUE);
@@ -108,7 +168,7 @@ public class AccountHandlingIT extends WebTestBase{
         setText(LOC_INP_LOGIN_VALUE, loginName);
 
         validatePresent(LOC_INP_EMAIL_VALUE);
-        setText(LOC_INP_EMAIL_VALUE, email);
+        setText(LOC_INP_EMAIL_VALUE, emailAddress);
 
         validatePresent(LOC_INP_1_PASSWORD_VALUE);
         setText(LOC_INP_1_PASSWORD_VALUE, password);
@@ -118,6 +178,42 @@ public class AccountHandlingIT extends WebTestBase{
         validatePresent(LOC_BTN_REGISTER);
         click(LOC_BTN_REGISTER);
 
+        waitForElement(LOC_TEXT_REGISTRATION_SUCCESSFUL);
+
+        System.out.println("inbox.getMessageCount() : " + inbox.getMessageCount());
+        while( inbox.getMessageCount() == 0) {
+            try {
+                Thread.sleep(1000); // sleep for 1 second.
+            } catch (Exception x) {
+                fail("Failed due to an exception during Thread.sleep!");
+                x.printStackTrace();
+            }
+        }
+
+        Message msgReceived = inbox.getMessage(1);
+
+//        System.out.println( "msgReceived.getContentType() : " + msgReceived.getContentType() );
+//        System.out.println( "msgReceived.getContent() : " + msgReceived.getContent() );
+
+        String emailContent = msgReceived.getContent().toString();
+
+        Pattern p = Pattern.compile("<a href=\"http:\\/\\/.*:.*(\\/account\\/activate\\?key=.*)\">");
+        Matcher m = p.matcher(emailContent);
+        assertTrue(m.find());
+
+        String activateUrl = m.group(1);
+        System.out.println( "Confirming account at " + activateUrl);
+
+        navigateTo(activateUrl);
+
+
+        inbox.close();
+        imapStore.close();
+
+        validatePresent(LOC_LNK_NEW_ACCOUNT_SIGN_IN);
+        click(LOC_LNK_NEW_ACCOUNT_SIGN_IN);
+
+        signIn(loginName, password);
 
 
         try {
@@ -126,5 +222,13 @@ public class AccountHandlingIT extends WebTestBase{
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+
     }
+
+    static String encodeBytesToText(byte[] bytes){
+        return Base64.getEncoder().encodeToString(bytes).replace("+", "A").replace("=", "B");
+    }
+
+
 }

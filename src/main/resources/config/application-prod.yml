@@ -278,8 +278,13 @@ ca3s:
       minute: 20
       hour: 0
 
-# determine the status of an Authentication or an Order by proving the status of the challenges.
-# this may trigger a challenge validation call to the client
+    # expiry period for orders
+    order:
+      validity:
+        seconds: 600
+
+  # determine the status of an Authentication or an Order by proving the status of the challenges.
+  # this may trigger a challenge validation call to the client
     iterate:
       authentications: true
       challenges: true

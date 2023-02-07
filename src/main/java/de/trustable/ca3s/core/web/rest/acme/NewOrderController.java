@@ -292,13 +292,16 @@ public class NewOrderController extends AcmeController {
 
     private final String resolverHost;
 
+    private final int orderValiditySec;
+
 
     public NewOrderController(AcmeOrderRepository orderRepository,
                               AcmeOrderAttributeRepository orderAttributeRepository, AcmeAuthorizationRepository authorizationRepository,
                               AcmeChallengeRepository challengeRepository,
                               AcmeIdentifierRepository identRepository,
                               PipelineUtil pipelineUtil,
-                              @Value("${ca3s.dns.server:}") String resolverHost) {
+                              @Value("${ca3s.dns.server:}") String resolverHost,
+                              @Value("${ca3s.acme.order.validity.seconds:600}") int orderValiditySec) {
 
         this.orderRepository = orderRepository;
         this.orderAttributeRepository = orderAttributeRepository;
@@ -307,6 +310,7 @@ public class NewOrderController extends AcmeController {
         this.identRepository = identRepository;
         this.pipelineUtil = pipelineUtil;
         this.resolverHost = resolverHost;
+        this.orderValiditySec = orderValiditySec;
     }
 
 
@@ -349,7 +353,7 @@ public class NewOrderController extends AcmeController {
 
         int orderValiditySeconds = pipelineUtil.getPipelineAttribute(pipeline,
             ACME_ORDER_VALIDITY_SECONDS,
-            600);
+            orderValiditySec);
 
         orderDao.setExpires(now.plus(orderValiditySeconds, ChronoUnit.SECONDS));
 
@@ -441,9 +445,9 @@ public class NewOrderController extends AcmeController {
             }
 
             if( challenges.isEmpty()){
-                LOG.info("No challenge available for the given configuration of pipeline '{}'", pipeline.getName());
+                LOG.info("No challenge available / supported for the given configuration of pipeline '{}'", pipeline.getName());
                 final ProblemDetail problemDetail = new ProblemDetail(AcmeUtil.MALFORMED, "No challenge available",
-                    BAD_REQUEST, "No challenge available for the given configuration.", AcmeController.NO_INSTANCE);
+                    BAD_REQUEST, "No challenge available / supported for the given configuration.", AcmeController.NO_INSTANCE);
                 throw new AcmeProblemException(problemDetail);
             }
 
