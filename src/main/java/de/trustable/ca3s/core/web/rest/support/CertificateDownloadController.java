@@ -452,19 +452,19 @@ public class CertificateDownloadController  {
                     passwordProtectionAlgo,
                     new PBEParameterSpec(salt, 100000)));
 
-//			p12.setKeyEntry(entryAlias, key, passphraseChars, chain);
-
 			try(ByteArrayOutputStream baos = new ByteArrayOutputStream()){
-				p12.store(baos, passphraseChars);
+                p12.store(baos, passphraseChars);
+                byte[] contentBytes = baos.toByteArray();
 
-				ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-				KeyStore store = KeyStore.getInstance("pkcs12");
-				store.load(bais, passphraseChars);
+                if( LOG.isDebugEnabled()) {
+                    ByteArrayInputStream bais = new ByteArrayInputStream(contentBytes);
+                    KeyStore store = KeyStore.getInstance("pkcs12");
+                    store.load(bais, passphraseChars);
 
-				java.security.cert.Certificate cert = store.getCertificate(entryAlias);
-				LOG.debug("retrieved cert " + cert);
+                    java.security.cert.Certificate cert = store.getCertificate(entryAlias);
+                    LOG.debug("retrieved cert " + cert);
+                }
 
-				byte[] contentBytes = baos.toByteArray();
 				headers.set("content-length", String.valueOf(contentBytes.length));
 				return ResponseEntity.ok().contentType(AcmeController.APPLICATION_PKCS12).headers(headers).body(contentBytes);
 			}

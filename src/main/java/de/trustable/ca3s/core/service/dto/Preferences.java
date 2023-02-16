@@ -21,11 +21,14 @@ public class Preferences implements Serializable {
 
     private int[] acmeHTTP01CallbackPortArr = {5544,8080,80};
 
+    private String[] availableHashes = {"sha-256", "sha-512"};
+    private String[] availableSigningAlgos = {"rsa-2048","rsa-3072","rsa-4096", "rsa-8192"};
+
     private String[] selectedHashes = {"sha-256", "sha-512"};
     private String[] selectedSigningAlgos = {"rsa-2048","rsa-3072","rsa-4096", "rsa-8192"};
 
 
-	public Preferences() {}
+    public Preferences() {}
 
 	public boolean isServerSideKeyCreationAllowed() {
 		return serverSideKeyCreationAllowed;
@@ -65,6 +68,22 @@ public class Preferences implements Serializable {
 
     public void setMaxNextUpdatePeriodCRLHour(long maxNextUpdatePeriodCRLHour) {
         this.maxNextUpdatePeriodCRLHour = maxNextUpdatePeriodCRLHour;
+    }
+
+    public String[] getAvailableHashes() {
+        return availableHashes;
+    }
+
+    public void setAvailableHashes(String[] availableHashes) {
+        this.availableHashes = availableHashes;
+    }
+
+    public String[] getAvailableSigningAlgos() {
+        return availableSigningAlgos;
+    }
+
+    public void setAvailableSigningAlgos(String[] availableSigningAlgos) {
+        this.availableSigningAlgos = availableSigningAlgos;
     }
 
     public String[] getSelectedHashes() {

@@ -968,7 +968,7 @@ public class PipelineUtil {
                 outcome = false;
             }
 
-        String signingAlgo = "rsa";
+        String signingAlgo = p10ReqHolder.getPublicKeyAlgorithmShortName();
         int keyLength = CertificateUtil.getAlignedKeyLength(p10ReqHolder.getPublicSigningKey());
 
         if(Arrays.stream(preferences.getSelectedSigningAlgos()).noneMatch(a -> matchesAlgo(a, signingAlgo, keyLength))){
@@ -993,7 +993,7 @@ public class PipelineUtil {
         }
         try {
             int keyLengthRestriction = Integer.parseInt(parts[1]);
-            return keyLengthRestriction == keyLength;
+            return keyLengthRestriction <= keyLength;
         }catch(NumberFormatException nfe){
             LOG.warn("unexpected number in keyLengthdescriptor: '"+a+"'",nfe);
         }

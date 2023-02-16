@@ -26,6 +26,7 @@ import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.jcajce.interfaces.EdDSAPrivateKey;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
@@ -100,6 +101,7 @@ public class ContentUploadProcessor {
 
     private static final String SIGNATURE_ALG = "SHA256withRSA";
     private static final String EC_SIGNATURE_ALG = "SHA256withECDSA";
+    private static final String ED25519_SIGNATURE_ALG = "ed25519";
 
 	static HashMap<String,ASN1ObjectIdentifier> nameOIDMap = new HashMap<>();
 	static HashMap<String,Integer> nameGeneralNameMap = new HashMap<>();
@@ -475,7 +477,14 @@ public class ContentUploadProcessor {
 
 
             PrivateKey pk = keypair.getPrivate();
-            JcaContentSignerBuilder csBuilder = new JcaContentSignerBuilder(pk instanceof ECKey ? EC_SIGNATURE_ALG : SIGNATURE_ALG);
+            String algo = SIGNATURE_ALG;
+            if( pk instanceof ECKey){
+                algo = EC_SIGNATURE_ALG;
+            }else if ( pk instanceof EdDSAPrivateKey) {
+                algo = ED25519_SIGNATURE_ALG;
+            }
+
+            JcaContentSignerBuilder csBuilder = new JcaContentSignerBuilder(algo);
             ContentSigner signer = csBuilder.build(pk);
 
             PKCS10CertificationRequest p10CR = p10Builder.build(signer);

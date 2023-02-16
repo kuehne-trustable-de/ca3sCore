@@ -83,7 +83,7 @@
                                     </select-->
 
                                     <select class="form-control w-50"  id="pkcsxx.upload.key-length" name="pkcsxx.upload.key-length" v-model="keyAlgoLength" v-on:change="updateCmdLine()">
-                                        <option v-bind:value="algo" v-for="algo in preferences.selectedSigningAlgos" :key="algo">{{algo}}</option>
+                                        <option v-bind:value="algo" v-for="algo in getAlgoList(creationTool)" :key="algo">{{algo}}</option>
                                     </select>
 
                                 </div>

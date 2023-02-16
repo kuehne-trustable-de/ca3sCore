@@ -227,7 +227,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     return false;
   }
 
-  public regExpSecret(value: string): string {
+  public regExpSecret(): string {
     if (
       this.$store.state.uiConfigStore.config.cryptoConfigView !== undefined &&
       this.$store.state.uiConfigStore.config.cryptoConfigView.pkcs12SecretRegexp !== undefined
@@ -492,16 +492,42 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     fileName = fileName.replace(re, '_');
 
     let algo = 'undefined';
+    let algoKeyTool = 'undefined';
     if (this.keyAlgoLength.startsWith('rsa')) {
       algo = 'RSA';
+      algoKeyTool = 'RSA';
+    } else if (this.keyAlgoLength.startsWith('ecdsa')) {
+      algo = 'ECDSA';
+      algoKeyTool = 'EC';
+    } else if (this.keyAlgoLength.startsWith('ed25519')) {
+      algo = 'ED25519';
+      algoKeyTool = 'Ed25519';
     }
+
     let keyLen = '4096';
-    if (this.keyAlgoLength.endsWith('1024')) {
+    let certReqKeyAlgorithm = '';
+    if (this.keyAlgoLength.endsWith('224')) {
+      keyLen = '224';
+      certReqKeyAlgorithm = 'ECDSA_P224';
+    } else if (this.keyAlgoLength.endsWith('256')) {
+      keyLen = '256';
+      certReqKeyAlgorithm = 'ECDSA_P256';
+    } else if (this.keyAlgoLength.endsWith('384')) {
+      keyLen = '384';
+      certReqKeyAlgorithm = 'ECDSA_P384';
+    } else if (this.keyAlgoLength.endsWith('512')) {
+      keyLen = '521';
+      certReqKeyAlgorithm = 'ECDSA_P521';
+    } else if (this.keyAlgoLength.endsWith('1024')) {
       keyLen = '1024';
     } else if (this.keyAlgoLength.endsWith('2048')) {
       keyLen = '2048';
     } else if (this.keyAlgoLength.endsWith('3072')) {
       keyLen = '3072';
+    } else if (this.keyAlgoLength.endsWith('6144')) {
+      keyLen = '6144';
+    } else if (this.keyAlgoLength.endsWith('8192')) {
+      keyLen = '8192';
     }
 
     const hashAlgo = 'sha256';
@@ -510,7 +536,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     // java keytool
     //
     if (this.creationTool === 'keytool') {
-      cmdline0 = 'keytool -genkeypair -keyalg ' + algo;
+      cmdline0 = 'keytool -genkeypair -keyalg ' + algoKeyTool;
       cmdline0 += ' -keysize ' + keyLen;
 
       const aliasP12Type = ' -alias keyAlias -keystore ' + fileName + '.p12 -storetype pkcs12';
@@ -611,6 +637,9 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
       reqConf = '[NewRequest]\n';
       reqConf += 'Subject = "' + dnLines + '"\n';
+      if (certReqKeyAlgorithm.length > 0) {
+        reqConf += 'KeyAlgorithm = "' + certReqKeyAlgorithm + '"\n';
+      }
       reqConf += 'KeyLength = ' + keyLen + '\n';
       reqConf += 'HashAlgorithm = ' + hashAlgo + '\n';
       reqConf += 'Exportable = False\n';
@@ -739,8 +768,27 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   }
 
   private getOpensslCommon(cmdline: string, algo: string, hashAlgo: string, keyLen: string, addSubject: boolean) {
-    cmdline = 'openssl req -newkey ' + algo + ':' + keyLen + ' -' + hashAlgo;
-    cmdline += ' -nodes';
+    cmdline = 'openssl req -newkey ';
+
+    if (algo.startsWith('RSA')) {
+      cmdline += 'RSA' + ':' + keyLen;
+    } else if (algo.startsWith('ECDSA')) {
+      let ecCurve = 'secp224r1';
+      if (keyLen === '224') {
+        ecCurve = 'secp224r1';
+      } else if (keyLen === '256') {
+        ecCurve = 'prime256v1';
+      } else if (keyLen === '384') {
+        ecCurve = 'secp384r1';
+      } else if (keyLen === '512') {
+        ecCurve = 'secp521r1';
+      }
+      cmdline += 'ec -pkeyopt ec_paramgen_curve:' + ecCurve;
+    } else {
+      cmdline += algo;
+    }
+
+    cmdline += ' -' + hashAlgo + ' -nodes';
 
     if (addSubject) {
       cmdline += ' -subj ';
@@ -928,6 +976,20 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       window.console.info('getPreference returns ' + response.data);
       self.preferences = response.data;
     });
+  }
+
+  public getAlgoList(tool: string): string[] {
+    if ('openssl' === tool) {
+      let resultArr = [];
+      for (const algo of this.preferences.availableSigningAlgos) {
+        if (algo.startsWith('rsa')) {
+          resultArr.push(algo);
+        }
+      }
+      return resultArr;
+    }
+
+    return this.preferences.availableSigningAlgos;
   }
 
   public showCSRRelatedArea(): boolean {

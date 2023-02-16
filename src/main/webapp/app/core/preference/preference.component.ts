@@ -93,6 +93,19 @@ export default class Preference extends mixins(AlertMixin, JhiDataUtils) {
   public retrievePreference(): void {
     this.find(1).then(res => {
       this.preferences = res;
+
+      this.allHashes = [];
+      for (let i = 0; i < this.preferences.availableHashes.length; i++) {
+        const hash = this.preferences.availableHashes[i];
+        this.allHashes.push({ id: hash, name: hash });
+      }
+
+      this.allSignAlgos = [];
+      for (let i = 0; i < this.preferences.availableSigningAlgos.length; i++) {
+        const algo = this.preferences.availableSigningAlgos[i];
+        this.allSignAlgos.push({ id: algo, name: algo });
+      }
+
       /*
         const parts = this.preferences.acmeHTTP01CallbackPorts.split(',');
         this.portArr = [];

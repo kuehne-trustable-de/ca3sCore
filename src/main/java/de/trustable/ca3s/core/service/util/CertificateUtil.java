@@ -1,56 +1,24 @@
 package de.trustable.ca3s.core.service.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.math.BigInteger;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
-import java.security.GeneralSecurityException;
-import java.security.InvalidKeyException;
-import java.security.KeyPair;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.SignatureException;
-import java.security.cert.*;
-import java.security.interfaces.DSAPublicKey;
-import java.security.interfaces.ECPublicKey;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.ECParameterSpec;
-import java.time.Instant;
-import java.util.*;
-
-import javax.naming.InvalidNameException;
-import javax.naming.NamingException;
-import javax.naming.ldap.LdapName;
-import javax.naming.ldap.Rdn;
-
-import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
+import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
+import de.trustable.ca3s.core.repository.CertificateAttributeRepository;
 import de.trustable.ca3s.core.repository.CertificateCommentRepository;
+import de.trustable.ca3s.core.repository.CertificateRepository;
+import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.CRLUpdateInfo;
 import de.trustable.util.AlgorithmInfo;
+import de.trustable.util.CryptoUtil;
+import de.trustable.util.OidNameMapper;
+import de.trustable.util.Pkcs10RequestHolder;
 import io.micrometer.core.instrument.util.StringUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.validator.routines.InetAddressValidator;
-import org.bouncycastle.asn1.ASN1Encodable;
-import org.bouncycastle.asn1.ASN1InputStream;
-import org.bouncycastle.asn1.ASN1ObjectIdentifier;
-import org.bouncycastle.asn1.ASN1OctetString;
-import org.bouncycastle.asn1.ASN1Primitive;
-import org.bouncycastle.asn1.ASN1Set;
-import org.bouncycastle.asn1.ASN1TaggedObject;
-import org.bouncycastle.asn1.DERIA5String;
-import org.bouncycastle.asn1.DEROctetString;
-import org.bouncycastle.asn1.DERSequence;
+import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
@@ -59,14 +27,15 @@ import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStrictStyle;
 import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
+import org.bouncycastle.jcajce.interfaces.EdDSAPublicKey;
 import org.bouncycastle.jcajce.provider.asymmetric.util.EC5Util;
 import org.bouncycastle.jce.PrincipalUtil;
 import org.bouncycastle.jce.X509Principal;
@@ -81,14 +50,23 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
-import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
-import de.trustable.ca3s.core.repository.CertificateAttributeRepository;
-import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.repository.ProtectedContentRepository;
-import de.trustable.util.CryptoUtil;
-import de.trustable.util.OidNameMapper;
-import de.trustable.util.Pkcs10RequestHolder;
+import javax.naming.InvalidNameException;
+import javax.naming.NamingException;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
+import java.io.*;
+import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
+import java.security.*;
+import java.security.cert.*;
+import java.security.interfaces.DSAPublicKey;
+import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.ECParameterSpec;
+import java.time.Instant;
+import java.util.*;
 
 
 @Service
@@ -196,7 +174,7 @@ public class CertificateUtil {
             X500Name x500Name = new X500Name(BCStrictStyle.INSTANCE, inputName);
 
             RDN[] rdNs = x500Name.getRDNs();
-            Arrays.sort(rdNs, new Comparator<RDN>() {
+            Arrays.sort(rdNs, new Comparator<>() {
                 @Override
                 public int compare(RDN o1, RDN o2) {
                     AttributeTypeAndValue o1First = o1.getFirst();
@@ -994,6 +972,22 @@ public class CertificateUtil {
     }
 
     /**
+     * @param p10ReqHolder
+     * @return
+     */
+    public static String getAlgoName(final Pkcs10RequestHolder p10ReqHolder) {
+
+        String algoName = p10ReqHolder.getSigningAlgorithmName().toLowerCase(Locale.ROOT);
+        if( algoName.contains("withrsaencryption")){
+            return "rsa";
+        }
+        if( algoName.contains("with")){
+            algoName = algoName.split("with")[0];
+        }
+        return algoName;
+    }
+
+    /**
      * @param pk
      * @return
      */
@@ -1045,7 +1039,10 @@ public class CertificateUtil {
             } else {
                 len = dsapub.getY().bitLength();
             }
+        } else if (pk instanceof EdDSAPublicKey) {
+            len = 256;
         }
+
         return len;
     }
 

@@ -45,6 +45,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.bouncycastle.asn1.ASN1OctetString;
@@ -69,10 +70,7 @@ import org.xbill.DNS.*;
 import javax.net.ssl.*;
 import javax.validation.constraints.NotNull;
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -500,17 +498,26 @@ public class ChallengeController extends AcmeController {
 
             } catch(UnknownHostException uhe) {
 //            } catch(RestClientException uhe) {
-				String msg = "unable to resolve hostname: '" + host + "'";
+                String msg = "unable to resolve hostname: '" + host + "'";
                 auditService.saveAuditTrace(
                     auditService.createAuditTraceAcmeChallengeFailed(acmeOrder.getAccount(), acmeOrder, msg));
                 LOG.info(msg);
                 challengeDao.setLastError(msg);
+                // give up here, other ports won't give better results
                 return false;
-		    } catch(IOException ioe) {
+            } catch(SocketTimeoutException | ConnectTimeoutException ste) {
+                String msg = "timeout connecting to "+host+":"+port+" for challenge id " +challengeDao.getId();
+                auditService.saveAuditTrace(
+                    auditService.createAuditTraceAcmeChallengeFailed(acmeOrder.getAccount(), acmeOrder, msg));
+                LOG.info(msg);
+                challengeDao.setLastError(msg);
+                // go on trying other ports
+		    } catch(IOException  ioe) {
 				String msg = "problem reading challenge response on "+host+":"+port+" for challenge id " +challengeDao.getId()+" : " + ioe.getMessage();
                 LOG.info(msg);
                 challengeDao.setLastError(msg);
 				LOG.debug("exception occurred reading challenge response", ioe);
+                // go on trying other ports
 		    }
 	    }
 

@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import de.trustable.ca3s.core.config.PreferenceDefaults;
 import de.trustable.ca3s.core.service.dto.Preferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.trustable.ca3s.core.domain.UserPreference;
@@ -31,11 +31,15 @@ public class PreferenceUtil {
     public static final String SELECTED_HASHES = "SelectedHashes";
     public static final String SELECTED_SIGNING_ALGOS = "SelectedSigningAlgos";
 
-    public static final String[] DEFAULT_HASHES = {"sha-256","sha-512"};
-    public static final String[] DEFAULT_ALGOS = {"rsa-2048","rsa-3072","rsa-4096"};
+    private final UserPreferenceService userPreferenceService;
 
-    @Autowired
-    private UserPreferenceService userPreferenceService;
+    private final PreferenceDefaults preferenceDefaults;
+
+    public PreferenceUtil(UserPreferenceService userPreferenceService, PreferenceDefaults preferenceDefaults) {
+        this.userPreferenceService = userPreferenceService;
+        this.preferenceDefaults = preferenceDefaults;
+    }
+
 
     public boolean isCheckCrl() {
         Optional<UserPreference> optBoolean = userPreferenceService.findPreferenceForUserId(CHECK_CRL, SYSTEM_PREFERENCE_ID);
@@ -78,10 +82,13 @@ public class PreferenceUtil {
     public Preferences getPrefs(Long userId) {
         Preferences prefs = new Preferences();
 
+        prefs.setAvailableHashes(preferenceDefaults.getAvailableHashes());
+        prefs.setAvailableSigningAlgos(preferenceDefaults.getAvailableSigningAlgos());
+
         // initialize the algorithm sets
         // this values have no effect once properties are set
-        prefs.setSelectedHashes(DEFAULT_HASHES);
-        prefs.setSelectedSigningAlgos(DEFAULT_ALGOS);
+        prefs.setSelectedHashes(preferenceDefaults.getAvailableHashes());
+        prefs.setSelectedSigningAlgos(preferenceDefaults.getAvailableSigningAlgos());
 
         log.debug("REST request to get Preference for user {}", userId);
         List<UserPreference> upList = userPreferenceService.findAllForUserId(userId);
