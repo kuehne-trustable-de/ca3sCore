@@ -168,8 +168,8 @@
         <adcsProxyClientVersion>1.2.9</adcsProxyClientVersion>
 
         <nimbus-jose-jwt-version>8.23</nimbus-jose-jwt-version>
+        <acme4jVersion>2.16</acme4jVersion>
         <jose4jVersion>0.9.3</jose4jVersion>
-        <acme4jVersion>2.14</acme4jVersion>
         <takesVersion>1.24.4</takesVersion>
         <jscepVersion>2.5.5</jscepVersion>
         <jasyptVersion>1.9.3</jasyptVersion>
