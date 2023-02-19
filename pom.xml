@@ -211,7 +211,7 @@
         <xml.maven.saxon.version>11.4</xml.maven.saxon.version>
         <xml.maven.plugin.version>1.0.2</xml.maven.plugin.version>
 
-        <dependencyCheck.version>7.3.2</dependencyCheck.version>
+        <dependencyCheck.version>7.4.4</dependencyCheck.version>
         <dependencyCheck.skip>false</dependencyCheck.skip>
 
     </properties>
