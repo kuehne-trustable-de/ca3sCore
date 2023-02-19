@@ -116,7 +116,7 @@
         <validation-api.version>2.0.1.Final</validation-api.version>
         <jaxb-runtime.version>2.3.3</jaxb-runtime.version>
 
-        <spring.version>5.3.21</spring.version>
+        <spring.version>5.3.25</spring.version>
         <spring.security.version>5.7.5</spring.security.version>
 
         <undertow.core.version>2.2.21.Final</undertow.core.version>
