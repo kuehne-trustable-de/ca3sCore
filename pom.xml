@@ -174,7 +174,7 @@
         <jscepVersion>2.5.5</jscepVersion>
         <jasyptVersion>1.9.3</jasyptVersion>
 
-        <log4j.version>2.19.0</log4j.version>
+        <log4j.version>2.20.0</log4j.version>
         <commons-logging.version>1.2</commons-logging.version>
 
         <dnsjava.version>3.5.2</dnsjava.version>
