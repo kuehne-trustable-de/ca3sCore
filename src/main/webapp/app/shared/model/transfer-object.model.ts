@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.0.1157 on 2023-02-09 10:18:30.
+// Generated using typescript-generator version 3.0.1157 on 2023-02-19 11:48:49.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -55,7 +55,7 @@ export interface IAcmeAccountView extends ISerializable {
 
 export interface IAcmeOrderView extends ISerializable {
   id?: number;
-  orderId?: number;
+  orderId?: string;
   status?: IAcmeOrderStatus;
   realm?: string;
   challenges?: IAcmeChallengeView[];
@@ -70,7 +70,7 @@ export interface IAcmeOrderView extends ISerializable {
   certificateUrl?: string;
   csrId?: number;
   certificateId?: number;
-  accountId?: number;
+  accountId?: string;
 }
 
 export interface IScepOrderView extends ISerializable {

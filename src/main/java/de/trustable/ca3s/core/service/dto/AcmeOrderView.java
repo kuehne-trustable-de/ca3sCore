@@ -8,7 +8,7 @@ import java.time.Instant;
 public class AcmeOrderView implements Serializable {
 
     private Long id;
-    private Long orderId;
+    private String orderId;
     private AcmeOrderStatus status;
     private String realm;
     private AcmeChallengeView[] challenges;
@@ -28,7 +28,7 @@ public class AcmeOrderView implements Serializable {
 
     private Long csrId;
     private Long certificateId;
-    private Long accountId;
+    private String accountId;
 
     public AcmeOrderView() {}
 
@@ -38,14 +38,6 @@ public class AcmeOrderView implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
     }
 
     public AcmeOrderStatus getStatus() {
@@ -128,11 +120,19 @@ public class AcmeOrderView implements Serializable {
         this.certificateId = certificateId;
     }
 
-    public Long getAccountId() {
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
+    }
+
+    public String getAccountId() {
         return accountId;
     }
 
-    public void setAccountId(Long accountId) {
+    public void setAccountId(String accountId) {
         this.accountId = accountId;
     }
 
@@ -167,4 +167,6 @@ public class AcmeOrderView implements Serializable {
     public void setChallengeUrls(String challengeUrls) {
         this.challengeUrls = challengeUrls;
     }
+
+
 }

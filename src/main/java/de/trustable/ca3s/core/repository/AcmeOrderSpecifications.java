@@ -246,7 +246,9 @@ public final class AcmeOrderSpecifications {
             if ("id".equalsIgnoreCase(attribute)) {
                 acmeOrderView.setId((Long) objArr[i]);
             } else if ("orderId".equalsIgnoreCase(attribute)) {
-                acmeOrderView.setAccountId((Long) objArr[i]);
+                acmeOrderView.setOrderId(objArr[i].toString());
+            } else if ("accountId".equalsIgnoreCase(attribute)) {
+                acmeOrderView.setAccountId(objArr[i].toString());
             } else if ("status".equalsIgnoreCase(attribute)) {
                 acmeOrderView.setStatus((AcmeOrderStatus) objArr[i]);
             } else if ("realm".equalsIgnoreCase(attribute)) {
@@ -368,12 +370,19 @@ public final class AcmeOrderSpecifications {
             if (attributeValue.trim().length() > 0) {
                 pred = buildPredicateOrderStatus(attributeSelector, cb, root.get(AcmeOrder_.status), attributeValue);
             }
+        } else if ("accountId".equals(attribute)) {
+            Join<AcmeOrder, AcmeAccount> accJoin = root.join(AcmeOrder_.account, JoinType.LEFT);
+            addNewColumn(selectionList,accJoin.get(AcmeAccount_.accountId));
+
+            if (attributeValue.trim().length() > 0) {
+                pred = buildPredicateLong( attributeSelector, cb, accJoin.get(AcmeAccount_.accountId), attributeValue.toLowerCase());
+            }
         } else if ("realm".equals(attribute)) {
             Join<AcmeOrder, AcmeAccount> accJoin = root.join(AcmeOrder_.account, JoinType.LEFT);
             addNewColumn(selectionList,accJoin.get(AcmeAccount_.realm));
 
             if (attributeValue.trim().length() > 0) {
-                pred = buildPredicateString( attributeSelector, cb, accJoin.<String>get(AcmeAccount_.realm), attributeValue.toLowerCase());
+                pred = buildPredicateString( attributeSelector, cb, accJoin.get(AcmeAccount_.realm), attributeValue.toLowerCase());
             }
 
         } else if ("expires".equals(attribute)) {
@@ -415,7 +424,7 @@ public final class AcmeOrderSpecifications {
                 Root<AcmeAuthorization> certAuthRoot = certAuthSubquery.from(AcmeAuthorization.class);
                 pred = cb.exists(certAuthSubquery.select(certAuthRoot)//subquery selection
                     .where(cb.and( cb.equal(certAuthRoot.get(AcmeAuthorization_.ORDER), root.get(AcmeOrder_.ID)),
-                        buildPredicateString( attributeSelector, cb, certAuthRoot.<String>get(AcmeAuthorization_.value), attributeValue.toLowerCase()) )));
+                        buildPredicateString( attributeSelector, cb, certAuthRoot.get(AcmeAuthorization_.value), attributeValue.toLowerCase()) )));
             }
         } else if ("challengeUrls".equals(attribute)) {
             addNewColumn(selectionList, root.get(AcmeOrder_.certificateUrl));
@@ -426,7 +435,7 @@ public final class AcmeOrderSpecifications {
                 Root<AcmeAuthorization> certAuthRoot = certAuthSubquery.from(AcmeAuthorization.class);
                 pred = cb.exists(certAuthSubquery.select(certAuthRoot)//subquery selection
                     .where(cb.and( cb.equal(certAuthRoot.get(AcmeAuthorization_.ORDER), root.get(AcmeOrder_.ID)),
-                        buildPredicateString( attributeSelector, cb, certAuthRoot.<String>get(AcmeAuthorization_.value), attributeValue.toLowerCase()) )));
+                        buildPredicateString( attributeSelector, cb, certAuthRoot.get(AcmeAuthorization_.value), attributeValue.toLowerCase()) )));
             }
         } else {
             logger.warn("fall-thru clause adding 'true' condition for {} ", attribute);

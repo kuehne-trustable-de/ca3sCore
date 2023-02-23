@@ -21,8 +21,8 @@ public class AcmeOrderUtil {
         AcmeOrderView acmeOrderView = new AcmeOrderView();
 
         acmeOrderView.setId(acmeOrder.getId());
-        acmeOrderView.setOrderId(acmeOrder.getOrderId());
-        acmeOrderView.setAccountId(acmeOrder.getAccount().getId());
+        acmeOrderView.setOrderId(String.valueOf(acmeOrder.getOrderId()));
+        acmeOrderView.setAccountId(String.valueOf(acmeOrder.getAccount().getId()));
         acmeOrderView.setRealm(acmeOrder.getAccount().getRealm());
 
         acmeOrderView.setStatus(acmeOrder.getStatus());

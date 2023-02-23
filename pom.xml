@@ -117,7 +117,7 @@
         <jaxb-runtime.version>2.3.8</jaxb-runtime.version>
 
         <spring.version>5.3.25</spring.version>
-        <spring.security.version>5.8.2</spring.security.version>
+        <spring.security.version>5.7.5</spring.security.version>
 
         <undertow.core.version>2.3.4.Final</undertow.core.version>
         <bucket4j.version>8.1.1</bucket4j.version>
@@ -799,11 +799,11 @@
             <version>1.6.14</version>
         </dependency>
 
-        <dependency>
+        <!--dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-webmvc-core</artifactId>
             <version>1.6.14</version>
-        </dependency>
+        </dependency-->
         <!--dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi</artifactId>
@@ -874,20 +874,13 @@
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
             <version>${liquibase.version}</version>
-        </dependency>
-        <!-- strange hack for a strange problem:
-          this module infers a different number of lb core despite its referenced within this pom -->
-        <!--dependency>
-            <groupId>org.liquibase.ext</groupId>
-            <artifactId>liquibase-mssql</artifactId>
-            <version>${liquibase.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>org.liquibase</groupId>
-                    <artifactId>liquibase-core</artifactId>
+                    <groupId>com.opencsv</groupId>
+                    <artifactId>opencsv</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency-->
+        </dependency>
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
