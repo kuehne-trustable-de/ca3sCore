@@ -15,6 +15,7 @@ import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 
+
 /**
  * A CSR.
  */
@@ -35,6 +36,9 @@ import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
     ),
     @NamedQuery(name = "CSR.findWithoutAttribute",
         query = "SELECT c FROM CSR c WHERE NOT EXISTS( select 1 FROM CsrAttribute attr WHERE attr.csr = c AND attr.name = :name)"
+    ),
+    @NamedQuery(name = "CSR.findByAttributeValue",
+        query = "SELECT c FROM CSR c JOIN c.csrAttributes attr  WHERE attr.name = :name and attr.value = :value"
     ),
     @NamedQuery(name = "CSR.findByRequestor",
         query = "SELECT c FROM CSR c WHERE " +
@@ -88,6 +92,9 @@ public class CSR implements Serializable {
     @NotNull
     @Column(name = "requested_by", nullable = false)
     private String requestedBy;
+
+    @Column(name = "accepted_by", nullable = true)
+    private String acceptedBy;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -298,6 +305,14 @@ public class CSR implements Serializable {
 
     public void setApprovedOn(Instant approvedOn) {
         this.approvedOn = approvedOn;
+    }
+
+    public String getAcceptedBy() {
+        return acceptedBy;
+    }
+
+    public void setAcceptedBy(String acceptedBy) {
+        this.acceptedBy = acceptedBy;
     }
 
     public Instant getRejectedOn() {
@@ -614,6 +629,8 @@ public class CSR implements Serializable {
         return 31;
     }
 
+
+
     @Override
     public String toString() {
         return "CSR{" +
@@ -623,6 +640,7 @@ public class CSR implements Serializable {
             ", sans='" + getSans() + "'" +
             ", requestedOn='" + getRequestedOn() + "'" +
             ", requestedBy='" + getRequestedBy() + "'" +
+            ", acceptedBy='" + getAcceptedBy() + "'" +
             ", pipelineType='" + getPipelineType() + "'" +
             ", status='" + getStatus() + "'" +
             ", administeredBy='" + getAdministeredBy() + "'" +

@@ -104,6 +104,9 @@ public class CSRView implements Serializable {
     private String administeredBy;
 
     @CsvBindByName
+    private String acceptedBy;
+
+    @CsvBindByName
     private Instant approvedOn;
 
     @CsvBindByName
@@ -208,6 +211,7 @@ public class CSRView implements Serializable {
 
         this.administeredBy = csr.getAdministeredBy();
         this.approvedOn = csr.getApprovedOn();
+        this.acceptedBy = csr.getAcceptedBy();
         this.requestorComment = csr.getRequestorComment();
         this.administrationComment = csr.getAdministrationComment();
 
@@ -428,6 +432,14 @@ public class CSRView implements Serializable {
 
     public void setAdministeredBy(String administeredBy) {
         this.administeredBy = administeredBy;
+    }
+
+    public String getAcceptedBy() {
+        return acceptedBy;
+    }
+
+    public void setAcceptedBy(String acceptedBy) {
+        this.acceptedBy = acceptedBy;
     }
 
     public Instant getApprovedOn() {

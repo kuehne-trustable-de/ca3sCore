@@ -25,6 +25,11 @@ import java.time.Instant;
             "a.csr = :csr "+
             "order by a.createdOn asc"
     ),
+    @NamedQuery(name = "AuditTrace.findByCsrAndTemplate",
+        query = "SELECT a FROM AuditTrace a WHERE " +
+            "a.csr = :csr " +
+            "and a.contentTemplate = :template "
+    ),
     @NamedQuery(name = "AuditTrace.findByPipeline",
         query = "SELECT a FROM AuditTrace a WHERE " +
             "a.pipeline = :pipeline "+

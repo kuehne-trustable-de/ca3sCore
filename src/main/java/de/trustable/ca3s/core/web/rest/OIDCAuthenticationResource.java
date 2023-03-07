@@ -64,7 +64,9 @@ public class OIDCAuthenticationResource {
     private KeycloakDeployment deployment;
 
     public OIDCAuthenticationResource(TokenProvider tokenProvider,
-                                      @Value("${ca3s.oidc.authorization-uri:}") String keycloakAuthorizationUri,
+//                                      @Value("${ca3s.oidc.authorization-uri:}") String keycloakAuthorizationUri,
+                                      @Value("${ca3s.oidc.auth-server-url:}") String keycloakAuthorizationUri,
+                                      @Value("${ca3s.oidc.realm:@null}") String realm,
                                       @Value("${ca3s.oidc.client-id}") String clientId,
                                       @Value("${ca3s.oidc.flow-type:code}") String flowType,
                                       OIDCRestService OIDCRestService) {
@@ -77,16 +79,20 @@ public class OIDCAuthenticationResource {
             log.info("OIDC not configured, 'ca3s.oidc.authorization-uri' is empty!");
         } else {
 
-            String authServerUrl = keycloakAuthorizationUri;
+//            String authServerUrl = keycloakAuthorizationUri;
 
             try {
-                String authUrl = StringUtils.substringBefore(authServerUrl, "/realms/");
-                String postRealms = StringUtils.substringAfter(authServerUrl, "/realms/");
-                String realm = StringUtils.substringBefore(postRealms, '/');
+//                String authUrl = StringUtils.substringBefore(authServerUrl, "/realms/");
+//                String postRealms = StringUtils.substringAfter(authServerUrl, "/realms/");
+//                String realm = StringUtils.substringBefore(postRealms, '/');
+
+                String authUrl = keycloakAuthorizationUri;
                 log.info("authUrl : {}, realm : {}", authUrl, realm);
 
                 AdapterConfig adapterConfig = new AdapterConfig();
-                adapterConfig.setRealm(realm);
+                if(realm != null) {
+                    adapterConfig.setRealm(realm);
+                }
                 adapterConfig.setAuthServerUrl(authUrl);
                 adapterConfig.setResource(clientId);
 

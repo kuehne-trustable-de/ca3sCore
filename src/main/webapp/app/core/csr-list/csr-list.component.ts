@@ -132,6 +132,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
     { itemName: 'pipelineType', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'WEB', values: ['WEB', 'ACME', 'SCEP'] },
     { itemName: 'requestedOn', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}' },
     { itemName: 'requestedBy', itemType: 'string', itemDefaultSelector: 'EQUAL', itemDefaultValue: '{user}' },
+    { itemName: 'acceptedBy', itemType: 'string', itemDefaultSelector: 'EQUAL', itemDefaultValue: '{user}' },
     { itemName: 'rejectedOn', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}' },
     { itemName: 'rejectionReason', itemType: 'string', itemDefaultSelector: 'EQUAL', itemDefaultValue: null }
     //    { itemName: 'keyAlgorithm', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'rsa', values: ['rsa', 'dsa', 'ec'] },
@@ -261,6 +262,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
         { label: this.$t('subject'), field: 'subject', headerClass: 'class-in-header second-class' },
         { label: this.$t('requestedOn'), field: 'requestedOn' },
         { label: this.$t('requestedBy'), field: 'requestedBy' },
+        { label: this.$t('acceptedBy'), field: 'acceptedBy' },
         { label: this.$t('pipeline'), field: 'pipelineName' },
         { label: this.$t('pipelineId'), field: 'pipelineId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
         { label: this.$t('pipelineType'), field: 'pipelineType' },

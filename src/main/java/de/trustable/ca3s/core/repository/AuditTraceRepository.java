@@ -9,6 +9,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.NamedQuery;
 import java.util.List;
 
 /**
@@ -29,6 +30,10 @@ public interface AuditTraceRepository extends PagingAndSortingRepository<AuditTr
     @Query(name = "AuditTrace.findByCsr")
     Page<AuditTrace> findByCsr(Pageable pageable,
                                @Param("csr") CSR csr);
+
+    @Query(name = "AuditTrace.findByCsrAndTemplate")
+    List<AuditTrace> findByCsrAndTemplate( @Param("csr") CSR csr,
+                                           @Param("template") String template);
 
     @Query(name = "AuditTrace.findByPipeline")
     Page<AuditTrace> findByPipeline(Pageable pageable,

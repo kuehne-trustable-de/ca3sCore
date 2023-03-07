@@ -38,6 +38,9 @@ public interface CSRRepository extends JpaRepository<CSR, Long> {
     @Query(name = "CSR.findWithoutAttribute")
     List<CSR> findWithoutAttribute(@Param("name") String name);
 
+    @Query(name = "CSR.findByAttributeValue")
+    List<CSR> findByAttributeValue(@Param("name") String name, @Param("value") String value);
+
     @Query(name = "CSR.groupIssuedByIssuanceMonth")
     List<Object[]> groupIssuedByIssuanceMonth(@Param("after") Instant after);
 

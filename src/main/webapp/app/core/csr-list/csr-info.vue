@@ -61,6 +61,20 @@
                         <span>{{ icsrView.requestorComment }}</span>
                     </dd>
 
+                    <dt v-if="icsrView.acceptedBy">
+                        <span v-text="$t('ca3SApp.cSR.acceptedBy')">Accepted By</span>
+                    </dt>
+                    <dd v-if="icsrView.acceptedBy">
+                        <span>{{ icsrView.acceptedBy }}</span>
+                    </dd>
+
+                    <dt v-if="icsrView.approvedOn">
+                        <span v-text="$t('ca3SApp.cSR.approvedOn')">Accepted On</span>
+                    </dt>
+                    <dd v-if="icsrView.approvedOn">
+                        <span v-if="icsrView.approvedOn">{{ $d(Date.parse(icsrView.approvedOn), 'long') }}</span>
+                    </dd>
+
                     <dt v-if="icsrView.status === 'REJECTED'">
                         <span v-text="$t('ca3SApp.cSR.rejectedOn')">Rejected On</span>
                     </dt>

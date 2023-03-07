@@ -56,7 +56,8 @@
 							<td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ $t(row.status) }} <router-link v-if="row.certificateId" :to="{name: 'CertInfo', params: {certificateId: row.certificateId}}" >&nbsp;<font-awesome-icon icon="id-card" /></router-link></td>
 							<td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ row.subject }}</td>
 							<td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ toLocalDate(row.requestedOn) }}</td>
-							<td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ row.requestedBy }}</td>
+                            <td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ row.requestedBy }}</td>
+                            <td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ row.acceptedBy }}</td>
                             <td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ row.pipelineName }}</td>
                             <!--td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ row.pipelineId }}</td-->
                             <td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ row.pipelineType }}</td>

@@ -19,7 +19,7 @@ public class CsrAttribute implements Serializable {
     public static final String ATTRIBUTE_PADDING_ALGO = "PADDING_ALGO";
     public static final String ATTRIBUTE_MFG = "MFG";
 
-    public static final int CURRENT_ATTRIBUTES_VERSION = 1;
+    public static final int CURRENT_ATTRIBUTES_VERSION = 2;
 
     private static final long serialVersionUID = 1L;
 
@@ -113,7 +113,7 @@ public class CsrAttribute implements Serializable {
     }
 
 
-	public static final String ATTRIBUTE_REQUESTED_BY = "REQUESTOR_NAME";
+    public static final String ATTRIBUTE_REQUESTED_BY = "REQUESTOR_NAME";
 	public static final String ATTRIBUTE_PROCESSING_CA = "PROCESSING_CA";
 	public static final String ATTRIBUTE_CA_PROCESSING_ID = "CA_PROCESSING_ID";
 	public static final String ATTRIBUTE_CA_PROCESSING_STARTED_TIMESTAMP = "CA_PROCESSING_STARTED_TIMESTAMP";

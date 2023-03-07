@@ -346,6 +346,9 @@ ca3s:
     scope: openid, profile
     authorization-grant-type: password
 
+    auth-server-url: http://keycloak.trustable.eu:50080/auth
+    realm: ca3sRealm
+
     authorization-uri: http://localhost:8080/auth/realms/ca3sRealm/protocol/openid-connect/auth
 #    authorization-uri: http://keycloak.trustable.eu:50080/auth/realms/ca3sRealm/protocol/openid-connect/auth
     user-info-uri: http://keycloak.trustable.eu:50080/auth/realms/ca3sRealm/protocol/openid-connect/userinfo

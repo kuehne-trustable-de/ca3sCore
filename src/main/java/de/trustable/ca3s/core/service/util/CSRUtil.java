@@ -293,7 +293,7 @@ public class CSRUtil {
 		csrAttRequestorName.setValue(requestorName);
 		csr.getCsrAttributes().add(csrAttRequestorName);
 
-        setCSRAttributeVersion(csr);
+        setCSRAttributeVersion(csr, "" + CsrAttribute.CURRENT_ATTRIBUTES_VERSION);
 
 		rdnRepository.saveAll(csr.getRdns());
 
@@ -316,12 +316,8 @@ public class CSRUtil {
 		return csr;
 	}
 
-    public void setCSRAttributeVersion(CSR csr) {
-        CsrAttribute verionAttr = new CsrAttribute();
-        verionAttr.setCsr(csr);
-        verionAttr.setName(CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION);
-        verionAttr.setValue("" + CsrAttribute.CURRENT_ATTRIBUTES_VERSION);
-        csr.getCsrAttributes().add(verionAttr);
+    public void setCSRAttributeVersion(CSR csr, String version) {
+        setCsrAttribute(csr, CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION, version, false);
     }
 
     public static String getKeyAlgoName(String sigAlgName) {
@@ -621,20 +617,21 @@ public class CSRUtil {
 			value= "";
 		}
 
-
-
 		Collection<CsrAttribute> csrAttrList = csr.getCsrAttributes();
 		for( CsrAttribute csrAttr : csrAttrList) {
 
-//	        LOG.debug("checking certificate attribute '{}' containing value '{}'", certAttr.getName(), certAttr.getValue());
+	        LOG.debug("checking csr attribute '{}' containing value '{}'", csrAttr.getName(), csrAttr.getValue());
 
 			if( name.equals(csrAttr.getName())) {
 				if( value.equals(csrAttr.getValue())) {
 					// attribute already present, no use in duplication here
+                    LOG.debug("attribute '{}' has expected value", csrAttr.getName());
 					return;
 				}else {
 					if( !multiValue ) {
+                        LOG.debug("overwriting existing attribute '{}' ", csrAttr.getName());
 						csrAttr.setValue(value);
+                        csrAttRepository.save(csrAttr);
 						return;
 					}
 				}

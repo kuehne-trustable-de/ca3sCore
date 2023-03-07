@@ -1,19 +1,12 @@
 package de.trustable.ca3s.core.ui;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.security.*;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Random;
-
-import javax.security.auth.x500.X500Principal;
-
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
-import de.trustable.ca3s.core.service.util.CryptoService;
+import de.trustable.util.CryptoUtil;
+import de.trustable.util.JCAManager;
+import io.ddavison.conductor.Browser;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -30,15 +23,22 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-
-import de.trustable.ca3s.core.Ca3SApp;
-import de.trustable.ca3s.core.PipelineTestConfiguration;
-import de.trustable.util.CryptoUtil;
-import de.trustable.util.JCAManager;
-import io.ddavison.conductor.Browser;
 import org.springframework.test.context.ActiveProfiles;
 
-import static org.junit.Assert.*;
+import javax.security.auth.x500.X500Principal;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.Random;
+
+import static org.junit.Assert.fail;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @io.ddavison.conductor.Config(
@@ -146,7 +146,9 @@ public class CSRSubmitIT extends WebTestBase{
 
 	@BeforeAll
 	public static void setUpBeforeClass() {
-		JCAManager.getInstance();
+
+        JCAManager.getInstance();
+        WebDriverManager.chromedriver().setup();
 	}
 
 	@BeforeEach

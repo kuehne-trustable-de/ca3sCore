@@ -12,6 +12,7 @@ import org.bouncycastle.util.encoders.DecoderException;
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.repository.query.Param;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -52,8 +53,9 @@ public class SchemaUpdateScheduler {
     final private PipelineRepository pipelineRepository;
 
     final private AuditService auditService;
+    final private AuditTraceRepository auditServiceRository;
 
-    public SchemaUpdateScheduler(CertificateRepository certificateRepo, CertificateUtil certUtil, CSRRepository csrRepository, CsrAttributeRepository csrAttributeRepository, CSRUtil csrUtil, AcmeOrderRepository acmeOrderRepository, AcmeAccountRepository acmeAccountRepository, PipelineRepository pipelineRepository, AuditService auditService) {
+    public SchemaUpdateScheduler(CertificateRepository certificateRepo, CertificateUtil certUtil, CSRRepository csrRepository, CsrAttributeRepository csrAttributeRepository, CSRUtil csrUtil, AcmeOrderRepository acmeOrderRepository, AcmeAccountRepository acmeAccountRepository, PipelineRepository pipelineRepository, AuditService auditService, AuditTraceRepository auditServiceRository) {
         this.certificateRepo = certificateRepo;
         this.certUtil = certUtil;
         this.csrRepository = csrRepository;
@@ -63,6 +65,7 @@ public class SchemaUpdateScheduler {
         this.acmeAccountRepository = acmeAccountRepository;
         this.pipelineRepository = pipelineRepository;
         this.auditService = auditService;
+        this.auditServiceRository = auditServiceRository;
     }
 
 
@@ -133,7 +136,7 @@ public class SchemaUpdateScheduler {
 
             try {
                 fixIPSan(csr);
-                csrUtil.setCSRAttributeVersion(csr);
+                csrUtil.setCSRAttributeVersion(csr, "1");
                 csrAttributeRepository.saveAll(csr.getCsrAttributes());
                 csrRepository.save(csr);
                 LOG.info("attribute schema updated for csr id {} ", csr.getId());
@@ -142,12 +145,32 @@ public class SchemaUpdateScheduler {
             }
 
             if (count++ > MAX_RECORDS_PER_TRANSACTION) {
-                LOG.info("limited certificate validity processing to {} per call", MAX_RECORDS_PER_TRANSACTION);
+                LOG.info("limited CSR schema processing to {} per call", MAX_RECORDS_PER_TRANSACTION);
                 break;
             }
         }
         if (count > 0) {
-            auditService.saveAuditTrace(auditService.createAuditTraceCertificateSchemaUpdated(count, CertificateUtil.CURRENT_ATTRIBUTES_VERSION));
+            auditService.saveAuditTrace(auditService.createAuditTraceCertificateSchemaUpdated(count, CsrAttribute.CURRENT_ATTRIBUTES_VERSION));
+        }
+
+        List<CSR> version1CSRList = csrRepository.findByAttributeValue(CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION, "1");
+        count = 0;
+        for (CSR csr : version1CSRList) {
+            LOG.info("checking audit for csr id {}", csr.getId());
+            csrUtil.setCSRAttributeVersion(csr, "" + CsrAttribute.CURRENT_ATTRIBUTES_VERSION);
+//            csrAttributeRepository.saveAll(csr.getCsrAttributes());
+            List<AuditTrace> auditTraceList =  auditServiceRository.findByCsrAndTemplate( csr, "CSR_ACCEPTED");
+            if( !auditTraceList.isEmpty()){
+                csr.setAcceptedBy( auditTraceList.get(0).getActorName());
+                LOG.info("csr id {} accepted by '{}'", csr.getId(), csr.getAcceptedBy());
+            }
+            csrRepository.save(csr);
+
+            if (count++ > MAX_RECORDS_PER_TRANSACTION) {
+                LOG.info("limited CSR 'accepted by' processing to {} per call", MAX_RECORDS_PER_TRANSACTION);
+                break;
+            }
+
         }
 
     }

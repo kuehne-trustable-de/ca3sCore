@@ -142,6 +142,8 @@ public class CSRAdministration {
 
             if(AdministrationType.ACCEPT.equals(adminData.getAdministrationType())){
     			csr.setApprovedOn(Instant.now());
+                csr.setAcceptedBy(userName);
+
                 updateARAttributes(adminData, csr);
                 csrUtil.setCSRComment(csr, adminData.getComment());
                 csrRepository.save(csr);
