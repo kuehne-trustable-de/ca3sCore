@@ -180,7 +180,11 @@ public class CSRView implements Serializable {
                             }
                         }
                     } catch (UnknownHostException e) {
-                        LOG.info("DNS lookup of '" + value + "' failed.", e);
+                        if( LOG.isDebugEnabled()) {
+                            LOG.info("DNS lookup of '" + value + "' failed.", e);
+                        }else {
+                            LOG.info("DNS lookup of '" + value + "' failed: {}", e.getMessage());
+                        }
                     }
                 }
                 sanList.add(value);

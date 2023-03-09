@@ -143,35 +143,59 @@ public class ChallengeController extends AcmeController {
         this.rateLimiter = new RateLimiter("Challenge", rateSec, rateMin, rateHour);
     }
 
+    @RequestMapping(value = "/proxy/{proxyId}", method = GET, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getChallenge(@PathVariable final long proxyId, @PathVariable final String realm) {
+
+        LOG.debug("Received proxy request for challenge request ");
+
+        Optional<AcmeChallenge> challengeOpt = challengeRepository.findPendingByProxyId(proxyId);
+        if(!challengeOpt.isPresent()) {
+            return ResponseEntity.notFound().headers(additionalHeaders).build();
+        }else {
+            AcmeChallenge challengeDao = challengeOpt.get();
+
+            LOG.debug( "returning challenge {}", challengeDao.getId());
+
+            ChallengeResponse challenge = buildChallengeResponse(challengeDao);
+
+            if(challengeDao.getStatus() == ChallengeStatus.VALID ) {
+                URI authUri = locationUriOfAuthorization(challengeDao.getAcmeAuthorization().getAcmeAuthorizationId(), fromCurrentRequestUri());
+                additionalHeaders.set("Link", "<" + authUri.toASCIIString() + ">;rel=\"up\"");
+            }
+            return ok().headers(additionalHeaders).body(challenge);
+        }
+
+    }
+
     @RequestMapping(value = "/{challengeId}", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getChallenge(@PathVariable final long challengeId, @PathVariable final String realm) {
 
-	  	LOG.debug("Received Challenge request ");
+        LOG.debug("Received Challenge request ");
 
         rateLimiter.checkRateLimit(challengeId, realm);
 
-	    final HttpHeaders additionalHeaders = buildNonceHeader();
+        final HttpHeaders additionalHeaders = buildNonceHeader();
 
         if( rejectGet ){
             return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).headers(additionalHeaders).build();
         }
 
         Optional<AcmeChallenge> challengeOpt = challengeRepository.findById(challengeId);
-		if(!challengeOpt.isPresent()) {
-		    return ResponseEntity.notFound().headers(additionalHeaders).build();
-		}else {
-			AcmeChallenge challengeDao = challengeOpt.get();
+        if(!challengeOpt.isPresent()) {
+            return ResponseEntity.notFound().headers(additionalHeaders).build();
+        }else {
+            AcmeChallenge challengeDao = challengeOpt.get();
 
-			LOG.debug( "returning challenge {}", challengeDao.getId());
+            LOG.debug( "returning challenge {}", challengeDao.getId());
 
-			ChallengeResponse challenge = buildChallengeResponse(challengeDao);
+            ChallengeResponse challenge = buildChallengeResponse(challengeDao);
 
-			if(challengeDao.getStatus() == ChallengeStatus.VALID ) {
-				URI authUri = locationUriOfAuthorization(challengeDao.getAcmeAuthorization().getAcmeAuthorizationId(), fromCurrentRequestUri());
-			    additionalHeaders.set("Link", "<" + authUri.toASCIIString() + ">;rel=\"up\"");
-			}
+            if(challengeDao.getStatus() == ChallengeStatus.VALID ) {
+                URI authUri = locationUriOfAuthorization(challengeDao.getAcmeAuthorization().getAcmeAuthorizationId(), fromCurrentRequestUri());
+                additionalHeaders.set("Link", "<" + authUri.toASCIIString() + ">;rel=\"up\"");
+            }
             return ok().headers(additionalHeaders).body(challenge);
-		}
+        }
 
     }
 

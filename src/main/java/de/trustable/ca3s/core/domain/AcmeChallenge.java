@@ -8,12 +8,22 @@ import java.io.Serializable;
 import java.time.Instant;
 
 import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  * A AcmeChallenge.
  */
 @Entity
 @Table(name = "acme_challenge")
+/*
+@NamedQueries({
+    @NamedQuery(name = "AcmeChallenge.findByPublicKeyHash",
+        query = "SELECT c FROM AcmeChallenge c WHERE " +
+            "c.publicKeyHash = :proxyId"
+    ),
+}) */
+
 public class AcmeChallenge implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -43,7 +53,6 @@ public class AcmeChallenge implements Serializable {
 
     @Column(name = "last_error", nullable = true)
     private String lastError;
-
 
     @NotNull
     @Enumerated(EnumType.STRING)

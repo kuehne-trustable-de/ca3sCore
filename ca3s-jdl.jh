@@ -458,6 +458,7 @@ relationship ManyToOne {
 
 	AcmeOrder{csr} to CSR
 	AcmeOrder{certificate} to Certificate
+	AcmeOrder{proxy} to RequestProxyConfig
 
     RequestAttribute{holdingRequestAttribute} to RequestAttributeValue
 
