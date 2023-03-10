@@ -61,7 +61,7 @@
     },
     {
       "relationshipType": "many-to-one",
-      "otherEntityName": "aCMEAccount",
+      "otherEntityName": "acmeAccount",
       "otherEntityRelationshipName": "auditEvent",
       "relationshipName": "acmeAccount",
       "otherEntityField": "id"

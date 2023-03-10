@@ -70,7 +70,7 @@
     },
     {
       "relationshipType": "many-to-one",
-      "otherEntityName": "aCMEAccount",
+      "otherEntityName": "acmeAccount",
       "otherEntityRelationshipName": "orders",
       "relationshipName": "account",
       "otherEntityField": "id"
