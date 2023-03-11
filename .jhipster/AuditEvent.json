@@ -1,5 +1,5 @@
 {
-  "name": "AuditEvent",
+  "name": "AuditTrace",
   "fields": [
     {
       "fieldName": "actorName",
@@ -34,42 +34,42 @@
     {
       "relationshipType": "many-to-one",
       "otherEntityName": "certificate",
-      "otherEntityRelationshipName": "auditEvent",
+      "otherEntityRelationshipName": "auditTrace",
       "relationshipName": "certificate",
       "otherEntityField": "id"
     },
     {
       "relationshipType": "many-to-one",
       "otherEntityName": "cSR",
-      "otherEntityRelationshipName": "auditEvent",
+      "otherEntityRelationshipName": "auditTrace",
       "relationshipName": "csr",
       "otherEntityField": "id"
     },
     {
       "relationshipType": "many-to-one",
       "otherEntityName": "cAConnectorConfig",
-      "otherEntityRelationshipName": "auditEvent",
+      "otherEntityRelationshipName": "auditTrace",
       "relationshipName": "caConnector",
       "otherEntityField": "id"
     },
     {
       "relationshipType": "many-to-one",
       "otherEntityName": "pipeline",
-      "otherEntityRelationshipName": "auditEvent",
+      "otherEntityRelationshipName": "auditTrace",
       "relationshipName": "pipeline",
       "otherEntityField": "id"
     },
     {
       "relationshipType": "many-to-one",
       "otherEntityName": "acmeAccount",
-      "otherEntityRelationshipName": "auditEvent",
+      "otherEntityRelationshipName": "auditTrace",
       "relationshipName": "acmeAccount",
       "otherEntityField": "id"
     },
     {
       "relationshipType": "many-to-one",
       "otherEntityName": "acmeOrder",
-      "otherEntityRelationshipName": "auditEvent",
+      "otherEntityRelationshipName": "auditTrace",
       "relationshipName": "acmeOrder",
       "otherEntityField": "id"
     }
