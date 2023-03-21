@@ -1,5 +1,5 @@
 {
-  "name": "AuditEvent",
+  "name": "AuditTrace",
   "fields": [
     {
       "fieldName": "actorName",
@@ -16,14 +16,20 @@
       ]
     },
     {
-      "fieldName": "action",
+      "fieldName": "plain_content",
+      "fieldType": "String",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },    {
+      "fieldName": "content_template",
       "fieldType": "String",
       "fieldValidateRules": [
         "required"
       ]
     },
     {
-      "fieldName": "timestamp",
+      "fieldName": "created_on",
       "fieldType": "Instant",
       "fieldValidateRules": [
         "required"
@@ -75,7 +81,7 @@
     }
   ],
   "changelogDate": "20210212175934",
-  "entityTableName": "audit_event",
+  "entityTableName": "audit_trace",
   "dto": "no",
   "pagination": "no",
   "service": "serviceImpl",
