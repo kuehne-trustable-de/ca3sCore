@@ -104,6 +104,7 @@ spring:
       console-available: true
 
 server:
+  max-http-header-size: 8KB
   servlet:
     session:
       cookie:

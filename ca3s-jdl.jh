@@ -12,7 +12,6 @@ entity AuditTrace{
 	createdOn Instant required
 }
 
-
 entity CAConnectorConfig{
 
 	name String required
@@ -181,10 +180,6 @@ entity AlgorithmRestriction{
   	name String
     acceptable Boolean required
 }
-
-entity AlgorithmRestrictions{
-}
-
 
 @skipClient
 entity RDN{
@@ -441,8 +436,6 @@ relationship OneToMany {
 	AcmeOrder{AcmeIdentifiers} to AcmeIdentifier{order}
 
 	AcmeAuthorization{challenges} to AcmeChallenge{AcmeAuthorization}
-
-    AlgorithmRestrictions{restrictions} to AlgorithmRestriction
 }
 
 relationship ManyToOne {
@@ -469,7 +462,7 @@ relationship ManyToOne {
 
 	Pipeline{caConnector} to CAConnectorConfig
 	Pipeline{processInfo} to BPMNProcessInfo
-	Pipeline{algorithms} to AlgorithmRestrictions
+	Pipeline{algorithms} to AlgorithmRestriction
 
 }
 

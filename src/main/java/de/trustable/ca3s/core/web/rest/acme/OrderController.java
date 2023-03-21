@@ -162,7 +162,7 @@ public class OrderController extends AcmeController {
                     updateAcmeOrderState(orderDao);
                 }
 
-                UriComponentsBuilder baseUriBuilder = fromCurrentRequestUri().path("../../..");
+                UriComponentsBuilder baseUriBuilder = fromCurrentRequestUri().path("/../../..");
                 LOG.debug("postAsGetOrder: baseUriBuilder : " + baseUriBuilder.toUriString());
 
                 return buildOrderResponse(additionalHeaders, orderDao, baseUriBuilder, true);
@@ -334,7 +334,7 @@ public class OrderController extends AcmeController {
                 }
 
                 boolean valid = true;
-                UriComponentsBuilder baseUriBuilder = fromCurrentRequestUri().path("../../../..");
+                UriComponentsBuilder baseUriBuilder = fromCurrentRequestUri().path("/../../../..");
                 LOG.debug("finalize: baseUriBuilder : " + baseUriBuilder.toUriString());
 
                 return buildOrderResponse(additionalHeaders, orderDao, baseUriBuilder, valid);
