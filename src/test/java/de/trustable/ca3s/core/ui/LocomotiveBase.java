@@ -227,6 +227,7 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
                             options.addArguments("safebrowsing_for_trusted_sources_enabled=false");
                             options.addArguments("download.prompt_for_download=false");
                             options.addArguments("download.directory_upgrade=true");
+                            options.addArguments("--remote-allow-origins=*");
 
                             options.addArguments("download.default_directory=" + downloadDir.getAbsolutePath() + File.separator);
 
