@@ -63,6 +63,7 @@ public class AuditTrace implements Serializable {
     private String actorRole;
 
     @NotNull
+    @Lob
     @Column(name = "plain_content", nullable = false)
     private String plainContent;
 

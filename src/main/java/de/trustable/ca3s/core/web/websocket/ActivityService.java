@@ -3,10 +3,8 @@ package de.trustable.ca3s.core.web.websocket;
 import static de.trustable.ca3s.core.config.WebsocketConfiguration.IP_ADDRESS;
 
 import de.trustable.ca3s.core.web.websocket.dto.ActivityDTO;
-
 import java.security.Principal;
 import java.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;

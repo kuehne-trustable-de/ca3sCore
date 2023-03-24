@@ -26,14 +26,15 @@ export default class TrackerService {
     }
     // building absolute path so that websocket doesn't fail when deploying with a context path
     const loc = window.location;
+    const baseHref = document.querySelector('base').getAttribute('href');
     let url;
-    url = '//' + loc.host + loc.pathname + 'websocket/tracker';
+    url = '//' + loc.host + baseHref + 'websocket/tracker';
     const authToken = localStorage.getItem('jhi-authenticationToken') || sessionStorage.getItem('jhi-authenticationToken');
     if (authToken) {
       url += '?access_token=' + authToken;
     }
     const socket = new SockJS(url);
-    this.stompClient = Stomp.over(socket);
+    this.stompClient = Stomp.over(socket, { protocols: ['v12.stomp'] });
     const headers = {};
     this.stompClient.connect(headers, () => this.afterConnect());
   }

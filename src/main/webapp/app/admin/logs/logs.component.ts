@@ -1,10 +1,11 @@
-import { Component, Inject } from 'vue-property-decorator';
-import { mixins } from 'vue-class-component';
+import { Component, Vue, Inject } from 'vue-property-decorator';
 import Vue2Filters from 'vue2-filters';
 import LogsService from './logs.service';
 
-@Component
-export default class JhiLogs extends mixins(Vue2Filters.mixin) {
+@Component({
+  mixins: [Vue2Filters.mixin],
+})
+export default class JhiLogs extends Vue {
   @Inject('logsService') private logsService: () => LogsService;
   private loggers: any[] = [];
   public filtered = '';
@@ -23,7 +24,7 @@ export default class JhiLogs extends mixins(Vue2Filters.mixin) {
       });
   }
 
-  public updateLevel(name, level): void {
+  public updateLevel(name: string, level: string): void {
     this.logsService()
       .changeLevel(name, level)
       .then(() => {
@@ -31,7 +32,7 @@ export default class JhiLogs extends mixins(Vue2Filters.mixin) {
       });
   }
 
-  public changeOrder(orderProp): void {
+  public changeOrder(orderProp: string): void {
     this.orderProp = orderProp;
     this.reverse = !this.reverse;
   }

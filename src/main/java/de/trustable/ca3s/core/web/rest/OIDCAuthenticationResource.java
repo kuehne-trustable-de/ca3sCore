@@ -67,7 +67,7 @@ public class OIDCAuthenticationResource {
 //                                      @Value("${ca3s.oidc.authorization-uri:}") String keycloakAuthorizationUri,
                                       @Value("${ca3s.oidc.auth-server-url:}") String keycloakAuthorizationUri,
                                       @Value("${ca3s.oidc.realm:@null}") String realm,
-                                      @Value("${ca3s.oidc.client-id}") String clientId,
+                                      @Value("${ca3s.oidc.client-id:#{null}}") String clientId,
                                       @Value("${ca3s.oidc.flow-type:code}") String flowType,
                                       OIDCRestService OIDCRestService) {
         this.tokenProvider = tokenProvider;
@@ -77,6 +77,8 @@ public class OIDCAuthenticationResource {
 
         if (keycloakAuthorizationUri.isEmpty()) {
             log.info("OIDC not configured, 'ca3s.oidc.authorization-uri' is empty!");
+        } else if( clientId == null){
+            log.info("OIDC not configured, 'ca3s.oidc.client-id' is empty!");
         } else {
 
 //            String authServerUrl = keycloakAuthorizationUri;

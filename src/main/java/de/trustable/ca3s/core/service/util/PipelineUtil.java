@@ -737,7 +737,7 @@ public class PipelineUtil {
             pc.setRelationType(ContentRelationType.SCEP_PW);
             pc.setRelatedId(p.getId());
             pc.setCreatedOn(Instant.now());
-            pc.setLeftUsages(-1L);
+            pc.setLeftUsages(-1);
             pc.setValidTo(ProtectedContentUtil.MAX_INSTANT);
             pc.setDeleteAfter(ProtectedContentUtil.MAX_INSTANT);
 

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { maxLength, minLength, required } from 'vuelidate/lib/validators';
+import { maxLength, minLength, required, sameAs } from 'vuelidate/lib/validators';
 import { Inject, Vue, Component } from 'vue-property-decorator';
 import LoginService from '@/account/login.service';
 
@@ -8,18 +8,19 @@ const validations = {
     newPassword: {
       required,
       minLength: minLength(4),
-      maxLength: maxLength(254)
+      maxLength: maxLength(254),
     },
     confirmPassword: {
-      required,
-      minLength: minLength(4),
-      maxLength: maxLength(254)
-    }
-  }
+      // prettier-ignore
+      sameAsPassword: sameAs(vm => {
+      return vm.newPassword;
+      }),
+    },
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class ResetPasswordFinish extends Vue {
   @Inject('loginService')
@@ -32,11 +33,11 @@ export default class ResetPasswordFinish extends Vue {
   public key: any;
   public resetAccount: any = {
     newPassword: null,
-    confirmPassword: null
+    confirmPassword: null,
   };
 
   created(): void {
-    if (this.$route !== undefined && this.$route.query !== undefined && this.$route.query.key !== undefined) {
+    if (this.$route?.query?.key !== undefined) {
       this.key = this.$route.query.key;
     }
     this.keyMissing = !this.key;

@@ -45,9 +45,7 @@ public class OIDCRestService {
     private static final Logger LOG = LoggerFactory.getLogger(OIDCRestService.class);
 
     final private String clientId;
-    final private String grantType;
     final private String clientSecret;
-    final private String scope;
 
     final private String[] rolesUserArr;
     final private String[] rolesDomainRAArr;
@@ -66,10 +64,8 @@ public class OIDCRestService {
                            @Value("${ca3s.oidc.roles.domainra:DOMAIN_RA}") String[] rolesDomainRAArr,
                            @Value("${ca3s.oidc.roles.ra:RA}") String[] rolesRAArr,
                            @Value("${ca3s.oidc.roles.admin:ADMIN}") String[] rolesAdminArr,
-                           @Value("${ca3s.oidc.client-id}") String clientId,
-                           @Value("${ca3s.oidc.authorization-grant-type}") String grantType,
-                           @Value("${ca3s.oidc.client-secret}") String clientSecret,
-                           @Value("${ca3s.oidc.scope}") String scope,
+                           @Value("${ca3s.oidc.client-id:#{null}}") String clientId,
+                           @Value("${ca3s.oidc.client-secret:clientSecret}") String clientSecret,
                            @Value("${ca3s.ui.languages:en,de,pl}") String availableLanguages,
                            UserPreferenceRepository userPreferenceRepository,
                            UserRepository userRepository,
@@ -82,9 +78,7 @@ public class OIDCRestService {
         this.rolesAdminArr = rolesAdminArr;
 
         this.clientId = clientId;
-        this.grantType = grantType;
         this.clientSecret = clientSecret;
-        this.scope = scope;
         this.userPreferenceRepository = userPreferenceRepository;
         this.userRepository = userRepository;
         this.authorityRepository = authorityRepository;

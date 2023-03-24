@@ -1,5 +1,6 @@
 import { shallowMount, createLocalVue, Wrapper } from '@vue/test-utils';
 import axios from 'axios';
+import sinon from 'sinon';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 import * as config from '@/shared/config/config';
@@ -9,7 +10,6 @@ import MetricsClass from '@/admin/metrics/metrics.component';
 import MetricsService from '@/admin/metrics/metrics.service';
 
 const localVue = createLocalVue();
-const mockedAxios: any = axios;
 
 config.initVueApp(localVue);
 const i18n = config.initI18N(localVue);
@@ -20,9 +20,9 @@ localVue.directive('b-modal', {});
 localVue.directive('b-progress', {});
 localVue.directive('b-progress-bar', {});
 
-jest.mock('axios', () => ({
-  get: jest.fn()
-}));
+const axiosStub = {
+  get: sinon.stub(axios, 'get'),
+};
 
 describe('Metrics Component', () => {
   let wrapper: Wrapper<MetricsClass>;
@@ -32,43 +32,43 @@ describe('Metrics Component', () => {
       'PS Eden Space': {
         committed: 5.57842432e8,
         max: 6.49592832e8,
-        used: 4.20828184e8
+        used: 4.20828184e8,
       },
       'Code Cache': {
         committed: 2.3461888e7,
         max: 2.5165824e8,
-        used: 2.2594368e7
+        used: 2.2594368e7,
       },
       'Compressed Class Space': {
         committed: 1.2320768e7,
         max: 1.073741824e9,
-        used: 1.1514008e7
+        used: 1.1514008e7,
       },
       'PS Survivor Space': {
         committed: 1.5204352e7,
         max: 1.5204352e7,
-        used: 1.2244376e7
+        used: 1.2244376e7,
       },
       'PS Old Gen': {
         committed: 1.10624768e8,
         max: 1.37887744e9,
-        used: 4.1390776e7
+        used: 4.1390776e7,
       },
       Metaspace: {
         committed: 9.170944e7,
         max: -1.0,
-        used: 8.7377552e7
-      }
+        used: 8.7377552e7,
+      },
     },
     databases: {
       min: {
-        value: 10.0
+        value: 10.0,
       },
       max: {
-        value: 10.0
+        value: 10.0,
       },
       idle: {
-        value: 10.0
+        value: 10.0,
       },
       usage: {
         '0.0': 0.0,
@@ -80,13 +80,13 @@ describe('Metrics Component', () => {
         count: 6,
         '0.99': 0.0,
         '0.75': 0.0,
-        '0.95': 0.0
+        '0.95': 0.0,
       },
       pending: {
-        value: 0.0
+        value: 0.0,
       },
       active: {
-        value: 0.0
+        value: 0.0,
       },
       acquire: {
         '0.0': 0.0,
@@ -98,7 +98,7 @@ describe('Metrics Component', () => {
         count: 6,
         '0.99': 0.0,
         '0.75': 0.0,
-        '0.95': 0.0
+        '0.95': 0.0,
       },
       creation: {
         '0.0': 0.0,
@@ -110,23 +110,23 @@ describe('Metrics Component', () => {
         count: 9,
         '0.99': 0.0,
         '0.75': 0.0,
-        '0.95': 0.0
+        '0.95': 0.0,
       },
       connections: {
-        value: 10.0
-      }
+        value: 10.0,
+      },
     },
     'http.server.requests': {
       all: {
-        count: 5
+        count: 5,
       },
       percode: {
         '200': {
           max: 0.0,
           mean: 298.9012628,
-          count: 5
-        }
-      }
+          count: 5,
+        },
+      },
     },
     cache: {
       usersByEmail: {
@@ -134,36 +134,36 @@ describe('Metrics Component', () => {
         'cache.puts': 0.0,
         'cache.gets.hit': 0.0,
         'cache.removals': 0.0,
-        'cache.evictions': 0.0
+        'cache.evictions': 0.0,
       },
       usersByLogin: {
         'cache.gets.miss': 1.0,
         'cache.puts': 1.0,
         'cache.gets.hit': 1.0,
         'cache.removals': 0.0,
-        'cache.evictions': 0.0
+        'cache.evictions': 0.0,
       },
-      'io.github.jhipster.domain.Authority': {
+      'tech.jhipster.domain.Authority': {
         'cache.gets.miss': 0.0,
         'cache.puts': 2.0,
         'cache.gets.hit': 0.0,
         'cache.removals': 0.0,
-        'cache.evictions': 0.0
+        'cache.evictions': 0.0,
       },
-      'io.github.jhipster.domain.User.authorities': {
+      'tech.jhipster.domain.User.authorities': {
         'cache.gets.miss': 0.0,
         'cache.puts': 1.0,
         'cache.gets.hit': 0.0,
         'cache.removals': 0.0,
-        'cache.evictions': 0.0
+        'cache.evictions': 0.0,
       },
-      'io.github.jhipster.domain.User': {
+      'tech.jhipster.domain.User': {
         'cache.gets.miss': 0.0,
         'cache.puts': 1.0,
         'cache.gets.hit': 0.0,
         'cache.removals': 0.0,
-        'cache.evictions': 0.0
-      }
+        'cache.evictions': 0.0,
+      },
     },
     garbageCollector: {
       'jvm.gc.max.data.size': 1.37887744e9,
@@ -177,43 +177,43 @@ describe('Metrics Component', () => {
         count: 1,
         '0.99': 0.0,
         '0.75': 0.0,
-        '0.95': 0.0
+        '0.95': 0.0,
       },
       'jvm.gc.memory.promoted': 2.992732e7,
       'jvm.gc.memory.allocated': 1.26362872e9,
       classesLoaded: 17393.0,
       'jvm.gc.live.data.size': 3.1554408e7,
-      classesUnloaded: 0.0
+      classesUnloaded: 0.0,
     },
     services: {
       '/management/info': {
         GET: {
           max: 0.0,
           mean: 104.952893,
-          count: 1
-        }
+          count: 1,
+        },
       },
       '/api/authenticate': {
         POST: {
           max: 0.0,
           mean: 909.53003,
-          count: 1
-        }
+          count: 1,
+        },
       },
       '/api/account': {
         GET: {
           max: 0.0,
           mean: 141.209628,
-          count: 1
-        }
+          count: 1,
+        },
       },
       '/**': {
         GET: {
           max: 0.0,
           mean: 169.4068815,
-          count: 2
-        }
-      }
+          count: 2,
+        },
+      },
     },
     processMetrics: {
       'system.load.average.1m': 3.63,
@@ -223,13 +223,13 @@ describe('Metrics Component', () => {
       'process.files.open': 205.0,
       'process.cpu.usage': 0.003456347568026252,
       'process.uptime': 88404.0,
-      'process.files.max': 1048576.0
+      'process.files.max': 1048576.0,
     },
-    threads: [{ name: 'test1', threadState: 'RUNNABLE' }]
+    threads: [{ name: 'test1', threadState: 'RUNNABLE' }],
   };
 
   beforeEach(() => {
-    mockedAxios.get.mockReturnValue(Promise.resolve({ data: { timers: [], gauges: [] } }));
+    axiosStub.get.resolves({ data: { timers: [], gauges: [] } });
     wrapper = shallowMount<MetricsClass>(Metrics, {
       store,
       i18n,
@@ -237,31 +237,27 @@ describe('Metrics Component', () => {
       stubs: {
         bModal: true,
         bProgress: true,
-        bProgressBar: true
+        bProgressBar: true,
       },
       provide: {
-        metricsService: () => new MetricsService()
-      }
+        metricsService: () => new MetricsService(),
+      },
     });
     metricsComponent = wrapper.vm;
-  });
-
-  it('should be a Vue instance', () => {
-    expect(wrapper.isVueInstance()).toBeTruthy();
   });
 
   describe('refresh', () => {
     it('should call refresh on init', async () => {
       // GIVEN
-      mockedAxios.get.mockReturnValue(Promise.resolve({ data: response }));
+      axiosStub.get.resolves({ data: response });
 
       // WHEN
       metricsComponent.refresh();
       await metricsComponent.$nextTick();
 
       // THEN
-      expect(mockedAxios.get).toHaveBeenCalledWith('management/jhimetrics');
-      expect(mockedAxios.get).toHaveBeenCalledWith('management/threaddump');
+      expect(axiosStub.get.calledWith('management/jhimetrics')).toBeTruthy();
+      expect(axiosStub.get.calledWith('management/threaddump')).toBeTruthy();
       expect(metricsComponent.metrics).toHaveProperty('jvm');
       expect(metricsComponent.metrics).toEqual(response);
       expect(metricsComponent.threadStats).toEqual({
@@ -269,7 +265,7 @@ describe('Metrics Component', () => {
         threadDumpWaiting: 0,
         threadDumpTimedWaiting: 0,
         threadDumpBlocked: 0,
-        threadDumpAll: 1
+        threadDumpAll: 1,
       });
     });
   });

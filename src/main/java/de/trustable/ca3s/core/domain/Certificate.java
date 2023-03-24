@@ -225,6 +225,7 @@ public class Certificate implements Serializable {
     @Column(name = "type", nullable = false)
     private String type;
 
+    @Lob
     @Column(name = "description")
     private String description;
 
@@ -294,7 +295,6 @@ public class Certificate implements Serializable {
 
     @Column(name = "active")
     private Boolean active;
-
 
     @Lob
     @Column(name = "content", nullable = false)

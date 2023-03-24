@@ -2,8 +2,7 @@ package de.trustable.ca3s.core;
 
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-
-import de.trustable.ca3s.core.config.DefaultProfileUtil;
+import tech.jhipster.config.DefaultProfileUtil;
 
 /**
  * This is a helper Java class that provides an alternative to creating a {@code web.xml}.
@@ -13,9 +12,7 @@ public class ApplicationWebXml extends SpringBootServletInitializer {
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        /**
-         * set a default to use when no profile is configured.
-         */
+        // set a default to use when no profile is configured.
         DefaultProfileUtil.addDefaultProfile(application.application());
         return application.sources(Ca3SApp.class);
     }

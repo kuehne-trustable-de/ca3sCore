@@ -1,44 +1,36 @@
 package de.trustable.ca3s.core.service;
 
-import de.trustable.ca3s.core.Ca3SApp;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
+import de.trustable.ca3s.core.IntegrationTest;
 import de.trustable.ca3s.core.config.Constants;
 import de.trustable.ca3s.core.domain.User;
-import de.trustable.ca3s.core.exception.PasswordRestrictionMismatch;
 import de.trustable.ca3s.core.repository.UserRepository;
-import de.trustable.ca3s.core.service.dto.UserDTO;
-
-import org.springframework.test.context.ActiveProfiles;
-import tech.jhipster.security.RandomUtil;
-
+import de.trustable.ca3s.core.service.dto.AdminUserDTO;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.auditing.AuditingHandler;
 import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Mockito.when;
+import tech.jhipster.security.RandomUtil;
 
 /**
  * Integration tests for {@link UserService}.
  */
-@SpringBootTest(classes = Ca3SApp.class)
-@ActiveProfiles("dev")
+@IntegrationTest
 @Transactional
-public class UserServiceIT {
+class UserServiceIT {
 
     private static final String DEFAULT_LOGIN = "johndoe";
 
@@ -61,7 +53,7 @@ public class UserServiceIT {
     @Autowired
     private AuditingHandler auditingHandler;
 
-    @Mock
+    @MockBean
     private DateTimeProvider dateTimeProvider;
 
     private User user;
@@ -83,35 +75,8 @@ public class UserServiceIT {
     }
 
     @Test
-    public void assertThatNewPasswordMatches() {
-        userService.checkPassword("FooBarBaz1");
-    }
-
-    @Test
-    public void assertThatNewPasswordFails() {
-        try {
-            userService.checkPassword("Foo1");
-            fail("password check MUST fail, too short");
-        }catch(PasswordRestrictionMismatch passwordRestrictionMismatch){
-            // as expected
-        }
-        try {
-            userService.checkPassword("foobarbaz1");
-            fail("password check MUST fail, lowercase chars only");
-        }catch(PasswordRestrictionMismatch passwordRestrictionMismatch){
-            // as expected
-        }
-        try {
-            userService.checkPassword("FooBarBaz");
-            fail("password check MUST fail, number missing");
-        }catch(PasswordRestrictionMismatch passwordRestrictionMismatch){
-            // as expected
-        }
-    }
-
-    @Test
     @Transactional
-    public void assertThatUserMustExistToResetPassword() {
+    void assertThatUserMustExistToResetPassword() {
         userRepository.saveAndFlush(user);
         Optional<User> maybeUser = userService.requestPasswordReset("invalid.login@localhost");
         assertThat(maybeUser).isNotPresent();
@@ -125,7 +90,7 @@ public class UserServiceIT {
 
     @Test
     @Transactional
-    public void assertThatOnlyActivatedUserCanRequestPasswordReset() {
+    void assertThatOnlyActivatedUserCanRequestPasswordReset() {
         user.setActivated(false);
         userRepository.saveAndFlush(user);
 
@@ -136,7 +101,7 @@ public class UserServiceIT {
 
     @Test
     @Transactional
-    public void assertThatResetKeyMustNotBeOlderThan24Hours() {
+    void assertThatResetKeyMustNotBeOlderThan24Hours() {
         Instant daysAgo = Instant.now().minus(25, ChronoUnit.HOURS);
         String resetKey = RandomUtil.generateResetKey();
         user.setActivated(true);
@@ -151,7 +116,7 @@ public class UserServiceIT {
 
     @Test
     @Transactional
-    public void assertThatResetKeyMustBeValid() {
+    void assertThatResetKeyMustBeValid() {
         Instant daysAgo = Instant.now().minus(25, ChronoUnit.HOURS);
         user.setActivated(true);
         user.setResetDate(daysAgo);
@@ -165,7 +130,7 @@ public class UserServiceIT {
 
     @Test
     @Transactional
-    public void assertThatUserCanResetPassword() {
+    void assertThatUserCanResetPassword() {
         String oldPassword = user.getPassword();
         Instant daysAgo = Instant.now().minus(2, ChronoUnit.HOURS);
         String resetKey = RandomUtil.generateResetKey();
@@ -185,7 +150,7 @@ public class UserServiceIT {
 
     @Test
     @Transactional
-    public void assertThatNotActivatedUsersWithNotNullActivationKeyCreatedBefore3DaysAreDeleted() {
+    void assertThatNotActivatedUsersWithNotNullActivationKeyCreatedBefore3DaysAreDeleted() {
         Instant now = Instant.now();
         when(dateTimeProvider.getNow()).thenReturn(Optional.of(now.minus(4, ChronoUnit.DAYS)));
         user.setActivated(false);
@@ -193,41 +158,28 @@ public class UserServiceIT {
         User dbUser = userRepository.saveAndFlush(user);
         dbUser.setCreatedDate(now.minus(4, ChronoUnit.DAYS));
         userRepository.saveAndFlush(user);
-        List<User> users = userRepository.findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(now.minus(3, ChronoUnit.DAYS));
+        Instant threeDaysAgo = now.minus(3, ChronoUnit.DAYS);
+        List<User> users = userRepository.findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(threeDaysAgo);
         assertThat(users).isNotEmpty();
         userService.removeNotActivatedUsers();
-        users = userRepository.findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(now.minus(3, ChronoUnit.DAYS));
+        users = userRepository.findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(threeDaysAgo);
         assertThat(users).isEmpty();
     }
 
     @Test
     @Transactional
-    public void assertThatNotActivatedUsersWithNullActivationKeyCreatedBefore3DaysAreNotDeleted() {
+    void assertThatNotActivatedUsersWithNullActivationKeyCreatedBefore3DaysAreNotDeleted() {
         Instant now = Instant.now();
         when(dateTimeProvider.getNow()).thenReturn(Optional.of(now.minus(4, ChronoUnit.DAYS)));
         user.setActivated(false);
         User dbUser = userRepository.saveAndFlush(user);
         dbUser.setCreatedDate(now.minus(4, ChronoUnit.DAYS));
         userRepository.saveAndFlush(user);
-        List<User> users = userRepository.findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(now.minus(3, ChronoUnit.DAYS));
+        Instant threeDaysAgo = now.minus(3, ChronoUnit.DAYS);
+        List<User> users = userRepository.findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(threeDaysAgo);
         assertThat(users).isEmpty();
         userService.removeNotActivatedUsers();
         Optional<User> maybeDbUser = userRepository.findById(dbUser.getId());
         assertThat(maybeDbUser).contains(dbUser);
     }
-
-    @Test
-    @Transactional
-    public void assertThatAnonymousUserIsNotGet() {
-        user.setLogin(Constants.ANONYMOUS_USER);
-        if (!userRepository.findOneByLogin(Constants.ANONYMOUS_USER).isPresent()) {
-            userRepository.saveAndFlush(user);
-        }
-        final PageRequest pageable = PageRequest.of(0, (int) userRepository.count());
-        final Page<UserDTO> allManagedUsers = userService.getAllManagedUsers(pageable);
-        assertThat(allManagedUsers.getContent().stream()
-            .noneMatch(user -> Constants.ANONYMOUS_USER.equals(user.getLogin())))
-            .isTrue();
-    }
-
 }

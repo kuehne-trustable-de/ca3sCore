@@ -1,30 +1,34 @@
 module.exports = {
+  testEnvironment: 'jsdom',
   coverageDirectory: '<rootDir>/target/test-results/',
   coveragePathIgnorePatterns: [
     '<rootDir>/node_modules/',
-    '<rootDir>/src/test/javascript',
+    '<rootDir>/src/test/javascript/',
     '<rootDir>/src/main/webapp/app/router',
-    '.*.json'
+    '.*.json',
   ],
   moduleFileExtensions: ['js', 'json', 'ts', 'vue'],
   transform: {
     '.*\\.(vue)$': 'vue-jest',
-    '^.+\\.tsx?$': 'ts-jest'
+    '^.+\\.tsx?$': 'ts-jest',
   },
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/main/webapp/app/$1'
+    '^@/(.*)$': '<rootDir>/src/main/webapp/app/$1',
   },
   reporters: ['default', ['jest-junit', { outputDirectory: './target/test-results/', outputName: 'TESTS-results-jest.xml' }]],
   testResultsProcessor: 'jest-sonar-reporter',
-  testMatch: ['<rootDir>/src/test/javascript/spec/**/+(*.)+(spec.ts)'],
+  testMatch: ['<rootDir>/src/test/javascript/spec/**/@(*.)@(spec.ts)'],
   snapshotSerializers: ['<rootDir>/node_modules/jest-serializer-vue'],
   rootDir: '../../../',
+  globals: {
+    I18N_HASH: 'generated_hash',
+  },
   coverageThreshold: {
     global: {
       statements: 80,
       branches: 60,
       functions: 70,
-      lines: 80
-    }
-  }
+      lines: 80,
+    },
+  },
 };

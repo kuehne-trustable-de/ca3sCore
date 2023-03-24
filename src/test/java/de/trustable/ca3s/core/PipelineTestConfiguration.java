@@ -399,7 +399,7 @@ public class PipelineTestConfiguration {
         pc.setType(ProtectedContentType.PASSWORD);
         pc.setRelationType(ContentRelationType.SCEP_PW);
         pc.setCreatedOn(Instant.now());
-        pc.setLeftUsages(-1L);
+        pc.setLeftUsages(-1);
         pc.setValidTo(ProtectedContentUtil.MAX_INSTANT);
         pc.setDeleteAfter(ProtectedContentUtil.MAX_INSTANT);
         pc.setContentBase64( protectedContentUtil.protectString(SCEP_PASSWORD));

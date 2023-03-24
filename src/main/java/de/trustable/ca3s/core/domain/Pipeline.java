@@ -63,6 +63,7 @@ public class Pipeline implements Serializable {
     @Column(name = "url_part")
     private String urlPart;
 
+    @Lob
     @Column(name = "description")
     private String description;
 

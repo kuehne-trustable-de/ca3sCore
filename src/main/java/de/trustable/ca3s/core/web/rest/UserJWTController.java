@@ -1,14 +1,10 @@
 package de.trustable.ca3s.core.web.rest;
 
-import de.trustable.ca3s.core.config.KerberosSecurityConfiguration;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import de.trustable.ca3s.core.security.jwt.JWTFilter;
 import de.trustable.ca3s.core.security.jwt.TokenProvider;
 import de.trustable.ca3s.core.web.rest.vm.LoginVM;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +14,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-
 /**
  * Controller to authenticate users.
  */
@@ -27,9 +21,8 @@ import javax.validation.Valid;
 @RequestMapping("/api")
 public class UserJWTController {
 
-    private final Logger LOG = LoggerFactory.getLogger(UserJWTController.class);
-
     private final TokenProvider tokenProvider;
+
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     public UserJWTController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder) {
@@ -39,14 +32,14 @@ public class UserJWTController {
 
     @PostMapping("/authenticate")
     public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginVM loginVM) {
-
-        UsernamePasswordAuthenticationToken authenticationToken =
-            new UsernamePasswordAuthenticationToken(loginVM.getUsername(), loginVM.getPassword());
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+            loginVM.getUsername(),
+            loginVM.getPassword()
+        );
 
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        boolean rememberMe = (loginVM.isRememberMe() == null) ? false : loginVM.isRememberMe();
-        String jwt = tokenProvider.createToken(authentication, rememberMe);
+        String jwt = tokenProvider.createToken(authentication, loginVM.isRememberMe());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
         return new ResponseEntity<>(new JWTToken(jwt), httpHeaders, HttpStatus.OK);

@@ -4,8 +4,8 @@ import { Component, Inject, Vue } from 'vue-property-decorator';
 
 @Component({
   components: {
-    'health-modal': JhiHealthModal
-  }
+    'health-modal': JhiHealthModal,
+  },
 })
 export default class JhiHealth extends Vue {
   public healthData: any = null;
@@ -24,9 +24,8 @@ export default class JhiHealth extends Vue {
   public getBadgeClass(statusState: any): string {
     if (statusState === 'UP') {
       return 'badge-success';
-    } else {
-      return 'badge-danger';
     }
+    return 'badge-danger';
   }
 
   public refresh(): void {

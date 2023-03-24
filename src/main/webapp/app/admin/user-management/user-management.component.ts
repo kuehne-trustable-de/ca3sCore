@@ -1,11 +1,11 @@
-import { Component, Inject } from 'vue-property-decorator';
-import { mixins } from 'vue-class-component';
+import { Component, Inject, Vue } from 'vue-property-decorator';
 import Vue2Filters from 'vue2-filters';
 import UserManagementService from './user-management.service';
-import AlertMixin from '@/shared/alert/alert.mixin';
 
-@Component
-export default class JhiUserManagementComponent extends mixins(Vue2Filters.mixin, AlertMixin) {
+@Component({
+  mixins: [Vue2Filters.mixin],
+})
+export default class JhiUserManagementComponent extends Vue {
   @Inject('userService') private userManagementService: () => UserManagementService;
   public error = '';
   public success = '';
@@ -17,6 +17,7 @@ export default class JhiUserManagementComponent extends mixins(Vue2Filters.mixin
   public propOrder = 'id';
   public reverse = false;
   public totalItems = 0;
+  public isLoading = false;
   public removeId: number = null;
 
   public mounted(): void {
@@ -40,21 +41,31 @@ export default class JhiUserManagementComponent extends mixins(Vue2Filters.mixin
   }
 
   public loadAll(): void {
+    this.isLoading = true;
+
     this.userManagementService()
       .retrieve({
         page: this.page - 1,
         size: this.itemsPerPage,
-        sort: this.sort()
+        sort: this.sort(),
       })
       .then(res => {
+        this.isLoading = false;
         this.users = res.data;
         this.totalItems = Number(res.headers['x-total-count']);
         this.queryCount = this.totalItems;
+      })
+      .catch(() => {
+        this.isLoading = false;
       });
   }
 
+  public handleSyncList(): void {
+    this.loadAll();
+  }
+
   public sort(): any {
-    const result = [this.propOrder + ',' + (this.reverse ? 'asc' : 'desc')];
+    const result = [this.propOrder + ',' + (this.reverse ? 'desc' : 'asc')];
     if (this.propOrder !== 'id') {
       result.push('id');
     }
@@ -82,9 +93,16 @@ export default class JhiUserManagementComponent extends mixins(Vue2Filters.mixin
     this.userManagementService()
       .remove(this.removeId)
       .then(res => {
-        const message = this.$t(res.headers['x-ca3sapp-alert'], { param: res.headers['x-ca3sapp-params'] });
-        this.alertService().showAlert(message, 'danger');
-        this.getAlertFromStore();
+        const message = this.$t(res.headers['x-ca3sapp-alert'], {
+          param: decodeURIComponent(res.headers['x-ca3sapp-params'].replace(/\+/g, ' ')),
+        });
+        this.$bvToast.toast(message.toString(), {
+          toaster: 'b-toaster-top-center',
+          title: 'Info',
+          variant: 'danger',
+          solid: true,
+          autoHideDelay: 5000,
+        });
         this.removeId = null;
         this.loadAll();
         this.closeDialog();
@@ -99,10 +117,12 @@ export default class JhiUserManagementComponent extends mixins(Vue2Filters.mixin
   }
 
   public closeDialog(): void {
-    (<any>this.$refs.removeUser).hide();
+    if (<any>this.$refs.removeUser) {
+      (<any>this.$refs.removeUser).hide();
+    }
   }
 
   public get username(): string {
-    return this.$store.getters.account ? this.$store.getters.account.login : '';
+    return this.$store.getters.account?.login ?? '';
   }
 }

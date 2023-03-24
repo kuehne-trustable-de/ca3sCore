@@ -22,7 +22,7 @@
     "enableTranslation": true,
     "entitySuffix": "",
     "jhiPrefix": "jhi",
-    "jhipsterVersion": "7.9.3",
+    "jhipsterVersion": "7.2.0",
     "jwtSecretKey": "NDkyZWMyYTljNmZiOGQwMWFlMDUyM2ViYmIyNGFlNDEyMzE4NTM0MTA0NjhjMTFkNWViMmYzODRkNzEwNWZmMzQwN2MyNDA4N2UzNzZmZDEzYjVkZjIzYmY3Njg2NDVjZThkZGQyMzA4NTYyYjk0YzRmZGU4NmQwMWM2MDM3MWE=",
     "languages": ["en", "de", "pl"],
     "messageBroker": false,
@@ -50,6 +50,7 @@
     "testFrameworks": [],
     "useSass": true,
     "websocket": "spring-websocket",
-    "withAdminUi": true
+    "withAdminUi": true,
+    "skipServer": false
   }
 }

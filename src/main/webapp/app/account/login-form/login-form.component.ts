@@ -6,8 +6,8 @@ import AccountService from '@/account/account.service';
   watch: {
     $route() {
       this.$root.$emit('bv::hide::modal', 'login-page');
-    }
-  }
+    },
+  },
 })
 export default class LoginForm extends Vue {
   @Inject('accountService')
@@ -27,14 +27,15 @@ export default class LoginForm extends Vue {
           const jwt = bearerToken.slice(7, bearerToken.length);
           if (this.rememberMe) {
             localStorage.setItem('jhi-authenticationToken', jwt);
+            sessionStorage.removeItem('jhi-authenticationToken');
           } else {
             sessionStorage.setItem('jhi-authenticationToken', jwt);
+            localStorage.removeItem('jhi-authenticationToken');
           }
         }
         this.authenticationError = false;
         this.$root.$emit('bv::hide::modal', 'login-page');
         this.accountService().retrieveAccount();
-        this.$router.push({ name: 'Home' });
       })
       .catch(() => {
         this.authenticationError = true;
