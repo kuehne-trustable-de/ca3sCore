@@ -62,6 +62,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -90,7 +91,7 @@ import static org.xbill.DNS.Type.TXT;
 import static org.xbill.DNS.Type.string;
 
 
-@Controller
+@RestController
 @RequestMapping("/acme/{realm}/challenge")
 public class ChallengeController extends AcmeController {
 

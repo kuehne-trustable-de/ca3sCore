@@ -21,6 +21,8 @@ export default class TrackerService {
   }
 
   public connect(): void {
+    // tracker disabled
+    /*
     if (this.connectedPromise === null) {
       this.connection = this.createConnection();
     }
@@ -37,9 +39,12 @@ export default class TrackerService {
     this.stompClient = Stomp.over(socket, { protocols: ['v12.stomp'] });
     const headers = {};
     this.stompClient.connect(headers, () => this.afterConnect());
+
+ */
   }
 
   public afterConnect() {
+    /*
     this.connectedPromise('success');
     this.connectedPromise = null;
     this.sendActivity();
@@ -47,6 +52,8 @@ export default class TrackerService {
       this.router.afterEach(() => this.sendActivity());
       this.alreadyConnectedOnce = true;
     }
+
+     */
   }
 
   public disconnect(): void {
@@ -63,6 +70,7 @@ export default class TrackerService {
   }
 
   public sendActivity(): void {
+    /*
     if (this.stompClient !== null && this.stompClient.connected) {
       this.stompClient.send(
         '/topic/activity', // destination
@@ -70,14 +78,19 @@ export default class TrackerService {
         {} // header
       );
     }
+
+     */
   }
 
   public subscribe(): void {
+    /*
     this.connection.then(() => {
       this.subscriber = this.stompClient.subscribe('/topic/tracker', data => {
         this.listenerObserver.next(JSON.parse(data.body));
       });
     });
+
+     */
   }
 
   public unsubscribe(): any {

@@ -4,16 +4,12 @@
     {
       "fieldName": "name",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
-      "fieldName": "value",
+      "fieldName": "value0",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     }
   ],
   "relationships": [
@@ -21,8 +17,7 @@
       "relationshipType": "many-to-one",
       "otherEntityName": "pipeline",
       "otherEntityRelationshipName": "pipelineAttributes",
-      "relationshipName": "pipeline",
-      "otherEntityField": "id"
+      "relationshipName": "pipeline"
     }
   ],
   "changelogDate": "20200110170120",

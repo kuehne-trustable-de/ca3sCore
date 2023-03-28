@@ -50,6 +50,9 @@ spring:
       hibernate.query.fail_on_pagination_over_collection_fetch: true
   liquibase:
     contexts: test
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   mail:
     host: localhost
   main:

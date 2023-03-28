@@ -63,6 +63,7 @@ import de.trustable.ca3s.core.service.dto.acme.IdentifierResponse;
 import de.trustable.ca3s.core.service.dto.acme.IdentifiersResponse;
 import de.trustable.ca3s.core.service.dto.acme.NewOrderResponse;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
+import org.springframework.web.bind.annotation.RestController;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.TextParseException;
 
@@ -270,7 +271,7 @@ If the server is willing to issue the requested certificate, it
  */
 
 @Transactional
-@Controller
+@RestController
 @RequestMapping("/acme/{realm}/newOrder")
 public class NewOrderController extends AcmeController {
 

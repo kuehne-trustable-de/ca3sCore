@@ -202,7 +202,7 @@ public class CSRView implements Serializable {
         this.isAdministrable = false;
 
 
-        this.isCSRValid = csr.isIsCSRValid();
+        this.isCSRValid = csr.getIsCSRValid();
         this.serversideKeyGeneration = csr.isServersideKeyGeneration();
 
         this.processInstanceId = csr.getProcessInstanceId();

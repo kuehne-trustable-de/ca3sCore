@@ -7,6 +7,7 @@ import de.trustable.ca3s.core.service.dto.PipelineView;
 import de.trustable.ca3s.core.exception.IntegrityException;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
+import org.springframework.transaction.annotation.Transactional;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ import java.util.Optional;
  * REST controller for managing {@link de.trustable.ca3s.core.domain.Pipeline}.
  */
 @RestController
+@Transactional
 @RequestMapping("/api")
 public class PipelineViewResource {
 

@@ -7,19 +7,19 @@ entity AuditTrace{
 
 	actorName String required
 	actorRole String required
-	plainContent String required
+	plainContent TextBlob required
 	contentTemplate String required
 	createdOn Instant required
 }
 
 entity CAConnectorConfig{
-
 	name String required
 	caConnectorType CAConnectorType required
 	caUrl String
 	pollingOffset Integer
 	defaultCA Boolean
 	active Boolean
+	trustSelfsignedCertificates Boolean
 	selector String
 	interval Interval
 	plainSecret String
@@ -41,6 +41,7 @@ entity CertificateComment{
   comment TextBlob required
 }
 
+@skipClient
 entity CertificateAttribute {
 //	attributeId Long required
     name String required
@@ -55,7 +56,7 @@ entity Certificate {
   issuer String required
   root String
   type String required
-  description String
+  description TextBlob
   fingerprint String
   serial String required
   validFrom Instant required
@@ -96,6 +97,7 @@ entity CSR{
   	sans String
   	requestedOn Instant required
   	requestedBy String required
+  	acceptedBy String
   	pipelineType PipelineType required
   	status CsrStatus required
   	administeredBy String
@@ -116,6 +118,7 @@ entity CSR{
 	administrationComment TextBlob
 }
 
+@skipClient
 entity CsrAttribute{
 
   	name String required
@@ -136,7 +139,7 @@ entity ProtectedContent{
    	contentBase64 TextBlob required
   	type ProtectedContentType required
 
-	leftUsages Long
+	leftUsages Integer
 	createdOn Instant
 	validTo Instant
 	deleteAfter Instant
@@ -218,7 +221,7 @@ entity ImportedURL{
 }
 
 enum PipelineType {
-    ACME, SCEP, WEB, INTERNAL
+    ACME, SCEP, WEB, INTERNAL, MANUAL_REQUEST
 }
 
 entity Pipeline{
@@ -226,10 +229,12 @@ entity Pipeline{
   	name String required
   	type PipelineType required
   	urlPart String
-  	description String
+  	active Boolean
+  	description TextBlob
   	approvalRequired Boolean
 }
 
+@skipClient
 entity PipelineAttribute{
 
   	name String required
@@ -240,6 +245,7 @@ enum BPMNProcessType {
     CA_INVOCATION, REQUEST_AUTHORIZATION
 }
 
+@skipClient
 entity BPMNProcessInfo{
 
   	name String required
@@ -252,6 +258,28 @@ entity BPMNProcessInfo{
   	processId String required
 }
 
+enum ScepOrderStatus {
+    PENDING, READY, INVALID
+}
+
+
+entity ScepOrder{
+
+	transId Long required
+    realm String required
+	status ScepOrderStatus required
+	requestedOn Instant
+	requestedBy String
+    asyncProcessing Boolean
+    passwordAuthentication Boolean
+}
+
+@skipClient
+entity ScepOrderAttribute{
+
+  	name String required
+  	value0 String
+}
 
 
 //  status (required, string):  The status of this account.  Possible
@@ -262,7 +290,6 @@ entity BPMNProcessInfo{
 enum AccountStatus {
     VALID, DEACTIVATED, REVOKED
 }
-
 
 entity AcmeAccount {
 
@@ -280,9 +307,12 @@ entity AcmeAccount {
 	termsOfServiceAgreed Boolean required
 	publicKeyHash String required
   	publicKey TextBlob required
+
+  	createdOn Instant
 }
 
 
+@skipClient
 entity AcmeContact {
 
 // @GenericGenerator(name="RandomGenerator.generatorName", strategy="de.trustable.ca3s.acme.server.entity.RandomGenerator")
@@ -303,6 +333,8 @@ entity AcmeOrder{
 //	@GenericGenerator(name = "RandomGenerator.generatorName", strategy = "de.trustable.ca3s.acme.server.entity.RandomGenerator")
 //	@GeneratedValue(generator = "RandomGenerator.generatorName")
 	orderId Long required
+
+    realm String required
 
 	status AcmeOrderStatus required
 
@@ -339,6 +371,14 @@ entity AcmeOrder{
 
 }
 
+@skipClient
+entity AcmeOrderAttribute{
+
+  	name String required
+  	value0 String
+}
+
+@skipClient
 entity AcmeIdentifier {
 
 	acmeIdentifierId Long required
@@ -378,9 +418,11 @@ entity AcmeChallenge {
 	token String required
 	validated Instant
 	status ChallengeStatus required
+	lastError String
 
 }
 
+@skipClient
 entity AcmeNonce {
 	nonceValue String
 	expiresAt Instant
@@ -434,6 +476,7 @@ relationship OneToMany {
 	AcmeOrder{AcmeAuthorizations} to AcmeAuthorization{order}
 
 	AcmeOrder{AcmeIdentifiers} to AcmeIdentifier{order}
+    AcmeOrder{attributes} to AcmeOrderAttribute{order}
 
 	AcmeAuthorization{challenges} to AcmeChallenge{AcmeAuthorization}
 }
@@ -444,13 +487,21 @@ relationship ManyToOne {
 	AuditTrace{certificate} to Certificate
 	AuditTrace{pipeline} to Pipeline
 	AuditTrace{caConnector} to CAConnectorConfig
-	AuditTrace{caConnector} to CAConnectorConfig
 	AuditTrace{processInfo} to BPMNProcessInfo
+	AuditTrace{acmeAccount} to AcmeAccount
+	AuditTrace{acmeOrder} to AcmeOrder
+	AuditTrace{scepOrder} to ScepOrder
 
     TimedElementNotification{certificate} to Certificate
 
 	AcmeOrder{csr} to CSR
 	AcmeOrder{certificate} to Certificate
+	AcmeOrder{pipeline} to Pipeline
+
+	ScepOrder{csr} to CSR
+	ScepOrder{certificate} to Certificate
+	ScepOrder{authenticatedBy} to Certificate
+	ScepOrder{pipeline} to Pipeline
 
     RequestAttribute{holdingRequestAttribute} to RequestAttributeValue
 
@@ -462,8 +513,11 @@ relationship ManyToOne {
 
 	Pipeline{caConnector} to CAConnectorConfig
 	Pipeline{processInfo} to BPMNProcessInfo
-	Pipeline{algorithms} to AlgorithmRestriction
 
+}
+
+relationship ManyToMany {
+	Pipeline{algorithms} to AlgorithmRestriction{pipelines}
 }
 
 relationship OneToOne{

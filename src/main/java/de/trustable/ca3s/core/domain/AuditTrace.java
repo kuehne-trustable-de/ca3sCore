@@ -1,12 +1,10 @@
 package de.trustable.ca3s.core.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
 import java.io.Serializable;
 import java.time.Instant;
+import javax.persistence.*;
+import javax.validation.constraints.*;
 
 /**
  * A AuditTrace.
@@ -52,6 +50,7 @@ public class AuditTrace implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @NotNull
@@ -108,8 +107,14 @@ public class AuditTrace implements Serializable {
     private ScepOrder scepOrder;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public AuditTrace id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
@@ -117,11 +122,11 @@ public class AuditTrace implements Serializable {
     }
 
     public String getActorName() {
-        return actorName;
+        return this.actorName;
     }
 
     public AuditTrace actorName(String actorName) {
-        this.actorName = actorName;
+        this.setActorName(actorName);
         return this;
     }
 
@@ -130,11 +135,11 @@ public class AuditTrace implements Serializable {
     }
 
     public String getActorRole() {
-        return actorRole;
+        return this.actorRole;
     }
 
     public AuditTrace actorRole(String actorRole) {
-        this.actorRole = actorRole;
+        this.setActorRole(actorRole);
         return this;
     }
 
@@ -143,11 +148,11 @@ public class AuditTrace implements Serializable {
     }
 
     public String getPlainContent() {
-        return plainContent;
+        return this.plainContent;
     }
 
     public AuditTrace plainContent(String plainContent) {
-        this.plainContent = plainContent;
+        this.setPlainContent(plainContent);
         return this;
     }
 
@@ -156,11 +161,11 @@ public class AuditTrace implements Serializable {
     }
 
     public String getContentTemplate() {
-        return contentTemplate;
+        return this.contentTemplate;
     }
 
     public AuditTrace contentTemplate(String contentTemplate) {
-        this.contentTemplate = contentTemplate;
+        this.setContentTemplate(contentTemplate);
         return this;
     }
 
@@ -169,11 +174,11 @@ public class AuditTrace implements Serializable {
     }
 
     public Instant getCreatedOn() {
-        return createdOn;
+        return this.createdOn;
     }
 
     public AuditTrace createdOn(Instant createdOn) {
-        this.createdOn = createdOn;
+        this.setCreatedOn(createdOn);
         return this;
     }
 
@@ -182,64 +187,59 @@ public class AuditTrace implements Serializable {
     }
 
     public CSR getCsr() {
-        return csr;
-    }
-
-    public AuditTrace csr(CSR cSR) {
-        this.csr = cSR;
-        return this;
+        return this.csr;
     }
 
     public void setCsr(CSR cSR) {
         this.csr = cSR;
     }
 
-    public Certificate getCertificate() {
-        return certificate;
+    public AuditTrace csr(CSR cSR) {
+        this.setCsr(cSR);
+        return this;
     }
 
-    public AuditTrace certificate(Certificate certificate) {
-        this.certificate = certificate;
-        return this;
+    public Certificate getCertificate() {
+        return this.certificate;
     }
 
     public void setCertificate(Certificate certificate) {
         this.certificate = certificate;
     }
 
-    public Pipeline getPipeline() {
-        return pipeline;
+    public AuditTrace certificate(Certificate certificate) {
+        this.setCertificate(certificate);
+        return this;
     }
 
-    public AuditTrace pipeline(Pipeline pipeline) {
-        this.pipeline = pipeline;
-        return this;
+    public Pipeline getPipeline() {
+        return this.pipeline;
     }
 
     public void setPipeline(Pipeline pipeline) {
         this.pipeline = pipeline;
     }
 
-    public CAConnectorConfig getCaConnector() {
-        return caConnector;
+    public AuditTrace pipeline(Pipeline pipeline) {
+        this.setPipeline(pipeline);
+        return this;
     }
 
-    public AuditTrace caConnector(CAConnectorConfig cAConnectorConfig) {
-        this.caConnector = cAConnectorConfig;
-        return this;
+    public CAConnectorConfig getCaConnector() {
+        return this.caConnector;
     }
 
     public void setCaConnector(CAConnectorConfig cAConnectorConfig) {
         this.caConnector = cAConnectorConfig;
     }
 
-    public BPMNProcessInfo getProcessInfo() {
-        return processInfo;
+    public AuditTrace caConnector(CAConnectorConfig cAConnectorConfig) {
+        this.setCaConnector(cAConnectorConfig);
+        return this;
     }
 
-    public AuditTrace processInfo(BPMNProcessInfo bPMNProcessInfo) {
-        this.processInfo = bPMNProcessInfo;
-        return this;
+    public BPMNProcessInfo getProcessInfo() {
+        return this.processInfo;
     }
 
     public void setProcessInfo(BPMNProcessInfo bPMNProcessInfo) {
@@ -301,7 +301,8 @@ public class AuditTrace implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
     // prettier-ignore

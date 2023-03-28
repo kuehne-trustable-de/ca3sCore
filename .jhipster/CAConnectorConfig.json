@@ -4,17 +4,13 @@
     {
       "fieldName": "name",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "caConnectorType",
       "fieldType": "CAConnectorType",
       "fieldValues": "INTERNAL,CMP,ADCS,ADCS_CERTIFICATE_INVENTORY,DIRECTORY",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "caUrl",
@@ -52,7 +48,6 @@
       "otherEntityName": "protectedContent",
       "otherEntityRelationshipName": "cAConnectorConfig",
       "relationshipName": "secret",
-      "otherEntityField": "id",
       "ownerSide": true
     }
   ],

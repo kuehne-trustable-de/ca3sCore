@@ -1,0 +1,31 @@
+{
+  "applications": "*",
+  "changelogDate": "20230321145439",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "certificate_comment",
+  "fields": [
+    {
+      "fieldName": "comment",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "CertificateComment",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityName": "certificate",
+      "otherEntityRelationshipName": "comment",
+      "ownerSide": false,
+      "relationshipName": "certificate",
+      "relationshipType": "one-to-one"
+    }
+  ],
+  "service": "serviceImpl",
+  "skipClient": true
+}

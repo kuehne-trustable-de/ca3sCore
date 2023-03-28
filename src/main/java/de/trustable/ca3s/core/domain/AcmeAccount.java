@@ -1,14 +1,13 @@
 package de.trustable.ca3s.core.domain;
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
-
-import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
+import javax.persistence.*;
+import javax.validation.constraints.*;
 
 /**
  * A AcmeAccount.
@@ -34,6 +33,7 @@ public class AcmeAccount implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @NotNull
@@ -56,7 +56,6 @@ public class AcmeAccount implements Serializable {
     @Column(name = "public_key_hash", nullable = false)
     private String publicKeyHash;
 
-
     @Lob
     @Column(name = "public_key", nullable = false)
     private String publicKey;
@@ -66,14 +65,21 @@ public class AcmeAccount implements Serializable {
 
 
     @OneToMany(mappedBy = "account")
+    @JsonIgnoreProperties(value = { "account" }, allowSetters = true)
     private Set<AcmeContact> contacts = new HashSet<>();
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "account")
     private Set<AcmeOrder> orders = new HashSet<>();
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public AcmeAccount id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
@@ -81,11 +87,11 @@ public class AcmeAccount implements Serializable {
     }
 
     public Long getAccountId() {
-        return accountId;
+        return this.accountId;
     }
 
     public AcmeAccount accountId(Long accountId) {
-        this.accountId = accountId;
+        this.setAccountId(accountId);
         return this;
     }
 
@@ -94,11 +100,11 @@ public class AcmeAccount implements Serializable {
     }
 
     public String getRealm() {
-        return realm;
+        return this.realm;
     }
 
     public AcmeAccount realm(String realm) {
-        this.realm = realm;
+        this.setRealm(realm);
         return this;
     }
 
@@ -107,11 +113,11 @@ public class AcmeAccount implements Serializable {
     }
 
     public AccountStatus getStatus() {
-        return status;
+        return this.status;
     }
 
     public AcmeAccount status(AccountStatus status) {
-        this.status = status;
+        this.setStatus(status);
         return this;
     }
 
@@ -123,8 +129,12 @@ public class AcmeAccount implements Serializable {
         return termsOfServiceAgreed;
     }
 
+    public Boolean getTermsOfServiceAgreed() {
+        return this.termsOfServiceAgreed;
+    }
+
     public AcmeAccount termsOfServiceAgreed(Boolean termsOfServiceAgreed) {
-        this.termsOfServiceAgreed = termsOfServiceAgreed;
+        this.setTermsOfServiceAgreed(termsOfServiceAgreed);
         return this;
     }
 
@@ -133,11 +143,11 @@ public class AcmeAccount implements Serializable {
     }
 
     public String getPublicKeyHash() {
-        return publicKeyHash;
+        return this.publicKeyHash;
     }
 
     public AcmeAccount publicKeyHash(String publicKeyHash) {
-        this.publicKeyHash = publicKeyHash;
+        this.setPublicKeyHash(publicKeyHash);
         return this;
     }
 
@@ -146,11 +156,11 @@ public class AcmeAccount implements Serializable {
     }
 
     public String getPublicKey() {
-        return publicKey;
+        return this.publicKey;
     }
 
     public AcmeAccount publicKey(String publicKey) {
-        this.publicKey = publicKey;
+        this.setPublicKey(publicKey);
         return this;
     }
 
@@ -172,11 +182,21 @@ public class AcmeAccount implements Serializable {
     }
 
     public Set<AcmeContact> getContacts() {
-        return contacts;
+        return this.contacts;
+    }
+
+    public void setContacts(Set<AcmeContact> acmeContacts) {
+        if (this.contacts != null) {
+            this.contacts.forEach(i -> i.setAccount(null));
+        }
+        if (acmeContacts != null) {
+            acmeContacts.forEach(i -> i.setAccount(this));
+        }
+        this.contacts = acmeContacts;
     }
 
     public AcmeAccount contacts(Set<AcmeContact> acmeContacts) {
-        this.contacts = acmeContacts;
+        this.setContacts(acmeContacts);
         return this;
     }
 
@@ -192,16 +212,22 @@ public class AcmeAccount implements Serializable {
         return this;
     }
 
-    public void setContacts(Set<AcmeContact> acmeContacts) {
-        this.contacts = acmeContacts;
+    public Set<AcmeOrder> getOrders() {
+        return this.orders;
     }
 
-    public Set<AcmeOrder> getOrders() {
-        return orders;
+    public void setOrders(Set<AcmeOrder> acmeOrders) {
+        if (this.orders != null) {
+            this.orders.forEach(i -> i.setAccount(null));
+        }
+        if (acmeOrders != null) {
+            acmeOrders.forEach(i -> i.setAccount(this));
+        }
+        this.orders = acmeOrders;
     }
 
     public AcmeAccount orders(Set<AcmeOrder> acmeOrders) {
-        this.orders = acmeOrders;
+        this.setOrders(acmeOrders);
         return this;
     }
 
@@ -217,10 +243,7 @@ public class AcmeAccount implements Serializable {
         return this;
     }
 
-    public void setOrders(Set<AcmeOrder> acmeOrders) {
-        this.orders = acmeOrders;
-    }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -235,9 +258,11 @@ public class AcmeAccount implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "AcmeAccount{" +
@@ -245,7 +270,7 @@ public class AcmeAccount implements Serializable {
             ", accountId=" + getAccountId() +
             ", realm='" + getRealm() + "'" +
             ", status='" + getStatus() + "'" +
-            ", termsOfServiceAgreed='" + isTermsOfServiceAgreed() + "'" +
+            ", termsOfServiceAgreed='" + getTermsOfServiceAgreed() + "'" +
             ", publicKeyHash='" + getPublicKeyHash() + "'" +
             ", publicKey='" + getPublicKey() + "'" +
             "}";

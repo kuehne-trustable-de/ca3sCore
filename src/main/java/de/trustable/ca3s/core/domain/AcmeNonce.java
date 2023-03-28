@@ -1,9 +1,8 @@
 package de.trustable.ca3s.core.domain;
 
-import javax.persistence.*;
-
 import java.io.Serializable;
 import java.time.Instant;
+import javax.persistence.*;
 
 /**
  * A AcmeNonce.
@@ -18,7 +17,7 @@ import java.time.Instant;
 	@NamedQuery(name = "AcmeNonce.findByNonceExpiredBefore",
 	query = "SELECT n FROM AcmeNonce n WHERE " +
 			"n.expiresAt < :expiredBefore"
-    ),	
+    ),
 })
 public class AcmeNonce implements Serializable {
 
@@ -26,6 +25,7 @@ public class AcmeNonce implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "nonce_value")
@@ -34,9 +34,15 @@ public class AcmeNonce implements Serializable {
     @Column(name = "expires_at")
     private Instant expiresAt;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public AcmeNonce id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
@@ -44,11 +50,11 @@ public class AcmeNonce implements Serializable {
     }
 
     public String getNonceValue() {
-        return nonceValue;
+        return this.nonceValue;
     }
 
     public AcmeNonce nonceValue(String nonceValue) {
-        this.nonceValue = nonceValue;
+        this.setNonceValue(nonceValue);
         return this;
     }
 
@@ -57,18 +63,19 @@ public class AcmeNonce implements Serializable {
     }
 
     public Instant getExpiresAt() {
-        return expiresAt;
+        return this.expiresAt;
     }
 
     public AcmeNonce expiresAt(Instant expiresAt) {
-        this.expiresAt = expiresAt;
+        this.setExpiresAt(expiresAt);
         return this;
     }
 
     public void setExpiresAt(Instant expiresAt) {
         this.expiresAt = expiresAt;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -83,9 +90,11 @@ public class AcmeNonce implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "AcmeNonce{" +

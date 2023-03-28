@@ -1,31 +1,12 @@
 package de.trustable.ca3s.core.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import javax.persistence.*;
+import javax.validation.constraints.*;
 
 /**
  * A Certificate.
@@ -201,6 +182,7 @@ public class Certificate implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @NotNull
@@ -300,8 +282,8 @@ public class Certificate implements Serializable {
     @Column(name = "content", nullable = false)
     private String content;
 
+    @JsonIgnoreProperties(value = { "comment", "rdns", "ras", "csrAttributes", "pipeline", "certificate" }, allowSetters = true)
     @OneToOne
-    @JsonIgnoreProperties("csrAttributes")
     @JoinColumn(unique = true)
     private CSR csr;
 
@@ -325,9 +307,15 @@ public class Certificate implements Serializable {
     @JsonIgnoreProperties("certificates")
     private CAConnectorConfig revocationCA;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public Certificate id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
@@ -335,11 +323,11 @@ public class Certificate implements Serializable {
     }
 
     public String getTbsDigest() {
-        return tbsDigest;
+        return this.tbsDigest;
     }
 
     public Certificate tbsDigest(String tbsDigest) {
-        this.tbsDigest = tbsDigest;
+        this.setTbsDigest(tbsDigest);
         return this;
     }
 
@@ -348,11 +336,11 @@ public class Certificate implements Serializable {
     }
 
     public String getSubject() {
-        return subject;
+        return this.subject;
     }
 
     public Certificate subject(String subject) {
-        this.subject = subject;
+        this.setSubject(subject);
         return this;
     }
 
@@ -361,11 +349,11 @@ public class Certificate implements Serializable {
     }
 
     public String getSans() {
-        return sans;
+        return this.sans;
     }
 
     public Certificate sans(String sans) {
-        this.sans = sans;
+        this.setSans(sans);
         return this;
     }
 
@@ -374,11 +362,11 @@ public class Certificate implements Serializable {
     }
 
     public String getIssuer() {
-        return issuer;
+        return this.issuer;
     }
 
     public Certificate issuer(String issuer) {
-        this.issuer = issuer;
+        this.setIssuer(issuer);
         return this;
     }
 
@@ -387,11 +375,11 @@ public class Certificate implements Serializable {
     }
 
     public String getRoot() {
-        return root;
+        return this.root;
     }
 
     public Certificate root(String root) {
-        this.root = root;
+        this.setRoot(root);
         return this;
     }
 
@@ -400,11 +388,11 @@ public class Certificate implements Serializable {
     }
 
     public String getType() {
-        return type;
+        return this.type;
     }
 
     public Certificate type(String type) {
-        this.type = type;
+        this.setType(type);
         return this;
     }
 
@@ -413,11 +401,11 @@ public class Certificate implements Serializable {
     }
 
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     public Certificate description(String description) {
-        this.description = description;
+        this.setDescription(description);
         return this;
     }
 
@@ -426,11 +414,11 @@ public class Certificate implements Serializable {
     }
 
     public String getFingerprint() {
-        return fingerprint;
+        return this.fingerprint;
     }
 
     public Certificate fingerprint(String fingerprint) {
-        this.fingerprint = fingerprint;
+        this.setFingerprint(fingerprint);
         return this;
     }
 
@@ -439,11 +427,11 @@ public class Certificate implements Serializable {
     }
 
     public String getSerial() {
-        return serial;
+        return this.serial;
     }
 
     public Certificate serial(String serial) {
-        this.serial = serial;
+        this.setSerial(serial);
         return this;
     }
 
@@ -452,11 +440,11 @@ public class Certificate implements Serializable {
     }
 
     public Instant getValidFrom() {
-        return validFrom;
+        return this.validFrom;
     }
 
     public Certificate validFrom(Instant validFrom) {
-        this.validFrom = validFrom;
+        this.setValidFrom(validFrom);
         return this;
     }
 
@@ -465,11 +453,11 @@ public class Certificate implements Serializable {
     }
 
     public Instant getValidTo() {
-        return validTo;
+        return this.validTo;
     }
 
     public Certificate validTo(Instant validTo) {
-        this.validTo = validTo;
+        this.setValidTo(validTo);
         return this;
     }
 
@@ -478,11 +466,11 @@ public class Certificate implements Serializable {
     }
 
     public String getKeyAlgorithm() {
-        return keyAlgorithm;
+        return this.keyAlgorithm;
     }
 
     public Certificate keyAlgorithm(String keyAlgorithm) {
-        this.keyAlgorithm = keyAlgorithm;
+        this.setKeyAlgorithm(keyAlgorithm);
         return this;
     }
 
@@ -491,11 +479,11 @@ public class Certificate implements Serializable {
     }
 
     public Integer getKeyLength() {
-        return keyLength;
+        return this.keyLength;
     }
 
     public Certificate keyLength(Integer keyLength) {
-        this.keyLength = keyLength;
+        this.setKeyLength(keyLength);
         return this;
     }
 
@@ -504,11 +492,11 @@ public class Certificate implements Serializable {
     }
 
     public String getCurveName() {
-        return curveName;
+        return this.curveName;
     }
 
     public Certificate curveName(String curveName) {
-        this.curveName = curveName;
+        this.setCurveName(curveName);
         return this;
     }
 
@@ -517,11 +505,11 @@ public class Certificate implements Serializable {
     }
 
     public String getHashingAlgorithm() {
-        return hashingAlgorithm;
+        return this.hashingAlgorithm;
     }
 
     public Certificate hashingAlgorithm(String hashingAlgorithm) {
-        this.hashingAlgorithm = hashingAlgorithm;
+        this.setHashingAlgorithm(hashingAlgorithm);
         return this;
     }
 
@@ -530,11 +518,11 @@ public class Certificate implements Serializable {
     }
 
     public String getPaddingAlgorithm() {
-        return paddingAlgorithm;
+        return this.paddingAlgorithm;
     }
 
     public Certificate paddingAlgorithm(String paddingAlgorithm) {
-        this.paddingAlgorithm = paddingAlgorithm;
+        this.setPaddingAlgorithm(paddingAlgorithm);
         return this;
     }
 
@@ -543,11 +531,11 @@ public class Certificate implements Serializable {
     }
 
     public String getSigningAlgorithm() {
-        return signingAlgorithm;
+        return this.signingAlgorithm;
     }
 
     public Certificate signingAlgorithm(String signingAlgorithm) {
-        this.signingAlgorithm = signingAlgorithm;
+        this.setSigningAlgorithm(signingAlgorithm);
         return this;
     }
 
@@ -556,11 +544,11 @@ public class Certificate implements Serializable {
     }
 
     public String getCreationExecutionId() {
-        return creationExecutionId;
+        return this.creationExecutionId;
     }
 
     public Certificate creationExecutionId(String creationExecutionId) {
-        this.creationExecutionId = creationExecutionId;
+        this.setCreationExecutionId(creationExecutionId);
         return this;
     }
 
@@ -569,11 +557,11 @@ public class Certificate implements Serializable {
     }
 
     public Instant getContentAddedAt() {
-        return contentAddedAt;
+        return this.contentAddedAt;
     }
 
     public Certificate contentAddedAt(Instant contentAddedAt) {
-        this.contentAddedAt = contentAddedAt;
+        this.setContentAddedAt(contentAddedAt);
         return this;
     }
 
@@ -582,11 +570,11 @@ public class Certificate implements Serializable {
     }
 
     public Instant getRevokedSince() {
-        return revokedSince;
+        return this.revokedSince;
     }
 
     public Certificate revokedSince(Instant revokedSince) {
-        this.revokedSince = revokedSince;
+        this.setRevokedSince(revokedSince);
         return this;
     }
 
@@ -595,11 +583,11 @@ public class Certificate implements Serializable {
     }
 
     public String getRevocationReason() {
-        return revocationReason;
+        return this.revocationReason;
     }
 
     public Certificate revocationReason(String revocationReason) {
-        this.revocationReason = revocationReason;
+        this.setRevocationReason(revocationReason);
         return this;
     }
 
@@ -611,8 +599,12 @@ public class Certificate implements Serializable {
         return (revoked == null)?false:revoked;
     }
 
+    public Boolean getRevoked() {
+        return this.revoked;
+    }
+
     public Certificate revoked(Boolean revoked) {
-        this.revoked = revoked;
+        this.setRevoked(revoked);
         return this;
     }
 
@@ -621,11 +613,11 @@ public class Certificate implements Serializable {
     }
 
     public String getRevocationExecutionId() {
-        return revocationExecutionId;
+        return this.revocationExecutionId;
     }
 
     public Certificate revocationExecutionId(String revocationExecutionId) {
-        this.revocationExecutionId = revocationExecutionId;
+        this.setRevocationExecutionId(revocationExecutionId);
         return this;
     }
 
@@ -634,11 +626,11 @@ public class Certificate implements Serializable {
     }
 
     public String getAdministrationComment() {
-        return administrationComment;
+        return this.administrationComment;
     }
 
     public Certificate administrationComment(String administrationComment) {
-        this.administrationComment = administrationComment;
+        this.setAdministrationComment(administrationComment);
         return this;
     }
 
@@ -647,12 +639,15 @@ public class Certificate implements Serializable {
     }
 
     public boolean isEndEntity() {
-
         return (endEntity == null)?false:endEntity;
     }
 
+    public Boolean getEndEntity() {
+        return this.endEntity;
+    }
+
     public Certificate endEntity(Boolean endEntity) {
-        this.endEntity = endEntity;
+        this.setEndEntity(endEntity);
         return this;
     }
 
@@ -661,12 +656,15 @@ public class Certificate implements Serializable {
     }
 
     public boolean isSelfsigned() {
-
         return (selfsigned == null)?false:selfsigned;
     }
 
+    public Boolean getSelfsigned() {
+        return this.selfsigned;
+    }
+
     public Certificate selfsigned(Boolean selfsigned) {
-        this.selfsigned = selfsigned;
+        this.setSelfsigned(selfsigned);
         return this;
     }
 
@@ -678,24 +676,29 @@ public class Certificate implements Serializable {
         return (trusted == null)?false:trusted;
     }
 
-    @CacheEvict(value="AcceptedIssuer", allEntries=true)
+    public Boolean getTrusted() {
+        return this.trusted;
+    }
+
     public Certificate trusted(Boolean trusted) {
-        this.trusted = trusted;
+        this.setTrusted(trusted);
         return this;
     }
 
-    @CacheEvict(value="AcceptedIssuer", allEntries=true)
     public void setTrusted(Boolean trusted) {
         this.trusted = trusted;
     }
 
     public boolean isActive() {
-
         return (active == null)?false:active;
     }
 
+    public Boolean getActive() {
+        return this.active;
+    }
+
     public Certificate active(Boolean active) {
-        this.active = active;
+        this.setActive(active);
         return this;
     }
 
@@ -704,11 +707,11 @@ public class Certificate implements Serializable {
     }
 
     public String getContent() {
-        return content;
+        return this.content;
     }
 
     public Certificate content(String content) {
-        this.content = content;
+        this.setContent(content);
         return this;
     }
 
@@ -717,20 +720,24 @@ public class Certificate implements Serializable {
     }
 
     public CSR getCsr() {
-        return csr;
-    }
-
-    public Certificate csr(CSR cSR) {
-        this.csr = cSR;
-        return this;
+        return this.csr;
     }
 
     public void setCsr(CSR cSR) {
         this.csr = cSR;
     }
 
+    public Certificate csr(CSR cSR) {
+        this.setCsr(cSR);
+        return this;
+    }
+
     public CertificateComment getComment() {
         return this.comment;
+    }
+
+    public void setComment(CertificateComment certificateComment) {
+        this.comment = certificateComment;
     }
 
     public Certificate comment(CertificateComment certificateComment) {
@@ -738,17 +745,22 @@ public class Certificate implements Serializable {
         return this;
     }
 
-    public void setComment(CertificateComment certificateComment) {
-        this.comment = certificateComment;
+    public Set<CertificateAttribute> getCertificateAttributes() {
+        return this.certificateAttributes;
     }
 
-
-    public Set<CertificateAttribute> getCertificateAttributes() {
-        return certificateAttributes;
+    public void setCertificateAttributes(Set<CertificateAttribute> certificateAttributes) {
+        if (this.certificateAttributes != null) {
+            this.certificateAttributes.forEach(i -> i.setCertificate(null));
+        }
+        if (certificateAttributes != null) {
+            certificateAttributes.forEach(i -> i.setCertificate(this));
+        }
+        this.certificateAttributes = certificateAttributes;
     }
 
     public Certificate certificateAttributes(Set<CertificateAttribute> certificateAttributes) {
-        this.certificateAttributes = certificateAttributes;
+        this.setCertificateAttributes(certificateAttributes);
         return this;
     }
 
@@ -764,49 +776,46 @@ public class Certificate implements Serializable {
         return this;
     }
 
-    public void setCertificateAttributes(Set<CertificateAttribute> certificateAttributes) {
-        this.certificateAttributes = certificateAttributes;
-    }
-
     public Certificate getIssuingCertificate() {
-        return issuingCertificate;
-    }
-
-    public Certificate issuingCertificate(Certificate certificate) {
-        this.issuingCertificate = certificate;
-        return this;
+        return this.issuingCertificate;
     }
 
     public void setIssuingCertificate(Certificate certificate) {
         this.issuingCertificate = certificate;
     }
 
-    public Certificate getRootCertificate() {
-        return rootCertificate;
+    public Certificate issuingCertificate(Certificate certificate) {
+        this.setIssuingCertificate(certificate);
+        return this;
     }
 
-    public Certificate rootCertificate(Certificate certificate) {
-        this.rootCertificate = certificate;
-        return this;
+    public Certificate getRootCertificate() {
+        return this.rootCertificate;
     }
 
     public void setRootCertificate(Certificate certificate) {
         this.rootCertificate = certificate;
     }
 
-    public CAConnectorConfig getRevocationCA() {
-        return revocationCA;
+    public Certificate rootCertificate(Certificate certificate) {
+        this.setRootCertificate(certificate);
+        return this;
     }
 
-    public Certificate revocationCA(CAConnectorConfig cAConnectorConfig) {
-        this.revocationCA = cAConnectorConfig;
-        return this;
+    public CAConnectorConfig getRevocationCA() {
+        return this.revocationCA;
     }
 
     public void setRevocationCA(CAConnectorConfig cAConnectorConfig) {
         this.revocationCA = cAConnectorConfig;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+
+    public Certificate revocationCA(CAConnectorConfig cAConnectorConfig) {
+        this.setRevocationCA(cAConnectorConfig);
+        return this;
+    }
+
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -821,9 +830,11 @@ public class Certificate implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "Certificate{" +
@@ -849,13 +860,13 @@ public class Certificate implements Serializable {
             ", contentAddedAt='" + getContentAddedAt() + "'" +
             ", revokedSince='" + getRevokedSince() + "'" +
             ", revocationReason='" + getRevocationReason() + "'" +
-            ", revoked='" + isRevoked() + "'" +
+            ", revoked='" + getRevoked() + "'" +
             ", revocationExecutionId='" + getRevocationExecutionId() + "'" +
             ", administrationComment='" + getAdministrationComment() + "'" +
-            ", endEntity='" + isEndEntity() + "'" +
-            ", selfsigned='" + isSelfsigned() + "'" +
-            ", trusted='" + isTrusted() + "'" +
-            ", active='" + isActive() + "'" +
+            ", endEntity='" + getEndEntity() + "'" +
+            ", selfsigned='" + getSelfsigned() + "'" +
+            ", trusted='" + getTrusted() + "'" +
+            ", active='" + getActive() + "'" +
             ", content='" + getContent() + "'" +
             "}";
     }

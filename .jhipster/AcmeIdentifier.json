@@ -4,23 +4,17 @@
     {
       "fieldName": "acmeIdentifierId",
       "fieldType": "Long",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "type",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
-      "fieldName": "value",
+      "fieldName": "value0",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     }
   ],
   "relationships": [
@@ -28,8 +22,7 @@
       "relationshipType": "many-to-one",
       "otherEntityName": "acmeOrder",
       "otherEntityRelationshipName": "acmeIdentifiers",
-      "relationshipName": "order",
-      "otherEntityField": "id"
+      "relationshipName": "order"
     }
   ],
   "changelogDate": "20200129162418",

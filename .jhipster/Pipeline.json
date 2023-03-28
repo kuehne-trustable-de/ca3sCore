@@ -1,65 +1,68 @@
 {
-  "name": "Pipeline",
+  "applications": "*",
+  "changelogDate": "20230321145454",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "pipeline",
   "fields": [
     {
       "fieldName": "name",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "type",
       "fieldType": "PipelineType",
-      "fieldValues": "ACME,SCEP,WEB,INTERNAL",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"],
+      "fieldValues": "ACME,SCEP,WEB,INTERNAL"
     },
     {
       "fieldName": "urlPart",
       "fieldType": "String"
     },
     {
+      "fieldName": "active",
+      "fieldType": "Boolean"
+    },
+    {
       "fieldName": "description",
-      "fieldType": "String"
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
     },
     {
       "fieldName": "approvalRequired",
       "fieldType": "Boolean"
     }
   ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "Pipeline",
+  "pagination": "no",
+  "readOnly": false,
   "relationships": [
     {
-      "relationshipType": "one-to-many",
       "otherEntityName": "pipelineAttribute",
       "otherEntityRelationshipName": "pipeline",
-      "relationshipName": "pipelineAttributes"
+      "relationshipName": "pipelineAttributes",
+      "relationshipType": "one-to-many"
     },
     {
-      "relationshipType": "many-to-one",
       "otherEntityName": "cAConnectorConfig",
-      "otherEntityRelationshipName": "pipeline",
       "relationshipName": "caConnector",
-      "otherEntityField": "id"
+      "relationshipType": "many-to-one"
     },
     {
-      "relationshipType": "many-to-one",
-      "otherEntityName": "bPNMProcessInfo",
-      "otherEntityRelationshipName": "pipeline",
+      "otherEntityName": "bPMNProcessInfo",
       "relationshipName": "processInfo",
-      "otherEntityField": "id"
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "algorithmRestriction",
+      "otherEntityRelationshipName": "pipelines",
+      "ownerSide": true,
+      "relationshipName": "algorithms",
+      "relationshipType": "many-to-many"
     }
   ],
-  "changelogDate": "20200110170119",
-  "entityTableName": "pipeline",
-  "dto": "no",
-  "pagination": "no",
-  "service": "serviceImpl",
-  "jpaMetamodelFiltering": false,
-  "fluentMethods": true,
-  "readOnly": false,
-  "clientRootFolder": "",
-  "applications": "*",
-  "embedded": false
+  "service": "serviceImpl"
 }

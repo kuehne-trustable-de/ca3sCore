@@ -199,8 +199,11 @@ class MailServiceIT {
         doThrow(MailSendException.class).when(javaMailSender).send(any(MimeMessage.class));
         try {
             mailService.sendEmail("john.doe@example.com", new String[]{},"testSubject", "testContent", false, false);
-        } catch (Exception e) {
             fail("Exception shouldn't have been thrown");
+        } catch (MailSendException e) {
+            // as expected ...
+        } catch (Exception e) {
+            fail("unexpected exception");
         }
     }
 

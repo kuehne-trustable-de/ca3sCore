@@ -90,7 +90,6 @@
     "luxon": "^1.27.0",
     "min-dash": "^3.8.1",
     "parse-duration": "^1.0.0",
-    "sockjs-client": "1.1.4",
     "swagger-ui-dist": "3.52.2",
     "vue": "2.7.5",
     "vue-axios": "^2.1.5",

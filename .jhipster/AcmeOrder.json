@@ -4,17 +4,13 @@
     {
       "fieldName": "orderId",
       "fieldType": "Long",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "status",
       "fieldType": "AcmeOrderStatus",
       "fieldValues": "PENDING,READY,PROCESSING,VALID,INVALID",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "expires",
@@ -58,22 +54,19 @@
       "relationshipType": "many-to-one",
       "otherEntityName": "cSR",
       "otherEntityRelationshipName": "acmeOrder",
-      "relationshipName": "csr",
-      "otherEntityField": "id"
+      "relationshipName": "csr"
     },
     {
       "relationshipType": "many-to-one",
       "otherEntityName": "certificate",
       "otherEntityRelationshipName": "acmeOrder",
-      "relationshipName": "certificate",
-      "otherEntityField": "id"
+      "relationshipName": "certificate"
     },
     {
       "relationshipType": "many-to-one",
-      "otherEntityName": "aCMEAccount",
+      "otherEntityName": "acmeAccount",
       "otherEntityRelationshipName": "orders",
-      "relationshipName": "account",
-      "otherEntityField": "id"
+      "relationshipName": "account"
     }
   ],
   "changelogDate": "20200110170123",

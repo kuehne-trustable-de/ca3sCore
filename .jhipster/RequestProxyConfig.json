@@ -4,16 +4,12 @@
     {
       "fieldName": "name",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "requestProxyUrl",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "active",
@@ -26,7 +22,6 @@
       "otherEntityName": "protectedContent",
       "otherEntityRelationshipName": "requestProxyConfig",
       "relationshipName": "secret",
-      "otherEntityField": "id",
       "ownerSide": true
     }
   ],

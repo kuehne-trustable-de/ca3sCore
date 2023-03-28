@@ -16,6 +16,7 @@ public class CSRComment implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @Lob
@@ -27,17 +28,18 @@ public class CSRComment implements Serializable {
     private CSR csr;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public CSRComment id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public CSRComment id(Long id) {
-        this.id = id;
-        return this;
     }
 
     public String getComment() {
@@ -45,7 +47,7 @@ public class CSRComment implements Serializable {
     }
 
     public CSRComment comment(String comment) {
-        this.comment = comment;
+        this.setComment(comment);
         return this;
     }
 
@@ -57,19 +59,19 @@ public class CSRComment implements Serializable {
         return this.csr;
     }
 
-    public CSRComment csr(CSR cSR) {
-        this.setCsr(cSR);
-        return this;
-    }
-
     public void setCsr(CSR cSR) {
         if (this.csr != null) {
             this.csr.setComment(null);
         }
-        if (csr != null) {
-            csr.setComment(this);
+        if (cSR != null) {
+            cSR.setComment(this);
         }
         this.csr = cSR;
+    }
+
+    public CSRComment csr(CSR cSR) {
+        this.setCsr(cSR);
+        return this;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

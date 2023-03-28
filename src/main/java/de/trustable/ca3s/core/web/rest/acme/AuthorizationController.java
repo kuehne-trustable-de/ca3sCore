@@ -50,6 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import de.trustable.ca3s.core.domain.AcmeAccount;
@@ -69,7 +70,7 @@ import de.trustable.ca3s.core.service.util.DateUtil;
 
 
 @Transactional
-@Controller
+@RestController
 @RequestMapping("/acme/{realm}/authorization")
 public class AuthorizationController extends AcmeController {
 

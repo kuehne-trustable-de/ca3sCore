@@ -4,9 +4,7 @@
     {
       "fieldName": "attributeType",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     }
   ],
   "relationships": [
@@ -20,15 +18,13 @@
       "relationshipType": "many-to-one",
       "otherEntityName": "requestAttributeValue",
       "otherEntityRelationshipName": "requestAttribute",
-      "relationshipName": "holdingRequestAttribute",
-      "otherEntityField": "id"
+      "relationshipName": "holdingRequestAttribute"
     },
     {
       "relationshipType": "many-to-one",
       "otherEntityName": "cSR",
       "otherEntityRelationshipName": "ras",
-      "relationshipName": "csr",
-      "otherEntityField": "id"
+      "relationshipName": "csr"
     }
   ],
   "changelogDate": "20200110170117",
@@ -41,5 +37,6 @@
   "readOnly": false,
   "clientRootFolder": "",
   "applications": "*",
-  "embedded": false
+  "embedded": false,
+  "skipClient": true
 }

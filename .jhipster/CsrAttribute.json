@@ -4,12 +4,10 @@
     {
       "fieldName": "name",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
-      "fieldName": "value",
+      "fieldName": "value0",
       "fieldType": "String"
     }
   ],
@@ -18,8 +16,7 @@
       "relationshipType": "many-to-one",
       "otherEntityName": "cSR",
       "otherEntityRelationshipName": "csrAttributes",
-      "relationshipName": "csr",
-      "otherEntityField": "id"
+      "relationshipName": "csr"
     }
   ],
   "changelogDate": "20200110170114",

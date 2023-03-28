@@ -16,6 +16,7 @@ public class CertificateComment implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @Lob
@@ -30,17 +31,18 @@ public class CertificateComment implements Serializable {
     private Certificate certificate;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public CertificateComment id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public CertificateComment id(Long id) {
-        this.id = id;
-        return this;
     }
 
     public String getComment() {
@@ -48,7 +50,7 @@ public class CertificateComment implements Serializable {
     }
 
     public CertificateComment comment(String comment) {
-        this.comment = comment;
+        this.setComment(comment);
         return this;
     }
 
@@ -60,11 +62,6 @@ public class CertificateComment implements Serializable {
         return this.certificate;
     }
 
-    public CertificateComment certificate(Certificate certificate) {
-        this.setCertificate(certificate);
-        return this;
-    }
-
     public void setCertificate(Certificate certificate) {
         if (this.certificate != null) {
             this.certificate.setComment(null);
@@ -73,6 +70,11 @@ public class CertificateComment implements Serializable {
             certificate.setComment(this);
         }
         this.certificate = certificate;
+    }
+
+    public CertificateComment certificate(Certificate certificate) {
+        this.setCertificate(certificate);
+        return this;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

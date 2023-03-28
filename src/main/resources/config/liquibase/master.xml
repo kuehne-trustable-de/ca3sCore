@@ -128,5 +128,7 @@
     <include file="config/liquibase/changelog/20221215170000_added_column_ProtectedContent.xml" relativeToChangelogFile="false"/>
 
     <include file="config/liquibase/changelog/20230304170000_added_column_AcceptedBy_CSR.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230325192732_added_entity_AlgorithmRestriction.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230326145454_added_relation_pipeline_algorithms.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>

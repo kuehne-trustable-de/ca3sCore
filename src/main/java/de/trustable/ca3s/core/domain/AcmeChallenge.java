@@ -1,13 +1,11 @@
 package de.trustable.ca3s.core.domain;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
+import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
 import java.io.Serializable;
 import java.time.Instant;
-
-import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
+import javax.persistence.*;
+import javax.validation.constraints.*;
 
 /**
  * A AcmeChallenge.
@@ -20,6 +18,7 @@ public class AcmeChallenge implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @NotNull
@@ -41,7 +40,7 @@ public class AcmeChallenge implements Serializable {
     @Column(name = "validated")
     private Instant validated;
 
-    @Column(name = "last_error", nullable = true)
+    @Column(name = "last_error")
     private String lastError;
 
 
@@ -51,12 +50,18 @@ public class AcmeChallenge implements Serializable {
     private ChallengeStatus status;
 
     @ManyToOne
-    @JsonIgnoreProperties("challenges")
+    @JsonIgnoreProperties(value = { "challenges", "order" }, allowSetters = true)
     private AcmeAuthorization acmeAuthorization;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public AcmeChallenge id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
@@ -64,11 +69,11 @@ public class AcmeChallenge implements Serializable {
     }
 
     public Long getChallengeId() {
-        return challengeId;
+        return this.challengeId;
     }
 
     public AcmeChallenge challengeId(Long challengeId) {
-        this.challengeId = challengeId;
+        this.setChallengeId(challengeId);
         return this;
     }
 
@@ -77,11 +82,11 @@ public class AcmeChallenge implements Serializable {
     }
 
     public String getType() {
-        return type;
+        return this.type;
     }
 
     public AcmeChallenge type(String type) {
-        this.type = type;
+        this.setType(type);
         return this;
     }
 
@@ -103,11 +108,11 @@ public class AcmeChallenge implements Serializable {
     }
 
     public String getToken() {
-        return token;
+        return this.token;
     }
 
     public AcmeChallenge token(String token) {
-        this.token = token;
+        this.setToken(token);
         return this;
     }
 
@@ -116,11 +121,11 @@ public class AcmeChallenge implements Serializable {
     }
 
     public Instant getValidated() {
-        return validated;
+        return this.validated;
     }
 
     public AcmeChallenge validated(Instant validated) {
-        this.validated = validated;
+        this.setValidated(validated);
         return this;
     }
 
@@ -129,11 +134,11 @@ public class AcmeChallenge implements Serializable {
     }
 
     public ChallengeStatus getStatus() {
-        return status;
+        return this.status;
     }
 
     public AcmeChallenge status(ChallengeStatus status) {
-        this.status = status;
+        this.setStatus(status);
         return this;
     }
 
@@ -150,18 +155,19 @@ public class AcmeChallenge implements Serializable {
     }
 
     public AcmeAuthorization getAcmeAuthorization() {
-        return acmeAuthorization;
-    }
-
-    public AcmeChallenge acmeAuthorization(AcmeAuthorization acmeAuthorization) {
-        this.acmeAuthorization = acmeAuthorization;
-        return this;
+        return this.acmeAuthorization;
     }
 
     public void setAcmeAuthorization(AcmeAuthorization acmeAuthorization) {
         this.acmeAuthorization = acmeAuthorization;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+
+    public AcmeChallenge acmeAuthorization(AcmeAuthorization acmeAuthorization) {
+        this.setAcmeAuthorization(acmeAuthorization);
+        return this;
+    }
+
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -176,9 +182,11 @@ public class AcmeChallenge implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "AcmeChallenge{" +
