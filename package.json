@@ -166,7 +166,7 @@
     "ts-loader": "9.3.1",
     "typescript": "4.8.2",
     "url-loader": "4.1.1",
-    "vue-jest": "3.0.7",
+    "vue-jest": "4.0.1",
     "vue-loader": "15.10.0",
     "vue-template-compiler": "2.7.5",
     "wait-on": "6.0.1",
