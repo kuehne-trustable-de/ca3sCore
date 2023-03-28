@@ -11,8 +11,6 @@ import javax.validation.constraints.*;
 
 /**
  * A AcmeOrder.
- *
- *
  */
 @Entity
 @Table(name = "acme_order")
@@ -375,12 +373,12 @@ public class AcmeOrder implements Serializable {
         return this.account;
     }
 
-    public void setAccount(AcmeAccount aCMEAccount) {
-        this.account = aCMEAccount;
+    public void setAccount(AcmeAccount acmeAccount) {
+        this.account = acmeAccount;
     }
 
-    public AcmeOrder account(AcmeAccount aCMEAccount) {
-        this.setAccount(aCMEAccount);
+    public AcmeOrder account(AcmeAccount acmeAccount) {
+        this.setAccount(acmeAccount);
         return this;
     }
 

@@ -1,12 +1,11 @@
 package de.trustable.ca3s.core.domain;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.*;
+import javax.validation.constraints.*;
 
 /**
  * A AcmeAuthorization.
@@ -25,6 +24,7 @@ public class AcmeAuthorization implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @NotNull
@@ -40,15 +40,22 @@ public class AcmeAuthorization implements Serializable {
     private String value;
 
     @OneToMany(mappedBy = "acmeAuthorization")
+    @JsonIgnoreProperties(value = { "acmeAuthorization" }, allowSetters = true)
     private Set<AcmeChallenge> challenges = new HashSet<>();
 
     @ManyToOne
     @JsonIgnoreProperties("acmeAuthorizations")
     private AcmeOrder order;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public AcmeAuthorization id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
@@ -56,11 +63,11 @@ public class AcmeAuthorization implements Serializable {
     }
 
     public Long getAcmeAuthorizationId() {
-        return acmeAuthorizationId;
+        return this.acmeAuthorizationId;
     }
 
     public AcmeAuthorization acmeAuthorizationId(Long acmeAuthorizationId) {
-        this.acmeAuthorizationId = acmeAuthorizationId;
+        this.setAcmeAuthorizationId(acmeAuthorizationId);
         return this;
     }
 
@@ -69,11 +76,11 @@ public class AcmeAuthorization implements Serializable {
     }
 
     public String getType() {
-        return type;
+        return this.type;
     }
 
     public AcmeAuthorization type(String type) {
-        this.type = type;
+        this.setType(type);
         return this;
     }
 
@@ -95,11 +102,21 @@ public class AcmeAuthorization implements Serializable {
     }
 
     public Set<AcmeChallenge> getChallenges() {
-        return challenges;
+        return this.challenges;
+    }
+
+    public void setChallenges(Set<AcmeChallenge> acmeChallenges) {
+        if (this.challenges != null) {
+            this.challenges.forEach(i -> i.setAcmeAuthorization(null));
+        }
+        if (acmeChallenges != null) {
+            acmeChallenges.forEach(i -> i.setAcmeAuthorization(this));
+        }
+        this.challenges = acmeChallenges;
     }
 
     public AcmeAuthorization challenges(Set<AcmeChallenge> acmeChallenges) {
-        this.challenges = acmeChallenges;
+        this.setChallenges(acmeChallenges);
         return this;
     }
 
@@ -115,23 +132,20 @@ public class AcmeAuthorization implements Serializable {
         return this;
     }
 
-    public void setChallenges(Set<AcmeChallenge> acmeChallenges) {
-        this.challenges = acmeChallenges;
-    }
-
     public AcmeOrder getOrder() {
-        return order;
-    }
-
-    public AcmeAuthorization order(AcmeOrder acmeOrder) {
-        this.order = acmeOrder;
-        return this;
+        return this.order;
     }
 
     public void setOrder(AcmeOrder acmeOrder) {
         this.order = acmeOrder;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+
+    public AcmeAuthorization order(AcmeOrder acmeOrder) {
+        this.setOrder(acmeOrder);
+        return this;
+    }
+
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -146,9 +160,11 @@ public class AcmeAuthorization implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "AcmeAuthorization{" +

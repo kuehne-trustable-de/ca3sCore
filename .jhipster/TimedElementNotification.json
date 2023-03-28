@@ -1,0 +1,39 @@
+{
+  "name": "TimedElementNotification",
+  "fields": [
+    {
+      "fieldName": "type",
+      "fieldType": "TimedElementNotificationType",
+      "fieldValues": "ON_EXPIRY,ON_EXPIRY_ACTIVE",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "notifyOn",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "customMessage",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "certificate",
+      "otherEntityRelationshipName": "timedElementNotification",
+      "relationshipName": "certificate"
+    }
+  ],
+  "entityTableName": "timed_element_notification",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "skipClient": true,
+  "changelogDate": "20230325192731"
+}

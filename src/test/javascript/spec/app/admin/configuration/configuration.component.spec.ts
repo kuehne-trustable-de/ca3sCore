@@ -1,5 +1,6 @@
 import { shallowMount, createLocalVue, Wrapper } from '@vue/test-utils';
 import axios from 'axios';
+import sinon from 'sinon';
 
 import * as config from '@/shared/config/config';
 import Configuration from '@/admin/configuration/configuration.vue';
@@ -7,38 +8,31 @@ import ConfigurationClass from '@/admin/configuration/configuration.component';
 import ConfigurationService from '@/admin/configuration/configuration.service';
 
 const localVue = createLocalVue();
-const mockedAxios: any = axios;
 
 config.initVueApp(localVue);
 const i18n = config.initI18N(localVue);
 const store = config.initVueXStore(localVue);
 
-jest.mock('axios', () => ({
-  get: jest.fn()
-}));
+const axiosStub = {
+  get: sinon.stub(axios, 'get'),
+};
 
 describe('Configuration Component', () => {
   let wrapper: Wrapper<ConfigurationClass>;
   let configuration: ConfigurationClass;
 
   beforeEach(() => {
-    mockedAxios.get.mockReset();
-    mockedAxios.get.mockReturnValue(
-      Promise.resolve({
-        data: { contexts: [{ beans: [{ prefix: 'A' }, { prefix: 'B' }] }], propertySources: [{ properties: { key1: { value: 'value' } } }] }
-      })
-    );
+    axiosStub.get.reset();
+    axiosStub.get.resolves({
+      data: { contexts: [{ beans: [{ prefix: 'A' }, { prefix: 'B' }] }], propertySources: [{ properties: { key1: { value: 'value' } } }] },
+    });
     wrapper = shallowMount<ConfigurationClass>(Configuration, {
       store,
       i18n,
       localVue,
-      provide: { configurationService: () => new ConfigurationService() }
+      provide: { configurationService: () => new ConfigurationService() },
     });
     configuration = wrapper.vm;
-  });
-
-  it('should be a Vue instance', () => {
-    expect(wrapper.isVueInstance()).toBeTruthy();
   });
 
   describe('OnRouteEnter', () => {
@@ -54,21 +48,36 @@ describe('Configuration Component', () => {
       await configuration.$nextTick();
 
       // THEN
-      expect(mockedAxios.get).toHaveBeenCalledWith('management/env');
-      expect(mockedAxios.get).toHaveBeenCalledWith('management/configprops');
+      expect(axiosStub.get.calledWith('management/env')).toBeTruthy();
+      expect(axiosStub.get.calledWith('management/configprops')).toBeTruthy();
     });
   });
+
   describe('keys method', () => {
     it('should return the keys of an Object', () => {
       // GIVEN
       const data = {
         key1: 'test',
-        key2: 'test2'
+        key2: 'test2',
       };
 
       // THEN
       expect(configuration.keys(data)).toEqual(['key1', 'key2']);
       expect(configuration.keys(undefined)).toEqual([]);
+    });
+  });
+
+  describe('changeOrder function', () => {
+    it('should change order', () => {
+      // GIVEN
+      const rev = configuration.reverse;
+
+      // WHEN
+      configuration.changeOrder('prefix');
+
+      // THEN
+      expect(configuration.orderProp).toBe('prefix');
+      expect(configuration.reverse).toBe(!rev);
     });
   });
 });

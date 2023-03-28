@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import de.trustable.ca3s.core.service.dto.acme.DirectoryResponse;
+import org.springframework.web.bind.annotation.RestController;
 
 /*
  * 7.1.1.  Directory
@@ -127,7 +128,7 @@ import de.trustable.ca3s.core.service.dto.acme.DirectoryResponse;
    }
  */
 
-@Controller
+@RestController
 @RequestMapping("/acme/{realm}/directory")
 public class DirectoryController extends AcmeController {
 

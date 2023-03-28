@@ -4,30 +4,22 @@
     {
       "fieldName": "challengeId",
       "fieldType": "Long",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "type",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
-      "fieldName": "value",
+      "fieldName": "value0",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "token",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "validated",
@@ -37,9 +29,7 @@
       "fieldName": "status",
       "fieldType": "ChallengeStatus",
       "fieldValues": "PENDING,VALID,INVALID,DEACTIVATED,EXPIRED,REVOKED",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     }
   ],
   "relationships": [
@@ -47,8 +37,7 @@
       "relationshipType": "many-to-one",
       "otherEntityName": "acmeAuthorization",
       "otherEntityRelationshipName": "challenges",
-      "relationshipName": "acmeAuthorization",
-      "otherEntityField": "id"
+      "relationshipName": "acmeAuthorization"
     }
   ],
   "changelogDate": "20200110170126",
@@ -61,5 +50,6 @@
   "readOnly": false,
   "clientRootFolder": "",
   "applications": "*",
-  "embedded": false
+  "embedded": false,
+  "skipClient": true
 }

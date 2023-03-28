@@ -1,0 +1,84 @@
+{
+  "applications": "*",
+  "changelogDate": "20230321145436",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "audit_trace",
+  "fields": [
+    {
+      "fieldName": "actorName",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "actorRole",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "plainContent",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "contentTemplate",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "createdOn",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "AuditTrace",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityName": "cSR",
+      "relationshipName": "csr",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "certificate",
+      "relationshipName": "certificate",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "pipeline",
+      "relationshipName": "pipeline",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "cAConnectorConfig",
+      "relationshipName": "caConnector",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "bPMNProcessInfo",
+      "relationshipName": "processInfo",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "acmeAccount",
+      "relationshipName": "acmeAccount",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "acmeOrder",
+      "relationshipName": "acmeOrder",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "scepOrder",
+      "relationshipName": "scepOrder",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "service": "serviceImpl",
+  "skipClient": true
+}

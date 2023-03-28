@@ -1,14 +1,15 @@
 import { shallowMount, createLocalVue, Wrapper } from '@vue/test-utils';
 import axios from 'axios';
+import sinon from 'sinon';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 import * as config from '@/shared/config/config';
 import UserManagementView from '@/admin/user-management/user-management-view.vue';
 import UserManagementViewClass from '@/admin/user-management/user-management-view.component';
 import UserManagementService from '@/admin/user-management/user-management.service';
+import { Authority } from '@/shared/security/authority';
 
 const localVue = createLocalVue();
-const mockedAxios: any = axios;
 
 config.initVueApp(localVue);
 const i18n = config.initI18N(localVue);
@@ -17,10 +18,9 @@ localVue.component('font-awesome-icon', FontAwesomeIcon);
 localVue.component('b-badge', {});
 localVue.component('router-link', {});
 
-jest.mock('axios', () => ({
-  get: jest.fn(),
-  put: jest.fn()
-}));
+const axiosStub = {
+  get: sinon.stub(axios, 'get'),
+};
 
 describe('UserManagementView Component', () => {
   let wrapper: Wrapper<UserManagementViewClass>;
@@ -31,13 +31,9 @@ describe('UserManagementView Component', () => {
       store,
       i18n,
       localVue,
-      provide: { userService: () => new UserManagementService() }
+      provide: { userService: () => new UserManagementService() },
     });
     userManagementView = wrapper.vm;
-  });
-
-  it('should be a Vue instance', () => {
-    expect(wrapper.isVueInstance()).toBeTruthy();
   });
 
   describe('OnInit', () => {
@@ -51,21 +47,21 @@ describe('UserManagementView Component', () => {
         email: 'first@last.com',
         activated: true,
         langKey: 'en',
-        authorities: ['ROLE_USER'],
+        authorities: [Authority.USER],
         createdBy: 'admin',
         createdDate: null,
         lastModifiedBy: null,
         lastModifiedDate: null,
-        password: null
+        password: null,
       };
-      mockedAxios.get.mockReturnValue(Promise.resolve({ data: userData }));
+      axiosStub.get.resolves({ data: userData });
 
       // WHEN
       userManagementView.init(123);
       await userManagementView.$nextTick();
 
       // THEN
-      expect(mockedAxios.get).toHaveBeenCalledWith('api/users/' + 123);
+      expect(axiosStub.get.calledWith('api/admin/users/' + 123)).toBeTruthy();
       expect(userManagementView.user).toEqual(userData);
     });
   });

@@ -1,11 +1,9 @@
 package de.trustable.ca3s.core.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
+import java.io.Serializable;
 import javax.persistence.*;
 import javax.validation.constraints.*;
-
-import java.io.Serializable;
 
 /**
  * A CsrAttribute.
@@ -25,6 +23,7 @@ public class CsrAttribute implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @NotNull
@@ -38,9 +37,15 @@ public class CsrAttribute implements Serializable {
     @JsonIgnoreProperties("csrAttributes")
     private CSR csr;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public CsrAttribute id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
@@ -48,11 +53,11 @@ public class CsrAttribute implements Serializable {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public CsrAttribute name(String name) {
-        this.name = name;
+        this.setName(name);
         return this;
     }
 
@@ -74,18 +79,19 @@ public class CsrAttribute implements Serializable {
     }
 
     public CSR getCsr() {
-        return csr;
-    }
-
-    public CsrAttribute csr(CSR cSR) {
-        this.csr = cSR;
-        return this;
+        return this.csr;
     }
 
     public void setCsr(CSR cSR) {
         this.csr = cSR;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+
+    public CsrAttribute csr(CSR cSR) {
+        this.setCsr(cSR);
+        return this;
+    }
+
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -100,9 +106,11 @@ public class CsrAttribute implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "CsrAttribute{" +

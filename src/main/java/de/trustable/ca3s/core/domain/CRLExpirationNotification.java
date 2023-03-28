@@ -24,7 +24,8 @@ public class CRLExpirationNotification implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "crl_url")
+    @NotNull
+    @Column(name = "crl_url", nullable = false)
     private String crlUrl;
 
     @NotNull
@@ -77,16 +78,16 @@ public class CRLExpirationNotification implements Serializable {
     }
 
     public Instant getNotifyUntil() {
-        return notifyUntil;
-    }
-
-    public void setNotifyUntil(Instant notifyUntil) {
-        this.notifyUntil = notifyUntil;
+        return this.notifyUntil;
     }
 
     public CRLExpirationNotification notifyUntil(Instant notifyUntil) {
         this.setNotifyUntil(notifyUntil);
         return this;
+    }
+
+    public void setNotifyUntil(Instant notifyUntil) {
+        this.notifyUntil = notifyUntil;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

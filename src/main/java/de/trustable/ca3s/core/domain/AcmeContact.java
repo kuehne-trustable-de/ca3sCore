@@ -1,10 +1,9 @@
 package de.trustable.ca3s.core.domain;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.io.Serializable;
 import javax.persistence.*;
 import javax.validation.constraints.*;
-
-import java.io.Serializable;
 
 /**
  * A AcmeContact.
@@ -23,6 +22,7 @@ public class AcmeContact implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @NotNull
@@ -37,9 +37,15 @@ public class AcmeContact implements Serializable {
     @JsonIgnoreProperties("contacts")
     private AcmeAccount account;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public AcmeContact id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
@@ -47,11 +53,11 @@ public class AcmeContact implements Serializable {
     }
 
     public Long getContactId() {
-        return contactId;
+        return this.contactId;
     }
 
     public AcmeContact contactId(Long contactId) {
-        this.contactId = contactId;
+        this.setContactId(contactId);
         return this;
     }
 
@@ -60,11 +66,11 @@ public class AcmeContact implements Serializable {
     }
 
     public String getContactUrl() {
-        return contactUrl;
+        return this.contactUrl;
     }
 
     public AcmeContact contactUrl(String contactUrl) {
-        this.contactUrl = contactUrl;
+        this.setContactUrl(contactUrl);
         return this;
     }
 
@@ -73,18 +79,19 @@ public class AcmeContact implements Serializable {
     }
 
     public AcmeAccount getAccount() {
-        return account;
+        return this.account;
     }
 
-    public AcmeContact account(AcmeAccount aCMEAccount) {
-        this.account = aCMEAccount;
+    public void setAccount(AcmeAccount acmeAccount) {
+        this.account = acmeAccount;
+    }
+
+    public AcmeContact account(AcmeAccount acmeAccount) {
+        this.setAccount(acmeAccount);
         return this;
     }
 
-    public void setAccount(AcmeAccount aCMEAccount) {
-        this.account = aCMEAccount;
-    }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -99,9 +106,11 @@ public class AcmeContact implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "AcmeContact{" +

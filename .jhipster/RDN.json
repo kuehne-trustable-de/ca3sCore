@@ -12,8 +12,7 @@
       "relationshipType": "many-to-one",
       "otherEntityName": "cSR",
       "otherEntityRelationshipName": "rdns",
-      "relationshipName": "csr",
-      "otherEntityField": "id"
+      "relationshipName": "csr"
     }
   ],
   "changelogDate": "20200110170115",
@@ -26,5 +25,6 @@
   "readOnly": false,
   "clientRootFolder": "",
   "applications": "*",
-  "embedded": false
+  "embedded": false,
+  "skipClient": true
 }

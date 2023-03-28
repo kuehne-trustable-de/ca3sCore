@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core.service.scep;
 
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -41,7 +40,6 @@ import de.trustable.util.CryptoUtil;
 import de.trustable.util.JCAManager;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
-
 
 //@Disabled("Integration test fails for unknown reason, running it as a separate client succeeds. Maybe a classloader issue? ")
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

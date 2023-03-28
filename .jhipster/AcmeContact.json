@@ -4,25 +4,20 @@
     {
       "fieldName": "contactId",
       "fieldType": "Long",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "contactUrl",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     }
   ],
   "relationships": [
     {
       "relationshipType": "many-to-one",
-      "otherEntityName": "aCMEAccount",
+      "otherEntityName": "acmeAccount",
       "otherEntityRelationshipName": "contacts",
-      "relationshipName": "account",
-      "otherEntityField": "id"
+      "relationshipName": "account"
     }
   ],
   "changelogDate": "20200110170122",

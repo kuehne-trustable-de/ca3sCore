@@ -1,12 +1,11 @@
 package de.trustable.ca3s.core.domain;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.*;
+import javax.validation.constraints.*;
 
 /**
  * A RequestAttribute.
@@ -19,6 +18,7 @@ public class RequestAttribute implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @NotNull
@@ -36,9 +36,15 @@ public class RequestAttribute implements Serializable {
     @JsonIgnoreProperties("ras")
     private CSR csr;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public RequestAttribute id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
@@ -46,11 +52,11 @@ public class RequestAttribute implements Serializable {
     }
 
     public String getAttributeType() {
-        return attributeType;
+        return this.attributeType;
     }
 
     public RequestAttribute attributeType(String attributeType) {
-        this.attributeType = attributeType;
+        this.setAttributeType(attributeType);
         return this;
     }
 
@@ -59,11 +65,21 @@ public class RequestAttribute implements Serializable {
     }
 
     public Set<RequestAttributeValue> getRequestAttributeValues() {
-        return requestAttributeValues;
+        return this.requestAttributeValues;
+    }
+
+    public void setRequestAttributeValues(Set<RequestAttributeValue> requestAttributeValues) {
+        if (this.requestAttributeValues != null) {
+            this.requestAttributeValues.forEach(i -> i.setReqAttr(null));
+        }
+        if (requestAttributeValues != null) {
+            requestAttributeValues.forEach(i -> i.setReqAttr(this));
+        }
+        this.requestAttributeValues = requestAttributeValues;
     }
 
     public RequestAttribute requestAttributeValues(Set<RequestAttributeValue> requestAttributeValues) {
-        this.requestAttributeValues = requestAttributeValues;
+        this.setRequestAttributeValues(requestAttributeValues);
         return this;
     }
 
@@ -79,36 +95,33 @@ public class RequestAttribute implements Serializable {
         return this;
     }
 
-    public void setRequestAttributeValues(Set<RequestAttributeValue> requestAttributeValues) {
-        this.requestAttributeValues = requestAttributeValues;
-    }
-
     public RequestAttributeValue getHoldingRequestAttribute() {
-        return holdingRequestAttribute;
-    }
-
-    public RequestAttribute holdingRequestAttribute(RequestAttributeValue requestAttributeValue) {
-        this.holdingRequestAttribute = requestAttributeValue;
-        return this;
+        return this.holdingRequestAttribute;
     }
 
     public void setHoldingRequestAttribute(RequestAttributeValue requestAttributeValue) {
         this.holdingRequestAttribute = requestAttributeValue;
     }
 
-    public CSR getCsr() {
-        return csr;
+    public RequestAttribute holdingRequestAttribute(RequestAttributeValue requestAttributeValue) {
+        this.setHoldingRequestAttribute(requestAttributeValue);
+        return this;
     }
 
-    public RequestAttribute csr(CSR cSR) {
-        this.csr = cSR;
-        return this;
+    public CSR getCsr() {
+        return this.csr;
     }
 
     public void setCsr(CSR cSR) {
         this.csr = cSR;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+
+    public RequestAttribute csr(CSR cSR) {
+        this.setCsr(cSR);
+        return this;
+    }
+
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -123,9 +136,11 @@ public class RequestAttribute implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "RequestAttribute{" +

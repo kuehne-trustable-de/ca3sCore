@@ -1,19 +1,19 @@
 {
-  "name": "Certificate",
+  "applications": "*",
+  "changelogDate": "20230321145441",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "certificate",
   "fields": [
     {
       "fieldName": "tbsDigest",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "subject",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "sans",
@@ -22,9 +22,7 @@
     {
       "fieldName": "issuer",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "root",
@@ -33,13 +31,12 @@
     {
       "fieldName": "type",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "description",
-      "fieldType": "String"
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
     },
     {
       "fieldName": "fingerprint",
@@ -48,23 +45,17 @@
     {
       "fieldName": "serial",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "validFrom",
       "fieldType": "Instant",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "validTo",
       "fieldType": "Instant",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "keyAlgorithm",
@@ -139,57 +130,50 @@
       "fieldName": "content",
       "fieldType": "byte[]",
       "fieldTypeBlobContent": "text",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     }
   ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "Certificate",
+  "pagination": "infinite-scroll",
+  "readOnly": false,
   "relationships": [
     {
-      "relationshipType": "one-to-one",
       "otherEntityName": "cSR",
       "otherEntityRelationshipName": "certificate",
+      "ownerSide": true,
       "relationshipName": "csr",
-      "otherEntityField": "id",
-      "ownerSide": true
+      "relationshipType": "one-to-one"
     },
     {
-      "relationshipType": "one-to-many",
+      "otherEntityName": "certificateComment",
+      "otherEntityRelationshipName": "certificate",
+      "ownerSide": true,
+      "relationshipName": "comment",
+      "relationshipType": "one-to-one"
+    },
+    {
       "otherEntityName": "certificateAttribute",
       "otherEntityRelationshipName": "certificate",
-      "relationshipName": "certificateAttributes"
+      "relationshipName": "certificateAttributes",
+      "relationshipType": "one-to-many"
     },
     {
-      "relationshipType": "many-to-one",
       "otherEntityName": "certificate",
-      "otherEntityRelationshipName": "certificate",
       "relationshipName": "issuingCertificate",
-      "otherEntityField": "id"
+      "relationshipType": "many-to-one"
     },
     {
-      "relationshipType": "many-to-one",
       "otherEntityName": "certificate",
-      "otherEntityRelationshipName": "certificate",
       "relationshipName": "rootCertificate",
-      "otherEntityField": "id"
+      "relationshipType": "many-to-one"
     },
     {
-      "relationshipType": "many-to-one",
       "otherEntityName": "cAConnectorConfig",
-      "otherEntityRelationshipName": "certificate",
       "relationshipName": "revocationCA",
-      "otherEntityField": "id"
+      "relationshipType": "many-to-one"
     }
   ],
-  "changelogDate": "20200110170112",
-  "entityTableName": "certificate",
-  "dto": "no",
-  "pagination": "infinite-scroll",
-  "service": "serviceImpl",
-  "jpaMetamodelFiltering": false,
-  "fluentMethods": true,
-  "readOnly": false,
-  "clientRootFolder": "",
-  "applications": "*",
-  "embedded": false
+  "service": "serviceImpl"
 }

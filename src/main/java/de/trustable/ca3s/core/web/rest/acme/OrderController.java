@@ -62,6 +62,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -80,7 +81,7 @@ import static org.springframework.web.servlet.support.ServletUriComponentsBuilde
 
 
 @Transactional
-@Controller
+@RestController
 @RequestMapping("/acme/{realm}/order")
 public class OrderController extends AcmeController {
 
@@ -162,7 +163,7 @@ public class OrderController extends AcmeController {
                     updateAcmeOrderState(orderDao);
                 }
 
-                UriComponentsBuilder baseUriBuilder = fromCurrentRequestUri().path("../../..");
+                UriComponentsBuilder baseUriBuilder = fromCurrentRequestUri().path("/../..");
                 LOG.debug("postAsGetOrder: baseUriBuilder : " + baseUriBuilder.toUriString());
 
                 return buildOrderResponse(additionalHeaders, orderDao, baseUriBuilder, true);
@@ -334,7 +335,7 @@ public class OrderController extends AcmeController {
                 }
 
                 boolean valid = true;
-                UriComponentsBuilder baseUriBuilder = fromCurrentRequestUri().path("../../../..");
+                UriComponentsBuilder baseUriBuilder = fromCurrentRequestUri().path("/../../..");
                 LOG.debug("finalize: baseUriBuilder : " + baseUriBuilder.toUriString());
 
                 return buildOrderResponse(additionalHeaders, orderDao, baseUriBuilder, valid);
@@ -433,7 +434,7 @@ public class OrderController extends AcmeController {
         OrderResponse orderResp = new OrderResponse(orderDao, authorizationsResp, finalizeUrl, certificateUrl);
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("order response for verified request: {}", jwtUtil.getOrderResponseAsJSON(orderResp));
+            LOG.debug("order response : {}", jwtUtil.getOrderResponseAsJSON(orderResp));
         }
 
         if (valid) {

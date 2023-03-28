@@ -1,10 +1,8 @@
 package de.trustable.ca3s.core.domain;
 
-
+import java.io.Serializable;
 import javax.persistence.*;
 import javax.validation.constraints.*;
-
-import java.io.Serializable;
 
 /**
  * A RequestProxyConfig.
@@ -17,6 +15,7 @@ public class RequestProxyConfig implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @NotNull
@@ -34,9 +33,15 @@ public class RequestProxyConfig implements Serializable {
     @JoinColumn(unique = true)
     private ProtectedContent secret;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public RequestProxyConfig id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
@@ -44,11 +49,11 @@ public class RequestProxyConfig implements Serializable {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public RequestProxyConfig name(String name) {
-        this.name = name;
+        this.setName(name);
         return this;
     }
 
@@ -57,11 +62,11 @@ public class RequestProxyConfig implements Serializable {
     }
 
     public String getRequestProxyUrl() {
-        return requestProxyUrl;
+        return this.requestProxyUrl;
     }
 
     public RequestProxyConfig requestProxyUrl(String requestProxyUrl) {
-        this.requestProxyUrl = requestProxyUrl;
+        this.setRequestProxyUrl(requestProxyUrl);
         return this;
     }
 
@@ -73,8 +78,12 @@ public class RequestProxyConfig implements Serializable {
         return active;
     }
 
+    public Boolean getActive() {
+        return this.active;
+    }
+
     public RequestProxyConfig active(Boolean active) {
-        this.active = active;
+        this.setActive(active);
         return this;
     }
 
@@ -83,18 +92,19 @@ public class RequestProxyConfig implements Serializable {
     }
 
     public ProtectedContent getSecret() {
-        return secret;
-    }
-
-    public RequestProxyConfig secret(ProtectedContent protectedContent) {
-        this.secret = protectedContent;
-        return this;
+        return this.secret;
     }
 
     public void setSecret(ProtectedContent protectedContent) {
         this.secret = protectedContent;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+
+    public RequestProxyConfig secret(ProtectedContent protectedContent) {
+        this.setSecret(protectedContent);
+        return this;
+    }
+
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -109,16 +119,18 @@ public class RequestProxyConfig implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "RequestProxyConfig{" +
             "id=" + getId() +
             ", name='" + getName() + "'" +
             ", requestProxyUrl='" + getRequestProxyUrl() + "'" +
-            ", active='" + isActive() + "'" +
+            ", active='" + getActive() + "'" +
             "}";
     }
 }

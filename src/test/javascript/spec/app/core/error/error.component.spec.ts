@@ -9,7 +9,7 @@ const localVue = createLocalVue();
 config.initVueApp(localVue);
 const i18n = config.initI18N(localVue);
 const store = config.initVueXStore(localVue);
-const customErrorMsg = 'An error occured.';
+const customErrorMsg = 'An error occurred.';
 
 describe('Error component', () => {
   let error: ErrorClass;
@@ -24,14 +24,10 @@ describe('Error component', () => {
       router,
       localVue,
       provide: {
-        loginService: () => loginService
-      }
+        loginService: () => loginService,
+      },
     });
     error = wrapper.vm;
-  });
-
-  it('should be a Vue instance', () => {
-    expect(wrapper.isVueInstance()).toBeTruthy();
   });
 
   it('should have retrieve custom error on routing', () => {

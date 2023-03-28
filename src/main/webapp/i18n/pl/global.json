@@ -1,176 +1,140 @@
 {
-	"entity": {
-		"action": {
-			"addblob": "Dodaj dane binarne",
-			"addimage": "Dodaj zdjęcie",
-			"back": "Wstecz",
-			"cancel": "Anuluj",
-			"confirm": "Potwierdź prośbę",
-			"copy": "Kopiuj",
-			"delete": "Usuń",
-			"edit": "Edytuj",
-			"open": "Otwórz",
-			"reject": "Odrzuć prośbę",
-			"revoke": "Odwołać",
-			"save": "Zapisz",
-			"view": "Widok",
-			"withdraw": "Wycofać"
-		},
-		"delete": {
-			"title": "Potwierdź usunięcie"
-		},
-		"detail": {
-			"field": "Pole",
-			"value": "Wartość"
-		},
-		"validation": {
-			"datetimelocal": "Wartość powinna zawierać datę i czas.",
-			"max": "Wartość nie może być większa niż {{max}}.",
-			"maxbytes": "Wartość nie może być większa niż {{max}} bajtów.",
-			"maxlength": "Wartość nie może być dłuższa niż {{max}} znaków.",
-			"min": "Wartość powinna być większa niż {{min}}.",
-			"minbytes": "Wartość nie może być mniejsza niż {{min}} bajtów.",
-			"minlength": "Wartość musi mieć długość co najmniej {{min}} znaków.",
-			"number": "Wartość powinna być liczbowa.",
-			"pattern": "Wartość powinna być zgodna ze wzorem {{pattern}}.",
-			"patternLogin": "To pole może zawierać tylko litery, cyfry i adresy e-mail.",
-			"required": "To pole jest wymagane."
-		}
-	},
-	"error": {
-		"NotNull": "Wartość {{fieldName}} nie może być pusta!",
-		"Size": "Wartość {{fieldName}} nie spełnia wymagań co do długości!",
-		"emailexists": "Użytkownik z takim adresem email już istnieje!",
-		"idexists": "Nowy {{entityName}} nie może jeszcze mieć przypisanego ID",
-		"idnull": "Błędne ID",
-		"internalServerError": "Wewnętrzny błąd serwera",
-		"server.not.reachable": "Serwer jest nieosiągalny",
-		"url.not.found": "Nie znaleziono",
-		"userexists": "Użytkownik o takiej nazwie już istnieje!"
-	},
-	"footer": "To jest stopka",
-	"global": {
-		"browsehappy": "Używasz <strong>przestarzałej</strong> przeglądarki. Proszę <a href=\"http://browsehappy.com/\">uaktualnij swoją przeglądarkę</a> aby poprawić wrażenia z użytkowania tej aplikacji.",
-		"field": {
-			"id": "ID"
-		},
-		"form": {
-			"confirmpassword.label": "Potwierdź nowe hasło",
-			"confirmpassword.placeholder": "Potwierdź nowe hasło",
-			"currentpassword.label": "Aktualne hasło",
-			"currentpassword.placeholder": "Aktualne hasło",
-			"email.label": "Email",
-			"email.placeholder": "Twój email",
-			"newpassword.label": "Nowe hasło",
-			"newpassword.placeholder": "Nowe hasło",
-			"username.label": "Nazwa użytkownika",
-			"username.placeholder": "Twój login"
-		},
-		"item-count": "Wyświetlono {{first}} - {{second}} z {{total}} elementów.",
-		"menu": {
-			"account": {
-				"login": "Autoryzacja",
-				"logout": "Wyloguj",
-				"main": "Konto",
-				"password": "Hasło",
-				"register": "Zarejestruj się",
-				"sessions": "Sesje",
-				"settings": "Ustawienia"
-			},
-			"admin": {
-				"apidocs": "API",
-				"audits": "Audyty",
-				"configuration": "Konfiguracja",
-				"database": "Baza danych",
-				"health": "Status",
-				"jhipster-needle-menu-add-admin-element": "JHipster will add additional menu entries here (do not translate!)",
-				"logs": "Logi",
-				"main": "Administracja",
-				"metrics": "Metryki",
-				"tracker": "Śledzenie użytkownika",
-				"userManagement": "Użytkownicy"
-			},
-			"certificates": "Certyfikaty",
-			"check": "czek",
-			"config": {
-				"caConnectorConfig": "Konfiguracja złącza CA.",
-				"main": "Config",
-				"pipeline": "Rurociąg"
-			},
-			"entities": {
-				"acmeAccount": "ACME Account",
-				"acmeAuthorization": "Acme Authorization",
-				"acmeChallenge": "Acme Challenge",
-				"acmeContact": "Acme Contact",
-				"acmeIdentifier": "Acme Identifier",
-				"acmeNonce": "Acme Nonce",
-				"acmeOrder": "Acme Order",
-				"authorization": "Authorization",
-				"bpnmProcessInfo": "BPNM Process Info",
-				"caConnectorConfig": "CA Connector Config",
-				"certificate": "Certificate",
-				"certificateAttribute": "Certificate Attribute",
-				"csr": "CSR",
-				"csrAttribute": "Csr Attribute",
-				"identifier": "Identifier",
-				"importedUrl": "Imported URL",
-				"jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)",
-				"main": "Encje",
-				"nonce": "Nonce",
-				"pipeline": "Pipeline",
-				"pipelineAttribute": "Pipeline Attribute",
-				"protectedContent": "Protected Content",
-				"rdn": "RDN",
-				"rdnAttribute": "RDN Attribute",
-				"requestAttribute": "Request Attribute",
-				"requestAttributeValue": "Request Attribute Value",
-				"requestProxyConfig": "Request Proxy Config",
-				"userPreference": "User Preference"
-			},
-			"home": "Strona domowa",
-			"jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
-			"language": "Język",
-			"request": "Poproś o certyfikat",
-			"requests": "Upraszanie"
-		},
-		"messages": {
-			"error": {
-				"dontmatch": "Hasło i potwierdzenie nie zgadzają się!"
-			},
-			"info": {
-				"authenticated": {
-					"link": "zalogować",
-					"prefix": "Jeśli chcesz się ",
-					"suffix": ", możesz spróbować któregoś z domyślnych kont:<br/>- Administrator (login=\"admin\" i hasło=\"admin\") <br/>- Użytkownik (login=\"user\" i hasło=\"user\")."
-				},
-				"register": {
-					"link": "Zarejestruj się",
-					"noaccount": "Nie masz jeszcze konta?"
-				}
-			},
-			"validate": {
-				"confirmpassword": {
-					"maxlength": "Potwierdzenie hasła nie powinno być dłuższe niż 50 znaków",
-					"minlength": "Potwierdzenie hasła powinno mieć minimum 4 znaki",
-					"required": "Potwierdzenie hasła jest wymagane."
-				},
-				"email": {
-					"invalid": "Twój email jest błędny.",
-					"maxlength": "Twój email nie może być dłuższy niż 50 znaków",
-					"minlength": "Twój email musi mieć przynajmniej 5 znaków",
-					"required": "Twój email jest wymagany."
-				},
-				"newpassword": {
-					"maxlength": "Twoje hasło nie może być dłuższe niż 50 znaków",
-					"minlength": "Twoje hasło powinno mieć minimum 4 znaki",
-					"required": "Twoje hasło jest wymagane.",
-					"strength": "Siła hasła:"
-				}
-			}
-		},
-		"ribbon": {
-			"dev": "Development"
-		},
-		"title": "Ca3s"
-	}
+  "global": {
+    "title": "Ca3s",
+    "browsehappy": "Używasz <strong>przestarzałej</strong> przeglądarki. Proszę <a href=\"http://browsehappy.com/\">uaktualnij swoją przeglądarkę</a> aby poprawić wrażenia z użytkowania tej aplikacji.",
+    "menu": {
+      "home": "Strona domowa",
+      "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
+      "entities": {
+        "main": "Encje",
+        "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
+      },
+      "account": {
+        "main": "Konto",
+        "settings": "Ustawienia",
+        "password": "Hasło",
+        "sessions": "Sesje",
+        "login": "Autoryzacja",
+        "logout": "Wyloguj",
+        "register": "Zarejestruj się"
+      },
+      "admin": {
+        "main": "Administracja",
+        "userManagement": "Użytkownicy",
+        "tracker": "Śledzenie użytkownika",
+        "metrics": "Metryki",
+        "health": "Status",
+        "configuration": "Konfiguracja",
+        "logs": "Logi",
+        "apidocs": "API",
+        "database": "Baza danych",
+        "jhipster-needle-menu-add-admin-element": "JHipster will add additional menu entries here (do not translate!)"
+      },
+      "language": "Język"
+    },
+    "form": {
+      "username.label": "Nazwa użytkownika",
+      "username.placeholder": "Twój login",
+      "currentpassword.label": "Aktualne hasło",
+      "currentpassword.placeholder": "Aktualne hasło",
+      "newpassword.label": "Nowe hasło",
+      "newpassword.placeholder": "Nowe hasło",
+      "confirmpassword.label": "Potwierdź nowe hasło",
+      "confirmpassword.placeholder": "Potwierdź nowe hasło",
+      "email.label": "Email",
+      "email.placeholder": "Twój email"
+    },
+    "messages": {
+      "info": {
+        "authenticated": {
+          "prefix": "Jeśli chcesz się ",
+          "link": "zalogować",
+          "suffix": ", możesz spróbować któregoś z domyślnych kont:<br/>- Administrator (login=\"admin\" i hasło=\"admin\") <br/>- Użytkownik (login=\"user\" i hasło=\"user\")."
+        },
+        "register": {
+          "noaccount": "Nie masz jeszcze konta?",
+          "link": "Zarejestruj się"
+        }
+      },
+      "error": {
+        "dontmatch": "Hasło i potwierdzenie nie zgadzają się!"
+      },
+      "validate": {
+        "newpassword": {
+          "required": "Twoje hasło jest wymagane.",
+          "minlength": "Twoje hasło powinno mieć minimum 4 znaki",
+          "maxlength": "Twoje hasło nie może być dłuższe niż 50 znaków",
+          "strength": "Siła hasła:"
+        },
+        "confirmpassword": {
+          "required": "Potwierdzenie hasła jest wymagane.",
+          "minlength": "Potwierdzenie hasła powinno mieć minimum 4 znaki",
+          "maxlength": "Potwierdzenie hasła nie powinno być dłuższe niż 50 znaków"
+        },
+        "email": {
+          "required": "Twój email jest wymagany.",
+          "invalid": "Twój email jest błędny.",
+          "minlength": "Twój email musi mieć przynajmniej 5 znaków",
+          "maxlength": "Twój email nie może być dłuższy niż 50 znaków"
+        }
+      }
+    },
+    "field": {
+      "id": "ID"
+    },
+    "ribbon": {
+      "dev": "Development"
+    },
+    "item-count": "Wyświetlono {{first}} - {{second}} z {{total}} elementów."
+  },
+  "entity": {
+    "action": {
+      "addblob": "Dodaj dane binarne",
+      "addimage": "Dodaj zdjęcie",
+      "back": "Wstecz",
+      "cancel": "Anuluj",
+      "delete": "Usuń",
+      "edit": "Edytuj",
+      "open": "Otwórz",
+      "save": "Zapisz",
+      "view": "Widok"
+    },
+    "detail": {
+      "field": "Pole",
+      "value": "Wartość"
+    },
+    "delete": {
+      "title": "Potwierdź usunięcie"
+    },
+    "validation": {
+      "required": "To pole jest wymagane.",
+      "minlength": "Wartość musi mieć długość co najmniej {{min}} znaków.",
+      "maxlength": "Wartość nie może być dłuższa niż {{max}} znaków.",
+      "min": "Wartość powinna być większa niż {{min}}.",
+      "max": "Wartość nie może być większa niż {{max}}.",
+      "minbytes": "Wartość nie może być mniejsza niż {{min}} bajtów.",
+      "maxbytes": "Wartość nie może być większa niż {{max}} bajtów.",
+      "pattern": "Wartość powinna być zgodna ze wzorem {{pattern}}.",
+      "number": "Wartość powinna być liczbowa.",
+      "datetimelocal": "Wartość powinna zawierać datę i czas."
+    }
+  },
+  "error": {
+    "internalServerError": "Wewnętrzny błąd serwera",
+    "server.not.reachable": "Serwer jest nieosiągalny",
+    "url.not.found": "Nie znaleziono",
+    "NotNull": "Wartość {{fieldName}} nie może być pusta!",
+    "Size": "Wartość {{fieldName}} nie spełnia wymagań co do długości!",
+    "userexists": "Użytkownik o takiej nazwie już istnieje!",
+    "emailexists": "Użytkownik z takim adresem email już istnieje!",
+    "idexists": "Nowy {{entityName}} nie może jeszcze mieć przypisanego ID",
+    "idnull": "Błędne ID",
+    "idinvalid": "Invalid Id",
+    "idnotfound": "ID cannot be found",
+    "file": {
+      "could.not.extract": "Could not extract file",
+      "not.image": "File was expected to be an image but was found to be \"{{ fileType }}\""
+    }
+  },
+  "footer": "To jest stopka"
 }

@@ -1,15 +1,15 @@
 package de.trustable.ca3s.core.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import javax.persistence.*;
-import javax.validation.constraints.*;
+import de.trustable.ca3s.core.domain.enumeration.PipelineType;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cache;
 
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-
-import de.trustable.ca3s.core.domain.enumeration.PipelineType;
+import javax.persistence.*;
+import javax.validation.constraints.*;
 
 /**
  * A Pipeline.
@@ -43,12 +43,15 @@ import de.trustable.ca3s.core.domain.enumeration.PipelineType;
     )
 
 })
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@SuppressWarnings("common-java:DuplicatedBlocks")
 public class Pipeline implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @NotNull
@@ -63,17 +66,19 @@ public class Pipeline implements Serializable {
     @Column(name = "url_part")
     private String urlPart;
 
+    @Column(name = "active")
+    private Boolean active;
+
+    @Lob
     @Column(name = "description")
     private String description;
 
     @Column(name = "approval_required")
     private Boolean approvalRequired;
 
-    @Column(name = "active")
-    private Boolean active;
-
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "pipeline")
-    @JsonIgnoreProperties({"pipeline"})
+    @OneToMany(mappedBy = "pipeline")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "pipeline" }, allowSetters = true)
     private Set<PipelineAttribute> pipelineAttributes = new HashSet<>();
 
     @ManyToOne
@@ -84,9 +89,25 @@ public class Pipeline implements Serializable {
     @JsonIgnoreProperties({"pipelines", "secret"})
     private BPMNProcessInfo processInfo;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    @ManyToMany
+    @JoinTable(
+        name = "rel_pipeline__algorithms",
+        joinColumns = @JoinColumn(name = "pipeline_id"),
+        inverseJoinColumns = @JoinColumn(name = "algorithms_id")
+    )
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "pipelines" }, allowSetters = true)
+    private Set<AlgorithmRestriction> algorithms = new HashSet<>();
+
+    // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public Pipeline id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
@@ -94,11 +115,11 @@ public class Pipeline implements Serializable {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public Pipeline name(String name) {
-        this.name = name;
+        this.setName(name);
         return this;
     }
 
@@ -107,11 +128,11 @@ public class Pipeline implements Serializable {
     }
 
     public PipelineType getType() {
-        return type;
+        return this.type;
     }
 
     public Pipeline type(PipelineType type) {
-        this.type = type;
+        this.setType(type);
         return this;
     }
 
@@ -120,11 +141,11 @@ public class Pipeline implements Serializable {
     }
 
     public String getUrlPart() {
-        return urlPart;
+        return this.urlPart;
     }
 
     public Pipeline urlPart(String urlPart) {
-        this.urlPart = urlPart;
+        this.setUrlPart(urlPart);
         return this;
     }
 
@@ -132,12 +153,30 @@ public class Pipeline implements Serializable {
         this.urlPart = urlPart;
     }
 
+
+    public Boolean isActive() {
+        return active;
+    }
+
+    public Boolean getActive() {
+        return this.active;
+    }
+
+    public Pipeline active(Boolean active) {
+        this.setActive(active);
+        return this;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     public Pipeline description(String description) {
-        this.description = description;
+        this.setDescription(description);
         return this;
     }
 
@@ -149,8 +188,12 @@ public class Pipeline implements Serializable {
         return approvalRequired;
     }
 
+    public Boolean getApprovalRequired() {
+        return this.approvalRequired;
+    }
+
     public Pipeline approvalRequired(Boolean approvalRequired) {
-        this.approvalRequired = approvalRequired;
+        this.setApprovalRequired(approvalRequired);
         return this;
     }
 
@@ -158,26 +201,22 @@ public class Pipeline implements Serializable {
         this.approvalRequired = approvalRequired;
     }
 
-    public Boolean isActive() {
-        return active;
-    }
-
-    public Pipeline active(Boolean active) {
-        this.active = active;
-        return this;
-    }
-
-    public void setActive(Boolean active) {
-        this.active = active;
-    }
-
-
     public Set<PipelineAttribute> getPipelineAttributes() {
-        return pipelineAttributes;
+        return this.pipelineAttributes;
+    }
+
+    public void setPipelineAttributes(Set<PipelineAttribute> pipelineAttributes) {
+        if (this.pipelineAttributes != null) {
+            this.pipelineAttributes.forEach(i -> i.setPipeline(null));
+        }
+        if (pipelineAttributes != null) {
+            pipelineAttributes.forEach(i -> i.setPipeline(this));
+        }
+        this.pipelineAttributes = pipelineAttributes;
     }
 
     public Pipeline pipelineAttributes(Set<PipelineAttribute> pipelineAttributes) {
-        this.pipelineAttributes = pipelineAttributes;
+        this.setPipelineAttributes(pipelineAttributes);
         return this;
     }
 
@@ -193,36 +232,58 @@ public class Pipeline implements Serializable {
         return this;
     }
 
-    public void setPipelineAttributes(Set<PipelineAttribute> pipelineAttributes) {
-        this.pipelineAttributes = pipelineAttributes;
-    }
-
     public CAConnectorConfig getCaConnector() {
-        return caConnector;
-    }
-
-    public Pipeline caConnector(CAConnectorConfig cAConnectorConfig) {
-        this.caConnector = cAConnectorConfig;
-        return this;
+        return this.caConnector;
     }
 
     public void setCaConnector(CAConnectorConfig cAConnectorConfig) {
         this.caConnector = cAConnectorConfig;
     }
 
-    public BPMNProcessInfo getProcessInfo() {
-        return processInfo;
-    }
-
-    public Pipeline processInfo(BPMNProcessInfo bPNMProcessInfo) {
-        this.processInfo = bPNMProcessInfo;
+    public Pipeline caConnector(CAConnectorConfig cAConnectorConfig) {
+        this.setCaConnector(cAConnectorConfig);
         return this;
     }
 
-    public void setProcessInfo(BPMNProcessInfo bPNMProcessInfo) {
-        this.processInfo = bPNMProcessInfo;
+    public BPMNProcessInfo getProcessInfo() {
+        return this.processInfo;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+
+    public void setProcessInfo(BPMNProcessInfo bPMNProcessInfo) {
+        this.processInfo = bPMNProcessInfo;
+    }
+
+    public Pipeline processInfo(BPMNProcessInfo bPMNProcessInfo) {
+        this.setProcessInfo(bPMNProcessInfo);
+        return this;
+    }
+
+    public Set<AlgorithmRestriction> getAlgorithms() {
+        return this.algorithms;
+    }
+
+    public void setAlgorithms(Set<AlgorithmRestriction> algorithmRestrictions) {
+        this.algorithms = algorithmRestrictions;
+    }
+
+    public Pipeline algorithms(Set<AlgorithmRestriction> algorithmRestrictions) {
+        this.setAlgorithms(algorithmRestrictions);
+        return this;
+    }
+
+    public Pipeline addAlgorithms(AlgorithmRestriction algorithmRestriction) {
+        this.algorithms.add(algorithmRestriction);
+        algorithmRestriction.getPipelines().add(this);
+        return this;
+    }
+
+    public Pipeline removeAlgorithms(AlgorithmRestriction algorithmRestriction) {
+        this.algorithms.remove(algorithmRestriction);
+        algorithmRestriction.getPipelines().remove(this);
+        return this;
+    }
+
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -237,9 +298,11 @@ public class Pipeline implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "Pipeline{" +
@@ -247,8 +310,9 @@ public class Pipeline implements Serializable {
             ", name='" + getName() + "'" +
             ", type='" + getType() + "'" +
             ", urlPart='" + getUrlPart() + "'" +
+            ", active='" + getActive() + "'" +
             ", description='" + getDescription() + "'" +
-            ", approvalRequired='" + isApprovalRequired() + "'" +
+            ", approvalRequired='" + getApprovalRequired() + "'" +
             "}";
     }
 }

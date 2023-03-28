@@ -1,20 +1,20 @@
 {
-  "name": "CSR",
+  "applications": "*",
+  "changelogDate": "20230321145443",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "csr",
   "fields": [
     {
       "fieldName": "csrBase64",
       "fieldType": "byte[]",
       "fieldTypeBlobContent": "text",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "subject",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "sans",
@@ -23,32 +23,28 @@
     {
       "fieldName": "requestedOn",
       "fieldType": "Instant",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "requestedBy",
       "fieldType": "String",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "acceptedBy",
+      "fieldType": "String"
     },
     {
       "fieldName": "pipelineType",
       "fieldType": "PipelineType",
-      "fieldValues": "ACME,SCEP,WEB,INTERNAL",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"],
+      "fieldValues": "ACME,SCEP,WEB,INTERNAL"
     },
     {
       "fieldName": "status",
       "fieldType": "CsrStatus",
-      "fieldValues": "PROCESSING,ISSUED,REJECTED,PENDING",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"],
+      "fieldValues": "PROCESSING,ISSUED,REJECTED,PENDING"
     },
     {
       "fieldName": "administeredBy",
@@ -106,9 +102,7 @@
       "fieldName": "subjectPublicKeyInfoBase64",
       "fieldType": "byte[]",
       "fieldTypeBlobContent": "text",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "requestorComment",
@@ -121,49 +115,49 @@
       "fieldTypeBlobContent": "text"
     }
   ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "CSR",
+  "pagination": "no",
+  "readOnly": false,
   "relationships": [
     {
-      "relationshipType": "one-to-many",
+      "otherEntityName": "cSRComment",
+      "otherEntityRelationshipName": "csr",
+      "ownerSide": true,
+      "relationshipName": "comment",
+      "relationshipType": "one-to-one"
+    },
+    {
       "otherEntityName": "rDN",
       "otherEntityRelationshipName": "csr",
-      "relationshipName": "rdns"
+      "relationshipName": "rdns",
+      "relationshipType": "one-to-many"
     },
     {
-      "relationshipType": "one-to-many",
       "otherEntityName": "requestAttribute",
       "otherEntityRelationshipName": "csr",
-      "relationshipName": "ras"
+      "relationshipName": "ras",
+      "relationshipType": "one-to-many"
     },
     {
-      "relationshipType": "one-to-many",
       "otherEntityName": "csrAttribute",
       "otherEntityRelationshipName": "csr",
-      "relationshipName": "csrAttributes"
+      "relationshipName": "csrAttributes",
+      "relationshipType": "one-to-many"
     },
     {
-      "relationshipType": "many-to-one",
       "otherEntityName": "pipeline",
-      "otherEntityRelationshipName": "cSR",
       "relationshipName": "pipeline",
-      "otherEntityField": "id"
+      "relationshipType": "many-to-one"
     },
     {
-      "relationshipType": "one-to-one",
       "otherEntityName": "certificate",
       "otherEntityRelationshipName": "csr",
+      "ownerSide": false,
       "relationshipName": "certificate",
-      "ownerSide": false
+      "relationshipType": "one-to-one"
     }
   ],
-  "changelogDate": "20200110170113",
-  "entityTableName": "csr",
-  "dto": "no",
-  "pagination": "no",
-  "service": "serviceImpl",
-  "jpaMetamodelFiltering": false,
-  "fluentMethods": true,
-  "readOnly": false,
-  "clientRootFolder": "",
-  "applications": "*",
-  "embedded": false
+  "service": "serviceImpl"
 }

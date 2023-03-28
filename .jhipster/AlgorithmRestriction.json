@@ -1,0 +1,48 @@
+{
+  "applications": "*",
+  "changelogDate": "20230321145448",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "algorithm_restriction",
+  "fields": [
+    {
+      "fieldName": "type",
+      "fieldType": "AlgorithmType",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "SIGNING,PADDING,HASH,CURVE"
+    },
+    {
+      "fieldName": "notAfter",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "identifier",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "name",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "acceptable",
+      "fieldType": "Boolean",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "AlgorithmRestriction",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityName": "pipeline",
+      "otherEntityRelationshipName": "algorithms",
+      "ownerSide": false,
+      "relationshipName": "pipelines",
+      "relationshipType": "many-to-many"
+    }
+  ],
+  "service": "serviceImpl",
+  "skipClient": true
+}

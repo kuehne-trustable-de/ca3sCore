@@ -1,7 +1,10 @@
 package de.trustable.ca3s.core.web.rest;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
@@ -11,17 +14,21 @@ import org.springframework.format.support.FormattingConversionService;
 import org.springframework.http.MediaType;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeDiagnosingMatcher;
+import org.hamcrest.TypeSafeMatcher;
+import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
+import org.springframework.format.support.DefaultFormattingConversionService;
+import org.springframework.format.support.FormattingConversionService;
 
 /**
  * Utility class for testing REST controllers.
@@ -36,6 +43,7 @@ public final class TestUtil {
 
     private static ObjectMapper createObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS, false);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         mapper.registerModule(new JavaTimeModule());
         return mapper;
@@ -87,11 +95,9 @@ public final class TestUtil {
                 }
                 return true;
             } catch (DateTimeParseException e) {
-                mismatchDescription.appendText("was ").appendValue(item)
-                    .appendText(", which could not be parsed as a ZonedDateTime");
+                mismatchDescription.appendText("was ").appendValue(item).appendText(", which could not be parsed as a ZonedDateTime");
                 return false;
             }
-
         }
 
         @Override
@@ -102,10 +108,62 @@ public final class TestUtil {
 
     /**
      * Creates a matcher that matches when the examined string represents the same instant as the reference datetime.
+     *
      * @param date the reference datetime against which the examined string is checked.
      */
     public static ZonedDateTimeMatcher sameInstant(ZonedDateTime date) {
         return new ZonedDateTimeMatcher(date);
+    }
+
+    /**
+     * A matcher that tests that the examined number represents the same value - it can be Long, Double, etc - as the reference BigDecimal.
+     */
+    public static class NumberMatcher extends TypeSafeMatcher<Number> {
+
+        final BigDecimal value;
+
+        public NumberMatcher(BigDecimal value) {
+            this.value = value;
+        }
+
+        @Override
+        public void describeTo(Description description) {
+            description.appendText("a numeric value is ").appendValue(value);
+        }
+
+        @Override
+        protected boolean matchesSafely(Number item) {
+            BigDecimal bigDecimal = asDecimal(item);
+            return bigDecimal != null && value.compareTo(bigDecimal) == 0;
+        }
+
+        private static BigDecimal asDecimal(Number item) {
+            if (item == null) {
+                return null;
+            }
+            if (item instanceof BigDecimal) {
+                return (BigDecimal) item;
+            } else if (item instanceof Long) {
+                return BigDecimal.valueOf((Long) item);
+            } else if (item instanceof Integer) {
+                return BigDecimal.valueOf((Integer) item);
+            } else if (item instanceof Double) {
+                return BigDecimal.valueOf((Double) item);
+            } else if (item instanceof Float) {
+                return BigDecimal.valueOf((Float) item);
+            } else {
+                return BigDecimal.valueOf(item.doubleValue());
+            }
+        }
+    }
+
+    /**
+     * Creates a matcher that matches when the examined number represents the same value as the reference BigDecimal.
+     *
+     * @param number the reference BigDecimal against which the examined number is checked.
+     */
+    public static NumberMatcher sameNumber(BigDecimal number) {
+        return new NumberMatcher(number);
     }
 
     /**
@@ -115,7 +173,7 @@ public final class TestUtil {
         T domainObject1 = clazz.getConstructor().newInstance();
         assertThat(domainObject1.toString()).isNotNull();
         assertThat(domainObject1).isEqualTo(domainObject1);
-        assertThat(domainObject1.hashCode()).isEqualTo(domainObject1.hashCode());
+        assertThat(domainObject1).hasSameHashCodeAs(domainObject1);
         // Test with an instance of another class
         Object testOtherObject = new Object();
         assertThat(domainObject1).isNotEqualTo(testOtherObject);
@@ -124,7 +182,7 @@ public final class TestUtil {
         T domainObject2 = clazz.getConstructor().newInstance();
         assertThat(domainObject1).isNotEqualTo(domainObject2);
         // HashCodes are equals because the objects are not persisted yet
-        assertThat(domainObject1.hashCode()).isEqualTo(domainObject2.hashCode());
+        assertThat(domainObject1).hasSameHashCodeAs(domainObject2);
     }
 
     /**
@@ -132,7 +190,7 @@ public final class TestUtil {
      * @return the {@link FormattingConversionService}.
      */
     public static FormattingConversionService createFormattingConversionService() {
-        DefaultFormattingConversionService dfcs = new DefaultFormattingConversionService ();
+        DefaultFormattingConversionService dfcs = new DefaultFormattingConversionService();
         DateTimeFormatterRegistrar registrar = new DateTimeFormatterRegistrar();
         registrar.setUseIsoFormat(true);
         registrar.registerFormatters(dfcs);

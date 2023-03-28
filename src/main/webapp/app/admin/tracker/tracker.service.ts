@@ -21,24 +21,30 @@ export default class TrackerService {
   }
 
   public connect(): void {
+    // tracker disabled
+    /*
     if (this.connectedPromise === null) {
       this.connection = this.createConnection();
     }
     // building absolute path so that websocket doesn't fail when deploying with a context path
     const loc = window.location;
+    const baseHref = document.querySelector('base').getAttribute('href');
     let url;
-    url = '//' + loc.host + loc.pathname + 'websocket/tracker';
+    url = '//' + loc.host + baseHref + 'websocket/tracker';
     const authToken = localStorage.getItem('jhi-authenticationToken') || sessionStorage.getItem('jhi-authenticationToken');
     if (authToken) {
       url += '?access_token=' + authToken;
     }
     const socket = new SockJS(url);
-    this.stompClient = Stomp.over(socket);
+    this.stompClient = Stomp.over(socket, { protocols: ['v12.stomp'] });
     const headers = {};
     this.stompClient.connect(headers, () => this.afterConnect());
+
+ */
   }
 
   public afterConnect() {
+    /*
     this.connectedPromise('success');
     this.connectedPromise = null;
     this.sendActivity();
@@ -46,6 +52,8 @@ export default class TrackerService {
       this.router.afterEach(() => this.sendActivity());
       this.alreadyConnectedOnce = true;
     }
+
+     */
   }
 
   public disconnect(): void {
@@ -62,6 +70,7 @@ export default class TrackerService {
   }
 
   public sendActivity(): void {
+    /*
     if (this.stompClient !== null && this.stompClient.connected) {
       this.stompClient.send(
         '/topic/activity', // destination
@@ -69,14 +78,19 @@ export default class TrackerService {
         {} // header
       );
     }
+
+     */
   }
 
   public subscribe(): void {
+    /*
     this.connection.then(() => {
       this.subscriber = this.stompClient.subscribe('/topic/tracker', data => {
         this.listenerObserver.next(JSON.parse(data.body));
       });
     });
+
+     */
   }
 
   public unsubscribe(): any {

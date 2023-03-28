@@ -71,8 +71,8 @@ public class CSR implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
-
 
     @Lob
     @Column(name = "csr_base_64", nullable = false)
@@ -93,7 +93,7 @@ public class CSR implements Serializable {
     @Column(name = "requested_by", nullable = false)
     private String requestedBy;
 
-    @Column(name = "accepted_by", nullable = true)
+    @Column(name = "accepted_by")
     private String acceptedBy;
 
     @NotNull
@@ -145,7 +145,6 @@ public class CSR implements Serializable {
     @Column(name = "serverside_key_generation")
     private Boolean serversideKeyGeneration;
 
-
     @Lob
     @Column(name = "subject_public_key_info_base_64", nullable = false)
     private String subjectPublicKeyInfoBase64;
@@ -181,9 +180,15 @@ public class CSR implements Serializable {
     @JsonIgnore
     private Certificate certificate;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public CSR id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
@@ -191,11 +196,11 @@ public class CSR implements Serializable {
     }
 
     public String getCsrBase64() {
-        return csrBase64;
+        return this.csrBase64;
     }
 
     public CSR csrBase64(String csrBase64) {
-        this.csrBase64 = csrBase64;
+        this.setCsrBase64(csrBase64);
         return this;
     }
 
@@ -204,11 +209,11 @@ public class CSR implements Serializable {
     }
 
     public String getSubject() {
-        return subject;
+        return this.subject;
     }
 
     public CSR subject(String subject) {
-        this.subject = subject;
+        this.setSubject(subject);
         return this;
     }
 
@@ -217,11 +222,11 @@ public class CSR implements Serializable {
     }
 
     public String getSans() {
-        return sans;
+        return this.sans;
     }
 
     public CSR sans(String sans) {
-        this.sans = sans;
+        this.setSans(sans);
         return this;
     }
 
@@ -230,11 +235,11 @@ public class CSR implements Serializable {
     }
 
     public Instant getRequestedOn() {
-        return requestedOn;
+        return this.requestedOn;
     }
 
     public CSR requestedOn(Instant requestedOn) {
-        this.requestedOn = requestedOn;
+        this.setRequestedOn(requestedOn);
         return this;
     }
 
@@ -243,11 +248,11 @@ public class CSR implements Serializable {
     }
 
     public String getRequestedBy() {
-        return requestedBy;
+        return this.requestedBy;
     }
 
     public CSR requestedBy(String requestedBy) {
-        this.requestedBy = requestedBy;
+        this.setRequestedBy(requestedBy);
         return this;
     }
 
@@ -256,11 +261,11 @@ public class CSR implements Serializable {
     }
 
     public PipelineType getPipelineType() {
-        return pipelineType;
+        return this.pipelineType;
     }
 
     public CSR pipelineType(PipelineType pipelineType) {
-        this.pipelineType = pipelineType;
+        this.setPipelineType(pipelineType);
         return this;
     }
 
@@ -269,11 +274,11 @@ public class CSR implements Serializable {
     }
 
     public CsrStatus getStatus() {
-        return status;
+        return this.status;
     }
 
     public CSR status(CsrStatus status) {
-        this.status = status;
+        this.setStatus(status);
         return this;
     }
 
@@ -282,11 +287,11 @@ public class CSR implements Serializable {
     }
 
     public String getAdministeredBy() {
-        return administeredBy;
+        return this.administeredBy;
     }
 
     public CSR administeredBy(String administeredBy) {
-        this.administeredBy = administeredBy;
+        this.setAdministeredBy(administeredBy);
         return this;
     }
 
@@ -295,11 +300,11 @@ public class CSR implements Serializable {
     }
 
     public Instant getApprovedOn() {
-        return approvedOn;
+        return this.approvedOn;
     }
 
     public CSR approvedOn(Instant approvedOn) {
-        this.approvedOn = approvedOn;
+        this.setApprovedOn(approvedOn);
         return this;
     }
 
@@ -316,11 +321,11 @@ public class CSR implements Serializable {
     }
 
     public Instant getRejectedOn() {
-        return rejectedOn;
+        return this.rejectedOn;
     }
 
     public CSR rejectedOn(Instant rejectedOn) {
-        this.rejectedOn = rejectedOn;
+        this.setRejectedOn(rejectedOn);
         return this;
     }
 
@@ -329,11 +334,11 @@ public class CSR implements Serializable {
     }
 
     public String getRejectionReason() {
-        return rejectionReason;
+        return this.rejectionReason;
     }
 
     public CSR rejectionReason(String rejectionReason) {
-        this.rejectionReason = rejectionReason;
+        this.setRejectionReason(rejectionReason);
         return this;
     }
 
@@ -342,11 +347,11 @@ public class CSR implements Serializable {
     }
 
     public String getProcessInstanceId() {
-        return processInstanceId;
+        return this.processInstanceId;
     }
 
     public CSR processInstanceId(String processInstanceId) {
-        this.processInstanceId = processInstanceId;
+        this.setProcessInstanceId(processInstanceId);
         return this;
     }
 
@@ -355,11 +360,11 @@ public class CSR implements Serializable {
     }
 
     public String getSigningAlgorithm() {
-        return signingAlgorithm;
+        return this.signingAlgorithm;
     }
 
     public CSR signingAlgorithm(String signingAlgorithm) {
-        this.signingAlgorithm = signingAlgorithm;
+        this.setSigningAlgorithm(signingAlgorithm);
         return this;
     }
 
@@ -367,12 +372,12 @@ public class CSR implements Serializable {
         this.signingAlgorithm = signingAlgorithm;
     }
 
-    public Boolean isIsCSRValid() {
-        return isCSRValid;
+    public Boolean getIsCSRValid() {
+        return this.isCSRValid;
     }
 
     public CSR isCSRValid(Boolean isCSRValid) {
-        this.isCSRValid = isCSRValid;
+        this.setIsCSRValid(isCSRValid);
         return this;
     }
 
@@ -381,11 +386,11 @@ public class CSR implements Serializable {
     }
 
     public String getx509KeySpec() {
-        return x509KeySpec;
+        return this.x509KeySpec;
     }
 
     public CSR x509KeySpec(String x509KeySpec) {
-        this.x509KeySpec = x509KeySpec;
+        this.setx509KeySpec(x509KeySpec);
         return this;
     }
 
@@ -394,11 +399,11 @@ public class CSR implements Serializable {
     }
 
     public String getPublicKeyAlgorithm() {
-        return publicKeyAlgorithm;
+        return this.publicKeyAlgorithm;
     }
 
     public CSR publicKeyAlgorithm(String publicKeyAlgorithm) {
-        this.publicKeyAlgorithm = publicKeyAlgorithm;
+        this.setPublicKeyAlgorithm(publicKeyAlgorithm);
         return this;
     }
 
@@ -407,11 +412,11 @@ public class CSR implements Serializable {
     }
 
     public String getKeyAlgorithm() {
-        return keyAlgorithm;
+        return this.keyAlgorithm;
     }
 
     public CSR keyAlgorithm(String keyAlgorithm) {
-        this.keyAlgorithm = keyAlgorithm;
+        this.setKeyAlgorithm(keyAlgorithm);
         return this;
     }
 
@@ -420,11 +425,11 @@ public class CSR implements Serializable {
     }
 
     public Integer getKeyLength() {
-        return keyLength;
+        return this.keyLength;
     }
 
     public CSR keyLength(Integer keyLength) {
-        this.keyLength = keyLength;
+        this.setKeyLength(keyLength);
         return this;
     }
 
@@ -433,11 +438,11 @@ public class CSR implements Serializable {
     }
 
     public String getPublicKeyHash() {
-        return publicKeyHash;
+        return this.publicKeyHash;
     }
 
     public CSR publicKeyHash(String publicKeyHash) {
-        this.publicKeyHash = publicKeyHash;
+        this.setPublicKeyHash(publicKeyHash);
         return this;
     }
 
@@ -449,8 +454,12 @@ public class CSR implements Serializable {
         return serversideKeyGeneration;
     }
 
+    public Boolean getServersideKeyGeneration() {
+        return this.serversideKeyGeneration;
+    }
+
     public CSR serversideKeyGeneration(Boolean serversideKeyGeneration) {
-        this.serversideKeyGeneration = serversideKeyGeneration;
+        this.setServersideKeyGeneration(serversideKeyGeneration);
         return this;
     }
 
@@ -459,11 +468,11 @@ public class CSR implements Serializable {
     }
 
     public String getSubjectPublicKeyInfoBase64() {
-        return subjectPublicKeyInfoBase64;
+        return this.subjectPublicKeyInfoBase64;
     }
 
     public CSR subjectPublicKeyInfoBase64(String subjectPublicKeyInfoBase64) {
-        this.subjectPublicKeyInfoBase64 = subjectPublicKeyInfoBase64;
+        this.setSubjectPublicKeyInfoBase64(subjectPublicKeyInfoBase64);
         return this;
     }
 
@@ -472,11 +481,11 @@ public class CSR implements Serializable {
     }
 
     public String getRequestorComment() {
-        return requestorComment;
+        return this.requestorComment;
     }
 
     public CSR requestorComment(String requestorComment) {
-        this.requestorComment = requestorComment;
+        this.setRequestorComment(requestorComment);
         return this;
     }
 
@@ -485,11 +494,11 @@ public class CSR implements Serializable {
     }
 
     public String getAdministrationComment() {
-        return administrationComment;
+        return this.administrationComment;
     }
 
     public CSR administrationComment(String administrationComment) {
-        this.administrationComment = administrationComment;
+        this.setAdministrationComment(administrationComment);
         return this;
     }
 
@@ -497,9 +506,12 @@ public class CSR implements Serializable {
         this.administrationComment = administrationComment;
     }
 
-
     public CSRComment getComment() {
         return this.comment;
+    }
+
+    public void setComment(CSRComment cSRComment) {
+        this.comment = cSRComment;
     }
 
     public CSR comment(CSRComment cSRComment) {
@@ -507,16 +519,22 @@ public class CSR implements Serializable {
         return this;
     }
 
-    public void setComment(CSRComment cSRComment) {
-        this.comment = cSRComment;
+    public Set<RDN> getRdns() {
+        return this.rdns;
     }
 
-    public Set<RDN> getRdns() {
-        return rdns;
+    public void setRdns(Set<RDN> rDNS) {
+        if (this.rdns != null) {
+            this.rdns.forEach(i -> i.setCsr(null));
+        }
+        if (rDNS != null) {
+            rDNS.forEach(i -> i.setCsr(this));
+        }
+        this.rdns = rDNS;
     }
 
     public CSR rdns(Set<RDN> rDNS) {
-        this.rdns = rDNS;
+        this.setRdns(rDNS);
         return this;
     }
 
@@ -532,16 +550,22 @@ public class CSR implements Serializable {
         return this;
     }
 
-    public void setRdns(Set<RDN> rDNS) {
-        this.rdns = rDNS;
+    public Set<RequestAttribute> getRas() {
+        return this.ras;
     }
 
-    public Set<RequestAttribute> getRas() {
-        return ras;
+    public void setRas(Set<RequestAttribute> requestAttributes) {
+        if (this.ras != null) {
+            this.ras.forEach(i -> i.setCsr(null));
+        }
+        if (requestAttributes != null) {
+            requestAttributes.forEach(i -> i.setCsr(this));
+        }
+        this.ras = requestAttributes;
     }
 
     public CSR ras(Set<RequestAttribute> requestAttributes) {
-        this.ras = requestAttributes;
+        this.setRas(requestAttributes);
         return this;
     }
 
@@ -557,16 +581,22 @@ public class CSR implements Serializable {
         return this;
     }
 
-    public void setRas(Set<RequestAttribute> requestAttributes) {
-        this.ras = requestAttributes;
+    public Set<CsrAttribute> getCsrAttributes() {
+        return this.csrAttributes;
     }
 
-    public Set<CsrAttribute> getCsrAttributes() {
-        return csrAttributes;
+    public void setCsrAttributes(Set<CsrAttribute> csrAttributes) {
+        if (this.csrAttributes != null) {
+            this.csrAttributes.forEach(i -> i.setCsr(null));
+        }
+        if (csrAttributes != null) {
+            csrAttributes.forEach(i -> i.setCsr(this));
+        }
+        this.csrAttributes = csrAttributes;
     }
 
     public CSR csrAttributes(Set<CsrAttribute> csrAttributes) {
-        this.csrAttributes = csrAttributes;
+        this.setCsrAttributes(csrAttributes);
         return this;
     }
 
@@ -582,36 +612,39 @@ public class CSR implements Serializable {
         return this;
     }
 
-    public void setCsrAttributes(Set<CsrAttribute> csrAttributes) {
-        this.csrAttributes = csrAttributes;
-    }
-
     public Pipeline getPipeline() {
-        return pipeline;
-    }
-
-    public CSR pipeline(Pipeline pipeline) {
-        this.pipeline = pipeline;
-        return this;
+        return this.pipeline;
     }
 
     public void setPipeline(Pipeline pipeline) {
         this.pipeline = pipeline;
     }
 
-    public Certificate getCertificate() {
-        return certificate;
-    }
-
-    public CSR certificate(Certificate certificate) {
-        this.certificate = certificate;
+    public CSR pipeline(Pipeline pipeline) {
+        this.setPipeline(pipeline);
         return this;
     }
 
+    public Certificate getCertificate() {
+        return this.certificate;
+    }
+
     public void setCertificate(Certificate certificate) {
+        if (this.certificate != null) {
+            this.certificate.setCsr(null);
+        }
+        if (certificate != null) {
+            certificate.setCsr(this);
+        }
         this.certificate = certificate;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+
+    public CSR certificate(Certificate certificate) {
+        this.setCertificate(certificate);
+        return this;
+    }
+
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -626,11 +659,11 @@ public class CSR implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
-
-
+    // prettier-ignore
     @Override
     public String toString() {
         return "CSR{" +
@@ -649,13 +682,13 @@ public class CSR implements Serializable {
             ", rejectionReason='" + getRejectionReason() + "'" +
             ", processInstanceId='" + getProcessInstanceId() + "'" +
             ", signingAlgorithm='" + getSigningAlgorithm() + "'" +
-            ", isCSRValid='" + isIsCSRValid() + "'" +
+            ", isCSRValid='" + getIsCSRValid() + "'" +
             ", x509KeySpec='" + getx509KeySpec() + "'" +
             ", publicKeyAlgorithm='" + getPublicKeyAlgorithm() + "'" +
             ", keyAlgorithm='" + getKeyAlgorithm() + "'" +
             ", keyLength=" + getKeyLength() +
             ", publicKeyHash='" + getPublicKeyHash() + "'" +
-            ", serversideKeyGeneration='" + isServersideKeyGeneration() + "'" +
+            ", serversideKeyGeneration='" + getServersideKeyGeneration() + "'" +
             ", subjectPublicKeyInfoBase64='" + getSubjectPublicKeyInfoBase64() + "'" +
             ", requestorComment='" + getRequestorComment() + "'" +
             ", administrationComment='" + getAdministrationComment() + "'" +

@@ -7,13 +7,14 @@ export default class ConfigurationService {
         const properties = [];
         const propertiesObject = this.getConfigPropertiesObjects(res.data);
         for (const key in propertiesObject) {
-          if (propertiesObject.hasOwnProperty(key)) {
+          if (Object.prototype.hasOwnProperty.call(propertiesObject, key)) {
             properties.push(propertiesObject[key]);
           }
         }
 
         properties.sort((propertyA, propertyB) => {
-          return propertyA.prefix === propertyB.prefix ? 0 : propertyA.prefix < propertyB.prefix ? -1 : 1;
+          const comparePrefix = propertyA.prefix < propertyB.prefix ? -1 : 1;
+          return propertyA.prefix === propertyB.prefix ? 0 : comparePrefix;
         });
         resolve(properties);
       });
@@ -31,7 +32,7 @@ export default class ConfigurationService {
           const detailProperties = propertyObject['properties'];
           const vals = [];
           for (const keyDetail in detailProperties) {
-            if (detailProperties.hasOwnProperty(keyDetail)) {
+            if (Object.prototype.hasOwnProperty.call(detailProperties, keyDetail)) {
               vals.push({ key: keyDetail, val: detailProperties[keyDetail]['value'] });
             }
           }

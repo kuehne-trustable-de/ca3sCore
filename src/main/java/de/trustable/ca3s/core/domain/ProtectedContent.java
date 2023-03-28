@@ -63,7 +63,7 @@ public class ProtectedContent implements Serializable {
     private ProtectedContentType type;
 
     @Column(name = "left_usages")
-    private Long leftUsages;
+    private Integer leftUsages;
 
     @Column(name = "created_on")
     private Instant createdOn;
@@ -122,16 +122,16 @@ public class ProtectedContent implements Serializable {
         this.type = type;
     }
 
-    public Long getLeftUsages() {
+    public Integer getLeftUsages() {
         return this.leftUsages;
     }
 
-    public ProtectedContent leftUsages(Long leftUsages) {
+    public ProtectedContent leftUsages(Integer leftUsages) {
         this.setLeftUsages(leftUsages);
         return this;
     }
 
-    public void setLeftUsages(Long leftUsages) {
+    public void setLeftUsages(Integer leftUsages) {
         this.leftUsages = leftUsages;
     }
 

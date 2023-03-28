@@ -32,14 +32,14 @@ spring:
       indent-output: true
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-#    url: jdbc:h2:file:./target/h2db/db/ca3s_jh;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
+    #    url: jdbc:h2:file:./target/h2db/db/ca3s_jh;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
     url: jdbc:h2:mem:ca3sTestDB;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
     username: root
     password:
 
-#    url: jdbc:mysql://localhost:3306/int_test?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-#    username: ca3s_test
-#    password: s3cr3t
+    #    url: jdbc:mysql://localhost:3306/int_test?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    #    username: ca3s_test
+    #    password: s3cr3t
 
     hikari:
       poolName: Hikari
@@ -53,7 +53,7 @@ spring:
     console:
       enabled: false
   jpa:
-#    database-platform: tech.jhipster.domain.util.FixedH2Dialect
+    #    database-platform: tech.jhipster.domain.util.FixedH2Dialect
     database: H2
     show-sql: false
     properties:
@@ -68,6 +68,7 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+
   mail:
     host: localhost
     port: 25
@@ -80,7 +81,7 @@ spring:
 
 server:
   port: 8080
-
+  max-http-header-size: 8KB
 
 # ===================================================================
 # JHipster specific properties

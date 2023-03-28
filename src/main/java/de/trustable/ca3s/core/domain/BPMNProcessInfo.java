@@ -24,6 +24,7 @@ public class BPMNProcessInfo implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @NotNull
@@ -60,17 +61,18 @@ public class BPMNProcessInfo implements Serializable {
     private String processId;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public BPMNProcessInfo id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public BPMNProcessInfo id(Long id) {
-        this.id = id;
-        return this;
     }
 
     public String getName() {
@@ -78,7 +80,7 @@ public class BPMNProcessInfo implements Serializable {
     }
 
     public BPMNProcessInfo name(String name) {
-        this.name = name;
+        this.setName(name);
         return this;
     }
 
@@ -91,7 +93,7 @@ public class BPMNProcessInfo implements Serializable {
     }
 
     public BPMNProcessInfo version(String version) {
-        this.version = version;
+        this.setVersion(version);
         return this;
     }
 
@@ -104,7 +106,7 @@ public class BPMNProcessInfo implements Serializable {
     }
 
     public BPMNProcessInfo type(BPMNProcessType type) {
-        this.type = type;
+        this.setType(type);
         return this;
     }
 
@@ -117,7 +119,7 @@ public class BPMNProcessInfo implements Serializable {
     }
 
     public BPMNProcessInfo author(String author) {
-        this.author = author;
+        this.setAuthor(author);
         return this;
     }
 
@@ -130,7 +132,7 @@ public class BPMNProcessInfo implements Serializable {
     }
 
     public BPMNProcessInfo lastChange(Instant lastChange) {
-        this.lastChange = lastChange;
+        this.setLastChange(lastChange);
         return this;
     }
 
@@ -143,7 +145,7 @@ public class BPMNProcessInfo implements Serializable {
     }
 
     public BPMNProcessInfo signatureBase64(String signatureBase64) {
-        this.signatureBase64 = signatureBase64;
+        this.setSignatureBase64(signatureBase64);
         return this;
     }
 
@@ -156,7 +158,7 @@ public class BPMNProcessInfo implements Serializable {
     }
 
     public BPMNProcessInfo bpmnHashBase64(String bpmnHashBase64) {
-        this.bpmnHashBase64 = bpmnHashBase64;
+        this.setBpmnHashBase64(bpmnHashBase64);
         return this;
     }
 
@@ -169,7 +171,7 @@ public class BPMNProcessInfo implements Serializable {
     }
 
     public BPMNProcessInfo processId(String processId) {
-        this.processId = processId;
+        this.setProcessId(processId);
         return this;
     }
 

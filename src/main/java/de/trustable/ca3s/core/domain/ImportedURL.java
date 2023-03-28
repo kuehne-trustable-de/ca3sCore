@@ -1,10 +1,9 @@
 package de.trustable.ca3s.core.domain;
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
 import java.io.Serializable;
 import java.time.Instant;
+import javax.persistence.*;
+import javax.validation.constraints.*;
 
 /**
  * A ImportedURL.
@@ -23,6 +22,7 @@ public class ImportedURL implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @NotNull
@@ -33,9 +33,15 @@ public class ImportedURL implements Serializable {
     @Column(name = "import_date", nullable = false)
     private Instant importDate;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public ImportedURL id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
@@ -43,11 +49,11 @@ public class ImportedURL implements Serializable {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public ImportedURL name(String name) {
-        this.name = name;
+        this.setName(name);
         return this;
     }
 
@@ -56,18 +62,19 @@ public class ImportedURL implements Serializable {
     }
 
     public Instant getImportDate() {
-        return importDate;
+        return this.importDate;
     }
 
     public ImportedURL importDate(Instant importDate) {
-        this.importDate = importDate;
+        this.setImportDate(importDate);
         return this;
     }
 
     public void setImportDate(Instant importDate) {
         this.importDate = importDate;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -82,9 +89,11 @@ public class ImportedURL implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "ImportedURL{" +

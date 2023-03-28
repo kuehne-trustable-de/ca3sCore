@@ -26,6 +26,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import de.trustable.ca3s.core.domain.AcmeAccount;
@@ -47,7 +48,7 @@ import de.trustable.ca3s.core.service.util.JwtUtil;
 import de.trustable.util.CryptoUtil;
 
 @Transactional
-@Controller
+@RestController
 public class AcmeController {
 
 	private static final Logger LOG = LoggerFactory.getLogger(AcmeController.class);

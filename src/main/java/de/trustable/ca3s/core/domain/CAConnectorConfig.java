@@ -1,26 +1,10 @@
 package de.trustable.ca3s.core.domain;
 
-
-import java.io.Serializable;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 import de.trustable.ca3s.core.domain.enumeration.Interval;
+import java.io.Serializable;
+import javax.persistence.*;
+import javax.validation.constraints.*;
 
 /**
  * A CAConnectorConfig.
@@ -43,6 +27,7 @@ public class CAConnectorConfig implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @NotNull
@@ -80,13 +65,18 @@ public class CAConnectorConfig implements Serializable {
     private String plainSecret;
 
     @OneToOne
-    @JsonIgnore
     @JoinColumn(unique = true)
     private ProtectedContent secret;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public CAConnectorConfig id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
@@ -94,11 +84,11 @@ public class CAConnectorConfig implements Serializable {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public CAConnectorConfig name(String name) {
-        this.name = name;
+        this.setName(name);
         return this;
     }
 
@@ -107,11 +97,11 @@ public class CAConnectorConfig implements Serializable {
     }
 
     public CAConnectorType getCaConnectorType() {
-        return caConnectorType;
+        return this.caConnectorType;
     }
 
     public CAConnectorConfig caConnectorType(CAConnectorType caConnectorType) {
-        this.caConnectorType = caConnectorType;
+        this.setCaConnectorType(caConnectorType);
         return this;
     }
 
@@ -120,11 +110,11 @@ public class CAConnectorConfig implements Serializable {
     }
 
     public String getCaUrl() {
-        return caUrl;
+        return this.caUrl;
     }
 
     public CAConnectorConfig caUrl(String caUrl) {
-        this.caUrl = caUrl;
+        this.setCaUrl(caUrl);
         return this;
     }
 
@@ -133,11 +123,11 @@ public class CAConnectorConfig implements Serializable {
     }
 
     public Integer getPollingOffset() {
-        return pollingOffset;
+        return this.pollingOffset;
     }
 
     public CAConnectorConfig pollingOffset(Integer pollingOffset) {
-        this.pollingOffset = pollingOffset;
+        this.setPollingOffset(pollingOffset);
         return this;
     }
 
@@ -149,8 +139,12 @@ public class CAConnectorConfig implements Serializable {
         return defaultCA;
     }
 
+    public Boolean getDefaultCA() {
+        return this.defaultCA;
+    }
+
     public CAConnectorConfig defaultCA(Boolean defaultCA) {
-        this.defaultCA = defaultCA;
+        this.setDefaultCA(defaultCA);
         return this;
     }
 
@@ -160,6 +154,10 @@ public class CAConnectorConfig implements Serializable {
 
     public Boolean isActive() {
         return active;
+    }
+
+    public Boolean getActive() {
+        return this.active;
     }
 
     public CAConnectorConfig active(Boolean active) {
@@ -180,17 +178,16 @@ public class CAConnectorConfig implements Serializable {
         return this;
     }
 
-
     public void setActive(Boolean active) {
         this.active = active;
     }
 
     public String getSelector() {
-        return selector;
+        return this.selector;
     }
 
     public CAConnectorConfig selector(String selector) {
-        this.selector = selector;
+        this.setSelector(selector);
         return this;
     }
 
@@ -199,11 +196,11 @@ public class CAConnectorConfig implements Serializable {
     }
 
     public Interval getInterval() {
-        return interval;
+        return this.interval;
     }
 
     public CAConnectorConfig interval(Interval interval) {
-        this.interval = interval;
+        this.setInterval(interval);
         return this;
     }
 
@@ -212,11 +209,11 @@ public class CAConnectorConfig implements Serializable {
     }
 
     public String getPlainSecret() {
-        return plainSecret;
+        return this.plainSecret;
     }
 
     public CAConnectorConfig plainSecret(String plainSecret) {
-        this.plainSecret = plainSecret;
+        this.setPlainSecret(plainSecret);
         return this;
     }
 
@@ -225,18 +222,19 @@ public class CAConnectorConfig implements Serializable {
     }
 
     public ProtectedContent getSecret() {
-        return secret;
-    }
-
-    public CAConnectorConfig secret(ProtectedContent protectedContent) {
-        this.secret = protectedContent;
-        return this;
+        return this.secret;
     }
 
     public void setSecret(ProtectedContent protectedContent) {
         this.secret = protectedContent;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+
+    public CAConnectorConfig secret(ProtectedContent protectedContent) {
+        this.setSecret(protectedContent);
+        return this;
+    }
+
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -251,9 +249,11 @@ public class CAConnectorConfig implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "CAConnectorConfig{" +
@@ -262,8 +262,8 @@ public class CAConnectorConfig implements Serializable {
             ", caConnectorType='" + getCaConnectorType() + "'" +
             ", caUrl='" + getCaUrl() + "'" +
             ", pollingOffset=" + getPollingOffset() +
-            ", defaultCA='" + isDefaultCA() + "'" +
-            ", active='" + isActive() + "'" +
+            ", defaultCA='" + getDefaultCA() + "'" +
+            ", active='" + getActive() + "'" +
             ", selector='" + getSelector() + "'" +
             ", interval='" + getInterval() + "'" +
             ", plainSecret='" + getPlainSecret() + "'" +

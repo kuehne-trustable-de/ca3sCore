@@ -34,6 +34,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -46,7 +47,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
  * Produces <a href="https://de.wikipedia.org/wiki/Nonce">Nonces</a> containing
  * 16 random bytes followed by 8 bytes from epoch seconds.
  */
-@Controller
+@RestController
 @RequestMapping("/acme/{realm}/newNonce")
 public class NewNonceController extends AcmeController {
 

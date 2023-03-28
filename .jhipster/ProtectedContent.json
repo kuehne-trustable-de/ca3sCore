@@ -1,51 +1,54 @@
 {
-  "name": "ProtectedContent",
+  "applications": "*",
+  "changelogDate": "20230321145445",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "protected_content",
   "fields": [
     {
       "fieldName": "contentBase64",
       "fieldType": "byte[]",
       "fieldTypeBlobContent": "text",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "type",
       "fieldType": "ProtectedContentType",
-      "fieldValues": "KEY,SECRET,PASSWORD",
-      "fieldValidateRules": [
-        "required"
-      ]
+      "fieldValidateRules": ["required"],
+      "fieldValues": "KEY,SECRET,PASSWORD"
     },
     {
       "fieldName": "leftUsages",
       "fieldType": "Integer"
     },
     {
+      "fieldName": "createdOn",
+      "fieldType": "Instant"
+    },
+    {
       "fieldName": "validTo",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "deleteAfter",
       "fieldType": "Instant"
     },
     {
       "fieldName": "relationType",
       "fieldType": "ContentRelationType",
-      "fieldValues": "CERTIFICATE,CONNECTION,CSR,ACME_PW"
+      "fieldValues": "CERTIFICATE,CONNECTION,CSR"
     },
     {
       "fieldName": "relatedId",
       "fieldType": "Long"
     }
   ],
-  "relationships": [],
-  "changelogDate": "20200123182225",
-  "entityTableName": "protected_content",
-  "dto": "no",
-  "pagination": "no",
-  "service": "serviceImpl",
-  "jpaMetamodelFiltering": false,
   "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "ProtectedContent",
+  "pagination": "no",
   "readOnly": false,
-  "clientRootFolder": "",
-  "applications": "*",
-  "embedded": false,
+  "relationships": [],
+  "service": "serviceImpl",
   "skipClient": true
 }

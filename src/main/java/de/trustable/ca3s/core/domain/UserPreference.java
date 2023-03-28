@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core.domain;
 
-
 import java.io.Serializable;
 
 import javax.persistence.Column;
@@ -43,6 +42,7 @@ public class UserPreference implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @NotNull
@@ -53,14 +53,19 @@ public class UserPreference implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
 
-
     @Lob
     @Column(name = "content", nullable = false)
     private String content;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public UserPreference id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
@@ -68,11 +73,11 @@ public class UserPreference implements Serializable {
     }
 
     public Long getUserId() {
-        return userId;
+        return this.userId;
     }
 
     public UserPreference userId(Long userId) {
-        this.userId = userId;
+        this.setUserId(userId);
         return this;
     }
 
@@ -81,11 +86,11 @@ public class UserPreference implements Serializable {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public UserPreference name(String name) {
-        this.name = name;
+        this.setName(name);
         return this;
     }
 
@@ -94,18 +99,19 @@ public class UserPreference implements Serializable {
     }
 
     public String getContent() {
-        return content;
+        return this.content;
     }
 
     public UserPreference content(String content) {
-        this.content = content;
+        this.setContent(content);
         return this;
     }
 
     public void setContent(String content) {
         this.content = content;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -120,9 +126,11 @@ public class UserPreference implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "UserPreference{" +

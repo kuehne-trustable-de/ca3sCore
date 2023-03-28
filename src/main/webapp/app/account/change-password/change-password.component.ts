@@ -1,32 +1,33 @@
-import { maxLength, minLength, required } from 'vuelidate/lib/validators';
+import { maxLength, minLength, required, sameAs } from 'vuelidate/lib/validators';
 import axios from 'axios';
 import { mapGetters } from 'vuex';
 import Component from 'vue-class-component';
-import { Vue, Inject } from 'vue-property-decorator';
+import { Vue } from 'vue-property-decorator';
 
 const validations = {
   resetPassword: {
     currentPassword: {
-      required
+      required,
     },
     newPassword: {
       required,
       minLength: minLength(4),
-      maxLength: maxLength(254)
+      maxLength: maxLength(254),
     },
     confirmPassword: {
-      required,
-      minLength: minLength(4),
-      maxLength: maxLength(254)
-    }
-  }
+      // prettier-ignore
+      sameAsPassword: sameAs(vm => {
+      return vm.newPassword;
+      }),
+    },
+  },
 };
 
 @Component({
   validations,
   computed: {
-    ...mapGetters(['account'])
-  }
+    ...mapGetters(['account']),
+  },
 })
 export default class ChangePassword extends Vue {
   success: string = null;
@@ -35,7 +36,7 @@ export default class ChangePassword extends Vue {
   resetPassword: any = {
     currentPassword: null,
     newPassword: null,
-    confirmPassword: null
+    confirmPassword: null,
   };
 
   public changePassword(): void {
@@ -48,7 +49,7 @@ export default class ChangePassword extends Vue {
       axios
         .post('api/account/change-password', {
           currentPassword: this.resetPassword.currentPassword,
-          newPassword: this.resetPassword.newPassword
+          newPassword: this.resetPassword.newPassword,
         })
         .then(() => {
           this.success = 'OK';
@@ -62,6 +63,6 @@ export default class ChangePassword extends Vue {
   }
 
   public get username(): string {
-    return this.$store.getters.account ? this.$store.getters.account.login : '';
+    return this.$store.getters.account?.login ?? '';
   }
 }

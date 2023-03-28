@@ -1,17 +1,17 @@
 import axios from 'axios';
-import Vue from 'vue';
 import buildPaginationQueryOpts from '@/shared/sort/sorts';
+import { IUser } from '@/shared/model/user.model';
 
 export default class UserManagementService {
   public get(userId: number): Promise<any> {
     return axios.get(`api/users/${userId}`);
   }
 
-  public create(user): Promise<any> {
+  public create(user: IUser): Promise<any> {
     return axios.post('api/users', user);
   }
 
-  public update(user): Promise<any> {
+  public update(user: IUser): Promise<any> {
     return axios.put('api/users', user);
   }
 
@@ -24,7 +24,7 @@ export default class UserManagementService {
   }
 
   public retrieveAuthorities(): Promise<any> {
-    return axios.get('api/users/authorities');
+    return axios.get('api/authorities');
   }
 
   public retrieveUsersByRole(role: string): Promise<any> {

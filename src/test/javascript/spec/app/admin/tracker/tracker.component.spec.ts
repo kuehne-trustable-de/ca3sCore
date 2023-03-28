@@ -10,7 +10,6 @@ import JhiTrackerClass from '@/admin/tracker/tracker.component';
 import TrackerService from '@/admin/tracker/tracker.service';
 
 const localVue = createLocalVue();
-const mockedAxios: any = axios;
 let trackerServiceStub: any;
 let listenerObserver: Observer<any>;
 
@@ -19,16 +18,16 @@ const i18n = config.initI18N(localVue);
 const store = config.initVueXStore(localVue);
 localVue.component('font-awesome-icon', FontAwesomeIcon);
 
-jest.mock('axios', () => ({
-  get: jest.fn()
-}));
+const axiosStub = {
+  get: sinon.stub(axios, 'get'),
+};
 
 describe('JhiTracker', () => {
   let wrapper: Wrapper<JhiTrackerClass>;
   let jhiTracker: JhiTrackerClass;
 
   beforeEach(() => {
-    mockedAxios.get.mockReturnValue(Promise.resolve({ data: {} }));
+    axiosStub.get.resolves({ data: {} });
     trackerServiceStub = sinon.createStubInstance<TrackerService>(TrackerService);
     trackerServiceStub.receive = sinon.stub().callsFake(() => new Observable(observer => (listenerObserver = observer)));
     wrapper = shallowMount<JhiTrackerClass>(JhiTracker, {
@@ -36,14 +35,13 @@ describe('JhiTracker', () => {
       i18n,
       localVue,
       provide: {
-        trackerService: () => trackerServiceStub
-      }
+        trackerService: () => trackerServiceStub,
+      },
     });
     jhiTracker = wrapper.vm;
   });
 
-  it('should be a Vue instance', () => {
-    expect(wrapper.isVueInstance()).toBeTruthy();
+  it('should subscribe', () => {
     expect(trackerServiceStub.subscribe.called).toBeTruthy();
   });
 

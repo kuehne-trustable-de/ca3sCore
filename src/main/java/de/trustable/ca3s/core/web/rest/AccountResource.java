@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core.web.rest;
 
-
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.exception.PasswordRestrictionMismatch;
 import de.trustable.ca3s.core.repository.UserRepository;
@@ -16,16 +15,16 @@ import de.trustable.ca3s.core.web.rest.errors.InvalidPasswordException;
 import de.trustable.ca3s.core.web.rest.errors.LoginAlreadyUsedException;
 import de.trustable.ca3s.core.web.rest.vm.KeyAndPasswordVM;
 import de.trustable.ca3s.core.web.rest.vm.ManagedUserVM;
+import java.util.*;
+import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import javax.mail.MessagingException;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.util.Optional;
 
 /**
  * REST controller for managing the current user's account.
@@ -36,12 +35,7 @@ public class AccountResource {
 
     private static class AccountResourceException extends RuntimeException {
 
-        /**
-		 *
-		 */
-		private static final long serialVersionUID = -1468055116849177353L;
-
-		private AccountResourceException(String message) {
+        private AccountResourceException(String message) {
             super(message);
         }
     }
@@ -58,7 +52,6 @@ public class AccountResource {
     private final MailService mailService;
 
     public AccountResource(UserRepository userRepository, UserService userService, MailService mailService) {
-
         this.userRepository = userRepository;
         this.userService = userService;
         this.mailService = mailService;
@@ -173,10 +166,9 @@ public class AccountResource {
      * {@code POST   /account/reset-password/init} : Send an email to reset the password of the user.
      *
      * @param mail the mail of the user.
-     * @throws EmailNotFoundException {@code 400 (Bad Request)} if the email address is not registered.
      */
     @PostMapping(path = "/account/reset-password/init")
-    public void requestPasswordReset(@RequestBody String mail) throws MessagingException {
+    public void requestPasswordReset(@RequestBody String mail) throws  MessagingException {
        mailService.sendPasswordResetMail(
            userService.requestPasswordReset(mail)
                .orElseThrow(EmailNotFoundException::new)

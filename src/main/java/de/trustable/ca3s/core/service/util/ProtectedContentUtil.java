@@ -34,14 +34,14 @@ public class ProtectedContentUtil {
 	@Autowired
 	private ProtectedContentRepository protContentRepository;
 
-	public ProtectedContentUtil(@Value("${protectionSecret:S3cr3t}") String protectionSecretFallback,
-                                @Value("${ca3s.protectionSecret}") String protectionSecret) {
+	public ProtectedContentUtil(@Value("${protectionSecret:mJvR25yt4NHTIqe5Hz7nUHhQNUuM}") String protectionSecretFallback,
+                                @Value("${ca3s.protectionSecret:#{null}}") String protectionSecret) {
 
         PasswordUtil passwordUtil = new PasswordUtil("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{16,100}$");
 
         if( (protectionSecret == null) || (protectionSecret.trim().length() == 0)) {
             if ((protectionSecretFallback != null) && !protectionSecretFallback.trim().isEmpty()) {
-                if("S3cr3t".equals(protectionSecretFallback)){
+                if("mJvR25yt4NHTIqe5Hz7nUHhQNUuM".equals(protectionSecretFallback)){
                     log.warn("Please provide a secure value for 'ca3s.protectionSecret'!");
                 }else{
                     log.warn("The configuration parameter 'protectionSecret' is deprecated! Use 'ca3s.protectionSecret'.");
@@ -111,7 +111,7 @@ public class ProtectedContentUtil {
                                                    ProtectedContentType pct,
                                                    ContentRelationType crt,
                                                    long connectionId,
-                                                   long leftUsages,
+                                                   int leftUsages,
                                                    Instant validTo) {
 
         ProtectedContent pc = new ProtectedContent();

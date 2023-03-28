@@ -169,8 +169,8 @@ public class UserResourceIT {
         managedUserVM.setAuthorities(Collections.singleton(AuthoritiesConstants.USER));
 
         restUserMockMvc.perform(post("/api/users")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
             .andExpect(status().isCreated());
 
         // Validate the User in the database
@@ -204,8 +204,8 @@ public class UserResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restUserMockMvc.perform(post("/api/users")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
             .andExpect(status().isBadRequest());
 
         // Validate the User in the database
@@ -233,8 +233,8 @@ public class UserResourceIT {
 
         // Create the User
         restUserMockMvc.perform(post("/api/users")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
             .andExpect(status().isBadRequest());
 
         // Validate the User in the database
@@ -262,8 +262,8 @@ public class UserResourceIT {
 
         // Create the User
         restUserMockMvc.perform(post("/api/users")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
             .andExpect(status().isBadRequest());
 
         // Validate the User in the database
@@ -279,7 +279,7 @@ public class UserResourceIT {
 
         // Get all the users
         restUserMockMvc.perform(get("/api/users?sort=id,desc")
-            .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].login").value(hasItem(DEFAULT_LOGIN)))
@@ -350,8 +350,8 @@ cache disabled ...
         managedUserVM.setAuthorities(Collections.singleton(AuthoritiesConstants.USER));
 
         restUserMockMvc.perform(put("/api/users")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
             .andExpect(status().isOk());
 
         // Validate the User in the database
@@ -392,8 +392,8 @@ cache disabled ...
         managedUserVM.setAuthorities(Collections.singleton(AuthoritiesConstants.USER));
 
         restUserMockMvc.perform(put("/api/users")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
             .andExpect(status().isOk());
 
         // Validate the User in the database
@@ -445,8 +445,8 @@ cache disabled ...
         managedUserVM.setAuthorities(Collections.singleton(AuthoritiesConstants.USER));
 
         restUserMockMvc.perform(put("/api/users")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
             .andExpect(status().isBadRequest());
     }
 
@@ -487,8 +487,8 @@ cache disabled ...
         managedUserVM.setAuthorities(Collections.singleton(AuthoritiesConstants.USER));
 
         restUserMockMvc.perform(put("/api/users")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
             .andExpect(status().isBadRequest());
     }
 
@@ -501,7 +501,7 @@ cache disabled ...
 
         // Delete the user
         restUserMockMvc.perform(delete("/api/users/{login}", user.getLogin())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isNoContent());
 
         assertThat(cacheManager.getCache(UserRepository.USERS_BY_LOGIN_CACHE).get(user.getLogin())).isNull();
@@ -515,8 +515,8 @@ cache disabled ...
     @Transactional
     public void getAllAuthorities() throws Exception {
         restUserMockMvc.perform(get("/api/users/authorities")
-            .accept(TestUtil.APPLICATION_JSON_UTF8)
-            .contentType(TestUtil.APPLICATION_JSON_UTF8))
+                .accept(TestUtil.APPLICATION_JSON_UTF8)
+                .contentType(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk())
             .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$").isArray())
