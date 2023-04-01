@@ -1,4 +1,4 @@
-FROM openjdk:11
+FROM openjdk:11.0.16
 ARG JAR_FILE=target/*.jar
 COPY ${JAR_FILE} app.jar
 COPY data/certs/ /trusted
