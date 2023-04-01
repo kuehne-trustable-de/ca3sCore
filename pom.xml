@@ -116,7 +116,7 @@
         <spring.version>5.3.26</spring.version>
         <spring.security.version>5.7.5</spring.security.version>
 
-        <undertow.core.version>2.3.4.Final</undertow.core.version>
+        <undertow.core.version>2.3.5.Final</undertow.core.version>
         <bucket4j.version>8.2.0</bucket4j.version>
 
         <h2.version>2.1.214</h2.version>
