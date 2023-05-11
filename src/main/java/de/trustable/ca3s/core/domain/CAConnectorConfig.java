@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 import de.trustable.ca3s.core.domain.enumeration.Interval;
 import java.io.Serializable;
@@ -66,6 +67,7 @@ public class CAConnectorConfig implements Serializable {
 
     @OneToOne
     @JoinColumn(unique = true)
+    @JsonIgnore
     private ProtectedContent secret;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

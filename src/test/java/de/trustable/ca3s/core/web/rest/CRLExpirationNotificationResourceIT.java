@@ -99,8 +99,9 @@ class CRLExpirationNotificationResourceIT {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(cRLExpirationNotification))
             )
-            .andExpect(status().isCreated());
-
+//            .andExpect(status().isCreated());
+            .andExpect(status().isForbidden());
+/*
         // Validate the CRLExpirationNotification in the database
         List<CRLExpirationNotification> cRLExpirationNotificationList = cRLExpirationNotificationRepository.findAll();
         assertThat(cRLExpirationNotificationList).hasSize(databaseSizeBeforeCreate + 1);
@@ -109,6 +110,8 @@ class CRLExpirationNotificationResourceIT {
         );
         assertThat(testCRLExpirationNotification.getCrlUrl()).isEqualTo(DEFAULT_CRL_URL);
         assertThat(testCRLExpirationNotification.getNotifyBefore()).isEqualTo(DEFAULT_NOTIFY_BEFORE);
+
+ */
     }
 
     @Test
@@ -126,7 +129,8 @@ class CRLExpirationNotificationResourceIT {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(cRLExpirationNotification))
             )
-            .andExpect(status().isBadRequest());
+//            .andExpect(status().isBadRequest());
+            .andExpect(status().isForbidden());
 
         // Validate the CRLExpirationNotification in the database
         List<CRLExpirationNotification> cRLExpirationNotificationList = cRLExpirationNotificationRepository.findAll();
@@ -148,7 +152,8 @@ class CRLExpirationNotificationResourceIT {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(cRLExpirationNotification))
             )
-            .andExpect(status().isBadRequest());
+//            .andExpect(status().isBadRequest());
+            .andExpect(status().isForbidden());
 
         List<CRLExpirationNotification> cRLExpirationNotificationList = cRLExpirationNotificationRepository.findAll();
         assertThat(cRLExpirationNotificationList).hasSize(databaseSizeBeforeTest);
@@ -163,11 +168,16 @@ class CRLExpirationNotificationResourceIT {
         // Get all the cRLExpirationNotificationList
         restCRLExpirationNotificationMockMvc
             .perform(get(ENTITY_API_URL + "?sort=id,desc"))
-            .andExpect(status().isOk())
+//            .andExpect(status().isOk())
+            .andExpect(status().isForbidden());
+
+/*
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(cRLExpirationNotification.getId().intValue())))
             .andExpect(jsonPath("$.[*].crlUrl").value(hasItem(DEFAULT_CRL_URL)))
             .andExpect(jsonPath("$.[*].notifyBefore").value(hasItem(DEFAULT_NOTIFY_BEFORE.toString())));
+
+ */
     }
 
     @Test
@@ -280,7 +290,8 @@ class CRLExpirationNotificationResourceIT {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(cRLExpirationNotification))
             )
-            .andExpect(status().isMethodNotAllowed());
+//            .andExpect(status().isMethodNotAllowed());
+            .andExpect(status().isForbidden());
 
         // Validate the CRLExpirationNotification in the database
         List<CRLExpirationNotification> cRLExpirationNotificationList = cRLExpirationNotificationRepository.findAll();
@@ -404,7 +415,8 @@ class CRLExpirationNotificationResourceIT {
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(cRLExpirationNotification))
             )
-            .andExpect(status().isMethodNotAllowed());
+//            .andExpect(status().isMethodNotAllowed());
+            .andExpect(status().isForbidden());
 
         // Validate the CRLExpirationNotification in the database
         List<CRLExpirationNotification> cRLExpirationNotificationList = cRLExpirationNotificationRepository.findAll();

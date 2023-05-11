@@ -26,20 +26,14 @@
 
 package de.trustable.ca3s.core.web.rest.acme;
 
+import de.trustable.ca3s.core.service.dto.acme.DirectoryResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.*;
+
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequestUri;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import de.trustable.ca3s.core.service.dto.acme.DirectoryResponse;
-import org.springframework.web.bind.annotation.RestController;
 
 /*
  * 7.1.1.  Directory
@@ -135,23 +129,23 @@ public class DirectoryController extends AcmeController {
 	private static final Logger LOG = LoggerFactory.getLogger(DirectoryController.class);
 
 	@RequestMapping(method = { GET, POST }, produces = APPLICATION_JSON_VALUE)
-	public @ResponseBody DirectoryResponse getDirectory(@PathVariable final String realm) {
+	public @ResponseBody DirectoryResponse getDirectory(@PathVariable final String realm,
+                                                        @RequestHeader(value=HEADER_X_CA3S_FORWARDED_HOST, required=false) String forwardedHost) {
 
 		// check for existence of a pipeline for the realm
 		getPipelineForRealm(realm);
 
 		DirectoryResponse resp = new DirectoryResponse();
 
-		resp.setNewNonceUri(newNonceResourceUriBuilderFrom(fromCurrentRequestUri()).build().normalize().toUri());
-		resp.setNewAccountUri(newAccountResourceUriBuilderFrom(fromCurrentRequestUri()).build().normalize().toUri());
-		resp.setNewOrderUri(newOrderResourceUriBuilderFrom(fromCurrentRequestUri()).build().normalize().toUri());
-		resp.setNewAuthzUri(newAuthorizationResourceUriBuilderFrom(fromCurrentRequestUri()).build().normalize().toUri());
+        resp.setNewNonceUri(newNonceResourceUriBuilderFrom(getEffectiveUriComponentsBuilder(realm, forwardedHost)).build().normalize().toUri());
+        resp.setNewAccountUri(newAccountResourceUriBuilderFrom(getEffectiveUriComponentsBuilder(realm, forwardedHost)).build().normalize().toUri());
+        resp.setNewOrderUri(newOrderResourceUriBuilderFrom(getEffectiveUriComponentsBuilder(realm, forwardedHost)).build().normalize().toUri());
+        resp.setNewAuthzUri(newAuthorizationResourceUriBuilderFrom(getEffectiveUriComponentsBuilder(realm, forwardedHost)).build().normalize().toUri());
 
-		resp.setRevokeUri(revokeResourceUriBuilderFrom(fromCurrentRequestUri()).build().normalize().toUri());
-		resp.setKeyChangeUri(keyChangeResourceUriBuilderFrom(fromCurrentRequestUri()).build().normalize().toUri());
+        resp.setRevokeUri(revokeResourceUriBuilderFrom(getEffectiveUriComponentsBuilder(realm, forwardedHost)).build().normalize().toUri());
+        resp.setKeyChangeUri(keyChangeResourceUriBuilderFrom(getEffectiveUriComponentsBuilder(realm, forwardedHost)).build().normalize().toUri());
 
 		LOG.info("directory request, returning {}", resp);
 		return resp;
 	}
-
 }

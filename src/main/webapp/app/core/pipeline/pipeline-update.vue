@@ -384,6 +384,17 @@
 
                     </div>
 
+                       <div v-if="$v.pipeline.type.$model === 'ACME'" class="form-inline">
+
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.requestProxies')"
+                               for="pipeline-requestProxyIds">Request Proxies</label>
+                        <select class="form-control" id="pipeline-requestProxyIds" name="pipeline-requestProxyIds"
+                                multiple="true"
+                                v-model="pipeline.requestProxyConfigIds">
+                            <option v-for="item in requestProxyConfigs" :key="item.id" :value="item.id">{{item.name}}</option>
+                        </select>
+                    </div>
+
                     <div class="container" >
                         <div class="row" >
                             <div class="col">

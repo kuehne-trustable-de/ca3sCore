@@ -1,9 +1,11 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.BPMNProcessInfo;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.BPMNProcessInfoService;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -47,6 +49,7 @@ public class BPMNProcessInfoResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/bpmn-process-infos")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<BPMNProcessInfo> createBPMNProcessInfo(@Valid @RequestBody BPMNProcessInfo bPMNProcessInfo) throws URISyntaxException {
         log.debug("REST request to save BPMNProcessInfo : {}", bPMNProcessInfo);
         if (bPMNProcessInfo.getId() != null) {
@@ -68,6 +71,7 @@ public class BPMNProcessInfoResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/bpmn-process-infos")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<BPMNProcessInfo> updateBPMNProcessInfo(@Valid @RequestBody BPMNProcessInfo bPMNProcessInfo) throws URISyntaxException {
         log.debug("REST request to update BPMNProcessInfo : {}", bPMNProcessInfo);
         if (bPMNProcessInfo.getId() == null) {
@@ -98,6 +102,7 @@ public class BPMNProcessInfoResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the bPMNProcessInfo, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/bpmn-process-infos/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<BPMNProcessInfo> getBPMNProcessInfo(@PathVariable Long id) {
         log.debug("REST request to get BPMNProcessInfo : {}", id);
         Optional<BPMNProcessInfo> bPMNProcessInfo = bPMNProcessInfoService.findOne(id);
@@ -112,6 +117,7 @@ public class BPMNProcessInfoResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/bpmn-process-infos/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteBPMNProcessInfo(@PathVariable Long id) {
         log.debug("REST request to delete BPMNProcessInfo : {}", id);
         bPMNProcessInfoService.delete(id);

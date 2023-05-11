@@ -1,5 +1,9 @@
 {
-  "name": "CRLExpirationNotification",
+  "applications": "*",
+  "changelogDate": "20230403164942",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "crl_expiration_notification",
   "fields": [
     {
       "fieldName": "crlUrl",
@@ -17,16 +21,12 @@
       "fieldValidateRules": ["required"]
     }
   ],
-  "relationships": [],
-  "entityTableName": "crl_expiration_notification",
-  "dto": "no",
-  "pagination": "no",
-  "service": "serviceImpl",
-  "jpaMetamodelFiltering": false,
   "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "CRLExpirationNotification",
+  "pagination": "no",
   "readOnly": false,
-  "embedded": false,
-  "applications": "*",
-  "skipClient": true,
-  "changelogDate": "20230325192730"
+  "relationships": [],
+  "service": "serviceImpl",
+  "skipClient": true
 }

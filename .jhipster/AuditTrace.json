@@ -1,6 +1,6 @@
 {
   "applications": "*",
-  "changelogDate": "20230321145436",
+  "changelogDate": "20230403164939",
   "dto": "no",
   "embedded": false,
   "entityTableName": "audit_trace",
@@ -76,6 +76,11 @@
     {
       "otherEntityName": "scepOrder",
       "relationshipName": "scepOrder",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "requestProxyConfig",
+      "relationshipName": "requestProxyConfig",
       "relationshipType": "many-to-one"
     }
   ],

@@ -1,5 +1,10 @@
 {
-  "name": "AcmeAccount",
+  "applications": "*",
+  "changelogDate": "20200110170121",
+  "clientRootFolder": "",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "acme_account",
   "fields": [
     {
       "fieldName": "accountId",
@@ -31,31 +36,30 @@
       "fieldType": "byte[]",
       "fieldTypeBlobContent": "text",
       "fieldValidateRules": ["required"]
-    }
-  ],
-  "relationships": [
-    {
-      "relationshipType": "one-to-many",
-      "otherEntityName": "acmeContact",
-      "otherEntityRelationshipName": "account",
-      "relationshipName": "contacts"
     },
     {
-      "relationshipType": "one-to-many",
-      "otherEntityName": "acmeOrder",
-      "otherEntityRelationshipName": "account",
-      "relationshipName": "orders"
+      "fieldName": "createdOn",
+      "fieldType": "Instant"
     }
   ],
-  "changelogDate": "20200110170121",
-  "entityTableName": "acme_account",
-  "dto": "no",
-  "pagination": "no",
-  "service": "serviceImpl",
-  "jpaMetamodelFiltering": false,
   "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "AcmeAccount",
+  "pagination": "no",
   "readOnly": false,
-  "clientRootFolder": "",
-  "applications": "*",
-  "embedded": false
+  "relationships": [
+    {
+      "otherEntityName": "acmeContact",
+      "otherEntityRelationshipName": "account",
+      "relationshipName": "contacts",
+      "relationshipType": "one-to-many"
+    },
+    {
+      "otherEntityName": "acmeOrder",
+      "otherEntityRelationshipName": "account",
+      "relationshipName": "orders",
+      "relationshipType": "one-to-many"
+    }
+  ],
+  "service": "serviceImpl"
 }

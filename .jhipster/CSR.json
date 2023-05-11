@@ -1,6 +1,7 @@
 {
   "applications": "*",
-  "changelogDate": "20230321145443",
+  "changelogDate": "20200110170113",
+  "clientRootFolder": "",
   "dto": "no",
   "embedded": false,
   "entityTableName": "csr",
@@ -38,7 +39,7 @@
       "fieldName": "pipelineType",
       "fieldType": "PipelineType",
       "fieldValidateRules": ["required"],
-      "fieldValues": "ACME,SCEP,WEB,INTERNAL"
+      "fieldValues": "ACME,SCEP,WEB,INTERNAL,MANUAL_REQUEST"
     },
     {
       "fieldName": "status",

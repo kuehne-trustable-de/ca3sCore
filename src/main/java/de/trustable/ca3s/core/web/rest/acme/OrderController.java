@@ -57,12 +57,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -77,7 +73,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequestUri;
+
 
 
 @Transactional
@@ -135,7 +131,9 @@ public class OrderController extends AcmeController {
 
     @RequestMapping(value = "/{orderId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
     public ResponseEntity<?> postAsGetOrder(@RequestBody final String requestBody,
-                                            @PathVariable final long orderId, @PathVariable final String realm) {
+                                            @PathVariable final long orderId,
+                                            @PathVariable final String realm,
+                                            @RequestHeader(value=HEADER_X_CA3S_FORWARDED_HOST, required=false) String forwardedHost) {
 
         LOG.info("Received read order request for orderId {}", orderId);
 
@@ -163,7 +161,7 @@ public class OrderController extends AcmeController {
                     updateAcmeOrderState(orderDao);
                 }
 
-                UriComponentsBuilder baseUriBuilder = fromCurrentRequestUri().path("/../..");
+                UriComponentsBuilder baseUriBuilder = getEffectiveUriComponentsBuilder(realm, forwardedHost).path("/../..");
                 LOG.debug("postAsGetOrder: baseUriBuilder : " + baseUriBuilder.toUriString());
 
                 return buildOrderResponse(additionalHeaders, orderDao, baseUriBuilder, true);
@@ -191,7 +189,9 @@ public class OrderController extends AcmeController {
 
     @RequestMapping(value = "/finalize/{orderId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
     public ResponseEntity<?> finalizeOrder(@RequestBody final String requestBody,
-                                           @PathVariable final long orderId, @PathVariable final String realm) {
+                                           @PathVariable final long orderId,
+                                           @PathVariable final String realm,
+                                           @RequestHeader(value=HEADER_X_CA3S_FORWARDED_HOST, required=false) String forwardedHost) {
 
         LOG.info("Received finalize order request ");
 
@@ -335,7 +335,7 @@ public class OrderController extends AcmeController {
                 }
 
                 boolean valid = true;
-                UriComponentsBuilder baseUriBuilder = fromCurrentRequestUri().path("/../../..");
+                UriComponentsBuilder baseUriBuilder = getEffectiveUriComponentsBuilder(realm, forwardedHost).path("/../../..");
                 LOG.debug("finalize: baseUriBuilder : " + baseUriBuilder.toUriString());
 
                 return buildOrderResponse(additionalHeaders, orderDao, baseUriBuilder, valid);
@@ -394,7 +394,8 @@ public class OrderController extends AcmeController {
         return snSet;
     }
 
-    private ResponseEntity<OrderResponse> buildOrderResponse(final HttpHeaders additionalHeaders, AcmeOrder orderDao,
+    private ResponseEntity<OrderResponse> buildOrderResponse(final HttpHeaders additionalHeaders,
+                                                             final AcmeOrder orderDao,
                                                              final UriComponentsBuilder baseUriBuilder,
                                                              boolean valid) {
 
@@ -412,7 +413,7 @@ public class OrderController extends AcmeController {
         }
 
         if (finalizeLocationBackwardCompat) {
-            String orderLocation = fromCurrentRequestUri().build().toUriString();
+            String orderLocation = baseUriBuilder.build().toUriString();
             additionalHeaders.add("location", orderLocation);
             LOG.debug("added location header '{}' for backward compatibility reasons.", orderLocation);
         }

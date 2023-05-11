@@ -1,12 +1,14 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.Pipeline;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.PipelineService;
 import de.trustable.ca3s.core.service.dto.AuditView;
 import de.trustable.ca3s.core.service.dto.PipelineView;
 import de.trustable.ca3s.core.exception.IntegrityException;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -56,6 +58,7 @@ public class PipelineViewResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/pipelineViews")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<PipelineView> createPipeline(@Valid @RequestBody PipelineView pipelineView) throws URISyntaxException {
         log.debug("REST request to save PipelineView : {}", pipelineView);
         if (pipelineView.getId() != null) {
@@ -82,6 +85,7 @@ public class PipelineViewResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/pipelineViews")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<PipelineView> updatePipeline(@Valid @RequestBody PipelineView pipelineView) throws URISyntaxException {
         log.debug("REST request to update PipelineView : {}", pipelineView);
         if (pipelineView.getId() == null) {
@@ -97,7 +101,6 @@ public class PipelineViewResource {
     /**
      * {@code GET  /pipelineViews} : get all the pipelines.
      *
-
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of pipelines in body.
      */
     @GetMapping("/pipelineViews")
@@ -145,6 +148,7 @@ public class PipelineViewResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/pipelineViews/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deletePipeline(@PathVariable Long id) {
         log.debug("REST request to delete Pipeline : {}", id);
         try {

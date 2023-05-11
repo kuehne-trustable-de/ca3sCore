@@ -1,5 +1,10 @@
 {
-  "name": "AcmeNonce",
+  "applications": "*",
+  "changelogDate": "20200129162421",
+  "clientRootFolder": "",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "acme_nonce",
   "fields": [
     {
       "fieldName": "nonceValue",
@@ -10,16 +15,12 @@
       "fieldType": "Instant"
     }
   ],
-  "relationships": [],
-  "changelogDate": "20200129162421",
-  "entityTableName": "acme_nonce",
-  "dto": "no",
-  "pagination": "no",
-  "service": "serviceImpl",
-  "jpaMetamodelFiltering": false,
   "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "AcmeNonce",
+  "pagination": "no",
   "readOnly": false,
-  "clientRootFolder": "",
-  "applications": "*",
-  "embedded": false
+  "relationships": [],
+  "service": "serviceImpl",
+  "skipClient": true
 }

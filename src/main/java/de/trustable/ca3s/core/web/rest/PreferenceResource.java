@@ -6,12 +6,14 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -31,7 +33,7 @@ import tech.jhipster.web.util.HeaderUtil;
  *
  */
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/api")
 public class PreferenceResource {
 
 	private final Logger log = LoggerFactory.getLogger(PreferenceResource.class);

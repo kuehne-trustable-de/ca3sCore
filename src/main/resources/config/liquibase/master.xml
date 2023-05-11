@@ -131,4 +131,12 @@
     <include file="config/liquibase/changelog/20230325192732_added_entity_AlgorithmRestriction.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230326145454_added_relation_pipeline_algorithms.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/20230403190000_added_relation_challenge_requestProxy.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230404130000_added_relation_requestProxy_pipeline.xml" relativeToChangelogFile="false"/>
+
+    <include file="config/liquibase/changelog/20230411120000_added_columns_AuditTrace.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230411120000_added_relation_pipeline_requestProxy.xml" relativeToChangelogFile="false"/>
+
+    <include file="config/liquibase/changelog/20230415130000_removed_entity_constraint_RequestProxyConfig.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>

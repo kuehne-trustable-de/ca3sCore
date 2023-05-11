@@ -1,5 +1,10 @@
 {
-  "name": "PipelineAttribute",
+  "applications": "*",
+  "changelogDate": "20200110170120",
+  "clientRootFolder": "",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "pipeline_attribute",
   "fields": [
     {
       "fieldName": "name",
@@ -12,23 +17,19 @@
       "fieldValidateRules": ["required"]
     }
   ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "PipelineAttribute",
+  "pagination": "no",
+  "readOnly": false,
   "relationships": [
     {
-      "relationshipType": "many-to-one",
       "otherEntityName": "pipeline",
       "otherEntityRelationshipName": "pipelineAttributes",
-      "relationshipName": "pipeline"
+      "relationshipName": "pipeline",
+      "relationshipType": "many-to-one"
     }
   ],
-  "changelogDate": "20200110170120",
-  "entityTableName": "pipeline_attribute",
-  "dto": "no",
-  "pagination": "no",
   "service": "serviceImpl",
-  "jpaMetamodelFiltering": false,
-  "fluentMethods": true,
-  "readOnly": false,
-  "clientRootFolder": "",
-  "applications": "*",
-  "embedded": false
+  "skipClient": true
 }

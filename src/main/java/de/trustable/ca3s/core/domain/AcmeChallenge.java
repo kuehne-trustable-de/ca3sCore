@@ -2,8 +2,12 @@ package de.trustable.ca3s.core.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.List;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
@@ -12,7 +16,26 @@ import javax.validation.constraints.*;
  */
 @Entity
 @Table(name = "acme_challenge")
+@NamedQueries({
+    @NamedQuery(name = "AcmeChallenge.findByChallengeId",
+        query = "SELECT c FROM AcmeChallenge c " +
+            "WHERE " +
+            "c.challengeId = :challengeId"),
+    @NamedQuery(name = "AcmeChallenge.findPendingByRealm",
+        query = "SELECT c FROM AcmeChallenge c " +
+            "WHERE " +
+            "c.status = 'PENDING' and " +
+            "c.acmeAuthorization.order.status = 'PENDING' and " +
+            "c.acmeAuthorization.order.realm = :realm"),
+    @NamedQuery(name = "AcmeChallenge.findPendingByRequestProxy",
+        query = "SELECT c FROM AcmeChallenge c " +
+            "WHERE " +
+            "c.status = 'PENDING' and " +
+            "c.acmeAuthorization.order.status = 'PENDING' and " +
+            "c.requestProxy.id  = :requestProxyId"),
+})
 public class AcmeChallenge implements Serializable {
+
 
     private static final long serialVersionUID = 1L;
 
@@ -48,6 +71,10 @@ public class AcmeChallenge implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private ChallengeStatus status;
+
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "secret" }, allowSetters = true)
+    private RequestProxyConfig requestProxy;
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "challenges", "order" }, allowSetters = true)
@@ -167,6 +194,14 @@ public class AcmeChallenge implements Serializable {
         return this;
     }
 
+    public RequestProxyConfig getRequestProxy() {
+        return requestProxy;
+    }
+
+    public void setRequestProxy(RequestProxyConfig requestProxy) {
+        this.requestProxy = requestProxy;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
@@ -196,6 +231,7 @@ public class AcmeChallenge implements Serializable {
             ", value='" + getValue() + "'" +
             ", token='" + getToken() + "'" +
             ", validated='" + getValidated() + "'" +
+            ", RequestProxy='" + getRequestProxy() + "'" +
             ", status='" + getStatus() + "'" +
             "}";
     }

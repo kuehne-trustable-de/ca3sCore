@@ -1,6 +1,7 @@
 {
   "applications": "*",
-  "changelogDate": "20230321145441",
+  "changelogDate": "20200110170112",
+  "clientRootFolder": "",
   "dto": "no",
   "embedded": false,
   "entityTableName": "certificate",

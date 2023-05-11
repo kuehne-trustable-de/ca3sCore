@@ -3,7 +3,7 @@ import Component from 'vue-class-component';
 Component.registerHooks([
   'beforeRouteEnter',
   'beforeRouteLeave',
-  'beforeRouteUpdate' // for vue-router 2.2+
+  'beforeRouteUpdate', // for vue-router 2.2+
 ]);
 import Router from 'vue-router';
 const Home = () => import('../core/home/home.vue');
@@ -199,11 +199,9 @@ const BPNMProcessInfoUpdate = () => import('../entities/bpnm-process-info/bpnm-p
 // prettier-ignore
 const BPNMProcessInfoDetails = () => import('../entities/bpnm-process-info/bpnm-process-info-details.vue');
 // prettier-ignore
-const RequestProxyConfig = () => import('../entities/request-proxy-config/request-proxy-config.vue');
+const RequestProxyConfig = () => import('../core/request-proxy-config/request-proxy-config.vue');
 // prettier-ignore
-const RequestProxyConfigUpdate = () => import('../entities/request-proxy-config/request-proxy-config-update.vue');
-// prettier-ignore
-const RequestProxyConfigDetails = () => import('../entities/request-proxy-config/request-proxy-config-details.vue');
+const RequestProxyConfigUpdate = () => import('../core/request-proxy-config/request-proxy-config-update.vue');
 // prettier-ignore
 const UserPreference = () => import('../entities/user-preference/user-preference.vue');
 // prettier-ignore
@@ -1127,12 +1125,6 @@ export default new Router({
       component: RequestProxyConfigUpdate,
       meta: { authorities: ['ROLE_USER'] }
     },
-    {
-      path: '/request-proxy-config/:requestProxyConfigId/view',
-      name: 'RequestProxyConfigView',
-      component: RequestProxyConfigDetails,
-      meta: { authorities: ['ROLE_USER'] }
-    }
     // jhipster-needle-add-entity-to-router - JHipster will add entities to the router here
   ],
 

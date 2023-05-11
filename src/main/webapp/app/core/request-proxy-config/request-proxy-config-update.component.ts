@@ -11,17 +11,18 @@ import RequestProxyConfigService from './request-proxy-config.service';
 const validations: any = {
   requestProxyConfig: {
     name: {
-      required
+      required,
     },
     requestProxyUrl: {
-      required
+      required,
     },
-    active: {}
-  }
+    active: {},
+    plainSecret: {},
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class RequestProxyConfigUpdate extends Vue {
   @Inject('alertService') private alertService: () => AlertService;

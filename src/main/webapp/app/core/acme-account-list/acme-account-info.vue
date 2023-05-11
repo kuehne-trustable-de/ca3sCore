@@ -5,11 +5,12 @@
                 <h2 class="jh-entity-heading"><span v-text="$t('ca3SApp.aCMEAccount.detail.title')">AcmeAccount</span> {{acmeAccountView.id}}</h2>
                 <dl class="row jh-entity-details">
                     <dt>
-                        <span v-text="$t('ca3SApp.aCMEAccount.accountId')">Account Id</span>
+                        +++<span v-text="$t('ca3SApp.aCMEAccount.accountId')">Account Id</span>---
                     </dt>
                     <dd>
                         <span>{{acmeAccountView.accountId}}</span>
                     </dd>
+
                     <dt>
                         <span v-text="$t('ca3SApp.aCMEAccount.realm')">Realm</span>
                     </dt>

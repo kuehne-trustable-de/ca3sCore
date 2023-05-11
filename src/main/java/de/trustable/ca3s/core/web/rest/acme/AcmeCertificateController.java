@@ -63,7 +63,7 @@ import java.util.Optional;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequestUri;
+
 
 @RestController
 @RequestMapping("/acme/{realm}/cert")
@@ -94,15 +94,18 @@ public class AcmeCertificateController extends AcmeController {
 
     @RequestMapping(value = "/{certId}", method = GET)
     public ResponseEntity<?> getCertificatePKIX(@PathVariable final long certId,
-    		@RequestHeader(name="Accept",  defaultValue=APPLICATION_PEM_CERT_CHAIN_VALUE)  final String accept) {
+    		@RequestHeader(name="Accept",  defaultValue=APPLICATION_PEM_CERT_CHAIN_VALUE)  final String accept,
+                                                @PathVariable final String realm,
+                                                @RequestHeader(value=HEADER_X_CA3S_FORWARDED_HOST, required=false) String forwardedHost) {
 
 		LOG.info("Received certificate request for id {}", certId);
 
-    	return buildCertResponseForId(certId, accept);
+    	return buildCertResponseForId(certId, accept, realm, forwardedHost);
     }
 
-	public ResponseEntity<?> buildCertResponseForId(final long certId, final String accept)
+	public ResponseEntity<?> buildCertResponseForId(final long certId, final String accept, final String realm, final String forwardedHost)
 			throws HttpClientErrorException, AcmeProblemException {
+
 		Optional<Certificate> certOpt = certificateRepository.findById(certId);
 
   		if(!certOpt.isPresent()) {
@@ -112,7 +115,7 @@ public class AcmeCertificateController extends AcmeController {
 
 			final HttpHeaders headers = buildNonceHeader();
             if(certificateLocationBackwardCompat){
-                String certLocation = fromCurrentRequestUri().build().toUriString();
+                String certLocation = getEffectiveUriComponentsBuilder(realm, forwardedHost).build().toUriString();
                 headers.add("location", certLocation);
                 LOG.debug("added certificate location header '{}' for backward compatibility reasons.", certLocation);
             }
@@ -232,7 +235,8 @@ public class AcmeCertificateController extends AcmeController {
 			@RequestHeader(name="Accept",  defaultValue=APPLICATION_PEM_CERT_CHAIN_VALUE) final String accept,
 			@RequestHeader("Content-Type") final String contentType,
 			@PathVariable final long certId,
-            @PathVariable final String realm) {
+            @PathVariable final String realm,
+            @RequestHeader(value=HEADER_X_CA3S_FORWARDED_HOST, required=false) String forwardedHost) {
 
 		try {
 			JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
@@ -243,7 +247,7 @@ public class AcmeCertificateController extends AcmeController {
 
 			LOG.info("Received certificate request for certifacte id {} of content-type {}, identified by account id {} ", certId, contentType, acctDao.getAccountId());
 
-	    	return buildCertResponseForId(certId, accept);
+	    	return buildCertResponseForId(certId, accept, realm, forwardedHost);
 /*
 			List<Certificate> certList = certificateRepository.findByCertificateId(certId);
 

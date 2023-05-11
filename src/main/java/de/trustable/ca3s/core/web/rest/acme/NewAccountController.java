@@ -27,34 +27,6 @@
 package de.trustable.ca3s.core.web.rest.acme;
 
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.ResponseEntity.ok;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequestUri;
-
-import java.net.URI;
-import java.security.PublicKey;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.codec.binary.Base64;
-import org.jose4j.jwt.consumer.JwtContext;
-import org.jose4j.jwx.JsonWebStructure;
-import org.jose4j.lang.JoseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import de.trustable.ca3s.core.domain.AcmeAccount;
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 import de.trustable.ca3s.core.repository.AcmeAccountRepository;
@@ -64,6 +36,28 @@ import de.trustable.ca3s.core.service.dto.acme.AccountResponse;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.AcmeUtil;
+import org.apache.commons.codec.binary.Base64;
+import org.jose4j.jwt.consumer.JwtContext;
+import org.jose4j.jwx.JsonWebStructure;
+import org.jose4j.lang.JoseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
+import java.security.PublicKey;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @Transactional
 @RestController
@@ -80,21 +74,23 @@ public class NewAccountController extends AcmeController {
   AcmeContactRepository contactRepo;
 
   @RequestMapping(method = POST, consumes = APPLICATION_JOSE_JSON_VALUE)
-  public ResponseEntity<?> consumingPostedJoseJson(@RequestBody final String requestBody, @PathVariable final String realm) {
+  public ResponseEntity<?> consumingPostedJoseJson(@RequestBody final String requestBody, @PathVariable final String realm,
+                                                   @RequestHeader(value=HEADER_X_CA3S_FORWARDED_HOST, required=false) String forwardedHost) {
 
-    return consumeWithConverter(requestBody, realm);
+    return consumeWithConverter(requestBody, realm, forwardedHost);
 
   }
 
 
   @RequestMapping(method = POST, consumes = APPLICATION_JWS_VALUE)
-  public ResponseEntity<?> consumingPostedJws(@RequestBody final String requestBody, @PathVariable final String realm) {
-    return consumeWithConverter(requestBody, realm);
+  public ResponseEntity<?> consumingPostedJws(@RequestBody final String requestBody, @PathVariable final String realm,
+                                              @RequestHeader(value=HEADER_X_CA3S_FORWARDED_HOST, required=false) String forwardedHost) {
+    return consumeWithConverter(requestBody, realm, forwardedHost);
   }
 
 
   @Transactional
-  ResponseEntity<?> consumeWithConverter(final String requestBody, final String realm) {
+  ResponseEntity<?> consumeWithConverter(final String requestBody, final String realm, final String forwardedHost) {
 
     LOG.info("New ACCOUNT requested for realm {} using requestbody \n {}", realm, requestBody);
 
@@ -185,13 +181,13 @@ public class NewAccountController extends AcmeController {
 		}
 
 
-	    URI locationUri = locationUriOf(acctDaoReturn.getAccountId(), fromCurrentRequestUri());
+	    URI locationUri = locationUriOf(acctDaoReturn.getAccountId(), getEffectiveUriComponentsBuilder(realm, forwardedHost));
 	    String locationHeader = locationUri.toASCIIString();
 	    LOG.debug("location header set to " + locationHeader);
 	    additionalHeaders.set("Location", locationHeader);
 
-        AccountResponse accResp = new AccountResponse(acctDaoReturn, fromCurrentRequestUri());
-	    accResp.setOrders(locationUriOfOrders(acctDaoReturn.getAccountId(), fromCurrentRequestUri()).toString());
+        AccountResponse accResp = new AccountResponse(acctDaoReturn, getEffectiveUriComponentsBuilder(realm, forwardedHost));
+	    accResp.setOrders(locationUriOfOrders(acctDaoReturn.getAccountId(), getEffectiveUriComponentsBuilder(realm, forwardedHost)).toString());
 		if( accListExisting.isEmpty()) {
 		    LOG.debug("returning new account response " + jwtUtil.getAccountResponseAsJSON(accResp));
 		    LOG.debug("created for locationUri '{}' ", locationUri);

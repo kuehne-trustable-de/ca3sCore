@@ -1,12 +1,12 @@
 import { Component, Vue, Inject } from 'vue-property-decorator';
 
-import { IRequestProxyConfig } from '@/shared/model/request-proxy-config.model';
+import { IRequestProxyConfigView } from '@/shared/model/transfer-object.model';
 import RequestProxyConfigService from './request-proxy-config.service';
 
 @Component
 export default class RequestProxyConfigDetails extends Vue {
   @Inject('requestProxyConfigService') private requestProxyConfigService: () => RequestProxyConfigService;
-  public requestProxyConfig: IRequestProxyConfig = {};
+  public requestProxyConfig: IRequestProxyConfigView = {};
 
   beforeRouteEnter(to, from, next) {
     next(vm => {

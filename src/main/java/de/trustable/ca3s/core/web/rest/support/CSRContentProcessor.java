@@ -32,6 +32,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -100,6 +101,7 @@ public class CSRContentProcessor {
      * @param uploaded a structure holding some crypto-related content, e.g. CSR, certificate, P12 container
      * @return the {@link ResponseEntity} .
      */
+    @Transactional
     @PostMapping("/describeContent")
     public ResponseEntity<PkcsXXData> describeContent(@Valid @RequestBody UploadPrecheckData uploaded) {
 

@@ -15,9 +15,9 @@ public class AcmeConfigItems implements Serializable {
 
 	private boolean allowWildcards;
 
-	private boolean checkCAA;
+    private boolean checkCAA;
 
-	private String caNameCAA;
+    private String caNameCAA;
 
     private String processInfoNameAccountValidation;
     private String processInfoNameOrderValidation;
@@ -97,7 +97,5 @@ public class AcmeConfigItems implements Serializable {
 	public void setProcessInfoNameChallengeValidation(String processInfoNameChallengeValidation) {
 		this.processInfoNameChallengeValidation = processInfoNameChallengeValidation;
 	}
-
-
 
 }

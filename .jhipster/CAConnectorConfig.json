@@ -1,5 +1,10 @@
 {
-  "name": "CAConnectorConfig",
+  "applications": "*",
+  "changelogDate": "20200110170110",
+  "clientRootFolder": "",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "ca_connector_config",
   "fields": [
     {
       "fieldName": "name",
@@ -9,8 +14,8 @@
     {
       "fieldName": "caConnectorType",
       "fieldType": "CAConnectorType",
-      "fieldValues": "INTERNAL,CMP,ADCS,ADCS_CERTIFICATE_INVENTORY,DIRECTORY",
-      "fieldValidateRules": ["required"]
+      "fieldValidateRules": ["required"],
+      "fieldValues": "INTERNAL,CMP,ADCS,ADCS_CERTIFICATE_INVENTORY,DIRECTORY"
     },
     {
       "fieldName": "caUrl",
@@ -29,6 +34,10 @@
       "fieldType": "Boolean"
     },
     {
+      "fieldName": "trustSelfsignedCertificates",
+      "fieldType": "Boolean"
+    },
+    {
       "fieldName": "selector",
       "fieldType": "String"
     },
@@ -42,24 +51,18 @@
       "fieldType": "String"
     }
   ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "CAConnectorConfig",
+  "pagination": "no",
+  "readOnly": false,
   "relationships": [
     {
-      "relationshipType": "one-to-one",
       "otherEntityName": "protectedContent",
-      "otherEntityRelationshipName": "cAConnectorConfig",
+      "ownerSide": true,
       "relationshipName": "secret",
-      "ownerSide": true
+      "relationshipType": "one-to-one"
     }
   ],
-  "changelogDate": "20200110170110",
-  "entityTableName": "ca_connector_config",
-  "dto": "no",
-  "pagination": "no",
-  "service": "serviceImpl",
-  "jpaMetamodelFiltering": false,
-  "fluentMethods": true,
-  "readOnly": false,
-  "clientRootFolder": "",
-  "applications": "*",
-  "embedded": false
+  "service": "serviceImpl"
 }

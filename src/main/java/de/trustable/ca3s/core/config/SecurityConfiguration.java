@@ -27,8 +27,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.kerberos.web.authentication.SpnegoAuthenticationProcessingFilter;
-import org.springframework.security.kerberos.web.authentication.SpnegoEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
@@ -137,22 +135,6 @@ public class SecurityConfiguration{
             ;
     }
 
-
-    @Bean
-    public SpnegoEntryPoint spnegoEntryPoint() {
-        LOG.debug("in spnegoEntryPoint: forwarding to 'Add header WWW-Authenticate:Negotiate'");
-        return new SpnegoEntryPoint();
-    }
-/*
-    @Bean
-    public SpnegoAuthenticationProcessingFilter spnegoAuthenticationProcessingFilter() throws Exception {
-        LOG.info("in spnegoAuthenticationProcessingFilter");
-
-        SpnegoAuthenticationProcessingFilter filter = new SpnegoAuthenticationProcessingFilter();
-        filter.setAuthenticationManager(super.authenticationManagerBean());
-        return filter;
-    }
-*/
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
@@ -204,13 +186,20 @@ public class SecurityConfiguration{
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         .and()
             .authorizeRequests()
+            .antMatchers("/api/languages").permitAll()
+            .antMatchers("/api/account").permitAll()
             .antMatchers("/api/authenticate").permitAll()
             .antMatchers("/api/register").permitAll()
             .antMatchers("/api/activate").permitAll()
+            .antMatchers("/api/authorities").permitAll()
             .antMatchers("/api/account/reset-password/init").permitAll()
             .antMatchers("/api/account/reset-password/finish").permitAll()
 
             .antMatchers("/api/profile-info").permitAll()
+            .antMatchers("/api/ui/config").permitAll()
+            .antMatchers("/api/certificateSelectionAttributes").permitAll()
+            .antMatchers("/api/pipelineViews").permitAll()
+            .antMatchers("/api//pipeline/activeWeb").permitAll()
 
             .antMatchers("/publicapi/**").permitAll()
 
@@ -222,6 +211,33 @@ public class SecurityConfiguration{
             .requestMatchers(forPortAndPath(raPort, "/api/administerCertificate")).hasAuthority(AuthoritiesConstants.DOMAIN_RA_OFFICER)
             .antMatchers("/api/administerCertificate").denyAll()
 
+            // check on method level
+            .antMatchers("/api/request-proxy-configs/remote-config/*").permitAll()
+            .antMatchers("/api/acme-challenges/pending/request-proxy-configs/*").permitAll()
+            .antMatchers("/api/acme-challenges/validation").permitAll()
+
+            .antMatchers("/api/acme-accounts").denyAll()
+            .antMatchers("/api/acme-authorizations").denyAll()
+            .antMatchers("/api/acme-challenges").denyAll()
+            .antMatchers("/api/acme-contacts").denyAll()
+            .antMatchers("/api/acme-identifiers").denyAll()
+            .antMatchers("/api/acme-nonces").denyAll()
+            .antMatchers("/api/acme-orders").denyAll()
+
+            .antMatchers("/api/certificate-attributes").denyAll()
+            .antMatchers("/api/certificates").denyAll()
+            .antMatchers("/api/crl-expiration-notifications").denyAll()
+            .antMatchers("/api/csr-attributes").denyAll()
+            .antMatchers("/api/csrs").denyAll()
+            .antMatchers("/api/imported-urls").denyAll()
+            .antMatchers("/api/pipeline-attributes").denyAll()
+            .antMatchers("/api/pipelines").denyAll()
+            .antMatchers("/api/rdn-attributes").denyAll()
+            .antMatchers("/api/rdns").denyAll()
+            .antMatchers("/api/request-attributes").denyAll()
+            .antMatchers("/api/request-attribute-values").denyAll()
+            .antMatchers("/api/timed-element-notifications").denyAll()
+
             .requestMatchers(forPortAndPath(acmePort, "/acme/**")).permitAll()
             .antMatchers("/acme/**").denyAll()
 
@@ -231,18 +247,12 @@ public class SecurityConfiguration{
             .requestMatchers(forPortAndPath(scepPort, "/ca3sScep/**")).permitAll()
             .antMatchers("/ca3sScep/**").denyAll()
 
-            // to be checked
-//            .requestMatchers(forPortAndPath(adminPort, "/api/admin/preference/**")).hasAuthority(AuthoritiesConstants.ADMIN)
-//            .antMatchers("/api/admin/preference/**").denyAll()
-
-            // !!!
-            .antMatchers("/api/admin/**").permitAll()
             .antMatchers("/api/cockpit/**").permitAll()
             .antMatchers("/api/tasklist/**").permitAll()
             .antMatchers("/api/engine/**").permitAll()
             .antMatchers("/api/executeProcess/**").permitAll()
 
-//            .antMatchers("/api/**").authenticated()
+            .antMatchers("/api/**").authenticated()
             .antMatchers("/websocket/tracker").hasAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/websocket/**").permitAll()
             .antMatchers("/management/loggers").permitAll()

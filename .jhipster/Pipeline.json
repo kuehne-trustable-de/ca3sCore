@@ -1,6 +1,7 @@
 {
   "applications": "*",
-  "changelogDate": "20230321145454",
+  "changelogDate": "20200110170119",
+  "clientRootFolder": "",
   "dto": "no",
   "embedded": false,
   "entityTableName": "pipeline",
@@ -14,7 +15,7 @@
       "fieldName": "type",
       "fieldType": "PipelineType",
       "fieldValidateRules": ["required"],
-      "fieldValues": "ACME,SCEP,WEB,INTERNAL"
+      "fieldValues": "ACME,SCEP,WEB,INTERNAL,MANUAL_REQUEST"
     },
     {
       "fieldName": "urlPart",
@@ -61,6 +62,13 @@
       "otherEntityRelationshipName": "pipelines",
       "ownerSide": true,
       "relationshipName": "algorithms",
+      "relationshipType": "many-to-many"
+    },
+    {
+      "otherEntityName": "requestProxyConfig",
+      "otherEntityRelationshipName": "pipelines",
+      "ownerSide": true,
+      "relationshipName": "requestProxy",
       "relationshipType": "many-to-many"
     }
   ],

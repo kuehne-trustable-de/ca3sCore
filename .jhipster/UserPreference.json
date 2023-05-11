@@ -1,5 +1,10 @@
 {
-  "name": "UserPreference",
+  "applications": "*",
+  "changelogDate": "20200408094600",
+  "clientRootFolder": "",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "user_preference",
   "fields": [
     {
       "fieldName": "userId",
@@ -18,16 +23,11 @@
       "fieldValidateRules": ["required"]
     }
   ],
-  "relationships": [],
-  "changelogDate": "20200408094600",
-  "entityTableName": "user_preference",
-  "dto": "no",
-  "pagination": "no",
-  "service": "serviceImpl",
-  "jpaMetamodelFiltering": false,
   "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "UserPreference",
+  "pagination": "no",
   "readOnly": false,
-  "clientRootFolder": "",
-  "applications": "*",
-  "embedded": false
+  "relationships": [],
+  "service": "serviceImpl"
 }

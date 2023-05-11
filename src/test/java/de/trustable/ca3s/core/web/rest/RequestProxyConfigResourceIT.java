@@ -4,6 +4,7 @@ import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.RequestProxyConfig;
 import de.trustable.ca3s.core.repository.RequestProxyConfigRepository;
 import de.trustable.ca3s.core.service.RequestProxyConfigService;
+import de.trustable.ca3s.core.service.util.JWSService;
 import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +13,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,6 +26,7 @@ import java.util.List;
 import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -70,10 +71,12 @@ public class RequestProxyConfigResourceIT {
 
     private RequestProxyConfig requestProxyConfig;
 
+    private JWSService jwsService = mock(JWSService.class);
+
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final RequestProxyConfigResource requestProxyConfigResource = new RequestProxyConfigResource(requestProxyConfigService);
+        final RequestProxyConfigResource requestProxyConfigResource = new RequestProxyConfigResource(requestProxyConfigService, jwsService);
         this.restRequestProxyConfigMockMvc = MockMvcBuilders.standaloneSetup(requestProxyConfigResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)

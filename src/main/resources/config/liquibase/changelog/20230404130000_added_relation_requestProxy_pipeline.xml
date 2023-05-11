@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+
+    <changeSet id="20230404130000-1-relations" author="jhipster">
+
+        <addColumn tableName="request_proxy_config">
+            <column name="pipeline_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+
+    </changeSet>
+
+    <!--
+    Added the constraints for entity Pipeline.
+-->
+    <changeSet id="20230404130000-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="pipeline_id"
+                                 baseTableName="request_proxy_config"
+                                 constraintName="fk_request_proxy_config__pipeline_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="pipeline"/>
+
+    </changeSet>
+
+</databaseChangeLog>

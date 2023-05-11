@@ -1,5 +1,10 @@
 {
-  "name": "AcmeContact",
+  "applications": "*",
+  "changelogDate": "20200110170122",
+  "clientRootFolder": "",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "acme_contact",
   "fields": [
     {
       "fieldName": "contactId",
@@ -12,23 +17,19 @@
       "fieldValidateRules": ["required"]
     }
   ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "AcmeContact",
+  "pagination": "no",
+  "readOnly": false,
   "relationships": [
     {
-      "relationshipType": "many-to-one",
       "otherEntityName": "acmeAccount",
       "otherEntityRelationshipName": "contacts",
-      "relationshipName": "account"
+      "relationshipName": "account",
+      "relationshipType": "many-to-one"
     }
   ],
-  "changelogDate": "20200110170122",
-  "entityTableName": "acme_contact",
-  "dto": "no",
-  "pagination": "no",
   "service": "serviceImpl",
-  "jpaMetamodelFiltering": false,
-  "fluentMethods": true,
-  "readOnly": false,
-  "clientRootFolder": "",
-  "applications": "*",
-  "embedded": false
+  "skipClient": true
 }

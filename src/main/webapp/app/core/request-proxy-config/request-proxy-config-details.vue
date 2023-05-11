@@ -23,12 +23,10 @@
                         <span>{{requestProxyConfig.active}}</span>
                     </dd>
                     <dt>
-                        <span v-text="$t('ca3SApp.requestProxyConfig.secret')">Secret</span>
+                        <span v-text="$t('ca3SApp.cAConnectorConfig.plainSecret')">Passphrase</span>
                     </dt>
                     <dd>
-                        <div v-if="requestProxyConfig.secret">
-                            <router-link :to="{name: 'ProtectedContentView', params: {protectedContentId: requestProxyConfig.secret.id}}">{{requestProxyConfig.secret.id}}</router-link>
-                        </div>
+                        <span>{{requestProxyConfig.plainSecret}}</span>
                     </dd>
                 </dl>
                 <button type="submit"
@@ -36,7 +34,7 @@
                         class="btn btn-info">
                     <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.back')"> Back</span>
                 </button>
-                
+
                 <router-link v-if="requestProxyConfig.id" :to="{name: 'RequestProxyConfigEdit', params: {requestProxyConfigId: requestProxyConfig.id}}" tag="button" class="btn btn-primary">
                     <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.edit')"> Edit</span>
                 </router-link>

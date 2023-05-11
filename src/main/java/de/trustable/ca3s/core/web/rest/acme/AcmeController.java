@@ -4,6 +4,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.SecureRandom;
 import java.sql.Date;
 import java.util.Calendar;
@@ -22,12 +23,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequestUri;
 
 import de.trustable.ca3s.core.domain.AcmeAccount;
 import de.trustable.ca3s.core.domain.AcmeContact;
@@ -78,9 +81,11 @@ public class AcmeController {
 
 	public static int DEFAULT_NONCE_VALID_DAYS = 1;
 	public static final String REPLAY_NONCE_HEADER = "Replay-Nonce";
+    public static final String HEADER_X_CA3S_FORWARDED_HOST = "X-CA3S-Forwarded-Host";
+    public static final String HEADER_X_CA3S_PROXY_ID = "X-CA3S-PROXY-ID";
+    public static final String HEADER_X_JWS_SIGNATURE = "X-JWS-Signature";
 
-	static final String GENERAL_URL_PREFIX = "/acme/{realm}";
-
+    static final String GENERAL_URL_PREFIX = "/acme/{realm}";
 
 	String DIRECTORY_RESOURCE_MAPPING = afterPrefix(
 			DirectoryController.class.getAnnotation(RequestMapping.class).value()[0]);
@@ -131,7 +136,24 @@ public class AcmeController {
 	PipelineRepository pipeRepo;
 
     @Autowired
-    private PipelineUtil pipelineUtil;
+    PipelineUtil pipelineUtil;
+
+    UriComponentsBuilder getEffectiveUriComponentsBuilder(final String realm, final String forwardedHost){
+
+        ServletUriComponentsBuilder builder = fromCurrentRequestUri();
+        if( forwardedHost != null){
+            try {
+                URI forwardUri = new URI(forwardedHost);
+                builder.scheme(forwardUri.getScheme());
+                builder.host(forwardUri.getHost());
+                builder.port(forwardUri.getPort());
+                LOG.debug("ACME URI updated from proxy to {}://{}:{}", forwardUri.getScheme(), forwardUri.getHost(), forwardUri.getPort());
+            } catch (URISyntaxException e) {
+                LOG.warn("forwardedHost '"+forwardedHost+"' not valid URI", e);
+            }
+        }
+        return builder;
+    }
 
     public UriComponentsBuilder newAuthorizationResourceUriBuilderFrom(
 			final UriComponentsBuilder uriComponentsBuilder) {
@@ -252,6 +274,12 @@ public class AcmeController {
 			LOG.error("No contact info present");
 		} else {
 			for (String contactUrl : updatedAcct.getContacts()) {
+
+                if( acctDao.getContacts().stream().anyMatch(c -> c.getContactUrl().trim().equals(contactUrl.trim()))){
+                    LOG.info("contact utl '{}' already known fo account {}", contactUrl, acctDao.getId());
+                    continue;
+                }
+
 				AcmeContact contactDao = new AcmeContact();
 				contactDao.setContactId(generateId());
 				contactDao.setAccount(acctDao);
@@ -302,6 +330,13 @@ public class AcmeController {
 			checkNonce(webStruct);
 
 			String kid = jwtUtil.getKid(webStruct);
+            if(kid == null){
+                LOG.error("requested account {} does not match account for kid {}", accountIdReq, kid);
+                final ProblemDetail problem = new ProblemDetail(AcmeUtil.ACCOUNT_DOES_NOT_EXIST, "No kid found in account jwt",
+                    BAD_REQUEST, "", AcmeController.NO_INSTANCE);
+                throw new AcmeProblemException(problem);
+            }
+
 			Long accountId = jwtUtil.getAccountIdForKid(kid);
 			if (accountIdReq != null && (!accountId.equals(accountIdReq))) {
 				LOG.error("requested account {} does not match account for kid {}", accountIdReq, kid);

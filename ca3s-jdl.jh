@@ -265,7 +265,7 @@ enum ScepOrderStatus {
 
 entity ScepOrder{
 
-	transId Long required
+	transId String required
     realm String required
 	status ScepOrderStatus required
 	requestedOn Instant
@@ -478,6 +478,8 @@ relationship OneToMany {
 	AcmeOrder{AcmeIdentifiers} to AcmeIdentifier{order}
     AcmeOrder{attributes} to AcmeOrderAttribute{order}
 
+    ScepOrder{attributes} to ScepOrderAttribute{order}
+
 	AcmeAuthorization{challenges} to AcmeChallenge{AcmeAuthorization}
 }
 
@@ -491,12 +493,15 @@ relationship ManyToOne {
 	AuditTrace{acmeAccount} to AcmeAccount
 	AuditTrace{acmeOrder} to AcmeOrder
 	AuditTrace{scepOrder} to ScepOrder
+	AuditTrace{requestProxyConfig} to RequestProxyConfig
 
     TimedElementNotification{certificate} to Certificate
 
 	AcmeOrder{csr} to CSR
 	AcmeOrder{certificate} to Certificate
 	AcmeOrder{pipeline} to Pipeline
+
+	AcmeChallenge{requestProxy} to RequestProxyConfig
 
 	ScepOrder{csr} to CSR
 	ScepOrder{certificate} to Certificate
@@ -518,6 +523,7 @@ relationship ManyToOne {
 
 relationship ManyToMany {
 	Pipeline{algorithms} to AlgorithmRestriction{pipelines}
+	Pipeline{requestProxy} to RequestProxyConfig{pipelines}
 }
 
 relationship OneToOne{
@@ -527,10 +533,7 @@ relationship OneToOne{
 
   CSR{comment} to CSRComment{csr}
 
-  RequestProxyConfig{secret} to ProtectedContent
-
   CAConnectorConfig{secret} to ProtectedContent
-
 }
 
 // Set pagination options

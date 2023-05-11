@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.service;
 
+import de.trustable.ca3s.core.domain.AcmeChallenge;
 import de.trustable.ca3s.core.domain.RequestProxyConfig;
 
 import java.util.List;
@@ -39,4 +40,5 @@ public interface RequestProxyConfigService {
      * @param id the id of the entity.
      */
     void delete(Long id);
+
 }

@@ -8,6 +8,7 @@ import de.trustable.ca3s.core.domain.enumeration.Interval;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.CAConnectorConfigService;
 import de.trustable.ca3s.core.service.dto.CAConnectorStatus;
@@ -83,6 +84,7 @@ public class CAConnectorConfigResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/ca-connector-configs")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<CAConnectorConfig> createCAConnectorConfig(@Valid @RequestBody CAConnectorConfig cAConnectorConfig) throws URISyntaxException {
         log.debug("REST request to save CAConnectorConfig : {}", cAConnectorConfig);
         if (cAConnectorConfig.getId() != null) {
@@ -131,6 +133,7 @@ public class CAConnectorConfigResource {
      */
     @Transactional
     @PutMapping("/ca-connector-configs")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<CAConnectorConfig> updateCAConnectorConfig(@Valid @RequestBody CAConnectorConfig cAConnectorConfig) throws URISyntaxException {
         log.debug("REST request to update CAConnectorConfig : {}", cAConnectorConfig);
         if (cAConnectorConfig.getId() == null) {
@@ -218,6 +221,7 @@ public class CAConnectorConfigResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of cAConnectorConfigs in body.
      */
     @GetMapping("/ca-connector-configs")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public List<CAConnectorConfig> getAllCAConnectorConfigs() {
         log.debug("REST request to get all CAConnectorConfigs");
         return cAConnectorConfigService.findAll();
@@ -230,6 +234,7 @@ public class CAConnectorConfigResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the cAConnectorConfig, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/ca-connector-configs/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<CAConnectorConfig> getCAConnectorConfig(@PathVariable Long id) {
         log.debug("REST request to get CAConnectorConfig : {}", id);
         Optional<CAConnectorConfig> cAConnectorConfig = cAConnectorConfigService.findOne(id);
@@ -243,6 +248,7 @@ public class CAConnectorConfigResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/ca-connector-configs/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteCAConnectorConfig(@PathVariable Long id) {
         log.debug("REST request to delete CAConnectorConfig : {}", id);
         Optional<CAConnectorConfig> optConnector = cAConnectorConfigService.findOne(id);

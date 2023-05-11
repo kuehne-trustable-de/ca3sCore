@@ -1,6 +1,9 @@
 package de.trustable.ca3s.core.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
@@ -9,6 +12,7 @@ import javax.validation.constraints.*;
  */
 @Entity
 @Table(name = "request_proxy_config")
+@SuppressWarnings("common-java:DuplicatedBlocks")
 public class RequestProxyConfig implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -29,9 +33,12 @@ public class RequestProxyConfig implements Serializable {
     @Column(name = "active")
     private Boolean active;
 
-    @OneToOne
-    @JoinColumn(unique = true)
-    private ProtectedContent secret;
+    @ManyToMany(mappedBy = "requestProxies")
+    @JsonIgnoreProperties(
+        value = { "pipelineAttributes", "caConnector", "processInfo", "algorithms", "requestProxies" },
+        allowSetters = true
+    )
+    private Set<Pipeline> pipelines = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -75,7 +82,7 @@ public class RequestProxyConfig implements Serializable {
     }
 
     public Boolean isActive() {
-        return active;
+        return this.active;
     }
 
     public Boolean getActive() {
@@ -91,16 +98,34 @@ public class RequestProxyConfig implements Serializable {
         this.active = active;
     }
 
-    public ProtectedContent getSecret() {
-        return this.secret;
+    public Set<Pipeline> getPipelines() {
+        return this.pipelines;
     }
 
-    public void setSecret(ProtectedContent protectedContent) {
-        this.secret = protectedContent;
+    public void setPipelines(Set<Pipeline> pipelines) {
+        if (this.pipelines != null) {
+            this.pipelines.forEach(i -> i.removeRequestProxy(this));
+        }
+        if (pipelines != null) {
+            pipelines.forEach(i -> i.addRequestProxy(this));
+        }
+        this.pipelines = pipelines;
     }
 
-    public RequestProxyConfig secret(ProtectedContent protectedContent) {
-        this.setSecret(protectedContent);
+    public RequestProxyConfig pipelines(Set<Pipeline> pipelines) {
+        this.setPipelines(pipelines);
+        return this;
+    }
+
+    public RequestProxyConfig addPipelines(Pipeline pipeline) {
+        this.pipelines.add(pipeline);
+        pipeline.getRequestProxies().add(this);
+        return this;
+    }
+
+    public RequestProxyConfig removePipelines(Pipeline pipeline) {
+        this.pipelines.remove(pipeline);
+        pipeline.getRequestProxies().remove(this);
         return this;
     }
 

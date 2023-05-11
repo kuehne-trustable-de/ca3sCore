@@ -63,6 +63,7 @@ public class PipelineView implements Serializable {
     private AuditView[] auditViewArr;
 
     private CsrUsage csrUsage = CsrUsage.TLS_SERVER;
+    private long[] requestProxyConfigIds = new long[0];
 
 
     public PipelineView() {}
@@ -327,5 +328,13 @@ public class PipelineView implements Serializable {
 
     public void setDomainRaOfficerList(String[] domainRaOfficerList) {
         this.domainRaOfficerList = domainRaOfficerList;
+    }
+
+    public long[] getRequestProxyConfigIds() {
+        return requestProxyConfigIds;
+    }
+
+    public void setRequestProxyConfigIds(long[] requestProxyConfigIds) {
+        this.requestProxyConfigIds = requestProxyConfigIds;
     }
 }

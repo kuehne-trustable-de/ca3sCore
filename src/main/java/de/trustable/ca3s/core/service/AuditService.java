@@ -62,6 +62,9 @@ public class AuditService {
     public static final String AUDIT_CERTIFICATE_UNSET_TRUSTED = "CERTIFICATE_UNSET_TRUSTED";
 
     public static final String AUDIT_PIPELINE_ATTRIBUTE_CHANGED = "PIPELINE_ATTRIBUTE_CHANGED";
+    public static final String AUDIT_PIPELINE_PROXY_ADDED = "PIPELINE_PROXY_ADDED";
+    public static final String AUDIT_PIPELINE_PROXY_REMOVED = "PIPELINE_PROXY_REMOVED";
+
     public static final String AUDIT_CSR_ATTRIBUTE_CHANGED = "CSR_ATTRIBUTE_CHANGED";
 
     public static final String AUDIT_CERTIFICATE_IMPORTED = "CERTIFICATE_IMPORTED";
@@ -85,6 +88,8 @@ public class AuditService {
     public static final String AUDIT_CA_CONNECTOR_COPIED = "CA_CONNECTOR_COPIED";
     public static final String AUDIT_CA_CONNECTOR_DELETED = "CA_CONNECTOR_DELETED";
     public static final String AUDIT_CA_CONNECTOR_ATTRIBUTE_CHANGED = "CA_CONNECTOR_ATTRIBUTE_CHANGED";
+    public static final String AUDIT_REQUEST_PROXY_ATTRIBUTE_CHANGED = "REQUEST_PROXY_ATTRIBUTE_CHANGED";
+
     public static final String AUDIT_CERTIFICATE_SCHEMA_UPDATED = "CERTIFICATE_SCHEMA_UPDATED";
     public static final String AUDIT_ACME_ORDER_PIPELINE_UPDATED = "AUDIT_ACME_ORDER_PIPELINE_UPDATED";
     public static final String AUDIT_ACME_ACCOUNT_CREATED_OR_UPDATED = "AUDIT_ACME_ACCOUNT_CREATED_OR_UPDATED";
@@ -141,7 +146,7 @@ public class AuditService {
             null,
             null,
             null,
-            null );
+            null, null);
 
     }
 
@@ -167,7 +172,7 @@ public class AuditService {
             null,
             null,
             null,
-            null );
+            null, null);
 
     }
 
@@ -183,7 +188,7 @@ public class AuditService {
             null,
             null,
             null,
-            null );
+            null, null);
 
     }
 
@@ -260,7 +265,7 @@ public class AuditService {
             null,
             null,
             acmeAccount,
-            acmeOrder );
+            acmeOrder, null);
 
     }
 
@@ -358,6 +363,38 @@ public class AuditService {
             null );
     }
 
+    public AuditTrace createAuditTraceRequestProxyConfigChange(String attributeName, String oldVal, String newVal, RequestProxyConfig requestProxyConfig) {
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_CA_CONNECTOR_ATTRIBUTE_CHANGED,
+            attributeName,
+            oldVal, newVal,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            requestProxyConfig);
+    }
+    public AuditTrace createAuditTraceRequestProxyConfigSecretChanged(RequestProxyConfig requestProxyConfig) {
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            requestProxyConfig.getName(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            requestProxyConfig);
+    }
+
     public AuditTrace createAuditTraceNotificationFailed(String email) {
 
         NameAndRole nar = nameAndRoleUtil.getNameAndRole();
@@ -371,7 +408,7 @@ public class AuditService {
             null,
             null,
             null,
-            null );
+            null, null);
     }
 
     public AuditTrace createAuditTraceCertificateTrusted(String filename, Certificate certificate, final CAConnectorConfig caConnectorConfig) {
@@ -386,7 +423,7 @@ public class AuditService {
             caConnectorConfig,
             null,
             null,
-            null );
+            null, null);
     }
 
     public AuditTrace  createAuditTraceCAConfigCreatedChange(final String attributeName, final String oldVal, final String newVal, final CAConnectorConfig caConnectorConfig){
@@ -402,7 +439,7 @@ public class AuditService {
             caConnectorConfig,
             null,
             null,
-            null );
+            null, null);
 
     }
 
@@ -444,8 +481,43 @@ public class AuditService {
             null,
             null,
             null,
-            null );
+            null, null);
     }
+
+    public AuditTrace createAuditTracePipelineProxyAdded(final String proxyName, final Pipeline pipeline){
+
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_PIPELINE_PROXY_ADDED,
+            proxyName,
+            null, null,
+            null,
+            null,
+            pipeline,
+            null,
+            null,
+            null,
+            null, null);
+    }
+
+    public AuditTrace createAuditTracePipelineProxyRemoved(final String proxyName, final Pipeline pipeline){
+
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_PIPELINE_PROXY_REMOVED,
+            proxyName,
+            null, null,
+            null,
+            null,
+            pipeline,
+            null,
+            null,
+            null,
+            null, null);
+    }
+
+
+
 
     public AuditTrace createAuditTraceCsrAttribute(final String attributeName, final String oldVal, final String newVal, final CSR csr){
 
@@ -460,7 +532,7 @@ public class AuditService {
             null,
             null,
             null,
-            null );
+            null, null);
     }
 
     public AuditTrace createAuditTraceCertificateAttribute(final String attributeName, final String oldVal, final String newVal, final Certificate certificate){
@@ -476,7 +548,7 @@ public class AuditService {
             null,
             null,
             null,
-            null );
+            null, null);
     }
 
     public AuditTrace createAuditTraceCertificateImported(final String source, final Certificate certificate, CAConnectorConfig caConfig){
@@ -492,7 +564,7 @@ public class AuditService {
             null,
             null,
             null,
-            null );
+            null, null);
     }
 
     public AuditTrace createAuditTraceCertificateSchemaUpdated(final int nUpdated, final int version){
@@ -508,7 +580,7 @@ public class AuditService {
             null,
             null,
             null,
-            null );
+            null, null);
     }
 
 
@@ -525,7 +597,7 @@ public class AuditService {
             null,
             null,
             null,
-            null);
+            null, null);
     }
 
     public AuditTrace createAuditTraceAcmeAcountCreatedOnUpdated(final int nUpdated){
@@ -541,7 +613,7 @@ public class AuditService {
             null,
             null,
             null,
-            null);
+            null, null);
     }
 
 
@@ -576,20 +648,20 @@ public class AuditService {
         certificate,
         pipeline,
         caConnector,
-        processInfo,null, null );
+        processInfo,null, null, null);
     }
 
     public AuditTrace createAuditTrace(final String actor, final String actorRole, final String template,
-       final String attributeName,
-       final String oldVal, final String newVal,
-        final CSR csr,
-        final Certificate certificate,
-        final Pipeline pipeline,
-        final CAConnectorConfig caConnector,
-        final BPMNProcessInfo processInfo,
-           final AcmeAccount acmeAccount,
-           final AcmeOrder acmeOrder
-           ){
+                                       final String attributeName,
+                                       final String oldVal, final String newVal,
+                                       final CSR csr,
+                                       final Certificate certificate,
+                                       final Pipeline pipeline,
+                                       final CAConnectorConfig caConnector,
+                                       final BPMNProcessInfo processInfo,
+                                       final AcmeAccount acmeAccount,
+                                       final AcmeOrder acmeOrder,
+                                       final RequestProxyConfig requestProxyConfig){
 
         String msg = "";
         String content = "";

@@ -36,10 +36,8 @@
                     </div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.requestProxyConfig.secret')" for="request-proxy-config-secret">Secret</label>
-                        <select class="form-control" id="request-proxy-config-secret" name="secret" v-model="requestProxyConfig.secret">
-                            <option v-bind:value="null"></option>
-                            <option v-bind:value="requestProxyConfig.secret && protectedContentOption.id === requestProxyConfig.secret.id ? requestProxyConfig.secret : protectedContentOption" v-for="protectedContentOption in secrets" :key="protectedContentOption.id">{{protectedContentOption.id}}</option>
-                        </select>
+                        <input type="text" class="form-control" name="request-proxy-config-secret" id="request-proxy-config-secret"
+                               :class="{'valid': !$v.requestProxyConfig.plainSecret.$invalid, 'invalid': $v.requestProxyConfig.plainSecret.$invalid }" v-model="$v.requestProxyConfig.plainSecret.$model"  required/>
                     </div>
                 </div>
                 <div>

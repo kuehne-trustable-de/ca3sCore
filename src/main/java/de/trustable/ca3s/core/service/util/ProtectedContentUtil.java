@@ -1,5 +1,7 @@
 package de.trustable.ca3s.core.service.util;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -9,7 +11,6 @@ import java.util.stream.Collectors;
 import org.jasypt.util.text.BasicTextEncryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,9 @@ import de.trustable.ca3s.core.domain.ProtectedContent;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
+
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 
 @Service
 public class ProtectedContentUtil {
@@ -31,11 +35,23 @@ public class ProtectedContentUtil {
 
     public static final Instant MAX_INSTANT = Instant.parse("9990-12-30T23:59:59Z");
 
-	@Autowired
-	private ProtectedContentRepository protContentRepository;
+	private final ProtectedContentRepository protContentRepository;
+    private final String salt;
+    private final int iterations;
+    private final String pbeAlgo;
 
-	public ProtectedContentUtil(@Value("${protectionSecret:mJvR25yt4NHTIqe5Hz7nUHhQNUuM}") String protectionSecretFallback,
-                                @Value("${ca3s.protectionSecret:#{null}}") String protectionSecret) {
+	public ProtectedContentUtil(ProtectedContentRepository protContentRepository,
+                                @Value("${protectionSecret:mJvR25yt4NHTIqe5Hz7nUHhQNUuM}") String protectionSecretFallback,
+                                @Value("${ca3s.protectionSecret:#{null}}") String protectionSecret,
+                                @Value("${ca3s.connection.salt:ca3sSalt}") String salt,
+                                @Value("${ca3s.connection.iterations:4567}") int iterations,
+                                @Value("${ca3s.connection.pbeAlgo:PBKDF2WithHmacSHA256}") String pbeAlgo) {
+
+        this.protContentRepository = protContentRepository;
+
+        this.salt = salt;
+        this.iterations = iterations;
+        this.pbeAlgo = pbeAlgo;
 
         PasswordUtil passwordUtil = new PasswordUtil("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{16,100}$");
 
@@ -144,5 +160,16 @@ public class ProtectedContentUtil {
         Predicate<ProtectedContent> usableItem = pc -> ((pc.getLeftUsages() == -1) || (pc.getLeftUsages() > 0)) && pc.getValidTo().isAfter(now);
         return pcList.stream().filter(usableItem).collect(Collectors.toList());
 	}
+
+    public byte[] deriveSecret(String secret) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        return deriveSecret(secret.toCharArray());
+    }
+
+    public byte[] deriveSecret(char[] secret) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        SecretKeyFactory skf = SecretKeyFactory.getInstance(this.pbeAlgo);
+        PBEKeySpec specSecKey = new PBEKeySpec(secret, salt.getBytes(), iterations, 256);
+        return skf.generateSecret(specSecKey).getEncoded();
+
+    }
 
 }

@@ -1,5 +1,10 @@
 {
-  "name": "AcmeChallenge",
+  "applications": "*",
+  "changelogDate": "20200110170126",
+  "clientRootFolder": "",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "acme_challenge",
   "fields": [
     {
       "fieldName": "challengeId",
@@ -28,28 +33,32 @@
     {
       "fieldName": "status",
       "fieldType": "ChallengeStatus",
-      "fieldValues": "PENDING,VALID,INVALID,DEACTIVATED,EXPIRED,REVOKED",
-      "fieldValidateRules": ["required"]
+      "fieldValidateRules": ["required"],
+      "fieldValues": "PENDING,VALID,INVALID,DEACTIVATED,EXPIRED,REVOKED"
+    },
+    {
+      "fieldName": "lastError",
+      "fieldType": "String"
     }
   ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "AcmeChallenge",
+  "pagination": "no",
+  "readOnly": false,
   "relationships": [
     {
-      "relationshipType": "many-to-one",
+      "otherEntityName": "requestProxyConfig",
+      "relationshipName": "requestProxy",
+      "relationshipType": "many-to-one"
+    },
+    {
       "otherEntityName": "acmeAuthorization",
       "otherEntityRelationshipName": "challenges",
-      "relationshipName": "acmeAuthorization"
+      "relationshipName": "acmeAuthorization",
+      "relationshipType": "many-to-one"
     }
   ],
-  "changelogDate": "20200110170126",
-  "entityTableName": "acme_challenge",
-  "dto": "no",
-  "pagination": "no",
   "service": "serviceImpl",
-  "jpaMetamodelFiltering": false,
-  "fluentMethods": true,
-  "readOnly": false,
-  "clientRootFolder": "",
-  "applications": "*",
-  "embedded": false,
   "skipClient": true
 }

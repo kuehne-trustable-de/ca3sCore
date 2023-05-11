@@ -26,39 +26,12 @@
 
 package de.trustable.ca3s.core.web.rest.acme;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequestUri;
-
-import java.net.URI;
-import java.util.*;
-
-import javax.servlet.http.HttpServletRequest;
-
-import de.trustable.ca3s.core.web.rest.util.RateLimiter;
-import org.jose4j.jwt.consumer.JwtContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import de.trustable.ca3s.core.domain.AcmeAccount;
 import de.trustable.ca3s.core.domain.AcmeAuthorization;
 import de.trustable.ca3s.core.domain.AcmeChallenge;
 import de.trustable.ca3s.core.domain.AcmeOrder;
-import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
 import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
+import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
 import de.trustable.ca3s.core.repository.AcmeAuthorizationRepository;
 import de.trustable.ca3s.core.service.dto.acme.AuthorizationResponse;
 import de.trustable.ca3s.core.service.dto.acme.ChallengeResponse;
@@ -67,6 +40,26 @@ import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.AcmeUtil;
 import de.trustable.ca3s.core.service.util.DateUtil;
+import de.trustable.ca3s.core.web.rest.util.RateLimiter;
+import org.jose4j.jwt.consumer.JwtContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
+import java.util.*;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 
 @Transactional
@@ -106,7 +99,9 @@ public class AuthorizationController extends AcmeController {
     }
 
     @RequestMapping(value = "/{authorizationId}", method = GET, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getAuthorization(@PathVariable final long authorizationId, @PathVariable final String realm) {
+    public ResponseEntity<?> getAuthorization(@PathVariable final long authorizationId,
+                                              @PathVariable final String realm,
+                                              @RequestHeader(value=HEADER_X_CA3S_FORWARDED_HOST, required=false) String forwardedHost) {
 
         LOG.info("Received Authorization request 'get' ");
 
@@ -135,7 +130,7 @@ public class AuthorizationController extends AcmeController {
             AcmeAuthorization authDao = authList.get(0);
 
             // No authentication and check against an account!!!
-            AuthorizationResponse authResp = buildAuthResponse(authDao);
+            AuthorizationResponse authResp = buildAuthResponse(authDao, realm, forwardedHost);
 
             return ResponseEntity.ok().headers(additionalHeaders).body(authResp);
         }
@@ -144,7 +139,9 @@ public class AuthorizationController extends AcmeController {
 
     @RequestMapping(value = "/{authorizationId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
     public ResponseEntity<?> postAuthorization(@RequestBody final String requestBody,
-                                               @PathVariable final long authorizationId, @PathVariable final String realm) {
+                                               @PathVariable final long authorizationId,
+                                               @PathVariable final String realm,
+                                               @RequestHeader(value=HEADER_X_CA3S_FORWARDED_HOST, required=false) String forwardedHost) {
 
         LOG.debug("Received Authorization request ");
 
@@ -177,7 +174,7 @@ public class AuthorizationController extends AcmeController {
 
                 }
 
-                AuthorizationResponse authResp = buildAuthResponse(authDao);
+                AuthorizationResponse authResp = buildAuthResponse(authDao, realm, forwardedHost);
 
                 return ResponseEntity.ok().headers(additionalHeaders).body(authResp);
             }
@@ -191,7 +188,7 @@ public class AuthorizationController extends AcmeController {
 
     }
 
-    private AuthorizationResponse buildAuthResponse(final AcmeAuthorization authDao) throws AcmeProblemException {
+    private AuthorizationResponse buildAuthResponse(final AcmeAuthorization authDao, final String realm, final String forwardedHost) throws AcmeProblemException {
 
         AuthorizationResponse authResp = new AuthorizationResponse();
 
@@ -212,7 +209,7 @@ public class AuthorizationController extends AcmeController {
 
         Set<ChallengeResponse> challResp = new HashSet<>();
         for (AcmeChallenge challengeDao : authDao.getChallenges()) {
-            ChallengeResponse challenge = new ChallengeResponse(challengeDao, locationUriOfChallenge(challengeDao.getId(), fromCurrentRequestUri()).toString());
+            ChallengeResponse challenge = new ChallengeResponse(challengeDao, locationUriOfChallenge(challengeDao.getId(), getEffectiveUriComponentsBuilder(realm, forwardedHost)).toString());
             challResp.add(challenge);
         }
         authResp.setChallenges(challResp);

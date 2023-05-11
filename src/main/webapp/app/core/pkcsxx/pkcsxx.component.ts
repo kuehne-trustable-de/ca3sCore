@@ -19,12 +19,11 @@ import {
   IPipelineView,
   IPreferences,
   ITypedValue,
-  ICsrReqAttribute
+  ICsrReqAttribute,
 } from '@/shared/model/transfer-object.model';
 import { IPipelineRestrictions, PipelineRestrictions } from '@/shared/model/pipeline-restrictions';
 import { IPipelineRestriction, PipelineRestriction } from '@/shared/model/pipeline-restriction';
 
-const preferenceUrl = '/api/admin/preference';
 const precheckUrl = 'publicapi/describeContent';
 const uploadUrl = 'api/uploadContent';
 
@@ -34,30 +33,30 @@ const validations: any = {
       $each: {
         certificateAttributes: {
           $each: {
-            values: { required }
-          }
-        }
-      }
+            values: { required },
+          },
+        },
+      },
     },
     arAttributes: {
       $each: {
         arAttributes: {
           $each: {
-            values: { required }
-          }
-        }
-      }
+            values: { required },
+          },
+        },
+      },
     },
     pipelineId: {
       id: { required },
-      name: { required }
+      name: { required },
     },
     passphrase: {},
     requestorcomment: {},
     content: {
-      required
-    }
-  }
+      required,
+    },
+  },
 };
 
 @Component({
@@ -65,8 +64,8 @@ const validations: any = {
   components: {
     Fragment,
     CopyClipboardButton,
-    HelpTag
-  }
+    HelpTag,
+  },
 })
 export default class PKCSXX extends mixins(AlertMixin, Vue) {
   public preselectedPipelineId = -1;
@@ -142,7 +141,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     const blob = droppedFiles.item(0).slice(0, droppedFiles.item(0).size);
     const self = this;
 
-    readerBase64.onloadend = function() {
+    readerBase64.onloadend = function () {
       const base64Text = readerBase64.result.toString();
 
       if (/^[\x00-\x7F]*$/.test(base64Text)) {
@@ -155,7 +154,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       }
     };
 
-    readerBinary.onloadend = function() {
+    readerBinary.onloadend = function () {
       const base64Text = readerBinary.result.toString().split(',')[1];
       self.upload.content = base64Text;
       console.log('dropped binary content, base64 encoded : ' + base64Text);
@@ -831,7 +830,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     const self = this;
     const selectedFile = evt.target.files[0];
     const readerBase64 = new FileReader();
-    readerBase64.onload = function(_result) {
+    readerBase64.onload = function (_result) {
       const base64Text = readerBase64.result.toString();
 
       // check, whether this is base64 encoded content
@@ -841,7 +840,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       } else {
         // binary, start re-reading it as base64-encoded comntent
         const readerBinary = new FileReader();
-        readerBinary.onload = function(__result) {
+        readerBinary.onload = function (__result) {
           self.upload.content = readerBinary.result.toString().split(',')[1];
           self.contentCall(precheckUrl);
         };
@@ -934,8 +933,8 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     axios({
       method: 'get',
       url: 'api/pipeline/activeWeb',
-      responseType: 'stream'
-    }).then(function(response) {
+      responseType: 'stream',
+    }).then(function (response) {
       window.console.info('getWebPipelines returns ' + response.data);
       self.upload.pipelineId = -1;
       self.allWebPipelines = response.data;
@@ -973,9 +972,9 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
     axios({
       method: 'get',
-      url: 'api/admin/preference/1', // 1 represents system settings
-      responseType: 'stream'
-    }).then(function(response) {
+      url: 'api/preference/1', // 1 represents system settings
+      responseType: 'stream',
+    }).then(function (response) {
       window.console.info('getPreference returns ' + response.data);
       self.preferences = response.data;
     });

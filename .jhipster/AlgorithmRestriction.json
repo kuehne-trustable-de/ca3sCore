@@ -1,6 +1,6 @@
 {
   "applications": "*",
-  "changelogDate": "20230321145448",
+  "changelogDate": "20230403164944",
   "dto": "no",
   "embedded": false,
   "entityTableName": "algorithm_restriction",

@@ -1,5 +1,10 @@
 {
-  "name": "ImportedURL",
+  "applications": "*",
+  "changelogDate": "20200120120707",
+  "clientRootFolder": "",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "imported_url",
   "fields": [
     {
       "fieldName": "name",
@@ -12,17 +17,12 @@
       "fieldValidateRules": ["required"]
     }
   ],
-  "relationships": [],
-  "changelogDate": "20200120120707",
-  "entityTableName": "imported_url",
-  "dto": "no",
-  "pagination": "no",
-  "service": "serviceImpl",
-  "jpaMetamodelFiltering": false,
   "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "ImportedURL",
+  "pagination": "no",
   "readOnly": false,
-  "clientRootFolder": "",
-  "applications": "*",
-  "embedded": false,
+  "relationships": [],
+  "service": "serviceImpl",
   "skipClient": true
 }

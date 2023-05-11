@@ -54,7 +54,7 @@ import AcmeIdentifierService from '@/entities/acme-identifier/acme-identifier.se
 import AcmeAuthorizationService from '@/entities/acme-authorization/acme-authorization.service';
 import AcmeNonceService from '@/entities/acme-nonce/acme-nonce.service';
 import BPNMProcessInfoService from '@/entities/bpnm-process-info/bpnm-process-info.service';
-import RequestProxyConfigService from '@/entities/request-proxy-config/request-proxy-config.service';
+import RequestProxyConfigService from '@/core/request-proxy-config/request-proxy-config.service';
 import UserPreferenceService from '@/entities/user-preference/user-preference.service';
 // jhipster-needle-add-entity-service-to-main-import - JHipster will import entities services here
 
@@ -147,8 +147,8 @@ new Vue({
     requestProxyConfigService: () => new RequestProxyConfigService(),
     userPreferenceService: () => new UserPreferenceService(),
     // jhipster-needle-add-entity-service-to-main - JHipster will import entities services here
-    accountService: () => accountService
+    accountService: () => accountService,
   },
   i18n,
-  store
+  store,
 });

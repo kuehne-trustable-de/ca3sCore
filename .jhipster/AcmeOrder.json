@@ -1,5 +1,10 @@
 {
-  "name": "AcmeOrder",
+  "applications": "*",
+  "changelogDate": "20200110170123",
+  "clientRootFolder": "",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "acme_order",
   "fields": [
     {
       "fieldName": "orderId",
@@ -7,10 +12,15 @@
       "fieldValidateRules": ["required"]
     },
     {
+      "fieldName": "realm",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
       "fieldName": "status",
       "fieldType": "AcmeOrderStatus",
-      "fieldValues": "PENDING,READY,PROCESSING,VALID,INVALID",
-      "fieldValidateRules": ["required"]
+      "fieldValidateRules": ["required"],
+      "fieldValues": "PENDING,READY,PROCESSING,VALID,INVALID"
     },
     {
       "fieldName": "expires",
@@ -37,47 +47,51 @@
       "fieldType": "String"
     }
   ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "AcmeOrder",
+  "pagination": "no",
+  "readOnly": false,
   "relationships": [
     {
-      "relationshipType": "one-to-many",
       "otherEntityName": "acmeAuthorization",
       "otherEntityRelationshipName": "order",
-      "relationshipName": "acmeAuthorizations"
+      "relationshipName": "acmeAuthorizations",
+      "relationshipType": "one-to-many"
     },
     {
-      "relationshipType": "one-to-many",
       "otherEntityName": "acmeIdentifier",
       "otherEntityRelationshipName": "order",
-      "relationshipName": "acmeIdentifiers"
+      "relationshipName": "acmeIdentifiers",
+      "relationshipType": "one-to-many"
     },
     {
-      "relationshipType": "many-to-one",
+      "otherEntityName": "acmeOrderAttribute",
+      "otherEntityRelationshipName": "order",
+      "relationshipName": "attributes",
+      "relationshipType": "one-to-many"
+    },
+    {
       "otherEntityName": "cSR",
-      "otherEntityRelationshipName": "acmeOrder",
-      "relationshipName": "csr"
+      "relationshipName": "csr",
+      "relationshipType": "many-to-one"
     },
     {
-      "relationshipType": "many-to-one",
       "otherEntityName": "certificate",
-      "otherEntityRelationshipName": "acmeOrder",
-      "relationshipName": "certificate"
+      "relationshipName": "certificate",
+      "relationshipType": "many-to-one"
     },
     {
-      "relationshipType": "many-to-one",
+      "otherEntityName": "pipeline",
+      "relationshipName": "pipeline",
+      "relationshipType": "many-to-one"
+    },
+    {
       "otherEntityName": "acmeAccount",
       "otherEntityRelationshipName": "orders",
-      "relationshipName": "account"
+      "relationshipName": "account",
+      "relationshipType": "many-to-one"
     }
   ],
-  "changelogDate": "20200110170123",
-  "entityTableName": "acme_order",
-  "dto": "no",
-  "pagination": "no",
-  "service": "serviceImpl",
-  "jpaMetamodelFiltering": false,
-  "fluentMethods": true,
-  "readOnly": false,
-  "clientRootFolder": "",
-  "applications": "*",
-  "embedded": false
+  "service": "serviceImpl"
 }

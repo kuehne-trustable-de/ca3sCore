@@ -1,6 +1,6 @@
 {
   "applications": "*",
-  "changelogDate": "20230321145442",
+  "changelogDate": "20230403164941",
   "dto": "no",
   "embedded": false,
   "entityTableName": "csr_comment",

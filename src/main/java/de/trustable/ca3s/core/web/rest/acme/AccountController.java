@@ -29,7 +29,6 @@ package de.trustable.ca3s.core.web.rest.acme;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequestUri;
 
 import java.security.PublicKey;
 import java.util.List;
@@ -114,19 +113,21 @@ public class AccountController extends AcmeController {
   @Autowired
   JwtUtil jwtUtil;
 
-  public ResponseEntity<AccountResponse> getAccount(@PathVariable final long accountId) {
+  public ResponseEntity<AccountResponse> getAccount(@PathVariable final long accountId,
+                                                    @PathVariable final String realm,
+                                                    @RequestHeader(value=HEADER_X_CA3S_FORWARDED_HOST, required=false) String forwardedHost) {
     LOG.info("Received GET request for '{}'", accountId);
     final HttpHeaders additionalHeaders = new HttpHeaders();
 
-    additionalHeaders.set("Link", "<" + directoryResourceUriBuilderFrom(fromCurrentRequestUri().path("/..")).build()
+    additionalHeaders.set("Link", "<" + directoryResourceUriBuilderFrom(getEffectiveUriComponentsBuilder(realm, forwardedHost).path("/..")).build()
             .normalize() + ">;rel=\"index\"");
 
     Optional<AcmeAccount> acct = acctRepository.findById(accountId);
     if( acct.isPresent()) {
-        AccountResponse accResp = new AccountResponse(acct.get(), fromCurrentRequestUri());
+        AccountResponse accResp = new AccountResponse(acct.get(), getEffectiveUriComponentsBuilder(realm, forwardedHost));
         return ok().headers(additionalHeaders).body(accResp);
     }else {
-    	throw new AccountDoesNotExistException(fromCurrentRequestUri().build().toUri());
+    	throw new AccountDoesNotExistException(getEffectiveUriComponentsBuilder(realm, forwardedHost).build().toUri());
     }
   }
 
@@ -298,7 +299,11 @@ Link: <https://example.com/acme/acct/evOfKhNU60wg/orders?cursor=2>;rel="next"
 }
 */
   @RequestMapping(value = "/{accountId}/orders", method = POST, consumes = APPLICATION_JOSE_JSON_VALUE)
-  public ResponseEntity<?> getAccountOrders (@PathVariable final long accountId, @PathVariable final String realm, @RequestParam(name="cursor", defaultValue = "0") String cursorParam,  @RequestBody final String requestBody) {
+  public ResponseEntity<?> getAccountOrders (@PathVariable final long accountId,
+                                             @PathVariable final String realm,
+                                             @RequestParam(name="cursor", defaultValue = "0") String cursorParam,
+                                             @RequestHeader(value=HEADER_X_CA3S_FORWARDED_HOST, required=false) String forwardedHost,
+                                             @RequestBody final String requestBody) {
 
 		LOG.info("Received getAccountOrders request for '{}', cursor '{}'", accountId, cursorParam);
 		int cursor = Integer.parseInt(cursorParam);
@@ -313,7 +318,7 @@ Link: <https://example.com/acme/acct/evOfKhNU60wg/orders?cursor=2>;rel="next"
 
 		    OrderSetResponse orderSetResp = new OrderSetResponse();
 
-		    String orderUrl = accountResourceUriBuilderFrom(fromCurrentRequestUri().path("../..")).path("/").path(Long.toString(accountId)).path("/orders/").build().normalize().toUri().toString();
+		    String orderUrl = accountResourceUriBuilderFrom(getEffectiveUriComponentsBuilder(realm, forwardedHost).path("../..")).path("/").path(Long.toString(accountId)).path("/orders/").build().normalize().toUri().toString();
 
 		    int nThisChunk = acctDao.getOrders().size();
 		    if( nThisChunk > CURSOR_CHUNK) {
@@ -330,7 +335,7 @@ Link: <https://example.com/acme/acct/evOfKhNU60wg/orders?cursor=2>;rel="next"
 				}
 				i++;
 				if( i >= maxCursor) {
-				    String nextLink= "<" + fromCurrentRequestUri().queryParam("cursor", maxCursor).build().normalize() + ">;rel=\"next\"";
+				    String nextLink= "<" + getEffectiveUriComponentsBuilder(realm, forwardedHost).queryParam("cursor", maxCursor).build().normalize() + ">;rel=\"next\"";
 					LOG.info("Next Chunk Link '{}'", nextLink);
 				    additionalHeaders.set("Link", nextLink);
 					break;
@@ -348,7 +353,10 @@ Link: <https://example.com/acme/acct/evOfKhNU60wg/orders?cursor=2>;rel="next"
 
 
     @RequestMapping(value = "/{accountId}", method = POST, consumes = APPLICATION_JOSE_JSON_VALUE)
-    public ResponseEntity<?> updateAccount(@PathVariable final long accountId, @PathVariable final String realm, @RequestBody final String requestBody) {
+    public ResponseEntity<?> updateAccount(@PathVariable final long accountId,
+                                           @PathVariable final String realm,
+                                           @RequestHeader(value=HEADER_X_CA3S_FORWARDED_HOST, required=false) String forwardedHost,
+                                           @RequestBody final String requestBody) {
 
         LOG.info("Received updateAccount request for '{}'", accountId);
 
@@ -363,7 +371,7 @@ Link: <https://example.com/acme/acct/evOfKhNU60wg/orders?cursor=2>;rel="next"
 
             acctRepository.save(acctDao);
 
-            AccountResponse accResp = new AccountResponse(acctDao, fromCurrentRequestUri());
+            AccountResponse accResp = new AccountResponse(acctDao, getEffectiveUriComponentsBuilder(realm, forwardedHost));
 
             final HttpHeaders additionalHeaders = buildNonceHeader();
             return ok().headers(additionalHeaders).body(accResp);

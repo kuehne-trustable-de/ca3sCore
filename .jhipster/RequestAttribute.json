@@ -1,5 +1,10 @@
 {
-  "name": "RequestAttribute",
+  "applications": "*",
+  "changelogDate": "20200110170117",
+  "clientRootFolder": "",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "request_attribute",
   "fields": [
     {
       "fieldName": "attributeType",
@@ -7,36 +12,30 @@
       "fieldValidateRules": ["required"]
     }
   ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "RequestAttribute",
+  "pagination": "no",
+  "readOnly": false,
   "relationships": [
     {
-      "relationshipType": "one-to-many",
       "otherEntityName": "requestAttributeValue",
       "otherEntityRelationshipName": "reqAttr",
-      "relationshipName": "requestAttributeValues"
+      "relationshipName": "requestAttributeValues",
+      "relationshipType": "one-to-many"
     },
     {
-      "relationshipType": "many-to-one",
       "otherEntityName": "requestAttributeValue",
-      "otherEntityRelationshipName": "requestAttribute",
-      "relationshipName": "holdingRequestAttribute"
+      "relationshipName": "holdingRequestAttribute",
+      "relationshipType": "many-to-one"
     },
     {
-      "relationshipType": "many-to-one",
       "otherEntityName": "cSR",
       "otherEntityRelationshipName": "ras",
-      "relationshipName": "csr"
+      "relationshipName": "csr",
+      "relationshipType": "many-to-one"
     }
   ],
-  "changelogDate": "20200110170117",
-  "entityTableName": "request_attribute",
-  "dto": "no",
-  "pagination": "no",
   "service": "serviceImpl",
-  "jpaMetamodelFiltering": false,
-  "fluentMethods": true,
-  "readOnly": false,
-  "clientRootFolder": "",
-  "applications": "*",
-  "embedded": false,
   "skipClient": true
 }

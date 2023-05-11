@@ -1,6 +1,7 @@
 {
   "applications": "*",
-  "changelogDate": "20230321145445",
+  "changelogDate": "20200123182225",
+  "clientRootFolder": "",
   "dto": "no",
   "embedded": false,
   "entityTableName": "protected_content",

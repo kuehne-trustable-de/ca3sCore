@@ -122,41 +122,6 @@ public class CRLExpirationNotificationResource {
             .body(result);
     }
 
-    /**
-     * {@code PATCH  /crl-expiration-notifications/:id} : Partial updates given fields of an existing cRLExpirationNotification, field will ignore if it is null
-     *
-     * @param id the id of the cRLExpirationNotification to save.
-     * @param cRLExpirationNotification the cRLExpirationNotification to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated cRLExpirationNotification,
-     * or with status {@code 400 (Bad Request)} if the cRLExpirationNotification is not valid,
-     * or with status {@code 404 (Not Found)} if the cRLExpirationNotification is not found,
-     * or with status {@code 500 (Internal Server Error)} if the cRLExpirationNotification couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
-    @PatchMapping(value = "/crl-expiration-notifications/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public ResponseEntity<CRLExpirationNotification> partialUpdateCRLExpirationNotification(
-        @PathVariable(value = "id", required = false) final Long id,
-        @NotNull @RequestBody CRLExpirationNotification cRLExpirationNotification
-    ) throws URISyntaxException {
-        log.debug("REST request to partial update CRLExpirationNotification partially : {}, {}", id, cRLExpirationNotification);
-        if (cRLExpirationNotification.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-        }
-        if (!Objects.equals(id, cRLExpirationNotification.getId())) {
-            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
-        }
-
-        if (!cRLExpirationNotificationRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
-        Optional<CRLExpirationNotification> result = cRLExpirationNotificationService.partialUpdate(cRLExpirationNotification);
-
-        return ResponseUtil.wrapOrNotFound(
-            result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, cRLExpirationNotification.getId().toString())
-        );
-    }
 
     /**
      * {@code GET  /crl-expiration-notifications} : get all the cRLExpirationNotifications.

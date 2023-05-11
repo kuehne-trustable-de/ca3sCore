@@ -1,30 +1,30 @@
 {
-  "name": "RDN",
+  "applications": "*",
+  "changelogDate": "20200110170115",
+  "clientRootFolder": "",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "rdn",
   "fields": [],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "RDN",
+  "pagination": "no",
+  "readOnly": false,
   "relationships": [
     {
-      "relationshipType": "one-to-many",
       "otherEntityName": "rDNAttribute",
       "otherEntityRelationshipName": "rdn",
-      "relationshipName": "rdnAttributes"
+      "relationshipName": "rdnAttributes",
+      "relationshipType": "one-to-many"
     },
     {
-      "relationshipType": "many-to-one",
       "otherEntityName": "cSR",
       "otherEntityRelationshipName": "rdns",
-      "relationshipName": "csr"
+      "relationshipName": "csr",
+      "relationshipType": "many-to-one"
     }
   ],
-  "changelogDate": "20200110170115",
-  "entityTableName": "rdn",
-  "dto": "no",
-  "pagination": "no",
   "service": "serviceImpl",
-  "jpaMetamodelFiltering": false,
-  "fluentMethods": true,
-  "readOnly": false,
-  "clientRootFolder": "",
-  "applications": "*",
-  "embedded": false,
   "skipClient": true
 }

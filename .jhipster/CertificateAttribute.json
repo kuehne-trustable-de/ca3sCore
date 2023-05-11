@@ -1,5 +1,10 @@
 {
-  "name": "CertificateAttribute",
+  "applications": "*",
+  "changelogDate": "20200110170111",
+  "clientRootFolder": "",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "certificate_attribute",
   "fields": [
     {
       "fieldName": "name",
@@ -11,23 +16,19 @@
       "fieldType": "String"
     }
   ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "CertificateAttribute",
+  "pagination": "no",
+  "readOnly": false,
   "relationships": [
     {
-      "relationshipType": "many-to-one",
       "otherEntityName": "certificate",
       "otherEntityRelationshipName": "certificateAttributes",
-      "relationshipName": "certificate"
+      "relationshipName": "certificate",
+      "relationshipType": "many-to-one"
     }
   ],
-  "changelogDate": "20200110170111",
-  "entityTableName": "certificate_attribute",
-  "dto": "no",
-  "pagination": "no",
   "service": "no",
-  "jpaMetamodelFiltering": false,
-  "fluentMethods": true,
-  "readOnly": false,
-  "clientRootFolder": "",
-  "applications": "*",
-  "embedded": false
+  "skipClient": true
 }

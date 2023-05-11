@@ -1,5 +1,10 @@
 {
-  "name": "RequestProxyConfig",
+  "applications": "*",
+  "changelogDate": "20200304173100",
+  "clientRootFolder": "",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "request_proxy_config",
   "fields": [
     {
       "fieldName": "name",
@@ -16,24 +21,19 @@
       "fieldType": "Boolean"
     }
   ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "RequestProxyConfig",
+  "pagination": "no",
+  "readOnly": false,
   "relationships": [
     {
-      "relationshipType": "one-to-one",
-      "otherEntityName": "protectedContent",
-      "otherEntityRelationshipName": "requestProxyConfig",
-      "relationshipName": "secret",
-      "ownerSide": true
+      "otherEntityName": "pipeline",
+      "otherEntityRelationshipName": "requestProxy",
+      "ownerSide": false,
+      "relationshipName": "pipelines",
+      "relationshipType": "many-to-many"
     }
   ],
-  "changelogDate": "20200304173100",
-  "entityTableName": "request_proxy_config",
-  "dto": "no",
-  "pagination": "no",
-  "service": "serviceImpl",
-  "jpaMetamodelFiltering": false,
-  "fluentMethods": true,
-  "readOnly": false,
-  "clientRootFolder": "",
-  "applications": "*",
-  "embedded": false
+  "service": "serviceImpl"
 }

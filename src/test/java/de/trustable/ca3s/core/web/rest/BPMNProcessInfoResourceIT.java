@@ -128,8 +128,9 @@ class BPMNProcessInfoResourceIT {
             .perform(
                 post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(bPMNProcessInfo))
             )
-            .andExpect(status().isCreated());
-
+//            .andExpect(status().isCreated());
+            .andExpect(status().isForbidden());
+/*
         // Validate the BPMNProcessInfo in the database
         List<BPMNProcessInfo> bPMNProcessInfoList = bPMNProcessInfoRepository.findAll();
         assertThat(bPMNProcessInfoList).hasSize(databaseSizeBeforeCreate + 1);
@@ -142,6 +143,8 @@ class BPMNProcessInfoResourceIT {
         assertThat(testBPMNProcessInfo.getSignatureBase64()).isEqualTo(DEFAULT_SIGNATURE_BASE_64);
         assertThat(testBPMNProcessInfo.getBpmnHashBase64()).isEqualTo(DEFAULT_BPMN_HASH_BASE_64);
         assertThat(testBPMNProcessInfo.getProcessId()).isEqualTo(DEFAULT_BPMN_CONTENT);
+
+ */
     }
 
     @Test
@@ -157,7 +160,8 @@ class BPMNProcessInfoResourceIT {
             .perform(
                 post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(bPMNProcessInfo))
             )
-            .andExpect(status().isBadRequest());
+//            .andExpect(status().isBadRequest());
+            .andExpect(status().isForbidden());
 
         // Validate the BPMNProcessInfo in the database
         List<BPMNProcessInfo> bPMNProcessInfoList = bPMNProcessInfoRepository.findAll();
@@ -308,6 +312,8 @@ class BPMNProcessInfoResourceIT {
         // Get the bPMNProcessInfo
         restBPMNProcessInfoMockMvc
             .perform(get(ENTITY_API_URL_ID, bPMNProcessInfo.getId()))
+            .andExpect(status().isForbidden());
+/*
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(bPMNProcessInfo.getId().intValue()))
@@ -318,13 +324,17 @@ class BPMNProcessInfoResourceIT {
             .andExpect(jsonPath("$.lastChange").value(DEFAULT_LAST_CHANGE.toString()))
             .andExpect(jsonPath("$.signatureBase64").value(DEFAULT_SIGNATURE_BASE_64.toString()))
             .andExpect(jsonPath("$.bpmnHashBase64").value(DEFAULT_BPMN_HASH_BASE_64));
+
+ */
     }
 
     @Test
     @Transactional
     void getNonExistingBPMNProcessInfo() throws Exception {
         // Get the bPMNProcessInfo
-        restBPMNProcessInfoMockMvc.perform(get(ENTITY_API_URL_ID, Long.MAX_VALUE)).andExpect(status().isNotFound());
+        restBPMNProcessInfoMockMvc.perform(get(ENTITY_API_URL_ID, Long.MAX_VALUE))
+//            .andExpect(status().isNotFound());
+            .andExpect(status().isForbidden());
     }
 
     @Test
@@ -419,7 +429,8 @@ class BPMNProcessInfoResourceIT {
             .perform(
                 put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(bPMNProcessInfo))
             )
-            .andExpect(status().isOk());
+//            .andExpect(status().isOk());
+            .andExpect(status().isForbidden());
 
         // Validate the BPMNProcessInfo in the database
         List<BPMNProcessInfo> bPMNProcessInfoList = bPMNProcessInfoRepository.findAll();
@@ -571,10 +582,12 @@ class BPMNProcessInfoResourceIT {
         // Delete the bPMNProcessInfo
         restBPMNProcessInfoMockMvc
             .perform(delete(ENTITY_API_URL_ID, bPMNProcessInfo.getId()).accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isNoContent());
+//            .andExpect(status().isNoContent());
+            .andExpect(status().isForbidden());
 
         // Validate the database contains one less item
         List<BPMNProcessInfo> bPMNProcessInfoList = bPMNProcessInfoRepository.findAll();
-        assertThat(bPMNProcessInfoList).hasSize(databaseSizeBeforeDelete - 1);
+//        assertThat(bPMNProcessInfoList).hasSize(databaseSizeBeforeDelete - 1);
+        assertThat(bPMNProcessInfoList).hasSize(databaseSizeBeforeDelete);
     }
 }

@@ -1,5 +1,10 @@
 {
-  "name": "AcmeAuthorization",
+  "applications": "*",
+  "changelogDate": "20200129162419",
+  "clientRootFolder": "",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "acme_authorization",
   "fields": [
     {
       "fieldName": "acmeAuthorizationId",
@@ -17,30 +22,25 @@
       "fieldValidateRules": ["required"]
     }
   ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "AcmeAuthorization",
+  "pagination": "no",
+  "readOnly": false,
   "relationships": [
     {
-      "relationshipType": "one-to-many",
       "otherEntityName": "acmeChallenge",
       "otherEntityRelationshipName": "acmeAuthorization",
-      "relationshipName": "challenges"
+      "relationshipName": "challenges",
+      "relationshipType": "one-to-many"
     },
     {
-      "relationshipType": "many-to-one",
       "otherEntityName": "acmeOrder",
       "otherEntityRelationshipName": "acmeAuthorizations",
-      "relationshipName": "order"
+      "relationshipName": "order",
+      "relationshipType": "many-to-one"
     }
   ],
-  "changelogDate": "20200129162419",
-  "entityTableName": "acme_authorization",
-  "dto": "no",
-  "pagination": "no",
   "service": "serviceImpl",
-  "jpaMetamodelFiltering": false,
-  "fluentMethods": true,
-  "readOnly": false,
-  "clientRootFolder": "",
-  "applications": "*",
-  "embedded": false,
   "skipClient": true
 }

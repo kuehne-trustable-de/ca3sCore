@@ -529,6 +529,8 @@
   "ca3SApp.pipeline.notifyRAOnPendingRequest": "Notify RA Officer on pending request",
   "ca3SApp.pipeline.additionalEmailRecipients": "additional EMail recipients",
   "ca3SApp.pipeline.listOrder": "Sorting for the request overview",
+  "ca3SApp.pipeline.useAcmeProxy": "Use Proxy",
+  "ca3SApp.pipeline.requestProxies": "Request Proxies",
 
   "ca3SApp.pipelineAttribute.created": "A new Pipeline Attribute is created with identifier {{ param }}",
   "ca3SApp.pipelineAttribute.delete.question": "Are you sure you want to delete Pipeline Attribute {{ id }}?",

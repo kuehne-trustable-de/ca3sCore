@@ -1,5 +1,7 @@
 package de.trustable.ca3s.core.service.impl;
 
+import de.trustable.ca3s.core.domain.AcmeChallenge;
+import de.trustable.ca3s.core.repository.AcmeChallengeRepository;
 import de.trustable.ca3s.core.service.RequestProxyConfigService;
 import de.trustable.ca3s.core.domain.RequestProxyConfig;
 import de.trustable.ca3s.core.repository.RequestProxyConfigRepository;
@@ -22,9 +24,12 @@ public class RequestProxyConfigServiceImpl implements RequestProxyConfigService 
     private final Logger log = LoggerFactory.getLogger(RequestProxyConfigServiceImpl.class);
 
     private final RequestProxyConfigRepository requestProxyConfigRepository;
+    private final AcmeChallengeRepository acmeChallengeRepository;
 
-    public RequestProxyConfigServiceImpl(RequestProxyConfigRepository requestProxyConfigRepository) {
+
+    public RequestProxyConfigServiceImpl(RequestProxyConfigRepository requestProxyConfigRepository, AcmeChallengeRepository acmeChallengeRepository) {
         this.requestProxyConfigRepository = requestProxyConfigRepository;
+        this.acmeChallengeRepository = acmeChallengeRepository;
     }
 
     /**
@@ -74,4 +79,5 @@ public class RequestProxyConfigServiceImpl implements RequestProxyConfigService 
         log.debug("Request to delete RequestProxyConfig : {}", id);
         requestProxyConfigRepository.deleteById(id);
     }
+
 }

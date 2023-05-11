@@ -16,6 +16,8 @@ public class AcmeOrderAttribute implements Serializable {
     public static final String CHALLENGE_TYPE = "CHALLENGE_TYPE";
     public static final String WILDCARD_REQUEST = "WILDCARD_REQUEST";
 
+    public static final String REQUEST_PROXY_ID_USED = "REQUEST_PROXY_ID_USED";
+
     private static final long serialVersionUID = 1L;
 
     @Id

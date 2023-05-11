@@ -527,6 +527,7 @@
   "ca3SApp.pipeline.notifyRAOnPendingRequest": "RA Officer über neue Anfragen benachrichtigen",
   "ca3SApp.pipeline.additionalEmailRecipients": "weitere EMail-Empfänger",
   "ca3SApp.pipeline.listOrder": "Ordnungszahl für Anforderungs-Übersicht",
+  "ca3SApp.pipeline.requestProxies": "Request-Proxies",
   "ca3SApp.pipelineAttribute.created": "Pipeline Attribut erstellt mit ID {{ param }}",
   "ca3SApp.pipelineAttribute.delete.question": "Soll Pipeline Attribut {{ id }} wirklich dauerhaft gelöscht werden?",
   "ca3SApp.pipelineAttribute.deleted": "Pipeline Attribut gelöscht mit ID {{ param }}",

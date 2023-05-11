@@ -77,7 +77,6 @@ public class Pipeline implements Serializable {
     private Boolean approvalRequired;
 
     @OneToMany(mappedBy = "pipeline")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "pipeline" }, allowSetters = true)
     private Set<PipelineAttribute> pipelineAttributes = new HashSet<>();
 
@@ -95,9 +94,17 @@ public class Pipeline implements Serializable {
         joinColumns = @JoinColumn(name = "pipeline_id"),
         inverseJoinColumns = @JoinColumn(name = "algorithms_id")
     )
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = { "pipelines" }, allowSetters = true)
     private Set<AlgorithmRestriction> algorithms = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+        name = "rel_pipeline__request_proxy",
+        joinColumns = @JoinColumn(name = "pipeline_id"),
+        inverseJoinColumns = @JoinColumn(name = "request_proxy_id")
+    )
+    @JsonIgnoreProperties(value = { "secret", "pipelines" }, allowSetters = true)
+    private Set<RequestProxyConfig> requestProxies = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -280,6 +287,31 @@ public class Pipeline implements Serializable {
     public Pipeline removeAlgorithms(AlgorithmRestriction algorithmRestriction) {
         this.algorithms.remove(algorithmRestriction);
         algorithmRestriction.getPipelines().remove(this);
+        return this;
+    }
+
+    public Set<RequestProxyConfig> getRequestProxies() {
+        return this.requestProxies;
+    }
+
+    public void setRequestProxies(Set<RequestProxyConfig> requestProxyConfigs) {
+        this.requestProxies = requestProxyConfigs;
+    }
+
+    public Pipeline requestProxies(Set<RequestProxyConfig> requestProxyConfigs) {
+        this.setRequestProxies(requestProxyConfigs);
+        return this;
+    }
+
+    public Pipeline addRequestProxy(RequestProxyConfig requestProxyConfig) {
+        this.requestProxies.add(requestProxyConfig);
+        requestProxyConfig.getPipelines().add(this);
+        return this;
+    }
+
+    public Pipeline removeRequestProxy(RequestProxyConfig requestProxyConfig) {
+        this.requestProxies.remove(requestProxyConfig);
+        requestProxyConfig.getPipelines().remove(this);
         return this;
     }
 

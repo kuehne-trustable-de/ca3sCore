@@ -2,7 +2,7 @@ import { mixins } from 'vue-class-component';
 
 import { Component, Inject } from 'vue-property-decorator';
 import Vue2Filters from 'vue2-filters';
-import { IRequestProxyConfig } from '@/shared/model/request-proxy-config.model';
+import { IRequestProxyConfigView } from '@/shared/model/transfer-object.model';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
 import RequestProxyConfigService from './request-proxy-config.service';
@@ -11,7 +11,7 @@ import RequestProxyConfigService from './request-proxy-config.service';
 export default class RequestProxyConfig extends mixins(Vue2Filters.mixin, AlertMixin) {
   @Inject('requestProxyConfigService') private requestProxyConfigService: () => RequestProxyConfigService;
   private removeId: number = null;
-  public requestProxyConfigs: IRequestProxyConfig[] = [];
+  public requestProxyConfigs: IRequestProxyConfigView[] = [];
 
   public isFetching = false;
 
@@ -39,7 +39,7 @@ export default class RequestProxyConfig extends mixins(Vue2Filters.mixin, AlertM
       );
   }
 
-  public prepareRemove(instance: IRequestProxyConfig): void {
+  public prepareRemove(instance: IRequestProxyConfigView): void {
     this.removeId = instance.id;
   }
 

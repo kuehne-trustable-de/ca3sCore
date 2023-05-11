@@ -12,7 +12,7 @@ import de.trustable.ca3s.core.repository.RequestProxyConfigRepository;
 import de.trustable.ca3s.core.web.websocket.WSConnectionPool;
 
 /**
- * 
+ *
  * @author kuehn
  *
  */
@@ -26,15 +26,16 @@ public class RequestProxyScheduler {
 
 	@Autowired
 	WSConnectionPool wsConnectionPool;
-	
+
 	@Value("${request.proxy.active:true}")
 	private String requestProxyActive;
 
+    /*
 	@Scheduled(fixedDelay = 30000)
 	public void runMinute() {
 
 		if ("true".equalsIgnoreCase(requestProxyActive) ) {
-			
+
 			for (RequestProxyConfig rpConfig : requestProxyConfigRepo.findAll()) {
 				LOG.debug("########## requestProxy check for " + rpConfig);
 				if( rpConfig.isActive() ) {
@@ -48,5 +49,5 @@ public class RequestProxyScheduler {
 			LOG.debug("requestProxy connectdisabled");
 		}
 	}
-
+*/
 }

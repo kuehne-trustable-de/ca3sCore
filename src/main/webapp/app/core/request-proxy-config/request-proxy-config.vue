@@ -28,30 +28,18 @@
                     <th><span v-text="$t('ca3SApp.requestProxyConfig.name')">Name</span></th>
                     <th><span v-text="$t('ca3SApp.requestProxyConfig.requestProxyUrl')">Request Proxy Url</span></th>
                     <th><span v-text="$t('ca3SApp.requestProxyConfig.active')">Active</span></th>
-                    <th><span v-text="$t('ca3SApp.requestProxyConfig.secret')">Secret</span></th>
                     <th></th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="requestProxyConfig in requestProxyConfigs"
                     :key="requestProxyConfig.id">
-                    <td>
-                        <router-link :to="{name: 'RequestProxyConfigView', params: {requestProxyConfigId: requestProxyConfig.id}}">{{requestProxyConfig.id}}</router-link>
-                    </td>
+                    <td>{{requestProxyConfig.id}}</td>
                     <td>{{requestProxyConfig.name}}</td>
                     <td>{{requestProxyConfig.requestProxyUrl}}</td>
                     <td>{{requestProxyConfig.active}}</td>
-                    <td>
-                        <div v-if="requestProxyConfig.secret">
-                            <router-link :to="{name: 'ProtectedContentView', params: {protectedContentId: requestProxyConfig.secret.id}}">{{requestProxyConfig.secret.id}}</router-link>
-                        </div>
-                    </td>
                     <td class="text-right">
                         <div class="btn-group">
-                            <router-link :to="{name: 'RequestProxyConfigView', params: {requestProxyConfigId: requestProxyConfig.id}}" tag="button" class="btn btn-info btn-sm details">
-                                <font-awesome-icon icon="eye"></font-awesome-icon>
-                                <span class="d-none d-md-inline" v-text="$t('entity.action.view')">View</span>
-                            </router-link>
                             <router-link :to="{name: 'RequestProxyConfigEdit', params: {requestProxyConfigId: requestProxyConfig.id}}"  tag="button" class="btn btn-primary btn-sm edit">
                                 <font-awesome-icon icon="pencil-alt"></font-awesome-icon>
                                 <span class="d-none d-md-inline" v-text="$t('entity.action.edit')">Edit</span>

@@ -104,7 +104,6 @@ public class PipelineUtil {
 	public static final String ACME_ALLOW_CHALLENGE_WILDCARDS = "ACME_ALLOW_WILDCARDS";
 
 	public static final String ACME_CHECK_CAA = "ACME_CHECK_CAA";
-
     public static final String ACME_NAME_CAA = "ACME_NAME_CAA";
 
     public static final String CSR_USAGE = "CSR_USAGE";
@@ -156,7 +155,9 @@ public class PipelineUtil {
 
     final private AuditTraceRepository auditTraceRepository;
 
-    public PipelineUtil(CertificateRepository certRepository, CSRRepository csrRepository, CAConnectorConfigRepository caConnRepository, PipelineRepository pipelineRepository, PipelineAttributeRepository pipelineAttRepository, BPMNProcessInfoRepository bpmnPIRepository, ProtectedContentRepository protectedContentRepository, ProtectedContentUtil protectedContentUtil, PreferenceUtil preferenceUtil, CertificateUtil certUtil, ConfigUtil configUtil, AuditService auditService, AuditTraceRepository auditTraceRepository) {
+    final private RequestProxyConfigRepository requestProxyConfigRepository;
+
+    public PipelineUtil(CertificateRepository certRepository, CSRRepository csrRepository, CAConnectorConfigRepository caConnRepository, PipelineRepository pipelineRepository, PipelineAttributeRepository pipelineAttRepository, BPMNProcessInfoRepository bpmnPIRepository, ProtectedContentRepository protectedContentRepository, ProtectedContentUtil protectedContentUtil, PreferenceUtil preferenceUtil, CertificateUtil certUtil, ConfigUtil configUtil, AuditService auditService, AuditTraceRepository auditTraceRepository, RequestProxyConfigRepository requestProxyConfigRepository) {
         this.certRepository = certRepository;
         this.csrRepository = csrRepository;
         this.caConnRepository = caConnRepository;
@@ -170,6 +171,7 @@ public class PipelineUtil {
         this.configUtil = configUtil;
         this.auditService = auditService;
         this.auditTraceRepository = auditTraceRepository;
+        this.requestProxyConfigRepository = requestProxyConfigRepository;
     }
 
 
@@ -206,6 +208,8 @@ public class PipelineUtil {
 
         List<String> domainRaOfficerList = new ArrayList<>();
 
+        pv.setRequestProxyConfigIds(pipeline.getRequestProxies().stream().mapToLong(r -> r.getId()).toArray());
+
 //    	acmeConfigItems.setProcessInfoNameAccountValidation(processInfoNameAccountValidation);
 
     	for( PipelineAttribute plAtt: pipeline.getPipelineAttributes()) {
@@ -222,6 +226,8 @@ public class PipelineUtil {
     			acmeConfigItems.setCheckCAA(Boolean.parseBoolean(plAtt.getValue()));
             }else if( ACME_NAME_CAA.equals(plAtt.getName())) {
                 acmeConfigItems.setCaNameCAA(plAtt.getValue());
+//            }else if( REQUEST_PROXY_ID.equals(plAtt.getName())) {
+//                acmeConfigItems.setAcmeProxy(Boolean.parseBoolean(plAtt.getValue()));
             }else if( DOMAIN_RA_OFFICER.equals(plAtt.getName())) {
                 domainRaOfficerList.add(plAtt.getValue());
 
@@ -625,6 +631,26 @@ public class PipelineUtil {
                 auditList.add(auditService.createAuditTracePipelineAttribute("ISSUANCE_PROCESS", oldProcessName, "", p));
             }
 		}
+
+        Set<RequestProxyConfig> requestProxyConfigList = new HashSet<>();
+        for( long requestProxyConfigId : pv.getRequestProxyConfigIds()){
+            Optional<RequestProxyConfig> requestProxyConfigOptional= requestProxyConfigRepository.findById(requestProxyConfigId);
+            if( requestProxyConfigOptional.isPresent()) {
+                RequestProxyConfig requestProxyConfigNew = requestProxyConfigOptional.get();
+                requestProxyConfigList.add(requestProxyConfigNew);
+                if( !p.getRequestProxies().contains(requestProxyConfigNew)){
+                    auditList.add(auditService.createAuditTracePipelineProxyAdded(requestProxyConfigNew.getName(), p));
+                }
+            }
+        }
+
+        for( RequestProxyConfig requestProxyConfig : p.getRequestProxies()){
+            if( requestProxyConfigList.contains(requestProxyConfig)){
+                auditList.add(auditService.createAuditTracePipelineProxyRemoved(requestProxyConfig.getName(), p));
+            }
+        }
+
+        p.setRequestProxies(requestProxyConfigList);
 
         Set<PipelineAttribute> pipelineOldAttributes = new HashSet<>(p.getPipelineAttributes());
         LOG.debug("PipelineAttributes : cloned old #{}, new {}", pipelineOldAttributes.size(), p.getPipelineAttributes().size());
@@ -1353,6 +1379,16 @@ public class PipelineUtil {
                 }catch( NumberFormatException nfe){
                     LOG.warn("unexpected value for attribute '" + name + "'", nfe);
                 }
+            }
+        }
+        return defaultValue;
+    }
+
+    public Boolean getPipelineAttribute(Pipeline pipeline, String name, boolean defaultValue) {
+
+        for (PipelineAttribute plAtt : pipeline.getPipelineAttributes()) {
+            if (name.equals(plAtt.getName())) {
+                return Boolean.parseBoolean(plAtt.getValue());
             }
         }
         return defaultValue;

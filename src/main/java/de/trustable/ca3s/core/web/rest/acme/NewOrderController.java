@@ -26,22 +26,16 @@
 
 package de.trustable.ca3s.core.web.rest.acme;
 
-import static de.trustable.ca3s.core.service.util.PipelineUtil.ACME_ORDER_VALIDITY_SECONDS;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequestUri;
-
-import java.net.URI;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
-import java.util.Set;
-
 import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
+import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
 import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.service.dto.AcmeConfigItems;
 import de.trustable.ca3s.core.service.dto.PipelineView;
+import de.trustable.ca3s.core.service.dto.acme.IdentifierResponse;
 import de.trustable.ca3s.core.service.dto.acme.NewOrderRequest;
+import de.trustable.ca3s.core.service.dto.acme.NewOrderResponse;
+import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.AcmeUtil;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
@@ -51,23 +45,22 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
-import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
-import de.trustable.ca3s.core.service.dto.acme.IdentifierResponse;
-import de.trustable.ca3s.core.service.dto.acme.IdentifiersResponse;
-import de.trustable.ca3s.core.service.dto.acme.NewOrderResponse;
-import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.TextParseException;
 
 import java.net.IDN;
+import java.net.URI;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
+import static de.trustable.ca3s.core.service.util.PipelineUtil.ACME_ORDER_VALIDITY_SECONDS;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 /*
  * 7.4.  Applying for Certificate Issuance
@@ -277,8 +270,6 @@ public class NewOrderController extends AcmeController {
 
     private static final Logger LOG = LoggerFactory.getLogger(NewOrderController.class);
 
-    private static final long DEFAULT_ORDER_VALID_DAYS = 5L;
-
     private final AcmeOrderRepository orderRepository;
 
     private final AcmeOrderAttributeRepository orderAttributeRepository;
@@ -316,19 +307,25 @@ public class NewOrderController extends AcmeController {
 
 
     @RequestMapping(method = POST, consumes = APPLICATION_JOSE_JSON_VALUE)
-    public ResponseEntity<?> consumingPostedJoseJson(@RequestBody final String requestBody, @PathVariable final String realm) {
+    public ResponseEntity<?> consumingPostedJoseJson(@RequestBody final String requestBody,
+                                                     @PathVariable final String realm,
+                                                     @RequestHeader(value=HEADER_X_CA3S_FORWARDED_HOST, required=false) String forwardedHost,
+                                                     @RequestHeader(value=HEADER_X_CA3S_PROXY_ID, required=false) String proxyId) {
         LOG.info("Received consumingPostedJoseJson request ");
-        return consumeWithConverter(requestBody, realm);
+        return consumeWithConverter(requestBody, realm, forwardedHost, proxyId);
     }
 
 
   @RequestMapping(method = POST, consumes = APPLICATION_JWS_VALUE)
-  public ResponseEntity<?> consumingPostedJws(@RequestBody final String requestBody, @PathVariable final String realm) {
+  public ResponseEntity<?> consumingPostedJws(@RequestBody final String requestBody,
+                                              @PathVariable final String realm,
+                                              @RequestHeader(value=HEADER_X_CA3S_FORWARDED_HOST, required=false) String forwardedHost,
+                                              @RequestHeader(value=HEADER_X_CA3S_PROXY_ID, required=false) String proxyId) {
 		LOG.info("Received consumingPostedJws request ");
-    return consumeWithConverter(requestBody, realm);
+    return consumeWithConverter(requestBody, realm, forwardedHost, proxyId);
   }
 
-  public ResponseEntity<?> consumeWithConverter(@RequestBody final String requestBody, final String realm) {
+  public ResponseEntity<?> consumeWithConverter(@RequestBody final String requestBody, final String realm, final String forwardedHost, final String proxyIdString) {
 	LOG.info("Received NewOrder request for realm {}", realm);
 
 	try {
@@ -341,6 +338,26 @@ public class NewOrderController extends AcmeController {
         LOG.debug("ACME pipeline '{}' found for request realm '{}'", pipeline.getName(), realm);
 
         AcmeAccount acctDao = checkJWTSignatureForAccount(context, realm);
+
+        RequestProxyConfig requestProxyConfig = null;
+        if( proxyIdString != null){
+            long proxyId = Long.parseLong(proxyIdString);
+            Optional<RequestProxyConfig> requestProxyConfigOptional = pipeline.getRequestProxies().stream()
+                .filter(p -> p.getId() == proxyId)
+                .findFirst();
+
+            if( requestProxyConfigOptional.isPresent()){
+                requestProxyConfig = requestProxyConfigOptional.get();
+                LOG.debug("new order requested by proxy '{}'", requestProxyConfig.getId());
+            }else{
+                LOG.info("Proxy Id '{}' provided, but not expected for pipeline '{}'!", proxyIdString, pipeline.getName());
+                final ProblemDetail problemDetail = new ProblemDetail(AcmeUtil.MALFORMED, "Invalid Proxy ID",
+                    BAD_REQUEST, "Invalid Proxy ID.", AcmeController.NO_INSTANCE);
+                throw new AcmeProblemException(problemDetail);
+            }
+        }else{
+            LOG.debug("new order requested by proxy");
+        }
 
         AcmeOrder orderDao = new AcmeOrder();
 		orderDao.setOrderId(generateId());
@@ -417,13 +434,13 @@ public class NewOrderController extends AcmeController {
             }else {
                 if( acmeConfigItems.isAllowChallengeHTTP01() ) {
                     LOG.debug("Offering HTTP-01 challenge");
-                    challenges.add(createChallenge(AcmeChallenge.CHALLENGE_TYPE_HTTP_01, identDao.getValue(), authorizationDao));
+                    challenges.add(createChallenge(AcmeChallenge.CHALLENGE_TYPE_HTTP_01, identDao.getValue(), authorizationDao, requestProxyConfig));
                     challengeTypeSet.add(AcmeChallenge.CHALLENGE_TYPE_HTTP_01);
                 }
 
                 if( acmeConfigItems.isAllowChallengeAlpn() ) {
                     LOG.debug("Offering ALPN-01 challenge");
-                    challenges.add(createChallenge(AcmeChallenge.CHALLENGE_TYPE_ALPN_01, identDao.getValue(), authorizationDao));
+                    challenges.add(createChallenge(AcmeChallenge.CHALLENGE_TYPE_ALPN_01, identDao.getValue(), authorizationDao, requestProxyConfig));
                     challengeTypeSet.add(AcmeChallenge.CHALLENGE_TYPE_ALPN_01);
                 }
 
@@ -432,7 +449,7 @@ public class NewOrderController extends AcmeController {
             if( resolverHost != null && !resolverHost.isEmpty()) {
                 if( acmeConfigItems.isAllowChallengeDNS() ) {
                     LOG.debug("Offering DNS-01 challenge");
-                    challenges.add(createChallenge(AcmeChallenge.CHALLENGE_TYPE_DNS_01, identDao.getValue(), authorizationDao));
+                    challenges.add(createChallenge(AcmeChallenge.CHALLENGE_TYPE_DNS_01, identDao.getValue(), authorizationDao, requestProxyConfig));
                     challengeTypeSet.add(AcmeChallenge.CHALLENGE_TYPE_DNS_01);
                 }
             }else{
@@ -459,7 +476,7 @@ public class NewOrderController extends AcmeController {
 
             addOrderAttribute(orderDao, AcmeOrderAttribute.AUTHORIZATION, identDao.getValue(), acmeOrderAttributeSet);
 
-            authorizationsResp.add(locationUriOfAuth(authorizationDao.getAcmeAuthorizationId(), fromCurrentRequestUri()).toString());
+            authorizationsResp.add(locationUriOfAuth(authorizationDao.getAcmeAuthorizationId(), getEffectiveUriComponentsBuilder(realm, forwardedHost)).toString());
 		}
 
         addOrderAttribute(orderDao, AcmeOrderAttribute.WILDCARD_REQUEST, String.valueOf(hasWildcardRequest), acmeOrderAttributeSet);
@@ -468,13 +485,17 @@ public class NewOrderController extends AcmeController {
             addOrderAttribute(orderDao, AcmeOrderAttribute.CHALLENGE_TYPE, type, acmeOrderAttributeSet);
         }
 
+        if( requestProxyConfig != null){
+            addOrderAttribute(orderDao, AcmeOrderAttribute.REQUEST_PROXY_ID_USED, requestProxyConfig.getId().toString(), acmeOrderAttributeSet);
+        }
+
         orderDao.setAttributes(acmeOrderAttributeSet);
         orderAttributeRepository.saveAll(acmeOrderAttributeSet);
 
 		orderDao.setAcmeAuthorizations(authorizations);
 		orderRepository.save(orderDao);
 
-        String finalizeUrl = locationUriOfOrderFinalize(orderDao.getOrderId(), fromCurrentRequestUri()).toString();
+        String finalizeUrl = locationUriOfOrderFinalize(orderDao.getOrderId(), getEffectiveUriComponentsBuilder(realm, forwardedHost)).toString();
 		NewOrderResponse newOrderResp = new NewOrderResponse(orderDao, authorizationsResp, finalizeUrl);
 
 //		newOrderResp.setStatus(orderDao.getStatus());
@@ -489,10 +510,10 @@ public class NewOrderController extends AcmeController {
 //		newOrderResp.setAuthorizations(authorizationsResp);
 //		newOrderResp.setFinalize("http://finalize.foo.com");
 
-		URI locationUri = locationUriOfOrder(orderDao.getOrderId(), fromCurrentRequestUri());
+		URI locationUri = locationUriOfOrder(orderDao.getOrderId(), getEffectiveUriComponentsBuilder(realm, forwardedHost));
 
 		final HttpHeaders additionalHeaders = buildNonceHeader();
-		additionalHeaders.set("Link", "<" + directoryResourceUriBuilderFrom(fromCurrentRequestUri()).build().normalize() + ">;rel=\"index\"");
+		additionalHeaders.set("Link", "<" + directoryResourceUriBuilderFrom(getEffectiveUriComponentsBuilder(realm, forwardedHost)).build().normalize() + ">;rel=\"index\"");
 
 	    LOG.debug("returning new order response " + jwtUtil.getOrderResponseAsJSON(newOrderResp));
 
@@ -511,6 +532,8 @@ public class NewOrderController extends AcmeController {
         acmeOrderAttributeSet.add(acmeOrderAttribute);
     }
 
+
+
     private boolean isWildcardRequest(String ident) {
         boolean isWildcardRequest;
         Name name;
@@ -524,7 +547,7 @@ public class NewOrderController extends AcmeController {
         return isWildcardRequest;
     }
 
-    private AcmeChallenge createChallenge(String type, String value, AcmeAuthorization authorizationDao) {
+    private AcmeChallenge createChallenge(String type, String value, AcmeAuthorization authorizationDao, final RequestProxyConfig requestProxyConfig) {
         AcmeChallenge challengeDao = new AcmeChallenge();
         challengeDao.setChallengeId(generateId());
         challengeDao.setAcmeAuthorization(authorizationDao);
@@ -533,6 +556,9 @@ public class NewOrderController extends AcmeController {
         challengeDao.setValue(value);
         challengeDao.setToken( getRandomChallenge());
         challengeDao.setStatus(ChallengeStatus.PENDING);
+        if( requestProxyConfig != null) {
+            challengeDao.setRequestProxy(requestProxyConfig);
+        }
         challengeRepository.save(challengeDao);
 
         return challengeDao;

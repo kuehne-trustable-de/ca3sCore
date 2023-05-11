@@ -1,5 +1,10 @@
 {
-  "name": "CsrAttribute",
+  "applications": "*",
+  "changelogDate": "20200110170114",
+  "clientRootFolder": "",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "csr_attribute",
   "fields": [
     {
       "fieldName": "name",
@@ -11,23 +16,19 @@
       "fieldType": "String"
     }
   ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "CsrAttribute",
+  "pagination": "no",
+  "readOnly": false,
   "relationships": [
     {
-      "relationshipType": "many-to-one",
       "otherEntityName": "cSR",
       "otherEntityRelationshipName": "csrAttributes",
-      "relationshipName": "csr"
+      "relationshipName": "csr",
+      "relationshipType": "many-to-one"
     }
   ],
-  "changelogDate": "20200110170114",
-  "entityTableName": "csr_attribute",
-  "dto": "no",
-  "pagination": "no",
   "service": "serviceImpl",
-  "jpaMetamodelFiltering": false,
-  "fluentMethods": true,
-  "readOnly": false,
-  "clientRootFolder": "",
-  "applications": "*",
-  "embedded": false
+  "skipClient": true
 }

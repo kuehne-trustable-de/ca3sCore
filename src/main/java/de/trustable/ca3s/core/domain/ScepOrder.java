@@ -14,6 +14,7 @@ import javax.validation.constraints.*;
  */
 @Entity
 @Table(name = "scep_order")
+@SuppressWarnings("common-java:DuplicatedBlocks")
 public class ScepOrder implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -27,7 +28,8 @@ public class ScepOrder implements Serializable {
     @Column(name = "trans_id", nullable = false)
     private String transId;
 
-    @Column(name = "realm")
+    @NotNull
+    @Column(name = "realm", nullable = false)
     private String realm;
 
     @NotNull
@@ -35,21 +37,17 @@ public class ScepOrder implements Serializable {
     @Column(name = "status", nullable = false)
     private ScepOrderStatus status;
 
-    @NotNull
-    @Column(name = "requested_on", nullable = false)
+    @Column(name = "requested_on")
     private Instant requestedOn;
 
     @Column(name = "requested_by")
     private String requestedBy;
 
-    @NotNull
-    @Column(name = "async_processing", nullable = false)
+    @Column(name = "async_processing")
     private Boolean asyncProcessing;
 
-    @NotNull
-    @Column(name = "password_authentication", nullable = false)
+    @Column(name = "password_authentication")
     private Boolean passwordAuthentication;
-
 
     @OneToMany(mappedBy = "order")
     @JsonIgnoreProperties(value = { "order" }, allowSetters = true)
@@ -74,7 +72,10 @@ public class ScepOrder implements Serializable {
     private Certificate authenticatedBy;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "pipelineAttributes", "caConnector", "processInfo" }, allowSetters = true)
+    @JsonIgnoreProperties(
+        value = { "pipelineAttributes", "requestProxies", "caConnector", "processInfo", "algorithms" },
+        allowSetters = true
+    )
     private Pipeline pipeline;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -183,7 +184,6 @@ public class ScepOrder implements Serializable {
         this.passwordAuthentication = passwordAuthentication;
     }
 
-
     public Set<ScepOrderAttribute> getAttributes() {
         return this.attributes;
     }
@@ -214,7 +214,6 @@ public class ScepOrder implements Serializable {
         scepOrderAttribute.setOrder(null);
         return this;
     }
-
 
     public CSR getCsr() {
         return this.csr;

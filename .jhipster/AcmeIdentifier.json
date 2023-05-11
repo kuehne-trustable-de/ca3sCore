@@ -1,5 +1,10 @@
 {
-  "name": "AcmeIdentifier",
+  "applications": "*",
+  "changelogDate": "20200129162418",
+  "clientRootFolder": "",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "acme_identifier",
   "fields": [
     {
       "fieldName": "acmeIdentifierId",
@@ -17,23 +22,19 @@
       "fieldValidateRules": ["required"]
     }
   ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "AcmeIdentifier",
+  "pagination": "no",
+  "readOnly": false,
   "relationships": [
     {
-      "relationshipType": "many-to-one",
       "otherEntityName": "acmeOrder",
       "otherEntityRelationshipName": "acmeIdentifiers",
-      "relationshipName": "order"
+      "relationshipName": "order",
+      "relationshipType": "many-to-one"
     }
   ],
-  "changelogDate": "20200129162418",
-  "entityTableName": "acme_identifier",
-  "dto": "no",
-  "pagination": "no",
   "service": "serviceImpl",
-  "jpaMetamodelFiltering": false,
-  "fluentMethods": true,
-  "readOnly": false,
-  "clientRootFolder": "",
-  "applications": "*",
-  "embedded": false
+  "skipClient": true
 }

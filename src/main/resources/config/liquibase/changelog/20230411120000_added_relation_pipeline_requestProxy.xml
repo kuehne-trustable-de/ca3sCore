@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+
+    <changeSet id="20230411120000-1-relations" author="jhipster">
+
+        <createTable tableName="rel_pipeline__request_proxy">
+            <column name="request_proxy_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="pipeline_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="pipeline_id, request_proxy_id" tableName="rel_pipeline__request_proxy"/>
+
+    </changeSet>
+
+    <!--
+    Added the constraints for entity Pipeline.
+-->
+    <changeSet id="20230411120000-2" author="jhipster">
+
+
+        <addForeignKeyConstraint baseColumnNames="pipeline_id"
+                                 baseTableName="rel_pipeline__request_proxy"
+                                 constraintName="fk_rel_pipeline__request_proxy__pipeline_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="pipeline"/>
+
+        <addForeignKeyConstraint baseColumnNames="request_proxy_id"
+                                 baseTableName="rel_pipeline__request_proxy"
+                                 constraintName="fk_rel_pipeline__request_proxy__request_proxy_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="request_proxy_config"/>
+    </changeSet>
+
+</databaseChangeLog>

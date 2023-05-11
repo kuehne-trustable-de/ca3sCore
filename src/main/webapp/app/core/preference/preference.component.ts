@@ -11,7 +11,7 @@ import AlertMixin from '@/shared/alert/alert.mixin';
 
 import { integer, minValue, maxValue, required } from 'vuelidate/lib/validators';
 
-const baseApiUrl = '/api/admin/preference';
+const baseApiUrl = '/api/preference';
 
 const validations: any = {
   preferences: {
@@ -19,21 +19,21 @@ const validations: any = {
       required,
       integer,
       minValue: minValue(1),
-      maxValue: maxValue(65535)
+      maxValue: maxValue(65535),
     },
     acmeHTTP01CallbackPortArr: {
       $each: {
         required,
         integer,
         minValue: minValue(0),
-        maxValue: maxValue(65535)
-      }
-    }
-  }
+        maxValue: maxValue(65535),
+      },
+    },
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class Preference extends mixins(AlertMixin, JhiDataUtils) {
   @Inject('alertService') alertService: () => AlertService;
@@ -45,14 +45,18 @@ export default class Preference extends mixins(AlertMixin, JhiDataUtils) {
   public selectedHashes: any[] = [];
   public selectedSigningAlgos: any[] = [];
 
-  public allHashes = [{ id: 'sha-1', name: 'SHA-1' }, { id: 'sha-256', name: 'SHA-256' }, { id: 'sha-512', name: 'SHA-512' }];
+  public allHashes = [
+    { id: 'sha-1', name: 'SHA-1' },
+    { id: 'sha-256', name: 'SHA-256' },
+    { id: 'sha-512', name: 'SHA-512' },
+  ];
 
   public allSignAlgos = [
     { id: 'rsa-1024', name: 'RSA-1024' },
     { id: 'rsa-2048', name: 'RSA-2048' },
     { id: 'rsa-3072', name: 'RSA-3072' },
     { id: 'rsa-4096', name: 'RSA-4096' },
-    { id: 'rsa-8192', name: 'RSA-8192' }
+    { id: 'rsa-8192', name: 'RSA-8192' },
   ];
 
   public isSaving = false;
@@ -121,7 +125,7 @@ export default class Preference extends mixins(AlertMixin, JhiDataUtils) {
     return new Promise<IPreferences>((resolve, reject) => {
       axios
         .get(`${baseApiUrl}/${id}`)
-        .then(function(res) {
+        .then(function (res) {
           resolve(res.data);
         })
         .catch(err => {
@@ -148,7 +152,7 @@ export default class Preference extends mixins(AlertMixin, JhiDataUtils) {
     return new Promise<IPreferences>((resolve, reject) => {
       axios
         .put(`${baseApiUrl}/${id}`, entity)
-        .then(function(res) {
+        .then(function (res) {
           resolve(res.data);
         })
         .catch(err => {

@@ -1,6 +1,6 @@
 {
   "applications": "*",
-  "changelogDate": "20230321145439",
+  "changelogDate": "20230403164940",
   "dto": "no",
   "embedded": false,
   "entityTableName": "certificate_comment",

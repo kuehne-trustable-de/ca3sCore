@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.service;
 
 import de.trustable.ca3s.core.domain.AcmeChallenge;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,4 +41,7 @@ public interface AcmeChallengeService {
      * @param id the id of the entity.
      */
     void delete(Long id);
+
+    List<AcmeChallenge> findPendingByRequestProxy(Long requestProxyId);
+
 }

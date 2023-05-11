@@ -1,9 +1,12 @@
 package de.trustable.ca3s.core.web.rest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.AcmeChallenge;
 import de.trustable.ca3s.core.repository.AcmeChallengeRepository;
 import de.trustable.ca3s.core.service.AcmeChallengeService;
+import de.trustable.ca3s.core.service.util.JWSService;
+import de.trustable.ca3s.core.web.rest.acme.ChallengeController;
 import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +15,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -64,6 +66,15 @@ public class AcmeChallengeResourceIT {
     private AcmeChallengeService acmeChallengeService;
 
     @Autowired
+    private ChallengeController challengeController;
+
+    @Autowired
+    private JWSService jwsService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -85,7 +96,7 @@ public class AcmeChallengeResourceIT {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final AcmeChallengeResource acmeChallengeResource = new AcmeChallengeResource(acmeChallengeService);
+        final AcmeChallengeResource acmeChallengeResource = new AcmeChallengeResource(acmeChallengeService, challengeController, jwsService, objectMapper);
         this.restAcmeChallengeMockMvc = MockMvcBuilders.standaloneSetup(acmeChallengeResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)

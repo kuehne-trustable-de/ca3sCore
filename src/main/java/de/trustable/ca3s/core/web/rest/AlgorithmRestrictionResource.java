@@ -101,42 +101,6 @@ public class AlgorithmRestrictionResource {
     }
 
     /**
-     * {@code PATCH  /algorithm-restrictions/:id} : Partial updates given fields of an existing algorithmRestriction, field will ignore if it is null
-     *
-     * @param id the id of the algorithmRestriction to save.
-     * @param algorithmRestriction the algorithmRestriction to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated algorithmRestriction,
-     * or with status {@code 400 (Bad Request)} if the algorithmRestriction is not valid,
-     * or with status {@code 404 (Not Found)} if the algorithmRestriction is not found,
-     * or with status {@code 500 (Internal Server Error)} if the algorithmRestriction couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
-    @PatchMapping(value = "/algorithm-restrictions/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public ResponseEntity<AlgorithmRestriction> partialUpdateAlgorithmRestriction(
-        @PathVariable(value = "id", required = false) final Long id,
-        @NotNull @RequestBody AlgorithmRestriction algorithmRestriction
-    ) throws URISyntaxException {
-        log.debug("REST request to partial update AlgorithmRestriction partially : {}, {}", id, algorithmRestriction);
-        if (algorithmRestriction.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-        }
-        if (!Objects.equals(id, algorithmRestriction.getId())) {
-            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
-        }
-
-        if (!algorithmRestrictionRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
-        Optional<AlgorithmRestriction> result = algorithmRestrictionService.partialUpdate(algorithmRestriction);
-
-        return ResponseUtil.wrapOrNotFound(
-            result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, algorithmRestriction.getId().toString())
-        );
-    }
-
-    /**
      * {@code GET  /algorithm-restrictions} : get all the algorithmRestrictions.
      *
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of algorithmRestrictions in body.

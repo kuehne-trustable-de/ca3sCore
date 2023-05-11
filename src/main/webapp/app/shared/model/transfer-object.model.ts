@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.1.1185 on 2023-03-01 17:27:07.
+// Generated using typescript-generator version 3.1.1185 on 2023-04-11 14:12:05.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -126,6 +126,7 @@ export interface IPipelineView extends ISerializable {
   webConfigItems?: IWebConfigItems;
   auditViewArr?: IAuditView[];
   csrUsage?: ICsrUsage;
+  requestProxyConfigIds?: number[];
 }
 
 export interface ICertificateView extends ISerializable {
@@ -193,9 +194,9 @@ export interface ICertificateView extends ISerializable {
   isServersideKeyGeneration?: boolean;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
-  auditPresent?: boolean;
   serversideKeyGeneration?: boolean;
   fullChainAvailable?: boolean;
+  auditPresent?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
@@ -213,6 +214,14 @@ export interface IUIConfigView extends ISerializable {
   cryptoConfigView?: ICryptoConfigView;
   autoSSOLogin?: boolean;
   ssoProvider?: string[];
+}
+
+export interface IRequestProxyConfigView {
+  id?: number;
+  name?: string;
+  requestProxyUrl?: string;
+  active?: boolean;
+  plainSecret?: string;
 }
 
 export interface ICSRView extends ISerializable {
@@ -430,10 +439,12 @@ export interface IAcmeConfigItems extends ISerializable {
   allowChallengeDNS?: boolean;
   allowWildcards?: boolean;
   checkCAA?: boolean;
+  requestProxyId?: string;
   caNameCAA?: string;
   processInfoNameAccountValidation?: string;
   processInfoNameOrderValidation?: string;
   processInfoNameChallengeValidation?: string;
+  acmeProxy?: boolean;
 }
 
 export interface ISCEPConfigItems extends ISerializable {
@@ -561,6 +572,7 @@ export interface ICSR extends ISerializable {
   sans?: string;
   requestedOn?: Date;
   requestedBy?: string;
+  acceptedBy?: string;
   pipelineType?: IPipelineType;
   status?: ICsrStatus;
   administeredBy?: string;
@@ -656,12 +668,14 @@ export interface IPipeline extends ISerializable {
   name?: string;
   type?: IPipelineType;
   urlPart?: string;
+  active?: boolean;
   description?: string;
   approvalRequired?: boolean;
-  active?: boolean;
   pipelineAttributes?: IPipelineAttribute[];
   caConnector?: ICAConnectorConfig;
   processInfo?: IBPMNProcessInfo;
+  algorithms?: IAlgorithmRestriction[];
+  requestProxies?: IRequestProxyConfig[];
 }
 
 export interface IBadKeysBlocklist extends IBadKeysResultInvalid {
@@ -715,6 +729,37 @@ export interface IBPMNProcessInfo extends ISerializable {
   processId?: string;
 }
 
+export interface IAlgorithmRestriction extends ISerializable {
+  id?: number;
+  type?: IAlgorithmType;
+  notAfter?: Date;
+  identifier?: string;
+  name?: string;
+  acceptable?: boolean;
+  pipelines?: IPipeline[];
+}
+
+export interface IRequestProxyConfig extends ISerializable {
+  id?: number;
+  name?: string;
+  requestProxyUrl?: string;
+  active?: boolean;
+  secret?: IProtectedContent;
+  pipelines?: IPipeline[];
+}
+
+export interface IProtectedContent extends ISerializable {
+  id?: number;
+  contentBase64?: string;
+  type?: IProtectedContentType;
+  leftUsages?: number;
+  createdOn?: Date;
+  validTo?: Date;
+  deleteAfter?: Date;
+  relationType?: IContentRelationType;
+  relatedId?: number;
+}
+
 export type ICAStatus = 'Active' | 'Deactivated' | 'Problem' | 'Unknown';
 
 export type ISelector =
@@ -742,7 +787,7 @@ export type IScepOrderStatus = 'PENDING' | 'READY' | 'INVALID';
 
 export type IBPMNProcessType = 'CA_INVOCATION' | 'REQUEST_AUTHORIZATION';
 
-export type IPipelineType = 'ACME' | 'SCEP' | 'WEB' | 'INTERNAL';
+export type IPipelineType = 'ACME' | 'SCEP' | 'WEB' | 'INTERNAL' | 'MANUAL_REQUEST';
 
 export type ICsrUsage = 'TLS_SERVER' | 'TLS_CLIENT' | 'DOC_SIGNING' | 'CODE_SIGNING';
 
@@ -769,3 +814,9 @@ export type IRDNCardinalityRestriction = 'NOT_ALLOWED' | 'ZERO_OR_ONE' | 'ONE' |
 export type ICAConnectorType = 'INTERNAL' | 'CMP' | 'ADCS' | 'ADCS_CERTIFICATE_INVENTORY' | 'DIRECTORY';
 
 export type IInterval = 'MINUTE' | 'HOUR' | 'DAY' | 'WEEK' | 'MONTH';
+
+export type IAlgorithmType = 'SIGNING' | 'PADDING' | 'HASH' | 'CURVE';
+
+export type IProtectedContentType = 'KEY' | 'SECRET' | 'PASSWORD';
+
+export type IContentRelationType = 'CERTIFICATE' | 'CONNECTION' | 'CSR' | 'SCEP_PW';

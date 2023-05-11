@@ -26,10 +26,7 @@
 
 package de.trustable.ca3s.core.web.rest.acme;
 
-import de.trustable.ca3s.core.domain.AcmeAccount;
-import de.trustable.ca3s.core.domain.AcmeAuthorization;
-import de.trustable.ca3s.core.domain.AcmeChallenge;
-import de.trustable.ca3s.core.domain.AcmeOrder;
+import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
 import de.trustable.ca3s.core.repository.AcmeChallengeRepository;
@@ -40,6 +37,7 @@ import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.AcmeUtil;
 import de.trustable.ca3s.core.service.util.PreferenceUtil;
+import de.trustable.ca3s.core.web.rest.data.AcmeChallengeValidation;
 import de.trustable.ca3s.core.web.rest.util.RateLimiter;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -57,14 +55,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.xbill.DNS.*;
 
@@ -75,6 +66,7 @@ import java.net.*;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.cert.Certificate;
 import java.security.cert.*;
 import java.time.Duration;
 import java.time.Instant;
@@ -85,7 +77,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequestUri;
 import static org.xbill.DNS.Name.*;
 import static org.xbill.DNS.Type.TXT;
 import static org.xbill.DNS.Type.string;
@@ -121,12 +112,13 @@ public class ChallengeController extends AcmeController {
 
     private final RateLimiter rateLimiter;
 
+
     public ChallengeController(AcmeChallengeRepository challengeRepository,
                                AcmeOrderRepository orderRepository,
                                PreferenceUtil preferenceUtil,
+                               AuditService auditService,
                                @Value("${ca3s.dns.server:}") String resolverHost,
                                @Value("${ca3s.dns.port:53}") int resolverPort,
-                               AuditService auditService,
                                @Value("${ca3s.acme.ratelimit.second:0}") int rateSec,
                                @Value("${ca3s.acme.ratelimit.minute:20}") int rateMin,
                                @Value("${ca3s.acme.ratelimit.hour:0}") int rateHour)
@@ -145,7 +137,9 @@ public class ChallengeController extends AcmeController {
     }
 
     @RequestMapping(value = "/{challengeId}", method = GET, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getChallenge(@PathVariable final long challengeId, @PathVariable final String realm) {
+    public ResponseEntity<?> getChallenge(@PathVariable final long challengeId,
+                                          @PathVariable final String realm,
+                                          @RequestHeader(value=HEADER_X_CA3S_FORWARDED_HOST, required=false) String forwardedHost) {
 
 	  	LOG.debug("Received Challenge request ");
 
@@ -165,20 +159,20 @@ public class ChallengeController extends AcmeController {
 
 			LOG.debug( "returning challenge {}", challengeDao.getId());
 
-			ChallengeResponse challenge = buildChallengeResponse(challengeDao);
+			ChallengeResponse challenge = buildChallengeResponse(challengeDao, getEffectiveUriComponentsBuilder(realm, forwardedHost));
 
 			if(challengeDao.getStatus() == ChallengeStatus.VALID ) {
-				URI authUri = locationUriOfAuthorization(challengeDao.getAcmeAuthorization().getAcmeAuthorizationId(), fromCurrentRequestUri());
+				URI authUri = locationUriOfAuthorization(challengeDao.getAcmeAuthorization().getAcmeAuthorizationId(), getEffectiveUriComponentsBuilder(realm, forwardedHost));
 			    additionalHeaders.set("Link", "<" + authUri.toASCIIString() + ">;rel=\"up\"");
 			}
             return ok().headers(additionalHeaders).body(challenge);
 		}
-
     }
 
     @RequestMapping(value = "/{challengeId}", method = POST, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JOSE_JSON_VALUE)
     public ResponseEntity<?> postChallenge(@RequestBody final String requestBody,
-          @PathVariable final long challengeId, @PathVariable final String realm) {
+          @PathVariable final long challengeId, @PathVariable final String realm,
+          @RequestHeader(value=HEADER_X_CA3S_FORWARDED_HOST, required=false) String forwardedHost) {
 
         LOG.debug("Received Challenge request ");
 
@@ -206,23 +200,17 @@ public class ChallengeController extends AcmeController {
                     throw new AcmeProblemException(problem);
                 }
 
-                boolean solved = false;
                 if( Instant.now().isAfter(order.getExpires())){
                     LOG.debug("order of this challenge {} already expired", challengeId);
                 }else {
-                    solved = isChallengeSolved(challengeDao);
+                    isChallengeSolved(challengeDao);
                 }
 
-                ChallengeResponse challenge = buildChallengeResponse(challengeDao);
-                if( solved) {
-                    LOG.debug("validation of challenge{} of type '{}' succeeded", challengeId, challengeDao.getType());
-                }else {
-                    LOG.warn("validation of challenge{} of type '{}' failed", challengeId, challengeDao.getType());
-                }
+                ChallengeResponse challengeResponse = buildChallengeResponse(challengeDao, getEffectiveUriComponentsBuilder(realm, forwardedHost));
 
-                URI authUri = locationUriOfAuthorization(challengeDao.getAcmeAuthorization().getAcmeAuthorizationId(), fromCurrentRequestUri());
+                URI authUri = locationUriOfAuthorization(challengeDao.getAcmeAuthorization().getAcmeAuthorizationId(), getEffectiveUriComponentsBuilder(realm, forwardedHost));
                 additionalHeaders.set("Link", "<" + authUri.toASCIIString() + ">;rel=\"up\"");
-                return ok().headers(additionalHeaders).body(challenge);
+                return ok().headers(additionalHeaders).body(challengeResponse);
             }
 
         } catch (AcmeProblemException e) {
@@ -231,6 +219,27 @@ public class ChallengeController extends AcmeController {
     }
 
     public boolean isChallengeSolved(AcmeChallenge challengeDao) {
+        boolean useProxy = challengeDao.getAcmeAuthorization().getOrder()
+            .getAttributes().stream().anyMatch(att -> AcmeOrderAttribute.REQUEST_PROXY_ID_USED.equals(att.getName()));
+
+        LOG.debug("useProxy: {}", useProxy);
+
+        if (useProxy) {
+            LOG.debug("challenge {} may be validated by proxy", challengeDao.getId());
+            return false;
+        } else {
+            boolean solved = checkChallenge(challengeDao);
+            if (solved) {
+                LOG.debug("validation of challenge {} of type '{}' succeeded", challengeDao.getId(), challengeDao.getType());
+            } else {
+                LOG.warn("validation of challenge {} of type '{}' failed", challengeDao.getId(), challengeDao.getType());
+            }
+            return solved;
+        }
+    }
+
+    public boolean checkChallenge(AcmeChallenge challengeDao) {
+
 
         LOG.debug( "checking challenge {}", challengeDao.getId());
 
@@ -377,6 +386,21 @@ public class ChallengeController extends AcmeController {
             }
         }
     }
+
+    private void logChallengeValidationOutcome(boolean matches, AcmeChallenge challengeDao, String matchMsg, String mismatchMsg) {
+        AcmeOrder acmeOrder = challengeDao.getAcmeAuthorization().getOrder();
+        if(matches) {
+            auditService.saveAuditTrace(
+                auditService.createAuditTraceAcmeChallengeSucceeded(acmeOrder.getAccount(), acmeOrder,
+                    matchMsg));
+        }else{
+            auditService.saveAuditTrace(
+                auditService.createAuditTraceAcmeChallengeFailed(acmeOrder.getAccount(), acmeOrder, mismatchMsg));
+            LOG.info(mismatchMsg);
+            challengeDao.setLastError(mismatchMsg);
+        }
+    }
+
 
     /**
      * @param lookupResult Optional
@@ -527,20 +551,6 @@ public class ChallengeController extends AcmeController {
 
 		return false;
 	}
-
-    private void logChallengeValidationOutcome(boolean matches, AcmeChallenge challengeDao, String matchMsg, String mismatchMsg) {
-        AcmeOrder acmeOrder = challengeDao.getAcmeAuthorization().getOrder();
-        if(matches) {
-            auditService.saveAuditTrace(
-                auditService.createAuditTraceAcmeChallengeSucceeded(acmeOrder.getAccount(), acmeOrder,
-                    matchMsg));
-        }else{
-            auditService.saveAuditTrace(
-                auditService.createAuditTraceAcmeChallengeFailed(acmeOrder.getAccount(), acmeOrder, mismatchMsg));
-            LOG.info(mismatchMsg);
-            challengeDao.setLastError(mismatchMsg);
-        }
-    }
 
     private String readChallengeResponse(HttpURLConnection con) throws IOException {
         return readChallengeResponse(con.getInputStream());
@@ -816,8 +826,8 @@ public class ChallengeController extends AcmeController {
         return authorization;
     }
 
-    ChallengeResponse buildChallengeResponse(final AcmeChallenge challengeDao){
-        return new ChallengeResponse(challengeDao, locationUriOfChallenge(challengeDao.getId(), fromCurrentRequestUri()).toString());
+    ChallengeResponse buildChallengeResponse(final AcmeChallenge challengeDao, final UriComponentsBuilder uriBuilder){
+        return new ChallengeResponse(challengeDao, locationUriOfChallenge(challengeDao.getId(), uriBuilder).toString());
     }
 
     private URI locationUriOfChallenge(final long challengeId, final UriComponentsBuilder uriBuilder) {
@@ -828,4 +838,70 @@ public class ChallengeController extends AcmeController {
 	    return authorizationResourceUriBuilderFrom(uriBuilder.path("../..")).path("/").path("..").path("/").path(Long.toString(authorizationId)).build().normalize().toUri();
 	}
 
+    public ResponseEntity<Void> checkChallengeValidation(AcmeChallengeValidation acmeChallengeValidation) {
+
+        Long challengeId = acmeChallengeValidation.getChallengeId();
+        Optional<AcmeChallenge> challengeOpt = challengeRepository.findByChallengeId(challengeId);
+        if(!challengeOpt.isPresent()) {
+            LOG.info("challenge validaioon for unknown challenge id: {}", challengeId);
+            return ResponseEntity.notFound().build();
+        }else {
+            AcmeChallenge challengeDao = challengeOpt.get();
+
+            AcmeOrder order = challengeDao.getAcmeAuthorization().getOrder();
+
+            if( Instant.now().isAfter(order.getExpires())){
+                LOG.info("order of this challenge {} already expired", challengeId);
+                return ResponseEntity.badRequest().build();
+            }
+
+            if( !ChallengeStatus.PENDING.equals(challengeDao.getStatus())){
+                LOG.info("challenge has unexpected status '{}' != PENDING", challengeDao.getStatus());
+                return ResponseEntity.badRequest().build();
+            }
+
+            if( ChallengeStatus.INVALID.equals(acmeChallengeValidation.getStatus()) ){
+                challengeDao.setValidated(Instant.now());
+                challengeDao.setLastError(acmeChallengeValidation.getError());
+                challengeDao.setStatus(ChallengeStatus.INVALID);
+                challengeRepository.save(challengeDao);
+            }else if( ChallengeStatus.VALID.equals(acmeChallengeValidation.getStatus()) ){
+                challengeDao.setValidated(Instant.now());
+
+                if( AcmeChallenge.CHALLENGE_TYPE_HTTP_01.equals(challengeDao.getType())) {
+
+                    String expectedContent = buildKeyAuthorization(challengeDao);
+                    if( Arrays.stream(acmeChallengeValidation.getResponses()).anyMatch(expectedContent::equals)) {
+                        LOG.info("proxy validated http-01 challenge id '{}' successfully", challengeDao.getId());
+                        challengeDao.setStatus(ChallengeStatus.VALID);
+                    }else{
+                        LOG.info("proxy failed validation of http-01 challenge id '{}'", challengeDao.getId());
+                    }
+                }else if( AcmeChallenge.CHALLENGE_TYPE_DNS_01.equals(challengeDao.getType())){
+                    String expectedContent = buildKeyAuthorizationHashBase64(challengeDao);
+                    if( Arrays.stream(acmeChallengeValidation.getResponses()).anyMatch(expectedContent::equals)) {
+                        LOG.info("proxy validated dns-01 challenge id '{}' successfully", challengeDao.getId());
+                        challengeDao.setStatus(ChallengeStatus.VALID);
+                    }else{
+                        LOG.info("proxy failed validation of http-01 challenge id '{}'", challengeDao.getId());
+                    }
+                }else if( AcmeChallenge.CHALLENGE_TYPE_ALPN_01.equals(challengeDao.getType())){
+                    String expectedContent = buildKeyAuthorizationHashBase64(challengeDao);
+                    if( Arrays.stream(acmeChallengeValidation.getResponses()).anyMatch(expectedContent::equals)) {
+                        LOG.info("proxy validated alpn-01 challenge id '{}' successfully", challengeDao.getId());
+                        challengeDao.setStatus(ChallengeStatus.VALID);
+                    }else{
+                        LOG.info("proxy failed validation of http-01 challenge id '{}'", challengeDao.getId());
+                    }
+
+                }else{
+                    LOG.warn("Unexpected type '{}' of challenge{}", challengeDao.getType(), challengeDao.getId());
+                }
+
+                challengeRepository.save(challengeDao);
+                alignOrderState(order);
+            }
+        }
+        return ResponseEntity.ok().build();
+    }
 }

@@ -4,6 +4,9 @@ import axios from 'axios';
 
 import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
 
+import RequestProxyConfigService from '../request-proxy-config/request-proxy-config.service';
+import { IRequestProxyConfig } from '@/shared/model/transfer-object.model';
+
 import CAConnectorConfigService from '../../entities/ca-connector-config/ca-connector-config.service';
 import { ICAConnectorConfig } from '@/shared/model/ca-connector-config.model';
 import { IUser } from '@/shared/model/user.model';
@@ -25,10 +28,10 @@ import UserManagementService from '@/admin/user-management/user-management.servi
 const validations: any = {
   pipeline: {
     name: {
-      required
+      required,
     },
     type: {
-      required
+      required,
     },
     urlPart: {},
     description: {},
@@ -45,17 +48,17 @@ const validations: any = {
       recepientCertSerial: {},
       recepientCertSubject: {},
       recepientCertId: {},
-      scepRecipientDN: {}
-    }
-  }
+      scepRecipientDN: {},
+    },
+  },
 };
 
 @Component({
   validations,
   components: {
     HelpTag,
-    AuditTag
-  }
+    AuditTag,
+  },
 })
 // export default class PipelineUpdate extends Vue {
 export default class PipelineUpdate extends mixins(AlertMixin) {
@@ -63,12 +66,15 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
   @Inject('pipelineViewService') private pipelineViewService: () => PipelineViewService;
   public pipeline: IPipelineView = {};
 
+  @Inject('requestProxyConfigService') private requestProxyConfigService: () => RequestProxyConfigService;
+
   @Inject('cAConnectorConfigService') private cAConnectorConfigService: () => CAConnectorConfigService;
 
   @Inject('bPNMProcessInfoService') private bPNMProcessInfoService: () => BPNMProcessInfoService;
 
   @Inject('userService') private userManagementService: () => UserManagementService;
 
+  public requestProxyConfigs: IRequestProxyConfig[] = [];
   public cAConnectorConfigs: ICAConnectorConfig[] = [];
   public allCertGenerators: CAConnectorConfigService[] = [];
   public bPNMProcessInfos: IBPMNProcessInfo[] = [];
@@ -128,7 +134,8 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
         .update(this.pipeline)
         .then(param => {
           this.isSaving = false;
-          this.$router.go(-1);
+          this.$router.push({ name: '/confPipeline', params: {} });
+          //          this.$router.go(-1);
           const message = this.$t('ca3SApp.pipeline.updated', { param: param.id });
           this.alertService().showAlert(message, 'info');
         })
@@ -140,7 +147,8 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
         .create(this.pipeline)
         .then(param => {
           this.isSaving = false;
-          this.$router.go(-1);
+          this.$router.push({ name: '/confPipeline', params: {} });
+          //          this.$router.go(-1);
           const message = this.$t('ca3SApp.pipeline.created', { param: param.id });
           this.alertService().showAlert(message, 'success');
         })
@@ -186,11 +194,18 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
         this.pipelineAttributes = res.data;
       });
 */
+    this.requestProxyConfigService()
+      .retrieve()
+      .then(res => {
+        this.requestProxyConfigs = res.data;
+      });
+
     this.cAConnectorConfigService()
       .retrieve()
       .then(res => {
         this.cAConnectorConfigs = res.data;
       });
+
     this.bPNMProcessInfoService()
       .retrieve()
       .then(res => {
@@ -215,8 +230,8 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
     axios({
       method: 'get',
       url: 'api/ca-connector-configs/cert-generators',
-      responseType: 'stream'
-    }).then(function(response) {
+      responseType: 'stream',
+    }).then(function (response) {
       window.console.info('allCertGenerators returns ' + response.data);
       self.allCertGenerators = response.data;
     });
