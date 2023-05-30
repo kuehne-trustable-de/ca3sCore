@@ -73,6 +73,7 @@ public class NewAccountController extends AcmeController {
   @Autowired
   AcmeContactRepository contactRepo;
 
+  @Transactional
   @RequestMapping(method = POST, consumes = APPLICATION_JOSE_JSON_VALUE)
   public ResponseEntity<?> consumingPostedJoseJson(@RequestBody final String requestBody, @PathVariable final String realm,
                                                    @RequestHeader(value=HEADER_X_CA3S_FORWARDED_HOST, required=false) String forwardedHost) {
@@ -82,6 +83,7 @@ public class NewAccountController extends AcmeController {
   }
 
 
+  @Transactional
   @RequestMapping(method = POST, consumes = APPLICATION_JWS_VALUE)
   public ResponseEntity<?> consumingPostedJws(@RequestBody final String requestBody, @PathVariable final String realm,
                                               @RequestHeader(value=HEADER_X_CA3S_FORWARDED_HOST, required=false) String forwardedHost) {
@@ -89,7 +91,6 @@ public class NewAccountController extends AcmeController {
   }
 
 
-  @Transactional
   ResponseEntity<?> consumeWithConverter(final String requestBody, final String realm, final String forwardedHost) {
 
     LOG.info("New ACCOUNT requested for realm {} using requestbody \n {}", realm, requestBody);

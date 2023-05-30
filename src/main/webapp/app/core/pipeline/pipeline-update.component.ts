@@ -134,8 +134,7 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
         .update(this.pipeline)
         .then(param => {
           this.isSaving = false;
-          this.$router.push({ name: '/confPipeline', params: {} });
-          //          this.$router.go(-1);
+          this.$router.go(-1);
           const message = this.$t('ca3SApp.pipeline.updated', { param: param.id });
           this.alertService().showAlert(message, 'info');
         })
@@ -147,8 +146,7 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
         .create(this.pipeline)
         .then(param => {
           this.isSaving = false;
-          this.$router.push({ name: '/confPipeline', params: {} });
-          //          this.$router.go(-1);
+          this.$router.go(-1);
           const message = this.$t('ca3SApp.pipeline.created', { param: param.id });
           this.alertService().showAlert(message, 'success');
         })

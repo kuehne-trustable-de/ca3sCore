@@ -1,0 +1,75 @@
+{
+  "applications": "*",
+  "changelogDate": "20230403164946",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "scep_order",
+  "fields": [
+    {
+      "fieldName": "transId",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "realm",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "ScepOrderStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "PENDING,READY,INVALID"
+    },
+    {
+      "fieldName": "requestedOn",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "requestedBy",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "asyncProcessing",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "passwordAuthentication",
+      "fieldType": "Boolean"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "ScepOrder",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityName": "scepOrderAttribute",
+      "otherEntityRelationshipName": "order",
+      "relationshipName": "attributes",
+      "relationshipType": "one-to-many"
+    },
+    {
+      "otherEntityName": "cSR",
+      "relationshipName": "csr",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "certificate",
+      "relationshipName": "certificate",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "certificate",
+      "relationshipName": "authenticatedBy",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "pipeline",
+      "relationshipName": "pipeline",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "service": "serviceImpl"
+}

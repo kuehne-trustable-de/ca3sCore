@@ -1,0 +1,33 @@
+{
+  "applications": "*",
+  "changelogDate": "20230403164947",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "scep_order_attribute",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "value0",
+      "fieldType": "String"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "ScepOrderAttribute",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityName": "scepOrder",
+      "otherEntityRelationshipName": "attributes",
+      "relationshipName": "order",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "service": "serviceImpl",
+  "skipClient": true
+}

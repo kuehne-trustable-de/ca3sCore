@@ -186,7 +186,7 @@ public class ScepServletImpl extends ScepServlet {
         scepOrder.setRealm(pipeline.getUrlPart());
         scepOrder.setTransId(transId.toString());
         scepOrder.setRequestedOn(Instant.now());
-        scepOrder.setRequestedBy(sender.getSubjectX500Principal().getName());
+        scepOrder.setRequestedBy(sender.getSubjectX500Principal().toString());
 
         // start with ...
         scepOrder.setStatus(ScepOrderStatus.PENDING);
@@ -259,7 +259,7 @@ public class ScepServletImpl extends ScepServlet {
                 }
             }
             for(X509Certificate x509: certList){
-                LOGGER.debug("--- chain element: " + x509.getSubjectX500Principal().getName());
+                LOGGER.debug("--- chain element: " + x509.getSubjectX500Principal().toString());
             }
 
             scepOrder.setStatus(ScepOrderStatus.READY);
@@ -385,7 +385,8 @@ public class ScepServletImpl extends ScepServlet {
         for(Certificate certDao: certDaoList ){
         	try {
         		X509Certificate x509Cert = CryptoUtil.convertPemToCertificate(certDao.getContent());
-        		if( x509Cert.getIssuerX500Principal().getName().equals(issuer.toString())){
+                if( x509Cert.getIssuerX500Principal().getName().equals(issuer.toString()) ||
+                    x509Cert.getIssuerX500Principal().toString().equals(issuer.toString()) ){
                     LOGGER.debug("issuer match for doGetCert(" + issuer +", "+ serial +")");
         		}
 				certList.add(x509Cert);

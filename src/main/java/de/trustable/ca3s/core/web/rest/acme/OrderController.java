@@ -394,10 +394,10 @@ public class OrderController extends AcmeController {
         return snSet;
     }
 
-    private ResponseEntity<OrderResponse> buildOrderResponse(final HttpHeaders additionalHeaders,
-                                                             final AcmeOrder orderDao,
-                                                             final UriComponentsBuilder baseUriBuilder,
-                                                             boolean valid) {
+    ResponseEntity<OrderResponse> buildOrderResponse(final HttpHeaders additionalHeaders,
+                                                     final AcmeOrder orderDao,
+                                                     final UriComponentsBuilder baseUriBuilder,
+                                                     boolean valid) {
 
 
         Set<String> authorizationsResp = new HashSet<>();
@@ -413,13 +413,13 @@ public class OrderController extends AcmeController {
         }
 
         if (finalizeLocationBackwardCompat) {
-            String orderLocation = baseUriBuilder.build().toUriString();
+            UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(baseUriBuilder.build().normalize().toUri());
+            String orderLocation = uriBuilder.path(ORDER_RESOURCE_MAPPING).path("/").path(Long.toString(orderDao.getOrderId())).build().toUriString();
             additionalHeaders.add("location", orderLocation);
             LOG.debug("added location header '{}' for backward compatibility reasons.", orderLocation);
         }
 
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(baseUriBuilder.build().normalize().toUri());
-//		String finalizeUrl = uriBuilderOrder.path("/finalize/").path(Long.toString(orderDao.getOrderId())).build().toUriString();
         String finalizeUrl = uriBuilder.path(ORDER_RESOURCE_MAPPING).path("/finalize/").path(Long.toString(orderDao.getOrderId())).build().toUriString();
         LOG.debug("order request finalize url: {}", finalizeUrl);
 
@@ -470,10 +470,13 @@ public class OrderController extends AcmeController {
         Certificate cert = cpUtil.processCertificateRequest(csr, requestorName, AuditService.AUDIT_ACME_CERTIFICATE_CREATED, pipeline);
 
         if (cert == null) {
-            LOG.warn("creation of certificate by ACME order {} failed ", orderDao.getOrderId());
             auditService.saveAuditTrace(
                 auditService.createAuditTraceAcmeOrderInvalid(orderDao.getAccount(), orderDao, "certificate creation failed"));
-            orderDao.setStatus(AcmeOrderStatus.INVALID);
+            String msg = "creation of certificate by ACME order {} " + orderDao.getOrderId() + " failed ";
+            LOG.info(msg);
+            throw new AcmeProblemException(new ProblemDetail(AcmeUtil.BAD_CSR, msg,
+                BAD_REQUEST, NO_DETAIL, NO_INSTANCE));
+
         } else {
             LOG.debug("updating order id {} with new certificate id {}", orderDao.getOrderId(), cert.getId());
             auditService.saveAuditTrace(

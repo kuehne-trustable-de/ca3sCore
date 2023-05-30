@@ -17,6 +17,10 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # ===================================================================
 
+logback:
+  access:
+    enabled: false
+
 logging:
   level:
     ROOT: INFO
@@ -35,6 +39,7 @@ logging:
     org.keycloak.adapters: DEBUG
     org.springframework.security: INFO
     net.ttddyy.dsproxy.listener: INFO
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
 
 management:
   metrics:

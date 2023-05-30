@@ -411,7 +411,7 @@ public class CertificateUtil {
         CertificateException, InvalidKeyException, NoSuchProviderException, SignatureException {
 
         Certificate cert;
-        LOG.debug("creating new certificate '" + x509Cert.getSubjectX500Principal().getName() + "'");
+        LOG.debug("creating new certificate '" + x509Cert.getSubjectX500Principal().toString() + "'");
 
         byte[] certBytes = x509Cert.getEncoded();
         X509CertificateHolder x509CertHolder = new X509CertificateHolder(certBytes);
@@ -468,10 +468,10 @@ public class CertificateUtil {
 
         cert.setContentAddedAt(Instant.now());
 
-        String issuer = CryptoService.limitLength(x509Cert.getIssuerX500Principal().getName(), 250);
+        String issuer = CryptoService.limitLength(x509Cert.getIssuerX500Principal().toString(), 250);
         cert.setIssuer(issuer);
 
-        String subject = CryptoService.limitLength(x509Cert.getSubjectX500Principal().getName(), 250);
+        String subject = CryptoService.limitLength(x509Cert.getSubjectX500Principal().toString(), 250);
         cert.setSubject(subject);
 
         cert.setSelfsigned(false);
@@ -563,7 +563,7 @@ public class CertificateUtil {
             cert.setRoot(cert.getSubject());
             setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ROOT, cert.getSubject().toLowerCase());
 
-            LOG.debug("certificate '" + x509Cert.getSubjectX500Principal().getName() + "' is selfsigned");
+            LOG.debug("certificate '" + x509Cert.getSubjectX500Principal().toString() + "' is selfsigned");
 
         } else {
             // try to build cert chain
@@ -571,11 +571,11 @@ public class CertificateUtil {
                 Certificate issuingCert = findIssuingCertificate(x509CertHolder);
 
                 if (issuingCert == null) {
-                    LOG.info("unable to find issuer for non-self-signed certificate '" + x509Cert.getSubjectX500Principal().getName() + "' right now ...");
+                    LOG.info("unable to find issuer for non-self-signed certificate '" + x509Cert.getSubjectX500Principal().toString() + "' right now ...");
                 } else {
                     cert.setIssuingCertificate(issuingCert);
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug("certificate '" + x509Cert.getSubjectX500Principal().getName() + "' issued by " + issuingCert.getSubject());
+                        LOG.debug("certificate '" + x509Cert.getSubjectX500Principal().toString() + "' issued by " + issuingCert.getSubject());
                     }
                 }
 
@@ -587,7 +587,7 @@ public class CertificateUtil {
                 }
             } catch (GeneralSecurityException gse) {
 //				LOG.debug("exception while retrieving issuer", gse);
-                LOG.info("problem retrieving issuer for certificate '" + x509Cert.getSubjectX500Principal().getName() + "' right now ...");
+                LOG.info("problem retrieving issuer for certificate '" + x509Cert.getSubjectX500Principal().toString() + "' right now ...");
             }
         }
 
@@ -694,17 +694,17 @@ public class CertificateUtil {
 
             try {
                 String curveName = deriveCurveName(x509Cert.getPublicKey());
-                LOG.info("found curve name " + curveName + " for certificate '" + x509Cert.getSubjectX500Principal().getName() + "' with key algo " + keyAlgName);
+                LOG.info("found curve name " + curveName + " for certificate '" + x509Cert.getSubjectX500Principal().toString() + "' with key algo " + keyAlgName);
 
                 cert.setCurveName(curveName.toLowerCase());
 
             } catch (GeneralSecurityException e) {
                 if (keyAlgName.contains("ec")) {
-                    LOG.info("unable to derive curve name for certificate '" + x509Cert.getSubjectX500Principal().getName() + "' with key algo " + keyAlgName);
+                    LOG.info("unable to derive curve name for certificate '" + x509Cert.getSubjectX500Principal().toString() + "' with key algo " + keyAlgName);
                 }
             }
 
-            String subject = x509Cert.getSubjectX500Principal().getName();
+            String subject = x509Cert.getSubjectX500Principal().toString();
             if (subject != null && subject.trim().length() > 0) {
 
                 try {
@@ -792,7 +792,7 @@ public class CertificateUtil {
                 setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_FINGERPRINT_SHA256,
                     DigestUtils.sha256Hex(x509Cert.getEncoded()).toLowerCase());
             } catch (CertificateEncodingException e) {
-                LOG.error("Problem getting encoded certificate '" + x509Cert.getSubjectX500Principal().getName() + "'", e);
+                LOG.error("Problem getting encoded certificate '" + x509Cert.getSubjectX500Principal().toString() + "'", e);
             }
 
             try {
@@ -812,7 +812,7 @@ public class CertificateUtil {
                     }
                 }
             } catch (IllegalArgumentException iae) {
-                LOG.error("Problem building X500Name for subject for certificate '" + x509Cert.getSubjectX500Principal().getName() + "'", iae);
+                LOG.error("Problem building X500Name for subject for certificate '" + x509Cert.getSubjectX500Principal().toString() + "'", iae);
             }
         }
 
@@ -826,7 +826,7 @@ public class CertificateUtil {
                     subjectRfc2253,
                     false);
             } catch (InvalidNameException e) {
-                LOG.error("Problem building RFC 2253-styled subject for  certificate '" + x509Cert.getSubjectX500Principal().getName() + "'", e);
+                LOG.error("Problem building RFC 2253-styled subject for  certificate '" + x509Cert.getSubjectX500Principal().toString() + "'", e);
             }
 
             setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION, "" + CURRENT_ATTRIBUTES_VERSION, false);
@@ -850,7 +850,7 @@ public class CertificateUtil {
                 certificatePolicyIds.add(aIdentifier.getId());
             }
         } catch (IOException ex) {
-            LOG.error("Failed to get OCSP URL for certificate '" + x509Cert.getSubjectX500Principal().getName() + "'", ex);
+            LOG.error("Failed to get OCSP URL for certificate '" + x509Cert.getSubjectX500Principal().toString() + "'", ex);
         }
 
         return certificatePolicyIds;
@@ -862,7 +862,7 @@ public class CertificateUtil {
         try {
             obj = getExtensionValue(x509Cert, Extension.authorityInfoAccess.getId());
         } catch (IOException ex) {
-            LOG.error("Failed to get OCSP URL for certificate '" + x509Cert.getSubjectX500Principal().getName() + "'", ex);
+            LOG.error("Failed to get OCSP URL for certificate '" + x509Cert.getSubjectX500Principal().toString() + "'", ex);
             return null;
         }
 
@@ -1618,6 +1618,15 @@ public class CertificateUtil {
         if (rawIssuingCertList.isEmpty()) {
             LOG.debug("AKI from crt extension failed, trying to find issuer name");
             rawIssuingCertList = certificateRepository.findCACertByIssuer(x509CertHolder.getIssuer().toString());
+            if (rawIssuingCertList.isEmpty()) {
+
+                try {
+                    X509Certificate x509Cert = getCertifcateFromBytes(x509CertHolder.getEncoded());
+                    rawIssuingCertList = certificateRepository.findCACertByIssuer(x509Cert.getIssuerX500Principal().getName());
+                } catch (IOException e) {
+                    LOG.info("problem parsing certificate '{}' from holder", x509CertHolder.getSubject().toString());
+                }
+            }
             if (rawIssuingCertList.size() > 1) {
                 LOG.debug("more than one issuer found by matching issuer name '{}'", x509CertHolder.getIssuer().toString());
             }

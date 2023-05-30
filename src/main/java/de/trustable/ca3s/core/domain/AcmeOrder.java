@@ -2,12 +2,16 @@ package de.trustable.ca3s.core.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
-import javax.persistence.*;
-import javax.validation.constraints.*;
 
 /**
  * A AcmeOrder.
@@ -36,6 +40,8 @@ import javax.validation.constraints.*;
 public class AcmeOrder implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(AcmeOrder.class);
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -155,6 +161,12 @@ public class AcmeOrder implements Serializable {
     }
 
     public void setStatus(AcmeOrderStatus status) {
+
+        if(Objects.equals(this.status, status)){
+            LOG.info("status  {} unchanged of order {}", this.status, this.orderId);
+        }else{
+            LOG.info("status change {} -> {} of order {}", this.status, status, this.orderId);
+        }
         this.status = status;
     }
 

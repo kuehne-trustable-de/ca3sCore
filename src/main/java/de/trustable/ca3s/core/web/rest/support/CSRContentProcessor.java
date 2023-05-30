@@ -250,7 +250,7 @@ public class CSRContentProcessor {
 								LOG.debug("alias {} does NOT refer to a certificate entry", alias);
 			            		continue;
 			            	}
-							LOG.debug("certificate {} found in PKCS12 for alias {}", x509cert.getSubjectX500Principal().getName(), alias);
+							LOG.debug("certificate {} found in PKCS12 for alias {}", x509cert.getSubjectX500Principal().toString(), alias);
 
 					    	String b64Content = cryptoUtil.x509CertToPem(x509cert);
 			    			X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(b64Content);

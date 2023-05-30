@@ -63,7 +63,7 @@ public class Ca3sFallbackBundleFactory implements BundleFactory {
 
 			KeyPair kp = getRootKeyPair();
 			issuingCertificate = cryptoUtil.issueCertificate(x500Issuer, kp, x500Issuer, kp.getPublic().getEncoded(), Calendar.MONTH, 1, PKILevel.ROOT);
-			LOG.debug("created temp. root certificate with subject : {}", issuingCertificate.getSubjectX500Principal().getName());
+			LOG.debug("created temp. root certificate with subject : {}", issuingCertificate.getSubjectX500Principal().toString());
 
 			File rootCertFile = File.createTempFile("ca3sTempRoot", ".cer");
 			try(FileOutputStream fos = new FileOutputStream(rootCertFile)){

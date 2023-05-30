@@ -50,7 +50,7 @@ public class Ca3sTrustManager implements X509TrustManager {
 		if( cert.length == 0) {
 			throw new CertificateException();
 		}
-		LOGGER.debug("checkClientTrusted called for authType '{}' with certificate subject '{}'",authType, cert[0].getSubjectX500Principal().getName());
+		LOGGER.debug("checkClientTrusted called for authType '{}' with certificate subject '{}'",authType, cert[0].getSubjectX500Principal().toString());
 	}
 
 	@Override
@@ -59,17 +59,17 @@ public class Ca3sTrustManager implements X509TrustManager {
 			throw new CertificateException("chain.length == 0");
 		}
 		X509Certificate serverCert = chain[0];
-		LOGGER.debug("checkServerTrusted called for authType '{}' with certificate subject '{}'",authType, serverCert.getSubjectX500Principal().getName());
+		LOGGER.debug("checkServerTrusted called for authType '{}' with certificate subject '{}'",authType, serverCert.getSubjectX500Principal().toString());
 
 		Date now = new Date();
 		if( now.after(serverCert.getNotAfter()) ) {
-			LOGGER.debug("checkServerTrusted:  certificate with subject '" + serverCert.getSubjectX500Principal().getName() + "' not valid anymore (now > " + serverCert.getNotAfter());
-			throw new CertificateException( "certificate '" + serverCert.getSubjectX500Principal().getName() + "' expired!");
+			LOGGER.debug("checkServerTrusted:  certificate with subject '" + serverCert.getSubjectX500Principal().toString() + "' not valid anymore (now > " + serverCert.getNotAfter());
+			throw new CertificateException( "certificate '" + serverCert.getSubjectX500Principal().toString() + "' expired!");
 		}
 
 		if(now.before(serverCert.getNotBefore()) ) {
-			LOGGER.debug("checkServerTrusted:  certificate with subject '" + serverCert.getSubjectX500Principal().getName() + "' not valid yet (now < " + serverCert.getNotBefore());
-			throw new CertificateException("certificate '" + serverCert.getSubjectX500Principal().getName() + "' not valid yet!");
+			LOGGER.debug("checkServerTrusted:  certificate with subject '" + serverCert.getSubjectX500Principal().toString() + "' not valid yet (now < " + serverCert.getNotBefore());
+			throw new CertificateException("certificate '" + serverCert.getSubjectX500Principal().toString() + "' not valid yet!");
 		}
 
 		try {
@@ -112,14 +112,14 @@ public class Ca3sTrustManager implements X509TrustManager {
 			 */
 
 		} catch (GeneralSecurityException | IOException e) {
-			LOGGER.debug("checkServerTrusted exception for certificate subject '" + serverCert.getSubjectX500Principal().getName() + "'", e);
+			LOGGER.debug("checkServerTrusted exception for certificate subject '" + serverCert.getSubjectX500Principal().toString() + "'", e);
 			throw new CertificateException();
 		} catch (Throwable th) {
 			LOGGER.debug("checkServerTrusted: caught Throwable", th);
 			throw th;
 		}
 
-		LOGGER.debug("checkServerTrusted succeeded for certificate subject '" + serverCert.getSubjectX500Principal().getName() + "'");
+		LOGGER.debug("checkServerTrusted succeeded for certificate subject '" + serverCert.getSubjectX500Principal().toString() + "'");
 
 	}
 
@@ -137,7 +137,7 @@ public class Ca3sTrustManager implements X509TrustManager {
         }
 
         if( serverCertDao.isRevoked()) {
-            LOGGER.debug("checkServerTrusted : certificate for subject '" + serverCert.getSubjectX500Principal().getName() + "', revoked '" + serverCertDao.getRevocationReason() + "' on " + serverCertDao.getRevokedSince());
+            LOGGER.debug("checkServerTrusted : certificate for subject '" + serverCert.getSubjectX500Principal().toString() + "', revoked '" + serverCertDao.getRevocationReason() + "' on " + serverCertDao.getRevokedSince());
             throw new CertificateException();
         }
 
@@ -155,11 +155,11 @@ public class Ca3sTrustManager implements X509TrustManager {
                     null,
                     false);
             auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_TLS_INTERMEDIATE_CERTIFICATE_IMPORTED, serverCertDao));
-            LOGGER.debug("checkServerTrusted importing issuing CA cert '" + chain[1].getSubjectX500Principal().getName() + "'");
+            LOGGER.debug("checkServerTrusted importing issuing CA cert '" + chain[1].getSubjectX500Principal().toString() + "'");
 
         }
         if( issuingCACertDao == null){
-            LOGGER.debug("checkServerTrusted : no issuing certificate found for certificate subject '" + serverCert.getSubjectX500Principal().getName() + "', issuer : '" + serverCert.getIssuerX500Principal().getName() + "'");
+            LOGGER.debug("checkServerTrusted : no issuing certificate found for certificate subject '" + serverCert.getSubjectX500Principal().toString() + "', issuer : '" + serverCert.getIssuerX500Principal().toString() + "'");
             throw new CertificateException();
         }
 

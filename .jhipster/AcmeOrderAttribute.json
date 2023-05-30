@@ -1,0 +1,33 @@
+{
+  "applications": "*",
+  "changelogDate": "20230403164948",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "acme_order_attribute",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "value0",
+      "fieldType": "String"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "AcmeOrderAttribute",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityName": "acmeOrder",
+      "otherEntityRelationshipName": "attributes",
+      "relationshipName": "order",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "service": "serviceImpl",
+  "skipClient": true
+}

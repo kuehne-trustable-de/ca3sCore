@@ -8,8 +8,6 @@ import de.trustable.ca3s.core.security.provider.Ca3sKeyManagerProvider;
 import de.trustable.ca3s.core.security.provider.Ca3sKeyStoreProvider;
 import de.trustable.ca3s.core.security.provider.TimedRenewalCertMapHolder;
 import de.trustable.util.JCAManager;
-
-import tech.jhipster.config.JHipsterConstants;
 import io.undertow.Undertow;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -25,6 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
+import tech.jhipster.config.JHipsterConstants;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -135,46 +134,6 @@ public class Ca3SApp implements InitializingBean {
         propsConfig.setIgnoreUnresolvablePlaceholders(true);
         return propsConfig;
     }
-/*
-    @Bean
-    public AnnotatedHibernateEventListenerInvoker annotatedHibernateEventHandlerInvoker() {
-        AnnotatedHibernateEventListenerInvoker invoker = new AnnotatedHibernateEventListenerInvoker();
-        SessionFactoryImplementor sessionFactory = entityManagerFactory.unwrap(SessionFactoryImplementor.class);
-        EventListenerRegistry registry = sessionFactory.getServiceRegistry().getService(EventListenerRegistry.class);
-        registry.prependListeners(EventType.PRE_UPDATE, invoker);
-        registry.prependListeners(EventType.PRE_DELETE, invoker);
-        registry.prependListeners(EventType.PRE_INSERT, invoker);
-
-        return invoker;
-    }
-
- */
-    /*
-    @Bean
-    public OpenAPI springOpenAPI() {
-        return new OpenAPI()
-            .info(new Info().title("ca3s REST Documentation")
-                .description("ca3s certificate management application")
-                .version("v0.0.1")
-                .license(new License().name("European Union Public Licence (EUPL-1.2)")
-                    .url("https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12")))
-            .externalDocs(new ExternalDocumentation()
-                .description("ca3s Documentation")
-                .url("https://github.com/kuehne-trustable-de/ca3sCore"));
-    }
-
-
-    @Bean
-    public WebMvcConfigurer webConfigurer() {
-        return new WebMvcConfigurer() {
-
-            @Override
-            public void addResourceHandlers(ResourceHandlerRegistry registry) {
-                registry.addResourceHandler("/swagger-ui/**").addResourceLocations("classpath:/META-INF/resources/webjars/swagger-ui/3.14.2/");
-            }
-        };
-    }
-*/
 
     @Bean
     public TimedRenewalCertMapHolder registerJCEProvider() {

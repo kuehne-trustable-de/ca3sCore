@@ -158,17 +158,9 @@ public class AcmeRestrictionsIT {
 
 		}
 
-
 		account.deactivate();
 
 		Assertions.assertEquals(Status.DEACTIVATED, account.getStatus(), "account status 'deactivated' expected");
-	}
-
-	void buildOrder(Account account, int n) throws AcmeException {
-		account.newOrder()
-	        .domains("example_"+n+".org")
-	        .notAfter(Instant.now().plus(Duration.ofDays(20L)))
-	        .create();
 	}
 
 	void provideAuthEndpoint(final Http01Challenge challenge, Order order) throws IOException, InterruptedException {

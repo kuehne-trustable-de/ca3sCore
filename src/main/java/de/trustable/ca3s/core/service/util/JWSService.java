@@ -65,7 +65,7 @@ public class JWSService {
         for( ProtectedContent protectedContent: protectedContents) {
 
             String secret = protectedContentUtil.unprotectString(protectedContent.getContentBase64());
-            log.debug("NOT FOR PRODUCTION: stored secret: " + secret);
+            log.debug("NOT FOR PRODUCTION: iterating stored secret: " + secret);
 
             byte[] derivedSecret = protectedContentUtil.deriveSecret(secret);
             log.debug("NOT FOR PRODUCTION: calculated secret as " + Base64.getEncoder().encodeToString(derivedSecret));
@@ -74,7 +74,7 @@ public class JWSService {
             if (jwsObject.verify(verifier)) {
                 return jwsObject.getPayload().toString();
             } else {
-                log.debug("jws '{}' failed verification", jwsAsString);
+                log.debug("jws '{}' failed (trial) verification", jwsAsString);
             }
         }
         throw new JOSEException("verification of JWS failed for request proxy '" + requestProxyId + "'");
