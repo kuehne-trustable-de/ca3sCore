@@ -99,7 +99,7 @@ public class CSRUtil {
 
 		csr.setPipelineType(pipelineType);
 
-		// avoid to forward the initial CSR text: don't store accidentially included private keys or XSS attacks
+		// avoid to forward the initial CSR text: don't store accidentally included private keys or XSS attacks
 //		csr.setCsrBase64(csrBase64);
 
 		csr.setCsrBase64(CryptoUtil.pkcs10RequestToPem(p10ReqHolder.getP10Req()));

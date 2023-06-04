@@ -32,6 +32,7 @@ import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
+import org.bouncycastle.cert.CertException;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
@@ -42,6 +43,9 @@ import org.bouncycastle.jce.X509Principal;
 import org.bouncycastle.jce.provider.JCEECPublicKey;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.bouncycastle.operator.ContentVerifierProvider;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.bouncycastle.x509.extension.X509ExtensionUtil;
@@ -160,7 +164,7 @@ public class CertificateUtil {
         orderMap.put(BCStyle.T, count++);
         orderMap.put(BCStyle.TELEPHONE_NUMBER, count++);
         orderMap.put(BCStyle.UNIQUE_IDENTIFIER, count++);
-        orderMap.put(BCStyle.UnstructuredAddress, count++);
+        orderMap.put(BCStyle.UnstructuredAddress, count);
         return Collections.unmodifiableMap(orderMap);
     }
 
@@ -1668,7 +1672,19 @@ public class CertificateUtil {
                     LOG.debug("probable issuer {} is an end entity, ignoring as issuer", issuer.getId());
                     continue;
                 }
-                issuingCertListChecked.add(issuer);
+                X509CertificateHolder x509CertHolderIssuer = cryptoUtil.convertPemToCertificateHolder(issuer.getContent());
+                try {
+                    ContentVerifierProvider contentVerifierProvider = new JcaContentVerifierProviderBuilder().build(x509CertHolderIssuer);
+                    if( x509CertHolder.isSignatureValid(contentVerifierProvider)) {
+                        issuingCertListChecked.add(issuer);
+                    }else{
+                        LOG.warn("probable issuer {} does not verify certificate {}, ignoring as issuer",
+                            issuer.getId(),
+                            x509CertHolder.getSubject().toString());
+                    }
+                } catch (OperatorCreationException | CertException e) {
+                    LOG.warn("probable issuer {} not a valid certificate: {}", issuer.getId(), e.getMessage());
+                }
             }
             issuingCertList = issuingCertListChecked;
 
@@ -1687,8 +1703,8 @@ public class CertificateUtil {
         Certificate issuerDao = issuingCertList.iterator().next();
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("issuerDao has attributes: ");
 			/*
+            LOG.debug("issuerDao has attributes: ");
 			for( CertificateAttribute cad: issuerDao.getCertificateAttributes()){
 				LOG.debug("Name '" + cad.getName() +"' got value '" + cad.getValue() + "'");
 			}

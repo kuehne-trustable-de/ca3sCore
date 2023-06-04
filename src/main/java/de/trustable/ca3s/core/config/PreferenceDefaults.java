@@ -13,7 +13,7 @@ public class PreferenceDefaults {
                                @Value("${ca3s.algorithm.signingAlgo:" +
                                    "rsa-2048,rsa-3072,rsa-4096,rsa-6144,rsa-8192," +
                                    "ecdsa-224, ecdsa-256, ecdsa-384, ecdsa-512," +
-                                   "ed25519-256}") String[] availableSigningAlgos) {
+                                   "ed25519-255}") String[] availableSigningAlgos) {
         this.availableHashes = availableHashes;
         this.availableSigningAlgos = availableSigningAlgos;
     }

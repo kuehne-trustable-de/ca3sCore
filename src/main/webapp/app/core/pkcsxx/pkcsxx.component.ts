@@ -500,7 +500,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       algoKeyTool = 'EC';
     } else if (this.keyAlgoLength.startsWith('ed25519')) {
       algo = 'ED25519';
-      algoKeyTool = 'Ed25519';
+      algoKeyTool = 'EdDSA';
     }
 
     let keyLen = '4096';
@@ -511,9 +511,9 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     } else if (this.keyAlgoLength.endsWith('256')) {
       keyLen = '256';
       certReqKeyAlgorithm = 'ECDSA_P256';
-      if (this.keyAlgoLength.startsWith('ed25519')) {
-        certReqKeyAlgorithm = 'curve25519';
-      }
+    } else if (this.keyAlgoLength.endsWith('255')) {
+      keyLen = '255';
+      certReqKeyAlgorithm = 'curve25519';
     } else if (this.keyAlgoLength.endsWith('384')) {
       keyLen = '384';
       certReqKeyAlgorithm = 'ECDSA_P384';
