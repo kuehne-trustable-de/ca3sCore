@@ -79,10 +79,47 @@
                             <option value="MONTH" v-bind:label="$t('ca3SApp.Interval.MONTH')">MONTH</option>
                         </select>
                     </div>
-                    <div class="form-group">
+
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'CMP' ">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.tlsAuthentication')" for="ca-connector-config-tlsAuthentication">tls Authentication Certificate</label>
+                        <input type="number" class="form-control" name="tlsAuthentication" id="ca-connector-config-tlsAuthentication"
+                               :class="{'valid': !$v.cAConnectorConfig.tlsAuthenticationId.$invalid, 'invalid': $v.cAConnectorConfig.tlsAuthenticationId.$invalid }" v-model="$v.cAConnectorConfig.tlsAuthenticationId.$model" />
+                    </div>
+
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'CMP' ">
+
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.messageProtectionPassphrase')" for="ca-connector-config-messageProtectionPassphrase">Message Protection 'Passphrase'</label>
+                        <input type="checkbox" class="form-check" name="multipleMessages" id="ca-connector-config-messageProtectionPassphrase"
+                               v-model="cAConnectorConfig.messageProtectionPassphrase" />
+                    </div>
+
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model !== 'CMP' || ($v.cAConnectorConfig.caConnectorType.$model === 'CMP' && cAConnectorConfig.messageProtectionPassphrase)">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.plainSecret')" for="ca-connector-config-plainSecret">Passphrase</label>
                         <input type="password" class="form-control" name="plainSecret" id="ca-connector-config-plainSecret"
-                            :class="{'valid': !$v.cAConnectorConfig.plainSecret.$invalid, 'invalid': $v.cAConnectorConfig.plainSecret.$invalid }" v-model="$v.cAConnectorConfig.plainSecret.$model" />
+                               :class="{'valid': !$v.cAConnectorConfig.plainSecret.$invalid, 'invalid': $v.cAConnectorConfig.plainSecret.$invalid }" v-model="$v.cAConnectorConfig.plainSecret.$model" />
+                    </div>
+
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'CMP' && !cAConnectorConfig.messageProtectionPassphrase">
+
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.messageProtection')" for="ca-connector-config-messageProtection">Message Protection Certificate</label>
+                        <input type="number" class="form-control" name="messageProtection" id="ca-connector-config-messageProtection"
+                               :class="{'valid': !$v.cAConnectorConfig.messageProtectionId.$invalid, 'invalid': $v.cAConnectorConfig.messageProtectionId.$invalid }" v-model="$v.cAConnectorConfig.messageProtectionId.$model" />
+                    </div>
+
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'CMP'">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.issuerName')" for="ca-connector-config-issuerName">issuer Name</label>
+                        <input type="text" class="form-control" name="issuerName" id="ca-connector-config-issuerName"
+                               :class="{'valid': !$v.cAConnectorConfig.issuerName.$invalid, 'invalid': $v.cAConnectorConfig.issuerName.$invalid }" v-model="$v.cAConnectorConfig.issuerName.$model" />
+                    </div>
+                    <div class="form-group"  v-if="$v.cAConnectorConfig.caConnectorType.$model === 'CMP'">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.multipleMessages')" for="ca-connector-config-multipleMessages">Multiple Messages</label>
+                        <input type="checkbox" class="form-check" name="multipleMessages" id="ca-connector-config-multipleMessages"
+                               :class="{'valid': !$v.cAConnectorConfig.multipleMessages.$invalid, 'invalid': $v.cAConnectorConfig.multipleMessages.$invalid }" v-model="$v.cAConnectorConfig.multipleMessages.$model" />
+                    </div>
+                    <div class="form-group"  v-if="$v.cAConnectorConfig.caConnectorType.$model === 'CMP'">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.implicitConfirm')" for="ca-connector-config-implicitConfirm">Implicit Confirm</label>
+                        <input type="checkbox" class="form-check" name="implicitConfirm" id="ca-connector-config-implicitConfirm"
+                               :class="{'valid': !$v.cAConnectorConfig.implicitConfirm.$invalid, 'invalid': $v.cAConnectorConfig.implicitConfirm.$invalid }" v-model="$v.cAConnectorConfig.implicitConfirm.$model" />
                     </div>
 
                     <div>

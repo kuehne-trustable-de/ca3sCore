@@ -5,21 +5,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 
 import de.trustable.ca3s.core.security.provider.Ca3sTrustManager;
+import de.trustable.cmp.client.RemoteTargetHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
+import javax.net.ssl.*;
 
 @Service
-public class RemoteConnector {
+public class RemoteConnector implements RemoteTargetHandler {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RemoteConnector.class);
 
@@ -31,6 +29,7 @@ public class RemoteConnector {
         this.ca3sTrustManager = ca3sTrustManager;
     }
 
+
     /**
 	 *
 	 * @param requestUrlParam
@@ -39,8 +38,13 @@ public class RemoteConnector {
 	 * @throws IOException
 	 */
 	public byte[] sendHttpReq(final String requestUrlParam, final byte[] requestBytes) throws IOException {
+        return sendHttpReq( requestUrlParam, requestBytes, null, null);
+    }
 
-		if (requestUrlParam == null) {
+    @Override
+    public byte[] sendHttpReq(String requestUrlParam, byte[] requestBytes, KeyStore keyStore, String keyPassword) throws IOException {
+
+        if (requestUrlParam == null) {
 			throw new IllegalArgumentException("requestUrlParam can not be null.");
 		}
 
@@ -67,8 +71,17 @@ public class RemoteConnector {
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         if("https".equals(url.getProtocol())) {
             try {
+
+                KeyManager[] keyManagers = null;
+                if( keyStore != null) {
+                    KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
+                    keyManagerFactory.init(keyStore, keyPassword.toCharArray());
+                    keyManagers = keyManagerFactory.getKeyManagers();
+                    LOGGER.debug("using client keystore");
+                }
+
                 SSLContext sc = SSLContext.getInstance("SSL");
-                sc.init(null,
+                sc.init(keyManagers,
                     new TrustManager[]{ca3sTrustManager},
                     new java.security.SecureRandom());
 
@@ -76,6 +89,10 @@ public class RemoteConnector {
                 conTLS.setSSLSocketFactory(sc.getSocketFactory());
             } catch (NoSuchAlgorithmException | KeyManagementException e) {
                 throw new IOException("problem configuring the SSLContext", e);
+            } catch (UnrecoverableKeyException e) {
+                throw new IOException("problem reading keystore", e);
+            } catch (KeyStoreException e) {
+                throw new RuntimeException(e);
             }
 
         }else if("http".equals(url.getProtocol())) {
@@ -101,7 +118,7 @@ public class RemoteConnector {
 			in = con.getInputStream();
 
 			byte[] tmpBA = new byte[4096];
-			int nBytes = 0;
+			int nBytes;
 			while ((nBytes = in.read(tmpBA)) > 0) {
 				baos.write(tmpBA, 0, nBytes);
 			}

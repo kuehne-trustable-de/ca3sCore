@@ -106,6 +106,10 @@ public class AuditTrace implements Serializable {
     @JsonIgnoreProperties(value = { "csr", "certificate", "authenticatedBy" }, allowSetters = true)
     private ScepOrder scepOrder;
 
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "pipelines" }, allowSetters = true)
+    private RequestProxyConfig requestProxyConfig;
+
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public Long getId() {
@@ -246,16 +250,21 @@ public class AuditTrace implements Serializable {
         this.processInfo = bPMNProcessInfo;
     }
 
+    public AuditTrace processInfo(BPMNProcessInfo bPMNProcessInfo) {
+        this.setProcessInfo(bPMNProcessInfo);
+        return this;
+    }
+
     public AcmeAccount getAcmeAccount() {
         return this.acmeAccount;
     }
 
-    public void setAcmeAccount(AcmeAccount aCMEAccount) {
-        this.acmeAccount = aCMEAccount;
+    public void setAcmeAccount(AcmeAccount acmeAccount) {
+        this.acmeAccount = acmeAccount;
     }
 
-    public AuditTrace acmeAccount(AcmeAccount aCMEAccount) {
-        this.setAcmeAccount(aCMEAccount);
+    public AuditTrace acmeAccount(AcmeAccount acmeAccount) {
+        this.setAcmeAccount(acmeAccount);
         return this;
     }
 
@@ -285,6 +294,18 @@ public class AuditTrace implements Serializable {
         return this;
     }
 
+    public RequestProxyConfig getRequestProxyConfig() {
+        return this.requestProxyConfig;
+    }
+
+    public void setRequestProxyConfig(RequestProxyConfig requestProxyConfig) {
+        this.requestProxyConfig = requestProxyConfig;
+    }
+
+    public AuditTrace requestProxyConfig(RequestProxyConfig requestProxyConfig) {
+        this.setRequestProxyConfig(requestProxyConfig);
+        return this;
+    }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 

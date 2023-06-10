@@ -29,6 +29,7 @@ import ConfigurationService from '@/admin/configuration/configuration.service';
 
 import TrackerService from './admin/tracker/tracker.service';
 import CAConnectorConfigService from '@/entities/ca-connector-config/ca-connector-config.service';
+import CAConnectorConfigViewService from '@/entities/ca-connector-config/ca-connector-config-view.service';
 import CertificateAttributeService from '@/entities/certificate-attribute/certificate-attribute.service';
 import CertificateService from '@/entities/certificate/certificate.service';
 import CertificateViewService from '@/entities/certificate/certificate-view.service';
@@ -119,6 +120,7 @@ new Vue({
     alertService: () => alertService,
     translationService: () => translationService,
     cAConnectorConfigService: () => new CAConnectorConfigService(),
+    cAConnectorConfigViewService: () => new CAConnectorConfigViewService(),
     certificateAttributeService: () => new CertificateAttributeService(),
     certificateService: () => new CertificateService(),
     certificateViewService: () => new CertificateViewService(),

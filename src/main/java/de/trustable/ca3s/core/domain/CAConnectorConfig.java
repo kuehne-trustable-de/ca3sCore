@@ -1,9 +1,12 @@
 package de.trustable.ca3s.core.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 import de.trustable.ca3s.core.domain.enumeration.Interval;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
@@ -49,11 +52,11 @@ public class CAConnectorConfig implements Serializable {
     @Column(name = "default_ca")
     private Boolean defaultCA;
 
-    @Column(name = "trust_selfsigned_certificates")
-    private Boolean trustSelfsignedCertificates;
-
     @Column(name = "active")
     private Boolean active;
+
+    @Column(name = "trust_selfsigned_certificates")
+    private Boolean trustSelfsignedCertificates;
 
     @Column(name = "selector")
     private String selector;
@@ -65,10 +68,31 @@ public class CAConnectorConfig implements Serializable {
     @Column(name = "plain_secret")
     private String plainSecret;
 
+    @Column(name = "check_active")
+    private Boolean checkActive;
+
     @OneToOne
     @JoinColumn(unique = true)
     @JsonIgnore
     private ProtectedContent secret;
+
+    @OneToMany(mappedBy = "caConnector")
+    @JsonIgnoreProperties(value = { "caConnector" }, allowSetters = true)
+    private Set<CAConnectorConfigAttribute> caConnectorAttributes = new HashSet<>();
+
+    @ManyToOne
+    @JsonIgnoreProperties(
+        value = { "csr", "comment", "certificateAttributes", "issuingCertificate", "rootCertificate", "revocationCA" },
+        allowSetters = true
+    )
+    private Certificate tlsAuthentication;
+
+    @ManyToOne
+    @JsonIgnoreProperties(
+        value = { "csr", "comment", "certificateAttributes", "issuingCertificate", "rootCertificate", "revocationCA" },
+        allowSetters = true
+    )
+    private Certificate messageProtection;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -163,25 +187,25 @@ public class CAConnectorConfig implements Serializable {
     }
 
     public CAConnectorConfig active(Boolean active) {
-        this.active = active;
-        return this;
-    }
-
-    public Boolean getTrustSelfsignedCertificates() {
-        return trustSelfsignedCertificates;
-    }
-
-    public void setTrustSelfsignedCertificates(Boolean trustSelfsignedCertificates) {
-        this.trustSelfsignedCertificates = trustSelfsignedCertificates;
-    }
-
-    public CAConnectorConfig trustSelfsignedCertificates(Boolean trustSelfsignedCertificates) {
-        this.trustSelfsignedCertificates = trustSelfsignedCertificates;
+        this.setActive(active);
         return this;
     }
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public Boolean getTrustSelfsignedCertificates() {
+        return this.trustSelfsignedCertificates;
+    }
+
+    public CAConnectorConfig trustSelfsignedCertificates(Boolean trustSelfsignedCertificates) {
+        this.setTrustSelfsignedCertificates(trustSelfsignedCertificates);
+        return this;
+    }
+
+    public void setTrustSelfsignedCertificates(Boolean trustSelfsignedCertificates) {
+        this.trustSelfsignedCertificates = trustSelfsignedCertificates;
     }
 
     public String getSelector() {
@@ -223,6 +247,17 @@ public class CAConnectorConfig implements Serializable {
         this.plainSecret = plainSecret;
     }
 
+    public Boolean getCheckActive() {
+        return checkActive;
+    }
+    public Boolean isCheckActive() {
+        return checkActive;
+    }
+
+    public void setCheckActive(Boolean checkActive) {
+        this.checkActive = checkActive;
+    }
+
     public ProtectedContent getSecret() {
         return this.secret;
     }
@@ -233,6 +268,63 @@ public class CAConnectorConfig implements Serializable {
 
     public CAConnectorConfig secret(ProtectedContent protectedContent) {
         this.setSecret(protectedContent);
+        return this;
+    }
+
+    public Set<CAConnectorConfigAttribute> getCaConnectorAttributes() {
+        return this.caConnectorAttributes;
+    }
+
+    public void setCaConnectorAttributes(Set<CAConnectorConfigAttribute> cAConnectorConfigAttributes) {
+        if (this.caConnectorAttributes != null) {
+            this.caConnectorAttributes.forEach(i -> i.setCaConnector(null));
+        }
+        if (cAConnectorConfigAttributes != null) {
+            cAConnectorConfigAttributes.forEach(i -> i.setCaConnector(this));
+        }
+        this.caConnectorAttributes = cAConnectorConfigAttributes;
+    }
+
+    public CAConnectorConfig caConnectorAttributes(Set<CAConnectorConfigAttribute> cAConnectorConfigAttributes) {
+        this.setCaConnectorAttributes(cAConnectorConfigAttributes);
+        return this;
+    }
+
+    public CAConnectorConfig addCaConnectorAttributes(CAConnectorConfigAttribute cAConnectorConfigAttribute) {
+        this.caConnectorAttributes.add(cAConnectorConfigAttribute);
+        cAConnectorConfigAttribute.setCaConnector(this);
+        return this;
+    }
+
+    public CAConnectorConfig removeCaConnectorAttributes(CAConnectorConfigAttribute cAConnectorConfigAttribute) {
+        this.caConnectorAttributes.remove(cAConnectorConfigAttribute);
+        cAConnectorConfigAttribute.setCaConnector(null);
+        return this;
+    }
+
+    public Certificate getTlsAuthentication() {
+        return this.tlsAuthentication;
+    }
+
+    public void setTlsAuthentication(Certificate certificate) {
+        this.tlsAuthentication = certificate;
+    }
+
+    public CAConnectorConfig tlsAuthentication(Certificate certificate) {
+        this.setTlsAuthentication(certificate);
+        return this;
+    }
+
+    public Certificate getMessageProtection() {
+        return this.messageProtection;
+    }
+
+    public void setMessageProtection(Certificate certificate) {
+        this.messageProtection = certificate;
+    }
+
+    public CAConnectorConfig messageProtection(Certificate certificate) {
+        this.setMessageProtection(certificate);
         return this;
     }
 
@@ -266,6 +358,7 @@ public class CAConnectorConfig implements Serializable {
             ", pollingOffset=" + getPollingOffset() +
             ", defaultCA='" + getDefaultCA() + "'" +
             ", active='" + getActive() + "'" +
+            ", trustSelfsignedCertificates='" + getTrustSelfsignedCertificates() + "'" +
             ", selector='" + getSelector() + "'" +
             ", interval='" + getInterval() + "'" +
             ", plainSecret='" + getPlainSecret() + "'" +

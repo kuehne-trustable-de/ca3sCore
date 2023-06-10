@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.1.1185 on 2023-04-11 14:12:05.
+// Generated using typescript-generator version 3.2.1263 on 2023-06-06 13:00:00.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -94,6 +94,28 @@ export interface IBPMNUpload {
   name?: string;
   type?: IBPMNProcessType;
   contentXML?: string;
+}
+
+export interface ICaConnectorConfigView extends ISerializable {
+  id?: number;
+  name?: string;
+  caConnectorType?: ICAConnectorType;
+  caUrl?: string;
+  pollingOffset?: number;
+  defaultCA?: boolean;
+  active?: boolean;
+  trustSelfsignedCertificates?: boolean;
+  selector?: string;
+  interval?: IInterval;
+  messageProtectionPassphrase?: boolean;
+  plainSecret?: string;
+  secretValidTo?: Date;
+  tlsAuthenticationId?: number;
+  messageProtectionId?: number;
+  issuerName?: string;
+  aTaVArr?: INamedValue[];
+  multipleMessages?: boolean;
+  implicitConfirm?: boolean;
 }
 
 export interface IPipelineView extends ISerializable {
@@ -194,9 +216,9 @@ export interface ICertificateView extends ISerializable {
   isServersideKeyGeneration?: boolean;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
+  auditPresent?: boolean;
   serversideKeyGeneration?: boolean;
   fullChainAvailable?: boolean;
-  auditPresent?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
@@ -216,7 +238,7 @@ export interface IUIConfigView extends ISerializable {
   ssoProvider?: string[];
 }
 
-export interface IRequestProxyConfigView {
+export interface IRequestProxyConfigView extends ISerializable {
   id?: number;
   name?: string;
   requestProxyUrl?: string;
@@ -257,8 +279,8 @@ export interface ICSRView extends ISerializable {
   csrBase64?: string;
   auditViewArr?: IAuditView[];
   isAdministrable?: boolean;
-  csrvalid?: boolean;
   administrable?: boolean;
+  csrvalid?: boolean;
 }
 
 export interface IPreferences extends ISerializable {
@@ -416,6 +438,11 @@ export interface IAcmeChallengeView extends ISerializable {
   status?: IChallengeStatus;
 }
 
+export interface INamedValue {
+  name?: string;
+  value?: string;
+}
+
 export interface IRDNRestriction {
   rdnName?: string;
   cardinalityRestriction?: IRDNCardinalityRestriction;
@@ -439,12 +466,10 @@ export interface IAcmeConfigItems extends ISerializable {
   allowChallengeDNS?: boolean;
   allowWildcards?: boolean;
   checkCAA?: boolean;
-  requestProxyId?: string;
   caNameCAA?: string;
   processInfoNameAccountValidation?: string;
   processInfoNameOrderValidation?: string;
   processInfoNameChallengeValidation?: string;
-  acmeProxy?: boolean;
 }
 
 export interface ISCEPConfigItems extends ISerializable {
@@ -464,11 +489,6 @@ export interface ISCEPConfigItems extends ISerializable {
 export interface IWebConfigItems extends ISerializable {
   additionalEMailRecipients?: string;
   notifyRAOfficerOnPendingRequest?: boolean;
-}
-
-export interface INamedValue {
-  name?: string;
-  value?: string;
 }
 
 export interface INamedValues {
@@ -618,11 +638,14 @@ export interface ICAConnectorConfig extends ISerializable {
   caUrl?: string;
   pollingOffset?: number;
   defaultCA?: boolean;
-  trustSelfsignedCertificates?: boolean;
   active?: boolean;
+  trustSelfsignedCertificates?: boolean;
   selector?: string;
   interval?: IInterval;
   plainSecret?: string;
+  caConnectorAttributes?: ICAConnectorConfigAttribute[];
+  tlsAuthentication?: ICertificate;
+  messageProtection?: ICertificate;
 }
 
 export interface IComparable<T> {}
@@ -676,6 +699,13 @@ export interface IPipeline extends ISerializable {
   processInfo?: IBPMNProcessInfo;
   algorithms?: IAlgorithmRestriction[];
   requestProxies?: IRequestProxyConfig[];
+}
+
+export interface ICAConnectorConfigAttribute extends ISerializable {
+  id?: number;
+  name?: string;
+  caConnector?: ICAConnectorConfig;
+  value?: string;
 }
 
 export interface IBadKeysBlocklist extends IBadKeysResultInvalid {
@@ -744,20 +774,7 @@ export interface IRequestProxyConfig extends ISerializable {
   name?: string;
   requestProxyUrl?: string;
   active?: boolean;
-  secret?: IProtectedContent;
   pipelines?: IPipeline[];
-}
-
-export interface IProtectedContent extends ISerializable {
-  id?: number;
-  contentBase64?: string;
-  type?: IProtectedContentType;
-  leftUsages?: number;
-  createdOn?: Date;
-  validTo?: Date;
-  deleteAfter?: Date;
-  relationType?: IContentRelationType;
-  relatedId?: number;
 }
 
 export type ICAStatus = 'Active' | 'Deactivated' | 'Problem' | 'Unknown';
@@ -787,6 +804,10 @@ export type IScepOrderStatus = 'PENDING' | 'READY' | 'INVALID';
 
 export type IBPMNProcessType = 'CA_INVOCATION' | 'REQUEST_AUTHORIZATION';
 
+export type ICAConnectorType = 'INTERNAL' | 'CMP' | 'ADCS' | 'ADCS_CERTIFICATE_INVENTORY' | 'DIRECTORY';
+
+export type IInterval = 'MINUTE' | 'HOUR' | 'DAY' | 'WEEK' | 'MONTH';
+
 export type IPipelineType = 'ACME' | 'SCEP' | 'WEB' | 'INTERNAL' | 'MANUAL_REQUEST';
 
 export type ICsrUsage = 'TLS_SERVER' | 'TLS_CLIENT' | 'DOC_SIGNING' | 'CODE_SIGNING';
@@ -811,12 +832,4 @@ export type IChallengeStatus = 'pending' | 'valid' | 'invalid' | 'deactivated' |
 
 export type IRDNCardinalityRestriction = 'NOT_ALLOWED' | 'ZERO_OR_ONE' | 'ONE' | 'ONE_OR_SAN' | 'ZERO_OR_MANY' | 'ONE_OR_MANY';
 
-export type ICAConnectorType = 'INTERNAL' | 'CMP' | 'ADCS' | 'ADCS_CERTIFICATE_INVENTORY' | 'DIRECTORY';
-
-export type IInterval = 'MINUTE' | 'HOUR' | 'DAY' | 'WEEK' | 'MONTH';
-
 export type IAlgorithmType = 'SIGNING' | 'PADDING' | 'HASH' | 'CURVE';
-
-export type IProtectedContentType = 'KEY' | 'SECRET' | 'PASSWORD';
-
-export type IContentRelationType = 'CERTIFICATE' | 'CONNECTION' | 'CSR' | 'SCEP_PW';

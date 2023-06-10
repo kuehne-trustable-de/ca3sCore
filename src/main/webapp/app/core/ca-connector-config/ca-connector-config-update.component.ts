@@ -5,10 +5,10 @@ import axios from 'axios';
 import { numeric, required, minLength, maxLength, minValue, maxValue } from 'vuelidate/lib/validators';
 
 import AlertService from '@/shared/alert/alert.service';
-import { ICAConnectorConfig, CAConnectorConfig } from '@/shared/model/ca-connector-config.model';
-import CAConnectorConfigService from './ca-connector-config.service';
+import { CAConnectorConfig } from '@/shared/model/ca-connector-config.model';
+import CAConnectorConfigViewService from '@/entities/ca-connector-config/ca-connector-config-view.service';
 
-import { ICAStatus } from '@/shared/model/transfer-object.model';
+import { ICAStatus, ICaConnectorConfigView } from '@/shared/model/transfer-object.model';
 import { mixins } from 'vue-class-component';
 import JhiDataUtils from '@/shared/data/data-utils.service';
 
@@ -18,10 +18,10 @@ import AuditTag from '@/core/audit/audit-tag.vue';
 const validations: any = {
   cAConnectorConfig: {
     name: {
-      required
+      required,
     },
     caConnectorType: {
-      required
+      required,
     },
     caUrl: {},
     pollingOffset: {},
@@ -29,22 +29,28 @@ const validations: any = {
     trustSelfsignedCertificates: {},
     active: {},
     selector: {},
+    messageProtectionPassphrase: {},
     interval: {},
-    plainSecret: {}
-  }
+    plainSecret: {},
+    tlsAuthenticationId: {},
+    messageProtectionId: {},
+    issuerName: {},
+    multipleMessages: {},
+    implicitConfirm: {},
+  },
 };
 
 @Component({
   validations,
   components: {
     HelpTag,
-    AuditTag
-  }
+    AuditTag,
+  },
 })
 export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
   @Inject('alertService') private alertService: () => AlertService;
-  @Inject('cAConnectorConfigService') private cAConnectorConfigService: () => CAConnectorConfigService;
-  public cAConnectorConfig: ICAConnectorConfig = new CAConnectorConfig();
+  @Inject('cAConnectorConfigViewService') private cAConnectorConfigViewService: () => CAConnectorConfigViewService;
+  public cAConnectorConfig: ICaConnectorConfigView = {};
   public caStatus: ICAStatus = 'Unknown';
 
   public isSaving = false;
@@ -62,7 +68,7 @@ export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
   public save(): void {
     this.isSaving = true;
     if (this.cAConnectorConfig.id) {
-      this.cAConnectorConfigService()
+      this.cAConnectorConfigViewService()
         .update(this.cAConnectorConfig)
         .then(param => {
           this.isSaving = false;
@@ -71,7 +77,7 @@ export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
           this.alertService().showAlert(message, 'info');
         });
     } else {
-      this.cAConnectorConfigService()
+      this.cAConnectorConfigViewService()
         .create(this.cAConnectorConfig)
         .then(param => {
           this.isSaving = false;
@@ -83,7 +89,7 @@ export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
   }
 
   public retrieveCAConnectorConfig(cAConnectorConfigId, mode): void {
-    this.cAConnectorConfigService()
+    this.cAConnectorConfigViewService()
       .find(cAConnectorConfigId)
       .then(res => {
         this.cAConnectorConfig = res;
@@ -109,8 +115,8 @@ export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
       method: 'post',
       url: 'api/ca-connector-configs/getStatus',
       data: self.cAConnectorConfig,
-      responseType: 'stream'
-    }).then(function(response) {
+      responseType: 'stream',
+    }).then(function (response) {
       window.console.info('testCaConnectorConfig returns ' + response.data);
       self.caStatus = response.data;
     });

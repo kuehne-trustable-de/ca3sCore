@@ -62,6 +62,22 @@
       "ownerSide": true,
       "relationshipName": "secret",
       "relationshipType": "one-to-one"
+    },
+    {
+      "otherEntityName": "cAConnectorConfigAttribute",
+      "otherEntityRelationshipName": "caConnector",
+      "relationshipName": "caConnectorAttributes",
+      "relationshipType": "one-to-many"
+    },
+    {
+      "otherEntityName": "certificate",
+      "relationshipName": "tlsAuthentication",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "certificate",
+      "relationshipName": "messageProtection",
+      "relationshipType": "many-to-one"
     }
   ],
   "service": "serviceImpl"

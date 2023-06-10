@@ -38,6 +38,7 @@ import java.util.*;
 import de.trustable.ca3s.core.config.CryptoConfiguration;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.security.SecurityUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -69,7 +70,7 @@ import javax.crypto.spec.PBEParameterSpec;
 
 @Controller
 @RequestMapping("/publicapi")
-public class CertificateDownloadController  {
+public class CertificateDownloadController {
 
     private static final Logger LOG = LoggerFactory.getLogger(CertificateDownloadController.class);
 
@@ -77,11 +78,11 @@ public class CertificateDownloadController  {
 
     private final CryptoConfiguration cryptoConfiguration;
 
-  	private final CertificateRepository certificateRepository;
+    private final CertificateRepository certificateRepository;
 
-  	private final CertificateUtil certUtil;
+    private final CertificateUtil certUtil;
 
-  	private final ProtectedContentUtil protContentUtil;
+    private final ProtectedContentUtil protContentUtil;
 
     public CertificateDownloadController(CryptoConfiguration cryptoConfiguration,
                                          CertificateRepository certificateRepository,
@@ -100,21 +101,21 @@ public class CertificateDownloadController  {
      * @return the binary certificate
      */
     @RequestMapping(value = "/certPKIX/{certId}/{filename}",
-    		method = GET,
-    		produces = AcmeController.APPLICATION_PKIX_CERT_VALUE)
+        method = GET,
+        produces = AcmeController.APPLICATION_PKIX_CERT_VALUE)
     public ResponseEntity<byte[]> getCertificatePKIX(@PathVariable final long certId, @PathVariable final String filename) throws NotFoundException {
 
-		LOG.info("Received certificate download request (PKIX) for id {} as file '{}' ", certId, filename);
+        LOG.info("Received certificate download request (PKIX) for id {} as file '{}' ", certId, filename);
 
-    	if( SecurityContextHolder.getContext() == null ) {
-			throw new NotFoundException("Authentication required");
-    	}
+        if (SecurityContextHolder.getContext() == null) {
+            throw new NotFoundException("Authentication required");
+        }
 
-		try {
-			return buildByteArrayResponseForId(certId, AcmeController.APPLICATION_PKIX_CERT_VALUE, "", filename);
-		} catch (HttpClientErrorException | AcmeProblemException | GeneralSecurityException e) {
-			throw new NotFoundException(e.getMessage());
-		}
+        try {
+            return buildByteArrayResponseForId(certId, AcmeController.APPLICATION_PKIX_CERT_VALUE, "", filename);
+        } catch (HttpClientErrorException | AcmeProblemException | GeneralSecurityException e) {
+            throw new NotFoundException(e.getMessage());
+        }
 
     }
 
@@ -167,8 +168,8 @@ public class CertificateDownloadController  {
     @RequestMapping(value = "/certPEM/{certId}/{filename}", method = GET)
     public ResponseEntity<?> getCertificatePEM(@PathVariable final long certId, @PathVariable final String filename) {
 
-		LOG.info("Received certificate download request (PEM) for id {} as file '{}'", certId, filename);
-    	return buildCertResponseForId(certId, AcmeController.APPLICATION_PEM_CERT_VALUE, filename);
+        LOG.info("Received certificate download request (PEM) for id {} as file '{}'", certId, filename);
+        return buildCertResponseForId(certId, AcmeController.APPLICATION_PEM_CERT_VALUE, filename);
     }
 
     /**
@@ -180,45 +181,44 @@ public class CertificateDownloadController  {
      */
     @RequestMapping(value = "/cert/{certId}", method = GET)
     public ResponseEntity<?> getCertificate(@PathVariable final long certId,
-    		@RequestHeader(name="Accept", defaultValue=AcmeController.APPLICATION_PKIX_CERT_VALUE) final String accept) {
+                                            @RequestHeader(name = "Accept", defaultValue = AcmeController.APPLICATION_PKIX_CERT_VALUE) final String accept) {
 
-		LOG.info("Received certificate request for id {}", certId);
+        LOG.info("Received certificate request for id {}", certId);
 
-    	return buildCertResponseForId(certId, accept, "cert_" + certId + ".cer");
+        return buildCertResponseForId(certId, accept, "cert_" + certId + ".cer");
     }
 
 
     /**
      * Keystore download endpoint
      *
-     * @param certId the internal certificate id
+     * @param certId   the internal certificate id
      * @param filename the requested file name, for logging purposes only
-     * @param alias the identification id within the keystore
-     * @param accept the description of the requested format
+     * @param alias    the identification id within the keystore
+     * @param accept   the description of the requested format
      * @return the certificate in the requested encoded form
      * @throws NotFoundException
      */
     @RequestMapping(value = "/keystore/{certId}/{filename}/{alias}",
-    		method = GET,
-    		produces = AcmeController.APPLICATION_PKCS12_VALUE)
+        method = GET,
+        produces = AcmeController.APPLICATION_PKCS12_VALUE)
     public ResponseEntity<byte[]> getKeystore(@PathVariable final long certId,
-    		@PathVariable final String filename,
-    		@PathVariable final String alias,
-    		@RequestHeader(name="Accept", defaultValue=AcmeController.APPLICATION_PKCS12_VALUE) final String accept) throws NotFoundException, UnauthorizedException {
+                                              @PathVariable final String filename,
+                                              @PathVariable final String alias,
+                                              @RequestHeader(name = "Accept", defaultValue = AcmeController.APPLICATION_PKCS12_VALUE) final String accept) throws NotFoundException, UnauthorizedException {
 
-		LOG.info("Received keystore request for id '{}' for filename '{}' with alias '{}'", certId, filename, alias);
+        LOG.info("Received keystore request for id '{}' for filename '{}' with alias '{}'", certId, filename, alias);
 
-    	try {
+        try {
             return buildByteArrayResponseForId(certId, accept, alias, filename);
-        } catch (AccessControlException ace){
+        } catch (AccessControlException ace) {
             throw new UnauthorizedException(ace.getMessage());
-		} catch (HttpClientErrorException | AcmeProblemException | GeneralSecurityException e) {
-			throw new NotFoundException(e.getMessage());
-		}
+        } catch (HttpClientErrorException | AcmeProblemException | GeneralSecurityException e) {
+            throw new NotFoundException(e.getMessage());
+        }
     }
 
     /**
-     *
      * @param certId
      * @param accept
      * @param filename
@@ -226,111 +226,110 @@ public class CertificateDownloadController  {
      * @throws HttpClientErrorException
      * @throws AcmeProblemException
      */
-	public ResponseEntity<?> buildCertResponseForId(final long certId, final String accept, String filename)
-			throws HttpClientErrorException, AcmeProblemException {
+    public ResponseEntity<?> buildCertResponseForId(final long certId, final String accept, String filename)
+        throws HttpClientErrorException, AcmeProblemException {
 
-		Optional<Certificate> certOpt = certificateRepository.findById(certId);
+        Optional<Certificate> certOpt = certificateRepository.findById(certId);
 
-  		if(!certOpt.isPresent()) {
-  		  throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
-  		}else {
-  			Certificate certDao = certOpt.get();
+        if (!certOpt.isPresent()) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        } else {
+            Certificate certDao = certOpt.get();
 
-  			final HttpHeaders headers = new HttpHeaders();
-			headers.set("content-disposition", "inline; filename=\"" + filename + "\"");
+            final HttpHeaders headers = new HttpHeaders();
+            headers.set("content-disposition", "inline; filename=\"" + filename + "\"");
 //			headers.set("content-length", String.valueOf(2000));
-			ResponseEntity<?> resp = buildCertifcateResponse(accept, certDao, headers);
+            ResponseEntity<?> resp = buildCertifcateResponse(accept, certDao, headers);
 
-			if( resp == null) {
-				String msg = "problem returning certificate with accepting type " + accept;
-				LOG.info(msg);
+            if (resp == null) {
+                String msg = "problem returning certificate with accepting type " + accept;
+                LOG.info(msg);
 
-				return ResponseEntity.badRequest().build();
-			}
+                return ResponseEntity.badRequest().build();
+            }
 
-			return resp;
-  		}
-	}
+            return resp;
+        }
+    }
 
-	/**
-	 *
-	 * @param certId
-	 * @param accept
-	 * @param alias
-	 * @param filename
-	 * @return
-	 * @throws HttpClientErrorException
-	 * @throws AcmeProblemException
-	 * @throws GeneralSecurityException
-	 */
-	public ResponseEntity<byte[]> buildByteArrayResponseForId(final long certId, final String accept, final String alias, String filename)
-			throws HttpClientErrorException, AcmeProblemException, GeneralSecurityException {
+    /**
+     * @param certId
+     * @param accept
+     * @param alias
+     * @param filename
+     * @return
+     * @throws HttpClientErrorException
+     * @throws AcmeProblemException
+     * @throws GeneralSecurityException
+     */
+    public ResponseEntity<byte[]> buildByteArrayResponseForId(final long certId, final String accept, final String alias, String filename)
+        throws HttpClientErrorException, AcmeProblemException, GeneralSecurityException {
 
-		Optional<Certificate> certOpt = certificateRepository.findById(certId);
+        Optional<Certificate> certOpt = certificateRepository.findById(certId);
 
-  		if(!certOpt.isPresent()) {
-  		  throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
-  		}else {
-  			Certificate certDao = certOpt.get();
+        if (!certOpt.isPresent()) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        } else {
+            Certificate certDao = certOpt.get();
 
-  			final HttpHeaders headers = new HttpHeaders();
-			headers.set("content-disposition", "inline; filename=\"" + filename + "\"");
+            final HttpHeaders headers = new HttpHeaders();
+            headers.set("content-disposition", "inline; filename=\"" + filename + "\"");
 
-			if(AcmeController.APPLICATION_PKIX_CERT_VALUE.equalsIgnoreCase(accept)){
-				return buildPkixCertResponse(certDao, headers);
-			}else if(AcmeController.APPLICATION_PKCS12_VALUE.equalsIgnoreCase(accept)){
-				return  buildPKCS12Response(certDao, alias, headers);
-			}
+            if (AcmeController.APPLICATION_PKIX_CERT_VALUE.equalsIgnoreCase(accept)) {
+                return buildPkixCertResponse(certDao, headers);
+            } else if (AcmeController.APPLICATION_PKCS12_VALUE.equalsIgnoreCase(accept)) {
+                return buildPKCS12Response(certDao, alias, headers);
+            }
 
-  		  throw new HttpClientErrorException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
-  		}
-	}
+            throw new HttpClientErrorException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+        }
+    }
 
-	/**
-	 * @param accept
-	 * @param certDao
-	 * @param headers
-	 */
-	public ResponseEntity<?> buildCertifcateResponse(final String accept, Certificate certDao, final HttpHeaders headers) {
+    /**
+     * @param accept
+     * @param certDao
+     * @param headers
+     */
+    public ResponseEntity<?> buildCertifcateResponse(final String accept, Certificate certDao, final HttpHeaders headers) {
 
-		if("*/*".equalsIgnoreCase(accept)){
-			return buildPEMResponse(certDao, headers, AcmeController.APPLICATION_PEM_CERT_CHAIN,true, false);
+        if ("*/*".equalsIgnoreCase(accept)) {
+            return buildPEMResponse(certDao, headers, AcmeController.APPLICATION_PEM_CERT_CHAIN, true, false);
 //		}else if(AcmeController.APPLICATION_PKIX_CERT_VALUE.equalsIgnoreCase(accept)){
 //			return buildPkixCertResponse(certDao, headers);
-        }else if(AcmeController.APPLICATION_X_PEM_CERT_CHAIN_VALUE.equalsIgnoreCase(accept)){
-            return buildPEMResponse(certDao, headers, AcmeController.APPLICATION_PEM_CERT_CHAIN,true, false);
-        }else if(AcmeController.APPLICATION_PEM_CERT_CHAIN_VALUE.equalsIgnoreCase(accept)){
-            return buildPEMResponse(certDao, headers, AcmeController.APPLICATION_PEM_CERT_CHAIN,true, true);
-		}else if(AcmeController.APPLICATION_PEM_CERT_VALUE.equalsIgnoreCase(accept)){
-			return buildPEMResponse(certDao, headers, AcmeController.APPLICATION_PEM_CERT, false, false);
+        } else if (AcmeController.APPLICATION_X_PEM_CERT_CHAIN_VALUE.equalsIgnoreCase(accept)) {
+            return buildPEMResponse(certDao, headers, AcmeController.APPLICATION_PEM_CERT_CHAIN, true, false);
+        } else if (AcmeController.APPLICATION_PEM_CERT_CHAIN_VALUE.equalsIgnoreCase(accept)) {
+            return buildPEMResponse(certDao, headers, AcmeController.APPLICATION_PEM_CERT_CHAIN, true, true);
+        } else if (AcmeController.APPLICATION_PEM_CERT_VALUE.equalsIgnoreCase(accept)) {
+            return buildPEMResponse(certDao, headers, AcmeController.APPLICATION_PEM_CERT, false, false);
 //		}else if(AcmeController.APPLICATION_PKCS12_VALUE.equalsIgnoreCase(accept)){
 //			return buildPKCS12Response(certDao, headers);
-		}
+        }
 
-		LOG.info("unexpected accept type {}", accept);
+        LOG.info("unexpected accept type {}", accept);
 
-		return null;
-	}
+        return null;
+    }
 
 
-	private ResponseEntity<?> buildPEMResponse(Certificate certDao, final HttpHeaders headers,
+    private ResponseEntity<?> buildPEMResponse(Certificate certDao, final HttpHeaders headers,
                                                MediaType mediaType, boolean includeChain, boolean includeRoot) {
-		LOG.info("building PEM certificate response");
+        LOG.info("building PEM certificate response");
 
-		try {
+        try {
             String resultPem = "";
 
-			if( includeChain) {
-				List<Certificate> chain = certUtil.getCertificateChain(certDao);
+            if (includeChain) {
+                List<Certificate> chain = certUtil.getCertificateChain(certDao);
                 boolean isFirst = true;
-				for( Iterator<Certificate> it = chain.iterator(); it.hasNext(); ) {
-					Certificate chainCertDao = it.next();
-					// skip the last cert, the root
-					if( it.hasNext() || includeRoot) {
+                for (Iterator<Certificate> it = chain.iterator(); it.hasNext(); ) {
+                    Certificate chainCertDao = it.next();
+                    // skip the last cert, the root
+                    if (it.hasNext() || includeRoot) {
                         // adde some descriptive text into the PEM file
-                        if( isFirst){
+                        if (isFirst) {
                             isFirst = false;
-                        }else {
+                        } else {
                             resultPem += "# issued by\n";
                         }
                         resultPem += "# Subject: " + chainCertDao.getSubject() + "\n";
@@ -338,60 +337,60 @@ public class CertificateDownloadController  {
                         resultPem += "# Serial: " + chainCertDao.getSerial() + "\n";
                         resultPem += "# valid from : " + chainCertDao.getValidFrom() + " to " + chainCertDao.getValidTo() + "\n";
                         resultPem += "#" + "\n";
-						resultPem += chainCertDao.getContent();
-					}
-				}
-			} else {
-				resultPem += certDao.getContent();
-			}
+                        resultPem += chainCertDao.getContent();
+                    }
+                }
+            } else {
+                resultPem += certDao.getContent();
+            }
 
-			LOG.debug("returning cert and issuer : \n" + resultPem );
-			headers.set("content-length", String.valueOf(resultPem.getBytes().length));
-			return ResponseEntity.ok().contentType(mediaType).headers(headers).body(resultPem.getBytes());
+            LOG.debug("returning cert and issuer : \n" + resultPem);
+            headers.set("content-length", String.valueOf(resultPem.getBytes().length));
+            return ResponseEntity.ok().contentType(mediaType).headers(headers).body(resultPem.getBytes());
 
-		} catch (GeneralSecurityException ge) {
-			String msg = "problem building certificate chain";
-			LOG.info(msg, ge);
-			return ResponseEntity.badRequest().build();
-		}
+        } catch (GeneralSecurityException ge) {
+            String msg = "problem building certificate chain";
+            LOG.info(msg, ge);
+            return ResponseEntity.badRequest().build();
+        }
 
-	}
-
-
-	private ResponseEntity<byte[]> buildPkixCertResponse(Certificate certDao, final HttpHeaders headers) throws GeneralSecurityException {
-		LOG.info("building PKIX certificate response");
-
-		try {
-			X509Certificate x509Cert = CryptoService.convertPemToCertificate(certDao.getContent());
-			byte[] contentBytes = x509Cert.getEncoded();
-			headers.set("content-length", String.valueOf(contentBytes.length));
-			return ResponseEntity.ok().contentType(AcmeController.APPLICATION_PKIX_CERT).headers(headers).body(contentBytes);
-		}catch(GeneralSecurityException gse) {
-			LOG.info("problem downloading certificate content for cert id " + certDao.getId(), gse);
-			throw gse;
-		}
-	}
+    }
 
 
-	private ResponseEntity<byte[]> buildPKCS12Response(Certificate certDao, final String alias, final HttpHeaders headers) throws GeneralSecurityException {
-		LOG.info("building PKCS12 container response");
+    private ResponseEntity<byte[]> buildPkixCertResponse(Certificate certDao, final HttpHeaders headers) throws GeneralSecurityException {
+        LOG.info("building PKIX certificate response");
 
-		String entryAlias = "entry";
-		if( alias != null && !alias.trim().isEmpty()) {
-			entryAlias = alias;
-		}
+        try {
+            X509Certificate x509Cert = CryptoService.convertPemToCertificate(certDao.getContent());
+            byte[] contentBytes = x509Cert.getEncoded();
+            headers.set("content-length", String.valueOf(contentBytes.length));
+            return ResponseEntity.ok().contentType(AcmeController.APPLICATION_PKIX_CERT).headers(headers).body(contentBytes);
+        } catch (GeneralSecurityException gse) {
+            LOG.info("problem downloading certificate content for cert id " + certDao.getId(), gse);
+            throw gse;
+        }
+    }
 
-		CSR csr = certDao.getCsr();
-		if (csr == null) {
-			throw new GeneralSecurityException("problem downloading keystore content for cert id "+certDao.getId()+": no csr object available ");
-		}
 
-        if( SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN) ||
-            SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.RA_OFFICER) ){
+    private ResponseEntity<byte[]> buildPKCS12Response(Certificate certDao, final String alias, final HttpHeaders headers) throws GeneralSecurityException {
+        LOG.info("building PKCS12 container response");
+
+        String entryAlias = "entry";
+        if (alias != null && !alias.trim().isEmpty()) {
+            entryAlias = alias;
+        }
+
+        CSR csr = certDao.getCsr();
+        if (csr == null) {
+            throw new GeneralSecurityException("problem downloading keystore content for cert id " + certDao.getId() + ": no csr object available ");
+        }
+
+        if (SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN) ||
+            SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.RA_OFFICER)) {
             LOG.debug("Admins and RA Officers are allowed to download P12 files");
-        }else if( SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.DOMAIN_RA_OFFICER) ){
+        } else if (SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.DOMAIN_RA_OFFICER)) {
             LOG.debug("Admins and RA Officers are allowed to download P12 files");
-        }else {
+        } else {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String userName = auth.getName();
             if (userName == null) {
@@ -402,78 +401,34 @@ public class CertificateDownloadController  {
             }
         }
 
-		if (!csr.isServersideKeyGeneration()) {
-			throw new GeneralSecurityException("problem downloading keystore content for csr id "+csr.getId()+": key not generated serverside");
-		}
-
-		List<ProtectedContent> protContentList = protContentUtil.retrieveProtectedContent(ProtectedContentType.PASSWORD,
-				ContentRelationType.CSR, csr.getId());
-		if (protContentList.size() == 0) {
-			throw new GeneralSecurityException("problem downloading keystore content for csr id "+csr.getId()+": no keystore passphrase available ");
-		}
-
-		PrivateKey key = certUtil.getPrivateKey(ProtectedContentType.KEY, ContentRelationType.CSR, csr.getId());
-
         boolean keyEx = false;
         List<String> keyExHeaderList = headers.get("X_keyEx");
-        if( keyExHeaderList != null && !keyExHeaderList.isEmpty() ){
+        if (keyExHeaderList != null && !keyExHeaderList.isEmpty()) {
             keyEx = Boolean.parseBoolean(keyExHeaderList.get(0));
         }
         LOG.info("PKCS12: keyEx flag: {} ", keyEx);
 
         String passwordProtectionAlgo = cryptoConfiguration.getDefaultPBEAlgo();
         List<String> algoHeaderList = headers.get("X_pbeAlgo");
-        if( algoHeaderList != null && !algoHeaderList.isEmpty()){
+        if (algoHeaderList != null && !algoHeaderList.isEmpty()) {
             String reqAlgo = algoHeaderList.get(0).trim();
-            if( cryptoConfiguration.isPBEAlgoAllowed(reqAlgo)){
+            if (cryptoConfiguration.isPBEAlgoAllowed(reqAlgo)) {
                 passwordProtectionAlgo = reqAlgo;
-            }else{
+            } else {
                 LOG.info("requested PKCS12 pbe algo '{}' not in list of valid algos, using default '{}' ", reqAlgo, passwordProtectionAlgo);
             }
         }
         LOG.info("PKCS12: using algo {} ", passwordProtectionAlgo);
 
-        byte[] salt = new byte[20];
-        new SecureRandom().nextBytes(salt);
+        try {
+            byte[] contentBytes = certUtil.getContainerBytes(certDao, entryAlias, csr, passwordProtectionAlgo);
+            headers.set("content-length", String.valueOf(contentBytes.length));
+            return ResponseEntity.ok().contentType(AcmeController.APPLICATION_PKCS12).headers(headers).body(contentBytes);
 
-		char[] passphraseChars = protContentUtil.unprotectString(protContentList.get(0).getContentBase64())
-				.toCharArray();
-		try {
-
-			KeyStore p12 = KeyStore.getInstance("pkcs12");
-			p12.load(null, passphraseChars);
-
-			X509Certificate[] chain = certUtil.getX509CertificateChain(certDao);
-
-            Set<KeyStore.Entry.Attribute> privateKeyAttributes = new HashSet<>();
-            p12.setEntry(entryAlias,
-                new KeyStore.PrivateKeyEntry(key, chain, privateKeyAttributes),
-                new KeyStore.PasswordProtection(passphraseChars,
-                    passwordProtectionAlgo,
-                    new PBEParameterSpec(salt, 100000)));
-
-			try(ByteArrayOutputStream baos = new ByteArrayOutputStream()){
-                p12.store(baos, passphraseChars);
-                byte[] contentBytes = baos.toByteArray();
-
-                if( LOG.isDebugEnabled()) {
-                    ByteArrayInputStream bais = new ByteArrayInputStream(contentBytes);
-                    KeyStore store = KeyStore.getInstance("pkcs12");
-                    store.load(bais, passphraseChars);
-
-                    java.security.cert.Certificate cert = store.getCertificate(entryAlias);
-                    LOG.debug("retrieved cert " + cert);
-                }
-
-				headers.set("content-length", String.valueOf(contentBytes.length));
-				return ResponseEntity.ok().contentType(AcmeController.APPLICATION_PKCS12).headers(headers).body(contentBytes);
-			}
-
-		} catch (IOException gse) {
-			throw new GeneralSecurityException("problem downloading keystore content for cert id " + certDao.getId());
-		}
-	}
-
+        } catch (IOException gse) {
+            throw new GeneralSecurityException("problem downloading keystore content for cert id " + certDao.getId());
+        }
+    }
 }
 
 @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "Not Found")

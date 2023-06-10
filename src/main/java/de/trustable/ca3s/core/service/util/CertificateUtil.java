@@ -49,11 +49,13 @@ import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.bouncycastle.x509.extension.X509ExtensionUtil;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.spec.PBEParameterSpec;
 import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapName;
@@ -235,12 +237,12 @@ public class CertificateUtil {
         return (X509Certificate) factory.generateCertificate(new ByteArrayInputStream(encodedCert));
     }
 
-    public Certificate createCertificate(final byte[] encodedCert, final CSR csr, final String executionId, final boolean reimport) throws GeneralSecurityException, IOException {
+    public Certificate createCertificate(final byte[] encodedCert, final CSR csr, final String executionId, final boolean reimport) throws GeneralSecurityException {
         return createCertificate(encodedCert, csr, executionId, reimport, null);
 
     }
 
-    public Certificate createCertificate(final byte[] encodedCert, final CSR csr, final String executionId, final boolean reimport, final String importUrl) throws GeneralSecurityException, IOException {
+    public Certificate createCertificate(final byte[] encodedCert, final CSR csr, final String executionId, final boolean reimport, final String importUrl) throws GeneralSecurityException {
 
         try {
             CertificateFactory factory = CertificateFactory.getInstance("X.509");
@@ -249,9 +251,12 @@ public class CertificateUtil {
             String pemCert = cryptoUtil.x509CertToPem(cert);
 
             return createCertificate(pemCert, csr, executionId, reimport, importUrl);
-        } catch (GeneralSecurityException | IOException e) {
+        } catch (GeneralSecurityException e ) {
             LOG.debug("problem importing certificate: " + e.getMessage(), e);
             throw e;
+        } catch (IOException e) {
+            LOG.debug("problem importing certificate: " + e.getMessage(), e);
+            throw new GeneralSecurityException(e);
         } catch (Throwable th) {
             LOG.debug("problem importing certificate: " + th.getMessage(), th);
             throw new GeneralSecurityException("problem importing certificate: " + th.getMessage());
@@ -2297,5 +2302,80 @@ public class CertificateUtil {
 
         return info;
     }
+
+    public byte[] getContainerBytes(Certificate certDao, String entryAlias, CSR csr, String passwordProtectionAlgo) throws IOException, GeneralSecurityException {
+
+        KeyStoreAndPassphrase keyStoreAndPassphrase = getContainer(certDao, entryAlias, csr, passwordProtectionAlgo);
+
+        byte[] contentBytes;
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            keyStoreAndPassphrase.keyStore.store(baos, keyStoreAndPassphrase.getPassphraseChars());
+            contentBytes = baos.toByteArray();
+
+            if (LOG.isDebugEnabled()) {
+                ByteArrayInputStream bais = new ByteArrayInputStream(contentBytes);
+                KeyStore store = KeyStore.getInstance("pkcs12");
+                store.load(bais, keyStoreAndPassphrase.getPassphraseChars());
+
+                java.security.cert.Certificate cert = store.getCertificate(entryAlias);
+                LOG.debug("retrieved cert " + cert);
+            }
+        }
+        return contentBytes;
+    }
+
+    @NotNull
+    public KeyStoreAndPassphrase getContainer(Certificate certDao, String entryAlias, CSR csr, String passwordProtectionAlgo) throws IOException, GeneralSecurityException {
+
+        if (!csr.isServersideKeyGeneration()) {
+            throw new GeneralSecurityException("problem downloading keystore content for csr id " + csr.getId() + ": key not generated serverside");
+        }
+
+        List<ProtectedContent> protContentList = protUtil.retrieveProtectedContent(ProtectedContentType.PASSWORD,
+            ContentRelationType.CSR, csr.getId());
+        if (protContentList.size() == 0) {
+            throw new GeneralSecurityException("problem downloading keystore content for csr id " + csr.getId() + ": no keystore passphrase available ");
+        }
+
+        PrivateKey key = getPrivateKey(ProtectedContentType.KEY, ContentRelationType.CSR, csr.getId());
+
+        byte[] salt = new byte[20];
+        new SecureRandom().nextBytes(salt);
+
+        char[] passphraseChars = protUtil.unprotectString(protContentList.get(0).getContentBase64()).toCharArray();
+        KeyStore p12 = KeyStore.getInstance("pkcs12");
+        p12.load(null, passphraseChars);
+
+        X509Certificate[] chain = getX509CertificateChain(certDao);
+
+        Set<KeyStore.Entry.Attribute> privateKeyAttributes = new HashSet<>();
+        p12.setEntry(entryAlias,
+            new KeyStore.PrivateKeyEntry(key, chain, privateKeyAttributes),
+            new KeyStore.PasswordProtection(passphraseChars,
+                passwordProtectionAlgo,
+                new PBEParameterSpec(salt, 100000)));
+
+        return new KeyStoreAndPassphrase(p12, passphraseChars);
+    }
+
+    public class KeyStoreAndPassphrase{
+
+        private KeyStore keyStore;
+        private char[] passphraseChars;
+
+        public KeyStoreAndPassphrase(KeyStore keyStore, char[] passphraseChars){
+            this.keyStore = keyStore;
+            this.passphraseChars = passphraseChars;
+        }
+
+        public KeyStore getKeyStore() {
+            return keyStore;
+        }
+
+        public char[] getPassphraseChars() {
+            return passphraseChars;
+        }
+    }
 }
+
 

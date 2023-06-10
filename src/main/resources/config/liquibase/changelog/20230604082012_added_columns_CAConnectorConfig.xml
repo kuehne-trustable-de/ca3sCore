@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Add the tls_authentication_id and message_protection_id fields to the ca_connector_config.
+    -->
+    <changeSet id="20230411120000-1" author="ak">
+
+        <addColumn tableName="ca_connector_config">
+            <column name="tls_authentication_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="message_protection_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="check_active" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+
+        <addForeignKeyConstraint baseColumnNames="tls_authentication_id"
+                                 baseTableName="ca_connector_config"
+                                 constraintName="fk_ca_connector_config__tls_authentication_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="certificate"/>
+
+        <addForeignKeyConstraint baseColumnNames="message_protection_id"
+                                 baseTableName="ca_connector_config"
+                                 constraintName="fk_ca_connector_config__message_protection_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="certificate"/>
+
+    </changeSet>
+
+
+</databaseChangeLog>

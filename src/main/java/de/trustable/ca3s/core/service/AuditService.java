@@ -95,6 +95,24 @@ public class AuditService {
     public static final String AUDIT_ACME_ACCOUNT_CREATED_OR_UPDATED = "AUDIT_ACME_ACCOUNT_CREATED_OR_UPDATED";
 
 
+    public static final String AUDIT_CA_CONNECTOR_NAME_CHANGED = "AUDIT_ACME_ACCOUNT_CREATED_OR_UPDATED";
+    public static final String AUDIT_CA_CONNECTOR_TYPE_CHANGED = "AUDIT_CA_CONNECTOR_TYPE_CHANGED";
+    public static final String AUDIT_CA_CONNECTOR_ACTIVE_CHANGED = "AUDIT_CA_CONNECTOR_ACTIVE_CHANGED";
+    public static final String AUDIT_CA_CONNECTOR_CA_URL_CHANGED = "AUDIT_CA_CONNECTOR_CA_URL_CHANGED";
+    public static final String AUDIT_CA_CONNECTOR_INTERVAL_CHANGED = "AUDIT_CA_CONNECTOR_INTERVAL_CHANGED";
+    public static final String AUDIT_CA_CONNECTOR_IS_DEFAULT_CHANGED = "AUDIT_CA_CONNECTOR_IS_DEFAULT_CHANGED";
+    public static final String AUDIT_CA_CONNECTOR_POLLING_OFFSET_CHANGED = "AUDIT_CA_CONNECTOR_POLLING_OFFSET_CHANGED";
+    public static final String AUDIT_CA_CONNECTOR_SELECTOR_CHANGED = "AUDIT_CA_CONNECTOR_SELECTOR_CHANGED";
+    public static final String AUDIT_CA_CONNECTOR_TRUST_SELFSIGNED_CHANGED = "AUDIT_CA_CONNECTOR_TRUST_SELFSIGNED_CHANGED";
+    public static final String AUDIT_CA_CONNECTOR_TLS_AUTHENTICATION_CHANGED = "AUDIT_CA_CONNECTOR_TLS_AUTHENTICATION_CHANGED";
+    public static final String AUDIT_CA_CONNECTOR_MESSAGE_PROTECTION_CHANGED = "AUDIT_CA_CONNECTOR_MESSAGE_PROTECTION_CHANGED";
+    public static final String AUDIT_CA_CONNECTOR_SECRET_CHANGED = "AUDIT_CA_CONNECTOR_SECRET_CHANGED";
+    public static final String AUDIT_CA_CONNECTOR_SECRET_DELETED = "AUDIT_CA_CONNECTOR_SECRET_DELETED";
+    public static final String AUDIT_CA_CONNECTOR_ISSUER_NAME_CHANGED = "AUDIT_CA_CONNECTOR_ISSUER_NAME_CHANGED";
+    public static final String AUDIT_CA_CONNECTOR_MULTIPLE_MESSAGES_CHANGED = "AUDIT_CA_CONNECTOR_MULTIPLE_MESSAGES_CHANGED";
+    public static final String AUDIT_CA_CONNECTOR_IMPLICIT_CONFIRM_CHANGED = "AUDIT_CA_CONNECTOR_IMPLICIT_CONFIRM_CHANGED";
+
+
     private final Logger log = LoggerFactory.getLogger(AuditService.class);
 
     private final AuditTraceRepository auditTraceRepository;
@@ -363,6 +381,37 @@ public class AuditService {
             null );
     }
 
+    public AuditTrace createAuditTraceCaConnectorConfig( final String template, final CAConnectorConfig caConnectorConfig){
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            template,
+            null,
+            caConnectorConfig.getName(),
+            null,
+            null,
+            null,
+            caConnectorConfig,
+            null );
+    }
+
+
+    public AuditTrace createAuditTraceCaConnectorConfig( final String template, String oldVal, String newVal, final CAConnectorConfig caConnectorConfig){
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            template,
+            null,
+            oldVal, newVal,
+            null,
+            null,
+            null,
+            caConnectorConfig,
+            null,
+            null,
+            null,
+            null);
+    }
+
+
     public AuditTrace createAuditTraceRequestProxyConfigChange(String attributeName, String oldVal, String newVal, RequestProxyConfig requestProxyConfig) {
         NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),
@@ -566,6 +615,7 @@ public class AuditService {
             null,
             null, null);
     }
+
 
     public AuditTrace createAuditTraceCertificateSchemaUpdated(final int nUpdated, final int version){
 

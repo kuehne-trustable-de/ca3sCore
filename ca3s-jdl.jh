@@ -23,6 +23,13 @@ entity CAConnectorConfig{
 	selector String
 	interval Interval
 	plainSecret String
+    checkActive Boolean
+}
+
+@skipClient
+entity CAConnectorConfigAttribute{
+    name String required
+    value0 String required
 }
 
 enum CAConnectorType {
@@ -451,7 +458,9 @@ relationship OneToMany {
 
 	Pipeline{pipelineAttributes} to PipelineAttribute{pipeline}
 
-//  contact (optional, array of string):  An array of URLs that the
+    CAConnectorConfig{caConnectorAttributes} to CAConnectorConfigAttribute{caConnector}
+
+    //  contact (optional, array of string):  An array of URLs that the
 //  server can use to contact the client for issues related to this
 //  account.  For example, the server may wish to notify the client
 //  about server-initiated revocation or certificate expiration.  For
@@ -519,11 +528,15 @@ relationship ManyToOne {
 	Pipeline{caConnector} to CAConnectorConfig
 	Pipeline{processInfo} to BPMNProcessInfo
 
+    CAConnectorConfig{tlsAuthentication} to Certificate
+    CAConnectorConfig{messageProtection} to Certificate
+
 }
 
 relationship ManyToMany {
 	Pipeline{algorithms} to AlgorithmRestriction{pipelines}
 	Pipeline{requestProxy} to RequestProxyConfig{pipelines}
+
 }
 
 relationship OneToOne{

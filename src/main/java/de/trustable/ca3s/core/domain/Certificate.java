@@ -304,7 +304,7 @@ public class Certificate implements Serializable {
     private Certificate rootCertificate;
 
     @ManyToOne
-    @JsonIgnoreProperties("certificates")
+    @JsonIgnoreProperties(value = { "secret", "caConnectorAttributes", "tlsAuthentication", "messageProtection" }, allowSetters = true)
     private CAConnectorConfig revocationCA;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

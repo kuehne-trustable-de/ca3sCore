@@ -1,63 +1,37 @@
 package de.trustable.ca3s.core.service.cmp;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.security.GeneralSecurityException;
-import java.security.UnrecoverableEntryException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
-
-import de.trustable.ca3s.core.service.AuditService;
-import org.bouncycastle.asn1.ASN1Encodable;
-import org.bouncycastle.asn1.ASN1ObjectIdentifier;
-import org.bouncycastle.asn1.ASN1OctetString;
-import org.bouncycastle.asn1.ASN1Primitive;
-import org.bouncycastle.asn1.DERUTF8String;
-import org.bouncycastle.asn1.cmp.CMPCertificate;
-import org.bouncycastle.asn1.cmp.CertRepMessage;
-import org.bouncycastle.asn1.cmp.CertResponse;
-import org.bouncycastle.asn1.cmp.ErrorMsgContent;
-import org.bouncycastle.asn1.cmp.GenMsgContent;
-import org.bouncycastle.asn1.cmp.InfoTypeAndValue;
-import org.bouncycastle.asn1.cmp.PKIBody;
-import org.bouncycastle.asn1.cmp.PKIFreeText;
-import org.bouncycastle.asn1.cmp.PKIHeader;
-import org.bouncycastle.asn1.cmp.PKIMessage;
-import org.bouncycastle.asn1.cmp.PKIStatusInfo;
-import org.bouncycastle.asn1.pkcs.Attribute;
-import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
-import org.bouncycastle.asn1.x500.RDN;
-import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.asn1.x509.CRLReason;
-import org.bouncycastle.asn1.x509.Extension;
-import org.bouncycastle.asn1.x509.Extensions;
-import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
-import org.bouncycastle.cert.cmp.CMPException;
-import org.bouncycastle.cert.crmf.CRMFException;
-import org.bouncycastle.cert.jcajce.JcaX500NameUtil;
-import org.bouncycastle.pkcs.PKCS10CertificationRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CsrAttribute;
-import de.trustable.ca3s.core.domain.RDNAttribute;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.CertificateRepository;
+import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.CAStatus;
 import de.trustable.ca3s.core.service.util.CSRUtil;
+import de.trustable.ca3s.core.service.util.CaConnectorConfigUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
+import de.trustable.cmp.client.ProtectedMessageHandler;
+import de.trustable.cmp.client.cmpClient.*;
 import de.trustable.util.CryptoUtil;
+import org.bouncycastle.asn1.cmp.GenMsgContent;
+import org.bouncycastle.asn1.cmp.PKIMessage;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x509.CRLReason;
+import org.bouncycastle.cert.cmp.CMPException;
+import org.bouncycastle.cert.crmf.CRMFException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.security.GeneralSecurityException;
+import java.security.cert.X509Certificate;
+import java.util.Date;
+import java.util.Set;
 
 @Service
 public class CaCmpConnector {
@@ -74,10 +48,11 @@ public class CaCmpConnector {
 
 	private final ProtectedContentUtil protUtil;
 
+    private final CaConnectorConfigUtil caConnectorConfigUtil;
+
 	private final CertificateRepository certificateRepository;
 
     /**
-	 *
      * @param remoteConnector
      * @param cryptoUtil
      * @param certUtil
@@ -85,17 +60,96 @@ public class CaCmpConnector {
      * @param protUtil
      * @param certificateRepository
      * @param auditService
+     * @param caConnectorConfigUtil
      */
-	public CaCmpConnector(RemoteConnector remoteConnector, CryptoUtil cryptoUtil, CertificateUtil certUtil, CSRUtil csrUtil, ProtectedContentUtil protUtil, CertificateRepository certificateRepository, AuditService auditService) {
+	public CaCmpConnector(RemoteConnector remoteConnector, CryptoUtil cryptoUtil, CertificateUtil certUtil, CSRUtil csrUtil, ProtectedContentUtil protUtil, CertificateRepository certificateRepository, AuditService auditService, CaConnectorConfigUtil caConnectorConfigUtil) {
         this.remoteConnector = remoteConnector;
         this.cryptoUtil = cryptoUtil;
         this.certUtil = certUtil;
         this.csrUtil = csrUtil;
         this.protUtil = protUtil;
         this.certificateRepository = certificateRepository;
+        this.caConnectorConfigUtil = caConnectorConfigUtil;
 
         LOGGER.info("CaCmpConnector cTor ...");
 	}
+
+    private CMPClientImpl getCMPClient(CAConnectorConfig caConnConfig) throws GeneralSecurityException {
+
+        CMPClientConfig cmpClientConfig = new CMPClientConfig();
+
+        Certificate certificateMessageProtection = caConnConfig.getMessageProtection();
+
+        ProtectedMessageHandler signer;
+        if (certificateMessageProtection == null) {
+            LOGGER.debug("CMPClientConfig: instantiating DigestSigner");
+            signer = new DigestSigner(protUtil.unprotectString(caConnConfig.getSecret().getContentBase64()));
+        } else {
+            LOGGER.debug("CMPClientConfig: instantiating KeystoreSigner");
+            CSR csr = certificateMessageProtection.getCsr();
+            if (csr == null) {
+                throw new GeneralSecurityException("problem downloading keystore content for cert id " + certificateMessageProtection.getId() + ": no csr object available ");
+            }
+
+            try {
+                CertificateUtil.KeyStoreAndPassphrase keyStoreAndPassphrase =
+                    certUtil.getContainer(certificateMessageProtection,
+                        "entryAlias",
+                        csr,
+                        "PBEWithHmacSHA256AndAES_256");
+                signer = new KeystoreSigner(keyStoreAndPassphrase.getKeyStore(),
+                    "entryAlias",
+                    new String(keyStoreAndPassphrase.getPassphraseChars()));
+            } catch (IOException e) {
+                throw new GeneralSecurityException("Problem building P12 container", e);
+            }
+        }
+
+        cmpClientConfig.setMessageHandler(signer);
+
+        Certificate certificateTlsAuthentication = caConnConfig.getTlsAuthentication();
+        if (certificateTlsAuthentication != null) {
+            LOGGER.debug("CMPClientConfig: using CertificateTlsAuthentication");
+            CSR csr = certificateTlsAuthentication.getCsr();
+            if (csr == null) {
+                throw new GeneralSecurityException("problem downloading keystore content for cert id " + certificateTlsAuthentication.getId() + ": no csr object available ");
+            }
+
+            try {
+                CertificateUtil.KeyStoreAndPassphrase keyStoreAndPassphrase = certUtil.getContainer(certificateTlsAuthentication, "entryAlias", csr, "PBEWithHmacSHA256AndAES_256");
+                cmpClientConfig.setP12ClientStore(keyStoreAndPassphrase.getKeyStore());
+                cmpClientConfig.setP12ClientSecret(new String(keyStoreAndPassphrase.getPassphraseChars()));
+            } catch (IOException e) {
+                throw new GeneralSecurityException("Problem build P12 container", e);
+            }
+
+        }
+
+        cmpClientConfig.setRemoteTargetHandler(remoteConnector);
+        cmpClientConfig.setCaUrl(caConnConfig.getCaUrl());
+        LOGGER.debug("CMPClientConfig: CaUrl '{}'", cmpClientConfig.getCaUrl());
+
+        cmpClientConfig.setCmpAlias(caConnConfig.getSelector());
+        LOGGER.debug("CMPClientConfig: CmpAlias '{}'", cmpClientConfig.getCmpAlias());
+
+        String certIssuer = caConnectorConfigUtil.getCAConnectorConfigAttribute(caConnConfig, CaConnectorConfigUtil.ATT_ISSUER_NAME, null);
+        if (certIssuer != null && !certIssuer.trim().isEmpty()) {
+            cmpClientConfig.setIssuerName(new X500Name(certIssuer));
+            LOGGER.debug("CMPClientConfig: IssuerName '{}'", cmpClientConfig.getIssuerName());
+        }
+
+        boolean multipleMessages = caConnectorConfigUtil.getCAConnectorConfigAttribute(caConnConfig, CaConnectorConfigUtil.ATT_MULTIPLE_MESSAGES, true);
+        cmpClientConfig.setMultipleMessages(multipleMessages);
+        LOGGER.debug("CMPClientConfig: MultipleMessages '{}'", cmpClientConfig.isMultipleMessages());
+
+        boolean implicitConfirm = caConnectorConfigUtil.getCAConnectorConfigAttribute(caConnConfig, CaConnectorConfigUtil.ATT_IMPLICIT_CONFIRM, true);
+        cmpClientConfig.setImplicitConfirm(implicitConfirm);
+        LOGGER.debug("CMPClientConfig: ImplicitConfirm '{}'", cmpClientConfig.isImplicitConfirm());
+
+        cmpClientConfig.setVerbose(LOGGER.isDebugEnabled());
+
+        return new CMPClientImpl(cmpClientConfig);
+    }
 
 	/**
 	 *
@@ -106,72 +160,26 @@ public class CaCmpConnector {
 	 *
 	 * @throws GeneralSecurityException something went wrong, e.g. no CSM format
 	 */
-	public de.trustable.ca3s.core.domain.Certificate signCertificateRequest(CSR csr, CAConnectorConfig caConnConfig)
-			throws GeneralSecurityException {
+    public de.trustable.ca3s.core.domain.Certificate signCertificateRequest(CSR csr, CAConnectorConfig caConnConfig)
+        throws GeneralSecurityException {
 
-		long certReqId = new Random().nextLong();
+        LOGGER.debug("csr contains #{} CsrAttributes, #{} RequestAttributes and #{} RDN", csr.getCsrAttributes().size(), csr.getRas().size(), csr.getRdns().size());
 
-		try {
+        CMPClientImpl cmpClient = getCMPClient(caConnConfig);
 
-			LOGGER.debug("csr contains #{} CsrAttributes, #{} RequestAttributes and #{} RDN", csr.getCsrAttributes().size(), csr.getRas().size(), csr.getRdns().size());
+        ByteArrayInputStream baisCsr = new ByteArrayInputStream(csr.getCsrBase64().getBytes());
+        CMPClientImpl.CertificateResponseContent certificateResponseContent = cmpClient.signCertificateRequest(baisCsr);
 
-			String plainSecret = protUtil.unprotectString( caConnConfig.getSecret().getContentBase64());
+        de.trustable.ca3s.core.domain.Certificate cert = readCertResponse(certificateResponseContent,
+            csr,
+            caConnConfig);
 
-			// build a CMP request from the CSR
-			PKIMessage pkiRequest = buildCertRequest(certReqId, csr, plainSecret);
 
-			byte[] requestBytes = pkiRequest.getEncoded();
+        csr.setCertificate(cert);
+        csr.setStatus(CsrStatus.ISSUED);
 
-			LOGGER.debug("requestBytes : " + java.util.Base64.getEncoder().encodeToString(requestBytes));
-
-			LOGGER.debug("cmp connector '{}' has url '{}' with alias '{}' ", caConnConfig.getName(), caConnConfig.getCaUrl(), caConnConfig.getSelector());
-
-			// send and receive ..
-			byte[] responseBytes = remoteConnector.sendHttpReq(caConnConfig.getCaUrl() + "/" + caConnConfig.getSelector(),
-					requestBytes);
-
-			if (responseBytes == null) {
-				throw new GeneralSecurityException("remote connector returned 'null'");
-			}
-
-			LOGGER.debug("responseBytes : " + java.util.Base64.getEncoder().encodeToString(responseBytes));
-
-			// extract the certificate
-			de.trustable.ca3s.core.domain.Certificate cert = readCertResponse(responseBytes, pkiRequest, csr, caConnConfig);
-
-			csr.setCertificate(cert);
-			csr.setStatus(CsrStatus.ISSUED);
-
-			return cert;
-
-		} catch (CRMFException e) {
-			LOGGER.info("CMS format problem", e);
-			throw new GeneralSecurityException(e.getMessage());
-		} catch (CMPException e) {
-			LOGGER.info("CMP problem", e);
-			throw new GeneralSecurityException(e.getMessage());
-		} catch (IOException e) {
-			LOGGER.info("IO / encoding problem", e);
-			throw new GeneralSecurityException(e.getMessage());
-		}
-	}
-
-	/**
-	 *
-	 * @param x509Cert
-	 * @param crlReason
-	 * @param hmacSecret
-	 * @param cmpEndpoint
-	 * @param alias
-	 * @throws GeneralSecurityException
-	 */
-	public void revokeCertificate(X509Certificate x509Cert, final CRLReason crlReason, String hmacSecret,
-			String cmpEndpoint, String alias) throws GeneralSecurityException {
-
-		revokeCertificate(JcaX500NameUtil.getIssuer(x509Cert), JcaX500NameUtil.getSubject(x509Cert),
-				x509Cert.getSerialNumber(), crlReason, hmacSecret, cmpEndpoint, alias);
-
-	}
+        return cert;
+    }
 
 	/**
 	 *
@@ -184,11 +192,8 @@ public class CaCmpConnector {
 	public void revokeCertificate(Certificate certDao, final CRLReason crlReason, final Date revocationDate,
 			CAConnectorConfig caConnConfig) throws GeneralSecurityException {
 
-		String plainSecret = protUtil.unprotectString( caConnConfig.getSecret().getContentBase64());
-
 		revokeCertificate(new X500Name(certDao.getIssuer()), new X500Name(certDao.getSubject()),
-				new BigInteger(certDao.getSerial()), crlReason, plainSecret, caConnConfig.getCaUrl(),
-				caConnConfig.getSelector());
+				new BigInteger(certDao.getSerial()), crlReason, caConnConfig);
 	}
 
 	/**
@@ -197,146 +202,20 @@ public class CaCmpConnector {
 	 * @param subjectDN
 	 * @param serial
 	 * @param crlReason
-	 * @param hmacSecret
-	 * @param cmpEndpoint
-	 * @param alias
+	 * @param caConnConfig
 	 *
 	 * @throws GeneralSecurityException
 	 */
 	public void revokeCertificate(final X500Name issuerDN, final X500Name subjectDN, final BigInteger serial,
-			final CRLReason crlReason, String hmacSecret, String cmpEndpoint, String alias)
+			final CRLReason crlReason, CAConnectorConfig caConnConfig )
 			throws GeneralSecurityException {
 
-		long certRevId = new Random().nextLong();
 
-		try {
+        CMPClientImpl cmpClient = getCMPClient(caConnConfig);
 
-			// build a CMP request from the revocation infos
-			byte[] revocationRequestBytes = cryptoUtil.buildRevocationRequest(certRevId, issuerDN, subjectDN, serial,
-					crlReason, hmacSecret);
-
-			// send and receive ..
-			LOGGER.info("revocation requestBytes : "
-					+ java.util.Base64.getEncoder().encodeToString(revocationRequestBytes));
-			byte[] responseBytes = remoteConnector.sendHttpReq(cmpEndpoint + "/" + alias, revocationRequestBytes);
-			LOGGER.info("revocation responseBytes : " + java.util.Base64.getEncoder().encodeToString(responseBytes));
-
-			// handle the response
-			cryptoUtil.readRevResponse(responseBytes, hmacSecret);
-
-		} catch (CRMFException e) {
-			LOGGER.info("CMS format problem", e);
-			throw new GeneralSecurityException(e.getMessage());
-		} catch (CMPException e) {
-			LOGGER.info("CMP problem", e);
-			throw new GeneralSecurityException(e.getMessage());
-		} catch (IOException e) {
-			LOGGER.info("IO / encoding problem", e);
-			throw new GeneralSecurityException(e.getMessage());
-		}
+        cmpClient.revokeCertificate(issuerDN, subjectDN, serial, crlReason);
 	}
 
-	/**
-	 *
-	 * @param certReqId
-	 * @param csr
-	 * @param hmacSecret
-	 * @return PKIMessage
-	 * @throws GeneralSecurityException
-	 */
-	public PKIMessage buildCertRequest(long certReqId, final CSR csr, final String hmacSecret)
-			throws GeneralSecurityException {
-
-		// read the pem csr and verify the signature
-		PKCS10CertificationRequest p10Req;
-		try {
-			p10Req = cryptoUtil.parseCertificateRequest(csr.getCsrBase64()).getP10Req();
-		} catch (IOException e) {
-			LOGGER.error("parsing csr", e);
-			throw new GeneralSecurityException(e.getMessage());
-		}
-
-		List<RDN> rdnList = new ArrayList<>();
-		for (de.trustable.ca3s.core.domain.RDN rdnDao : csr.getRdns()) {
-			LOGGER.debug("rdnDao : " + rdnDao.getRdnAttributes());
-			List<AttributeTypeAndValue> attrTVList = new ArrayList<>();
-			if (rdnDao != null && rdnDao.getRdnAttributes() != null) {
-				for (RDNAttribute rdnAttr : rdnDao.getRdnAttributes()) {
-					ASN1ObjectIdentifier aoi = new ASN1ObjectIdentifier(rdnAttr.getAttributeType());
-					ASN1Encodable ae = new DERUTF8String(rdnAttr.getAttributeValue());
-					AttributeTypeAndValue attrTV = new AttributeTypeAndValue(aoi, ae);
-					attrTVList.add(attrTV);
-				}
-			}
-			RDN rdn = new RDN(attrTVList.toArray(new AttributeTypeAndValue[0]));
-			LOGGER.debug("rdn : " + rdn.size() + " elements");
-			rdnList.add(rdn);
-		}
-
-		X500Name subjectDN = new X500Name(rdnList.toArray(new RDN[0]));
-		LOGGER.debug("subjectDN : " + subjectDN);
-
-		Collection<Extension> certExtList = new ArrayList<>();
-
-        // copy CSR attributes to Extension list
-        for(Attribute attribute: p10Req.getAttributes()){
-            for(ASN1Encodable asn1Encodable: attribute.getAttributeValues()){
-                if( asn1Encodable != null){
-                    try {
-                        Extensions extensions = Extensions.getInstance(asn1Encodable);
-                        for (ASN1ObjectIdentifier oid : extensions.getExtensionOIDs()) {
-                            LOGGER.debug("copying oid '" + oid.toString() + "' from csr to PKIMessage");
-                            certExtList.add(extensions.getExtension(oid));
-                        }
-                    }catch(IllegalArgumentException iae){
-                        LOGGER.debug("processing asn1 value  '" + asn1Encodable + "' caused exception", iae);
-                    }
-                }
-            }
-        }
-
-        final SubjectPublicKeyInfo keyInfo = p10Req.getSubjectPublicKeyInfo();
-
-		return cryptoUtil.buildCertRequest(certReqId, subjectDN, certExtList, keyInfo, hmacSecret);
-	}
-
-	/**
-	 *
-	 * @param certReqId
-	 * @param p10Req
-	 * @param hmacSecret
-	 * @return
-	 * @throws GeneralSecurityException
-	 */
-	PKIMessage buildCertRequest(long certReqId, final PKCS10CertificationRequest p10Req, final String hmacSecret)
-			throws GeneralSecurityException {
-
-		X500Name subjectDN = p10Req.getSubject();
-		Collection<Extension> certExtList = new ArrayList<>();
-
-		Attribute[] attrs = p10Req.getAttributes();
-		for (Attribute attr : attrs) {
-			for (ASN1Encodable asn1Enc : attr.getAttributeValues()) {
-
-				boolean critical = false;
-				Extension ext;
-				try {
-					ext = new Extension(attr.getAttrType(), critical, asn1Enc.toASN1Primitive().getEncoded());
-					LOGGER.debug("Csr Extension from PKCS10Attr : " + ext.getExtnId().getId() + " -> "
-							+ ext.getParsedValue().toString());
-
-					certExtList.add(ext);
-				} catch (IOException e) {
-					LOGGER.error("reading attribute", e);
-					throw new GeneralSecurityException(e.getMessage());
-				}
-			}
-		}
-
-		return cryptoUtil.buildCertRequest(certReqId, subjectDN, certExtList, p10Req.getSubjectPublicKeyInfo(),
-				hmacSecret);
-
-	}
 
 	/**
 	 *
@@ -345,6 +224,8 @@ public class CaCmpConnector {
 	 */
 	public CAStatus getStatus(final CAConnectorConfig caConnConfig) {
 
+        return CAStatus.Active;
+/*
 		try {
 			if( caConnConfig.getSecret() == null) {
 				LOGGER.error("CMP instance requires 'secret' to be present");
@@ -374,6 +255,8 @@ public class CaCmpConnector {
 		}
 
 		return CAStatus.Deactivated;
+
+ */
 	}
 
 	/**
@@ -411,229 +294,45 @@ public class CaCmpConnector {
 		}
 	}
 
-	/**
-	 *
-	 *
-	 * @param responseBytes
-	 * @param pkiMessageReq
-	 * @param csr
-	 * @param config
-	 * @throws IOException
-	 * @throws CRMFException
-	 * @throws CMPException
-	 * @throws GeneralSecurityException
-	 */
-	public de.trustable.ca3s.core.domain.Certificate readCertResponse(final byte[] responseBytes,
-			final PKIMessage pkiMessageReq,
-			final CSR csr,
-			final CAConnectorConfig config)
-			throws IOException, CRMFException, CMPException, GeneralSecurityException {
+    public de.trustable.ca3s.core.domain.Certificate readCertResponse(final CMPClientImpl.CertificateResponseContent certificateResponseContent,
+                                                                      final CSR csr,
+                                                                      final CAConnectorConfig config)
+        throws GeneralSecurityException {
 
-		final ASN1Primitive derObject = cryptoUtil.getDERObject(responseBytes);
-		final PKIMessage pkiMessage = PKIMessage.getInstance(derObject);
-		if (pkiMessage == null) {
-			throw new GeneralSecurityException("No CMP message could be parsed from received Der object.");
-		}
+        handleExtraCerts(certificateResponseContent.getAdditionalCertificates());
 
-		printPKIMessageInfo(pkiMessage);
+        if (certificateResponseContent.getCreatedCertificate() == null) {
 
-		PKIHeader pkiHeaderReq = pkiMessageReq.getHeader();
-		PKIHeader pkiHeaderResp = pkiMessage.getHeader();
+            csrUtil.setStatus(csr, CsrStatus.REJECTED);
+            csrUtil.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_FAILURE_INFO, certificateResponseContent.getMessage(), true);
 
-		if (!pkiHeaderReq.getSenderNonce().equals(pkiHeaderResp.getRecipNonce())) {
-			ASN1OctetString asn1Oct = pkiHeaderResp.getRecipNonce();
-			if (asn1Oct == null) {
-				LOGGER.info("Recip nonce  == null");
-			} else {
-				LOGGER.info("sender nonce "
-						+ java.util.Base64.getEncoder().encodeToString(pkiHeaderReq.getSenderNonce().getOctets())
-						+ " != " + java.util.Base64.getEncoder().encodeToString(asn1Oct.getOctets()));
-			}
-			throw new GeneralSecurityException("Sender / Recip nonce mismatch");
-		}
-		/*
-		 * if( !pkiHeaderReq.getSenderKID().equals(pkiHeaderResp.getRecipKID())){
-		 * ASN1OctetString asn1Oct = pkiHeaderResp.getRecipKID(); if( asn1Oct == null ){
-		 * LOGGER.info("Recip kid  == null"); }else{ LOGGER.info("sender kid " +
-		 * Base64.encodeBase64String( pkiHeaderReq.getSenderKID().getOctets() ) +
-		 * " != recip kid " + Base64.encodeBase64String( asn1Oct.getOctets() )); } //
-		 * throw new GeneralSecurityException( "Sender / Recip Key Id mismatch");
-		 *
-		 * asn1Oct = pkiHeaderResp.getSenderKID(); if( asn1Oct == null ){
-		 * LOGGER.info("sender kid  == null"); }else{ LOGGER.info("sender kid " +
-		 * Base64.encodeBase64String( pkiHeaderReq.getSenderKID().getOctets() ) + " != "
-		 * + Base64.encodeBase64String( asn1Oct.getOctets() )); } }
-		 */
+            throw new GeneralSecurityException(
+                "CMP response contains no certificate, \n" + certificateResponseContent.getMessage());
+        }
 
-		if (!pkiHeaderReq.getTransactionID().equals(pkiHeaderResp.getTransactionID())) {
-			ASN1OctetString asn1Oct = pkiHeaderResp.getTransactionID();
-			if (asn1Oct == null) {
-				LOGGER.info("transaction id == null");
-			} else {
-				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("transaction id "
-							+ java.util.Base64.getEncoder().encodeToString(pkiHeaderReq.getTransactionID().getOctets())
-							+ " != " + java.util.Base64.getEncoder().encodeToString(asn1Oct.getOctets()));
-				}
-			}
-			throw new GeneralSecurityException("Sender / Recip Transaction Id mismatch");
-		}
 
-		final PKIBody body = pkiMessage.getBody();
+        de.trustable.ca3s.core.domain.Certificate certDao =
+            certUtil.createCertificate(certificateResponseContent.getCreatedCertificate().getEncoded(),
+                csr, null, false);
+        certDao.setRevocationCA(config);
+        certificateRepository.save(certDao);
 
-		int tagno = body.getType();
+        return certDao;
+    }
 
-		if (tagno == PKIBody.TYPE_ERROR) {
-			handleCMPError(body);
-
-		} else if (tagno == PKIBody.TYPE_CERT_REP || tagno == PKIBody.TYPE_INIT_REP) {
-			// certificate successfully generated
-			CertRepMessage certRepMessage = CertRepMessage.getInstance(body.getContent());
-
-            // grep interesting certs, e.g. chain members
-            handleExtraCerts(certRepMessage.getCaPubs());
-            handleExtraCerts(pkiMessage.getExtraCerts());
-
-            CertResponse[] respArr = certRepMessage.getResponse();
-			if (respArr == null || (respArr.length == 0)) {
-				throw new GeneralSecurityException("No CMP response found.");
-			}
-
-			LOGGER.info("CMP Response body contains " + respArr.length + " elements");
-
-			for (int i = 0; i < respArr.length; i++) {
-
-				if (respArr[i] == null) {
-					throw new GeneralSecurityException("No CMP response returned.");
-				}
-
-				BigInteger status = BigInteger.ZERO;
-				String statusText = "";
-
-				PKIStatusInfo pkiStatusInfo = respArr[i].getStatus();
-				if (pkiStatusInfo != null) {
-					PKIFreeText freeText = pkiStatusInfo.getStatusString();
-					if (freeText != null) {
-						for (int j = 0; j < freeText.size(); j++) {
-							statusText = freeText.getStringAt(j) + "\n";
-						}
-					}
-				}
-
-				if ((respArr[i].getCertifiedKeyPair() == null)
-						|| (respArr[i].getCertifiedKeyPair().getCertOrEncCert() == null)) {
-
-					csrUtil.setStatus(csr, CsrStatus.REJECTED);
-					csrUtil.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_FAILURE_INFO, statusText, true);
-
-					throw new GeneralSecurityException(
-							"CMP response contains no certificate, status :" + status + "\n" + statusText);
-				}
-
-				CMPCertificate cmpCert = respArr[i].getCertifiedKeyPair().getCertOrEncCert().getCertificate();
-				if (cmpCert != null) {
-					org.bouncycastle.asn1.x509.Certificate cmpCertificate = cmpCert.getX509v3PKCert();
-					if (cmpCertificate != null) {
-
-						if (LOGGER.isDebugEnabled()) {
-							LOGGER.debug("#" + i + ": " + cmpCertificate);
-						}
-
-						final CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509", "BC");
-
-						/*
-						 * version returning just the end entity ...
-						 */
-						final Collection<? extends java.security.cert.Certificate> certificateChain = certificateFactory
-								.generateCertificates(new ByteArrayInputStream(cmpCertificate.getEncoded()));
-
-						X509Certificate[] certArray = certificateChain.toArray(new X509Certificate[0]);
-
-						X509Certificate cert = certArray[0];
-						if (LOGGER.isDebugEnabled()) {
-							LOGGER.info("#" + i + ": " + cert);
-						}
-
-						de.trustable.ca3s.core.domain.Certificate certDao =
-								certUtil.createCertificate(cert.getEncoded(), csr, null, false);
-						certDao.setRevocationCA(config);
-						certificateRepository.save(certDao);
-
-						return certDao;
-					}
-				}
-			}
-		} else {
-			throw new GeneralSecurityException("unexpected PKI body type :" + tagno);
-		}
-
-		return null;
-	}
-
-    private void handleExtraCerts(final CMPCertificate[] cmpCertArr) throws GeneralSecurityException, IOException {
-        if( cmpCertArr == null){
+    private void handleExtraCerts(final Set<X509Certificate> certSet) throws GeneralSecurityException {
+        if( certSet == null){
             // no additional certs
             return;
         }
 
-        LOGGER.info("CMP response contains " + cmpCertArr.length + " extra certificates");
-        for (int i = 0; i < cmpCertArr.length; i++) {
-            try {
-                CMPCertificate cmpCert = cmpCertArr[i];
-                LOGGER.info("Additional cert '" + cmpCert.getX509v3PKCert().getSubject() + "' included in CMP response");
+        for( X509Certificate certificate: certSet){
 
-                Certificate certDao = certUtil.createCertificate(cmpCert.getEncoded(),
-                    null, null, true);
-                certificateRepository.save(certDao);
+            Certificate certDao = certUtil.createCertificate(certificate.getEncoded(),
+                null, null, true);
+            certificateRepository.save(certDao);
 
-                LOGGER.debug("Additional cert '" + certDao.getSubject() + "' from CMP response");
-            } catch (NullPointerException npe) { // NOSONAR
-                // just ignore
-            }
+            LOGGER.debug("Additional cert '" + certDao.getSubject() + "' from CMP response");
         }
     }
-
-    /**
-	 * @param body
-	 * @throws GeneralSecurityException
-	 */
-	private void handleCMPError(final PKIBody body) throws GeneralSecurityException {
-
-		ErrorMsgContent errMsgContent = ErrorMsgContent.getInstance(body.getContent());
-		String errMsg = "errMsg : #" + errMsgContent.getErrorCode() + " " + errMsgContent.getErrorDetails() + " / "
-				+ errMsgContent.getPKIStatusInfo().getFailInfo();
-
-		LOGGER.info(errMsg);
-
-		try {
-			if (errMsgContent.getPKIStatusInfo() != null) {
-				PKIFreeText freeText = errMsgContent.getPKIStatusInfo().getStatusString();
-				for (int i = 0; i < freeText.size(); i++) {
-					LOGGER.info("#" + i + ": " + freeText.getStringAt(i));
-				}
-			}
-		} catch (NullPointerException npe) { // NOSONAR
-			// just ignore
-		}
-
-		throw new GeneralSecurityException(errMsg);
-	}
-
-	/**
-	 * @param pkiMessage
-	 */
-	private void printPKIMessageInfo(final PKIMessage pkiMessage) {
-
-		final PKIHeader header = pkiMessage.getHeader();
-		final PKIBody body = pkiMessage.getBody();
-
-		int tagno = body.getType();
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Received CMP message with pvno=" + header.getPvno() + ", sender="
-					+ header.getSender().toString() + ", recipient=" + header.getRecipient().toString());
-			LOGGER.debug("Body is of type: " + tagno);
-			LOGGER.debug("Transaction id: " + header.getTransactionID());
-		}
-	}
-
 }
