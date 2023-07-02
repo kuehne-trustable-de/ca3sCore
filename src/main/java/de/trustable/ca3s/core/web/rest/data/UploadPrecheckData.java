@@ -12,10 +12,13 @@ import de.trustable.ca3s.core.service.dto.NamedValues;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UploadPrecheckData {
 
-	@JsonProperty("passphrase")
-	private String passphrase;
+    @JsonProperty("passphrase")
+    private String passphrase;
 
-	@JsonProperty("secret")
+    @JsonProperty("importKey")
+    private boolean importKey;
+
+    @JsonProperty("secret")
 	private String secret;
 
 	@JsonProperty("requestorcomment")
@@ -61,7 +64,15 @@ public class UploadPrecheckData {
 		this.content = content;
 	}
 
-	public Long getPipelineId() {
+    public boolean isImportKey() {
+        return importKey;
+    }
+
+    public void setImportKey(boolean importKey) {
+        this.importKey = importKey;
+    }
+
+    public Long getPipelineId() {
 		return pipelineId;
 	}
 

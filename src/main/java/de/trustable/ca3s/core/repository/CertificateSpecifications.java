@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.repository;
 
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.service.dto.CertificateView;
+import de.trustable.ca3s.core.service.dto.NamedValue;
 import de.trustable.ca3s.core.service.dto.Selector;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import org.slf4j.Logger;
@@ -388,9 +389,9 @@ public final class CertificateSpecifications {
 
 	private static CertificateView buildCertificateViewFromObjArr(ArrayList<String> colList, Object[] objArr) {
 		CertificateView cv = new CertificateView();
+        List<NamedValue> namedValueList = new ArrayList<>();
 		int i = 0;
 		for( String attribute: colList) {
-
 
 //			logger.debug("attribute '{}' has value '{}'", attribute, objArr[i]);
 
@@ -428,8 +429,10 @@ public final class CertificateSpecifications {
                 cv.setRevoked((Boolean) objArr[i]);
             }else if( "revokedBy".equalsIgnoreCase(attribute)) {
                 cv.setRevokedBy((String) objArr[i]);
-			}else if( "keyAlgorithm".equalsIgnoreCase(attribute)) {
-		    	cv.setKeyAlgorithm((String) objArr[i]);
+            }else if( "root".equalsIgnoreCase(attribute)) {
+                cv.setRoot((String) objArr[i]);
+            }else if( "keyAlgorithm".equalsIgnoreCase(attribute)) {
+                cv.setKeyAlgorithm((String) objArr[i]);
 			}else if( "signingAlgorithm".equalsIgnoreCase(attribute)) {
 		    	cv.setSigningAlgorithm((String) objArr[i]);
 			}else if( "paddingAlgorithm".equalsIgnoreCase(attribute)) {
@@ -456,10 +459,18 @@ public final class CertificateSpecifications {
             }else if( "requestedBy".equalsIgnoreCase(attribute)) {
                 cv.setRequestedBy( (String) objArr[i]) ;
             }else {
-				logger.warn("unexpected attribute '{}' from query", attribute);
+                NamedValue namedValue = new NamedValue();
+                namedValue.setName(attribute);
+                namedValue.setValue(objArr[i].toString());
+                namedValueList.add(namedValue);
+
+				logger.info("attribute '{}' from query added as additionalRestriction", attribute);
 			}
 			i++;
 		}
+        if(!namedValueList.isEmpty()){
+            cv.setArArr(namedValueList.toArray(new NamedValue[0]));
+        }
 		return cv;
 	}
 
@@ -778,6 +789,7 @@ public final class CertificateSpecifications {
             if( certificateSelectionAttributes.contains(attribute) ){
                 // handle ARAs
                 Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
+                addNewColumn(selectionList,attJoin.get(CertificateAttribute_.value));
                 pred = cb.and( cb.equal(attJoin.get(CertificateAttribute_.name), CsrAttribute.ARA_PREFIX + attribute),
                     buildPredicateString( attributeSelector, cb, attJoin.get(CertificateAttribute_.value), attributeValue.toLowerCase()));
 

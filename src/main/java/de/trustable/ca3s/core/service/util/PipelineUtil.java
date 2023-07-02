@@ -40,29 +40,29 @@ import java.util.regex.PatternSyntaxException;
 public class PipelineUtil {
 
 
-	public static final String RESTR_C_CARDINALITY = "RESTR_C_CARDINALITY";
-	public static final String RESTR_C_TEMPLATE = "RESTR_C_TEMPLATE";
-	public static final String RESTR_C_REGEXMATCH = "RESTR_C_REGEXMATCH";
+    public static final String RESTR_C_CARDINALITY = "RESTR_C_CARDINALITY";
+    public static final String RESTR_C_TEMPLATE = "RESTR_C_TEMPLATE";
+    public static final String RESTR_C_REGEXMATCH = "RESTR_C_REGEXMATCH";
     public static final String RESTR_C_REGEX = "RESTR_C_REGEX";
 
-	public static final String RESTR_CN_CARDINALITY = "RESTR_CN_CARDINALITY";
-	public static final String RESTR_CN_TEMPLATE = "RESTR_CN_TEMPLATE";
+    public static final String RESTR_CN_CARDINALITY = "RESTR_CN_CARDINALITY";
+    public static final String RESTR_CN_TEMPLATE = "RESTR_CN_TEMPLATE";
     public static final String RESTR_CN_REGEXMATCH = "RESTR_CN_REGEXMATCH";
     public static final String RESTR_CN_REGEX = "RESTR_CN_REGEX";
 
-	public static final String RESTR_O_CARDINALITY = "RESTR_O_CARDINALITY";
-	public static final String RESTR_O_TEMPLATE = "RESTR_O_TEMPLATE";
-	public static final String RESTR_O_REGEXMATCH = "RESTR_O_REGEXMATCH";
+    public static final String RESTR_O_CARDINALITY = "RESTR_O_CARDINALITY";
+    public static final String RESTR_O_TEMPLATE = "RESTR_O_TEMPLATE";
+    public static final String RESTR_O_REGEXMATCH = "RESTR_O_REGEXMATCH";
     public static final String RESTR_O_REGEX = "RESTR_O_REGEX";
 
     public static final String RESTR_OU_CARDINALITY = "RESTR_OU_CARDINALITY";
-	public static final String RESTR_OU_TEMPLATE = "RESTR_OU_TEMPLATE";
-	public static final String RESTR_OU_REGEXMATCH = "RESTR_OU_REGEXMATCH";
+    public static final String RESTR_OU_TEMPLATE = "RESTR_OU_TEMPLATE";
+    public static final String RESTR_OU_REGEXMATCH = "RESTR_OU_REGEXMATCH";
     public static final String RESTR_OU_REGEX = "RESTR_OU_REGEX";
 
-	public static final String RESTR_L_CARDINALITY = "RESTR_L_CARDINALITY";
-	public static final String RESTR_L_TEMPLATE = "RESTR_L_TEMPLATE";
-	public static final String RESTR_L_REGEXMATCH = "RESTR_L_REGEXMATCH";
+    public static final String RESTR_L_CARDINALITY = "RESTR_L_CARDINALITY";
+    public static final String RESTR_L_TEMPLATE = "RESTR_L_TEMPLATE";
+    public static final String RESTR_L_REGEXMATCH = "RESTR_L_REGEXMATCH";
     public static final String RESTR_L_REGEX = "RESTR_L_REGEX";
 
     public static final String RESTR_S_CARDINALITY = "RESTR_S_CARDINALITY";
@@ -75,23 +75,23 @@ public class PipelineUtil {
     public static final String RESTR_E_REGEXMATCH = "RESTR_E_REGEXMATCH";
     public static final String RESTR_E_REGEX = "RESTR_E_REGEX";
 
-	public static final String RESTR_SAN_CARDINALITY = "RESTR_SAN_CARDINALITY";
-	public static final String RESTR_SAN_TEMPLATE = "RESTR_SAN_TEMPLATE";
+    public static final String RESTR_SAN_CARDINALITY = "RESTR_SAN_CARDINALITY";
+    public static final String RESTR_SAN_TEMPLATE = "RESTR_SAN_TEMPLATE";
     public static final String RESTR_SAN_REGEXMATCH = "RESTR_SAN_REGEXMATCH";
     public static final String RESTR_SAN_REGEX = "RESTR_SAN_REGEX";
 
-	public static final String RESTR_ARA_PREFIX = "RESTR_ARA_";
-	public static final String RESTR_ARA_PATTERN = RESTR_ARA_PREFIX + "(.*)_(.*)";
-	public static final String RESTR_ARA_NAME = "NAME";
-//	public static final String RESTR_ARA_CARDINALITY = "CARDINALITY";
-	public static final String RESTR_ARA_TEMPLATE = "TEMPLATE";
-	public static final String RESTR_ARA_REGEXMATCH = "REGEXMATCH";
+    public static final String RESTR_ARA_PREFIX = "RESTR_ARA_";
+    public static final String RESTR_ARA_PATTERN = RESTR_ARA_PREFIX + "(.*)_(.*)";
+    public static final String RESTR_ARA_NAME = "NAME";
+    //	public static final String RESTR_ARA_CARDINALITY = "CARDINALITY";
+    public static final String RESTR_ARA_TEMPLATE = "TEMPLATE";
+    public static final String RESTR_ARA_REGEXMATCH = "REGEXMATCH";
     public static final String RESTR_ARA_REQUIRED = "REQUIRED";
     public static final String RESTR_ARA_COMMENT = "COMMENT";
 
-	public static final String ALLOW_IP_AS_SUBJECT = "ALLOW_IP_AS_SUBJECT";
-	public static final String ALLOW_IP_AS_SAN = "ALLOW_IP_AS_SAN";
-	public static final String TO_PENDIND_ON_FAILED_RESTRICTIONS = "TO_PENDIND_ON_FAILED_RESTRICTIONS";
+    public static final String ALLOW_IP_AS_SUBJECT = "ALLOW_IP_AS_SUBJECT";
+    public static final String ALLOW_IP_AS_SAN = "ALLOW_IP_AS_SAN";
+    public static final String TO_PENDIND_ON_FAILED_RESTRICTIONS = "TO_PENDIND_ON_FAILED_RESTRICTIONS";
 
     public static final String DOMAIN_RA_OFFICER = "DOMAIN_RA_OFFICER";
     public static final String NOTIFY_RA_OFFICER_ON_PENDING = "NOTIFY_RA_OFFICER_ON_PENDING";
@@ -99,11 +99,11 @@ public class PipelineUtil {
 
     public static final String ACME_ALLOW_CHALLENGE_HTTP01 = "ACME_ALLOW_CHALLENGE_HTTP01";
     public static final String ACME_ALLOW_CHALLENGE_ALPN = "ACME_ALLOW_CHALLENGE_ALPN";
-	public static final String ACME_ALLOW_CHALLENGE_DNS = "ACME_ALLOW_CHALLENGE_DNS";
+    public static final String ACME_ALLOW_CHALLENGE_DNS = "ACME_ALLOW_CHALLENGE_DNS";
 
-	public static final String ACME_ALLOW_CHALLENGE_WILDCARDS = "ACME_ALLOW_WILDCARDS";
+    public static final String ACME_ALLOW_CHALLENGE_WILDCARDS = "ACME_ALLOW_WILDCARDS";
 
-	public static final String ACME_CHECK_CAA = "ACME_CHECK_CAA";
+    public static final String ACME_CHECK_CAA = "ACME_CHECK_CAA";
     public static final String ACME_NAME_CAA = "ACME_NAME_CAA";
 
     public static final String CSR_USAGE = "CSR_USAGE";
@@ -111,7 +111,7 @@ public class PipelineUtil {
     public static final String LIST_ORDER = "LIST_ORDER";
 
     public static final String ACME_PROCESS_ACCOUNT_VALIDATION = "ACME_PROCESS_ACCOUNT_VALIDATION";
-	public static final String ACME_PROCESS_ORDER_VALIDATION = "ACME_PROCESS_ORDER_VALIDATION";
+    public static final String ACME_PROCESS_ORDER_VALIDATION = "ACME_PROCESS_ORDER_VALIDATION";
     public static final String ACME_PROCESS_CHALLENGE_VALIDATION = "ACME_PROCESS_CHALLENGE_VALIDATION";
 
     public static final String ACME_ORDER_VALIDITY_SECONDS = "ACME_ORDER_VALIDITY_SECONDS";
@@ -177,30 +177,30 @@ public class PipelineUtil {
 
     public PipelineView from(Pipeline pipeline) {
 
-    	PipelineView pv = new PipelineView();
+        PipelineView pv = new PipelineView();
 
-    	pv.setId(pipeline.getId());
-    	pv.setName(pipeline.getName());
-    	pv.setType(pipeline.getType());
-    	pv.setActive(pipeline.isActive());
-    	pv.setDescription(pipeline.getDescription());
-    	pv.setApprovalRequired(pipeline.isApprovalRequired());
-    	pv.setUrlPart(pipeline.getUrlPart());
+        pv.setId(pipeline.getId());
+        pv.setName(pipeline.getName());
+        pv.setType(pipeline.getType());
+        pv.setActive(pipeline.isActive());
+        pv.setDescription(pipeline.getDescription());
+        pv.setApprovalRequired(pipeline.isApprovalRequired());
+        pv.setUrlPart(pipeline.getUrlPart());
 
-    	if( pipeline.getCaConnector()!= null) {
-    		pv.setCaConnectorName(pipeline.getCaConnector().getName());
-    	}
+        if (pipeline.getCaConnector() != null) {
+            pv.setCaConnectorName(pipeline.getCaConnector().getName());
+        }
 
-    	if( pipeline.getProcessInfo() != null) {
-    		pv.setProcessInfoName(pipeline.getProcessInfo().getName());
-    	}
+        if (pipeline.getProcessInfo() != null) {
+            pv.setProcessInfoName(pipeline.getProcessInfo().getName());
+        }
 
         RDNRestriction[] rdnRestrictArr = initRdnRestrictions(pv, pipeline);
         pv.setRdnRestrictions(rdnRestrictArr);
 
-		pv.setAraRestrictions(new ARARestriction[0]);
+        pv.setAraRestrictions(new ARARestriction[0]);
 
-    	AcmeConfigItems acmeConfigItems = new AcmeConfigItems();
+        AcmeConfigItems acmeConfigItems = new AcmeConfigItems();
         SCEPConfigItems scepConfigItems = new SCEPConfigItems();
         WebConfigItems webConfigItems = new WebConfigItems();
 
@@ -212,42 +212,42 @@ public class PipelineUtil {
 
 //    	acmeConfigItems.setProcessInfoNameAccountValidation(processInfoNameAccountValidation);
 
-    	for( PipelineAttribute plAtt: pipeline.getPipelineAttributes()) {
+        for (PipelineAttribute plAtt : pipeline.getPipelineAttributes()) {
 
-    		if( ACME_ALLOW_CHALLENGE_HTTP01.equals(plAtt.getName())) {
-    			acmeConfigItems.setAllowChallengeHTTP01(Boolean.parseBoolean(plAtt.getValue()));
-            }else if( ACME_ALLOW_CHALLENGE_ALPN.equals(plAtt.getName())) {
+            if (ACME_ALLOW_CHALLENGE_HTTP01.equals(plAtt.getName())) {
+                acmeConfigItems.setAllowChallengeHTTP01(Boolean.parseBoolean(plAtt.getValue()));
+            } else if (ACME_ALLOW_CHALLENGE_ALPN.equals(plAtt.getName())) {
                 acmeConfigItems.setAllowChallengeAlpn(Boolean.parseBoolean(plAtt.getValue()));
-            }else if( ACME_ALLOW_CHALLENGE_DNS.equals(plAtt.getName())) {
+            } else if (ACME_ALLOW_CHALLENGE_DNS.equals(plAtt.getName())) {
                 acmeConfigItems.setAllowChallengeDNS(Boolean.parseBoolean(plAtt.getValue()));
-    		}else if( ACME_ALLOW_CHALLENGE_WILDCARDS.equals(plAtt.getName())) {
-    			acmeConfigItems.setAllowWildcards(Boolean.parseBoolean(plAtt.getValue()));
-    		}else if( ACME_CHECK_CAA.equals(plAtt.getName())) {
-    			acmeConfigItems.setCheckCAA(Boolean.parseBoolean(plAtt.getValue()));
-            }else if( ACME_NAME_CAA.equals(plAtt.getName())) {
+            } else if (ACME_ALLOW_CHALLENGE_WILDCARDS.equals(plAtt.getName())) {
+                acmeConfigItems.setAllowWildcards(Boolean.parseBoolean(plAtt.getValue()));
+            } else if (ACME_CHECK_CAA.equals(plAtt.getName())) {
+                acmeConfigItems.setCheckCAA(Boolean.parseBoolean(plAtt.getValue()));
+            } else if (ACME_NAME_CAA.equals(plAtt.getName())) {
                 acmeConfigItems.setCaNameCAA(plAtt.getValue());
 //            }else if( REQUEST_PROXY_ID.equals(plAtt.getName())) {
 //                acmeConfigItems.setAcmeProxy(Boolean.parseBoolean(plAtt.getValue()));
-            }else if( DOMAIN_RA_OFFICER.equals(plAtt.getName())) {
+            } else if (DOMAIN_RA_OFFICER.equals(plAtt.getName())) {
                 domainRaOfficerList.add(plAtt.getValue());
 
-            }else if( NOTIFY_RA_OFFICER_ON_PENDING.equals(plAtt.getName())) {
+            } else if (NOTIFY_RA_OFFICER_ON_PENDING.equals(plAtt.getName())) {
                 webConfigItems.setNotifyRAOfficerOnPendingRequest(Boolean.parseBoolean(plAtt.getValue()));
 
-            }else if( ADDITIONAL_EMAIL_RECIPIENTS.equals(plAtt.getName())) {
+            } else if (ADDITIONAL_EMAIL_RECIPIENTS.equals(plAtt.getName())) {
                 webConfigItems.setAdditionalEMailRecipients(plAtt.getValue());
 
-            }else if( SCEP_RECIPIENT_DN.equals(plAtt.getName())) {
+            } else if (SCEP_RECIPIENT_DN.equals(plAtt.getName())) {
                 scepConfigItems.setScepRecipientDN(plAtt.getValue());
-            }else if( SCEP_RECIPIENT_KEY_TYPE_LEN.equals(plAtt.getName())) {
+            } else if (SCEP_RECIPIENT_KEY_TYPE_LEN.equals(plAtt.getName())) {
                 KeyAlgoLength keyAlgoLength = KeyAlgoLength.from(plAtt.getValue());
                 scepConfigItems.setKeyAlgoLength(keyAlgoLength);
-            }else if( SCEP_CA_CONNECTOR_RECIPIENT_NAME.equals(plAtt.getName())) {
+            } else if (SCEP_CA_CONNECTOR_RECIPIENT_NAME.equals(plAtt.getName())) {
                 scepConfigItems.setCaConnectorRecipientName(plAtt.getValue());
-            }else if( SCEP_SECRET_PC_ID.equals(plAtt.getName())) {
+            } else if (SCEP_SECRET_PC_ID.equals(plAtt.getName())) {
 
-                Optional<ProtectedContent> optPC = protectedContentRepository.findById( Long.parseLong(plAtt.getValue()));
-                if(optPC.isPresent()){
+                Optional<ProtectedContent> optPC = protectedContentRepository.findById(Long.parseLong(plAtt.getValue()));
+                if (optPC.isPresent()) {
                     ProtectedContent pc = optPC.get();
                     try {
                         String clearContent = protectedContentUtil.unprotectString(pc.getContentBase64());
@@ -260,15 +260,15 @@ public class PipelineUtil {
                         } else {
                             scepConfigItems.setScepSecretValidTo(pc.getValidTo());
                         }
-                    }catch( EncryptionOperationNotPossibleException eonpe){
+                    } catch (EncryptionOperationNotPossibleException eonpe) {
                         LOG.error("pc id : " + pc.getId() + ", clearContent retrieval failed: " + eonpe.getMessage());
 
                     }
-                }else{
+                } else {
                     scepConfigItems.setScepSecret("-- expired --");
                     LOG.debug("no protected content for pc id : " + plAtt.getValue());
                 }
-    		}
+            }
 
         }
 /*
@@ -290,14 +290,14 @@ public class PipelineUtil {
         pv.setDomainRaOfficerList(domainRaOfficerList.toArray(new String[0]));
 
         pv.setAcmeConfigItems(acmeConfigItems);
-    	pv.setScepConfigItems(scepConfigItems);
+        pv.setScepConfigItems(scepConfigItems);
         pv.setWebConfigItems(webConfigItems);
 
         ARARestriction[] araRestrictions = initAraRestrictions(pipeline);
 
         pv.setAraRestrictions(araRestrictions);
 
-    	return pv;
+        return pv;
     }
 
     @NotNull
@@ -353,93 +353,93 @@ public class PipelineUtil {
         pv.setRestriction_SAN(rdnRestrict);
         rdnRestrictArr[7] = rdnRestrict;
 
-        for( PipelineAttribute plAtt: pipeline.getPipelineAttributes()) {
+        for (PipelineAttribute plAtt : pipeline.getPipelineAttributes()) {
 
-            if( ALLOW_IP_AS_SUBJECT.equals(plAtt.getName())) {
+            if (ALLOW_IP_AS_SUBJECT.equals(plAtt.getName())) {
                 pv.setIpAsSubjectAllowed(Boolean.parseBoolean(plAtt.getValue()));
 
-            }else if( ALLOW_IP_AS_SAN.equals(plAtt.getName())) {
+            } else if (ALLOW_IP_AS_SAN.equals(plAtt.getName())) {
                 pv.setIpAsSANAllowed(Boolean.parseBoolean(plAtt.getValue()));
 
-            }else if( RESTR_C_CARDINALITY.equals(plAtt.getName())) {
+            } else if (RESTR_C_CARDINALITY.equals(plAtt.getName())) {
                 pv.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
-            }else if( RESTR_C_TEMPLATE.equals(plAtt.getName())) {
+            } else if (RESTR_C_TEMPLATE.equals(plAtt.getName())) {
                 pv.getRestriction_C().setContentTemplate(plAtt.getValue());
-            }else if( RESTR_C_REGEXMATCH.equals(plAtt.getName())) {
+            } else if (RESTR_C_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_C().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
-            }else if( RESTR_C_REGEX.equals(plAtt.getName())) {
+            } else if (RESTR_C_REGEX.equals(plAtt.getName())) {
                 pv.getRestriction_C().setRegEx(plAtt.getValue());
 
-            }else if( RESTR_CN_CARDINALITY.equals(plAtt.getName())) {
+            } else if (RESTR_CN_CARDINALITY.equals(plAtt.getName())) {
                 pv.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
-            }else if( RESTR_CN_TEMPLATE.equals(plAtt.getName())) {
+            } else if (RESTR_CN_TEMPLATE.equals(plAtt.getName())) {
                 pv.getRestriction_CN().setContentTemplate(plAtt.getValue());
-            }else if( RESTR_CN_REGEXMATCH.equals(plAtt.getName())) {
+            } else if (RESTR_CN_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_CN().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
-            }else if( RESTR_CN_REGEX.equals(plAtt.getName())) {
+            } else if (RESTR_CN_REGEX.equals(plAtt.getName())) {
                 pv.getRestriction_CN().setRegEx(plAtt.getValue());
 
-            }else if( RESTR_O_CARDINALITY.equals(plAtt.getName())) {
+            } else if (RESTR_O_CARDINALITY.equals(plAtt.getName())) {
                 pv.getRestriction_O().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
-            }else if( RESTR_O_TEMPLATE.equals(plAtt.getName())) {
+            } else if (RESTR_O_TEMPLATE.equals(plAtt.getName())) {
                 pv.getRestriction_O().setContentTemplate(plAtt.getValue());
-            }else if( RESTR_O_REGEXMATCH.equals(plAtt.getName())) {
+            } else if (RESTR_O_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_O().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
-            }else if( RESTR_O_REGEX.equals(plAtt.getName())) {
+            } else if (RESTR_O_REGEX.equals(plAtt.getName())) {
                 pv.getRestriction_O().setRegEx(plAtt.getValue());
 
-            }else if( RESTR_OU_CARDINALITY.equals(plAtt.getName())) {
+            } else if (RESTR_OU_CARDINALITY.equals(plAtt.getName())) {
                 pv.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
-            }else if( RESTR_OU_TEMPLATE.equals(plAtt.getName())) {
+            } else if (RESTR_OU_TEMPLATE.equals(plAtt.getName())) {
                 pv.getRestriction_OU().setContentTemplate(plAtt.getValue());
-            }else if( RESTR_OU_REGEXMATCH.equals(plAtt.getName())) {
+            } else if (RESTR_OU_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_OU().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
-            }else if( RESTR_OU_REGEX.equals(plAtt.getName())) {
+            } else if (RESTR_OU_REGEX.equals(plAtt.getName())) {
                 pv.getRestriction_OU().setRegEx(plAtt.getValue());
 
-            }else if( RESTR_L_CARDINALITY.equals(plAtt.getName())) {
+            } else if (RESTR_L_CARDINALITY.equals(plAtt.getName())) {
                 pv.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
-            }else if( RESTR_L_TEMPLATE.equals(plAtt.getName())) {
+            } else if (RESTR_L_TEMPLATE.equals(plAtt.getName())) {
                 pv.getRestriction_L().setContentTemplate(plAtt.getValue());
-            }else if( RESTR_L_REGEXMATCH.equals(plAtt.getName())) {
+            } else if (RESTR_L_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_L().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
-            }else if( RESTR_L_REGEX.equals(plAtt.getName())) {
+            } else if (RESTR_L_REGEX.equals(plAtt.getName())) {
                 pv.getRestriction_L().setRegEx(plAtt.getValue());
 
-            }else if( RESTR_S_CARDINALITY.equals(plAtt.getName())) {
+            } else if (RESTR_S_CARDINALITY.equals(plAtt.getName())) {
                 pv.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
-            }else if( RESTR_S_TEMPLATE.equals(plAtt.getName())) {
+            } else if (RESTR_S_TEMPLATE.equals(plAtt.getName())) {
                 pv.getRestriction_S().setContentTemplate(plAtt.getValue());
-            }else if( RESTR_S_REGEXMATCH.equals(plAtt.getName())) {
+            } else if (RESTR_S_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_S().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
-            }else if( RESTR_S_REGEX.equals(plAtt.getName())) {
+            } else if (RESTR_S_REGEX.equals(plAtt.getName())) {
                 pv.getRestriction_S().setRegEx(plAtt.getValue());
 
-            }else if( RESTR_E_CARDINALITY.equals(plAtt.getName())) {
+            } else if (RESTR_E_CARDINALITY.equals(plAtt.getName())) {
                 pv.getRestriction_E().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
-            }else if( RESTR_E_TEMPLATE.equals(plAtt.getName())) {
+            } else if (RESTR_E_TEMPLATE.equals(plAtt.getName())) {
                 pv.getRestriction_E().setContentTemplate(plAtt.getValue());
-            }else if( RESTR_E_REGEXMATCH.equals(plAtt.getName())) {
+            } else if (RESTR_E_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_E().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
-            }else if( RESTR_E_REGEX.equals(plAtt.getName())) {
+            } else if (RESTR_E_REGEX.equals(plAtt.getName())) {
                 pv.getRestriction_E().setRegEx(plAtt.getValue());
 
-            }else if( RESTR_SAN_CARDINALITY.equals(plAtt.getName())) {
+            } else if (RESTR_SAN_CARDINALITY.equals(plAtt.getName())) {
                 pv.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
-            }else if( RESTR_SAN_TEMPLATE.equals(plAtt.getName())) {
+            } else if (RESTR_SAN_TEMPLATE.equals(plAtt.getName())) {
                 pv.getRestriction_SAN().setContentTemplate(plAtt.getValue());
-            }else if( RESTR_SAN_REGEXMATCH.equals(plAtt.getName())) {
+            } else if (RESTR_SAN_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_SAN().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
-            }else if( RESTR_SAN_REGEX.equals(plAtt.getName())) {
+            } else if (RESTR_SAN_REGEX.equals(plAtt.getName())) {
                 pv.getRestriction_SAN().setRegEx(plAtt.getValue());
 
-            }else if( CSR_USAGE.equals(plAtt.getName())) {
+            } else if (CSR_USAGE.equals(plAtt.getName())) {
                 pv.setCsrUsage(CsrUsage.valueOf(plAtt.getValue()));
 
-            }else if( LIST_ORDER.equals(plAtt.getName())) {
+            } else if (LIST_ORDER.equals(plAtt.getName())) {
                 pv.setListOrder(Integer.parseInt(plAtt.getValue()));
 
-            }else if( TO_PENDIND_ON_FAILED_RESTRICTIONS.equals(plAtt.getName())) {
+            } else if (TO_PENDIND_ON_FAILED_RESTRICTIONS.equals(plAtt.getName())) {
                 pv.setToPendingOnFailedRestrictions(Boolean.parseBoolean(plAtt.getValue()));
 
             }
@@ -456,13 +456,13 @@ public class PipelineUtil {
         Pattern araPattern = Pattern.compile(RESTR_ARA_PATTERN);
 
         int nARA = 0;
-        for( PipelineAttribute plAtt: pipeline.getPipelineAttributes()) {
-            if( plAtt.getName().startsWith(RESTR_ARA_PREFIX)) {
+        for (PipelineAttribute plAtt : pipeline.getPipelineAttributes()) {
+            if (plAtt.getName().startsWith(RESTR_ARA_PREFIX)) {
                 Matcher m = araPattern.matcher(plAtt.getName());
-                if (m.find( )) {
+                if (m.find()) {
                     int araIdx = Integer.parseInt(m.group(1));
-                    if( araIdx +1 > nARA) {
-                        nARA = araIdx +1;
+                    if (araIdx + 1 > nARA) {
+                        nARA = araIdx + 1;
                     }
                 }
             }
@@ -474,28 +474,28 @@ public class PipelineUtil {
         /*
          * find all ARA restrictions
          */
-        for( PipelineAttribute plAtt: pipeline.getPipelineAttributes()) {
-            if( plAtt.getName().startsWith(RESTR_ARA_PREFIX)) {
+        for (PipelineAttribute plAtt : pipeline.getPipelineAttributes()) {
+            if (plAtt.getName().startsWith(RESTR_ARA_PREFIX)) {
                 LOG.debug("ARA itmes : {}", plAtt.getName());
                 Matcher m = araPattern.matcher(plAtt.getName());
-                if (m.find( )) {
+                if (m.find()) {
                     int araIdx = Integer.parseInt(m.group(1));
                     LOG.debug("araIdx: {}", araIdx);
-                    if( araRestrictions[araIdx] == null) {
+                    if (araRestrictions[araIdx] == null) {
                         araRestrictions[araIdx] = new ARARestriction();
                     }
                     ARARestriction araRestriction = araRestrictions[araIdx];
                     String namePart = m.group(2);
                     LOG.debug("ARA namePart : {}", namePart);
-                    if( RESTR_ARA_NAME.equals(namePart)) {
+                    if (RESTR_ARA_NAME.equals(namePart)) {
                         araRestriction.setName(plAtt.getValue());
-                    }else if( RESTR_ARA_REQUIRED.equals(namePart)) {
+                    } else if (RESTR_ARA_REQUIRED.equals(namePart)) {
                         araRestriction.setRequired(Boolean.parseBoolean(plAtt.getValue()));
-                    }else if( RESTR_ARA_TEMPLATE.equals(namePart)) {
+                    } else if (RESTR_ARA_TEMPLATE.equals(namePart)) {
                         araRestriction.setContentTemplate(plAtt.getValue());
-                    }else if( RESTR_ARA_COMMENT.equals(namePart)) {
+                    } else if (RESTR_ARA_COMMENT.equals(namePart)) {
                         araRestriction.setComment(plAtt.getValue());
-                    }else if( RESTR_ARA_REGEXMATCH.equals(namePart)) {
+                    } else if (RESTR_ARA_REGEXMATCH.equals(namePart)) {
                         araRestriction.setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
                     }
 
@@ -508,37 +508,36 @@ public class PipelineUtil {
 
 
     /**
-	 *
-	 * @param pv
-	 * @return
-	 */
-	public Pipeline toPipeline(PipelineView pv) {
+     * @param pv
+     * @return
+     */
+    public Pipeline toPipeline(PipelineView pv) {
 
         List<AuditTrace> auditList = new ArrayList<>();
         Pipeline p;
         List<Pipeline> pipelineList = pipelineRepository.findByName(pv.getName());
-        if( pv.getId() != null) {
+        if (pv.getId() != null) {
             Optional<Pipeline> optP = pipelineRepository.findById(pv.getId());
-	        if(optP.isPresent()) {
-	        	p = optP.get();
-                if(!pipelineList.isEmpty() && !pipelineList.get(0).getId().equals(p.getId())){
+            if (optP.isPresent()) {
+                p = optP.get();
+                if (!pipelineList.isEmpty() && !pipelineList.get(0).getId().equals(p.getId())) {
                     throw new BadRequestAlertException("Name '" + pv.getName() + "' already assigned", "pipeline", "name already used");
                 }
-	        	pipelineAttRepository.deleteAll(p.getPipelineAttributes());
-	        }else {
-                if(!pipelineList.isEmpty()){
+                pipelineAttRepository.deleteAll(p.getPipelineAttributes());
+            } else {
+                if (!pipelineList.isEmpty()) {
                     throw new BadRequestAlertException("Name '" + pv.getName() + "' already assigned", "pipeline", "name already used");
                 }
-	        	p = new Pipeline();
+                p = new Pipeline();
                 pipelineRepository.save(p);
-                auditList.add(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_CREATED, p));
-	        }
-        }else {
-            if(!pipelineList.isEmpty()){
+                auditList.add(auditService.createAuditTracePipeline(AuditService.AUDIT_PIPELINE_CREATED, p));
+            }
+        } else {
+            if (!pipelineList.isEmpty()) {
                 throw new BadRequestAlertException("Name '" + pv.getName() + "' already assigned", "pipeline", "name already used");
             }
             Pipeline pipelineByName = getPipelineByRealm(pv.getType(), pv.getUrlPart());
-            if( pipelineByName != null ){
+            if (pipelineByName != null) {
                 throw new BadRequestAlertException("Realm '" + pv.getUrlPart() + "' already exists with pipeline " + pipelineByName.getName() + " / " + pipelineByName.getUrlPart(), "pipeline", "realmexists");
             }
 
@@ -546,106 +545,109 @@ public class PipelineUtil {
             p.setName(pv.getName());
             p.setType(pv.getType());
             pipelineRepository.save(p);
-            auditList.add(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_COPIED, p));
+            auditList.add(auditService.createAuditTracePipeline(AuditService.AUDIT_PIPELINE_COPIED, p));
         }
 
 //        p.setId(pv.getId());
 //        pipelineRepository.save(p);
 
-        if(!Objects.equals(pv.getName(), p.getName())) {
-            auditList.add(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_NAME_CHANGED, p.getName(), pv.getName(), p));
+        if (!Objects.equals(pv.getName(), p.getName())) {
+            auditList.add(auditService.createAuditTracePipeline(AuditService.AUDIT_PIPELINE_NAME_CHANGED, p.getName(), pv.getName(), p));
             p.setName(pv.getName());
         }
-        if(!Objects.equals(pv.getDescription(), p.getDescription())) {
-            auditList.add(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_DESCRIPTION_CHANGED, p.getDescription(), pv.getDescription(), p));
+        if (!Objects.equals(pv.getDescription(), p.getDescription())) {
+            auditList.add(auditService.createAuditTracePipeline(AuditService.AUDIT_PIPELINE_DESCRIPTION_CHANGED, p.getDescription(), pv.getDescription(), p));
             p.setDescription(pv.getDescription());
         }
-        if(!pv.getType().equals(p.getType())) {
+        if (!pv.getType().equals(p.getType())) {
             String oldType = "";
-            if( p.getType() != null){
+            if (p.getType() != null) {
                 oldType = p.getType().toString();
             }
-            auditList.add(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_TYPE_CHANGED, oldType, pv.getType().toString(), p));
+            auditList.add(auditService.createAuditTracePipeline(AuditService.AUDIT_PIPELINE_TYPE_CHANGED, oldType, pv.getType().toString(), p));
             p.setType(pv.getType());
         }
 
-        if(!Objects.equals(pv.getUrlPart(), p.getUrlPart())) {
-            auditList.add(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_URLPART_CHANGED, p.getUrlPart(), pv.getUrlPart(), p));
+        if(pv.getType() == PipelineType.WEB){
+            pv.setUrlPart(""); // not url part for web pipelines
+        }
+        if (!Objects.equals(pv.getUrlPart(), p.getUrlPart())) {
+            auditList.add(auditService.createAuditTracePipeline(AuditService.AUDIT_PIPELINE_URLPART_CHANGED, p.getUrlPart(), pv.getUrlPart(), p));
             p.setUrlPart(pv.getUrlPart());
         }
 
-        if(pv.getApprovalRequired() != p.isApprovalRequired()){
+        if (pv.getApprovalRequired() != p.isApprovalRequired()) {
             String isApprovalRequired = "";
-            if( p.isApprovalRequired() != null){
+            if (p.isApprovalRequired() != null) {
                 isApprovalRequired = p.isApprovalRequired().toString();
             }
-            auditList.add(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_APPROVAL_REQUIRED_CHANGED, isApprovalRequired, pv.getApprovalRequired().toString(), p));
+            auditList.add(auditService.createAuditTracePipeline(AuditService.AUDIT_PIPELINE_APPROVAL_REQUIRED_CHANGED, isApprovalRequired, pv.getApprovalRequired().toString(), p));
             p.setApprovalRequired(pv.getApprovalRequired());
         }
 
-        if(pv.getActive()!= p.isActive()){
+        if (pv.getActive() != p.isActive()) {
             String isActive = "";
-            if( p.isActive() != null){
+            if (p.isActive() != null) {
                 isActive = p.isActive().toString();
             }
-            auditList.add(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_ACTIVE_CHANGED, isActive, pv.getActive().toString(), p));
+            auditList.add(auditService.createAuditTracePipeline(AuditService.AUDIT_PIPELINE_ACTIVE_CHANGED, isActive, pv.getActive().toString(), p));
             p.setActive(pv.getActive());
         }
-        if( p.isActive() == null){
-            auditList.add(auditService.createAuditTracePipeline( AuditService.AUDIT_PIPELINE_ACTIVE_CHANGED, null, Boolean.FALSE.toString(), p));
+        if (p.isActive() == null) {
+            auditList.add(auditService.createAuditTracePipeline(AuditService.AUDIT_PIPELINE_ACTIVE_CHANGED, null, Boolean.FALSE.toString(), p));
             p.setActive(Boolean.FALSE);
         }
 
         String oldCaConnectorName = "";
-        if( p.getCaConnector() != null){
+        if (p.getCaConnector() != null) {
             oldCaConnectorName = p.getCaConnector().getName();
         }
 
         List<CAConnectorConfig> ccc = caConnRepository.findByName(pv.getCaConnectorName());
-		if( ccc.isEmpty()) {
-			p.setCaConnector(null);
-            auditList.add(auditService.createAuditTracePipelineAttribute( "CA_CONNECTOR", oldCaConnectorName, "", p));
+        if (ccc.isEmpty()) {
+            p.setCaConnector(null);
+            auditList.add(auditService.createAuditTracePipelineAttribute("CA_CONNECTOR", oldCaConnectorName, "", p));
 
-        }else {
-			p.setCaConnector(ccc.get(0));
-			if( !ccc.get(0).getName().equals(oldCaConnectorName) ) {
+        } else {
+            p.setCaConnector(ccc.get(0));
+            if (!ccc.get(0).getName().equals(oldCaConnectorName)) {
                 auditList.add(auditService.createAuditTracePipelineAttribute("CA_CONNECTOR", oldCaConnectorName, ccc.get(0).getName(), p));
             }
-		}
+        }
 
         String oldProcessName = "";
-        if( p.getProcessInfo() != null){
+        if (p.getProcessInfo() != null) {
             oldProcessName = p.getProcessInfo().getName();
         }
 
-		Optional<BPMNProcessInfo> bpiOpt = bpmnPIRepository.findByName(pv.getProcessInfoName());
-		if( bpiOpt.isPresent()) {
+        Optional<BPMNProcessInfo> bpiOpt = bpmnPIRepository.findByName(pv.getProcessInfoName());
+        if (bpiOpt.isPresent()) {
             BPMNProcessInfo bpi = bpiOpt.get();
-			p.setProcessInfo(bpi);
-            if( !bpi.getName().equals(oldProcessName) ) {
+            p.setProcessInfo(bpi);
+            if (!bpi.getName().equals(oldProcessName)) {
                 auditList.add(auditService.createAuditTracePipelineAttribute("ISSUANCE_PROCESS", oldProcessName, bpi.getName(), p));
             }
-		}else {
-			p.setProcessInfo(null);
-			if( !oldProcessName.equals("")) {
+        } else {
+            p.setProcessInfo(null);
+            if (!oldProcessName.equals("")) {
                 auditList.add(auditService.createAuditTracePipelineAttribute("ISSUANCE_PROCESS", oldProcessName, "", p));
             }
-		}
+        }
 
         Set<RequestProxyConfig> requestProxyConfigList = new HashSet<>();
-        for( long requestProxyConfigId : pv.getRequestProxyConfigIds()){
-            Optional<RequestProxyConfig> requestProxyConfigOptional= requestProxyConfigRepository.findById(requestProxyConfigId);
-            if( requestProxyConfigOptional.isPresent()) {
+        for (long requestProxyConfigId : pv.getRequestProxyConfigIds()) {
+            Optional<RequestProxyConfig> requestProxyConfigOptional = requestProxyConfigRepository.findById(requestProxyConfigId);
+            if (requestProxyConfigOptional.isPresent()) {
                 RequestProxyConfig requestProxyConfigNew = requestProxyConfigOptional.get();
                 requestProxyConfigList.add(requestProxyConfigNew);
-                if( !p.getRequestProxies().contains(requestProxyConfigNew)){
+                if (!p.getRequestProxies().contains(requestProxyConfigNew)) {
                     auditList.add(auditService.createAuditTracePipelineProxyAdded(requestProxyConfigNew.getName(), p));
                 }
             }
         }
 
-        for( RequestProxyConfig requestProxyConfig : p.getRequestProxies()){
-            if( requestProxyConfigList.contains(requestProxyConfig)){
+        for (RequestProxyConfig requestProxyConfig : p.getRequestProxies()) {
+            if (requestProxyConfigList.contains(requestProxyConfig)) {
                 auditList.add(auditService.createAuditTracePipelineProxyRemoved(requestProxyConfig.getName(), p));
             }
         }
@@ -657,59 +659,67 @@ public class PipelineUtil {
 
         Set<PipelineAttribute> pipelineAttributes = new HashSet<>();
 
-		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_C_CARDINALITY, pv.getRestriction_C().getCardinalityRestriction().name());
-		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_C_TEMPLATE, pv.getRestriction_C().getContentTemplate());
-        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_C_REGEXMATCH, pv.getRestriction_C().isRegExMatch());
-        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_C_REGEX, pv.getRestriction_C().getRegEx());
-
-		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_CN_CARDINALITY, pv.getRestriction_CN().getCardinalityRestriction().name());
-		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_CN_TEMPLATE, pv.getRestriction_CN().getContentTemplate());
-		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_CN_REGEXMATCH, pv.getRestriction_CN().isRegExMatch());
-        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_CN_REGEX, pv.getRestriction_CN().getRegEx());
-
-		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_O_CARDINALITY, pv.getRestriction_O().getCardinalityRestriction().name());
-		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_O_TEMPLATE, pv.getRestriction_O().getContentTemplate());
-		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_O_REGEXMATCH, pv.getRestriction_O().isRegExMatch());
-        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_O_REGEX, pv.getRestriction_O().getRegEx());
-
-        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_OU_CARDINALITY, pv.getRestriction_OU().getCardinalityRestriction().name());
-		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_OU_TEMPLATE, pv.getRestriction_OU().getContentTemplate());
-		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_OU_REGEXMATCH, pv.getRestriction_OU().isRegExMatch());
-        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_OU_REGEX, pv.getRestriction_OU().getRegEx());
-
-		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_L_CARDINALITY, pv.getRestriction_L().getCardinalityRestriction().name());
-		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_L_TEMPLATE, pv.getRestriction_L().getContentTemplate());
-		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_L_REGEXMATCH, pv.getRestriction_L().isRegExMatch());
-        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_L_REGEX, pv.getRestriction_L().getRegEx());
-
-        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_CARDINALITY, pv.getRestriction_S().getCardinalityRestriction().name());
-        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_TEMPLATE, pv.getRestriction_S().getContentTemplate());
-        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_REGEXMATCH, pv.getRestriction_S().isRegExMatch());
-        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_REGEX, pv.getRestriction_S().getRegEx());
-
-        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_CARDINALITY, pv.getRestriction_E().getCardinalityRestriction().name());
-        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_TEMPLATE, pv.getRestriction_E().getContentTemplate());
-        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_REGEXMATCH, pv.getRestriction_E().isRegExMatch());
-        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_REGEX, pv.getRestriction_E().getRegEx());
-
-		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_CARDINALITY, pv.getRestriction_SAN().getCardinalityRestriction().name());
-		addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_TEMPLATE, pv.getRestriction_SAN().getContentTemplate());
-        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_REGEXMATCH, pv.getRestriction_SAN().isRegExMatch());
-        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_REGEX, pv.getRestriction_SAN().getRegEx());
-
-		addPipelineAttribute(pipelineAttributes, p, auditList, ALLOW_IP_AS_SUBJECT,pv.isIpAsSubjectAllowed());
-		addPipelineAttribute(pipelineAttributes, p, auditList, ALLOW_IP_AS_SAN,pv.isIpAsSANAllowed());
+        if (pv.getRestriction_C() != null) {
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_C_CARDINALITY, pv.getRestriction_C().getCardinalityRestriction().name());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_C_TEMPLATE, pv.getRestriction_C().getContentTemplate());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_C_REGEXMATCH, pv.getRestriction_C().isRegExMatch());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_C_REGEX, pv.getRestriction_C().getRegEx());
+        }
+        if (pv.getRestriction_CN() != null) {
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_CN_CARDINALITY, pv.getRestriction_CN().getCardinalityRestriction().name());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_CN_TEMPLATE, pv.getRestriction_CN().getContentTemplate());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_CN_REGEXMATCH, pv.getRestriction_CN().isRegExMatch());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_CN_REGEX, pv.getRestriction_CN().getRegEx());
+        }
+        if (pv.getRestriction_O() != null) {
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_O_CARDINALITY, pv.getRestriction_O().getCardinalityRestriction().name());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_O_TEMPLATE, pv.getRestriction_O().getContentTemplate());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_O_REGEXMATCH, pv.getRestriction_O().isRegExMatch());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_O_REGEX, pv.getRestriction_O().getRegEx());
+        }
+        if (pv.getRestriction_OU() != null) {
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_OU_CARDINALITY, pv.getRestriction_OU().getCardinalityRestriction().name());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_OU_TEMPLATE, pv.getRestriction_OU().getContentTemplate());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_OU_REGEXMATCH, pv.getRestriction_OU().isRegExMatch());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_OU_REGEX, pv.getRestriction_OU().getRegEx());
+        }
+        if (pv.getRestriction_L() != null) {
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_L_CARDINALITY, pv.getRestriction_L().getCardinalityRestriction().name());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_L_TEMPLATE, pv.getRestriction_L().getContentTemplate());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_L_REGEXMATCH, pv.getRestriction_L().isRegExMatch());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_L_REGEX, pv.getRestriction_L().getRegEx());
+        }
+        if (pv.getRestriction_S() != null) {
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_CARDINALITY, pv.getRestriction_S().getCardinalityRestriction().name());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_TEMPLATE, pv.getRestriction_S().getContentTemplate());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_REGEXMATCH, pv.getRestriction_S().isRegExMatch());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_REGEX, pv.getRestriction_S().getRegEx());
+        }
+        if (pv.getRestriction_E() != null) {
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_CARDINALITY, pv.getRestriction_E().getCardinalityRestriction().name());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_TEMPLATE, pv.getRestriction_E().getContentTemplate());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_REGEXMATCH, pv.getRestriction_E().isRegExMatch());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_REGEX, pv.getRestriction_E().getRegEx());
+        }
+        if (pv.getRestriction_SAN() != null) {
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_CARDINALITY, pv.getRestriction_SAN().getCardinalityRestriction().name());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_TEMPLATE, pv.getRestriction_SAN().getContentTemplate());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_REGEXMATCH, pv.getRestriction_SAN().isRegExMatch());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_REGEX, pv.getRestriction_SAN().getRegEx());
+        }
+        addPipelineAttribute(pipelineAttributes, p, auditList, ALLOW_IP_AS_SUBJECT, pv.isIpAsSubjectAllowed());
+        addPipelineAttribute(pipelineAttributes, p, auditList, ALLOW_IP_AS_SAN, pv.isIpAsSANAllowed());
         LOG.debug("PipelineAttributes : ALLOW_IP_AS_SAN set to {}", pv.isIpAsSANAllowed());
 
-		addPipelineAttribute(pipelineAttributes, p, auditList, TO_PENDIND_ON_FAILED_RESTRICTIONS,pv.isToPendingOnFailedRestrictions());
+        addPipelineAttribute(pipelineAttributes, p, auditList, TO_PENDIND_ON_FAILED_RESTRICTIONS, pv.isToPendingOnFailedRestrictions());
 
 
-		if( pv.getAcmeConfigItems() == null) {
-			AcmeConfigItems acmeConfigItems = new AcmeConfigItems();
-			pv.setAcmeConfigItems(acmeConfigItems );
-		}
+        if (pv.getAcmeConfigItems() == null) {
+            AcmeConfigItems acmeConfigItems = new AcmeConfigItems();
+            pv.setAcmeConfigItems(acmeConfigItems);
+        }
 
-        if( PipelineType.ACME.equals(pv.getType())) {
+        if (PipelineType.ACME.equals(pv.getType())) {
             // ensure that at least HTTP-01 challenge is available
             if (!pv.getAcmeConfigItems().isAllowChallengeDNS()) {
                 pv.getAcmeConfigItems().setAllowChallengeHTTP01(true);
@@ -723,17 +733,17 @@ public class PipelineUtil {
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_NAME_CAA, pv.getAcmeConfigItems().getCaNameCAA());
         }
 
-        addPipelineAttribute(pipelineAttributes, p, auditList, CSR_USAGE,pv.getCsrUsage().toString());
-        if( PipelineType.WEB.equals(pv.getType())) {
+        addPipelineAttribute(pipelineAttributes, p, auditList, CSR_USAGE, pv.getCsrUsage().toString());
+        if (PipelineType.WEB.equals(pv.getType())) {
             addPipelineAttribute(pipelineAttributes, p, auditList, LIST_ORDER, "" + pv.getListOrder());
         }
 
-        if( pv.getScepConfigItems() == null) {
+        if (pv.getScepConfigItems() == null) {
             SCEPConfigItems scepConfigItems = new SCEPConfigItems();
-            pv.setScepConfigItems(scepConfigItems );
+            pv.setScepConfigItems(scepConfigItems);
         }
 
-        if( PipelineType.SCEP.equals(pv.getType())) {
+        if (PipelineType.SCEP.equals(pv.getType())) {
             addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_CAPABILITY_RENEWAL, pv.getScepConfigItems().isCapabilityRenewal());
             addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_CAPABILITY_POST, pv.getScepConfigItems().isCapabilityPostPKIOperation());
 
@@ -742,20 +752,20 @@ public class PipelineUtil {
             addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_CA_CONNECTOR_RECIPIENT_NAME, pv.getScepConfigItems().getCaConnectorRecipientName());
         }
 
-        if( pv.getWebConfigItems() != null) {
+        if (pv.getWebConfigItems() != null) {
             addPipelineAttribute(pipelineAttributes, p, auditList, NOTIFY_RA_OFFICER_ON_PENDING, pv.getWebConfigItems().isNotifyRAOfficerOnPendingRequest());
             addPipelineAttribute(pipelineAttributes, p, auditList, ADDITIONAL_EMAIL_RECIPIENTS, pv.getWebConfigItems().getAdditionalEMailRecipients());
         }
 
-        if( pv.getDomainRaOfficerList() != null) {
+        if (pv.getDomainRaOfficerList() != null) {
             for (String domainOfficer : pv.getDomainRaOfficerList()) {
                 addPipelineAttribute(pipelineAttributes, p, auditList, DOMAIN_RA_OFFICER, domainOfficer);
             }
         }
 
         ProtectedContent pc;
-        List<ProtectedContent> listPC = protectedContentRepository.findByTypeRelationId(ProtectedContentType.PASSWORD, ContentRelationType.SCEP_PW,p.getId());
-        if(listPC.isEmpty()) {
+        List<ProtectedContent> listPC = protectedContentRepository.findByTypeRelationId(ProtectedContentType.PASSWORD, ContentRelationType.SCEP_PW, p.getId());
+        if (listPC.isEmpty()) {
 //            pc = protectedContentUtil.createProtectedContent("", ProtectedContentType.PASSWORD, ContentRelationType.SCEP_PW, p.getId());
 
             pc = new ProtectedContent();
@@ -768,7 +778,7 @@ public class PipelineUtil {
             pc.setDeleteAfter(ProtectedContentUtil.MAX_INSTANT);
 
             LOG.debug("Protected Content created for SCEP password");
-        }else{
+        } else {
             pc = listPC.get(0);
             LOG.debug("Protected Content found for SCEP password");
         }
@@ -776,17 +786,17 @@ public class PipelineUtil {
         String oldContent = protectedContentUtil.unprotectString(pc.getContentBase64());
         Instant validTo = pv.getScepConfigItems().getScepSecretValidTo();
 
-        if(oldContent == null ||
+        if (oldContent == null ||
             !oldContent.equals(pv.getScepConfigItems().getScepSecret()) ||
             pc.getValidTo() == null ||
-            !pc.getValidTo().equals(validTo)){
+            !pc.getValidTo().equals(validTo)) {
 
-            pc.setContentBase64( protectedContentUtil.protectString(pv.getScepConfigItems().getScepSecret()));
+            pc.setContentBase64(protectedContentUtil.protectString(pv.getScepConfigItems().getScepSecret()));
             pc.setValidTo(validTo);
             pc.setDeleteAfter(validTo.plus(1, ChronoUnit.DAYS));
             protectedContentRepository.save(pc);
             LOG.debug("SCEP password updated {} -> {}, {} -> {}", oldContent, pv.getScepConfigItems().getScepSecret(), validTo, pc.getValidTo());
-            auditList.add(auditService.createAuditTracePipelineAttribute( "SCEP_SECRET", "#######", "******", p));
+            auditList.add(auditService.createAuditTracePipelineAttribute("SCEP_SECRET", "#######", "******", p));
         }
 
         addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_SECRET_PC_ID, pc.getId().toString());
@@ -799,9 +809,9 @@ public class PipelineUtil {
 		}
 
 */
-		ARARestriction[] araRestrictions = pv.getAraRestrictions();
-		if( araRestrictions != null) {
-			int j = 0;
+        ARARestriction[] araRestrictions = pv.getAraRestrictions();
+        if (araRestrictions != null) {
+            int j = 0;
             for (ARARestriction araRestriction : araRestrictions) {
                 String araName = araRestriction.getName();
                 if (araName != null && !araName.trim().isEmpty()) {
@@ -813,88 +823,88 @@ public class PipelineUtil {
                     j++;
                 }
             }
-		}
+        }
 
 
         auditTraceForAttributes(p, auditList, pipelineOldAttributes);
 
         p.setPipelineAttributes(pipelineAttributes);
         pipelineAttRepository.saveAll(p.getPipelineAttributes());
-		pipelineRepository.save(p);
+        pipelineRepository.save(p);
         auditTraceRepository.saveAll(auditList);
 
-		return p;
-	}
+        return p;
+    }
 
     private void auditTraceForAttributes(Pipeline p, List<AuditTrace> auditList, Set<PipelineAttribute> pipelineOldAttributes) {
         LOG.debug("matching PipelineAttributes : old #{}, new {}", pipelineOldAttributes.size(), p.getPipelineAttributes().size());
 
-        for( PipelineAttribute pOld: pipelineOldAttributes) {
+        for (PipelineAttribute pOld : pipelineOldAttributes) {
 
             boolean bFound = false;
             for (PipelineAttribute pNew : p.getPipelineAttributes()) {
-                if( pNew.getName().equals(pOld.getName())){
-                    if(!Objects.equals(pNew.getValue(), pOld.getValue())){
-                        auditList.add(auditService.createAuditTracePipelineAttribute( pOld.getName(), pOld.getValue(), pNew.getValue(), p));
+                if (pNew.getName().equals(pOld.getName())) {
+                    if (!Objects.equals(pNew.getValue(), pOld.getValue())) {
+                        auditList.add(auditService.createAuditTracePipelineAttribute(pOld.getName(), pOld.getValue(), pNew.getValue(), p));
                     }
                     bFound = true;
                     break;
                 }
             }
-            if(!bFound){
-                auditList.add(auditService.createAuditTracePipelineAttribute( pOld.getName(), pOld.getValue(), "", p));
+            if (!bFound) {
+                auditList.add(auditService.createAuditTracePipelineAttribute(pOld.getName(), pOld.getValue(), "", p));
             }
         }
 
         for (PipelineAttribute pNew : p.getPipelineAttributes()) {
             boolean bFound = false;
-            for( PipelineAttribute pOld: pipelineOldAttributes) {
-                if( pNew.getName().equals(pOld.getName())){
+            for (PipelineAttribute pOld : pipelineOldAttributes) {
+                if (pNew.getName().equals(pOld.getName())) {
                     bFound = true;
                     break;
                 }
             }
-            if(!bFound){
-                auditList.add(auditService.createAuditTracePipelineAttribute( pNew.getName(), "", pNew.getValue(), p));
+            if (!bFound) {
+                auditList.add(auditService.createAuditTracePipelineAttribute(pNew.getName(), "", pNew.getValue(), p));
                 LOG.debug("matching PipelineAttributes : new name {} not found in old list", pNew.getName());
             }
         }
     }
 
     public void addPipelineAttribute(Set<PipelineAttribute> pipelineAttributes, Pipeline p, List<AuditTrace> auditList, String name, Boolean value) {
-		addPipelineAttribute(pipelineAttributes, p, auditList, name, value.toString());
-	}
+        addPipelineAttribute(pipelineAttributes, p, auditList, name, value.toString());
+    }
 
-	public void addPipelineAttribute(Set<PipelineAttribute> pipelineAttributes, Pipeline p, List<AuditTrace> auditList, String name, String value) {
+    public void addPipelineAttribute(Set<PipelineAttribute> pipelineAttributes, Pipeline p, List<AuditTrace> auditList, String name, String value) {
 
-		if( name == null || name.trim().isEmpty()) {
-			new Exception("name == null").printStackTrace();
-			return;
-		}
+        if (name == null || name.trim().isEmpty()) {
+            new Exception("name == null").printStackTrace();
+            return;
+        }
 
-		if( value == null || value.trim().isEmpty()) {
-			return;
-		}
+        if (value == null || value.trim().isEmpty()) {
+            return;
+        }
 
-		PipelineAttribute pAtt = new PipelineAttribute();
-		pAtt.setPipeline(p);
-		pAtt.setName(name);
-		pAtt.setValue(value);
-		pipelineAttributes.add(pAtt);
+        PipelineAttribute pAtt = new PipelineAttribute();
+        pAtt.setPipeline(p);
+        pAtt.setName(name);
+        pAtt.setValue(value);
+        pipelineAttributes.add(pAtt);
 
-        auditList.add(auditService.createAuditTracePipelineAttribute( name, "", value, p));
+        auditList.add(auditService.createAuditTracePipelineAttribute(name, "", value, p));
         LOG.debug("matching PipelineAttributes : new attribute with name '{}' and value  '{}' added", name, value);
 
     }
 
     public boolean isPipelineRestrictionsResolved(Pipeline p, Pkcs10RequestHolder p10ReqHolder, NamedValues[] nvARArr, List<String> messageList) {
 
-	    // null pipeline means internal requests without an associated pipeline and no restrictions
-        if(p == null){
+        // null pipeline means internal requests without an associated pipeline and no restrictions
+        if (p == null) {
             return true;
         }
 
-        if(!isPipelineAdditionalRestrictionsResolved(initAraRestrictions(p), nvARArr, messageList)){
+        if (!isPipelineAdditionalRestrictionsResolved(initAraRestrictions(p), nvARArr, messageList)) {
             return false;
         }
         return isPipelineRestrictionsResolved(p, p10ReqHolder, messageList);
@@ -902,8 +912,8 @@ public class PipelineUtil {
 
     public boolean isPipelineRestrictionsResolved(Pipeline p, Pkcs10RequestHolder p10ReqHolder, List<String> messageList) {
 
-	    if(p == null){
-	        return true;
+        if (p == null) {
+            return true;
         }
 
         PipelineView pv = new PipelineView();
@@ -916,18 +926,18 @@ public class PipelineUtil {
 
         boolean outcome = true;
 
-        for(NamedValues nvAR: nvARArr){
-            for(ARARestriction araRestriction:araRestrictions){
-                if( araRestriction.getName().equals(nvAR.getName())){
-                    if(!checkAdditionalRestrictions(araRestriction, nvAR, messageList)){
+        for (NamedValues nvAR : nvARArr) {
+            for (ARARestriction araRestriction : araRestrictions) {
+                if (araRestriction.getName().equals(nvAR.getName())) {
+                    if (!checkAdditionalRestrictions(araRestriction, nvAR, messageList)) {
                         outcome = false;
                     }
                 }
             }
         }
-        for(ARARestriction araRestriction:araRestrictions){
-            if(araRestriction.isRequired()){
-                if(Arrays.stream(nvARArr).noneMatch(nv -> (araRestriction.getName().equals(nv.getName())))){
+        for (ARARestriction araRestriction : araRestrictions) {
+            if (araRestriction.isRequired()) {
+                if (Arrays.stream(nvARArr).noneMatch(nv -> (araRestriction.getName().equals(nv.getName())))) {
                     String msg = "additional restriction mismatch: An value for '" + araRestriction.getName() + "' MUST be present!";
                     messageList.add(msg);
                     LOG.debug(msg);
@@ -940,45 +950,61 @@ public class PipelineUtil {
 
     public boolean isPipelineRestrictionsResolved(PipelineView pv, Pkcs10RequestHolder p10ReqHolder, List<String> messageList) {
 
-		boolean outcome = isAlgorithmRestrictionsResolved( pv,  p10ReqHolder, messageList);
+        boolean outcome = isAlgorithmRestrictionsResolved(pv, p10ReqHolder, messageList);
 
         Set<GeneralName> gNameSet = CSRUtil.getSANList(p10ReqHolder.getReqAttributes());
         LOG.debug("#" + gNameSet.size() + " SANs present");
 
         RDN[] rdnArr = p10ReqHolder.getSubjectRDNs();
 
-	    if( !checkRestrictions(BCStyle.C, pv.getRestriction_C(), rdnArr, messageList)) { outcome = false;}
-	    if( !checkRestrictions(BCStyle.CN, pv.getRestriction_CN(), rdnArr, gNameSet, messageList)) { outcome = false;}
-	    if( !checkRestrictions(BCStyle.O, pv.getRestriction_O(), rdnArr, messageList)) { outcome = false;}
-	    if( !checkRestrictions(BCStyle.OU, pv.getRestriction_OU(), rdnArr, messageList)) { outcome = false;}
-	    if( !checkRestrictions(BCStyle.L, pv.getRestriction_L(), rdnArr, messageList)) { outcome = false;}
-        if( !checkRestrictions(BCStyle.ST, pv.getRestriction_S(), rdnArr, messageList)) { outcome = false;}
-        if( !checkRestrictions(BCStyle.E, pv.getRestriction_E(), rdnArr, messageList)) { outcome = false;}
+        if (!checkRestrictions(BCStyle.C, pv.getRestriction_C(), rdnArr, messageList)) {
+            outcome = false;
+        }
+        if (!checkRestrictions(BCStyle.CN, pv.getRestriction_CN(), rdnArr, gNameSet, messageList)) {
+            outcome = false;
+        }
+        if (!checkRestrictions(BCStyle.O, pv.getRestriction_O(), rdnArr, messageList)) {
+            outcome = false;
+        }
+        if (!checkRestrictions(BCStyle.OU, pv.getRestriction_OU(), rdnArr, messageList)) {
+            outcome = false;
+        }
+        if (!checkRestrictions(BCStyle.L, pv.getRestriction_L(), rdnArr, messageList)) {
+            outcome = false;
+        }
+        if (!checkRestrictions(BCStyle.ST, pv.getRestriction_S(), rdnArr, messageList)) {
+            outcome = false;
+        }
+        if (!checkRestrictions(BCStyle.E, pv.getRestriction_E(), rdnArr, messageList)) {
+            outcome = false;
+        }
 
-	    if( !checkRestrictions(pv.getRestriction_SAN(), gNameSet, messageList)) { outcome = false;}
+        if (!checkRestrictions(pv.getRestriction_SAN(), gNameSet, messageList)) {
+            outcome = false;
+        }
 
         LOG.debug("pv.isIpAsSubjectAllowed() is {} ", pv.isIpAsSubjectAllowed());
-	    if(!pv.isIpAsSubjectAllowed()) {
-	    	if( isSubjectIP(rdnArr, messageList)) {
+        if (!pv.isIpAsSubjectAllowed()) {
+            if (isSubjectIP(rdnArr, messageList)) {
                 String msg = "IP not allowed as subject";
                 messageList.add(0, msg);
                 LOG.info(msg);
-	    		outcome = false;
-	    	}
-	    }
+                outcome = false;
+            }
+        }
 
         LOG.debug("pv.isIpAsSANAllowed() is {} ", pv.isIpAsSANAllowed());
-	    if(!pv.isIpAsSANAllowed()) {
-	    	if( hasIPinSANList(gNameSet, messageList)) {
+        if (!pv.isIpAsSANAllowed()) {
+            if (hasIPinSANList(gNameSet, messageList)) {
                 String msg = "IP not allowed as SAN";
                 messageList.add(0, msg);
                 LOG.info(msg);
-	    		outcome = false;
-	    	}
-	    }
+                outcome = false;
+            }
+        }
 
-		return outcome;
-	}
+        return outcome;
+    }
 
     public boolean isAlgorithmRestrictionsResolved(PipelineView pv, Pkcs10RequestHolder p10ReqHolder, List<String> messageList) {
         boolean outcome = true;
@@ -986,19 +1012,19 @@ public class PipelineUtil {
         Preferences preferences = preferenceUtil.getPrefs(PreferenceUtil.SYSTEM_PREFERENCE_ID);
 
         String hashAlgName = p10ReqHolder.getAlgorithmInfo().getHashAlgName();
-        if(Arrays.stream(preferences.getSelectedHashes())
-            .noneMatch(a -> a.equalsIgnoreCase(hashAlgName))){
-                String msg = "restriction mismatch: hash algo '"+hashAlgName +"' does not match expected set!";
-                messageList.add(msg);
-                LOG.debug(msg);
-                outcome = false;
-            }
+        if (Arrays.stream(preferences.getSelectedHashes())
+            .noneMatch(a -> a.equalsIgnoreCase(hashAlgName))) {
+            String msg = "restriction mismatch: hash algo '" + hashAlgName + "' does not match expected set!";
+            messageList.add(msg);
+            LOG.debug(msg);
+            outcome = false;
+        }
 
         String signingAlgo = p10ReqHolder.getPublicKeyAlgorithmShortName();
         int keyLength = CertificateUtil.getAlignedKeyLength(p10ReqHolder.getPublicSigningKey());
 
-        if(Arrays.stream(preferences.getSelectedSigningAlgos()).noneMatch(a -> matchesAlgo(a, signingAlgo, keyLength))){
-            String msg = "restriction mismatch: signature algo / length '"+signingAlgo +"/" + keyLength + "' does not match expected set!";
+        if (Arrays.stream(preferences.getSelectedSigningAlgos()).noneMatch(a -> matchesAlgo(a, signingAlgo, keyLength))) {
+            String msg = "restriction mismatch: signature algo / length '" + signingAlgo + "/" + keyLength + "' does not match expected set!";
             messageList.add(msg);
             LOG.info(msg);
             outcome = false;
@@ -1009,41 +1035,41 @@ public class PipelineUtil {
 
     private boolean matchesAlgo(String a, String signingAlgo, int keyLength) {
         String[] parts = a.split("-");
-        if( parts.length != 2){
+        if (parts.length != 2) {
             LOG.warn("unexpected keyLength / type descriptor: '{}'", a);
             return false;
         }
-        if( !parts[0].equalsIgnoreCase(signingAlgo)){
-            LOG.debug ("type check  mismatch: '{}' / '{}'", parts[0], signingAlgo);
+        if (!parts[0].equalsIgnoreCase(signingAlgo)) {
+            LOG.debug("type check  mismatch: '{}' / '{}'", parts[0], signingAlgo);
             return false;
         }
         try {
             int keyLengthRestriction = Integer.parseInt(parts[1]);
             return keyLengthRestriction <= keyLength;
-        }catch(NumberFormatException nfe){
-            LOG.warn("unexpected number in keyLengthdescriptor: '"+a+"'",nfe);
+        } catch (NumberFormatException nfe) {
+            LOG.warn("unexpected number in keyLengthdescriptor: '" + a + "'", nfe);
         }
         return false;
     }
 
     private boolean hasIPinSANList(Set<GeneralName> gNameSet, List<String> messageList) {
 
-		boolean outcome = false;
+        boolean outcome = false;
 
-    	for( GeneralName gn: gNameSet) {
-			if (GeneralName.iPAddress == gn.getTagNo()) {
+        for (GeneralName gn : gNameSet) {
+            if (GeneralName.iPAddress == gn.getTagNo()) {
                 String sanValue = CertificateUtil.getTypedSAN(gn);
-                messageList.add("SAN '"+sanValue+"' is an IP address, not allowed.");
-				outcome = true;
-			}
-    	}
-		return outcome;
-	}
+                messageList.add("SAN '" + sanValue + "' is an IP address, not allowed.");
+                outcome = true;
+            }
+        }
+        return outcome;
+    }
 
 
     private boolean checkRestrictions(RDNRestriction restriction, Set<GeneralName> gNameSet, List<String> messageList) {
 
-        if( restriction == null) {
+        if (restriction == null) {
             return true; // no restrictions present!!
         }
 
@@ -1053,34 +1079,34 @@ public class PipelineUtil {
         LOG.debug("checking SANs");
 
         boolean hasRegEx = false;
-        if( restriction.getRegEx() != null) {
+        if (restriction.getRegEx() != null) {
             regEx = restriction.getRegEx().trim();
             hasRegEx = !regEx.isEmpty();
         }
 
         int n = 0;
 
-        for( GeneralName gn: gNameSet) {
+        for (GeneralName gn : gNameSet) {
             n++;
-            if( hasRegEx) {
+            if (hasRegEx) {
                 String value = CertificateUtil.getTypedSAN(gn);
 
-                if( restriction.isRegExMatch()) {
+                if (restriction.isRegExMatch()) {
                     boolean evalResult = false;
                     try {
                         evalResult = value.matches(regEx);
-                    }catch(PatternSyntaxException pse) {
-                        LOG.warn("pattern '"+regEx+"' is not valid");
+                    } catch (PatternSyntaxException pse) {
+                        LOG.warn("pattern '" + regEx + "' is not valid");
                     }
-                    if( !evalResult ) {
-                        String msg = "restriction mismatch: SAN '"+value +"' does not match regular expression '"+regEx+"' !";
+                    if (!evalResult) {
+                        String msg = "restriction mismatch: SAN '" + value + "' does not match regular expression '" + regEx + "' !";
                         messageList.add(msg);
                         LOG.debug(msg);
                         outcome = false;
                     }
-                }else{
-                    if( !regEx.equalsIgnoreCase(value) ) {
-                        String msg = "restriction mismatch: SAN '"+value +"' does not match expected value '"+regEx+"' !";
+                } else {
+                    if (!regEx.equalsIgnoreCase(value)) {
+                        String msg = "restriction mismatch: SAN '" + value + "' does not match expected value '" + regEx + "' !";
                         messageList.add(msg);
                         LOG.debug(msg);
                         outcome = false;
@@ -1091,36 +1117,36 @@ public class PipelineUtil {
         }
 
         RDNCardinalityRestriction cardinality = restriction.getCardinalityRestriction();
-        if( RDNCardinalityRestriction.NOT_ALLOWED.equals(cardinality)) {
-            if( n > 0) {
+        if (RDNCardinalityRestriction.NOT_ALLOWED.equals(cardinality)) {
+            if (n > 0) {
                 String msg = "restriction mismatch: A SAN MUST NOT occur!";
                 messageList.add(msg);
                 LOG.debug(msg);
                 outcome = false;
             }
-        } else if( RDNCardinalityRestriction.ONE.equals(cardinality)) {
-            if( n ==  0) {
+        } else if (RDNCardinalityRestriction.ONE.equals(cardinality)) {
+            if (n == 0) {
                 String msg = "restriction mismatch: SAN MUST occur once, missing here!";
                 messageList.add(msg);
                 LOG.debug(msg);
                 outcome = false;
             }
-            if( n != 1) {
-                String msg = "restriction mismatch: SAN MUST occur exactly once, found "+n+" times!";
+            if (n != 1) {
+                String msg = "restriction mismatch: SAN MUST occur exactly once, found " + n + " times!";
                 messageList.add(msg);
                 LOG.debug(msg);
                 outcome = false;
             }
-        } else if( RDNCardinalityRestriction.ONE_OR_MANY.equals(cardinality)) {
-            if( n == 0) {
+        } else if (RDNCardinalityRestriction.ONE_OR_MANY.equals(cardinality)) {
+            if (n == 0) {
                 String msg = "restriction mismatch: SAns MUST occur once or more, missing here!";
                 messageList.add(msg);
                 LOG.debug(msg);
                 outcome = false;
             }
-        } else if( RDNCardinalityRestriction.ZERO_OR_ONE.equals(cardinality)) {
-            if( n > 1) {
-                String msg = "restriction mismatch: SANs MUST occur zero or once, found "+n+" times!";
+        } else if (RDNCardinalityRestriction.ZERO_OR_ONE.equals(cardinality)) {
+            if (n > 1) {
+                String msg = "restriction mismatch: SANs MUST occur zero or once, found " + n + " times!";
                 messageList.add(msg);
                 LOG.debug(msg);
                 outcome = false;
@@ -1131,7 +1157,7 @@ public class PipelineUtil {
 
     private boolean checkAdditionalRestrictions(ARARestriction araRestriction, NamedValues nvAR, List<String> messageList) {
 
-        if( araRestriction == null) {
+        if (araRestriction == null) {
             return true; // no restrictions present!!
         }
 
@@ -1140,26 +1166,26 @@ public class PipelineUtil {
         LOG.debug("checking AdditionalRestrictions");
         String regEx;
         boolean hasRegEx = false;
-        if( araRestriction.getRegEx() != null) {
+        if (araRestriction.getRegEx() != null) {
             regEx = araRestriction.getRegEx().trim();
             hasRegEx = !regEx.isEmpty();
         }
 
-        if( araRestriction.isRequired() ){
-            if( nvAR.getValues().length == 0 ){
-                String msg = "additional restriction mismatch: An value for '"+nvAR.getName()+"' MUST be present!";
+        if (araRestriction.isRequired()) {
+            if (nvAR.getValues().length == 0) {
+                String msg = "additional restriction mismatch: An value for '" + nvAR.getName() + "' MUST be present!";
                 messageList.add(msg);
                 LOG.debug(msg);
                 outcome = false;
-            }else{
-                for( TypedValue typedValue: nvAR.getValues()){
-                    if( typedValue.getValue().isEmpty()) {
+            } else {
+                for (TypedValue typedValue : nvAR.getValues()) {
+                    if (typedValue.getValue().isEmpty()) {
                         String msg = "additional restriction mismatch: An value for '" + nvAR.getName() + "' MUST be present!";
                         messageList.add(msg);
                         LOG.debug(msg);
                         outcome = false;
                     }
-                    if( hasRegEx ) {
+                    if (hasRegEx) {
                         if (!checkRegEx(araRestriction, typedValue.getValue(), messageList)) {
                             outcome = false;
                         }
@@ -1179,37 +1205,37 @@ public class PipelineUtil {
     private boolean checkRestrictions(ASN1ObjectIdentifier restricted, RDNRestriction restriction, RDN[] rdnArr, Set<GeneralName> gNameSet, List<String> messageList) {
 
 
-        if( restriction == null) {
-			return true; // no restrictions present!!
-		}
+        if (restriction == null) {
+            return true; // no restrictions present!!
+        }
 
-		boolean outcome = true;
+        boolean outcome = true;
 
-		String template;
-		String restrictedName = OidNameMapper.lookupOid(restricted.toString());
-		LOG.debug("checking element '{}'", restrictedName);
+        String template;
+        String restrictedName = OidNameMapper.lookupOid(restricted.toString());
+        LOG.debug("checking element '{}'", restrictedName);
 
-		boolean hasTemplate = false;
-		if( restriction.getContentTemplate() != null) {
-			template = restriction.getContentTemplate().trim();
-			hasTemplate = !template.isEmpty();
-		}
+        boolean hasTemplate = false;
+        if (restriction.getContentTemplate() != null) {
+            template = restriction.getContentTemplate().trim();
+            hasTemplate = !template.isEmpty();
+        }
 
         String regEx = "";
         boolean hasRegEx = false;
-        if( restriction.getRegEx() != null) {
+        if (restriction.getRegEx() != null) {
             regEx = restriction.getRegEx().trim();
             hasRegEx = !regEx.isEmpty();
         }
 
         int n = 0;
 
-		for( RDN rdn: rdnArr) {
-			AttributeTypeAndValue atv = rdn.getFirst();
-			if( restricted.equals(atv.getType())){
-				n++;
+        for (RDN rdn : rdnArr) {
+            AttributeTypeAndValue atv = rdn.getFirst();
+            if (restricted.equals(atv.getType())) {
+                n++;
                 String value = atv.getValue().toString().trim();
-				if( hasRegEx && restriction.isRegExMatch()) {
+                if (hasRegEx && restriction.isRegExMatch()) {
                     boolean evalResult = false;
                     try {
                         evalResult = value.matches(regEx);
@@ -1232,82 +1258,53 @@ public class PipelineUtil {
                 }
 
  */
-			}
-		}
+            }
+        }
 
-		RDNCardinalityRestriction cardinality = restriction.getCardinalityRestriction();
-		if( RDNCardinalityRestriction.NOT_ALLOWED.equals(cardinality)) {
-			if( n > 0) {
-				String msg = "restricition mismatch: '"+restrictedName+"' MUST NOT occur!";
-				messageList.add(msg);
-				LOG.debug(msg);
-				outcome = false;
-			}
-		} else if( RDNCardinalityRestriction.ONE.equals(cardinality)) {
-			if( n ==  0) {
-				String msg = "restricition mismatch: '"+restrictedName+"' MUST occur once, missing here!";
-				messageList.add(msg);
-				LOG.debug(msg);
-				outcome = false;
-			}
-			if( n != 1) {
-				String msg = "restricition mismatch: '"+restrictedName+"' MUST occur exactly once, found "+n+" times!";
-				messageList.add(msg);
-				LOG.debug(msg);
-				outcome = false;
-			}
-        } else if( RDNCardinalityRestriction.ONE_OR_SAN.equals(cardinality)) {
-            if( n == 0 && gNameSet.isEmpty()) {
-                String msg = "restricition mismatch: '"+restrictedName+"' MUST occur once or a SAN entry MUST be present!!";
+        RDNCardinalityRestriction cardinality = restriction.getCardinalityRestriction();
+        if (RDNCardinalityRestriction.NOT_ALLOWED.equals(cardinality)) {
+            if (n > 0) {
+                String msg = "restricition mismatch: '" + restrictedName + "' MUST NOT occur!";
                 messageList.add(msg);
                 LOG.debug(msg);
                 outcome = false;
             }
-            if( n != 1) {
-                String msg = "restricition mismatch: '"+restrictedName+"' MUST occur exactly once, found "+n+" times!";
+        } else if (RDNCardinalityRestriction.ONE.equals(cardinality)) {
+            if (n == 0) {
+                String msg = "restricition mismatch: '" + restrictedName + "' MUST occur once, missing here!";
                 messageList.add(msg);
                 LOG.debug(msg);
                 outcome = false;
             }
-		} else if( RDNCardinalityRestriction.ONE_OR_MANY.equals(cardinality)) {
-			if( n == 0) {
-				String msg = "restricition mismatch: '"+restrictedName+"' MUST occur once or more, missing here!";
-				messageList.add(msg);
-				LOG.debug(msg);
-				outcome = false;
-			}
-		} else if( RDNCardinalityRestriction.ZERO_OR_ONE.equals(cardinality)) {
-			if( n > 1) {
-				String msg = "restricition mismatch: '"+restrictedName+"' MUST occur zero or once, found "+n+" times!";
-				messageList.add(msg);
-				LOG.debug(msg);
-				outcome = false;
-			}
-		}
-		return outcome;
-	}
-
-	private boolean checkRegEx(ARARestriction araRestriction, String value, List<String> messageList){
-
-        boolean outcome = true;
-        String regEx = araRestriction.getRegEx().trim();
-
-        if( araRestriction.isRegExMatch()) {
-            boolean evalResult = false;
-            try {
-                evalResult = value.matches(regEx);
-            }catch(PatternSyntaxException pse) {
-                LOG.warn("pattern '"+regEx+"' is not valid");
-            }
-            if( !evalResult ) {
-                String msg = "restriction mismatch: '"+value +"' does not match regular expression '"+regEx+"' !";
+            if (n != 1) {
+                String msg = "restricition mismatch: '" + restrictedName + "' MUST occur exactly once, found " + n + " times!";
                 messageList.add(msg);
                 LOG.debug(msg);
                 outcome = false;
             }
-        }else{
-            if( !regEx.equalsIgnoreCase(value) ) {
-                String msg = "restriction mismatch: '"+value +"' does not match expected value '"+regEx+"' !";
+        } else if (RDNCardinalityRestriction.ONE_OR_SAN.equals(cardinality)) {
+            if (n == 0 && gNameSet.isEmpty()) {
+                String msg = "restricition mismatch: '" + restrictedName + "' MUST occur once or a SAN entry MUST be present!!";
+                messageList.add(msg);
+                LOG.debug(msg);
+                outcome = false;
+            }
+            if (n != 1) {
+                String msg = "restricition mismatch: '" + restrictedName + "' MUST occur exactly once, found " + n + " times!";
+                messageList.add(msg);
+                LOG.debug(msg);
+                outcome = false;
+            }
+        } else if (RDNCardinalityRestriction.ONE_OR_MANY.equals(cardinality)) {
+            if (n == 0) {
+                String msg = "restricition mismatch: '" + restrictedName + "' MUST occur once or more, missing here!";
+                messageList.add(msg);
+                LOG.debug(msg);
+                outcome = false;
+            }
+        } else if (RDNCardinalityRestriction.ZERO_OR_ONE.equals(cardinality)) {
+            if (n > 1) {
+                String msg = "restricition mismatch: '" + restrictedName + "' MUST occur zero or once, found " + n + " times!";
                 messageList.add(msg);
                 LOG.debug(msg);
                 outcome = false;
@@ -1316,34 +1313,63 @@ public class PipelineUtil {
         return outcome;
     }
 
-	private boolean isSubjectIP(RDN[] rdnArr, List<String> messageList) {
+    private boolean checkRegEx(ARARestriction araRestriction, String value, List<String> messageList) {
+
+        boolean outcome = true;
+        String regEx = araRestriction.getRegEx().trim();
+
+        if (araRestriction.isRegExMatch()) {
+            boolean evalResult = false;
+            try {
+                evalResult = value.matches(regEx);
+            } catch (PatternSyntaxException pse) {
+                LOG.warn("pattern '" + regEx + "' is not valid");
+            }
+            if (!evalResult) {
+                String msg = "restriction mismatch: '" + value + "' does not match regular expression '" + regEx + "' !";
+                messageList.add(msg);
+                LOG.debug(msg);
+                outcome = false;
+            }
+        } else {
+            if (!regEx.equalsIgnoreCase(value)) {
+                String msg = "restriction mismatch: '" + value + "' does not match expected value '" + regEx + "' !";
+                messageList.add(msg);
+                LOG.debug(msg);
+                outcome = false;
+            }
+        }
+        return outcome;
+    }
+
+    private boolean isSubjectIP(RDN[] rdnArr, List<String> messageList) {
 
 
-		for( RDN rdn: rdnArr) {
-			AttributeTypeAndValue atv = rdn.getFirst();
-			if( BCStyle.CN.equals(atv.getType())){
+        for (RDN rdn : rdnArr) {
+            AttributeTypeAndValue atv = rdn.getFirst();
+            if (BCStyle.CN.equals(atv.getType())) {
 
-				String value = atv.getValue().toString().trim();
-				InetAddressValidator inv = InetAddressValidator.getInstance();
-				if( inv.isValidInet4Address(value)) {
-					messageList.add("CommonName '"+value+"' is a valid IP4 address");
-					return true;
-				}
-				if( inv.isValidInet6Address(value)) {
-					messageList.add("CommonName '"+value+"' is a valid IP6 address");
-					return true;
-				}
-			}
+                String value = atv.getValue().toString().trim();
+                InetAddressValidator inv = InetAddressValidator.getInstance();
+                if (inv.isValidInet4Address(value)) {
+                    messageList.add("CommonName '" + value + "' is a valid IP4 address");
+                    return true;
+                }
+                if (inv.isValidInet6Address(value)) {
+                    messageList.add("CommonName '" + value + "' is a valid IP6 address");
+                    return true;
+                }
+            }
 
-		}
-		return false;
-	}
+        }
+        return false;
+    }
 
     public void setPipelineAttribute(Pipeline pipeline, String name, String value) {
 
         for (PipelineAttribute plAtt : pipeline.getPipelineAttributes()) {
             if (name.equals(plAtt.getName())) {
-                if( !plAtt.getValue().equals(value) ){
+                if (!plAtt.getValue().equals(value)) {
                     plAtt.setValue(value);
                     pipelineAttRepository.save(plAtt);
                 }
@@ -1374,9 +1400,9 @@ public class PipelineUtil {
 
         for (PipelineAttribute plAtt : pipeline.getPipelineAttributes()) {
             if (name.equals(plAtt.getName())) {
-                try{
+                try {
                     return Integer.parseInt(plAtt.getValue());
-                }catch( NumberFormatException nfe){
+                } catch (NumberFormatException nfe) {
                     LOG.warn("unexpected value for attribute '" + name + "'", nfe);
                 }
             }
@@ -1394,21 +1420,21 @@ public class PipelineUtil {
         return defaultValue;
     }
 
-    public Certificate getSCEPRecipientCertificate( Pipeline pipeline, CertificateProcessingUtil cpUtil) throws IOException, GeneralSecurityException {
+    public Certificate getSCEPRecipientCertificate(Pipeline pipeline, CertificateProcessingUtil cpUtil) throws IOException, GeneralSecurityException {
 
         LOG.debug("getSCEPRecipientCertificate() ...");
 
-        if( pipeline == null){
+        if (pipeline == null) {
             throw new GeneralSecurityException("pipeline argument == null!");
         }
 
         Certificate currentRecepientCert = certUtil.getCurrentSCEPRecipient(pipeline);
-        if(currentRecepientCert != null ) {
+        if (currentRecepientCert != null) {
             LOG.debug("found active certificate as scep recipient with id {}", currentRecepientCert.getId());
             return currentRecepientCert;
         }
 
-        if( Boolean.TRUE.equals(pipeline.isActive())) {
+        if (Boolean.TRUE.equals(pipeline.isActive())) {
 
             Certificate recipientCert = createSCEPRecipientCertificate(pipeline, cpUtil);
             if (recipientCert == null) {
@@ -1417,29 +1443,29 @@ public class PipelineUtil {
                 LOG.debug("new scep recipient certificate {} created for pipeline {}", recipientCert.getId(), pipeline.getId());
             }
             return recipientCert;
-        }else{
-            LOG.debug("pipeline {} NOT active, no recipient certificate created",pipeline.getId());
+        } else {
+            LOG.debug("pipeline {} NOT active, no recipient certificate created", pipeline.getId());
             return null;
         }
     }
 
     private Certificate createSCEPRecipientCertificate(final Pipeline pipeline, CertificateProcessingUtil cpUtil) throws IOException, GeneralSecurityException {
 
-        String scepRecipientDN = getPipelineAttribute( pipeline, SCEP_RECIPIENT_DN, "CN=SCEPRecepient_"+ pipeline.getId());
+        String scepRecipientDN = getPipelineAttribute(pipeline, SCEP_RECIPIENT_DN, "CN=SCEPRecepient_" + pipeline.getId());
         LOG.debug("createSCEPRecipientCertificate() with scepRecipientDN '{}'", scepRecipientDN);
         X500Principal subject = new X500Principal(scepRecipientDN);
 
         CAConnectorConfig caConfig;
-        String caConnectorName = getPipelineAttribute( pipeline, SCEP_CA_CONNECTOR_RECIPIENT_NAME, "");
+        String caConnectorName = getPipelineAttribute(pipeline, SCEP_CA_CONNECTOR_RECIPIENT_NAME, "");
         List<CAConnectorConfig> caConfigList = caConnRepository.findByName(caConnectorName);
-        if( caConfigList.isEmpty() ){
+        if (caConfigList.isEmpty()) {
             LOG.warn("creation of SCEP recipient certificate failed, connector {} missing, using default!", caConnectorName);
             caConfig = configUtil.getDefaultConfig();
-        }else{
+        } else {
             caConfig = caConfigList.get(0);
         }
 
-        String scepRecipientKeyLength = getPipelineAttribute( pipeline, SCEP_RECIPIENT_KEY_TYPE_LEN, "RSA_2048");
+        String scepRecipientKeyLength = getPipelineAttribute(pipeline, SCEP_RECIPIENT_KEY_TYPE_LEN, "RSA_2048");
         KeyAlgoLength kal = KeyAlgoLength.from(scepRecipientKeyLength);
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(kal.getAlgoName());
         keyPairGenerator.initialize(kal.getKeyLength());
@@ -1452,18 +1478,18 @@ public class PipelineUtil {
         );
 
         String requestorName = Constants.SYSTEM_ACCOUNT;
-        CSR csr = cpUtil.buildCSR(p10ReqPem, requestorName, AuditService.AUDIT_SCEP_CERTIFICATE_REQUESTED, "", null );
+        CSR csr = cpUtil.buildCSR(p10ReqPem, requestorName, AuditService.AUDIT_SCEP_CERTIFICATE_REQUESTED, "", null);
         csrRepository.save(csr);
 
 
-        Certificate cert = cpUtil.processCertificateRequest(csr, requestorName,  AuditService.AUDIT_SCEP_CERTIFICATE_CREATED, caConfig );
-        if( cert == null) {
+        Certificate cert = cpUtil.processCertificateRequest(csr, requestorName, AuditService.AUDIT_SCEP_CERTIFICATE_CREATED, caConfig);
+        if (cert == null) {
             LOG.warn("creation of SCEP recipient certificate with DN '{}' failed ", scepRecipientDN);
-        }else {
+        } else {
             LOG.debug("new certificate id '{}' for SCEP recipient", cert.getId());
 
             certUtil.storePrivateKey(cert, keyPair, cert.getValidTo());
-            certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SCEP_RECIPIENT, ""+ pipeline.getId());
+            certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SCEP_RECIPIENT, "" + pipeline.getId());
 
             certRepository.save(cert);
         }
@@ -1476,26 +1502,26 @@ public class PipelineUtil {
         if (pipelineList.isEmpty()) {
             LOG.info("no matching pipeline for type '{}' request realm {}", pipelineType, realm);
             return null;
-        }else{
-            for( Pipeline pipeline: pipelineList){
+        } else {
+            for (Pipeline pipeline : pipelineList) {
                 LOG.info("matching pipeline for type '{}' and request realm {} found: {}", pipeline.getType(), pipeline.getUrlPart(), pipeline.getName());
             }
         }
         return pipelineList.get(0);
     }
 
-    public boolean isUserValidAsRA(final Pipeline pipeline, User user){
+    public boolean isUserValidAsRA(final Pipeline pipeline, User user) {
 
-        if(user.getAuthorities().stream().anyMatch(a -> AuthoritiesConstants.RA_OFFICER.equals(a.getName() ))){
+        if (user.getAuthorities().stream().anyMatch(a -> AuthoritiesConstants.RA_OFFICER.equals(a.getName()))) {
             LOG.debug("user '{}' has role 'RA_OFFICER'", user.getLogin());
             return true;
         }
 
-        if(user.getAuthorities().stream().anyMatch(a -> AuthoritiesConstants.DOMAIN_RA_OFFICER.equals(a.getName() ))){
+        if (user.getAuthorities().stream().anyMatch(a -> AuthoritiesConstants.DOMAIN_RA_OFFICER.equals(a.getName()))) {
             LOG.debug("user '{}' has role 'DOMAIN_RA_OFFICER'", user.getLogin());
-            for(PipelineAttribute pipelineAttribute: pipeline.getPipelineAttributes()){
-                if( DOMAIN_RA_OFFICER.equals(pipelineAttribute.getName()) &&
-                    Long.parseLong(pipelineAttribute.getValue()) == user.getId()){
+            for (PipelineAttribute pipelineAttribute : pipeline.getPipelineAttributes()) {
+                if (DOMAIN_RA_OFFICER.equals(pipelineAttribute.getName()) &&
+                    Long.parseLong(pipelineAttribute.getValue()) == user.getId()) {
                     return true;
                 }
             }

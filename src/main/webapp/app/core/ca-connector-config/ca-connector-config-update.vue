@@ -15,10 +15,11 @@
                         <input type="text" class="form-control" name="name" id="ca-connector-config-name"
                             :class="{'valid': !$v.cAConnectorConfig.name.$invalid, 'invalid': $v.cAConnectorConfig.name.$invalid }" v-model="$v.cAConnectorConfig.name.$model"  required/>
                         <div v-if="$v.cAConnectorConfig.name.$anyDirty && $v.cAConnectorConfig.name.$invalid">
-                            <small class="form-text text-danger" v-if="!$v.cAConnectorConfig.name.required" v-text="$t('entity.validation.required')">
+                            <small class="form-text text-danger" v-if="$v.cAConnectorConfig.name.required" v-text="$t('entity.validation.required')">
                                 This field is required.
                             </small>
                         </div>
+                        <div>required: {{$v.cAConnectorConfig.name.required}}, dirty: {{$v.cAConnectorConfig.name.$anyDirty}}, invalid: {{$v.cAConnectorConfig.name.$invalid}}</div>
                     </div>
 
                     <div class="form-group">
@@ -33,11 +34,13 @@
                             <option value="ADCS_CERTIFICATE_INVENTORY" v-bind:label="$t('ca3SApp.CAConnectorType.ADCS_CERTIFICATE_INVENTORY')">ADCS_CERTIFICATE_INVENTORY</option>
                             <option value="DIRECTORY" v-bind:label="$t('ca3SApp.CAConnectorType.DIRECTORY')">DIRECTORY</option>
                         </select>
+
                         <div v-if="$v.cAConnectorConfig.caConnectorType.$anyDirty && $v.cAConnectorConfig.caConnectorType.$invalid">
-                            <small class="form-text text-danger" v-if="!$v.cAConnectorConfig.caConnectorType.required" v-text="$t('entity.validation.required')">
+                            <small class="form-text text-danger" v-if="$v.cAConnectorConfig.caConnectorType.required" v-text="$t('entity.validation.required')">
                                 This field is required.
                             </small>
                         </div>
+                        <div>dirty: {{$v.cAConnectorConfig.caConnectorType.$anyDirty}}, invalid: {{$v.cAConnectorConfig.caConnectorType.$invalid}}</div>
                     </div>
                     <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model !== 'INTERNAL'">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.caUrl')" for="ca-connector-config-caUrl">Ca Url</label>
@@ -89,7 +92,7 @@
                     <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'CMP' ">
 
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.messageProtectionPassphrase')" for="ca-connector-config-messageProtectionPassphrase">Message Protection 'Passphrase'</label>
-                        <input type="checkbox" class="form-check" name="multipleMessages" id="ca-connector-config-messageProtectionPassphrase"
+                        <input type="checkbox" class="form-check" name="messageProtectionPassphrase" id="ca-connector-config-messageProtectionPassphrase"
                                v-model="cAConnectorConfig.messageProtectionPassphrase" />
                     </div>
 
@@ -120,6 +123,12 @@
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.implicitConfirm')" for="ca-connector-config-implicitConfirm">Implicit Confirm</label>
                         <input type="checkbox" class="form-check" name="implicitConfirm" id="ca-connector-config-implicitConfirm"
                                :class="{'valid': !$v.cAConnectorConfig.implicitConfirm.$invalid, 'invalid': $v.cAConnectorConfig.implicitConfirm.$invalid }" v-model="$v.cAConnectorConfig.implicitConfirm.$model" />
+                    </div>
+
+                    <div class="form-group"  v-if="$v.cAConnectorConfig.caConnectorType.$model === 'CMP'">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.msgContentType')" for="ca-connector-config-msgContentType">Msg Content Type</label>
+                        <input type="text" class="form-control" name="msgContentType" id="ca-connector-config-msgContentType"
+                               :class="{'valid': !$v.cAConnectorConfig.msgContentType.$invalid, 'invalid': $v.cAConnectorConfig.msgContentType.$invalid }" v-model="$v.cAConnectorConfig.msgContentType.$model" />
                     </div>
 
                     <div>

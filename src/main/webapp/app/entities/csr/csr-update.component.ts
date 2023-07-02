@@ -18,7 +18,6 @@ import { IRequestAttribute } from '@/shared/model/request-attribute.model';
 import CsrAttributeService from '../csr-attribute/csr-attribute.service';
 import { ICsrAttribute } from '@/shared/model/csr-attribute.model';
 
-import PipelineService from '../pipeline/pipeline.service';
 import { IPipeline } from '@/shared/model/pipeline.model';
 
 import CertificateService from '../certificate/certificate.service';
@@ -31,23 +30,23 @@ import CSRService from './csr.service';
 const validations: any = {
   cSR: {
     csrBase64: {
-      required
+      required,
     },
     subject: {
-      required
+      required,
     },
     sans: {},
     requestedOn: {
-      required
+      required,
     },
     requestedBy: {
-      required
+      required,
     },
     pipelineType: {
-      required
+      required,
     },
     status: {
-      required
+      required,
     },
     administeredBy: {},
     approvedOn: {},
@@ -63,15 +62,15 @@ const validations: any = {
     publicKeyHash: {},
     serversideKeyGeneration: {},
     subjectPublicKeyInfoBase64: {
-      required
+      required,
     },
     requestorComment: {},
-    administrationComment: {}
-  }
+    administrationComment: {},
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class CSRUpdate extends mixins(JhiDataUtils) {
   @Inject('alertService') private alertService: () => AlertService;

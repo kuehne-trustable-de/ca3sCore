@@ -14,6 +14,7 @@
                     <select class="form-control" id="bpmn.new.type" name="bpmn.new.type" v-model="bpmnUpload.type" >
                         <option value="CA_INVOCATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.CA_INVOCATION')" selected="selected">CA_INVOCATION</option>
                         <option value="REQUEST_AUTHORIZATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.REQUEST_AUTHORIZATION')" >REQUEST_AUTHORIZATION</option>
+                        <option value="BATCH" v-text="$t('ca3SApp.bPNMProcessInfo.type.BATCH')" >BATCH</option>
                     </select>
 
                     <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.new.fileSelectorBPMN')" for="fileSelector">Select a BPMN file</label>
@@ -54,26 +55,35 @@
                     </dd-->
                 </dl>
             </div>
-            <form name="editForm" role="form" novalidate>
+            <!--form name="editForm" role="form" novalidate>
                 <div>
                     <button v-if="bpmnFileUploaded" type="button" id="save" class="btn btn-secondary" v-on:click="saveBpmn()">
                         <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.save')">Save</span>
                     </button>
                 </div>
 
-            </form>
+            </form-->
 
 
             <div>
                 <h3 class="jh-entity-heading"><span v-text="$t('ca3SApp.bPNMProcessInfo.check.subtitle')">Check BPMN</span></h3>
             </div>
 
-            <div class="form-group" >
+            <div class="form-group" v-if="bpmnUpload.type === 'CA_INVOCATION'">
                 <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.check.csrId')" >CSR ID</label>
                 <input type="text" class="form-control form-check-inline valid" name="bpmn.new.name'" id="bpmn.check.csrId"
                        required="true"
                        v-model="csrId" />
+            </div>
 
+            <div class="form-group" v-if="bpmnUpload.type === 'REQUEST_AUTHORIZATION'">
+                <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.check.csrId')" >CSR ID</label>
+                <input type="text" class="form-control form-check-inline valid" name="bpmn.new.name'" id="bpmn.check.csrId"
+                       required="true"
+                       v-model="csrId" />
+            </div>
+
+            <div class="form-group" v-if="bpmnUpload.type">
                 <button type="button"
                         class="btn btn-info"
                         v-on:click="checkBpmn">
@@ -97,16 +107,27 @@
                     <dd>
                         <span>{{bpmnCheckResult.failureReason}}</span>
                     </dd>
+                </dl>
+                <dl class="row jh-entity-details">
+                    <div v-for="(val, valueIndex) in bpmnCheckResult.responseAttributes" :key="valueIndex">
+                        <dt>
+                            <span>{{Object.keys(bpmnCheckResult.responseAttributes[valueIndex])[0]}}</span>
+                        </dt>
+                        <dd>
+                            <span>{{bpmnCheckResult.responseAttributes[valueIndex][Object.keys(bpmnCheckResult.responseAttributes[valueIndex])[0]]}}</span>
+                        </dd>
+                    </div>
+                </dl>
 
-                    <Fragment v-for="(val, valueIndex) in bpmnCheckResult.csrAttributes" :key="valueIndex">
+                <dl class="row jh-entity-details">
+                    <div v-for="(val, valueIndex) in bpmnCheckResult.csrAttributes" :key="valueIndex">
                         <dt>
                             <span>{{Object.keys(bpmnCheckResult.csrAttributes[valueIndex])[0]}}</span>
                         </dt>
                         <dd>
                             <span>{{bpmnCheckResult.csrAttributes[valueIndex][Object.keys(bpmnCheckResult.csrAttributes[valueIndex])[0]]}}</span>
                         </dd>
-                    </Fragment>
-
+                    </div>
                 </dl>
 
             </div>
@@ -119,11 +140,16 @@
                             class="btn btn-info">
                         <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.back')"> Back</span>
                     </button>
+
+                    <button type="button" id="save" class="btn btn-secondary" v-on:click="saveBpmn()">
+                        <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.save')">Save</span>
+                    </button>
+
                 </div>
             </form>
 
 
-            <vue-bpmn v-if="bPNMProcessInfo.processId"
+            <vue-bpmn
                 :url="getBpmnUrl()"
                 :options="getOptions()"
                 v-on:error="handleError"

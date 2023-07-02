@@ -5,7 +5,7 @@ import axios from 'axios';
 import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
 
 import RequestProxyConfigService from '../request-proxy-config/request-proxy-config.service';
-import { IRequestProxyConfig } from '@/shared/model/transfer-object.model';
+import { IRequestProxyConfig, IWebConfigItems } from '@/shared/model/transfer-object.model';
 
 import CAConnectorConfigService from '../../entities/ca-connector-config/ca-connector-config.service';
 import { ICAConnectorConfig } from '@/shared/model/ca-connector-config.model';
@@ -41,6 +41,10 @@ const validations: any = {
     approvalInfo1: {},
     ipAsSubjectAllowed: {},
     ipAsSANAllowed: {},
+    webConfigItems: {
+      notifyRAOfficerOnPendingRequest: {},
+      additionalEMailRecipients: {},
+    },
     scepConfigItems: {
       scepSecretPCId: {},
       scepSecret: {},

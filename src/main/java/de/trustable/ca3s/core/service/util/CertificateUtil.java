@@ -34,7 +34,9 @@ import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.cert.CertException;
 import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.X509ExtensionUtils;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.jcajce.interfaces.EdDSAPublicKey;
 import org.bouncycastle.jcajce.provider.asymmetric.util.EC5Util;
@@ -81,7 +83,7 @@ public class CertificateUtil {
     private static final String SERIAL_PADDING_PATTERN = "000000000000000000000000000000000000000000000000000000000000000";
 
     private static final String TIMESTAMP_PADDING_PATTERN = "000000000000000000";
-    public static final int CURRENT_ATTRIBUTES_VERSION = 4;
+    public static final int CURRENT_ATTRIBUTES_VERSION = 5;
 
     static HashSet<Integer> lenSet = new HashSet<>();
 
@@ -825,8 +827,7 @@ public class CertificateUtil {
             }
         }
 
-        if (version < CURRENT_ATTRIBUTES_VERSION) {
-
+        if (version < 4) {
             try {
                 String subjectRfc2253 = getNormalizedName(cert.getSubject());
 
@@ -836,6 +837,26 @@ public class CertificateUtil {
                     false);
             } catch (InvalidNameException e) {
                 LOG.error("Problem building RFC 2253-styled subject for  certificate '" + x509Cert.getSubjectX500Principal().toString() + "'", e);
+            }
+        }
+
+
+        if (version < CURRENT_ATTRIBUTES_VERSION) {
+
+            try {
+                X509CertificateHolder certHolder = new JcaX509CertificateHolder(x509Cert);
+
+                AltSignatureAlgorithm altSignatureAlgorithm = AltSignatureAlgorithm.fromExtensions(certHolder.getExtensions());
+                if( altSignatureAlgorithm != null ){
+                    setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ALT_ALGO, OidNameMapper.lookupOid(altSignatureAlgorithm.getAlgorithm().getAlgorithm().toString()), false);
+                }else {
+                    SubjectAltPublicKeyInfo subjectAltPublicKeyInfo = SubjectAltPublicKeyInfo.fromExtensions(certHolder.getExtensions());
+                    if (subjectAltPublicKeyInfo != null) {
+                        setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ALT_ALGO, OidNameMapper.lookupOid(subjectAltPublicKeyInfo.getAlgorithm().getAlgorithm().toString()), false);
+                    }
+                }
+            } catch (CertificateEncodingException e) {
+                LOG.error("Problem building X509CertificateHolder for certificate '" + x509Cert.getSubjectX500Principal().toString() + "'", e);
             }
 
             setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION, "" + CURRENT_ATTRIBUTES_VERSION, false);
@@ -2337,12 +2358,32 @@ public class CertificateUtil {
             throw new GeneralSecurityException("problem downloading keystore content for csr id " + csr.getId() + ": no keystore passphrase available ");
         }
 
+        char[] passphraseChars = protUtil.unprotectString(protContentList.get(0).getContentBase64()).toCharArray();
+
         PrivateKey key = getPrivateKey(ProtectedContentType.KEY, ContentRelationType.CSR, csr.getId());
+
+        return getContainer(certDao, entryAlias, passphraseChars, key, passwordProtectionAlgo);
+    }
+
+    @NotNull
+    public KeyStoreAndPassphrase getContainer(Certificate certDao, String entryAlias, char[] passphraseChars, String passwordProtectionAlgo) throws IOException, GeneralSecurityException {
+
+
+        CSR csr = certDao.getCsr();
+        if( csr == null){
+            PrivateKey key = getPrivateKey(ProtectedContentType.KEY, ContentRelationType.CERTIFICATE, certDao.getId());
+            return getContainer(certDao, entryAlias, passphraseChars, key, passwordProtectionAlgo);
+        }else{
+            return getContainer(certDao, entryAlias, csr, passwordProtectionAlgo);
+        }
+    }
+
+    @NotNull
+    public KeyStoreAndPassphrase getContainer(Certificate certDao, String entryAlias, char[] passphraseChars, PrivateKey key, String passwordProtectionAlgo) throws IOException, GeneralSecurityException {
 
         byte[] salt = new byte[20];
         new SecureRandom().nextBytes(salt);
 
-        char[] passphraseChars = protUtil.unprotectString(protContentList.get(0).getContentBase64()).toCharArray();
         KeyStore p12 = KeyStore.getInstance("pkcs12");
         p12.load(null, passphraseChars);
 

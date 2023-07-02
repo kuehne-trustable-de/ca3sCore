@@ -18,7 +18,7 @@ import de.trustable.ca3s.core.domain.Certificate;
  * Spring Data  repository for the Certificate entity.
  */
 @SuppressWarnings("unused")
-@Repository
+@Repository("certificateRepository")
 public interface CertificateRepository extends JpaRepository<Certificate, Long> {
 
 	  @Query(name = "Certificate.findByIssuerSerial")

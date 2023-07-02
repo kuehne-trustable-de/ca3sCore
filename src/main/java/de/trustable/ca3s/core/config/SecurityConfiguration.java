@@ -199,9 +199,12 @@ public class SecurityConfiguration{
             .antMatchers("/api/ui/config").permitAll()
             .antMatchers("/api/certificateSelectionAttributes").permitAll()
             .antMatchers("/api/pipelineViews").permitAll()
-            .antMatchers("/api//pipeline/activeWeb").permitAll()
+            .antMatchers("/api/pipeline-attributes").permitAll()
+            .antMatchers("/api/pipeline/activeWeb").permitAll()
 
             .antMatchers("/publicapi/**").permitAll()
+
+            .requestMatchers(forPortAndPath(raPort, "/api/ca-connector-configs")).hasAuthority(AuthoritiesConstants.ADMIN)
 
             .requestMatchers(forPortAndPath(raPort, "/api/administerRequest")).hasAuthority(AuthoritiesConstants.RA_OFFICER)
             .requestMatchers(forPortAndPath(raPort, "/api/administerRequest")).hasAuthority(AuthoritiesConstants.DOMAIN_RA_OFFICER)

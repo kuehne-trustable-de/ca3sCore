@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-06-06 13:00:00.
+// Generated using typescript-generator version 3.2.1263 on 2023-06-30 15:38:36.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -91,6 +91,7 @@ export interface IScepOrderView extends ISerializable {
 }
 
 export interface IBPMNUpload {
+  id?: number;
   name?: string;
   type?: IBPMNProcessType;
   contentXML?: string;
@@ -101,6 +102,7 @@ export interface ICaConnectorConfigView extends ISerializable {
   name?: string;
   caConnectorType?: ICAConnectorType;
   caUrl?: string;
+  msgContentType?: string;
   pollingOffset?: number;
   defaultCA?: boolean;
   active?: boolean;
@@ -172,6 +174,7 @@ export interface ICertificateView extends ISerializable {
   type?: string;
   keyLength?: string;
   keyAlgorithm?: string;
+  altKeyAlgorithm?: string;
   signingAlgorithm?: string;
   paddingAlgorithm?: string;
   hashAlgorithm?: string;
@@ -216,9 +219,9 @@ export interface ICertificateView extends ISerializable {
   isServersideKeyGeneration?: boolean;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
-  auditPresent?: boolean;
   serversideKeyGeneration?: boolean;
   fullChainAvailable?: boolean;
+  auditPresent?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
@@ -322,6 +325,7 @@ export interface ICertificateAdministrationData extends ISerializable {
 
 export interface IUploadPrecheckData {
   passphrase?: string;
+  importKey?: boolean;
   secret?: string;
   requestorcomment?: string;
   pipelineId?: number;
@@ -411,6 +415,7 @@ export interface IBpmnCheckResult extends ISerializable {
   isActive?: boolean;
   status?: string;
   csrAttributes?: { [index: string]: any }[];
+  responseAttributes?: { [index: string]: any }[];
 }
 
 export interface IAcmeAccountStatusAdministration extends ISerializable {
@@ -643,6 +648,7 @@ export interface ICAConnectorConfig extends ISerializable {
   selector?: string;
   interval?: IInterval;
   plainSecret?: string;
+  checkActive?: boolean;
   caConnectorAttributes?: ICAConnectorConfigAttribute[];
   tlsAuthentication?: ICertificate;
   messageProtection?: ICertificate;
@@ -802,7 +808,7 @@ export type IAcmeOrderStatus = 'pending' | 'ready' | 'processing' | 'valid' | 'i
 
 export type IScepOrderStatus = 'PENDING' | 'READY' | 'INVALID';
 
-export type IBPMNProcessType = 'CA_INVOCATION' | 'REQUEST_AUTHORIZATION';
+export type IBPMNProcessType = 'CA_INVOCATION' | 'REQUEST_AUTHORIZATION' | 'BATCH';
 
 export type ICAConnectorType = 'INTERNAL' | 'CMP' | 'ADCS' | 'ADCS_CERTIFICATE_INVENTORY' | 'DIRECTORY';
 
@@ -826,10 +832,9 @@ export type IPKCSDataType =
   | 'X509_CERTIFICATE_CREATED'
   | 'UNKNOWN'
   | 'CONTAINER'
+  | 'CONTAINER_WITH_KEY'
   | 'CONTAINER_REQUIRING_PASSPHRASE';
 
 export type IChallengeStatus = 'pending' | 'valid' | 'invalid' | 'deactivated' | 'expired' | 'revoked';
 
 export type IRDNCardinalityRestriction = 'NOT_ALLOWED' | 'ZERO_OR_ONE' | 'ONE' | 'ONE_OR_SAN' | 'ZERO_OR_MANY' | 'ONE_OR_MANY';
-
-export type IAlgorithmType = 'SIGNING' | 'PADDING' | 'HASH' | 'CURVE';

@@ -19,7 +19,7 @@
                         <input type="text" class="form-control" name="name" id="pipeline-name"
                             :class="{'valid': !$v.pipeline.name.$invalid, 'invalid': $v.pipeline.name.$invalid }" v-model="$v.pipeline.name.$model"  required/>
                         <div v-if="$v.pipeline.name.$anyDirty && $v.pipeline.name.$invalid">
-                            <small class="form-text text-danger" v-if="!$v.pipeline.name.required" v-text="$t('entity.validation.required')">
+                            <small class="form-text text-danger" v-if="$v.pipeline.name.required" v-text="$t('entity.validation.required')">
                                 This field is required.
                             </small>
                         </div>
@@ -45,7 +45,7 @@
                             <option value="WEB" v-bind:label="$t('ca3SApp.PipelineType.WEB')">WEB</option>
                         </select>
                         <div v-if="$v.pipeline.type.$anyDirty && $v.pipeline.type.$invalid">
-                            <small class="form-text text-danger" v-if="!$v.pipeline.type.required" v-text="$t('entity.validation.required')">
+                            <small class="form-text text-danger" v-if="$v.pipeline.type.required" v-text="$t('entity.validation.required')">
                                 This field is required.
                             </small>
                         </div>
@@ -72,8 +72,6 @@
                         <select class="form-control" id="pipeline-caConnector" name="caConnector" v-model="pipeline.caConnectorName">
                             <option v-bind:value="null"></option>
                             <option v-bind:value="pipeline.caConnectorName && cAConnectorConfigOption.name === pipeline.caConnectorName ? pipeline.caConnectorName : cAConnectorConfigOption.name" v-for="cAConnectorConfigOption in allCertGenerators" :key="cAConnectorConfigOption.id">{{cAConnectorConfigOption.name}}</option>
-
-                            <!--option v-bind:value="pipeline.caConnector && cAConnectorConfigOption.id === pipeline.caConnector.id ? pipeline.caConnector : cAConnectorConfigOption" v-for="cAConnectorConfigOption in cAConnectorConfigs" :key="cAConnectorConfigOption.id">{{cAConnectorConfigOption.id}}</option-->
                         </select>
                     </div>
 
@@ -426,7 +424,7 @@
 
                     <div class="form-group" v-if="$v.pipeline.type.$model === 'WEB'">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.notifyRAOnPendingRequest')" for="pipeline-notifyRAOnPendingRequest">Notify RA Officer on pending request</label>
-                        <input type="checkbox" class="form-check-inline" name="notifyRAOnPendingRequest" id="pipeline-notifyRAOnPendingRequest" v-model="pipeline.webConfigItems.notifyRAOfficerOnPendingRequest" />
+                        <input type="checkbox" class="form-check-inline" name="notifyRAOnPendingRequest" id="pipeline-notifyRAOnPendingRequest" v-model="$v.pipeline.webConfigItems.notifyRAOfficerOnPendingRequest.$model" />
                     </div>
 
                     <div class="container" v-if="$v.pipeline.type.$model === 'WEB'">
@@ -435,7 +433,7 @@
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.additionalEmailRecipients')" for="pipeline-additionalEmailRecipients">Additional Email Recipients</label>
                             </div>
                             <div class="col">
-                                <input type="text" class="form-control" name="additionalEmailRecipients" id="pipeline-additionalEmailRecipients" v-model="pipeline.webConfigItems.additionalEMailRecipients" />
+                                <input type="text" class="form-control" name="additionalEmailRecipients" id="pipeline-additionalEmailRecipients" v-model="$v.pipeline.webConfigItems.additionalEMailRecipients.$model" />
                             </div>
                         </div>
                     </div>
@@ -456,7 +454,7 @@
                     <button type="button" id="cancel-save" class="btn btn-secondary" v-on:click="previousState()">
                         <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.cancel')">Cancel</span>
                     </button>
-                    <button type="submit" id="save-entity" :disabled="$v.pipeline.$invalid || isSaving" class="btn btn-primary">
+                    <button type="submit" id="save-entity" :disabled="$v.pipeline.$invalid" class="btn btn-primary">
                         <font-awesome-icon icon="save"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.save')">Save</span>
                     </button>
                 </div>

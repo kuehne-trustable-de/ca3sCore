@@ -2,7 +2,7 @@
     <div>
         <h2 id="page-heading">
             <span v-text="$t('ca3SApp.pipeline.home.title')" id="pipeline-heading">Pipelines</span>
-            <router-link :to="{name: 'PipelineCreate'}" tag="button" id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-pipeline">
+            <router-link :to="{name: 'ConfPipelineCreate'}" tag="button" id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-pipeline">
                 <font-awesome-icon icon="plus"></font-awesome-icon>
                 <span  v-text="$t('ca3SApp.pipeline.home.createLabel')">
                     Create a new Pipeline

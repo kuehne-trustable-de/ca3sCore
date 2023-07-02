@@ -1,9 +1,11 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.PipelineAttribute;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.PipelineAttributeService;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -47,6 +49,7 @@ public class PipelineAttributeResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/pipeline-attributes")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<PipelineAttribute> createPipelineAttribute(@Valid @RequestBody PipelineAttribute pipelineAttribute) throws URISyntaxException {
         log.debug("REST request to save PipelineAttribute : {}", pipelineAttribute);
         if (pipelineAttribute.getId() != null) {
@@ -68,6 +71,7 @@ public class PipelineAttributeResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/pipeline-attributes")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<PipelineAttribute> updatePipelineAttribute(@Valid @RequestBody PipelineAttribute pipelineAttribute) throws URISyntaxException {
         log.debug("REST request to update PipelineAttribute : {}", pipelineAttribute);
         if (pipelineAttribute.getId() == null) {
@@ -111,6 +115,7 @@ public class PipelineAttributeResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/pipeline-attributes/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deletePipelineAttribute(@PathVariable Long id) {
         log.debug("REST request to delete PipelineAttribute : {}", id);
         pipelineAttributeService.delete(id);

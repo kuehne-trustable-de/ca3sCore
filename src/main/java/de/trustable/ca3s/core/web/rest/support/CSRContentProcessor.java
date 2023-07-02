@@ -238,6 +238,7 @@ public class CSRContentProcessor {
 
 			        List<X509CertificateHolderShallow> certList = new ArrayList<>();
 
+                    PKCSDataType dataType = PKCSDataType.CONTAINER;
 			        for (Enumeration<String> en = pkcs12Store.aliases(); en.hasMoreElements();)
 			        {
 			            String alias = en.nextElement();
@@ -261,6 +262,7 @@ public class CSRContentProcessor {
 				            	Key key = pkcs12Store.getKey(alias, passphrase);
 				            	x509Holder.setKeyPresent(true);
 								LOG.debug("key {} found alongside certificate in PKCS12 for alias {}", key, alias);
+                                dataType = PKCSDataType.CONTAINER_WITH_KEY;
 				            }
 
 			    			certList.add(x509Holder);
@@ -272,7 +274,7 @@ public class CSRContentProcessor {
 			        certList.toArray(chsArr);
 			        p10ReqData.setCertsHolder(chsArr);
 
-					p10ReqData.setDataType(PKCSDataType.CONTAINER);
+					p10ReqData.setDataType(dataType);
 
 				} catch( IOException ioe) {
 					// not able to process, presumably passphrase required ...

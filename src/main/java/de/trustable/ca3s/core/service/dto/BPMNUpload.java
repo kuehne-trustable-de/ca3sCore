@@ -4,13 +4,23 @@ import de.trustable.ca3s.core.domain.enumeration.BPMNProcessType;
 
 public class BPMNUpload {
 
-	String name;
+    Long id;
+
+    String name;
     private BPMNProcessType type;
 	String contentXML;
 
 	public BPMNUpload() {
 
 	}
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;

@@ -353,7 +353,7 @@ public class ContentUploadProcessor {
                             x509Holder.setCertificateId(cert.getId());
                             x509Holder.setCertificatePresentInDB(true);
 
-                            if (pkcs12Store.isKeyEntry(alias)){
+                            if(uploaded.isImportKey() && pkcs12Store.isKeyEntry(alias)){
 
                                 Key key = pkcs12Store.getKey(alias, passphrase);
                                 LOG.debug("key {} found alongside certificate in PKCS12 for alias {}", "*****", alias);
@@ -367,6 +367,7 @@ public class ContentUploadProcessor {
                             certList.add(x509Holder);
                         }
                     }
+
 
                     p10ReqData = new PkcsXXData();
                     X509CertificateHolderShallow[] chsArr = new X509CertificateHolderShallow[certList.size()];

@@ -149,14 +149,14 @@ public class CSRView implements Serializable {
 
         Set<CsrAttribute> attributes = csr.getCsrAttributes();
         List<String> sanList = new ArrayList<>();
-        for( CsrAttribute csrAttribute: attributes){
-            if( csrAttribute.getName().equals(CsrAttribute.ATTRIBUTE_TYPED_SAN)){
+        for (CsrAttribute csrAttribute : attributes) {
+            if (csrAttribute.getName().equals(CsrAttribute.ATTRIBUTE_TYPED_SAN)) {
                 String value = csrAttribute.getValue();
-                if( doDNSLookup) {
+                if (doDNSLookup) {
                     try {
-                    if (value.startsWith("IP:")) {
-                        String ip = value.substring(3);
-                        String names = "";
+                        if (value.startsWith("IP:")) {
+                            String ip = value.substring(3);
+                            String names = "";
                             InetAddress[] inetAddresses = InetAddress.getAllByName(ip);
                             for (InetAddress inetAddress : inetAddresses) {
                                 // return real names, not just the known IP

@@ -76,7 +76,7 @@ public class CAConnectorConfig implements Serializable {
     @JsonIgnore
     private ProtectedContent secret;
 
-    @OneToMany(mappedBy = "caConnector")
+    @OneToMany(mappedBy = "caConnector", cascade=CascadeType.REMOVE)
     @JsonIgnoreProperties(value = { "caConnector" }, allowSetters = true)
     private Set<CAConnectorConfigAttribute> caConnectorAttributes = new HashSet<>();
 

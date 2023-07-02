@@ -304,6 +304,14 @@ public class BPMNUtil{
     public ProcessInstanceWithVariables checkCertificateCreationProcess(final CSR csr, final CAConnectorConfig caConfig, final String processName)  {
 
         Map<String, Object> variables = buildVariableMapFromCSR(csr, caConfig);
+        return executeBPMNProcessByName(processName, variables);
+    }
+
+    public ProcessInstanceWithVariables checkBatchProcess(final String processName)  {
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("now", new Date());
+//        variables.put("certRepository", certRepository);
 
         return executeBPMNProcessByName(processName, variables);
     }

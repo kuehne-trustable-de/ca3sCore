@@ -67,7 +67,7 @@
                         <dd>
                             <ul>
                                 <li >{{certificateView.serialHex}}</li>
-                                <li >{{certificateView.serial}}</li>
+                                <li v-if="certificateView.serialHex != certificateView.serial">{{certificateView.serial}}</li>
                             </ul>
 
                         </dd>
@@ -89,6 +89,7 @@
                         </dt>
                         <dd>
                             <span>{{certificateView.keyAlgorithm}} / {{certificateView.keyLength}} bits</span>
+                            <span v-if="certificateView.altKeyAlgorithm">{{certificateView.altKeyAlgorithm}}</span>
                         </dd>
 
                         <dt v-if="certificateView.curveName && certificateView.curveName.length > 0">

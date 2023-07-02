@@ -85,6 +85,7 @@ public class PipelineTestConfiguration {
 		newCAC.setCaConnectorType(CAConnectorType.INTERNAL);
 		newCAC.setDefaultCA(true);
 		newCAC.setActive(true);
+        newCAC.setCheckActive(false);
 		cacRepo.save(newCAC);
 		LOGGER.info("CAConnectorConfig for 'Internal' created");
 		return newCAC;

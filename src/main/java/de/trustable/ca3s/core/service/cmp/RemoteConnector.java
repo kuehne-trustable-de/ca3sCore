@@ -38,11 +38,11 @@ public class RemoteConnector implements RemoteTargetHandler {
 	 * @throws IOException
 	 */
 	public byte[] sendHttpReq(final String requestUrlParam, final byte[] requestBytes) throws IOException {
-        return sendHttpReq( requestUrlParam, requestBytes, null, null);
+        return sendHttpReq( requestUrlParam, requestBytes, "application/pkixcmp", null, null);
     }
 
     @Override
-    public byte[] sendHttpReq(String requestUrlParam, byte[] requestBytes, KeyStore keyStore, String keyPassword) throws IOException {
+    public byte[] sendHttpReq(String requestUrlParam, byte[] requestBytes, final String contentType, KeyStore keyStore, String keyPassword) throws IOException {
 
         if (requestUrlParam == null) {
 			throw new IllegalArgumentException("requestUrlParam can not be null.");
@@ -105,7 +105,8 @@ public class RemoteConnector implements RemoteTargetHandler {
 		con.setDoOutput(true);
 		con.setRequestMethod("POST");
 
-		con.setRequestProperty("Content-Type", "application/octet-stream;charset=UTF-8");
+//        con.setRequestProperty("Content-Type", "application/octet-stream;charset=UTF-8");
+        con.setRequestProperty("Content-Type", "application/pkixcmp");
 
 		java.io.OutputStream os = con.getOutputStream();
 		os.write(requestBytes);
@@ -122,7 +123,7 @@ public class RemoteConnector implements RemoteTargetHandler {
 			while ((nBytes = in.read(tmpBA)) > 0) {
 				baos.write(tmpBA, 0, nBytes);
 			}
-			LOGGER.debug("# " + baos.size() + " response bytes recieved");
+			LOGGER.debug("# " + baos.size() + " response bytes received");
 		} finally {
 			if (in != null) {
 				in.close();

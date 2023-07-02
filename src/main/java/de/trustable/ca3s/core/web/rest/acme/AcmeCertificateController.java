@@ -145,14 +145,16 @@ public class AcmeCertificateController extends AcmeController {
 	 */
 	public ResponseEntity<?> buildCertifcateResponse(final String accept, Certificate certDao, final HttpHeaders headers) {
 
-		if("*/*".equalsIgnoreCase(accept)){
+        if( accept == null || accept.trim().isEmpty()){
+            return buildPEMResponse(certDao, headers);
+        }else if(accept.contains("application/pkix-cert")){
+            return buildPkixCertResponse(certDao, headers);
+        }else if(accept.contains("application/pem-certificate-chain")){
+            return buildPEMResponse(certDao, headers);
+        }else if(accept.contains("application/pem-certificate")){
+            return buildPEMResponse(certDao, headers, false);
+        }else if(accept.contains("*/*")){
 			return buildPEMResponse(certDao, headers);
-		}else if("application/pkix-cert".equalsIgnoreCase(accept)){
-			return buildPkixCertResponse(certDao, headers);
-		}else if("application/pem-certificate-chain".equalsIgnoreCase(accept)){
-			return buildPEMResponse(certDao, headers);
-		}else if("application/pem-certificate".equalsIgnoreCase(accept)){
-			return buildPEMResponse(certDao, headers, false);
 		}
 
 		LOG.info("unexpected accept type {}", accept);

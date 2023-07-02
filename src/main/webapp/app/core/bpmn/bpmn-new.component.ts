@@ -2,6 +2,7 @@ import { Component, Inject, Vue } from 'vue-property-decorator';
 import { Fragment } from 'vue-fragment';
 
 import { mixins } from 'vue-class-component';
+
 import JhiDataUtils from '@/shared/data/data-utils.service';
 import AlertService from '@/shared/alert/alert.service';
 import CopyClipboardButton from '@/shared/clipboard/clipboard.vue';
@@ -21,8 +22,8 @@ const bpmnUrl = 'api/bpmn';
     Fragment,
     CopyClipboardButton,
     HelpTag,
-    VueBpmn
-  }
+    VueBpmn,
+  },
 })
 export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
   @Inject('alertService') private alertService: () => AlertService;
@@ -87,7 +88,7 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
     const self = this;
 
     const readerContent = new FileReader();
-    readerContent.onload = function(_result) {
+    readerContent.onload = function (_result) {
       console.log('uploaded bpmn content read');
       self.bpmnFileUploaded = false;
       self.bpmnUpload.contentXML = '';
@@ -102,7 +103,7 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
       }
 
       const readerUrl = new FileReader();
-      readerUrl.onload = function(__result) {
+      readerUrl.onload = function (__result) {
         if (typeof readerUrl.result === 'string') {
           self.bpmnUrl = readerUrl.result;
 
@@ -129,7 +130,7 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
     return {
       propertiesPanel: {},
       additionalModules: [],
-      moddleExtensions: []
+      moddleExtensions: [],
     };
   }
 
@@ -151,9 +152,9 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
     axios({
       method: 'post',
       url: bpmnUrl,
-      data: this.bpmnUpload
+      data: this.bpmnUpload,
     })
-      .then(function(response) {
+      .then(function (response) {
         console.log(response.status);
 
         if (response.status === 201) {
@@ -162,13 +163,13 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
           self.previousState();
         }
       })
-      .catch(function(error) {
+      .catch(function (error) {
         console.log(error);
         self.previousState();
         const message = self.$t('problem processing request: ' + error);
         self.alertService().showAlert(message, 'info');
       })
-      .then(function() {
+      .then(function () {
         // always executed
         document.body.style.cursor = 'default';
       });

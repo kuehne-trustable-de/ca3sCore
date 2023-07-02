@@ -6,4 +6,5 @@ package de.trustable.ca3s.core.domain.enumeration;
 public enum BPMNProcessType {
     CA_INVOCATION,
     REQUEST_AUTHORIZATION,
+    BATCH
 }

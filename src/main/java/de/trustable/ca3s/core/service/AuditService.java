@@ -111,6 +111,11 @@ public class AuditService {
     public static final String AUDIT_CA_CONNECTOR_ISSUER_NAME_CHANGED = "AUDIT_CA_CONNECTOR_ISSUER_NAME_CHANGED";
     public static final String AUDIT_CA_CONNECTOR_MULTIPLE_MESSAGES_CHANGED = "AUDIT_CA_CONNECTOR_MULTIPLE_MESSAGES_CHANGED";
     public static final String AUDIT_CA_CONNECTOR_IMPLICIT_CONFIRM_CHANGED = "AUDIT_CA_CONNECTOR_IMPLICIT_CONFIRM_CHANGED";
+    public static final String AUDIT_CA_CONNECTOR_MSG_CONTENT_TYPE_CHANGED = "AUDIT_CA_CONNECTOR_MSG_CONTENT_TYPE_CHANGED";
+    public static final String AUDIT_BPMN_NAME_CHANGED = "AUDIT_BPMN_NAME_CHANGED";
+    public static final String AUDIT_BPMN_TYPE_CHANGED = "AUDIT_BPMN_TYPE_CHANGED";
+    public static final String AUDIT_BPMN_PROCESS_ID_CHANGED = "AUDIT_BPMN_PROCESS_ID_CHANGED";
+    private static final String AUDIT_BPMN_ATTRIBUTE_CHANGED = "AUDIT_BPMN_ATTRIBUTE_CHANGED";
 
 
     private final Logger log = LoggerFactory.getLogger(AuditService.class);
@@ -411,6 +416,21 @@ public class AuditService {
             null);
     }
 
+    public AuditTrace createAuditTraceBPMNProcessInfo(String attributeName, String oldVal, String newVal, BPMNProcessInfo bpmnProcessInfo) {
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_BPMN_ATTRIBUTE_CHANGED,
+            null,
+            oldVal, newVal,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+    }
 
     public AuditTrace createAuditTraceRequestProxyConfigChange(String attributeName, String oldVal, String newVal, RequestProxyConfig requestProxyConfig) {
         NameAndRole nar = nameAndRoleUtil.getNameAndRole();

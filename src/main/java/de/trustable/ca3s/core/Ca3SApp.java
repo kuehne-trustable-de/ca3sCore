@@ -19,6 +19,7 @@ import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.embedded.undertow.UndertowBuilderCustomizer;
 import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.Environment;
@@ -89,11 +90,19 @@ public class Ca3SApp implements InitializingBean {
         SpringApplication app = new SpringApplication(Ca3SApp.class);
         DefaultProfileUtil.addDefaultProfile(app);
         app.addListeners(new PropertiesLogger());
-        Environment env = app.run(args).getEnvironment();
-        logApplicationStartup(env);
+        ApplicationContext ctx = app.run(args);
+
+        logApplicationStartup(ctx);
     }
 
-    private static void logApplicationStartup(Environment env) {
+    private static void logApplicationStartup(ApplicationContext ctx) {
+
+        String[] allBeanNames = ctx.getBeanDefinitionNames();
+        for(String beanName : allBeanNames) {
+            log.info("bean name: " + beanName);
+        }
+
+        Environment env = ctx.getEnvironment();
         String protocol = "http";
         if (env.getProperty("server.ssl.key-store") != null) {
             protocol = "https";
@@ -123,6 +132,8 @@ public class Ca3SApp implements InitializingBean {
             serverPort,
             contextPath,
             env.getActiveProfiles());
+
+
     }
 
     @Bean

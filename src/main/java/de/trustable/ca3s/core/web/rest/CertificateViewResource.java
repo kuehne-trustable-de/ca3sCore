@@ -44,25 +44,6 @@ public class CertificateViewResource {
         this.auditTraceRepository = auditTraceRepository;
     }
 
-
-    /**
-     * {@code GET  /certificates} : get all the certificates.
-     *
-
-     * @param pageable the pagination information.
-
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of certificates in body.
-     */
-/*
-    @GetMapping("/certificateViews")
-    public ResponseEntity<List<Certificate>> getAllCertificates(Pageable pageable) {
-        log.debug("REST request to get a page of Certificates");
-        Page<Certificate> page = certificateService.findAll(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
-    }
-*/
-
     /**
      * {@code GET  /certificates/:id} : get the "id" certificate.
      *

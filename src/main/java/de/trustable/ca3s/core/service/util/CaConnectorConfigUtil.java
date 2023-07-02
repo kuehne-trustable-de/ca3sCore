@@ -11,6 +11,7 @@ import de.trustable.ca3s.core.service.dto.NamedValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -26,6 +27,7 @@ public class CaConnectorConfigUtil {
     public static final String ATT_MULTIPLE_MESSAGES = "MULTIPLE_MESSAGES";
     public static final String ATT_IMPLICIT_CONFIRM = "IMPLICIT_CONFIRM";
     public static final String ATT_ATTRIBUTE_TYPE_AND_VALUE = "ATTRIBUTE_TYPE_AND_VALUE";
+    public static final String ATT_CMP_MESSAGE_CONTENT_TYPE = "CMP_MESSAGE_CONTENT_TYPE";
 
     Logger LOG = LoggerFactory.getLogger(CaConnectorConfigUtil.class);
 
@@ -81,6 +83,10 @@ public class CaConnectorConfigUtil {
 
         List<NamedValue> aTaVList = new ArrayList<>();
 
+        // bachward compliant defaults
+        cv.setMultipleMessages(false);
+        cv.setImplicitConfirm(true);
+
         for( CAConnectorConfigAttribute cfgAtt: cfg.getCaConnectorAttributes()) {
 
             if (ATT_ISSUER_NAME.equals(cfgAtt.getName())) {
@@ -89,15 +95,19 @@ public class CaConnectorConfigUtil {
                 cv.setMultipleMessages( Boolean.parseBoolean(cfgAtt.getValue()));
             }else if (ATT_IMPLICIT_CONFIRM.equals(cfgAtt.getName())) {
                 cv.setImplicitConfirm( Boolean.parseBoolean(cfgAtt.getValue()));
+            }else if (ATT_CMP_MESSAGE_CONTENT_TYPE.equals(cfgAtt.getName())) {
+                cv.setMsgContentType(cfgAtt.getValue());
             }else if (ATT_ATTRIBUTE_TYPE_AND_VALUE.equals(cfgAtt.getName())) {
                 aTaVList.add( new NamedValue(cfgAtt.getValue()));
             }
         }
 
+
         cv.setaTaVArr(aTaVList.toArray(new NamedValue[0]));
         return cv;
     }
 
+    @Transactional
     public CAConnectorConfig to(CaConnectorConfigView cv) {
 
         List<AuditTrace> auditList = new ArrayList<>();
@@ -110,7 +120,7 @@ public class CaConnectorConfigUtil {
                 if(!caConnConfList.isEmpty() && !caConnConfList.get(0).getId().equals(caConnectorConfig.getId())){
                     throw new BadRequestAlertException("Name '" + cv.getName() + "' already assigned", "pipeline", "name already used");
                 }
-                caConnectorConfigAttributeRepository.deleteAll(caConnectorConfig.getCaConnectorAttributes());
+//                caConnectorConfigAttributeRepository.deleteAll(caConnectorConfig.getCaConnectorAttributes());
             }else {
                 if(!caConnConfList.isEmpty()){
                     throw new BadRequestAlertException("Name '" + cv.getName() + "' already assigned", "pipeline", "name already used");
@@ -204,33 +214,42 @@ public class CaConnectorConfigUtil {
         }
 
         Certificate tlsAuthCertificate = caConnectorConfig.getTlsAuthentication();
+        Long tlsAuthCertificateId = 0L;
+        if( tlsAuthCertificate != null) {
+            tlsAuthCertificateId = tlsAuthCertificate.getId();
+        }
         if( cv.getTlsAuthenticationId() == null){
 
             if(tlsAuthCertificate != null) {
-                auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_TLS_AUTHENTICATION_CHANGED, null, tlsAuthCertificate.getId().toString(), caConnectorConfig));
+                auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_TLS_AUTHENTICATION_CHANGED, null, tlsAuthCertificateId.toString(), caConnectorConfig));
                 caConnectorConfig.setTlsAuthentication(null);
             }
         }else{
             Optional<Certificate> optionalCertificate = certificateRepository.findById(cv.getTlsAuthenticationId());
             if(optionalCertificate.isPresent()){
-                if(!Objects.equals(tlsAuthCertificate.getId(), optionalCertificate.get().getId())){
-                    auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_TLS_AUTHENTICATION_CHANGED, tlsAuthCertificate.getId().toString(), optionalCertificate.get().getId().toString(), caConnectorConfig));
+                if(!Objects.equals(tlsAuthCertificateId, optionalCertificate.get().getId())){
+                    auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_TLS_AUTHENTICATION_CHANGED, tlsAuthCertificateId.toString(), optionalCertificate.get().getId().toString(), caConnectorConfig));
                     caConnectorConfig.setTlsAuthentication(optionalCertificate.get());
                 }
             }
         }
 
         Certificate messageProtectionCertificate = caConnectorConfig.getMessageProtection();
+        Long messageProtectionCertificateId = 0L;
+        if( messageProtectionCertificate != null) {
+            messageProtectionCertificateId = messageProtectionCertificate.getId();
+        }
+
         if( cv.getMessageProtectionId() == null || cv.getMessageProtectionPassphrase()){
             if(messageProtectionCertificate != null) {
-                auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_MESSAGE_PROTECTION_CHANGED, null, messageProtectionCertificate.getId().toString(), caConnectorConfig));
+                auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_MESSAGE_PROTECTION_CHANGED, null, messageProtectionCertificateId.toString(), caConnectorConfig));
                 caConnectorConfig.setMessageProtection(null);
             }
         }else{
             Optional<Certificate> optionalCertificate = certificateRepository.findById(cv.getMessageProtectionId());
             if(optionalCertificate.isPresent()){
-                if(!Objects.equals(messageProtectionCertificate.getId(), optionalCertificate.get().getId())){
-                    auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_MESSAGE_PROTECTION_CHANGED, messageProtectionCertificate.getId().toString(), optionalCertificate.get().getId().toString(), caConnectorConfig));
+                if(!Objects.equals(messageProtectionCertificateId, optionalCertificate.get().getId())){
+                    auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_MESSAGE_PROTECTION_CHANGED, messageProtectionCertificateId.toString(), optionalCertificate.get().getId().toString(), caConnectorConfig));
                     caConnectorConfig.setMessageProtection(optionalCertificate.get());
                 }
             }
@@ -284,6 +303,7 @@ public class CaConnectorConfigUtil {
         boolean hasIssuerName = false;
         boolean hasMultipleMessages = false;
         boolean hasImplicitConfirm = false;
+        boolean hasMsgContentType = false;
         for( CAConnectorConfigAttribute configAttribute : caConnectorConfig.getCaConnectorAttributes()){
 
             if (ATT_ISSUER_NAME.equals(configAttribute.getName())) {
@@ -304,6 +324,13 @@ public class CaConnectorConfigUtil {
                     configAttribute.setValue(Boolean.toString(cv.isImplicitConfirm()));
                 }
                 hasImplicitConfirm = true;
+            }else if (ATT_CMP_MESSAGE_CONTENT_TYPE.equals(configAttribute.getName())) {
+                if(!Objects.equals( cv.getMsgContentType(), configAttribute.getValue())) {
+                    auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_MSG_CONTENT_TYPE_CHANGED, configAttribute.getValue(), cv.getMsgContentType(), caConnectorConfig));
+                    configAttribute.setValue(cv.getMsgContentType());
+                }
+                hasMsgContentType = true;
+
             }else if (ATT_ATTRIBUTE_TYPE_AND_VALUE.equals(configAttribute.getName())) {
                 LOG.warn("CA Connector ATaV attribute detected!");
             }
@@ -320,6 +347,10 @@ public class CaConnectorConfigUtil {
             auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_IMPLICIT_CONFIRM_CHANGED, null, Boolean.toString(cv.isImplicitConfirm()), caConnectorConfig));
             createAttribute(ATT_IMPLICIT_CONFIRM, Boolean.toString(cv.isImplicitConfirm()), caConnectorConfig);
         }
+        if( !hasMsgContentType){
+            auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_MSG_CONTENT_TYPE_CHANGED, null, cv.getMsgContentType(), caConnectorConfig));
+            createAttribute(ATT_CMP_MESSAGE_CONTENT_TYPE, cv.getMsgContentType(), caConnectorConfig);
+        }
 
         caConnectorConfigAttributeRepository.saveAll(caConnectorConfig.getCaConnectorAttributes());
         cAConnectorConfigRepository.save(caConnectorConfig);
@@ -329,7 +360,7 @@ public class CaConnectorConfigUtil {
         return caConnectorConfig;
     }
 
-    private static void createAttribute(String name, String value, CAConnectorConfig caConnectorConfig) {
+    private void createAttribute(String name, String value, CAConnectorConfig caConnectorConfig) {
         CAConnectorConfigAttribute caConnectorConfigAttribute = new CAConnectorConfigAttribute();
         caConnectorConfigAttribute.setName(name);
         if( value == null) {
@@ -338,6 +369,8 @@ public class CaConnectorConfigUtil {
             caConnectorConfigAttribute.setValue(value);
         }
         caConnectorConfigAttribute.setCaConnector(caConnectorConfig);
+        caConnectorConfigAttributeRepository.save(caConnectorConfigAttribute);
+
         caConnectorConfig.getCaConnectorAttributes().add(caConnectorConfigAttribute);
     }
 

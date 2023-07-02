@@ -114,7 +114,10 @@ const RequestAttributeValue = () => import('../entities/request-attribute-value/
 const RequestAttributeValueUpdate = () => import('../entities/request-attribute-value/request-attribute-value-update.vue');
 // prettier-ignore
 const RequestAttributeValueDetails = () => import('../entities/request-attribute-value/request-attribute-value-details.vue');
+
+/*
 // prettier-ignore
+
 const Pipeline = () => import('../entities/pipeline/pipeline.vue');
 // prettier-ignore
 const PipelineUpdate = () => import('../entities/pipeline/pipeline-update.vue');
@@ -127,6 +130,8 @@ const PipelineAttributeUpdate = () => import('../entities/pipeline-attribute/pip
 // prettier-ignore
 const PipelineAttributeDetails = () => import('../entities/pipeline-attribute/pipeline-attribute-details.vue');
 // prettier-ignore
+*/
+
 const AcmeAccount = () => import('../entities/acme-account/acme-account.vue');
 // prettier-ignore
 const AcmeAccountUpdate = () => import('../entities/acme-account/acme-account-update.vue');
@@ -717,58 +722,8 @@ export default new Router({
       name: 'RequestAttributeValueView',
       component: RequestAttributeValueDetails,
       meta: { authorities: ['ROLE_USER'] }
-    }
-    ,
-    {
-      path: '/pipeline',
-      name: 'Pipeline',
-      component: Pipeline,
-      meta: { authorities: ['ROLE_USER'] }
     },
-    {
-      path: '/pipeline/new',
-      name: 'PipelineCreate',
-      component: PipelineUpdate,
-      meta: { authorities: ['ROLE_USER'] }
-    },
-    {
-      path: '/pipeline/:pipelineId/edit',
-      name: 'PipelineEdit',
-      component: PipelineUpdate,
-      meta: { authorities: ['ROLE_USER'] }
-    },
-    {
-      path: '/pipeline/:pipelineId/view',
-      name: 'PipelineView',
-      component: PipelineDetails,
-      meta: { authorities: ['ROLE_USER'] }
-    }
-    ,
-    {
-      path: '/pipeline-attribute',
-      name: 'PipelineAttribute',
-      component: PipelineAttribute,
-      meta: { authorities: ['ROLE_USER'] }
-    },
-    {
-      path: '/pipeline-attribute/new',
-      name: 'PipelineAttributeCreate',
-      component: PipelineAttributeUpdate,
-      meta: { authorities: ['ROLE_USER'] }
-    },
-    {
-      path: '/pipeline-attribute/:pipelineAttributeId/edit',
-      name: 'PipelineAttributeEdit',
-      component: PipelineAttributeUpdate,
-      meta: { authorities: ['ROLE_USER'] }
-    },
-    {
-      path: '/pipeline-attribute/:pipelineAttributeId/view',
-      name: 'PipelineAttributeView',
-      component: PipelineAttributeDetails,
-      meta: { authorities: ['ROLE_USER'] }
-    }
-    ,
+
     {
       path: '/acme-account',
       name: 'AcmeAccount',

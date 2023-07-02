@@ -37,6 +37,7 @@ const validations: any = {
     issuerName: {},
     multipleMessages: {},
     implicitConfirm: {},
+    msgContentType: {},
   },
 };
 

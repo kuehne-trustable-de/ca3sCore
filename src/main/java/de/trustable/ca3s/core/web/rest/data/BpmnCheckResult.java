@@ -26,6 +26,9 @@ public class BpmnCheckResult implements Serializable {
     @JsonProperty("csrAttributes")
     private  List<Pair<String, Object>> csrAttributes = new ArrayList<>();
 
+    @JsonProperty("responseAttributes")
+    private  List<Pair<String, Object>> responseAttributes = new ArrayList<>();
+
 
     public BpmnCheckResult() {
     }
@@ -60,5 +63,13 @@ public class BpmnCheckResult implements Serializable {
 
     public void setCsrAttributes(List<Pair<String, Object>> csrAttributes) {
         this.csrAttributes = csrAttributes;
+    }
+
+    public List<Pair<String, Object>> getResponseAttributes() {
+        return responseAttributes;
+    }
+
+    public void setResponseAttributes(List<Pair<String, Object>> responseAttributes) {
+        this.responseAttributes = responseAttributes;
     }
 }

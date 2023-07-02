@@ -6,7 +6,6 @@ import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.CAStatus;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CaConnectorConfigUtil;
@@ -62,7 +61,7 @@ public class CaCmpConnector {
      * @param auditService
      * @param caConnectorConfigUtil
      */
-	public CaCmpConnector(RemoteConnector remoteConnector, CryptoUtil cryptoUtil, CertificateUtil certUtil, CSRUtil csrUtil, ProtectedContentUtil protUtil, CertificateRepository certificateRepository, AuditService auditService, CaConnectorConfigUtil caConnectorConfigUtil) {
+	public CaCmpConnector(RemoteConnector remoteConnector, CryptoUtil cryptoUtil, CertificateUtil certUtil, CSRUtil csrUtil, ProtectedContentUtil protUtil, CertificateRepository certificateRepository, CaConnectorConfigUtil caConnectorConfigUtil) {
         this.remoteConnector = remoteConnector;
         this.cryptoUtil = cryptoUtil;
         this.certUtil = certUtil;
@@ -86,17 +85,13 @@ public class CaCmpConnector {
             signer = new DigestSigner(protUtil.unprotectString(caConnConfig.getSecret().getContentBase64()));
         } else {
             LOGGER.debug("CMPClientConfig: instantiating KeystoreSigner");
-            CSR csr = certificateMessageProtection.getCsr();
-            if (csr == null) {
-                throw new GeneralSecurityException("problem downloading keystore content for cert id " + certificateMessageProtection.getId() + ": no csr object available ");
-            }
-
             try {
                 CertificateUtil.KeyStoreAndPassphrase keyStoreAndPassphrase =
                     certUtil.getContainer(certificateMessageProtection,
                         "entryAlias",
-                        csr,
+                        "passphraseChars".toCharArray(),
                         "PBEWithHmacSHA256AndAES_256");
+
                 signer = new KeystoreSigner(keyStoreAndPassphrase.getKeyStore(),
                     "entryAlias",
                     new String(keyStoreAndPassphrase.getPassphraseChars()));
@@ -110,13 +105,14 @@ public class CaCmpConnector {
         Certificate certificateTlsAuthentication = caConnConfig.getTlsAuthentication();
         if (certificateTlsAuthentication != null) {
             LOGGER.debug("CMPClientConfig: using CertificateTlsAuthentication");
-            CSR csr = certificateTlsAuthentication.getCsr();
-            if (csr == null) {
-                throw new GeneralSecurityException("problem downloading keystore content for cert id " + certificateTlsAuthentication.getId() + ": no csr object available ");
-            }
 
             try {
-                CertificateUtil.KeyStoreAndPassphrase keyStoreAndPassphrase = certUtil.getContainer(certificateTlsAuthentication, "entryAlias", csr, "PBEWithHmacSHA256AndAES_256");
+                CertificateUtil.KeyStoreAndPassphrase keyStoreAndPassphrase =
+                    certUtil.getContainer(certificateTlsAuthentication,
+                        "entryAlias",
+                        "passphraseChars".toCharArray(),
+                        "PBEWithHmacSHA256AndAES_256");
+
                 cmpClientConfig.setP12ClientStore(keyStoreAndPassphrase.getKeyStore());
                 cmpClientConfig.setP12ClientSecret(new String(keyStoreAndPassphrase.getPassphraseChars()));
             } catch (IOException e) {
@@ -128,6 +124,10 @@ public class CaCmpConnector {
         cmpClientConfig.setRemoteTargetHandler(remoteConnector);
         cmpClientConfig.setCaUrl(caConnConfig.getCaUrl());
         LOGGER.debug("CMPClientConfig: CaUrl '{}'", cmpClientConfig.getCaUrl());
+
+        String contenType = caConnectorConfigUtil.getCAConnectorConfigAttribute(caConnConfig, CaConnectorConfigUtil.ATT_CMP_MESSAGE_CONTENT_TYPE, "application/pkixcmp");
+        cmpClientConfig.setMsgContentType(contenType);
+        LOGGER.debug("CMPClientConfig: MsgContentType '{}'", cmpClientConfig.getMsgContentType());
 
         cmpClientConfig.setCmpAlias(caConnConfig.getSelector());
         LOGGER.debug("CMPClientConfig: CmpAlias '{}'", cmpClientConfig.getCmpAlias());

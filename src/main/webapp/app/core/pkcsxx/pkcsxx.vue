@@ -304,9 +304,9 @@
                         <div class="form-group" v-if="isPipelineChoosen() && (precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE')">
                             <label class="form-control-label" v-text="$t('pkcsxx.upload.passphrase')" for="upload-passphrase">Passphrase</label>
                             <input type="text" class="form-control" name="passphrase" id="upload-passphrase"
-                                autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                                v-model="upload.passphrase" v-on:input="notifyChange"/>
-                                <!-- v-model="$v.upload.passphrase.$model" v-on:input="notifyChange"/-->
+                                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                   v-model="upload.passphrase" v-on:input="notifyChange"/>
+                            <!-- v-model="$v.upload.passphrase.$model" v-on:input="notifyChange"/-->
                         </div>
 
                         <dl class="row jh-entity-details" v-if="responseStatus > 0">
@@ -464,7 +464,7 @@
                             </dd>
 						</dl>
 
-						<dl class="row jh-entity-details" v-if="precheckResponse.dataType === 'CONTAINER'">
+						<dl class="row jh-entity-details" v-if="precheckResponse.dataType === 'CONTAINER' || precheckResponse.dataType === 'CONTAINER_WITH_KEY'">
 							<dt>
 								<span v-text="$t('pkcsxx.upload.type')">Result</span>
 							</dt>
@@ -484,11 +484,21 @@
 							</dt>
 							<dd>
 								<ul>
-									<li v-for="cert in precheckResponse.certificates" :key="cert.serial"><div v-if="cert.certificatePresentInDB">present</div><div v-else>present</div>{{cert.subject}}</li>
+									<li v-for="cert in precheckResponse.certificates" :key="cert.serial">
+                                        <div v-if="cert.certificatePresentInDB" v-text="$t('pkcsxx.upload.container.presentInDB')">present</div>
+                                        <div v-else v-text="$t('pkcsxx.upload.container.unknown')">unknown</div>
+                                        <div v-if="cert.keyPresent" v-text="$t('pkcsxx.upload.container.keyPresent')">keyPresent</div>{{cert.subject}}</li>
 								</ul>
 							</dd>
 
 						</dl>
+
+                        <div class="form-group" v-if="precheckResponse.dataType === 'CONTAINER_WITH_KEY'">
+                            <label class="form-control-label" v-text="$t('pkcsxx.upload.importKey')" for="upload-importKey">import Key</label>
+                            <input type="checkbox" class="form-check" name="importKey" id="upload-importKey"
+                                   v-model="upload.importKey" />
+                        </div>
+
 
                         <dl class="row jh-entity-details" v-if="precheckResponse && precheckResponse.warnings && precheckResponse.warnings.length > 0">
                             <dt>
@@ -504,14 +514,12 @@
                         </dl>
                     </div>
 
-                    <Fragment v-if="upload.pipelineId >= 0">
-                        <div class="form-group" v-if="showCSRRelatedArea()">
-                            <label class="form-control-label" v-text="$t('pkcsxx.upload.requestorComment')" for="upload-requestor-comment">Requestor Comment</label>
-                            <textarea type="text" class="form-control" name="requestor-comment" id="upload-requestor-comment"
-                                      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                                      v-model="upload.requestorcomment" v-on:input="notifyChange"/>
-                        </div>
-                    </Fragment>
+                    <div class="form-group" v-if="(upload.pipelineId >= 0) && showCSRRelatedArea()">
+                        <label class="form-control-label" v-text="$t('pkcsxx.upload.requestorComment')" for="upload-requestor-comment">Requestor Comment</label>
+                        <textarea type="text" class="form-control" name="requestor-comment" id="upload-requestor-comment"
+                                  autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                  v-model="upload.requestorcomment" v-on:input="notifyChange"/>
+                    </div>
 
 					<div v-if="authenticated">
 						<!--div class="row jh-entity-details" v-if="isChecked === true && precheckResponse.dataType === 'X509_CERTIFICATE' && precheckResponse.csrPublicKeyPresentInDB === false">
@@ -521,7 +529,7 @@
 							:disabled="precheckResponse.csrPublicKeyPresentInDB || precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE' || precheckResponse.certificatePresentInDB || precheckResponse.publicKeyPresentInDB"
 	-->
 						<button type="button" id="uploadContent"
-							v-if="precheckResponse.dataType === 'CSR' || (creationMode === 'SERVERSIDE_KEY_CREATION')"
+							v-if="precheckResponse.dataType === 'CSR' || precheckResponse.dataType === 'CONTAINER_WITH_KEY' || precheckResponse.dataType === 'CONTAINER' || (creationMode === 'SERVERSIDE_KEY_CREATION')"
 							:disabled="disableCertificateRequest()"
 							class="btn btn-primary" v-on:click="uploadContent">
 							<font-awesome-icon icon="upload"></font-awesome-icon>&nbsp;<span v-text="$t('pkcsxx.upload.requestCertificate')">Request certificate</span>

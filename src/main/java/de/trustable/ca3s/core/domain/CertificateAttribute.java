@@ -136,6 +136,7 @@ public class CertificateAttribute implements Serializable {
     public static final String ATTRIBUTE_RDN_L = "RDN_LOCALITYNAME";
 
 	public static final String ATTRIBUTE_SAN = "SAN";
+    public static final String ATTRIBUTE_ALT_ALGO = "ALT_ALGO";
 	public static final String ATTRIBUTE_SUBJECT_RDN_PART = "SUBJECT_RDN_PART";
 	public static final String ATTRIBUTE_ISSUER = "ISSUER";
 	public static final String ATTRIBUTE_ROOT = "ROOT";

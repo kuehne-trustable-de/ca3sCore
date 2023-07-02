@@ -249,6 +249,8 @@
   "ca3SApp.bPNMProcessInfo.updated": "BPNM Prozess Info aktualisiert mit ID {{ param }}",
   "ca3SApp.bPNMProcessInfo.version": "Version",
   "ca3SApp.bPNMProcessInfo.check.check": "BPNM Prozess Starten",
+  "ca3SApp.bpmn.delete.question": "Wollen Sie wirklich die Prozess Definition {{ id }} löschen?",
+  "ca3SApp.bPNMProcessInfo.type.BATCH": "Batch",
 
   "ca3SApp.cAConnectorConfig.active": "Aktiv",
   "ca3SApp.cAConnectorConfig.status": "Status",
@@ -271,6 +273,14 @@
   "ca3SApp.cAConnectorConfig.secret": "Geheimnis",
   "ca3SApp.cAConnectorConfig.selector": "Selektor",
   "ca3SApp.cAConnectorConfig.updated": "CA Konnektorkonfiguration aktualisiert mit ID {{ param }}",
+
+  "ca3SApp.cAConnectorConfig.tlsAuthentication": "Authentisierung als TLS-Client",
+  "ca3SApp.cAConnectorConfig.messageProtectionPassphrase": "Nachrichtenschutz per Passphrase",
+  "ca3SApp.cAConnectorConfig.messageProtection": "Nachrichtenschutz mit Zertifikat",
+  "ca3SApp.cAConnectorConfig.multipleMessages": "Mehrere Nachrichten pro Aufruf",
+  "ca3SApp.cAConnectorConfig.implicitConfirm": "Implizite Bestätigung",
+  "ca3SApp.cAConnectorConfig.msgContentType": "Content Type der Nachricht",
+
   "ca3SApp.cSR.subtitle.request.list": "Antragsliste",
   "ca3SApp.cSR.administeredBy": "Verwaltet durch",
   "ca3SApp.cSR.administrationComment": "Kommentar",

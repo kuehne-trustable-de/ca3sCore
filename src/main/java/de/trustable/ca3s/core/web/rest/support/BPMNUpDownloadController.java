@@ -1,11 +1,11 @@
 package de.trustable.ca3s.core.web.rest.support;
 
-import de.trustable.ca3s.core.domain.BPMNProcessInfo;
-import de.trustable.ca3s.core.domain.CAConnectorConfig;
-import de.trustable.ca3s.core.domain.CSR;
-import de.trustable.ca3s.core.domain.CsrAttribute;
+import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.exception.BadRequestAlertException;
+import de.trustable.ca3s.core.repository.BPMNProcessInfoRepository;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.CSRRepository;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.BPMNUpload;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
@@ -18,12 +18,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -38,14 +36,19 @@ public class BPMNUpDownloadController {
 
     private static final Logger LOG = LoggerFactory.getLogger(BPMNUpDownloadController.class);
 
+    private static final String ENTITY_NAME = "bPMNProcessInfo";
+
     final BPMNUtil bpmnUtil;
+
+    final BPMNProcessInfoRepository bpmnProcessInfoRepository;
     final CSRRepository csrRepository;
     final CAConnectorConfigRepository caConnectorConfigRepository;
     final AuditService auditService;
 
 
-    public BPMNUpDownloadController(BPMNUtil bpmnUtil, CSRRepository csrRepository, CAConnectorConfigRepository caConnectorConfigRepository, AuditService auditService) {
+    public BPMNUpDownloadController(BPMNUtil bpmnUtil, BPMNProcessInfoRepository bpmnProcessInfoRepository, CSRRepository csrRepository, CAConnectorConfigRepository caConnectorConfigRepository, AuditService auditService) {
         this.bpmnUtil = bpmnUtil;
+        this.bpmnProcessInfoRepository = bpmnProcessInfoRepository;
         this.csrRepository = csrRepository;
         this.caConnectorConfigRepository = caConnectorConfigRepository;
         this.auditService = auditService;
@@ -75,6 +78,7 @@ public class BPMNUpDownloadController {
 
     @PostMapping("/bpmn")
     @Transactional
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<BPMNProcessInfo> postBPMN(@Valid @RequestBody final BPMNUpload bpmnUpload) {
 
         LOG.info("Received bpmn upload request with name {} ", bpmnUpload.getName());
@@ -93,6 +97,57 @@ public class BPMNUpDownloadController {
 
     }
 
+    @PutMapping("/bpmn")
+    @Transactional
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public ResponseEntity<BPMNProcessInfo> putBPMNProcessInfo(@Valid @RequestBody final BPMNUpload bpmnUpload)  {
+
+        LOG.info("Received bpmn upload request with name {} ", bpmnUpload.getName());
+
+        LOG.debug("REST request to update BPMNProcessInfo : {}", bpmnUpload);
+        if (bpmnUpload.getId() == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+
+        List<AuditTrace> auditList = new ArrayList<>();
+
+        Optional<BPMNProcessInfo> optionalBpmnProcessInfo = bpmnProcessInfoRepository.findById(bpmnUpload.getId());
+        if( optionalBpmnProcessInfo.isPresent()){
+
+            BPMNProcessInfo bpmnProcessInfo = optionalBpmnProcessInfo.get();
+            if(!Objects.equals(bpmnUpload.getName(), bpmnProcessInfo.getName())) {
+                auditList.add(auditService.createAuditTraceBPMNProcessInfo( AuditService.AUDIT_BPMN_NAME_CHANGED, bpmnProcessInfo.getName(), bpmnUpload.getName(), bpmnProcessInfo));
+                bpmnProcessInfo.setName(bpmnUpload.getName());
+            }
+
+            if(!Objects.equals(bpmnUpload.getType(), bpmnProcessInfo.getType())) {
+                auditList.add(auditService.createAuditTraceBPMNProcessInfo( AuditService.AUDIT_BPMN_TYPE_CHANGED, bpmnProcessInfo.getType().name(), bpmnUpload.getName(), bpmnProcessInfo));
+                bpmnProcessInfo.setType(bpmnUpload.getType());
+            }
+
+            if( bpmnUpload.getContentXML() == null || bpmnUpload.getContentXML().trim().isEmpty() ){
+                LOG.debug("Received bpmn upload request with name {} without new XML content!", bpmnUpload.getName());
+            }else {
+
+                String oldProcessDefinitionId = bpmnProcessInfo.getProcessId();
+                String processDefinitionId = bpmnUtil.addModel(bpmnUpload.getContentXML(), bpmnUpload.getName());
+                LOG.debug("Deployed bpmn document with processDefinitionId {} successfully", processDefinitionId);
+
+                auditList.add(auditService.createAuditTraceBPMNProcessInfo( AuditService.AUDIT_BPMN_PROCESS_ID_CHANGED, oldProcessDefinitionId, processDefinitionId, bpmnProcessInfo));
+
+                bpmnProcessInfo.setProcessId(processDefinitionId);
+                bpmnUtil.deleteProcessDefinitions(oldProcessDefinitionId);
+            }
+            bpmnProcessInfoRepository.save(bpmnProcessInfo);
+            auditService.saveAuditTrace(auditList);
+
+            return new ResponseEntity<>(bpmnProcessInfo, HttpStatus.OK);
+        }else{
+            return  ResponseEntity.noContent().build();
+        }
+
+    }
+
     /**
      * check results a given process id when processing a given CSR
      *
@@ -101,6 +156,7 @@ public class BPMNUpDownloadController {
      */
     @RequestMapping(value = "/bpmn/check/csr/{processId}/{csrId}",
         method = POST)
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Map<String, String>> postBPMNForCSR(@PathVariable final String processId, @PathVariable final String csrId){
 
         LOG.info("Received bpmn check request for process id {} and csr id {}", processId, csrId);
@@ -115,11 +171,12 @@ public class BPMNUpDownloadController {
             BpmnCheckResult result = new BpmnCheckResult();
             Map<String, Object> variables = processInstanceWithVariables.getVariables();
             for(String key: variables.keySet()){
-                if( "csrAttributes".equals(key) ){
-                    for( CsrAttribute csrAtt: (Set<CsrAttribute>)variables.get(key)){
+                if( "csrAttributes".equals(key) ) {
+                    for (CsrAttribute csrAtt : (Set<CsrAttribute>) variables.get(key)) {
                         LOG.info("bpmn process returns CsrAttribute {} with value {}", csrAtt.getName(), csrAtt.getValue());
                         result.getCsrAttributes().add(new ImmutablePair<>(csrAtt.getName(), csrAtt.getValue()));
                     }
+
                 }else if( "failureReason".equals(key) ){
                     result.setFailureReason(variables.get(key).toString());
                 }else if( "status".equals(key) ){
@@ -129,8 +186,35 @@ public class BPMNUpDownloadController {
                 }else {
                     String value = variables.get(key).toString();
                     LOG.info("bpmn process returns variable {} with value {}", key, value);
-                    result.getCsrAttributes().add(new ImmutablePair<>(key, value));
+                    result.getResponseAttributes().add(new ImmutablePair<>(key, value));
                 }
+            }
+            return new ResponseEntity(result, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * check results a given batch process id when started
+     *
+     * @param processId the internal process id
+     * @return the process's response
+     */
+    @RequestMapping(value = "/bpmn/check/batch/{processId}",
+        method = POST)
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public ResponseEntity<Map<String, String>> postBPMNBatch(@PathVariable final String processId){
+
+        LOG.info("Call bpmn request for process id {}", processId);
+        ProcessInstanceWithVariables processInstanceWithVariables = bpmnUtil.checkBatchProcess(processId);
+
+        if( processInstanceWithVariables != null) {
+            BpmnCheckResult result = new BpmnCheckResult();
+            Map<String, Object> variables = processInstanceWithVariables.getVariables();
+            for(String key: variables.keySet()){
+                String value = variables.get(key).toString();
+                LOG.info("bpmn process returns variable {} with value {}", key, value);
+                result.getResponseAttributes().add(new ImmutablePair<>(key, value));
             }
             return new ResponseEntity(result, HttpStatus.OK);
         }

@@ -79,13 +79,14 @@ public class CertificateView implements Serializable {
 
     @CsvBindByName
     private String keyLength;
-
     @CsvBindByName
     private String keyAlgorithm;
 
     @CsvIgnore
-    private String signingAlgorithm;
+    private String altKeyAlgorithm;
 
+    @CsvIgnore
+    private String signingAlgorithm;
     @CsvIgnore
     private String paddingAlgorithm;
 
@@ -290,6 +291,8 @@ public class CertificateView implements Serializable {
         this.extUsageString = "";
         this.sansString = "";
 
+        this.keyAlgorithm = null;
+
         for (CertificateAttribute certAttr : cert.getCertificateAttributes()) {
            try {
                 if (CertificateAttribute.ATTRIBUTE_CA_CONNECTOR_ID.equalsIgnoreCase(certAttr.getName())) {
@@ -357,6 +360,8 @@ public class CertificateView implements Serializable {
                     this.sansString = this.sansString.isEmpty() ? certAttr.getValue() : this.sansString + ", " + certAttr.getValue();
                 } else if (CertificateAttribute.ATTRIBUTE_REPLACED_BY.equalsIgnoreCase(certAttr.getName())) {
                     replacedCertList.add(certAttr.getValue());
+                } else if (CertificateAttribute.ATTRIBUTE_ALT_ALGO.equalsIgnoreCase(certAttr.getName())) {
+                    altKeyAlgorithm = certAttr.getValue();
                 } else {
  //                   LOG.debug("Irrelevant certificate attribute '{}' with value '{}'", certAttr.getName(), certAttr.getValue());
 
@@ -538,7 +543,15 @@ public class CertificateView implements Serializable {
 		this.keyAlgorithm = keyAlgorithm;
 	}
 
-	public Boolean getSelfsigned() {
+    public String getAltKeyAlgorithm() {
+        return altKeyAlgorithm;
+    }
+
+    public void setAltKeyAlgorithm(String altKeyAlgorithm) {
+        this.altKeyAlgorithm = altKeyAlgorithm;
+    }
+
+    public Boolean getSelfsigned() {
 		return selfsigned;
 	}
 
@@ -840,6 +853,18 @@ public class CertificateView implements Serializable {
 
     public void setArArr(NamedValue[] arArr) {
         this.arArr = arArr;
+    }
+
+    public String getArValue(final String name) {
+
+        if( arArr != null) {
+            for (NamedValue nv : arArr) {
+                if (nv.getName().equals(name)) {
+                    return nv.getValue();
+                }
+            }
+        }
+        return "";
     }
 
     private NamedValue[] copyArAttributes(final Certificate cert) {

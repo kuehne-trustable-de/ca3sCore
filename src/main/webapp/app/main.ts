@@ -41,7 +41,6 @@ import RDNAttributeService from '@/entities/rdn-attribute/rdn-attribute.service'
 import RequestAttributeService from '@/entities/request-attribute/request-attribute.service';
 import RequestAttributeValueService from '@/entities/request-attribute-value/request-attribute-value.service';
 import PipelineViewService from '@/core/pipeline/pipelineview.service';
-import PipelineService from '@/entities/pipeline/pipeline.service';
 import PipelineAttributeService from '@/entities/pipeline-attribute/pipeline-attribute.service';
 import AcmeAccountService from '@/entities/acme-account/acme-account.service';
 import AcmeContactService from '@/entities/acme-contact/acme-contact.service';
@@ -132,7 +131,7 @@ new Vue({
     requestAttributeService: () => new RequestAttributeService(),
     requestAttributeValueService: () => new RequestAttributeValueService(),
     pipelineViewService: () => new PipelineViewService(),
-    pipelineService: () => new PipelineService(),
+    //    pipelineService: () => new PipelineService(),
     pipelineAttributeService: () => new PipelineAttributeService(),
     aCMEAccountService: () => new AcmeAccountService(),
     acmeContactService: () => new AcmeContactService(),

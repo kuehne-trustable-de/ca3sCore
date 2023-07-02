@@ -2,6 +2,7 @@ import { Component, Inject, Vue } from 'vue-property-decorator';
 import { Fragment } from 'vue-fragment';
 
 import { mixins } from 'vue-class-component';
+import AlertMixin from '@/shared/alert/alert.mixin';
 import JhiDataUtils from '@/shared/data/data-utils.service';
 import AlertService from '@/shared/alert/alert.service';
 import CopyClipboardButton from '@/shared/clipboard/clipboard.vue';
@@ -12,8 +13,10 @@ import BPNMProcessInfoService from '../../entities/bpnm-process-info/bpnm-proces
 import { IBPMNProcessInfo } from '@/shared/model/bpmn-process-info.model';
 
 import VueBpmn from 'vue-bpmn';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { IBpmnCheckResult, IBPMNUpload } from '@/shared/model/transfer-object.model';
+
+const bpmnUrl = 'api/bpmn';
 
 @Component({
   components: {
@@ -21,10 +24,10 @@ import { IBpmnCheckResult, IBPMNUpload } from '@/shared/model/transfer-object.mo
     CopyClipboardButton,
     HelpTag,
     AuditTag,
-    VueBpmn
-  }
+    VueBpmn,
+  },
 })
-export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
+export default class BpmnInfo extends mixins(JhiDataUtils, AlertMixin, Vue) {
   @Inject('alertService') private alertService: () => AlertService;
   @Inject('bPNMProcessInfoService') private bPNMProcessInfoService: () => BPNMProcessInfoService;
 
@@ -33,7 +36,9 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
 
   public bpmnCheckResult: IBpmnCheckResult = {};
 
+  public updateMethod: string;
   public bpmnUrl: string;
+  public tmpUrl: string;
   public bpmnFileUploaded = false;
   public warningMessage: string = null;
 
@@ -58,6 +63,7 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
       .find(bpmnId)
       .then(res => {
         this.bPNMProcessInfo = res;
+        this.bpmnUpload.id = this.bPNMProcessInfo.id;
         this.bpmnUpload.name = this.bPNMProcessInfo.name;
         this.bpmnUpload.type = this.bPNMProcessInfo.type;
       });
@@ -100,32 +106,95 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
     return this.$store.getters.account ? this.$store.getters.account.login : '';
   }
 
+  public saveBpmn(): void {
+    const self = this;
+
+    this.updateMethod = 'POST';
+    if (this.bPNMProcessInfo.id) {
+      this.updateMethod = 'PUT';
+    }
+
+    axios({
+      method: this.updateMethod,
+      url: bpmnUrl,
+      data: this.bpmnUpload,
+    })
+      .then(function (response) {
+        console.log(response.status);
+
+        if (response.status === 200) {
+          self.$router.push({ name: 'BpmnList', params: {} });
+        } else {
+          self.previousState();
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+        self.previousState();
+        const message = self.$t('problem processing request: ' + error);
+        self.alertService().showAlert(message, 'info');
+      });
+  }
+
   public checkBpmn() {
     this.bpmnCheckResult = {};
     const self = this;
 
-    const targetURL = `/api/bpmn/check/csr/${this.bPNMProcessInfo.processId}/${this.csrId}`;
+    let targetURL = bpmnUrl + `/check/csr/${this.bPNMProcessInfo.processId}/${this.csrId}`;
+    if (this.bpmnUpload.type == 'BATCH') {
+      targetURL = bpmnUrl + `/check/batch/${this.bPNMProcessInfo.processId}`;
+    }
+
     console.log('calling bpmn check endpoint at ' + targetURL);
 
     axios({
       method: 'post',
-      url: targetURL
-    }).then(function(response) {
+      url: targetURL,
+    }).then(function (response) {
       window.console.info('/bpmn/check/csr returns ' + response.data);
       self.bpmnCheckResult = response.data;
     });
   }
 
   public getBpmnUrl(): string {
-    console.log('/api/bpmn/ called for ' + this.bPNMProcessInfo.processId);
-    return '/api/bpmn/' + this.bPNMProcessInfo.processId;
+    console.log(bpmnUrl + ' called for ' + this.bPNMProcessInfo.processId);
+    const self = this;
+
+    axios
+      .get(bpmnUrl + '/' + this.bPNMProcessInfo.processId, { responseType: 'blob' })
+      .then(response => {
+        const blob = new Blob([response.data], {});
+
+        self.tmpUrl = URL.createObjectURL(blob);
+        window.console.info('tmp download url : ' + self.tmpUrl);
+      })
+      .catch(function (error) {
+        console.log(error);
+        const message = self.$t('problem processing request: ' + error);
+
+        const err = error as AxiosError;
+        if (err.response) {
+          console.log(err.response.status);
+          console.log(err.response.data);
+          if (err.response.status === 401) {
+            self.alertService().showAlert('Action not allowed', 'warn');
+          } else {
+            self.alertService().showAlert(message, 'info');
+          }
+        } else {
+          self.alertService().showAlert(message, 'info');
+        }
+        self.getAlertFromStore();
+      });
+
+    return this.tmpUrl;
   }
 
   public getOptions() {
     return {
       propertiesPanel: {},
       additionalModules: [],
-      moddleExtensions: []
+      moddleExtensions: [],
     };
   }
 
@@ -149,7 +218,7 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
     const self = this;
 
     const readerContent = new FileReader();
-    readerContent.onload = function(_result) {
+    readerContent.onload = function (_result) {
       console.log('uploaded bpmn content read');
       self.bpmnFileUploaded = false;
       self.bpmnUpload.contentXML = '';
@@ -164,7 +233,7 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
       }
 
       const readerUrl = new FileReader();
-      readerUrl.onload = function(__result) {
+      readerUrl.onload = function (__result) {
         if (typeof readerUrl.result === 'string') {
           self.bpmnUrl = readerUrl.result;
 

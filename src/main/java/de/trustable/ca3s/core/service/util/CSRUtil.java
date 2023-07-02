@@ -616,6 +616,7 @@ public class CSRUtil {
 		if( value == null) {
 			value= "";
 		}
+        String limitedValue = CryptoUtil.limitLength(value, 250);
 
 		Collection<CsrAttribute> csrAttrList = csr.getCsrAttributes();
 		for( CsrAttribute csrAttr : csrAttrList) {
@@ -630,7 +631,7 @@ public class CSRUtil {
 				}else {
 					if( !multiValue ) {
                         LOG.debug("overwriting existing attribute '{}' ", csrAttr.getName());
-						csrAttr.setValue(value);
+						csrAttr.setValue(limitedValue);
                         csrAttRepository.save(csrAttr);
 						return;
 					}
@@ -641,12 +642,11 @@ public class CSRUtil {
 		CsrAttribute cAtt = new CsrAttribute();
 		cAtt.setCsr(csr);
 		cAtt.setName(name);
-		cAtt.setValue(value);
+		cAtt.setValue(limitedValue);
 
 		csr.getCsrAttributes().add(cAtt);
 
 		csrAttRepository.save(cAtt);
-
 	}
 
 }

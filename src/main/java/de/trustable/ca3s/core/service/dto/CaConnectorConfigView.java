@@ -16,6 +16,8 @@ public class CaConnectorConfigView implements Serializable {
 
     private String caUrl;
 
+    private String msgContentType;
+
     private Integer pollingOffset;
 
     private Boolean defaultCA;
@@ -73,6 +75,14 @@ public class CaConnectorConfigView implements Serializable {
 
     public void setCaUrl(String caUrl) {
         this.caUrl = caUrl;
+    }
+
+    public String getMsgContentType() {
+        return msgContentType;
+    }
+
+    public void setMsgContentType(String msgContentType) {
+        this.msgContentType = msgContentType;
     }
 
     public Integer getPollingOffset() {
