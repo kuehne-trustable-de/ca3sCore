@@ -4,7 +4,7 @@ import javax.annotation.concurrent.Immutable;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import de.trustable.ca3s.core.service.dto.KeyAlgoLength;
+import de.trustable.ca3s.core.service.dto.KeyAlgoLengthOrSpec;
 import de.trustable.ca3s.core.service.dto.NamedValue;
 import de.trustable.ca3s.core.service.dto.NamedValues;
 
@@ -34,7 +34,7 @@ public class UploadPrecheckData {
 	private CreationMode creationMode = CreationMode.CSR_AVAILABLE;
 
 	@JsonProperty("keyAlgoLength")
-	private String keyAlgoLength = KeyAlgoLength.RSA_2048.toString();
+	private String keyAlgoLength = KeyAlgoLengthOrSpec.RSA_2048.toString();
 
 	@JsonProperty("containerType")
 	private ContainerType containerType = ContainerType.PKCS_12;

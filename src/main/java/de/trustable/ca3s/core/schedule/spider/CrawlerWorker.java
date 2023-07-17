@@ -42,8 +42,7 @@ public class CrawlerWorker
 
             Elements linksOnPage = htmlDocument.select("a[href]");
             LOGGER.debug("found #{} links at {}", linksOnPage.size(), url);
-            for(Element link : linksOnPage)
-            {
+            for(Element link : linksOnPage){
 
                 String href = link.absUrl("href");
 //                LOGGER.debug("checking {}", href);
@@ -55,6 +54,16 @@ public class CrawlerWorker
                     this.links.add(link.absUrl("href"));
                 }
             }
+
+            Elements framesOnPage = htmlDocument.select("frame[src]");
+            LOGGER.debug("found #{} links at {}", linksOnPage.size(), url);
+            for(Element frame : framesOnPage) {
+                String src = frame.absUrl("src");
+                LOGGER.debug("checking frame {}", src);
+
+                this.links.add(src);
+            }
+
             return true;
         }catch(IOException ioe){
             LOGGER.debug("problem  '{}' occurred reading {}", ioe.getMessage(), url);

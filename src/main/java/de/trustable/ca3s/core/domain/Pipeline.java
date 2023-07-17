@@ -86,7 +86,11 @@ public class Pipeline implements Serializable {
 
     @ManyToOne
     @JsonIgnoreProperties({"pipelines", "secret"})
-    private BPMNProcessInfo processInfo;
+    private BPMNProcessInfo processInfoCreate;
+
+    @ManyToOne
+    @JsonIgnoreProperties({"pipelines", "secret"})
+    private BPMNProcessInfo processInfoRevoke;
 
     @ManyToMany
     @JoinTable(
@@ -252,16 +256,29 @@ public class Pipeline implements Serializable {
         return this;
     }
 
-    public BPMNProcessInfo getProcessInfo() {
-        return this.processInfo;
+    public BPMNProcessInfo getProcessInfoCreate() {
+        return this.processInfoCreate;
     }
 
-    public void setProcessInfo(BPMNProcessInfo bPMNProcessInfo) {
-        this.processInfo = bPMNProcessInfo;
+    public void setProcessInfoCreate(BPMNProcessInfo bPMNProcessInfo) {
+        this.processInfoCreate = bPMNProcessInfo;
     }
 
-    public Pipeline processInfo(BPMNProcessInfo bPMNProcessInfo) {
-        this.setProcessInfo(bPMNProcessInfo);
+    public Pipeline processInfoCreate(BPMNProcessInfo bPMNProcessInfo) {
+        this.setProcessInfoCreate(bPMNProcessInfo);
+        return this;
+    }
+
+    public BPMNProcessInfo getProcessInfoRevoke() {
+        return this.processInfoRevoke;
+    }
+
+    public void setProcessInfoRevoke(BPMNProcessInfo bPMNProcessInfo) {
+        this.processInfoRevoke = bPMNProcessInfo;
+    }
+
+    public Pipeline processInfoRevoke(BPMNProcessInfo bPMNProcessInfo) {
+        this.setProcessInfoRevoke(bPMNProcessInfo);
         return this;
     }
 

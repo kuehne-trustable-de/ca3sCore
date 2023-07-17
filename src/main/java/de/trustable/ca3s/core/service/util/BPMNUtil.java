@@ -117,7 +117,7 @@ public class BPMNUtil{
 		for(ProcessDefinition pd: pdList ) {
 			Optional<BPMNProcessInfo> optBI = bpnmInfoRepo.findByName(pd.getKey());
 			if( !optBI.isPresent() ) {
-                buildBPMNProcessInfoByProcess(pd, pd.getKey(), BPMNProcessType.CA_INVOCATION);
+                buildBPMNProcessInfoByProcess(pd, pd.getKey(), BPMNProcessType.CERTIFICATE_CREATION);
 
             }else {
 				// @todo check for updates
@@ -189,7 +189,7 @@ public class BPMNUtil{
 			caConfig = configUtil.getDefaultConfig();
 		}else {
 			caConfig = csr.getPipeline().getCaConnector();
-			pi = csr.getPipeline().getProcessInfo();
+			pi = csr.getPipeline().getProcessInfoCreate();
 		}
 
 		return startCertificateCreationProcess(csr, caConfig, pi);
@@ -216,7 +216,7 @@ public class BPMNUtil{
 			processName = processInfo.getName();
 		}else{
 
-            List<ProcessDefinition> processDefinitionList = repoService.createProcessDefinitionQuery().processDefinitionKey("CAInvocationProcess").latestVersion().list();
+            List<ProcessDefinition> processDefinitionList = repoService.createProcessDefinitionQuery().processDefinitionKey(CAINVOCATION_PROCESS).latestVersion().list();
             if( processDefinitionList.isEmpty()){
                 LOG.warn( "Default process 'CAInvocationProcess' not found!");
                 return null;
@@ -358,8 +358,24 @@ public class BPMNUtil{
 		String status = "Failed";
 		String failureReason = "";
 		String processInstanceId = "";
+		String processName;
 
-		String processName = CAINVOCATION_PROCESS;
+        if((certificate.getCsr() != null) &&
+            (certificate.getCsr().getPipeline() != null ) &&
+            (certificate.getCsr().getPipeline().getProcessInfoRevoke() != null )){
+            Pipeline pipeline = certificate.getCsr().getPipeline();
+            processName = pipeline.getProcessInfoRevoke().getName();
+            LOG.debug("processName '{}' defined by pipeline '{}' ", processName, pipeline.getName());
+        }else{
+
+            List<ProcessDefinition> processDefinitionList = repoService.createProcessDefinitionQuery().processDefinitionKey(CAINVOCATION_PROCESS).latestVersion().list();
+            if( processDefinitionList.isEmpty()){
+                throw new GeneralSecurityException( "Default process 'CAInvocationProcess' not found!");
+            }
+            processName = processDefinitionList.get(0).getId();
+            LOG.debug("Default processName '{}' ", processName);
+        }
+
         /*
          * @todo
          *   allow specific BPMNProcessInfo
@@ -403,7 +419,7 @@ public class BPMNUtil{
 
 					variables.put("failureReason", failureReason);
 
-		            ProcessInstanceWithVariables processInstance = runtimeService.createProcessInstanceByKey(processName).setVariables(variables).executeWithVariablesInReturn();
+		            ProcessInstanceWithVariables processInstance = runtimeService.createProcessInstanceById(processName).setVariables(variables).executeWithVariablesInReturn();
 		            processInstanceId = processInstance.getId();
 		            LOG.info("ProcessInstance: {}", processInstanceId);
 

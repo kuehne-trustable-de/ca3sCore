@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.trustable.ca3s.core.security.provider.Ca3sTrustManager;
 import de.trustable.cmp.client.RemoteTargetHandler;
@@ -36,13 +38,19 @@ public class RemoteConnector implements RemoteTargetHandler {
 	 * @param requestBytes
 	 * @return byte array
 	 * @throws IOException
-	 */
+	 *
 	public byte[] sendHttpReq(final String requestUrlParam, final byte[] requestBytes) throws IOException {
-        return sendHttpReq( requestUrlParam, requestBytes, "application/pkixcmp", null, null);
+        return sendHttpReq( requestUrlParam, requestBytes, "application/pkixcmp", null,null, null);
     }
-
+*/
     @Override
-    public byte[] sendHttpReq(String requestUrlParam, byte[] requestBytes, final String contentType, KeyStore keyStore, String keyPassword) throws IOException {
+    public byte[] sendHttpReq(String requestUrlParam,
+                              byte[] requestBytes,
+                              final String contentType,
+                              final String sni,
+                              final boolean disableHostNameVerifier,
+                              KeyStore keyStore,
+                              String keyPassword) throws IOException {
 
         if (requestUrlParam == null) {
 			throw new IllegalArgumentException("requestUrlParam can not be null.");
@@ -73,7 +81,7 @@ public class RemoteConnector implements RemoteTargetHandler {
             try {
 
                 KeyManager[] keyManagers = null;
-                if( keyStore != null) {
+                if (keyStore != null) {
                     KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
                     keyManagerFactory.init(keyStore, keyPassword.toCharArray());
                     keyManagers = keyManagerFactory.getKeyManagers();
@@ -85,8 +93,26 @@ public class RemoteConnector implements RemoteTargetHandler {
                     new TrustManager[]{ca3sTrustManager},
                     new java.security.SecureRandom());
 
+                SSLSocketFactory socketFactory = sc.getSocketFactory();
+                if (sni != null && !sni.trim().isEmpty()) {
+                    LOGGER.debug("using sni '{}' for CA '{}'", sni, requestUrlParam);
+                    SSLParameters sslParameters = new SSLParameters();
+                    List sniHostNames = new ArrayList(1);
+                    sniHostNames.add(new SNIHostName(sni));
+                    sslParameters.setServerNames(sniHostNames);
+                    socketFactory = new SSLSocketFactoryWrapper(socketFactory, sslParameters);
+                }
                 HttpsURLConnection conTLS = (HttpsURLConnection)con;
-                conTLS.setSSLSocketFactory(sc.getSocketFactory());
+
+                if( disableHostNameVerifier) {
+                    conTLS.setHostnameVerifier(new HostnameVerifier() {
+                        public boolean verify(String hostname, SSLSession session) {
+                            return true;
+                        }
+                    });
+                }
+
+                conTLS.setSSLSocketFactory(socketFactory);
             } catch (NoSuchAlgorithmException | KeyManagementException e) {
                 throw new IOException("problem configuring the SSLContext", e);
             } catch (UnrecoverableKeyException e) {
@@ -105,8 +131,9 @@ public class RemoteConnector implements RemoteTargetHandler {
 		con.setDoOutput(true);
 		con.setRequestMethod("POST");
 
-//        con.setRequestProperty("Content-Type", "application/octet-stream;charset=UTF-8");
-        con.setRequestProperty("Content-Type", "application/pkixcmp");
+        if( contentType != null) {
+            con.setRequestProperty("Content-Type", contentType);
+        }
 
 		java.io.OutputStream os = con.getOutputStream();
 		os.write(requestBytes);

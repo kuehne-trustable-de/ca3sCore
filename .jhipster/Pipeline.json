@@ -54,7 +54,12 @@
     },
     {
       "otherEntityName": "bPMNProcessInfo",
-      "relationshipName": "processInfo",
+      "relationshipName": "processInfoCreate",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "bPMNProcessInfo",
+      "relationshipName": "processInfoRevoke",
       "relationshipType": "many-to-one"
     },
     {

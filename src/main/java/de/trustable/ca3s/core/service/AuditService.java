@@ -115,6 +115,8 @@ public class AuditService {
     public static final String AUDIT_BPMN_NAME_CHANGED = "AUDIT_BPMN_NAME_CHANGED";
     public static final String AUDIT_BPMN_TYPE_CHANGED = "AUDIT_BPMN_TYPE_CHANGED";
     public static final String AUDIT_BPMN_PROCESS_ID_CHANGED = "AUDIT_BPMN_PROCESS_ID_CHANGED";
+    public static final String AUDIT_CA_CONNECTOR_SNI_CHANGED = "AUDIT_CA_CONNECTOR_SNI_CHANGED";
+    public static final String AUDIT_CA_CONNECTOR_DISABLE_HOST_NAME_VERIFIER_CHANGED = "AUDIT_CA_CONNECTOR_DISABLE_HOST_NAME_VERIFIER_CHANGED";
     private static final String AUDIT_BPMN_ATTRIBUTE_CHANGED = "AUDIT_BPMN_ATTRIBUTE_CHANGED";
 
 
@@ -765,6 +767,7 @@ public class AuditService {
         auditTrace.setPipeline(pipeline);
         auditTrace.setCaConnector(caConnector);
         auditTrace.setProcessInfo(processInfo);
+        auditTrace.setRequestProxyConfig(requestProxyConfig);
 
         auditTrace.setAcmeAccount(acmeAccount);
         auditTrace.setAcmeOrder(acmeOrder);

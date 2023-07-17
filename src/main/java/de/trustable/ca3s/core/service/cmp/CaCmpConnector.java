@@ -58,10 +58,16 @@ public class CaCmpConnector {
      * @param csrUtil
      * @param protUtil
      * @param certificateRepository
-     * @param auditService
      * @param caConnectorConfigUtil
      */
-	public CaCmpConnector(RemoteConnector remoteConnector, CryptoUtil cryptoUtil, CertificateUtil certUtil, CSRUtil csrUtil, ProtectedContentUtil protUtil, CertificateRepository certificateRepository, CaConnectorConfigUtil caConnectorConfigUtil) {
+	public CaCmpConnector(RemoteConnector remoteConnector,
+                          CryptoUtil cryptoUtil,
+                          CertificateUtil certUtil,
+                          CSRUtil csrUtil,
+                          ProtectedContentUtil protUtil,
+                          CertificateRepository certificateRepository,
+                          CaConnectorConfigUtil caConnectorConfigUtil) {
+
         this.remoteConnector = remoteConnector;
         this.cryptoUtil = cryptoUtil;
         this.certUtil = certUtil;
@@ -137,6 +143,14 @@ public class CaCmpConnector {
             cmpClientConfig.setIssuerName(new X500Name(certIssuer));
             LOGGER.debug("CMPClientConfig: IssuerName '{}'", cmpClientConfig.getIssuerName());
         }
+
+        String sni = caConnectorConfigUtil.getCAConnectorConfigAttribute(caConnConfig, CaConnectorConfigUtil.ATT_SNI, null);
+        cmpClientConfig.setSni(sni);
+        LOGGER.debug("CMPClientConfig: SNI '{}'", cmpClientConfig.getSni());
+
+        boolean disableHostNameVerifier = caConnectorConfigUtil.getCAConnectorConfigAttribute(caConnConfig, CaConnectorConfigUtil.ATT_DISABLE_HOST_NAME_VERIFIER, true);
+        cmpClientConfig.setDisableHostNameVerifier(disableHostNameVerifier);
+        LOGGER.debug("CMPClientConfig: DisableHostNameVerifier '{}'", cmpClientConfig.isDisableHostNameVerifier());
 
         boolean multipleMessages = caConnectorConfigUtil.getCAConnectorConfigAttribute(caConnConfig, CaConnectorConfigUtil.ATT_MULTIPLE_MESSAGES, true);
         cmpClientConfig.setMultipleMessages(multipleMessages);
@@ -261,7 +275,7 @@ public class CaCmpConnector {
 
 	/**
 	 *
-	 */
+	 *
 	public GenMsgContent getGeneralInfo(String hmacSecret, String cmpEndpoint, String alias)
 			throws GeneralSecurityException {
 
@@ -293,6 +307,7 @@ public class CaCmpConnector {
 			throw new GeneralSecurityException(e.getMessage());
 		}
 	}
+*/
 
     public de.trustable.ca3s.core.domain.Certificate readCertResponse(final CMPClientImpl.CertificateResponseContent certificateResponseContent,
                                                                       final CSR csr,

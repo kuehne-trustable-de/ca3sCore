@@ -191,8 +191,12 @@ public class PipelineUtil {
             pv.setCaConnectorName(pipeline.getCaConnector().getName());
         }
 
-        if (pipeline.getProcessInfo() != null) {
-            pv.setProcessInfoName(pipeline.getProcessInfo().getName());
+        if (pipeline.getProcessInfoCreate() != null) {
+            pv.setProcessInfoNameCreate(pipeline.getProcessInfoCreate().getName());
+        }
+
+        if (pipeline.getProcessInfoRevoke() != null) {
+            pv.setProcessInfoNameRevoke(pipeline.getProcessInfoRevoke().getName());
         }
 
         RDNRestriction[] rdnRestrictArr = initRdnRestrictions(pv, pipeline);
@@ -240,7 +244,7 @@ public class PipelineUtil {
             } else if (SCEP_RECIPIENT_DN.equals(plAtt.getName())) {
                 scepConfigItems.setScepRecipientDN(plAtt.getValue());
             } else if (SCEP_RECIPIENT_KEY_TYPE_LEN.equals(plAtt.getName())) {
-                KeyAlgoLength keyAlgoLength = KeyAlgoLength.from(plAtt.getValue());
+                KeyAlgoLengthOrSpec keyAlgoLength = KeyAlgoLengthOrSpec.from(plAtt.getValue());
                 scepConfigItems.setKeyAlgoLength(keyAlgoLength);
             } else if (SCEP_CA_CONNECTOR_RECIPIENT_NAME.equals(plAtt.getName())) {
                 scepConfigItems.setCaConnectorRecipientName(plAtt.getValue());
@@ -615,24 +619,44 @@ public class PipelineUtil {
             }
         }
 
-        String oldProcessName = "";
-        if (p.getProcessInfo() != null) {
-            oldProcessName = p.getProcessInfo().getName();
+        String oldProcessNameCreate = "";
+        if (p.getProcessInfoCreate() != null) {
+            oldProcessNameCreate = p.getProcessInfoCreate().getName();
         }
 
-        Optional<BPMNProcessInfo> bpiOpt = bpmnPIRepository.findByName(pv.getProcessInfoName());
+        Optional<BPMNProcessInfo> bpiOpt = bpmnPIRepository.findByName(pv.getProcessInfoNameCreate());
         if (bpiOpt.isPresent()) {
             BPMNProcessInfo bpi = bpiOpt.get();
-            p.setProcessInfo(bpi);
-            if (!bpi.getName().equals(oldProcessName)) {
-                auditList.add(auditService.createAuditTracePipelineAttribute("ISSUANCE_PROCESS", oldProcessName, bpi.getName(), p));
+            p.setProcessInfoCreate(bpi);
+            if (!bpi.getName().equals(oldProcessNameCreate)) {
+                auditList.add(auditService.createAuditTracePipelineAttribute("ISSUANCE_PROCESS", oldProcessNameCreate, bpi.getName(), p));
             }
         } else {
-            p.setProcessInfo(null);
-            if (!oldProcessName.equals("")) {
-                auditList.add(auditService.createAuditTracePipelineAttribute("ISSUANCE_PROCESS", oldProcessName, "", p));
+            p.setProcessInfoCreate(null);
+            if (!oldProcessNameCreate.equals("")) {
+                auditList.add(auditService.createAuditTracePipelineAttribute("ISSUANCE_PROCESS", oldProcessNameCreate, "", p));
             }
         }
+
+        String oldProcessNameRevoke = "";
+        if (p.getProcessInfoRevoke() != null) {
+            oldProcessNameRevoke = p.getProcessInfoRevoke().getName();
+        }
+
+        Optional<BPMNProcessInfo> bpiOptRevoke = bpmnPIRepository.findByName(pv.getProcessInfoNameRevoke());
+        if (bpiOptRevoke.isPresent()) {
+            BPMNProcessInfo bpi = bpiOptRevoke.get();
+            p.setProcessInfoRevoke(bpi);
+            if (!bpi.getName().equals(oldProcessNameRevoke)) {
+                auditList.add(auditService.createAuditTracePipelineAttribute("REVOCATION_PROCESS", oldProcessNameRevoke, bpi.getName(), p));
+            }
+        } else {
+            p.setProcessInfoRevoke(null);
+            if (!oldProcessNameRevoke.equals("")) {
+                auditList.add(auditService.createAuditTracePipelineAttribute("REVOCATION_PROCESS", oldProcessNameRevoke, "", p));
+            }
+        }
+
 
         Set<RequestProxyConfig> requestProxyConfigList = new HashSet<>();
         for (long requestProxyConfigId : pv.getRequestProxyConfigIds()) {
@@ -783,20 +807,27 @@ public class PipelineUtil {
             LOG.debug("Protected Content found for SCEP password");
         }
 
-        String oldContent = protectedContentUtil.unprotectString(pc.getContentBase64());
-        Instant validTo = pv.getScepConfigItems().getScepSecretValidTo();
+        if( pv.getScepConfigItems() != null && pv.getScepConfigItems().getScepSecret() != null ) {
 
-        if (oldContent == null ||
-            !oldContent.equals(pv.getScepConfigItems().getScepSecret()) ||
-            pc.getValidTo() == null ||
-            !pc.getValidTo().equals(validTo)) {
+            String oldContent = protectedContentUtil.unprotectString(pc.getContentBase64());
+            Instant validTo = Instant.now().plus(365, ChronoUnit.DAYS);
+            if( pv.getScepConfigItems().getScepSecretValidTo() != null) {
+                validTo = pv.getScepConfigItems().getScepSecretValidTo();
+            }
 
-            pc.setContentBase64(protectedContentUtil.protectString(pv.getScepConfigItems().getScepSecret()));
-            pc.setValidTo(validTo);
-            pc.setDeleteAfter(validTo.plus(1, ChronoUnit.DAYS));
-            protectedContentRepository.save(pc);
-            LOG.debug("SCEP password updated {} -> {}, {} -> {}", oldContent, pv.getScepConfigItems().getScepSecret(), validTo, pc.getValidTo());
-            auditList.add(auditService.createAuditTracePipelineAttribute("SCEP_SECRET", "#######", "******", p));
+            if (oldContent == null ||
+                !oldContent.equals(pv.getScepConfigItems().getScepSecret()) ||
+                pc.getValidTo() == null ||
+                !pc.getValidTo().equals(validTo)) {
+
+
+                pc.setContentBase64(protectedContentUtil.protectString(pv.getScepConfigItems().getScepSecret()));
+                pc.setValidTo(validTo);
+                pc.setDeleteAfter(validTo.plus(1, ChronoUnit.DAYS));
+                protectedContentRepository.save(pc);
+                LOG.debug("SCEP password updated {} -> {}, {} -> {}", oldContent, pv.getScepConfigItems().getScepSecret(), validTo, pc.getValidTo());
+                auditList.add(auditService.createAuditTracePipelineAttribute("SCEP_SECRET", "#######", "******", p));
+            }
         }
 
         addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_SECRET_PC_ID, pc.getId().toString());
@@ -1011,15 +1042,6 @@ public class PipelineUtil {
 
         Preferences preferences = preferenceUtil.getPrefs(PreferenceUtil.SYSTEM_PREFERENCE_ID);
 
-        String hashAlgName = p10ReqHolder.getAlgorithmInfo().getHashAlgName();
-        if (Arrays.stream(preferences.getSelectedHashes())
-            .noneMatch(a -> a.equalsIgnoreCase(hashAlgName))) {
-            String msg = "restriction mismatch: hash algo '" + hashAlgName + "' does not match expected set!";
-            messageList.add(msg);
-            LOG.debug(msg);
-            outcome = false;
-        }
-
         String signingAlgo = p10ReqHolder.getPublicKeyAlgorithmShortName();
         int keyLength = CertificateUtil.getAlignedKeyLength(p10ReqHolder.getPublicSigningKey());
 
@@ -1030,19 +1052,50 @@ public class PipelineUtil {
             outcome = false;
         }
 
+        if(CertificateUtil.isHashRequired(signingAlgo)) {
+
+            String hashAlgName = p10ReqHolder.getAlgorithmInfo().getHashAlgName();
+            if (Arrays.stream(preferences.getSelectedHashes())
+                .noneMatch(a -> a.equalsIgnoreCase(hashAlgName))) {
+                String msg = "restriction mismatch: hash algo '" + hashAlgName + "' does not match expected set!";
+                messageList.add(msg);
+                LOG.debug(msg);
+                outcome = false;
+            }
+        }
+
         return outcome;
     }
 
     private boolean matchesAlgo(String a, String signingAlgo, int keyLength) {
+
+        if( a.toLowerCase().startsWith("dilithium") ||
+            a.toLowerCase().startsWith("falcon")) {
+
+            if (a.toLowerCase().startsWith("dilithium2")) {
+                return signingAlgo.equalsIgnoreCase("dilithium2");
+            } else if (a.toLowerCase().startsWith("dilithium3")) {
+                return signingAlgo.equalsIgnoreCase( "dilithium3");
+            } else if (a.toLowerCase().startsWith("dilithium5")) {
+                return signingAlgo.equalsIgnoreCase("dilithium5");
+            } else if (a.toLowerCase().startsWith("falcon-512")) {
+                return signingAlgo.equalsIgnoreCase("falcon-512");
+            } else if (a.toLowerCase().startsWith("falcon-1024")) {
+                return signingAlgo.equalsIgnoreCase("falcon-1024");
+            }
+        }
+
         String[] parts = a.split("-");
         if (parts.length != 2) {
             LOG.warn("unexpected keyLength / type descriptor: '{}'", a);
             return false;
         }
+
         if (!parts[0].equalsIgnoreCase(signingAlgo)) {
-            LOG.debug("type check  mismatch: '{}' / '{}'", parts[0], signingAlgo);
+            LOG.debug("type check mismatch: '{}' / '{}'", parts[0], signingAlgo);
             return false;
         }
+
         try {
             int keyLengthRestriction = Integer.parseInt(parts[1]);
             return keyLengthRestriction <= keyLength;
@@ -1466,7 +1519,7 @@ public class PipelineUtil {
         }
 
         String scepRecipientKeyLength = getPipelineAttribute(pipeline, SCEP_RECIPIENT_KEY_TYPE_LEN, "RSA_2048");
-        KeyAlgoLength kal = KeyAlgoLength.from(scepRecipientKeyLength);
+        KeyAlgoLengthOrSpec kal = KeyAlgoLengthOrSpec.from(scepRecipientKeyLength);
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(kal.getAlgoName());
         keyPairGenerator.initialize(kal.getKeyLength());
         KeyPair keyPair = keyPairGenerator.generateKeyPair();

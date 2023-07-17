@@ -163,11 +163,11 @@
         <ds-proxy-spring-boot-starter.version>1.8.1</ds-proxy-spring-boot-starter.version>
         <keycloak.version>21.1.1</keycloak.version>
 
-        <bouncyCastleVersion>1.73</bouncyCastleVersion>
+        <bouncyCastleVersion>1.75</bouncyCastleVersion>
 
-        <cryptoUtilVersion>1.3.17</cryptoUtilVersion>
+        <cryptoUtilVersion>1.3.18</cryptoUtilVersion>
         <certBundleVersion>1.1.1</certBundleVersion>
-        <cmpClientVersion>2.1.0</cmpClientVersion>
+        <cmpClientVersion>3.0.0</cmpClientVersion>
         <adcsUtilVersion>1.2.9</adcsUtilVersion>
         <adcsProxyClientVersion>1.2.9</adcsProxyClientVersion>
 

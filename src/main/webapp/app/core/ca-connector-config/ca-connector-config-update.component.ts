@@ -8,7 +8,8 @@ import AlertService from '@/shared/alert/alert.service';
 import { CAConnectorConfig } from '@/shared/model/ca-connector-config.model';
 import CAConnectorConfigViewService from '@/entities/ca-connector-config/ca-connector-config-view.service';
 
-import { ICAStatus, ICaConnectorConfigView } from '@/shared/model/transfer-object.model';
+import { ICAStatus, ICaConnectorConfigView, ICAConnectorType, IInterval, INamedValue } from '@/shared/model/transfer-object.model';
+
 import { mixins } from 'vue-class-component';
 import JhiDataUtils from '@/shared/data/data-utils.service';
 
@@ -38,6 +39,7 @@ const validations: any = {
     multipleMessages: {},
     implicitConfirm: {},
     msgContentType: {},
+    sni: {},
   },
 };
 
@@ -51,7 +53,7 @@ const validations: any = {
 export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
   @Inject('alertService') private alertService: () => AlertService;
   @Inject('cAConnectorConfigViewService') private cAConnectorConfigViewService: () => CAConnectorConfigViewService;
-  public cAConnectorConfig: ICaConnectorConfigView = {};
+  public cAConnectorConfig: ICaConnectorConfigView = new CAConnectorConfigView();
   public caStatus: ICAStatus = 'Unknown';
 
   public isSaving = false;
@@ -73,7 +75,7 @@ export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
         .update(this.cAConnectorConfig)
         .then(param => {
           this.isSaving = false;
-          this.$router.go(-1);
+          this.$router.push('/confCaConnector');
           const message = this.$t('ca3SApp.cAConnectorConfig.updated', { param: param.id });
           this.alertService().showAlert(message, 'info');
         });
@@ -82,7 +84,7 @@ export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
         .create(this.cAConnectorConfig)
         .then(param => {
           this.isSaving = false;
-          this.$router.go(-1);
+          this.$router.push('/confCaConnector');
           const message = this.$t('ca3SApp.cAConnectorConfig.created', { param: param.id });
           this.alertService().showAlert(message, 'success');
         });
@@ -103,7 +105,7 @@ export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
   }
 
   public previousState(): void {
-    this.$router.go(-1);
+    this.$router.push('/confCaConnector');
   }
 
   public initRelationships(): void {}
@@ -121,5 +123,37 @@ export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
       window.console.info('testCaConnectorConfig returns ' + response.data);
       self.caStatus = response.data;
     });
+  }
+}
+
+export class CAConnectorConfigView implements ICaConnectorConfigView {
+  constructor(
+    public id?: number,
+    public name?: string,
+    public caConnectorType?: ICAConnectorType,
+    public caUrl?: string,
+    public msgContentType?: string,
+    public sni?: string,
+    public pollingOffset?: number,
+    public defaultCA?: boolean,
+    public trustSelfsignedCertificates?: boolean,
+    public active?: boolean,
+    public selector?: string,
+    public interval?: IInterval,
+    public messageProtectionPassphrase?: boolean,
+    public plainSecret?: string,
+    public secretValidTo?: Date,
+    public tlsAuthenticationId?: number,
+    public messageProtectionId?: number,
+    public issuerName?: string,
+    public aTaVArr?: INamedValue[],
+    public multipleMessages?: boolean,
+    public implicitConfirm?: boolean
+  ) {
+    this.defaultCA = this.defaultCA || false;
+    this.trustSelfsignedCertificates = this.trustSelfsignedCertificates || false;
+    this.messageProtectionPassphrase = this.messageProtectionPassphrase || false;
+    this.active = this.active || false;
+    this.interval = this.interval || 'DAY';
   }
 }

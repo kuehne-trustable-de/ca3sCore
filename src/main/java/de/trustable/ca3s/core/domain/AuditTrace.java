@@ -42,6 +42,11 @@ import javax.validation.constraints.*;
         query = "SELECT a FROM AuditTrace a WHERE " +
             "a.processInfo = :processInfo "+
             "order by a.createdOn asc"
+    ),
+    @NamedQuery(name = "AuditTrace.findByRequestProxyConfig",
+        query = "SELECT a FROM AuditTrace a WHERE " +
+            "a.requestProxyConfig = :requestProxyConfig "+
+            "order by a.createdOn asc"
     )
 })
 public class AuditTrace implements Serializable {
@@ -109,6 +114,10 @@ public class AuditTrace implements Serializable {
     @ManyToOne
     @JsonIgnoreProperties(value = { "pipelines" }, allowSetters = true)
     private RequestProxyConfig requestProxyConfig;
+
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "secret", "caConnectorAttributes", "tlsAuthentication", "messageProtection" }, allowSetters = true)
+    private CAConnectorConfig caConnectorConfig;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -304,6 +313,19 @@ public class AuditTrace implements Serializable {
 
     public AuditTrace requestProxyConfig(RequestProxyConfig requestProxyConfig) {
         this.setRequestProxyConfig(requestProxyConfig);
+        return this;
+    }
+
+    public CAConnectorConfig getCaConnectorConfig() {
+        return this.caConnectorConfig;
+    }
+
+    public void setCaConnectorConfig(CAConnectorConfig cAConnectorConfig) {
+        this.caConnectorConfig = cAConnectorConfig;
+    }
+
+    public AuditTrace caConnectorConfig(CAConnectorConfig cAConnectorConfig) {
+        this.setCaConnectorConfig(cAConnectorConfig);
         return this;
     }
 

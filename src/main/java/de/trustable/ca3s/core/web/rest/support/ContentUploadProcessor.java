@@ -27,12 +27,18 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.jcajce.interfaces.EdDSAPrivateKey;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.pkcs.PKCS10CertificationRequestBuilder;
 import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder;
+import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
+import org.bouncycastle.pqc.jcajce.provider.dilithium.BCDilithiumPrivateKey;
+import org.bouncycastle.pqc.jcajce.provider.falcon.BCFalconPrivateKey;
+import org.bouncycastle.pqc.jcajce.spec.DilithiumParameterSpec;
+import org.bouncycastle.pqc.jcajce.spec.FalconParameterSpec;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.DecoderException;
 import org.slf4j.Logger;
@@ -405,7 +411,7 @@ public class ContentUploadProcessor {
 
             Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
 
-            KeyAlgoLength keyAlgoLength = KeyAlgoLength.from(uploaded.getKeyAlgoLength());
+            KeyAlgoLengthOrSpec keyAlgoLength = KeyAlgoLengthOrSpec.from(uploaded.getKeyAlgoLength());
             KeyPair keypair = generateKeyPair(keyAlgoLength);
 
             NamedValues[] certAttr = uploaded.getCertificateAttributes();
@@ -476,16 +482,30 @@ public class ContentUploadProcessor {
                 p10Builder.addAttribute(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest, extensionsGenerator.generate());
             }
 
-
             PrivateKey pk = keypair.getPrivate();
+            JcaContentSignerBuilder csBuilder;
             String algo = SIGNATURE_ALG;
             if( pk instanceof ECKey){
                 algo = EC_SIGNATURE_ALG;
+                csBuilder = new JcaContentSignerBuilder(algo);
             }else if ( pk instanceof EdDSAPrivateKey) {
                 algo = ED25519_SIGNATURE_ALG;
+                csBuilder = new JcaContentSignerBuilder(algo);
+            }else if ( pk instanceof BCDilithiumPrivateKey) {
+                DilithiumParameterSpec parameterSpec = ((BCDilithiumPrivateKey) pk).getParameterSpec();
+                KeyAlgoLengthOrSpec keyAlgoLengthOrSpec = KeyAlgoLengthOrSpec.from(parameterSpec);
+                csBuilder = keyAlgoLengthOrSpec.buildJcaContentSignerBuilder();
+            }else if ( pk instanceof BCFalconPrivateKey) {
+                FalconParameterSpec parameterSpec = ((BCFalconPrivateKey) pk).getParameterSpec();
+                KeyAlgoLengthOrSpec keyAlgoLengthOrSpec = KeyAlgoLengthOrSpec.from(parameterSpec);
+                csBuilder = keyAlgoLengthOrSpec.buildJcaContentSignerBuilder();
+            }else{
+                csBuilder = new JcaContentSignerBuilder(algo);
             }
 
-            JcaContentSignerBuilder csBuilder = new JcaContentSignerBuilder(algo);
+
+
+//            JcaContentSignerBuilder csBuilder = new JcaContentSignerBuilder(algo);
             ContentSigner signer = csBuilder.build(pk);
 
             PKCS10CertificationRequest p10CR = p10Builder.build(signer);
@@ -534,16 +554,33 @@ public class ContentUploadProcessor {
             return new ResponseEntity<>(p10ReqData, HttpStatus.OK);
 
         }catch(IOException | OperatorCreationException | GeneralSecurityException ex) {
+            LOG.debug("problem creating serverside csr", ex);
+
             LOG.warn("problem creating serverside csr: " + ex.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
 
-    private KeyPair generateKeyPair(KeyAlgoLength keyAlgoLength) throws NoSuchAlgorithmException {
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance(keyAlgoLength.getAlgoName());
-        kpg.initialize(keyAlgoLength.getKeyLength());
+    private KeyPair generateKeyPair(KeyAlgoLengthOrSpec keyAlgoLength) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException {
+
+        return keyAlgoLength.generateKeyPair();
+/*
+        KeyPairGenerator kpg;
+        if( keyAlgoLength.getAlgoName().toLowerCase().startsWith("falcon")) {
+            kpg = KeyPairGenerator.getInstance(keyAlgoLength.getAlgoName(), BouncyCastlePQCProvider.PROVIDER_NAME);
+        }else{
+            kpg = KeyPairGenerator.getInstance(keyAlgoLength.getAlgoName(), BouncyCastleProvider.PROVIDER_NAME);
+        }
+
+        if( keyAlgoLength.getAlgorithmParameterSpec() != null){
+            kpg.initialize(keyAlgoLength.getAlgorithmParameterSpec());
+        }else {
+            kpg.initialize(keyAlgoLength.getKeyLength());
+        }
 		return kpg.generateKeyPair();
+
+ */
 	}
 
 

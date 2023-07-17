@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-06-30 15:38:36.
+// Generated using typescript-generator version 3.2.1263 on 2023-07-12 19:41:32.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -102,6 +102,8 @@ export interface ICaConnectorConfigView extends ISerializable {
   name?: string;
   caConnectorType?: ICAConnectorType;
   caUrl?: string;
+  sni?: string;
+  disableHostNameVerifier?: boolean;
   msgContentType?: string;
   pollingOffset?: number;
   defaultCA?: boolean;
@@ -130,7 +132,8 @@ export interface IPipelineView extends ISerializable {
   approvalRequired?: boolean;
   active?: boolean;
   caConnectorName?: string;
-  processInfoName?: string;
+  processInfoNameCreate?: string;
+  processInfoNameRevoke?: string;
   restriction_C?: IRDNRestriction;
   restriction_CN?: IRDNRestriction;
   restriction_L?: IRDNRestriction;
@@ -219,9 +222,9 @@ export interface ICertificateView extends ISerializable {
   isServersideKeyGeneration?: boolean;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
-  serversideKeyGeneration?: boolean;
-  fullChainAvailable?: boolean;
   auditPresent?: boolean;
+  fullChainAvailable?: boolean;
+  serversideKeyGeneration?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
@@ -702,7 +705,8 @@ export interface IPipeline extends ISerializable {
   approvalRequired?: boolean;
   pipelineAttributes?: IPipelineAttribute[];
   caConnector?: ICAConnectorConfig;
-  processInfo?: IBPMNProcessInfo;
+  processInfoCreate?: IBPMNProcessInfo;
+  processInfoRevoke?: IBPMNProcessInfo;
   algorithms?: IAlgorithmRestriction[];
   requestProxies?: IRequestProxyConfig[];
 }
@@ -808,7 +812,7 @@ export type IAcmeOrderStatus = 'pending' | 'ready' | 'processing' | 'valid' | 'i
 
 export type IScepOrderStatus = 'PENDING' | 'READY' | 'INVALID';
 
-export type IBPMNProcessType = 'CA_INVOCATION' | 'REQUEST_AUTHORIZATION' | 'BATCH';
+export type IBPMNProcessType = 'CA_INVOCATION' | 'CERTIFICATE_CREATION' | 'CERTIFICATE_REVOCATION' | 'REQUEST_AUTHORIZATION' | 'BATCH';
 
 export type ICAConnectorType = 'INTERNAL' | 'CMP' | 'ADCS' | 'ADCS_CERTIFICATE_INVENTORY' | 'DIRECTORY';
 
@@ -838,3 +842,5 @@ export type IPKCSDataType =
 export type IChallengeStatus = 'pending' | 'valid' | 'invalid' | 'deactivated' | 'expired' | 'revoked';
 
 export type IRDNCardinalityRestriction = 'NOT_ALLOWED' | 'ZERO_OR_ONE' | 'ONE' | 'ONE_OR_SAN' | 'ZERO_OR_MANY' | 'ONE_OR_MANY';
+
+export type IAlgorithmType = 'SIGNING' | 'PADDING' | 'HASH' | 'CURVE';

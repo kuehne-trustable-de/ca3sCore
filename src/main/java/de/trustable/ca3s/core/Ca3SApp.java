@@ -10,6 +10,8 @@ import de.trustable.ca3s.core.security.provider.TimedRenewalCertMapHolder;
 import de.trustable.util.JCAManager;
 import io.undertow.Undertow;
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -149,6 +151,7 @@ public class Ca3SApp implements InitializingBean {
     @Bean
     public TimedRenewalCertMapHolder registerJCEProvider() {
         JCAManager.getInstance();
+        Security.addProvider(new BouncyCastlePQCProvider());
 
         String dnSuffix = env.getProperty(HTTPS_CERTIFICATE_DN_SUFFIX, O_TRUSTABLE_SOLUTIONS_C_DE);
 

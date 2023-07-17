@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Add the created_on field to the ACME account.
+    -->
+    <changeSet id="20230703180000-1" author="ak">
+
+        <addColumn tableName="audit_trace">
+            <column name="ca_connector_config_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+
+        </addColumn>
+
+        <addForeignKeyConstraint baseColumnNames="ca_connector_config_id"
+                                 baseTableName="audit_trace"
+                                 constraintName="fk_audit_trace__ca_connector_config_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="ca_connector_config"/>
+    </changeSet>
+
+
+</databaseChangeLog>

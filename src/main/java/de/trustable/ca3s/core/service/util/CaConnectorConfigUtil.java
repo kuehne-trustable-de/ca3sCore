@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.service.util;
 
 import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
@@ -28,6 +29,8 @@ public class CaConnectorConfigUtil {
     public static final String ATT_IMPLICIT_CONFIRM = "IMPLICIT_CONFIRM";
     public static final String ATT_ATTRIBUTE_TYPE_AND_VALUE = "ATTRIBUTE_TYPE_AND_VALUE";
     public static final String ATT_CMP_MESSAGE_CONTENT_TYPE = "CMP_MESSAGE_CONTENT_TYPE";
+    public static final String ATT_SNI = "SNI";
+    public static final String ATT_DISABLE_HOST_NAME_VERIFIER = "DISABLE_HOST_NAME_VERIFIER";
 
     Logger LOG = LoggerFactory.getLogger(CaConnectorConfigUtil.class);
 
@@ -83,7 +86,7 @@ public class CaConnectorConfigUtil {
 
         List<NamedValue> aTaVList = new ArrayList<>();
 
-        // bachward compliant defaults
+        // backward compliant defaults
         cv.setMultipleMessages(false);
         cv.setImplicitConfirm(true);
 
@@ -97,6 +100,10 @@ public class CaConnectorConfigUtil {
                 cv.setImplicitConfirm( Boolean.parseBoolean(cfgAtt.getValue()));
             }else if (ATT_CMP_MESSAGE_CONTENT_TYPE.equals(cfgAtt.getName())) {
                 cv.setMsgContentType(cfgAtt.getValue());
+            }else if (ATT_SNI.equals(cfgAtt.getName())) {
+                cv.setSni(cfgAtt.getValue());
+            }else if (ATT_DISABLE_HOST_NAME_VERIFIER.equals(cfgAtt.getName())) {
+                cv.setDisableHostNameVerifier( Boolean.parseBoolean(cfgAtt.getValue()));
             }else if (ATT_ATTRIBUTE_TYPE_AND_VALUE.equals(cfgAtt.getName())) {
                 aTaVList.add( new NamedValue(cfgAtt.getValue()));
             }
@@ -146,7 +153,8 @@ public class CaConnectorConfigUtil {
             caConnectorConfig.setSelector(cv.getSelector());
             caConnectorConfig.setTrustSelfsignedCertificates(cv.getTrustSelfsignedCertificates());
 
-            caConnectorConfig.setPlainSecret(cv.getPlainSecret());
+//            caConnectorConfig.setPlainSecret(cv.getPlainSecret());
+            caConnectorConfig.setPlainSecret("*****");
 
             cAConnectorConfigRepository.save(caConnectorConfig);
             auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_COPIED, caConnectorConfig));
@@ -240,7 +248,7 @@ public class CaConnectorConfigUtil {
             messageProtectionCertificateId = messageProtectionCertificate.getId();
         }
 
-        if( cv.getMessageProtectionId() == null || cv.getMessageProtectionPassphrase()){
+        if( cv.getMessageProtectionId() == null || cv.isMessageProtectionPassphrase()){
             if(messageProtectionCertificate != null) {
                 auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_MESSAGE_PROTECTION_CHANGED, null, messageProtectionCertificateId.toString(), caConnectorConfig));
                 caConnectorConfig.setMessageProtection(null);
@@ -269,29 +277,36 @@ public class CaConnectorConfigUtil {
             pc.setValidTo(ProtectedContentUtil.MAX_INSTANT);
             pc.setDeleteAfter(ProtectedContentUtil.MAX_INSTANT);
 
-            LOG.debug("Protected Content created for SCEP password");
+            LOG.debug("Protected Content created for ca connector password");
         }else{
             pc = listPC.get(0);
-            LOG.debug("Protected Content found for SCEP password");
+            LOG.debug("Protected Content found for ca connector password");
         }
 
-        if( cv.getMessageProtectionPassphrase()) {
+        if( cv.getCaConnectorType().equals(CAConnectorType.CMP) && cv.isMessageProtectionPassphrase()) {
             String oldContent = protectedContentUtil.unprotectString(pc.getContentBase64());
             if (oldContent == null ||
                 !oldContent.equals(cv.getPlainSecret()) ||
                 pc.getValidTo() == null ||
                 !pc.getValidTo().equals(cv.getSecretValidTo())) {
 
-                pc.setContentBase64(protectedContentUtil.protectString(cv.getPlainSecret()));
-                Instant secretValidTo = cv.getSecretValidTo();
-                if( secretValidTo == null){
-                    secretValidTo = Instant.now() .plus(100*360, ChronoUnit.DAYS);
+                if(cv.getPlainSecret() == null){
+                    LOG.debug("CA Connector password removed");
+                    protectedContentRepository.delete(pc);
+                    auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_CA_CONNECTOR_SECRET_CHANGED, "#######", "", caConnectorConfig));
+                }else {
+
+                    pc.setContentBase64(protectedContentUtil.protectString(cv.getPlainSecret()));
+                    Instant secretValidTo = cv.getSecretValidTo();
+                    if (secretValidTo == null) {
+                        secretValidTo = Instant.now().plus(100 * 360, ChronoUnit.DAYS);
+                    }
+                    pc.setValidTo(secretValidTo);
+                    pc.setDeleteAfter(secretValidTo.plus(1, ChronoUnit.DAYS));
+                    protectedContentRepository.save(pc);
+                    LOG.debug("CA Connector password updated {} -> {}, {} -> {}", oldContent, cv.getPlainSecret(), secretValidTo, pc.getValidTo());
+                    auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_CA_CONNECTOR_SECRET_CHANGED, "#######", "******", caConnectorConfig));
                 }
-                pc.setValidTo(secretValidTo);
-                pc.setDeleteAfter(secretValidTo.plus(1, ChronoUnit.DAYS));
-                protectedContentRepository.save(pc);
-                LOG.debug("CA Connector password updated {} -> {}, {} -> {}", oldContent, cv.getPlainSecret(), secretValidTo, pc.getValidTo());
-                auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_CA_CONNECTOR_SECRET_CHANGED, "#######", "******", caConnectorConfig));
             }
         }else {
             if (pc != null) {
@@ -299,11 +314,14 @@ public class CaConnectorConfigUtil {
                 auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_CA_CONNECTOR_SECRET_DELETED, "#######", "******", caConnectorConfig));
             }
         }
+        caConnectorConfig.setSecret(pc);
 
         boolean hasIssuerName = false;
         boolean hasMultipleMessages = false;
         boolean hasImplicitConfirm = false;
         boolean hasMsgContentType = false;
+        boolean hasSniType = false;
+        boolean hasDisableHostNameVerifier = false;
         for( CAConnectorConfigAttribute configAttribute : caConnectorConfig.getCaConnectorAttributes()){
 
             if (ATT_ISSUER_NAME.equals(configAttribute.getName())) {
@@ -318,6 +336,13 @@ public class CaConnectorConfigUtil {
                     configAttribute.setValue(Boolean.toString(cv.isMultipleMessages()));
                 }
                 hasMultipleMessages = true;
+            }else if (ATT_DISABLE_HOST_NAME_VERIFIER.equals(configAttribute.getName())) {
+                if(!Objects.equals( Boolean.toString(cv.isDisableHostNameVerifier()), configAttribute.getValue())) {
+                    auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_DISABLE_HOST_NAME_VERIFIER_CHANGED, configAttribute.getValue(), Boolean.toString(cv.isDisableHostNameVerifier()), caConnectorConfig));
+                    configAttribute.setValue(Boolean.toString(cv.isDisableHostNameVerifier()));
+                }
+                hasDisableHostNameVerifier = true;
+
             }else if (ATT_IMPLICIT_CONFIRM.equals(configAttribute.getName())) {
                 if(!Objects.equals( Boolean.toString(cv.isImplicitConfirm()), configAttribute.getValue())) {
                     auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_IMPLICIT_CONFIRM_CHANGED, configAttribute.getValue(), Boolean.toString(cv.isImplicitConfirm()), caConnectorConfig));
@@ -330,6 +355,12 @@ public class CaConnectorConfigUtil {
                     configAttribute.setValue(cv.getMsgContentType());
                 }
                 hasMsgContentType = true;
+            }else if (ATT_SNI.equals(configAttribute.getName())) {
+                if(!Objects.equals( cv.getSni(), configAttribute.getValue())) {
+                    auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_SNI_CHANGED, configAttribute.getValue(), cv.getSni(), caConnectorConfig));
+                    configAttribute.setValue(cv.getSni());
+                }
+                hasSniType = true;
 
             }else if (ATT_ATTRIBUTE_TYPE_AND_VALUE.equals(configAttribute.getName())) {
                 LOG.warn("CA Connector ATaV attribute detected!");
@@ -351,6 +382,15 @@ public class CaConnectorConfigUtil {
             auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_MSG_CONTENT_TYPE_CHANGED, null, cv.getMsgContentType(), caConnectorConfig));
             createAttribute(ATT_CMP_MESSAGE_CONTENT_TYPE, cv.getMsgContentType(), caConnectorConfig);
         }
+        if( !hasSniType){
+            auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_SNI_CHANGED, null, cv.getSni(), caConnectorConfig));
+            createAttribute(ATT_SNI, cv.getSni(), caConnectorConfig);
+        }
+        if( !hasDisableHostNameVerifier){
+            auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_DISABLE_HOST_NAME_VERIFIER_CHANGED, null, Boolean.toString(cv.isDisableHostNameVerifier()), caConnectorConfig));
+            createAttribute(ATT_DISABLE_HOST_NAME_VERIFIER, Boolean.toString(cv.isDisableHostNameVerifier()), caConnectorConfig);
+        }
+
 
         caConnectorConfigAttributeRepository.saveAll(caConnectorConfig.getCaConnectorAttributes());
         cAConnectorConfigRepository.save(caConnectorConfig);

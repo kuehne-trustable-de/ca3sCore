@@ -8,11 +8,11 @@ class KeyAlgoLengthTest {
 
     @Test
     void from() {
-        KeyAlgoLength keyAlgoLength = KeyAlgoLength.from( "rsa-2048");
+        KeyAlgoLengthOrSpec keyAlgoLength = KeyAlgoLengthOrSpec.from( "rsa-2048");
         assertEquals(2048, keyAlgoLength.getKeyLength());
         assertEquals("rsa", keyAlgoLength.getAlgoName());
 
-        keyAlgoLength = KeyAlgoLength.from( "rsa_2048");
+        keyAlgoLength = KeyAlgoLengthOrSpec.from( "rsa_2048");
         assertEquals(2048, keyAlgoLength.getKeyLength());
         assertEquals("rsa", keyAlgoLength.getAlgoName());
 
@@ -20,7 +20,7 @@ class KeyAlgoLengthTest {
 
     @Test
     void testToString() {
-        KeyAlgoLength keyAlgoLength = KeyAlgoLength.from( "rsa-2048");
+        KeyAlgoLengthOrSpec keyAlgoLength = KeyAlgoLengthOrSpec.from( "rsa-2048");
         assertEquals("rsa-2048", keyAlgoLength.toString());
     }
 }

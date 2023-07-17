@@ -2,18 +2,29 @@ import { Component, Vue, Inject } from 'vue-property-decorator';
 
 import axios from 'axios';
 
-import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validators';
+import { required } from 'vuelidate/lib/validators';
 
 import RequestProxyConfigService from '../request-proxy-config/request-proxy-config.service';
-import { IRequestProxyConfig, IWebConfigItems } from '@/shared/model/transfer-object.model';
+import {
+  IAuditView,
+  ICsrUsage,
+  IKeyAlgoLength,
+  IPipelineType,
+  IRDNRestriction,
+  IRequestProxyConfig,
+  IPipelineView,
+  IARARestriction,
+  IAcmeConfigItems,
+  ISCEPConfigItems,
+  IWebConfigItems,
+  IBPMNProcessInfo,
+} from '@/shared/model/transfer-object.model';
 
 import CAConnectorConfigService from '../../entities/ca-connector-config/ca-connector-config.service';
 import { ICAConnectorConfig } from '@/shared/model/ca-connector-config.model';
 import { IUser } from '@/shared/model/user.model';
 
 import BPNMProcessInfoService from '../../entities/bpnm-process-info/bpnm-process-info.service';
-import { IBPMNProcessInfo } from '@/shared/model/bpmn-process-info.model';
-import { IPipelineView, IARARestriction } from '@/shared/model/transfer-object.model';
 
 import AlertService from '@/shared/alert/alert.service';
 import AlertMixin from '@/shared/alert/alert.mixin';
@@ -36,9 +47,11 @@ const validations: any = {
     urlPart: {},
     description: {},
     listOrder: {},
+    caConnectorName: { required },
     active: {},
     approvalRequired: {},
     approvalInfo1: {},
+    toPendingOnFailedRestrictions: {},
     ipAsSubjectAllowed: {},
     ipAsSANAllowed: {},
     webConfigItems: {
@@ -68,14 +81,11 @@ const validations: any = {
 export default class PipelineUpdate extends mixins(AlertMixin) {
   //  @Inject('alertService') private alertService: () => AlertService;
   @Inject('pipelineViewService') private pipelineViewService: () => PipelineViewService;
-  public pipeline: IPipelineView = {};
+  public pipeline: IPipelineView = new PipelineView();
 
   @Inject('requestProxyConfigService') private requestProxyConfigService: () => RequestProxyConfigService;
-
   @Inject('cAConnectorConfigService') private cAConnectorConfigService: () => CAConnectorConfigService;
-
   @Inject('bPNMProcessInfoService') private bPNMProcessInfoService: () => BPNMProcessInfoService;
-
   @Inject('userService') private userManagementService: () => UserManagementService;
 
   public requestProxyConfigs: IRequestProxyConfig[] = [];
@@ -138,7 +148,8 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
         .update(this.pipeline)
         .then(param => {
           this.isSaving = false;
-          this.$router.go(-1);
+          //          this.$router.go(-1);
+          this.$router.push('/confPipeline');
           const message = this.$t('ca3SApp.pipeline.updated', { param: param.id });
           this.alertService().showAlert(message, 'info');
         })
@@ -150,7 +161,8 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
         .create(this.pipeline)
         .then(param => {
           this.isSaving = false;
-          this.$router.go(-1);
+          //          this.$router.go(-1);
+          this.$router.push('/confPipeline');
           const message = this.$t('ca3SApp.pipeline.created', { param: param.id });
           this.alertService().showAlert(message, 'success');
         })
@@ -185,7 +197,8 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
   }
 
   public previousState(): void {
-    this.$router.go(-1);
+    //          this.$router.go(-1);
+    this.$router.push('/confPipeline');
   }
 
   public initRelationships(): void {
@@ -237,5 +250,125 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
       window.console.info('allCertGenerators returns ' + response.data);
       self.allCertGenerators = response.data;
     });
+  }
+
+  public getBPNMProcessInfosByType(type: IBPMNProcessType): IBPMNProcessInfo[] {
+    const result = this.bPNMProcessInfos.filter(pi => {
+      return pi.type === type;
+    });
+    return result;
+  }
+}
+
+export class PipelineView implements IPipelineView {
+  constructor(
+    public id?: number,
+    public name?: string,
+    public type?: IPipelineType,
+    public urlPart?: string,
+    public description?: string,
+    public listOrder?: number,
+    public approvalRequired?: boolean,
+    public active?: boolean,
+    public caConnectorName?: string,
+    public processInfoNameCreate?: string,
+    public processInfoNameRevoke?: string,
+    public restriction_C?: IRDNRestriction,
+    public restriction_CN?: IRDNRestriction,
+    public restriction_L?: IRDNRestriction,
+    public restriction_O?: IRDNRestriction,
+    public restriction_OU?: IRDNRestriction,
+    public restriction_S?: IRDNRestriction,
+    public restriction_E?: IRDNRestriction,
+    public restriction_SAN?: IRDNRestriction,
+    public rdnRestrictions?: IRDNRestriction[],
+    public araRestrictions?: IARARestriction[],
+    public domainRaOfficerList?: string[],
+    public toPendingOnFailedRestrictions?: boolean,
+    public ipAsSubjectAllowed?: boolean,
+    public ipAsSANAllowed?: boolean,
+    public acmeConfigItems?: IAcmeConfigItems,
+    public scepConfigItems?: ISCEPConfigItems,
+    public webConfigItems?: IWebConfigItems,
+    public auditViewArr?: IAuditView[],
+    public csrUsage?: ICsrUsage,
+    public requestProxyConfigIds?: number[]
+  ) {
+    this.toPendingOnFailedRestrictions = this.toPendingOnFailedRestrictions || false;
+    this.approvalRequired = this.approvalRequired || false;
+    this.ipAsSANAllowed = this.ipAsSANAllowed || false;
+    this.ipAsSubjectAllowed = this.ipAsSubjectAllowed || false;
+    this.active = this.active || false;
+
+    this.acmeConfigItems = new AcmeConfigItems();
+    this.scepConfigItems = new SCEPConfigItems();
+    this.webConfigItems = new WebConfigItems();
+
+    this.restriction_C = new RDNRestriction();
+    this.restriction_CN = new RDNRestriction();
+    this.restriction_L = new RDNRestriction();
+    this.restriction_O = new RDNRestriction();
+    this.restriction_OU = new RDNRestriction();
+    this.restriction_S = new RDNRestriction();
+    this.restriction_E = new RDNRestriction();
+    this.restriction_SAN = new RDNRestriction();
+  }
+}
+
+export class AcmeConfigItems implements IAcmeConfigItems {
+  constructor(
+    public allowChallengeHTTP01?: boolean,
+    public allowChallengeAlpn?: boolean,
+    public allowChallengeDNS?: boolean,
+    public allowWildcards?: boolean,
+    public checkCAA?: boolean,
+    public caNameCAA?: string,
+    public processInfoNameAccountValidation?: string,
+    public processInfoNameOrderValidation?: string,
+    public processInfoNameChallengeValidation?: string
+  ) {
+    this.allowChallengeHTTP01 = this.allowChallengeHTTP01 || false;
+    this.allowChallengeAlpn = this.allowChallengeAlpn || false;
+    this.allowChallengeDNS = this.allowChallengeDNS || false;
+    this.allowWildcards = this.allowWildcards || false;
+    this.checkCAA = this.checkCAA || false;
+  }
+}
+
+export class SCEPConfigItems implements ISCEPConfigItems {
+  constructor(
+    public capabilityRenewal?: boolean,
+    public capabilityPostPKIOperation?: boolean,
+    public recepientCertSubject?: string,
+    public recepientCertSerial?: string,
+    public recepientCertId?: number,
+    public scepSecretPCId?: string,
+    public scepSecret?: string,
+    public scepSecretValidTo?: Date,
+    public keyAlgoLength?: IKeyAlgoLength,
+    public scepRecipientDN?: string,
+    public caConnectorRecipientName?: string
+  ) {
+    this.capabilityRenewal = this.capabilityRenewal || false;
+    this.capabilityPostPKIOperation = this.capabilityPostPKIOperation || false;
+  }
+}
+
+export class WebConfigItems implements IWebConfigItems {
+  constructor(public additionalEMailRecipients?: string, public notifyRAOfficerOnPendingRequest?: boolean) {
+    this.notifyRAOfficerOnPendingRequest = this.notifyRAOfficerOnPendingRequest || false;
+  }
+}
+
+export class RDNRestriction implements IRDNRestriction {
+  constructor(
+    public rdnName?: string,
+    public cardinalityRestriction?: IRDNCardinalityRestriction,
+    public contentTemplate?: string,
+    public regEx?: string,
+    public regExMatch?: boolean
+  ) {
+    this.regExMatch = this.regExMatch || false;
+    this.cardinalityRestriction = this.cardinalityRestriction || 'ZERO_OR_ONE';
   }
 }

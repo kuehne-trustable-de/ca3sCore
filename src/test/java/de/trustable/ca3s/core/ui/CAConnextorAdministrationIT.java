@@ -52,6 +52,7 @@ public class CAConnextorAdministrationIT extends WebTestBase{
 
     public static final By LOC_BTN_SAVE = By.xpath("//form//div/button [@type='submit'][span [text() = 'Save']]");
 
+    public static final By LOC_TEXT_CONNECTOR_LIST = By.xpath("//div/h2/span [text() = 'CA Connector Configs']");
 
 
     private static final Logger LOG = LoggerFactory.getLogger(CAConnextorAdministrationIT.class);
@@ -122,6 +123,7 @@ public class CAConnextorAdministrationIT extends WebTestBase{
         validatePresent(LOC_BTN_CA_CONFIG_NEW);
         click(LOC_BTN_CA_CONFIG_NEW);
 
+        // crete new connector
         validatePresent(LOC_INP_CA_CONFIG_NAME);
         setText(LOC_INP_CA_CONFIG_NAME, newCAConnectorName);
 
@@ -148,14 +150,42 @@ public class CAConnextorAdministrationIT extends WebTestBase{
         click(LOC_INP_CA_MESSAGE_CONTENT_TYPE);
         setText(LOC_INP_CA_MESSAGE_CONTENT_TYPE, newCAConnectorMessageContenType);
 
+        /*
+        try {
+            System.in.read();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+*/
 
         validatePresent(LOC_BTN_SAVE);
         click(LOC_BTN_SAVE);
 
-        By byCAConnectorName = By.xpath("//table//td [contains(text(), newCAConnectorName)]");
-        validatePresent(byCAConnectorName);
-        click(byCAConnectorName);
+        validatePresent(LOC_TEXT_CONNECTOR_LIST);
 
+        By byCAConnectorName = By.xpath("//table//td [contains(text(), '" + newCAConnectorName + "')]");
+        validatePresent(byCAConnectorName);
+
+        click(byCAConnectorName);
+        By byEditCAConnectorName = By.xpath("//table//tr [td [contains(text(), '" + newCAConnectorName + "')]]/td/div/button[span[contains(text(), 'Edit')]]");
+
+        validatePresent(byEditCAConnectorName);
+        click(byEditCAConnectorName);
+
+        // back in the created connector
+        validatePresent(LOC_INP_CA_CONFIG_NAME);
+        Assertions.assertEquals(newCAConnectorName, getText(LOC_INP_CA_CONFIG_NAME), "Expect the name of the connector");
+
+        Assertions.assertEquals("CMP", getText(LOC_SEL_CA_CONFIG_TYPE));
+
+        Assertions.assertEquals( newCAConnectorSelector, getText(LOC_INP_CA_CONFIG_SELECTOR) );
+
+        Assertions.assertEquals( "1", getText(LOC_INP_CA_CONFIG_TLS_AUTH));
+
+        Assertions.assertTrue(isChecked(LOC_INP_CA_CONFIG_PW_PROT));
+
+        Assertions.assertEquals( newCAConnectorIssuerName, getText(LOC_INP_CA_ISSUER_NAME));
+        Assertions.assertEquals( newCAConnectorMessageContenType, getText(LOC_INP_CA_MESSAGE_CONTENT_TYPE));
 
     }
 }

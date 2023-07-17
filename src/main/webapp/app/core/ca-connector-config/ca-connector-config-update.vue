@@ -40,7 +40,7 @@
                                 This field is required.
                             </small>
                         </div>
-                        <div>dirty: {{$v.cAConnectorConfig.caConnectorType.$anyDirty}}, invalid: {{$v.cAConnectorConfig.caConnectorType.$invalid}}</div>
+                        <div>required: {{$v.cAConnectorConfig.caConnectorType.required}}, dirty: {{$v.cAConnectorConfig.caConnectorType.$anyDirty}}, invalid: {{$v.cAConnectorConfig.caConnectorType.$invalid}}</div>
                     </div>
                     <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model !== 'INTERNAL'">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.caUrl')" for="ca-connector-config-caUrl">Ca Url</label>
@@ -131,7 +131,18 @@
                                :class="{'valid': !$v.cAConnectorConfig.msgContentType.$invalid, 'invalid': $v.cAConnectorConfig.msgContentType.$invalid }" v-model="$v.cAConnectorConfig.msgContentType.$model" />
                     </div>
 
-                    <div>
+                    <div class="form-group"  v-if="$v.cAConnectorConfig.caConnectorType.$model === 'CMP'">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.sni')" for="ca-connector-config-sni">SNI</label>
+                        <input type="text" class="form-control" name="sni" id="ca-connector-config-sni"
+                               :class="{'valid': !$v.cAConnectorConfig.sni.$invalid, 'invalid': $v.cAConnectorConfig.sni.$invalid }" v-model="$v.cAConnectorConfig.sni.$model" />
+
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.disableHostNameVerifier')" for="ca-connector-config-disableHostNameVerifier">Disable HostNameVerifier</label>
+                        <input type="checkbox" class="form-check" name="disableHostNameVerifier" id="ca-connector-config-disableHostNameVerifier"
+                               v-model="cAConnectorConfig.disableHostNameVerifier" />
+
+                    </div>
+
+                    <div v-if="cAConnectorConfig.id">
                         <audit-tag :caConnectorId="cAConnectorConfig.id" showLinks="false" :title="$t('ca3SApp.certificate.audit')"></audit-tag>
                     </div>
 

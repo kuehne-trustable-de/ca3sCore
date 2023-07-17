@@ -19,7 +19,8 @@
 
                 <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.new.type')" for="bpmn.new.type">Process type</label>  <help-tag target="bpmn.new.type"/>
                 <select class="form-control" id="bpmn.new.type" name="bpmn.new.type" v-model="bpmnUpload.type" >
-                    <option value="CA_INVOCATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.CA_INVOCATION')" selected="selected">CA_INVOCATION</option>
+                    <option value="CERTIFICATE_CREATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_CREATION')" selected="selected">CERTIFICATE_CREATION</option>
+                    <option value="CERTIFICATE_REVOCATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_REVOCATION')" selected="selected">CERTIFICATE_REVOCATION</option>
                     <option value="REQUEST_AUTHORIZATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.REQUEST_AUTHORIZATION')" >REQUEST_AUTHORIZATION</option>
                     <option value="BATCH" v-text="$t('ca3SApp.bPNMProcessInfo.type.BATCH')" >BATCH</option>
                 </select>

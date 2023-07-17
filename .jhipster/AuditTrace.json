@@ -82,6 +82,11 @@
       "otherEntityName": "requestProxyConfig",
       "relationshipName": "requestProxyConfig",
       "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "cAConnectorConfig",
+      "relationshipName": "caConnectorConfig",
+      "relationshipType": "many-to-one"
     }
   ],
   "service": "serviceImpl",

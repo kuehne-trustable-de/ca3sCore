@@ -69,10 +69,17 @@
 
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.caConnector')" for="pipeline-caConnector">Ca Connector</label>
-                        <select class="form-control" id="pipeline-caConnector" name="caConnector" v-model="pipeline.caConnectorName">
+                        <select class="form-control" id="pipeline-caConnector" name="caConnector"
+                                :class="{'valid': !$v.pipeline.caConnectorName.$invalid, 'invalid': $v.pipeline.caConnectorName.$invalid }"
+                                v-model="pipeline.caConnectorName">
                             <option v-bind:value="null"></option>
                             <option v-bind:value="pipeline.caConnectorName && cAConnectorConfigOption.name === pipeline.caConnectorName ? pipeline.caConnectorName : cAConnectorConfigOption.name" v-for="cAConnectorConfigOption in allCertGenerators" :key="cAConnectorConfigOption.id">{{cAConnectorConfigOption.name}}</option>
                         </select>
+                        <div v-if="$v.pipeline.caConnectorName.$anyDirty && $v.pipeline.caConnectorName.$invalid">
+                            <small class="form-text text-danger" v-if="$v.pipeline.caConnectorName.required" v-text="$t('entity.validation.required')">
+                                This field is required.
+                            </small>
+                        </div>
                     </div>
 
                     <div class="form-group" v-if="$v.pipeline.type.$model === 'SCEP'">
@@ -336,7 +343,7 @@
 
                     <div v-if="$v.pipeline.type.$model === 'ACME' || $v.pipeline.type.$model === 'SCEP'" class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.toPendingOnFailedRestrictions')" for="pipeline-toPendingOnFailedRestrictions">Forward failed req. to 'Pending'</label>
-                        <input type="checkbox" class="form-check-inline" name="toPendingOnFailedRestrictions" id="pipeline-toPendingOnFailedRestrictions" v-model="pipeline.acmeConfigItems.toPendingOnFailedRestrictions" />
+                        <input type="checkbox" class="form-check-inline" name="toPendingOnFailedRestrictions" id="pipeline-toPendingOnFailedRestrictions" v-model="pipeline.toPendingOnFailedRestrictions" />
                     </div>
 
 
@@ -438,18 +445,27 @@
                         </div>
                     </div>
 
-                    <div>
-                        <audit-tag :pipelineId="pipeline.id" showLinks="false" :title="$t('ca3SApp.certificate.audit')"></audit-tag>
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.processInfo')" for="pipeline-processInfo">Process Info</label>
+                        <select class="form-control" id="pipeline-processInfo" name="processInfo" v-model="pipeline.processInfoCreate">
+                            <option v-bind:value="null"></option>
+                            <option v-bind:value="pipeline.processInfo && bPNMProcessInfoOption.id === pipeline.processInfo.id ? pipeline.processInfo : bPNMProcessInfoOption" v-for="bPNMProcessInfoOption in getBPNMProcessInfosByType('CERTIFICATE_CREATION')" :key="bPNMProcessInfoOption.id">{{bPNMProcessInfoOption.name}}</option>
+                        </select>
                     </div>
 
-                    <!--div class="form-group">
+                    <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.processInfo')" for="pipeline-processInfo">Process Info</label>
-                        <select class="form-control" id="pipeline-processInfo" name="processInfo" v-model="pipeline.processInfo">
+                        <select class="form-control" id="pipeline-processInfo" name="processInfo" v-model="pipeline.processInfoRevoke">
                             <option v-bind:value="null"></option>
-                            <option v-bind:value="pipeline.processInfo && bPNMProcessInfoOption.id === pipeline.processInfo.id ? pipeline.processInfo : bPNMProcessInfoOption" v-for="bPNMProcessInfoOption in bPNMProcessInfos" :key="bPNMProcessInfoOption.id">{{bPNMProcessInfoOption.id}}</option>
+                            <option v-bind:value="pipeline.processInfo && bPNMProcessInfoOption.id === pipeline.processInfo.id ? pipeline.processInfo : bPNMProcessInfoOption" v-for="bPNMProcessInfoOption in getBPNMProcessInfosByType('CERTIFICATE_REVOCATION')" :key="bPNMProcessInfoOption.id">{{bPNMProcessInfoOption.name}}</option>
                         </select>
-                    </div-->
+                    </div>
                 </div>
+
+                <div v-if="pipeline.id">
+                    <audit-tag :pipelineId="pipeline.id" showLinks="false" :title="$t('ca3SApp.certificate.audit')"></audit-tag>
+                </div>
+
                 <div>
                     <button type="button" id="cancel-save" class="btn btn-secondary" v-on:click="previousState()">
                         <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.cancel')">Cancel</span>

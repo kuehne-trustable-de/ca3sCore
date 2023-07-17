@@ -15,6 +15,8 @@ public class CaConnectorConfigView implements Serializable {
     private CAConnectorType caConnectorType;
 
     private String caUrl;
+    private String sni;
+    private boolean disableHostNameVerifier;
 
     private String msgContentType;
 
@@ -30,7 +32,7 @@ public class CaConnectorConfigView implements Serializable {
 
     private Interval interval;
 
-    private Boolean messageProtectionPassphrase;
+    private boolean messageProtectionPassphrase;
 
     private String plainSecret;
 
@@ -77,6 +79,15 @@ public class CaConnectorConfigView implements Serializable {
         this.caUrl = caUrl;
     }
 
+    public String getSni() {
+        return sni;
+    }
+
+    public void setSni(String sni) {
+        this.sni = sni;
+    }
+
+
     public String getMsgContentType() {
         return msgContentType;
     }
@@ -93,30 +104,6 @@ public class CaConnectorConfigView implements Serializable {
         this.pollingOffset = pollingOffset;
     }
 
-    public Boolean getDefaultCA() {
-        return defaultCA;
-    }
-
-    public void setDefaultCA(Boolean defaultCA) {
-        this.defaultCA = defaultCA;
-    }
-
-    public Boolean getActive() {
-        return active;
-    }
-
-    public void setActive(Boolean active) {
-        this.active = active;
-    }
-
-    public Boolean getTrustSelfsignedCertificates() {
-        return trustSelfsignedCertificates;
-    }
-
-    public void setTrustSelfsignedCertificates(Boolean trustSelfsignedCertificates) {
-        this.trustSelfsignedCertificates = trustSelfsignedCertificates;
-    }
-
     public String getSelector() {
         return selector;
     }
@@ -131,14 +118,6 @@ public class CaConnectorConfigView implements Serializable {
 
     public void setInterval(Interval interval) {
         this.interval = interval;
-    }
-
-    public Boolean getMessageProtectionPassphrase() {
-        return messageProtectionPassphrase;
-    }
-
-    public void setMessageProtectionPassphrase(Boolean messageProtectionPassphrase) {
-        this.messageProtectionPassphrase = messageProtectionPassphrase;
     }
 
     public String getPlainSecret() {
@@ -173,21 +152,6 @@ public class CaConnectorConfigView implements Serializable {
         this.aTaVArr = aTaVArr;
     }
 
-    public boolean isMultipleMessages() {
-        return multipleMessages;
-    }
-
-    public void setMultipleMessages(boolean multipleMessages) {
-        this.multipleMessages = multipleMessages;
-    }
-
-    public boolean isImplicitConfirm() {
-        return implicitConfirm;
-    }
-
-    public void setImplicitConfirm(boolean implicitConfirm) {
-        this.implicitConfirm = implicitConfirm;
-    }
 
     public Long getTlsAuthenticationId() {
         return tlsAuthenticationId;
@@ -203,5 +167,61 @@ public class CaConnectorConfigView implements Serializable {
 
     public void setMessageProtectionId(Long messageProtectionId) {
         this.messageProtectionId = messageProtectionId;
+    }
+
+    public boolean isDisableHostNameVerifier() {
+        return disableHostNameVerifier;
+    }
+
+    public void setDisableHostNameVerifier(boolean disableHostNameVerifier) {
+        this.disableHostNameVerifier = disableHostNameVerifier;
+    }
+
+    public Boolean getDefaultCA() {
+        return defaultCA;
+    }
+
+    public void setDefaultCA(Boolean defaultCA) {
+        this.defaultCA = defaultCA;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    public Boolean getTrustSelfsignedCertificates() {
+        return trustSelfsignedCertificates;
+    }
+
+    public void setTrustSelfsignedCertificates(Boolean trustSelfsignedCertificates) {
+        this.trustSelfsignedCertificates = trustSelfsignedCertificates;
+    }
+
+    public boolean isMessageProtectionPassphrase() {
+        return messageProtectionPassphrase;
+    }
+
+    public void setMessageProtectionPassphrase(boolean messageProtectionPassphrase) {
+        this.messageProtectionPassphrase = messageProtectionPassphrase;
+    }
+
+    public boolean isMultipleMessages() {
+        return multipleMessages;
+    }
+
+    public void setMultipleMessages(boolean multipleMessages) {
+        this.multipleMessages = multipleMessages;
+    }
+
+    public boolean isImplicitConfirm() {
+        return implicitConfirm;
+    }
+
+    public void setImplicitConfirm(boolean implicitConfirm) {
+        this.implicitConfirm = implicitConfirm;
     }
 }

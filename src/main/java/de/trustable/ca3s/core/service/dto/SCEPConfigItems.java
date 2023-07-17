@@ -21,7 +21,7 @@ public class SCEPConfigItems implements Serializable {
     private String scepSecret = "******";
     private Instant scepSecretValidTo = Instant.now();
 
-    private KeyAlgoLength keyAlgoLength = KeyAlgoLength.RSA_2048;
+    private KeyAlgoLengthOrSpec keyAlgoLength = KeyAlgoLengthOrSpec.RSA_2048;
     private String scepRecipientDN = "";
     private String caConnectorRecipientName = "";
 
@@ -91,11 +91,11 @@ public class SCEPConfigItems implements Serializable {
         this.recepientCertId = recepientCertId;
     }
 
-    public KeyAlgoLength getKeyAlgoLength() {
+    public KeyAlgoLengthOrSpec getKeyAlgoLength() {
         return keyAlgoLength;
     }
 
-    public void setKeyAlgoLength(KeyAlgoLength keyAlgoLength) {
+    public void setKeyAlgoLength(KeyAlgoLengthOrSpec keyAlgoLength) {
         this.keyAlgoLength = keyAlgoLength;
     }
 

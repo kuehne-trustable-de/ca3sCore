@@ -31,7 +31,8 @@ public class PipelineView implements Serializable {
 
     private String caConnectorName;
 
-    private String processInfoName;
+    private String processInfoNameCreate;
+    private String processInfoNameRevoke;
 
     private RDNRestriction restriction_C;
     private RDNRestriction restriction_CN;
@@ -101,11 +102,6 @@ public class PipelineView implements Serializable {
 
     public String getCaConnectorName() {
 		return caConnectorName;
-	}
-
-
-	public String getProcessInfoName() {
-		return processInfoName;
 	}
 
 
@@ -204,11 +200,6 @@ public class PipelineView implements Serializable {
 
     public void setCaConnectorName(String caConnectorName) {
 		this.caConnectorName = caConnectorName;
-	}
-
-
-	public void setProcessInfoName(String processInfoName) {
-		this.processInfoName = processInfoName;
 	}
 
 
@@ -336,5 +327,21 @@ public class PipelineView implements Serializable {
 
     public void setRequestProxyConfigIds(long[] requestProxyConfigIds) {
         this.requestProxyConfigIds = requestProxyConfigIds;
+    }
+
+    public String getProcessInfoNameCreate() {
+        return processInfoNameCreate;
+    }
+
+    public void setProcessInfoNameCreate(String processInfoNameCreate) {
+        this.processInfoNameCreate = processInfoNameCreate;
+    }
+
+    public String getProcessInfoNameRevoke() {
+        return processInfoNameRevoke;
+    }
+
+    public void setProcessInfoNameRevoke(String processInfoNameRevoke) {
+        this.processInfoNameRevoke = processInfoNameRevoke;
     }
 }

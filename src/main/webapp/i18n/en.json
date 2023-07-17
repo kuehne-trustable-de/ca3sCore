@@ -230,6 +230,10 @@
   "ca3SApp.bPNMProcessInfo.new.type": "process type",
   "ca3SApp.bPNMProcessInfo.type.CA_INVOCATION": "Certificate creation",
   "ca3SApp.bPNMProcessInfo.type.REQUEST_AUTHORIZATION": "Request authorization",
+  "ca3SApp.bPNMProcessInfo.type.CERTIFICATE_CREATION": "Certificate creation",
+  "ca3SApp.bPNMProcessInfo.type.CERTIFICATE_REVOCATION": "Certificate revocation",
+  "ca3SApp.bPNMProcessInfo.type.BATCH": "Batch processing",
+
   "ca3SApp.bPNMProcessInfo.check.csrId": "Test CSR Id",
 
   "ca3SApp.bPNMProcessInfo.subtitle.process.list": "Process list",
@@ -283,6 +287,8 @@
   "ca3SApp.cAConnectorConfig.implicitConfirm": "Implicit confirm",
   "ca3SApp.cAConnectorConfig.issuerName": "Issuer name",
   "ca3SApp.cAConnectorConfig.msgContentType": "message content type",
+  "ca3SApp.cAConnectorConfig.sni": "Server Name Indication",
+  "ca3SApp.cAConnectorConfig.disableHostNameVerifier": "Disable host name validation",
 
   "ca3SApp.cSR.subtitle.request.list": "Request List",
   "ca3SApp.cSR.administeredBy": "Administered By",
@@ -520,6 +526,8 @@
   "ca3SApp.pipeline.ou.cardinality": "Cardinality 'OU'",
   "ca3SApp.pipeline.pipelineAttributes": "Pipeline Attributes",
   "ca3SApp.pipeline.processInfo": "Process Info",
+  "ca3SApp.pipeline.processInfoCreae": "Process Info 'Issuance'",
+  "ca3SApp.pipeline.processInfoRevoke": "Process Info 'Revocation'",
   "ca3SApp.pipeline.regExMatch": "Match as Regular expression",
   "ca3SApp.pipeline.s.cardinality": "Cardinality 'ST'",
   "ca3SApp.pipeline.e.cardinality": "Cardinality 'E'",

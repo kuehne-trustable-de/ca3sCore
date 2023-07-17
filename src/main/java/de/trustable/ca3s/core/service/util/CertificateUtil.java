@@ -10,6 +10,7 @@ import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.CRLUpdateInfo;
+import de.trustable.ca3s.core.service.dto.KeyAlgoLengthOrSpec;
 import de.trustable.util.AlgorithmInfo;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
@@ -48,6 +49,9 @@ import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.operator.ContentVerifierProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
+import org.bouncycastle.pqc.jcajce.provider.dilithium.BCDilithiumPublicKey;
+import org.bouncycastle.pqc.jcajce.spec.DilithiumParameterSpec;
+import org.bouncycastle.pqc.jcajce.spec.FalconParameterSpec;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.bouncycastle.x509.extension.X509ExtensionUtil;
@@ -913,9 +917,11 @@ public class CertificateUtil {
             if (name.getTagNo() != GeneralName.uniformResourceIdentifier) {
                 continue;
             }
-
+/*
             DERIA5String derStr = DERIA5String.getInstance((ASN1TaggedObject) name.toASN1Primitive(), false);
             return derStr.getString();
+*/
+            return name.getName().toString();
         }
 
         return null;
@@ -1032,6 +1038,15 @@ public class CertificateUtil {
         return keyLength;
     }
 
+    public static boolean isHashRequired(final String algoName) {
+        String algoNameLC = algoName.toLowerCase();
+        if( algoNameLC.startsWith("dilithium") ||
+            algoNameLC.startsWith("falcon")){
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Gets the key length of supported keys
      *
@@ -1071,6 +1086,20 @@ public class CertificateUtil {
             }
         } else if (pk instanceof EdDSAPublicKey) {
             len = 256;
+        } else if (pk instanceof BCDilithiumPublicKey) {
+            BCDilithiumPublicKey dilPubKey = (BCDilithiumPublicKey)pk;
+
+            if( DilithiumParameterSpec.dilithium2.equals(dilPubKey.getParameterSpec())){
+                len = 2528 * 8;
+            }else if( DilithiumParameterSpec.dilithium3.equals(dilPubKey.getParameterSpec())){
+                len = 4000 * 8;
+            }else if( DilithiumParameterSpec.dilithium5.equals(dilPubKey.getParameterSpec())){
+                len = 4864 * 8;
+            }else if( FalconParameterSpec.falcon_512.equals(dilPubKey.getParameterSpec())){
+                len = 7176;
+            }else if( FalconParameterSpec.falcon_1024.equals(dilPubKey.getParameterSpec())){
+                len = 14344;
+            }
         }
 
         return len;

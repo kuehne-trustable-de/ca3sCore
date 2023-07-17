@@ -21,32 +21,27 @@ public class Crawler {
         Set<String> pagesVisited = new HashSet<String>();
         Set<String> certificateSet = new HashSet<String>();
         List<String> pagesToVisit = new LinkedList<String>();
+        pagesToVisit.add(url);
 
         Pattern searchPattern = Pattern.compile(regEx);
 
-        while (pagesVisited.size() < MAX_PAGES_TO_SEARCH) {
-            String currentUrl;
+        while(!pagesToVisit.isEmpty() && (pagesVisited.size() < MAX_PAGES_TO_SEARCH)) {
             CrawlerWorker leg = new CrawlerWorker();
-            if (pagesToVisit.isEmpty()) {
-                currentUrl = url;
-                pagesVisited.add(url);
-            } else {
-
-                String nextUrl;
+            String nextUrl = url;
+            if (!pagesToVisit.isEmpty()) {
                 do {
                     nextUrl = pagesToVisit.remove(0);
-                } while (pagesVisited.contains(nextUrl));
+                } while (pagesVisited.contains(nextUrl) && !pagesToVisit.isEmpty());
                 pagesVisited.add(nextUrl);
-                currentUrl = nextUrl;
             }
 
             try {
-                leg.crawl(currentUrl, searchPattern, certificateSet); // Lots of stuff happening here. Look at the crawl method in
+                if(leg.crawl(nextUrl, searchPattern, certificateSet)) { // Lots of stuff happening here. Look at the crawl method in
+                    pagesToVisit.addAll(leg.getLinks());
+                }
             }catch(IllegalArgumentException mue){
                 LOGGER.debug("unexpected URL found at url '" +  url + "'", mue );
             }
-
-            pagesToVisit.addAll(leg.getLinks());
         }
         LOGGER.debug("Visited " + pagesVisited.size() + " web page(s), found #"+certificateSet.size()+" different certificates");
 

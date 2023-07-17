@@ -228,6 +228,9 @@
   "ca3SApp.bPNMProcessInfo.new.type": "Prozesstyp",
   "ca3SApp.bPNMProcessInfo.type.CA_INVOCATION": "Zertifikatserstellung",
   "ca3SApp.bPNMProcessInfo.type.REQUEST_AUTHORIZATION": "Anfrage-Authorisierung",
+  "ca3SApp.bPNMProcessInfo.type.CERTIFICATE_CREATION": "Zertifikatserstellung",
+  "ca3SApp.bPNMProcessInfo.type.CERTIFICATE_REVOCATION": "Zertifikats-Rückruf",
+  "ca3SApp.bPNMProcessInfo.type.BATCH": "Stapelverarbeitung",
 
   "ca3SApp.bPNMProcessInfo.check.csrId": "Test CSR Id",
   "ca3SApp.bPNMProcessInfo.subtitle.process.list": "Prozess Liste",
@@ -280,6 +283,8 @@
   "ca3SApp.cAConnectorConfig.multipleMessages": "Mehrere Nachrichten pro Aufruf",
   "ca3SApp.cAConnectorConfig.implicitConfirm": "Implizite Bestätigung",
   "ca3SApp.cAConnectorConfig.msgContentType": "Content Type der Nachricht",
+  "ca3SApp.cAConnectorConfig.sni": "Server Name Indication",
+  "ca3SApp.cAConnectorConfig.disableHostNameVerifier": "Keine Prüfung des Hostnamens",
 
   "ca3SApp.cSR.subtitle.request.list": "Antragsliste",
   "ca3SApp.cSR.administeredBy": "Verwaltet durch",
@@ -517,6 +522,8 @@
   "ca3SApp.pipeline.ou.cardinality": "Kardinalität 'OU'",
   "ca3SApp.pipeline.pipelineAttributes": "Pipeline Attribute",
   "ca3SApp.pipeline.processInfo": "Prozess Info",
+  "ca3SApp.pipeline.processInfoCreae": "Prozess Info 'Ausstellung'",
+  "ca3SApp.pipeline.processInfoRevoke": "Prozess Info 'Rückruf'",
   "ca3SApp.pipeline.regExMatch": "Übereinstimmung als regulärer Ausdruck",
   "ca3SApp.pipeline.s.cardinality": "Kardinalität 'ST'",
   "ca3SApp.pipeline.e.cardinality": "Kardinalität 'E'",

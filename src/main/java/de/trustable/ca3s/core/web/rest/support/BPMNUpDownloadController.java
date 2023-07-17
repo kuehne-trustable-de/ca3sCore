@@ -157,6 +157,7 @@ public class BPMNUpDownloadController {
     @RequestMapping(value = "/bpmn/check/csr/{processId}/{csrId}",
         method = POST)
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    @Transactional
     public ResponseEntity<Map<String, String>> postBPMNForCSR(@PathVariable final String processId, @PathVariable final String csrId){
 
         LOG.info("Received bpmn check request for process id {} and csr id {}", processId, csrId);
@@ -203,6 +204,7 @@ public class BPMNUpDownloadController {
     @RequestMapping(value = "/bpmn/check/batch/{processId}",
         method = POST)
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    @Transactional
     public ResponseEntity<Map<String, String>> postBPMNBatch(@PathVariable final String processId){
 
         LOG.info("Call bpmn request for process id {}", processId);

@@ -37,7 +37,6 @@ enum CAConnectorType {
 }
 
 entity RequestProxyConfig{
-
 	name String required
 	requestProxyUrl String required
 	active Boolean
@@ -249,7 +248,11 @@ entity PipelineAttribute{
 }
 
 enum BPMNProcessType {
-    CA_INVOCATION, REQUEST_AUTHORIZATION
+    CA_INVOCATION,
+    CERTIFICATE_CREATION,
+    CERTIFICATE_REVOCATION,
+    REQUEST_AUTHORIZATION,
+    BATCH
 }
 
 @skipClient
@@ -503,6 +506,7 @@ relationship ManyToOne {
 	AuditTrace{acmeOrder} to AcmeOrder
 	AuditTrace{scepOrder} to ScepOrder
 	AuditTrace{requestProxyConfig} to RequestProxyConfig
+    AuditTrace{caConnectorConfig} to CAConnectorConfig
 
     TimedElementNotification{certificate} to Certificate
 
@@ -526,7 +530,8 @@ relationship ManyToOne {
 	CSR{pipeline} to Pipeline
 
 	Pipeline{caConnector} to CAConnectorConfig
-	Pipeline{processInfo} to BPMNProcessInfo
+    Pipeline{processInfoCreate} to BPMNProcessInfo
+    Pipeline{processInfoRevoke} to BPMNProcessInfo
 
     CAConnectorConfig{tlsAuthentication} to Certificate
     CAConnectorConfig{messageProtection} to Certificate

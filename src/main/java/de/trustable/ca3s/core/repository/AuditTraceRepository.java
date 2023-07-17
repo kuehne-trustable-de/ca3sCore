@@ -1,15 +1,13 @@
 package de.trustable.ca3s.core.repository;
 
 import de.trustable.ca3s.core.domain.*;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.*;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.NamedQuery;
 import java.util.List;
 
 /**
@@ -49,5 +47,9 @@ public interface AuditTraceRepository extends PagingAndSortingRepository<AuditTr
     @Query(name = "AuditTrace.findByProcessInfo")
     Page<AuditTrace> findByProcessInfo(Pageable pageable,
                                        @Param("processInfo") BPMNProcessInfo processInfo);
+
+    @Query(name = "AuditTrace.findByRequestProxyConfig")
+    Page<AuditTrace> findByRequestProxyConfig(Pageable pageable,
+                                       @Param("requestProxyConfig") RequestProxyConfig requestProxyConfig);
 
 }

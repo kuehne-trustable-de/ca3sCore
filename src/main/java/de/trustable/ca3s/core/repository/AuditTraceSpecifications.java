@@ -242,7 +242,7 @@ public final class AuditTraceSpecifications {
                 atv.setCertificateId((Long) objArr[i]);
             } else if ("csrId".equalsIgnoreCase(attribute)) {
                 atv.setCsrId((Long) objArr[i]);
-            } else if ("caConnectorIdId".equalsIgnoreCase(attribute)) {
+            } else if ("caConnectorId".equalsIgnoreCase(attribute)) {
                 atv.setCaConnectorId((Long) objArr[i]);
             } else if ("pipelineId".equalsIgnoreCase(attribute)) {
                 atv.setPipelineId((Long) objArr[i]);
@@ -311,6 +311,12 @@ public final class AuditTraceSpecifications {
             addNewColumn(selectionList, csrJoin.get(CSR_.id));
             if (attributeValue.trim().length() > 0) {
                 pred = buildPredicateLong(attributeSelector, cb, csrJoin.<Long>get(CSR_.id), attributeValue);
+            }
+        } else if ("caConnectorId".equals(attribute)) {
+            Join<AuditTrace, CAConnectorConfig> csrJoin = root.join(AuditTrace_.caConnectorConfig, JoinType.LEFT);
+            addNewColumn(selectionList, csrJoin.get(CAConnectorConfig_.id));
+            if (attributeValue.trim().length() > 0) {
+                pred = buildPredicateLong(attributeSelector, cb, csrJoin.<Long>get(CAConnectorConfig_.id), attributeValue);
             }
 
         } else if ("contentTemplate".equals(attribute)) {

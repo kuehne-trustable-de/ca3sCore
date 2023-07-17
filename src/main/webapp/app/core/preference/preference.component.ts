@@ -57,6 +57,7 @@ export default class Preference extends mixins(AlertMixin, JhiDataUtils) {
     { id: 'rsa-3072', name: 'RSA-3072' },
     { id: 'rsa-4096', name: 'RSA-4096' },
     { id: 'rsa-8192', name: 'RSA-8192' },
+    { id: 'dilithium2-20224', name: 'Dilithium2' },
   ];
 
   public isSaving = false;

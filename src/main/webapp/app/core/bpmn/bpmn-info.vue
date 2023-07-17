@@ -12,7 +12,8 @@
 
                     <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.new.type')" for="bpmn.new.type">Process type</label>  <help-tag target="bpmn.new.type"/>
                     <select class="form-control" id="bpmn.new.type" name="bpmn.new.type" v-model="bpmnUpload.type" >
-                        <option value="CA_INVOCATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.CA_INVOCATION')" selected="selected">CA_INVOCATION</option>
+                        <option value="CERTIFICATE_CREATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_CREATION')" selected="selected">CERTIFICATE_CREATION</option>
+                        <option value="CERTIFICATE_REVOCATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_REVOCATION')" selected="selected">CERTIFICATE_REVOCATION</option>
                         <option value="REQUEST_AUTHORIZATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.REQUEST_AUTHORIZATION')" >REQUEST_AUTHORIZATION</option>
                         <option value="BATCH" v-text="$t('ca3SApp.bPNMProcessInfo.type.BATCH')" >BATCH</option>
                     </select>
@@ -65,25 +66,32 @@
             </form-->
 
 
-            <div>
+            <div v-if="!bpmnFileUploaded">
                 <h3 class="jh-entity-heading"><span v-text="$t('ca3SApp.bPNMProcessInfo.check.subtitle')">Check BPMN</span></h3>
             </div>
 
-            <div class="form-group" v-if="bpmnUpload.type === 'CA_INVOCATION'">
+            <div class="form-group" v-if="!bpmnFileUploaded && bpmnUpload.type === 'CERTIFICATE_CREATION'">
+                <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.check.csrId')" >CSR ID</label>
+                <input type="text" class="form-control form-check-inline valid" name="bpmn.check.csrId" id="bpmn.check.csrId"
+                       required="true"
+                       v-model="csrId" />
+            </div>
+
+            <div class="form-group" v-if="!bpmnFileUploaded && bpmnUpload.type === 'CERTIFICATE_REVOCATION'">
+                <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.check.certificateId')" >Certificate ID</label>
+                <input type="text" class="form-control form-check-inline valid" name="bpmn.check.certificateId" id="bpmn.check.certificateId"
+                       required="true"
+                       v-model="certificateId" />
+            </div>
+
+            <div class="form-group" v-if="!bpmnFileUploaded && bpmnUpload.type === 'REQUEST_AUTHORIZATION'">
                 <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.check.csrId')" >CSR ID</label>
                 <input type="text" class="form-control form-check-inline valid" name="bpmn.new.name'" id="bpmn.check.csrId"
                        required="true"
                        v-model="csrId" />
             </div>
 
-            <div class="form-group" v-if="bpmnUpload.type === 'REQUEST_AUTHORIZATION'">
-                <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.check.csrId')" >CSR ID</label>
-                <input type="text" class="form-control form-check-inline valid" name="bpmn.new.name'" id="bpmn.check.csrId"
-                       required="true"
-                       v-model="csrId" />
-            </div>
-
-            <div class="form-group" v-if="bpmnUpload.type">
+            <div v-if="!bpmnFileUploaded" class="form-group">
                 <button type="button"
                         class="btn btn-info"
                         v-on:click="checkBpmn">

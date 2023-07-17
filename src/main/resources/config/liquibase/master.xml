@@ -143,4 +143,7 @@
     <include file="config/liquibase/changelog/20230604082012_added_entity_CAConnectorConfigAttribute.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230604082012_added_entity_constraints_CAConnectorConfigAttribute.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/20230703180000_added_columns_AuditTrace_CA_Config.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2023070318000000_added_relation_pipeline_bpmns.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>
