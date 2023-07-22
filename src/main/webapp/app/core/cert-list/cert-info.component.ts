@@ -19,8 +19,8 @@ import { ICertificateAdministrationData } from '@/shared/model/transfer-object.m
     Fragment,
     CopyClipboardButton,
     HelpTag,
-    AuditTag
-  }
+    AuditTag,
+  },
 })
 export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils) {
   @Inject('certificateViewService') private certificateViewService: () => CertificateViewService;
@@ -34,6 +34,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
   public downloadUrlOnServer = '';
 
   public comment = '';
+  public trusted = false;
 
   public collapsed = true;
   public setCollapsed(collapsed: boolean) {
@@ -100,7 +101,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
     const headers: any = {
       Accept: mimetype,
       X_pbeAlgo: this.getP12Pbe(),
-      X_keyEx: this.p12KeyEx
+      X_keyEx: this.p12KeyEx,
     };
 
     this.download(url, filename, mimetype, headers);
@@ -127,7 +128,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
         link.click();
         URL.revokeObjectURL(link.href);
       })
-      .catch(function(error) {
+      .catch(function (error) {
         console.log(error);
         const message = self.$t('problem processing request: ' + error);
 
@@ -155,12 +156,12 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
       method: 'post',
       url: 'api/crl-expiration-notifications/certificate',
       data: certificateId,
-      responseType: 'stream'
+      responseType: 'stream',
     })
-      .then(function(response) {
+      .then(function (response) {
         console.log(response.status);
       })
-      .catch(function(error) {
+      .catch(function (error) {
         console.log(error);
         const message = self.$t('problem processing request: ' + error);
         const err = error as AxiosError;
@@ -177,7 +178,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
         }
         self.getAlertFromStore();
       })
-      .then(function() {
+      .then(function () {
         // always executed
         // document.body.style.cursor = 'default';
       });
@@ -212,6 +213,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
         self.certificateAdminData.arAttributes = this.certificateView.arArr;
         self.certificateAdminData.comment = this.certificateView.comment;
         self.comment = this.certificateView.comment;
+        selt.trusted = this.certificateView.trusted;
         self.certificateAdminData.trusted = this.certificateView.trusted;
         window.console.info('certificate loaded successfully : ' + self.certificateView.id);
       });
@@ -286,6 +288,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
 
   public updateCertificate() {
     this.certificateAdminData.comment = this.comment;
+    this.certificateAdminData.trusted = this.trusted;
     this.certificateAdminData.certificateId = this.certificateView.id;
     this.certificateAdminData.administrationType = 'UPDATE';
     this.certificateAdminData.trusted = this.certificateView.trusted;
@@ -326,7 +329,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
     this.sendAdministrationAction('api/withdrawOwnCertificate');
   }
 
-  sendAdministrationAction(adminUrl: string) {
+  async sendAdministrationAction(adminUrl: string) {
     document.body.style.cursor = 'wait';
     const self = this;
 
@@ -334,22 +337,24 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
       this.certificateAdminData.trusted = false;
     }
 
-    axios({
+    await axios({
       method: 'post',
       url: adminUrl,
       data: this.certificateAdminData,
-      responseType: 'stream'
+      responseType: 'stream',
     })
-      .then(function(response) {
-        console.log(response.status);
+      .then(function (response) {
+        if (response) {
+          console.log(response.status);
 
-        if (response.status === 201) {
-          self.$router.push({ name: 'CertInfo', params: { certificateId: response.data.toString() } });
-        } else {
-          self.previousState();
+          if (response.status === 201) {
+            self.$router.push({ name: 'CertInfo', params: { certificateId: response.data.toString() } });
+          } else {
+            self.previousState();
+          }
         }
       })
-      .catch(function(error) {
+      .catch(function (error) {
         console.log(error);
         const message = self.$t('problem processing request: ' + error);
         const err = error as AxiosError;
@@ -366,7 +371,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
         }
         self.getAlertFromStore();
       })
-      .then(function() {
+      .then(function () {
         // always executed
         document.body.style.cursor = 'default';
       });

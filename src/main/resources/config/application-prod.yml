@@ -30,7 +30,7 @@ logging:
     de.trustable.ca3s.core.schedule.RequestProxyScheduler: WARN
     de.trustable.ca3s.core.service.util.CaConnectorAdapter: WARN
     de.trustable.ca3s.core.service.adcs: WARN
-    de.trustable.ca3s.core.service.cmp: WARN
+    de.trustable.ca3s.core.service.cmp: DEBUG
     de.trustable.ca3s.core.service.dir: WARN
     de.trustable.ca3s.core.security.provider.Ca3sTrustManager: WARN
     de.trustable.ca3s.core.repository.CSRSpecifications: WARN

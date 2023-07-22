@@ -540,9 +540,13 @@ public class PipelineUtil {
             if (!pipelineList.isEmpty()) {
                 throw new BadRequestAlertException("Name '" + pv.getName() + "' already assigned", "pipeline", "name already used");
             }
-            Pipeline pipelineByName = getPipelineByRealm(pv.getType(), pv.getUrlPart());
-            if (pipelineByName != null) {
-                throw new BadRequestAlertException("Realm '" + pv.getUrlPart() + "' already exists with pipeline " + pipelineByName.getName() + " / " + pipelineByName.getUrlPart(), "pipeline", "realmexists");
+
+            // check uniqueness of realm for ACME and SCEP, only
+            if( PipelineType.ACME.equals(pv.getType()) || PipelineType.SCEP.equals(pv.getType())) {
+                Pipeline pipelineByName = getPipelineByRealm(pv.getType(), pv.getUrlPart());
+                if (pipelineByName != null) {
+                    throw new BadRequestAlertException("Realm '" + pv.getUrlPart() + "' already exists with pipeline " + pipelineByName.getName() + " / " + pipelineByName.getUrlPart(), "pipeline", "realmexists");
+                }
             }
 
             p = new Pipeline();
@@ -551,9 +555,6 @@ public class PipelineUtil {
             pipelineRepository.save(p);
             auditList.add(auditService.createAuditTracePipeline(AuditService.AUDIT_PIPELINE_COPIED, p));
         }
-
-//        p.setId(pv.getId());
-//        pipelineRepository.save(p);
 
         if (!Objects.equals(pv.getName(), p.getName())) {
             auditList.add(auditService.createAuditTracePipeline(AuditService.AUDIT_PIPELINE_NAME_CHANGED, p.getName(), pv.getName(), p));

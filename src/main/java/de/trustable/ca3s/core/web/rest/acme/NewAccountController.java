@@ -111,7 +111,6 @@ public class NewAccountController extends AcmeController {
 		pk = jwtUtil.getPublicKey(webStruct);
 
 		if( pk == null) {
-
 			accListExisting = new ArrayList<>();
 			accListExisting.add(checkJWTSignatureForAccount(context, realm));
 			if( accListExisting.isEmpty()) {
@@ -122,11 +121,11 @@ public class NewAccountController extends AcmeController {
 			}
 
 		}else {
-		    LOG.debug("JWK with public key found : " + pk);
-			accListExisting = acctRepository.findByPublicKeyHashBase64(jwtUtil.getJWKThumbPrint(pk));
+            jwtUtil.verifyJWT(context, pk);
+            LOG.debug("provided public key verifies given JWT: " + pk);
 
-			jwtUtil.verifyJWT(context, pk);
-		    LOG.debug("provided public key verifies given JWT: " + pk);
+            LOG.debug("JWK with public key found {}, checking with database", pk);
+			accListExisting = acctRepository.findByPublicKeyHashBase64(jwtUtil.getJWKThumbPrint(pk));
 		}
 
 		if(Boolean.TRUE.equals( newAcct.isOnlyReturnExisting())) {

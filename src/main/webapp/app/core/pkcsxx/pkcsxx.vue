@@ -77,15 +77,9 @@
                                     <label class="form-control-label" v-text="$t('pkcsxx.upload.key-length')" for="pkcsxx.upload.key-length">Key length</label>
                                 </div>
                                 <div class="col colContent">
-                                    <!--select class="form-control w-50" id="pkcsxx.upload.key-length" name="pkcsxx.upload.key-length" v-model="keyAlgoLength" v-on:change="updateCmdLine()">
-                                        <option value="RSA_2048">RSA_2048</option>
-                                        <option value="RSA_4096" selected="selected">RSA_4096</option>
-                                    </select-->
-
                                     <select class="form-control w-50"  id="pkcsxx.upload.key-length" name="pkcsxx.upload.key-length" v-model="keyAlgoLength" v-on:change="updateCmdLine()">
                                         <option v-bind:value="algo" v-for="algo in getAlgoList(creationTool)" :key="algo">{{algo}}</option>
                                     </select>
-
                                 </div>
                             </div>
 

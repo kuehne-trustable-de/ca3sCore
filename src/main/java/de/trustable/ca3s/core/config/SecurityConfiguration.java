@@ -206,12 +206,10 @@ public class SecurityConfiguration{
 
             .requestMatchers(forPortAndPath(raPort, "/api/ca-connector-configs")).hasAuthority(AuthoritiesConstants.ADMIN)
 
-            .requestMatchers(forPortAndPath(raPort, "/api/administerRequest")).hasAuthority(AuthoritiesConstants.RA_OFFICER)
-            .requestMatchers(forPortAndPath(raPort, "/api/administerRequest")).hasAuthority(AuthoritiesConstants.DOMAIN_RA_OFFICER)
+            .requestMatchers(forPortAndPath(raPort, "/api/administerRequest")).hasAnyAuthority(AuthoritiesConstants.RA_OFFICER,AuthoritiesConstants.DOMAIN_RA_OFFICER)
             .antMatchers("/api/administerRequest").denyAll()
 
-            .requestMatchers(forPortAndPath(raPort, "/api/administerCertificate")).hasAuthority(AuthoritiesConstants.RA_OFFICER)
-            .requestMatchers(forPortAndPath(raPort, "/api/administerCertificate")).hasAuthority(AuthoritiesConstants.DOMAIN_RA_OFFICER)
+            .requestMatchers(forPortAndPath(raPort, "/api/administerCertificate")).hasAnyAuthority(AuthoritiesConstants.ADMIN,AuthoritiesConstants.RA_OFFICER,AuthoritiesConstants.DOMAIN_RA_OFFICER)
             .antMatchers("/api/administerCertificate").denyAll()
 
             // check on method level

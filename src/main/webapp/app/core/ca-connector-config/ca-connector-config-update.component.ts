@@ -154,6 +154,6 @@ export class CAConnectorConfigView implements ICaConnectorConfigView {
     this.trustSelfsignedCertificates = this.trustSelfsignedCertificates || false;
     this.messageProtectionPassphrase = this.messageProtectionPassphrase || false;
     this.active = this.active || false;
-    this.interval = this.interval || 'DAY';
+    this.interval = this.interval || '';
   }
 }

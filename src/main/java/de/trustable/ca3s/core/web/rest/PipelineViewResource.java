@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.Pipeline;
+import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.PipelineService;
 import de.trustable.ca3s.core.service.dto.AuditView;
@@ -65,8 +66,10 @@ public class PipelineViewResource {
             throw new BadRequestAlertException("A new pipeline request cannot have an ID", ENTITY_NAME, "idexists");
         }
 
-        if( pipelineUtil.getPipelineByRealm(pipelineView.getType(), pipelineView.getUrlPart()) != null ){
-            throw new BadRequestAlertException("Realm '" + pipelineView.getUrlPart() + "' already exists", ENTITY_NAME, "realmexists");
+        if (PipelineType.ACME.equals(pipelineView.getType()) || PipelineType.SCEP.equals(pipelineView.getType())) {
+            if (pipelineUtil.getPipelineByRealm(pipelineView.getType(), pipelineView.getUrlPart()) != null) {
+                throw new BadRequestAlertException("Realm '" + pipelineView.getUrlPart() + "' already exists", ENTITY_NAME, "realmexists");
+            }
         }
 
         Pipeline p = pipelineUtil.toPipeline(pipelineView);

@@ -213,7 +213,8 @@ public class BPMNUtil{
 		String processName;
 
 		if( processInfo != null) {
-			processName = processInfo.getName();
+            processName = processInfo.getName();
+            LOG.debug( "incoming process name: {}", processName);
 		}else{
 
             List<ProcessDefinition> processDefinitionList = repoService.createProcessDefinitionQuery().processDefinitionKey(CAINVOCATION_PROCESS).latestVersion().list();
@@ -222,6 +223,7 @@ public class BPMNUtil{
                 return null;
             }
             processName = processDefinitionList.get(0).getId();
+            LOG.info( "default process name: {}", processName);
         }
 
 		if(caConfig != null ){

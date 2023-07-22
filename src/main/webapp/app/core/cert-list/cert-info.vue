@@ -56,9 +56,9 @@
                         </dt>
                         <dd>
                             <span>{{certificateView.type}}</span>
-                            <span v-if="certificateView.ca"><b>CA</b></span>
-                            <span v-if="certificateView.selfsigned"><b>Selfsigned</b></span>
-                            <span v-if="certificateView.trusted"><b>Trusted</b></span>
+                            <span v-if="certificateView.ca">, <b>CA</b></span>
+                            <span v-if="certificateView.selfsigned">, <b>Selfsigned</b></span>
+                            <span v-if="certificateView.trusted">, <b>Trusted</b></span>
 
                         </dd>
                         <dt>
@@ -88,8 +88,9 @@
                             <span v-text="$t('ca3SApp.certificate.keyDetails')">Key Details</span>
                         </dt>
                         <dd>
-                            <span>{{certificateView.keyAlgorithm}} / {{certificateView.keyLength}} bits</span>
-                            <span v-if="certificateView.altKeyAlgorithm">{{certificateView.altKeyAlgorithm}}</span>
+                            <span>{{certificateView.keyAlgorithm}}</span>
+                            <span v-if="certificateView.keyLength && certificateView.keyLength.length > 0 && certificateView.keyLength !== '-1'"> / {{certificateView.keyLength}} bits</span>
+                            <span v-if="certificateView.altKeyAlgorithm"> alt: {{certificateView.altKeyAlgorithm}}</span>
                         </dd>
 
                         <dt v-if="certificateView.curveName && certificateView.curveName.length > 0">
@@ -102,7 +103,9 @@
                             <span v-text="$t('ca3SApp.certificate.signingAlgorithm')">Signing Algorithm</span>
                         </dt>
                         <dd>
-                            <span>{{certificateView.signingAlgorithm}} / {{certificateView.hashAlgorithm}} / {{certificateView.paddingAlgorithm}}</span>
+                            <span>{{certificateView.signingAlgorithm}}</span>
+                            <span v-if="certificateView.hashAlgorithm && certificateView.hashAlgorithm.length > 0"> / {{certificateView.hashAlgorithm}}</span>
+                            <span v-if="certificateView.paddingAlgorithm && certificateView.paddingAlgorithm.length > 0"> / {{certificateView.paddingAlgorithm}}</span>
                         </dd>
 
                         <dt>
@@ -270,10 +273,10 @@
     -->
                 <form name="editForm" role="form" novalidate>
                     <div>
-                        <div v-if="isTrustable() && isRAOfficer()" class="form-group">
+                        <div v-if="isTrustable()" class="form-group">
                             <label class="form-control-label" v-text="$t('ca3SApp.pipeline.trusted')" for="certificate-trusted">Trusted</label>
                             <input type="checkbox" class="form-check-inline" name="trusted" id="certificate-trusted"
-                                   v-model="certificateAdminData.trusted" />
+                                   v-model="trusted" />
                         </div>
 
                         <Fragment v-if="isEditable()">
@@ -297,11 +300,15 @@
                             </select>
                         </div>
 
-                        <div v-if="isRevocable()" class="form-group">
+                        <div class="form-group">
                             <label class="form-control-label" v-text="$t('ca3SApp.certificate.comment')" for="comment">Comment</label> <help-tag target="ca3SApp.certificate.comment"/>
-                            <textarea class="form-control" name="content" id="comment"
-                                autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                                v-model="comment" />
+
+                            <textarea v-if="isRAOrAdmin() || isOwnCertificate()" class="form-control" name="content" id="comment"
+                                      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                      v-model="comment" />
+                            <textarea v-else class="form-control" name="content" id="comment"
+                                      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                      v-model="comment" />
                         </div>
 
                         <b-alert :show="dismissCountDown"
@@ -323,7 +330,7 @@
                             <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.update')">Update</span>
                         </button>
 
-                        <button type="button" id="update" v-if="isRAOfficer() && (comment !== certificateView.comment)"
+                        <button type="button" id="update" v-if="isRAOrAdmin() && ((comment !== certificateView.comment)||(trusted !== certificateView.trusted))"
                                 class="btn btn-secondary" v-on:click="updateCertificate()">
                             <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.update')">Update</span>
                         </button>

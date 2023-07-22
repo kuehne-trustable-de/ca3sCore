@@ -291,7 +291,7 @@ public class CertificateView implements Serializable {
         this.extUsageString = "";
         this.sansString = "";
 
-        this.keyAlgorithm = null;
+        this.altKeyAlgorithm = null;
 
         for (CertificateAttribute certAttr : cert.getCertificateAttributes()) {
            try {

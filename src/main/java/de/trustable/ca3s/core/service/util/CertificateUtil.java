@@ -50,6 +50,7 @@ import org.bouncycastle.operator.ContentVerifierProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
 import org.bouncycastle.pqc.jcajce.provider.dilithium.BCDilithiumPublicKey;
+import org.bouncycastle.pqc.jcajce.provider.falcon.BCFalconPublicKey;
 import org.bouncycastle.pqc.jcajce.spec.DilithiumParameterSpec;
 import org.bouncycastle.pqc.jcajce.spec.FalconParameterSpec;
 import org.bouncycastle.util.io.pem.PemObject;
@@ -349,7 +350,7 @@ public class CertificateUtil {
         List<Certificate> certList =
             certificateRepository.findByAttributeValue(CertificateAttribute.ATTRIBUTE_SCEP_RECIPIENT, "" + pipeline.getId());
 
-        LOG.debug("getCurrentSCEPRecipient #{} found as recepient certificate", certList.size());
+        LOG.debug("getCurrentSCEPRecipient #{} found as recipient certificate", certList.size());
 
         Instant now = Instant.now();
         Certificate currentRecipientCert = null;
@@ -698,7 +699,7 @@ public class CertificateUtil {
         if (version == 0) {
 
             // extract signature algo
-            String keyAlgName = x509Cert.getPublicKey().getAlgorithm();
+            String keyAlgName = KeyAlgoLengthOrSpec.getAlgorithmName(x509Cert.getPublicKey());
             cert.setKeyAlgorithm(keyAlgName.toLowerCase());
 
             AlgorithmInfo algorithmInfo = new AlgorithmInfo(x509Cert.getSigAlgName());
@@ -1056,6 +1057,8 @@ public class CertificateUtil {
      */
     public static int getKeyLength(final PublicKey pk) {
         int len = -1;
+        LOG.debug("getKeyLength() for {}", pk.getClass().getName());
+
         if (pk instanceof RSAPublicKey) {
             final RSAPublicKey rsapub = (RSAPublicKey) pk;
             len = rsapub.getModulus().bitLength();
@@ -1093,12 +1096,20 @@ public class CertificateUtil {
                 len = 2528 * 8;
             }else if( DilithiumParameterSpec.dilithium3.equals(dilPubKey.getParameterSpec())){
                 len = 4000 * 8;
-            }else if( DilithiumParameterSpec.dilithium5.equals(dilPubKey.getParameterSpec())){
+            }else if( DilithiumParameterSpec.dilithium5.equals(dilPubKey.getParameterSpec())) {
                 len = 4864 * 8;
-            }else if( FalconParameterSpec.falcon_512.equals(dilPubKey.getParameterSpec())){
+            }else{
+                LOG.warn("getKeyLength(): unexpected dilithium parameterSpec {}", dilPubKey.getParameterSpec().getClass().getName());
+            }
+
+        } else if (pk instanceof BCFalconPublicKey) {
+            BCFalconPublicKey falconPubKey = (BCFalconPublicKey)pk;
+            if( FalconParameterSpec.falcon_512.equals(falconPubKey.getParameterSpec())){
                 len = 7176;
-            }else if( FalconParameterSpec.falcon_1024.equals(dilPubKey.getParameterSpec())){
+            }else if( FalconParameterSpec.falcon_1024.equals(falconPubKey.getParameterSpec())){
                 len = 14344;
+            }else{
+                LOG.warn("getKeyLength(): unexpected falcon parameterSpec {}", falconPubKey.getParameterSpec().getClass().getName());
             }
         }
 

@@ -1,15 +1,19 @@
 package de.trustable.ca3s.core.service.dto;
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
-import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
+import org.bouncycastle.pqc.jcajce.provider.dilithium.BCDilithiumPublicKey;
+import org.bouncycastle.pqc.jcajce.provider.falcon.BCFalconPublicKey;
 import org.bouncycastle.pqc.jcajce.spec.DilithiumParameterSpec;
 import org.bouncycastle.pqc.jcajce.spec.FalconParameterSpec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.*;
 import java.security.spec.AlgorithmParameterSpec;
 
 public class KeyAlgoLengthOrSpec {
+
+    private static final Logger LOG = LoggerFactory.getLogger(KeyAlgoLengthOrSpec.class);
 
     public static final KeyAlgoLengthOrSpec RSA_2048 = new KeyAlgoLengthOrSpec("RSA", 2048);
     public static final KeyAlgoLengthOrSpec RSA_4096 = new KeyAlgoLengthOrSpec("RSA", 4096);
@@ -27,6 +31,26 @@ public class KeyAlgoLengthOrSpec {
     String algoGroup = "RSA";
     int keyLength = 4096;
     AlgorithmParameterSpec algorithmParameterSpec = null;
+
+
+    public static String getAlgorithmName(PublicKey pk) {
+
+        LOG.debug("getAlgorithmName() for {}", pk.getClass().getName());
+        String keyAlgName = pk.getAlgorithm();
+        LOG.debug("pk.getAlgorithm() : {}", pk.getAlgorithm());
+
+        if( keyAlgName == null || (keyAlgName.trim().length() == 0)){
+            if (pk instanceof BCDilithiumPublicKey) {
+                keyAlgName = ((BCDilithiumPublicKey)pk).getParameterSpec().getName();
+            }else if (pk instanceof BCFalconPublicKey) {
+                keyAlgName = ((BCFalconPublicKey)pk).getParameterSpec().getName();
+            }else{
+                LOG.warn("getAlgorithmName(): unexpected key class {}", pk.getClass().getName());
+            }
+        }
+        return keyAlgName;
+    }
+
 
     public static KeyAlgoLengthOrSpec from(AlgorithmParameterSpec spec) throws GeneralSecurityException {
         if( Dilithium_2.getAlgorithmParameterSpec().equals(spec) ) {

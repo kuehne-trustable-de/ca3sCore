@@ -313,6 +313,8 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
     //    window.console.info('pipelineView  id: ' + pipelineView.id + ', name: ' + pipelineView.name );
 
+    this.creationTool = '';
+
     this.updatePipelineRestrictionsByPipelineInfo(pipelineView);
     this.precheckResponse.dataType = 'UNKNOWN';
     this.precheckResponse.warnings = [];
@@ -983,7 +985,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   public getAlgoList(tool: string): string[] {
     if ('openssl' === tool) {
       let resultArr = [];
-      for (const algo of this.preferences.availableSigningAlgos) {
+      for (const algo of this.preferences.selectedSigningAlgos) {
         if (algo.startsWith('rsa')) {
           resultArr.push(algo);
         }
@@ -991,7 +993,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       return resultArr;
     }
 
-    return this.preferences.availableSigningAlgos;
+    return this.preferences.selectedSigningAlgos;
   }
 
   public showCSRRelatedArea(): boolean {

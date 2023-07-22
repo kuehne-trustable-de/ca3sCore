@@ -264,36 +264,41 @@ public class CaConnectorConfigUtil {
         }
 
 
-        ProtectedContent pc;
-        List<ProtectedContent> listPC = protectedContentRepository.findByTypeRelationId(ProtectedContentType.PASSWORD, ContentRelationType.CA_CONNECTOR_PW,caConnectorConfig.getId());
-        if(listPC.isEmpty()) {
-
-            pc = new ProtectedContent();
-            pc.setType(ProtectedContentType.PASSWORD);
-            pc.setRelationType(ContentRelationType.CA_CONNECTOR_PW);
-            pc.setRelatedId(caConnectorConfig.getId());
-            pc.setCreatedOn(Instant.now());
-            pc.setLeftUsages(-1);
-            pc.setValidTo(ProtectedContentUtil.MAX_INSTANT);
-            pc.setDeleteAfter(ProtectedContentUtil.MAX_INSTANT);
-
-            LOG.debug("Protected Content created for ca connector password");
-        }else{
-            pc = listPC.get(0);
-            LOG.debug("Protected Content found for ca connector password");
-        }
-
         if( cv.getCaConnectorType().equals(CAConnectorType.CMP) && cv.isMessageProtectionPassphrase()) {
+            ProtectedContent pc;
+            List<ProtectedContent> listPC = protectedContentRepository.findByTypeRelationId(ProtectedContentType.PASSWORD, ContentRelationType.CA_CONNECTOR_PW,caConnectorConfig.getId());
+            if(listPC.isEmpty()) {
+
+                pc = new ProtectedContent();
+                pc.setType(ProtectedContentType.PASSWORD);
+                pc.setRelationType(ContentRelationType.CA_CONNECTOR_PW);
+                pc.setRelatedId(caConnectorConfig.getId());
+                pc.setCreatedOn(Instant.now());
+                pc.setLeftUsages(-1);
+                pc.setValidTo(ProtectedContentUtil.MAX_INSTANT);
+                pc.setDeleteAfter(ProtectedContentUtil.MAX_INSTANT);
+
+                LOG.debug("Protected Content created for ca connector password");
+            }else{
+                pc = listPC.get(0);
+                LOG.debug("Protected Content found for ca connector password");
+            }
+
             String oldContent = protectedContentUtil.unprotectString(pc.getContentBase64());
             if (oldContent == null ||
                 !oldContent.equals(cv.getPlainSecret()) ||
                 pc.getValidTo() == null ||
                 !pc.getValidTo().equals(cv.getSecretValidTo())) {
 
-                if(cv.getPlainSecret() == null){
-                    LOG.debug("CA Connector password removed");
-                    protectedContentRepository.delete(pc);
-                    auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_CA_CONNECTOR_SECRET_CHANGED, "#######", "", caConnectorConfig));
+                if(cv.getPlainSecret() == null  ){
+                    if( listPC.isEmpty() ){
+                        LOG.debug("No CA Connector password defined");
+                    }else {
+                        LOG.debug("CA Connector password removed");
+                        protectedContentRepository.delete(pc);
+                        caConnectorConfig.setSecret(pc);
+                        auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_CA_CONNECTOR_SECRET_CHANGED, "#######", "", caConnectorConfig));
+                    }
                 }else {
 
                     pc.setContentBase64(protectedContentUtil.protectString(cv.getPlainSecret()));
@@ -304,17 +309,18 @@ public class CaConnectorConfigUtil {
                     pc.setValidTo(secretValidTo);
                     pc.setDeleteAfter(secretValidTo.plus(1, ChronoUnit.DAYS));
                     protectedContentRepository.save(pc);
+                    caConnectorConfig.setSecret(pc);
                     LOG.debug("CA Connector password updated {} -> {}, {} -> {}", oldContent, cv.getPlainSecret(), secretValidTo, pc.getValidTo());
                     auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_CA_CONNECTOR_SECRET_CHANGED, "#######", "******", caConnectorConfig));
                 }
-            }
-        }else {
-            if (pc != null) {
-                protectedContentRepository.delete(pc);
-                auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_CA_CONNECTOR_SECRET_DELETED, "#######", "******", caConnectorConfig));
+            }else {
+                if (pc != null) {
+                    protectedContentRepository.delete(pc);
+                    caConnectorConfig.setSecret(pc);
+                    auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_CA_CONNECTOR_SECRET_DELETED, "#######", "******", caConnectorConfig));
+                }
             }
         }
-        caConnectorConfig.setSecret(pc);
 
         boolean hasIssuerName = false;
         boolean hasMultipleMessages = false;
