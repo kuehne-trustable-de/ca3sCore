@@ -93,13 +93,15 @@
 
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.messageProtectionPassphrase')" for="ca-connector-config-messageProtectionPassphrase">Message Protection 'Passphrase'</label>
                         <input type="checkbox" class="form-check" name="messageProtectionPassphrase" id="ca-connector-config-messageProtectionPassphrase"
-                               v-model="cAConnectorConfig.messageProtectionPassphrase" />
+                               v-model="cAConnectorConfig.messageProtectionPassphrase"/>
                     </div>
 
                     <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model !== 'CMP' || ($v.cAConnectorConfig.caConnectorType.$model === 'CMP' && cAConnectorConfig.messageProtectionPassphrase)">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.plainSecret')" for="ca-connector-config-plainSecret">Passphrase</label>
                         <input type="password" class="form-control" name="plainSecret" id="ca-connector-config-plainSecret"
-                               :class="{'valid': !$v.cAConnectorConfig.plainSecret.$invalid, 'invalid': $v.cAConnectorConfig.plainSecret.$invalid }" v-model="$v.cAConnectorConfig.plainSecret.$model" />
+                               :class="{'valid': !$v.cAConnectorConfig.plainSecret.$invalid, 'invalid': $v.cAConnectorConfig.plainSecret.$invalid }"
+                               v-model="$v.cAConnectorConfig.plainSecret.$model"
+                               required/>
                     </div>
 
                     <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'CMP' && !cAConnectorConfig.messageProtectionPassphrase">

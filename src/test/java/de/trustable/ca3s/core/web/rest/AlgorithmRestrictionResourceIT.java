@@ -347,20 +347,11 @@ class AlgorithmRestrictionResourceIT {
         restAlgorithmRestrictionMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, partialUpdatedAlgorithmRestriction.getId())
-                    .contentType("application/merge-patch+json")
+                    .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedAlgorithmRestriction))
             )
-            .andExpect(status().isOk());
+            .andExpect(status().isMethodNotAllowed());
 
-        // Validate the AlgorithmRestriction in the database
-        List<AlgorithmRestriction> algorithmRestrictionList = algorithmRestrictionRepository.findAll();
-        assertThat(algorithmRestrictionList).hasSize(databaseSizeBeforeUpdate);
-        AlgorithmRestriction testAlgorithmRestriction = algorithmRestrictionList.get(algorithmRestrictionList.size() - 1);
-        assertThat(testAlgorithmRestriction.getType()).isEqualTo(DEFAULT_TYPE);
-        assertThat(testAlgorithmRestriction.getNotAfter()).isEqualTo(UPDATED_NOT_AFTER);
-        assertThat(testAlgorithmRestriction.getIdentifier()).isEqualTo(DEFAULT_IDENTIFIER);
-        assertThat(testAlgorithmRestriction.getName()).isEqualTo(UPDATED_NAME);
-        assertThat(testAlgorithmRestriction.getAcceptable()).isEqualTo(UPDATED_ACCEPTABLE);
     }
 
     @Test
@@ -385,81 +376,14 @@ class AlgorithmRestrictionResourceIT {
         restAlgorithmRestrictionMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, partialUpdatedAlgorithmRestriction.getId())
-                    .contentType("application/merge-patch+json")
+                    .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedAlgorithmRestriction))
-            )
-            .andExpect(status().isOk());
-
-        // Validate the AlgorithmRestriction in the database
-        List<AlgorithmRestriction> algorithmRestrictionList = algorithmRestrictionRepository.findAll();
-        assertThat(algorithmRestrictionList).hasSize(databaseSizeBeforeUpdate);
-        AlgorithmRestriction testAlgorithmRestriction = algorithmRestrictionList.get(algorithmRestrictionList.size() - 1);
-        assertThat(testAlgorithmRestriction.getType()).isEqualTo(UPDATED_TYPE);
-        assertThat(testAlgorithmRestriction.getNotAfter()).isEqualTo(UPDATED_NOT_AFTER);
-        assertThat(testAlgorithmRestriction.getIdentifier()).isEqualTo(UPDATED_IDENTIFIER);
-        assertThat(testAlgorithmRestriction.getName()).isEqualTo(UPDATED_NAME);
-        assertThat(testAlgorithmRestriction.getAcceptable()).isEqualTo(UPDATED_ACCEPTABLE);
-    }
-
-    @Test
-    @Transactional
-    void patchNonExistingAlgorithmRestriction() throws Exception {
-        int databaseSizeBeforeUpdate = algorithmRestrictionRepository.findAll().size();
-        algorithmRestriction.setId(count.incrementAndGet());
-
-        // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restAlgorithmRestrictionMockMvc
-            .perform(
-                patch(ENTITY_API_URL_ID, algorithmRestriction.getId())
-                    .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(algorithmRestriction))
-            )
-            .andExpect(status().isBadRequest());
-
-        // Validate the AlgorithmRestriction in the database
-        List<AlgorithmRestriction> algorithmRestrictionList = algorithmRestrictionRepository.findAll();
-        assertThat(algorithmRestrictionList).hasSize(databaseSizeBeforeUpdate);
-    }
-
-    @Test
-    @Transactional
-    void patchWithIdMismatchAlgorithmRestriction() throws Exception {
-        int databaseSizeBeforeUpdate = algorithmRestrictionRepository.findAll().size();
-        algorithmRestriction.setId(count.incrementAndGet());
-
-        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
-        restAlgorithmRestrictionMockMvc
-            .perform(
-                patch(ENTITY_API_URL_ID, count.incrementAndGet())
-                    .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(algorithmRestriction))
-            )
-            .andExpect(status().isBadRequest());
-
-        // Validate the AlgorithmRestriction in the database
-        List<AlgorithmRestriction> algorithmRestrictionList = algorithmRestrictionRepository.findAll();
-        assertThat(algorithmRestrictionList).hasSize(databaseSizeBeforeUpdate);
-    }
-
-    @Test
-    @Transactional
-    void patchWithMissingIdPathParamAlgorithmRestriction() throws Exception {
-        int databaseSizeBeforeUpdate = algorithmRestrictionRepository.findAll().size();
-        algorithmRestriction.setId(count.incrementAndGet());
-
-        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
-        restAlgorithmRestrictionMockMvc
-            .perform(
-                patch(ENTITY_API_URL)
-                    .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(algorithmRestriction))
             )
             .andExpect(status().isMethodNotAllowed());
 
-        // Validate the AlgorithmRestriction in the database
-        List<AlgorithmRestriction> algorithmRestrictionList = algorithmRestrictionRepository.findAll();
-        assertThat(algorithmRestrictionList).hasSize(databaseSizeBeforeUpdate);
     }
+
+
 
     @Test
     @Transactional

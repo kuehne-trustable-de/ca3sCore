@@ -20,10 +20,10 @@ public class CaConfigTestConfiguration {
 	public static final Logger LOGGER = LogManager.getLogger(CaConfigTestConfiguration.class);
 
 	public static final long CONFIG_ID = 222L;
-	
+
 	@Autowired
 	CAConnectorConfigRepository cacRepo;
-	
+
 	@Bean
 	CAConnectorConfig getInternalTestCAC() {
 		Optional<CAConnectorConfig> existingConfigOpt = cacRepo.findById(CONFIG_ID);
@@ -32,17 +32,18 @@ public class CaConfigTestConfiguration {
 
 			return existingConfigOpt.get();
 		}
-		
+
 		CAConnectorConfig newCAC = new CAConnectorConfig();
 		newCAC.setId(CONFIG_ID);
 		newCAC.setName("InternalTestCA");
 		newCAC.setCaConnectorType(CAConnectorType.INTERNAL);
 		newCAC.setDefaultCA(true);
-		newCAC.setActive(true);
+        newCAC.setActive(true);
+        newCAC.setCheckActive(false);
 		cacRepo.save(newCAC);
 		LOGGER.debug("CAConnectorConfig for 'Internal' created");
 		return newCAC;
-		
-		
+
+
 	}
 }

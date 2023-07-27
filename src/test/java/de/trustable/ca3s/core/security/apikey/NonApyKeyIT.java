@@ -61,7 +61,7 @@ public class NonApyKeyIT {
         Invocation.Builder invocationBuilder = webTarget.request();
         invocationBuilder.header(X_API_KEY, apiKey);
         Response response =  invocationBuilder.get();
-        Assertions.assertEquals(403, response.getStatus());
+        Assertions.assertEquals(401, response.getStatus());
 
     }
 

@@ -958,22 +958,26 @@ public class PipelineUtil {
 
         boolean outcome = true;
 
-        for (NamedValues nvAR : nvARArr) {
-            for (ARARestriction araRestriction : araRestrictions) {
-                if (araRestriction.getName().equals(nvAR.getName())) {
-                    if (!checkAdditionalRestrictions(araRestriction, nvAR, messageList)) {
-                        outcome = false;
+        if(nvARArr != null) {
+            for (NamedValues nvAR : nvARArr) {
+                for (ARARestriction araRestriction : araRestrictions) {
+                    if (araRestriction.getName().equals(nvAR.getName())) {
+                        if (!checkAdditionalRestrictions(araRestriction, nvAR, messageList)) {
+                            outcome = false;
+                        }
                     }
                 }
             }
         }
-        for (ARARestriction araRestriction : araRestrictions) {
-            if (araRestriction.isRequired()) {
-                if (Arrays.stream(nvARArr).noneMatch(nv -> (araRestriction.getName().equals(nv.getName())))) {
-                    String msg = "additional restriction mismatch: An value for '" + araRestriction.getName() + "' MUST be present!";
-                    messageList.add(msg);
-                    LOG.debug(msg);
-                    outcome = false;
+        if(araRestrictions != null) {
+            for (ARARestriction araRestriction : araRestrictions) {
+                if (araRestriction.isRequired()) {
+                    if (Arrays.stream(nvARArr).noneMatch(nv -> (araRestriction.getName().equals(nv.getName())))) {
+                        String msg = "additional restriction mismatch: An value for '" + araRestriction.getName() + "' MUST be present!";
+                        messageList.add(msg);
+                        LOG.debug(msg);
+                        outcome = false;
+                    }
                 }
             }
         }

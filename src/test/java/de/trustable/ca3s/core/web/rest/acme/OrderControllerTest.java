@@ -63,8 +63,8 @@ public class OrderControllerTest {
 
     AcmeOrder acmeOrder = new AcmeOrder();
 
-//    URL orderUrl = new URL("https://foo.test.acme:443/acme/realm/order/" + ORDER_ID);
-    URL orderUrl = new URL("http://foo.test.acme:443/acme/realm/order/" + ORDER_ID);
+    final static String SAMPLE_ORDER_URL = "http://foo.test.acme:443/acme/realm/order/1234567";
+    URL orderUrl = new URL(SAMPLE_ORDER_URL);
 
     final static long ORDER_ID = 1234567;
 
@@ -98,18 +98,19 @@ public class OrderControllerTest {
 	public void testOrderResponse() throws InvalidNameException {
 
         HttpHeaders additionalHeaders = new HttpHeaders();
-        UriComponentsBuilder baseUriBuilder = orderController.getEffectiveUriComponentsBuilder( "realm", "forwardedHost").path("/../..");
 
+        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(SAMPLE_ORDER_URL);
+        UriComponentsBuilder baseUriBuilder = uriComponentsBuilder.path("/../..");
 
         acmeOrder.setOrderId(ORDER_ID);
 
-        ResponseEntity<OrderResponse> orderResponse =  orderController.buildOrderResponse( additionalHeaders,
+        ResponseEntity<OrderResponse> orderResponse = orderController.buildOrderResponse(additionalHeaders,
             acmeOrder,
-        baseUriBuilder,
-        true);
+            baseUriBuilder,
+            true);
 
         assertTrue("location header present ", orderResponse.getHeaders().getLocation() != null);
-        assertEquals("location header value expected ", orderUrl.toString(), orderResponse.getHeaders().getLocation());
+        assertEquals("location header value expected ", orderUrl.toString(), orderResponse.getHeaders().getLocation().toString());
 	}
 
 }

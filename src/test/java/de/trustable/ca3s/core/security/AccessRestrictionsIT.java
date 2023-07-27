@@ -59,6 +59,7 @@ public class AccessRestrictionsIT {
         knownAnonymousResources.add("post /api/authenticate");
         knownAnonymousResources.add("post /api/acme-challenges/validation");
         knownAnonymousResources.add("post /api/acme-challenges/pending/request-proxy-configs/{requestProxyId}");
+        knownAnonymousResources.add("post /api/request-proxy-configs/remote-config/{requestProxyId}");
         knownAnonymousResources.add("get /api/account");
         knownAnonymousResources.add("post /api/account");
         knownAnonymousResources.add("post /api/account/reset-password/init");

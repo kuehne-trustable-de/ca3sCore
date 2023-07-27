@@ -254,6 +254,11 @@ public class CAConnectorConfig implements Serializable {
         return checkActive;
     }
 
+    public CAConnectorConfig checkActive(Boolean checkActive) {
+        this.checkActive = checkActive;
+        return this;
+    }
+
     public void setCheckActive(Boolean checkActive) {
         this.checkActive = checkActive;
     }

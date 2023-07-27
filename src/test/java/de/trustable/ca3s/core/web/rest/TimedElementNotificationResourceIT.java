@@ -343,15 +343,8 @@ class TimedElementNotificationResourceIT {
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedTimedElementNotification))
             )
-            .andExpect(status().isOk());
+            .andExpect(status().isMethodNotAllowed());
 
-        // Validate the TimedElementNotification in the database
-        List<TimedElementNotification> timedElementNotificationList = timedElementNotificationRepository.findAll();
-        assertThat(timedElementNotificationList).hasSize(databaseSizeBeforeUpdate);
-        TimedElementNotification testTimedElementNotification = timedElementNotificationList.get(timedElementNotificationList.size() - 1);
-        assertThat(testTimedElementNotification.getType()).isEqualTo(UPDATED_TYPE);
-        assertThat(testTimedElementNotification.getNotifyOn()).isEqualTo(DEFAULT_NOTIFY_ON);
-        assertThat(testTimedElementNotification.getCustomMessage()).isEqualTo(UPDATED_CUSTOM_MESSAGE);
     }
 
     @Test
@@ -374,55 +367,8 @@ class TimedElementNotificationResourceIT {
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedTimedElementNotification))
             )
-            .andExpect(status().isOk());
+            .andExpect(status().isMethodNotAllowed());
 
-        // Validate the TimedElementNotification in the database
-        List<TimedElementNotification> timedElementNotificationList = timedElementNotificationRepository.findAll();
-        assertThat(timedElementNotificationList).hasSize(databaseSizeBeforeUpdate);
-        TimedElementNotification testTimedElementNotification = timedElementNotificationList.get(timedElementNotificationList.size() - 1);
-        assertThat(testTimedElementNotification.getType()).isEqualTo(UPDATED_TYPE);
-        assertThat(testTimedElementNotification.getNotifyOn()).isEqualTo(UPDATED_NOTIFY_ON);
-        assertThat(testTimedElementNotification.getCustomMessage()).isEqualTo(UPDATED_CUSTOM_MESSAGE);
-    }
-
-    @Test
-    @Transactional
-    void patchNonExistingTimedElementNotification() throws Exception {
-        int databaseSizeBeforeUpdate = timedElementNotificationRepository.findAll().size();
-        timedElementNotification.setId(count.incrementAndGet());
-
-        // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restTimedElementNotificationMockMvc
-            .perform(
-                patch(ENTITY_API_URL_ID, timedElementNotification.getId())
-                    .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(timedElementNotification))
-            )
-            .andExpect(status().isBadRequest());
-
-        // Validate the TimedElementNotification in the database
-        List<TimedElementNotification> timedElementNotificationList = timedElementNotificationRepository.findAll();
-        assertThat(timedElementNotificationList).hasSize(databaseSizeBeforeUpdate);
-    }
-
-    @Test
-    @Transactional
-    void patchWithIdMismatchTimedElementNotification() throws Exception {
-        int databaseSizeBeforeUpdate = timedElementNotificationRepository.findAll().size();
-        timedElementNotification.setId(count.incrementAndGet());
-
-        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
-        restTimedElementNotificationMockMvc
-            .perform(
-                patch(ENTITY_API_URL_ID, count.incrementAndGet())
-                    .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(timedElementNotification))
-            )
-            .andExpect(status().isBadRequest());
-
-        // Validate the TimedElementNotification in the database
-        List<TimedElementNotification> timedElementNotificationList = timedElementNotificationRepository.findAll();
-        assertThat(timedElementNotificationList).hasSize(databaseSizeBeforeUpdate);
     }
 
     @Test

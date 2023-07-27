@@ -59,9 +59,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -414,7 +416,8 @@ public class OrderController extends AcmeController {
 
         if (finalizeLocationBackwardCompat) {
             UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(baseUriBuilder.build().normalize().toUri());
-            String orderLocation = uriBuilder.path(ORDER_RESOURCE_MAPPING).path("/").path(Long.toString(orderDao.getOrderId())).build().toUriString();
+            UriComponents orderLocationUri = uriBuilder.path(ORDER_RESOURCE_MAPPING).path("/").path(Long.toString(orderDao.getOrderId())).build();
+            String orderLocation = orderLocationUri.toUriString();
             additionalHeaders.add("location", orderLocation);
             LOG.debug("added location header '{}' for backward compatibility reasons.", orderLocation);
         }

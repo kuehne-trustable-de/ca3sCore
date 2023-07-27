@@ -32,7 +32,7 @@ const validations: any = {
     selector: {},
     messageProtectionPassphrase: {},
     interval: {},
-    plainSecret: {},
+    plainSecret: { required },
     tlsAuthenticationId: {},
     messageProtectionId: {},
     issuerName: {},
@@ -154,6 +154,6 @@ export class CAConnectorConfigView implements ICaConnectorConfigView {
     this.trustSelfsignedCertificates = this.trustSelfsignedCertificates || false;
     this.messageProtectionPassphrase = this.messageProtectionPassphrase || false;
     this.active = this.active || false;
-    this.interval = this.interval || '';
+    this.interval = this.interval || 'DAY';
   }
 }

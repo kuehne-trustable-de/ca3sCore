@@ -188,7 +188,7 @@ public class ContentUploadProcessor {
 
 	}
 
-	private ResponseEntity<PkcsXXData> buildCertificateFromCSR(UploadPrecheckData uploaded, String requestorName){
+	public ResponseEntity<PkcsXXData> buildCertificateFromCSR(UploadPrecheckData uploaded, String requestorName){
 
         String content = uploaded.getContent();
         LOG.debug("Request to upload a PEM clob : {} by user {}", content, requestorName);
@@ -401,7 +401,8 @@ public class ContentUploadProcessor {
 
     }
 
-    private ResponseEntity<PkcsXXData> buildServerSideKeyAndRequest(UploadPrecheckData uploaded, String requestorName) {
+    @Transactional
+    public ResponseEntity<PkcsXXData> buildServerSideKeyAndRequest(UploadPrecheckData uploaded, String requestorName) {
 
         try{
 

@@ -3,6 +3,14 @@ package de.trustable.ca3s.core.ui;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
+import de.trustable.ca3s.core.service.dto.NamedValue;
+import de.trustable.ca3s.core.service.dto.NamedValues;
+import de.trustable.ca3s.core.service.dto.TypedValue;
+import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
+import de.trustable.ca3s.core.web.rest.data.CreationMode;
+import de.trustable.ca3s.core.web.rest.data.PkcsXXData;
+import de.trustable.ca3s.core.web.rest.data.UploadPrecheckData;
+import de.trustable.ca3s.core.web.rest.support.ContentUploadProcessor;
 import de.trustable.util.JCAManager;
 import io.ddavison.conductor.Browser;
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -17,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.io.*;
@@ -78,7 +87,12 @@ public class CAConnextorAdministrationIT extends WebTestBase{
     @Autowired
     PreferenceTestConfiguration prefTC;
 
-	@BeforeAll
+    @Autowired
+    private ContentUploadProcessor contentUploadProcessor;
+
+    long createdCertificateId;
+
+    @BeforeAll
 	public static void setUpBeforeClass() {
 
         JCAManager.getInstance();
@@ -94,7 +108,27 @@ public class CAConnextorAdministrationIT extends WebTestBase{
 		ptc.getInternalWebRACheckTestPipeline();
         prefTC.getTestUserPreference();
 
-		if( driver == null) {
+        UploadPrecheckData uploaded = new UploadPrecheckData();
+        uploaded.setPipelineId(1L);
+        uploaded.setKeyAlgoLength("rsa-4096");
+
+        NamedValues[] namedValues = new NamedValues[1];
+        namedValues[0] = new NamedValues();
+        namedValues[0].setName("CN");
+        TypedValue[] typedValues = new TypedValue[1];
+        typedValues[0] = new TypedValue();
+        typedValues[0].setValue("test.host.dev");
+        namedValues[0].setValues(typedValues);
+        uploaded.setCertificateAttributes(namedValues);
+
+        uploaded.setCreationMode(CreationMode.SERVERSIDE_KEY_CREATION);
+
+        uploaded.setSecret("S3cr3t!S");
+
+        ResponseEntity<PkcsXXData> responseEntity = contentUploadProcessor.buildServerSideKeyAndRequest(uploaded, "integrationTest");
+        long createdCertificateId = responseEntity.getBody().getCertsHolder()[0].getCertificateId();
+
+        if( driver == null) {
 		    super.startWebDriver();
 		    driver.manage().window().setSize(new Dimension(2000,768));
 		}
@@ -107,6 +141,7 @@ public class CAConnextorAdministrationIT extends WebTestBase{
         String newCAConnectorSelector = "Selector_" + Math.random();
         String newCAConnectorIssuerName = "IssuerName_" + Math.random();
         String newCAConnectorMessageContenType = "MessageContenType_" + Math.random();
+        String protectionPassphrase = "ProtectionPassphrase_" + Math.random();
 
 		byte[] secretBytes = new byte[6];
 		rand.nextBytes(secretBytes);
@@ -137,10 +172,13 @@ public class CAConnextorAdministrationIT extends WebTestBase{
 
         validatePresent(LOC_INP_CA_CONFIG_TLS_AUTH);
         click(LOC_INP_CA_CONFIG_TLS_AUTH);
-        setText(LOC_INP_CA_CONFIG_TLS_AUTH, "1");
+        setText(LOC_INP_CA_CONFIG_TLS_AUTH, "" + createdCertificateId);
 
         validatePresent(LOC_INP_CA_CONFIG_PW_PROT);
         click(LOC_INP_CA_CONFIG_PW_PROT);
+
+
+        setText(LOC_INP_CA_CONFIG_PW_PROT, protectionPassphrase);
 
         validatePresent(LOC_INP_CA_ISSUER_NAME);
         click(LOC_INP_CA_ISSUER_NAME);
@@ -149,14 +187,6 @@ public class CAConnextorAdministrationIT extends WebTestBase{
         validatePresent(LOC_INP_CA_MESSAGE_CONTENT_TYPE);
         click(LOC_INP_CA_MESSAGE_CONTENT_TYPE);
         setText(LOC_INP_CA_MESSAGE_CONTENT_TYPE, newCAConnectorMessageContenType);
-
-        /*
-        try {
-            System.in.read();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-*/
 
         validatePresent(LOC_BTN_SAVE);
         click(LOC_BTN_SAVE);
@@ -180,7 +210,15 @@ public class CAConnextorAdministrationIT extends WebTestBase{
 
         Assertions.assertEquals( newCAConnectorSelector, getText(LOC_INP_CA_CONFIG_SELECTOR) );
 
-        Assertions.assertEquals( "1", getText(LOC_INP_CA_CONFIG_TLS_AUTH));
+        /*
+        try {
+            System.in.read();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+*/
+
+        Assertions.assertEquals( "" + createdCertificateId, getText(LOC_INP_CA_CONFIG_TLS_AUTH));
 
         Assertions.assertTrue(isChecked(LOC_INP_CA_CONFIG_PW_PROT));
 

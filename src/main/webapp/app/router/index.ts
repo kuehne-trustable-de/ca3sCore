@@ -58,14 +58,10 @@ const ConfCaConnector = () => import('../core/ca-connector-config/ca-connector-c
 // prettier-ignore
 const ConfCaConnectorUpdate = () => import('../core/ca-connector-config/ca-connector-config-update.vue');
 // prettier-ignore
-const ConfCaConnectorDetails = () => import('../core/ca-connector-config/ca-connector-config-details.vue');
 
-// prettier-ignore
 const CAConnectorConfig = () => import('../entities/ca-connector-config/ca-connector-config.vue');
 // prettier-ignore
 const CAConnectorConfigUpdate = () => import('../entities/ca-connector-config/ca-connector-config-update.vue');
-// prettier-ignore
-const CAConnectorConfigDetails = () => import('../entities/ca-connector-config/ca-connector-config-details.vue');
 // prettier-ignore
 const CertificateAttribute = () => import('../entities/certificate-attribute/certificate-attribute.vue');
 // prettier-ignore
@@ -391,12 +387,6 @@ export default new Router({
       component: ConfCaConnectorUpdate,
       meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA', 'ROLE_RA_DOMAIN'] }
     },
-    {
-      path: '/confCaConnector/:caConnectorId/view',
-      name: 'ConfCaConnectorView',
-      component: ConfCaConnectorDetails,
-      meta: { authorities: ['ROLE_ADMIN', 'ROLE_RA', 'ROLE_RA_DOMAIN'] }
-    },
 
     {
       path: '/account/activate',
@@ -517,13 +507,6 @@ export default new Router({
       component: CAConnectorConfigUpdate,
       meta: { authorities: ['ROLE_USER'] }
     },
-    {
-      path: '/ca-connector-config/:cAConnectorConfigId/view',
-      name: 'CAConnectorConfigView',
-      component: CAConnectorConfigDetails,
-      meta: { authorities: ['ROLE_USER'] }
-    }
-    ,
     {
       path: '/certificate-attribute',
       name: 'CertificateAttribute',

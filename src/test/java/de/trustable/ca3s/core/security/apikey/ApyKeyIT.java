@@ -78,13 +78,13 @@ public class ApyKeyIT {
         invocationBuilderFail.header(X_API_KEY, "apiKeyUnknown1234567890");
         Response responseFail =  invocationBuilderFail.get();
 
-        Assertions.assertEquals(403, responseFail.getStatus());
+        Assertions.assertEquals(401, responseFail.getStatus());
 
         // Invalid invocation without API Key
         Invocation.Builder invocationBuilderNoKey = webTarget.request();
         Response responseNoKey =  invocationBuilderNoKey.get();
 
-        Assertions.assertEquals(403, responseNoKey.getStatus());
+        Assertions.assertEquals(401, responseNoKey.getStatus());
     }
 
 }

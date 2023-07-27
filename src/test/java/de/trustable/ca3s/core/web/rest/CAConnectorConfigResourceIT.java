@@ -139,6 +139,7 @@ public class CAConnectorConfigResourceIT {
             .pollingOffset(DEFAULT_POLLING_OFFSET)
             .defaultCA(DEFAULT_DEFAULT_CA)
             .active(DEFAULT_ACTIVE)
+            .checkActive(DEFAULT_ACTIVE)
             .selector(DEFAULT_SELECTOR)
             .interval(DEFAULT_INTERVAL)
             .plainSecret(DEFAULT_PLAIN_SECRET);

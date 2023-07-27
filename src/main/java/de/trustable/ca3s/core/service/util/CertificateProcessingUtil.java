@@ -121,18 +121,20 @@ public class CertificateProcessingUtil {
 			csr.setRequestorComment(requestorComment);
 			csrRepository.save(csr);
 
-			for( NamedValues nvs: araArr){
-			    // insert expected elements, only
-                if( Arrays.stream(restrictionArr).anyMatch(r->(r.getName().equals(nvs.getName())))) {
-                    for (TypedValue typedValue : nvs.getValues()) {
-                        CsrAttribute csrAttr = new CsrAttribute();
-                        csrAttr.setCsr(csr);
-                        csrAttr.setName(CsrAttribute.ARA_PREFIX + nvs.getName());
-                        csrAttr.setValue(typedValue.getValue());
-                        csr.getCsrAttributes().add(csrAttr);
+            if( araArr != null) {
+                for (NamedValues nvs : araArr) {
+                    // insert expected elements, only
+                    if (Arrays.stream(restrictionArr).anyMatch(r -> (r.getName().equals(nvs.getName())))) {
+                        for (TypedValue typedValue : nvs.getValues()) {
+                            CsrAttribute csrAttr = new CsrAttribute();
+                            csrAttr.setCsr(csr);
+                            csrAttr.setName(CsrAttribute.ARA_PREFIX + nvs.getName());
+                            csrAttr.setValue(typedValue.getValue());
+                            csr.getCsrAttributes().add(csrAttr);
+                        }
+                    } else {
+                        LOG.warn("unexpected attribute in ar array: '{}'", nvs.getName());
                     }
-                }else{
-                    LOG.warn("unexpected attribute in ar array: '{}'", nvs.getName());
                 }
             }
 

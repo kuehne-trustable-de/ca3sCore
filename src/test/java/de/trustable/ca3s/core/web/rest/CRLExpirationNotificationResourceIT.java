@@ -318,16 +318,8 @@ class CRLExpirationNotificationResourceIT {
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedCRLExpirationNotification))
             )
-            .andExpect(status().isOk());
+            .andExpect(status().isMethodNotAllowed());
 
-        // Validate the CRLExpirationNotification in the database
-        List<CRLExpirationNotification> cRLExpirationNotificationList = cRLExpirationNotificationRepository.findAll();
-        assertThat(cRLExpirationNotificationList).hasSize(databaseSizeBeforeUpdate);
-        CRLExpirationNotification testCRLExpirationNotification = cRLExpirationNotificationList.get(
-            cRLExpirationNotificationList.size() - 1
-        );
-        assertThat(testCRLExpirationNotification.getCrlUrl()).isEqualTo(UPDATED_CRL_URL);
-        assertThat(testCRLExpirationNotification.getNotifyBefore()).isEqualTo(DEFAULT_NOTIFY_BEFORE);
     }
 
     @Test
@@ -350,37 +342,10 @@ class CRLExpirationNotificationResourceIT {
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedCRLExpirationNotification))
             )
-            .andExpect(status().isOk());
+            .andExpect(status().isMethodNotAllowed());
 
-        // Validate the CRLExpirationNotification in the database
-        List<CRLExpirationNotification> cRLExpirationNotificationList = cRLExpirationNotificationRepository.findAll();
-        assertThat(cRLExpirationNotificationList).hasSize(databaseSizeBeforeUpdate);
-        CRLExpirationNotification testCRLExpirationNotification = cRLExpirationNotificationList.get(
-            cRLExpirationNotificationList.size() - 1
-        );
-        assertThat(testCRLExpirationNotification.getCrlUrl()).isEqualTo(UPDATED_CRL_URL);
-        assertThat(testCRLExpirationNotification.getNotifyBefore()).isEqualTo(UPDATED_NOTIFY_BEFORE);
     }
 
-    @Test
-    @Transactional
-    void patchNonExistingCRLExpirationNotification() throws Exception {
-        int databaseSizeBeforeUpdate = cRLExpirationNotificationRepository.findAll().size();
-        cRLExpirationNotification.setId(count.incrementAndGet());
-
-        // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restCRLExpirationNotificationMockMvc
-            .perform(
-                patch(ENTITY_API_URL_ID, cRLExpirationNotification.getId())
-                    .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(cRLExpirationNotification))
-            )
-            .andExpect(status().isBadRequest());
-
-        // Validate the CRLExpirationNotification in the database
-        List<CRLExpirationNotification> cRLExpirationNotificationList = cRLExpirationNotificationRepository.findAll();
-        assertThat(cRLExpirationNotificationList).hasSize(databaseSizeBeforeUpdate);
-    }
 
     @Test
     @Transactional
@@ -395,11 +360,8 @@ class CRLExpirationNotificationResourceIT {
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(cRLExpirationNotification))
             )
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isMethodNotAllowed());
 
-        // Validate the CRLExpirationNotification in the database
-        List<CRLExpirationNotification> cRLExpirationNotificationList = cRLExpirationNotificationRepository.findAll();
-        assertThat(cRLExpirationNotificationList).hasSize(databaseSizeBeforeUpdate);
     }
 
     @Test

@@ -7,7 +7,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.0.0-RC4</version>
+    <version>1.0.0-RC5</version>
     <packaging>jar</packaging>
 
 
@@ -92,7 +92,7 @@
         <jhipster-dependencies.version>7.9.3</jhipster-dependencies.version>
         <!-- The spring-boot version should match the one managed by
         https://mvnrepository.com/artifact/tech.jhipster/jhipster-dependencies/${jhipster-dependencies.version} -->
-        <spring-boot.version>2.7.12</spring-boot.version>
+        <spring-boot.version>2.7.14</spring-boot.version>
 
         <jhipster-framework.version>7.9.4-SNAPSHOT</jhipster-framework.version>
         <!--jhipster-framework.version>3.9.1</jhipster-framework.version-->
@@ -354,7 +354,7 @@
             <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
-                <version>2.0</version>
+                <version>1.33</version>
             </dependency>
             <!--dependency>
                 <groupId>org.hibernate</groupId>
