@@ -114,7 +114,7 @@
         <jaxb-runtime.version>2.3.8</jaxb-runtime.version>
 
         <spring.version>5.3.26</spring.version>
-        <spring.security.version>5.7.5</spring.security.version>
+        <spring.security.version>5.7.10</spring.security.version>
 
         <undertow.core.version>2.3.6.Final</undertow.core.version>
         <bucket4j.version>8.2.0</bucket4j.version>
