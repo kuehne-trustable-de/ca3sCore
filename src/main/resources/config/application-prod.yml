@@ -344,6 +344,13 @@ ca3s:
       principal: cn=alice,ou=people,dc=testLDAP,dc=eu
       password: s3cr3t
 
+  saml:
+    idp:
+    keystore:
+      location: classpath:/saml/samlKeystore.jks
+      password: <key_pass>
+      alias: <key_alias>
+
   # check your configuration with e.g.
   # http://keycloak-server/auth/realms/ca3sRealm/.well-known/openid-configuration
   oidc:

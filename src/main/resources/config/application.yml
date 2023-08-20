@@ -1,11 +1,14 @@
 # ===================================================================
-# Spring Boot configuration.
+# Spring Boot configuration for the "prod" profile.
 #
-# This configuration will be overridden by the Spring profile you use,
-# for example application-dev.yml if you use the "dev" profile.
+# This configuration overrides the application.yml file.
 #
 # More information on profiles: https://www.jhipster.tech/profiles/
 # More information on configuration properties: https://www.jhipster.tech/common-application-properties/
+#
+# !!! This file contains sensitive data !!!
+# !!! Make sure this configuration file is readable for the application / administrators ONLY !!!
+#
 # ===================================================================
 
 # ===================================================================
@@ -14,106 +17,111 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # ===================================================================
 
+logback:
+  access:
+    enabled: false
+
+logging:
+  level:
+    ROOT: INFO
+    io.github.jhipster: INFO
+    de.trustable.ca3s.core: DEBUG
+    de.trustable.ca3s.core.PropertiesLogger: INFO
+    de.trustable.ca3s.core.schedule.RequestProxyScheduler: WARN
+    de.trustable.ca3s.core.service.util.CaConnectorAdapter: WARN
+    de.trustable.ca3s.core.service.adcs: WARN
+    de.trustable.ca3s.core.service.cmp: DEBUG
+    de.trustable.ca3s.core.service.dir: WARN
+    de.trustable.ca3s.core.security.provider.Ca3sTrustManager: WARN
+    de.trustable.ca3s.core.repository.CSRSpecifications: WARN
+    de.trustable.ca3s.core.repository.CertificateSpecifications: DEBUG
+    de.trustable.util.CryptoUtil: WARN
+    org.keycloak.adapters: DEBUG
+    org.springframework.security: INFO
+    net.ttddyy.dsproxy.listener: INFO
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+
 management:
-  endpoints:
-    web:
-      base-path: /management
-      exposure:
-        include: ['configprops', 'env', 'health', 'info', 'jhimetrics', 'logfile', 'loggers', 'prometheus', 'threaddump']
-  endpoint:
-    health:
-      show-details: when-authorized
-      roles: 'ROLE_ADMIN'
-    jhimetrics:
-      enabled: true
-  info:
-    git:
-      mode: full
-  health:
-    mail:
-      enabled: false # When using the MailService, configure an SMTP server and set this to true
   metrics:
     export:
-      # Prometheus is the default metrics backend
       prometheus:
-        enabled: true
-        step: 60
-    enable:
-      http: true
-      jvm: true
-      logback: true
-      process: true
-      system: true
-    distribution:
-      percentiles-histogram:
-        all: true
-      percentiles:
-        all: 0, 0.5, 0.75, 0.95, 0.99, 1.0
-    tags:
-      application: ${spring.application.name}
-    web:
-      server:
-        auto-time-requests: true
+        enabled: false
 
 spring:
-  application:
-    name: ca3s
+  devtools:
+    restart:
+      enabled: false
+    livereload:
+      enabled: false
+  datasource:
+    # sample configuration for a mysql connection
+    type: com.zaxxer.hikari.HikariDataSource
 
-  profiles:
-    # The commented value for `active` can be replaced with valid Spring profiles to load.
-    # Otherwise, it will be filled in by maven when building the JAR file
-    # Either way, it can be overridden by `--spring.profiles.active` value passed in the commandline or `-Dspring.profiles.active` set in `JAVA_OPTS`
-    active: #spring.profiles.active#
-  jmx:
-    enabled: false
-  data:
-    jpa:
-      repositories:
-        bootstrap-mode: deferred
+    url: jdbc:mysql://localhost:3306/test_schema?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ca3s_test
+    password: s3cr3t
+
+    # recommended configuration for production:
+    # Separate the database rights between the application and liquibase. The application does not need any schema alteration or dump privileges.
+    # grant admin rights to liquibase to create / alter the DB scheme (see below at liquibase.user / .password)
+    #    url: jdbc:mysql://localhost:3306/ca3s_sep_roles?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    #    username: ca3s_sr_user
+    #    password: o2Z3je8twZ5W
+
+    hikari:
+      poolName: Hikari
+      auto-commit: false
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
   jpa:
-    open-in-view: false
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    database: MYSQL
+    show-sql: false
     properties:
-      hibernate.jdbc.time_zone: UTC
-    hibernate:
-      ddl-auto: none
-      naming:
-        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
-        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
-  messages:
-    basename: i18n/messages
-  main:
-    allow-bean-definition-overriding: true
+      hibernate:
+        id:
+          new_generator_mappings: true
+        connection:
+          provider_disables_autocommit: true
+        cache:
+          use_second_level_cache: false
+          use_query_cache: false
+        generate_statistics: false
+        session:
+          events:
+            log:
+              LOG_QUERIES_SLOWER_THAN_MS: 250
+
+  # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
+  liquibase:
+    contexts: prod
+
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
-  task:
-    execution:
-      thread-name-prefix: ca-3-s-task-
-      pool:
-        core-size: 2
-        max-size: 50
-        queue-capacity: 10000
-    scheduling:
-      thread-name-prefix: ca-3-s-scheduling-
-      pool:
-        size: 2
+
+  # connect to the database with admin privileges
+  #    default-schema: ca3s_sep_roles
+  #    user: ca3s_sr_admin
+  #    password: MLQ738PdLpio
+  mail:
+    host: localhost
+    port: 25
+    username:
+    password:
   thymeleaf:
-    mode: HTML
-  output:
-    ansi:
-      console-available: true
+    cache: true
 
 server:
+  port: 8080
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css, application/javascript, application/json
+    min-response-size: 1024
   max-http-header-size: 8KB
-  servlet:
-    session:
-      cookie:
-        http-only: true
-
-# Properties to be exposed on the /info management endpoint
-info:
-  # Comma separated list of profiles that will trigger the ribbon to show
-  display-ribbon-on-profiles: 'dev'
 
 # ===================================================================
 # JHipster specific properties
@@ -122,79 +130,221 @@ info:
 # ===================================================================
 
 jhipster:
-  clientApp:
-    name: 'ca3SApp'
-  # By default CORS is disabled. Uncomment to enable.
-  # cors:
-  #     allowed-origins: "*"
-  #     allowed-methods: "*"
-  #     allowed-headers: "*"
-  #     exposed-headers: "Authorization,Link,X-Total-Count"
-  #     allow-credentials: true
-  #     max-age: 1800
-  mail:
-    from: ca3s@localhost
-#  api-docs:
-#    default-include-pattern: ${server.servlet.context-path:}/api/.*
-#    management-include-pattern: ${server.servlet.context-path:}/management/.*
-#    title: foo API
-#    description: foo API documentation
-#    version: 0.0.1
-#    terms-of-service-url:
-#    contact-name:
-#    contact-url:
-#    contact-email:
-#    license: unlicensed
-#    license-url:
+  http:
+    cache: # Used by the CachingHttpHeadersFilter
+      timeToLiveInDays: 1461
+  cache: # Cache configuration
+    ehcache: # Ehcache configuration
+      time-to-live-seconds: 3600 # By default objects stay 1 hour in the cache
+      max-entries: 1000 # Number of objects in each cache entry
+  #  cors:
+  #    allowed-origins: '*'
+  security:
+    authentication:
+      jwt:
+        # This token must be encoded using Base64 and be at least 256 bits long (you can type `openssl rand -base64 64` on your command line to generate a 512 bits one)
+        # As this is the PRODUCTION configuration, you MUST change the default key, and store it securely!
+        base64-secret: Mjk3NjM4OWI4NWU3ZjE3NjQ3OWRiZjI3OWYwYmZiNWY1NzA2YjAzZTY2ODJhNWM5MjFjYzZmZTZlMDE4YWRhNDg0MjJlNDYzNThhODBjNmU0ZGFjMGY3MTc5OTVlNmEyZWFiZmIwMDIxYTExYzkxNGM3YmM2YmVmMmNlZWE2YmQ=
+        # Token is valid 24 hours
+        token-validity-in-seconds: 86400
+        token-validity-in-seconds-for-remember-me: 2592000
+  mail: # specific JHipster mail property, for standard properties see MailProperties
+    base-url: http://localhost:8080 # Modify according to your server's URL
+  logging:
+    use-json-format: false # By default, logs are not in Json format
+    logstash: # Forward logs to logstash over a socket, used by LoggingConfiguration
+      enabled: false
+      host: localhost
+      port: 5000
+      queue-size: 512
+  audit-events:
+    retention-period: 30 # Number of days before audit events are deleted.
 
-# ===================================================================
-# Application specific properties
-# Add your own application properties here, see the ApplicationProperties class
-# to have type-safe configuration, like in the JHipsterProperties above
-#
-# More documentation is available at:
-# https://www.jhipster.tech/common-application-properties/
-# ===================================================================
-win-auth:
-  ad-domain: ci.dc
-  ad-server: ldap://WIN-EKBO0EQ7TS7.example.org/
-  service-principal: HTTP/neo.example.org@EXAMPLE.ORG
-  keytab-location: /tmp/tomcat.keytab
-  ldap-search-base: dc=example,dc=org
-  ldap-search-filter: "(| (userPrincipalName={0}) (sAMAccountName={0}))"
+springdoc:
+  packagesToScan: de.trustable.ca3s.core.web.rest
+  pathsToMatch: /v1, /api/**
+
+camunda:
+  bpm:
+    job-execution:
+      enabled: true
 
 ca3s:
-  tlsAccess:
-    port: 8442
+  acmeAccess:
+    port: 9090
+    https: false
 
-#  adminAccess:
-#    port: 8444
-#  raAccess:
-#    port: 8445
-#  acmeAccess:
-#    port: 8446
-#    https: false
-#  scepAccess:
-#    port: 8447
+  issuance:
+    ra:
+      self-issuance-allowed: true
+
+  batch:
+    maxRecordsPerTransaction: 1000
+
+  schedule:
+    rate:
+      caConnectorStatus: 600000
+      protectedContentCleanup: 3600000
+      acmeOrderExpiry: 3600000
+      certBundleCheck: 600000
+      certRetrieval: 3600000
+      revocationCheck: 3600000
+    cron:
+      expiryNotificationCron: 0 15 2 * * ?
+      dropUnrelatedUsersCron: 0 20 02 * * ?
+
+    ra-officer-notification:
+      days-before-expiry:
+        ee: 30
+        ca: 90
+      days-pending: 30
+
+  # enable the creation of the PKCS12 download container with specific algorithms
+
+  pkcs12:
+    # the restriction on the input 'secret' protecting the PKCS12 container
+    secret:
+      description: min6NumberUpperLower
+      regexp: ^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,100}$
+    # the list of algorithm selectable for the PKCS12 encryption
+    pbe:
+      algos: PBEWithHmacSHA256AndAES_256, pbeWithSHAAnd3_KeyTripleDES_CBC
+
+  # define an alternative location for the email templates
+  # the default location is the internal reference within the jar
+  #  template:
+  #    email:
+  #      filePrefix: file://\Users\kuehn\tmp\templates\
+  # what's the extension of the template files. See the thymeleaf docs for supported types
+  #      filePostfix: .html
+
+  ui:
+    download:
+      rows:
+        max: 65535
+
+    # limit the set of selectable languages, available languages are de, en, pl
+
+    # if only one language is selected, the user form for selection is disabled / hidden.
+    #    languages: de
+
+    # provide a custom image for the upper left corner of the user interface
+    # Remark: PNG format, only
+    #    logo: custom_logo.
+
+    # The help content may need some mor details or additional explanations.
+    # external help file location:
+    #    en: /var/help/custom_help_en.md
+    #    de: /var/help/custom_help_de.md
+
+    password:
+      check:
+        #        description: min6NumberUpperLower
+        #        regexp: ^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,100}$
+        description: min8NumberUpperLowerSpecial
+        regexp: ^(?:(?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))(?!.*(.)\1{2,})[A-Za-z0-9!~<>,;:_=?*+#.”&§%°()\|\[\]\-\$\^\@\/]{8,32}$
+
+    csr:
+      dnslookup: true
+
+    sso:
+      autologin: false
+      provider: keyCloak
+
+  acme:
+    finalizelocationBackwardCompat: true
+    ratelimit:
+      second: 0
+      minute: 20
+      hour: 0
+
+    # expiry period for orders
+    order:
+      validity:
+        seconds: 600
+
+    # determine the status of an Authentication or an Order by proving the status of the challenges.
+    # this may trigger a challenge validation call to the client
+    iterate:
+      authentications: true
+      challenges: true
+
+  dns:
+    #    server: 8.8.8.8
+    server: 213.133.106.251
+    port: 53
 
   https:
     certificate:
-      dnSuffix: O=trustable solutions UG, C=DE
+      dnSuffix: O=Trustable Solutions,OU=CA3S Instance,C=DE
+      sans: trustable.de, www.trustable.de
+      persist: DB
+  #  certificateSelectionAttributes: Foo,Bar,Baz
 
-# application:
-protectionSecret: ZiNWY1NzA2YjAzZTY2ODJhNWM5MjFjYzZmZTZlMDE4Y
+  scep:
+    recipient:
+      certificate:
+        cnSuffix: .trustable.de
 
+  # provide a random password for the derivation of an encryption key to encrypt sensitive data in the database
+  # if this value is lost the content of the related database instance becomes useless. There is no way to recover this key.
+  # !!! Make sure this configuration file is readable for the application / administrators ONLY !!!
+  # you can type `openssl rand -base64 64` on your command line to generate a proper random value
+  protectionSecret: bnJvbGwvV1MtMjAxOS1DQS5jcmyGK2h0dHA6Ly90cnVzdGFibGUuZXUvYWRjc1Rl
 
-# ===================================================================
-# configure camunda web app, e.g. cockpit
-# ===================================================================
-camunda.bpm.webapp.index-redirect-enabled: false
+  connection:
+    salt: ca3sSalt
+    iterations: 4567
+    pbeAlgo: PBKDF2WithHmacSHA256
 
-keycloak:
-  realm: ca3sRealm
-  auth-server-url: http://127.0.0.1:50080/auth
-  ssl-required: external
-  resource: ca3s
-  credentials.secret: 11111111-1111-1111-1111-111111111111
-  use-resource-role-mappings: true
-  enabled: false
+  auth:
+    api-key:
+      enabled: true
+      auth-token-header-name: X-API-KEY
+      auth-token-admin: gTYvGKIfzLpWQSSIMT1XBaRfzdSLZmvFMNlfo6zeddYyg3FYmq7BH6qqB4dy75uYbLb0KXOU7jV50a360R4CB4UXriX085usWJnto5CMpOu34rxx0b5v2Xd97hpzDQdJ
+
+    kerberos:
+      service-principal: HTTP/admin@ci-adcs
+      keytab-location: ca3s.keytab
+    ad-domain: foo
+    ldap:
+      url: ldap://testLDAP.eu:123
+      baseDN: dc=testLDAP,dc=eu
+      search-base: dc=testLDAP,dc=eu
+      search-filter: dc=testLDAP,dc=eu
+      group-search-base: (| (userPrincipalName={0}) (sAMAccountName={0}))
+      principal: cn=alice,ou=people,dc=testLDAP,dc=eu
+      password: s3cr3t
+
+  saml:
+    idp:
+    keystore:
+      location: classpath:/saml/samlKeystore.jks
+      password: <key_pass>
+      alias: <key_alias>
+
+  # check your configuration with e.g.
+  # http://keycloak-server/auth/realms/ca3sRealm/.well-known/openid-configuration
+  oidc:
+    # list comma separated list of oidc roles applicable for given authorities
+    # an asterik matches with any role
+    roles:
+      user: '*'
+      domainra:
+      ra: ROLE_RA
+      admin:
+
+    client-id: ca3s
+    client-secret: 197bc3b4-64b0-452f-9bdb-fcaea0988e90
+    scope: openid, profile
+    authorization-grant-type: password
+
+    auth-server-url: http://keycloak.trustable.eu:50080/auth
+    realm: ca3sRealm
+
+    authorization-uri: http://keycloak.trustable.eu:50080/auth/realms/ca3sRealm/protocol/openid-connect/auth
+    user-info-uri: http://keycloak.trustable.eu:50080/auth/realms/ca3sRealm/protocol/openid-connect/userinfo
+    token-uri: http://keycloak.trustable.eu:50080/auth/realms/ca3sRealm/protocol/openid-connect/token
+    logout: http://keycloak.trustable.eu:50080/auth/realms/ca3sRealm/protocol/openid-connect/logout
+    jwk-set-uri: http://keycloak.trustable.eu:50080/auth/realms/ca3sRealm/protocol/openid-connect/certs
+    certs-id: vdaec4Br3ZnRFtZN-pimK9v1eGd3gL2MHu8rQ6M5SiE

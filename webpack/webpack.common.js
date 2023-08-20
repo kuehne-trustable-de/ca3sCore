@@ -6,6 +6,12 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { hashElement } = require('folder-hash');
 const MergeJsonWebpackPlugin = require('merge-jsons-webpack-plugin');
+const { CycloneDxWebpackPlugin } = require('@cyclonedx/webpack-plugin');
+
+const cycloneDxWebpackPluginOptions = {
+  specVersion: '1.4',
+  outputLocation: './bom'
+}
 
 const { DefinePlugin, EnvironmentPlugin } = require('webpack');
 const { vueLoaderConfig } = require('./vue.utils');
@@ -98,6 +104,8 @@ module.exports = async (env, options) => {
         ],
       },
       plugins: [
+        new CycloneDxWebpackPlugin(cycloneDxWebpackPluginOptions),
+
         new EnvironmentPlugin({
           // Required by vuelidate https://github.com/vuelidate/vuelidate/issues/365
           BUILD: 'web',
