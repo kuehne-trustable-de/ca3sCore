@@ -6,12 +6,14 @@ import TranslationService from '@/locale/translation.service';
 import axios from 'axios';
 import { IUIConfigView } from '@/shared/model/transfer-object.model';
 
+const REQUESTED_URL_KEY = 'requested-url';
+const CA3S_JWT_COOKIE_NAME = 'ca3sJWT';
+
 @Component
 export default class JhiNavbar extends Vue {
   @Inject('loginService')
   private loginService: () => LoginService;
   @Inject('translationService') private translationService: () => TranslationService;
-
   @Inject('accountService') private accountService: () => AccountService;
 
   public version = VERSION ? 'v' + VERSION : '';
@@ -30,15 +32,29 @@ export default class JhiNavbar extends Vue {
     }
 
     this.instantLogin = !(urlParams.has('instantLogin') && urlParams.get('instantLogin') === 'false');
+
+    window.console.info('requested-url: ' + sessionStorage.getItem(REQUESTED_URL_KEY));
+    if (sessionStorage.getItem(REQUESTED_URL_KEY)) {
+      this.$router.replace(sessionStorage.getItem(REQUESTED_URL_KEY));
+      //        sessionStorage.removeItem(REQUESTED_URL_KEY);
+    }
   }
 
   async created() {
+    if (this.$cookie.get(CA3S_JWT_COOKIE_NAME)) {
+      const jwt = this.$cookie.get(CA3S_JWT_COOKIE_NAME);
+      window.console.info('$cookie ca3sJWT present : ' + jwt);
+      localStorage.setItem('jhi-authenticationToken', '' + jwt);
+      this.accountService().retrieveAccount();
+      //      this.$cookie.delete(this._ca3sJWT);
+    }
+
     const self = this;
     axios({
       method: 'get',
       url: 'api/ui/config',
-      responseType: 'stream'
-    }).then(function(response) {
+      responseType: 'stream',
+    }).then(function (response) {
       window.console.info('ui/config returns ' + response.data);
       const uiConfig: IUIConfigView = response.data;
       self.$store.commit('updateCV', uiConfig);
@@ -50,8 +66,7 @@ export default class JhiNavbar extends Vue {
       if (!self.authenticated) {
         if (self.instantLogin) {
           if (self.$store.state.uiConfigStore.config.autoSSOLogin) {
-            window.console.info('forwarding to SSO Login ');
-            self.doOIDCLogin();
+            self._doSSOLogin(self.$store.state.uiConfigStore.config.ssoProvider[0]);
           }
         } else {
           window.console.info('logged out recently, no automatic forward to SSO Login ');
@@ -104,13 +119,53 @@ export default class JhiNavbar extends Vue {
     localStorage.removeItem('jhi-authenticationToken');
     sessionStorage.removeItem('jhi-authenticationToken');
     this.$store.commit('logout');
-    this.doOIDCLogout();
+    this.doSSOLogout();
 
     this.$router.push('/');
   }
 
   public openLogin(): void {
     this.loginService().openLogin((<any>this).$root);
+  }
+
+  public doSSOLogin() {
+    this._doSSOLogin(this.$store.state.uiConfigStore.config.ssoProvider[0]);
+  }
+  public _doSSOLogin(ssoProviderNameMixedCase: string) {
+    let ssoProviderName = ssoProviderNameMixedCase.toLowerCase();
+    window.console.info('forwarding to SSO Login: ' + ssoProviderName);
+
+    let ssoReturnUrl = window.location.pathname + window.location.search;
+    window.console.info('setting requested-url to window.location.pathname: ' + ssoReturnUrl);
+    sessionStorage.setItem(REQUESTED_URL_KEY, ssoReturnUrl);
+
+    if (ssoProviderName === 'oidc') {
+      this.doOIDCLogin();
+    } else if (ssoProviderName === 'keycloak') {
+      this.doOIDCLogin();
+    } else if (ssoProviderName === 'saml') {
+      this.doSAMLLogin();
+    } else {
+      window.console.info('unexpected SSO provider name : ' + ssoProviderName);
+    }
+  }
+
+  public doSSOLogout() {
+    this._doSSOLogout(this.$store.state.uiConfigStore.config.ssoProvider[0]);
+  }
+  public _doSSOLogout(ssoProviderNameMixedCase: string) {
+    let ssoProviderName = ssoProviderNameMixedCase.toLowerCase();
+    window.console.info('forwarding to SSO Login: ' + ssoProviderName);
+
+    if (ssoProviderName === 'oidc') {
+      this.doOIDCLogout();
+    } else if (ssoProviderName === 'keycloak') {
+      this.doOIDCLogout();
+    } else if (ssoProviderName === 'saml') {
+      this.doSAMLLogout();
+    } else {
+      window.console.info('unexpected SSO provider name : ' + ssoProviderName);
+    }
   }
 
   public doOIDCLogin(): void {
@@ -120,8 +175,9 @@ export default class JhiNavbar extends Vue {
     axios
       .get('oidc/authenticate', {
         params: {
-          initialUri: uri
-        }
+          //          initialUri: uri
+          initialUri: '',
+        },
       })
       .then(result => {
         const location = result.headers.location;
@@ -140,9 +196,29 @@ export default class JhiNavbar extends Vue {
         window.console.warn('problem doing OIDC authentication.');
       });
   }
+  public doSAMLLogin(): void {
+    window.console.info('forwarding to SAML authentication url.');
+    window.location.href = '/saml/login';
+  }
+
   public doOIDCLogout(): void {
     axios
       .post('oidc/logout')
+      .then(result => {
+        const location = result.headers.location;
+        if (location) {
+          window.console.info('forwarding to OIDC logout url.');
+          window.location.href = location;
+        }
+      })
+      .catch(() => {
+        window.console.warn('problem doing OIDC logout.');
+      });
+  }
+
+  public doSAMLLogout(): void {
+    axios
+      .post('/saml/logout')
       .then(result => {
         const location = result.headers.location;
         if (location) {

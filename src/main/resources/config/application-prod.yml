@@ -37,6 +37,7 @@ logging:
     de.trustable.ca3s.core.repository.CertificateSpecifications: DEBUG
     de.trustable.util.CryptoUtil: WARN
     org.keycloak.adapters: DEBUG
+    org.springframework.security.web.authentication: DEBUG
     org.springframework.security: INFO
     net.ttddyy.dsproxy.listener: INFO
     org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
@@ -105,6 +106,10 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+
+  main:
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
 
   # connect to the database with admin privileges
   #    default-schema: ca3s_sep_roles
@@ -345,11 +350,15 @@ ca3s:
       password: s3cr3t
 
   saml:
-    idp:
+    activate: true
+    idp: http://localhost:50080/realms/ca3s
+    sp: saml-client
+    metadata:
+      file: sample/saml/metadata/sso.xml
     keystore:
-      location: classpath:/saml/samlKeystore.jks
-      password: <key_pass>
-      alias: <key_alias>
+      location: sample/saml/samlKeystore.p12
+      password: s3cr3t
+      alias: saml-client
 
   # check your configuration with e.g.
   # http://keycloak-server/auth/realms/ca3sRealm/.well-known/openid-configuration
@@ -362,18 +371,15 @@ ca3s:
       ra: ROLE_RA
       admin:
 
-    client-id: ca3s
+    client-id: oidc_client
     client-secret: 197bc3b4-64b0-452f-9bdb-fcaea0988e90
     scope: openid, profile
     authorization-grant-type: password
 
-    auth-server-url: http://keycloak.trustable.eu:50080/auth
-    realm: ca3sRealm
+    auth-server-url: http://keycloak.trustable.eu:50080
+    realm: ca3s
 
     authorization-uri: http://localhost:8080/auth/realms/ca3sRealm/protocol/openid-connect/auth
     #    authorization-uri: http://keycloak.trustable.eu:50080/auth/realms/ca3sRealm/protocol/openid-connect/auth
-    user-info-uri: http://keycloak.trustable.eu:50080/auth/realms/ca3sRealm/protocol/openid-connect/userinfo
-    token-uri: http://keycloak.trustable.eu:50080/auth/realms/ca3sRealm/protocol/openid-connect/token
-    logout: http://keycloak.trustable.eu:50080/auth/realms/ca3sRealm/protocol/openid-connect/logout
-    jwk-set-uri: http://keycloak.trustable.eu:50080/auth/realms/ca3sRealm/protocol/openid-connect/certs
-    certs-id: vdaec4Br3ZnRFtZN-pimK9v1eGd3gL2MHu8rQ6M5SiE
+
+    use-post-logout-redirect-uri: true

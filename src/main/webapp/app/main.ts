@@ -83,6 +83,8 @@ router.beforeEach((to, from, next) => {
     next('/not-found');
   }
 
+  window.console.info('++++++++++++++++++ in router.beforeEach ');
+
   if (to.meta && to.meta.authorities && to.meta.authorities.length > 0) {
     if (!accountService.hasAnyAuthority(to.meta.authorities)) {
       sessionStorage.setItem('requested-url', to.fullPath);

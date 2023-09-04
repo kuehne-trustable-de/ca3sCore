@@ -976,10 +976,12 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       method: 'get',
       url: 'api/preference/1', // 1 represents system settings
       responseType: 'stream',
-    }).then(function (response) {
-      window.console.info('getPreference returns ' + response.data);
-      self.preferences = response.data;
-    });
+    })
+      .then(function (response) {
+        window.console.info('getPreference returns ' + response.data);
+        self.preferences = response.data;
+      })
+      .catch(console.error);
   }
 
   public getAlgoList(tool: string): string[] {

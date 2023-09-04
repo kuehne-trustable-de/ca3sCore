@@ -19,7 +19,6 @@
                                 This field is required.
                             </small>
                         </div>
-                        <div>required: {{$v.cAConnectorConfig.name.required}}, dirty: {{$v.cAConnectorConfig.name.$anyDirty}}, invalid: {{$v.cAConnectorConfig.name.$invalid}}</div>
                     </div>
 
                     <div class="form-group">
@@ -40,7 +39,6 @@
                                 This field is required.
                             </small>
                         </div>
-                        <div>required: {{$v.cAConnectorConfig.caConnectorType.required}}, dirty: {{$v.cAConnectorConfig.caConnectorType.$anyDirty}}, invalid: {{$v.cAConnectorConfig.caConnectorType.$invalid}}</div>
                     </div>
                     <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model !== 'INTERNAL'">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.caUrl')" for="ca-connector-config-caUrl">Ca Url</label>
@@ -67,7 +65,8 @@
                         <input type="checkbox" class="form-check" name="active" id="ca-connector-config-active"
                             :class="{'valid': !$v.cAConnectorConfig.active.$invalid, 'invalid': $v.cAConnectorConfig.active.$invalid }" v-model="$v.cAConnectorConfig.active.$model" />
                     </div>
-                    <div class="form-group">
+
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model !== 'INTERNAL' && $v.cAConnectorConfig.caConnectorType.$model !== 'DIRECTORY' && $v.cAConnectorConfig.caConnectorType.$model !== 'ADCS_CERTIFICATE_INVENTORY' ">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.selector')" for="ca-connector-config-selector">Selector</label>
                         <input type="text" class="form-control" name="selector" id="ca-connector-config-selector"
                             :class="{'valid': !$v.cAConnectorConfig.selector.$invalid, 'invalid': $v.cAConnectorConfig.selector.$invalid }" v-model="$v.cAConnectorConfig.selector.$model" />
@@ -90,13 +89,12 @@
                     </div>
 
                     <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'CMP' ">
-
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.messageProtectionPassphrase')" for="ca-connector-config-messageProtectionPassphrase">Message Protection 'Passphrase'</label>
                         <input type="checkbox" class="form-check" name="messageProtectionPassphrase" id="ca-connector-config-messageProtectionPassphrase"
                                v-model="cAConnectorConfig.messageProtectionPassphrase"/>
                     </div>
 
-                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model !== 'CMP' || ($v.cAConnectorConfig.caConnectorType.$model === 'CMP' && cAConnectorConfig.messageProtectionPassphrase)">
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'ADCS' ||$v.cAConnectorConfig.caConnectorType.$model === 'ADCS_CERTIFICATE_INVENTORY' || ($v.cAConnectorConfig.caConnectorType.$model === 'CMP' && cAConnectorConfig.messageProtectionPassphrase)">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.plainSecret')" for="ca-connector-config-plainSecret">Passphrase</label>
                         <input type="password" class="form-control" name="plainSecret" id="ca-connector-config-plainSecret"
                                :class="{'valid': !$v.cAConnectorConfig.plainSecret.$invalid, 'invalid': $v.cAConnectorConfig.plainSecret.$invalid }"

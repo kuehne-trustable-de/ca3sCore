@@ -93,6 +93,7 @@ export default class AccountService {
           if (this.store.getters.currentLanguage !== account.langKey) {
             this.store.commit('currentLanguage', account.langKey);
           }
+          window.console.info('requested-url: ' + sessionStorage.getItem('requested-url'));
           if (sessionStorage.getItem('requested-url')) {
             this.router.replace(sessionStorage.getItem('requested-url'));
             sessionStorage.removeItem('requested-url');

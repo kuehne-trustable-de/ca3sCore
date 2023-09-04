@@ -99,9 +99,11 @@ public class Ca3SApp implements InitializingBean {
 
     private static void logApplicationStartup(ApplicationContext ctx) {
 
-        String[] allBeanNames = ctx.getBeanDefinitionNames();
-        for(String beanName : allBeanNames) {
-            log.info("bean name: " + beanName);
+        if( log.isDebugEnabled()) {
+            String[] allBeanNames = ctx.getBeanDefinitionNames();
+            for (String beanName : allBeanNames) {
+                log.debug("bean name: " + beanName);
+            }
         }
 
         Environment env = ctx.getEnvironment();

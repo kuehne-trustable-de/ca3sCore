@@ -1,23 +1,27 @@
 package de.trustable.ca3s.core.config;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import de.trustable.ca3s.core.config.saml.SAMLMappingConfig;
+import de.trustable.ca3s.core.repository.AuthorityRepository;
+import de.trustable.ca3s.core.repository.UserPreferenceRepository;
+import de.trustable.ca3s.core.repository.UserRepository;
+import de.trustable.ca3s.core.security.jwt.TokenProvider;
 import de.trustable.ca3s.core.security.saml.CustomSAMLAuthenticationProvider;
+import de.trustable.ca3s.core.security.saml.CustomUrlAuthenticationSuccessHandler;
 import org.opensaml.saml2.metadata.provider.FilesystemMetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProviderException;
 import org.opensaml.util.resource.ResourceException;
 import org.opensaml.xml.parse.StaticBasicParserPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.saml.*;
 import org.springframework.security.saml.context.SAMLContextProviderImpl;
 import org.springframework.security.saml.key.JKSKeyManager;
@@ -26,7 +30,10 @@ import org.springframework.security.saml.log.SAMLDefaultLogger;
 import org.springframework.security.saml.metadata.CachingMetadataManager;
 import org.springframework.security.saml.metadata.ExtendedMetadata;
 import org.springframework.security.saml.metadata.ExtendedMetadataDelegate;
-import org.springframework.security.saml.processor.*;
+import org.springframework.security.saml.processor.HTTPPostBinding;
+import org.springframework.security.saml.processor.HTTPRedirectDeflateBinding;
+import org.springframework.security.saml.processor.SAMLBinding;
+import org.springframework.security.saml.processor.SAMLProcessorImpl;
 import org.springframework.security.saml.util.VelocityFactory;
 import org.springframework.security.saml.websso.*;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
@@ -35,12 +42,20 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 
+import javax.servlet.ServletException;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-// @Configuration
+
+@Configuration
 public class SamlSecurityConfig {
 
     @Value("${ca3s.saml.keystore.location}")
-    private String samlKeystoreLocation;
+    private File samlKeystoreFile;
 
     @Value("${ca3s.saml.keystore.password}")
     private String samlKeystorePassword;
@@ -51,6 +66,27 @@ public class SamlSecurityConfig {
     @Value("${ca3s.saml.idp}")
     private String defaultIdp;
 
+    @Value("${ca3s.saml.metadata.file}")
+    private File ssoMetadataFile;
+
+    @Autowired
+    private TokenProvider tokenProvider;
+
+    @Autowired
+    private UserPreferenceRepository userPreferenceRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private AuthorityRepository authorityRepository;
+
+    @Autowired
+    private SAMLMappingConfig samlMappingConfig;
+
+    @Value("${ca3s.ui.languages:en,de,pl}")
+    String availableLanguages;
+
     @Bean(initMethod = "initialize")
     public StaticBasicParserPool parserPool() {
         return new StaticBasicParserPool();
@@ -58,7 +94,7 @@ public class SamlSecurityConfig {
 
     @Bean
     public SAMLAuthenticationProvider samlAuthenticationProvider() {
-        return new CustomSAMLAuthenticationProvider();
+        return new CustomSAMLAuthenticationProvider(userPreferenceRepository, userRepository, authorityRepository, availableLanguages, samlMappingConfig);
     }
 
     @Bean
@@ -109,8 +145,7 @@ public class SamlSecurityConfig {
 
     @Bean
     public KeyManager keyManager() {
-        DefaultResourceLoader loader = new DefaultResourceLoader();
-        Resource storeFile = loader.getResource(samlKeystoreLocation);
+        Resource storeFile = new FileSystemResource(samlKeystoreFile);
         Map<String, String> passwords = new HashMap<>();
         passwords.put(samlKeystoreAlias, samlKeystorePassword);
         return new JKSKeyManager(storeFile, samlKeystorePassword, passwords, samlKeystoreAlias);
@@ -126,6 +161,7 @@ public class SamlSecurityConfig {
     @Bean
     public SAMLEntryPoint samlEntryPoint() {
         SAMLEntryPoint samlEntryPoint = new SAMLEntryPoint();
+
         samlEntryPoint.setDefaultProfileOptions(defaultWebSSOProfileOptions());
         return samlEntryPoint;
     }
@@ -141,13 +177,8 @@ public class SamlSecurityConfig {
     @Bean
     @Qualifier("okta")
     public ExtendedMetadataDelegate oktaExtendedMetadataProvider() throws MetadataProviderException {
-        File metadata = null;
-        try {
-            metadata = new File("./src/main/resources/saml/metadata/sso.xml");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        FilesystemMetadataProvider provider = new FilesystemMetadataProvider(metadata);
+
+        FilesystemMetadataProvider provider = new FilesystemMetadataProvider(ssoMetadataFile);
         provider.setParserPool(parserPool());
         return new ExtendedMetadataDelegate(provider, extendedMetadata());
     }
@@ -165,17 +196,17 @@ public class SamlSecurityConfig {
     @Bean
     @Qualifier("saml")
     public SavedRequestAwareAuthenticationSuccessHandler successRedirectHandler() {
-        SavedRequestAwareAuthenticationSuccessHandler successRedirectHandler = new SavedRequestAwareAuthenticationSuccessHandler();
-        successRedirectHandler.setDefaultTargetUrl("/home");
+        SavedRequestAwareAuthenticationSuccessHandler successRedirectHandler = new CustomUrlAuthenticationSuccessHandler(tokenProvider);
+        successRedirectHandler.setDefaultTargetUrl("/");
         return successRedirectHandler;
     }
 
     @Bean
     @Qualifier("saml")
     public SimpleUrlAuthenticationFailureHandler authenticationFailureHandler() {
-        SimpleUrlAuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
+        SimpleUrlAuthenticationFailureHandler failureHandler = new CustomSimpleUrlAuthenticationFailureHandler();
         failureHandler.setUseForward(true);
-        failureHandler.setDefaultFailureUrl("/error");
+        failureHandler.setDefaultFailureUrl("/error/error-en.html");
         return failureHandler;
     }
 
@@ -223,4 +254,17 @@ public class SamlSecurityConfig {
         bindings.add(httpPostBinding());
         return new SAMLProcessorImpl(bindings);
     }
+}
+
+class CustomSimpleUrlAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler{
+
+    private final Logger LOG = LoggerFactory.getLogger(CustomSimpleUrlAuthenticationFailureHandler.class);
+
+    public void onAuthenticationFailure(javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse response, AuthenticationException exception) throws ServletException, IOException {
+        LOG.debug("HttpServletRequest: {}", request);
+        LOG.debug("HttpServletResponse: {}", response);
+        LOG.debug("AuthenticationException:", exception);
+        super.onAuthenticationFailure(request, response, exception);
+    }
+
 }

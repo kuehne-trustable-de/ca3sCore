@@ -46,9 +46,15 @@
                     <td v-text="$t('ca3SApp.CAConnectorType.' + cAConnectorConfig.caConnectorType)">{{cAConnectorConfig.caConnectorType}}</td>
                     <td>{{cAConnectorConfig.caUrl}}</td>
                     <td>{{cAConnectorConfig.pollingOffset}}</td>
-                    <td>{{cAConnectorConfig.defaultCA}}</td>
+
+                    <td v-if="cAConnectorConfig.caConnectorType === 'INTERNAL' || cAConnectorConfig.caConnectorType === 'ADCS' || cAConnectorConfig.caConnectorType === 'CMP'">{{cAConnectorConfig.defaultCA}}</td>
+                    <td v-else></td>
+
                     <td>{{$t(getStatus(cAConnectorConfig.id))}}</td>
-                    <td>{{cAConnectorConfig.selector}}</td>
+
+                    <td v-if="cAConnectorConfig.caConnectorType !== 'INTERNAL' && cAConnectorConfig.caConnectorType !== 'ADCS_CERTIFICATE_INVENTORY'">{{cAConnectorConfig.selector}}</td>
+                    <td v-else></td>
+
                     <td v-text="$t('ca3SApp.Interval.' + cAConnectorConfig.interval)">{{cAConnectorConfig.interval}}</td>
                     <td class="text-right">
                         <div class="btn-group">

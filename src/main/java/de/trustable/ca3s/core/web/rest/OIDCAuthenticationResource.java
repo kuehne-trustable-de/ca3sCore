@@ -5,7 +5,6 @@ import de.trustable.ca3s.core.security.KeycloakUserDetails;
 import de.trustable.ca3s.core.security.OIDCRestService;
 import de.trustable.ca3s.core.security.jwt.JWTFilter;
 import de.trustable.ca3s.core.security.jwt.TokenProvider;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.TokenVerifier;
@@ -26,15 +25,12 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.openid.OpenIDAttribute;
 import org.springframework.security.openid.OpenIDAuthenticationToken;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +55,8 @@ public class OIDCAuthenticationResource {
     private final TokenProvider tokenProvider;
     private final String keycloakAuthorizationUri;
     private final String flowType;
+    private final String clientId;
+    private final boolean usePostLogoutRedirectUri;
     private final OIDCRestService oidcRestService;
 
     private KeycloakDeployment deployment;
@@ -69,17 +67,22 @@ public class OIDCAuthenticationResource {
                                       @Value("${ca3s.oidc.realm:@null}") String realm,
                                       @Value("${ca3s.oidc.client-id:#{null}}") String clientId,
                                       @Value("${ca3s.oidc.flow-type:code}") String flowType,
+                                      @Value("${ca3s.oidc.use-post-logout-redirect-uri:true}") boolean usePostLogoutRedirectUri,
                                       OIDCRestService OIDCRestService) {
         this.tokenProvider = tokenProvider;
         this.keycloakAuthorizationUri = keycloakAuthorizationUri;
+        this.usePostLogoutRedirectUri = usePostLogoutRedirectUri;
         this.oidcRestService = OIDCRestService;
         this.flowType = flowType;
 
         if (keycloakAuthorizationUri.isEmpty()) {
             log.info("OIDC not configured, 'ca3s.oidc.authorization-uri' is empty!");
+            this.clientId = "";
         } else if( clientId == null){
             log.info("OIDC not configured, 'ca3s.oidc.client-id' is empty!");
+            this.clientId = "";
         } else {
+            this.clientId = clientId;
 
 //            String authServerUrl = keycloakAuthorizationUri;
 
@@ -160,6 +163,7 @@ public class OIDCAuthenticationResource {
                     !key.equalsIgnoreCase(OAuth2Constants.RESPONSE_TYPE) &&
                     !key.equalsIgnoreCase("nonce")){
 
+                    /*
                     if( allParams.containsKey(INITIAL_URI_PARAM_NAME)){
                         String intialUriValue = allParams.get(INITIAL_URI_PARAM_NAME);
                         if( !intialUriValue.trim().isEmpty()) {
@@ -199,7 +203,8 @@ public class OIDCAuthenticationResource {
                             }
                         }
                     }else {
-
+*/
+                    {
                         log.debug("passing query parameter '{}' with value '{}' as redirect uri", key, allParams.get(key));
                         locationUrlBuilder.queryParam(key, allParams.get(key));
                     }
@@ -305,6 +310,7 @@ public class OIDCAuthenticationResource {
         HttpHeaders httpHeaders = new HttpHeaders();
         UriComponentsBuilder builder = servletUriComponentsBuilder.path("/../..");
 
+        /*
         if( allParams.containsKey(OAuth2Constants.STATE)) {
             String state = allParams.get(OAuth2Constants.STATE);
             log.debug("invocation state = '{}'", state);
@@ -327,6 +333,7 @@ public class OIDCAuthenticationResource {
 
             }
         }
+*/
 
         builder.queryParam("bearer", jwt);
         String startUri = builder.build().normalize().toString();
@@ -401,8 +408,13 @@ public class OIDCAuthenticationResource {
             log.info("logout call without OIDC info");
         }else {
 
-            KeycloakUriBuilder builder = deployment.getLogoutUrl().clone()
-                .queryParam(OAuth2Constants.REDIRECT_URI, redirectCodeUri);
+            KeycloakUriBuilder builder = deployment.getLogoutUrl().clone();
+            if(usePostLogoutRedirectUri) {
+                builder.queryParam(OAuth2Constants.POST_LOGOUT_REDIRECT_URI, redirectCodeUri)
+                    .queryParam(OAuth2Constants.CLIENT_ID, clientId);
+            }else{
+                builder.queryParam(OAuth2Constants.REDIRECT_URI, redirectCodeUri);
+            }
 
             String redirectUrl = builder.build().toString();
             log.info("logout redirectUrl : '{}'", redirectUrl);

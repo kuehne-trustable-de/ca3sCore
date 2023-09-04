@@ -213,7 +213,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
         self.certificateAdminData.arAttributes = this.certificateView.arArr;
         self.certificateAdminData.comment = this.certificateView.comment;
         self.comment = this.certificateView.comment;
-        selt.trusted = this.certificateView.trusted;
+        self.trusted = this.certificateView.trusted;
         self.certificateAdminData.trusted = this.certificateView.trusted;
         window.console.info('certificate loaded successfully : ' + self.certificateView.id);
       });

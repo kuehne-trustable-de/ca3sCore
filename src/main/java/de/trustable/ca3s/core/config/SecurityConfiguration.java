@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.config;
 
+import de.trustable.ca3s.core.config.saml.CustomSAMLBootstrap;
 import de.trustable.ca3s.core.security.AuthenticationProviderWrapper;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.security.DomainUserDetailsService;
@@ -10,6 +11,8 @@ import de.trustable.ca3s.core.security.jwt.JWTConfigurer;
 import de.trustable.ca3s.core.security.jwt.TokenProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.source.InvalidConfigurationPropertyValueException;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +22,10 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,9 +33,21 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.saml.*;
+import org.springframework.security.saml.key.KeyManager;
+import org.springframework.security.saml.metadata.ExtendedMetadata;
+import org.springframework.security.saml.metadata.MetadataGenerator;
+import org.springframework.security.saml.metadata.MetadataGeneratorFilter;
+import org.springframework.security.web.DefaultSecurityFilterChain;
+import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.channel.ChannelProcessingFilter;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -39,6 +57,8 @@ import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -67,6 +87,40 @@ public class SecurityConfiguration{
 	@Value("${ca3s.scepAccess.port:0}")
 	int scepPort;
 
+    @Value("${ca3s.saml.activate:true}")
+    private boolean samlActivate;
+
+    @Value("${ca3s.saml.sp}")
+    private String samlAudience;
+
+    @Autowired
+    @Qualifier("saml")
+    private SavedRequestAwareAuthenticationSuccessHandler samlAuthSuccessHandler;
+
+    @Autowired
+    @Qualifier("saml")
+    private SimpleUrlAuthenticationFailureHandler samlAuthFailureHandler;
+
+    @Autowired
+    private SAMLEntryPoint samlEntryPoint;
+
+    @Autowired
+    private SAMLLogoutFilter samlLogoutFilter;
+
+    @Autowired
+    private SAMLLogoutProcessingFilter samlLogoutProcessingFilter;
+
+    @Autowired
+    private SAMLAuthenticationProvider samlAuthenticationProvider;
+
+    @Autowired
+    private ExtendedMetadata extendedMetadata;
+
+    @Autowired
+    private KeyManager keyManager;
+
+    @Autowired
+    private AuthenticationConfiguration configuration;
 
     private final TokenProvider tokenProvider;
 
@@ -103,6 +157,40 @@ public class SecurityConfiguration{
     }
 
     @Bean
+    public SAMLDiscovery samlDiscovery() {
+        SAMLDiscovery idpDiscovery = new SAMLDiscovery();
+        return idpDiscovery;
+    }
+
+    public MetadataGenerator metadataGenerator() {
+        MetadataGenerator metadataGenerator = new MetadataGenerator();
+        metadataGenerator.setEntityId(samlAudience);
+        metadataGenerator.setExtendedMetadata(extendedMetadata);
+        metadataGenerator.setIncludeDiscoveryExtension(false);
+        metadataGenerator.setKeyManager(keyManager);
+        return metadataGenerator;
+    }
+
+    @Bean
+    public static SAMLBootstrap SAMLBootstrap() {
+        return new CustomSAMLBootstrap();
+    }
+
+    @Bean
+    public SAMLProcessingFilter samlWebSSOProcessingFilter(AuthenticationManager authenticationManager) throws Exception {
+        SAMLProcessingFilter samlWebSSOProcessingFilter = new SAMLProcessingFilter();
+        samlWebSSOProcessingFilter.setAuthenticationManager(authenticationManager);
+        samlWebSSOProcessingFilter.setAuthenticationSuccessHandler(samlAuthSuccessHandler);
+        samlWebSSOProcessingFilter.setAuthenticationFailureHandler(samlAuthFailureHandler);
+        return samlWebSSOProcessingFilter;
+    }
+
+    @Bean
+    public MetadataGeneratorFilter metadataGeneratorFilter() {
+        return new MetadataGeneratorFilter(metadataGenerator());
+    }
+
+    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
@@ -116,6 +204,40 @@ public class SecurityConfiguration{
         daoAuthenticationProvider.setUserDetailsService(userDetailsService);
 
         return new AuthenticationProviderWrapper(daoAuthenticationProvider);
+    }
+
+    @Bean
+    public AuthenticationManager authManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder =
+            http.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder.authenticationProvider(samlAuthenticationProvider)
+        .authenticationProvider(daoAuthenticationProvider());
+        return authenticationManagerBuilder.build();
+    }
+/*
+    @Bean
+    public AuthenticationManager authenticationManager() throws Exception {
+        return new ProviderManager(List.of(samlAuthenticationProvider, daoAuthenticationProvider()));
+    }
+
+ */
+
+    @Bean
+    public FilterChainProxy samlFilter(AuthenticationManager authenticationManager) throws Exception {
+        List<SecurityFilterChain> chains = new ArrayList<>();
+        if (samlActivate) {
+            chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/SSO/**"),
+                samlWebSSOProcessingFilter(authenticationManager)));
+            chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/discovery/**"),
+                samlDiscovery()));
+            chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/login/**"),
+                samlEntryPoint));
+            chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/logout/**"),
+                samlLogoutFilter));
+            chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/SingleLogout/**"),
+                samlLogoutProcessingFilter));
+        }
+        return new FilterChainProxy(chains);
     }
 
     @Bean
@@ -156,13 +278,18 @@ public class SecurityConfiguration{
     		acmePort = tlsPort;
     	}
 
-        AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
+        AuthenticationManager authenticationManager = authManager(http);
 
         // @formatter:off
         http
             .csrf().disable()
             .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(apiKeyAuthFilter(), UsernamePasswordAuthenticationFilter.class)
+
+            .addFilterBefore(metadataGeneratorFilter(), ChannelProcessingFilter.class)
+            .addFilterAfter(samlFilter(authenticationManager), BasicAuthenticationFilter.class)
+            .addFilterBefore(samlFilter(authenticationManager), CsrfFilter.class)
+
             .exceptionHandling()
             .accessDeniedHandler(problemSupport)
             .and()
@@ -188,6 +315,7 @@ public class SecurityConfiguration{
             .authorizeRequests()
             .antMatchers("/api/languages").permitAll()
             .antMatchers("/api/account").permitAll()
+            .antMatchers("/api/saml/jwt").permitAll()
             .antMatchers("/api/authenticate").permitAll()
             .antMatchers("/api/register").permitAll()
             .antMatchers("/api/activate").permitAll()
@@ -202,6 +330,9 @@ public class SecurityConfiguration{
             .antMatchers("/api/pipeline-attributes").permitAll()
             .antMatchers("/api/pipeline/activeWeb").permitAll()
 
+            .antMatchers("/auth").permitAll()
+            .antMatchers("/saml/SSO").permitAll()
+            .antMatchers("/saml/**").permitAll()
             .antMatchers("/publicapi/**").permitAll()
 
             .requestMatchers(forPortAndPath(raPort, "/api/ca-connector-configs")).hasAuthority(AuthoritiesConstants.ADMIN)
@@ -248,6 +379,7 @@ public class SecurityConfiguration{
             .requestMatchers(forPortAndPath(scepPort, "/ca3sScep/**")).permitAll()
             .antMatchers("/ca3sScep/**").denyAll()
 
+            .antMatchers("/api/preference/1").permitAll() // allow general properties
             .antMatchers("/api/cockpit/**").permitAll()
             .antMatchers("/api/tasklist/**").permitAll()
             .antMatchers("/api/engine/**").permitAll()
@@ -270,8 +402,8 @@ public class SecurityConfiguration{
             .antMatchers("/management/**").denyAll()
         .and()
             .httpBasic()
-        .and()
-            .apply(securityConfigurerAdapter());
+        .and().authenticationManager(authenticationManager)
+        .apply(securityConfigurerAdapter());
         // @formatter:on
 
         LOG.info("registered JWT-based configuration ");
