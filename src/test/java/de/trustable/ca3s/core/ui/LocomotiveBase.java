@@ -194,8 +194,8 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
                     driverName = "chromedriver.exe";
                 }
 
-//                try{
-                    /*
+                try{
+
                     URL resourceURL = ResourceUtils.getURL( "classpath:drivers/" + driverName);
                     File tmpFile = File.createTempFile("ca3sTest", driverName);
 
@@ -213,11 +213,11 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
 
                     System.setProperty("webdriver.chrome.driver", tmpFile.getAbsolutePath());
                     System.err.println("starting local Chrome using driver at : " + System.getProperty("webdriver.chrome.driver"));
-*/
+
                     if (isLocal) {
                         try {
 
- //                           WebDriverManager.chromedriver().setup();
+//                            WebDriverManager.chromedriver().setup();
 
                             ChromeOptions options = new ChromeOptions();
                             options.addArguments("--no-sandbox");
@@ -242,6 +242,11 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
                             options.addArguments("--safebrowsing-disable-download-protection");
                             options.addArguments("--safebrowsing-disable-extension-blacklist");
 */
+
+                            options.addArguments("--no-sandbox");
+                            options.addArguments("--disable-dev-shm-usage");
+
+//                            driver = WebDriverManager.chromedriver().capabilities(options).create();
                             driver = new ChromeDriver(options);
 
                         } catch (Exception x) {
@@ -251,11 +256,11 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
                             System.exit(1);
                         }
                     }
-//                }catch(IOException ioe){
-//                    ioe.printStackTrace();
-//                    System.err.println("problem installing chrome driver, exiting ...");
-//                    System.exit(1);
-//                }
+                }catch(IOException ioe){
+                    ioe.printStackTrace();
+                    System.err.println("problem installing chrome driver, exiting ...");
+                    System.exit(1);
+                }
                 break;
             case FIREFOX: {
                 FirefoxOptions options = new FirefoxOptions();

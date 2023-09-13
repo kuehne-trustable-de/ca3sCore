@@ -7,7 +7,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.0.0-RC7</version>
+    <version>1.0.0-RC8</version>
     <packaging>jar</packaging>
 
 
@@ -928,7 +928,7 @@
         <dependency>
             <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>
-            <version>5.3.3</version>
+            <version>5.5.3</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>

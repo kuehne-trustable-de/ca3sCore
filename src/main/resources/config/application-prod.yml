@@ -354,7 +354,7 @@ ca3s:
     idp: http://localhost:50080/realms/ca3s
     sp: saml-client
     metadata:
-      file: sample/saml/metadata/sso.xml
+      location: sample/saml/metadata/sso.xml
     keystore:
       location: sample/saml/samlKeystore.p12
       password: s3cr3t

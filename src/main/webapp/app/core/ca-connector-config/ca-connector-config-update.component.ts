@@ -32,7 +32,7 @@ const validations: any = {
     selector: {},
     messageProtectionPassphrase: {},
     interval: {},
-    plainSecret: { required },
+    plainSecret: {},
     tlsAuthenticationId: {},
     messageProtectionId: {},
     issuerName: {},
