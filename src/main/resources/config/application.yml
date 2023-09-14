@@ -57,9 +57,9 @@ spring:
     # sample configuration for a mysql connection
     type: com.zaxxer.hikari.HikariDataSource
 
-    url: jdbc:mysql://localhost:3306/test_schema?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: ca3s_test
-    password: s3cr3t
+    url: jdbc:h2:mem:ca3sTestDB;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
+    username: root
+    password:
 
     # recommended configuration for production:
     # Separate the database rights between the application and liquibase. The application does not need any schema alteration or dump privileges.
@@ -102,6 +102,10 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+
+  main:
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
 
   # connect to the database with admin privileges
   #    default-schema: ca3s_sep_roles

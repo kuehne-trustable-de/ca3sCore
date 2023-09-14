@@ -400,7 +400,7 @@
                         </select>
                     </div>
 
-                    <div class="container" >
+                    <div class="container" v-if="$v.pipeline.type.$model === 'WEB'">
                         <div class="row" >
                             <div class="col">
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.csr.usage')" for="pipeline-csrUsage">Csr usage</label>
