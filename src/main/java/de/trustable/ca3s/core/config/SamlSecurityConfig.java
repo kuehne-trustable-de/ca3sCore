@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.security.core.AuthenticationException;
@@ -43,13 +42,11 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
-import org.springframework.util.ResourceUtils;
 
 import javax.servlet.ServletException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -64,7 +61,7 @@ public class SamlSecurityConfig {
 
     private final Logger LOG = LoggerFactory.getLogger(SamlSecurityConfig.class);
 
-    @Value("${ca3s.saml.keystore.location:null}")
+    @Value("${ca3s.saml.keystore.location:#{null}}")
     private String samlKeystorePath;
 
     @Value("${ca3s.saml.keystore.password:s3cr3t}")
@@ -76,7 +73,7 @@ public class SamlSecurityConfig {
     @Value("${ca3s.saml.idp}")
     private String defaultIdp;
 
-    @Value("${ca3s.saml.metadata.location:null}")
+    @Value("${ca3s.saml.metadata.location:#{null}}")
     private String ssoMetadataPath;
 
     @Autowired
@@ -156,9 +153,12 @@ public class SamlSecurityConfig {
     @Bean
     public KeyManager keyManager() {
         Resource keystoreResource;
-        File samlKeystoreFile = new File(this.samlKeystorePath);
+        File samlKeystoreFile = null;
+        if(this.samlKeystorePath != null ){
+            samlKeystoreFile = new File(this.samlKeystorePath);
+        }
         if (samlKeystoreFile == null || !samlKeystoreFile.exists()) {
-            LOG.warn("Value of 'ca3s.saml.keystore.location' ('" + samlKeystoreFile.getAbsolutePath() + "') does not point to a valid location!");
+            LOG.warn("Value of 'ca3s.saml.keystore.location' does not point to a valid location!");
             try {
                 File tmpStoreFile = File.createTempFile("samlKeystore_", ".jks");
                 LOG.debug("writing dummy keystore content to {}", tmpStoreFile.getAbsolutePath());
@@ -207,9 +207,12 @@ public class SamlSecurityConfig {
     @Qualifier("okta")
     public ExtendedMetadataDelegate oktaExtendedMetadataProvider() throws MetadataProviderException {
 
-        File ssoMetadataFile = new File(this.ssoMetadataPath);
+        File ssoMetadataFile = null;
+        if(this.ssoMetadataPath!= null) {
+            ssoMetadataFile = new File(this.ssoMetadataPath);
+        }
         if( ssoMetadataFile == null || !ssoMetadataFile.exists()){
-            LOG.warn("Value of 'ca3s.saml.metadata.file' ('"+ssoMetadataFile.getAbsolutePath()+"') does not point to a valid location!");
+            LOG.warn("Value of 'ca3s.saml.metadata.file' does not point to a valid location!");
             try {
                 File tmpMetadataFile = File.createTempFile("dummy_metadata_", ".xml");
                 LOG.debug("writing dummy metadata content to {}", tmpMetadataFile.getAbsolutePath());
