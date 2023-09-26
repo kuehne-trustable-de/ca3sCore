@@ -10,10 +10,10 @@ import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.service.cmp.CaCmpConnector;
 import de.trustable.ca3s.core.service.dto.CAConnectorStatus;
 import de.trustable.ca3s.core.service.dto.CAStatus;
+import de.trustable.ca3s.core.service.vault.VaultPKIConnector;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,27 +31,32 @@ public class CaConnectorAdapter {
 
 	Logger LOGGER = LoggerFactory.getLogger(CaConnectorAdapter.class);
 
-	@Autowired
-	private ADCSConnector adcsConnector;
+	private final ADCSConnector adcsConnector;
 
-	@Autowired
-	private CaCmpConnector cmpConnector;
+    private final CaCmpConnector cmpConnector;
+    private final VaultPKIConnector vaultPKIConnector;
 
-	@Autowired
-	private CaInternalConnector internalConnector;
+	private final CaInternalConnector internalConnector;
 
-	@Autowired
-	private DirectoryConnector dirConnector;
+	private final DirectoryConnector dirConnector;
 
-    @Autowired
-    private CAConnectorConfigRepository caConfigRepository;
+    private final CAConnectorConfigRepository caConfigRepository;
 
-    @Autowired
-	private CSRUtil csrUtil;
+	private final CSRUtil csrUtil;
 
     private List<CAConnectorStatus> caConnectorStatus = new ArrayList<>();
 
-        /**
+    public CaConnectorAdapter(ADCSConnector adcsConnector, CaCmpConnector cmpConnector, VaultPKIConnector vaultPKIConnector, CaInternalConnector internalConnector, DirectoryConnector dirConnector, CAConnectorConfigRepository caConfigRepository, CSRUtil csrUtil) {
+        this.adcsConnector = adcsConnector;
+        this.cmpConnector = cmpConnector;
+        this.vaultPKIConnector = vaultPKIConnector;
+        this.internalConnector = internalConnector;
+        this.dirConnector = dirConnector;
+        this.caConfigRepository = caConfigRepository;
+        this.csrUtil = csrUtil;
+    }
+
+    /**
          *
          * @param caConfig CAConnectorConfig
          * @return CAStatus
@@ -138,6 +143,10 @@ public class CaConnectorAdapter {
         } else if (CAConnectorType.CMP.equals(caConfig.getCaConnectorType())) {
             LOGGER.debug("CAConnectorType CMP at {} signs CSR", caConfig.getCaUrl());
             return cmpConnector.signCertificateRequest(csr, caConfig);
+
+        } else if (CAConnectorType.VAULT.equals(caConfig.getCaConnectorType())) {
+            LOGGER.debug("CAConnectorType Vault at {} signs CSR", caConfig.getCaUrl());
+            return vaultPKIConnector.signCertificateRequest(csr, caConfig);
 
         } else if (CAConnectorType.INTERNAL.equals(caConfig.getCaConnectorType())) {
             LOGGER.debug("CAConnectorType INTERNAL signs CSR");

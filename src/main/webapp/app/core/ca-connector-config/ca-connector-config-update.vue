@@ -31,6 +31,7 @@
                             <option value="CMP" v-bind:label="$t('ca3SApp.CAConnectorType.CMP')">CMP</option>
                             <option value="ADCS" v-bind:label="$t('ca3SApp.CAConnectorType.ADCS')">ADCS</option>
                             <option value="ADCS_CERTIFICATE_INVENTORY" v-bind:label="$t('ca3SApp.CAConnectorType.ADCS_CERTIFICATE_INVENTORY')">ADCS_CERTIFICATE_INVENTORY</option>
+                            <option value="VAULT" v-bind:label="$t('ca3SApp.CAConnectorType.VAULT')">VAULT</option>
                             <option value="DIRECTORY" v-bind:label="$t('ca3SApp.CAConnectorType.DIRECTORY')">DIRECTORY</option>
                         </select>
 
@@ -94,7 +95,7 @@
                                v-model="cAConnectorConfig.messageProtectionPassphrase"/>
                     </div>
 
-                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'ADCS' ||$v.cAConnectorConfig.caConnectorType.$model === 'ADCS_CERTIFICATE_INVENTORY' || ($v.cAConnectorConfig.caConnectorType.$model === 'CMP' && cAConnectorConfig.messageProtectionPassphrase)">
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'ADCS' ||$v.cAConnectorConfig.caConnectorType.$model === 'VAULT' ||$v.cAConnectorConfig.caConnectorType.$model === 'ADCS_CERTIFICATE_INVENTORY' || ($v.cAConnectorConfig.caConnectorType.$model === 'CMP' && cAConnectorConfig.messageProtectionPassphrase)">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.plainSecret')" for="ca-connector-config-plainSecret">Passphrase</label>
                         <input type="password" class="form-control" name="plainSecret" id="ca-connector-config-plainSecret"
                                :class="{'valid': !$v.cAConnectorConfig.plainSecret.$invalid, 'invalid': $v.cAConnectorConfig.plainSecret.$invalid }"

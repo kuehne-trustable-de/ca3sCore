@@ -336,6 +336,18 @@ public class CSRUtil {
         return keyAlgName;
     }
 
+    public String getCommonName(CSR csr) {
+        for( RDN rdn : csr.getRdns()){
+            for( RDNAttribute rdnAttribute :rdn.getRdnAttributes()){
+                if(X509ObjectIdentifiers.commonName.toString().equals(rdnAttribute.getAttributeType())){
+                    return rdnAttribute.getAttributeValue();
+                }
+            }
+        }
+        return "";
+    }
+
+
     /**
 	 *
 	 * @param p10ReqHolder

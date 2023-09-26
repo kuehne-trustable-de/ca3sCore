@@ -65,4 +65,32 @@ export default class ChangePassword extends Vue {
   public get username(): string {
     return this.$store.getters.account?.login ?? '';
   }
+
+  public showRegExpFieldWarning(value: string, regEx: string): boolean {
+    const regexp = new RegExp(regEx);
+    const valid = regexp.test(value);
+    console.log('showRegExpFieldWarning( ' + regEx + ', "' + value + '") -> ' + valid);
+    return !valid;
+  }
+
+  public regExpSecret(): string {
+    if (
+      this.$store.state.uiConfigStore.config.cryptoConfigView !== undefined &&
+      this.$store.state.uiConfigStore.config.cryptoConfigView.passwordRegexp !== undefined
+    ) {
+      return this.$store.state.uiConfigStore.config.cryptoConfigView.passwordRegexp;
+    }
+    return '';
+  }
+
+  public regExpSecretDescription(): string {
+    if (
+      this.$store.state.uiConfigStore.config.cryptoConfigView !== undefined &&
+      this.$store.state.uiConfigStore.config.cryptoConfigView.regexpPasswordDescription !== undefined
+    ) {
+      console.log('regExpSecretDescription : ' + this.$store.state.uiConfigStore.config.cryptoConfigView.regexpPasswordDescription);
+      return this.$store.state.uiConfigStore.config.cryptoConfigView.regexpPasswordDescription;
+    }
+    return '';
+  }
 }

@@ -9,4 +9,6 @@ public enum CAConnectorType {
     ADCS,
     ADCS_CERTIFICATE_INVENTORY,
     DIRECTORY,
+    VAULT,
+    VAULT_INVENTORY,
 }

@@ -55,7 +55,10 @@
                     <td v-if="cAConnectorConfig.caConnectorType !== 'INTERNAL' && cAConnectorConfig.caConnectorType !== 'ADCS_CERTIFICATE_INVENTORY'">{{cAConnectorConfig.selector}}</td>
                     <td v-else></td>
 
-                    <td v-text="$t('ca3SApp.Interval.' + cAConnectorConfig.interval)">{{cAConnectorConfig.interval}}</td>
+                    <td v-if="cAConnectorConfig.caConnectorType === 'DIRECTORY' || cAConnectorConfig.caConnectorType === 'ADCS_CERTIFICATE_INVENTORY'|| cAConnectorConfig.caConnectorType === 'VAULT_INVENTORY'"
+                        v-text="$t('ca3SApp.Interval.' + cAConnectorConfig.interval)">{{cAConnectorConfig.interval}}</td>
+                    <td v-else></td>
+
                     <td class="text-right">
                         <div class="btn-group">
                             <!--router-link :to="{name: 'ConfCaConnectorView', params: {cAConnectorConfigId: cAConnectorConfig.id}}" tag="button" class="btn btn-info btn-sm details">

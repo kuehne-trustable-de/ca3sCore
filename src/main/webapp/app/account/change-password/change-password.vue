@@ -36,20 +36,15 @@
                                v-bind:placeholder="$t('global.form.newpassword.placeholder')"
                                :class="{'valid': !$v.resetPassword.newPassword.$invalid, 'invalid': $v.resetPassword.newPassword.$invalid }"
                                v-model="$v.resetPassword.newPassword.$model" minlength=4 maxlength=50 required>
-                        <div v-if="$v.resetPassword.newPassword.$anyDirty && $v.resetPassword.newPassword.$invalid">
+                        <div>
                             <small class="form-text text-danger"
                                    v-if="!$v.resetPassword.newPassword.required" v-text="$t('global.messages.validate.newpassword.required')">
                                 Your password is required.
                             </small>
-                            <small class="form-text text-danger"
-                                   v-if="!$v.resetPassword.newPassword.minLength" v-text="$t('global.messages.validate.newpassword.minlength')">
-                                Your password is required to be at least 4 characters.
-                            </small>
-                            <small class="form-text text-danger"
-                                   v-if="!$v.resetPassword.newPassword.maxLength" v-text="$t('global.messages.validate.newpassword.maxlength')">
-                                Your password cannot be longer than 50 characters.
-                            </small>
                         </div>
+                        <small class="form-text text-danger" v-if="showRegExpFieldWarning($v.resetPassword.newPassword.$model, regExpSecret())" v-text="$t('ca3SApp.messages.password.requirement.' + regExpSecretDescription())">
+                            secret must match RegEx!
+                        </small>
                         <!--<jhi-password-strength-bar [passwordToCheck]="newPassword"></jhi-password-strength-bar>-->
                     </div>
                     <div class="form-group">
@@ -58,18 +53,9 @@
                                :class="{'valid': !$v.resetPassword.confirmPassword.$invalid, 'invalid': $v.resetPassword.confirmPassword.$invalid }"
                                v-bind:placeholder="$t('global.form.confirmpassword.placeholder')"
                                v-model="$v.resetPassword.confirmPassword.$model" minlength=4 maxlength=50 required>
-                        <div v-if="$v.resetPassword.confirmPassword.$anyDirty && $v.resetPassword.confirmPassword.$invalid">
-                            <small class="form-text text-danger"
-                                   v-if="!$v.resetPassword.confirmPassword.required" v-text="$t('global.messages.validate.confirmpassword.required')">
-                                Your confirmation password is required.
-                            </small>
-                            <small class="form-text text-danger"
-                                   v-if="!$v.resetPassword.confirmPassword.minLength" v-text="$t('global.messages.validate.confirmpassword.minlength')">
-                                Your confirmation password is required to be at least 4 characters.
-                            </small>
-                            <small class="form-text text-danger"
-                                   v-if="!$v.resetPassword.confirmPassword.maxLength" v-text="$t('global.messages.validate.confirmpassword.maxlength')">
-                                Your confirmation password cannot be longer than 50 characters.
+                        <div>
+                            <small class="form-text text-danger" v-if="$v.resetPassword.newPassword.$model !== $v.resetPassword.confirmPassword.$model" v-text="$t('entity.validation.secretRepeat')">
+                                Repeated secret must match!
                             </small>
                         </div>
                     </div>

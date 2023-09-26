@@ -125,12 +125,12 @@ public class CaConnectorConfigUtil {
             if(optP.isPresent()) {
                 caConnectorConfig = optP.get();
                 if(!caConnConfList.isEmpty() && !caConnConfList.get(0).getId().equals(caConnectorConfig.getId())){
-                    throw new BadRequestAlertException("Name '" + cv.getName() + "' already assigned", "pipeline", "name already used");
+                    throw new BadRequestAlertException("Name '" + cv.getName() + "' already assigned", "CAConnectorConfig", "name already used");
                 }
 //                caConnectorConfigAttributeRepository.deleteAll(caConnectorConfig.getCaConnectorAttributes());
             }else {
                 if(!caConnConfList.isEmpty()){
-                    throw new BadRequestAlertException("Name '" + cv.getName() + "' already assigned", "pipeline", "name already used");
+                    throw new BadRequestAlertException("Name '" + cv.getName() + "' already assigned", "CAConnectorConfig", "name already used");
                 }
                 caConnectorConfig = new CAConnectorConfig();
                 cAConnectorConfigRepository.save(caConnectorConfig);
@@ -138,7 +138,7 @@ public class CaConnectorConfigUtil {
             }
         }else {
             if(!caConnConfList.isEmpty()){
-                throw new BadRequestAlertException("Name '" + cv.getName() + "' already assigned", "pipeline", "name already used");
+                throw new BadRequestAlertException("Name '" + cv.getName() + "' already assigned", "CAConnectorConfig", "name already used");
             }
             caConnectorConfig = new CAConnectorConfig();
             caConnectorConfig.setName(cv.getName());
@@ -185,7 +185,7 @@ public class CaConnectorConfigUtil {
 
         if(!Objects.equals(cv.getCaUrl(), caConnectorConfig.getCaUrl())) {
             auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_CA_URL_CHANGED, caConnectorConfig.getCaUrl(), cv.getCaUrl(), caConnectorConfig));
-            caConnectorConfig.setName(cv.getName());
+            caConnectorConfig.setCaUrl(cv.getCaUrl());
         }
 
         if(!Objects.equals(cv.getInterval(), caConnectorConfig.getInterval())) {
@@ -264,7 +264,9 @@ public class CaConnectorConfigUtil {
         }
 
 
-        if( cv.getCaConnectorType().equals(CAConnectorType.CMP) && cv.isMessageProtectionPassphrase()) {
+        if((cv.getCaConnectorType().equals(CAConnectorType.CMP) && cv.isMessageProtectionPassphrase()) ||
+            !cv.getCaConnectorType().equals(CAConnectorType.CMP) ){
+
             ProtectedContent pc;
             List<ProtectedContent> listPC = protectedContentRepository.findByTypeRelationId(ProtectedContentType.PASSWORD, ContentRelationType.CA_CONNECTOR_PW,caConnectorConfig.getId());
             if(listPC.isEmpty()) {
@@ -310,7 +312,7 @@ public class CaConnectorConfigUtil {
                     pc.setDeleteAfter(secretValidTo.plus(1, ChronoUnit.DAYS));
                     protectedContentRepository.save(pc);
                     caConnectorConfig.setSecret(pc);
-                    LOG.debug("CA Connector password updated {} -> {}, {} -> {}", oldContent, cv.getPlainSecret(), secretValidTo, pc.getValidTo());
+//                    LOG.debug("CA Connector password updated {} -> {}, {} -> {}", oldContent, cv.getPlainSecret(), secretValidTo, pc.getValidTo());
                     auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_CA_CONNECTOR_SECRET_CHANGED, "#######", "******", caConnectorConfig));
                 }
             }else {

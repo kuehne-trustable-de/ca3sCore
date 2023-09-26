@@ -188,7 +188,6 @@ public class CaCmpConnector {
             csr,
             caConnConfig);
 
-
         csr.setCertificate(cert);
         csr.setStatus(CsrStatus.ISSUED);
 

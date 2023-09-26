@@ -826,7 +826,7 @@ public class PipelineUtil {
                 pc.setValidTo(validTo);
                 pc.setDeleteAfter(validTo.plus(1, ChronoUnit.DAYS));
                 protectedContentRepository.save(pc);
-                LOG.debug("SCEP password updated {} -> {}, {} -> {}", oldContent, pv.getScepConfigItems().getScepSecret(), validTo, pc.getValidTo());
+//                LOG.debug("SCEP password updated {} -> {}, {} -> {}", oldContent, pv.getScepConfigItems().getScepSecret(), validTo, pc.getValidTo());
                 auditList.add(auditService.createAuditTracePipelineAttribute("SCEP_SECRET", "#######", "******", p));
             }
         }
