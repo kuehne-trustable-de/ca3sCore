@@ -126,7 +126,7 @@
         <undertow.core.version>2.3.7.Final</undertow.core.version>
         <bucket4j.version>8.2.0</bucket4j.version>
 
-        <h2.version>2.2.220</h2.version>
+        <h2.version>2.2.224</h2.version>
 
         <json.version>2.8.0</json.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
