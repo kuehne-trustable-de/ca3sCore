@@ -63,6 +63,8 @@ public class AcmeOrder implements Serializable {
 
     @Column(name = "expires")
     private Instant expires;
+    @Column(name = "created_on")
+    private Instant createdOn;
 
     @Column(name = "not_before")
     private Instant notBefore;
@@ -207,6 +209,14 @@ public class AcmeOrder implements Serializable {
 
     public void setNotAfter(Instant notAfter) {
         this.notAfter = notAfter;
+    }
+
+    public Instant getCreatedOn() {
+        return createdOn;
+    }
+
+    public void setCreatedOn(Instant createdOn) {
+        this.createdOn = createdOn;
     }
 
     public String getError() {
@@ -422,11 +432,13 @@ public class AcmeOrder implements Serializable {
             ", realm='" + getRealm() + "'" +
             ", status='" + getStatus() + "'" +
             ", expires='" + getExpires() + "'" +
+            ", createdOn='" + getCreatedOn() + "'" +
             ", notBefore='" + getNotBefore() + "'" +
             ", notAfter='" + getNotAfter() + "'" +
             ", error='" + getError() + "'" +
             ", finalizeUrl='" + getFinalizeUrl() + "'" +
             ", certificateUrl='" + getCertificateUrl() + "'" +
             "}";
+
     }
 }

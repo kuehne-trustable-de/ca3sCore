@@ -14,7 +14,7 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('audits-table',
   tableType
     .setFilterHandler((source, filter, columns) => ({
       // See https://documenter.getpostman.com/view/2025350/RWaEzAiG#json-field-masking
-      filter: columns.map(col => colFieldToStr(col.field!).replace(/\./g, '/')).join(',')
+      filter: columns.map(col => colFieldToStr(col.field!).replace(/\./g, '/')).join(','),
     }))
 
     .setSortHandler((endpointDesc, sortColumn, sortDir) => ({
@@ -23,9 +23,9 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('audits-table',
       ...(sortColumn && sortDir
         ? {
             order: sortDir,
-            sort: colFieldToStr(sortColumn.field!).replace(/\./g, '/')
+            sort: colFieldToStr(sortColumn.field!).replace(/\./g, '/'),
           }
-        : {})
+        : {}),
     }))
 
     .setPaginateHandler((endpointDesc, perPage, pageIndex) => ({
@@ -34,9 +34,9 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('audits-table',
       ...(perPage !== null
         ? {
             limit: perPage || 20,
-            offset: (pageIndex - 1) * perPage || 0
+            offset: (pageIndex - 1) * perPage || 0,
           }
-        : {})
+        : {}),
     }))
 
     // Alias our process steps, because the source, here, is our API url, and paged is the complete query string
@@ -48,14 +48,14 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('audits-table',
         // Data to display
         data,
         // Get the total number of matched items
-        headers: { 'x-total-count': totalCount }
+        headers: { 'x-total-count': totalCount },
       } = await axios.get(url);
 
       window.console.info('audit data : ' + totalCount + ' -> ' + data.content);
 
       return {
         rows: data.content,
-        totalRowCount: data.numberOfElements
+        totalRowCount: data.numberOfElements,
       } as ITableContentParam<IAuditTraceView>;
     })
     .mergeSettings({
@@ -64,19 +64,19 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('audits-table',
         sorting: {
           sortAsc: '<img src="../../../content/images/caret-up-solid.png" alt="asc">',
           sortDesc: '<img src="../../../content/images/caret-down-solid.png" alt="desc">',
-          sortNone: ''
-        }
+          sortNone: '',
+        },
       },
       pager: {
         classes: {
           pager: 'pagination text-center',
-          selected: 'active'
+          selected: 'active',
         },
         icons: {
           next: '<img src="../../../content/images/chevron-right-solid.png" alt=">">',
-          previous: '<img src="../../../content/images/chevron-left-solid.png" alt="<">'
-        }
-      }
+          previous: '<img src="../../../content/images/chevron-left-solid.png" alt="<">',
+        },
+      },
     })
 );
 
@@ -99,6 +99,9 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
 
   @Prop()
   public processInfoId: string;
+
+  @Prop()
+  public acmeOrderId: string;
 
   @Prop()
   public title: string;
@@ -159,7 +162,7 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
         { label: this.$t('audits.createdOn'), field: 'createdOn' },
         { label: 'certificateId', field: 'certificateId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
         { label: 'csrId', field: 'csrId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
-        { label: this.$t('audits.links'), field: 'links', headerClass: 'hiddenColumn', class: 'hiddenColumn' }
+        { label: this.$t('audits.links'), field: 'links', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
       ] as TColumnsDefinition<IAuditTraceView>,
 
       get auditApiUrl() {
@@ -169,7 +172,7 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
 
       page: 1,
       filter: '',
-      contentAccessUrl: ''
+      contentAccessUrl: '',
     };
   }
 
@@ -196,7 +199,7 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
       return this.$t(template, {
         attribute: this.unescapeComma(contentParts[0]),
         oldVal: this.unescapeComma(contentParts[1]),
-        newVal: this.unescapeComma(contentParts[2])
+        newVal: this.unescapeComma(contentParts[2]),
       });
     }
   }
@@ -214,6 +217,7 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
     url += 'pipelineId=' + this.processParamForURL(this.pipelineId);
     url += 'caConnectorId=' + this.processParamForURL(this.caConnectorId);
     url += 'processInfoId=' + this.processParamForURL(this.processInfoId);
+    url += 'acmeOrderId=' + this.processParamForURL(this.acmeOrderId);
 
     window.console.info('buildContentAccessUrl: url : ' + url);
 

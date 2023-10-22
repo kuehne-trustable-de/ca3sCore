@@ -91,10 +91,11 @@ public class AuditTraceResource {
         @RequestParam(value = "csr", required = false) Long csrId,
         @RequestParam(value = "pipeline", required = false) Long pipelineId,
         @RequestParam(value = "caConnector", required = false) Long caConnectorId,
-        @RequestParam(value = "processInfo", required = false) Long processInfoId
+        @RequestParam(value = "processInfo", required = false) Long processInfoId,
+        @RequestParam(value = "acmeOrder", required = false) Long acmeOrderId
         ) {
         log.debug("REST request to get AuditTraces");
-        return auditTraceService.findBy( pageable, certificateId, csrId, pipelineId, caConnectorId, processInfoId);
+        return auditTraceService.findBy( pageable, certificateId, csrId, pipelineId, caConnectorId, processInfoId, acmeOrderId);
     }
 
 

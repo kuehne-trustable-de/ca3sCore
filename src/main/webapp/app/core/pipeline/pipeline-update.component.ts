@@ -18,6 +18,8 @@ import {
   ISCEPConfigItems,
   IWebConfigItems,
   IBPMNProcessInfo,
+  IRDNCardinalityRestriction,
+  IBPMNProcessType,
 } from '@/shared/model/transfer-object.model';
 
 import CAConnectorConfigService from '../../entities/ca-connector-config/ca-connector-config.service';

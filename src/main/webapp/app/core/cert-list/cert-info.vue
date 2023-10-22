@@ -59,8 +59,9 @@
                             <span v-if="certificateView.ca">, <b>CA</b></span>
                             <span v-if="certificateView.selfsigned">, <b>Selfsigned</b></span>
                             <span v-if="certificateView.trusted">, <b>Trusted</b></span>
-
+                            <span v-if="certificateView.issuingActiveCertificates" v-text="$t('ca3SApp.certificate.active.issued')">, <b>Has active certificate issued</b></span>
                         </dd>
+
                         <dt>
                             <span v-text="$t('ca3SApp.certificate.serial')">Serial</span>
                         </dt>
@@ -345,19 +346,46 @@
                             <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.removeCertificateFromCRL')">Remove from CRL</span>
                         </button>
 
-                        <button type="button" id="revoke" v-if="isRAOfficer() && !isOwnCertificate() && isRevocable()" class="btn btn-secondary" v-on:click="revokeCertificate()">
+                        <!--button type="button" id="revoke" v-if="isRAOfficer() && !isOwnCertificate() && isRevocable()" class="btn btn-secondary" v-on:click="revokeCertificate()">
                             <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.revoke')">Revoke</span>
                         </button>
 
                         <button type="button" id="withdraw" v-if="isOwnCertificate() && isRevocable()" class="btn btn-secondary" v-on:click="withdrawCertificate()">
                             <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.withdraw')">Withdraw</span>
-                        </button>
+                        </button-->
+
+                        <b-button v-if="(isRAOfficer() || isOwnCertificate()) && isRevocable()"
+                                  variant="danger"
+                                  class="btn"
+                                  v-b-modal.revokeCertificate>
+                            <font-awesome-icon icon="times"></font-awesome-icon>
+                            <span class="d-none d-md-inline" v-text="$t('entity.action.revoke')">Revoke</span>
+                        </b-button>
 
                     </div>
                 </form>
 
             </div>
         </div>
+        <b-modal ref="revokeCertificate" id="revokeCertificate" >
+            <span slot="modal-title"><span id="ca3SApp.certificate.revoke.question" v-text="$t('entity.revoke.title')">Confirm revocation</span></span>
+            <div class="modal-body">
+
+                <div v-if="certificateView.ca" class="alert alert-warning" role="alert">
+                    <p v-text="$t('ca3SApp.certificate.ca.hint')">This is a CA certificate!</p>
+                </div>
+                <div v-if="certificateView.issuingActiveCertificates" class="alert alert-danger" role="alert">
+                    <p v-text="$t('ca3SApp.certificate.no.revocation.active.issued')">Has active issued certificates</p>
+                </div>
+                <p id="jhi-revoke-certificate-heading" v-text="$t('ca3SApp.certificate.revoke.question', {'id': certificateView.id})">Are you sure you want to revoke this certificate?</p>
+            </div>
+            <div slot="modal-footer">
+                <button type="button" class="btn btn-secondary" v-text="$t('entity.action.cancel')" v-on:click="closeDialog()">Cancel</button>
+                <button v-if="!certificateView.issuingActiveCertificates"
+                        type="button" class="btn btn-primary" id="confirm-revoke-certificate" v-text="$t('entity.action.revoke')" v-on:click="revokeCertificateAndClose()">Revoke</button>
+            </div>
+        </b-modal>
+
     </div>
 </template>
 

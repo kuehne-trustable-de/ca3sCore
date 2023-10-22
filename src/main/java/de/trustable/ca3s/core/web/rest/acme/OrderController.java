@@ -28,6 +28,7 @@ package de.trustable.ca3s.core.web.rest.acme;
 
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
+import de.trustable.ca3s.core.exception.CAFailureException;
 import de.trustable.ca3s.core.repository.AcmeOrderRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.NamedValues;
@@ -470,12 +471,21 @@ public class OrderController extends AcmeController {
 
         orderDao.setCsr(csr);
 
-        Certificate cert = cpUtil.processCertificateRequest(csr, requestorName, AuditService.AUDIT_ACME_CERTIFICATE_CREATED, pipeline);
+        String msg = null;
+        Certificate cert = null;
+        try {
+            cert = cpUtil.processCertificateRequest(csr, requestorName, AuditService.AUDIT_ACME_CERTIFICATE_CREATED, pipeline);
+        }catch (CAFailureException caFailureException){
+            LOG.info("certificate creation failed", caFailureException);
+            msg = "creation of certificate by ACME order '" + orderDao.getOrderId() + "' failed : " + caFailureException.getMessage();
+        }
 
         if (cert == null) {
             auditService.saveAuditTrace(
-                auditService.createAuditTraceAcmeOrderInvalid(orderDao.getAccount(), orderDao, "certificate creation failed"));
-            String msg = "creation of certificate by ACME order {} " + orderDao.getOrderId() + " failed ";
+                auditService.createAuditTraceAcmeOrderInvalid(orderDao.getAccount(), orderDao, csr, "certificate creation failed"));
+            if( msg == null) {
+                msg = "creation of certificate by ACME order '" + orderDao.getOrderId() + "' failed ";
+            }
             LOG.info(msg);
             throw new AcmeProblemException(new ProblemDetail(AcmeUtil.BAD_CSR, msg,
                 BAD_REQUEST, NO_DETAIL, NO_INSTANCE));

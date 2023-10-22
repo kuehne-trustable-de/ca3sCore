@@ -7,7 +7,7 @@ import {
   ICertificateFilterList,
   ISelector,
   ICertificateSelectionData,
-  IAcmeOrderView
+  IAcmeOrderView,
 } from '@/shared/model/transfer-object.model';
 
 import { colFieldToStr, makeQueryStringFromObj } from '@/shared/utils';
@@ -27,7 +27,7 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('orders-table',
   tableType
     .setFilterHandler((source, filter, columns) => ({
       // See https://documenter.getpostman.com/view/2025350/RWaEzAiG#json-field-masking
-      filter: columns.map(col => colFieldToStr(col.field!).replace(/\./g, '/')).join(',')
+      filter: columns.map(col => colFieldToStr(col.field!).replace(/\./g, '/')).join(','),
     }))
 
     .setSortHandler((endpointDesc, sortColumn, sortDir) => ({
@@ -36,9 +36,9 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('orders-table',
       ...(sortColumn && sortDir
         ? {
             order: sortDir,
-            sort: colFieldToStr(sortColumn.field!).replace(/\./g, '/')
+            sort: colFieldToStr(sortColumn.field!).replace(/\./g, '/'),
           }
-        : {})
+        : {}),
     }))
 
     .setPaginateHandler((endpointDesc, perPage, pageIndex) => ({
@@ -47,9 +47,9 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('orders-table',
       ...(perPage !== null
         ? {
             limit: perPage || 20,
-            offset: (pageIndex - 1) * perPage || 0
+            offset: (pageIndex - 1) * perPage || 0,
           }
-        : {})
+        : {}),
     }))
 
     // Alias our process steps, because the source, here, is our API url, and paged is the complete query string
@@ -61,12 +61,12 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('orders-table',
         // Data to display
         data,
         // Get the total number of matched items
-        headers: { 'x-total-count': totalCount }
+        headers: { 'x-total-count': totalCount },
       } = await axios.get(url);
 
       return {
         rows: data,
-        totalRowCount: parseInt(totalCount, 10)
+        totalRowCount: parseInt(totalCount, 10),
       } as ITableContentParam<IAcmeOrderView>;
     })
     .mergeSettings({
@@ -75,19 +75,19 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('orders-table',
         sorting: {
           sortAsc: '<img src="../../../content/images/caret-up-solid.png" alt="asc">',
           sortDesc: '<img src="../../../content/images/caret-down-solid.png" alt="desc">',
-          sortNone: ''
-        }
+          sortNone: '',
+        },
       },
       pager: {
         classes: {
           pager: 'pagination text-center',
-          selected: 'active'
+          selected: 'active',
         },
         icons: {
           next: '<img src="../../../content/images/chevron-right-solid.png" alt=">">',
-          previous: '<img src="../../../content/images/chevron-left-solid.png" alt="<">'
-        }
-      }
+          previous: '<img src="../../../content/images/chevron-left-solid.png" alt="<">',
+        },
+      },
     })
 );
 
@@ -111,14 +111,15 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
       itemType: 'set',
       itemDefaultSelector: 'EQUAL',
       itemDefaultValue: 'VALID',
-      values: ['PENDING', 'READY', 'PROCESSING', 'VALID', 'INVALID']
+      values: ['PENDING', 'READY', 'PROCESSING', 'VALID', 'INVALID'],
     },
     { itemName: 'challengeUrls', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable.de' },
     { itemName: 'id', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: '1' },
+    { itemName: 'createdOn', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}' },
     { itemName: 'orderId', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: '' },
     { itemName: 'accountId', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: '' },
     { itemName: 'realm', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: '' },
-    { itemName: 'expires', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}' }
+    { itemName: 'expires', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}' },
   ];
 
   public selectionChoices: ISelectionChoices[] = [
@@ -126,7 +127,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
     { itemType: 'number', hasValue: true, choices: ['EQUAL', 'NOT_EQUAL', 'LESSTHAN', 'GREATERTHAN'] },
     { itemType: 'date', hasValue: true, choices: ['ON', 'BEFORE', 'AFTER'] },
     { itemType: 'boolean', hasValue: false, choices: ['ISTRUE', 'ISFALSE'] },
-    { itemType: 'set', hasValue: false, choices: ['EQUAL', 'NOT_EQUAL'] }
+    { itemType: 'set', hasValue: false, choices: ['EQUAL', 'NOT_EQUAL'] },
   ];
 
   public contentAccessUrl: string;
@@ -219,13 +220,14 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
         { label: 'id', field: 'id' },
         { label: this.$t('ca3SApp.acmeOrder.orderId'), field: 'orderId' },
         { label: this.$t('ca3SApp.acmeOrder.accountId'), field: 'accountId' },
+        { label: this.$t('ca3SApp.aCMEAccount.createdOn'), field: 'createdOn' },
         { label: this.$t('status'), field: 'status' },
         { label: this.$t('realm'), field: 'realm' },
         { label: this.$t('ca3SApp.acmeChallenge.type'), field: 'challengeTypes' },
         { label: this.$t('ca3SApp.acmeChallenge.target'), field: 'challengeUrls' },
         { label: this.$t('expires'), field: 'expires' },
         { label: this.$t('notBefore'), field: 'notBefore' },
-        { label: this.$t('notAfter'), field: 'notAfter' }
+        { label: this.$t('notAfter'), field: 'notAfter' },
       ] as TColumnsDefinition<IAcmeOrderView>,
       page: 1,
       filter: '',
@@ -234,7 +236,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
       get acmeOrderApiUrl() {
         window.console.info('acmeOrderApiUrl returns : ' + self.contentAccessUrl);
         return self.contentAccessUrl;
-      }
+      },
     };
   }
 
@@ -290,8 +292,8 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
     axios({
       method: 'get',
       url: 'api/userProperties/filterList/acmeOrderList',
-      responseType: 'stream'
-    }).then(function(response) {
+      responseType: 'stream',
+    }).then(function (response) {
       window.console.debug('getUsersFilterList returns ' + response.data);
       if (response.status === 200) {
         self.filters.filterList = response.data.filterList;
@@ -312,8 +314,8 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
         method: 'put',
         url: 'api/userProperties/filterList/acmeOrderList',
         data: self.filters,
-        responseType: 'stream'
-      }).then(function(response) {
+        responseType: 'stream',
+      }).then(function (response) {
         window.console.debug('putUsersFilterList returns ' + response.status);
         if (response.status === 204) {
           self.lastFilters = lastFiltersValue;

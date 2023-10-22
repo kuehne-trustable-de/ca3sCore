@@ -12,6 +12,7 @@ import de.trustable.ca3s.core.web.rest.support.ContentUploadProcessor;
 import de.trustable.util.JCAManager;
 import io.ddavison.conductor.Browser;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -125,7 +126,12 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         uploaded.setSecret("S3cr3t!S");
 
         ResponseEntity<PkcsXXData> responseEntity = contentUploadProcessor.buildServerSideKeyAndRequest(uploaded, "integrationTest");
-        long createdCertificateId = responseEntity.getBody().getCertsHolder()[0].getCertificateId();
+        if(responseEntity != null && responseEntity.getBody() != null && responseEntity.getBody().getCertsHolder() != null &&
+             responseEntity.getBody().getCertsHolder().length > 0 ) {
+            createdCertificateId = responseEntity.getBody().getCertsHolder()[0].getCertificateId();
+        }else{
+            Assert.fail("creation of certificate failed: " + responseEntity);
+        }
 
         if( driver == null) {
 		    super.startWebDriver();
@@ -233,6 +239,7 @@ public class CAConnectorAdministrationIT extends WebTestBase{
 
         String newCAConnectorName = "CAConnector_" + Math.random();
         String newCAConnectorUrl = "http://adcs.server/Url_" + Math.random();
+        String updatedCAConnectorUrl = "http://adcs.server/UpdatedUrl_" + Math.random();
         String newCAConnectorTemplate = "Template_" + Math.random();
         String protectionPassphrase = "ProtectionPassphrase_" + Math.random();
 
@@ -296,6 +303,21 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         Assertions.assertEquals("ADCS", getText(LOC_SEL_CA_CONFIG_TYPE));
         Assertions.assertEquals( newCAConnectorTemplate, getText(LOC_INP_CA_CONFIG_SELECTOR) );
         Assertions.assertFalse(isChecked(LOC_INP_CA_CONFIG_DEFAULT_CA));
+        Assertions.assertEquals( newCAConnectorUrl, getText(LOC_SEL_CA_CONFIG_URL));
+
+        click(LOC_SEL_CA_CONFIG_URL);
+        setText(LOC_SEL_CA_CONFIG_URL, updatedCAConnectorUrl);
+
+        validatePresent(LOC_BTN_SAVE);
+        click(LOC_BTN_SAVE);
+
+        validatePresent(LOC_TEXT_CONNECTOR_LIST);
+
+        validatePresent(byEditCAConnectorName);
+        click(byEditCAConnectorName);
+
+        Assertions.assertEquals( updatedCAConnectorUrl, getText(LOC_SEL_CA_CONFIG_URL));
+
     }
 
     @Test

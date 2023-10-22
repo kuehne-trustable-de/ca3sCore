@@ -10,6 +10,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import de.trustable.ca3s.core.domain.CRLExpirationNotification;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.service.util.CertificateSelectionUtil;
+import de.trustable.ca3s.core.service.util.CertificateUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -29,12 +30,15 @@ public class CertificateViewRepository {
 
     private final  AuditTraceRepository auditTraceRepository;
 
-    public CertificateViewRepository(EntityManager entityManager, CertificateSelectionUtil certificateSelectionAttributeList, CertificateRepository certificateRepository, CRLExpirationNotificationRepository crlExpirationNotificationRepository, AuditTraceRepository auditTraceRepository) {
+    private final CertificateUtil certificateUtil;
+
+    public CertificateViewRepository(EntityManager entityManager, CertificateSelectionUtil certificateSelectionAttributeList, CertificateRepository certificateRepository, CRLExpirationNotificationRepository crlExpirationNotificationRepository, AuditTraceRepository auditTraceRepository, CertificateUtil certificateUtil) {
         this.entityManager = entityManager;
         this.certificateSelectionAttributeList = certificateSelectionAttributeList;
         this.certificateRepository = certificateRepository;
         this.crlExpirationNotificationRepository = crlExpirationNotificationRepository;
         this.auditTraceRepository = auditTraceRepository;
+        this.certificateUtil = certificateUtil;
     }
 
     public Page<CertificateView> findSelection(Map<String, String[]> parameterMap) {
@@ -55,6 +59,9 @@ public class CertificateViewRepository {
             Certificate cert = optCert.get();
             CertificateView certificateView = new CertificateView(cert);
 
+            if( !cert.isEndEntity()) {
+                certificateView.setIssuingActiveCertificates(certificateUtil.hasIssuedActiveCertificates(cert));
+            }
             certificateView.setAuditPresent( !auditTraceRepository.findByCsrAndCert(cert, cert.getCsr()).isEmpty());
 
             List<CRLExpirationNotification> crlExpirationNotificationList = crlExpirationNotificationRepository.findByCrlUrl(certificateView.getCrlUrl());

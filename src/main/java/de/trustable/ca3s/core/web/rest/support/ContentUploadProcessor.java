@@ -626,7 +626,15 @@ public class ContentUploadProcessor {
 
                     } else {
                         auditService.saveAuditTrace(auditService.createAuditTraceWebAutoAccepted(csr));
-                        cpUtil.processCertificateRequest(csr, requestorName, AuditService.AUDIT_WEB_CERTIFICATE_CREATED, pipeline);
+                        try {
+                            cpUtil.processCertificateRequest(csr, requestorName, AuditService.AUDIT_WEB_CERTIFICATE_CREATED, pipeline);
+                        }catch (CAFailureException caFailureException){
+                            LOG.info("certificate creation failed", caFailureException);
+                            String msg = "certificate creation failed '"+caFailureException.getMessage()+"'!";
+                            auditService.saveAuditTrace(auditService.createAuditTraceCsrRejected(csr, msg));
+                            LOG.info(msg);
+                        }
+
                     }
                     return csr;
                 } else {

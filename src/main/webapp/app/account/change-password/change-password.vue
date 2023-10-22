@@ -41,10 +41,10 @@
                                    v-if="!$v.resetPassword.newPassword.required" v-text="$t('global.messages.validate.newpassword.required')">
                                 Your password is required.
                             </small>
+                            <small class="form-text text-danger" v-if="showRegExpFieldWarning($v.resetPassword.newPassword.$model, regExpSecret())" v-text="$t('ca3SApp.messages.password.requirement.' + regExpSecretDescription())">
+                                secret must match RegEx!
+                            </small>
                         </div>
-                        <small class="form-text text-danger" v-if="showRegExpFieldWarning($v.resetPassword.newPassword.$model, regExpSecret())" v-text="$t('ca3SApp.messages.password.requirement.' + regExpSecretDescription())">
-                            secret must match RegEx!
-                        </small>
                         <!--<jhi-password-strength-bar [passwordToCheck]="newPassword"></jhi-password-strength-bar>-->
                     </div>
                     <div class="form-group">

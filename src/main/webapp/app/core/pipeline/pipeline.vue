@@ -47,10 +47,6 @@
                     <td>{{pipeline.caConnectorName}}</td>
                     <td class="text-right">
                         <div class="btn-group">
-                            <!--router-link :to="{name: 'ConfPipelineView', params: {pipelineId: pipeline.id}}" tag="button" class="btn btn-info btn-sm details">
-                                <font-awesome-icon icon="eye"></font-awesome-icon>
-                                <span class="d-none d-md-inline" v-text="$t('entity.action.view')">View</span>
-                            </router-link-->
                             <router-link :to="{name: 'ConfPipelineEdit', params: {pipelineId: pipeline.id, mode: 'edit'}}"  tag="button" class="btn btn-primary btn-sm edit">
                                 <font-awesome-icon icon="pencil-alt"></font-awesome-icon>
                                 <span class="d-none d-md-inline" v-text="$t('entity.action.edit')">Edit</span>

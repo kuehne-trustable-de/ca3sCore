@@ -118,6 +118,8 @@ spring:
     password:
   thymeleaf:
     cache: true
+  messages:
+    basename: i18n/messages
 
 server:
   port: 8080

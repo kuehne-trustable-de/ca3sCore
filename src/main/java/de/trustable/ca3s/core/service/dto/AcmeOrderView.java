@@ -16,6 +16,7 @@ public class AcmeOrderView implements Serializable {
     private String challengeUrls;
 
     private Boolean wildcard;
+    private Instant createdOn;
     private Instant expires;
     private Instant notBefore;
     private Instant notAfter;
@@ -168,5 +169,11 @@ public class AcmeOrderView implements Serializable {
         this.challengeUrls = challengeUrls;
     }
 
+    public Instant getCreatedOn() {
+        return createdOn;
+    }
 
+    public void setCreatedOn(Instant createdOn) {
+        this.createdOn = createdOn;
+    }
 }

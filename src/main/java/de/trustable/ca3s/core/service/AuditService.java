@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.audit.listener.AuditApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
@@ -226,6 +227,7 @@ public class AuditService {
                                                              final AcmeOrder acmeOrder) {
         return createAuditTraceACMEInfo(acmeAccount,
             acmeOrder,
+            null,
             AUDIT_ACME_ORDER_SUCCEEDED,
             null);
     }
@@ -233,6 +235,7 @@ public class AuditService {
     public AuditTrace createAuditTraceACMEOrderExpired(final AcmeOrder acmeOrder) {
         return createAuditTraceACMEInfo(acmeOrder.getAccount(),
             acmeOrder,
+            null,
             AUDIT_ACME_ORDER_EXPIRED,
             null);
     }
@@ -242,6 +245,7 @@ public class AuditService {
                                                              final String msg) {
         return createAuditTraceACMEInfo(acmeAccount,
             acmeOrder,
+            null,
             AUDIT_ACME_CHALLENGE_SUCCEEDED,
             msg);
     }
@@ -251,6 +255,7 @@ public class AuditService {
                                                           final String msg) {
         return createAuditTraceACMEInfo(acmeAccount,
             acmeOrder,
+            null,
             AUDIT_ACME_CHALLENGE_FAILED,
             msg);
     }
@@ -260,15 +265,18 @@ public class AuditService {
                                                        final AcmeOrder acmeOrder) {
         return createAuditTraceACMEInfo(acmeAccount,
             acmeOrder,
+            null,
             AUDIT_ACME_ORDER_EXPIRED,
             null);
     }
 
     public AuditTrace createAuditTraceAcmeOrderInvalid(final AcmeAccount acmeAccount,
                                                           final AcmeOrder acmeOrder,
+                                                          final CSR csr,
                                                           final String msg) {
         return createAuditTraceACMEInfo(acmeAccount,
             acmeOrder,
+            csr,
             AUDIT_ACME_ORDER_INVALID,
             msg);
     }
@@ -276,6 +284,7 @@ public class AuditService {
 
     public AuditTrace createAuditTraceACMEInfo(final AcmeAccount acmeAccount,
                                                final AcmeOrder acmeOrder,
+                                               final CSR csr,
                                                final String template,
                                                final String msg){
 
@@ -284,7 +293,7 @@ public class AuditService {
             template,
             null,
             null, msg,
-            null,
+            csr,
             null,
             null,
             null,
@@ -785,10 +794,12 @@ public class AuditService {
         return in.replace("%", "%25").replace(",", "%2C");
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveAuditTrace(final AuditTrace auditTrace){
         auditTraceRepository.save(auditTrace);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveAuditTrace(final List<AuditTrace> auditTraceList){
         auditTraceRepository.saveAll(auditTraceList);
     }

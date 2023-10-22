@@ -50,7 +50,8 @@ public class AuditTraceViewResource {
         @RequestParam(value = "csrId", required = false) Long csrId,
         @RequestParam(value = "pipelineId", required = false) Long pipelineId,
         @RequestParam(value = "caConnectorId", required = false) Long caConnectorId,
-        @RequestParam(value = "processInfoId", required = false) Long processInfoId
+        @RequestParam(value = "processInfoId", required = false) Long processInfoId,
+        @RequestParam(value = "acmeOrderId", required = false) Long acmeOrderId
         ) {
         log.debug("REST request to get AuditTraceViews");
 
@@ -70,7 +71,14 @@ public class AuditTraceViewResource {
             processInfoId = Long.MIN_VALUE;
         }
 
-        Page<AuditTrace> page = auditTraceService.findBy( pageable,certificateId, csrId, pipelineId, caConnectorId, processInfoId);
+        Page<AuditTrace> page = auditTraceService.findBy( pageable,
+            certificateId,
+            csrId,
+            pipelineId,
+            caConnectorId,
+            processInfoId,
+            acmeOrderId);
+
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
 
         List<AuditTraceView> alvList = new ArrayList<>(page.getContent().size());

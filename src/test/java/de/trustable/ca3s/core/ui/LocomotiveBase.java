@@ -246,8 +246,8 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
                             options.addArguments("--no-sandbox");
                             options.addArguments("--disable-dev-shm-usage");
 
-//                            driver = WebDriverManager.chromedriver().capabilities(options).create();
-                            driver = new ChromeDriver(options);
+                            driver = WebDriverManager.chromedriver().capabilities(options).create();
+//                            driver = new ChromeDriver(options);
 
                         } catch (Exception x) {
                             x.printStackTrace();

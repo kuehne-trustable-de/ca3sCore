@@ -1,6 +1,10 @@
 package de.trustable.ca3s.core.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import java.io.Serializable;
 import java.time.Instant;
 import javax.persistence.*;
@@ -41,6 +45,11 @@ import javax.validation.constraints.*;
     @NamedQuery(name = "AuditTrace.findByProcessInfo",
         query = "SELECT a FROM AuditTrace a WHERE " +
             "a.processInfo = :processInfo "+
+            "order by a.createdOn asc"
+    ),
+    @NamedQuery(name = "AuditTrace.findByAcmeOrder",
+        query = "SELECT a FROM AuditTrace a WHERE " +
+            "a.acmeOrder = :acmeOrder "+
             "order by a.createdOn asc"
     ),
     @NamedQuery(name = "AuditTrace.findByRequestProxyConfig",

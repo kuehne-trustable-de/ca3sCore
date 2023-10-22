@@ -446,7 +446,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.processInfo')" for="pipeline-processInfo">Process Info</label>
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.processInfoCreate')" for="pipeline-processInfo">Process Info Create</label>
                         <select class="form-control" id="pipeline-processInfo" name="processInfo" v-model="pipeline.processInfoCreate">
                             <option v-bind:value="null"></option>
                             <option v-bind:value="pipeline.processInfo && bPNMProcessInfoOption.id === pipeline.processInfo.id ? pipeline.processInfo : bPNMProcessInfoOption" v-for="bPNMProcessInfoOption in getBPNMProcessInfosByType('CERTIFICATE_CREATION')" :key="bPNMProcessInfoOption.id">{{bPNMProcessInfoOption.name}}</option>
@@ -454,7 +454,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.processInfo')" for="pipeline-processInfo">Process Info</label>
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.processInfoRevoke')" for="pipeline-processInfo">Process Info Revoke</label>
                         <select class="form-control" id="pipeline-processInfo" name="processInfo" v-model="pipeline.processInfoRevoke">
                             <option v-bind:value="null"></option>
                             <option v-bind:value="pipeline.processInfo && bPNMProcessInfoOption.id === pipeline.processInfo.id ? pipeline.processInfo : bPNMProcessInfoOption" v-for="bPNMProcessInfoOption in getBPNMProcessInfosByType('CERTIFICATE_REVOCATION')" :key="bPNMProcessInfoOption.id">{{bPNMProcessInfoOption.name}}</option>

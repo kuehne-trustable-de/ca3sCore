@@ -18,7 +18,7 @@ const validations: any = {
       required,
       minLength: minLength(5),
       maxLength: maxLength(254),
-      email,
+      //      email,
     },
     password: {
       required,
@@ -66,6 +66,9 @@ export default class Register extends Vue {
       })
       .catch(error => {
         this.success = null;
+        console.log('error.response.data.type : ' + error.response.data.type);
+        console.log('LOGIN_ALREADY_USED_TYPE : ' + LOGIN_ALREADY_USED_TYPE);
+        console.log('EMAIL_ALREADY_USED_TYPE : ' + EMAIL_ALREADY_USED_TYPE);
         if (error.response.status === 400 && error.response.data.type === LOGIN_ALREADY_USED_TYPE) {
           this.errorUserExists = 'ERROR';
         } else if (error.response.status === 400 && error.response.data.type === EMAIL_ALREADY_USED_TYPE) {
@@ -78,5 +81,33 @@ export default class Register extends Vue {
 
   public openLogin(): void {
     this.loginService().openLogin((<any>this).$root);
+  }
+
+  public showRegExpFieldWarning(value: string, regEx: string): boolean {
+    const regexp = new RegExp(regEx);
+    const valid = regexp.test(value);
+    console.log('showRegExpFieldWarning( ' + regEx + ', "' + value + '") -> ' + valid);
+    return !valid;
+  }
+
+  public regExpSecret(): string {
+    if (
+      this.$store.state.uiConfigStore.config.cryptoConfigView !== undefined &&
+      this.$store.state.uiConfigStore.config.cryptoConfigView.passwordRegexp !== undefined
+    ) {
+      return this.$store.state.uiConfigStore.config.cryptoConfigView.passwordRegexp;
+    }
+    return '';
+  }
+
+  public regExpSecretDescription(): string {
+    if (
+      this.$store.state.uiConfigStore.config.cryptoConfigView !== undefined &&
+      this.$store.state.uiConfigStore.config.cryptoConfigView.regexpPasswordDescription !== undefined
+    ) {
+      console.log('regExpSecretDescription : ' + this.$store.state.uiConfigStore.config.cryptoConfigView.regexpPasswordDescription);
+      return this.$store.state.uiConfigStore.config.cryptoConfigView.regexpPasswordDescription;
+    }
+    return '';
   }
 }

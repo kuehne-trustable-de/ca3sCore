@@ -1818,10 +1818,7 @@
                         <version>${xml.maven.saxon.version}</version>
                     </dependency>
                 </dependencies>
-
             </plugin>
-
-
         </plugins>
 
         <pluginManagement>

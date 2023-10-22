@@ -50,10 +50,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Configuration
@@ -75,6 +72,12 @@ public class SamlSecurityConfig {
 
     @Value("${ca3s.saml.metadata.location:#{null}}")
     private String ssoMetadataPath;
+
+    @Value("${ca3s.saml.metadata.trust.check:true}")
+    private boolean metadataTrustCheck;
+
+    @Value("${ca3s.saml.metadata.trust.key.aliases:}")
+    private Set<String> metadataTrustedKeyAliases;
 
     @Autowired
     private TokenProvider tokenProvider;
@@ -228,7 +231,14 @@ public class SamlSecurityConfig {
         FilesystemMetadataProvider provider = new FilesystemMetadataProvider(ssoMetadataFile);
 
         provider.setParserPool(parserPool());
-        return new ExtendedMetadataDelegate(provider, extendedMetadata());
+        ExtendedMetadataDelegate extendedMetadataDelegate = new ExtendedMetadataDelegate(provider, extendedMetadata());
+
+        extendedMetadataDelegate.setMetadataTrustCheck(metadataTrustCheck);
+        if( (metadataTrustedKeyAliases != null) && !metadataTrustedKeyAliases.isEmpty()) {
+            extendedMetadataDelegate.setMetadataTrustedKeys(metadataTrustedKeyAliases);
+        }
+
+        return extendedMetadataDelegate;
     }
 
     @Bean

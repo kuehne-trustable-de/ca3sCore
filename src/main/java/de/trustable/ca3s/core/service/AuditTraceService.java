@@ -43,5 +43,11 @@ public interface AuditTraceService {
      */
     void delete(Long id);
 
-    Page<AuditTrace> findBy(Pageable pageable, Long certificateId, Long csrId, Long pipelineId, Long caConnectorId, Long processInfoId);
+    Page<AuditTrace> findBy(Pageable pageable,
+                            Long certificateId,
+                            Long csrId,
+                            Long pipelineId,
+                            Long caConnectorId,
+                            Long processInfoId,
+                            Long acmeOrderId);
 }

@@ -14,6 +14,8 @@
     <property name="clobType" value="clob" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
     <property name="blobType" value="blob" dbms="h2"/>
     <property name="blobType" value="blob" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
+    <property name="longBlobType" value="longblob" dbms="mysql, mariadb"/>
+    <property name="longBlobType" value="blob" dbms="h2, oracle, mssql, postgresql"/>
     <property name="uuidType" value="varchar(36)" dbms="h2, mysql, mariadb"/>
     <property name="intType" value="INT(10)" dbms="mysql, oracle, mssql, mariadb, postgresql"/>
     <property name="intType" value="INT" dbms="h2"/>
@@ -145,5 +147,9 @@
 
     <include file="config/liquibase/changelog/20230703180000_added_columns_AuditTrace_CA_Config.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/2023070318000000_added_relation_pipeline_bpmns.xml" relativeToChangelogFile="false"/>
+
+    <include file="config/liquibase/changelog/20231016203000_change_camunda_blob_type.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231016211500_added_columns_AcmeOrder.xml" relativeToChangelogFile="false"/>
+
 
 </databaseChangeLog>

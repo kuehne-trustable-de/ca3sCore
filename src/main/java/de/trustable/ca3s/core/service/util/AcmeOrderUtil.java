@@ -3,9 +3,12 @@ package de.trustable.ca3s.core.service.util;
 import de.trustable.ca3s.core.domain.AcmeAuthorization;
 import de.trustable.ca3s.core.domain.AcmeChallenge;
 import de.trustable.ca3s.core.domain.AcmeOrder;
+import de.trustable.ca3s.core.repository.AcmeOrderSpecifications;
 import de.trustable.ca3s.core.service.dto.AcmeOrderView;
 import de.trustable.ca3s.core.service.dto.AcmeChallengeView;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -15,6 +18,8 @@ import java.util.List;
 
 @Service
 public class AcmeOrderUtil {
+
+    static Logger logger = LoggerFactory.getLogger(AcmeOrderUtil.class);
 
     public AcmeOrderView from(AcmeOrder acmeOrder){
 
@@ -32,7 +37,10 @@ public class AcmeOrderUtil {
         if( acmeOrder.getCsr() != null) {
             acmeOrderView.setCsrId(acmeOrder.getCsr().getId());
         }
+        acmeOrderView.setCreatedOn(acmeOrder.getCreatedOn());
         acmeOrderView.setExpires(acmeOrder.getExpires());
+        logger.info("expires from AcmeOrder: " + acmeOrder.getExpires());
+
         acmeOrderView.setNotBefore(acmeOrder.getNotBefore());
         acmeOrderView.setNotAfter(acmeOrder.getNotAfter());
 

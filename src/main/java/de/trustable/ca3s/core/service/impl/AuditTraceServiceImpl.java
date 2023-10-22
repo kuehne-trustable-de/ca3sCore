@@ -29,19 +29,21 @@ public class AuditTraceServiceImpl implements AuditTraceService {
     private final PipelineRepository pipelineRepository;
     private final CAConnectorConfigRepository caConnectorConfigRepository;
     private final BPMNProcessInfoRepository bpmnProcessInfoRepository;
+    private final AcmeOrderRepository acmeOrderRepository;
 
     public AuditTraceServiceImpl(AuditTraceRepository auditTraceRepository,
                                  CertificateRepository certificateRepository,
                                  CSRRepository csrRepository,
                                  PipelineRepository pipelineRepository,
                                  CAConnectorConfigRepository caConnectorConfigRepository,
-                                 BPMNProcessInfoRepository bpmnProcessInfoRepository) {
+                                 BPMNProcessInfoRepository bpmnProcessInfoRepository, AcmeOrderRepository acmeOrderRepository) {
         this.auditTraceRepository = auditTraceRepository;
         this.certificateRepository = certificateRepository;
         this.csrRepository = csrRepository;
         this.pipelineRepository = pipelineRepository;
         this.caConnectorConfigRepository = caConnectorConfigRepository;
         this.bpmnProcessInfoRepository = bpmnProcessInfoRepository;
+        this.acmeOrderRepository = acmeOrderRepository;
     }
 
     @Override
@@ -73,7 +75,13 @@ public class AuditTraceServiceImpl implements AuditTraceService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<AuditTrace> findBy(Pageable pageable, Long certificateId, Long csrId, Long pipelineId, Long caConnectorId, Long processInfoId){
+    public Page<AuditTrace> findBy(Pageable pageable,
+                                   Long certificateId,
+                                   Long csrId,
+                                   Long pipelineId,
+                                   Long caConnectorId,
+                                   Long processInfoId,
+                                   Long acmeOrderId){
 
         if( (certificateId != -1 ) || (csrId != -1 )) {
             log.debug("Request to select AuditTrace by certificate id '{}' or csr id '{}'", certificateId, csrId);
@@ -112,6 +120,12 @@ public class AuditTraceServiceImpl implements AuditTraceService {
             if(optProcessInfo.isPresent()){
                 return auditTraceRepository.findByProcessInfo(pageable, optProcessInfo.get());
 
+            }
+        } else if( acmeOrderId != -1){
+            log.debug("Request to select AuditTrace by acmeOrder id '{}'", acmeOrderId);
+            Optional<AcmeOrder> optAcmeOrder = acmeOrderRepository.findById(acmeOrderId);
+            if(optAcmeOrder.isPresent()){
+                return auditTraceRepository.findByAcmeOrder(pageable, optAcmeOrder.get());
             }
         } else{
             log.warn("Request to select AuditTrace : non-null argument required!");

@@ -524,16 +524,14 @@ public class ChallengeController extends AcmeController {
             } catch(UnknownHostException uhe) {
 //            } catch(RestClientException uhe) {
                 String msg = "unable to resolve hostname: '" + host + "'";
-                auditService.saveAuditTrace(
-                    auditService.createAuditTraceAcmeChallengeFailed(acmeOrder.getAccount(), acmeOrder, msg));
+//                auditService.saveAuditTrace(auditService.createAuditTraceAcmeChallengeFailed(acmeOrder.getAccount(), acmeOrder, msg));
                 LOG.info(msg);
                 challengeDao.setLastError(msg);
                 // give up here, other ports won't give better results
                 return false;
             } catch(SocketTimeoutException | ConnectTimeoutException ste) {
                 String msg = "timeout connecting to "+host+":"+port+" for challenge id " +challengeDao.getId();
-                auditService.saveAuditTrace(
-                    auditService.createAuditTraceAcmeChallengeFailed(acmeOrder.getAccount(), acmeOrder, msg));
+//                auditService.saveAuditTrace(auditService.createAuditTraceAcmeChallengeFailed(acmeOrder.getAccount(), acmeOrder, msg));
                 LOG.info(msg);
                 challengeDao.setLastError(msg);
                 // go on trying other ports

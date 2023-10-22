@@ -146,7 +146,12 @@ public class CaInternalConnector {
 				+ System.currentTimeMillis()
 				+ ", OU=Internal Only, OU=Dev/Test Only, O=trustable solutions, C=DE");
 
-		X509Certificate x509Cert = cryptoUtil.issueCertificate(normalizeX500Name(subject), keyPair, normalizeX500Name(subject), keyPair.getPublic().getEncoded(), Calendar.YEAR, 1, PKILevel.ROOT);
+		X509Certificate x509Cert = cryptoUtil.issueCertificate(
+            normalizeX500Name(subject),
+            keyPair,
+            normalizeX500Name(subject),
+            keyPair.getPublic().getEncoded(),
+            Calendar.YEAR, 1, PKILevel.ROOT);
 
 		Certificate rootCert = certUtil.createCertificate(x509Cert.getEncoded(), null, "", false);
 

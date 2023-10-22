@@ -35,7 +35,6 @@ import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.cert.CertException;
 import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cert.X509ExtensionUtils;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
@@ -1835,6 +1834,14 @@ public class CertificateUtil {
             LOG.debug("no certificate found for AKI {}", aKIBase64);
         }
         return issuingCertList;
+    }
+
+    public boolean hasIssuedActiveCertificates(Certificate issuingCertificate){
+
+        String sKIBase64 = getCertAttribute(issuingCertificate, CertificateAttribute.ATTRIBUTE_SKI);
+        LOG.debug("looking for certificate issued by '" + issuingCertificate.getSubject() + "', selected by their AKI '" + sKIBase64 + "'");
+        List<Certificate> activeIssuedCertList = certificateRepository.findActiveByAttributeValue(CertificateAttribute.ATTRIBUTE_AKI, sKIBase64);
+        return activeIssuedCertList.isEmpty();
     }
 
     public List<Certificate> findCertsBySubjectRFC2253(final String subject) {

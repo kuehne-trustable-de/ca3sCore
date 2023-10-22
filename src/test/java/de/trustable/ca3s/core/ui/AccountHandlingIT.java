@@ -15,7 +15,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 
 import javax.mail.Folder;
@@ -111,7 +111,7 @@ public class AccountHandlingIT extends WebTestBase{
 
         byte[] passwordBytes = new byte[6];
         rand.nextBytes(passwordBytes);
-        emailPassword = "Password1" + encodeBytesToText(passwordBytes);
+        emailPassword = "PasswordEMail_" + encodeBytesToText(passwordBytes);
 
         // Create user, as connect verifies pwd
         greenMailSMTPIMAP.setUser(emailAddress, emailAddress, emailPassword);
@@ -142,7 +142,7 @@ public class AccountHandlingIT extends WebTestBase{
 
         byte[] passwordBytes = new byte[6];
         rand.nextBytes(passwordBytes);
-        String password = "Password1" + encodeBytesToText(passwordBytes);
+        String password = "PasswordLogon_" + encodeBytesToText(passwordBytes);
 
         IMAPStore imapStore = greenMailSMTPIMAP.getImap().createStore();
         imapStore.connect(emailAddress, emailPassword);
@@ -180,7 +180,6 @@ public class AccountHandlingIT extends WebTestBase{
 
         waitForElement(LOC_TEXT_REGISTRATION_SUCCESSFUL);
 
-        System.out.println("inbox.getMessageCount() : " + inbox.getMessageCount());
         while( inbox.getMessageCount() == 0) {
             try {
                 Thread.sleep(1000); // sleep for 1 second.
@@ -192,8 +191,8 @@ public class AccountHandlingIT extends WebTestBase{
 
         Message msgReceived = inbox.getMessage(1);
 
-//        System.out.println( "msgReceived.getContentType() : " + msgReceived.getContentType() );
-//        System.out.println( "msgReceived.getContent() : " + msgReceived.getContent() );
+        System.out.println( "msgReceived.getContentType() : " + msgReceived.getContentType() );
+        System.out.println( "msgReceived.getContent() : " + msgReceived.getContent() );
 
         String emailContent = msgReceived.getContent().toString();
 
@@ -223,12 +222,10 @@ public class AccountHandlingIT extends WebTestBase{
             e.printStackTrace();
         }
 
-
     }
 
     static String encodeBytesToText(byte[] bytes){
-        return Base64.getEncoder().encodeToString(bytes).replace("+", "A").replace("=", "B");
+        return Base64.getEncoder().encodeToString(bytes).replace("+", "A").replace("=", "B").replace("/", "C");
     }
-
 
 }

@@ -220,61 +220,20 @@ public final class AcmeOrderSpecifications {
     }
 
     private static AcmeOrderView buildAcmeOrderViewFromObjArr(ArrayList<String> colList,
-                                                               Object[] objArr,
+                                                              Object[] objArr,
                                                               AcmeOrderRepository acmeOrderRepository,
                                                               AcmeOrderUtil acmeOrderUtil) {
         AcmeOrderView acmeOrderView = new AcmeOrderView();
-        int i = 0;
 
         for( int n = 0; n < colList.size(); n++){
             if( "id".equalsIgnoreCase(colList.get(n))){
-                Optional<AcmeOrder> optionalAcmeOrder = acmeOrderRepository.findById((Long) objArr[i]);
+                Optional<AcmeOrder> optionalAcmeOrder = acmeOrderRepository.findById((Long) objArr[n]);
                 if( optionalAcmeOrder.isPresent()){
                     acmeOrderView = acmeOrderUtil.from(optionalAcmeOrder.get());
                 }
             }
         }
 
-        for (String attribute : colList) {
-
-            if (i >= objArr.length) {
-                logger.debug("attribute '{}' exceeds objArr with #{} elements ", attribute, objArr.length);
-                continue;
-            }
-            logger.debug("attribute '{}' has value '{}'", attribute, objArr[i]);
-
-            if ("id".equalsIgnoreCase(attribute)) {
-                acmeOrderView.setId((Long) objArr[i]);
-            } else if ("orderId".equalsIgnoreCase(attribute)) {
-                acmeOrderView.setOrderId(objArr[i].toString());
-            } else if ("accountId".equalsIgnoreCase(attribute)) {
-                acmeOrderView.setAccountId(objArr[i].toString());
-            } else if ("status".equalsIgnoreCase(attribute)) {
-                acmeOrderView.setStatus((AcmeOrderStatus) objArr[i]);
-            } else if ("realm".equalsIgnoreCase(attribute)) {
-                acmeOrderView.setRealm((String) objArr[i]);
-            } else if ("expires".equalsIgnoreCase(attribute)) {
-                acmeOrderView.setExpires((Instant) objArr[i]);
-            } else if ("notBefore".equalsIgnoreCase(attribute)) {
-                acmeOrderView.setNotBefore((Instant) objArr[i]);
-            } else if ("notAfter".equalsIgnoreCase(attribute)) {
-                acmeOrderView.setNotAfter((Instant) objArr[i]);
-            } else if ("error".equalsIgnoreCase(attribute)) {
-                acmeOrderView.setError((String) objArr[i]);
-            } else if ("finalizeUrl".equalsIgnoreCase(attribute)) {
-                acmeOrderView.setFinalizeUrl((String) objArr[i]);
-            } else if ("certificateUrl".equalsIgnoreCase(attribute)) {
-                acmeOrderView.setCertificateUrl((String) objArr[i]);
-            } else if ("challengeTypes".equalsIgnoreCase(attribute)) {
-                acmeOrderView.setChallengeTypes((String) objArr[i]);
-            } else if ("challengeUrls".equalsIgnoreCase(attribute)) {
-                // just ignore
-                // acmeOrderView.setChallengeUrls((String) objArr[i]);
-            } else {
-                logger.warn("unexpected attribute '{}' from query", attribute);
-            }
-            i++;
-        }
         return acmeOrderView;
     }
 
@@ -385,6 +344,11 @@ public final class AcmeOrderSpecifications {
                 pred = buildPredicateString( attributeSelector, cb, accJoin.get(AcmeAccount_.realm), attributeValue.toLowerCase());
             }
 
+        } else if ("createdOn".equals(attribute)) {
+            addNewColumn(selectionList, root.get(AcmeOrder_.createdOn));
+            if (attributeValue.trim().length() > 0) {
+                pred = buildDatePredicate(attributeSelector, cb, root.get(AcmeOrder_.createdOn), attributeValue);
+            }
         } else if ("expires".equals(attribute)) {
             addNewColumn(selectionList, root.get(AcmeOrder_.expires));
             if (attributeValue.trim().length() > 0) {

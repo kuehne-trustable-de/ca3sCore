@@ -315,6 +315,32 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
     this.sendAdministrationAction('api/administerCertificate');
   }
 
+  public revokeCertificateAndClose() {
+    if (this.isOwnCertificate()) {
+      this.withdrawCertificate();
+    } else {
+      this.revokeCertificate();
+    }
+
+    const message = this.$t('ca3SApp.certificate.revoked', { param: this.certificateView.id });
+    this.alertService().showAlert(message, 'danger');
+    this.getAlertFromStore();
+
+    this.closeDialog();
+  }
+
+  public prepareRevoke(): void {
+    const message = this.$t('ca3SApp.certificate.revoked', { param: this.certificateView.id });
+    this.alertService().showAlert(message, 'danger');
+    this.getAlertFromStore();
+
+    this.closeDialog();
+  }
+
+  public closeDialog(): void {
+    (<any>this.$refs.revokeCertificate).hide();
+  }
+
   public selfAdministerCertificate() {
     this.certificateAdminData.certificateId = this.certificateView.id;
     this.certificateAdminData.administrationType = 'UPDATE';
@@ -325,7 +351,6 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
   public withdrawCertificate() {
     this.certificateAdminData.certificateId = this.certificateView.id;
     this.certificateAdminData.administrationType = 'REVOKE';
-    this.certificateAdminData.trusted = this.certificateView.trusted;
     this.sendAdministrationAction('api/withdrawOwnCertificate');
   }
 

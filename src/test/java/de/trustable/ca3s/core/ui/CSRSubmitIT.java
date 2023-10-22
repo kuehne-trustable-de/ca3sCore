@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 
 import javax.security.auth.x500.X500Principal;
@@ -105,8 +105,13 @@ public class CSRSubmitIT extends WebTestBase{
 
     public static final By LOC_TABLE_AUDIT_REVOCATION_PRESENT = By.xpath("//div/table [thead/tr/th/span [contains(text(), 'Role')] ] [tbody/tr/td [contains(text(), 'Certificate revoked')]]");
 
-    public static final By LOC_BTN_WITHDRAW_CERTIFICATE = By.xpath("//form/div/button [@type='button'][span [text() = 'Withdraw']]");
+//    public static final By LOC_BTN_WITHDRAW_CERTIFICATE = By.xpath("//form/div/button [@type='button'][span [text() = 'Withdraw']]");
     public static final By LOC_BTN_CONFIRM_REQUEST = By.xpath("//form/div/button [@type='button'][span [text() = 'Confirm Request']]");
+    public static final By LOC_BTN_REVOKE = By.xpath("//form/div/button [@type='button'][span [text() = 'Revoke']]");
+
+    public static final By LOC_SPAN_REVOKE_QUESTION = By.xpath("//body/div//span[@id='ca3SApp.certificate.revoke.question']");
+    public static final By LOC_BTN_CONFIRM_REVOKE = By.xpath("//body/div//button [@type='button'][@id = 'confirm-revoke-certificate']");
+
     public static final By LOC_BTN_BACK = By.xpath("//form/div/button [@type='submit'][span [text() = 'Back']]");
 
 
@@ -248,7 +253,10 @@ public class CSRSubmitIT extends WebTestBase{
         validatePresent(LOC_SEL_REVOCATION_REASON);
 	    selectOptionByText(LOC_SEL_REVOCATION_REASON, "superseded");
 
-	    click(LOC_BTN_WITHDRAW_CERTIFICATE);
+	    click(LOC_BTN_REVOKE);
+
+        validatePresent(LOC_BTN_CONFIRM_REVOKE);
+        click(LOC_BTN_CONFIRM_REVOKE);
 
         waitForElement(LOC_LNK_CERTIFICATES_MENUE);
         validatePresent(LOC_LNK_CERTIFICATES_MENUE);
@@ -269,7 +277,8 @@ public class CSRSubmitIT extends WebTestBase{
         validatePresent(byCertSubject);
         click(byCertSubject);
 
-        validatePresent(LOC_TEXT_CERT_REVOCATION_REASON);
+        // already revoked
+        validateNotPresent(LOC_TEXT_CERT_REVOCATION_REASON);
 
         validatePresent(LOC_SHOW_HIDE_AUDIT);
         click(LOC_SHOW_HIDE_AUDIT);
@@ -337,11 +346,9 @@ public class CSRSubmitIT extends WebTestBase{
 	    validatePresent(LOC_BTN_REQUEST_CERTIFICATE);
 	    click(LOC_BTN_REQUEST_CERTIFICATE);
 
-
         waitForElement(LOC_TEXT_CERT_HEADER);
 	    validatePresent(LOC_TEXT_CERT_HEADER);
 		validatePresent(LOC_TEXT_PKIX_LABEL);
-
 
         click(LOC_SEL_CERT_FORMAT);
 
@@ -363,9 +370,12 @@ public class CSRSubmitIT extends WebTestBase{
 		validatePresent(LOC_SEL_REVOCATION_REASON);
 	    selectOptionByText(LOC_SEL_REVOCATION_REASON, "superseded");
 
-	    click(LOC_BTN_WITHDRAW_CERTIFICATE);
+	    click(LOC_BTN_REVOKE);
 
-		waitForElement(LOC_LNK_CERTIFICATES_MENUE);
+        validatePresent(LOC_BTN_CONFIRM_REVOKE);
+        click(LOC_BTN_CONFIRM_REVOKE);
+
+        waitForElement(LOC_LNK_CERTIFICATES_MENUE);
 		validatePresent(LOC_LNK_CERTIFICATES_MENUE);
 		click(LOC_LNK_CERTIFICATES_MENUE);
 
@@ -384,7 +394,8 @@ public class CSRSubmitIT extends WebTestBase{
 	    validatePresent(byCertSubject);
 	    click(byCertSubject);
 
-	    validatePresent(LOC_TEXT_CERT_REVOCATION_REASON);
+        // already revoked
+	    validateNotPresent(LOC_TEXT_CERT_REVOCATION_REASON);
 	}
 
     private X509Certificate checkPEMDownload(String cn, String format) throws InterruptedException, GeneralSecurityException, IOException {
@@ -602,16 +613,17 @@ public class CSRSubmitIT extends WebTestBase{
 	    validatePresent(LOC_TEXT_CERT_HEADER);
 		validatePresent(LOC_TEXT_PKIX_LABEL);
 
-/*
-		try {
-			System.out.println("... waiting ...");
-			System.in.read();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-*/
+        validatePresent(LOC_SEL_REVOCATION_REASON);
+        selectOptionByText(LOC_SEL_REVOCATION_REASON, "superseded");
 
-	}
+        validatePresent(LOC_BTN_REVOKE);
+        click(LOC_BTN_REVOKE);
+
+        validatePresent(LOC_SPAN_REVOKE_QUESTION);
+        validatePresent(LOC_BTN_CONFIRM_REVOKE);
+
+        click(LOC_BTN_CONFIRM_REVOKE);
+    }
 
     public String buildCSRAsPEM( final X500Principal subjectPrincipal ) throws GeneralSecurityException, IOException{
         KeyPair keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();

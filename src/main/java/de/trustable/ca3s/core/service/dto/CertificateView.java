@@ -217,6 +217,9 @@ public class CertificateView implements Serializable {
     private Boolean isFullChainAvailable = false;
 
     @CsvIgnore
+    private Boolean isIssuingActiveCertificates = false;
+
+    @CsvIgnore
     private String[] replacedCertArr;
 
     @CsvRecurse
@@ -959,5 +962,13 @@ public class CertificateView implements Serializable {
 
     public void setCrlExpirationNotificationId(Long crlExpirationNotificationId) {
         this.crlExpirationNotificationId = crlExpirationNotificationId;
+    }
+
+    public Boolean getIssuingActiveCertificates() {
+        return isIssuingActiveCertificates;
+    }
+
+    public void setIssuingActiveCertificates(Boolean issuingActiveCertificates) {
+        isIssuingActiveCertificates = issuingActiveCertificates;
     }
 }

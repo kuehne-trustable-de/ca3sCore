@@ -11,6 +11,7 @@ import de.trustable.ca3s.core.web.rest.data.UploadPrecheckData;
 import de.trustable.ca3s.core.web.rest.support.ContentUploadProcessor;
 import de.trustable.util.JCAManager;
 import io.ddavison.conductor.Browser;
+import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -133,7 +134,12 @@ public class PipelineAdministrationIT extends WebTestBase{
         uploaded.setSecret("S3cr3t!S");
 
         ResponseEntity<PkcsXXData> responseEntity = contentUploadProcessor.buildServerSideKeyAndRequest(uploaded, "integrationTest");
-        long createdCertificateId = responseEntity.getBody().getCertsHolder()[0].getCertificateId();
+        if(responseEntity != null && responseEntity.getBody() != null && responseEntity.getBody().getCertsHolder() != null &&
+            responseEntity.getBody().getCertsHolder().length > 0 ) {
+            createdCertificateId = responseEntity.getBody().getCertsHolder()[0].getCertificateId();
+        }else{
+            Assert.fail("creation of certificate failed: " + responseEntity);
+        }
 
         if( driver == null) {
 		    super.startWebDriver();

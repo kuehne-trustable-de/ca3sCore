@@ -103,6 +103,11 @@ spring:
   liquibase:
     contexts: prod
 
+  # in case of separated acces roles, liquibase requires to connect to the database with admin privileges
+  #    default-schema: ca3s_sep_roles
+  #    user: ca3s_sr_admin
+  #    password: MLQ738PdLpio
+
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
@@ -111,15 +116,13 @@ spring:
     allow-bean-definition-overriding: true
     allow-circular-references: true
 
-  # connect to the database with admin privileges
-  #    default-schema: ca3s_sep_roles
-  #    user: ca3s_sr_admin
-  #    password: MLQ738PdLpio
   mail:
     host: localhost
     port: 25
     username:
     password:
+  messages:
+    basename: i18n/messages
   thymeleaf:
     cache: true
 
@@ -355,6 +358,10 @@ ca3s:
     sp: saml-client
     metadata:
       location: sample/saml/metadata/sso.xml
+      trust:
+        check: false
+        key:
+          aliases: trustedAlias1, trustedAlias2
     keystore:
       location: sample/saml/samlKeystore.p12
       password: s3cr3t

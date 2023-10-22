@@ -48,6 +48,10 @@ public interface AuditTraceRepository extends PagingAndSortingRepository<AuditTr
     Page<AuditTrace> findByProcessInfo(Pageable pageable,
                                        @Param("processInfo") BPMNProcessInfo processInfo);
 
+    @Query(name = "AuditTrace.findByAcmeOrder")
+    Page<AuditTrace> findByAcmeOrder(Pageable pageable,
+                                       @Param("acmeOrder") AcmeOrder acmeOrder);
+
     @Query(name = "AuditTrace.findByRequestProxyConfig")
     Page<AuditTrace> findByRequestProxyConfig(Pageable pageable,
                                        @Param("requestProxyConfig") RequestProxyConfig requestProxyConfig);

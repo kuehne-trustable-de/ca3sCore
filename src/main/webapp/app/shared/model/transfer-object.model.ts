@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-07-12 19:41:32.
+// Generated using typescript-generator version 3.2.1263 on 2023-10-16 21:28:24.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -62,6 +62,7 @@ export interface IAcmeOrderView extends ISerializable {
   challengeTypes?: string;
   challengeUrls?: string;
   wildcard?: boolean;
+  createdOn?: Date;
   expires?: Date;
   notBefore?: Date;
   notAfter?: Date;
@@ -223,8 +224,9 @@ export interface ICertificateView extends ISerializable {
   replacedCertArr?: string[];
   arArr?: INamedValue[];
   auditPresent?: boolean;
-  fullChainAvailable?: boolean;
   serversideKeyGeneration?: boolean;
+  fullChainAvailable?: boolean;
+  issuingActiveCertificates?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
@@ -489,7 +491,7 @@ export interface ISCEPConfigItems extends ISerializable {
   scepSecretPCId?: string;
   scepSecret?: string;
   scepSecretValidTo?: Date;
-  keyAlgoLength?: IKeyAlgoLength;
+  keyAlgoLength?: IKeyAlgoLengthOrSpec;
   scepRecipientDN?: string;
   caConnectorRecipientName?: string;
 }
@@ -572,9 +574,11 @@ export interface ICertificate extends ISerializable {
   revocationCA?: ICAConnectorConfig;
 }
 
-export interface IKeyAlgoLength {
+export interface IKeyAlgoLengthOrSpec {
   algoName?: string;
+  algoGroup?: string;
   keyLength?: number;
+  algorithmParameterSpec?: IAlgorithmParameterSpec;
 }
 
 export interface ITypedValue {
@@ -658,6 +662,8 @@ export interface ICAConnectorConfig extends ISerializable {
 }
 
 export interface IComparable<T> {}
+
+export interface IAlgorithmParameterSpec {}
 
 export interface IBadKeysResultDetails extends ISerializable {
   blocklist?: IBadKeysBlocklist;
@@ -814,7 +820,7 @@ export type IScepOrderStatus = 'PENDING' | 'READY' | 'INVALID';
 
 export type IBPMNProcessType = 'CA_INVOCATION' | 'CERTIFICATE_CREATION' | 'CERTIFICATE_REVOCATION' | 'REQUEST_AUTHORIZATION' | 'BATCH';
 
-export type ICAConnectorType = 'INTERNAL' | 'CMP' | 'ADCS' | 'ADCS_CERTIFICATE_INVENTORY' | 'DIRECTORY';
+export type ICAConnectorType = 'INTERNAL' | 'CMP' | 'ADCS' | 'ADCS_CERTIFICATE_INVENTORY' | 'DIRECTORY' | 'VAULT' | 'VAULT_INVENTORY';
 
 export type IInterval = 'MINUTE' | 'HOUR' | 'DAY' | 'WEEK' | 'MONTH';
 

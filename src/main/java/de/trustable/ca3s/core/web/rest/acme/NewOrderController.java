@@ -361,6 +361,7 @@ public class NewOrderController extends AcmeController {
 
         AcmeOrder orderDao = new AcmeOrder();
 		orderDao.setOrderId(generateId());
+        orderDao.setCreatedOn(Instant.now());
 
 		orderDao.setAccount(acctDao);
         orderDao.setRealm(realm);

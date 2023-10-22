@@ -20,9 +20,6 @@
                     <strong>Email is already in use!</strong> Please choose another one.
                 </div>
 
-                <div class="alert alert-danger" role="alert" v-if="doNotMatch" v-text="$t('global.messages.error.dontmatch')">
-                    The password and its confirmation do not match!
-                </div>
             </div>
         </div>
         <div class="row justify-content-center">
@@ -81,18 +78,13 @@
                         <input type="password" class="form-control" id="firstPassword" name="password"
                                :class="{'valid': !$v.registerAccount.password.$invalid, 'invalid': $v.registerAccount.password.$invalid }"
                                v-model="$v.registerAccount.password.$model" minlength=4 maxlength=50 required v-bind:placeholder="$t('global.form.newpassword.placeholder')">
-                        <div v-if="$v.registerAccount.password.$anyDirty && $v.registerAccount.password.$invalid">
-                            <small class="form-text text-danger" v-if="!$v.registerAccount.password.required"
-                                   v-text="$t('global.messages.validate.newpassword.required')">
+                        <div>
+                            <small class="form-text text-danger"
+                                   v-if="!$v.registerAccount.password.required" v-text="$t('global.messages.validate.newpassword.required')">
                                 Your password is required.
                             </small>
-                            <small class="form-text text-danger" v-if="!$v.registerAccount.password.minLength"
-                                   v-text="$t('global.messages.validate.newpassword.minlength')">
-                                Your password is required to be at least 4 characters.
-                            </small>
-                            <small class="form-text text-danger" v-if="!$v.registerAccount.password.maxLength"
-                                   v-text="$t('global.messages.validate.newpassword.maxlength')">
-                                Your password cannot be longer than 50 characters.
+                            <small class="form-text text-danger" v-if="showRegExpFieldWarning($v.registerAccount.password.$model, regExpSecret())" v-text="$t('ca3SApp.messages.password.requirement.' + regExpSecretDescription())">
+                                secret must match RegEx!
                             </small>
                         </div>
                         <!--<jhi-password-strength-bar [passwordToCheck]="registerAccount.password"></jhi-password-strength-bar>-->
@@ -102,18 +94,16 @@
                         <input type="password" class="form-control" id="secondPassword" name="confirmPasswordInput"
                                :class="{'valid': !$v.confirmPassword.$invalid, 'invalid': $v.confirmPassword.$invalid }"
                                v-model="$v.confirmPassword.$model" minlength=4 maxlength=50 required v-bind:placeholder="$t('global.form.confirmpassword.placeholder')">
-                        <div v-if="$v.confirmPassword.$dirty && $v.confirmPassword.$invalid">
-                            <small class="form-text text-danger" v-if="!$v.confirmPassword.required"
-                                   v-text="$t('global.messages.validate.confirmpassword.required')">
-                                Your confirmation password is required.
+                        <div>
+                            <small class="form-text text-danger"
+                                   v-if="!$v.confirmPassword.required" v-text="$t('global.messages.validate.newpassword.required')">
+                                Your password is required.
                             </small>
-                            <small class="form-text text-danger" v-if="!$v.confirmPassword.minLength"
-                                   v-text="$t('global.messages.validate.confirmpassword.minlength')">
-                                Your confirmation password is required to be at least 4 characters.
+                            <small class="form-text text-danger" v-if="showRegExpFieldWarning($v.confirmPassword.$model, regExpSecret())" v-text="$t('ca3SApp.messages.password.requirement.' + regExpSecretDescription())">
+                                secret must match RegEx!
                             </small>
-                            <small class="form-text text-danger" v-if="!$v.confirmPassword.maxLength"
-                                   v-text="$t('global.messages.validate.confirmpassword.maxlength')">
-                                Your confirmation password cannot be longer than 50 characters.
+                            <small class="form-text text-danger" v-if="$v.registerAccount.password.$model !== $v.confirmPassword.$model" v-text="$t('global.messages.error.dontmatch')">
+                                The password and its confirmation do not match!
                             </small>
                         </div>
                     </div>
@@ -121,10 +111,6 @@
                     <button type="submit" :disabled="$v.registerAccount.$invalid || $v.confirmPassword.$invalid" class="btn btn-primary" v-text="$t('register.form.button')">Register</button>
                 </form>
                 <p></p>
-                <div class="alert alert-warning">
-                    <span v-text="$t('global.messages.info.authenticated.prefix')">If you want to </span>
-                    <a class="alert-link" v-on:click="openLogin()" v-text="$t('global.messages.info.authenticated.link')">sign in</a><span v-html="$t('global.messages.info.authenticated.suffix')">, you can try the default accounts:<br/>- Administrator (login="admin" and password="admin") <br/>- User (login="user" and password="user").</span>
-                </div>
             </div>
         </div>
     </div>

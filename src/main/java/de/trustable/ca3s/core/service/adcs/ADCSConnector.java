@@ -925,9 +925,10 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 				LOGGER.info("info call rejected by ADCS proxy. Authentication wrong or missing.");
 				throw new ADCSProxyUnavailableException(e.getLocalizedMessage());
 			}else if( e.getCause() instanceof SocketTimeoutException){
+                LOGGER.info("info call to ADCS proxy timed out.", e.getCause());
 				throw new ADCSProxyUnavailableException(e.getCause().getMessage());
 			}else if( e.getCause() instanceof ConnectException){
-				LOGGER.warn("Connection problem", e );
+				LOGGER.warn("Connection problem", e.getCause() );
 				throw new ADCSProxyUnavailableException(e.getCause().getMessage());
 			}else if( e.getCause() instanceof SSLHandshakeException){
 			    String msg = "TLS problem : configure trust anchor for ADCS proxy at " + remoteClient.getApiClient().getBasePath();

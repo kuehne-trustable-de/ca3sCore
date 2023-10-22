@@ -9,6 +9,7 @@ import AlertService from '@/shared/alert/alert.service';
 import CopyClipboardButton from '@/shared/clipboard/clipboard.vue';
 import HelpTag from '@/core/help/help-tag.vue';
 import ChallengesTag from './challenges-tag.vue';
+import AuditTag from '@/core/audit/audit-tag.vue';
 
 import { IAcmeOrderView } from '@/shared/model/transfer-object.model';
 
@@ -17,8 +18,9 @@ import { IAcmeOrderView } from '@/shared/model/transfer-object.model';
     Fragment,
     CopyClipboardButton,
     HelpTag,
-    ChallengesTag
-  }
+    ChallengesTag,
+    AuditTag,
+  },
 })
 export default class AcmeOrderInfo extends mixins(JhiDataUtils, Vue) {
   @Inject('alertService') private alertService: () => AlertService;
@@ -81,8 +83,8 @@ export default class AcmeOrderInfo extends mixins(JhiDataUtils, Vue) {
     axios({
       method: 'get',
       url: 'api/acmeOrderViews/' + encodeURIComponent(orderId),
-      responseType: 'stream'
-    }).then(function(response) {
+      responseType: 'stream',
+    }).then(function (response) {
       self.acmeOrderView = response.data;
       window.console.info('acmeOrderView :' + self.acmeOrderView);
     });

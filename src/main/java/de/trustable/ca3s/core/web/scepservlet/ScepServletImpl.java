@@ -4,11 +4,14 @@ import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.domain.enumeration.ScepOrderStatus;
+import de.trustable.ca3s.core.exception.CAFailureException;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 import de.trustable.ca3s.core.repository.ScepOrderRepository;
 import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
+import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.*;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.Pkcs10RequestHolder;
@@ -40,6 +43,7 @@ import java.time.Instant;
 import java.util.*;
 
 import static de.trustable.ca3s.core.domain.ScepOrderAttribute.ATTRIBUTE_CN;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 
 /**
@@ -87,12 +91,14 @@ public class ScepServletImpl extends ScepServlet {
     @Autowired
     private ProtectedContentUtil protectedContentUtil;
 
+    final private AuditService auditService;
 
     final private PipelineUtil pipelineUtil;
 
 	public ThreadLocal<Pipeline> threadLocalPipeline = new ThreadLocal<>();
 
-    public ScepServletImpl(PipelineUtil pipelineUtil) {
+    public ScepServletImpl(AuditService auditService, PipelineUtil pipelineUtil) {
+        this.auditService = auditService;
         this.pipelineUtil = pipelineUtil;
     }
 
@@ -152,11 +158,19 @@ public class ScepServletImpl extends ScepServlet {
 
         scepOrder.setCsr(csr);
 
-		Certificate cert = cpUtil.processCertificateRequest(csr, requestorName,  AuditService.AUDIT_SCEP_CERTIFICATE_CREATED, pipeline );
+        Certificate cert = null;
+        try {
+            cert = cpUtil.processCertificateRequest(csr, requestorName,  AuditService.AUDIT_SCEP_CERTIFICATE_CREATED, pipeline );
+        }catch (CAFailureException caFailureException){
+            LOGGER.info("certificate creation failed", caFailureException);
+        }
 
 		if( cert == null) {
-			LOGGER.warn("creation of certificate by SCEP transaction id '{}' failed ", transId);
-		}else {
+            String msg = "creation of certificate by SCEP transaction id '"+transId+"' failed ";
+            auditService.saveAuditTrace(auditService.createAuditTraceCsrRejected(csr, msg));
+            LOGGER.info(msg);
+            scepOrder.setStatus(ScepOrderStatus.INVALID);
+        }else {
 			LOGGER.debug("new certificate id '{}' for SCEP transaction id '{}'", cert.getId(), transId);
 
             scepOrder.setCertificate(cert);

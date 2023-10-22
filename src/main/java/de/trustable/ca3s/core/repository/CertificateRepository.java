@@ -64,9 +64,12 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
 			  @Param("name2") String name2,
 			  @Param("value2") String value2);
 
-	  @Query(name = "Certificate.findByAttributeValue")
-	  List<Certificate> findByAttributeValue(@Param("name") String name,
-	      @Param("value") String value);
+    @Query(name = "Certificate.findActiveByAttributeValue")
+    List<Certificate> findActiveByAttributeValue(@Param("name") String name,
+                                           @Param("value") String value);
+    @Query(name = "Certificate.findByAttributeValue")
+    List<Certificate> findByAttributeValue(@Param("name") String name,
+                                           @Param("value") String value);
 
 	  @Query(name = "Certificate.findByTBSDigest")
 	  List<Certificate> findByTBSDigest(@Param("tbsDigest") String tbsDigest);

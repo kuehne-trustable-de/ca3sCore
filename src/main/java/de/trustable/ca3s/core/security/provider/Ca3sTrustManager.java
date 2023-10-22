@@ -84,14 +84,16 @@ public class Ca3sTrustManager implements X509TrustManager {
 			for( int i = 0; i < 8; i++) {
 				Certificate nextCACertDao = certUtil.findIssuingCertificate(issuingCACertDao);
 				if( nextCACertDao == null){
-					LOGGER.debug("checkServerTrusted : no issuing certificate found for certificate subject '" + issuingCACertDao.getSubject() + "', issuer : '" + issuingCACertDao.getIssuer() + "'");
-					throw new CertificateException();
+                    String msg = "checkServerTrusted : no issuing certificate found for certificate subject '" + issuingCACertDao.getSubject() + "', issuer : '" + issuingCACertDao.getIssuer() + "'";
+                    LOGGER.info(msg);
+					throw new CertificateException(msg);
 				}
 
 				issuingCACertDao = nextCACertDao;
 				if( issuingCACertDao.isRevoked()) {
-					LOGGER.debug("checkServerTrusted : certificate forsubject '" + issuingCACertDao.getSubject() + "', revoked '" + issuingCACertDao.getRevocationReason() + "' on " + issuingCACertDao.getRevokedSince());
-					throw new CertificateException();
+                    String msg = "checkServerTrusted : certificate for subject '" + issuingCACertDao.getSubject() + "', revoked '" + issuingCACertDao.getRevocationReason() + "' on " + issuingCACertDao.getRevokedSince();
+                    LOGGER.info(msg);
+					throw new CertificateException(msg);
 				}
 				certList.add(CryptoService.convertPemToCertificate( issuingCACertDao.getContent()));
 
@@ -112,10 +114,10 @@ public class Ca3sTrustManager implements X509TrustManager {
 			 */
 
 		} catch (GeneralSecurityException | IOException e) {
-			LOGGER.debug("checkServerTrusted exception for certificate subject '" + serverCert.getSubjectX500Principal().toString() + "'", e);
-			throw new CertificateException();
+			LOGGER.info("checkServerTrusted exception for certificate subject '" + serverCert.getSubjectX500Principal().toString() + "'", e);
+			throw new CertificateException(e.getMessage());
 		} catch (Throwable th) {
-			LOGGER.debug("checkServerTrusted: caught Throwable", th);
+			LOGGER.warn("checkServerTrusted: caught Throwable", th);
 			throw th;
 		}
 

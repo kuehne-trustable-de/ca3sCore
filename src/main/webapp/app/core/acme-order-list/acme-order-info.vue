@@ -33,26 +33,19 @@
                         <span v-text="$t('ca3SApp.AcmeOrderStatus.' + acmeOrderView.status)">{{acmeOrderView.status}}</span>
                     </dd>
 
+                    <dt>
+                        <span v-text="$t('ca3SApp.acmeOrder.created.expires')">Cretaed / Expires</span>
+                    </dt>
+                    <dd>
+                        <span>{{$d(Date.parse(acmeOrderView.createdOn), 'long') }}</span> -> <span v-if="acmeOrderView.expires">{{$d(Date.parse(acmeOrderView.expires), 'long') }}</span>
+                    </dd>
 
-
-<!--
-                    private String finalizeUrl;
-                    private String certificateUrl;
-
--->
 
                     <dt v-if="acmeOrderView.notBefore && acmeOrderView.notAfter">
                         <span v-text="$t('ca3SApp.acmeOrder.fromTo')">From / To</span>
                     </dt>
                     <dd v-if="acmeOrderView.notBefore && acmeOrderView.notAfter">
                         <span v-if="acmeOrderView.notBefore">{{$d(Date.parse(acmeOrderView.notBefore), 'long') }}</span> -&gt; <span v-if="acmeOrderView.notAfter">{{$d(Date.parse(acmeOrderView.notAfter), 'long') }}</span>
-                    </dd>
-
-                    <dt>
-                        <span v-text="$t('ca3SApp.acmeOrder.expires')">Expires</span>
-                    </dt>
-                    <dd>
-                        <span v-if="acmeOrderView.expires">{{$d(Date.parse(acmeOrderView.expires), 'long') }}</span>
                     </dd>
 
                     <dt v-if="acmeOrderView.error">
@@ -87,8 +80,14 @@
                         <challenges-tag v-if="acmeOrderView.id" :orderId="acmeOrderView.id" ></challenges-tag>
                     </dd>
 
-                </dl>
 
+                    <dt>
+                    </dt>
+                    <dd>
+                        <audit-tag :acmeOrderId="acmeOrderView.id" showLinks="true"></audit-tag>
+                    </dd>
+
+                </dl>
             </div>
 
             <form name="editForm" role="form" novalidate>
