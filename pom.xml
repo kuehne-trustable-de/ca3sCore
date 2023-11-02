@@ -220,7 +220,7 @@
         <greenmail.version>1.6.14</greenmail.version>
 
         <xml.maven.saxon.version>11.5</xml.maven.saxon.version>
-        <xml.maven.plugin.version>1.0.2</xml.maven.plugin.version>
+        <xml.maven.plugin.version>1.1.0</xml.maven.plugin.version>
 
         <dependencyCheck.version>7.4.4</dependencyCheck.version>
         <dependencyCheck.skip>false</dependencyCheck.skip>
