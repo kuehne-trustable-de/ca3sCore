@@ -136,6 +136,22 @@ public class NotificationSupport {
     }
 
     /**
+     * {@code POST  api/notification/sendCertificateRevoked} : send out certificate revocation info.
+     */
+    @Transactional
+    @PostMapping("notification/sendCertificateRevoked/{certId}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public void notifyCerificateRevoked(@PathVariable String certId) throws MessagingException {
+
+        Optional<User> optUser = userRepository.findOneByLogin(nameAndRoleUtil.getNameAndRole().getName());
+        if (optUser.isPresent()) {
+            User requestor = optUser.get();
+            Certificate cert = certificateRepository.getOne(Long.parseLong(certId));
+            notificationService.notifyCerificateRevoked(requestor, cert, cert.getCsr());
+        }
+    }
+
+    /**
      * {@code POST  api/notification/sendUserCertificateRevoked} : send out certificate revocation info.
      */
     @Transactional
@@ -145,9 +161,8 @@ public class NotificationSupport {
 
         Optional<User> optUser = userRepository.findOneByLogin(nameAndRoleUtil.getNameAndRole().getName());
         if (optUser.isPresent()) {
-            User requestor = optUser.get();
             Certificate cert = certificateRepository.getOne(Long.parseLong(certId));
-            notificationService.notifyUserCerificateRevoked(requestor, cert, cert.getCsr());
+            notificationService.notifyRAOfficerOnUserRevocation(cert);
         }
     }
 

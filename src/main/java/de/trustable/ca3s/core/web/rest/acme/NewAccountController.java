@@ -45,10 +45,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.transaction.Transactional;
 import java.net.URI;
 import java.security.PublicKey;
 import java.time.Instant;
@@ -59,7 +59,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
-@Transactional
+@Transactional(dontRollbackOn = AcmeProblemException.class)
 @RestController
 @RequestMapping("/acme/{realm}/newAccount")
 public class NewAccountController extends AcmeController {

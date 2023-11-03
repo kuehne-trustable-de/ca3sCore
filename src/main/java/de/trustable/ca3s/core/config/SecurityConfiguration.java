@@ -301,7 +301,7 @@ public class SecurityConfiguration{
                 " style-src 'self' 'unsafe-inline';" +
                 " img-src 'self' data:;" +
                 " font-src 'self' data:;" +
-                " connect-src 'self' data:")
+                " connect-src 'self' blob: data:")
         .and()
             .referrerPolicy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
         .and()

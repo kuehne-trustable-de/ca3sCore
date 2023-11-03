@@ -54,20 +54,6 @@ public class AccountHandlingIT extends WebTestBase{
 
     public static final By LOC_LNK_NEW_ACCOUNT_SIGN_IN = By.xpath("//div/a [text() = 'sign in']");
 
-    public static final By LOC_LNK_SIGNIN_USERNAME = By.xpath("//form//input [@name = 'username']");
-    public static final By LOC_LNK_SIGNIN_PASSWORD = By.xpath("//form//input [@name = 'password']");
-    public static final By LOC_BTN_SIGNIN_SUBMIT = By.xpath("//form//button [@type='submit'][text() = 'Sign in']");
-
-    public static final By LOC_BTN_REQUEST_CERTIFICATE = By.xpath("//form/div/button [@type='button'][span [text() = 'Request certificate']]");
-
-    public static final By LOC_TEXT_ACCOUNT_NAME = By.xpath("//nav//span [contains(text(), '\"user\"')]");
-
-    private static final String USER_NAME_USER = "user";
-    private static final String USER_PASSWORD_USER = "user";
-
-    private static final String USER_NAME_ADMIN = "admin";
-    private static final String USER_PASSWORD_ADMIN = "admin";
-
     private static Random rand = new Random();
 
     static GreenMail greenMailSMTPIMAP;
@@ -102,6 +88,8 @@ public class AccountHandlingIT extends WebTestBase{
         System.setProperty("spring.mail.host", "localhost");
         System.setProperty("spring.mail.port", "" + randomPortSMTP);
 
+        System.setProperty("jhipster.mail.from", "ca3s@localhost");
+
         System.out.println("randomPortSMTP : " + randomPortSMTP);
         System.out.println("randomPortIMAP : " + randomPortIMAP);
 
@@ -116,7 +104,7 @@ public class AccountHandlingIT extends WebTestBase{
         // Create user, as connect verifies pwd
         greenMailSMTPIMAP.setUser(emailAddress, emailAddress, emailPassword);
 
-        System.out.println("create eMAil account '" + emailAddress + "', identified by '" + emailPassword + "'");
+        System.out.println("create eMail account '" + emailAddress + "', identified by '" + emailPassword + "'");
 
     }
 
@@ -142,7 +130,7 @@ public class AccountHandlingIT extends WebTestBase{
 
         byte[] passwordBytes = new byte[6];
         rand.nextBytes(passwordBytes);
-        String password = "PasswordLogon_" + encodeBytesToText(passwordBytes);
+        String loginPassword = "S3cr3t!S_" + encodeBytesToText(passwordBytes);
 
         IMAPStore imapStore = greenMailSMTPIMAP.getImap().createStore();
         imapStore.connect(emailAddress, emailPassword);
@@ -171,9 +159,9 @@ public class AccountHandlingIT extends WebTestBase{
         setText(LOC_INP_EMAIL_VALUE, emailAddress);
 
         validatePresent(LOC_INP_1_PASSWORD_VALUE);
-        setText(LOC_INP_1_PASSWORD_VALUE, password);
+        setText(LOC_INP_1_PASSWORD_VALUE, loginPassword);
         validatePresent(LOC_INP_2_PASSWORD_VALUE);
-        setText(LOC_INP_2_PASSWORD_VALUE, password);
+        setText(LOC_INP_2_PASSWORD_VALUE, loginPassword);
 
         validatePresent(LOC_BTN_REGISTER);
         click(LOC_BTN_REGISTER);
@@ -181,6 +169,7 @@ public class AccountHandlingIT extends WebTestBase{
         waitForElement(LOC_TEXT_REGISTRATION_SUCCESSFUL);
 
         while( inbox.getMessageCount() == 0) {
+            System.out.println( "waiting for message ...");
             try {
                 Thread.sleep(1000); // sleep for 1 second.
             } catch (Exception x) {
@@ -212,7 +201,7 @@ public class AccountHandlingIT extends WebTestBase{
         validatePresent(LOC_LNK_NEW_ACCOUNT_SIGN_IN);
         click(LOC_LNK_NEW_ACCOUNT_SIGN_IN);
 
-        signIn(loginName, password);
+        signIn(loginName, loginPassword);
 
 
         try {

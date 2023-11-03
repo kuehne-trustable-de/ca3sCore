@@ -9,6 +9,8 @@ import de.trustable.ca3s.core.repository.UserPreferenceRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.dto.Languages;
 import org.opensaml.saml2.core.Attribute;
+import org.opensaml.xml.XMLObject;
+import org.opensaml.xml.schema.XSString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -136,19 +138,19 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
 
             if( attributesFirstNameList.contains(attribute.getName())){
                 if( !attribute.getAttributeValues().isEmpty()) {
-                    user.setFirstName(attribute.getAttributeValues().get(0).toString());
+                    user.setFirstName(fromXMLObject(attribute.getAttributeValues().get(0)));
                     update = true;
                 }
             }
             if( attributesLastNameList.contains(attribute.getName())){
                 if( !attribute.getAttributeValues().isEmpty()) {
-                    user.setLastName(attribute.getAttributeValues().get(0).toString());
+                    user.setLastName(fromXMLObject(attribute.getAttributeValues().get(0)));
                     update = true;
                 }
             }
             if( attributesEmailList.contains(attribute.getName())){
                 if( !attribute.getAttributeValues().isEmpty()) {
-                    user.setEmail(attribute.getAttributeValues().get(0).toString());
+                    user.setEmail(fromXMLObject(attribute.getAttributeValues().get(0)));
                     update = true;
                 }
             }
@@ -183,4 +185,11 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
         }
     }
 
+    private String fromXMLObject(XMLObject xmlObject){
+        if( xmlObject instanceof XSString){
+            return ((XSString)xmlObject).getValue();
+        }else{
+            return xmlObject.toString();
+        }
+    }
 }

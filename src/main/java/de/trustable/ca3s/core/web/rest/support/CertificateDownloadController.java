@@ -28,8 +28,6 @@ package de.trustable.ca3s.core.web.rest.support;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.*;
 import java.security.cert.X509Certificate;
@@ -38,9 +36,10 @@ import java.util.*;
 import de.trustable.ca3s.core.config.CryptoConfiguration;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.security.SecurityUtils;
-import org.jetbrains.annotations.NotNull;
+import de.trustable.ca3s.core.service.AuditService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -56,17 +55,12 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.ProtectedContent;
-import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
-import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.CryptoService;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import de.trustable.ca3s.core.web.rest.acme.AcmeController;
-
-import javax.crypto.spec.PBEParameterSpec;
 
 @Controller
 @RequestMapping("/publicapi")
@@ -84,14 +78,23 @@ public class CertificateDownloadController {
 
     private final ProtectedContentUtil protContentUtil;
 
+    private final AuditService auditService;
+
+    private final boolean pkcs12LogDownload;
+
+
     public CertificateDownloadController(CryptoConfiguration cryptoConfiguration,
                                          CertificateRepository certificateRepository,
                                          CertificateUtil certUtil,
-                                         ProtectedContentUtil protContentUtil) {
+                                         ProtectedContentUtil protContentUtil,
+                                         AuditService auditService,
+                                         @Value("${ca3s.ui.pkcs12.log.download:true}") boolean pkcs12LogDownload) {
         this.cryptoConfiguration = cryptoConfiguration;
         this.certificateRepository = certificateRepository;
         this.certUtil = certUtil;
         this.protContentUtil = protContentUtil;
+        this.auditService = auditService;
+        this.pkcs12LogDownload = pkcs12LogDownload;
     }
 
     /**
@@ -423,6 +426,11 @@ public class CertificateDownloadController {
         try {
             byte[] contentBytes = certUtil.getContainerBytes(certDao, entryAlias, csr, passwordProtectionAlgo);
             headers.set("content-length", String.valueOf(contentBytes.length));
+
+            if( pkcs12LogDownload ){
+                auditService.saveAuditTrace(auditService.createAuditTracePKCS12CertificateDownload(certDao));
+            }
+
             return ResponseEntity.ok().contentType(AcmeController.APPLICATION_PKCS12).headers(headers).body(contentBytes);
 
         } catch (IOException gse) {

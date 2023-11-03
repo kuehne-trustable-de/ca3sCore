@@ -27,7 +27,7 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('bpmn-table', t
   tableType
     .setFilterHandler((source, filter, columns) => ({
       // See https://documenter.getpostman.com/view/2025350/RWaEzAiG#json-field-masking
-      filter: columns.map(col => colFieldToStr(col.field!).replace(/\./g, '/')).join(',')
+      filter: columns.map(col => colFieldToStr(col.field!).replace(/\./g, '/')).join(','),
     }))
 
     .setSortHandler((endpointDesc, sortColumn, sortDir) => ({
@@ -36,9 +36,9 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('bpmn-table', t
       ...(sortColumn && sortDir
         ? {
             order: sortDir,
-            sort: colFieldToStr(sortColumn.field!).replace(/\./g, '/')
+            sort: colFieldToStr(sortColumn.field!).replace(/\./g, '/'),
           }
-        : {})
+        : {}),
     }))
 
     .setPaginateHandler((endpointDesc, perPage, pageIndex) => ({
@@ -47,9 +47,9 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('bpmn-table', t
       ...(perPage !== null
         ? {
             limit: perPage || 20,
-            offset: (pageIndex - 1) * perPage || 0
+            offset: (pageIndex - 1) * perPage || 0,
           }
-        : {})
+        : {}),
     }))
 
     // Alias our process steps, because the source, here, is our API url, and paged is the complete query string
@@ -61,12 +61,12 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('bpmn-table', t
         // Data to display
         data,
         // Get the total number of matched items
-        headers: { 'x-total-count': totalCount }
+        headers: { 'x-total-count': totalCount },
       } = await axios.get(url);
 
       return {
         rows: data,
-        totalRowCount: parseInt(totalCount, 10)
+        totalRowCount: parseInt(totalCount, 10),
       } as ITableContentParam<IBPMNProcessInfo>;
     })
     .mergeSettings({
@@ -75,19 +75,19 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('bpmn-table', t
         sorting: {
           sortAsc: '<img src="../../../content/images/caret-up-solid.png" alt="asc">',
           sortDesc: '<img src="../../../content/images/caret-down-solid.png" alt="desc">',
-          sortNone: ''
-        }
+          sortNone: '',
+        },
       },
       pager: {
         classes: {
           pager: 'pagination text-center',
-          selected: 'active'
+          selected: 'active',
         },
         icons: {
           next: '<img src="../../../content/images/chevron-right-solid.png" alt=">">',
-          previous: '<img src="../../../content/images/chevron-left-solid.png" alt="<">'
-        }
-      }
+          previous: '<img src="../../../content/images/chevron-left-solid.png" alt="<">',
+        },
+      },
     })
 );
 
@@ -107,10 +107,10 @@ export default class BpmnList extends mixins(AlertMixin, Vue) {
       itemType: 'set',
       itemDefaultSelector: 'EQUAL',
       itemDefaultValue: 'ISSUANCE',
-      values: ['ISSUANCE', 'REVOCATION', 'ACME_ACCOUNT']
+      values: ['ISSUANCE', 'REVOCATION', 'ACME_ACCOUNT'],
     },
     { itemName: 'author', itemType: 'string', itemDefaultSelector: 'EQUAL', itemDefaultValue: '{user}' },
-    { itemName: 'lastChange', itemType: 'date', itemDefaultSelector: 'BEFORE', itemDefaultValue: '{now}' }
+    { itemName: 'lastChange', itemType: 'date', itemDefaultSelector: 'BEFORE', itemDefaultValue: '{now}' },
   ];
 
   public selectionChoices: ISelectionChoices[] = [
@@ -118,7 +118,7 @@ export default class BpmnList extends mixins(AlertMixin, Vue) {
     { itemType: 'number', hasValue: true, choices: ['EQUAL', 'NOT_EQUAL', 'LESSTHAN', 'GREATERTHAN'] },
     { itemType: 'date', hasValue: true, choices: ['ON', 'BEFORE', 'AFTER'] },
     { itemType: 'boolean', hasValue: false, choices: ['ISTRUE', 'ISFALSE'] },
-    { itemType: 'set', hasValue: false, choices: ['EQUAL', 'NOT_EQUAL'] }
+    { itemType: 'set', hasValue: false, choices: ['EQUAL', 'NOT_EQUAL'] },
   ];
 
   public contentAccessUrl: string;
@@ -196,7 +196,7 @@ export default class BpmnList extends mixins(AlertMixin, Vue) {
         { label: this.$t('version'), field: 'version' },
         { label: this.$t('author'), field: 'author' },
         { label: this.$t('lastChange'), field: 'lastChange' },
-        { label: this.$t('action'), field: 'lastChange' }
+        { label: this.$t('action'), field: 'lastChange' },
       ] as TColumnsDefinition<IBPMNProcessInfo>,
       page: 1,
       filter: '',
@@ -205,7 +205,7 @@ export default class BpmnList extends mixins(AlertMixin, Vue) {
       get bpmnApiUrl() {
         window.console.info('bpmnApiUrl returns : ' + self.contentAccessUrl);
         return self.contentAccessUrl;
-      }
+      },
     };
   }
 
@@ -275,15 +275,17 @@ export default class BpmnList extends mixins(AlertMixin, Vue) {
     axios({
       method: 'get',
       url: 'api/userProperties/filterList/BPMNList',
-      responseType: 'stream'
-    }).then(function(response) {
-      //      window.console.debug('getUsersFilterList returns ' + response.data );
-      if (response.status === 200) {
-        self.filters.filterList = response.data.filterList;
-        //        window.console.debug('getUsersFilterList sets filters to ' + JSON.stringify(self.filters));
-        self.lastFilters = JSON.stringify(self.filters);
-      }
-    });
+      responseType: 'stream',
+    })
+      .then(function (response) {
+        //      window.console.debug('getUsersFilterList returns ' + response.data );
+        if (response.status === 200) {
+          self.filters.filterList = response.data.filterList;
+          //        window.console.debug('getUsersFilterList sets filters to ' + JSON.stringify(self.filters));
+          self.lastFilters = JSON.stringify(self.filters);
+        }
+      })
+      .catch(console.error);
   }
 
   public putUsersFilterList(self): void {
@@ -297,8 +299,8 @@ export default class BpmnList extends mixins(AlertMixin, Vue) {
         method: 'put',
         url: 'api/userProperties/filterList/BPMNList',
         data: self.filters,
-        responseType: 'stream'
-      }).then(function(response) {
+        responseType: 'stream',
+      }).then(function (response) {
         //        window.console.debug('putUsersFilterList returns ' + response.status);
         if (response.status === 204) {
           self.lastFilters = lastFiltersValue;

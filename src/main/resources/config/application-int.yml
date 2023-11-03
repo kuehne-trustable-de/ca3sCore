@@ -17,7 +17,6 @@ certificate:
   import:
     active: false
 
-
 logging:
   level:
     ROOT: INFO
@@ -41,7 +40,7 @@ spring:
       indent-output: true
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-#    url: jdbc:h2:file:./target/h2db/db/ca3s_jh;DB_CLOSE_DELAY=-1
+    #    url: jdbc:h2:file:./target/h2db/db/ca3s_jh;DB_CLOSE_DELAY=-1
     url: jdbc:mysql://localhost:3306/ca3s_jh_dev?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC
     username: ca3s_jh_dev
     password: nYbA4Jm4rnQJ
@@ -104,7 +103,7 @@ jhipster:
   security:
     authentication:
       jwt:
-        # This token must be encoded using Base64 and be at least 256 bits long (you can type `openssl rand -base64 64` on your command line to generate a 512 bits one)
+        # This token must be encoded using Base64 and be at least 512 bits long (you can type `openssl rand -base64 128` on your command line to generate one)
         base64-secret: Mjk3NjM4OWI4NWU3ZjE3NjQ3OWRiZjI3OWYwYmZiNWY1NzA2YjAzZTY2ODJhNWM5MjFjYzZmZTZlMDE4YWRhNDg0MjJlNDYzNThhODBjNmU0ZGFjMGY3MTc5OTVlNmEyZWFiZmIwMDIxYTExYzkxNGM3YmM2YmVmMmNlZWE2YmQ=
         # Token is valid 24 hours
         token-validity-in-seconds: 86400

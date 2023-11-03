@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,7 +49,9 @@ import de.trustable.ca3s.core.service.util.DateUtil;
 import de.trustable.ca3s.core.service.util.JwtUtil;
 import de.trustable.util.CryptoUtil;
 
-@Transactional
+import javax.transaction.Transactional;
+
+@Transactional(dontRollbackOn = AcmeProblemException.class)
 @RestController
 public class AcmeController {
 

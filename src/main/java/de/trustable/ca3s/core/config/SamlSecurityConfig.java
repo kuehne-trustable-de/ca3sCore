@@ -76,6 +76,9 @@ public class SamlSecurityConfig {
     @Value("${ca3s.saml.metadata.trust.check:true}")
     private boolean metadataTrustCheck;
 
+    @Value("${ca3s.saml.metadata.requires.signature:false}")
+    private boolean metadataRequireSignature;
+
     @Value("${ca3s.saml.metadata.trust.key.aliases:}")
     private Set<String> metadataTrustedKeyAliases;
 
@@ -234,6 +237,7 @@ public class SamlSecurityConfig {
         ExtendedMetadataDelegate extendedMetadataDelegate = new ExtendedMetadataDelegate(provider, extendedMetadata());
 
         extendedMetadataDelegate.setMetadataTrustCheck(metadataTrustCheck);
+        extendedMetadataDelegate.setMetadataRequireSignature( metadataRequireSignature);
         if( (metadataTrustedKeyAliases != null) && !metadataTrustedKeyAliases.isEmpty()) {
             extendedMetadataDelegate.setMetadataTrustedKeys(metadataTrustedKeyAliases);
         }

@@ -34,7 +34,7 @@ public class AuditService {
 
     public static final String AUDIT_CSR_ACCEPTED = "CSR_ACCEPTED";
     public static final String AUDIT_CSR_REJECTED = "CSR_REJECTED";
-    public static final String AUDIT_CSR_SIGNING_FAILED = "AUDIT_CSR_SIGNING_FAILED";
+    public static final String AUDIT_CSR_SIGNING_FAILED = "CSR_SIGNING_FAILED";
     public static final String AUDIT_WEB_CERTIFICATE_REQUESTED = "WEB_CERTIFICATE_REQUESTED";
     public static final String AUDIT_WEB_CERTIFICATE_AUTO_ACCEPTED = "WEB_CERTIFICATE_AUTO_ACCEPTED";
     public static final String AUDIT_ACME_CERTIFICATE_REQUESTED = "ACME_CERTIFICATE_REQUESTED";
@@ -92,6 +92,7 @@ public class AuditService {
     public static final String AUDIT_REQUEST_PROXY_ATTRIBUTE_CHANGED = "REQUEST_PROXY_ATTRIBUTE_CHANGED";
 
     public static final String AUDIT_CERTIFICATE_SCHEMA_UPDATED = "CERTIFICATE_SCHEMA_UPDATED";
+    public static final String AUDIT_CERTIFICATE_PKCS12_DOWNLOAD = "AUDIT_CERTIFICATE_PKCS12_DOWNLOAD";
     public static final String AUDIT_ACME_ORDER_PIPELINE_UPDATED = "AUDIT_ACME_ORDER_PIPELINE_UPDATED";
     public static final String AUDIT_ACME_ACCOUNT_CREATED_OR_UPDATED = "AUDIT_ACME_ACCOUNT_CREATED_OR_UPDATED";
 
@@ -118,6 +119,7 @@ public class AuditService {
     public static final String AUDIT_BPMN_PROCESS_ID_CHANGED = "AUDIT_BPMN_PROCESS_ID_CHANGED";
     public static final String AUDIT_CA_CONNECTOR_SNI_CHANGED = "AUDIT_CA_CONNECTOR_SNI_CHANGED";
     public static final String AUDIT_CA_CONNECTOR_DISABLE_HOST_NAME_VERIFIER_CHANGED = "AUDIT_CA_CONNECTOR_DISABLE_HOST_NAME_VERIFIER_CHANGED";
+    public static final String AUDIT_CERTIFICATE_ADMINISTRATION_FAILED = "AUDIT_CERTIFICATE_ADMINISTRATION_FAILED";
     private static final String AUDIT_BPMN_ATTRIBUTE_CHANGED = "AUDIT_BPMN_ATTRIBUTE_CHANGED";
 
 
@@ -350,6 +352,22 @@ public class AuditService {
             template,
             null,
             certificate,
+            null,
+            null,
+            null );
+    }
+    public AuditTrace createAuditTraceCertificate(final String template, final String info, final Certificate certificate){
+
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            template,
+            info,
+            null, null,
+            null,
+            certificate,
+            null,
+            null,
+            null,
             null,
             null,
             null );
@@ -664,6 +682,22 @@ public class AuditService {
             null, null);
     }
 
+    public AuditTrace createAuditTracePKCS12CertificateDownload(final Certificate certificate){
+
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_CERTIFICATE_PKCS12_DOWNLOAD,
+            null,
+            null, null,
+            null,
+            certificate,
+            null,
+            null,
+            null,
+            null,
+            null, null);
+    }
+
 
     public AuditTrace createAuditTraceAcmeOrderPipelineUpdated(final int nUpdated){
 
@@ -794,12 +828,12 @@ public class AuditService {
         return in.replace("%", "%25").replace(",", "%2C");
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+//    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveAuditTrace(final AuditTrace auditTrace){
         auditTraceRepository.save(auditTrace);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+//    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveAuditTrace(final List<AuditTrace> auditTraceList){
         auditTraceRepository.saveAll(auditTraceList);
     }

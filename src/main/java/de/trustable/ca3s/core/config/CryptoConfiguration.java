@@ -1,12 +1,22 @@
 package de.trustable.ca3s.core.config;
 
 import de.trustable.ca3s.core.service.dto.CryptoConfigView;
+import de.trustable.ca3s.core.web.rest.AcmeAccountResource;
 import org.apache.commons.lang3.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+import java.security.Provider;
+import java.security.Security;
+import java.util.Set;
+import java.util.TreeSet;
+
 @Configuration
 public class CryptoConfiguration {
+
+    private final Logger log = LoggerFactory.getLogger(CryptoConfiguration.class);
 
     private final String[] validPBEAlgoArr;
     private final String[] allHashAlgoArr;
@@ -32,6 +42,17 @@ public class CryptoConfiguration {
         this.pkcs12SecretRegexp = pkcs12SecretRegexp;
         this.regexpPasswordDescription = regexpPasswordDescription;
         this.passwordRegexp = passwordRegexp;
+
+        Set<String> algs = new TreeSet<>();
+        for (Provider provider : Security.getProviders()) {
+            provider.getServices().stream()
+                .filter(s -> "Cipher".equals(s.getType()))
+                .map(Provider.Service::getAlgorithm)
+                .forEach(algs::add);
+        }
+        for( String algo:algs){
+            log.info("algorithm supported: " + algo);
+        }
     }
 
     public CryptoConfigView getCryptoConfigView() {

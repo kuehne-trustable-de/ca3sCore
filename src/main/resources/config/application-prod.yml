@@ -173,7 +173,7 @@ jhipster:
   security:
     authentication:
       jwt:
-        # This token must be encoded using Base64 and be at least 256 bits long (you can type `openssl rand -base64 64` on your command line to generate a 512 bits one)
+        # This token must be encoded using Base64 and be at least 512 bits long (you can type `openssl rand -base64 128` on your command line to generate one)
         # As this is the PRODUCTION configuration, you MUST change the default key, and store it securely:
         # - In the JHipster Registry (which includes a Spring Cloud Config server)
         # - In a separate `application-prod.yml` file, in the same folder as your executable JAR file
@@ -184,6 +184,7 @@ jhipster:
         token-validity-in-seconds-for-remember-me: 2592000
   mail: # specific JHipster mail property, for standard properties see MailProperties
     base-url: http://localhost:8080 # Modify according to your server's URL
+    from: ca3s@localhost
   logging:
     use-json-format: false # By default, logs are not in Json format
     logstash: # Forward logs to logstash over a socket, used by LoggingConfiguration
@@ -259,6 +260,9 @@ ca3s:
     download:
       rows:
         max: 65535
+      pkcs12:
+        log:
+          download: true
 
     # limit the set of selectable languages, available languages are de, en, pl
 
@@ -333,6 +337,9 @@ ca3s:
     iterations: 4567
     pbeAlgo: PBKDF2WithHmacSHA256
 
+  #
+  # SSO section
+  #
   auth:
     api-key:
       enabled: true
@@ -354,17 +361,35 @@ ca3s:
 
   saml:
     activate: true
+
+    # define the location of the SAML IDP
     idp: http://localhost:50080/realms/ca3s
+
+    # provide the configured service provider name of ca3s
     sp: saml-client
+
+    # provide the metadata of the SAML IDP
     metadata:
+      # provide the location of the metadata file or remore location
       location: sample/saml/metadata/sso.xml
+
+      # do we require a signature to be present in the metadata ?
+      # not neccessary if the metadata are provided in a secure manner
+      requires:
+        signature: false
+
+      # in case there is a metadata signature do we check it and what are the trusted entries in the keystore
       trust:
         check: false
         key:
           aliases: trustedAlias1, trustedAlias2
+
+    # provide the keystore location
     keystore:
       location: sample/saml/samlKeystore.p12
       password: s3cr3t
+
+      # the alias of the key / certificate to sign the requests
       alias: saml-client
 
   # check your configuration with e.g.

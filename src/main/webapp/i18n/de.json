@@ -31,7 +31,8 @@
   "ca3SApp.notification.sendRAOfficerOnRequest": "RA Officer Request-Benachrichtigung",
   "ca3SApp.notification.sendUserCertificateIssued": "Benachrichtigung zur Zertifikatsausstellung",
   "ca3SApp.notification.sendUserCertificateRejected": "Requestablehnungs-Benachrichtigung",
-  "ca3SApp.notification.sendUserCertificateRevoked": "Benachrichtigung über Zertifikatsrückruf",
+  "ca3SApp.notification.sendCertificateRevoked": "Benachrichtigung über Zertifikatsrückruf",
+  "ca3SApp.notification.sendUserCertificateRevoked": "Benachrichtigung an RAs über Zertifikatsrückruf durch Nutzer",
 
   "ca3SApp.AccountStatus.DEACTIVATED": "Deaktiviert",
   "ca3SApp.AccountStatus.REVOKED": "Widerrufen",
@@ -1183,9 +1184,12 @@
 
   "CERTIFICATE_IMPORTED": "Zertifikat importiert von '{{val}}'",
   "CSR_ACCEPTED": "Zertifikatsantrag freigegeben",
-  "CSR_REJECTED": "Zertifikatsantrag abgelehnt",
+  "CSR_REJECTED": "Zertifikatsantrag abgelehnt {{val}}",
+  "AUDIT_CSR_SIGNING_FAILED": "Zertifikatssignatur gescheitert {{val}}",
   "WEB_CERTIFICATE_REQUESTED": "Zertifikat am Web-Interface beantragt",
   "WEB_CERTIFICATE_AUTO_ACCEPTED": "Zertifikatsantrag benötigt keine Freigabe",
+  "AUDIT_CERTIFICATE_PKCS12_DOWNLOAD": "Download von Zertifikat und Schlüssel",
+  "AUDIT_CERTIFICATE_ADMINISTRATION_FAILED": "Zertifikatsadministration fehlgeschlagen {{val}}",
   "ACME_CERTIFICATE_REQUESTED": "Zertifikat mittels ACME beantragt",
   "ACME_CERTIFICATE_CREATED": "Zertifikat mittels ACME ausgestellt",
   "SCEP_CERTIFICATE_REQUESTED": "Zertifikat mittels SCEP beantragt",

@@ -878,7 +878,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       console.log(this.precheckResponse.dataType);
       document.body.style.cursor = 'default';
 
-      if (this.precheckResponse && this.precheckResponse.dataType === 'CSR' && this.precheckResponse.csrPending) {
+      if (this.precheckResponse && this.precheckResponse.dataType === 'CSR' && this.precheckResponse.createdCSRId) {
         this.$router.push({ name: 'CsrInfo', params: { csrId: this.precheckResponse.createdCSRId } });
       }
 
@@ -888,29 +888,31 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
       this.warnings = this.precheckResponse.warnings;
 
-      if (
-        this.precheckResponse &&
-        this.precheckResponse.certificates &&
-        this.precheckResponse.dataType === 'X509_CERTIFICATE' &&
-        this.precheckResponse.certificates[0].pemCertrificate
-      ) {
-        this.upload.content = this.precheckResponse.certificates[0].pemCertrificate;
+      if (this.precheckResponse) {
+        if (
+          this.precheckResponse.certificates &&
+          this.precheckResponse.dataType === 'X509_CERTIFICATE' &&
+          this.precheckResponse.certificates[0].pemCertrificate
+        ) {
+          this.upload.content = this.precheckResponse.certificates[0].pemCertrificate;
 
-        for (const nv of this.upload.certificateAttributes) {
-          if (nv.name === 'SAN') {
-            nv.values = [];
-            for (const san of this.precheckResponse.certificates[0].sans) {
-              nv.values.push({ value: san, type: '' });
-            }
-          } else {
-            for (const subjectPart of this.precheckResponse.certificates[0].subjectParts) {
-              if (subjectPart.name.toUpperCase() === nv.name.toUpperCase()) {
-                nv.values = subjectPart.values;
+          for (const nv of this.upload.certificateAttributes) {
+            if (nv.name === 'SAN') {
+              nv.values = [];
+              for (const san of this.precheckResponse.certificates[0].sans) {
+                nv.values.push({ value: san, type: '' });
+              }
+            } else {
+              for (const subjectPart of this.precheckResponse.certificates[0].subjectParts) {
+                if (subjectPart.name.toUpperCase() === nv.name.toUpperCase()) {
+                  nv.values = subjectPart.values;
+                }
               }
             }
           }
         }
       }
+
       this.isChecked = true;
     } catch (error) {
       console.error('####################' + error);

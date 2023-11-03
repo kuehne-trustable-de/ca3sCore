@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.web.rest.support;
 
 import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.exception.CAFailureException;
 import de.trustable.ca3s.core.repository.CertificateAttributeRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
@@ -144,8 +145,9 @@ public class CertificateAdministration {
                 certUtil.setCertificateComment(cert, adminData.getComment());
 
                 return new ResponseEntity<>(adminData.getCertificateId(), HttpStatus.OK);
-			} catch (GeneralSecurityException e) {
-	    		return ResponseEntity.badRequest().build();
+            } catch (GeneralSecurityException | RuntimeException e) {
+                auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_CERTIFICATE_ADMINISTRATION_FAILED,e.getMessage(), cert));
+                return ResponseEntity.badRequest().build();
 			}
 
     	}else {
@@ -218,6 +220,9 @@ public class CertificateAdministration {
 
     		try {
 	    		revokeCertificate(certificate, adminData, userName);
+
+                // @ToDo
+                // send a notification to the RA officer
 
 	    		return new ResponseEntity<>(adminData.getCertificateId(), HttpStatus.OK);
 
@@ -299,7 +304,7 @@ public class CertificateAdministration {
      * @return the {@link ResponseEntity} .
      */
     @PostMapping("/selfAdministerCertificate")
-    @Transactional
+    @Transactional(noRollbackFor = CAFailureException.class)
     public ResponseEntity<Long> selfAdministerCertificate(@Valid @RequestBody CertificateAdministrationData adminData) {
 
         LOG.debug("REST request to update certificate : {}", adminData);

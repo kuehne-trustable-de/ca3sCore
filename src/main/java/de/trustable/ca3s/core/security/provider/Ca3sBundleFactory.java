@@ -24,6 +24,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -78,9 +79,24 @@ public class Ca3sBundleFactory implements BundleFactory {
 
     public KeyCertBundle newDBKeyBundle(final String bundleName, long minValiditySeconds) throws GeneralSecurityException {
 
+        Certificate currentCertificate = null;
+
         List<Certificate> certDaoList = certificateRepository.findActiveTLSCertificate();
 
-        if(certDaoList.isEmpty()){
+        if(!certDaoList.isEmpty()){
+            Certificate certificate = certDaoList.get(0);
+            LOG.debug("Found TLS certificate {} in database.", certificate.getId() );
+
+            Instant minValidTo = Instant.now().plusSeconds(minValiditySeconds);
+            if( certificate.getValidTo().isAfter(minValidTo)){
+                LOG.debug("Found TLS certificate {} valid long enough: {}", certificate.getId(), certificate.getValidTo() );
+                currentCertificate = certificate;
+            }else{
+                LOG.info("Current TLS certificate {} not valid long enough: {}", certificate.getId(), certificate.getValidTo() );
+            }
+        }
+
+        if(currentCertificate == null){
             LOG.debug("Creating new TLS certificate." );
             BundleCertHolder bundleCertHolder = createKeyBundle(bundleName, minValiditySeconds);
             KeyCertBundle keyCertBundle = bundleCertHolder.getKeyCertBundle();
@@ -94,11 +110,10 @@ public class Ca3sBundleFactory implements BundleFactory {
             }
             return keyCertBundle;
         }else{
-            Certificate certificate = certDaoList.get(0);
-            LOG.debug("Found TLS certificate {} in database.", certificate.getId() );
+            LOG.debug("Using TLS certificate {} from database.", currentCertificate.getId() );
 
-            X509Certificate[] certificateChain = certUtil.getX509CertificateChain(certificate);
-            PrivateKey privateKey = certUtil.getPrivateKey(certificate);
+            X509Certificate[] certificateChain = certUtil.getX509CertificateChain(currentCertificate);
+            PrivateKey privateKey = certUtil.getPrivateKey(currentCertificate);
             return new KeyCertBundle(bundleName, certificateChain, certificateChain[0], privateKey);
         }
     }

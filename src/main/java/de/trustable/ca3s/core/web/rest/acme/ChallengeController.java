@@ -60,6 +60,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.xbill.DNS.*;
 
 import javax.net.ssl.*;
+import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.net.*;
@@ -82,6 +83,7 @@ import static org.xbill.DNS.Type.TXT;
 import static org.xbill.DNS.Type.string;
 
 
+@Transactional(dontRollbackOn = AcmeProblemException.class)
 @RestController
 @RequestMapping("/acme/{realm}/challenge")
 public class ChallengeController extends AcmeController {

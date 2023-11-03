@@ -8,7 +8,7 @@ import RequestProxyConfigService from '../request-proxy-config/request-proxy-con
 import {
   IAuditView,
   ICsrUsage,
-  IKeyAlgoLength,
+  IKeyAlgoLengthOrSpec,
   IPipelineType,
   IRDNRestriction,
   IRequestProxyConfig,
@@ -347,7 +347,7 @@ export class SCEPConfigItems implements ISCEPConfigItems {
     public scepSecretPCId?: string,
     public scepSecret?: string,
     public scepSecretValidTo?: Date,
-    public keyAlgoLength?: IKeyAlgoLength,
+    public keyAlgoLength?: IKeyAlgoLengthOrSpec,
     public scepRecipientDN?: string,
     public caConnectorRecipientName?: string
   ) {

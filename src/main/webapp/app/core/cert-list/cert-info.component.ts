@@ -123,7 +123,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
         link.download = filename;
         link.type = mimetype;
 
-        window.console.info('tmp download lnk : ' + link.download);
+        window.console.info('tmp download lnk : ' + link.href);
 
         link.click();
         URL.revokeObjectURL(link.href);

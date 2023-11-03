@@ -48,8 +48,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import de.trustable.ca3s.core.domain.AcmeAccount;
@@ -62,6 +60,8 @@ import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.AcmeUtil;
 import de.trustable.ca3s.core.service.util.JwtUtil;
+
+import javax.transaction.Transactional;
 
 
 /*
@@ -102,7 +102,7 @@ import de.trustable.ca3s.core.service.util.JwtUtil;
    }
 
  */
-@Transactional
+@Transactional(dontRollbackOn = AcmeProblemException.class)
 @RestController
 @RequestMapping("/acme/{realm}/acct")
 public class AccountController extends AcmeController {

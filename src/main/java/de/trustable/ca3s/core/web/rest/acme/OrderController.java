@@ -58,11 +58,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.net.URI;
 import java.security.GeneralSecurityException;
@@ -79,7 +79,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 
 
-@Transactional
+@Transactional(dontRollbackOn = AcmeProblemException.class)
 @RestController
 @RequestMapping("/acme/{realm}/order")
 public class OrderController extends AcmeController {

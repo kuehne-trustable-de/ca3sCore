@@ -48,18 +48,17 @@ spring:
     livereload:
       enabled: false
   datasource:
-
-# sample configuration for a h2 connection
+    # sample configuration for a h2 connection
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:h2:mem:ca3sTestDB
     username: root
     password:
 
-# connect to the database with user-only privileges
-# the application runs with restricted rights, liquibase uses admin rights to create / alter the DB scheme
-#    url: jdbc:mysql://localhost:3306/ca3s_sep_roles?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-#    username: ca3s_sr_user
-#    password: o2Z3je8twZ5W
+    # connect to the database with user-only privileges
+    # the application runs with restricted rights, liquibase uses admin rights to create / alter the DB scheme
+    #    url: jdbc:mysql://localhost:3306/ca3s_sep_roles?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    #    username: ca3s_sr_user
+    #    password: o2Z3je8twZ5W
 
     hikari:
       poolName: Hikari
@@ -81,11 +80,11 @@ spring:
   # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
   liquibase:
     contexts: prod
-#    changeLog: classpath:config/liquibase-3.5/master.xml
-# connect to the database with admin privileges
-#    default-schema: ca3s_sep_roles
-#    user: ca3s_sr_admin
-#    password: MLQ738PdLpio
+  #    changeLog: classpath:config/liquibase-3.5/master.xml
+  # connect to the database with admin privileges
+  #    default-schema: ca3s_sep_roles
+  #    user: ca3s_sr_admin
+  #    password: MLQ738PdLpio
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
@@ -117,7 +116,7 @@ spring:
 #        ciphers: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 ,TLS_DHE_RSA_WITH_AES_128_GCM_SHA256 ,TLS_DHE_RSA_WITH_AES_256_GCM_SHA384 ,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,TLS_DHE_RSA_WITH_AES_128_CBC_SHA256,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_256_CBC_SHA256,TLS_DHE_RSA_WITH_AES_256_CBC_SHA,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_256_CBC_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_256_CBC_SHA,TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA,TLS_RSA_WITH_CAMELLIA_256_CBC_SHA,TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA,TLS_RSA_WITH_CAMELLIA_128_CBC_SHA
 # ===================================================================
 server:
-#  port: 8443
+  #  port: 8443
   port: 9080
   compression:
     enabled: true
@@ -141,7 +140,7 @@ jhipster:
   security:
     authentication:
       jwt:
-        # This token must be encoded using Base64 and be at least 256 bits long (you can type `openssl rand -base64 64` on your command line to generate a 512 bits one)
+        # This token must be encoded using Base64 and be at least 512 bits long (you can type `openssl rand -base64 128` on your command line to generate one)
         # As this is the PRODUCTION configuration, you MUST change the default key, and store it securely:
         # - In the JHipster Registry (which includes a Spring Cloud Config server)
         # - In a separate `application-prod.yml` file, in the same folder as your executable JAR file
@@ -219,7 +218,7 @@ ca3s:
     certificate:
       dnSuffix: O=Trustable Solutions,OU=CA3S Instance,C=DE
       sans: trustable.de, www.trustable.de
-#  certificateSelectionAttributes: Foo,Bar,Baz
+  #  certificateSelectionAttributes: Foo,Bar,Baz
 
   auth:
     kerberos:

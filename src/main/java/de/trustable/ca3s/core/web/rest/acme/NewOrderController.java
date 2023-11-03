@@ -45,11 +45,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.TextParseException;
 
+import javax.transaction.Transactional;
 import java.net.IDN;
 import java.net.URI;
 import java.time.Instant;
@@ -263,7 +263,7 @@ If the server is willing to issue the requested certificate, it
 
  */
 
-@Transactional
+@Transactional(dontRollbackOn = AcmeProblemException.class)
 @RestController
 @RequestMapping("/acme/{realm}/newOrder")
 public class NewOrderController extends AcmeController {

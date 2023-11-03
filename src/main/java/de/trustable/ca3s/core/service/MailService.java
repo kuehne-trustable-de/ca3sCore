@@ -63,7 +63,14 @@ public class MailService {
         if( cc != null) {
             message.setCc(cc);
         }
-        message.setFrom(jHipsterProperties.getMail().getFrom());
+        if(jHipsterProperties.getMail() != null &&
+            jHipsterProperties.getMail().getFrom() != null &&
+            !jHipsterProperties.getMail().getFrom().isEmpty()) {
+            message.setFrom(jHipsterProperties.getMail().getFrom());
+        }else{
+            log.warn( "Email 'from' address not set for email delivery! Consider defining a useful sender address.");
+            message.setFrom("ca3s@localhost");
+        }
         message.setSubject(subject);
         message.setText(content, isHtml);
         javaMailSender.send(mimeMessage);
@@ -86,6 +93,15 @@ public class MailService {
         }
         Locale locale = Locale.forLanguageTag(user.getLangKey());
         context.setVariable(USER, user);
+        if(jHipsterProperties.getMail() != null &&
+            jHipsterProperties.getMail().getBaseUrl() != null &&
+            !jHipsterProperties.getMail().getBaseUrl().isEmpty()) {
+            context.setVariable(BASE_URL, jHipsterProperties.getMail().getBaseUrl());
+        }else{
+            log.warn(BASE_URL + " not set for email templates");
+            context.setVariable(BASE_URL, "/");
+        }
+
         context.setVariable(BASE_URL, jHipsterProperties.getMail().getBaseUrl());
         String content = templateEngine.process(templateName, context);
         String subject = messageSource.getMessage(titleKey, args, locale);

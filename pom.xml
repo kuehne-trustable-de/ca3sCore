@@ -7,7 +7,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.0.0-RC11</version>
+    <version>1.0.0-RC12</version>
     <packaging>jar</packaging>
 
 
@@ -779,7 +779,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-access</artifactId>
-            <version>1.4.11</version>
+            <version>1.2.12</version>
         </dependency>
 
         <!--dependency>

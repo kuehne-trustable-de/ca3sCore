@@ -161,7 +161,7 @@ public class ContentUploadProcessor {
      * @return the {@link ResponseEntity} .
      */
     @PostMapping("/uploadContent")
-	@Transactional
+	@Transactional(noRollbackFor = CAFailureException.class)
     public ResponseEntity<PkcsXXData> uploadContent(@Valid @RequestBody UploadPrecheckData uploaded) {
 
     	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -615,10 +615,10 @@ public class ContentUploadProcessor {
                 p10ReqData.setWarnings(messageList.toArray(new String[0]));
 
                 if (csr != null) {
+                    p10ReqData.setCreatedCSRId(csr.getId().toString());
                     if (pipeline.isApprovalRequired()) {
                         LOG.debug("deferring certificate creation for csr #{}", csr.getId());
                         p10ReqData.setCsrPending(true);
-                        p10ReqData.setCreatedCSRId(csr.getId().toString());
 
                         if( "TRUE".equalsIgnoreCase(pipelineUtil.getPipelineAttribute(pipeline,NOTIFY_RA_OFFICER_ON_PENDING, "" + preferenceUtil.isNotifyRAOnRequest()))) {
                             notificationService.notifyRAOfficerOnRequest(csr);

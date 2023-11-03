@@ -1,17 +1,16 @@
 package de.trustable.ca3s.core.service;
 
-import de.trustable.ca3s.core.domain.Authority;
-import de.trustable.ca3s.core.domain.CSR;
-import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -38,15 +37,18 @@ public class NotificationService {
     private final CSRRepository csrRepo;
     private final UserRepository userRepository;
     private final PipelineUtil pipelineUtil;
+    private final CertificateUtil certificateUtil;
     private final MailService mailService;
     private final AuditService auditService;
     private final int nDaysExpiryEE;
     private final int nDaysExpiryCA;
     private final int nDaysPending;
 
+    @Autowired
     public NotificationService(CertificateRepository certificateRepo, CSRRepository csrRepo,
                                UserRepository userRepository, PipelineUtil pipelineUtil,
-                               MailService mailService, AuditService auditService,
+                               CertificateUtil certificateUtil, MailService mailService,
+                               AuditService auditService,
                                @Value("${ca3s.schedule.ra-officer-notification.days-before-expiry.ee:30}") int nDaysExpiryEE,
                                @Value("${ca3s.schedule.ra-officer-notification.days-before-expiry.ca:90}")int nDaysExpiryCA,
                                @Value("${ca3s.schedule.ra-officer-notification.days-pending:30}") int nDaysPending) {
@@ -54,6 +56,7 @@ public class NotificationService {
         this.csrRepo = csrRepo;
         this.userRepository = userRepository;
         this.pipelineUtil = pipelineUtil;
+        this.certificateUtil = certificateUtil;
         this.mailService = mailService;
         this.auditService = auditService;
         this.nDaysExpiryEE = nDaysExpiryEE;
@@ -144,6 +147,68 @@ public class NotificationService {
         return expiringEECertList.size();
     }
 
+
+    @Transactional
+    public void notifyRAOfficerOnUserRevocation(Certificate certificate) {
+
+        notifyRAOfficerOnUserRevocation(certificate,
+            findAllRAOfficer(AuthoritiesConstants.RA_OFFICER),
+            findAllRAOfficer(AuthoritiesConstants.DOMAIN_RA_OFFICER),
+            true);
+    }
+
+    public void notifyRAOfficerOnUserRevocation(Certificate certificate,
+                                         List<User> raOfficerList,
+                                         List<User> domainOfficerList,
+                                         boolean logNotification) {
+
+        LOG.info("certificate revoked by user (certificate # {})", certificate.getId());
+
+        String revokedByUser = certificateUtil.getCertAttribute( certificate, CertificateAttribute.ATTRIBUTE_REVOKED_BY);
+
+            // Notify RA officers
+        for( User raOfficer: raOfficerList) {
+            Locale locale = Locale.forLanguageTag(raOfficer.getLangKey());
+            Context context = new Context(locale);
+            context.setVariable("cert", certificate);
+            context.setVariable("revokedByUser", revokedByUser);
+            try {
+                mailService.sendEmailFromTemplate(context, raOfficer, null, "mail/userRevokedCertificateEmail", "email.userRevokedCertificateEmail.subject");
+            }catch (Throwable throwable){
+                LOG.warn("Problem occurred while sending a notification eMail to RA officer address '" + raOfficer.getEmail() + "'", throwable);
+/*
+                if(logNotification) {
+                    auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(raOfficer.getEmail()));
+                }
+ */
+            }
+        }
+
+        if( certificate.getCsr() != null &&
+            certificate.getCsr().getPipeline() != null ) {
+
+            Pipeline pipeline = certificate.getCsr().getPipeline();
+
+            // Process subset of CSRs for domain officers
+            for (User domainOfficer : domainOfficerList) {
+
+                if (pipelineUtil.isUserValidAsRA(pipeline, domainOfficer)) {
+                    Locale locale = Locale.forLanguageTag(domainOfficer.getLangKey());
+                    Context context = new Context(locale);
+                    context.setVariable("cert", certificate);
+                    context.setVariable("revokedByUser", revokedByUser);
+                    try {
+                        mailService.sendEmailFromTemplate(context, domainOfficer, null, "mail/newPendingRequestEmail", "email.newPendingRequestEmail.subject");
+                    } catch (Throwable throwable) {
+                        LOG.warn("Problem occurred while sending a notification eMail to domain officer address '" + domainOfficer.getEmail() + "'", throwable);
+                        if (logNotification) {
+                            auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(domainOfficer.getEmail()));
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     @Transactional
     public void notifyRAOfficerOnRequest(CSR csr) {
@@ -259,14 +324,14 @@ public class NotificationService {
     public void notifyUserCerificateRevokedAsync(User requestor, Certificate cert , CSR csr ){
 
         try {
-            notifyUserCerificateRevoked(requestor, cert, csr );
+            notifyCerificateRevoked(requestor, cert, csr );
         } catch (MessagingException e) {
             LOG.error("problem sending user notification for revoked certificate", e);
         }
     }
 
     @Transactional
-    public void notifyUserCerificateRevoked(User requestor, Certificate cert, CSR csr ) throws MessagingException {
+    public void notifyCerificateRevoked(User requestor, Certificate cert, CSR csr ) throws MessagingException {
         Locale locale = Locale.forLanguageTag(requestor.getLangKey());
         Context context = new Context(locale);
         context.setVariable("csr", csr);

@@ -31,7 +31,8 @@
   "ca3SApp.notification.sendRAOfficerOnRequest": "RA officer request notification",
   "ca3SApp.notification.sendUserCertificateIssued": "Certificate issuance notification",
   "ca3SApp.notification.sendUserCertificateRejected": "Request rejection notification",
-  "ca3SApp.notification.sendUserCertificateRevoked": "Certificate revocation notification",
+  "ca3SApp.notification.sendCertificateRevoked": "Certificate revocation notification",
+  "ca3SApp.notification.sendUserCertificateRevoked": "User initiated certificate revocation notification for RAs",
 
   "ca3SApp.AccountStatus.DEACTIVATED": "Deactivated",
   "ca3SApp.AccountStatus.REVOKED": "Revoked",
@@ -1191,9 +1192,12 @@
 
   "CERTIFICATE_IMPORTED": "Certificate imported from '{{val}}'",
   "CSR_ACCEPTED": "Certificate request accepted",
-  "CSR_REJECTED": "Certificate request rejected",
+  "CSR_REJECTED": "Certificate request rejected {{val}}",
+  "AUDIT_CSR_SIGNING_FAILED": "Certificate signing failed {{val}}",
   "WEB_CERTIFICATE_REQUESTED": "Certificate requested at web interface",
   "WEB_CERTIFICATE_AUTO_ACCEPTED": "Certificate request accepted without approval",
+  "AUDIT_CERTIFICATE_PKCS12_DOWNLOAD": "Key and certificate download",
+  "AUDIT_CERTIFICATE_ADMINISTRATION_FAILED": "Certificate administration failed  {{val}}",
   "WEB_CERTIFICATE_CREATED": "Certificate issued at web interface",
   "ACME_CERTIFICATE_REQUESTED": "Certificate requested using ACME protocol",
   "ACME_CERTIFICATE_CREATED": "Certificate using ACME issued",
