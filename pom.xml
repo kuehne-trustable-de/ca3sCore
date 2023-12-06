@@ -188,7 +188,7 @@
         <log4j.version>2.20.0</log4j.version>
         <commons-logging.version>1.2</commons-logging.version>
 
-        <dnsjava.version>3.5.2</dnsjava.version>
+        <dnsjava.version>3.5.3</dnsjava.version>
 
         <opencsvVersion>5.7.1</opencsvVersion>
 
