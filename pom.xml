@@ -217,7 +217,7 @@
 
         <kerby.version>2.0.3</kerby.version>
         <embedded-ldap.version>0.9.0</embedded-ldap.version>
-        <greenmail.version>1.6.14</greenmail.version>
+        <greenmail.version>1.6.15</greenmail.version>
 
         <xml.maven.saxon.version>11.6</xml.maven.saxon.version>
         <xml.maven.plugin.version>1.1.0</xml.maven.plugin.version>
