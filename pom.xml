@@ -222,7 +222,7 @@
         <xml.maven.saxon.version>11.6</xml.maven.saxon.version>
         <xml.maven.plugin.version>1.1.0</xml.maven.plugin.version>
 
-        <dependencyCheck.version>7.4.4</dependencyCheck.version>
+        <dependencyCheck.version>9.0.3</dependencyCheck.version>
         <dependencyCheck.skip>false</dependencyCheck.skip>
 
     </properties>
