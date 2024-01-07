@@ -172,7 +172,7 @@
 
         <bouncyCastleVersion>1.77</bouncyCastleVersion>
 
-        <cryptoUtilVersion>1.3.21</cryptoUtilVersion>
+        <cryptoUtilVersion>1.3.24</cryptoUtilVersion>
         <certBundleVersion>1.1.1</certBundleVersion>
         <cmpClientVersion>3.0.1</cmpClientVersion>
         <adcsUtilVersion>1.2.9</adcsUtilVersion>
