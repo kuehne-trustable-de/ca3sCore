@@ -237,7 +237,7 @@ public class Ca3SApp implements InitializingBean {
             getHTTPSForUsage(SERVER_ACME_PREFIX, true),
             getBindingHostForUsage( SERVER_ACME_PREFIX, DEFAULT_BINDING_HOST), "ACME Port");
 
-        int httpPort = getPortForUsage("server.port", 8080);
+        int httpPort = getPortForUsage("server.", 8080);
         int scepPort = getPortForUsage(SERVER_SCEP_PREFIX, 8081);
         if( scepPort != httpPort) {
             epc.addConfig(scepPort,

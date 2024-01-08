@@ -10,11 +10,13 @@ import java.net.URLConnection;
 
 import javax.security.auth.x500.X500Principal;
 
+import de.trustable.ca3s.core.Ca3SApp;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.SocketUtils;
 
 public class WebTestBase extends LocomotiveBase {
 
@@ -33,9 +35,29 @@ public class WebTestBase extends LocomotiveBase {
 
     private static final Logger LOG = LoggerFactory.getLogger(WebTestBase.class);
 
+    public static int testPortHttp;
+    public static int testPortHttps;
+
+    static{
+
+        testPortHttp = SocketUtils.findAvailableTcpPort();
+        testPortHttps = SocketUtils.findAvailableTcpPort();
+
+        // assign the ports for this test to random values to avoid collisions to other instances
+        System.setProperty(Ca3SApp.SERVER_TLS_PREFIX + "port", "" + testPortHttps);
+        System.setProperty(Ca3SApp.SERVER_ADMIN_PREFIX + "port", "" + testPortHttps);
+        System.setProperty(Ca3SApp.SERVER_RA_PREFIX + "port", "" + testPortHttps);
+        System.setProperty(Ca3SApp.SERVER_ACME_PREFIX + "port", "" + testPortHttps);
+        System.setProperty(Ca3SApp.SERVER_SCEP_PREFIX + "port", "" + testPortHttp);
+
+    }
+
 	public WebTestBase() {
-		super();
-	}
+
+        super();
+//        super.port = testPortHttp;
+
+    }
 
     public static void waitForUrl() {
         waitForUrl(configuration.url());

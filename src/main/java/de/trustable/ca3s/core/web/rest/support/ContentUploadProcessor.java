@@ -27,14 +27,12 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.jcajce.interfaces.EdDSAPrivateKey;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.pkcs.PKCS10CertificationRequestBuilder;
 import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder;
-import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 import org.bouncycastle.pqc.jcajce.provider.dilithium.BCDilithiumPrivateKey;
 import org.bouncycastle.pqc.jcajce.provider.falcon.BCFalconPrivateKey;
 import org.bouncycastle.pqc.jcajce.spec.DilithiumParameterSpec;
@@ -249,7 +247,15 @@ public class ContentUploadProcessor {
 
             try {
 
-                Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(cryptoUtil.convertPemToPKCS10CertificationRequest(content));
+                PKCS10CertificationRequest pkcs10CertificationRequest;
+                try {
+                    pkcs10CertificationRequest = new PKCS10CertificationRequest(Base64.decode(content));
+                    LOG.debug("reading binary CSR succeeded");
+                } catch (IOException | DecoderException e2) {
+                    pkcs10CertificationRequest = cryptoUtil.convertPemToPKCS10CertificationRequest(content);
+                }
+
+                Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(pkcs10CertificationRequest);
 
                 List<CSR> csrList = csrRepository.findNonRejectedByPublicKeyHash(p10ReqHolder.getPublicKeyHash());
                 LOG.debug("public key with hash '{}' already used in #{} CSRs.", p10ReqHolder.getPublicKeyHash(), csrList.size());
@@ -285,7 +291,12 @@ public class ContentUploadProcessor {
 
                     CSR csr;
                     try{
-                        csr = startCertificateCreationProcess(content, p10ReqData, requestorName, uploaded.getRequestorcomment(), uploaded.getArAttributes(), optPipeline );
+                        csr = startCertificateCreationProcess(
+                            CryptoUtil.pkcs10RequestToPem(pkcs10CertificationRequest),
+                            p10ReqData,
+                            requestorName,
+                            uploaded.getRequestorcomment(),
+                            uploaded.getArAttributes(), optPipeline );
                     }catch (CAFailureException caFailureException) {
                         LOG.info("problem creating certificate", caFailureException);
                         String [] messages = ArrayUtils.add( p10ReqData.getWarnings(), caFailureException.getMessage() );

@@ -222,6 +222,10 @@ public class CertificateUtil {
 
     public void setCertificateComment(Certificate cert, String comment) {
 
+        if( cert == null || comment == null || comment.trim().isEmpty()){
+            return;
+        }
+
         CertificateComment oldCcomment = (cert.getComment() == null) ? new CertificateComment() : cert.getComment();
         String oldCommentText = (oldCcomment.getComment() == null) ? "" : oldCcomment.getComment();
         if (!oldCommentText.trim().equals(comment.trim())) {
@@ -2164,12 +2168,22 @@ public class CertificateUtil {
      */
     public List<Certificate> findReplaceCandidates(Instant validOn, String cn, List<String> sanList) {
 
-        if (cn != null) {
-            if (!sanList.contains(cn.toLowerCase(Locale.ROOT))) {
-                sanList.add(cn.toLowerCase(Locale.ROOT));
+        List<String> sanListLowerCase = new ArrayList<>();
+        if(sanList != null){
+            for( String san: sanList){
+                sanListLowerCase.add(san.toLowerCase(Locale.ROOT));
             }
         }
-        return findReplaceCandidates(validOn, sanList);
+        if (cn != null) {
+            if (!sanListLowerCase.contains(cn.toLowerCase(Locale.ROOT))) {
+                if( isIPAddress(cn)) {
+                    sanListLowerCase.add("IP:" + cn.toLowerCase(Locale.ROOT));
+                }else{
+                    sanListLowerCase.add("DNS:" +cn.toLowerCase(Locale.ROOT));
+                }
+            }
+        }
+        return findReplaceCandidates(validOn, sanListLowerCase);
 
     }
 
@@ -2278,11 +2292,16 @@ public class CertificateUtil {
         return generalNameList.toArray(new GeneralName[0]);
     }
 
+    public static boolean isIPAddress(final String rawName){
+        String name = rawName.trim();
+        InetAddressValidator inv = InetAddressValidator.getInstance();
+        return inv.isValidInet4Address(name) || inv.isValidInet6Address(name);
+    }
+
     public static GeneralName buildGeneralNameFromName(final String rawName){
 
         String name = rawName.trim();
-        InetAddressValidator inv = InetAddressValidator.getInstance();
-        if( inv.isValidInet4Address(name) || inv.isValidInet6Address(name)) {
+        if( isIPAddress(name)) {
             return new GeneralName(GeneralName.iPAddress, name);
         }
         return new GeneralName(GeneralName.dNSName, name);

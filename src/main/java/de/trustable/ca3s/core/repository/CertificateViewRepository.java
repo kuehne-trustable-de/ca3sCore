@@ -48,7 +48,8 @@ public class CertificateViewRepository {
         return CertificateSpecifications.handleQueryParamsCertificateView(entityManager,
             cb,
             parameterMap,
-            certificateSelectionAttributeList.getCertificateSelectionAttributes());
+            certificateSelectionAttributeList.getCertificateSelectionAttributes(),
+            certificateRepository);
 
     }
 

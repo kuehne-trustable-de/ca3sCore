@@ -6,9 +6,11 @@ public class BPMNUpload {
 
     Long id;
 
-    String name;
+    private String name;
     private BPMNProcessType type;
-	String contentXML;
+
+    private String version;
+    private String contentXML;
 
 	public BPMNUpload() {
 
@@ -36,6 +38,14 @@ public class BPMNUpload {
 
     public void setType(BPMNProcessType type) {
         this.type = type;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     public String getContentXML() {

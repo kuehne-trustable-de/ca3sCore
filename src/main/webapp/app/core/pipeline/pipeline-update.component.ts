@@ -275,6 +275,7 @@ export class PipelineView implements IPipelineView {
     public caConnectorName?: string,
     public processInfoNameCreate?: string,
     public processInfoNameRevoke?: string,
+    public processInfoNotify?: string,
     public restriction_C?: IRDNRestriction,
     public restriction_CN?: IRDNRestriction,
     public restriction_L?: IRDNRestriction,

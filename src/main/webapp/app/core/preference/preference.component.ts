@@ -8,6 +8,7 @@ import { IPreferences } from '@/shared/model/transfer-object.model';
 
 import AlertService from '@/shared/alert/alert.service';
 import AlertMixin from '@/shared/alert/alert.mixin';
+import HelpTag from '@/core/help/help-tag.vue';
 
 import { integer, minValue, maxValue, required } from 'vuelidate/lib/validators';
 
@@ -34,6 +35,9 @@ const validations: any = {
 
 @Component({
   validations,
+  components: {
+    HelpTag,
+  },
 })
 export default class Preference extends mixins(AlertMixin, JhiDataUtils) {
   @Inject('alertService') alertService: () => AlertService;

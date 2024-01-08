@@ -17,6 +17,8 @@ import axios from 'axios';
 
 const bpmnUrl = 'api/bpmn';
 
+const semVerRegEx = '^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$';
+
 @Component({
   components: {
     Fragment,
@@ -29,7 +31,10 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
   @Inject('alertService') private alertService: () => AlertService;
   @Inject('bPNMProcessInfoService') private bPNMProcessInfoService: () => BPNMProcessInfoService;
 
-  public bpmnUpload: IBPMNUpload = { type: 'CA_INVOCATION' };
+  public bpmnUpload: IBPMNUpload = {
+    type: 'CERTIFICATE_NOTIFY',
+    version: '0.0.1',
+  };
 
   public bpmnUrl: string;
   public bpmnFileUploaded = false;
@@ -47,6 +52,13 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
 
   public mounted(): void {
     window.console.info('in mounted()) ');
+  }
+
+  public showSemVerRegExpFieldWarning(value: string): boolean {
+    const regexp = new RegExp(semVerRegEx);
+    const valid = regexp.test(value);
+    console.log('showRegExpFieldWarning( ' + semVerRegEx + ', "' + value + '") -> ' + valid);
+    return !valid;
   }
 
   public get authenticated(): boolean {

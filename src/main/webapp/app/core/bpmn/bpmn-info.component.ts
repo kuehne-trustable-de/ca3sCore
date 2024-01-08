@@ -16,6 +16,9 @@ import { IBpmnCheckResult, IBPMNUpload } from '@/shared/model/transfer-object.mo
 
 const bpmnUrl = 'api/bpmn';
 
+// const semVerRegEx ='^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$\n';
+const semVerRegEx = '^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$';
+
 @Component({
   components: {
     CopyClipboardButton,
@@ -36,9 +39,13 @@ export default class BpmnInfo extends mixins(AlertMixin, Vue) {
   public updateMethod: string;
   public bpmnBlobUrl: string = null;
   public bpmnFileUploaded = false;
+
+  // strange hack, to ensure that the update process works
+  public bpmnUploadedVersion = '';
   public warningMessage: string = null;
 
   public csrId = 1;
+  public certificateId = 1;
 
   public options: {
     propertiesPanel: {};
@@ -63,6 +70,8 @@ export default class BpmnInfo extends mixins(AlertMixin, Vue) {
         this.bpmnUpload.id = this.bPNMProcessInfo.id;
         this.bpmnUpload.name = this.bPNMProcessInfo.name;
         this.bpmnUpload.type = this.bPNMProcessInfo.type;
+        this.bpmnUpload.version = this.bPNMProcessInfo.version;
+        this.bpmnUploadedVersion = this.bPNMProcessInfo.version;
       });
   }
 
@@ -72,6 +81,13 @@ export default class BpmnInfo extends mixins(AlertMixin, Vue) {
 
   public mounted(): void {
     window.console.info('in mounted()) ');
+  }
+
+  public showSemVerRegExpFieldWarning(value: string): boolean {
+    const regexp = new RegExp(semVerRegEx);
+    const valid = regexp.test(value);
+    console.log('showRegExpFieldWarning( ' + semVerRegEx + ', "' + value + '") -> ' + valid);
+    return !valid;
   }
 
   public get authenticated(): boolean {
@@ -106,6 +122,8 @@ export default class BpmnInfo extends mixins(AlertMixin, Vue) {
   public saveBpmn(): void {
     const self = this;
 
+    this.bpmnUpload.version = this.bpmnUploadedVersion;
+
     this.updateMethod = 'POST';
     if (this.bPNMProcessInfo.id) {
       this.updateMethod = 'PUT';
@@ -138,8 +156,10 @@ export default class BpmnInfo extends mixins(AlertMixin, Vue) {
     const self = this;
 
     let targetURL = bpmnUrl + `/check/csr/${this.bPNMProcessInfo.processId}/${this.csrId}`;
-    if (this.bpmnUpload.type == 'BATCH') {
-      targetURL = bpmnUrl + `/check/batch/${this.bPNMProcessInfo.processId}`;
+    if (this.bpmnUpload.type === 'CERTIFICATE_NOTIFY') {
+      targetURL = bpmnUrl + `/check/certificateNotify/${this.bPNMProcessInfo.processId}/${this.certificateId}`;
+    } else if (this.bpmnUpload.type === 'ACME_ACCOUNT_AUTHORIZATION') {
+      targetURL = bpmnUrl + `/check/accountRequest/${this.bPNMProcessInfo.processId}`;
     }
 
     console.log('calling bpmn check endpoint at ' + targetURL);
@@ -149,7 +169,7 @@ export default class BpmnInfo extends mixins(AlertMixin, Vue) {
       url: targetURL,
     })
       .then(function (response) {
-        window.console.info('/bpmn/check/csr returns ' + response.data);
+        window.console.info(targetURL + ' returns ' + response.data);
         self.bpmnCheckResult = response.data;
       })
       .catch(function (error) {
@@ -248,6 +268,12 @@ export default class BpmnInfo extends mixins(AlertMixin, Vue) {
           self.bpmnUpload.name = name.substring(0, lastDot);
 
           self.bpmnFileUploaded = true;
+
+          const version = self.bpmnUploadedVersion;
+          const lastVersionDot = version.lastIndexOf('.');
+          const currentPatchLevel: number = parseInt(version.substring(lastVersionDot + 1));
+          self.bpmnUploadedVersion = version.substring(0, lastVersionDot + 1) + (currentPatchLevel + 1);
+
           console.log('uploaded bpmn read as URL: ' + self.bpmnBlobUrl);
         } else {
           console.error('uploaded bpmn reading URL: unexpected type ' + readerUrl.result);

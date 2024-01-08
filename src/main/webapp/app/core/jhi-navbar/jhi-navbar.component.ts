@@ -132,6 +132,11 @@ export default class JhiNavbar extends Vue {
     this._doSSOLogin(this.$store.state.uiConfigStore.config.ssoProvider[0]);
   }
   public _doSSOLogin(ssoProviderNameMixedCase: string) {
+    if (!ssoProviderNameMixedCase) {
+      window.console.info('undefined SSO provider name at SSOlogin');
+      return;
+    }
+
     let ssoProviderName = ssoProviderNameMixedCase.toLowerCase();
     window.console.info('forwarding to SSO Login: ' + ssoProviderName);
 
@@ -154,6 +159,11 @@ export default class JhiNavbar extends Vue {
     this._doSSOLogout(this.$store.state.uiConfigStore.config.ssoProvider[0]);
   }
   public _doSSOLogout(ssoProviderNameMixedCase: string) {
+    if (!ssoProviderNameMixedCase) {
+      window.console.info('undefined SSO provider name at SSOlogout');
+      return;
+    }
+
     let ssoProviderName = ssoProviderNameMixedCase.toLowerCase();
     window.console.info('forwarding to SSO Login: ' + ssoProviderName);
 

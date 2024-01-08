@@ -180,7 +180,7 @@ public class CRLUtil {
         }
     }
 
-
+/*
 	@Autowired
     private EntityManager entityManager;
 
@@ -195,5 +195,6 @@ public class CRLUtil {
 //	    public List<Object[]>  getCertificateList(Map<String, String[]> parameterMap) {
 
 	}
+*/
 
 }

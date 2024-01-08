@@ -144,6 +144,7 @@ public class CSRAdministration {
     			csr.setApprovedOn(Instant.now());
                 csr.setAcceptedBy(userName);
 
+                updateComment(adminData, csr);
                 updateARAttributes(adminData, csr);
                 csrUtil.setCSRComment(csr, adminData.getComment());
                 csrRepository.save(csr);
@@ -217,6 +218,7 @@ public class CSRAdministration {
     				LOG.warn("certificate requestor '{}' unknown!", csr.getRequestedBy());
     			}
 
+                updateComment(adminData, csr);
                 updateARAttributes(adminData, csr);
                 csrUtil.setCSRComment(csr, adminData.getComment());
 
@@ -228,6 +230,7 @@ public class CSRAdministration {
         		return new ResponseEntity<>(csrAdministrationResponse, HttpStatus.OK);
 
             }else if(AdministrationType.UPDATE.equals(adminData.getAdministrationType())){
+                updateComment(adminData, csr);
                 updateARAttributes(adminData, csr);
                 csrUtil.setCSRComment(csr, adminData.getComment());
 
@@ -329,11 +332,15 @@ public class CSRAdministration {
     }
 
     private void updateComment(CSRAdministrationData adminData, CSR csr) {
+        csrUtil.setCSRComment(csr, adminData.getComment());
+/*
         if( adminData.getComment() != null && !adminData.getComment().trim().isEmpty()) {
             auditService.saveAuditTrace(
                 auditService.createAuditTraceCsrAttribute("Comment", csr.getAdministrationComment(), adminData.getComment(), csr));
             csr.setAdministrationComment(adminData.getComment());
         }
+
+ */
     }
 
 

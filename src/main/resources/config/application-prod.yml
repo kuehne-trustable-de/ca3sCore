@@ -25,23 +25,24 @@ logging:
   level:
     ROOT: INFO
     io.github.jhipster: INFO
-    de.trustable.ca3s.core: DEBUG
+    de.trustable.ca3s.core: INFO
     de.trustable.ca3s.core.PropertiesLogger: INFO
     de.trustable.ca3s.core.schedule.RequestProxyScheduler: WARN
     de.trustable.ca3s.core.service.util.CaConnectorAdapter: WARN
-    de.trustable.ca3s.core.service.adcs: WARN
-    de.trustable.ca3s.core.service.cmp: DEBUG
+    de.trustable.ca3s.core.service.adcs: INFO
+    de.trustable.ca3s.core.service.cmp: INFO
     de.trustable.ca3s.core.service.dir: WARN
     de.trustable.ca3s.core.security.provider.Ca3sTrustManager: WARN
     de.trustable.ca3s.core.repository.CSRSpecifications: WARN
-    de.trustable.ca3s.core.repository.CertificateSpecifications: DEBUG
+    de.trustable.ca3s.core.repository.CertificateSpecifications: WARN
     de.trustable.util.CryptoUtil: WARN
-    org.keycloak.adapters: DEBUG
-    org.springframework.security.web.authentication: DEBUG
+    org.keycloak.adapters: WARN
+    org.springframework.security.web.authentication: WARN
     org.springframework.security: INFO
     net.ttddyy.dsproxy.listener: INFO
-    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+    org.springframework.web.filter.CommonsRequestLoggingFilter: WARN
 
+# enable or disable the metrics support as required
 management:
   metrics:
     export:
@@ -49,14 +50,16 @@ management:
         enabled: false
 
 spring:
+  # devtools should be enabled for productive use
   devtools:
     restart:
       enabled: false
     livereload:
       enabled: false
+
   datasource:
-    # sample configuration for a mysql connection
     type: com.zaxxer.hikari.HikariDataSource
+    # a sample configuration for a mysql connection
     #    url: jdbc:mysql://localhost:3306/ca3s_jh_dev?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     #    username: ca3s_jh_dev
     #    password: nYbA4Jm4rnQJ
@@ -72,6 +75,7 @@ spring:
     #    username: ca3s_sr_user
     #    password: o2Z3je8twZ5W
 
+    # configuration of the hikari database cache
     hikari:
       poolName: Hikari
       auto-commit: false
@@ -80,6 +84,8 @@ spring:
         prepStmtCacheSize: 250
         prepStmtCacheSqlLimit: 2048
         useServerPrepStmts: true
+
+  # align the JPA configuration to match the database used. The following section is intended for mariadb / mysql
   jpa:
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     database: MYSQL
@@ -112,15 +118,21 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
 
+  # the spring SAML support requires these settings
+  # validate the need after a spring security update
   main:
     allow-bean-definition-overriding: true
     allow-circular-references: true
 
+  # The basic settings for outbound email support
+  #additioanl email-related setting are located at 'jhpster.mail'
   mail:
     host: localhost
     port: 25
     username:
     password:
+
+  # define the location of the email templates
   messages:
     basename: i18n/messages
   thymeleaf:
@@ -168,8 +180,7 @@ jhipster:
     ehcache: # Ehcache configuration
       time-to-live-seconds: 3600 # By default objects stay 1 hour in the cache
       max-entries: 1000 # Number of objects in each cache entry
-  #  cors:
-  #    allowed-origins: '*'
+
   security:
     authentication:
       jwt:
@@ -185,6 +196,8 @@ jhipster:
   mail: # specific JHipster mail property, for standard properties see MailProperties
     base-url: http://localhost:8080 # Modify according to your server's URL
     from: ca3s@localhost
+
+  # enable additional email options
   logging:
     use-json-format: false # By default, logs are not in Json format
     logstash: # Forward logs to logstash over a socket, used by LoggingConfiguration
@@ -195,6 +208,7 @@ jhipster:
   audit-events:
     retention-period: 30 # Number of days before audit events are deleted.
 
+# the application provides an OAS endpoint to access the APIs metadata
 springdoc:
   packagesToScan: de.trustable.ca3s.core.web.rest
   pathsToMatch: /v1, /api/**
@@ -208,18 +222,50 @@ camunda:
       enabled: true
 
 ca3s:
-  acmeAccess:
+  bpmn:
+    use-default-process: false
+
+  # if required separate protocols and ra & admin access to specific ports
+  # the default port is 8442
+  # the default binding host is 0.0.0.0
+  # the use of https is default
+  # overwrite any of the settings if required
+  scepAccess:
     port: 9090
     https: false
 
+  # settings for ACME
+  #  acmeAccess:
+  #    port: 9091
+  #    https: true
+
+  # settings for users default access
+  #  tlsAccess:
+  #    port: 8443
+  #    https: true
+
+  # settings for ra user access
+  #  raAccess:
+  #    port: 8444
+  #    https: true
+
+  # settings for admin user access, binding to a specific subnet, only
+  #   adminAccess:
+  #     port: 8444
+  #     https: true
+  #     bindingHost: 192.168.32.0
+
+  # allow the confirmation of self-issued requests
+  # useful for test environments, unusual for production
   issuance:
     ra:
-      self-issuance-allowed: true
+      self-issuance-allowed: false
 
   batch:
     maxRecordsPerTransaction: 1000
 
   schedule:
+    # define the periods of scheduled task (in millisec)
     rate:
       caConnectorStatus: 600000
       protectedContentCleanup: 3600000
@@ -227,10 +273,13 @@ ca3s:
       certBundleCheck: 600000
       certRetrieval: 3600000
       revocationCheck: 3600000
+
+    # define a crn pattern for regular tasks
     cron:
       expiryNotificationCron: 0 15 2 * * ?
       dropUnrelatedUsersCron: 0 20 02 * * ?
 
+    # time limit (in days) for notifications
     ra-officer-notification:
       days-before-expiry:
         ee: 30
@@ -238,7 +287,6 @@ ca3s:
       days-pending: 30
 
   # enable the creation of the PKCS12 download container with specific algorithms
-
   pkcs12:
     # the restriction on the input 'secret' protecting the PKCS12 container
     secret:
@@ -273,11 +321,6 @@ ca3s:
     # Remark: PNG format, only
     #    logo: custom_logo.
 
-    # The help content may need some mor details or additional explanations.
-    # external help file location:
-    #    en: /var/help/custom_help_en.md
-    #    de: /var/help/custom_help_de.md
-
     password:
       check:
         #        description: min6NumberUpperLower
@@ -286,14 +329,20 @@ ca3s:
         regexp: ^(?:(?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))(?!.*(.)\1{2,})[A-Za-z0-9!~<>,;:_=?*+#.”&§%°()\|\[\]\-\$\^\@\/]{8,32}$
 
     csr:
+      # enable the DNS lookup feature for the CSR view. It may provide relevant information to the ra officer
       dnslookup: true
 
     sso:
+      # enable / disable autologin via SSO
       autologin: false
+      # define a SSO provider
       provider: keyCloak
 
   acme:
+    # an apache plugin for ACME support requires a specific header not mention in RFC 8555
     finalizelocationBackwardCompat: true
+
+    # define some rate limits for ACME access
     ratelimit:
       second: 0
       minute: 20
@@ -310,18 +359,22 @@ ca3s:
       authentications: true
       challenges: true
 
+  # define a specific DNS server to be used with ACME DNS challenges
   dns:
     #    server: 8.8.8.8
     server: 213.133.106.251
     port: 53
 
+  # ca3s requests its own certificate automatically. Define the details of the certificate
   https:
     certificate:
       dnSuffix: O=Trustable Solutions,OU=CA3S Instance,C=DE
-      sans: trustable.de, www.trustable.de
+      sans: ca3s.org, www.ca3s.org
       persist: DB
+
   #  certificateSelectionAttributes: Foo,Bar,Baz
 
+  # ca3s requests the SCEP recipeint certificate automatically. Define the details of the certificate
   scep:
     recipient:
       certificate:
@@ -332,6 +385,7 @@ ca3s:
   # !!! Make sure this configuration file is readable for the application / administrators ONLY !!!
   protectionSecret: bnJvbGwvV1MtMjAxOS1DQS5jcmyGK2h0dHA6Ly90cnVzdGFibGUuZXUvYWRjc1Rl
 
+  # define some key derivation parameter wihich are applied to derive a key from the given protectionSecret
   connection:
     salt: ca3sSalt
     iterations: 4567
@@ -362,7 +416,7 @@ ca3s:
   saml:
     activate: true
 
-    # define the location of the SAML IDP
+    # define the location of the SAML IDP+-
     idp: http://localhost:50080/realms/ca3s
 
     # provide the configured service provider name of ca3s
@@ -370,11 +424,11 @@ ca3s:
 
     # provide the metadata of the SAML IDP
     metadata:
-      # provide the location of the metadata file or remore location
+      # provide the location of the metadata file or remote location
       location: sample/saml/metadata/sso.xml
 
       # do we require a signature to be present in the metadata ?
-      # not neccessary if the metadata are provided in a secure manner
+      # not necessary if the metadata are provided in a secure manner
       requires:
         signature: false
 

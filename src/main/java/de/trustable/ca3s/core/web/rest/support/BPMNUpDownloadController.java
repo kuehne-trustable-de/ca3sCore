@@ -1,10 +1,12 @@
 package de.trustable.ca3s.core.web.rest.support;
 
+import com.vdurmont.semver4j.Semver;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 import de.trustable.ca3s.core.repository.BPMNProcessInfoRepository;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.CSRRepository;
+import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.BPMNUpload;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+import java.time.Instant;
 import java.util.*;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -42,14 +45,16 @@ public class BPMNUpDownloadController {
 
     final BPMNProcessInfoRepository bpmnProcessInfoRepository;
     final CSRRepository csrRepository;
+    final CertificateRepository certificateRepository;
     final CAConnectorConfigRepository caConnectorConfigRepository;
     final AuditService auditService;
 
 
-    public BPMNUpDownloadController(BPMNUtil bpmnUtil, BPMNProcessInfoRepository bpmnProcessInfoRepository, CSRRepository csrRepository, CAConnectorConfigRepository caConnectorConfigRepository, AuditService auditService) {
+    public BPMNUpDownloadController(BPMNUtil bpmnUtil, BPMNProcessInfoRepository bpmnProcessInfoRepository, CSRRepository csrRepository, CertificateRepository certificateRepository, CAConnectorConfigRepository caConnectorConfigRepository, AuditService auditService) {
         this.bpmnUtil = bpmnUtil;
         this.bpmnProcessInfoRepository = bpmnProcessInfoRepository;
         this.csrRepository = csrRepository;
+        this.certificateRepository = certificateRepository;
         this.caConnectorConfigRepository = caConnectorConfigRepository;
         this.auditService = auditService;
     }
@@ -129,6 +134,22 @@ public class BPMNUpDownloadController {
                 LOG.debug("Received bpmn upload request with name {} without new XML content!", bpmnUpload.getName());
             }else {
 
+                Semver currentVersion = new Semver(bpmnProcessInfo.getVersion());
+                Semver newVersion;
+                if( bpmnUpload.getVersion() == null || bpmnUpload.getVersion().isEmpty()) {
+                    LOG.info("unexpected format of version field! Ignoring value.");
+                    newVersion = currentVersion.nextPatch();
+                }else {
+                    newVersion = new Semver(bpmnUpload.getVersion());
+                    if( newVersion.isGreaterThan(currentVersion)){
+                        newVersion = currentVersion.nextPatch();
+                    }
+                }
+
+                bpmnProcessInfo.setVersion(newVersion.toString());
+
+                bpmnProcessInfo.setLastChange(Instant.now());
+
                 String oldProcessDefinitionId = bpmnProcessInfo.getProcessId();
                 String processDefinitionId = bpmnUtil.addModel(bpmnUpload.getContentXML(), bpmnUpload.getName());
                 LOG.debug("Deployed bpmn document with processDefinitionId {} successfully", processDefinitionId);
@@ -196,6 +217,76 @@ public class BPMNUpDownloadController {
     }
 
     /**
+     * check results a given process id when performing certificate notification
+     *
+     * @param processId the internal process id
+     * @param processId the certificateId
+     * @return the process's response
+     */
+    @RequestMapping(value = "/bpmn/check/certificateNotify/{processId}/{certificateId}",
+        method = POST)
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    @Transactional
+    public ResponseEntity<Map<String, String>> postBPMNForCertificateNotify(@PathVariable final String processId, @PathVariable final String certificateId){
+
+        LOG.info("Received bpmn check certificate notification request for process id {} and certificate id {}", processId, certificateId);
+
+        Optional<Certificate> certificateOptional = certificateRepository.findById(Long.parseLong(certificateId));
+
+        CAConnectorConfig caConfig = caConnectorConfigRepository.getOne(1L);
+
+        ProcessInstanceWithVariables processInstanceWithVariables = bpmnUtil.checkCertificateNotificationProcess(certificateOptional.get(), caConfig, processId);
+
+        if( processInstanceWithVariables != null) {
+            BpmnCheckResult result = new BpmnCheckResult();
+            Map<String, Object> variables = processInstanceWithVariables.getVariables();
+            for(String key: variables.keySet()){
+                 if( "failureReason".equals(key) ){
+                    result.setFailureReason(variables.get(key).toString());
+                }else if( "status".equals(key) ){
+                    result.setStatus(variables.get(key).toString());
+                }else if( "isActive".equals(key) ){
+                    result.setActive(Boolean.parseBoolean(variables.get(key).toString()));
+                }else {
+                    String value = variables.get(key).toString();
+                    LOG.info("bpmn process returns variable {} with value {}", key, value);
+                    result.getResponseAttributes().add(new ImmutablePair<>(key, value));
+                }
+            }
+            return new ResponseEntity(result, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * check results a given batch process id when started
+     *
+     * @param processId the internal process id
+     * @return the process's response
+     */
+    @RequestMapping(value = "/bpmn/check/accountRequest/{processId}",
+        method = POST)
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    @Transactional
+    public ResponseEntity<Map<String, String>> postBPMNAccountRequest(@PathVariable final String processId){
+
+        LOG.info("Call bpmn request for process id {}", processId);
+        ProcessInstanceWithVariables processInstanceWithVariables = bpmnUtil.checkAccountRequest(processId);
+
+        if( processInstanceWithVariables != null) {
+            BpmnCheckResult result = new BpmnCheckResult();
+            Map<String, Object> variables = processInstanceWithVariables.getVariables();
+            for(String key: variables.keySet()){
+                String value = variables.get(key).toString();
+                LOG.info("bpmn process returns variable {} with value {}", key, value);
+                result.getResponseAttributes().add(new ImmutablePair<>(key, value));
+            }
+            return new ResponseEntity(result, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    /**
      * check results a given batch process id when started
      *
      * @param processId the internal process id
@@ -222,4 +313,5 @@ public class BPMNUpDownloadController {
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
 }

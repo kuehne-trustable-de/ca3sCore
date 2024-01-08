@@ -81,6 +81,7 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
     @Value("${local.server.port}")
     int port; //random port chosen by spring test
 
+
     File downloadDir;
 
     private Pattern p;

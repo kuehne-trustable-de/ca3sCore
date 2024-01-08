@@ -5,6 +5,8 @@ import { numeric, required, minLength, maxLength } from 'vuelidate/lib/validator
 import { IProtectedContent } from '@/shared/model/protected-content.model';
 
 import AlertService from '@/shared/alert/alert.service';
+import HelpTag from '@/core/help/help-tag.vue';
+
 import { IRequestProxyConfig, RequestProxyConfig } from '@/shared/model/request-proxy-config.model';
 import RequestProxyConfigService from './request-proxy-config.service';
 
@@ -23,6 +25,9 @@ const validations: any = {
 
 @Component({
   validations,
+  components: {
+    HelpTag,
+  },
 })
 export default class RequestProxyConfigUpdate extends Vue {
   @Inject('alertService') private alertService: () => AlertService;

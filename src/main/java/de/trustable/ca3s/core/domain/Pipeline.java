@@ -92,6 +92,14 @@ public class Pipeline implements Serializable {
     @JsonIgnoreProperties({"pipelines", "secret"})
     private BPMNProcessInfo processInfoRevoke;
 
+    @ManyToOne
+    @JsonIgnoreProperties({"pipelines", "secret"})
+    private BPMNProcessInfo processInfoNotify;
+
+    @ManyToOne
+    @JsonIgnoreProperties({"pipelines", "secret"})
+    private BPMNProcessInfo processInfoRequestAuthorization;
+
     @ManyToMany
     @JoinTable(
         name = "rel_pipeline__algorithms",
@@ -281,6 +289,33 @@ public class Pipeline implements Serializable {
         this.setProcessInfoRevoke(bPMNProcessInfo);
         return this;
     }
+
+    public BPMNProcessInfo getProcessInfoNotify() {
+        return processInfoNotify;
+    }
+
+    public void setProcessInfoNotify(BPMNProcessInfo processInfoNotify) {
+        this.processInfoNotify = processInfoNotify;
+    }
+
+    public Pipeline processInfoNotify(BPMNProcessInfo bPMNProcessInfo) {
+        this.setProcessInfoNotify(bPMNProcessInfo);
+        return this;
+    }
+
+    public BPMNProcessInfo getProcessInfoRequestAuthorization() {
+        return processInfoRequestAuthorization;
+    }
+
+    public void setProcessInfoRequestAuthorization(BPMNProcessInfo processInfoRequestAuthorization) {
+        this.processInfoRequestAuthorization = processInfoRequestAuthorization;
+    }
+
+    public Pipeline processInfoRequestAuthorization(BPMNProcessInfo bPMNProcessInfo) {
+        this.setProcessInfoRequestAuthorization(bPMNProcessInfo);
+        return this;
+    }
+
 
     public Set<AlgorithmRestriction> getAlgorithms() {
         return this.algorithms;

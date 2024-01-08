@@ -286,12 +286,15 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
     return this.getUsername() === this.certificateView.requestedBy;
   }
 
-  public updateCertificate() {
+  copyCertificateDataToAdminData() {
+    this.certificateAdminData.certificateId = this.certificateView.id;
     this.certificateAdminData.comment = this.comment;
     this.certificateAdminData.trusted = this.trusted;
-    this.certificateAdminData.certificateId = this.certificateView.id;
+  }
+
+  public updateCertificate() {
+    this.copyCertificateDataToAdminData();
     this.certificateAdminData.administrationType = 'UPDATE';
-    this.certificateAdminData.trusted = this.certificateView.trusted;
     this.sendAdministrationAction('api/administerCertificate');
   }
   public updateCRL() {
@@ -301,17 +304,14 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
   }
 
   public removeCertificateFromCRL() {
-    this.certificateAdminData.certificateId = this.certificateView.id;
-    this.certificateAdminData.revocationReason = 'removeFromCRL';
+    this.copyCertificateDataToAdminData();
     this.certificateAdminData.administrationType = 'REVOKE';
-    this.certificateAdminData.trusted = this.certificateView.trusted;
     this.sendAdministrationAction('api/administerCertificate');
   }
 
   public revokeCertificate() {
-    this.certificateAdminData.certificateId = this.certificateView.id;
+    this.copyCertificateDataToAdminData();
     this.certificateAdminData.administrationType = 'REVOKE';
-    this.certificateAdminData.trusted = this.certificateView.trusted;
     this.sendAdministrationAction('api/administerCertificate');
   }
 
@@ -342,14 +342,13 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
   }
 
   public selfAdministerCertificate() {
-    this.certificateAdminData.certificateId = this.certificateView.id;
+    this.copyCertificateDataToAdminData();
     this.certificateAdminData.administrationType = 'UPDATE';
-    this.certificateAdminData.trusted = this.certificateView.trusted;
     this.sendAdministrationAction('api/selfAdministerCertificate');
   }
 
   public withdrawCertificate() {
-    this.certificateAdminData.certificateId = this.certificateView.id;
+    this.copyCertificateDataToAdminData();
     this.certificateAdminData.administrationType = 'REVOKE';
     this.sendAdministrationAction('api/withdrawOwnCertificate');
   }

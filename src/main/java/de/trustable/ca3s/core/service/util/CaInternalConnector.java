@@ -157,7 +157,8 @@ public class CaInternalConnector {
 
 		certUtil.storePrivateKey(rootCert, keyPair);
 
-		certUtil.setCertAttribute(rootCert, CertificateAttribute.ATTRIBUTE_CA3S_ROOT, "true");
+        rootCert.setTrusted(true);
+        certUtil.setCertAttribute(rootCert, CertificateAttribute.ATTRIBUTE_CA3S_ROOT, "true");
 
 		certRepository.save(rootCert);
 

@@ -230,8 +230,19 @@ export default new Router({
 
         const url = '/app/help/help-' + to.params.lang + '.html' + to.params.hash;
         console.info("help url: " + url);
-        window.open(url,
-          'ca3sHelp');
+        window.open(url, 'ca3sHelp');
+      }
+    },
+
+    {
+      path: '/helpTargetAdmin',
+      name: 'HelpTargetAdmin',
+      component: HelpTag,
+      beforeEnter: (to, from, next) => {
+
+        const url = '/app/help/helpAdmin-' + to.params.lang + '.html' + to.params.hash;
+        console.info("help url: " + url);
+        window.open(url, 'ca3sAdminHelp');
       }
     },
 

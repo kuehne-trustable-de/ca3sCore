@@ -68,6 +68,8 @@ public class AuditService {
 
     public static final String AUDIT_CSR_ATTRIBUTE_CHANGED = "CSR_ATTRIBUTE_CHANGED";
 
+    public static final String AUDIT_CSR_COMMENT_CHANGED = "CSR_COMMENT_CHANGED";
+
     public static final String AUDIT_CERTIFICATE_IMPORTED = "CERTIFICATE_IMPORTED";
     public static final String AUDIT_CERTIFICATE_ATTRIBUTE_CHANGED = "CERTIFICATE_ATTRIBUTE_CHANGED";
 

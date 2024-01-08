@@ -67,10 +67,9 @@
                         </dt>
                         <dd>
                             <ul>
-                                <li >{{certificateView.serialHex}}</li>
-                                <li v-if="certificateView.serialHex != certificateView.serial">{{certificateView.serial}}</li>
+                                <li >{{certificateView.serialHex}} ({{$t('HEX')}})</li>
+                                <li v-if="certificateView.serialHex != certificateView.serial">{{certificateView.serial}} ({{$t('DECIMAL')}})</li>
                             </ul>
-
                         </dd>
                         <dt>
                             <span v-text="$t('ca3SApp.certificate.validFrom')">Valid From</span>
@@ -280,12 +279,10 @@
                                    v-model="trusted" />
                         </div>
 
-                        <Fragment v-if="isEditable()">
-                            <div v-for="attr in certificateView.arArr" :key="attr.name" class="form-group">
-                                <label class="form-control-label"  :for="'cert-ar-'+attr.name">{{attr.name}}</label>
-                                <input type="text" class="form-control" :name="'cert-ar-'+attr.name" :id="'cert-ar-'+attr.name" v-model="attr.value" />
-                            </div>
-                        </Fragment>
+                        <div v-if="isEditable()" v-for="attr in certificateView.arArr" :key="attr.name" class="form-group">
+                            <label class="form-control-label"  :for="'cert-ar-'+attr.name">{{attr.name}}</label>
+                            <input type="text" class="form-control" :name="'cert-ar-'+attr.name" :id="'cert-ar-'+attr.name" v-model="attr.value" />
+                        </div>
 
                         <div v-if="isRevocable()" class="form-group">
                             <label class="form-control-label" v-text="$t('ca3SApp.certificate.revocationReason')" for="cert-revocationReason">Revocation reason</label> <help-tag target="ca3SApp.certificate.download.revocationReason"/>
@@ -309,6 +306,7 @@
                                       v-model="comment" />
                             <textarea v-else class="form-control" name="content" id="comment"
                                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                      readonly="true"
                                       v-model="comment" />
                         </div>
 
@@ -326,7 +324,7 @@
                             <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.back')"> Back</span>
                         </button>
 
-                        <button type="button" id="edit" v-if="isOwnCertificate()"
+                        <button type="button" id="edit" v-if="isOwnCertificate() && (!isRAOrAdmin())"
                                 class="btn btn-secondary" v-on:click="selfAdministerCertificate()">
                             <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.update')">Update</span>
                         </button>

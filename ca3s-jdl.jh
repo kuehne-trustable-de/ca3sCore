@@ -251,8 +251,9 @@ enum BPMNProcessType {
     CA_INVOCATION,
     CERTIFICATE_CREATION,
     CERTIFICATE_REVOCATION,
+    CERTIFICATE_NOTIFY,
     REQUEST_AUTHORIZATION,
-    BATCH
+    TIMED
 }
 
 @skipClient
@@ -532,6 +533,7 @@ relationship ManyToOne {
 	Pipeline{caConnector} to CAConnectorConfig
     Pipeline{processInfoCreate} to BPMNProcessInfo
     Pipeline{processInfoRevoke} to BPMNProcessInfo
+    Pipeline{processInfoNotify} to BPMNProcessInfo
 
     CAConnectorConfig{tlsAuthentication} to Certificate
     CAConnectorConfig{messageProtection} to Certificate

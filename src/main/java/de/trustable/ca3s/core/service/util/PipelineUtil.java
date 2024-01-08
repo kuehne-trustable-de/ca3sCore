@@ -199,6 +199,10 @@ public class PipelineUtil {
             pv.setProcessInfoNameRevoke(pipeline.getProcessInfoRevoke().getName());
         }
 
+        if (pipeline.getProcessInfoNotify() != null) {
+            pv.setProcessInfoNameNotify(pipeline.getProcessInfoNotify().getName());
+        }
+
         RDNRestriction[] rdnRestrictArr = initRdnRestrictions(pv, pipeline);
         pv.setRdnRestrictions(rdnRestrictArr);
 
@@ -620,14 +624,15 @@ public class PipelineUtil {
             }
         }
 
+        // Process Create
         String oldProcessNameCreate = "";
         if (p.getProcessInfoCreate() != null) {
             oldProcessNameCreate = p.getProcessInfoCreate().getName();
         }
 
-        Optional<BPMNProcessInfo> bpiOpt = bpmnPIRepository.findByName(pv.getProcessInfoNameCreate());
-        if (bpiOpt.isPresent()) {
-            BPMNProcessInfo bpi = bpiOpt.get();
+        List<BPMNProcessInfo> bpmnProcessInfoList = bpmnPIRepository.findByNameOrderedBylastChange(pv.getProcessInfoNameCreate());
+        if(!bpmnProcessInfoList.isEmpty()) {
+            BPMNProcessInfo bpi = bpmnProcessInfoList.get(0);
             p.setProcessInfoCreate(bpi);
             if (!bpi.getName().equals(oldProcessNameCreate)) {
                 auditList.add(auditService.createAuditTracePipelineAttribute("ISSUANCE_PROCESS", oldProcessNameCreate, bpi.getName(), p));
@@ -639,14 +644,15 @@ public class PipelineUtil {
             }
         }
 
+        // Process Revoke
         String oldProcessNameRevoke = "";
         if (p.getProcessInfoRevoke() != null) {
             oldProcessNameRevoke = p.getProcessInfoRevoke().getName();
         }
 
-        Optional<BPMNProcessInfo> bpiOptRevoke = bpmnPIRepository.findByName(pv.getProcessInfoNameRevoke());
-        if (bpiOptRevoke.isPresent()) {
-            BPMNProcessInfo bpi = bpiOptRevoke.get();
+        List<BPMNProcessInfo> bpmnProcessInfoRevokeList = bpmnPIRepository.findByNameOrderedBylastChange(pv.getProcessInfoNameRevoke());
+        if(!bpmnProcessInfoRevokeList.isEmpty()) {
+            BPMNProcessInfo bpi = bpmnProcessInfoRevokeList.get(0);
             p.setProcessInfoRevoke(bpi);
             if (!bpi.getName().equals(oldProcessNameRevoke)) {
                 auditList.add(auditService.createAuditTracePipelineAttribute("REVOCATION_PROCESS", oldProcessNameRevoke, bpi.getName(), p));
@@ -658,6 +664,25 @@ public class PipelineUtil {
             }
         }
 
+        // Process Notify
+        String oldProcessNameNotify = "";
+        if (p.getProcessInfoNotify() != null) {
+            oldProcessNameNotify = p.getProcessInfoNotify().getName();
+        }
+
+        List<BPMNProcessInfo> bpmnProcessInfoNotifyList = bpmnPIRepository.findByNameOrderedBylastChange(pv.getProcessInfoNameNotify());
+        if(!bpmnProcessInfoNotifyList.isEmpty()) {
+            BPMNProcessInfo bpi = bpmnProcessInfoNotifyList.get(0);
+            p.setProcessInfoNotify(bpi);
+            if (!bpi.getName().equals(oldProcessNameNotify)) {
+                auditList.add(auditService.createAuditTracePipelineAttribute("NOTIFICATION_PROCESS", oldProcessNameNotify, bpi.getName(), p));
+            }
+        } else {
+            p.setProcessInfoNotify(null);
+            if (!oldProcessNameNotify.equals("")) {
+                auditList.add(auditService.createAuditTracePipelineAttribute("NOTIFICATION_PROCESS", oldProcessNameNotify, "", p));
+            }
+        }
 
         Set<RequestProxyConfig> requestProxyConfigList = new HashSet<>();
         for (long requestProxyConfigId : pv.getRequestProxyConfigIds()) {

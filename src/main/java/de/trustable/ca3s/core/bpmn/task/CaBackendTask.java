@@ -175,14 +175,19 @@ public class CaBackendTask implements JavaDelegate {
 
     				certificateRepository.save(cert);
     				LOGGER.debug("certificateId " + cert.getId());
-    			}else {
-    				LOGGER.warn("ceated certificate for csr #" + csr.getId() + " == null!");
+
+                    execution.setVariable("certificateId", cert.getId());
+                    execution.setVariable("certificate", cert);
+                    execution.setVariable("status", "Created");
+
+                }else {
+    				LOGGER.warn("created certificate for csr #" + csr.getId() + " == null!");
+
+                    execution.setVariable("certificateId", "");
+                    execution.setVariable("certificate", null);
+                    execution.setVariable("status", "Failed");
     			}
 
-
-				execution.setVariable("certificateId", cert.getId());
-				execution.setVariable("certificate", cert);
-				execution.setVariable("status", "Created");
 			}
 
 		} catch (Exception e) {

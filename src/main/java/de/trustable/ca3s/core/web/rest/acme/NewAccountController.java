@@ -28,6 +28,7 @@ package de.trustable.ca3s.core.web.rest.acme;
 
 
 import de.trustable.ca3s.core.domain.AcmeAccount;
+import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 import de.trustable.ca3s.core.repository.AcmeAccountRepository;
 import de.trustable.ca3s.core.repository.AcmeContactRepository;
@@ -36,13 +37,13 @@ import de.trustable.ca3s.core.service.dto.acme.AccountResponse;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.AcmeUtil;
+import de.trustable.ca3s.core.service.util.BPMNUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.jose4j.jwt.consumer.JwtContext;
 import org.jose4j.jwx.JsonWebStructure;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,6 +51,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.transaction.Transactional;
 import java.net.URI;
+import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -66,14 +68,19 @@ public class NewAccountController extends AcmeController {
 
   private static final Logger LOG = LoggerFactory.getLogger(NewAccountController.class);
 
+  final private  AcmeAccountRepository acctRepository;
 
-  @Autowired
-  private AcmeAccountRepository acctRepository;
+  final private AcmeContactRepository contactRepo;
 
-  @Autowired
-  AcmeContactRepository contactRepo;
+  final private BPMNUtil bpmnUtil;
 
-  @Transactional
+    public NewAccountController(AcmeAccountRepository acctRepository, AcmeContactRepository contactRepo, BPMNUtil bpmnUtil) {
+        this.acctRepository = acctRepository;
+        this.contactRepo = contactRepo;
+        this.bpmnUtil = bpmnUtil;
+    }
+
+    @Transactional
   @RequestMapping(method = POST, consumes = APPLICATION_JOSE_JSON_VALUE)
   public ResponseEntity<?> consumingPostedJoseJson(@RequestBody final String requestBody, @PathVariable final String realm,
                                                    @RequestHeader(value=HEADER_X_CA3S_FORWARDED_HOST, required=false) String forwardedHost) {
@@ -139,6 +146,11 @@ public class NewAccountController extends AcmeController {
 		} else {
 
 			if( accListExisting.isEmpty()) {
+
+                Pipeline pipeline = getPipelineForRealm(realm);
+
+                bpmnUtil.startACMEAccountCreationProcess(newAcct, pipeline);
+
 				/*
 			    JwtClaims claims = context.getJwtClaims();
 			    Map<String, Object> claimsMap = claims.getClaimsMap();
@@ -198,9 +210,13 @@ public class NewAccountController extends AcmeController {
 		}
 
 
-	} catch (JoseException e) {
+    } catch (GeneralSecurityException e) {
+        final ProblemDetail problem = new ProblemDetail(AcmeUtil.UNAUTHORIZED, "Account creation problem.",
+            BAD_REQUEST, e.getMessage(), NO_INSTANCE);
+        return buildProblemResponseEntity(new AcmeProblemException(problem));
+    } catch (JoseException  e) {
         final ProblemDetail problem = new ProblemDetail(AcmeUtil.SERVER_INTERNAL, "Algorithm mismatch.",
-                BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
+            BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
         return buildProblemResponseEntity(new AcmeProblemException(problem));
 	} catch (AcmeProblemException e) {
 	    return buildProblemResponseEntity(e);

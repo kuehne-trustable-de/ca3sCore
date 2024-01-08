@@ -16,10 +16,7 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.math.BigInteger;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static de.trustable.ca3s.core.repository.SpecificationsHelper.*;
 
@@ -131,7 +128,8 @@ public final class CertificateSpecifications {
 	public static Page<CertificateView> handleQueryParamsCertificateView(EntityManager entityManager,
                                                                          CriteriaBuilder cb,
                                                                          Map<String, String[]> parameterMap,
-                                                                         List<String> certificateSelectionAttributes) {
+                                                                         List<String> certificateSelectionAttributes,
+                                                                         CertificateRepository certificateRepository) {
 
 		long startTime = System.currentTimeMillis();
 
@@ -282,7 +280,7 @@ public final class CertificateSpecifications {
                 logger.debug("objArr len {}, colList len {}", objArr.length, colList.size());
             }
 
-            CertificateView cv = buildCertificateViewFromObjArr(colList, objArr);
+            CertificateView cv = buildCertificateViewFromObjArr(colList, certificateRepository, objArr);
             certViewList.add(cv);
         }
 
@@ -387,7 +385,9 @@ public final class CertificateSpecifications {
 
 	}
 
-	private static CertificateView buildCertificateViewFromObjArr(ArrayList<String> colList, Object[] objArr) {
+	private static CertificateView buildCertificateViewFromObjArr(ArrayList<String> colList,
+                                                                  CertificateRepository certificateRepository,
+                                                                  Object[] objArr) {
 		CertificateView cv = new CertificateView();
         List<NamedValue> namedValueList = new ArrayList<>();
 		int i = 0;
@@ -449,7 +449,6 @@ public final class CertificateSpecifications {
                 cv.setSelfsigned(Boolean.parseBoolean((String)objArr[i]));
             }else if( "trusted".equalsIgnoreCase(attribute)) {
                 cv.setTrusted(Boolean.parseBoolean((String)objArr[i]));
-
             }else if( "endEntity".equalsIgnoreCase(attribute)) {
                 cv.setEndEntity( Boolean.parseBoolean((String)objArr[i]));
             }else if( "chainlength".equalsIgnoreCase(attribute)) {
@@ -459,17 +458,34 @@ public final class CertificateSpecifications {
             }else if( "requestedBy".equalsIgnoreCase(attribute)) {
                 cv.setRequestedBy( (String) objArr[i]) ;
             }else {
+
+                logger.info("attribute '{}' from query added as additionalRestriction", attribute);
+
                 NamedValue namedValue = new NamedValue();
                 namedValue.setName(attribute);
-                namedValue.setValue(objArr[i].toString());
+//                namedValue.setValue(objArr[i].toString());
                 namedValueList.add(namedValue);
-
-				logger.info("attribute '{}' from query added as additionalRestriction", attribute);
+                continue;
 			}
 			i++;
 		}
+
         if(!namedValueList.isEmpty()){
             cv.setArArr(namedValueList.toArray(new NamedValue[0]));
+        }else{
+            Optional<Certificate> optionalCertificate = certificateRepository.findById(cv.getId());
+            if( optionalCertificate.isPresent()){
+                Set<CertificateAttribute> certificateAttributeList = optionalCertificate.get().getCertificateAttributes();
+                for( CertificateAttribute attribute: certificateAttributeList){
+                    for( NamedValue namedValue: namedValueList){
+                        if( namedValue.getName().equals(attribute.getName())){
+                            namedValue.setValue(attribute.getValue());
+                            logger.info("retrieved attribute '{}' required by column list", attribute.getName());
+                            break;
+                        }
+                    }
+                }
+            }
         }
 		return cv;
 	}
@@ -723,24 +739,26 @@ public final class CertificateSpecifications {
 
 			addNewColumn(selectionList,root.get(Certificate_.serial));
 
-			String decSerial = attributeValue;
-			if( attributeValue.startsWith("#")){
-				decSerial = attributeValue.substring(1);
-            } else if( attributeValue.startsWith("$")){
-                BigInteger serialBI = new BigInteger( attributeValue.substring(1).replaceAll(" ", ""), 16);
-                decSerial = serialBI.toString();
-            } else if( attributeValue.toLowerCase().startsWith("0x")){
-                BigInteger serialBI = new BigInteger( attributeValue.substring(2).replaceAll(" ", ""), 16);
-                decSerial = serialBI.toString();
-			}
+            if (attributeSelector != null) {
 
-            String paddedSerial = CertificateUtil.getPaddedSerial(decSerial);
-            logger.debug("serial used for search {} ", paddedSerial);
+                String decSerial = attributeValue;
 
-			Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
-			pred = cb.and( cb.equal(attJoin.get(CertificateAttribute_.name), CertificateAttribute.ATTRIBUTE_SERIAL_PADDED),
-                buildPredicateString( attributeSelector, cb, attJoin.get(CertificateAttribute_.value), paddedSerial));
+                if (Selector.HEX.toString().equalsIgnoreCase(attributeSelector)) {
+                    try {
+                        BigInteger serialBI = new BigInteger(attributeValue.replaceAll(" ", ""), 16);
+                        decSerial = serialBI.toString();
+                    } catch (NumberFormatException nfe) {
+                        // not a hex number, ignore the problem
+                    }
+                }
 
+                String paddedSerial = CertificateUtil.getPaddedSerial(decSerial);
+                logger.debug("serial used for search {} ", paddedSerial);
+
+                Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
+                pred = cb.and(cb.equal(attJoin.get(CertificateAttribute_.name), CertificateAttribute.ATTRIBUTE_SERIAL_PADDED),
+                    cb.equal(attJoin.get(CertificateAttribute_.value), paddedSerial));
+            }
 		}else if( "validFrom".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.validFrom));
 			pred = SpecificationsHelper.buildDatePredicate( attributeSelector, cb, root.get(Certificate_.validFrom), attributeValue);
@@ -788,11 +806,12 @@ public final class CertificateSpecifications {
 
             if( certificateSelectionAttributes.contains(attribute) ){
                 // handle ARAs
-                Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
-                addNewColumn(selectionList,attJoin.get(CertificateAttribute_.value));
-                pred = cb.and( cb.equal(attJoin.get(CertificateAttribute_.name), CsrAttribute.ARA_PREFIX + attribute),
-                    buildPredicateString( attributeSelector, cb, attJoin.get(CertificateAttribute_.value), attributeValue.toLowerCase()));
-
+//                addNewColumn(selectionList,attJoin.get(CertificateAttribute_.value));
+                if (attributeSelector != null) {
+                    Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
+                    pred = cb.and(cb.equal(attJoin.get(CertificateAttribute_.name), CsrAttribute.ARA_PREFIX + attribute),
+                        buildPredicateString(attributeSelector, cb, attJoin.get(CertificateAttribute_.value), attributeValue.toLowerCase()));
+                }
             }else {
                 logger.warn("fall-thru clause adding 'true' condition for {} ", attribute);
             }

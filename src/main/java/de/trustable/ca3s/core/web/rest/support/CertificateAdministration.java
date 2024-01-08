@@ -124,7 +124,11 @@ public class CertificateAdministration {
                             LOG.info("certificate requestor '{}' unknown!", csr.getRequestedBy());
                         }
                     }
+                    updateComment(adminData, cert);
+                    updateARAttributes(adminData, cert);
+
                 } else if(AdministrationType.UPDATE.equals(adminData.getAdministrationType())){
+                    updateComment(adminData, cert);
                     updateARAttributes(adminData, cert);
                     updateTrustedFlag(adminData, cert);
                 } else if(AdministrationType.UPDATE_CRL.equals(adminData.getAdministrationType())){
@@ -218,7 +222,10 @@ public class CertificateAdministration {
         		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     		}
 
-    		try {
+            updateComment(adminData, certificate);
+            updateARAttributes(adminData, certificate);
+
+            try {
 	    		revokeCertificate(certificate, adminData, userName);
 
                 // @ToDo
@@ -328,7 +335,6 @@ public class CertificateAdministration {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
 
-
             updateARAttributes(adminData, certificate);
             updateComment(adminData, certificate);
 
@@ -343,17 +349,7 @@ public class CertificateAdministration {
     }
 
     private void updateComment(CertificateAdministrationData adminData, Certificate cert) {
-        String currentComment = certUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_COMMENT);
-
-        if( adminData.getComment() == null ) {
-            adminData.setComment("");
-        }
-
-        if( !adminData.getComment().trim().equals(currentComment) ) {
-            auditService.saveAuditTrace(
-                auditService.createAuditTraceCertificateAttribute("Comment", currentComment, adminData.getComment(), cert));
-            certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_COMMENT, adminData.getComment(), false);
-        }
+        certUtil.setCertificateComment(cert, adminData.getComment());
     }
 
 

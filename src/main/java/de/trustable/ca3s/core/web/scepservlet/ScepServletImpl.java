@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.web.scepservlet;
 
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
+import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.domain.enumeration.ScepOrderStatus;
 import de.trustable.ca3s.core.exception.CAFailureException;
@@ -224,11 +225,11 @@ public class ScepServletImpl extends ScepServlet {
             if( password != null){
                 checkPassword(pipeline, password);
                 scepOrder.setPasswordAuthentication(true);
-            }else{
+            }else {
                 Certificate senderCert = certUtil.createCertificate(sender.getEncoded(), null, null, false,
                     "scep sender certificate");
 
-                if( !senderCert.isActive()){
+                if (!senderCert.isActive()) {
                     LOGGER.warn("certificate {} not active! Revoked {}, expiring on {}", senderCert.getId(), senderCert.isRevoked(), senderCert.getValidTo());
                     scepOrder.setStatus(ScepOrderStatus.INVALID);
                     throw new OperationFailureException(FailInfo.badRequest);
@@ -236,16 +237,53 @@ public class ScepServletImpl extends ScepServlet {
 
                 boolean isTrusted = false;
                 List<Certificate> senderChain = certUtil.getCertificateChain(senderCert);
-                for( Certificate chainCert: senderChain) {
-                    if (!certUtil.getCertAttributes(chainCert, CertificateAttribute.ATTRIBUTE_SCEP_TRUSTED_ISSUER).isEmpty()) {
+                for (Certificate chainCert : senderChain) {
+//                    if (!certUtil.getCertAttributes(chainCert, CertificateAttribute.ATTRIBUTE_SCEP_TRUSTED_ISSUER).isEmpty()) {
+                    if (chainCert.isActive() && chainCert.isTrusted() ) {
                         isTrusted = true;
-                        LOGGER.debug("certificate {} valid a scep issuer!", chainCert.getId());
+                        LOGGER.debug("chain certificate {} is trusted!", chainCert.getId());
                         scepOrder.setAuthenticatedBy(chainCert);
                         break;
                     }
                 }
-                if(!isTrusted){
-                    LOGGER.warn("certificate authentication, no valid issuer found!");
+                if (!isTrusted) {
+                    LOGGER.warn("SCEP request authentication by certificate failed, no trusted issuer found!");
+                    scepOrder.setStatus(ScepOrderStatus.INVALID);
+                    throw new OperationFailureException(FailInfo.badRequest);
+                }
+
+                Set<GeneralName> generalNameSet = CSRUtil.getSANList(csr.getAttributes());
+                List<String> gnStringList = new ArrayList<>();
+                for( GeneralName name : generalNameSet){
+                    gnStringList.add(name.toString());
+                }
+
+                String cnString = null;
+                RDN[] cnArr = csr.getSubject().getRDNs(BCStyle.CN);
+                if( cnArr.length > 0 ){
+                    cnString = cnArr[0].getFirst().getValue().toString();
+                }
+                List<Certificate> replacementCertificateList =
+                    certUtil.findReplaceCandidates(Instant.now(),
+                        cnString,
+                        gnStringList);
+
+                if( replacementCertificateList.isEmpty()){
+                    LOGGER.warn("SCEP request authentication by certificate failed, csr matches no existing certificate!");
+                    scepOrder.setStatus(ScepOrderStatus.INVALID);
+                    throw new OperationFailureException(FailInfo.badRequest);
+                }
+                boolean issuedBySCEP = false;
+                for( Certificate replacementCert : replacementCertificateList){
+                    if( replacementCert.getCsr() != null &&
+                        replacementCert.getCsr().getPipeline() != null &&
+                        PipelineType.SCEP.equals(replacementCert.getCsr().getPipeline())){
+                        issuedBySCEP = true;
+                        break;
+                    }
+                }
+                if( !issuedBySCEP){
+                    LOGGER.warn("SCEP request authentication by certificate failed, referenced certificate not issued by SCEP!");
                     scepOrder.setStatus(ScepOrderStatus.INVALID);
                     throw new OperationFailureException(FailInfo.badRequest);
                 }

@@ -12,9 +12,14 @@ import javax.validation.constraints.*;
 @Entity
 @Table(name = "bpmn_process_info")
 @NamedQueries({
-	@NamedQuery(name = "BPMNProcessInfo.findByName",
-	query = "SELECT bi FROM BPMNProcessInfo bi WHERE " +
-			"bi.name = :name"
+    @NamedQuery(name = "BPMNProcessInfo.findByName",
+        query = "SELECT bi FROM BPMNProcessInfo bi WHERE " +
+            "bi.name = :name"
+    ),
+    @NamedQuery(name = "BPMNProcessInfo.findByNameOrderedBylastChange",
+        query = "SELECT bi FROM BPMNProcessInfo bi WHERE " +
+            " bi.name = :name" +
+            " order by lastChange desc"
     ),
 
 })

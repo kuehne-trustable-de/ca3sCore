@@ -110,10 +110,7 @@ public class CSRView implements Serializable {
     private Instant approvedOn;
 
     @CsvBindByName
-    private String requestorComment;
-
-    @CsvBindByName
-    private String administrationComment;
+    private String comment;
 
     @CsvRecurse
     private NamedValue[] arArr;
@@ -180,7 +177,7 @@ public class CSRView implements Serializable {
                             }
                         }
                     } catch (UnknownHostException e) {
-                        LOG.info("DNS lookup of '" + value + "' failed.", e);
+                        LOG.debug("DNS lookup of '" + value + "' failed: {}",  e.getLocalizedMessage());
                     }
                 }
                 sanList.add(value);
@@ -212,8 +209,10 @@ public class CSRView implements Serializable {
         this.administeredBy = csr.getAdministeredBy();
         this.approvedOn = csr.getApprovedOn();
         this.acceptedBy = csr.getAcceptedBy();
-        this.requestorComment = csr.getRequestorComment();
-        this.administrationComment = csr.getAdministrationComment();
+
+        if( csr.getComment() != null) {
+            this.comment = csr.getComment().getComment();
+        }
 
         this.arArr = copyArAttributes(csr);
 
@@ -450,20 +449,12 @@ public class CSRView implements Serializable {
         this.approvedOn = approvedOn;
     }
 
-    public String getRequestorComment() {
-        return requestorComment;
+    public String getComment() {
+        return comment;
     }
 
-    public void setRequestorComment(String requestorComment) {
-        this.requestorComment = requestorComment;
-    }
-
-    public String getAdministrationComment() {
-        return administrationComment;
-    }
-
-    public void setAdministrationComment(String administrationComment) {
-        this.administrationComment = administrationComment;
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
     public boolean getIsAdministrable() {

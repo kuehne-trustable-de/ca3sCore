@@ -26,11 +26,19 @@
                         <span v-text="$t('global.menu.admin.info')">Info</span>
                     </b-dropdown-item>
 
-
                     <b-dropdown-item :to="{ name: 'HelpTarget', params: {hash: '', showNavBar: 'false', lang: $store.getters.currentLanguage}}" tag="b-dropdown-item" id="help" >
                         <font-awesome-icon icon="question-circle"/>
                         <span v-text="$t('ca3SApp.help.title')">Help</span>
                     </b-dropdown-item>
+
+                    <b-dropdown-item
+                        v-if="hasAnyAuthority('ROLE_ADMIN')"
+                        :to="{ name: 'HelpTargetAdmin', params: {hash: '', showNavBar: 'false', lang: $store.getters.currentLanguage}}" tag="b-dropdown-item" id="help" >
+
+                        <font-awesome-icon icon="question-circle"/>
+                        <span v-text="$t('ca3SApp.help.admin.title')">Admin Help</span>
+                    </b-dropdown-item>
+
 
                 </b-nav-item-dropdown>
 

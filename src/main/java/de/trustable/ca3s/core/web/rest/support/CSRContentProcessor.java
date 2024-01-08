@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.KeyStore;
@@ -107,15 +108,16 @@ public class CSRContentProcessor {
 
     	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-    	String content = uploaded.getContent();
-    	LOG.debug("REST request to describe a PEM clob : {}", content);
+        PkcsXXData p10ReqData = new PkcsXXData();
 
-		PkcsXXData p10ReqData = new PkcsXXData();
+        String content = uploaded.getContent();
+    	LOG.debug("REST request to describe an object : {}", content);
+
 		if( content == null || content.trim().isEmpty()) {
             return new ResponseEntity<>(p10ReqData, HttpStatus.OK);
         }
 
-		try {
+        try {
 
 	    	try {
 
@@ -150,6 +152,7 @@ public class CSRContentProcessor {
 				// no information leakage to the outside if not authenticated
 				p10ReqData = new PkcsXXData(certHolder, content, false);
 			}
+
             if( badKeysService.isInstalled()){
                 List<String> messageList = new ArrayList<>();
 
@@ -181,7 +184,14 @@ public class CSRContentProcessor {
 			LOG.debug("not a certificate, trying to parse it as CSR ");
 
 			try {
-                PKCS10CertificationRequest pkcs10CertificationRequest = cryptoUtil.convertPemToPKCS10CertificationRequest(content);
+                PKCS10CertificationRequest pkcs10CertificationRequest;
+                try {
+                    pkcs10CertificationRequest = new PKCS10CertificationRequest(Base64.decode(content));
+                    LOG.debug("reading binary CSR succeeded");
+                } catch (IOException | DecoderException e2) {
+                    pkcs10CertificationRequest = cryptoUtil.convertPemToPKCS10CertificationRequest(content);
+                }
+
 				Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(pkcs10CertificationRequest);
 
 				Pkcs10RequestHolderShallow p10ReqHolderShallow = new Pkcs10RequestHolderShallow( p10ReqHolder);

@@ -7,7 +7,7 @@
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
 
-    <changeSet id="2023070318000000-1" author="jhipster">
+    <changeSet id="2023070318000000-1" author="ak">
 
         <renameColumn
             tableName="pipeline"
@@ -21,6 +21,17 @@
                     defaultValue="null">
                 <constraints nullable="true" />
             </column>
+            <column name="process_info_notify_id"
+                    type="bigint"
+                    defaultValue="null">
+                <constraints nullable="true" />
+            </column>
+            <column name="process_info_request_authorization_id"
+                    type="bigint"
+                    defaultValue="null">
+                <constraints nullable="true" />
+            </column>
+
         </addColumn>
 
     </changeSet>
@@ -28,7 +39,7 @@
     <!--
     Added the constraints for entity Pipeline.
 -->
-    <changeSet id="2023070318000000-2" author="jhipster">
+    <changeSet id="2023070318000000-2" author="ak">
 
         <dropForeignKeyConstraint  baseTableName="pipeline"
                                    constraintName="fk_pipeline__process_info_id"/>
@@ -42,6 +53,18 @@
         <addForeignKeyConstraint baseColumnNames="process_info_revoke_id"
                                  baseTableName="pipeline"
                                  constraintName="fk_pipeline__process_info_revoke_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="bpmn_process_info"/>
+
+        <addForeignKeyConstraint baseColumnNames="process_info_notify_id"
+                                 baseTableName="pipeline"
+                                 constraintName="fk_pipeline__process_info_notify_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="bpmn_process_info"/>
+
+        <addForeignKeyConstraint baseColumnNames="process_info_request_authorization_id"
+                                 baseTableName="pipeline"
+                                 constraintName="fk_pipeline__process_info_request_authorization_id"
                                  referencedColumnNames="id"
                                  referencedTableName="bpmn_process_info"/>
 

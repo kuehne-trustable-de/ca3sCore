@@ -226,22 +226,20 @@ Download des erzeugten Zertifikats im Textformat (PEM). Schauen Sie in die Dokum
 
 Falls ein Zertifikat zurückgerufen werden muss, wählen Sie hier den passenden Grund.
 
-#### <a id="ca3SApp.certificate.comment"></a> Kommentar
+#### <a id="ca3SApp.certificate.comment"></a> Rückrufkommentar
 
-Geben Sie hier zusätzliche Informationen zur Zertifikatsbeantragung oder Rückruf an. Das kann nützlich für den RA Officer sein und / oder bei einer späteren Analyse helfen.
-Bei der Zertifikatsausstellung werden der Kommentar des CSR in das Zertifikat übernommen.
-Lediglich der Anforderer und der RA Officer können das Kommentarfeld bearbeiten. Für andere Nutzer ist dieses Feld lediglich lesbar.
+Geben Sie hier zusätzlich Informationen zum Zertifikatsrückruf an. Das kann nützlich für den RA Officer sein und / oder bei einer späteren Analyse helfen.
 
 ### ACME Clients
 
 #### certbot
 
-CertBot ist ein wichtiger ACME-Client, deshalb wird ca3s mit certbot getestet. Für einen schnellen Test mit dem certBot reichen die beiden folgenden Zeilen:
+CertBot ist ein wichtiger -lient, deshalb wird ca3s mit certbot getestet. Für einen schnellen Test mi certBot reichen die beiden folgenden Zeilen:
 
 > sudo certbot certonly -n -v --debug --agree-tos --server https://<acme-server:port>/acme/acmeTest/directory --standalone --force-renewal --email <your@email.com> --preferred-challenges http --webroot-path test -d <test-domain>
 > sudo certbot revoke -n -v --debug --server https://<acme-server:port>/acme/acmeTest/directory --cert-name <test-domain>
 
-Der erste Befehl fordert ein Zertifikat vom eignen ACME-Server <acme-server:port> für die Adresse <test-domain> an. Dabei wird die HTTP01-Challenge genutzt, für die certbot einen eignen WebServer startet. Der zweite Befehl ruft das eben ausgestellte Zertifikat wieder zurück.
+Der erste Befehl fordert ein Zertifikat vom eignen ACME-Server <acme-server:port> für die Adresse <test-domain> an. Dabei wird die HTTP01-Challenge genutzt, für die certbot einen eignen WebServer startet. Der zweite Befehl ruft das eben ausgetsellte Zertifikat wieder zurück.
 
 #### acme.sh
 
@@ -254,7 +252,7 @@ Damit in diesem Beispiel der User acme.sh kein previlegierter Nutzer sein muss, 
 
 > acme.sh --renew --force -d <test-domain> --standalone --alpn --tlsport 8443 --server https://<acme-server:port>/acme/acmeTest/directory
 
-Um einen Test beliebig häufig laufen zu lassen, bieten sich die beiden optionen '--renew' und '--force' an. Ohne die '--force'-Option wird eine Erneuerung innerhalb des Großteils der Zertifikatslaufzeit abgelehnt.
+Um einen Test beliebig häufig laufen zu lassen, biten sich die beiden optionen '--renew' und '--force' an.
 
 ### <a id="ca3SApp.badkeys.integration"></a> Badkeys Integration
 

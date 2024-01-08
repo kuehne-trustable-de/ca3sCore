@@ -23,8 +23,8 @@ import AlertMixin from '@/shared/alert/alert.mixin';
     Fragment,
     CopyClipboardButton,
     HelpTag,
-    AuditTag
-  }
+    AuditTag,
+  },
 })
 export default class CsrInfo extends mixins(AlertMixin, JhiDataUtils) {
   @Inject('cSRViewService') private cSRViewService: () => CSRViewService;
@@ -51,9 +51,9 @@ export default class CsrInfo extends mixins(AlertMixin, JhiDataUtils) {
       .then(res => {
         self.icsrView = res;
         window.console.info('csr :' + self.icsrView.status);
-        self.requestorComment = self.getRequestorComment();
         self.arAttributes = self.getArAttributes();
         self.csrAdminData.arAttributes = self.getArAttributes();
+        self.csrAdminData.comment = self.getComment(res);
       });
   }
 
@@ -63,7 +63,6 @@ export default class CsrInfo extends mixins(AlertMixin, JhiDataUtils) {
 
   public mounted(): void {
     window.console.info('in mounted()) ');
-    this.requestorComment = this.getRequestorComment();
     this.arAttributes = this.getArAttributes();
 
     window.console.info('++++++++++++++++++ route.query : ' + this.$route.query.csrId);
@@ -72,22 +71,9 @@ export default class CsrInfo extends mixins(AlertMixin, JhiDataUtils) {
     }
   }
 
-  public getRequestorComment(): string {
-    return this.icsrView.requestorComment;
-
-    /*
-    if (this.icsrView.csrAttributes === undefined) {
-      return '';
-    }
-
-    for (let i = 0; i < this.icsrView.csrAttributes.length; i++) {
-      window.console.info('checking csrAttribute : ' + i);
-      if (this.icsrView.csrAttributes[i].name === 'REQUESTOR_COMMENT') {
-        return this.icsrView.csrAttributes[i].value;
-      }
-    }
-
- */
+  public getComment(icsrView: ICSRView): string {
+    window.console.info('csr comment : ' + icsrView.comment);
+    return icsrView.comment;
   }
 
   public getArAttributes(): INamedValue[] {
@@ -179,7 +165,7 @@ export default class CsrInfo extends mixins(AlertMixin, JhiDataUtils) {
   }
 
   public sansOnly(attArr: ICsrAttribute[]) {
-    return attArr.filter(function(att) {
+    return attArr.filter(function (att) {
       return att.name === 'SAN';
     });
   }
@@ -192,9 +178,9 @@ export default class CsrInfo extends mixins(AlertMixin, JhiDataUtils) {
       method: 'post',
       url: adminUrl,
       data: this.csrAdminData,
-      responseType: 'stream'
+      responseType: 'stream',
     })
-      .then(function(response) {
+      .then(function (response) {
         console.log(response.status);
 
         if (response.status === 201) {
@@ -210,7 +196,7 @@ export default class CsrInfo extends mixins(AlertMixin, JhiDataUtils) {
           self.previousState();
         }
       })
-      .catch(function(error) {
+      .catch(function (error) {
         console.log(error);
         //        self.previousState();
         const message = self.$t('problem processing request: ' + error);
@@ -229,7 +215,7 @@ export default class CsrInfo extends mixins(AlertMixin, JhiDataUtils) {
         }
         self.getAlertFromStore();
       })
-      .then(function() {
+      .then(function () {
         // always executed
         document.body.style.cursor = 'default';
       });
@@ -242,6 +228,10 @@ export default class CsrInfo extends mixins(AlertMixin, JhiDataUtils) {
   public isRAOfficer() {
     console.log('isRAOfficer: ' + this.icsrView.isAdministrable);
     return this.icsrView.isAdministrable;
+  }
+
+  public isEditable() {
+    return this.isRAOfficer() || this.getUsername() === this.icsrView.requestedBy;
   }
 
   public isAdmin() {

@@ -33,6 +33,7 @@ public class PipelineView implements Serializable {
 
     private String processInfoNameCreate;
     private String processInfoNameRevoke;
+    private String processInfoNameNotify;
 
     private RDNRestriction restriction_C;
     private RDNRestriction restriction_CN;
@@ -343,5 +344,13 @@ public class PipelineView implements Serializable {
 
     public void setProcessInfoNameRevoke(String processInfoNameRevoke) {
         this.processInfoNameRevoke = processInfoNameRevoke;
+    }
+
+    public String getProcessInfoNameNotify() {
+        return processInfoNameNotify;
+    }
+
+    public void setProcessInfoNameNotify(String processInfoNameNotify) {
+        this.processInfoNameNotify = processInfoNameNotify;
     }
 }

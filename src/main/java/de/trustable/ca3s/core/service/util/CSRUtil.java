@@ -361,14 +361,14 @@ public class CSRUtil {
 
 	    String comment = (commentIn == null)?"":commentIn;
 
-        CSRComment oldCcomment = (csr.getComment() == null) ? new CSRComment() : csr.getComment();
-        String oldCommentText = (oldCcomment.getComment() == null) ? "" : oldCcomment.getComment();
+        CSRComment csrComment = (csr.getComment() == null) ? new CSRComment() : csr.getComment();
+        String oldCommentText = (csrComment.getComment() == null) ? "" : csrComment.getComment();
         if (!oldCommentText.trim().equals(comment.trim())) {
-            oldCcomment.setCsr(csr);
-            oldCcomment.setComment(comment);
-            csrCommentRepository.save(oldCcomment);
+            csrComment.setCsr(csr);
+            csrComment.setComment(comment);
+            csrCommentRepository.save(csrComment);
 
-            auditService.saveAuditTrace(auditService.createAuditTraceCsrAttribute(CertificateAttribute.ATTRIBUTE_COMMENT,
+            auditService.saveAuditTrace(auditService.createAuditTraceCsrAttribute(AuditService.AUDIT_CSR_COMMENT_CHANGED,
                 oldCommentText, comment, csr));
         }
     }

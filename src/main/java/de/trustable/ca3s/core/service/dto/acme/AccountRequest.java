@@ -41,102 +41,94 @@ import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AccountRequest {
 
-	@JsonProperty("status")
+    @JsonProperty("status")
     private AccountStatus status = null;
 
-	@JsonProperty("contact")
+    @JsonProperty("contact")
     private final Set<String> contacts = new HashSet<>();
 
-	@JsonProperty("termsOfServiceAgreed")
-	private Boolean termsAgreed;
+    @JsonProperty("termsOfServiceAgreed")
+    private Boolean termsAgreed;
 
-	@JsonProperty("onlyReturnExisting")
-	private Boolean onlyReturnExisting;
+    @JsonProperty("onlyReturnExisting")
+    private Boolean onlyReturnExisting;
 
-	@JsonProperty("externalAccountBinding")
+    @JsonProperty("externalAccountBinding")
     private Object externalAccountBinding = null;
-
 
     @Override
     public String toString() {
-      return "AccountRequest{" +
-    		  "status=" + status +
-    		  ", termsAgreed=" + termsAgreed +
-              ", contacts=" + contacts +
-              '}';
+        return "AccountRequest{" +
+            "status=" + status +
+            ", termsAgreed=" + termsAgreed +
+            ", contacts=" + contacts +
+            '}';
+    }
+
+    /**
+     * @return the status
+     */
+    public AccountStatus getStatus() {
+        return status;
     }
 
 
+    /**
+     * @param status the status to set
+     */
+    public void setStatus(AccountStatus status) {
+        this.status = status;
+    }
 
 
-	/**
-	 * @return the status
-	 */
-	public AccountStatus getStatus() {
-		return status;
-	}
+    /**
+     * @return the termsAgreed
+     */
+    public Boolean isTermsAgreed() {
+        return termsAgreed;
+    }
 
+    /**
+     * @param termsAgreed the termsAgreed to set
+     */
+    public void setTermsAgreed(boolean termsAgreed) {
+        this.termsAgreed = termsAgreed;
+    }
 
+    /**
+     * @return the onlyReturnExisting
+     */
+    public Boolean isOnlyReturnExisting() {
+        return onlyReturnExisting;
+    }
 
+    /**
+     * @param onlyReturnExisting the onlyReturnExisting to set
+     */
+    public void setOnlyReturnExisting(boolean onlyReturnExisting) {
+        this.onlyReturnExisting = onlyReturnExisting;
+    }
 
-	/**
-	 * @param status the status to set
-	 */
-	public void setStatus(AccountStatus status) {
-		this.status = status;
-	}
+    /**
+     * @return the externalAccountBinding
+     */
+    public Object getExternalAccountBinding() {
+        return externalAccountBinding;
+    }
 
+    /**
+     * @param externalAccountBinding the externalAccountBinding to set
+     */
+    public void setExternalAccountBinding(Object externalAccountBinding) {
+        this.externalAccountBinding = externalAccountBinding;
+    }
 
+    /**
+     * @return the contacts
+     */
+    public Set<String> getContacts() {
+        return contacts;
+    }
 
-
-	/**
-	 * @return the termsAgreed
-	 */
-	public Boolean isTermsAgreed() {
-		return termsAgreed;
-	}
-
-	/**
-	 * @param termsAgreed the termsAgreed to set
-	 */
-	public void setTermsAgreed(boolean termsAgreed) {
-		this.termsAgreed = termsAgreed;
-	}
-
-	/**
-	 * @return the onlyReturnExisting
-	 */
-	public Boolean isOnlyReturnExisting() {
-		return onlyReturnExisting;
-	}
-
-	/**
-	 * @param onlyReturnExisting the onlyReturnExisting to set
-	 */
-	public void setOnlyReturnExisting(boolean onlyReturnExisting) {
-		this.onlyReturnExisting = onlyReturnExisting;
-	}
-
-	/**
-	 * @return the externalAccountBinding
-	 */
-	public Object getExternalAccountBinding() {
-		return externalAccountBinding;
-	}
-
-	/**
-	 * @param externalAccountBinding the externalAccountBinding to set
-	 */
-	public void setExternalAccountBinding(Object externalAccountBinding) {
-		this.externalAccountBinding = externalAccountBinding;
-	}
-
-	/**
-	 * @return the contacts
-	 */
-	public Set<String> getContacts() {
-		return contacts;
-	}
-
-  }
+}
 

@@ -150,6 +150,9 @@
 
     <include file="config/liquibase/changelog/20231016203000_change_camunda_blob_type.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20231016211500_added_columns_AcmeOrder.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231107130000_removed_entity_constraint_UserEmail.xml" relativeToChangelogFile="false"/>
+
+
 
 
 </databaseChangeLog>

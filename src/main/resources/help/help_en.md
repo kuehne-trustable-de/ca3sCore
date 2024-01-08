@@ -163,8 +163,33 @@ In case a certificate needs to be revoked please select an appropriate reason fo
 
 #### <a id="ca3SApp.certificate.comment"></a> Certificate Comment
 
-Provide additional information for the reasoning of the certificate revocation. This maybe useful for the RA officers and for later analysis.
+Provide additional information for the reasoning of the certificate request and processing. This may be useful for the RA officer. On issuance the certificate comment ist initialized with the CSR comment.
+Only the requestor or the ra officer may edit the comment field. Other user may only read the content.
 
 ### <a id="ca3SApp.badkeys.integration"></a> Badkeys Integration
 
 The [badkeys](https://badkeys.info/) tool can used to check keys against known vulnerabilities. Just install badkeys on the same server as ca3s and configure the installation path in ca3s configuration.
+
+### ACME Clients
+
+#### certbot
+
+CertBot is an important ACME client, so ca3s is tested with certbot. For a quick test with the certBot, the following two lines are sufficient:
+
+> sudo certbot certonly -n -v --debug --agree-tos --server https://<acme-server:port>/acme/acmeTest/directory --standalone --force-renewal --email <your@email.com> --preferred-challenges http --webroot-path test -d <test-domain>
+> sudo certbot revoke -n -v --debug --server https://<acme-server:port>/acme/acmeTest/directory --cert-name <test-domain>
+
+The first command requests a certificate from your own ACME server <acme-server:port> for the address <test-domain>. The HTTP01 challenge is used, for which certbot starts its own web server. The second command recalls the certificate that was just issued.
+
+#### acme.sh
+
+Acme.sh is admired for its minimalist approach and can even be used to test the ALPN challenge:
+
+> acme.sh --issue -d <test-domain> --standalone --alpn --tlsport 8443 --server https://<acme-server:port>/acme/acmeTest/directory
+
+With this command, acme.sh requests a certificate for the address <test-domain>. The ALPN challenge is used here, which is not offered by letsEncrypt, but has the great advantage that an HTTP port does not have to be accessible in addition to the HTTPS port. Quite practical for cloud applications, for example!
+So that the user acme.sh does not have to be a privileged user in this example, we use port 8443 for HTTPS.
+
+> acme.sh --renew --force -d <test-domain> --standalone --alpn --tlsport 8443 --server https://<acme-server:port>/acme/acmeTest/directory
+
+To run a test as often as you like, you can use the two options '--renew' and '--force'. Without the '--force' option, a renewal will be rejected for most of the certificate's validity period.

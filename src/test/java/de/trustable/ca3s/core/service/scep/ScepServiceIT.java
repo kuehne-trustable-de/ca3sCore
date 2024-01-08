@@ -6,10 +6,7 @@ import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.cert.CertStore;
-import java.security.cert.CertStoreException;
-import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
+import java.security.cert.*;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -45,64 +42,64 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("dev")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
-public class ScepServiceIT{
+public class ScepServiceIT {
 
-	public static final Logger LOG = LogManager.getLogger(ScepServiceIT.class);
+    public static final Logger LOG = LogManager.getLogger(ScepServiceIT.class);
 
-	@LocalServerPort
-	int serverPort; // random port chosen by spring test
+    @LocalServerPort
+    int serverPort; // random port chosen by spring test
 
-	static KeyPair keyPair;
-	static X509Certificate ephemeralCert;
-	static X500Principal enrollingPrincipal;
-	static char[] password = PipelineTestConfiguration.SCEP_PASSWORD.toCharArray();
+    static KeyPair keyPair;
+    static X509Certificate ephemeralCert;
+    static X500Principal enrollingPrincipal;
+    static char[] password = PipelineTestConfiguration.SCEP_PASSWORD.toCharArray();
 
-	@Autowired
-	PipelineTestConfiguration ptc;
+    @Autowired
+    PipelineTestConfiguration ptc;
 
-	CertificateVerifier acceptAllVerifier = new AcceptAllVerifier();
+    CertificateVerifier acceptAllVerifier = new AcceptAllVerifier();
 
-	Client client;
-	Client client1CN;
-
-
-	@BeforeAll
-	public static void setUpBeforeClass() throws Exception {
-		JCAManager.getInstance();
-
-		keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
-		enrollingPrincipal = new X500Principal("CN=SCEPRequested_" + System.currentTimeMillis() + ",O=trustable solutions,C=DE");
-		ephemeralCert = X509Certificates.createEphemeral(enrollingPrincipal, keyPair);
-
-	}
+    Client client;
+    Client client1CN;
 
 
-	@BeforeEach
-	public void setUp() throws MalformedURLException {
+    @BeforeAll
+    public static void setUpBeforeClass() throws Exception {
+        JCAManager.getInstance();
+
+        keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+        enrollingPrincipal = new X500Principal("CN=SCEPRequested_" + System.currentTimeMillis() + ",O=trustable solutions,C=DE");
+        ephemeralCert = X509Certificates.createEphemeral(enrollingPrincipal, keyPair);
+
+    }
+
+
+    @BeforeEach
+    public void setUp() throws MalformedURLException {
 
         try {
             ptc.getInternalSCEPTestPipelineLaxRestrictions();
             ptc.getInternalSCEPTestPipelineCN1Restrictions();
-        }catch( Exception ex ){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
-		URL serverUrl = new URL("http://localhost:" + serverPort + "/scep/" + PipelineTestConfiguration.SCEP_REALM);
-		LOG.debug("scep serverUrl : " + serverUrl.toString());
+        URL serverUrl = new URL("http://localhost:" + serverPort + "/scep/" + PipelineTestConfiguration.SCEP_REALM);
+        LOG.debug("scep serverUrl : " + serverUrl.toString());
 
-		client = new Client(serverUrl, acceptAllVerifier);
+        client = new Client(serverUrl, acceptAllVerifier);
 
 
-		URL serverUrl1CN = new URL("http://localhost:" + serverPort + "/scep/" + PipelineTestConfiguration.SCEP1CN_REALM);
-		LOG.debug("scep serverUrl1CN : " + serverUrl1CN.toString());
+        URL serverUrl1CN = new URL("http://localhost:" + serverPort + "/scep/" + PipelineTestConfiguration.SCEP1CN_REALM);
+        LOG.debug("scep serverUrl1CN : " + serverUrl1CN.toString());
 
-		client1CN = new Client(serverUrl1CN, acceptAllVerifier);
+        client1CN = new Client(serverUrl1CN, acceptAllVerifier);
 
-		System.out.println("########## url: " + serverUrl1CN);
-	}
+        System.out.println("########## url: " + serverUrl1CN);
+    }
 
     @Test
-    public void testScepEnrol() throws GeneralSecurityException, IOException, ClientException, TransactionException {
+    public void testScepEnrolAndRenew() throws GeneralSecurityException, IOException, ClientException, TransactionException {
 
 
         LOG.info("ephemeralCert : " + ephemeralCert);
@@ -125,7 +122,36 @@ public class ScepServiceIT{
                 LOG.debug("returned certificate : " + cert.toString());
             }
 
+            X509CertSelector eeSelector = new X509CertSelector();
+            eeSelector.setBasicConstraints(-2);
+            Collection<? extends Certificate> collEECerts = certStore.getCertificates(eeSelector);
+            X509Certificate issuedCert = (X509Certificate) collEECerts.iterator().next();
+
+            KeyPair keyPairRenew = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+            PKCS10CertificationRequest csrRenew = CryptoUtil.getCsr(enrollingPrincipal,
+                keyPairRenew.getPublic(),
+                keyPairRenew.getPrivate(),
+                null); // No password, we want to renew !
+
+            LOG.debug("trying to renew certificate : " + issuedCert.toString());
+
+            //renewal, sign with the old key
+            EnrollmentResponse respRenew = client.enrol(issuedCert, keyPair.getPrivate(), csrRenew);
+            Assertions.assertNotNull(respRenew);
+            if (respRenew.isSuccess()) {
+
+                CertStore certStoreRenew = respRenew.getCertStore();
+                Collection<? extends Certificate> collCertsRenew = certStoreRenew.getCertificates(eeSelector);
+
+                for (Certificate cert : collCertsRenew) {
+                    LOG.debug("returned renewed certificate : " + cert.toString());
+                }
+
+            } else {
+                Assertions.fail("Renewal failed");
+            }
         }
+
 
     }
 
@@ -201,43 +227,42 @@ public class ScepServiceIT{
     }
 
 
+    @Test
+    public void testScepCapabilities() throws MalformedURLException {
+
+        // Invoke operations on the client.
+        Capabilities caps = client.getCaCapabilities();
+        Assertions.assertNotNull(caps);
+        LOG.debug("caps : " + caps);
+        Assertions.assertTrue(caps.contains(Capability.SHA_256), "Expecting support for SHA-256");
+    }
 
     @Test
-	public void testScepCapabilities() throws MalformedURLException {
+    public void testGetCaCertificate() throws MalformedURLException, ClientException, CertStoreException {
 
-		// Invoke operations on the client.
-		Capabilities caps = client.getCaCapabilities();
-		Assertions.assertNotNull(caps);
-		LOG.debug("caps : " + caps);
-		Assertions.assertTrue(caps.contains(Capability.SHA_256), "Expecting support for SHA-256");
-	}
+        CertStore certStore = client.getCaCertificate();
 
-	@Test
-	public void testGetCaCertificate() throws MalformedURLException, ClientException, CertStoreException {
+        Assertions.assertNotNull(certStore);
+        Collection<? extends Certificate> collCerts = certStore.getCertificates(new AcceptAllCertSelector());
 
-		CertStore certStore = client.getCaCertificate();
+        Assertions.assertTrue(!collCerts.isEmpty(), "Expecting getCaCertificate to return a certificate");
+        Certificate caCert = collCerts.iterator().next();
+        LOG.debug("caCert : " + caCert.toString());
+        LOG.debug("collCerts.size() : " + collCerts.size());
+    }
 
-		Assertions.assertNotNull(certStore);
-		Collection<? extends Certificate> collCerts = certStore.getCertificates(new AcceptAllCertSelector());
+    @Test
+    public void testEnrollThenGetCertificate() throws ClientException, GeneralSecurityException, IOException, TransactionException {
 
-		Assertions.assertTrue(!collCerts.isEmpty(), "Expecting getCaCertificate to return a certificate");
-		Certificate caCert = collCerts.iterator().next();
-		LOG.debug("caCert : " + caCert.toString());
-		LOG.debug("collCerts.size() : " + collCerts.size());
-	}
-
-	@Test
-	public void testEnrollThenGetCertificate() throws ClientException, GeneralSecurityException, IOException, TransactionException {
-
-		PKCS10CertificationRequest csr = CryptoUtil.getCsr(enrollingPrincipal,
-				keyPair.getPublic(),
-				keyPair.getPrivate(),
-				password);
+        PKCS10CertificationRequest csr = CryptoUtil.getCsr(enrollingPrincipal,
+            keyPair.getPublic(),
+            keyPair.getPrivate(),
+            password);
 
         EnrollmentResponse response = client.enrol(
-                ephemeralCert,
-                keyPair.getPrivate(),
-                csr);
+            ephemeralCert,
+            keyPair.getPrivate(),
+            csr);
 
         Assertions.assertTrue(response.isSuccess());
 
@@ -249,36 +274,36 @@ public class ScepServiceIT{
             issuer.getSubjectX500Principal().getName());
 
         Certificate retrieved = client.getCertificate(issuer,
-        		keyPair.getPrivate(),
-                issued.getSerialNumber()
-            ).getCertificates(null).iterator().next();
+            keyPair.getPrivate(),
+            issued.getSerialNumber()
+        ).getCertificates(null).iterator().next();
 
         Assertions.assertEquals(issued, retrieved);
-	}
+    }
 
-	@Test
-	public void testGetRolloverCertificate() throws MalformedURLException, ClientException, CertStoreException {
+    @Test
+    public void testGetRolloverCertificate() throws MalformedURLException, ClientException, CertStoreException {
 
-		Capabilities caps = client.getCaCapabilities();
-		boolean hasNextCA = caps.contains(Capability.GET_NEXT_CA_CERT);
+        Capabilities caps = client.getCaCapabilities();
+        boolean hasNextCA = caps.contains(Capability.GET_NEXT_CA_CERT);
 
-		try{
-			CertStore certStore = client.getRolloverCertificate();
+        try {
+            CertStore certStore = client.getRolloverCertificate();
 
-			Assertions.assertTrue(hasNextCA, "only when the capabilities contain the GET_NEXT_CA_CERT bit ...");
+            Assertions.assertTrue(hasNextCA, "only when the capabilities contain the GET_NEXT_CA_CERT bit ...");
 
-			Assertions.assertNotNull(certStore);
-			Collection<? extends Certificate> collCerts = certStore.getCertificates(new AcceptAllCertSelector());
+            Assertions.assertNotNull(certStore);
+            Collection<? extends Certificate> collCerts = certStore.getCertificates(new AcceptAllCertSelector());
 
-			Assertions.assertTrue(!collCerts.isEmpty(), "Expecting getRolloverCertificate to return a certificate");
-			Certificate caCert = collCerts.iterator().next();
-			LOG.debug("caCert : " + caCert.toString());
-			LOG.debug("collCerts.size() : " + collCerts.size());
+            Assertions.assertTrue(!collCerts.isEmpty(), "Expecting getRolloverCertificate to return a certificate");
+            Certificate caCert = collCerts.iterator().next();
+            LOG.debug("caCert : " + caCert.toString());
+            LOG.debug("collCerts.size() : " + collCerts.size());
 
-		} catch( UnsupportedOperationException uoe){
-			Assertions.assertFalse(hasNextCA, "expected when the capabilities do NOT contain the GET_NEXT_CA_CERT bit ...");
-		}
-	}
+        } catch (UnsupportedOperationException uoe) {
+            Assertions.assertFalse(hasNextCA, "expected when the capabilities do NOT contain the GET_NEXT_CA_CERT bit ...");
+        }
+    }
 
 
 }

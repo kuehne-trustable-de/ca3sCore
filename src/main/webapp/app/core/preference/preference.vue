@@ -29,7 +29,7 @@
 
                             <div class="row">
                                 <div class="col ">
-                                    <label for="preferences-checkCRL" v-text="$t('ca3SApp.preference.checkCRL')">Check CRLs (to update certificate state)</label>
+                                    <label for="preferences-checkCRL" v-text="$t('ca3SApp.preference.checkCRL')">Check CRLs (to update certificate state)</label>  <help-tag role="Admin" target="preference.check-crl"/>
                                 </div>
                                 <div class="col colContent" >
                                     <input type="checkbox" class="form-check-inline" name="preferences-checkCRL" id="preferences-checkCRL" v-model="preferences.checkCRL" />
@@ -38,7 +38,7 @@
 
                             <div class="row" v-if="preferences.checkCRL">
                                 <div class="col ">
-                                    <label for="preferences-maxNextUpdatePeriodCRLHour" v-text="$t('ca3SApp.preference.maxNextUpdatePeriodCRLHour')">Store CRLs for up to N hours</label>
+                                    <label for="preferences-maxNextUpdatePeriodCRLHour" v-text="$t('ca3SApp.preference.maxNextUpdatePeriodCRLHour')">Store CRLs for up to N hours</label>  <help-tag role="Admin" target="preference.max-next-update-crl"/>
                                 </div>
                                 <div class="col colContent" >
                                     <input type="number" class="form-check-inline" name="preferences-maxNextUpdatePeriodCRLHour" id="preferences-maxNextUpdatePeriodCRLHour" v-model="preferences.maxNextUpdatePeriodCRLHour" />
@@ -46,7 +46,7 @@
                             </div>
                             <div class="row">
                                 <div class="col ">
-                                    <label for="preferences-serverSideKeyCreationAllowed" v-text="$t('ca3SApp.preference.serverSideKeyCreationAllowed')">Server side key creation allowed</label>
+                                    <label for="preferences-serverSideKeyCreationAllowed" v-text="$t('ca3SApp.preference.serverSideKeyCreationAllowed')">Server side key creation allowed</label>  <help-tag role="Admin" target="preference.server-side-allowed"/>
                                 </div>
                                 <div class="col colContent" >
                                     <input type="checkbox" class="form-check-inline" name="preferences-serverSideKeyCreationAllowed" id="preferences-serverSideKeyCreationAllowed" v-model="preferences.serverSideKeyCreationAllowed" />
@@ -54,7 +54,7 @@
                             </div>
                             <div class="row">
                                 <div class="col ">
-                                    <label for="preferences-acmeHTTP01TimeoutMilliSec" v-text="$t('ca3SApp.preference.acmeHTTP01TimeoutMilliSec')">ACME HTTP01 callback timeout (milli sec)</label>
+                                    <label for="preferences-acmeHTTP01TimeoutMilliSec" v-text="$t('ca3SApp.preference.acmeHTTP01TimeoutMilliSec')">ACME HTTP01 callback timeout (milli sec)</label>  <help-tag role="Admin" target="preference.http-01-callback-timeout"/>
                                 </div>
                                 <div class="col colContent" >
                                     <input type="number" class="form-control" name="preferences-acmeHTTP01TimeoutMilliSec" id="preferences-acmeHTTP01TimeoutMilliSec"
@@ -66,13 +66,9 @@
                                 </div>
                             </div>
 
-                            <!--label for="preferences-acmeHTTP01CallbackPorts" v-text="$t('ca3SApp.preference.acmeHTTP01CallbackPorts')">ACME HTTP01 callback ports</label>
-                            <input type="text" class="form-control" name="preferences-acmeHTTP01CallbackPorts" id="preferences-acmeHTTP01CallbackPorts"
-                                v-model.number="preferences.acmeHTTP01CallbackPorts"  required/-->
-
 							<div class="row">
 								<div class="col ">
-                                    <label  v-text="$t('ca3SApp.preference.acmeHTTP01CallbackPorts')">ACME HTTP01 callback ports</label>
+                                    <label  v-text="$t('ca3SApp.preference.acmeHTTP01CallbackPorts')">ACME HTTP01 callback ports</label>  <help-tag role="Admin" target="preference.http-01-callback-ports"/>
 								</div>
 								<div class="col colContent" v-for="(v, portIndex) in $v.preferences.acmeHTTP01CallbackPortArr.$each.$iter">
                                     <input
@@ -88,7 +84,7 @@
 
                             <div class="row" v-if="preferences.selectedHashes">
                                 <div class="col ">
-                                    <label class="form-control-label" v-text="$t('ca3SApp.preference.hashes')" for="ca3SApp-preference-hash">HashAlgos</label>
+                                    <label class="form-control-label" v-text="$t('ca3SApp.preference.hashes')" for="ca3SApp-preference-hash">HashAlgos</label>  <help-tag role="Admin" target="preference.hash"/>
                                 </div>
                                 <div class="col colContent">
                                     <select class="form-control" multiple="true" id="ca3SApp-preference-hash" name="ca3SApp-preference-hash" v-model="preferences.selectedHashes">
@@ -99,7 +95,7 @@
 
                             <div class="row" v-if="preferences.selectedSigningAlgos">
                                 <div class="col ">
-                                    <label class="form-control-label" v-text="$t('ca3SApp.preference.algos')" for="ca3SApp-preference-algos">SigningAlgos</label>
+                                    <label class="form-control-label" v-text="$t('ca3SApp.preference.algos')" for="ca3SApp-preference-algos">SigningAlgos</label><help-tag role="Admin" target="preference.algo"/>
                                 </div>
                                 <div class="col colContent">
                                     <select class="form-control" multiple="true" id="ca3SApp-preference-algos" name="ca3SApp-preference-algos" v-model="preferences.selectedSigningAlgos">

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-10-16 21:28:24.
+// Generated using typescript-generator version 3.2.1263 on 2024-01-02 14:00:53.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -95,6 +95,7 @@ export interface IBPMNUpload {
   id?: number;
   name?: string;
   type?: IBPMNProcessType;
+  version?: string;
   contentXML?: string;
 }
 
@@ -135,6 +136,7 @@ export interface IPipelineView extends ISerializable {
   caConnectorName?: string;
   processInfoNameCreate?: string;
   processInfoNameRevoke?: string;
+  processInfoNameNotify?: string;
   restriction_C?: IRDNRestriction;
   restriction_CN?: IRDNRestriction;
   restriction_L?: IRDNRestriction;
@@ -281,14 +283,13 @@ export interface ICSRView extends ISerializable {
   administeredBy?: string;
   acceptedBy?: string;
   approvedOn?: Date;
-  requestorComment?: string;
-  administrationComment?: string;
+  comment?: string;
   arArr?: INamedValue[];
   csrBase64?: string;
   auditViewArr?: IAuditView[];
   isAdministrable?: boolean;
-  administrable?: boolean;
   csrvalid?: boolean;
+  administrable?: boolean;
 }
 
 export interface IPreferences extends ISerializable {
@@ -713,6 +714,8 @@ export interface IPipeline extends ISerializable {
   caConnector?: ICAConnectorConfig;
   processInfoCreate?: IBPMNProcessInfo;
   processInfoRevoke?: IBPMNProcessInfo;
+  processInfoNotify?: IBPMNProcessInfo;
+  processInfoRequestAuthorization?: IBPMNProcessInfo;
   algorithms?: IAlgorithmRestriction[];
   requestProxies?: IRequestProxyConfig[];
 }
@@ -802,6 +805,8 @@ export type ISelector =
   | 'NOTLIKE'
   | 'LESSTHAN'
   | 'GREATERTHAN'
+  | 'HEX'
+  | 'DECIMAL'
   | 'ON'
   | 'BEFORE'
   | 'AFTER'
@@ -818,7 +823,14 @@ export type IAcmeOrderStatus = 'pending' | 'ready' | 'processing' | 'valid' | 'i
 
 export type IScepOrderStatus = 'PENDING' | 'READY' | 'INVALID';
 
-export type IBPMNProcessType = 'CA_INVOCATION' | 'CERTIFICATE_CREATION' | 'CERTIFICATE_REVOCATION' | 'REQUEST_AUTHORIZATION' | 'BATCH';
+export type IBPMNProcessType =
+  | 'CA_INVOCATION'
+  | 'CERTIFICATE_CREATION'
+  | 'CERTIFICATE_REVOCATION'
+  | 'CERTIFICATE_NOTIFY'
+  | 'REQUEST_AUTHORIZATION'
+  | 'ACME_ACCOUNT_AUTHORIZATION'
+  | 'TIMED';
 
 export type ICAConnectorType = 'INTERNAL' | 'CMP' | 'ADCS' | 'ADCS_CERTIFICATE_INVENTORY' | 'DIRECTORY' | 'VAULT' | 'VAULT_INVENTORY';
 

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="_DdZocL47EeOQo_IRkjDF6w" targetNamespace="http://camunda.org/schema/1.0/bpmn" exporter="Camunda Modeler" exporterVersion="5.16.0" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
+  <bpmn2:process id="CAInvocationProcess" name="Forward CA request to appropriate backend" isExecutable="true">
+    <bpmn2:extensionElements />
+    <bpmn2:startEvent id="StartEvent_1" name="CertificateUpdateNotification">
+      <bpmn2:outgoing>SequenceFlow_1b8to73</bpmn2:outgoing>
+    </bpmn2:startEvent>
+    <bpmn2:sequenceFlow id="SequenceFlow_1b8to73" sourceRef="StartEvent_1" targetRef="Activity_0uefnln" />
+    <bpmn2:endEvent id="EndEvent_1" name="CA Request&#10;Processed">
+      <bpmn2:extensionElements />
+      <bpmn2:incoming>Flow_10pvgz6</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:serviceTask id="Activity_0mehnwk" name="RestNotification">
+      <bpmn2:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">http://localhost:9190/start</camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="CONTENT-TYPE">application/json</camunda:entry>
+                <camunda:entry key="Authorization">Bearer ${authToken}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="payload">${payload}</camunda:inputParameter>
+            <camunda:outputParameter name="status">
+              <camunda:script scriptFormat="Javascript">statusCode === 200 ? "Success" : "Failed";</camunda:script>
+            </camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="payload">${payload}</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>Flow_0mgnc32</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_10pvgz6</bpmn2:outgoing>
+    </bpmn2:serviceTask>
+    <bpmn2:sequenceFlow id="Flow_10pvgz6" sourceRef="Activity_0mehnwk" targetRef="EndEvent_1" />
+    <bpmn2:scriptTask id="Activity_12ghldc" name="RetrieveCertificate" scriptFormat="groovy">
+      <bpmn2:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="certificateId">${certificateId}</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>Flow_16oe7vp</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_0mgnc32</bpmn2:outgoing>
+      <bpmn2:multiInstanceLoopCharacteristics>
+        <bpmn2:loopCardinality xsi:type="bpmn2:tFormalExpression">1</bpmn2:loopCardinality>
+      </bpmn2:multiInstanceLoopCharacteristics>
+      <bpmn2:script>
+
+          println("authToken: " + authToken)
+          println("certificateId: " + certificateId)
+          Map&lt;String, String[]&gt; selection = new HashMap&lt;String,String[]&gt;(Map.ofEntries(
+              Map.entry("limit", ["1"] as String[]),
+              Map.entry("offset", ["0"] as String[]),
+              Map.entry("attributeName_1", ["id"] as String[]),
+              Map.entry("attributeValue_1", [certificateId] as String[]),
+              Map.entry("attributeSelector_1", ["EQUAL"] as String[]),
+              Map.entry("filter", ["id,subject,issuer,type,keyLength,serialHex,validFrom,validTo,hashAlgorithm,paddingAlgorithm,revoked,revokedSince,revocationReason,sans,root,Manager"] as String[])
+              ))
+
+          var page = certificateViewRepository.findSelection(selection)
+          String PATTERN_FORMAT = "dd.MM.yyyy"
+          java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern(PATTERN_FORMAT).withZone(java.time.ZoneId.systemDefault())
+
+          println "certificate selection returns pageSize " + page.getSize() + " of " + page.getTotalPages()
+
+          String payload = ""
+          execution.setVariable("status", "NotFound");
+
+          page.getContent().each { it -&gt;
+            Map&lt;String, String&gt; params = new HashMap&lt;&gt;();
+            params.put("seriennummer", it.getSerial().toString());
+            params.put("commonName", it.getSubject());
+
+            params.put("subjectAlternativeName", it.getSans());
+            params.put("rootCAAnbieter", it.getRoot());
+            params.put("aussteller", it.getIssuer());
+
+            params.put("organisationseinheit", "organisationseinheit");
+            params.put("ersteVerantwortlichePerson", "ersteVerantwortlichePerson");
+            params.put("zweiteVerantwortlichePerson", "zweiteVerantwortlichePerson");
+
+            params.put("npBedarfstraeger", it.getArValue("Manager"));
+
+            params.put("npBedarfstraegerZwei", "npBedarfstraegerZwei");
+            params.put("npBedarfstraegerDrei", "npBedarfstraegerDrei");
+            params.put("verwendungszweck", "verwendungszweck");
+
+            if( it.getValidFrom()==null){
+              params.put("gueltigVon", "");
+            }else{
+              params.put("gueltigVon",  formatter.format(it.getValidFrom()))
+            }
+            if( it.getValidTo()==null){
+              params.put("gueltigBis", "");
+            }else{
+              params.put("gueltigBis",  formatter.format(it.getValidTo()))
+            }
+            if( it.getRevokedSince()==null){
+              params.put("wiederrufenSeit", "");
+            }else{
+              params.put("wiederrufenSeit",  formatter.format(it.getRevokedSince()))
+            }
+
+            params.put("id", it.getId().toString());
+
+            payload = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(params)
+            execution.setVariable("status", "Success");
+          }
+          println(payload)
+          execution.setVariable("payload", payload);
+</bpmn2:script>
+    </bpmn2:scriptTask>
+    <bpmn2:sequenceFlow id="Flow_0mgnc32" sourceRef="Activity_12ghldc" targetRef="Activity_0mehnwk" />
+    <bpmn2:serviceTask id="Activity_0uefnln" name="AccessTokenRetrieval">
+      <bpmn2:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">http://localhost:9190/api/ApiToken/GenerateAccessTokenFromApiToken</camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="CONTENT-TYPE">application/json</camunda:entry>
+                <camunda:entry key="Authorization">Bearer authCredential</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:outputParameter name="authToken">
+              <camunda:script scriptFormat="Javascript">statusCode === 200 ? S(response).prop("RawToken").value() : "";</camunda:script>
+            </camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>SequenceFlow_1b8to73</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_16oe7vp</bpmn2:outgoing>
+    </bpmn2:serviceTask>
+    <bpmn2:sequenceFlow id="Flow_16oe7vp" sourceRef="Activity_0uefnln" targetRef="Activity_12ghldc" />
+  </bpmn2:process>
+  <bpmn2:error id="Error_0eb6jwi" name="Error_3vlrpis" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="CAInvocationProcess">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_3" bpmnElement="StartEvent_1">
+        <dc:Bounds x="170" y="114" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="149" y="77" width="80" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0y7erx5_di" bpmnElement="EndEvent_1">
+        <dc:Bounds x="952" y="114" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="940" y="77" width="60" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_18kchyc_di" bpmnElement="Activity_0mehnwk">
+        <dc:Bounds x="760" y="92" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1paqwpb_di" bpmnElement="Activity_12ghldc">
+        <dc:Bounds x="540" y="92" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1dm6sq2" bpmnElement="Activity_0uefnln">
+        <dc:Bounds x="300" y="92" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1b8to73_di" bpmnElement="SequenceFlow_1b8to73">
+        <di:waypoint x="206" y="132" />
+        <di:waypoint x="300" y="132" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10pvgz6_di" bpmnElement="Flow_10pvgz6">
+        <di:waypoint x="860" y="132" />
+        <di:waypoint x="952" y="132" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0mgnc32_di" bpmnElement="Flow_0mgnc32">
+        <di:waypoint x="640" y="132" />
+        <di:waypoint x="760" y="132" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16oe7vp_di" bpmnElement="Flow_16oe7vp">
+        <di:waypoint x="400" y="132" />
+        <di:waypoint x="540" y="132" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn2:definitions>

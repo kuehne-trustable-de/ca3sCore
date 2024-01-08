@@ -155,7 +155,7 @@
                         <span>{{cSR.processInstanceId}}</span>
                     </dd-->
 
-                    <Fragment v-for="attr in arAttributes" :key="attr.name" v-if="!(isRAOfficer() || (getUsername() === icsrView.requestedBy))">
+                    <Fragment v-for="attr in arAttributes" :key="attr.name" v-if="!isEditable()">
                         <dt>
                             <span >{{attr.name}}</span>
                         </dt>
@@ -191,25 +191,22 @@
             <form name="editForm" role="form" novalidate>
                 <div>
 
-                    <Fragment v-if="isRAOfficer() || (getUsername() === icsrView.requestedBy)">
+                    <div v-if="isEditable() && icsrView.status === 'PENDING'" class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cSR.rejectionReason')" for="csr-rejectionReason">rejection reason</label>
+                        <input type="text" class="form-control" name="rejectionReason" id="csr-rejectionReason" v-model="csrAdminData.rejectionReason" />
+                    </div>
 
-                        <div v-if="icsrView.status === 'PENDING'" class="form-group">
-                            <label class="form-control-label" v-text="$t('ca3SApp.cSR.rejectionReason')" for="csr-rejectionReason">rejection reason</label>
-                            <input type="text" class="form-control" name="rejectionReason" id="csr-rejectionReason" v-model="csrAdminData.rejectionReason" />
-                        </div>
+                    <div v-if="isEditable()" v-for="attr in csrAdminData.arAttributes" :key="attr.name" class="form-group">
+                        <label class="form-control-label"  for="csr-ar-{attr.name}">{{attr.name}}</label>
+                        <input type="text" class="form-control" name="csr-ar-{attr.name}" id="csr-ar-{attr.name}" v-model="attr.value" />
+                    </div>
 
-                        <div v-for="attr in csrAdminData.arAttributes" :key="attr.name" class="form-group">
-                            <label class="form-control-label"  for="csr-ar-{attr.name}">{{attr.name}}</label>
-                            <input type="text" class="form-control" name="rejectionReason" id="csr-ar-{attr.name}" v-model="attr.value" />
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-control-label" v-text="$t('ca3SApp.certificate.comment')" for="comment">Comment</label>
-                            <textarea class="form-control" name="content" id="comment"
-                                autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                                v-model="csrAdminData.comment" />
-                        </div>
-                    </Fragment>
+                    <div v-if="isEditable()" class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.certificate.comment')" for="comment">Comment</label>
+                        <textarea class="form-control" name="comment" id="comment"
+                            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                            v-model="csrAdminData.comment" />
+                    </div>
 
                     <b-alert :show="dismissCountDown"
                              dismissible

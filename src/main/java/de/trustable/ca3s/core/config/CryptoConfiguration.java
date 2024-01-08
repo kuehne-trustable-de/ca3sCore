@@ -1,7 +1,6 @@
 package de.trustable.ca3s.core.config;
 
 import de.trustable.ca3s.core.service.dto.CryptoConfigView;
-import de.trustable.ca3s.core.web.rest.AcmeAccountResource;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,15 +42,17 @@ public class CryptoConfiguration {
         this.regexpPasswordDescription = regexpPasswordDescription;
         this.passwordRegexp = passwordRegexp;
 
-        Set<String> algs = new TreeSet<>();
         for (Provider provider : Security.getProviders()) {
+
+            Set<String> algs = new TreeSet<>();
             provider.getServices().stream()
-                .filter(s -> "Cipher".equals(s.getType()))
+//                .filter(s -> "Cipher".equals(s.getType()))
                 .map(Provider.Service::getAlgorithm)
                 .forEach(algs::add);
-        }
-        for( String algo:algs){
-            log.info("algorithm supported: " + algo);
+
+            for( String algo:algs){
+                log.info("provider "+provider.getName()+" support algorithm : " + algo);
+            }
         }
     }
 
