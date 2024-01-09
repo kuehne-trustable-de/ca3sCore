@@ -43,13 +43,6 @@ import java.util.Map;
 @RequestMapping("/oidc")
 public class OIDCAuthenticationResource {
 
-    public static final String INITIAL_URI_PARAM_NAME = "initialUri";
-    public static final String REDIRECT_URI_PARAM_PATH = "path";
-    public static final String PIPELINE_ID = "pipelineId";
-    public static final String CERTIFICATE_ID = "certificateId";
-    public static final String CSR_ID = "csrId";
-    public static final String SHOW_NAV_BAR = "showNavBar";
-
     private final Logger log = LoggerFactory.getLogger(OIDCAuthenticationResource.class);
 
     private final TokenProvider tokenProvider;
@@ -269,7 +262,7 @@ public class OIDCAuthenticationResource {
 
                 if (keycloakUserDetails != null) {
                     ServletUriComponentsBuilder servletUriComponentsBuilder = ServletUriComponentsBuilder.fromRequestUri(request);
-                    return buildAndForwardJWT(servletUriComponentsBuilder, keycloakUserDetails, allParams);
+                    return buildAndForwardJWT(servletUriComponentsBuilder, keycloakUserDetails);
                 } else {
                     log.info("keycloakUserDetails == null, token was '{}'", token);
                 }
@@ -288,8 +281,7 @@ public class OIDCAuthenticationResource {
 
     @NotNull
     private ResponseEntity<String> buildAndForwardJWT(ServletUriComponentsBuilder servletUriComponentsBuilder,
-                                                      KeycloakUserDetails keycloakUserDetails,
-                                                      final Map<String,String> allParams) {
+                                                      KeycloakUserDetails keycloakUserDetails) {
 
         SecurityContext securityContext = SecurityContextHolder.getContext();
         log.info("Current authentication in SecurityContext: " + securityContext.getAuthentication());
@@ -310,31 +302,6 @@ public class OIDCAuthenticationResource {
         HttpHeaders httpHeaders = new HttpHeaders();
         UriComponentsBuilder builder = servletUriComponentsBuilder.path("/../..");
 
-        /*
-        if( allParams.containsKey(OAuth2Constants.STATE)) {
-            String state = allParams.get(OAuth2Constants.STATE);
-            log.debug("invocation state = '{}'", state);
-            for( String part: state.split("&")){
-                if( part.startsWith(REDIRECT_URI_PARAM_PATH)){
-                    builder.path(part.substring(REDIRECT_URI_PARAM_PATH.length()+1));
-                }
-                if( part.startsWith(PIPELINE_ID)){
-                    builder.queryParam(PIPELINE_ID, part.substring(PIPELINE_ID.length()+1));
-                }
-                if( part.startsWith(CERTIFICATE_ID)){
-                    builder.queryParam(CERTIFICATE_ID, part.substring(CERTIFICATE_ID.length()+1));
-                }
-                if( part.startsWith(CSR_ID)){
-                    builder.queryParam(CSR_ID, part.substring(CSR_ID.length()+1));
-                }
-                if( part.startsWith(SHOW_NAV_BAR)){
-                    builder.queryParam(SHOW_NAV_BAR, part.substring(SHOW_NAV_BAR.length()+1));
-                }
-
-            }
-        }
-*/
-
         builder.queryParam("bearer", jwt);
         String startUri = builder.build().normalize().toString();
         log.debug("startUri : '{}'", startUri);
@@ -346,8 +313,7 @@ public class OIDCAuthenticationResource {
 
     @GetMapping(value={"/tokenImplicit"})
     public ResponseEntity<String> getToken(HttpServletRequest request,
-                                        @RequestParam(required = false, name = "access_token") String access_token,
-                                        @RequestParam Map<String,String> allParams) {
+                                        @RequestParam(required = false, name = "access_token") String access_token) {
 
         log.debug("getToken(): retrieved token '{}'", access_token);
 
@@ -370,7 +336,7 @@ public class OIDCAuthenticationResource {
 
                 if (keycloakUserDetails != null) {
                     ServletUriComponentsBuilder servletUriComponentsBuilder = ServletUriComponentsBuilder.fromRequestUri(request);
-                    return buildAndForwardJWT(servletUriComponentsBuilder, keycloakUserDetails, allParams);
+                    return buildAndForwardJWT(servletUriComponentsBuilder, keycloakUserDetails);
                 } else {
                     log.info("keycloakUserDetails == null, token was '{}'", access_token);
                 }
