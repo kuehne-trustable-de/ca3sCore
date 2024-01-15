@@ -7,6 +7,8 @@
         <div class="form-group" >
             <label class="form-control-label" v-text="$t('ca3SApp.notification.select')" for="notification-select">Notification Selection</label>
             <select class="form-control" id="notification-select" name="notification-select" v-model="selectedNotification" v-on:change="updateNotification()">
+
+                <option value="sendRequestorExpirySummary" v-text="$t('ca3SApp.notification.sendRequestorExpirySummary')" selected="selected">sendRequestorExpirySummary</option>
                 <option value="sendExpiryPendingSummary" v-text="$t('ca3SApp.notification.sendExpiryPendingSummary')" selected="selected">sendExpiryPendingSummary</option>
                 <option value="sendRAOfficerOnRequest" v-text="$t('ca3SApp.notification.sendRAOfficerOnRequest')" >sendRAOfficerOnRequest</option>
                 <option value="sendUserCertificateIssued" v-text="$t('ca3SApp.notification.sendUserCertificateIssued')" >sendUserCertificateIssued</option>

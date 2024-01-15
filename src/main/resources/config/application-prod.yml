@@ -28,6 +28,8 @@ logging:
     de.trustable.ca3s.core: INFO
     de.trustable.ca3s.core.PropertiesLogger: INFO
     de.trustable.ca3s.core.schedule.RequestProxyScheduler: WARN
+    de.trustable.ca3s.core.service.NotificationService: DEBUG
+    de.trustable.ca3s.core.service.MailService: DEBUG
     de.trustable.ca3s.core.service.util.CaConnectorAdapter: WARN
     de.trustable.ca3s.core.service.adcs: INFO
     de.trustable.ca3s.core.service.cmp: INFO
@@ -64,6 +66,9 @@ spring:
     #    username: ca3s_jh_dev
     #    password: nYbA4Jm4rnQJ
 
+    #    url: jdbc:mysql://localhost:3306/int_test?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    #    username: ca3s_test
+    #    password: s3cr3t
     url: jdbc:mysql://localhost:3306/test_schema?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: ca3s_test
     password: s3cr3t

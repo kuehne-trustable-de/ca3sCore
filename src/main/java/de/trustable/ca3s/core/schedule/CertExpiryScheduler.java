@@ -175,10 +175,13 @@ public class CertExpiryScheduler {
 	public int notifyRAOfficerHolderOnExpiry() {
 
         try {
-            return notificationService.notifyRAOfficerHolderOnExpiry();
+            notificationService.notifyRAOfficerHolderOnExpiry();
         } catch (MessagingException e) {
-            LOG.info("Problem sending notification email", e);
+            LOG.info("Problem sending ra officer notification email", e);
         }
+
+        notificationService.notifyRequestorOnExpiry(null,true);
+
         return 0;
     }
 }

@@ -26,6 +26,7 @@
   "ca3SApp.notification.message.title": "Title",
   "ca3SApp.notification.message.type": "Type",
   "ca3SApp.notification.message.details": "Details",
+  "ca3SApp.notification.select": "Select notification type",
 
   "ca3SApp.notification.sendExpiryPendingSummary": "Certificate expiry and pending request notification",
   "ca3SApp.notification.sendRAOfficerOnRequest": "RA officer request notification",
@@ -33,6 +34,7 @@
   "ca3SApp.notification.sendUserCertificateRejected": "Request rejection notification",
   "ca3SApp.notification.sendCertificateRevoked": "Certificate revocation notification",
   "ca3SApp.notification.sendUserCertificateRevoked": "User initiated certificate revocation notification for RAs",
+  "ca3SApp.notification.sendRequestorExpirySummary": "Certificate expiry notification",
 
   "ca3SApp.AccountStatus.DEACTIVATED": "Deactivated",
   "ca3SApp.AccountStatus.REVOKED": "Revoked",

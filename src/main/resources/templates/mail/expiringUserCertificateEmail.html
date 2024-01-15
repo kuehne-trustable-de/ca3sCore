@@ -1,27 +1,54 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title th:if="${expiringCertList.isEmpty() == 1}" th:text="#{email.expiringCertificate.title(${expiringCertList.get(0).subject})}">Certificate '${expiringCertList.get(0).subject}' will expire soon!</title>
-        <title th:if="${expiringCertList.isEmpty() > 1}" th:text="#{email.expiringCertificate2.title(${expiringCertList.length})}">${expiringCertList.length} certificates will expire soon</title>
+        <title th:if="${expiringCertList.isEmpty()}" th:text="#{email.expiringCertificate.title(${expiringCertList.get(0).subject})}">Certificate '${expiringCertList.get(0).subject}' will expire soon!</title>
+        <title th:if="${!expiringCertList.isEmpty()}" th:text="#{email.expiringCertificate2.title(${expiringCertList.size()})}">${expiringCertList.size()} certificates will expire soon</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <link rel="shortcut icon" th:href="@{|${baseUrl}/favicon.ico|}" />
+        <style>
+            table th {
+                font-weight: bold;
+            }
+            table th, table td {
+                padding: 1px 2px;
+                border: 1px solid #ddd;
+            }
+            table tr {
+                background-color: #fff;
+                border-top: 1px solid #ccc;
+            }
+            table tr:nth-child(2n) {
+                background-color: #f8f8f8;
+            }
+        </style>
     </head>
     <body>
-        <p th:text="#{email.notification.greeting(${user.login})}">
+        <p th:text="#{email.notification.greeting.user(${user.login})}">
             Dear
+        </p>
+        <p th:text="#{email.notification.greeting.2}">
+            this is the daily notification eMail informing about expiring certificates.
         </p>
 
         <p>
+            <h2 th:text="#{email.expiring.ee.certificates.header}">expiring certificates</h2>
             <table>
                 <tr>
+                    <th>daysLeft</th>
                     <th>validTo</th>
                     <th>Subject</th>
                     <th>SAN</th>
+                    <th>Administer</th>
                 </tr>
                 <tr th:each="cert : ${expiringCertList}">
+                    <td th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(now,cert.validTo)}">7</td>
                     <td th:text="${cert.validTo}">2.41</td>
                     <td th:text="${cert.subject}">foo.com</td>
                     <td th:text="${cert.sans}">foo.com, 8.8.8.8</td>
+                    <td><a
+                        th:with="url=(@{|${baseUrl}/cert-info?certificateId=${certId}|})"
+                        th:text="#{email.expiring.certificate.administer}"
+                        th:href="${url}">Administer this certificate</a></td>
                 </tr>
             </table>
         </p>

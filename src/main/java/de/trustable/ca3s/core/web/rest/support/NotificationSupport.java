@@ -78,6 +78,25 @@ public class NotificationSupport {
     }
 
     /**
+     * {@code POST  api/notification/sendExpiryPendingSummary} : send out certificate expiry and request pending summary.
+     *
+     * @return the number of expiring certificates .
+     */
+    @Transactional
+    @PostMapping("notification/sendRequestorExpirySummary")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public int notifyRequestorOnExpiry() throws MessagingException {
+
+        Optional<User> optUser = userRepository.findOneByLogin(nameAndRoleUtil.getNameAndRole().getName());
+        if (optUser.isPresent()) {
+            User admin = optUser.get();
+            return notificationService.notifyRequestorOnExpiry( admin, false);
+        }
+
+        return 0;
+    }
+
+    /**
      * {@code POST  api/notification/sendRAOfficerOnRequest} : send out notification on new request to assigned RA.
      *
      */

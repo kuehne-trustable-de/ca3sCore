@@ -685,13 +685,6 @@ public class CSRSubmitIT extends WebTestBase{
 	    validatePresent(LOC_INP_CERT_VALUE);
 	    setText(LOC_INP_CERT_VALUE, cn);
 
-        try {
-            System.out.println("... waiting ...");
-            System.in.read();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         By byCertSubject = By.xpath("//table//td [contains(text(), '"+cn+"')]");
 	    validatePresent(byCertSubject);
 	    click(byCertSubject);

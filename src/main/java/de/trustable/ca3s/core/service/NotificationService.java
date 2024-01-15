@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.service;
 
 import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
@@ -20,10 +21,8 @@ import javax.mail.MessagingException;
 import javax.transaction.Transactional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Handling notification
@@ -43,6 +42,7 @@ public class NotificationService {
     private final int nDaysExpiryEE;
     private final int nDaysExpiryCA;
     private final int nDaysPending;
+    private final List<Integer> notificationDayList;
 
     @Autowired
     public NotificationService(CertificateRepository certificateRepo, CSRRepository csrRepo,
@@ -51,7 +51,8 @@ public class NotificationService {
                                AuditService auditService,
                                @Value("${ca3s.schedule.ra-officer-notification.days-before-expiry.ee:30}") int nDaysExpiryEE,
                                @Value("${ca3s.schedule.ra-officer-notification.days-before-expiry.ca:90}")int nDaysExpiryCA,
-                               @Value("${ca3s.schedule.ra-officer-notification.days-pending:30}") int nDaysPending) {
+                               @Value("${ca3s.schedule.ra-officer-notification.days-pending:30}") int nDaysPending,
+                               @Value("${ca3s.schedule.requestor.notification.days:30,14,7,6,5,4,3,2,1}") String notificationDays) {
         this.certificateRepo = certificateRepo;
         this.csrRepo = csrRepo;
         this.userRepository = userRepository;
@@ -62,6 +63,16 @@ public class NotificationService {
         this.nDaysExpiryEE = nDaysExpiryEE;
         this.nDaysExpiryCA = nDaysExpiryCA;
         this.nDaysPending = nDaysPending;
+
+        this.notificationDayList = new ArrayList<>();
+        String[] parts = notificationDays.split(",");
+        for( String part: parts){
+            try {
+                notificationDayList.add(Integer.parseInt(part));
+            }catch(NumberFormatException nfe){
+                LOG.info("Unexpected value '{}' in 'ca3s.schedule.requestor.notification.days': {}", part, nfe.getMessage());
+            }
+        }
     }
 
 
@@ -132,9 +143,89 @@ public class NotificationService {
                 try {
                     mailService.sendEmailFromTemplate(context, domainOfficer, null, "mail/pendingReqExpiringCertificateEmail", "email.allExpiringCertificate.subject");
                 }catch (Throwable throwable){
-                    LOG.warn("Problem occured while sending a notificaton eMail to RA officer address '" + domainOfficer.getEmail() + "'", throwable);
+                    LOG.warn("Problem occurred while sending a notification eMail to RA officer address '" + domainOfficer.getEmail() + "'", throwable);
                     if(logNotification) {
                         auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(domainOfficer.getEmail()));
+                    }
+                }
+            }
+            if(logNotification) {
+                auditService.saveAuditTrace(auditService.createAuditTraceExpiryNotificationSent(expiringEECertList.size()));
+            }
+        }
+
+        return expiringEECertList.size();
+    }
+
+    @Transactional
+    public int notifyRequestorOnExpiry(User testUser, boolean logNotification) {
+
+        Instant now = Instant.now();
+        Instant after = now;
+
+        int maxExpiry = notificationDayList.stream().max(Integer::compareTo).get();
+        Instant beforeEE = now.plus(maxExpiry, ChronoUnit.DAYS);
+        List<Certificate> expiringEECertList = certificateRepo.findByTypeAndValidTo(true, after, beforeEE);
+
+        if( expiringEECertList.isEmpty()) {
+            LOG.info("No expiring certificates in the next {} days / no pending requests requested in the last {} days. No need to send a notification eMail to RA officers", nDaysExpiryEE, nDaysPending);
+        }else {
+            LOG.info("#{} expiring certificate in the next {} days.", expiringEECertList.size(), maxExpiry);
+
+            Map<User, List<Certificate>> certListGroupedByUser = new HashMap<>();
+            for( Certificate cert: expiringEECertList){
+                // check for relevant expiry time slots
+                int diffDays = (int)ChronoUnit.DAYS.between(now, cert.getValidTo());
+                if( notificationDayList.contains(diffDays)){
+                    LOG.debug("#{} days until expiry are in the list of notification days.", diffDays);
+                }else{
+                    LOG.debug("#{} days until expiry are NOT in the list of notification days.", diffDays);
+                    continue;
+                }
+
+                if( cert.getCsr() != null &&
+                    cert.getCsr().getRequestedBy() != null &&
+                    cert.getCsr().getPipeline() != null ){
+
+                    if(PipelineType.WEB.equals( cert.getCsr().getPipeline().getType())){
+                        LOG.debug("Web Pipelines will be processed for notification.");
+                    }else{
+                        LOG.debug("Non-Web Pipelines will be ignored for notification.");
+                        continue;
+                    }
+
+                    Optional<User> optionalUser = userRepository.findOneByLogin(cert.getCsr().getRequestedBy());
+                    if(optionalUser.isPresent()){
+                        User user = testUser;
+                        if( user == null) {
+                            user = optionalUser.get();
+                        }
+                        if( certListGroupedByUser.containsKey(user)){
+                            certListGroupedByUser.get(user).add(cert);
+                        }else{
+                            List<Certificate> certificateList = new ArrayList<>();
+                            certificateList.add(cert);
+                            certListGroupedByUser.put(user, certificateList);
+                        }
+                    }
+                }
+            }
+
+            for( User requestor: certListGroupedByUser.keySet()) {
+
+                LOG.info("#{} expiring certificates for requestor {}.", certListGroupedByUser.get(requestor).size(), requestor.getId());
+
+                Locale locale = Locale.forLanguageTag(requestor.getLangKey());
+                Context context = new Context(locale);
+                context.setVariable("now", now);
+                context.setVariable("user", requestor);
+                context.setVariable("expiringCertList", certListGroupedByUser.get(requestor));
+                try {
+                    mailService.sendEmailFromTemplate(context, requestor, null, "mail/expiringUserCertificateEmail", "email.allExpiringCertificate.subject");
+                }catch (Throwable throwable){
+                    LOG.warn("Problem occurred while sending a notification eMail to requestor address '" + requestor.getEmail() + "'", throwable);
+                    if(logNotification) {
+                        auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(requestor.getEmail()));
                     }
                 }
             }
@@ -146,6 +237,7 @@ public class NotificationService {
 
         return expiringEECertList.size();
     }
+
 
 
     @Transactional

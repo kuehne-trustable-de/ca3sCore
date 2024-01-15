@@ -26,6 +26,8 @@ export default class Notification extends Vue {
       this.sendUserCertificateRejected();
     } else if (this.selectedNotification === 'sendExpiryPendingSummary') {
       this.sendExpiryPendingSummary();
+    } else if (this.selectedNotification === 'sendRequestorExpirySummary') {
+      this.sendRequestorExpirySummary();
     } else if (this.selectedNotification === 'sendRAOfficerOnRequest') {
       this.sendRAOfficerOnRequest();
     } else if (this.selectedNotification === 'sendUserCertificateRevoked') {
@@ -143,6 +145,29 @@ export default class Notification extends Vue {
     })
       .then(function (response) {
         window.console.info('api/notification/sendUserCertificateRejected returns ' + response.data);
+        if (response.data.title !== undefined) {
+          self.problemDetail = response.data;
+        }
+      })
+      .catch(function (error) {
+        if (error.response.data.title !== undefined) {
+          self.problemDetail = error.response.data;
+        }
+      });
+  }
+
+  public sendRequestorExpirySummary(): void {
+    window.console.info('calling sendRequestorExpirySummary');
+    this.problemDetail = {};
+    const self = this;
+
+    axios({
+      method: 'post',
+      url: '/api/notification/sendRequestorExpirySummary',
+      responseType: 'stream',
+    })
+      .then(function (response) {
+        window.console.info('api/notification/sendRequestorExpirySummary returns ' + response.data);
         if (response.data.title !== undefined) {
           self.problemDetail = response.data;
         }
