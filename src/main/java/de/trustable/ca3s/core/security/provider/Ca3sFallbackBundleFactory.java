@@ -1,5 +1,15 @@
 package de.trustable.ca3s.core.security.provider;
 
+import de.trustable.ca3s.cert.bundle.BundleFactory;
+import de.trustable.ca3s.cert.bundle.KeyCertBundle;
+import de.trustable.ca3s.core.service.util.KeyUtil;
+import de.trustable.util.CryptoUtil;
+import de.trustable.util.PKILevel;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x509.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -11,17 +21,6 @@ import java.security.KeyPairGenerator;
 import java.security.cert.X509Certificate;
 import java.util.*;
 
-import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.asn1.x509.*;
-import org.bouncycastle.pkcs.PKCS10CertificationRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import de.trustable.ca3s.cert.bundle.BundleFactory;
-import de.trustable.ca3s.cert.bundle.KeyCertBundle;
-import de.trustable.util.CryptoUtil;
-import de.trustable.util.PKILevel;
-
 public class Ca3sFallbackBundleFactory implements BundleFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(Ca3sFallbackBundleFactory.class);
@@ -31,14 +30,17 @@ public class Ca3sFallbackBundleFactory implements BundleFactory {
 
 	private final String dnSuffix;
 
+    private final KeyUtil keyUtil;
+
 	private X500Name x500Issuer;
 
 	private CryptoUtil cryptoUtil = new CryptoUtil();
 
 
-	public Ca3sFallbackBundleFactory( String dnSuffix) {
+	public Ca3sFallbackBundleFactory(String dnSuffix, KeyUtil keyUtil) {
 	    this.dnSuffix = dnSuffix;
-		try{
+        this.keyUtil = keyUtil;
+        try{
 			x500Issuer = new X500Name("CN=RootOn" + InetAddress.getLocalHost().getCanonicalHostName() + ", OU=temporary bootstrap root " + System.currentTimeMillis() + ", O=trustable solutions, C=DE");
 		} catch(UnknownHostException uhe) {
 			LOG.debug("problem retrieving hostname", uhe);
@@ -49,9 +51,7 @@ public class Ca3sFallbackBundleFactory implements BundleFactory {
 	private synchronized KeyPair getRootKeyPair() throws GeneralSecurityException{
 
 		if( rootKeyPair == null) {
-			KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-		    kpg.initialize(2048);
-		    rootKeyPair = kpg.generateKeyPair();
+            rootKeyPair = keyUtil.createKeyPair();;
 			LOG.debug("created new root keypair : {}", rootKeyPair.toString());
 		}
 	    return rootKeyPair;

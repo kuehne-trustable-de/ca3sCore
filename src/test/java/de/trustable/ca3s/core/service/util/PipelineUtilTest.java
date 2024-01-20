@@ -32,6 +32,8 @@ class PipelineUtilTest {
 
 	static final char[] password = {'1','2','3','4','5','6'};
 
+    final String defaultKeySpec = "RSA-4096";
+
 	static KeyPair keyPair;
 
 	CryptoUtil cryptoUtil = new CryptoUtil();
@@ -95,7 +97,7 @@ class PipelineUtilTest {
         Preferences prefs = new Preferences();
         when(preferenceUtil.getPrefs(anyLong())).thenReturn(prefs);
 
-        pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository, requestProxyConfigRepository);
+        pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository, requestProxyConfigRepository, defaultKeySpec);
     }
 
 	@Test
@@ -236,7 +238,7 @@ class PipelineUtilTest {
 	@Test
 	void testCheckPipelineRestrictionsCardinality() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository, requestProxyConfigRepository);
+		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository, requestProxyConfigRepository, defaultKeySpec);
 
 		List<String> messageList = new ArrayList<>();
 //		Pkcs10RequestHolder p10ReqHolder;
@@ -399,7 +401,7 @@ class PipelineUtilTest {
 	@Test
 	void testCheckPipelineRestrictionsConstantValue() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository, requestProxyConfigRepository);
+		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository, requestProxyConfigRepository, defaultKeySpec);
 
 		List<String> messageList = new ArrayList<>();
 		X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
@@ -525,7 +527,7 @@ class PipelineUtilTest {
 	@Test
 	void testCheckPipelineRestrictionsRegExp() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository, requestProxyConfigRepository);
+		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository, requestProxyConfigRepository, defaultKeySpec);
 
 		List<String> messageList = new ArrayList<>();
 		X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
@@ -684,7 +686,7 @@ class PipelineUtilTest {
 	@Test
 	void testCheckPipelineRestrictionsIPHasSubject() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository, requestProxyConfigRepository);
+		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository, requestProxyConfigRepository, defaultKeySpec);
 
         List<String> messageList = new ArrayList<>();
 		X500Principal subject = new X500Principal("CN=trustable.eu");
@@ -768,7 +770,7 @@ class PipelineUtilTest {
 	@Test
 	void testCheckPipelineRestrictionsIPHasSAN() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository, requestProxyConfigRepository);
+		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository, requestProxyConfigRepository, defaultKeySpec);
 
 		List<String> messageList = new ArrayList<>();
 		X500Principal subject = new X500Principal("CN=trustable.eu");

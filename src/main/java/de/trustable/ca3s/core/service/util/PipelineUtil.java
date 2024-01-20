@@ -21,6 +21,7 @@ import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.security.auth.x500.X500Principal;
@@ -157,7 +158,24 @@ public class PipelineUtil {
 
     final private RequestProxyConfigRepository requestProxyConfigRepository;
 
-    public PipelineUtil(CertificateRepository certRepository, CSRRepository csrRepository, CAConnectorConfigRepository caConnRepository, PipelineRepository pipelineRepository, PipelineAttributeRepository pipelineAttRepository, BPMNProcessInfoRepository bpmnPIRepository, ProtectedContentRepository protectedContentRepository, ProtectedContentUtil protectedContentUtil, PreferenceUtil preferenceUtil, CertificateUtil certUtil, ConfigUtil configUtil, AuditService auditService, AuditTraceRepository auditTraceRepository, RequestProxyConfigRepository requestProxyConfigRepository) {
+    final private String defaultKeySpec;
+
+    public PipelineUtil(CertificateRepository certRepository,
+                        CSRRepository csrRepository,
+                        CAConnectorConfigRepository caConnRepository,
+                        PipelineRepository pipelineRepository,
+                        PipelineAttributeRepository pipelineAttRepository,
+                        BPMNProcessInfoRepository bpmnPIRepository,
+                        ProtectedContentRepository protectedContentRepository,
+                        ProtectedContentUtil protectedContentUtil,
+                        PreferenceUtil preferenceUtil,
+                        CertificateUtil certUtil,
+                        ConfigUtil configUtil,
+                        AuditService auditService,
+                        AuditTraceRepository auditTraceRepository,
+                        RequestProxyConfigRepository requestProxyConfigRepository,
+                        @Value("${ca3s.keyspec.default:RSA_4096}") String defaultKeySpec) {
+
         this.certRepository = certRepository;
         this.csrRepository = csrRepository;
         this.caConnRepository = caConnRepository;
@@ -172,6 +190,7 @@ public class PipelineUtil {
         this.auditService = auditService;
         this.auditTraceRepository = auditTraceRepository;
         this.requestProxyConfigRepository = requestProxyConfigRepository;
+        this.defaultKeySpec = defaultKeySpec;
     }
 
 
@@ -1548,7 +1567,7 @@ public class PipelineUtil {
             caConfig = caConfigList.get(0);
         }
 
-        String scepRecipientKeyLength = getPipelineAttribute(pipeline, SCEP_RECIPIENT_KEY_TYPE_LEN, "RSA_2048");
+        String scepRecipientKeyLength = getPipelineAttribute(pipeline, SCEP_RECIPIENT_KEY_TYPE_LEN, defaultKeySpec);
         KeyAlgoLengthOrSpec kal = KeyAlgoLengthOrSpec.from(scepRecipientKeyLength);
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(kal.getAlgoName());
         keyPairGenerator.initialize(kal.getKeyLength());

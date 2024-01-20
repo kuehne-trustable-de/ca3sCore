@@ -7,14 +7,15 @@ import de.trustable.ca3s.core.security.provider.Ca3sFallbackBundleFactory;
 import de.trustable.ca3s.core.security.provider.Ca3sKeyManagerProvider;
 import de.trustable.ca3s.core.security.provider.Ca3sKeyStoreProvider;
 import de.trustable.ca3s.core.security.provider.TimedRenewalCertMapHolder;
+import de.trustable.ca3s.core.service.util.KeyUtil;
 import de.trustable.util.JCAManager;
 import io.undertow.Undertow;
 import org.apache.commons.lang3.StringUtils;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
@@ -58,6 +59,9 @@ public class Ca3SApp implements InitializingBean {
 
     private final Environment env;
 
+    @Autowired
+    KeyUtil keyUtil;
+
     public Ca3SApp(Environment env) {
         this.env = env;
     }
@@ -70,7 +74,7 @@ public class Ca3SApp implements InitializingBean {
      * You can find more information on how profiles work with JHipster on <a href="https://www.jhipster.tech/profiles/">https://www.jhipster.tech/profiles/</a>.
      */
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         Collection<String> activeProfiles = Arrays.asList(env.getActiveProfiles());
         if (activeProfiles.contains(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT) && activeProfiles.contains(JHipsterConstants.SPRING_PROFILE_PRODUCTION)) {
             log.error("You have misconfigured your application! It should not run " +
@@ -157,7 +161,7 @@ public class Ca3SApp implements InitializingBean {
 
         String dnSuffix = env.getProperty(HTTPS_CERTIFICATE_DN_SUFFIX, O_TRUSTABLE_SOLUTIONS_C_DE);
 
-        TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory(dnSuffix));
+        TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory(dnSuffix, keyUtil));
         Security.addProvider(new Ca3sKeyStoreProvider(certMap, "ca3s"));
         Security.addProvider(new Ca3sKeyManagerProvider(certMap));
 

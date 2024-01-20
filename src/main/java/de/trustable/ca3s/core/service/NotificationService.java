@@ -22,7 +22,6 @@ import javax.transaction.Transactional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Handling notification
@@ -43,6 +42,8 @@ public class NotificationService {
     private final int nDaysExpiryCA;
     private final int nDaysPending;
     private final List<Integer> notificationDayList;
+    private final List<String> notificationARAAttributes;
+    private final boolean notifyUserOnly;
 
     @Autowired
     public NotificationService(CertificateRepository certificateRepo, CSRRepository csrRepo,
@@ -52,7 +53,9 @@ public class NotificationService {
                                @Value("${ca3s.schedule.ra-officer-notification.days-before-expiry.ee:30}") int nDaysExpiryEE,
                                @Value("${ca3s.schedule.ra-officer-notification.days-before-expiry.ca:90}")int nDaysExpiryCA,
                                @Value("${ca3s.schedule.ra-officer-notification.days-pending:30}") int nDaysPending,
-                               @Value("${ca3s.schedule.requestor.notification.days:30,14,7,6,5,4,3,2,1}") String notificationDays) {
+                               @Value("${ca3s.schedule.requestor.notification.days:30,14,7,6,5,4,3,2,1}") String notificationDays,
+                               @Value("${ca3s.schedule.requestor.notification.attributes:}") String notificationARAAttributesString,
+                               @Value("${ca3s.schedule.requestor.notification.user-only:false}") boolean notifyUserOnly) {
         this.certificateRepo = certificateRepo;
         this.csrRepo = csrRepo;
         this.userRepository = userRepository;
@@ -63,6 +66,7 @@ public class NotificationService {
         this.nDaysExpiryEE = nDaysExpiryEE;
         this.nDaysExpiryCA = nDaysExpiryCA;
         this.nDaysPending = nDaysPending;
+        this.notifyUserOnly = notifyUserOnly;
 
         this.notificationDayList = new ArrayList<>();
         String[] parts = notificationDays.split(",");
@@ -73,6 +77,10 @@ public class NotificationService {
                 LOG.info("Unexpected value '{}' in 'ca3s.schedule.requestor.notification.days': {}", part, nfe.getMessage());
             }
         }
+
+        String[] araParts = notificationARAAttributesString.split(",");
+        notificationARAAttributes = Arrays.asList(araParts);
+
     }
 
 
@@ -89,10 +97,10 @@ public class NotificationService {
         Instant now = Instant.now();
         Instant after = now;
         Instant beforeCA = now.plus(nDaysExpiryCA, ChronoUnit.DAYS);
-        List<Certificate> expiringCAList = certificateRepo.findByTypeAndValidTo(false, after, beforeCA);
+        List<Certificate> expiringCAList = certificateRepo.findNonRevokedByTypeAndValidTo(false, after, beforeCA);
 
         Instant beforeEE = now.plus(nDaysExpiryEE, ChronoUnit.DAYS);
-        List<Certificate> expiringEECertList = certificateRepo.findByTypeAndValidTo(true, after, beforeEE);
+        List<Certificate> expiringEECertList = certificateRepo.findNonRevokedByTypeAndValidTo(true, after, beforeEE);
 
         Instant relevantPendingStart = now.minus(nDaysPending, ChronoUnit.DAYS);
         List<CSR> pendingCsrList = csrRepo.findPendingByDay(relevantPendingStart, now);
@@ -165,7 +173,7 @@ public class NotificationService {
 
         int maxExpiry = notificationDayList.stream().max(Integer::compareTo).get();
         Instant beforeEE = now.plus(maxExpiry, ChronoUnit.DAYS);
-        List<Certificate> expiringEECertList = certificateRepo.findByTypeAndValidTo(true, after, beforeEE);
+        List<Certificate> expiringEECertList = certificateRepo.findNonRevokedByTypeAndValidTo(true, after, beforeEE);
 
         if( expiringEECertList.isEmpty()) {
             LOG.info("No expiring certificates in the next {} days / no pending requests requested in the last {} days. No need to send a notification eMail to RA officers", nDaysExpiryEE, nDaysPending);
@@ -219,14 +227,11 @@ public class NotificationService {
                 Context context = new Context(locale);
                 context.setVariable("now", now);
                 context.setVariable("user", requestor);
-                context.setVariable("expiringCertList", certListGroupedByUser.get(requestor));
-                try {
-                    mailService.sendEmailFromTemplate(context, requestor, null, "mail/expiringUserCertificateEmail", "email.allExpiringCertificate.subject");
-                }catch (Throwable throwable){
-                    LOG.warn("Problem occurred while sending a notification eMail to requestor address '" + requestor.getEmail() + "'", throwable);
-                    if(logNotification) {
-                        auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(requestor.getEmail()));
-                    }
+
+                if(notifyUserOnly) {
+                    sentExpiryNotificationUserOnly(logNotification, certListGroupedByUser, requestor, context);
+                }else{
+                    sentExpiryNotificationAllParticipants(logNotification, certListGroupedByUser, requestor, context);
                 }
             }
 
@@ -238,6 +243,56 @@ public class NotificationService {
         return expiringEECertList.size();
     }
 
+    private void sentExpiryNotificationUserOnly(boolean logNotification, Map<User, List<Certificate>> certListGroupedByUser, User requestor, Context context) {
+
+        context.setVariable("expiringCertList", certListGroupedByUser.get(requestor));
+        try {
+            mailService.sendEmailFromTemplate(context, requestor, null, "mail/expiringUserCertificateEmail", "email.allExpiringCertificate.subject");
+        } catch (Throwable throwable) {
+            LOG.warn("Problem occurred while sending a notification eMail to requestor address '" + requestor.getEmail() + "'", throwable);
+            if (logNotification) {
+                auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(requestor.getEmail()));
+            }
+        }
+    }
+
+    private void sentExpiryNotificationAllParticipants(boolean logNotification, Map<User, List<Certificate>> certListGroupedByUser, User requestor, Context context) {
+
+        for( Certificate cert : certListGroupedByUser.get(requestor)) {
+            LOG.info("sending notification for expiring certificate {} to requestor {}.", cert.getId(), requestor.getId());
+
+            List<String> ccList = new ArrayList<>();
+            if( cert.getCsr() != null &&
+                cert.getCsr().getPipeline() != null ){
+                Pipeline pipeline = cert.getCsr().getPipeline();
+
+                String additionalEmailRecipients = pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.ADDITIONAL_EMAIL_RECIPIENTS, "");
+                addSplittedString(ccList, additionalEmailRecipients);
+                for( String araAttribute: notificationARAAttributes) {
+                    String emailAttribute = certificateUtil.getCertAttribute(cert, CsrAttribute.ARA_PREFIX + araAttribute, "");
+                    addSplittedString(ccList, emailAttribute);
+                }
+            }
+
+            context.setVariable("expiringCertList", Collections.singletonList(cert));
+            try {
+                mailService.sendEmailFromTemplate(context, requestor, ccList.toArray(new String[0]), "mail/expiringUserCertificateEmail", "email.allExpiringCertificate.subject");
+            } catch (Throwable throwable) {
+                LOG.warn("Problem occurred while sending a notification eMail to requestor address '" + requestor.getEmail() + "'", throwable);
+                if (logNotification) {
+                    auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(requestor.getEmail()));
+                }
+            }
+        }
+    }
+
+    private void addSplittedString(List<String> ccList, String additionalEmailRecipients) {
+        if( !additionalEmailRecipients.isEmpty()) {
+            String[] parts = additionalEmailRecipients.split(", ");
+            LOG.debug("#{} parts selected from additionalEmailRecipients '{}'.", parts.length, additionalEmailRecipients);
+            ccList.addAll(Arrays.asList(parts));
+        }
+    }
 
 
     @Transactional

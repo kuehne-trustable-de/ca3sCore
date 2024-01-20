@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.schedule;
 
 import de.trustable.ca3s.core.repository.CertificateRepository;
+import de.trustable.ca3s.core.service.util.KeyUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,7 @@ public class CertBundleScheduler {
 	private final CertificateUtil certUtil;
     private final CertificateRepository certificateRepository;
 	private final TimedRenewalCertMapHolder timedRenewalCertMapHolder;
+    private final KeyUtil keyUtil;
     private final String dnSuffix;
     private final String sans;
     private final String persist;
@@ -43,6 +45,7 @@ public class CertBundleScheduler {
                                CertificateUtil certUtil,
                                CertificateRepository certificateRepository,
                                TimedRenewalCertMapHolder timedRenewalCertMapHolder,
+                               KeyUtil keyUtil,
                                @Value("${ca3s.https.certificate.dnSuffix:}") String dnSuffix,
                                @Value("${ca3s.https.certificate.sans:}") String sans,
                                @Value("${ca3s.https.certificate.persist:NO}") String persist) {
@@ -51,6 +54,7 @@ public class CertBundleScheduler {
         this.certUtil = certUtil;
         this.certificateRepository = certificateRepository;
         this.timedRenewalCertMapHolder = timedRenewalCertMapHolder;
+        this.keyUtil = keyUtil;
         this.dnSuffix = dnSuffix;
         this.sans = sans;
         this.persist = persist;
@@ -66,7 +70,7 @@ public class CertBundleScheduler {
 
 					if( timedRenewalCertMapHolder.getCertMap().getBundleFactory() == null) {
                         timedRenewalCertMapHolder.getCertMap().setBundleFactory(
-                            new Ca3sBundleFactory(caConfigDao, caConnAd, certUtil, certificateRepository, dnSuffix, sans, persist));
+                            new Ca3sBundleFactory(caConfigDao, caConnAd, certUtil, certificateRepository, keyUtil, dnSuffix, sans, persist));
 						LOG.info("Ca3sBundleFactory registered for TLS certificate production");
 					}
 				}else {

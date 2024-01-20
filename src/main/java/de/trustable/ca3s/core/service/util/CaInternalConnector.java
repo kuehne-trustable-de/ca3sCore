@@ -59,6 +59,8 @@ public class CaInternalConnector {
     @Autowired
     CSRUtil csrUtil;
 
+    @Autowired
+    KeyUtil keyUtil;
 
 	Certificate getRoot() throws GeneralSecurityException, IOException {
 
@@ -88,7 +90,7 @@ public class CaInternalConnector {
 
 	private Certificate createNewIntermediate(Certificate root) throws GeneralSecurityException, IOException {
 
-		KeyPair keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+		KeyPair keyPair = keyUtil.createKeyPair();
 
 		X500Name subject = new X500Name("CN=CA3S-Intermediate"
 				+ System.currentTimeMillis()
@@ -140,7 +142,7 @@ public class CaInternalConnector {
 	 */
 	private Certificate createNewRoot() throws GeneralSecurityException, IOException {
 
-		KeyPair keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+        KeyPair keyPair = keyUtil.createKeyPair();
 
 		X500Name subject = new X500Name("CN=CA3S-InternalRoot"
 				+ System.currentTimeMillis()

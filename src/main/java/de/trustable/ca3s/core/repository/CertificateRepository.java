@@ -2,9 +2,6 @@ package de.trustable.ca3s.core.repository;
 import java.time.Instant;
 import java.util.List;
 
-import javax.persistence.NamedQuery;
-
-import de.trustable.ca3s.core.domain.CSR;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
@@ -78,10 +75,10 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
     List<Certificate> findByValidTo(@Param("after") Instant after,
                                     @Param("before") Instant before);
 
-    @Query(name = "Certificate.findByTypeAndValidTo")
-    List<Certificate> findByTypeAndValidTo(@Param("isEndEntity") boolean isEndEntity,
-                                           @Param("after") Instant after,
-                                           @Param("before") Instant before);
+    @Query(name = "Certificate.findNonRevokedByTypeAndValidTo")
+    List<Certificate> findNonRevokedByTypeAndValidTo(@Param("isEndEntity") boolean isEndEntity,
+                                                     @Param("after") Instant after,
+                                                     @Param("before") Instant before);
 
     @Query(name = "Certificate.findActiveCertificatesByHashAlgo")
 	  List<Object[]> findActiveCertificatesByHashAlgo(@Param("now") Instant now);

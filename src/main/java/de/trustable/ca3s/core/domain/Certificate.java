@@ -81,7 +81,7 @@ import javax.validation.constraints.*;
             " c.validTo <= :before " +
             " group by YEAR(c.validTo), MONTH(c.validTo), DAY(c.validTo)"
     ),
-    @NamedQuery(name = "Certificate.findByTypeAndValidTo",
+    @NamedQuery(name = "Certificate.findNonRevokedByTypeAndValidTo",
         query = "SELECT c FROM Certificate c WHERE " +
             " c.validTo >= :after and " +
             " c.validTo <= :before and " +

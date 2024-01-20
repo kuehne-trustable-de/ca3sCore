@@ -291,6 +291,12 @@ ca3s:
         ca: 90
       days-pending: 30
 
+    requestor:
+      notification:
+        days: 30,14,7
+        attributes: adcs manager
+        user-only: false
+
   # enable the creation of the PKCS12 download container with specific algorithms
   pkcs12:
     # the restriction on the input 'secret' protecting the PKCS12 container

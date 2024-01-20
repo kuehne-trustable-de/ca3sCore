@@ -8,6 +8,7 @@ import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.service.util.CaConnectorAdapter;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.ca3s.core.service.util.KeyUtil;
 import de.trustable.util.CryptoUtil;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.GeneralName;
@@ -42,6 +43,7 @@ public class Ca3sBundleFactory implements BundleFactory {
 
     private final CertificateRepository certificateRepository;
 
+    private final KeyUtil keyUtil;
     private final String dnSuffix;
 
     private final String sans;
@@ -51,12 +53,16 @@ public class Ca3sBundleFactory implements BundleFactory {
     public Ca3sBundleFactory(CAConnectorConfig caConfigDao,
                              CaConnectorAdapter cacAdapt,
                              CertificateUtil certUtil,
-                             CertificateRepository certificateRepository, String dnSuffix,
-                             String sans, String persist) {
+                             CertificateRepository certificateRepository,
+                             KeyUtil keyUtil,
+                             String dnSuffix,
+                             String sans,
+                             String persist) {
 		this.caConfigDao = caConfigDao;
 		this.cacAdapt = cacAdapt;
 		this.certUtil = certUtil;
         this.certificateRepository = certificateRepository;
+        this.keyUtil = keyUtil;
         this.dnSuffix = dnSuffix;
         this.sans = sans;
         this.keyPersistenceType = KeyPersistenceType.valueOf(persist);
@@ -120,7 +126,7 @@ public class Ca3sBundleFactory implements BundleFactory {
 
     public BundleCertHolder createKeyBundle(final String bundleName, long minValiditySeconds) throws GeneralSecurityException {
 
-        KeyPair localKeyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+        KeyPair localKeyPair = keyUtil.createKeyPair();
 
 		try {
 			InetAddress ip = InetAddress.getLocalHost();

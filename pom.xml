@@ -97,9 +97,10 @@
         <jhipster-dependencies.version>7.9.3</jhipster-dependencies.version>
         <!-- The spring-boot version should match the one managed by
         https://mvnrepository.com/artifact/tech.jhipster/jhipster-dependencies/${jhipster-dependencies.version} -->
-        <spring-boot.version>2.7.18</spring-boot.version>
+        <spring-boot.version>2.7.11</spring-boot.version>
 
-        <jhipster-framework.version>7.9.4-SNAPSHOT</jhipster-framework.version>
+        <jhipster-framework.version>7.9.3</jhipster-framework.version>
+        <!--jhipster-framework.version>7.9.4-SNAPSHOT</jhipster-framework.version-->
         <!--jhipster-framework.version>3.9.1</jhipster-framework.version-->
 
         <!-- The hibernate version should match the one managed by
@@ -229,6 +230,15 @@
 
     <dependencyManagement>
         <dependencies>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <dependency>
                 <groupId>tech.jhipster</groupId>
                 <artifactId>jhipster-dependencies</artifactId>
@@ -361,7 +371,7 @@
             <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
-                <version>1.33</version>
+                <version>2.2</version>
             </dependency>
             <!--dependency>
                 <groupId>org.hibernate</groupId>
@@ -746,6 +756,7 @@
     </dependencyManagement>
 
     <dependencies>
+
         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>

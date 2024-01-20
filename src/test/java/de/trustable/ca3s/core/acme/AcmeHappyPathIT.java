@@ -21,6 +21,7 @@ import java.time.Instant;
 import java.util.Iterator;
 
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
+import de.trustable.ca3s.core.service.util.KeyUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -74,6 +75,8 @@ public class AcmeHappyPathIT {
     @Autowired
     PreferenceTestConfiguration prefTC;
 
+    static KeyUtil keyUtil = new KeyUtil("RSA-4096");
+
 	@BeforeEach
 	void init() {
 		dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
@@ -93,7 +96,7 @@ public class AcmeHappyPathIT {
 
 		JCAManager.getInstance();
 
-		TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory("O=test trustable solutions, C=DE"));
+		TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory("O=test trustable solutions, C=DE", keyUtil));
 		Security.addProvider(new Ca3sKeyStoreProvider(certMap, "ca3s"));
     	Security.addProvider(new Ca3sKeyManagerProvider(certMap));
     	new TimedRenewalCertMapHolder().setCertMap(certMap);
