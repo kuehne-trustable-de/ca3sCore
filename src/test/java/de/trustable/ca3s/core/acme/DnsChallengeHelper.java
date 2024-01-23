@@ -77,8 +77,8 @@ public class DnsChallengeHelper {
         final Name nameToLookup = concatenate(ChallengeController.ACME_CHALLENGE_PREFIX, nameOfIdentifier);
 
         // Add answers as needed
-        response.addRecord(Record.fromString(Name.root, Type.A, DClass.IN, 86400, "1.2.3.4", Name.root), Section.ANSWER);
-        response.addRecord(Record.fromString(nameToLookup, Type.TXT, DClass.IN, 86400, token, Name.root), Section.ANSWER);
+        response.addRecord(org.xbill.DNS.Record.fromString(Name.root, Type.A, DClass.IN, 86400, "1.2.3.4", Name.root), Section.ANSWER);
+        response.addRecord(org.xbill.DNS.Record.fromString(nameToLookup, Type.TXT, DClass.IN, 86400, token, Name.root), Section.ANSWER);
         LOG.info("Serving DNS TXT record for {}", nameToLookup.toString(false));
 
         /*

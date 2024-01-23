@@ -59,6 +59,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.xbill.DNS.*;
 
+
 import javax.net.ssl.*;
 import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
@@ -408,11 +409,11 @@ public class ChallengeController extends AcmeController {
      * @param lookupResult Optional
      * @return Never <code>null</code>
      */
-    private @NotNull List<String> extractTokenFrom(final Record[] lookupResult) {
+    private @NotNull List<String> extractTokenFrom(final org.xbill.DNS.Record[] lookupResult) {
 
         List<String> tokenList = new ArrayList<>();
         if( lookupResult != null) {
-            for (Record record : lookupResult) {
+            for (org.xbill.DNS.Record record : lookupResult) {
                 LOG.debug("Found DNS entry solving '{}'", record);
                 tokenList.addAll(((TXTRecord) record).getStrings());
             }
