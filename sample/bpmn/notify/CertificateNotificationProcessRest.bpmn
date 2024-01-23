@@ -24,7 +24,7 @@
             </camunda:inputParameter>
             <camunda:inputParameter name="payload">${payload}</camunda:inputParameter>
             <camunda:outputParameter name="status">
-              <camunda:script scriptFormat="Javascript">statusCode === 200 ? "Success" : "Failed";</camunda:script>
+              <camunda:script scriptFormat="groovy">statusCode == 200 ? "Success" : "Failed"</camunda:script>
             </camunda:outputParameter>
           </camunda:inputOutput>
           <camunda:connectorId>http-connector</camunda:connectorId>
@@ -128,7 +128,7 @@
               </camunda:map>
             </camunda:inputParameter>
             <camunda:outputParameter name="authToken">
-              <camunda:script scriptFormat="Javascript">statusCode === 200 ? S(response).prop("RawToken").value() : "";</camunda:script>
+              <camunda:script scriptFormat="groovy">statusCode == 200 ? S(response).prop("RawToken").value() : ""</camunda:script>
             </camunda:outputParameter>
           </camunda:inputOutput>
           <camunda:connectorId>http-connector</camunda:connectorId>
