@@ -1,20 +1,25 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.CSR;
+import de.trustable.ca3s.core.domain.Tenant;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.CSRService;
 import de.trustable.ca3s.core.service.dto.CSRView;
+import de.trustable.ca3s.core.service.dto.CertificateView;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
+import de.trustable.ca3s.core.web.rest.util.CurrentUserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 
 import javax.validation.Valid;
 import java.net.URISyntaxException;
@@ -40,14 +45,20 @@ public class CSRResource {
     private final CSRUtil csrUtil;
     private final PipelineUtil pipelineUtil;
     private final UserRepository userRepository;
+    private final CurrentUserUtil currentUserUtil;
     private final boolean doDNSLookup;
 
-    public CSRResource(CSRService cSRService, CSRUtil csrUtil, PipelineUtil pipelineUtil, UserRepository userRepository,
+    public CSRResource(CSRService cSRService,
+                       CSRUtil csrUtil,
+                       PipelineUtil pipelineUtil,
+                       UserRepository userRepository,
+                       CurrentUserUtil currentUserUtil,
                        @Value("${ca3s.ui.csr.dnslookup:false}") boolean doDNSLookup) {
         this.cSRService = cSRService;
         this.csrUtil = csrUtil;
         this.pipelineUtil = pipelineUtil;
         this.userRepository = userRepository;
+        this.currentUserUtil = currentUserUtil;
         this.doDNSLookup = doDNSLookup;
     }
 
@@ -116,21 +127,14 @@ public class CSRResource {
         Optional<CSR> cSROptional = cSRService.findOne(id);
 
         if(cSROptional.isPresent()){
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            String userName = auth.getName();
 
             CSR csr = cSROptional.get();
             CSRView csrView = new CSRView(csrUtil, csr, doDNSLookup);
 
-            Optional<User> optCurrentUser = userRepository.findOneByLogin(userName);
-            if(!optCurrentUser.isPresent()) {
-                log.warn("Name of ra officer '{}' not found as user", userName);
-                return ResponseEntity.notFound().build();
-            }
+            User currentUser = currentUserUtil.getCurrentUser();
+            csrView.setAdministrable(pipelineUtil.isUserValidAsRA(csr.getPipeline(), currentUser));
 
-            csrView.setAdministrable(pipelineUtil.isUserValidAsRA(csr.getPipeline(), optCurrentUser.get()));
-
-            if( csr.getRequestedBy().equals(userName) || csrView.getIsAdministrable()){
+            if( csr.getRequestedBy().equals(currentUser.getLogin()) || csrView.getIsAdministrable()){
                 csrView.setCsrBase64(csr.getCsrBase64());
             }
 
@@ -179,4 +183,19 @@ public class CSRResource {
         log.debug("REST request to delete CSR : {} rejected", id);
         return ResponseEntity.badRequest().build();
     }
+
+    private void checkTenant(CSR csr) {
+        if( !currentUserUtil.isAdministrativeUser() ){
+            User currentUser = currentUserUtil.getCurrentUser();
+            Tenant tenant = currentUser.getTenant();
+            if( tenant == null ) {
+                // null == default tenant
+            } else if( tenant.getId() != csr.getTenant().getId()){
+                log.info("user [{}] tried to download csr [{}] of tenant [{}]",
+                    currentUser.getLogin(), csr.getId(), tenant.getLongname());
+                throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+            }
+        }
+    }
+
 }

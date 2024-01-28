@@ -2,6 +2,8 @@ import { email, maxLength, minLength, required } from 'vuelidate/lib/validators'
 import { Component, Inject, Vue } from 'vue-property-decorator';
 import UserManagementService from './user-management.service';
 import { IUser, User } from '@/shared/model/user.model';
+import { ITenant } from '../../shared/model/tenant.model';
+import TenantService from '../../user-management/tenant/tenant.service';
 
 const loginValidator = (value: string) => {
   if (!value) {
@@ -29,6 +31,7 @@ const validations: any = {
       minLength: minLength(5),
       maxLength: maxLength(50),
     },
+    tenantId: {},
   },
 };
 
@@ -37,6 +40,9 @@ const validations: any = {
 })
 export default class JhiUserManagementEdit extends Vue {
   @Inject('userService') private userManagementService: () => UserManagementService;
+  @Inject('tenantService') private tenantService: () => TenantService;
+
+  public tenants: ITenant[] = [];
   public userAccount: IUser;
   public isSaving = false;
   public authorities: any[] = [];
@@ -51,6 +57,10 @@ export default class JhiUserManagementEdit extends Vue {
     });
   }
 
+  public mounted(): void {
+    this.retrieveAllTenants();
+  }
+
   public constructor() {
     super();
     this.userAccount = new User();
@@ -63,6 +73,19 @@ export default class JhiUserManagementEdit extends Vue {
       .then(_res => {
         this.authorities = _res.data;
       });
+  }
+
+  public retrieveAllTenants(): void {
+    this.tenantService()
+      .retrieve()
+      .then(
+        res => {
+          this.tenants = res.data;
+        },
+        err => {
+          self.alertService().showAlert(err.response, 'warn');
+        }
+      );
   }
 
   public init(userId: number): void {

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+
+    <!--
+    Added the entity Tenant.
+-->
+    <changeSet id="20240122165042-1" author="jhipster">
+        <createTable tableName="tenant">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="longname" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="active" type="boolean">
+                <constraints nullable="true" />
+            </column>
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
+        </createTable>
+    </changeSet>
+
+
+    <!--
+        Add the tenant field to the certificate.
+    -->
+    <changeSet id="20240122165042-2" author="ak">
+
+        <addColumn tableName="certificate">
+            <column name="tenant_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+
+        <addForeignKeyConstraint baseColumnNames="tenant_id"
+                                 baseTableName="certificate"
+                                 constraintName="fk_certificate__tenant_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="tenant"/>
+
+    </changeSet>
+
+    <!--
+        Add the tenant field to the CSR.
+    -->
+    <changeSet id="20240122165042-3" author="ak">
+
+        <addColumn tableName="csr">
+            <column name="tenant_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+
+        <addForeignKeyConstraint baseColumnNames="tenant_id"
+                                 baseTableName="csr"
+                                 constraintName="fk_csr__tenant_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="tenant"/>
+    </changeSet>
+
+
+    <!--
+    Add the tenant field to the user.
+-->
+    <changeSet id="20240122165042-4" author="ak">
+
+        <addColumn tableName="jhi_user">
+            <column name="tenant_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+
+        <addForeignKeyConstraint baseColumnNames="tenant_id"
+                                 baseTableName="jhi_user"
+                                 constraintName="fk_jhi_user__tenant_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="tenant"/>
+    </changeSet>
+
+    <changeSet id="20240122165042-5" author="ak">
+
+        <createTable tableName="rel_pipeline__tenants">
+            <column name="tenants_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="pipeline_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="pipeline_id, tenants_id" tableName="rel_pipeline__tenants"/>
+    </changeSet>
+
+    <changeSet id="20240122165042-6" author="ak">
+        <addForeignKeyConstraint baseColumnNames="pipeline_id"
+                                 baseTableName="rel_pipeline__tenants"
+                                 constraintName="fk_rel_pipeline__tenants__pipeline_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="pipeline"/>
+
+        <addForeignKeyConstraint baseColumnNames="tenants_id"
+                                 baseTableName="rel_pipeline__tenants"
+                                 constraintName="fk_rel_pipeline__tenants__tenants_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="tenant"/>
+    </changeSet>
+
+
+</databaseChangeLog>

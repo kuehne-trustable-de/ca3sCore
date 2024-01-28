@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.service.dto;
 
 import java.io.Serializable;
 
+import de.trustable.ca3s.core.domain.Tenant;
 import de.trustable.ca3s.core.domain.enumeration.CsrUsage;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 
@@ -50,6 +51,10 @@ public class PipelineView implements Serializable {
     private ARARestriction[] araRestrictions;
 
     private String[] domainRaOfficerList;
+
+    private Tenant[] allTenantList;
+
+    private Tenant[] selectedTenantList;
 
     private boolean toPendingOnFailedRestrictions = false;
 
@@ -352,5 +357,21 @@ public class PipelineView implements Serializable {
 
     public void setProcessInfoNameNotify(String processInfoNameNotify) {
         this.processInfoNameNotify = processInfoNameNotify;
+    }
+
+    public Tenant[] getAllTenantList() {
+        return allTenantList;
+    }
+
+    public void setAllTenantList(Tenant[] allTenantList) {
+        this.allTenantList = allTenantList;
+    }
+
+    public Tenant[] getSelectedTenantList() {
+        return selectedTenantList;
+    }
+
+    public void setSelectedTenantList(Tenant[] selectedTenantList) {
+        this.selectedTenantList = selectedTenantList;
     }
 }

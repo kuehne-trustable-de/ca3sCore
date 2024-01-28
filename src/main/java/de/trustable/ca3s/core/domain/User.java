@@ -93,6 +93,9 @@ public class User extends AbstractAuditingEntity implements Serializable {
     private Instant lastUserDetailsUpdate = null;
 
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Tenant tenant;
+
     @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -226,6 +229,20 @@ public class User extends AbstractAuditingEntity implements Serializable {
 
     public void setLastUserDetailsUpdate(Instant lastUserDetailsUpdate) {
         this.lastUserDetailsUpdate = lastUserDetailsUpdate;
+    }
+
+
+    public Tenant getTenant() {
+        return this.tenant;
+    }
+
+    public void setTenant(Tenant tenant) {
+        this.tenant = tenant;
+    }
+
+    public User tenant(Tenant tenant) {
+        this.setTenant(tenant);
+        return this;
     }
 
     @Override

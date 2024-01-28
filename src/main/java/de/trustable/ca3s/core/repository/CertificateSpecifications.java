@@ -5,6 +5,7 @@ import de.trustable.ca3s.core.service.dto.CertificateView;
 import de.trustable.ca3s.core.service.dto.NamedValue;
 import de.trustable.ca3s.core.service.dto.Selector;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.ca3s.core.web.rest.util.CurrentUserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.*;
@@ -118,22 +119,30 @@ public final class CertificateSpecifications {
 	}
 
     /**
-     *
-     * @param entityManager    EntityManager
-     * @param cb CriteriaBuilder
-     * @param parameterMap map of parameters
+     * @param entityManager                  EntityManager
+     * @param cb                             CriteriaBuilder
+     * @param parameterMap                   map of parameters
      * @param certificateSelectionAttributes
+     * @param user
      * @return page
      */
 	public static Page<CertificateView> handleQueryParamsCertificateView(EntityManager entityManager,
                                                                          CriteriaBuilder cb,
                                                                          Map<String, String[]> parameterMap,
                                                                          List<String> certificateSelectionAttributes,
-                                                                         CertificateRepository certificateRepository) {
-
+                                                                         CertificateRepository certificateRepository,
+                                                                         User user) {
 		long startTime = System.currentTimeMillis();
 
-		CriteriaQuery<Object[]> query = cb.createQuery(Object[].class);
+        boolean useTenant = true;
+        if( CurrentUserUtil.isAdministrativeUser(user) ){
+            useTenant = false;
+        }else if( user.getTenant() == null ){
+            // null == default tenant
+            useTenant = false;
+        }
+
+        CriteriaQuery<Object[]> query = cb.createQuery(Object[].class);
 		Root<Certificate> root = query.from(Certificate.class);
 
 		String sortCol = getStringValue(parameterMap.get("sort"), "id").trim();
@@ -239,6 +248,13 @@ public final class CertificateSpecifications {
 				pred = cb.and(pred, predPart);
 			}
     	}
+
+        if( useTenant ){
+            logger.debug("build additional predicate tenant '{}'", user.getTenant());
+            pred = addTenantClause(cb, user, root, pred);
+        }else{
+            logger.debug("useTenant == false");
+        }
 
 		query.where(pred);
 
@@ -361,6 +377,13 @@ public final class CertificateSpecifications {
 			}
     	}
 
+        if( useTenant ){
+            logger.debug("build additional predicate tenant '{}'", user.getTenant());
+            predCount = addTenantClause(cb, user, root, predCount);
+        }else{
+            logger.debug("useTenant == false");
+        }
+
         queryCount.select(cb.count(iRoot));
 
 		queryCount.where(predCount);
@@ -385,7 +408,15 @@ public final class CertificateSpecifications {
 
 	}
 
-	private static CertificateView buildCertificateViewFromObjArr(ArrayList<String> colList,
+    private static Predicate addTenantClause(CriteriaBuilder cb, User user, Root<Certificate> root, Predicate predicate) {
+        predicate = cb.and(predicate, cb.or(
+            cb.equal(root.get(Certificate_.tenant), user.getTenant()),
+            cb.isFalse(root.get(Certificate_.endEntity)) )
+        );
+        return predicate;
+    }
+
+    private static CertificateView buildCertificateViewFromObjArr(ArrayList<String> colList,
                                                                   CertificateRepository certificateRepository,
                                                                   Object[] objArr) {
 		CertificateView cv = new CertificateView();

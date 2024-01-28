@@ -58,22 +58,22 @@
               Map.entry("attributeName_1", ["id"] as String[]),
               Map.entry("attributeValue_1", [certificateId] as String[]),
               Map.entry("attributeSelector_1", ["EQUAL"] as String[]),
-              Map.entry("filter", ["id,subject,issuer,type,keyLength,serialHex,validFrom,validTo,hashAlgorithm,paddingAlgorithm,revoked,revokedSince,revocationReason,sans,root,Manager"] as String[])
+              Map.entry("filter", ["id,subject,issuer,type,keyLength,serialHex,validFrom,validTo,hashAlgorithm,paddingAlgorithm,revoked,revokedSince,revocationReason,sans,root,Manager, RDN_COMMONNAME"] as String[])
               ))
 
-          var page = certificateViewRepository.findSelection(selection)
+          var cvList = certificateListResource.getFullCVList(selection)
+
           String PATTERN_FORMAT = "dd.MM.yyyy"
           java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern(PATTERN_FORMAT).withZone(java.time.ZoneId.systemDefault())
-
-          println "certificate selection returns pageSize " + page.getSize() + " of " + page.getTotalPages()
 
           String payload = ""
           execution.setVariable("status", "NotFound");
 
-          page.getContent().each { it -&gt;
+          cvList.each { it -&gt;
             Map&lt;String, String&gt; params = new HashMap&lt;&gt;();
             params.put("seriennummer", it.getSerial().toString());
-            params.put("commonName", it.getSubject());
+            params.put("name", it.getRdn_cn());
+            params.put("commonName", it.getRdn_cn());
 
             params.put("subjectAlternativeName", it.getSans());
             params.put("rootCAAnbieter", it.getRoot());

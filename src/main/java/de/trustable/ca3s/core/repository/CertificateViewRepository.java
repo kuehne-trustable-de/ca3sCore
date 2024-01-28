@@ -1,24 +1,31 @@
 package de.trustable.ca3s.core.repository;
 
+import de.trustable.ca3s.core.domain.CRLExpirationNotification;
+import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.service.dto.CertificateView;
+import de.trustable.ca3s.core.service.util.CertificateSelectionUtil;
+import de.trustable.ca3s.core.service.util.CertificateUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-
-import de.trustable.ca3s.core.domain.CRLExpirationNotification;
-import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.service.util.CertificateSelectionUtil;
-import de.trustable.ca3s.core.service.util.CertificateUtil;
-import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
-
-import de.trustable.ca3s.core.service.dto.CertificateView;
-
 
 @Service
 public class CertificateViewRepository {
+
+    private final Logger LOG = LoggerFactory.getLogger(CertificateViewRepository.class);
 
     final private EntityManager entityManager;
 
@@ -28,15 +35,18 @@ public class CertificateViewRepository {
 
     final private CRLExpirationNotificationRepository crlExpirationNotificationRepository;
 
+    final private UserRepository userRepository;
+
     private final  AuditTraceRepository auditTraceRepository;
 
     private final CertificateUtil certificateUtil;
 
-    public CertificateViewRepository(EntityManager entityManager, CertificateSelectionUtil certificateSelectionAttributeList, CertificateRepository certificateRepository, CRLExpirationNotificationRepository crlExpirationNotificationRepository, AuditTraceRepository auditTraceRepository, CertificateUtil certificateUtil) {
+    public CertificateViewRepository(EntityManager entityManager, CertificateSelectionUtil certificateSelectionAttributeList, CertificateRepository certificateRepository, CRLExpirationNotificationRepository crlExpirationNotificationRepository, UserRepository userRepository, AuditTraceRepository auditTraceRepository, CertificateUtil certificateUtil) {
         this.entityManager = entityManager;
         this.certificateSelectionAttributeList = certificateSelectionAttributeList;
         this.certificateRepository = certificateRepository;
         this.crlExpirationNotificationRepository = crlExpirationNotificationRepository;
+        this.userRepository = userRepository;
         this.auditTraceRepository = auditTraceRepository;
         this.certificateUtil = certificateUtil;
     }
@@ -45,11 +55,25 @@ public class CertificateViewRepository {
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String userName = auth.getName();
+        if( userName == null) {
+            LOG.warn("Current user == null!");
+            throw new UsernameNotFoundException("Current user == null!");
+        }
+
+        Optional<User> optCurrentUser = userRepository.findOneByLogin(userName);
+        if(!optCurrentUser.isPresent()) {
+            LOG.warn("Name of ra officer '{}' not found as user", userName);
+            throw new UsernameNotFoundException("Current user == null!");
+        }
+
         return CertificateSpecifications.handleQueryParamsCertificateView(entityManager,
             cb,
             parameterMap,
             certificateSelectionAttributeList.getCertificateSelectionAttributes(),
-            certificateRepository);
+            certificateRepository,
+            optCurrentUser.get());
 
     }
 

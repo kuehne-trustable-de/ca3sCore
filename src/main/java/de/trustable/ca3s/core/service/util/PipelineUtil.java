@@ -35,6 +35,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -156,6 +157,8 @@ public class PipelineUtil {
 
     final private AuditTraceRepository auditTraceRepository;
 
+    final private TenantRepository tenantRepository;
+
     final private RequestProxyConfigRepository requestProxyConfigRepository;
 
     final private String defaultKeySpec;
@@ -173,7 +176,7 @@ public class PipelineUtil {
                         ConfigUtil configUtil,
                         AuditService auditService,
                         AuditTraceRepository auditTraceRepository,
-                        RequestProxyConfigRepository requestProxyConfigRepository,
+                        TenantRepository tenantRepository, RequestProxyConfigRepository requestProxyConfigRepository,
                         @Value("${ca3s.keyspec.default:RSA_4096}") String defaultKeySpec) {
 
         this.certRepository = certRepository;
@@ -189,6 +192,7 @@ public class PipelineUtil {
         this.configUtil = configUtil;
         this.auditService = auditService;
         this.auditTraceRepository = auditTraceRepository;
+        this.tenantRepository = tenantRepository;
         this.requestProxyConfigRepository = requestProxyConfigRepository;
         this.defaultKeySpec = defaultKeySpec;
     }
@@ -321,8 +325,13 @@ public class PipelineUtil {
         pv.setWebConfigItems(webConfigItems);
 
         ARARestriction[] araRestrictions = initAraRestrictions(pipeline);
-
         pv.setAraRestrictions(araRestrictions);
+
+        Tenant[] allTenants = tenantRepository.findAll().toArray(new Tenant[0]);
+        pv.setAllTenantList(allTenants);
+
+        Tenant[] selectedTenants = pipeline.getTenants().toArray(new Tenant[0]);
+        pv.setSelectedTenantList(selectedTenants);
 
         return pv;
     }
@@ -901,6 +910,28 @@ public class PipelineUtil {
             }
         }
 
+        if( pv.getSelectedTenantList() != null){
+
+            List<Tenant> tenantList = Arrays.asList(pv.getSelectedTenantList());
+
+            List<Tenant> listOfAdditionalItems = tenantList.stream()
+                .filter(item -> !p.getTenants().contains(item)).collect(Collectors.toList());
+
+            for(Tenant t: listOfAdditionalItems) {
+                auditList.add(auditService.createAuditTracePipelineAttribute("TENANT", "", "" + t.getId(), p));
+            }
+
+            List<Tenant> listOfRemovedItems = p.getTenants().stream()
+                .filter(item -> !tenantList.contains(item)).collect(Collectors.toList());
+
+            for(Tenant t: listOfRemovedItems) {
+                auditList.add(auditService.createAuditTracePipelineAttribute("TENANT", "" + t.getId(),"", p));
+            }
+
+            if( !listOfAdditionalItems.isEmpty() || !listOfRemovedItems.isEmpty()) {
+                p.setTenants(new HashSet(tenantList));
+            }
+        }
 
         auditTraceForAttributes(p, auditList, pipelineOldAttributes);
 

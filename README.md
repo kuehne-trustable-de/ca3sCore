@@ -4,7 +4,7 @@
 
 ca3s is a CA support system with a flexible RA part using BPM aiming to automate as much as possible.
 Therefore providing ACME and SCEP interfaces in addition to the usual web form. Aggregating certificate sets
-from different sources and using CMP-connected CAs or ADCS instances for certificate creation.</span>
+from different sources and using CMP-connected CAs or ADCS instances for certificate creation.
 
 ### The feature list
 

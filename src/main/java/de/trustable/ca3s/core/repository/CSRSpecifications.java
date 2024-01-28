@@ -5,6 +5,7 @@ import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.service.dto.CSRView;
 import de.trustable.ca3s.core.service.dto.Selector;
+import de.trustable.ca3s.core.web.rest.util.CurrentUserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.*;
@@ -34,7 +35,16 @@ public final class CSRSpecifications {
                                                          CriteriaBuilder cb,
                                                          Map<String, String[]> parameterMap,
                                                          List<String> csrSelectionAttributes,
-                                                         List<Long> pipelineIds) {
+                                                         List<Long> pipelineIds,
+                                                         User user) {
+
+        boolean useTenant = true;
+        if( CurrentUserUtil.isAdministrativeUser(user) ){
+            useTenant = false;
+        }else if( user.getTenant() == null ){
+            // null == default tenant
+            useTenant = false;
+        }
 
         CriteriaQuery<Object[]> query = cb.createQuery(Object[].class);
         Root<CSR> root = query.from(CSR.class);
@@ -131,6 +141,13 @@ public final class CSRSpecifications {
             } else {
                 pred = cb.and(pred, predPart);
             }
+        }
+
+        if( useTenant ){
+            logger.debug("build additional predicate tenant '{}'", user.getTenant());
+            pred = addTenantClause(cb, user, root, pred);
+        }else{
+            logger.debug("useTenant == false");
         }
 
         query.where(pred);
@@ -230,6 +247,13 @@ public final class CSRSpecifications {
             }
         }
 
+        if( useTenant ){
+            logger.debug("build additional predicate tenant '{}'", user.getTenant());
+            predCount = addTenantClause(cb, user, root, predCount);
+        }else{
+            logger.debug("useTenant == false");
+        }
+
         queryCount.select(cb.count(iRoot));
 
         queryCount.where(predCount);
@@ -239,6 +263,11 @@ public final class CSRSpecifications {
 
         return new PageImpl<>(certViewList, pageable, nTotalElements);
 
+    }
+
+
+    private static Predicate addTenantClause(CriteriaBuilder cb, User user, Root<CSR> root, Predicate predicate) {
+        return cb.and(predicate, cb.equal(root.get(CSR_.tenant), user.getTenant()));
     }
 
     private static CSRView buildCSRViewFromObjArr(ArrayList<String> colList, Object[] objArr) {

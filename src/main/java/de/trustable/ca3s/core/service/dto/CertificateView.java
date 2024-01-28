@@ -193,6 +193,12 @@ public class CertificateView implements Serializable {
     private String requestedBy;
 
     @CsvBindByName
+    private String tenantName;
+
+    @CsvIgnore
+    private Long tenantÎd;
+
+    @CsvBindByName
     private String crlUrl;
 
     @CsvIgnore
@@ -268,6 +274,14 @@ public class CertificateView implements Serializable {
     	} else {
     		this.requestedBy = "";
     	}
+
+        if( cert.getTenant() != null ){
+            this.tenantName = cert.getTenant().getLongname();
+            this.tenantÎd = cert.getTenant().getId();
+        }else{
+            this.tenantName = "";
+            this.tenantÎd = 0L;
+        }
 
         this.root = "";
         this.intermediate = false;
@@ -722,7 +736,23 @@ public class CertificateView implements Serializable {
 		this.requestedBy = requestedBy;
 	}
 
-	public String getDownloadFilename() {
+    public String getTenantName() {
+        return tenantName;
+    }
+
+    public void setTenantName(String tenantName) {
+        this.tenantName = tenantName;
+    }
+
+    public Long getTenantÎd() {
+        return tenantÎd;
+    }
+
+    public void setTenantÎd(Long tenantÎd) {
+        this.tenantÎd = tenantÎd;
+    }
+
+    public String getDownloadFilename() {
 		return downloadFilename;
 	}
 

@@ -359,7 +359,9 @@ public class CertificateUtil {
         Certificate currentRecipientCert = null;
         for (Certificate recCert : certList) {
 
-            if (!recCert.isRevoked() && now.isAfter(recCert.getValidFrom())) {
+            if (!recCert.isRevoked() &&
+                now.isAfter(recCert.getValidFrom()) &&
+                now.isBefore(recCert.getValidTo())) {
                 if (currentRecipientCert == null) {
                     currentRecipientCert = recCert;
                 } else {
@@ -671,6 +673,8 @@ public class CertificateUtil {
         if (csr == null || cert == null) {
             return;
         }
+
+        cert.setTenant(csr.getTenant());
 
         if (!StringUtils.isBlank(csr.getRequestedBy())) {
             setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_REQUESTED_BY, csr.getRequestedBy());

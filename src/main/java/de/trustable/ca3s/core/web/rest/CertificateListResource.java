@@ -62,10 +62,11 @@ public class CertificateListResource {
     @GetMapping("/certificateList")
     public ResponseEntity<List<CertificateView>> getAllCertificates(Pageable pageable, HttpServletRequest request) {
         log.debug("REST request to get a page of CertificateViews");
-        Page<CertificateView> page = certificateViewRepository.findSelection(request.getParameterMap());
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
 
+        Page<CertificateView> page = certificateViewRepository.findSelection(request.getParameterMap());
         List<CertificateView> cvList = getFullCertificateViews(page);
+
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
 
         return ResponseEntity.ok().headers(headers).body(cvList);
     }
@@ -113,6 +114,11 @@ public class CertificateListResource {
         }
 
         return ResponseEntity.ok().contentType(TEXT_CSV_TYPE).body(writer.toString());
+    }
+
+    public List<CertificateView> getFullCVList(Map<String, String[]> parameterMap){
+        Page<CertificateView> page = certificateViewRepository.findSelection(parameterMap);
+        return getFullCertificateViews(page);
     }
 
     @NotNull

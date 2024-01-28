@@ -288,6 +288,9 @@ public class Certificate implements Serializable {
     @Column(name = "content", nullable = false)
     private String content;
 
+    @ManyToOne
+    private Tenant tenant;
+
     @JsonIgnoreProperties(value = { "comment", "rdns", "ras", "csrAttributes", "pipeline", "certificate" }, allowSetters = true)
     @OneToOne
     @JoinColumn(unique = true)
@@ -818,6 +821,20 @@ public class Certificate implements Serializable {
 
     public Certificate revocationCA(CAConnectorConfig cAConnectorConfig) {
         this.setRevocationCA(cAConnectorConfig);
+        return this;
+    }
+
+
+    public Tenant getTenant() {
+        return this.tenant;
+    }
+
+    public void setTenant(Tenant tenant) {
+        this.tenant = tenant;
+    }
+
+    public Certificate tenant(Tenant tenant) {
+        this.setTenant(tenant);
         return this;
     }
 

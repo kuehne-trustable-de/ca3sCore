@@ -59,6 +59,9 @@ public class CSRView implements Serializable {
     private String requestedBy;
 
     @CsvBindByName
+    private String tenantName;
+
+    @CsvBindByName
     private String processingCA;
 
     @CsvBindByName
@@ -143,6 +146,12 @@ public class CSRView implements Serializable {
 
         this.requestedOn = csr.getRequestedOn();
         this.requestedBy = csr.getRequestedBy();
+
+        if( csr.getTenant() != null ){
+            this.tenantName = csr.getTenant().getLongname();
+        }else{
+            this.tenantName = "";
+        }
 
         Set<CsrAttribute> attributes = csr.getCsrAttributes();
         List<String> sanList = new ArrayList<>();
@@ -353,7 +362,15 @@ public class CSRView implements Serializable {
 		this.requestedBy = requestedBy;
 	}
 
-	public String getSans() {
+    public String getTenantName() {
+        return tenantName;
+    }
+
+    public void setTenantName(String tenantName) {
+        this.tenantName = tenantName;
+    }
+
+    public String getSans() {
 		return sans;
 	}
 

@@ -45,6 +45,7 @@
                     </dt>
                     <dd>
                         <span>{{ icsrView.requestedBy }}</span>
+                        <span v-if="icsrView.tenantName"> / {{icsrView.tenantName}}</span>
                     </dd>
 
                     <dt>

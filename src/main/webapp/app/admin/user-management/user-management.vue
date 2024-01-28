@@ -46,10 +46,14 @@
               <span v-text="$t('userManagement.lastModifiedBy')">Last Modified By</span>
               <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'lastModifiedBy'"></jhi-sort-indicator>
             </th>
-            <th scope="col" id="modified-date-sort" v-on:click="changeOrder('lastModifiedDate')">
-              <span v-text="$t('userManagement.lastModifiedDate')">Last Modified Date</span>
-              <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'lastModifiedDate'"></jhi-sort-indicator>
-            </th>
+              <th scope="col" id="modified-date-sort" v-on:click="changeOrder('lastModifiedDate')">
+                  <span v-text="$t('userManagement.lastModifiedDate')">Last Modified Date</span>
+                  <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'lastModifiedDate'"></jhi-sort-indicator>
+              </th>
+              <th scope="col" id="modified-date-sort" v-on:click="changeOrder('tenantName')">
+                  <span v-text="$t('userManagement.tenant')">Last Modified Date</span>
+                  <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'tenantName'"></jhi-sort-indicator>
+              </th>
             <th scope="col"></th>
           </tr>
         </thead>
@@ -90,6 +94,7 @@
             <td>{{ user.lastModifiedBy }}</td>
             <td v-if="user.lastModifiedDate">{{ $d(Date.parse(user.lastModifiedDate), 'short') }}</td>
             <td v-else>{{ user.lastModifiedDate | formatDate }}</td>
+            <td>{{ user.tenantName }}</td>
             <td class="text-right">
               <div class="btn-group">
                 <router-link :to="{ name: 'JhiUserView', params: { userId: user.login } }" custom v-slot="{ navigate }">

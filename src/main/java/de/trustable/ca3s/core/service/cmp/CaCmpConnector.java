@@ -74,8 +74,6 @@ public class CaCmpConnector {
         this.protUtil = protUtil;
         this.certificateRepository = certificateRepository;
         this.caConnectorConfigUtil = caConnectorConfigUtil;
-
-        LOGGER.info("CaCmpConnector cTor ...");
 	}
 
     private CMPClientImpl getCMPClient(CAConnectorConfig caConnConfig) throws GeneralSecurityException {

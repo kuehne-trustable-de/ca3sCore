@@ -255,9 +255,31 @@ export default class JhiNavbar extends Vue {
     window.console.warn('headerColor: #00ffff');
     return '#8fffff';
   }
-
   public get username(): string {
     return this.$store.getters.account ? this.$store.getters.account.login : '';
+  }
+
+  public hasTenant(): boolean {
+    if (this.$store.getters.account === undefined) {
+      return false;
+    }
+
+    if (this.$store.getters.account.tenant === undefined) {
+      return false;
+    }
+
+    if (this.$store.getters.account.tenant.length() === 0) {
+      return false;
+    }
+    return true;
+  }
+  public get tenant(): string {
+    if (this.hasTenant()) {
+      window.console.warn('hasTenant ' + this.$store.getters.account.tenant);
+      return this.$store.getters.account.tenant;
+    }
+    window.console.warn('hasTenant: false');
+    return '';
   }
 
   public get roles(): string {

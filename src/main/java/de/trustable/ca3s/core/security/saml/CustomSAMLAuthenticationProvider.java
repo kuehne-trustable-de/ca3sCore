@@ -1,10 +1,14 @@
 package de.trustable.ca3s.core.security.saml;
 
 import de.trustable.ca3s.core.config.saml.SAMLMappingConfig;
+import de.trustable.ca3s.core.config.util.SPeLUtil;
 import de.trustable.ca3s.core.domain.Authority;
+import de.trustable.ca3s.core.domain.Tenant;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.domain.UserPreference;
+import de.trustable.ca3s.core.exception.TenantNotFoundException;
 import de.trustable.ca3s.core.repository.AuthorityRepository;
+import de.trustable.ca3s.core.repository.TenantRepository;
 import de.trustable.ca3s.core.repository.UserPreferenceRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.dto.Languages;
@@ -25,6 +29,7 @@ import org.thymeleaf.util.StringUtils;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static de.trustable.ca3s.core.domain.UserPreference.USER_PREFERENCE_SAML_ID;
 
@@ -36,7 +41,8 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
     final private UserPreferenceRepository userPreferenceRepository;
     final private UserRepository userRepository;
     final private AuthorityRepository authorityRepository;
-
+    final private TenantRepository tenantRepository;
+    final private SPeLUtil sPeLUtil;
     private final Languages languages;
 
     private final SAMLMappingConfig samlMappingConfig;
@@ -44,11 +50,15 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
     public CustomSAMLAuthenticationProvider(UserPreferenceRepository userPreferenceRepository,
                                             UserRepository userRepository,
                                             AuthorityRepository authorityRepository,
+                                            TenantRepository tenantRepository,
+                                            SPeLUtil sPeLUtil,
                                             String availableLanguages,
                                             SAMLMappingConfig samlMappingConfig) {
         this.userPreferenceRepository = userPreferenceRepository;
         this.userRepository = userRepository;
         this.authorityRepository = authorityRepository;
+        this.tenantRepository = tenantRepository;
+        this.sPeLUtil = sPeLUtil;
         this.languages = new Languages(availableLanguages);
         this.samlMappingConfig = samlMappingConfig;
     }
@@ -100,7 +110,7 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
 
                 user.setLangKey(languages.alignLanguage("en"));
 
-                updateUserFromKeycloak(id, credential, user);
+                updateUserFromSAMLCredentials(id, credential, user);
 
                 UserPreference userPreference = new UserPreference();
                 userPreference.setUserId(user.getId());
@@ -110,14 +120,19 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
                 LOG.info("created new user {}", user.getId());
             }else{
                 User user = userOptional.get();
-                updateUserFromKeycloak(id, credential, user);
+                updateUserFromSAMLCredentials(id, credential, user);
                 LOG.info("updated known user {}", user.getId());
             }
         }
     }
 
-    private void updateUserFromKeycloak(final String effLoginName, final SAMLCredential credential, final User user) {
+    private void updateUserFromSAMLCredentials(final String effLoginName, final SAMLCredential credential, final User user) {
         boolean update = false;
+
+        String firstNameOld = user.getFirstName();
+        String lastNameOld = user.getLastName();
+        String emailOld = user.getEmail();
+        Tenant tenantOld = user.getTenant();
 
         if(!StringUtils.equals(user.getLogin(), effLoginName)){
             LOG.info("oidc data updates user name from '{}' to '{}'", user.getLogin(), effLoginName);
@@ -133,27 +148,59 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
         List attributesFirstNameList = Arrays.asList( samlMappingConfig.getAttributesFirstName());
         List attributesLastNameList = Arrays.asList( samlMappingConfig.getAttributesLastName());
         List attributesEmailList = Arrays.asList( samlMappingConfig.getAttributesEmail());
+        List attributesTenantList = Arrays.asList( samlMappingConfig.getAttributesTenant());
 
+        HashMap<String, List<String>> attributeMap = new HashMap();
         for(Attribute attribute: credential.getAttributes()){
+
+            attributeMap.put(attribute.getName(), fromXMLObjectList(attribute.getAttributeValues()));
 
             if( attributesFirstNameList.contains(attribute.getName())){
                 if( !attribute.getAttributeValues().isEmpty()) {
                     user.setFirstName(fromXMLObject(attribute.getAttributeValues().get(0)));
-                    update = true;
                 }
             }
             if( attributesLastNameList.contains(attribute.getName())){
                 if( !attribute.getAttributeValues().isEmpty()) {
                     user.setLastName(fromXMLObject(attribute.getAttributeValues().get(0)));
-                    update = true;
                 }
             }
             if( attributesEmailList.contains(attribute.getName())){
                 if( !attribute.getAttributeValues().isEmpty()) {
                     user.setEmail(fromXMLObject(attribute.getAttributeValues().get(0)));
-                    update = true;
                 }
             }
+            if( attributesTenantList.contains(attribute.getName())){
+                if( !attribute.getAttributeValues().isEmpty()) {
+                    String tenantName = fromXMLObject(attribute.getAttributeValues().get(0));
+                    user.setTenant(findTenantByName(tenantName));
+                }
+            }
+
+        }
+
+        if (samlMappingConfig.getExprFirstName() != null && !samlMappingConfig.getExprFirstName().isEmpty()) {
+            user.setFirstName(sPeLUtil.evaluateExpression(attributeMap, samlMappingConfig.getExprFirstName()));
+        }
+
+        if (samlMappingConfig.getExprLastName() != null && !samlMappingConfig.getExprLastName().isEmpty()) {
+            user.setLastName(sPeLUtil.evaluateExpression(attributeMap, samlMappingConfig.getExprLastName()));
+        }
+
+        if (samlMappingConfig.getExprEmail() != null && !samlMappingConfig.getExprEmail().isEmpty()) {
+            user.setEmail(sPeLUtil.evaluateExpression(attributeMap, samlMappingConfig.getExprEmail()));
+        }
+
+        if (samlMappingConfig.getExprTenant() != null && !samlMappingConfig.getExprTenant().isEmpty()) {
+            String tenantName = sPeLUtil.evaluateExpression(attributeMap, samlMappingConfig.getExprTenant());
+            user.setTenant(findTenantByName(tenantName));
+        }
+
+        if(firstNameOld != user.getFirstName() ||
+            lastNameOld != user.getLastName() ||
+            emailOld != user.getEmail() ||
+            tenantOld != user.getTenant()){
+            update = true;
         }
 
         if(!user.isManagedExternally()){
@@ -185,6 +232,22 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
         }
     }
 
+    private Tenant findTenantByName(String tenantName) {
+        Optional<Tenant> tenantOptional = tenantRepository.findByName(tenantName);
+        if (tenantOptional.isEmpty()) {
+            LOG.info("Unknown tenant: " + tenantName);
+            throw new TenantNotFoundException("Unknown tenant: " + tenantName);
+        } else {
+            Tenant tenant = tenantOptional.get();
+
+            if( !tenant.getActive() ){
+                LOG.info("tenant: " + tenantName + " deactivated");
+                throw new TenantNotFoundException("Unknown tenant: " + tenantName);
+            }
+            return tenant;
+        }
+    }
+
     private String fromXMLObject(XMLObject xmlObject){
         if( xmlObject instanceof XSString){
             return ((XSString)xmlObject).getValue();
@@ -192,4 +255,12 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
             return xmlObject.toString();
         }
     }
+
+    private List<String> fromXMLObjectList(List<XMLObject> xmlObjectList){
+        return
+            xmlObjectList.stream()
+            .map(x -> (fromXMLObject(x)))
+            .collect(Collectors.toList());
+    }
+
 }

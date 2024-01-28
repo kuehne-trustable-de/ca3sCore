@@ -292,6 +292,13 @@ entity ScepOrderAttribute{
   	value0 String
 }
 
+entity Tenant{
+
+    name String required
+    longname String required
+    active Boolean
+}
+
 
 //  status (required, string):  The status of this account.  Possible
 //  values are: "valid", "deactivated", and "revoked".  The value
@@ -526,9 +533,11 @@ relationship ManyToOne {
 
   	Certificate{issuingCertificate} to Certificate
   	Certificate{rootCertificate} to Certificate
-	Certificate{revocationCA} to CAConnectorConfig
+    Certificate{revocationCA} to CAConnectorConfig
+    Certificate{tenant} to Tenant
 
 	CSR{pipeline} to Pipeline
+    CSR{tenant} to Tenant
 
 	Pipeline{caConnector} to CAConnectorConfig
     Pipeline{processInfoCreate} to BPMNProcessInfo
@@ -543,7 +552,7 @@ relationship ManyToOne {
 relationship ManyToMany {
 	Pipeline{algorithms} to AlgorithmRestriction{pipelines}
 	Pipeline{requestProxy} to RequestProxyConfig{pipelines}
-
+    Pipeline{tenants} to Tenant{pipelines}
 }
 
 relationship OneToOne{

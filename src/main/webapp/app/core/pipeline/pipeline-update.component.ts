@@ -25,10 +25,10 @@ import {
 import CAConnectorConfigService from '../../entities/ca-connector-config/ca-connector-config.service';
 import { ICAConnectorConfig } from '@/shared/model/ca-connector-config.model';
 import { IUser } from '@/shared/model/user.model';
+import { ITenant } from '../../shared/model/tenant.model';
 
 import BPNMProcessInfoService from '../../entities/bpnm-process-info/bpnm-process-info.service';
 
-import AlertService from '@/shared/alert/alert.service';
 import AlertMixin from '@/shared/alert/alert.mixin';
 
 import PipelineViewService from './pipelineview.service';
@@ -37,6 +37,7 @@ import HelpTag from '@/core/help/help-tag.vue';
 import AuditTag from '@/core/audit/audit-tag.vue';
 import { mixins } from 'vue-class-component';
 import UserManagementService from '@/admin/user-management/user-management.service';
+import TenantService from '../../user-management/tenant/tenant.service';
 
 const validations: any = {
   pipeline: {
@@ -83,7 +84,10 @@ const validations: any = {
 export default class PipelineUpdate extends mixins(AlertMixin) {
   //  @Inject('alertService') private alertService: () => AlertService;
   @Inject('pipelineViewService') private pipelineViewService: () => PipelineViewService;
+  @Inject('tenantService') private tenantService: () => TenantService;
+
   public pipeline: IPipelineView = new PipelineView();
+  public tenants: ITenant[] = [];
 
   @Inject('requestProxyConfigService') private requestProxyConfigService: () => RequestProxyConfigService;
   @Inject('cAConnectorConfigService') private cAConnectorConfigService: () => CAConnectorConfigService;
@@ -252,6 +256,21 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
       window.console.info('allCertGenerators returns ' + response.data);
       self.allCertGenerators = response.data;
     });
+
+    this.retrieveAllTenants();
+  }
+
+  public retrieveAllTenants(): void {
+    this.tenantService()
+      .retrieve()
+      .then(
+        res => {
+          this.tenants = res.data;
+        },
+        err => {
+          self.alertService().showAlert(err.response, 'warn');
+        }
+      );
   }
 
   public getBPNMProcessInfosByType(type: IBPMNProcessType): IBPMNProcessInfo[] {

@@ -474,8 +474,12 @@
                         </select>
                     </div>
 
-
-
+                    <div class="form-group" v-if="$v.pipeline.type.$model === 'WEB'">
+                        <label v-text="$t('ca3SApp.pipeline.tenants')">Tenants</label>
+                        <select class="form-control" multiple name="selectedTenants" v-model="pipeline.selectedTenantList">
+                            <option v-for="tenant of tenants" :value="tenant" :key="tenant.id">{{ tenant.longname }}</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div v-if="pipeline.id">

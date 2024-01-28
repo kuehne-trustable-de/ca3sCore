@@ -2,8 +2,11 @@ package de.trustable.ca3s.core.web.rest;
 
 import java.util.Optional;
 
+import de.trustable.ca3s.core.domain.Tenant;
+import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.repository.AuditTraceRepository;
 import de.trustable.ca3s.core.repository.CertificateViewRepository;
+import de.trustable.ca3s.core.web.rest.util.CurrentUserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,9 +17,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.service.CertificateService;
 import de.trustable.ca3s.core.service.dto.CertificateView;
+import org.springframework.web.client.HttpClientErrorException;
 
 /**
  * REST controller for reading {@link de.trustable.ca3s.core.domain.Certificate} using the convenient CertificateView object.
@@ -27,7 +30,7 @@ import de.trustable.ca3s.core.service.dto.CertificateView;
 @RequestMapping("/api")
 public class CertificateViewResource {
 
-    private final Logger log = LoggerFactory.getLogger(CertificateViewResource.class);
+    private final Logger LOG = LoggerFactory.getLogger(CertificateViewResource.class);
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
@@ -36,11 +39,14 @@ public class CertificateViewResource {
 
     private final CertificateViewRepository certificateViewRepository;
 
+    private final CurrentUserUtil currentUserUtil;
+
     private final  AuditTraceRepository auditTraceRepository;
 
-    public CertificateViewResource(CertificateService certificateService, CertificateViewRepository certificateViewRepository, AuditTraceRepository auditTraceRepository) {
+    public CertificateViewResource(CertificateService certificateService, CertificateViewRepository certificateViewRepository, CurrentUserUtil currentUserUtil, AuditTraceRepository auditTraceRepository) {
         this.certificateService = certificateService;
         this.certificateViewRepository = certificateViewRepository;
+        this.currentUserUtil = currentUserUtil;
         this.auditTraceRepository = auditTraceRepository;
     }
 
@@ -52,15 +58,33 @@ public class CertificateViewResource {
      */
     @GetMapping("/certificateViews/{id}")
     public ResponseEntity<CertificateView> getCertificate(@PathVariable Long id) {
-        log.debug("REST request to get CertificateView : {}", id);
+        LOG.debug("REST request to get CertificateView : {}", id);
 
         Optional<CertificateView> optCert = certificateViewRepository.findbyCertificateId(id);
 
         if( optCert.isPresent() ) {
+            checkTenant(optCert.get());
     		return new ResponseEntity<>(optCert.get(), HttpStatus.OK);
         }
 
 		return ResponseEntity.notFound().build();
     }
+
+    private void checkTenant(CertificateView certView) {
+        if( !currentUserUtil.isAdministrativeUser() ){
+            User currentUser = currentUserUtil.getCurrentUser();
+            Tenant tenant = currentUser.getTenant();
+            if( tenant == null ) {
+                // null == default tenant
+            } else if( tenant.getId() != certView.getTenantÎd() ){
+                if( certView.getEndEntity()) {
+                    LOG.info("user [{}] tried to download EE certificate [{}] of tenant [{}]",
+                        currentUser.getLogin(), certView.getId(), tenant.getLongname());
+                    throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+                }
+            }
+        }
+    }
+
 
 }

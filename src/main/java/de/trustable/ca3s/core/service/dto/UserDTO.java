@@ -52,6 +52,10 @@ public class UserDTO {
 
     private Set<String> authorities;
 
+    private String tenantName;
+
+    private Long tenantId;
+
     public UserDTO() {
         // Empty constructor needed for Jackson.
     }
@@ -73,6 +77,10 @@ public class UserDTO {
         this.authorities = user.getAuthorities().stream()
             .map(Authority::getName)
             .collect(Collectors.toSet());
+        if(user.getTenant() != null){
+            this.tenantId = user.getTenant().getId();
+            this.tenantName = user.getTenant().getLongname();
+        }
     }
 
     public Long getId() {
@@ -187,6 +195,22 @@ public class UserDTO {
         this.authorities = authorities;
     }
 
+    public String getTenantName() {
+        return tenantName;
+    }
+
+    public void setTenantName(String tenantName) {
+        this.tenantName = tenantName;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
+
     @Override
     public String toString() {
         return "UserDTO{" +
@@ -203,6 +227,7 @@ public class UserDTO {
             ", lastModifiedDate=" + lastModifiedDate +
             ", isManagedExternally=" + isManagedExternally +
             ", authorities=" + authorities +
+            ", tenant=" + tenantName +
             "}";
     }
 }

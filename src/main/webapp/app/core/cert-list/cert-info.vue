@@ -171,6 +171,7 @@
                         </dt>
                         <dd v-if="certificateView.requestedBy">
                             <span>{{certificateView.requestedBy}}</span>
+                            <span v-if="certificateView.tenantName"> / {{certificateView.tenantName}}</span>
                         </dd>
 
                         <dt v-if="certificateView.requestedOn">

@@ -172,6 +172,9 @@ public class CSR implements Serializable {
     @JsonIgnoreProperties({"csr"})
     private Set<CsrAttribute> csrAttributes = new HashSet<>();
 
+    @ManyToOne
+    private Tenant tenant;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties("cSRS")
     private Pipeline pipeline;
@@ -643,6 +646,20 @@ public class CSR implements Serializable {
         this.setCertificate(certificate);
         return this;
     }
+
+    public Tenant getTenant() {
+        return this.tenant;
+    }
+
+    public void setTenant(Tenant tenant) {
+        this.tenant = tenant;
+    }
+
+    public CSR tenant(Tenant tenant) {
+        this.setTenant(tenant);
+        return this;
+    }
+
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 

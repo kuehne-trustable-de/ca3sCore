@@ -34,9 +34,12 @@ import java.security.cert.X509Certificate;
 import java.util.*;
 
 import de.trustable.ca3s.core.config.CryptoConfiguration;
+import de.trustable.ca3s.core.domain.Tenant;
+import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.security.SecurityUtils;
 import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.web.rest.util.CurrentUserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -78,6 +81,8 @@ public class CertificateDownloadController {
 
     private final ProtectedContentUtil protContentUtil;
 
+    private final CurrentUserUtil currentUserUtil;
+
     private final AuditService auditService;
 
     private final boolean pkcs12LogDownload;
@@ -87,12 +92,13 @@ public class CertificateDownloadController {
                                          CertificateRepository certificateRepository,
                                          CertificateUtil certUtil,
                                          ProtectedContentUtil protContentUtil,
-                                         AuditService auditService,
+                                         CurrentUserUtil currentUserUtil, AuditService auditService,
                                          @Value("${ca3s.ui.pkcs12.log.download:true}") boolean pkcs12LogDownload) {
         this.cryptoConfiguration = cryptoConfiguration;
         this.certificateRepository = certificateRepository;
         this.certUtil = certUtil;
         this.protContentUtil = protContentUtil;
+        this.currentUserUtil = currentUserUtil;
         this.auditService = auditService;
         this.pkcs12LogDownload = pkcs12LogDownload;
     }
@@ -238,6 +244,7 @@ public class CertificateDownloadController {
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         } else {
             Certificate certDao = certOpt.get();
+            checkTenant(certDao);
 
             final HttpHeaders headers = new HttpHeaders();
             headers.set("content-disposition", "inline; filename=\"" + filename + "\"");
@@ -275,6 +282,8 @@ public class CertificateDownloadController {
         } else {
             Certificate certDao = certOpt.get();
 
+            checkTenant(certDao);
+
             final HttpHeaders headers = new HttpHeaders();
             headers.set("content-disposition", "inline; filename=\"" + filename + "\"");
 
@@ -285,6 +294,22 @@ public class CertificateDownloadController {
             }
 
             throw new HttpClientErrorException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+        }
+    }
+
+    private void checkTenant(Certificate cert) {
+        if( !currentUserUtil.isAdministrativeUser() ){
+            User currentUser = currentUserUtil.getCurrentUser();
+            Tenant tenant = currentUser.getTenant();
+            if( tenant == null ) {
+                // null == default tenant
+            } else if( !tenant.equals(cert.getTenant())){
+                if( cert.isEndEntity()) {
+                    LOG.info("user [{}] tried to download EE certificate [{}] of tenant [{}]",
+                        currentUser.getLogin(), cert.getId(), tenant.getLongname());
+                    throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+                }
+            }
         }
     }
 

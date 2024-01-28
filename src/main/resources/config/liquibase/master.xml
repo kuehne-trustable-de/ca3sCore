@@ -154,8 +154,6 @@
 
     <include file="config/liquibase/changelog/20240114180000_added_relation_pipeline_bpmn_notify_authorize.xml" relativeToChangelogFile="false"/>
 
-
-
-
+    <include file="config/liquibase/changelog/20240122180000_added_entity_Tenant.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>

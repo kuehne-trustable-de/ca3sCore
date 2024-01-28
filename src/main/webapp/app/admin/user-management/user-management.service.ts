@@ -24,7 +24,7 @@ export default class UserManagementService {
   }
 
   public retrieveAuthorities(): Promise<any> {
-    return axios.get('api/authorities');
+    return axios.get('api/users/authorities');
   }
 
   public retrieveUsersByRole(role: string): Promise<any> {

@@ -15,6 +15,8 @@ import { faSave } from '@fortawesome/free-solid-svg-icons/faSave';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import { faPencilAlt } from '@fortawesome/free-solid-svg-icons/faPencilAlt';
 import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
+import { faTools } from '@fortawesome/free-solid-svg-icons/faTools';
+import { faSitemap } from '@fortawesome/free-solid-svg-icons/faSitemap';
 import { faHdd } from '@fortawesome/free-solid-svg-icons/faHdd';
 import { faTachometerAlt } from '@fortawesome/free-solid-svg-icons/faTachometerAlt';
 import { faHeart } from '@fortawesome/free-solid-svg-icons/faHeart';
@@ -71,7 +73,7 @@ const dateTimeFormats = {
       month: 'short',
       day: 'numeric',
       hour: 'numeric',
-      minute: 'numeric'
+      minute: 'numeric',
     },
     medium: {
       year: 'numeric',
@@ -79,7 +81,7 @@ const dateTimeFormats = {
       day: 'numeric',
       weekday: 'short',
       hour: 'numeric',
-      minute: 'numeric'
+      minute: 'numeric',
     },
     long: {
       year: 'numeric',
@@ -87,8 +89,8 @@ const dateTimeFormats = {
       day: 'numeric',
       weekday: 'long',
       hour: 'numeric',
-      minute: 'numeric'
-    }
+      minute: 'numeric',
+    },
   },
   en: {
     short: {
@@ -96,7 +98,7 @@ const dateTimeFormats = {
       month: 'short',
       day: 'numeric',
       hour: 'numeric',
-      minute: 'numeric'
+      minute: 'numeric',
     },
     medium: {
       year: 'numeric',
@@ -104,7 +106,7 @@ const dateTimeFormats = {
       day: 'numeric',
       weekday: 'short',
       hour: 'numeric',
-      minute: 'numeric'
+      minute: 'numeric',
     },
     long: {
       year: 'numeric',
@@ -112,8 +114,8 @@ const dateTimeFormats = {
       day: 'numeric',
       weekday: 'long',
       hour: 'numeric',
-      minute: 'numeric'
-    }
+      minute: 'numeric',
+    },
   },
   pl: {
     short: {
@@ -121,7 +123,7 @@ const dateTimeFormats = {
       month: 'short',
       day: 'numeric',
       hour: 'numeric',
-      minute: 'numeric'
+      minute: 'numeric',
     },
     medium: {
       year: 'numeric',
@@ -129,7 +131,7 @@ const dateTimeFormats = {
       day: 'numeric',
       weekday: 'short',
       hour: 'numeric',
-      minute: 'numeric'
+      minute: 'numeric',
     },
     long: {
       year: 'numeric',
@@ -137,9 +139,9 @@ const dateTimeFormats = {
       day: 'numeric',
       weekday: 'long',
       hour: 'numeric',
-      minute: 'numeric'
-    }
-  }
+      minute: 'numeric',
+    },
+  },
   // jhipster-needle-i18n-language-date-time-format - JHipster will add/remove format options in this object
 };
 
@@ -164,7 +166,9 @@ export function initFortAwesome(vue) {
     faPlus,
     faMinus,
     faPencilAlt,
+    faTools,
     faUser,
+    faSitemap,
     faTachometerAlt,
     faHeart,
     faList,
@@ -210,7 +214,7 @@ export function initI18N(vue) {
   return new VueI18n({
     dateTimeFormats,
     silentTranslationWarn: true,
-    formatter: new JhiFormatter()
+    formatter: new JhiFormatter(),
   });
 }
 
@@ -221,7 +225,7 @@ export function initVueXStore(vue) {
       accountStore,
       alertStore,
       translationStore,
-      uiConfigStore
-    }
+      uiConfigStore,
+    },
   });
 }

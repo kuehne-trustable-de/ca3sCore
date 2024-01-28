@@ -8,7 +8,7 @@ import {
   ISelector,
   ICertificateSelectionData,
   ICSRView,
-  IPipelineView
+  IPipelineView,
 } from '@/shared/model/transfer-object.model';
 
 import PipelineViewService from '../pipeline/pipelineview.service';
@@ -32,7 +32,7 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('requests-table
   tableType
     .setFilterHandler((source, filter, columns) => ({
       // See https://documenter.getpostman.com/view/2025350/RWaEzAiG#json-field-masking
-      filter: columns.map(col => colFieldToStr(col.field!).replace(/\./g, '/')).join(',')
+      filter: columns.map(col => colFieldToStr(col.field!).replace(/\./g, '/')).join(','),
     }))
 
     .setSortHandler((endpointDesc, sortColumn, sortDir) => ({
@@ -41,9 +41,9 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('requests-table
       ...(sortColumn && sortDir
         ? {
             order: sortDir,
-            sort: colFieldToStr(sortColumn.field!).replace(/\./g, '/')
+            sort: colFieldToStr(sortColumn.field!).replace(/\./g, '/'),
           }
-        : {})
+        : {}),
     }))
 
     .setPaginateHandler((endpointDesc, perPage, pageIndex) => ({
@@ -52,9 +52,9 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('requests-table
       ...(perPage !== null
         ? {
             limit: perPage || 20,
-            offset: (pageIndex - 1) * perPage || 0
+            offset: (pageIndex - 1) * perPage || 0,
           }
-        : {})
+        : {}),
     }))
 
     // Alias our process steps, because the source, here, is our API url, and paged is the complete query string
@@ -66,12 +66,12 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('requests-table
         // Data to display
         data,
         // Get the total number of matched items
-        headers: { 'x-total-count': totalCount }
+        headers: { 'x-total-count': totalCount },
       } = await axios.get(url);
 
       return {
         rows: data,
-        totalRowCount: parseInt(totalCount, 10)
+        totalRowCount: parseInt(totalCount, 10),
       } as ITableContentParam<ICSRView>;
     })
     .mergeSettings({
@@ -80,19 +80,19 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('requests-table
         sorting: {
           sortAsc: '<img src="../../../content/images/caret-up-solid.png" alt="asc">',
           sortDesc: '<img src="../../../content/images/caret-down-solid.png" alt="desc">',
-          sortNone: ''
-        }
+          sortNone: '',
+        },
       },
       pager: {
         classes: {
           pager: 'pagination text-center',
-          selected: 'active'
+          selected: 'active',
         },
         icons: {
           next: '<img src="../../../content/images/chevron-right-solid.png" alt=">">',
-          previous: '<img src="../../../content/images/chevron-left-solid.png" alt="<">'
-        }
-      }
+          previous: '<img src="../../../content/images/chevron-left-solid.png" alt="<">',
+        },
+      },
     })
 );
 
@@ -122,7 +122,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
       itemType: 'set',
       itemDefaultSelector: 'EQUAL',
       itemDefaultValue: 'PENDING',
-      values: ['PENDING', 'ISSUED', 'REJECTED', 'PROCESSING']
+      values: ['PENDING', 'ISSUED', 'REJECTED', 'PROCESSING'],
     },
     { itemName: 'subject', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable' },
     { itemName: 'sans', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable' },
@@ -134,7 +134,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
     { itemName: 'requestedBy', itemType: 'string', itemDefaultSelector: 'EQUAL', itemDefaultValue: '{user}' },
     { itemName: 'acceptedBy', itemType: 'string', itemDefaultSelector: 'EQUAL', itemDefaultValue: '{user}' },
     { itemName: 'rejectedOn', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}' },
-    { itemName: 'rejectionReason', itemType: 'string', itemDefaultSelector: 'EQUAL', itemDefaultValue: null }
+    { itemName: 'rejectionReason', itemType: 'string', itemDefaultSelector: 'EQUAL', itemDefaultValue: null },
     //    { itemName: 'keyAlgorithm', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'rsa', values: ['rsa', 'dsa', 'ec'] },
     //    { itemName: 'keyLength', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: '2048', values: ['1024', '2048', '3072','4096','256','384','521'] },
     //    { itemName: 'hashAlgorithm', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'sha256', values: ['sha256', 'sha384','sha512','sha1'] },
@@ -146,7 +146,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
     { itemType: 'date', hasValue: true, choices: ['ON', 'BEFORE', 'AFTER'] },
     { itemType: 'boolean', hasValue: false, choices: ['ISTRUE', 'ISFALSE'] },
     { itemType: 'pipelineList', hasValue: true, choices: ['IN', 'NOT_IN'] },
-    { itemType: 'set', hasValue: false, choices: ['EQUAL', 'NOT_EQUAL'] }
+    { itemType: 'set', hasValue: false, choices: ['EQUAL', 'NOT_EQUAL'] },
   ];
 
   public contentAccessUrl: string;
@@ -274,7 +274,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
         { label: this.$t('length'), field: 'keyLength', align: 'right' },
         { label: this.$t('rejectedOn'), field: 'rejectedOn' },
         { label: this.$t('reason'), field: 'rejectionReason' },
-        { label: this.$t('sans'), field: 'sans' }
+        { label: this.$t('sans'), field: 'sans' },
       ] as TColumnsDefinition<ICSRView>,
       page: 1,
       filter: '',
@@ -284,7 +284,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
         window.console.info('selectedPipelines : ' + self.selectedPipelines);
         window.console.info('csrApiUrl returns : ' + self.contentAccessUrl);
         return self.contentAccessUrl;
-      }
+      },
     };
   }
 
@@ -373,8 +373,8 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
     axios({
       method: 'get',
       url: 'api/certificateSelectionAttributes',
-      responseType: 'stream'
-    }).then(function(response) {
+      responseType: 'stream',
+    }).then(function (response) {
       if (response.status === 200) {
         self.certificateSelectionAttributes = response.data;
 
@@ -383,7 +383,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
             itemName: self.certificateSelectionAttributes[i],
             itemType: 'string',
             itemDefaultSelector: 'EQUAL',
-            itemDefaultValue: 'X'
+            itemDefaultValue: 'X',
           });
         }
       }
@@ -397,8 +397,8 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
     axios({
       method: 'get',
       url: 'api/userProperties/filterList/CSRList',
-      responseType: 'stream'
-    }).then(function(response) {
+      responseType: 'stream',
+    }).then(function (response) {
       //      window.console.debug('getUsersFilterList returns ' + response.data );
       if (response.status === 200) {
         self.filters.filterList = response.data.filterList;
@@ -427,8 +427,8 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
         method: 'put',
         url: 'api/userProperties/filterList/CSRList',
         data: self.filters,
-        responseType: 'stream'
-      }).then(function(response) {
+        responseType: 'stream',
+      }).then(function (response) {
         //        window.console.debug('putUsersFilterList returns ' + response.status);
         if (response.status === 204) {
           self.lastFilters = lastFiltersValue;
@@ -440,7 +440,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
   public downloadCSV() {
     const url =
       this.buildAccessUrl('api/csrListCSV') +
-      '&filter=id%2Csubject%2Cissuer%2Ctype%2CkeyLength%2Cserial%2CvalidFrom%2CvalidTo%2ChashAlgorithm%2CpaddingAlgorithm%2Crevoked%2CrevokedSince%2CrevocationReason';
+      '&filter=id%2Cid%2CcertificateId%2Cstatus%2Csubject%2CrequestedOn%2CrequestedBy%2CacceptedBy%2CpipelineName%2CpipelineId%2CpipelineType%2Cx509KeySpec%2CpublicKeyAlgorithm%2CsigningAlgorithm%2CkeyLength%2CrejectedOn%2CrejectionReason%2Csans';
 
     this.download(url, 'csrList.csv', 'text/csv');
   }

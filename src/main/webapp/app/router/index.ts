@@ -31,6 +31,10 @@ const ResetPasswordInit = () => import('../account/reset-password/init/reset-pas
 const ResetPasswordFinish = () => import('../account/reset-password/finish/reset-password-finish.vue');
 const ChangePassword = () => import('../account/change-password/change-password.vue');
 const Settings = () => import('../account/settings/settings.vue');
+
+const TenantComponent = () => import('../admin/tenant/tenant.vue');
+const TenantEditComponent = () => import('../admin/tenant/tenant-update.vue');
+
 const JhiUserManagementComponent = () => import('../admin/user-management/user-management.vue');
 const JhiUserManagementViewComponent = () => import('../admin/user-management/user-management-view.vue');
 const JhiUserManagementEditComponent = () => import('../admin/user-management/user-management-edit.vue');
@@ -427,6 +431,27 @@ export default new Router({
       component: Settings,
       meta: { authorities: ['ROLE_USER', 'ROLE_RA', 'ROLE_RA_DOMAIN'] }
     },
+
+    {
+      path: '/admin/tenant',
+      name: 'Tenant',
+      component: TenantComponent,
+      meta: { authorities: ['ROLE_ADMIN'] }
+    },
+
+    {
+      path: '/admin/tenant/:tenantId/edit',
+      name: 'TenantEdit',
+      component: TenantEditComponent,
+      meta: { authorities: ['ROLE_ADMIN'] }
+    },
+    {
+      path: '/admin/tenant/new',
+      name: 'TenantNew',
+      component: TenantEditComponent,
+      meta: { authorities: ['ROLE_ADMIN'] }
+    },
+
     {
       path: '/admin/user-management',
       name: 'JhiUser',

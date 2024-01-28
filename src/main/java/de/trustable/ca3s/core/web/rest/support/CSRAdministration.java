@@ -18,6 +18,7 @@ import de.trustable.ca3s.core.web.rest.data.AdministrationType;
 import de.trustable.ca3s.core.web.rest.data.CSRAdministrationData;
 import de.trustable.ca3s.core.service.dto.NamedValue;
 import de.trustable.ca3s.core.web.rest.data.CSRAdministrationResponse;
+import de.trustable.ca3s.core.web.rest.util.CurrentUserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -62,7 +63,9 @@ public class CSRAdministration {
 
     private final UserRepository userRepository;
 
-	private final AuditService auditService;
+    private final CurrentUserUtil currentUserUtil;
+
+    private final AuditService auditService;
 
     private final NotificationService notificationService;
 
@@ -76,6 +79,7 @@ public class CSRAdministration {
                              CertificateProcessingUtil cpUtil,
                              PipelineUtil pipelineUtil,
                              UserRepository userRepository,
+                             CurrentUserUtil currentUserUtil,
                              AuditService auditService,
                              NotificationService notificationService,
                              @Value("${ca3s.issuance.ra.self-issuance-allowed:false}") boolean selfIssuanceAllowed
@@ -86,6 +90,7 @@ public class CSRAdministration {
         this.cpUtil = cpUtil;
         this.pipelineUtil = pipelineUtil;
         this.userRepository = userRepository;
+        this.currentUserUtil = currentUserUtil;
         this.auditService = auditService;
         this.notificationService = notificationService;
         this.selfIssuanceAllowed = selfIssuanceAllowed;
@@ -103,24 +108,14 @@ public class CSRAdministration {
 
     	LOG.debug("REST request to reject / accept CSR : {}", adminData);
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String userName = auth.getName();
-        if( userName == null) {
-            LOG.warn("Current user == null!");
-            return ResponseEntity.notFound().build();
-        }
-
-        Optional<User> optCurrentUser = userRepository.findOneByLogin(userName);
-        if(!optCurrentUser.isPresent()) {
-            LOG.warn("Name of ra officer '{}' not found as user", userName);
-            return ResponseEntity.notFound().build();
-        }
+        User currentUser = currentUserUtil.getCurrentUser();
+        String userName = currentUser.getLogin();
 
         Optional<CSR> optCSR = csrRepository.findById(adminData.getCsrId());
     	if( optCSR.isPresent()) {
             CSR csr = optCSR.get();
 
-            if( !pipelineUtil.isUserValidAsRA(csr.getPipeline(), optCurrentUser.get())){
+            if( !pipelineUtil.isUserValidAsRA(csr.getPipeline(), currentUser)){
                 LOG.warn("REST request by user '{}' to accept CSR '{}' is not allowed by the pipeline!", userName, adminData.getCsrId());
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }

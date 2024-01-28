@@ -2,9 +2,10 @@ package de.trustable.ca3s.core.service;
 
 import de.trustable.ca3s.core.config.Constants;
 import de.trustable.ca3s.core.domain.Authority;
+import de.trustable.ca3s.core.domain.Tenant;
 import de.trustable.ca3s.core.domain.User;
-import de.trustable.ca3s.core.exception.PasswordRestrictionMismatch;
 import de.trustable.ca3s.core.repository.AuthorityRepository;
+import de.trustable.ca3s.core.repository.TenantRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.security.SecurityUtils;
@@ -27,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -45,6 +45,8 @@ public class UserService {
 
     private final AuthorityRepository authorityRepository;
 
+    private final TenantRepository tenantRepository;
+
     private final CacheManager cacheManager;
 
     private final PasswordUtil passwordUtil;
@@ -52,11 +54,12 @@ public class UserService {
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        AuthorityRepository authorityRepository,
-                       CacheManager cacheManager,
+                       TenantRepository tenantRepository, CacheManager cacheManager,
                        @Value("${ca3s.ui.password.check.regexp:^(?=.*\\d)(?=.*[a-z]).{6,100}$}") String passwordCheckRegExp) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authorityRepository = authorityRepository;
+        this.tenantRepository = tenantRepository;
         this.cacheManager = cacheManager;
 
         this.passwordUtil = new PasswordUtil(passwordCheckRegExp);
@@ -131,6 +134,9 @@ public class UserService {
         Set<Authority> authorities = new HashSet<>();
         authorityRepository.findById(AuthoritiesConstants.USER).ifPresent(authorities::add);
         newUser.setAuthorities(authorities);
+
+        updateTenant(newUser, userDTO);
+
         userRepository.save(newUser);
         this.clearUserCaches(newUser);
         log.debug("Created Information for User: {}", newUser);
@@ -174,6 +180,9 @@ public class UserService {
                 .collect(Collectors.toSet());
             user.setAuthorities(authorities);
         }
+
+        updateTenant(user, userDTO);
+
         userRepository.save(user);
         this.clearUserCaches(user);
         log.debug("Created Information for User: {}", user);
@@ -188,8 +197,9 @@ public class UserService {
      * @param email     email id of user.
      * @param langKey   language key.
      * @param imageUrl  image URL of user.
+     * @param tenantId
      */
-    public void updateUser(String firstName, String lastName, String email, String langKey, String imageUrl) {
+    public void updateUser(String firstName, String lastName, String email, String langKey, String imageUrl, Long tenantId) {
         SecurityUtils.getCurrentUserLogin()
             .flatMap(userRepository::findOneByLogin)
             .ifPresent(user -> {
@@ -200,6 +210,8 @@ public class UserService {
                 }
                 user.setLangKey(langKey);
                 user.setImageUrl(imageUrl);
+                updateTenant(user, tenantId);
+
                 this.clearUserCaches(user);
                 log.debug("Changed Information for User: {}", user);
             });
@@ -227,6 +239,9 @@ public class UserService {
                 user.setImageUrl(userDTO.getImageUrl());
                 user.setActivated(userDTO.isActivated());
                 user.setLangKey(userDTO.getLangKey());
+
+                updateTenant(user, userDTO);
+
                 Set<Authority> managedAuthorities = user.getAuthorities();
                 managedAuthorities.clear();
                 userDTO.getAuthorities().stream()
@@ -234,11 +249,26 @@ public class UserService {
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .forEach(managedAuthorities::add);
+
                 this.clearUserCaches(user);
                 log.debug("Changed Information for User: {}", user);
                 return user;
             })
             .map(UserDTO::new);
+    }
+
+    private void updateTenant(User user, UserDTO userDTO) {
+        updateTenant( user, userDTO.getTenantId());
+    }
+    private void updateTenant( User user, Long tenantId) {
+        Tenant tenant = null;
+        if( tenantId != null && tenantId != 0L) {
+            Optional<Tenant> optionalTenant = tenantRepository.findById(tenantId);
+            if(optionalTenant.isPresent()){
+                tenant = optionalTenant.get();
+            }
+        }
+        user.setTenant(tenant);
     }
 
     public void deleteUser(String login) {

@@ -11,6 +11,7 @@ import de.trustable.ca3s.core.domain.enumeration.RDNCardinalityRestriction;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.repository.UserPreferenceRepository;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.security.SecurityUtils;
 import de.trustable.ca3s.core.service.UserService;
 import de.trustable.ca3s.core.service.dto.*;
@@ -20,11 +21,14 @@ import de.trustable.ca3s.core.service.util.PipelineUtil;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import de.trustable.ca3s.core.web.rest.CAConnectorConfigResource;
 import de.trustable.ca3s.core.web.rest.data.CertificateFilterList;
+import de.trustable.ca3s.core.web.rest.util.CurrentUserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,6 +64,8 @@ public class UIDatasetSupport {
 
     private final CryptoConfiguration cryptoConfiguration;
 
+    private final CurrentUserUtil currentUserUtil;
+
     private final boolean autoSSOLogin;
 
     private final String[] ssoProvider;
@@ -73,6 +79,7 @@ public class UIDatasetSupport {
                             UserService userService,
                             CertificateSelectionUtil certificateSelectionAttributeList,
                             CryptoConfiguration cryptoConfiguration,
+                            CurrentUserUtil currentUserUtil,
                             @Value("${ca3s.ui.sso.autologin:false}") boolean autoSSOLogin,
                             @Value("${ca3s.ui.sso.provider:}") String[] ssoProvider) {
         this.caConnConfRepo = caConnConfRepo;
@@ -84,6 +91,7 @@ public class UIDatasetSupport {
         this.userService = userService;
         this.certificateSelectionAttributeList = certificateSelectionAttributeList;
         this.cryptoConfiguration = cryptoConfiguration;
+        this.currentUserUtil = currentUserUtil;
         this.autoSSOLogin = autoSSOLogin;
         this.ssoProvider = ssoProvider;
     }
@@ -135,12 +143,20 @@ public class UIDatasetSupport {
     @Transactional
     public List<PipelineView> activeWeb() {
 
+        User currentUser = currentUserUtil.getCurrentUser();
+
         List<PipelineView> pvList = new ArrayList<>();
         if(SecurityUtils.isAuthenticated()){
             List<Pipeline> pipelineList = pipelineRepo.findActiveByType(PipelineType.WEB);
-            pvList = pipelinesToPipelineViews( pipelineList);
+            if( currentUserUtil.isAdministrativeUser(currentUser) ){
+                LOG.debug("returning all web pipelines");
+                pvList = pipelinesToPipelineViews(pipelineList);
+            }else{
+                LOG.debug("returning tenant pipelines");
+                pvList = tenantPipelinesToPipelineViews(currentUser.getTenant(), pipelineList);
+            }
 
-            Collections.sort(pvList,new Comparator(){
+            Collections.sort(pvList, new Comparator(){
                 @Override
                 public int compare(Object o1, Object o2) {
                     PipelineView pv1 = (PipelineView)o1;
@@ -165,6 +181,21 @@ public class UIDatasetSupport {
             public void accept(Pipeline p) {
                 LOG.debug("pipeline {} has #{} attributes", p.getName(), p.getPipelineAttributes().size());
                 pvList.add(pipelineUtil.from(p));
+            }
+        });
+        return pvList;
+    }
+
+    List<PipelineView> tenantPipelinesToPipelineViews( final Tenant tenant, List<Pipeline> pipelineList) {
+
+        List<PipelineView> pvList = new ArrayList<>();
+        pipelineList.forEach(new Consumer<>() {
+            @Override
+            public void accept(Pipeline p) {
+                if( p.getTenants().contains(tenant)) {
+                    LOG.debug("pipeline {} has #{} attributes", p.getName(), p.getPipelineAttributes().size());
+                    pvList.add(pipelineUtil.from(p));
+                }
             }
         });
         return pvList;

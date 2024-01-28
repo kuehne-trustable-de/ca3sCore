@@ -44,7 +44,7 @@
               class="form-control"
               id="firstName"
               name="firstName"
-              v-bind:placeholder="$t('settings.form[\'firstname.placeholder\']')"
+              v-bind:placeholder="$t('settings.form.firstname.placeholder')"
               :class="{ valid: !$v.userAccount.firstName.$invalid, invalid: $v.userAccount.firstName.$invalid }"
               v-model="$v.userAccount.firstName.$model"
             />
@@ -65,7 +65,7 @@
               class="form-control"
               id="lastName"
               name="lastName"
-              v-bind:placeholder="$t('settings.form[\'lastname.placeholder\']')"
+              v-bind:placeholder="$t('settings.form.lastname.placeholder')"
               :class="{ valid: !$v.userAccount.lastName.$invalid, invalid: $v.userAccount.lastName.$invalid }"
               v-model="$v.userAccount.lastName.$model"
             />
@@ -86,7 +86,7 @@
               class="form-control"
               id="email"
               name="email"
-              v-bind:placeholder="$t('global.form[\'email.placeholder\']')"
+              v-bind:placeholder="$t('global.form.email.placeholder.')"
               :class="{ valid: !$v.userAccount.email.$invalid, invalid: $v.userAccount.email.$invalid }"
               v-model="$v.userAccount.email.$model"
               email
@@ -145,6 +145,15 @@
               <option v-for="authority of authorities" :value="authority" :key="authority">{{ authority }}</option>
             </select>
           </div>
+
+            <div class="form-group" v-if="userAccount.authorities.includes('ROLE_USER')">
+                <label v-text="$t('userManagement.tenants')">Tenants</label>
+                <select class="form-control" name="selectedTenants" v-model="$v.userAccount.tenantId.$model">
+                    <option value="" key="0"></option>
+                    <option v-for="tenant of tenants" :value="tenant.id" :key="tenant.id">{{ tenant.longname }}</option>
+                </select>
+            </div>
+
         </div>
         <div>
           <button type="button" class="btn btn-secondary" v-on:click="previousState()">

@@ -12,6 +12,7 @@ import de.trustable.ca3s.core.repository.PipelineAttributeRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.dto.CSRView;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
+import de.trustable.ca3s.core.web.rest.util.CurrentUserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,8 +20,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,18 +41,18 @@ public class CSRListResource {
     private final Logger log = LoggerFactory.getLogger(CSRListResource.class);
 
     private final CSRViewRepository csrViewRepository;
-    private final UserRepository userRepository;
     private final PipelineAttributeRepository pipelineAttributeRepository;
+    private final CurrentUserUtil currentUserUtil;
+
     final private int maxCSVRows;
 
     public CSRListResource(CSRViewRepository csrViewRepository,
-                           UserRepository userRepository,
                            PipelineAttributeRepository pipelineAttributeRepository,
-                           @Value("${ca3s.ui.download.rows.max:1000}") int maxCSVRows) {
+                           CurrentUserUtil currentUserUtil, @Value("${ca3s.ui.download.rows.max:1000}") int maxCSVRows) {
 
         this.csrViewRepository = csrViewRepository;
-        this.userRepository = userRepository;
         this.pipelineAttributeRepository = pipelineAttributeRepository;
+        this.currentUserUtil = currentUserUtil;
         this.maxCSVRows = maxCSVRows;
     }
 
@@ -70,20 +69,9 @@ public class CSRListResource {
     public ResponseEntity<List<CSRView>> getAllCsrs(Pageable pageable, HttpServletRequest request) {
         log.debug("REST request to get a page of CSRViews");
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String userName = auth.getName();
-        if( userName == null) {
-            log.warn("Current user == null!");
-            return ResponseEntity.notFound().build();
-        }
+        User currentUser = currentUserUtil.getCurrentUser();
 
-        Optional<User> optCurrentUser = userRepository.findOneByLogin(userName);
-        if(!optCurrentUser.isPresent()) {
-            log.warn("Name of ra officer '{}' not found as user", userName);
-            return ResponseEntity.notFound().build();
-        }
-
-        List<Long> pipelineIdList = pipelineAttributeRepository.findDistinctPipelineByNameAndValue(PipelineUtil.DOMAIN_RA_OFFICER, "" + optCurrentUser.get().getId());
+        List<Long> pipelineIdList = pipelineAttributeRepository.findDistinctPipelineByNameAndValue(PipelineUtil.DOMAIN_RA_OFFICER, "" + currentUser.getId());
 
         Page<CSRView> page = csrViewRepository.findSelection(request.getParameterMap(), pipelineIdList);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
@@ -111,20 +99,9 @@ public class CSRListResource {
         paramMap.put("offset", new String[]{"0"});
         paramMap.put("limit", new String[]{"" + maxCSVRows});
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String userName = auth.getName();
-        if( userName == null) {
-            log.warn("Current user == null!");
-            return ResponseEntity.notFound().build();
-        }
+        User currentUser = currentUserUtil.getCurrentUser();
 
-        Optional<User> optCurrentUser = userRepository.findOneByLogin(userName);
-        if(!optCurrentUser.isPresent()) {
-            log.warn("Name of ra officer '{}' not found as user", userName);
-            return ResponseEntity.notFound().build();
-        }
-
-        List<Long> pipelineIdList = pipelineAttributeRepository.findDistinctPipelineByNameAndValue(PipelineUtil.DOMAIN_RA_OFFICER, "" + optCurrentUser.get().getId());
+        List<Long> pipelineIdList = pipelineAttributeRepository.findDistinctPipelineByNameAndValue(PipelineUtil.DOMAIN_RA_OFFICER, "" + currentUser.getId());
 
         Page<CSRView> page = csrViewRepository.findSelection(paramMap, pipelineIdList);
 

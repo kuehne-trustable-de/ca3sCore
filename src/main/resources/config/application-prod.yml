@@ -37,6 +37,7 @@ logging:
     de.trustable.ca3s.core.security.provider.Ca3sTrustManager: WARN
     de.trustable.ca3s.core.repository.CSRSpecifications: WARN
     de.trustable.ca3s.core.repository.CertificateSpecifications: WARN
+    de.trustable.ca3s.core.web.rest.support.UIDatasetSupport: DEBUG
     de.trustable.util.CryptoUtil: WARN
     org.keycloak.adapters: WARN
     org.springframework.security.web.authentication: WARN
@@ -432,6 +433,17 @@ ca3s:
 
     # provide the configured service provider name of ca3s
     sp: saml-client
+
+    roles:
+      user: '*'
+      domainra:
+      ra:
+      admin:
+    attributes:
+      firstname: firstName
+      lastName: lastName
+      email: email
+      tenant: userName.substring(0,2).toUpperCase()
 
     # provide the metadata of the SAML IDP
     metadata:

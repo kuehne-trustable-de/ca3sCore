@@ -1,7 +1,9 @@
 package de.trustable.ca3s.core.config;
 
 import de.trustable.ca3s.core.config.saml.SAMLMappingConfig;
+import de.trustable.ca3s.core.config.util.SPeLUtil;
 import de.trustable.ca3s.core.repository.AuthorityRepository;
+import de.trustable.ca3s.core.repository.TenantRepository;
 import de.trustable.ca3s.core.repository.UserPreferenceRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.security.jwt.TokenProvider;
@@ -97,6 +99,12 @@ public class SamlSecurityConfig {
     @Autowired
     private SAMLMappingConfig samlMappingConfig;
 
+    @Autowired
+    private SPeLUtil sPeLUtil;
+
+    @Autowired
+    private TenantRepository tenantRepository;
+
     @Value("${ca3s.ui.languages:en,de,pl}")
     String availableLanguages;
 
@@ -107,7 +115,7 @@ public class SamlSecurityConfig {
 
     @Bean
     public SAMLAuthenticationProvider samlAuthenticationProvider() {
-        return new CustomSAMLAuthenticationProvider(userPreferenceRepository, userRepository, authorityRepository, availableLanguages, samlMappingConfig);
+        return new CustomSAMLAuthenticationProvider(userPreferenceRepository, userRepository, authorityRepository, tenantRepository, sPeLUtil, availableLanguages, samlMappingConfig);
     }
 
     @Bean

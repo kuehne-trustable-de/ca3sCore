@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-01-02 14:00:53.
+// Generated using typescript-generator version 3.2.1263 on 2024-01-26 22:41:52.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -148,6 +148,8 @@ export interface IPipelineView extends ISerializable {
   rdnRestrictions?: IRDNRestriction[];
   araRestrictions?: IARARestriction[];
   domainRaOfficerList?: string[];
+  allTenantList?: ITenant[];
+  selectedTenantList?: ITenant[];
   toPendingOnFailedRestrictions?: boolean;
   ipAsSubjectAllowed?: boolean;
   ipAsSANAllowed?: boolean;
@@ -217,6 +219,7 @@ export interface ICertificateView extends ISerializable {
   uploadedBy?: string;
   revokedBy?: string;
   requestedBy?: string;
+  tenantName?: string;
   crlUrl?: string;
   crlExpirationNotificationId?: number;
   crlNextUpdate?: Date;
@@ -225,10 +228,10 @@ export interface ICertificateView extends ISerializable {
   isServersideKeyGeneration?: boolean;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
-  auditPresent?: boolean;
   serversideKeyGeneration?: boolean;
   fullChainAvailable?: boolean;
   issuingActiveCertificates?: boolean;
+  auditPresent?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
@@ -267,6 +270,7 @@ export interface ICSRView extends ISerializable {
   rejectedOn?: Date;
   rejectionReason?: string;
   requestedBy?: string;
+  tenantName?: string;
   processingCA?: string;
   pipelineName?: string;
   pipelineId?: number;
@@ -471,6 +475,14 @@ export interface IARARestriction {
   required?: boolean;
 }
 
+export interface ITenant extends ISerializable {
+  id?: number;
+  name?: string;
+  longname?: string;
+  active?: boolean;
+  pipelines?: IPipeline[];
+}
+
 export interface IAcmeConfigItems extends ISerializable {
   allowChallengeHTTP01?: boolean;
   allowChallengeAlpn?: boolean;
@@ -567,12 +579,32 @@ export interface ICertificate extends ISerializable {
   trusted?: boolean;
   active?: boolean;
   content?: string;
+  tenant?: ITenant;
   csr?: ICSR;
   comment?: ICertificateComment;
   certificateAttributes?: ICertificateAttribute[];
   issuingCertificate?: ICertificate;
   rootCertificate?: ICertificate;
   revocationCA?: ICAConnectorConfig;
+}
+
+export interface IPipeline extends ISerializable {
+  id?: number;
+  name?: string;
+  type?: IPipelineType;
+  urlPart?: string;
+  active?: boolean;
+  description?: string;
+  approvalRequired?: boolean;
+  pipelineAttributes?: IPipelineAttribute[];
+  caConnector?: ICAConnectorConfig;
+  processInfoCreate?: IBPMNProcessInfo;
+  processInfoRevoke?: IBPMNProcessInfo;
+  processInfoNotify?: IBPMNProcessInfo;
+  processInfoRequestAuthorization?: IBPMNProcessInfo;
+  algorithms?: IAlgorithmRestriction[];
+  requestProxies?: IRequestProxyConfig[];
+  tenants?: ITenant[];
 }
 
 export interface IKeyAlgoLengthOrSpec {
@@ -628,6 +660,7 @@ export interface ICSR extends ISerializable {
   rdns?: IRDN[];
   ras?: IRequestAttribute[];
   csrAttributes?: ICsrAttribute[];
+  tenant?: ITenant;
   pipeline?: IPipeline;
 }
 
@@ -663,6 +696,43 @@ export interface ICAConnectorConfig extends ISerializable {
 }
 
 export interface IComparable<T> {}
+
+export interface IPipelineAttribute extends ISerializable {
+  id?: number;
+  name?: string;
+  value?: string;
+  pipeline?: IPipeline;
+}
+
+export interface IBPMNProcessInfo extends ISerializable {
+  id?: number;
+  name?: string;
+  version?: string;
+  type?: IBPMNProcessType;
+  author?: string;
+  lastChange?: Date;
+  signatureBase64?: string;
+  bpmnHashBase64?: string;
+  processId?: string;
+}
+
+export interface IAlgorithmRestriction extends ISerializable {
+  id?: number;
+  type?: IAlgorithmType;
+  notAfter?: Date;
+  identifier?: string;
+  name?: string;
+  acceptable?: boolean;
+  pipelines?: IPipeline[];
+}
+
+export interface IRequestProxyConfig extends ISerializable {
+  id?: number;
+  name?: string;
+  requestProxyUrl?: string;
+  active?: boolean;
+  pipelines?: IPipeline[];
+}
 
 export interface IAlgorithmParameterSpec {}
 
@@ -702,24 +772,6 @@ export interface ICsrAttribute extends ISerializable {
   csr?: ICSR;
 }
 
-export interface IPipeline extends ISerializable {
-  id?: number;
-  name?: string;
-  type?: IPipelineType;
-  urlPart?: string;
-  active?: boolean;
-  description?: string;
-  approvalRequired?: boolean;
-  pipelineAttributes?: IPipelineAttribute[];
-  caConnector?: ICAConnectorConfig;
-  processInfoCreate?: IBPMNProcessInfo;
-  processInfoRevoke?: IBPMNProcessInfo;
-  processInfoNotify?: IBPMNProcessInfo;
-  processInfoRequestAuthorization?: IBPMNProcessInfo;
-  algorithms?: IAlgorithmRestriction[];
-  requestProxies?: IRequestProxyConfig[];
-}
-
 export interface ICAConnectorConfigAttribute extends ISerializable {
   id?: number;
   name?: string;
@@ -757,43 +809,6 @@ export interface IRequestAttributeValue extends ISerializable {
   id?: number;
   attributeValue?: string;
   reqAttr?: IRequestAttribute;
-}
-
-export interface IPipelineAttribute extends ISerializable {
-  id?: number;
-  name?: string;
-  value?: string;
-  pipeline?: IPipeline;
-}
-
-export interface IBPMNProcessInfo extends ISerializable {
-  id?: number;
-  name?: string;
-  version?: string;
-  type?: IBPMNProcessType;
-  author?: string;
-  lastChange?: Date;
-  signatureBase64?: string;
-  bpmnHashBase64?: string;
-  processId?: string;
-}
-
-export interface IAlgorithmRestriction extends ISerializable {
-  id?: number;
-  type?: IAlgorithmType;
-  notAfter?: Date;
-  identifier?: string;
-  name?: string;
-  acceptable?: boolean;
-  pipelines?: IPipeline[];
-}
-
-export interface IRequestProxyConfig extends ISerializable {
-  id?: number;
-  name?: string;
-  requestProxyUrl?: string;
-  active?: boolean;
-  pipelines?: IPipeline[];
 }
 
 export type ICAStatus = 'Active' | 'Deactivated' | 'Problem' | 'Unknown';
