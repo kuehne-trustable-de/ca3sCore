@@ -131,11 +131,13 @@ public final class CertificateSpecifications {
                                                                          Map<String, String[]> parameterMap,
                                                                          List<String> certificateSelectionAttributes,
                                                                          CertificateRepository certificateRepository,
-                                                                         User user) {
+                                                                         User user,
+                                                                         String certificateStoreIsolation) {
 		long startTime = System.currentTimeMillis();
 
         boolean useTenant = true;
-        if( CurrentUserUtil.isAdministrativeUser(user) ){
+        if( CurrentUserUtil.isAdministrativeUser(user) ||
+            "none".equalsIgnoreCase(certificateStoreIsolation)){
             useTenant = false;
         }else if( user.getTenant() == null ){
             // null == default tenant

@@ -85,6 +85,8 @@ public class CertificateDownloadController {
 
     private final AuditService auditService;
 
+    private final String certificateStoreIsolation;
+
     private final boolean pkcs12LogDownload;
 
 
@@ -93,6 +95,7 @@ public class CertificateDownloadController {
                                          CertificateUtil certUtil,
                                          ProtectedContentUtil protContentUtil,
                                          CurrentUserUtil currentUserUtil, AuditService auditService,
+                                         @Value("${ca3s.ui.certificate-store.isolation:none}")String certificateStoreIsolation,
                                          @Value("${ca3s.ui.pkcs12.log.download:true}") boolean pkcs12LogDownload) {
         this.cryptoConfiguration = cryptoConfiguration;
         this.certificateRepository = certificateRepository;
@@ -100,6 +103,7 @@ public class CertificateDownloadController {
         this.protContentUtil = protContentUtil;
         this.currentUserUtil = currentUserUtil;
         this.auditService = auditService;
+        this.certificateStoreIsolation = certificateStoreIsolation;
         this.pkcs12LogDownload = pkcs12LogDownload;
     }
 
@@ -298,6 +302,11 @@ public class CertificateDownloadController {
     }
 
     private void checkTenant(Certificate cert) {
+
+        if("none".equalsIgnoreCase(certificateStoreIsolation)){
+            return;
+        }
+
         if( !currentUserUtil.isAdministrativeUser() ){
             User currentUser = currentUserUtil.getCurrentUser();
             Tenant tenant = currentUser.getTenant();

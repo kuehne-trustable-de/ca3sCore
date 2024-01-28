@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.schedule;
 
+import de.trustable.ca3s.core.repository.TenantRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +20,13 @@ public class StartupApplicationListener implements
     private final BPMNUtil bpmnUtil;
     private final AuditService auditService;
 
+    private final TenantRepository tenantRepository;
+
     @Autowired
-    public StartupApplicationListener(BPMNUtil bpmnUtil, AuditService auditService) {
+    public StartupApplicationListener(BPMNUtil bpmnUtil, AuditService auditService, TenantRepository tenantRepository) {
         this.bpmnUtil = bpmnUtil;
         this.auditService = auditService;
+        this.tenantRepository = tenantRepository;
     }
 
     @Override public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -32,6 +36,8 @@ public class StartupApplicationListener implements
 //            "\n##############################################\n\n");
 
         auditService.saveAuditTrace(auditService.createAuditTraceStarted());
+
+        tenantRepository.findAll();
 
         bpmnUtil.updateProcessDefinitions();
     }

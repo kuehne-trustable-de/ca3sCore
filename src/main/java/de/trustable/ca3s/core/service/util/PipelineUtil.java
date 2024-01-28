@@ -176,7 +176,8 @@ public class PipelineUtil {
                         ConfigUtil configUtil,
                         AuditService auditService,
                         AuditTraceRepository auditTraceRepository,
-                        TenantRepository tenantRepository, RequestProxyConfigRepository requestProxyConfigRepository,
+                        TenantRepository tenantRepository,
+                        RequestProxyConfigRepository requestProxyConfigRepository,
                         @Value("${ca3s.keyspec.default:RSA_4096}") String defaultKeySpec) {
 
         this.certRepository = certRepository;

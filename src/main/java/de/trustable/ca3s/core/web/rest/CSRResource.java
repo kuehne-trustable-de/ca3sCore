@@ -6,7 +6,6 @@ import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.CSRService;
 import de.trustable.ca3s.core.service.dto.CSRView;
-import de.trustable.ca3s.core.service.dto.CertificateView;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
 import de.trustable.ca3s.core.web.rest.util.CurrentUserUtil;
@@ -15,8 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -46,6 +43,8 @@ public class CSRResource {
     private final PipelineUtil pipelineUtil;
     private final UserRepository userRepository;
     private final CurrentUserUtil currentUserUtil;
+    private final String certificateStoreIsolation;
+
     private final boolean doDNSLookup;
 
     public CSRResource(CSRService cSRService,
@@ -53,12 +52,14 @@ public class CSRResource {
                        PipelineUtil pipelineUtil,
                        UserRepository userRepository,
                        CurrentUserUtil currentUserUtil,
+                       @Value("${ca3s.ui.certificate-store.isolation:none}")String certificateStoreIsolation,
                        @Value("${ca3s.ui.csr.dnslookup:false}") boolean doDNSLookup) {
         this.cSRService = cSRService;
         this.csrUtil = csrUtil;
         this.pipelineUtil = pipelineUtil;
         this.userRepository = userRepository;
         this.currentUserUtil = currentUserUtil;
+        this.certificateStoreIsolation = certificateStoreIsolation;
         this.doDNSLookup = doDNSLookup;
     }
 
@@ -185,6 +186,11 @@ public class CSRResource {
     }
 
     private void checkTenant(CSR csr) {
+
+        if("none".equalsIgnoreCase(certificateStoreIsolation)){
+            return;
+        }
+
         if( !currentUserUtil.isAdministrativeUser() ){
             User currentUser = currentUserUtil.getCurrentUser();
             Tenant tenant = currentUser.getTenant();

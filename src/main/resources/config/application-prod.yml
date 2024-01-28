@@ -317,6 +317,14 @@ ca3s:
   #      filePostfix: .html
 
   ui:
+    # limit certificate and request visibility isolation:
+    # none: every user sees every (end entity) certificate
+    # tenant: users sees all end entity certificates of the users tenant
+    #
+    # CA certificates are visible in any isolation mode
+    certificate-store:
+      isolation: tenant
+
     download:
       rows:
         max: 65535
@@ -347,8 +355,8 @@ ca3s:
     sso:
       # enable / disable autologin via SSO
       autologin: false
-      # define a SSO provider
-      provider: keyCloak
+      # define a SSO provider: keyCloak | saml
+      provider: saml
 
   acme:
     # an apache plugin for ACME support requires a specific header not mention in RFC 8555
@@ -429,7 +437,7 @@ ca3s:
     activate: true
 
     # define the location of the SAML IDP+-
-    idp: http://localhost:50080/realms/ca3s
+    idp: http://localhost:50080/realms/master
 
     # provide the configured service provider name of ca3s
     sp: saml-client
@@ -443,12 +451,12 @@ ca3s:
       firstname: firstName
       lastName: lastName
       email: email
-      tenant: userName.substring(0,2).toUpperCase()
+      tenant: userName
 
     # provide the metadata of the SAML IDP
     metadata:
       # provide the location of the metadata file or remote location
-      location: sample/saml/metadata/sso.xml
+      location: sample/saml/metadata/keycloak_saml.metadata.xml
 
       # do we require a signature to be present in the metadata ?
       # not necessary if the metadata are provided in a secure manner

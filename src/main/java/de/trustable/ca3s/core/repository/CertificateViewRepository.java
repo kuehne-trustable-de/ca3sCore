@@ -8,6 +8,7 @@ import de.trustable.ca3s.core.service.util.CertificateSelectionUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -40,8 +41,17 @@ public class CertificateViewRepository {
     private final  AuditTraceRepository auditTraceRepository;
 
     private final CertificateUtil certificateUtil;
+    private final String certificateStoreIsolation;
 
-    public CertificateViewRepository(EntityManager entityManager, CertificateSelectionUtil certificateSelectionAttributeList, CertificateRepository certificateRepository, CRLExpirationNotificationRepository crlExpirationNotificationRepository, UserRepository userRepository, AuditTraceRepository auditTraceRepository, CertificateUtil certificateUtil) {
+    public CertificateViewRepository(EntityManager entityManager,
+                                     CertificateSelectionUtil certificateSelectionAttributeList,
+                                     CertificateRepository certificateRepository,
+                                     CRLExpirationNotificationRepository crlExpirationNotificationRepository,
+                                     UserRepository userRepository,
+                                     AuditTraceRepository auditTraceRepository,
+                                     CertificateUtil certificateUtil,
+                                     @Value("${ca3s.ui.certificate-store.isolation:none}")String certificateStoreIsolation
+                                     ) {
         this.entityManager = entityManager;
         this.certificateSelectionAttributeList = certificateSelectionAttributeList;
         this.certificateRepository = certificateRepository;
@@ -49,6 +59,8 @@ public class CertificateViewRepository {
         this.userRepository = userRepository;
         this.auditTraceRepository = auditTraceRepository;
         this.certificateUtil = certificateUtil;
+        this.certificateStoreIsolation = certificateStoreIsolation;
+
     }
 
     public Page<CertificateView> findSelection(Map<String, String[]> parameterMap) {
@@ -73,7 +85,8 @@ public class CertificateViewRepository {
             parameterMap,
             certificateSelectionAttributeList.getCertificateSelectionAttributes(),
             certificateRepository,
-            optCurrentUser.get());
+            optCurrentUser.get(),
+            certificateStoreIsolation);
 
     }
 

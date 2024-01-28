@@ -11,7 +11,6 @@ import de.trustable.ca3s.core.domain.enumeration.RDNCardinalityRestriction;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.repository.UserPreferenceRepository;
-import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.security.SecurityUtils;
 import de.trustable.ca3s.core.service.UserService;
 import de.trustable.ca3s.core.service.dto.*;
@@ -27,8 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -68,6 +65,8 @@ public class UIDatasetSupport {
 
     private final boolean autoSSOLogin;
 
+    private final String certificateStoreIsolation;
+
     private final String[] ssoProvider;
 
     public UIDatasetSupport(CAConnectorConfigRepository caConnConfRepo,
@@ -81,6 +80,7 @@ public class UIDatasetSupport {
                             CryptoConfiguration cryptoConfiguration,
                             CurrentUserUtil currentUserUtil,
                             @Value("${ca3s.ui.sso.autologin:false}") boolean autoSSOLogin,
+                            @Value("${ca3s.ui.certificate-store.isolation:none}")String certificateStoreIsolation,
                             @Value("${ca3s.ui.sso.provider:}") String[] ssoProvider) {
         this.caConnConfRepo = caConnConfRepo;
         this.caConnectorAdapter = caConnectorAdapter;
@@ -93,6 +93,7 @@ public class UIDatasetSupport {
         this.cryptoConfiguration = cryptoConfiguration;
         this.currentUserUtil = currentUserUtil;
         this.autoSSOLogin = autoSSOLogin;
+        this.certificateStoreIsolation = certificateStoreIsolation;
         this.ssoProvider = ssoProvider;
     }
 
@@ -148,7 +149,9 @@ public class UIDatasetSupport {
         List<PipelineView> pvList = new ArrayList<>();
         if(SecurityUtils.isAuthenticated()){
             List<Pipeline> pipelineList = pipelineRepo.findActiveByType(PipelineType.WEB);
-            if( currentUserUtil.isAdministrativeUser(currentUser) ){
+
+            if( currentUserUtil.isAdministrativeUser(currentUser) ||
+                "none".equalsIgnoreCase(certificateStoreIsolation)){
                 LOG.debug("returning all web pipelines");
                 pvList = pipelinesToPipelineViews(pipelineList);
             }else{

@@ -11,6 +11,7 @@ import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateSelectionUtil;
 import de.trustable.ca3s.core.web.rest.util.CurrentUserUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -25,13 +26,22 @@ public class CSRViewRepository {
     final private CSRRepository csrRepository;
     final private CSRUtil csrUtil;
     final private CurrentUserUtil currentUserUtil;
+    private final String certificateStoreIsolation;
 
-    public CSRViewRepository(EntityManager entityManager, CertificateSelectionUtil certificateSelectionAttributeList, CSRRepository csrRepository, CSRUtil csrUtil, CurrentUserUtil currentUserUtil) {
+
+    public CSRViewRepository(EntityManager entityManager,
+                             CertificateSelectionUtil certificateSelectionAttributeList,
+                             CSRRepository csrRepository,
+                             CSRUtil csrUtil,
+                             CurrentUserUtil currentUserUtil,
+                             @Value("${ca3s.ui.certificate-store.isolation:none}")String certificateStoreIsolation){
+
         this.entityManager = entityManager;
         this.certificateSelectionAttributeList = certificateSelectionAttributeList;
         this.csrRepository = csrRepository;
         this.csrUtil = csrUtil;
         this.currentUserUtil = currentUserUtil;
+        this.certificateStoreIsolation = certificateStoreIsolation;
     }
 
     public Page<CSRView> findSelection(Map<String, String[]> parameterMap, List<Long> pipelineIds){
@@ -43,7 +53,8 @@ public class CSRViewRepository {
 				parameterMap,
             certificateSelectionAttributeList.getCertificateSelectionAttributes(),
             pipelineIds,
-            currentUserUtil.getCurrentUser());
+            currentUserUtil.getCurrentUser(),
+            certificateStoreIsolation);
 	}
 
     public Optional<CSRView> findbyCSRId(final Long csrId) {

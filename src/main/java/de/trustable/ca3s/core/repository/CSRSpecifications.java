@@ -36,10 +36,12 @@ public final class CSRSpecifications {
                                                          Map<String, String[]> parameterMap,
                                                          List<String> csrSelectionAttributes,
                                                          List<Long> pipelineIds,
-                                                         User user) {
+                                                         User user,
+                                                         String certificateStoreIsolation) {
 
         boolean useTenant = true;
-        if( CurrentUserUtil.isAdministrativeUser(user) ){
+        if( CurrentUserUtil.isAdministrativeUser(user) ||
+            "none".equalsIgnoreCase(certificateStoreIsolation)){
             useTenant = false;
         }else if( user.getTenant() == null ){
             // null == default tenant

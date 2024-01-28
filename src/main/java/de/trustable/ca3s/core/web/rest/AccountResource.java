@@ -15,17 +15,17 @@ import de.trustable.ca3s.core.web.rest.errors.InvalidPasswordException;
 import de.trustable.ca3s.core.web.rest.errors.LoginAlreadyUsedException;
 import de.trustable.ca3s.core.web.rest.vm.KeyAndPasswordVM;
 import de.trustable.ca3s.core.web.rest.vm.ManagedUserVM;
-import java.util.*;
-import javax.mail.MessagingException;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.util.Optional;
 
 /**
  * REST controller for managing the current user's account.
