@@ -18,7 +18,7 @@ import LogsService from './admin/logs/logs.service';
 import ActivateService from './account/activate/activate.service';
 import RegisterService from './account/register/register.service';
 import UserManagementService from '@/admin/user-management/user-management.service';
-import TenantService from '@/admin/tenant/tenant.service';
+import TenantService from './admin/tenant/tenant.service';
 
 import LoginService from './account/login.service';
 import AccountService from './account/account.service';

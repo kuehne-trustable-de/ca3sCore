@@ -31,10 +31,8 @@ const ResetPasswordInit = () => import('../account/reset-password/init/reset-pas
 const ResetPasswordFinish = () => import('../account/reset-password/finish/reset-password-finish.vue');
 const ChangePassword = () => import('../account/change-password/change-password.vue');
 const Settings = () => import('../account/settings/settings.vue');
-
 const TenantComponent = () => import('../admin/tenant/tenant.vue');
 const TenantEditComponent = () => import('../admin/tenant/tenant-update.vue');
-
 const JhiUserManagementComponent = () => import('../admin/user-management/user-management.vue');
 const JhiUserManagementViewComponent = () => import('../admin/user-management/user-management-view.vue');
 const JhiUserManagementEditComponent = () => import('../admin/user-management/user-management-edit.vue');
