@@ -873,7 +873,7 @@
   "home.link.follow": "kontaktieren Sie uns mit @jhipster auf Twitter",
   "home.link.homepage": "JHipster Hauptseite",
   "home.link.stackoverflow": "JHipster auf Stack Overflow",
-  "home.logged.message": "Sie sind als Benutzer \"{{username}}\" angemeldet.",
+  "home.logged.message": "Sie sind als Benutzer \"{{username}}\" als \"{{roles}}\" angemeldet.",
   "home.logged.tenant.message": "Sie sind als Benutzer \"{{username}}\" als \"{{roles}}\" für Mandant \"{{tenant}}\" angemeldet.",
   "home.question": "Wenn Sie Fragen zu JHipster haben:",
   "home.subtitle": "Dies ist Ihre Hauptseite",

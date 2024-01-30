@@ -447,11 +447,22 @@ ca3s:
       domainra:
       ra:
       admin:
+
+    # extract relevant information from the saml token by attribute name
     attributes:
       firstname: firstName
       lastName: lastName
       email: email
-      tenant: userName
+    #      tenant: userName
+
+    # process information of the saml attribute by applying SPeL on a HashMap of name / value list.
+    # sample: get('user').get(0).substring(0,2).toUpperCase()
+    # get first value of name 'user', only the first two characters and convert to upperCase
+    expression:
+      #      firstName:
+      #      lastName:
+      #      email:
+      tenant: "get('user').get(0).substring(0,2).toUpperCase()"
 
     # provide the metadata of the SAML IDP
     metadata:

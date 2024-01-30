@@ -3,6 +3,7 @@ package de.trustable.ca3s.core.service.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.repository.TenantRepository;
 import de.trustable.ca3s.core.service.dto.AdminUserDTO;
 import de.trustable.ca3s.core.service.dto.UserDTO;
 import java.util.ArrayList;
@@ -24,10 +25,11 @@ class UserMapperTest {
     private UserMapper userMapper;
     private User user;
     private AdminUserDTO userDto;
+    private TenantRepository tenantRepository;
 
     @BeforeEach
     public void init() {
-        userMapper = new UserMapper();
+        userMapper = new UserMapper(tenantRepository);
         user = new User();
         user.setLogin(DEFAULT_LOGIN);
         user.setPassword(RandomStringUtils.random(60));

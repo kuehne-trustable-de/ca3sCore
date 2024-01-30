@@ -196,10 +196,26 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
             user.setTenant(findTenantByName(tenantName));
         }
 
-        if(firstNameOld != user.getFirstName() ||
-            lastNameOld != user.getLastName() ||
-            emailOld != user.getEmail() ||
-            tenantOld != user.getTenant()){
+        if(firstNameOld != user.getFirstName()){
+            LOG.info("oidc first name '{}' updated to '{}'", firstNameOld, user.getFirstName());
+            update = true;
+        }
+
+        if(lastNameOld != user.getLastName()){
+            LOG.info("oidc last name '{}' updated to '{}'", lastNameOld, user.getLastName());
+            update = true;
+        }
+
+        if(emailOld != user.getEmail()){
+            LOG.info("oidc email '{}' updated to '{}'", emailOld, user.getEmail());
+            update = true;
+        }
+
+        if(!Objects.equals(tenantOld, user.getTenant())){
+
+            String tenantNameOld = tenantOld == null ? "null": tenantOld.getName();
+            String tenantNameNew = user.getTenant() == null ? "null": user.getTenant().getName();
+            LOG.info("tenant '{}' updated to '{}'", tenantNameOld, tenantNameNew);
             update = true;
         }
 
@@ -208,7 +224,6 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
             update = true;
         }
 
-//        Set<Authority> authoritySet = getAuthoritiesFromKeycloak(keycloakUserDetails.getRoles());
         Set<Authority> authoritySet = new HashSet<>();
 
         for( Authority authority: authorityRepository.findAll()){
@@ -228,21 +243,23 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
 
         if(update){
             user.setLastUserDetailsUpdate(Instant.now());
-            userRepository.save(user);
         }
+        userRepository.save(user);
     }
 
     private Tenant findTenantByName(String tenantName) {
         Optional<Tenant> tenantOptional = tenantRepository.findByName(tenantName);
         if (tenantOptional.isEmpty()) {
             LOG.info("Unknown tenant: " + tenantName);
-            throw new TenantNotFoundException("Unknown tenant: " + tenantName);
+//            throw new TenantNotFoundException("Unknown tenant: " + tenantName);
+            return null;
         } else {
             Tenant tenant = tenantOptional.get();
 
             if( !tenant.getActive() ){
                 LOG.info("tenant: " + tenantName + " deactivated");
-                throw new TenantNotFoundException("Unknown tenant: " + tenantName);
+//                throw new TenantNotFoundException("Unknown tenant: " + tenantName);
+                return null;
             }
             return tenant;
         }

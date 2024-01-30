@@ -3,6 +3,7 @@ package de.trustable.ca3s.core.web.rest;
 import de.trustable.ca3s.core.config.Constants;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
+import de.trustable.ca3s.core.repository.TenantRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.MailService;
@@ -70,13 +71,18 @@ public class UserResource {
     private final UserService userService;
 
     private final UserRepository userRepository;
+    private final TenantRepository tenantRepository;
 
     private final MailService mailService;
 
-    public UserResource(UserService userService, UserRepository userRepository, MailService mailService) {
+    public UserResource(UserService userService,
+                        UserRepository userRepository,
+                        TenantRepository tenantRepository,
+                        MailService mailService) {
 
         this.userService = userService;
         this.userRepository = userRepository;
+        this.tenantRepository = tenantRepository;
         this.mailService = mailService;
     }
 
@@ -177,7 +183,7 @@ public class UserResource {
         log.debug("REST request to get User : {}", login);
         return ResponseUtil.wrapOrNotFound(
             userService.getUserWithAuthoritiesByLogin(login)
-                .map(UserDTO::new));
+                .map(u -> new UserDTO(u, tenantRepository)));
     }
 
     /**
@@ -193,7 +199,7 @@ public class UserResource {
         log.debug("REST request to get Users for role : {}", role);
         List<UserDTO> userDTOList = new ArrayList<>();
         for(User user:userService.getUsersByRole(role)){
-            userDTOList.add(new UserDTO(user));
+            userDTOList.add(new UserDTO(user, tenantRepository));
         }
         return ResponseEntity.ok(userDTOList);
     }

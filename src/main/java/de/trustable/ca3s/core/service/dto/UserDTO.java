@@ -3,10 +3,13 @@ package de.trustable.ca3s.core.service.dto;
 import de.trustable.ca3s.core.config.Constants;
 
 import de.trustable.ca3s.core.domain.Authority;
+import de.trustable.ca3s.core.domain.Tenant;
 import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.repository.TenantRepository;
 
 import javax.validation.constraints.*;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -60,6 +63,19 @@ public class UserDTO {
         // Empty constructor needed for Jackson.
     }
 
+    public UserDTO(User user, TenantRepository tenantRepository) {
+        this(user);
+
+        if(user.getTenant() != null){
+            this.tenantId = user.getTenant().getId();
+
+            Optional<Tenant> tenantOptional = tenantRepository.findById(this.tenantId);
+            if( tenantOptional.isPresent()) {
+                this.tenantName = tenantOptional.get().getLongname();
+            }
+        }
+    }
+
     public UserDTO(User user) {
         this.id = user.getId();
         this.login = user.getLogin();
@@ -77,10 +93,6 @@ public class UserDTO {
         this.authorities = user.getAuthorities().stream()
             .map(Authority::getName)
             .collect(Collectors.toSet());
-        if(user.getTenant() != null){
-            this.tenantId = user.getTenant().getId();
-            this.tenantName = user.getTenant().getLongname();
-        }
     }
 
     public Long getId() {

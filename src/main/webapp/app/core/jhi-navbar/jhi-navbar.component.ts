@@ -264,19 +264,23 @@ export default class JhiNavbar extends Vue {
       return false;
     }
 
-    if (this.$store.getters.account.tenant === undefined) {
+    if (!this.$store.getters.account.tenantName) {
       return false;
     }
 
-    if (this.$store.getters.account.tenant.length() === 0) {
+    if (this.$store.getters.account.tenantName === undefined) {
+      return false;
+    }
+
+    if (this.$store.getters.account.tenantName.length === 0) {
       return false;
     }
     return true;
   }
   public get tenant(): string {
     if (this.hasTenant()) {
-      window.console.warn('hasTenant ' + this.$store.getters.account.tenant);
-      return this.$store.getters.account.tenant;
+      window.console.warn('hasTenant ' + this.$store.getters.account.tenantName);
+      return this.$store.getters.account.tenantName;
     }
     window.console.warn('hasTenant: false');
     return '';

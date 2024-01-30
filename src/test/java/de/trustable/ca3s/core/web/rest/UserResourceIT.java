@@ -3,6 +3,7 @@ package de.trustable.ca3s.core.web.rest;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.Authority;
 import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.repository.TenantRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.MailService;
@@ -99,6 +100,9 @@ public class UserResourceIT {
     @Autowired
     private CacheManager cacheManager;
 
+    @Autowired
+    private TenantRepository tenantRepository;
+
     private MockMvc restUserMockMvc;
 
     private User user;
@@ -116,7 +120,7 @@ public class UserResourceIT {
             anyBoolean(),
             anyBoolean());
 
-        UserResource userResource = new UserResource(userService, userRepository, mailService);
+        UserResource userResource = new UserResource(userService, userRepository, tenantRepository, mailService);
 
         this.restUserMockMvc = MockMvcBuilders.standaloneSetup(userResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)

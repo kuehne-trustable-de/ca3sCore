@@ -889,7 +889,7 @@
   "home.link.homepage": "JHipster homepage",
   "home.link.stackoverflow": "JHipster on Stack Overflow",
   "home.logged.message": "\"{{username}}\", you are logged in as \"{{roles}}\".",
-  "home.logged.tenant.message": "\"{{username}}\" you are logged in as \"{{roles}}\" for ten4nt\"{{tenant}}\".",
+  "home.logged.tenant.message": "\"{{username}}\" you are logged in as \"{{roles}}\" for tenant\"{{tenant}}\".",
 
   "home.question": "",
   "home.subtitle": "User Interface",

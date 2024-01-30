@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.service.mapper;
 
 import de.trustable.ca3s.core.domain.Authority;
 import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.repository.TenantRepository;
 import de.trustable.ca3s.core.service.dto.AdminUserDTO;
 import de.trustable.ca3s.core.service.dto.UserDTO;
 import java.util.*;
@@ -20,12 +21,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserMapper {
 
+    private final TenantRepository tenantRepository;
+
+    public UserMapper(TenantRepository tenantRepository) {
+        this.tenantRepository = tenantRepository;
+    }
+
     public List<UserDTO> usersToUserDTOs(List<User> users) {
         return users.stream().filter(Objects::nonNull).map(this::userToUserDTO).collect(Collectors.toList());
     }
 
     public UserDTO userToUserDTO(User user) {
-        return new UserDTO(user);
+        return new UserDTO(user, tenantRepository);
     }
 
     public List<AdminUserDTO> usersToAdminUserDTOs(List<User> users) {

@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.exception.PasswordRestrictionMismatch;
+import de.trustable.ca3s.core.repository.TenantRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.security.SecurityUtils;
 import de.trustable.ca3s.core.service.MailService;
@@ -15,6 +16,8 @@ import de.trustable.ca3s.core.web.rest.errors.InvalidPasswordException;
 import de.trustable.ca3s.core.web.rest.errors.LoginAlreadyUsedException;
 import de.trustable.ca3s.core.web.rest.vm.KeyAndPasswordVM;
 import de.trustable.ca3s.core.web.rest.vm.ManagedUserVM;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,11 +53,14 @@ public class AccountResource {
 
     private final UserService userService;
 
+    private final TenantRepository tenantRepository;
+
     private final MailService mailService;
 
-    public AccountResource(UserRepository userRepository, UserService userService, MailService mailService) {
+    public AccountResource(UserRepository userRepository, UserService userService, TenantRepository tenantRepository, MailService mailService) {
         this.userRepository = userRepository;
         this.userService = userService;
+        this.tenantRepository = tenantRepository;
         this.mailService = mailService;
     }
 
@@ -123,7 +129,10 @@ public class AccountResource {
             }else {
                 user.setLangKey(languages.alignLanguage(user.getLangKey()));
             }
-            return new UserDTO(user);
+
+            UserDTO userDTO = new UserDTO(user, tenantRepository);
+
+            return userDTO;
         }
 
         throw new AccountResourceException("User could not be found");
