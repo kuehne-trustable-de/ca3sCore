@@ -2,12 +2,12 @@
 <databaseChangeLog
     xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
     <!--
         Added the constraints for entity CAConnectorConfig.
     -->
     <changeSet id="20200110170110-2" author="jhipster">
-        
+
         <addForeignKeyConstraint baseColumnNames="secret_id"
                                  baseTableName="ca_connector_config"
                                  constraintName="fk_ca_connector_config_secret_id"

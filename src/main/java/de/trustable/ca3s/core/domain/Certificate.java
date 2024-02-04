@@ -124,9 +124,7 @@ import javax.validation.constraints.*;
         " c.validFrom <= :now and " +
         " c.revoked = FALSE and " +
         " ( certAtt.name = 'TYPED_SAN' or certAtt.name = 'TYPED_VSAN') and " +
-        " certAtt.value in :sans " +
-        " group by c " +
-        " order by count(certAtt) desc"
+        " certAtt.value in :sans "
     ),
 
     @NamedQuery(name = "Certificate.findInactiveCertificatesByValidFrom",

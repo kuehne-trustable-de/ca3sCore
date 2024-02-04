@@ -5,7 +5,7 @@
 	xmlns:dbcl="http://www.liquibase.org/xml/ns/dbchangelog" >
 
 	<xsl:param name="MssqlLiquibasePathPrefix">config/liquibase-mssql</xsl:param>
-	<xsl:param name="MssqlLiquibaseTarget">http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd</xsl:param>
+	<xsl:param name="MssqlLiquibaseTarget">http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd</xsl:param>
 
 	<xsl:template match="@xsi:schemaLocation">
 		<xsl:attribute name="xsi:schemaLocation" select="$MssqlLiquibaseTarget" />

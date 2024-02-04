@@ -6,7 +6,7 @@
 	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext">
 
     <xsl:param name="LiquibasePathPrefix">config/liquibase-3.5</xsl:param>
-    <xsl:param name="LiquibaseTarget">http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd</xsl:param>
+    <xsl:param name="LiquibaseTarget">http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd</xsl:param>
 
 	<xsl:template match="@xsi:schemaLocation">
 		<xsl:attribute name="xsi:schemaLocation" select="$LiquibaseTarget" />

@@ -20,13 +20,10 @@ public class StartupApplicationListener implements
     private final BPMNUtil bpmnUtil;
     private final AuditService auditService;
 
-    private final TenantRepository tenantRepository;
-
     @Autowired
-    public StartupApplicationListener(BPMNUtil bpmnUtil, AuditService auditService, TenantRepository tenantRepository) {
+    public StartupApplicationListener(BPMNUtil bpmnUtil, AuditService auditService) {
         this.bpmnUtil = bpmnUtil;
         this.auditService = auditService;
-        this.tenantRepository = tenantRepository;
     }
 
     @Override public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -36,8 +33,6 @@ public class StartupApplicationListener implements
 //            "\n##############################################\n\n");
 
         auditService.saveAuditTrace(auditService.createAuditTraceStarted());
-
-        tenantRepository.findAll();
 
         bpmnUtil.updateProcessDefinitions();
     }

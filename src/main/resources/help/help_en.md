@@ -77,7 +77,7 @@ From the security point of view its best practise to create the key pair on the 
 - Windows: Command Prompt ('cmd.exe') or PowerShell
 - Linux: Shell
 
-Change to the directory where the key should be created. Consult the product documentation of your application for the appropriate dirctory. Fill out the required fields in the ca3s web form (subject, organization, SAN, ...).
+Change to the directory where the key should be created. Consult the product documentation of your application for the appropriate directory. Fill out the required fields in the ca3s web form (subject, organization, SAN, ...).
 
 Check with your documentation which type of 'store' is expected. Java applications usually expect a PKCS12 keystore, Apache web servers may process separate PEM files.
 

@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseDataSource;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
@@ -24,8 +25,21 @@ public class LiquibaseConfiguration {
 
     private final Environment env;
 
-    public LiquibaseConfiguration(Environment env) {
+    private final String changeLogPath;
+
+    public LiquibaseConfiguration(Environment env,
+                                  @Value("${spring.liquibase.change-log:classpath:config/liquibase/master.xml}")String changeLogPath,
+        @Value("${spring.datasource.url:}")String datasourceUrl) {
         this.env = env;
+        if( datasourceUrl != null &&
+            datasourceUrl.toLowerCase().startsWith("jdbc:sqlserver") &&
+            changeLogPath.equalsIgnoreCase("classpath:config/liquibase/master.xml")){
+
+            this.changeLogPath = "classpath:config/liquibase-mssql/master.xml";
+            log.info("liquibase path adapted for mssql: {}", changeLogPath );
+        }else{
+            this.changeLogPath = changeLogPath;
+        }
     }
 
     @Bean
@@ -51,7 +65,7 @@ public class LiquibaseConfiguration {
         );
 */
 
-        liquibase.setChangeLog("classpath:config/liquibase/master.xml");
+        liquibase.setChangeLog(changeLogPath);
         liquibase.setContexts(liquibaseProperties.getContexts());
         liquibase.setDefaultSchema(liquibaseProperties.getDefaultSchema());
         liquibase.setLiquibaseSchema(liquibaseProperties.getLiquibaseSchema());

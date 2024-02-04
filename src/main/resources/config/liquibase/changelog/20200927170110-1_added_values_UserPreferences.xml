@@ -3,46 +3,46 @@
     xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
     xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
         <property name="autoIncrement" value="true"/>
 
     <changeSet id="20200927170110-1" author="ak">
-    
+
         <!-- loadData
         	file="config/liquibase/data/user_preference.csv"
             separator=";"
             tableName="user_preference">
         </loadData-->
-        
-		<insert tableName="user_preference"> 
-        	<!-- column name="id" valueSequenceNext="name_sequence"/--> 
-        	<column name="user_id" value="1"/> 
-        	<column name="name" value="CheckCRL"/> 
-        	<column name="value_id" value="false"/> 
+
+		<insert tableName="user_preference">
+        	<!-- column name="id" valueSequenceNext="name_sequence"/-->
+        	<column name="user_id" value="1"/>
+        	<column name="name" value="CheckCRL"/>
+        	<column name="value_id" value="false"/>
     	</insert>
-    	
-		<insert tableName="user_preference"> 
-        	<!-- column name="id" valueSequenceNext="name_sequence"/--> 
-        	<column name="user_id" value="1"/> 
-        	<column name="name" value="ServerSideKeyCreationAllowed"/> 
-        	<column name="value_id" value="false"/> 
+
+		<insert tableName="user_preference">
+        	<!-- column name="id" valueSequenceNext="name_sequence"/-->
+        	<column name="user_id" value="1"/>
+        	<column name="name" value="ServerSideKeyCreationAllowed"/>
+        	<column name="value_id" value="false"/>
     	</insert>
-    	
-		<insert tableName="user_preference"> 
-        	<!-- column name="id" valueSequenceNext="name_sequence"/--> 
-        	<column name="user_id" value="1"/> 
-        	<column name="name" value="AcmeHTTP01CallbackPorts"/> 
-        	<column name="value_id" value="5544,8080,80"/> 
+
+		<insert tableName="user_preference">
+        	<!-- column name="id" valueSequenceNext="name_sequence"/-->
+        	<column name="user_id" value="1"/>
+        	<column name="name" value="AcmeHTTP01CallbackPorts"/>
+        	<column name="value_id" value="5544,8080,80"/>
     	</insert>
-    	
-		<insert tableName="user_preference"> 
-        	<!-- column name="id" valueSequenceNext="name_sequence"/--> 
-        	<column name="user_id" value="1"/> 
-        	<column name="name" value="AcmeHTTP01TimeoutMilliSec"/> 
-        	<column name="value_id" value="2000"/> 
+
+		<insert tableName="user_preference">
+        	<!-- column name="id" valueSequenceNext="name_sequence"/-->
+        	<column name="user_id" value="1"/>
+        	<column name="name" value="AcmeHTTP01TimeoutMilliSec"/>
+        	<column name="value_id" value="2000"/>
     	</insert>
-    	
+
     </changeSet>
 </databaseChangeLog>

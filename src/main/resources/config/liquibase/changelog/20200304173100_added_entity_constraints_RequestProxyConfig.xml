@@ -2,12 +2,12 @@
 <databaseChangeLog
     xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
     <!--
         Added the constraints for entity RequestProxyConfig.
     -->
     <changeSet id="20200304173100-2" author="jhipster">
-        
+
         <addForeignKeyConstraint baseColumnNames="secret_id"
                                  baseTableName="request_proxy_config"
                                  constraintName="fk_request_proxy_config_secret_id"

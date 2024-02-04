@@ -70,9 +70,14 @@ spring:
     #    url: jdbc:mysql://localhost:3306/int_test?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     #    username: ca3s_test
     #    password: s3cr3t
-    url: jdbc:mysql://localhost:3306/test_schema?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: ca3s_test
-    password: s3cr3t
+    #    url: jdbc:mysql://localhost:3306/test_schema?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    #    username: ca3s_test
+    #    password: s3cr3t
+
+    # mssql connection sample
+    url: jdbc:sqlserver://127.0.0.1:1433;database=ca3s;trustServerCertificate=true;
+    username: SA
+    password: S3cr3t#S
 
     # recommended configuration for production:
     # Separate the database rights between the application and liquibase. The application does not need any schema alteration or dump privileges.
@@ -93,8 +98,10 @@ spring:
 
   # align the JPA configuration to match the database used. The following section is intended for mariadb / mysql
   jpa:
-    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
-    database: MYSQL
+    #    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    #    database: MYSQL
+    database-platform: org.hibernate.dialect.SQLServerDialect
+    database: sqlserver
     show-sql: false
     properties:
       hibernate:
@@ -114,6 +121,7 @@ spring:
   # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
   liquibase:
     contexts: prod
+  #  change-log: classpath:config/liquibase-mssql/master.xml
 
   # in case of separated acces roles, liquibase requires to connect to the database with admin privileges
   #    default-schema: ca3s_sep_roles
@@ -317,13 +325,15 @@ ca3s:
   #      filePostfix: .html
 
   ui:
+    user:
+
     # limit certificate and request visibility isolation:
     # none: every user sees every (end entity) certificate
     # tenant: users sees all end entity certificates of the users tenant
     #
     # CA certificates are visible in any isolation mode
     certificate-store:
-      isolation: tenant
+      isolation: none
 
     download:
       rows:

@@ -2,13 +2,18 @@
 <databaseChangeLog
     xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
     <!--
         Remove the fk-constraints RequestProxyConfig -> ProtectedContent.
     -->
+    <preConditions onFail="WARN">
+        <uniqueConstraintExists tableName="jhi_user"
+                     columnNames="ux_user_email"/>
+    </preConditions>
     <changeSet id="20230415130000-1" author="ak">
 
         <dropUniqueConstraint tableName="jhi_user"
                                  constraintName="ux_user_email"/>
     </changeSet>
+
 </databaseChangeLog>

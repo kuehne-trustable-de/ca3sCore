@@ -7,7 +7,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <packaging>jar</packaging>
 
 
@@ -1507,6 +1507,13 @@
             <version>${bucket4j.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>javazoom</groupId>
+            <artifactId>jlayer</artifactId>
+            <version>1.0.1</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -1787,7 +1794,7 @@
                                 <parameter>
                                     <name>MssqlLiquibaseTarget</name>
                                     <value>http://www.liquibase.org/xml/ns/dbchangelog
-                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
                                     </value>
                                 </parameter>
                             </parameters>
@@ -1801,7 +1808,7 @@
                                 <parameter>
                                     <name>MssqlLiquibaseTarget</name>
                                     <value>http://www.liquibase.org/xml/ns/dbchangelog
-                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
                                     </value>
                                 </parameter>
                                 <parameter>
@@ -1814,13 +1821,13 @@
                             <dir>./src/main/resources/config/liquibase/changelog</dir>
                             <stylesheet>./src/main/resources/stylesheet/adaptChangelogLBForMSSQL.xsl</stylesheet>
                             <outputDir>${project.build.directory}/classes/config/liquibase-mssql/changelog</outputDir>
-                            <includes>*_added_*.xml, *_update_*.xml</includes>
+                            <includes>*_added_*.xml, *_removed_*.xml, *change_*.xml,*_update_*.xml</includes>
 
                             <parameters>
                                 <parameter>
                                     <name>MssqlLiquibaseTarget</name>
                                     <value>http://www.liquibase.org/xml/ns/dbchangelog
-                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
                                     </value>
                                 </parameter>
                             </parameters>
