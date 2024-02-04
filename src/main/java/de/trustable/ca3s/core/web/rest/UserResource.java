@@ -72,17 +72,20 @@ public class UserResource {
 
     private final UserRepository userRepository;
     private final TenantRepository tenantRepository;
+    private final boolean enforceEmailUniqueness;
 
     private final MailService mailService;
 
     public UserResource(UserService userService,
                         UserRepository userRepository,
                         TenantRepository tenantRepository,
+                        @Value("${ca3s.ui.user.email.enforceUnique:false}") boolean enforceEmailUniqueness,
                         MailService mailService) {
 
         this.userService = userService;
         this.userRepository = userRepository;
         this.tenantRepository = tenantRepository;
+        this.enforceEmailUniqueness = enforceEmailUniqueness;
         this.mailService = mailService;
     }
 
@@ -109,7 +112,7 @@ public class UserResource {
             // Lowercase the user login before comparing with database
         } else if (userRepository.findOneByLogin(userDTO.getLogin().toLowerCase()).isPresent()) {
             throw new LoginAlreadyUsedException();
-        } else if (userRepository.findOneByEmailIgnoreCase(userDTO.getEmail()).isPresent()) {
+        } else if (enforceEmailUniqueness && userRepository.findOneByEmailIgnoreCase(userDTO.getEmail()).isPresent()) {
             throw new EmailAlreadyUsedException();
         } else {
             User newUser = userService.createUser(userDTO);

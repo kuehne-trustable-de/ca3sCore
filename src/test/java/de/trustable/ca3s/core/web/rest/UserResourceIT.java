@@ -120,7 +120,7 @@ public class UserResourceIT {
             anyBoolean(),
             anyBoolean());
 
-        UserResource userResource = new UserResource(userService, userRepository, tenantRepository, mailService);
+        UserResource userResource = new UserResource(userService, userRepository, tenantRepository, false, mailService);
 
         this.restUserMockMvc = MockMvcBuilders.standaloneSetup(userResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
