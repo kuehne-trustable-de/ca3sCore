@@ -70,14 +70,14 @@ spring:
     #    url: jdbc:mysql://localhost:3306/int_test?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     #    username: ca3s_test
     #    password: s3cr3t
-    #    url: jdbc:mysql://localhost:3306/test_schema?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    #    username: ca3s_test
-    #    password: s3cr3t
+    url: jdbc:mysql://localhost:3306/test_schema?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ca3s_test
+    password: s3cr3t
 
     # mssql connection sample
-    url: jdbc:sqlserver://127.0.0.1:1433;database=ca3s;trustServerCertificate=true;
-    username: SA
-    password: S3cr3t#S
+    # url: jdbc:sqlserver://127.0.0.1:1433;database=ca3s;trustServerCertificate=true;
+    # username: SA
+    # password: S3cr3t#S
 
     # recommended configuration for production:
     # Separate the database rights between the application and liquibase. The application does not need any schema alteration or dump privileges.
@@ -98,10 +98,12 @@ spring:
 
   # align the JPA configuration to match the database used. The following section is intended for mariadb / mysql
   jpa:
-    #    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
-    #    database: MYSQL
-    database-platform: org.hibernate.dialect.SQLServerDialect
-    database: sqlserver
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    database: MYSQL
+
+    # database-platform: org.hibernate.dialect.SQLServerDialect
+    # database: sqlserver
+
     show-sql: false
     properties:
       hibernate:
@@ -203,6 +205,7 @@ jhipster:
         # - In the JHipster Registry (which includes a Spring Cloud Config server)
         # - In a separate `application-prod.yml` file, in the same folder as your executable JAR file
         # - In the `JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET` environment variable
+        # make sure you don't share the secret across different environments!
         base64-secret: Mjk3NjM4OWI4NWU3ZjE3NjQ3OWRiZjI3OWYwYmZiNWY1NzA2YjAzZTY2ODJhNWM5MjFjYzZmZTZlMDE4YWRhNDg0MjJlNDYzNThhODBjNmU0ZGFjMGY3MTc5OTVlNmEyZWFiZmIwMDIxYTExYzkxNGM3YmM2YmVmMmNlZWE2YmQ=
         # Token is valid 24 hours
         token-validity-in-seconds: 86400

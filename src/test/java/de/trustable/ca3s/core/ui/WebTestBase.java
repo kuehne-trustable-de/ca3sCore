@@ -7,10 +7,15 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.NoSuchAlgorithmException;
 
 import javax.security.auth.x500.X500Principal;
 
 import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.test.speech.SoundOutput;
+import javazoom.jl.decoder.JavaLayerException;
+import org.apache.hc.core5.http.ParseException;
+import org.json.JSONException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
@@ -98,7 +103,18 @@ public class WebTestBase extends LocomotiveBase {
 
 	}
 
-	protected void setSessionCookieDefaultValue() {
+    protected void explain(String s) {
+
+        SoundOutput soundOutput = null;
+        try {
+            soundOutput = new SoundOutput(s);
+            soundOutput.play();
+        } catch (IOException | JSONException | ParseException | NoSuchAlgorithmException | JavaLayerException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected void setSessionCookieDefaultValue() {
 		driver.manage().addCookie(new org.openqa.selenium.Cookie(SESSION_COOKIE_NAME, SESSION_COOKIE_DEFAULT_VALUE));
 	}
 

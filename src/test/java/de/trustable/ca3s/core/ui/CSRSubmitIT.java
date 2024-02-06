@@ -51,10 +51,9 @@ import static org.junit.Assert.fail;
 @ActiveProfiles("dev")
 public class CSRSubmitIT extends WebTestBase{
 
-
-    public static final By LOC_LNK_REQ_CERT_MENUE =         By.xpath("//nav//a [.//span [text() = 'Request certificate']]");
-    public static final By LOC_LNK_REQUESTS_MENUE =         By.xpath("//nav//a [.//span [text() = 'Requests']]");
-    public static final By LOC_LNK_CERTIFICATES_MENUE =     By.xpath("//nav//a [.//span [text() = 'Certificates']]");
+    public static final By LOC_LNK_REQ_CERT_MENUE = By.xpath("//nav//a [.//span [text() = 'Request certificate']]");
+    public static final By LOC_LNK_REQUESTS_MENUE = By.xpath("//nav//a [.//span [text() = 'Requests']]");
+    public static final By LOC_LNK_CERTIFICATES_MENUE = By.xpath("//nav//a [.//span [text() = 'Certificates']]");
 
     public static final By LOC_BTN_REQUEST_CERTIFICATE = By.xpath("//form/div/button [@type='button'][span [text() = 'Request certificate']]");
 
@@ -107,7 +106,7 @@ public class CSRSubmitIT extends WebTestBase{
     public static final By LOC_TEXT_CERT_REVOCATION_REASON = By.xpath("//div//dd/span[@name = 'revocationReason']");
 
     public static final By LOC_SHOW_HIDE_AUDIT = By.xpath("//button[@id='showHideAudit']");
-//    public static final By LOC_TABLE_AUDIT = By.xpath("//div/table [thead/tr/th/span[text() = 'Role']] [tbody/tr]");
+    //    public static final By LOC_TABLE_AUDIT = By.xpath("//div/table [thead/tr/th/span[text() = 'Role']] [tbody/tr]");
     public static final By LOC_TABLE_AUDIT = By.xpath("//div//div [.//tr/th/span [contains(text(), 'Role')] ] [tbody/tr]");
 
     public static final By LOC_TABLE_AUDIT_REVOCATION_PRESENT = By.xpath("//div/table [thead/tr/th/span [contains(text(), 'Role')] ] [tbody/tr/td [contains(text(), 'Certificate revoked')]]");
@@ -206,7 +205,9 @@ public class CSRSubmitIT extends WebTestBase{
 		rand.nextBytes(secretBytes);
 		String secret = "1Aa" + Base64.getEncoder().encodeToString(secretBytes);
 
+        explain("Navigate your browser to the start page of the application");
 		signIn(USER_NAME_USER, USER_PASSWORD_USER);
+        explain("and login in as a simple user");
 
 		validatePresent(LOC_LNK_REQ_CERT_MENUE);
 		click(LOC_LNK_REQ_CERT_MENUE);
@@ -215,24 +216,25 @@ public class CSRSubmitIT extends WebTestBase{
 
         click(LOC_SEL_PIPELINE);
         selectOptionByText(LOC_SEL_PIPELINE, PipelineTestConfiguration.PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
+        explain("select a certificate processing pipeline matching your requirements");
 
         validatePresent(LOC_TA_UPLOAD_CONTENT);
 
-	    validatePresent(LOC_SEL_PIPELINE);
-
-	    selectOptionByText(LOC_SEL_PIPELINE, PipelineTestConfiguration.PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
-
 		validatePresent(LOC_SEL_KEY_CREATION_CHOICE);
 	    selectOptionByText(LOC_SEL_KEY_CREATION_CHOICE, "Serverside key creation");
+        explain("the easiest option is to avoid the certificate signing request creation and just let the server do the handle the request and the private key. But keep in mind this option has security drawbacks");
 
 	    validatePresent(LOC_SEL_KEY_LENGTH_CHOICE);
 	    selectOptionByText(LOC_SEL_KEY_LENGTH_CHOICE, "rsa-2048");
+        explain("select a key length. for a test a 2048 bit key length will do.");
 
         setText(LOC_INP_SECRET_VALUE, secret);
+        explain("provide a secret passphrase that will protect the private key in the certificate container");
         setText(LOC_INP_SECRET_REPEAT_VALUE, secret);
 
         // mismatch of secret
         setText(LOC_INP_SECRET_REPEAT_VALUE, "aa"+secret+"zz");
+        explain("repeat the secret passphrase. A mismatch between the values will be reported");
         Assertions.assertFalse(isEnabled(LOC_BTN_REQUEST_CERTIFICATE), "Expecting request button disabled");
 
         setText(LOC_INP_SECRET_REPEAT_VALUE, secret);
@@ -247,7 +249,9 @@ public class CSRSubmitIT extends WebTestBase{
 	    setText(LOC_INP_OU_VALUE, ou);
 	    setText(LOC_INP_L_VALUE, l);
 	    setText(LOC_INP_ST_VALUE, st);
+        explain("provide the details of the certificate's subject");
 	    setText(LOC_INP_SAN_VALUE, san);
+        explain("if required, provide subject alternative names");
 
 	    validatePresent(LOC_BTN_REQUEST_CERTIFICATE);
 
@@ -349,6 +353,7 @@ public class CSRSubmitIT extends WebTestBase{
         Assertions.assertEquals(randomComment, certComment, "Expecting the certificate comment to contain ´the expected content");
 
     }
+
 
     @Test
     public void testCSRDERSubmitDirect() throws GeneralSecurityException, IOException, InterruptedException {
