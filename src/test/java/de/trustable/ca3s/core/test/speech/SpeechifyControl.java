@@ -21,6 +21,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -38,6 +39,13 @@ public class SpeechifyControl {
 
     String soundFilePath = "./src/test/resources/pr/sound";
 
+    public SpeechifyControl(){
+        try {
+            Files.createDirectories(Paths.get(soundFilePath));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
     final String jsonRequestPattern = "{\"audioFormat\":\"%s\"," +
         "\"paragraphChunks\":[" +
         "\"%s\"" +
@@ -81,7 +89,7 @@ public class SpeechifyControl {
         return Base64.getDecoder().decode(audioBytesBase64);
     }
 
-    public String sendRequest(final String jsonRequest) throws JSONException, IOException, ParseException {
+    public String sendRequest(final String jsonRequest) throws Exception {
 
         final String[] audioBytesEncoded = new String[1];
 
