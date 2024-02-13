@@ -109,7 +109,7 @@ public class WebTestBase extends LocomotiveBase {
         try {
             soundOutput = new SoundOutput(s);
             soundOutput.play();
-        } catch (IOException | JSONException | ParseException | NoSuchAlgorithmException | JavaLayerException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -212,8 +212,21 @@ public class WebTestBase extends LocomotiveBase {
 		WebElement we = waitForElement(loc);
 		return we.isEnabled();
 	}
-
+    public void wait(int ms)
+    {
+        try
+        {
+            Thread.sleep(ms);
+        }
+        catch(InterruptedException ex)
+        {
+            Thread.currentThread().interrupt();
+        }
+    }
     void signIn(final String user, final String password) {
+         signIn ( user, password, 0);
+    }
+    void signIn(final String user, final String password, int waitMillis) {
 
         if( isPresent(LOC_TXT_WEBPACK_ERROR) ) {
             System.err.println(
@@ -236,6 +249,7 @@ public class WebTestBase extends LocomotiveBase {
 
         setText(LOC_LNK_SIGNIN_USERNAME, user);
         setText(LOC_LNK_SIGNIN_PASSWORD, password);
+        wait(waitMillis);
         click(LOC_BTN_SIGNIN_SUBMIT);
 
     }

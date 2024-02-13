@@ -1,7 +1,9 @@
 package de.trustable.ca3s.core.test.speech;
 
 import javazoom.jl.decoder.JavaLayerException;
-import javazoom.jl.player.Player;
+import javazoom.jl.player.AudioDevice;
+import javazoom.jl.player.JavaSoundAudioDeviceFactory;
+import javazoom.jl.player.*;
 import org.apache.hc.core5.http.ParseException;
 import org.json.JSONException;
 
@@ -20,7 +22,7 @@ import java.security.NoSuchAlgorithmException;
 
     private byte[] soundBytes;
 
-    public SoundOutput(String text) throws IOException, JSONException, ParseException, NoSuchAlgorithmException {
+    public SoundOutput(String text) throws Exception {
 
         SpeechifyControl speechifyControl = new SpeechifyControl();
         this.soundBytes = speechifyControl.getSoundBytes(text);
@@ -30,9 +32,10 @@ import java.security.NoSuchAlgorithmException;
      * Plays the audio from the given source
      */
     public final void play() throws IOException, JavaLayerException {
-
+        FactoryRegistry r = FactoryRegistry.systemRegistry();
+        AudioDevice audioDevice = r.createAudioDevice();
         try( InputStream is = new ByteArrayInputStream(soundBytes)) {
-            Player mp3Player = new Player(is);
+            Player mp3Player = new Player(is,audioDevice);
             mp3Player.play();
         }
     }

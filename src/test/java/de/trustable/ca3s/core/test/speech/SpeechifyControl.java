@@ -52,7 +52,7 @@ public class SpeechifyControl {
         "]," +
         "\"voiceParams\":{\"name\":\"%s\",\"engine\":\"%s\",\"languageCode\":\"%s\"}}";
 
-    public File getSoundFile(final String text) throws JSONException, IOException, ParseException, NoSuchAlgorithmException {
+    public File getSoundFile(final String text) throws Exception {
 
         String jsonRequest = String.format(jsonRequestPattern,soundFormat, text, voiceName, voiceEngine, voicelanguageCode);
 
@@ -74,7 +74,7 @@ public class SpeechifyControl {
         return soundFile;
     }
 
-    public byte[] getSoundBytes(final String text) throws JSONException, IOException, ParseException, NoSuchAlgorithmException {
+    public byte[] getSoundBytes(final String text) throws Exception {
 
         File file = getSoundFile(text);
         String content = Files.readString(file.toPath());
@@ -84,7 +84,7 @@ public class SpeechifyControl {
         String audioBytesBase64 = jsonResponse.getString("audioStream");
         String format = jsonResponse.getString("format");
 
-        LOG.debug("Format '" + format + "', content :" + audioBytesBase64);
+        //LOG.debug("Format '" + format + "', content :" + audioBytesBase64);
 
         return Base64.getDecoder().decode(audioBytesBase64);
     }
