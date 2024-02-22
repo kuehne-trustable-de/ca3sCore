@@ -169,7 +169,7 @@
         <!-- jhipster-needle-maven-property -->
 
         <ds-proxy-spring-boot-starter.version>1.8.1</ds-proxy-spring-boot-starter.version>
-        <keycloak.version>23.0.4</keycloak.version>
+        <keycloak.version>23.0.7</keycloak.version>
 
         <bouncyCastleVersion>1.77</bouncyCastleVersion>
 
