@@ -2469,7 +2469,7 @@ public class CertificateUtil {
         return new KeyStoreAndPassphrase(p12, passphraseChars);
     }
 
-    public class KeyStoreAndPassphrase{
+    public static class KeyStoreAndPassphrase{
 
         private KeyStore keyStore;
         private char[] passphraseChars;

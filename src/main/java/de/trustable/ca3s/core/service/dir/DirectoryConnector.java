@@ -1,27 +1,12 @@
 package de.trustable.ca3s.core.service.dir;
 
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.security.GeneralSecurityException;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
-
+import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.ImportedURL;
+import de.trustable.ca3s.core.repository.CertificateRepository;
+import de.trustable.ca3s.core.repository.ImportedURLRepository;
+import de.trustable.ca3s.core.schedule.ImportInfo;
 import de.trustable.ca3s.core.schedule.spider.Crawler;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.CAStatus;
@@ -35,12 +20,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import de.trustable.ca3s.core.domain.CAConnectorConfig;
-import de.trustable.ca3s.core.domain.ImportedURL;
-import de.trustable.ca3s.core.repository.CertificateAttributeRepository;
-import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.repository.ImportedURLRepository;
-import de.trustable.ca3s.core.schedule.ImportInfo;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.security.GeneralSecurityException;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 @Service
 public class DirectoryConnector {
@@ -54,15 +48,12 @@ public class DirectoryConnector {
 	Logger LOGGER = LoggerFactory.getLogger(DirectoryConnector.class);
 
 	@Autowired
-    CertificateUtil certUtil;
+    private CertificateUtil certUtil;
 
 	@Autowired
 	private CertificateRepository certificateRepository;
 
-	@Autowired
-	private CertificateAttributeRepository certificateAttributeRepository;
-
-	@Autowired
+    @Autowired
 	private ImportedURLRepository importedURLRepository;
 
     @Autowired

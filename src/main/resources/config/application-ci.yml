@@ -191,7 +191,7 @@ jhipster:
 #
 #### Sample calls
 #
-#  > setspn -a HTTP/ca3s.ci-adcs ci\administrator
+#  > setspn -A HTTP/ca3s.ci-adcs ci\administrator
 #  Checking domain DC=ci,DC=dc#
 #
 #  Registering ServicePrincipalNames for CN=Administrator,CN=Users,DC=ci,DC=dc

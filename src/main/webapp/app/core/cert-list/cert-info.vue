@@ -170,6 +170,11 @@
                             <span v-text="$t('ca3SApp.certificate.requestedBy')">Requested by</span>
                         </dt>
                         <dd v-if="certificateView.requestedBy">
+
+                            <span v-if="(certificateView.firstName || certificateView.lastName) && certificateView.email"><a href="'mailto:' + certificateView.email">{{$t('ca3SApp.cSR.requestor.details', {login: certificateView.login, fistName: certificateView.firstName, lastName: certificateView.lastName})}}</a></span>
+                            <span v-if="(certificateView.firstName || certificateView.lastName) && !certificateView.email">{{$t('ca3SApp.cSR.requestor.details', {login: certificateView.login, fistName: certificateView.firstName, lastName: certificateView.lastName})}}</span>
+                            <span v-if="certificateView.tenantName">{{$t('ca3SApp.cSR.requestor.tenant', {tenant: certificateView.tenantName})}}</span>
+
                             <span>{{certificateView.requestedBy}}</span>
                             <span v-if="certificateView.tenantName"> / {{certificateView.tenantName}}</span>
                         </dd>

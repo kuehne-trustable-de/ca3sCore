@@ -148,3 +148,4 @@ Desktop.ini
 /application-prod.yml.mssql
 /application-prod.yml.dumpsql
 /logs/
+/src/test/resources/pr/sound/

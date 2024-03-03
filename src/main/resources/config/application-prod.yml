@@ -39,6 +39,7 @@ logging:
     de.trustable.ca3s.core.repository.CertificateSpecifications: WARN
     de.trustable.ca3s.core.web.rest.support.UIDatasetSupport: DEBUG
     de.trustable.util.CryptoUtil: WARN
+    de.trustable.cmp.client.cmpClient.CMPClientImpl: DEBUG
     org.keycloak.adapters: WARN
     org.springframework.security.web.authentication: WARN
     org.springframework.security: INFO
@@ -67,17 +68,17 @@ spring:
     #    username: ca3s_jh_dev
     #    password: nYbA4Jm4rnQJ
 
-    #    url: jdbc:mysql://localhost:3306/int_test?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    #    username: ca3s_test
-    #    password: s3cr3t
-    #    url: jdbc:mysql://localhost:3306/test_schema?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    #    username: ca3s_test
-    #    password: s3cr3t
+    # url: jdbc:mysql://localhost:3306/int_test?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    # username: ca3s_test
+    # password: s3cr3t
+    url: jdbc:mysql://localhost:3306/test_schema?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ca3s_test
+    password: s3cr3t
 
     # mssql connection sample
-    url: jdbc:sqlserver://127.0.0.1:1433;database=ca3s;trustServerCertificate=true;
-    username: SA
-    password: S3cr3t#S
+    # url: jdbc:sqlserver://127.0.0.1:1433;database=ca3s;trustServerCertificate=true;
+    # username: SA
+    # password: S3cr3t#S
 
     # recommended configuration for production:
     # Separate the database rights between the application and liquibase. The application does not need any schema alteration or dump privileges.
@@ -98,10 +99,10 @@ spring:
 
   # align the JPA configuration to match the database used. The following section is intended for mariadb / mysql
   jpa:
-    #    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
-    #    database: MYSQL
-    database-platform: org.hibernate.dialect.SQLServerDialect
-    database: sqlserver
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    database: MYSQL
+    # database-platform: org.hibernate.dialect.SQLServerDialect
+    # database: sqlserver
     show-sql: false
     properties:
       hibernate:

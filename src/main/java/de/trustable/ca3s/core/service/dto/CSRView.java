@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -18,6 +19,10 @@ import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.persistence.Column;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Size;
 
 /**
  * A certificate view from a given certificate and its attributes
@@ -57,6 +62,15 @@ public class CSRView implements Serializable {
 
     @CsvBindByName
     private String requestedBy;
+
+    @CsvIgnore
+    private String firstName;
+
+    @CsvIgnore
+    private String lastName;
+
+    @CsvIgnore
+    private String email;
 
     @CsvBindByName
     private String tenantName;
@@ -146,6 +160,7 @@ public class CSRView implements Serializable {
 
         this.requestedOn = csr.getRequestedOn();
         this.requestedBy = csr.getRequestedBy();
+
 
         if( csr.getTenant() != null ){
             this.tenantName = csr.getTenant().getLongname();
@@ -362,6 +377,30 @@ public class CSRView implements Serializable {
 		this.requestedBy = requestedBy;
 	}
 
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getTenantName() {
         return tenantName;
     }
@@ -508,5 +547,47 @@ public class CSRView implements Serializable {
 
     public void setArArr(NamedValue[] arArr) {
         this.arArr = arArr;
+    }
+
+    @Override
+    public String toString() {
+        return "CSRView{" +
+            "id=" + id +
+            ", certificateId=" + certificateId +
+            ", status=" + status +
+            ", subject='" + subject + '\'' +
+            ", sans='" + sans + '\'' +
+            ", sanArr=" + Arrays.toString(sanArr) +
+            ", pipelineType=" + pipelineType +
+            ", rejectedOn=" + rejectedOn +
+            ", rejectionReason='" + rejectionReason + '\'' +
+            ", requestedBy='" + requestedBy + '\'' +
+            ", firstName='" + firstName + '\'' +
+            ", lastName='" + lastName + '\'' +
+            ", email='" + email + '\'' +
+            ", tenantName='" + tenantName + '\'' +
+            ", processingCA='" + processingCA + '\'' +
+            ", pipelineName='" + pipelineName + '\'' +
+            ", pipelineId=" + pipelineId +
+            ", x509KeySpec='" + x509KeySpec + '\'' +
+            ", hashAlgorithm='" + hashAlgorithm + '\'' +
+            ", keyAlgorithm='" + keyAlgorithm + '\'' +
+            ", keyLength='" + keyLength + '\'' +
+            ", signingAlgorithm='" + signingAlgorithm + '\'' +
+            ", publicKeyAlgorithm='" + publicKeyAlgorithm + '\'' +
+            ", requestedOn=" + requestedOn +
+            ", isCSRValid=" + isCSRValid +
+            ", serversideKeyGeneration=" + serversideKeyGeneration +
+            ", processInstanceId='" + processInstanceId + '\'' +
+            ", publicKeyHash='" + publicKeyHash + '\'' +
+            ", administeredBy='" + administeredBy + '\'' +
+            ", acceptedBy='" + acceptedBy + '\'' +
+            ", approvedOn=" + approvedOn +
+            ", comment='" + comment + '\'' +
+            ", arArr=" + Arrays.toString(arArr) +
+            ", csrBase64='" + csrBase64 + '\'' +
+            ", auditViewArr=" + Arrays.toString(auditViewArr) +
+            ", isAdministrable=" + isAdministrable +
+            '}';
     }
 }

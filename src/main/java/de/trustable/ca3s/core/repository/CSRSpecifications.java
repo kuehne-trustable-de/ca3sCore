@@ -5,7 +5,7 @@ import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.service.dto.CSRView;
 import de.trustable.ca3s.core.service.dto.Selector;
-import de.trustable.ca3s.core.web.rest.util.CurrentUserUtil;
+import de.trustable.ca3s.core.web.rest.util.UserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.*;
@@ -40,7 +40,7 @@ public final class CSRSpecifications {
                                                          String certificateStoreIsolation) {
 
         boolean useTenant = true;
-        if( CurrentUserUtil.isAdministrativeUser(user) ||
+        if( UserUtil.isAdministrativeUser(user) ||
             "none".equalsIgnoreCase(certificateStoreIsolation)){
             useTenant = false;
         }else if( user.getTenant() == null ){

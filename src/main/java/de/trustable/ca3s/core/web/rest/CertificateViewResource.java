@@ -6,7 +6,7 @@ import de.trustable.ca3s.core.domain.Tenant;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.repository.AuditTraceRepository;
 import de.trustable.ca3s.core.repository.CertificateViewRepository;
-import de.trustable.ca3s.core.web.rest.util.CurrentUserUtil;
+import de.trustable.ca3s.core.web.rest.util.UserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,14 +39,14 @@ public class CertificateViewResource {
 
     private final CertificateViewRepository certificateViewRepository;
 
-    private final CurrentUserUtil currentUserUtil;
+    private final UserUtil userUtil;
 
     private final  AuditTraceRepository auditTraceRepository;
 
-    public CertificateViewResource(CertificateService certificateService, CertificateViewRepository certificateViewRepository, CurrentUserUtil currentUserUtil, AuditTraceRepository auditTraceRepository) {
+    public CertificateViewResource(CertificateService certificateService, CertificateViewRepository certificateViewRepository, UserUtil userUtil, AuditTraceRepository auditTraceRepository) {
         this.certificateService = certificateService;
         this.certificateViewRepository = certificateViewRepository;
-        this.currentUserUtil = currentUserUtil;
+        this.userUtil = userUtil;
         this.auditTraceRepository = auditTraceRepository;
     }
 
@@ -63,16 +63,18 @@ public class CertificateViewResource {
         Optional<CertificateView> optCert = certificateViewRepository.findbyCertificateId(id);
 
         if( optCert.isPresent() ) {
-            checkTenant(optCert.get());
-    		return new ResponseEntity<>(optCert.get(), HttpStatus.OK);
+            CertificateView certView = optCert.get();
+            checkTenant(certView);
+            userUtil.addUserDetails(certView);
+    		return new ResponseEntity<>(certView, HttpStatus.OK);
         }
 
 		return ResponseEntity.notFound().build();
     }
 
     private void checkTenant(CertificateView certView) {
-        if( !currentUserUtil.isAdministrativeUser() ){
-            User currentUser = currentUserUtil.getCurrentUser();
+        if( !userUtil.isAdministrativeUser() ){
+            User currentUser = userUtil.getCurrentUser();
             Tenant tenant = currentUser.getTenant();
             if( tenant == null ) {
                 // null == default tenant

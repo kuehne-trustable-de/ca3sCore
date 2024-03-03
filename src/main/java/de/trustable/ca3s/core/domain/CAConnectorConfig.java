@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 import de.trustable.ca3s.core.domain.enumeration.Interval;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
@@ -48,6 +49,9 @@ public class CAConnectorConfig implements Serializable {
 
     @Column(name = "polling_offset")
     private Integer pollingOffset;
+
+    @Column(name = "last_update")
+    private Instant lastUpdate;
 
     @Column(name = "default_ca")
     private Boolean defaultCA;
@@ -159,6 +163,14 @@ public class CAConnectorConfig implements Serializable {
 
     public void setPollingOffset(Integer pollingOffset) {
         this.pollingOffset = pollingOffset;
+    }
+
+    public Instant getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(Instant lastUpdate) {
+        this.lastUpdate = lastUpdate;
     }
 
     public Boolean isDefaultCA() {
@@ -352,21 +364,26 @@ public class CAConnectorConfig implements Serializable {
         return getClass().hashCode();
     }
 
-    // prettier-ignore
     @Override
     public String toString() {
         return "CAConnectorConfig{" +
-            "id=" + getId() +
-            ", name='" + getName() + "'" +
-            ", caConnectorType='" + getCaConnectorType() + "'" +
-            ", caUrl='" + getCaUrl() + "'" +
-            ", pollingOffset=" + getPollingOffset() +
-            ", defaultCA='" + getDefaultCA() + "'" +
-            ", active='" + getActive() + "'" +
-            ", trustSelfsignedCertificates='" + getTrustSelfsignedCertificates() + "'" +
-            ", selector='" + getSelector() + "'" +
-            ", interval='" + getInterval() + "'" +
-            ", plainSecret='" + getPlainSecret() + "'" +
-            "}";
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", caConnectorType=" + caConnectorType +
+            ", caUrl='" + caUrl + '\'' +
+            ", pollingOffset=" + pollingOffset +
+            ", lastUpdate=" + lastUpdate +
+            ", defaultCA=" + defaultCA +
+            ", active=" + active +
+            ", trustSelfsignedCertificates=" + trustSelfsignedCertificates +
+            ", selector='" + selector + '\'' +
+            ", interval=" + interval +
+            ", plainSecret='" + plainSecret + '\'' +
+            ", checkActive=" + checkActive +
+            ", secret=" + secret +
+            ", caConnectorAttributes=" + caConnectorAttributes +
+            ", tlsAuthentication=" + tlsAuthentication +
+            ", messageProtection=" + messageProtection +
+            '}';
     }
 }

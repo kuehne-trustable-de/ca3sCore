@@ -39,7 +39,7 @@ import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.security.SecurityUtils;
 import de.trustable.ca3s.core.service.AuditService;
-import de.trustable.ca3s.core.web.rest.util.CurrentUserUtil;
+import de.trustable.ca3s.core.web.rest.util.UserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -81,7 +81,7 @@ public class CertificateDownloadController {
 
     private final ProtectedContentUtil protContentUtil;
 
-    private final CurrentUserUtil currentUserUtil;
+    private final UserUtil userUtil;
 
     private final AuditService auditService;
 
@@ -94,14 +94,14 @@ public class CertificateDownloadController {
                                          CertificateRepository certificateRepository,
                                          CertificateUtil certUtil,
                                          ProtectedContentUtil protContentUtil,
-                                         CurrentUserUtil currentUserUtil, AuditService auditService,
+                                         UserUtil userUtil, AuditService auditService,
                                          @Value("${ca3s.ui.certificate-store.isolation:none}")String certificateStoreIsolation,
                                          @Value("${ca3s.ui.pkcs12.log.download:true}") boolean pkcs12LogDownload) {
         this.cryptoConfiguration = cryptoConfiguration;
         this.certificateRepository = certificateRepository;
         this.certUtil = certUtil;
         this.protContentUtil = protContentUtil;
-        this.currentUserUtil = currentUserUtil;
+        this.userUtil = userUtil;
         this.auditService = auditService;
         this.certificateStoreIsolation = certificateStoreIsolation;
         this.pkcs12LogDownload = pkcs12LogDownload;
@@ -307,8 +307,8 @@ public class CertificateDownloadController {
             return;
         }
 
-        if( !currentUserUtil.isAdministrativeUser() ){
-            User currentUser = currentUserUtil.getCurrentUser();
+        if( !userUtil.isAdministrativeUser() ){
+            User currentUser = userUtil.getCurrentUser();
             Tenant tenant = currentUser.getTenant();
             if( tenant == null ) {
                 // null == default tenant

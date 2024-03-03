@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -43,6 +44,12 @@ public class CertificateView implements Serializable {
 
     @CsvIgnore
     private String rdn_cn;
+
+    @CsvIgnore
+    private String issuer_rdn_cn;
+
+    @CsvIgnore
+    private String root_rdn_cn;
 
     @CsvIgnore
     private String rdn_o;
@@ -158,6 +165,8 @@ public class CertificateView implements Serializable {
     @CsvBindByName(column="sans")
     private String sansString;
 
+    @CsvIgnore
+    private String typedSansString;
 
     @CsvIgnore
     private Long caConnectorId;
@@ -192,6 +201,14 @@ public class CertificateView implements Serializable {
     @CsvBindByName
     private String requestedBy;
 
+    @CsvIgnore
+    private String firstName;
+
+    @CsvIgnore
+    private String lastName;
+
+    @CsvIgnore
+    private String email;
     @CsvBindByName
     private String tenantName;
 
@@ -307,6 +324,7 @@ public class CertificateView implements Serializable {
         this.usageString = "";
         this.extUsageString = "";
         this.sansString = "";
+        this.typedSansString = "";
 
         this.altKeyAlgorithm = null;
 
@@ -372,9 +390,11 @@ public class CertificateView implements Serializable {
                 } else if (CertificateAttribute.ATTRIBUTE_EXTENDED_USAGE.equalsIgnoreCase(certAttr.getName())) {
                     extUsageList.add(certAttr.getValue());
                     this.extUsageString = this.extUsageString.isEmpty() ? certAttr.getValue() : this.extUsageString + ", " + certAttr.getValue();
-                } else if (CsrAttribute.ATTRIBUTE_TYPED_SAN.equalsIgnoreCase(certAttr.getName())) {
+                } else if (CsrAttribute.ATTRIBUTE_SAN.equalsIgnoreCase(certAttr.getName())) {
                     sanList.add(certAttr.getValue());
                     this.sansString = this.sansString.isEmpty() ? certAttr.getValue() : this.sansString + ", " + certAttr.getValue();
+                } else if (CsrAttribute.ATTRIBUTE_TYPED_SAN.equalsIgnoreCase(certAttr.getName())) {
+                    this.typedSansString = this.typedSansString.isEmpty() ? certAttr.getValue() : this.typedSansString + ", " + certAttr.getValue();
                 } else if (CertificateAttribute.ATTRIBUTE_REPLACED_BY.equalsIgnoreCase(certAttr.getName())) {
                     replacedCertList.add(certAttr.getValue());
                 } else if (CertificateAttribute.ATTRIBUTE_ALT_ALGO.equalsIgnoreCase(certAttr.getName())) {
@@ -397,9 +417,23 @@ public class CertificateView implements Serializable {
 
     	this.arArr = copyArAttributes(cert);
 
+        this.issuer_rdn_cn = getRdnCn(cert.getIssuingCertificate());
+        this.root_rdn_cn = getRdnCn(cert.getRootCertificate());
+
         CertificateComment comment = (cert.getComment() == null)? new CertificateComment() : cert.getComment();
         this.setComment( (comment.getComment()==null) ? "": comment.getComment());
 
+    }
+
+    private String getRdnCn(Certificate cert){
+        if( cert != null ){
+            for (CertificateAttribute certAttr : cert.getCertificateAttributes()) {
+                if (CertificateAttribute.ATTRIBUTE_RDN_CN.equalsIgnoreCase(certAttr.getName())) {
+                    return certAttr.getValue();
+                }
+            }
+        }
+        return "";
     }
 
 	public Long getId() {
@@ -736,6 +770,30 @@ public class CertificateView implements Serializable {
 		this.requestedBy = requestedBy;
 	}
 
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getTenantName() {
         return tenantName;
     }
@@ -830,6 +888,22 @@ public class CertificateView implements Serializable {
 
     public void setRdn_cn(String rdn_cn) {
         this.rdn_cn = rdn_cn;
+    }
+
+    public String getIssuer_rdn_cn() {
+        return issuer_rdn_cn;
+    }
+
+    public void setIssuer_rdn_cn(String issuer_rdn_cn) {
+        this.issuer_rdn_cn = issuer_rdn_cn;
+    }
+
+    public String getRoot_rdn_cn() {
+        return root_rdn_cn;
+    }
+
+    public void setRoot_rdn_cn(String root_rdn_cn) {
+        this.root_rdn_cn = root_rdn_cn;
     }
 
     public String getRdn_o() {
@@ -954,6 +1028,14 @@ public class CertificateView implements Serializable {
         this.sansString = sansString;
     }
 
+    public String getTypedSansString() {
+        return typedSansString;
+    }
+
+    public void setTypedSansString(String typedSansString) {
+        this.typedSansString = typedSansString;
+    }
+
     public Boolean getServersideKeyGeneration() {
         return isServersideKeyGeneration;
     }
@@ -1000,5 +1082,84 @@ public class CertificateView implements Serializable {
 
     public void setIssuingActiveCertificates(Boolean issuingActiveCertificates) {
         isIssuingActiveCertificates = issuingActiveCertificates;
+    }
+
+    @Override
+    public String toString() {
+        return "CertificateView{" +
+            "id=" + id +
+            ", csrId=" + csrId +
+            ", issuerId=" + issuerId +
+            ", tbsDigest='" + tbsDigest + '\'' +
+            ", subject='" + subject + '\'' +
+            ", rdn_c='" + rdn_c + '\'' +
+            ", rdn_cn='" + rdn_cn + '\'' +
+            ", rdn_o='" + rdn_o + '\'' +
+            ", rdn_ou='" + rdn_ou + '\'' +
+            ", rdn_s='" + rdn_s + '\'' +
+            ", rdn_l='" + rdn_l + '\'' +
+            ", sans='" + sans + '\'' +
+            ", issuer='" + issuer + '\'' +
+            ", root='" + root + '\'' +
+            ", trusted=" + trusted +
+            ", fingerprintSha1='" + fingerprintSha1 + '\'' +
+            ", fingerprintSha256='" + fingerprintSha256 + '\'' +
+            ", type='" + type + '\'' +
+            ", keyLength='" + keyLength + '\'' +
+            ", keyAlgorithm='" + keyAlgorithm + '\'' +
+            ", altKeyAlgorithm='" + altKeyAlgorithm + '\'' +
+            ", signingAlgorithm='" + signingAlgorithm + '\'' +
+            ", paddingAlgorithm='" + paddingAlgorithm + '\'' +
+            ", hashAlgorithm='" + hashAlgorithm + '\'' +
+            ", description='" + description + '\'' +
+            ", comment='" + comment + '\'' +
+            ", csrComment='" + csrComment + '\'' +
+            ", serial='" + serial + '\'' +
+            ", serialHex='" + serialHex + '\'' +
+            ", validFrom=" + validFrom +
+            ", validTo=" + validTo +
+            ", contentAddedAt=" + contentAddedAt +
+            ", revokedSince=" + revokedSince +
+            ", revocationReason='" + revocationReason + '\'' +
+            ", revoked=" + revoked +
+            ", selfsigned=" + selfsigned +
+            ", ca=" + ca +
+            ", intermediate=" + intermediate +
+            ", endEntity=" + endEntity +
+            ", chainLength=" + chainLength +
+            ", usage=" + Arrays.toString(usage) +
+            ", usageString='" + usageString + '\'' +
+            ", extUsage=" + Arrays.toString(extUsage) +
+            ", extUsageString='" + extUsageString + '\'' +
+            ", sanArr=" + Arrays.toString(sanArr) +
+            ", sansString='" + sansString + '\'' +
+            ", caConnectorId=" + caConnectorId +
+            ", caProcessingId=" + caProcessingId +
+            ", processingCa='" + processingCa + '\'' +
+            ", acmeAccountId=" + acmeAccountId +
+            ", acmeOrderId=" + acmeOrderId +
+            ", scepTransId='" + scepTransId + '\'' +
+            ", scepRecipient='" + scepRecipient + '\'' +
+            ", fileSource='" + fileSource + '\'' +
+            ", uploadedBy='" + uploadedBy + '\'' +
+            ", revokedBy='" + revokedBy + '\'' +
+            ", requestedBy='" + requestedBy + '\'' +
+            ", firstName='" + firstName + '\'' +
+            ", lastName='" + lastName + '\'' +
+            ", email='" + email + '\'' +
+            ", tenantName='" + tenantName + '\'' +
+            ", tenantÎd=" + tenantÎd +
+            ", crlUrl='" + crlUrl + '\'' +
+            ", crlExpirationNotificationId=" + crlExpirationNotificationId +
+            ", crlNextUpdate=" + crlNextUpdate +
+            ", certB64='" + certB64 + '\'' +
+            ", downloadFilename='" + downloadFilename + '\'' +
+            ", isServersideKeyGeneration=" + isServersideKeyGeneration +
+            ", isAuditPresent=" + isAuditPresent +
+            ", isFullChainAvailable=" + isFullChainAvailable +
+            ", isIssuingActiveCertificates=" + isIssuingActiveCertificates +
+            ", replacedCertArr=" + Arrays.toString(replacedCertArr) +
+            ", arArr=" + Arrays.toString(arArr) +
+            '}';
     }
 }

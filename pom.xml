@@ -7,7 +7,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.1.2</version>
+    <version>1.1.3</version>
     <packaging>jar</packaging>
 
 
@@ -120,7 +120,7 @@
         <jaxb-runtime.version>2.3.9</jaxb-runtime.version>
 
         <spring.version>5.3.26</spring.version>
-        <spring.security.version>5.7.10</spring.security.version>
+        <spring.security.version>5.7.11</spring.security.version>
         <saml2-core.spring.version>1.0.10.RELEASE</saml2-core.spring.version>
         <open-saml.version>4.3.0</open-saml.version>
 
@@ -175,7 +175,7 @@
 
         <cryptoUtilVersion>1.3.24</cryptoUtilVersion>
         <certBundleVersion>1.1.1</certBundleVersion>
-        <cmpClientVersion>3.0.1</cmpClientVersion>
+        <cmpClientVersion>3.0.2</cmpClientVersion>
         <adcsUtilVersion>1.2.9</adcsUtilVersion>
         <adcsProxyClientVersion>1.2.9</adcsProxyClientVersion>
 
