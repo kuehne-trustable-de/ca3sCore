@@ -1127,6 +1127,8 @@ public class CertificateView implements Serializable {
             ", subject='" + subject + '\'' +
             ", rdn_c='" + rdn_c + '\'' +
             ", rdn_cn='" + rdn_cn + '\'' +
+            ", issuer_rdn_cn='" + issuer_rdn_cn + '\'' +
+            ", root_rdn_cn='" + root_rdn_cn + '\'' +
             ", rdn_o='" + rdn_o + '\'' +
             ", rdn_ou='" + rdn_ou + '\'' +
             ", rdn_s='" + rdn_s + '\'' +
@@ -1166,6 +1168,7 @@ public class CertificateView implements Serializable {
             ", extUsageString='" + extUsageString + '\'' +
             ", sanArr=" + Arrays.toString(sanArr) +
             ", sansString='" + sansString + '\'' +
+            ", typedSansString='" + typedSansString + '\'' +
             ", caConnectorId=" + caConnectorId +
             ", caProcessingId=" + caProcessingId +
             ", processingCa='" + processingCa + '\'' +
