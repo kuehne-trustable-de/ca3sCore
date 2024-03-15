@@ -52,6 +52,26 @@
                                     <input type="checkbox" class="form-check-inline" name="preferences-serverSideKeyCreationAllowed" id="preferences-serverSideKeyCreationAllowed" v-model="preferences.serverSideKeyCreationAllowed" />
                                 </div>
                             </div>
+
+                            <div v-if="preferences.serverSideKeyCreationAllowed"class="row">
+                                <div class="col ">
+                                    <label for="preferences-deleteKeyAfterDays" v-text="$t('ca3SApp.preference.deleteKeyAfterDays')">Delete key after N days</label>  <help-tag role="Admin" target="preference.delete-key-after-days"/>
+                                </div>
+                                <div class="col colContent" >
+                                    <input type="number" class="form-check-inline" name="preferences-deleteKeyAfterDays" id="preferences-deleteKeyAfterDays" v-model="preferences.deleteKeyAfterDays" />
+                                </div>
+                            </div>
+
+                            <div v-if="preferences.serverSideKeyCreationAllowed" class="row">
+                                <div class="col ">
+                                    <label for="preferences-deleteKeyAfterUses" v-text="$t('ca3SApp.preference.deleteKeyAfterUses')">Delete key after N uses</label>  <help-tag role="Admin" target="preference.delete-key-after-uses"/>
+                                </div>
+                                <div class="col colContent" >
+                                    <input type="number" class="form-check-inline" name="preferences-deleteKeyAfterUses" id="preferences-deleteKeyAfterUses" v-model="preferences.deleteKeyAfterUses" />
+                                </div>
+                            </div>
+
+
                             <div class="row">
                                 <div class="col ">
                                     <label for="preferences-acmeHTTP01TimeoutMilliSec" v-text="$t('ca3SApp.preference.acmeHTTP01TimeoutMilliSec')">ACME HTTP01 callback timeout (milli sec)</label>  <help-tag role="Admin" target="preference.http-01-callback-timeout"/>

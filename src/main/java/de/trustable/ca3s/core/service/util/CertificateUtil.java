@@ -1928,7 +1928,7 @@ public class CertificateUtil {
         return generalNameSet;
     }
 
-    public void storePrivateKey(CSR csr, KeyPair keyPair, Instant validTo) throws IOException {
+    public void storePrivateKey(CSR csr, KeyPair keyPair, int leftUsages, Instant validTo) throws IOException {
 
         StringWriter sw = keyToPEM(keyPair);
 
@@ -1936,7 +1936,7 @@ public class CertificateUtil {
             ProtectedContentType.KEY,
             ContentRelationType.CSR,
             csr.getId(),
-            -1,
+            leftUsages,
             validTo);
 
         protContentRepository.save(pt);

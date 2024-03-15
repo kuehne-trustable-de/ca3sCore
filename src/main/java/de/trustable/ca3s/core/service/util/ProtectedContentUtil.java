@@ -161,6 +161,37 @@ public class ProtectedContentUtil {
         return pcList.stream().filter(usableItem).collect(Collectors.toList());
 	}
 
+    public void updateServersideKeyRetentionSettings(long csrId, Instant validTo, int usages){
+
+        log.info("Update the retention settings for csr #{} to validTo {}, left usages {} ", csrId, validTo, usages);
+
+        List<ProtectedContent> protectedKeys = retrieveProtectedContent(
+            ProtectedContentType.KEY,
+            ContentRelationType.CSR,
+            csrId);
+
+        for(ProtectedContent protectedContent: protectedKeys) {
+            setRetentionSettings(protectedContent, validTo, usages);
+        }
+        protContentRepository.saveAll(protectedKeys);
+
+        List<ProtectedContent> protectedPasswords = retrieveProtectedContent(
+            ProtectedContentType.PASSWORD,
+            ContentRelationType.CSR,
+            csrId);
+
+        for(ProtectedContent protectedContent: protectedPasswords) {
+            setRetentionSettings(protectedContent, validTo, usages);
+        }
+        protContentRepository.saveAll(protectedPasswords);
+    }
+
+    private void setRetentionSettings(ProtectedContent protectedContent, Instant validTo, int usages) {
+        protectedContent.setValidTo(validTo);
+        protectedContent.setDeleteAfter(validTo.plus(5, ChronoUnit.DAYS));
+        protectedContent.setLeftUsages(usages);
+    }
+
     public byte[] deriveSecret(String secret) throws NoSuchAlgorithmException, InvalidKeySpecException {
         return deriveSecret(secret.toCharArray());
     }

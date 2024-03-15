@@ -24,6 +24,10 @@ The user must provide a passphrase for the container during the request. No one 
 
 Nevertheless: The best approach in terms of security is to NOT store the private key on ANY other system and to NOT transfer it over ANY network! Please consider possible risks when enableing this option.
 
+#### <a id="preference.delete-key-after-days"></a><a id="preference.delete-key-after-usess"></a> server side key limits
+
+To mitigate the risk for keys created on the server on behalf of a user the keys will be dropped after a configurable time (in days) and downloads
+
 #### <a id="preference.http-01-callback-timeout"></a> ACME HTTP01 callback timeout
 
 This numeric input field allows to set a timeout of ACME http requests (in millisecs).

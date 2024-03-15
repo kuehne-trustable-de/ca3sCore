@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -19,8 +20,10 @@ import de.trustable.ca3s.core.exception.CAFailureException;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.acme.AccountRequest;
 import org.bouncycastle.asn1.x509.CRLReason;
+import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.history.HistoricProcessInstanceQuery;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
@@ -45,7 +48,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 public class BPMNUtil{
 
     private static final Logger LOG = LoggerFactory.getLogger(BPMNUtil.class);
-    public static final String CAINVOCATION_PROCESS = "CAInvocationProcess";
+    public static final String HISTORIC_PROCESS_DELETION_REASON = "processOutdated";
 
     private final ConfigUtil configUtil;
 
@@ -58,6 +61,8 @@ public class BPMNUtil{
     private final RuntimeService runtimeService;
 
     private final RepositoryService repoService;
+
+    private final HistoryService historyService;
 
     private final BPMNProcessInfoRepository bpnmInfoRepo;
 
@@ -81,6 +86,7 @@ public class BPMNUtil{
                     CryptoUtil cryptoUtil,
                     RuntimeService runtimeService,
                     RepositoryService repoService,
+                    HistoryService historyService,
                     BPMNProcessInfoRepository bpnmInfoRepo,
                     CSRRepository csrRepository,
                     CertificateRepository certRepository,
@@ -88,7 +94,7 @@ public class BPMNUtil{
                     NameAndRoleUtil nameAndRoleUtil,
                     AuditService auditService,
                     BPMNAsyncUtil bpmnAsyncUtil,
-    @Value("${ca3s.bpmn.use-default-process:false}") boolean useDefaultProcess) {
+                    @Value("${ca3s.bpmn.use-default-process:false}") boolean useDefaultProcess) {
 
         this.configUtil = configUtil;
         this.caConnAdapter = caConnAdapter;
@@ -96,6 +102,7 @@ public class BPMNUtil{
         this.cryptoUtil = cryptoUtil;
         this.runtimeService = runtimeService;
         this.repoService = repoService;
+        this.historyService = historyService;
         this.bpnmInfoRepo = bpnmInfoRepo;
         this.csrRepository = csrRepository;
         this.certRepository = certRepository;
@@ -137,7 +144,7 @@ public class BPMNUtil{
 
     public void updateProcessDefinitions(){
 
-		List<ProcessDefinition> pdList = getProcessDefinitions();
+        List<ProcessDefinition> pdList = getProcessDefinitions();
 		for(ProcessDefinition pd: pdList ) {
 			List<BPMNProcessInfo> bpmnProcessInfoList = bpnmInfoRepo.findByNameOrderedBylastChange(pd.getKey());
 			if( bpmnProcessInfoList.isEmpty() ) {
@@ -148,6 +155,29 @@ public class BPMNUtil{
 			}
 		}
 	}
+
+    public void deleteHistoricProcesses(int historicProcessRetentionPeriodDays){
+
+        Date finishedBeforeLimit = Date.from(Instant.now().minus(historicProcessRetentionPeriodDays, ChronoUnit.DAYS));
+
+        LOG.info("Update removal time for historic instances finished before {} ", finishedBeforeLimit);
+        HistoricProcessInstanceQuery query =
+            historyService.createHistoricProcessInstanceQuery().finishedBefore(finishedBeforeLimit);
+
+        historyService.setRemovalTimeToHistoricProcessInstances()
+            .absoluteRemovalTime(new Date()) // sets an absolute removal time
+            // .clearedRemovalTime()        // resets the removal time to null
+            // .calculatedRemovalTime()     // calculation based on the engine's configuration
+            .byQuery(query)
+            .hierarchical()              // sets a removal time across the hierarchy
+            .executeAsync();
+        LOG.debug("Update removal time for historic instances scheduled ...");
+
+        historyService.deleteHistoricProcessInstancesAsync(query,HISTORIC_PROCESS_DELETION_REASON);
+
+        LOG.debug("starting to delete historic instances ...");
+    }
+
 
     public BPMNProcessInfo buildBPMNProcessInfoByProcessId(final String processId,
                                                            final String name,

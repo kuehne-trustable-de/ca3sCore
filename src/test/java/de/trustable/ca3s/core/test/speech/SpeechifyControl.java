@@ -33,6 +33,7 @@ public class SpeechifyControl {
     String targetUrl = "https://audio.api.speechify.com/generateAudioFiles";
 
     String soundFormat = "mp3";
+//    String soundFormat = "wav";
     String voiceName = "Matthew";
     String voiceEngine = "neural";
     String voicelanguageCode = "en-US";

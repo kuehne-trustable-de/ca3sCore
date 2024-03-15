@@ -548,15 +548,17 @@ public class ContentUploadProcessor {
                 csr.setServersideKeyGeneration(true);
                 csrRepository.save(csr);
 
-                Instant validTo = Instant.now().plus(30, ChronoUnit.DAYS);
 
-                certUtil.storePrivateKey(csr, keypair, validTo);
+                Instant validTo = Instant.now().plus(preferenceUtil.getServerSideKeyDeleteAfterDays(), ChronoUnit.DAYS);
+                int leftUsages = preferenceUtil.getServerSideKeyDeleteAfterUses();
+
+                certUtil.storePrivateKey(csr, keypair, leftUsages, validTo);
 
                 protUtil.createProtectedContent(uploaded.getSecret(),
                     ProtectedContentType.PASSWORD,
                     ContentRelationType.CSR,
                     csr.getId(),
-                    -1,
+                    leftUsages,
                     validTo);
 
                 Certificate cert = csr.getCertificate();

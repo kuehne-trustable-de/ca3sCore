@@ -1120,6 +1120,8 @@
   "ca3SApp.preference.checkCRL": "CRLs überprüfen (um den Zertifikatsstatus zu aktualisieren)",
   "ca3SApp.preference.home.editLabel": "Einstellungen bearbeiten",
   "ca3SApp.preference.serverSideKeyCreationAllowed": "Serverseitige Schlüsselerstellung erlaubt",
+  "ca3SApp.preference.deleteKeyAfterDays": "Löschen der Schlüssel nach (Tagen) ",
+  "ca3SApp.preference.deleteKeyAfterUses": "Löschen der Schlüssel nach (Abrufen) ",
   "ca3SApp.preference.maxNextUpdatePeriodCRLHour": "Maximale CRL-Gültigkeit (in Std.)",
   "ca3SApp.preference.hashes": "Zulässige Hash-Algorithmen",
   "ca3SApp.preference.algos": "Zulässige Signier-Algorithmen",

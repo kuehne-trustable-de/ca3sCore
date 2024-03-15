@@ -165,7 +165,7 @@ public class UIDatasetSupport {
                     PipelineView pv1 = (PipelineView)o1;
                     PipelineView pv2 = (PipelineView)o2;
                     int result = Integer.compare(pv1.getListOrder(), pv2.getListOrder());
-                    LOG.debug("result {} comparing {}:{} and {}:{}", result, pv1.getName(), pv1.getListOrder(), pv2.getName(), pv2.getListOrder());
+//                    LOG.debug("result {} comparing {}:{} and {}:{}", result, pv1.getName(), pv1.getListOrder(), pv2.getName(), pv2.getListOrder());
                     return result;
                 }
             });

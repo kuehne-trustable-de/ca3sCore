@@ -240,7 +240,13 @@ camunda:
 
 ca3s:
   bpmn:
+    # create a process instance per default
     use-default-process: false
+
+  # set a grace period for process data after its completion
+  historicProcess:
+    retention:
+      days: 180
 
   # if required separate protocols and ra & admin access to specific ports
   # the default port is 8442
@@ -291,10 +297,14 @@ ca3s:
       certRetrieval: 3600000
       revocationCheck: 3600000
 
-    # define a crn pattern for regular tasks
+    # define a cron pattern for regular tasks
     cron:
+      # send notification emails regarding expirations
       expiryNotificationCron: 0 15 2 * * ?
+      # drop user information as soon as no relevant certificate is active anymore
       dropUnrelatedUsersCron: 0 20 02 * * ?
+      # drop historic process information after process completion and a grace period
+      dropHistoricProcessesCron: 0 22 22 * * ?
 
     # time limit (in days) for notifications
     ra-officer-notification:

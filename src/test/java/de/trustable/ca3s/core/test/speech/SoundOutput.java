@@ -2,13 +2,13 @@ package de.trustable.ca3s.core.test.speech;
 
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.AudioDevice;
-import javazoom.jl.player.JavaSoundAudioDeviceFactory;
-import javazoom.jl.player.*;
-import org.apache.hc.core5.http.ParseException;
-import org.json.JSONException;
+import javazoom.jl.player.FactoryRegistry;
+import javazoom.jl.player.Player;
 
-import java.io.*;
-import java.security.NoSuchAlgorithmException;
+import javax.sound.sampled.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
   public class SoundOutput {
 
@@ -40,4 +40,39 @@ import java.security.NoSuchAlgorithmException;
         }
     }
 
+      public void _play() throws IOException, UnsupportedAudioFileException {
+
+          try( InputStream is = new ByteArrayInputStream(soundBytes)) {
+              AudioInputStream inputStream = AudioSystem.getAudioInputStream(is);
+
+              Mixer.Info[] mixerInfo = AudioSystem.getMixerInfo();
+              for (int i = 0; i < mixerInfo.length; i++) {
+                  Mixer.Info info = mixerInfo[i];
+
+                  if( info.getDescription().contains("DirectSound Playback")) {
+                      System.out.println(String.format("Name [%s] \n Description [%s]\n", info.getName(), info.getDescription()));
+                      System.out.println(mixerInfo.getClass());
+
+                      Mixer m = AudioSystem.getMixer(info);
+                      Line.Info[] lineInfos = m.getSourceLineInfo();
+                      for (Line.Info lineInfo:lineInfos){
+                          System.out.println ("source line info: "+lineInfo);
+
+                      }
+
+                      try (Clip clip = AudioSystem.getClip(info)) {
+                          System.out.println(" ---- clip format: " + clip.getFormat().toString());
+                          clip.open(inputStream);
+                          clip.start();
+                          System.out.println("Clip succeeded !");
+                      } catch (Throwable t) {
+                          System.out.println(t);
+                      }
+
+                      break;
+                  }
+
+              }
+          }
+      }
 }
