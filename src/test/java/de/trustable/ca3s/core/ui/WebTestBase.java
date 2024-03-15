@@ -1,27 +1,23 @@
 package de.trustable.ca3s.core.ui;
 
-import static org.junit.Assert.fail;
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.security.NoSuchAlgorithmException;
-
-import javax.security.auth.x500.X500Principal;
-
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.test.speech.SoundOutput;
-import javazoom.jl.decoder.JavaLayerException;
-import org.apache.hc.core5.http.ParseException;
-import org.json.JSONException;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.SocketUtils;
+
+import javax.security.auth.x500.X500Principal;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+
+import static org.junit.Assert.fail;
 
 public class WebTestBase extends LocomotiveBase {
 
@@ -43,7 +39,9 @@ public class WebTestBase extends LocomotiveBase {
     public static int testPortHttp;
     public static int testPortHttps;
 
-    static{
+    public boolean playSound = false;
+
+        static{
 
         testPortHttp = SocketUtils.findAvailableTcpPort();
         testPortHttps = SocketUtils.findAvailableTcpPort();
@@ -60,8 +58,6 @@ public class WebTestBase extends LocomotiveBase {
 	public WebTestBase() {
 
         super();
-//        super.port = testPortHttp;
-
     }
 
     public static void waitForUrl() {
@@ -103,7 +99,20 @@ public class WebTestBase extends LocomotiveBase {
 
 	}
 
+    protected void explain(String s, int waitMs) {
+        if (playSound) {
+            explain(s);
+            wait(waitMs);
+        }
+    }
+
     protected void explain(String s) {
+        if( !playSound){
+            return;
+        }
+        if( s == null || s.isEmpty()){
+            return;
+        }
 
         SoundOutput soundOutput = null;
         try {
@@ -112,6 +121,28 @@ public class WebTestBase extends LocomotiveBase {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    protected void scrollToElement(final By loc) {
+        scrollToElement(waitForElement(loc));
+    }
+
+    protected void scrollToElement(WebElement webElement){
+        ((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoViewIfNeeded()", webElement);
+//        Thread.sleep(500);
+    }
+
+    protected void selectElementText(final By loc) {
+        selectElementText(loc, null);
+    }
+    protected void selectElementText(final By loc, final String s) {
+        selectElementText(waitForElement(loc), s);
+    }
+    protected void selectElementText(WebElement webElement, final String s) {
+
+        ((JavascriptExecutor)driver).executeScript("arguments[0].setAttribute('style', 'background: lightblue;');", webElement);
+        explain(s);
+        ((JavascriptExecutor)driver).executeScript("arguments[0].setAttribute('style', 'background: white;');", webElement);
     }
 
     protected void setSessionCookieDefaultValue() {
@@ -205,6 +236,7 @@ public class WebTestBase extends LocomotiveBase {
 		textTransfer.setClipboardContents(text);
 		driver.findElement(loc).sendKeys(Keys.CONTROL + "v");
 */
+
 	}
 
 	public boolean isEnabled(final By loc) {
@@ -224,9 +256,9 @@ public class WebTestBase extends LocomotiveBase {
         }
     }
     void signIn(final String user, final String password) {
-         signIn ( user, password, 0);
+         signIn ( user, password, null, 0);
     }
-    void signIn(final String user, final String password, int waitMillis) {
+    void signIn(final String user, final String password, String s, int waitMillis) {
 
         if( isPresent(LOC_TXT_WEBPACK_ERROR) ) {
             System.err.println(
@@ -249,6 +281,7 @@ public class WebTestBase extends LocomotiveBase {
 
         setText(LOC_LNK_SIGNIN_USERNAME, user);
         setText(LOC_LNK_SIGNIN_PASSWORD, password);
+        explain(s);
         wait(waitMillis);
         click(LOC_BTN_SIGNIN_SUBMIT);
 

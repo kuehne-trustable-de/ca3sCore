@@ -27,7 +27,9 @@ public class PreferenceUtil {
     public static final String MAX_NEXT_UPDATE_PERIOD_CRL_SEC = "MaxNextUpdatePeriodCrlSec";
 	public static final String ACME_HTTP01_TIMEOUT_MILLI_SEC = "AcmeHTTP01TimeoutMilliSec";
 	public static final String ACME_HTTP01_CALLBACK_PORTS = "AcmeHTTP01CallbackPorts";
-	public static final String SERVER_SIDE_KEY_CREATION_ALLOWED = "ServerSideKeyCreationAllowed";
+    public static final String SERVER_SIDE_KEY_CREATION_ALLOWED = "ServerSideKeyCreationAllowed";
+    public static final String SERVER_SIDE_KEY_DELETE_AFTER_DAYS = "ServerSideKeyDeleteAfterDays";
+    public static final String SERVER_SIDE_KEY_DELETE_AFTER_USES = "ServerSideKeyDeleteAfterUses";
     public static final String SELECTED_HASHES = "SelectedHashes";
     public static final String SELECTED_SIGNING_ALGOS = "SelectedSigningAlgos";
 
@@ -57,8 +59,18 @@ public class PreferenceUtil {
     }
 
     public boolean isServerSideKeyCreationAllowed() {
-    	Optional<UserPreference> optBoolean = userPreferenceService.findPreferenceForUserId(SERVER_SIDE_KEY_CREATION_ALLOWED, SYSTEM_PREFERENCE_ID);
+        Optional<UserPreference> optBoolean = userPreferenceService.findPreferenceForUserId(SERVER_SIDE_KEY_CREATION_ALLOWED, SYSTEM_PREFERENCE_ID);
         return optBoolean.filter(userPreference -> Boolean.parseBoolean(userPreference.getContent())).isPresent();
+    }
+
+    public int getServerSideKeyDeleteAfterDays() {
+        Optional<UserPreference> optInteger = userPreferenceService.findPreferenceForUserId(SERVER_SIDE_KEY_DELETE_AFTER_DAYS, SYSTEM_PREFERENCE_ID);
+        return optInteger.map(userPreference -> Integer.parseInt(userPreference.getContent())).orElse(5);
+    }
+
+    public int getServerSideKeyDeleteAfterUses() {
+        Optional<UserPreference> optInteger = userPreferenceService.findPreferenceForUserId(SERVER_SIDE_KEY_DELETE_AFTER_USES, SYSTEM_PREFERENCE_ID);
+        return optInteger.map(userPreference -> Integer.parseInt(userPreference.getContent())).orElse(10);
     }
 
     public long getAcmeHTTP01TimeoutMilliSec() {
@@ -97,6 +109,11 @@ public class PreferenceUtil {
             String name = up.getName();
             if( PreferenceUtil.SERVER_SIDE_KEY_CREATION_ALLOWED.equals(name)) {
                 prefs.setServerSideKeyCreationAllowed(Boolean.parseBoolean(up.getContent()));
+
+            } else if( PreferenceUtil.SERVER_SIDE_KEY_DELETE_AFTER_DAYS.equals(name)) {
+                prefs.setDeleteKeyAfterDays(Integer.parseInt(up.getContent()));
+            } else if( PreferenceUtil.SERVER_SIDE_KEY_DELETE_AFTER_USES.equals(name)) {
+                prefs.setDeleteKeyAfterUses(Integer.parseInt(up.getContent()));
             } else if( PreferenceUtil.ACME_HTTP01_CALLBACK_PORTS.equals(name)) {
                 String[] portArr = up.getContent().split(LIST_DELIMITER);
                 ArrayList<Integer> portList = new ArrayList<>();

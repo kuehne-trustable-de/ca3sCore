@@ -1522,6 +1522,13 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>io.obs-websocket.community</groupId>
+            <artifactId>client</artifactId>
+            <version>2.0.0</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -1531,8 +1538,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>21</source>
-                    <target>21</target>
+                    <source>17</source>
+                    <target>17</target>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.springframework.boot</groupId>
@@ -1557,7 +1564,6 @@
                         </path>
                         <!-- jhipster-needle-maven-add-annotation-processor -->
                     </annotationProcessorPaths>
-                    <compilerArgs>--enable-preview</compilerArgs>
                 </configuration>
             </plugin>
             <plugin>
@@ -2086,10 +2092,10 @@
                                 <message>You are running an older version of Maven. JHipster requires at least Maven ${maven.version}</message>
                                 <version>[${maven.version},)</version>
                             </requireMavenVersion>
-                            <requireJavaVersion>
-                                <message>You are running an incompatible version of Java. JHipster supports JDK 8 to 16.</message>
+                            <!--requireJavaVersion>
+                                <message>You are running an incompatible version of Java. JHipster supports JDK 8 to 17.</message>
                                 <version>[1.8,17)</version>
-                            </requireJavaVersion>
+                            </requireJavaVersion-->
                         </rules>
                     </configuration>
                 </plugin>

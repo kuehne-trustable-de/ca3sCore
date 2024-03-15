@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-01-26 22:41:52.
+// Generated using typescript-generator version 3.2.1263 on 2024-03-14 01:14:58.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -220,6 +220,7 @@ export interface ICertificateView extends ISerializable {
   revokedBy?: string;
   requestedBy?: string;
   tenantName?: string;
+  tenantÎd?: number;
   crlUrl?: string;
   crlExpirationNotificationId?: number;
   crlNextUpdate?: Date;
@@ -228,9 +229,9 @@ export interface ICertificateView extends ISerializable {
   isServersideKeyGeneration?: boolean;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
-  serversideKeyGeneration?: boolean;
   fullChainAvailable?: boolean;
   issuingActiveCertificates?: boolean;
+  serversideKeyGeneration?: boolean;
   auditPresent?: boolean;
 }
 
@@ -292,12 +293,14 @@ export interface ICSRView extends ISerializable {
   csrBase64?: string;
   auditViewArr?: IAuditView[];
   isAdministrable?: boolean;
-  csrvalid?: boolean;
   administrable?: boolean;
+  csrvalid?: boolean;
 }
 
 export interface IPreferences extends ISerializable {
   serverSideKeyCreationAllowed?: boolean;
+  deleteKeyAfterDays?: number;
+  deleteKeyAfterUses?: number;
   checkCRL?: boolean;
   notifyRAOnRequest?: boolean;
   maxNextUpdatePeriodCRLHour?: number;

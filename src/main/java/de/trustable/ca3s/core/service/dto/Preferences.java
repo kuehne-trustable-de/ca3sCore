@@ -11,6 +11,9 @@ public class Preferences implements Serializable {
 
 	private boolean serverSideKeyCreationAllowed = false;
 
+    private int deleteKeyAfterDays = 5;
+    private int deleteKeyAfterUses = 10;
+
     private boolean checkCRL = false;
 
     private boolean notifyRAOnRequest = false;
@@ -38,7 +41,23 @@ public class Preferences implements Serializable {
 		this.serverSideKeyCreationAllowed = serverSideKeyCreationAllowed;
 	}
 
-	public long getAcmeHTTP01TimeoutMilliSec() {
+    public int getDeleteKeyAfterDays() {
+        return deleteKeyAfterDays;
+    }
+
+    public void setDeleteKeyAfterDays(int deleteKeyAfterDays) {
+        this.deleteKeyAfterDays = deleteKeyAfterDays;
+    }
+
+    public int getDeleteKeyAfterUses() {
+        return deleteKeyAfterUses;
+    }
+
+    public void setDeleteKeyAfterUses(int deleteKeyAfterUses) {
+        this.deleteKeyAfterUses = deleteKeyAfterUses;
+    }
+
+    public long getAcmeHTTP01TimeoutMilliSec() {
 		return acmeHTTP01TimeoutMilliSec;
 	}
 
