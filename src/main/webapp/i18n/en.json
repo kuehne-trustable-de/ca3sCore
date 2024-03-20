@@ -380,6 +380,8 @@
   "ca3SApp.certificate.keyAlgorithm": "Key Algorithm",
   "ca3SApp.certificate.keyDetails": "Key Details",
   "ca3SApp.certificate.keyLength": "Key Length",
+  "ca3SApp.certificate.key.availableUntil": "Key available until",
+  "ca3SApp.certificate.key.leftUsages": "Key usages left",
   "ca3SApp.certificate.paddingAlgorithm": "Padding Algorithm",
   "ca3SApp.certificate.requestedBy": "Requested by",
   "ca3SApp.certificate.requestedOn": "Requested on",

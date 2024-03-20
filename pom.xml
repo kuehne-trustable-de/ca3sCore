@@ -119,8 +119,8 @@
         <validation-api.version>2.0.1.Final</validation-api.version>
         <jaxb-runtime.version>2.3.9</jaxb-runtime.version>
 
-        <spring.version>5.3.26</spring.version>
-        <spring.security.version>5.7.10</spring.security.version>
+        <spring.version>5.3.33</spring.version>
+        <spring.security.version>5.7.12</spring.security.version>
         <saml2-core.spring.version>1.0.10.RELEASE</saml2-core.spring.version>
         <open-saml.version>4.3.0</open-saml.version>
 
@@ -131,7 +131,8 @@
 
         <json.version>2.9.0</json.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
-        <archunit-junit5.version>0.23.1</archunit-junit5.version>
+        <!--archunit-junit5.version>0.23.1</archunit-junit5.version-->
+        <archunit-junit5.version>1.2.1</archunit-junit5.version>
 
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <!-- Plugin versions -->
@@ -151,7 +152,7 @@
         <maven-war-plugin.version>3.4.0</maven-war-plugin.version>
         <maven-checkstyle.version>3.3.1</maven-checkstyle.version>
         <maven-source.version>3.3.0</maven-source.version>
-        <checkstyle.version>10.12.7</checkstyle.version>
+        <checkstyle.version>10.14.2</checkstyle.version>
         <spring-nohttp-checkstyle.version>0.0.11</spring-nohttp-checkstyle.version>
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
         <git-commit-id-plugin.version>4.9.9</git-commit-id-plugin.version>
@@ -181,7 +182,7 @@
 
         <nimbus-jose-jwt-version>9.37.2</nimbus-jose-jwt-version>
         <acme4jVersion>2.16</acme4jVersion>
-        <jose4jVersion>0.9.3</jose4jVersion>
+        <jose4jVersion>0.9.4</jose4jVersion>
         <takesVersion>1.24.4</takesVersion>
         <jscepVersion>2.5.6</jscepVersion>
         <jasyptVersion>1.9.3</jasyptVersion>
@@ -2227,7 +2228,6 @@
                     <artifactId>dependency-check-maven</artifactId>
                     <version>${dependencyCheck.version}</version>
                     <configuration>
-                        <cveValidForHours>12</cveValidForHours>
                         <failBuildOnCVSS>4</failBuildOnCVSS>
                         <outputDirectory>${project.build.directory}/dependency-check</outputDirectory>
                         <format>HTML</format>

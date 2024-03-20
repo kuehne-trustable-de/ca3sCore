@@ -25,7 +25,7 @@ import java.util.concurrent.CountDownLatch;
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @io.ddavison.conductor.Config(
     browser = Browser.CHROME,
-    url = "http://localhost:${local.server.port}/"
+    url = "http://localhost:${local.server.port}/core/info"
 )
 @ActiveProfiles("dev")
 public class TutorialIT extends CSRSubmitIT {
@@ -61,6 +61,7 @@ public class TutorialIT extends CSRSubmitIT {
         super.playSound = true;
 
         obsClient.connect();
+
         super.init();
 
         CountDownLatch latchReadyToStart = new CountDownLatch(1);
@@ -108,6 +109,16 @@ public class TutorialIT extends CSRSubmitIT {
     @Test
     public void recordCSRSubmitServersideDirect() throws Exception {
 
+        explain("C A 3 S is a CA support system with a flexible RA part using BPMN aiming to automate as much as possible. Therefore providing ACME and SCEP interfaces in addition to the usual web form. Aggregating certificate sets from different sources and using CMP-connected CAs or ADCS instances for certificate creation.");
+        explain("let's have a look at ca3s from the user's view");
+
+        /*
+        explain("Depending on your configuration you may be logged on, automatically. Not in this case, so select 'Account' and 'Sign In'");
+        signIn(USER_NAME_USER, USER_PASSWORD_USER, "and login in as a simple user", 500);
+
+        validatePresent(LOC_LNK_REQ_CERT_MENUE);
+        click(LOC_LNK_REQ_CERT_MENUE);
+*/
         testCSRSubmitServersideDirect();
 
     }

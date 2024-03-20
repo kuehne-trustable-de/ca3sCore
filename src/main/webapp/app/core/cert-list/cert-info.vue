@@ -210,6 +210,17 @@
                                 </div>
                             </div>
 
+                            <div class="row">
+                                <div class="col">
+                                    <label class="form-control-label" v-text="$t('ca3SApp.certificate.key.availableUntil')" for="availableUntil">Key available until</label>
+                                    <span v-if="certificateView.validTo">{{$d(Date.parse(certificateView.serversideKeyValidTo), 'short') }}</span>
+                                </div>
+                                <div class="col">
+                                    <label class="form-control-label" v-text="$t('ca3SApp.certificate.key.leftUsages')" for="leftUsages">Key left usages</label>
+                                    <span>{{certificateView.serversideKeyLeftUsages}}</span>
+                                </div>
+                            </div>
+
                             <div class="row" v-if="getP12PbeAlgoArr().length > 1">
                                 <div class="col">
 

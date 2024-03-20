@@ -136,14 +136,17 @@ public class CSRSubmitIT extends WebTestBase {
     public static final By LOC_INP_SECRET_VALUE = By.xpath("//div/input [@name = 'upload-secret']");
     public static final By LOC_INP_SECRET_REPEAT_VALUE = By.xpath("//div/input [@name = 'upload-secret-repeat']");
 
+    public static final By LOC_LNK_CERTIFICATE_ISSUER = By.xpath("//div/dl/dd/a [@href = 'issuer']");
+    public static final By LOC_SEL_CERTIFICATE_DOWNLOAD_FORMAT = By.xpath("//div//dd//div/select [@name = 'download-format']");
+    public static final By LOC_INP_CERTIFICATE_PKCS12_ALIAS = By.xpath("//div//dd//div/input [@name = 'p12Alias']");
 
     private static final Logger LOG = LoggerFactory.getLogger(CSRSubmitIT.class);
 
-    private static final String USER_NAME_USER = "user";
-    private static final String USER_PASSWORD_USER = "user";
+    protected static final String USER_NAME_USER = "user";
+    protected static final String USER_PASSWORD_USER = "user";
 
-    private static final String USER_NAME_RA = "ra";
-    private static final String USER_PASSWORD_RA = "s3cr3t";
+    protected static final String USER_NAME_RA = "ra";
+    protected static final String USER_PASSWORD_RA = "s3cr3t";
 
     private static Random rand = new Random();
 
@@ -207,8 +210,10 @@ public class CSRSubmitIT extends WebTestBase {
         String secret = "1Aa" + Base64.getEncoder().encodeToString(secretBytes);
 
         explain("Navigate your browser to the start page of the application");
+        explain("Depending on your configuration you may be logged on, automatically. Not in this case, so select 'Account' and 'Sign In'");
         signIn(USER_NAME_USER, USER_PASSWORD_USER, "and login in as a simple user", 500);
 
+        waitForElement(LOC_LNK_REQ_CERT_MENUE);
         validatePresent(LOC_LNK_REQ_CERT_MENUE);
         selectElementText(LOC_LNK_REQ_CERT_MENUE, "select the certificate request menue");
 
@@ -223,12 +228,20 @@ public class CSRSubmitIT extends WebTestBase {
         validatePresent(LOC_TA_UPLOAD_CONTENT);
 
         validatePresent(LOC_SEL_KEY_CREATION_CHOICE);
+
+        selectOptionByText(LOC_SEL_KEY_CREATION_CHOICE, "CSR available");
+        explain("if you have certificate signing request available, select this option");
+
+        scrollToElement(LOC_TA_UPLOAD_CONTENT);
+        click(LOC_TA_UPLOAD_CONTENT);
+        explain("This text field is the where you can drop or paste your certificate signing request. We will return here, later.");
+
         selectOptionByText(LOC_SEL_KEY_CREATION_CHOICE, "Serverside key creation");
-        explain("the easiest option is to avoid the certificate signing request creation and just let the server do the handle the request and the private key. But keep in mind this option has security drawbacks");
+        explain("The easiest option is to avoid the certificate signing request creation and just let the server do the handle the request and the private key. But keep in mind this option has security drawbacks");
 
         validatePresent(LOC_SEL_KEY_LENGTH_CHOICE);
         selectOptionByText(LOC_SEL_KEY_LENGTH_CHOICE, "rsa-2048");
-        explain("select a key length. for a test a 2048 bit key length will do.");
+        explain("Select a key length. For a test a 2048 bit key length will do.");
 
         setText(LOC_INP_C_VALUE, c);
         setText(LOC_INP_CN_VALUE, cn);
@@ -242,35 +255,67 @@ public class CSRSubmitIT extends WebTestBase {
 
         scrollToElement(LOC_BTN_REQUEST_CERTIFICATE);
 
-        setText(LOC_INP_SECRET_VALUE, secret);
+        setText(LOC_INP_SECRET_VALUE, "1234");
         explain("provide a secret passphrase that will protect the private key in the certificate container");
+        explain("Some restrictions apply to the length and character set of the passphrase. If these requirements are not met, a hint is shown.");
+
+        setText(LOC_INP_SECRET_VALUE, secret);
+        explain("This passphrase matches the requirements. Store it in a save place.  It cannot be retrieved! It unlocks the certificate container which will be created later on in this process.");
         setText(LOC_INP_SECRET_REPEAT_VALUE, secret);
 
         // mismatch of secret
         setText(LOC_INP_SECRET_REPEAT_VALUE, "aa" + secret + "zz");
-        explain("repeat the secret passphrase. A mismatch between the values will be reported");
         Assertions.assertFalse(isEnabled(LOC_BTN_REQUEST_CERTIFICATE), "Expecting request button disabled");
+        explain("repeat the secret passphrase. A mismatch between the values will be reported");
 
         setText(LOC_INP_SECRET_REPEAT_VALUE, secret);
         Assertions.assertTrue(isEnabled(LOC_BTN_REQUEST_CERTIFICATE), "Expecting request button enabled");
+        explain("Once certificate details are provided and the passphrase was entered the request button will be enabled.");
 
         validatePresent(LOC_BTN_REQUEST_CERTIFICATE);
-
         Assertions.assertTrue(isEnabled(LOC_BTN_REQUEST_CERTIFICATE), "Expecting request button enabled");
 
+        explain("submit the certificate by clicking the request button");
         click(LOC_BTN_REQUEST_CERTIFICATE);
 
         waitForElement(LOC_TEXT_CERT_HEADER);
         validatePresent(LOC_TEXT_CERT_HEADER);
         validatePresent(LOC_TEXT_PKIX_LABEL);
 
+        explain("depending on the configuration a certificate request may need an explicit approval by an registration officer. ");
+        explain("For demonstration reasons we take the alternative path of immediate issuance.");
+        explain("This is the certificate page providing some details about the certificate.");
+
+        selectElementText(LOC_LNK_CERTIFICATE_ISSUER, "a link enables navigation to the issuing certificate");
+
+        explain("Several other certificate aspects may be reviewed.");
+
+        scrollToElement(LOC_SEL_CERTIFICATE_DOWNLOAD_FORMAT);
+
+        explain("Depending on the key creation mode the may be the option to download a protected container containing certificates and private key.");
+        explain("In the previous form we selected server side key creation ");
+
+        selectElementText(LOC_INP_CERTIFICATE_PKCS12_ALIAS, "provide a name of the key entry in the container." );
+        checkPKCS12Download(cn, secret);
+
+        selectElementText(LOC_SEL_CERTIFICATE_DOWNLOAD_FORMAT, "choose a certificate download format");
+
+        selectOptionByValue(LOC_SEL_CERT_FORMAT, "pkix");
+        String certTypeName = getText(LOC_LNK_DOWNLOAD_CERT_ANCHOR);
+        Assertions.assertEquals(cn + ".crt", certTypeName, "Expect a informing name of the link");
+        checkPEMDownload(cn, "pkix");
+
+        selectOptionByText(LOC_SEL_CERT_FORMAT, "pem");
+        explain("The PEM format is a well recognized format in the unix world. It's the default format for the openssl tool.");
+        explain("A click on the link starts the download.");
         X509Certificate newCert = checkPEMDownload(cn, "pem");
 
+        selectOptionByText(LOC_SEL_CERT_FORMAT, "pemPart");
+        explain("The PEM format including issuing certificates is useful for example for the apache webserver");
         checkPEMDownload(cn, "pemPart");
 
+        explain("The PEM format including the complete certificate chain is another option");
         checkPEMDownload(cn, "pemFull");
-
-        checkPKCS12Download(cn, secret);
 
         validatePresent(LOC_SEL_REVOCATION_REASON);
         selectOptionByText(LOC_SEL_REVOCATION_REASON, "superseded");
