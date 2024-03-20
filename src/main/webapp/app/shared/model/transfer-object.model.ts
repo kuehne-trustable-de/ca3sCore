@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-03-19 00:58:50.
+// Generated using typescript-generator version 3.2.1263 on 2024-01-26 22:41:52.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
