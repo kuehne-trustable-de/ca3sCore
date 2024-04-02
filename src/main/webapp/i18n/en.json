@@ -340,6 +340,10 @@
   "ca3SApp.cSR.subjectPublicKeyInfoBase64": "Subject Public Key Info Base64",
   "ca3SApp.cSR.updated": "A CSR is updated with identifier {{ param }}",
   "ca3SApp.cSR.x509KeySpec": "X 509 Key Spec",
+
+  "ca3SApp.cSR.requestor.details": "{{ login }}, {{fistName}} {{lastName}}",
+  "ca3SApp.cSR.requestor.tenant": "Tenant {{ tenant }}",
+
   "ca3SApp.certificate.subtitle.cert.list": "Certificate List",
   "ca3SApp.certificate.active": "Active",
   "ca3SApp.certificate.administrationComment": "Administration Comment",
@@ -584,6 +588,16 @@
   "ca3SApp.pipelineAttribute.pipeline": "Pipeline",
   "ca3SApp.pipelineAttribute.updated": "A Pipeline Attribute is updated with identifier {{ param }}",
   "ca3SApp.pipeline.csr.usage": "Default usage (for serverside csr creation only)",
+  "ca3SApp.pipeline.filter.type.all": "All",
+  "ca3SApp.pipeline.filter.type.web": "Web",
+  "ca3SApp.pipeline.filter.type.scep": "SCEP",
+  "ca3SApp.pipeline.filter.type.acme": "ACME",
+  "ca3SApp.pipeline.filter.active.enabled": "Active",
+  "ca3SApp.pipeline.filter.active.disabled": "Inactive",
+  "ca3SApp.pipeline.filter.type": "Type: ",
+  "ca3SApp.pipeline.filter.state": " State: ",
+  "ca3SApp.pipeline.filter.connector": " Connector: ",
+
   "ca3SApp.preference.home.editLabel": "Edit Preferences",
   "ca3SApp.preference.home.title": "Preferences",
   "ca3SApp.preference.notifyRAOnRequest": "Notify RA officer on new request",

@@ -16,7 +16,7 @@ import de.trustable.ca3s.core.web.rest.data.AdministrationType;
 import de.trustable.ca3s.core.web.rest.data.CSRAdministrationData;
 import de.trustable.ca3s.core.service.dto.NamedValue;
 import de.trustable.ca3s.core.web.rest.data.CSRAdministrationResponse;
-import de.trustable.ca3s.core.web.rest.util.CurrentUserUtil;
+import de.trustable.ca3s.core.web.rest.util.UserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -62,7 +62,7 @@ public class CSRAdministration {
 
     private final UserRepository userRepository;
 
-    private final CurrentUserUtil currentUserUtil;
+    private final UserUtil userUtil;
 
     private final AuditService auditService;
 
@@ -80,7 +80,7 @@ public class CSRAdministration {
                              CertificateProcessingUtil cpUtil,
                              PipelineUtil pipelineUtil,
                              UserRepository userRepository,
-                             CurrentUserUtil currentUserUtil,
+                             UserUtil userUtil,
                              AuditService auditService,
                              NotificationService notificationService,
                              ProtectedContentUtil protectedContentUtil,
@@ -93,7 +93,7 @@ public class CSRAdministration {
         this.cpUtil = cpUtil;
         this.pipelineUtil = pipelineUtil;
         this.userRepository = userRepository;
-        this.currentUserUtil = currentUserUtil;
+        this.userUtil = userUtil;
         this.auditService = auditService;
         this.notificationService = notificationService;
         this.protectedContentUtil = protectedContentUtil;
@@ -113,7 +113,7 @@ public class CSRAdministration {
 
     	LOG.debug("REST request to reject / accept CSR : {}", adminData);
 
-        User currentUser = currentUserUtil.getCurrentUser();
+        User currentUser = userUtil.getCurrentUser();
         String userName = currentUser.getLogin();
 
         Optional<CSR> optCSR = csrRepository.findById(adminData.getCsrId());

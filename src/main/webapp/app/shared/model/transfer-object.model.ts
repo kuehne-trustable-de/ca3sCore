@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-01-26 22:41:52.
+// Generated using typescript-generator version 3.2.1263 on 2024-02-23 17:24:23.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -169,6 +169,8 @@ export interface ICertificateView extends ISerializable {
   subject?: string;
   rdn_c?: string;
   rdn_cn?: string;
+  issuer_rdn_cn?: string;
+  root_rdn_cn?: string;
   rdn_o?: string;
   rdn_ou?: string;
   rdn_s?: string;
@@ -208,6 +210,7 @@ export interface ICertificateView extends ISerializable {
   extUsageString?: string;
   sanArr?: string[];
   sansString?: string;
+  typedSansString?: string;
   caConnectorId?: number;
   caProcessingId?: number;
   processingCa?: string;
@@ -219,6 +222,9 @@ export interface ICertificateView extends ISerializable {
   uploadedBy?: string;
   revokedBy?: string;
   requestedBy?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
   tenantName?: string;
   tenantÎd?: number;
   crlUrl?: string;
@@ -234,6 +240,7 @@ export interface ICertificateView extends ISerializable {
   fullChainAvailable?: boolean;
   serversideKeyGeneration?: boolean;
   issuingActiveCertificates?: boolean;
+  serversideKeyGeneration?: boolean;
   auditPresent?: boolean;
 }
 
@@ -273,6 +280,9 @@ export interface ICSRView extends ISerializable {
   rejectedOn?: Date;
   rejectionReason?: string;
   requestedBy?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
   tenantName?: string;
   processingCA?: string;
   pipelineName?: string;
@@ -295,8 +305,8 @@ export interface ICSRView extends ISerializable {
   csrBase64?: string;
   auditViewArr?: IAuditView[];
   isAdministrable?: boolean;
-  csrvalid?: boolean;
   administrable?: boolean;
+  csrvalid?: boolean;
 }
 
 export interface IPreferences extends ISerializable {
@@ -688,6 +698,7 @@ export interface ICAConnectorConfig extends ISerializable {
   caConnectorType?: ICAConnectorType;
   caUrl?: string;
   pollingOffset?: number;
+  lastUpdate?: Date;
   defaultCA?: boolean;
   active?: boolean;
   trustSelfsignedCertificates?: boolean;
@@ -852,7 +863,15 @@ export type IBPMNProcessType =
   | 'ACME_ACCOUNT_AUTHORIZATION'
   | 'TIMED';
 
-export type ICAConnectorType = 'INTERNAL' | 'CMP' | 'ADCS' | 'ADCS_CERTIFICATE_INVENTORY' | 'DIRECTORY' | 'VAULT' | 'VAULT_INVENTORY';
+export type ICAConnectorType =
+  | 'INTERNAL'
+  | 'CMP'
+  | 'ADCS'
+  | 'ADCS_CERTIFICATE_INVENTORY'
+  | 'DIRECTORY'
+  | 'VAULT'
+  | 'VAULT_INVENTORY'
+  | 'EJBCA_INVENTORY';
 
 export type IInterval = 'MINUTE' | 'HOUR' | 'DAY' | 'WEEK' | 'MONTH';
 

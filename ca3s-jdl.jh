@@ -17,6 +17,7 @@ entity CAConnectorConfig{
 	caConnectorType CAConnectorType required
 	caUrl String
 	pollingOffset Integer
+    lastUpdate Instant
 	defaultCA Boolean
 	active Boolean
 	trustSelfsignedCertificates Boolean
@@ -33,7 +34,7 @@ entity CAConnectorConfigAttribute{
 }
 
 enum CAConnectorType {
-    INTERNAL, CMP, ADCS, ADCS_CERTIFICATE_INVENTORY, DIRECTORY, VAULT, VAULT_INVENTORY
+    INTERNAL, CMP, ADCS, ADCS_CERTIFICATE_INVENTORY, DIRECTORY, VAULT, VAULT_INVENTORY, EJBCA_INVENTORY
 }
 
 entity RequestProxyConfig{

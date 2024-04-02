@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.schedule;
 
 import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.ejbca.EjbcaConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,9 @@ public class CertificateImportScheduler {
 
 	@Autowired
 	private DirectoryConnector dirConnector;
+
+    @Autowired
+    private EjbcaConnector ejbcaConnector;
 
     @Autowired
     private AuditService auditService;
@@ -156,28 +160,49 @@ public class CertificateImportScheduler {
 				LOG.info("ADCS proxy '{}' disabled", caConfig.getName());
 			}
 
-		} else if (CAConnectorType.DIRECTORY.equals(caConfig.getCaConnectorType())) {
-			LOG.debug("CAConnectorType DIRECTORY for " + caConfig.getCaUrl());
+        } else if (CAConnectorType.DIRECTORY.equals(caConfig.getCaConnectorType())) {
+            LOG.debug("CAConnectorType DIRECTORY for " + caConfig.getCaUrl());
 
-			try {
+            try {
 
-				int nNewCerts = dirConnector.retrieveCertificates(caConfig);
+                int nNewCerts = dirConnector.retrieveCertificates(caConfig);
 
-				if (nNewCerts > 0) {
-					LOG.info("Directory certificate retrieval for '{}' (url '{}') processed {} certificates",
-							caConfig.getName(), caConfig.getCaUrl(), nNewCerts);
-					caConfigRepo.save(caConfig);
-				} else {
-					LOG.debug("Directory certificate retrieval for '{}' (url '{}') found no new certificates",
-							caConfig.getName(), caConfig.getCaUrl());
-				}
-			} catch (Throwable th) {
-				LOG.info("Directory certificate retrieval for '{}' (url '{}') failed with msg '{}'",
-						caConfig.getName(), caConfig.getCaUrl(), th.getMessage());
-				LOG.debug("Directory certificate retrieval", th);
-			}
+                if (nNewCerts > 0) {
+                    LOG.info("Directory certificate retrieval for '{}' (url '{}') processed {} certificates",
+                        caConfig.getName(), caConfig.getCaUrl(), nNewCerts);
+                    caConfigRepo.save(caConfig);
+                } else {
+                    LOG.debug("Directory certificate retrieval for '{}' (url '{}') found no new certificates",
+                        caConfig.getName(), caConfig.getCaUrl());
+                }
+            } catch (Throwable th) {
+                LOG.info("Directory certificate retrieval for '{}' (url '{}') failed with msg '{}'",
+                    caConfig.getName(), caConfig.getCaUrl(), th.getMessage());
+                LOG.debug("Directory certificate retrieval", th);
+            }
 
-		} else {
+        } else if (CAConnectorType.EJBCA_INVENTORY.equals(caConfig.getCaConnectorType())) {
+            LOG.debug("CAConnectorType EJBCA_INVENTORY for " + caConfig.getCaUrl());
+
+            try {
+
+                int nNewCerts = dirConnector.retrieveCertificates(caConfig);
+
+                if (nNewCerts > 0) {
+                    LOG.info("Directory certificate retrieval for '{}' (url '{}') processed {} certificates",
+                        caConfig.getName(), caConfig.getCaUrl(), nNewCerts);
+                    caConfigRepo.save(caConfig);
+                } else {
+                    LOG.debug("Directory certificate retrieval for '{}' (url '{}') found no new certificates",
+                        caConfig.getName(), caConfig.getCaUrl());
+                }
+            } catch (Throwable th) {
+                LOG.info("Directory certificate retrieval for '{}' (url '{}') failed with msg '{}'",
+                    caConfig.getName(), caConfig.getCaUrl(), th.getMessage());
+                LOG.debug("Directory certificate retrieval", th);
+            }
+
+        } else {
 			LOG.debug("CAConnectorType '{}' not suitable for certificate retrieval", conType);
 		}
 	}

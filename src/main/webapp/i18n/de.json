@@ -337,6 +337,10 @@
   "ca3SApp.cSR.subjectPublicKeyInfoBase64": "Subject Public Key Info Base 64",
   "ca3SApp.cSR.updated": "CSR aktualisiert mit ID {{ param }}",
   "ca3SApp.cSR.x509KeySpec": "X 509 Key Spec",
+
+  "ca3SApp.csr.requestor.details": "{{ login }}, {{fistName}} {{lastName}}",
+  "ca3SApp.csr.requestor.tenant": "Mandant {{ tenant }}",
+
   "ca3SApp.certificate.subtitle.cert.list": "Zertifikatsliste",
   "ca3SApp.certificate.active": "Aktiv",
   "ca3SApp.certificate.administrationComment": "Admin Kommentar",
@@ -567,7 +571,6 @@
   "ca3SApp.pipeline.listOrder": "Ordnungszahl für Anforderungs-Übersicht",
   "ca3SApp.pipeline.requestProxies": "Request-Proxies",
   "ca3SApp.pipeline.tenants": "Mandanten",
-
   "ca3SApp.pipelineAttribute.created": "Pipeline Attribut erstellt mit ID {{ param }}",
   "ca3SApp.pipelineAttribute.delete.question": "Soll Pipeline Attribut {{ id }} wirklich dauerhaft gelöscht werden?",
   "ca3SApp.pipelineAttribute.deleted": "Pipeline Attribut gelöscht mit ID {{ param }}",
@@ -581,6 +584,16 @@
   "ca3SApp.pipelineAttribute.updated": "Pipeline Attribut aktualisiert mit ID {{ param }}",
   "ca3SApp.pipelineAttribute.value": "Wert",
   "ca3SApp.pipeline.csr.usage": "Verwendungszweck (nur für server-seitige Schlüsselerzeugung)",
+  "ca3SApp.pipeline.filter.type.all": "Alle",
+  "ca3SApp.pipeline.filter.type.web": "Web",
+  "ca3SApp.pipeline.filter.type.scep": "SCEP",
+  "ca3SApp.pipeline.filter.type.acme": "ACME",
+  "ca3SApp.pipeline.filter.active.enabled": "Aktiv",
+  "ca3SApp.pipeline.filter.active.disabled": "Inaktiv",
+  "ca3SApp.pipeline.filter.type": "Typ: ",
+  "ca3SApp.pipeline.filter.state": " Status: ",
+  "ca3SApp.pipeline.filter.connector": " Connector: ",
+
   "ca3SApp.protectedContent.contentBase64": "Content Base 64",
   "ca3SApp.protectedContent.created": "Geschützter Inhalt erstellt mit ID {{ param }}",
   "ca3SApp.protectedContent.delete.question": "Soll Geschützter Inhalt {{ id }} wirklich dauerhaft gelöscht werden?",

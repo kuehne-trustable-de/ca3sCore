@@ -5,7 +5,7 @@ import de.trustable.ca3s.core.service.dto.CertificateView;
 import de.trustable.ca3s.core.service.dto.NamedValue;
 import de.trustable.ca3s.core.service.dto.Selector;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
-import de.trustable.ca3s.core.web.rest.util.CurrentUserUtil;
+import de.trustable.ca3s.core.web.rest.util.UserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.*;
@@ -136,7 +136,7 @@ public final class CertificateSpecifications {
 		long startTime = System.currentTimeMillis();
 
         boolean useTenant = true;
-        if( CurrentUserUtil.isAdministrativeUser(user) ||
+        if( UserUtil.isAdministrativeUser(user) ||
             "none".equalsIgnoreCase(certificateStoreIsolation)){
             useTenant = false;
         }else if( user.getTenant() == null ){
@@ -845,6 +845,13 @@ public final class CertificateSpecifications {
             addNewColumn(selectionList,attJoin.get(CertificateComment_.comment));
 
             pred = buildPredicateString( attributeSelector, cb, attJoin.get(CertificateComment_.comment), attributeValue.toLowerCase());
+/*
+        }else if( attribute.startsWith("ATTR_")){
+            String attName = attribute.substring(5);
+            Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
+            addNewColumn(selectionList,attJoin.get(CertificateAttribute_.value));
+            pred = cb.equal(attJoin.get(CertificateAttribute_.name), attName);
+*/
         }else{
 
             if( certificateSelectionAttributes.contains(attribute) ){

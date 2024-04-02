@@ -108,7 +108,7 @@
                     <help-tag role="Admin" target="bpmn.checkBpmn"/>
                 </div>
 
-                <div v-if="bpmnCheckResult.status">
+                <div v-if="bpmnCheckResult.status && !bpmnFileUploaded">
 
                     <dl class="row jh-entity-details">
                         <dt>

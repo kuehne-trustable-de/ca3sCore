@@ -9,10 +9,9 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.repository.CSRViewRepository;
 import de.trustable.ca3s.core.repository.PipelineAttributeRepository;
-import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.dto.CSRView;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
-import de.trustable.ca3s.core.web.rest.util.CurrentUserUtil;
+import de.trustable.ca3s.core.web.rest.util.UserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,17 +41,17 @@ public class CSRListResource {
 
     private final CSRViewRepository csrViewRepository;
     private final PipelineAttributeRepository pipelineAttributeRepository;
-    private final CurrentUserUtil currentUserUtil;
+    private final UserUtil userUtil;
 
     final private int maxCSVRows;
 
     public CSRListResource(CSRViewRepository csrViewRepository,
                            PipelineAttributeRepository pipelineAttributeRepository,
-                           CurrentUserUtil currentUserUtil, @Value("${ca3s.ui.download.rows.max:1000}") int maxCSVRows) {
+                           UserUtil userUtil, @Value("${ca3s.ui.download.rows.max:1000}") int maxCSVRows) {
 
         this.csrViewRepository = csrViewRepository;
         this.pipelineAttributeRepository = pipelineAttributeRepository;
-        this.currentUserUtil = currentUserUtil;
+        this.userUtil = userUtil;
         this.maxCSVRows = maxCSVRows;
     }
 
@@ -69,11 +68,12 @@ public class CSRListResource {
     public ResponseEntity<List<CSRView>> getAllCsrs(Pageable pageable, HttpServletRequest request) {
         log.debug("REST request to get a page of CSRViews");
 
-        User currentUser = currentUserUtil.getCurrentUser();
+        User currentUser = userUtil.getCurrentUser();
 
         List<Long> pipelineIdList = pipelineAttributeRepository.findDistinctPipelineByNameAndValue(PipelineUtil.DOMAIN_RA_OFFICER, "" + currentUser.getId());
 
         Page<CSRView> page = csrViewRepository.findSelection(request.getParameterMap(), pipelineIdList);
+
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -99,7 +99,7 @@ public class CSRListResource {
         paramMap.put("offset", new String[]{"0"});
         paramMap.put("limit", new String[]{"" + maxCSVRows});
 
-        User currentUser = currentUserUtil.getCurrentUser();
+        User currentUser = userUtil.getCurrentUser();
 
         List<Long> pipelineIdList = pipelineAttributeRepository.findDistinctPipelineByNameAndValue(PipelineUtil.DOMAIN_RA_OFFICER, "" + currentUser.getId());
 

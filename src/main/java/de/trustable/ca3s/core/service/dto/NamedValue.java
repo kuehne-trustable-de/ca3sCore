@@ -44,4 +44,11 @@ public class NamedValue {
 	}
 
 
+    @Override
+    public String toString() {
+        return "NamedValue{" +
+            "name='" + name + '\'' +
+            ", value='" + value + '\'' +
+            '}';
+    }
 }
