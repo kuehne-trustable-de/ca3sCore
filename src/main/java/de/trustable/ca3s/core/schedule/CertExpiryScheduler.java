@@ -95,9 +95,7 @@ public class CertExpiryScheduler {
 				break;
 			}
 		}
-
 	}
-
 
     @Scheduled(fixedRateString="${ca3s.schedule.rate.revocationCheck:3600000}")
 	public void updateRevocationStatus() {

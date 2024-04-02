@@ -4,7 +4,7 @@
 
         <h2>Overview</h2>
 
-        <span>ca3s is a CA support system with a flexible RA part using BPM aiming to automate as much as possible.
+        <span>ca3s is a CA support system with a flexible RA part using BPMN aiming to automate as much as possible.
             Therefore providing ACME and SCEP interfaces in addition to the usual web form. Aggregating certificate sets
                 from different sources and using CMP-connected CAs or ADCS instances for certificate creation.</span>
 
@@ -39,7 +39,7 @@
         For professional support please contact <a href="mailto:info@trustable.de">trustable's support</a>.
         <p/>
 
-        <h2 id="configuration-page-heading" v-text="$t('ca3SApp.info.title')">Info</h2>
+        <h2 v-if="info.git" id="configuration-page-heading" v-text="$t('ca3SApp.info.title')">Info</h2>
         <table v-if="info.git" class="table table-striped table-bordered table-responsive d-table">
             <thead>
             <tr>

@@ -345,7 +345,10 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
 
     @AfterAll
     public static void teardown() {
-        driver.quit();
+        System.err.println("--------------- teardown web driver !");
+        if( driver != null) {
+            driver.quit();
+        }
     }
 
     /**

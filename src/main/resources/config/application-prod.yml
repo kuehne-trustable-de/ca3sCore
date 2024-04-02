@@ -68,9 +68,10 @@ spring:
     #    username: ca3s_jh_dev
     #    password: nYbA4Jm4rnQJ
 
-    # url: jdbc:mysql://localhost:3306/int_test?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    # username: ca3s_test
-    # password: s3cr3t
+    #    url: jdbc:mysql://localhost:3306/int_test?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    #    username: ca3s_test
+    #    password: s3cr3t
+    
     url: jdbc:mysql://localhost:3306/test_schema?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: ca3s_test
     password: s3cr3t
@@ -101,8 +102,10 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     database: MYSQL
+
     # database-platform: org.hibernate.dialect.SQLServerDialect
     # database: sqlserver
+
     show-sql: false
     properties:
       hibernate:
@@ -204,6 +207,7 @@ jhipster:
         # - In the JHipster Registry (which includes a Spring Cloud Config server)
         # - In a separate `application-prod.yml` file, in the same folder as your executable JAR file
         # - In the `JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET` environment variable
+        # make sure you don't share the secret across different environments!
         base64-secret: Mjk3NjM4OWI4NWU3ZjE3NjQ3OWRiZjI3OWYwYmZiNWY1NzA2YjAzZTY2ODJhNWM5MjFjYzZmZTZlMDE4YWRhNDg0MjJlNDYzNThhODBjNmU0ZGFjMGY3MTc5OTVlNmEyZWFiZmIwMDIxYTExYzkxNGM3YmM2YmVmMmNlZWE2YmQ=
         # Token is valid 24 hours
         token-validity-in-seconds: 86400
@@ -238,7 +242,13 @@ camunda:
 
 ca3s:
   bpmn:
+    # create a process instance per default
     use-default-process: false
+
+  # set a grace period for process data after its completion
+  historicProcess:
+    retention:
+      days: 180
 
   # if required separate protocols and ra & admin access to specific ports
   # the default port is 8442
@@ -289,10 +299,14 @@ ca3s:
       certRetrieval: 3600000
       revocationCheck: 3600000
 
-    # define a crn pattern for regular tasks
+    # define a cron pattern for regular tasks
     cron:
+      # send notification emails regarding expirations
       expiryNotificationCron: 0 15 2 * * ?
+      # drop user information as soon as no relevant certificate is active anymore
       dropUnrelatedUsersCron: 0 20 02 * * ?
+      # drop historic process information after process completion and a grace period
+      dropHistoricProcessesCron: 0 22 22 * * ?
 
     # time limit (in days) for notifications
     ra-officer-notification:

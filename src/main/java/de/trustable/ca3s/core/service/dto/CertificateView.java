@@ -234,6 +234,12 @@ public class CertificateView implements Serializable {
     private Boolean isServersideKeyGeneration = false;
 
     @CsvIgnore
+    private Instant serversideKeyValidTo = null;
+
+    @CsvIgnore
+    private int serversideKeyLeftUsages = -1;
+
+    @CsvIgnore
     private Boolean isAuditPresent = false;
 
     @CsvIgnore
@@ -251,6 +257,10 @@ public class CertificateView implements Serializable {
     public CertificateView() {}
 
     public CertificateView(final Certificate cert) {
+        this(cert, null);
+    }
+
+    public CertificateView(Certificate cert, ProtectedContent pt) {
     	this.id = cert.getId();
     	this.tbsDigest = cert.getTbsDigest();
     	this.subject = cert.getSubject();
@@ -285,6 +295,12 @@ public class CertificateView implements Serializable {
     		this.requestedBy = csr.getRequestedBy();
     		this.csrId = csr.getId();
     		this.isServersideKeyGeneration = csr.isServersideKeyGeneration();
+
+            if( pt != null){
+                this.serversideKeyLeftUsages = pt.getLeftUsages();
+                this.serversideKeyValidTo = pt.getValidTo();
+            }
+
     		if(csr.getComment() != null) {
                 this.csrComment = csr.getComment().getComment();
             }
@@ -424,6 +440,7 @@ public class CertificateView implements Serializable {
         this.setComment( (comment.getComment()==null) ? "": comment.getComment());
 
     }
+
 
     private String getRdnCn(Certificate cert){
         if( cert != null ){
@@ -1042,6 +1059,22 @@ public class CertificateView implements Serializable {
 
     public void setServersideKeyGeneration(Boolean serversideKeyGeneration) {
         isServersideKeyGeneration = serversideKeyGeneration;
+    }
+
+    public Instant getServersideKeyValidTo() {
+        return serversideKeyValidTo;
+    }
+
+    public void setServersideKeyValidTo(Instant serversideKeyValidTo) {
+        this.serversideKeyValidTo = serversideKeyValidTo;
+    }
+
+    public int getServersideKeyLeftUsages() {
+        return serversideKeyLeftUsages;
+    }
+
+    public void setServersideKeyLeftUsages(int serversideKeyLeftUsages) {
+        this.serversideKeyLeftUsages = serversideKeyLeftUsages;
     }
 
     public String getSerialHex() {

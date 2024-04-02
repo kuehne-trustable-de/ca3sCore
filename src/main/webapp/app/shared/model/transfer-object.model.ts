@@ -233,9 +233,12 @@ export interface ICertificateView extends ISerializable {
   certB64?: string;
   downloadFilename?: string;
   isServersideKeyGeneration?: boolean;
+  serversideKeyValidTo?: Date;
+  serversideKeyLeftUsages?: number;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
   fullChainAvailable?: boolean;
+  serversideKeyGeneration?: boolean;
   issuingActiveCertificates?: boolean;
   serversideKeyGeneration?: boolean;
   auditPresent?: boolean;
@@ -308,6 +311,8 @@ export interface ICSRView extends ISerializable {
 
 export interface IPreferences extends ISerializable {
   serverSideKeyCreationAllowed?: boolean;
+  deleteKeyAfterDays?: number;
+  deleteKeyAfterUses?: number;
   checkCRL?: boolean;
   notifyRAOnRequest?: boolean;
   maxNextUpdatePeriodCRLHour?: number;
