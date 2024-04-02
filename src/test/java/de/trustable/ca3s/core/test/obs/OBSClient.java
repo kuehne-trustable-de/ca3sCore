@@ -64,7 +64,14 @@ public class OBSClient {
             File obsFile = new File("C:\\Program Files\\obs-studio\\bin\\64bit\\obs64.exe");
 
             if (!obsFile.exists()) {
-                throw new IOException("OBS not present at path '" + obsFile.getPath() + "', download it from https://obsproject.com/de/download and install it");
+
+                System.err.println("OBS not present at path '" + obsFile.getPath() + "', download it from https://obsproject.com/de/download and install it");
+                System.err.println("Configure OBS:\nSet sources to 'audio output' and 'screen recording'");
+                System.err.println("Lower the mixer level of 'audio output' and 'desktop audio' to -15 dB to avoid distortions");
+                System.err.println("Lower the mixer level of 'microphone' to '-inf dB' (left boundary) to mute the microphone");
+                System.err.println("Open the menue Tools/WebSocket settings:\nActivate the websocket server checkbox\nset server port to 4455\nset a server passwort to 'S3cr3t!S'");
+
+                throw new IOException("OBS not present at path '" + obsFile.getPath() + "' !");
             }
             if (!obsFile.canExecute()) {
                 throw new IOException("Program at path '" + obsFile.getPath() + "' is not executable. ");
@@ -125,13 +132,13 @@ public class OBSClient {
         getController().sendRequest( StartRecordRequest.builder().build(), new Consumer<StartRecordResponse>(){
             @Override
             public void accept(StartRecordResponse startRecordResponse) {
-                LOG.info("StartRecordResponse: " + String.valueOf(startRecordResponse));
+                LOG.info("StartRecordResponse: " + startRecordResponse);
             }
 
             @NotNull
             @Override
             public Consumer<StartRecordResponse> andThen(@NotNull Consumer<? super StartRecordResponse> after) {
-                LOG.info("StartRecordResponse: andThen " + String.valueOf(after));
+                LOG.info("StartRecordResponse: andThen " + after);
                 return Consumer.super.andThen(after);
             }
         });

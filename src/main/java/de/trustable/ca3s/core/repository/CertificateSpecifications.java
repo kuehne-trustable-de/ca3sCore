@@ -732,8 +732,8 @@ public final class CertificateSpecifications {
                 buildPredicateString( attributeSelector, cb, attJoin.get(CertificateAttribute_.value), attributeValue.toLowerCase()));
 
         }else if( "pkiLevel".equals(attribute)){
-            Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
-            addNewColumn(selectionList,attJoin.get(CertificateAttribute_.value));
+            addNewColumn(selectionList,root.get(Certificate_.root));
+
             String attrName = CertificateAttribute.ATTRIBUTE_END_ENTITY;
             if( "root".equalsIgnoreCase(attributeValue)){
                 attrName = CertificateAttribute.ATTRIBUTE_SELFSIGNED;
@@ -741,9 +741,19 @@ public final class CertificateSpecifications {
                 attrName = CertificateAttribute.ATTRIBUTE_CA;
             }
 
-            pred = cb.and( cb.equal(attJoin.get(CertificateAttribute_.name), attrName),
-            buildPredicateString( attributeSelector, cb, attJoin.get(CertificateAttribute_.value), "true"));
+            //subquery
+            Subquery<CertificateAttribute> certAttSubquery = certQuery.subquery(CertificateAttribute.class);
+            Root<CertificateAttribute> certAttRoot = certAttSubquery.from(CertificateAttribute.class);
+            Predicate predExists =
+            cb.exists(certAttSubquery.select(certAttRoot)//subquery selection
+                .where(cb.and( cb.equal(certAttRoot.get(CertificateAttribute_.CERTIFICATE), root.get(Certificate_.ID)),
+                    cb.equal(certAttRoot.get(CertificateAttribute_.NAME), attrName),
+                    buildPredicateString( Selector.EQUAL.toString(), cb, certAttRoot.get(CertificateAttribute_.value), "true") )));
 
+            pred = predExists;
+            if(attributeSelector.equals(Selector.NOT_EQUAL.toString())){
+                pred = cb.not(predExists);
+            }
         }else if( "hashAlgorithm".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.hashingAlgorithm));
 			pred = buildPredicateString( attributeSelector, cb, root.get(Certificate_.hashingAlgorithm), attributeValue);

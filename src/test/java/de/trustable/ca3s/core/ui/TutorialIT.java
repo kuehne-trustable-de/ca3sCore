@@ -39,7 +39,6 @@ public class TutorialIT extends CSRSubmitIT {
 
     @BeforeAll
     public static void setUpBeforeAll() throws IOException {
-        System.setProperty("java.awt.headless", "false");
         obsClient = new OBSClient("localhost", 4455, "S3cr3t!S");
 
         targetDirectory = new File(targetDirectoryPrefix, "Run_" + System.currentTimeMillis());
@@ -67,26 +66,12 @@ public class TutorialIT extends CSRSubmitIT {
         CountDownLatch latchReadyToStart = new CountDownLatch(1);
 
         obsClient.startRecord( new StartRecordConsumer(() -> {
-            System.out.println( "ready to start");
+            LOG.info( "ready to start");
             latchReadyToStart.countDown();
         }));
 
         latchReadyToStart.await();
 
-    }
-
-    @AfterEach
-    public void cleanup() throws InterruptedException {
-        CountDownLatch latch = new CountDownLatch(1);
-        obsClient.stopRecord( new StopRecordConsumer((filename) -> {
-            System.out.println( "recording stopped" );
-            if( filename != null){
-                System.out.println( "video written to " + filename);
-            }
-            latch.countDown();
-        }));
-
-        latch.await();
     }
 
     @RegisterExtension
@@ -141,32 +126,35 @@ public class TutorialIT extends CSRSubmitIT {
             File videoFile = null;
 
             try {
+                Thread.sleep(1000);
                 if (exception.isPresent()) { // has exception
-                    System.out.println("recording stopped, test " + testName + " failed");
+                    LOG.info("recording stopped, test '{}' failed", testName);
                     if (filename != null) {
-                        System.out.println("test failure, video written to " + filename);
+                        LOG.info("test failure, video written to '{}'", filename);
 
                         File recordedFile = new File(filename);
                         String ext = StringUtils.substringAfterLast(recordedFile.getName(), ".");
                         videoFile = new File(targetDirectory, "Failed_" + testName + "." + ext);
 
                         FileUtils.copyFile(recordedFile, videoFile);
-                        System.out.println("video moved to " + videoFile.getPath());
+                        LOG.info("video moved to '{}'", videoFile.getPath());
                     }
-                } else {                     // no exception
+                } else {
                     System.out.println("recording stopped, test successful");
                     if (filename != null) {
-                        System.out.println("video written to " + filename);
+                        LOG.info("successful test, video written to '{}'", filename);
                         File recordedFile = new File(filename);
                         String ext = StringUtils.substringAfterLast(recordedFile.getName(), ".");
                         videoFile = new File(targetDirectory, testName + "." + ext);
                         FileUtils.copyFile(recordedFile, videoFile);
 
-                        System.out.println("video moved to " + videoFile.getPath());
+                        LOG.info("video moved to '{}'", videoFile.getPath());
                     }
                 }
             }catch (IOException ioException){
                 ioException.printStackTrace();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
             latch.countDown();
         }

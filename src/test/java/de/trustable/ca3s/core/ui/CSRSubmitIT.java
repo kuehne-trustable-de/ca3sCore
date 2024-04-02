@@ -321,61 +321,80 @@ public class CSRSubmitIT extends WebTestBase {
         explain("The PEM format including the complete certificate chain is another option");
         checkPEMDownload(cn, "pemFull");
 
+        explain("That's all about certificate download. Another important topic of the certificate usage is revocation.");
+        explain("Even if there is just a minor doubt about a possible compromise of your private it is good security practise to revoke the certificate");
+        explain("The owner of the certificate can always revoke a certificate by selecting a reason");
         validatePresent(LOC_SEL_REVOCATION_REASON);
-        selectOptionByText(LOC_SEL_REVOCATION_REASON, "superseded");
+        selectOptionByText(LOC_SEL_REVOCATION_REASON, "keyCompromised");
+        explain("Let's assume the key was disclosed somehow. So select 'key compromise'");
 
+        explain("and click the 'revoke' button");
         click(LOC_BTN_REVOKE);
 
+        explain("a revocation of a certificate cannot be undone. Therefore an additional approval is required.");
         validatePresent(LOC_BTN_CONFIRM_REVOKE);
         click(LOC_BTN_CONFIRM_REVOKE);
 
         waitForElement(LOC_LNK_CERTIFICATES_MENUE);
         validatePresent(LOC_LNK_CERTIFICATES_MENUE);
+
+        selectElementText(LOC_LNK_CERTIFICATES_MENUE, "To find certificates, select the certificate menue");
         click(LOC_LNK_CERTIFICATES_MENUE);
 
         // select the certificate in the cert list
         validatePresent(LOC_SEL_CERT_ATTRIBUTE);
         selectOptionByText(LOC_SEL_CERT_ATTRIBUTE, "Subject");
+        explain("search a certificate by its common name.");
 
         validatePresent(LOC_SEL_CERT_CHOICE);
-
         selectOptionByText(LOC_SEL_CERT_CHOICE, "equals");
 
         validatePresent(LOC_INP_CERT_VALUE);
         setText(LOC_INP_CERT_VALUE, cn);
+        explain("enter the common name we provided in the creation form.");
 
         By byCertSubject = By.xpath("//table//td [contains(text(), '" + cn + "')]");
         validatePresent(byCertSubject);
+        explain("the list of matching certificates is pretty short. It's easy to identify or freshly created certificate.");
         click(byCertSubject);
 
         // already revoked
         validateNotPresent(LOC_TEXT_CERT_REVOCATION_REASON);
-
-        waitForElement(LOC_TA_COMMENT);
-        validatePresent(LOC_TA_COMMENT);
-        setText(LOC_TA_COMMENT, randomComment);
+        selectElementText(LOC_TEXT_CERT_REVOCATION_REASON, "The certificate is revoked as expected.");
 
         validatePresent(LOC_SHOW_HIDE_AUDIT);
+        selectElementText(LOC_SHOW_HIDE_AUDIT, "the application tracks all relevant actions related to the certificate.");
         click(LOC_SHOW_HIDE_AUDIT);
 
         // ensure a revocation item regarding revocation is present
         validatePresent(LOC_TABLE_AUDIT_REVOCATION_PRESENT);
+        selectElementText(LOC_TABLE_AUDIT_REVOCATION_PRESENT, "The revocation is logged, too.");
+
+
+        waitForElement(LOC_TA_COMMENT);
+        validatePresent(LOC_TA_COMMENT);
+        explain("to provide some additional information there is a comment field.");
+        setText(LOC_TA_COMMENT, randomComment);
 
         validatePresent(LOC_BTN_EDIT);
+        selectElementText(LOC_BTN_EDIT, "Clicking the 'edit' button persists the new comment");
         click(LOC_BTN_EDIT);
 
         // search by serial no
         waitForElement(LOC_LNK_CERTIFICATES_MENUE);
         validatePresent(LOC_LNK_CERTIFICATES_MENUE);
+        selectElementText(LOC_LNK_CERTIFICATES_MENUE, "select the certificate menue to retrieve the certificate list");
         click(LOC_LNK_CERTIFICATES_MENUE);
 
         // select the certificate in the cert list
         validatePresent(LOC_SEL_CERT_ATTRIBUTE);
         selectOptionByText(LOC_SEL_CERT_ATTRIBUTE, "Serial");
+        explain("search a certificate by its serial number.");
 
         validatePresent(LOC_SEL_CERT_CHOICE);
 
         selectOptionByText(LOC_SEL_CERT_CHOICE, "decimal");
+        explain("select the number representation.");
 
         // set the serial number, decimal
         validatePresent(LOC_INP_CERT_SERIAL_VALUE);
