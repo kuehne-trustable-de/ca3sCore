@@ -3,7 +3,6 @@ package de.trustable.ca3s.core.ui;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
-import de.trustable.ca3s.core.test.ScreenRecorderUtil;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.JCAManager;
 import io.ddavison.conductor.Browser;
@@ -54,6 +53,7 @@ public class CSRSubmitIT extends WebTestBase {
     public boolean recordSession = true;
 
 
+    public static final By LOC_LNK_ACCOUNT_MENUE = By.xpath("//nav//a [.//span [text() = 'Account']]");
     public static final By LOC_LNK_REQ_CERT_MENUE = By.xpath("//nav//a [.//span [text() = 'Request certificate']]");
     public static final By LOC_LNK_REQUESTS_MENUE = By.xpath("//nav//a [.//span [text() = 'Requests']]");
     public static final By LOC_LNK_CERTIFICATES_MENUE = By.xpath("//nav//a [.//span [text() = 'Certificates']]");
@@ -201,7 +201,7 @@ public class CSRSubmitIT extends WebTestBase {
         String c = "DE";
         String cn = "reqTest" + System.currentTimeMillis();
         String o = "trustable solutions";
-        String ou = "nuclear research";
+        String ou = "crypto research";
         String l = "Hannover";
         String st = "Lower Saxony";
         String san = "wwww." + cn;
@@ -214,7 +214,9 @@ public class CSRSubmitIT extends WebTestBase {
         String secret = "1Aa" + Base64.getEncoder().encodeToString(secretBytes);
 
         explain("Navigate your browser to the start page of the application");
-        explain("Depending on your configuration you may be logged on, automatically. Not in this case, so select 'Account' and 'Sign In'");
+        explain("Depending on your configuration you may be logged on, automatically.");
+        selectElementText(LOC_LNK_ACCOUNT_MENUE, "Not in this case, so select 'Account' and 'Sign In'");
+
         signIn(USER_NAME_USER, USER_PASSWORD_USER, "and login in as a simple user", 500);
 
         waitForElement(LOC_LNK_REQ_CERT_MENUE);
@@ -282,7 +284,7 @@ public class CSRSubmitIT extends WebTestBase {
         explain("submit the certificate by clicking the request button");
         click(LOC_BTN_REQUEST_CERTIFICATE);
 
-        waitForElement(LOC_TEXT_CERT_HEADER);
+        waitForElement(LOC_TEXT_CERT_HEADER, 20);
         validatePresent(LOC_TEXT_CERT_HEADER);
         validatePresent(LOC_TEXT_PKIX_LABEL);
 
@@ -306,6 +308,7 @@ public class CSRSubmitIT extends WebTestBase {
 
         selectOptionByValue(LOC_SEL_CERT_FORMAT, "pkix");
         String certTypeName = getText(LOC_LNK_DOWNLOAD_CERT_ANCHOR);
+        System.out.println("certTypeName: " + certTypeName);
         Assertions.assertEquals(cn + ".crt", certTypeName, "Expect a informing name of the link");
         checkPEMDownload(cn, "pkix");
 

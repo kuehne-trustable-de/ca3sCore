@@ -188,7 +188,7 @@
   "ca3SApp.acmeOrder.certificateUrl": "Certificate Url",
   "ca3SApp.acmeOrder.created": "A new Acme Order is created with identifier {{ param }}",
   "ca3SApp.aCMEAccount.createdOn": "Created on",
-  "ca3SApp.aCMEAccount.statusComment": "Status comment",
+  "ca3SApp.aCMEAccount.accountComment": "Account comment",
 
   "ca3SApp.acmeOrder.csr": "Csr",
   "ca3SApp.acmeOrder.delete.question": "Are you sure you want to delete Acme Order {{ id }}?",

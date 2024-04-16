@@ -95,7 +95,7 @@
 -->
 
                     <div v-if="isRAOfficer() || isAdmin()">
-                        <label class="form-control-label" v-text="$t('ca3SApp.aCMEAccount.statusComment')">Status Comment</label>
+                        <label class="form-control-label" v-text="$t('ca3SApp.aCMEAccount.accountComment')">Account comment</label>
                         <textarea type="text" class="form-control" name="status-comment" id="status-comment"
                                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                                   v-model="acmeAccountStatusAdministration.comment" />

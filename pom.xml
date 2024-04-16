@@ -111,7 +111,7 @@
         https://mvnrepository.com/artifact/org.hibernate/hibernate-core/${hibernate.version} -->
         <javassist.version>3.27.0-GA</javassist.version>
 
-        <liquibase.version>4.27.0</liquibase.version>
+        <liquibase.version>4.19.0</liquibase.version>
         <liquibase-hibernate5.version>${liquibase.version}</liquibase-hibernate5.version>
 
         <mssql.jdbc.version>9.4.0.jre11</mssql.jdbc.version>

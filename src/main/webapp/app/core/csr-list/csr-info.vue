@@ -46,7 +46,7 @@
                     <dd>
                         <span>{{ icsrView.requestedBy }}</span>
 
-                        <span v-if="(icsrView.firstName || icsrView.lastName) && icsrView.email"><a href="'mailto:' + icsrView.email">{{$t('ca3SApp.cSR.requestor.details', {login: icsrView.login, fistName: icsrView.firstName, lastName: icsrView.lastName})}}</a></span>
+                        <span v-if="(icsrView.firstName || icsrView.lastName) && icsrView.email"><a :href="'mailto:' + icsrView.email">{{$t('ca3SApp.cSR.requestor.details', {login: icsrView.login, fistName: icsrView.firstName, lastName: icsrView.lastName})}}</a></span>
                         <span v-if="(icsrView.firstName || icsrView.lastName) && !icsrView.email">{{$t('ca3SApp.cSR.requestor.details', {login: icsrView.login, fistName: icsrView.firstName, lastName: icsrView.lastName})}}</span>
                         <span v-if="icsrView.tenantName">{{$t('ca3SApp.cSR.requestor.tenant', {tenant: icsrView.tenantName})}}</span>
                     </dd>

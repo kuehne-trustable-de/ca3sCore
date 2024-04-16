@@ -92,7 +92,7 @@
   "ca3SApp.aCMEAccount.contacts": "Kontakte",
   "ca3SApp.aCMEAccount.created": "ACME Konto erstellt mit ID {{ param }}",
   "ca3SApp.aCMEAccount.createdOn": "Erstellt am",
-  "ca3SApp.aCMEAccount.statusComment": "Status Kommentar",
+  "ca3SApp.aCMEAccount.accountComment": "Kommentar zum Konto",
 
   "ca3SApp.aCMEAccount.delete.question": "Soll ACME Konto {{ id }} wirklich dauerhaft gelöscht werden?",
   "ca3SApp.aCMEAccount.deleted": "ACME Konto gelöscht mit ID {{ param }}",
