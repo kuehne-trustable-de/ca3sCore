@@ -60,6 +60,7 @@ public class RequestProxyConfigResource {
      */
     @PostMapping("/request-proxy-configs")
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    @Transactional
     public ResponseEntity<RequestProxyConfig> createRequestProxyConfig(@Valid @RequestBody RequestProxyConfig requestProxyConfig) throws URISyntaxException {
         log.debug("REST request to save RequestProxyConfig : {}", requestProxyConfig);
         if (requestProxyConfig.getId() != null) {
@@ -82,6 +83,7 @@ public class RequestProxyConfigResource {
      */
     @PutMapping("/request-proxy-configs")
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    @Transactional
     public ResponseEntity<RequestProxyConfig> updateRequestProxyConfig(@Valid @RequestBody RequestProxyConfig requestProxyConfig) throws URISyntaxException {
         log.debug("REST request to update RequestProxyConfig : {}", requestProxyConfig);
         if (requestProxyConfig.getId() == null) {
@@ -199,6 +201,7 @@ public class RequestProxyConfigResource {
      */
     @DeleteMapping("/request-proxy-configs/{id}")
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    @Transactional
     public ResponseEntity<Void> deleteRequestProxyConfig(@PathVariable Long id) {
         log.debug("REST request to delete RequestProxyConfig : {}", id);
         requestProxyConfigService.delete(id);

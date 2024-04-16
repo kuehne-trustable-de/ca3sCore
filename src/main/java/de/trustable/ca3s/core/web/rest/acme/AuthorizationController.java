@@ -38,6 +38,7 @@ import de.trustable.ca3s.core.service.dto.acme.ChallengeResponse;
 import de.trustable.ca3s.core.service.dto.acme.IdentifierResponse;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
+import de.trustable.ca3s.core.service.util.AcmeOrderUtil;
 import de.trustable.ca3s.core.service.util.AcmeUtil;
 import de.trustable.ca3s.core.service.util.DateUtil;
 import de.trustable.ca3s.core.web.rest.util.RateLimiter;
@@ -77,6 +78,8 @@ public class AuthorizationController extends AcmeController {
 
     final private AcmeAuthorizationRepository authorizationRepository;
 
+    private final AcmeOrderUtil acmeOrderUtil;
+
     private final RateLimiter rateLimiter;
 
     final private HttpServletRequest request;
@@ -85,7 +88,7 @@ public class AuthorizationController extends AcmeController {
                                    @Value("${ca3s.acme.iterate.challenges:true}") boolean iterateChallengesOnGet,
                                    ChallengeController challengeController,
                                    AcmeAuthorizationRepository authorizationRepository,
-                                   HttpServletRequest request,
+                                   AcmeOrderUtil acmeOrderUtil, HttpServletRequest request,
                                    @Value("${ca3s.acme.ratelimit.second:0}") int rateSec,
                                    @Value("${ca3s.acme.ratelimit.minute:20}") int rateMin,
                                    @Value("${ca3s.acme.ratelimit.hour:0}") int rateHour) {
@@ -93,6 +96,7 @@ public class AuthorizationController extends AcmeController {
         this.iterateChallengesOnGet = iterateChallengesOnGet;
         this.challengeController = challengeController;
         this.authorizationRepository = authorizationRepository;
+        this.acmeOrderUtil = acmeOrderUtil;
         this.request = request;
 
         this.rateLimiter = new RateLimiter("Authorization", rateSec, rateMin, rateHour);
@@ -173,6 +177,7 @@ public class AuthorizationController extends AcmeController {
                     throw new AcmeProblemException(problem);
 
                 }
+                acmeOrderUtil.alignOrderState(authDao.getOrder());
 
                 AuthorizationResponse authResp = buildAuthResponse(authDao, realm, forwardedHost);
 

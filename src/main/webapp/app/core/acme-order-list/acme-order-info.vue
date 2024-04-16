@@ -33,10 +33,10 @@
                         <span v-text="$t('ca3SApp.AcmeOrderStatus.' + acmeOrderView.status)">{{acmeOrderView.status}}</span>
                     </dd>
 
-                    <dt>
-                        <span v-text="$t('ca3SApp.acmeOrder.created.expires')">Cretaed / Expires</span>
+                    <dt v-if="acmeOrderView.createdOn && acmeOrderView.expires">
+                        <span v-text="$t('ca3SApp.acmeOrder.created.expires')">Created / Expires</span>
                     </dt>
-                    <dd>
+                    <dd v-if="acmeOrderView.createdOn && acmeOrderView.expires">
                         <span>{{$d(Date.parse(acmeOrderView.createdOn), 'long') }}</span> -> <span v-if="acmeOrderView.expires">{{$d(Date.parse(acmeOrderView.expires), 'long') }}</span>
                     </dd>
 
