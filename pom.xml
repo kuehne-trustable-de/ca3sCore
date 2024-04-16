@@ -7,7 +7,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.1.4</version>
+    <version>1.1.5</version>
     <packaging>jar</packaging>
 
 
@@ -1540,8 +1540,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>17</source>
-                    <target>17</target>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.springframework.boot</groupId>
