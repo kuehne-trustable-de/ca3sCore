@@ -71,7 +71,7 @@ spring:
     #    url: jdbc:mysql://localhost:3306/int_test?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     #    username: ca3s_test
     #    password: s3cr3t
-    
+
     url: jdbc:mysql://localhost:3306/test_schema?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: ca3s_test
     password: s3cr3t
@@ -98,7 +98,7 @@ spring:
         prepStmtCacheSqlLimit: 2048
         useServerPrepStmts: true
 
-  # align the JPA configuration to match the database used. The following section is intended for mariadb / mysql
+  #
   jpa:
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     database: MYSQL

@@ -30,6 +30,11 @@ public class UserUtil {
         LOG.debug("getCurrentUser of a web session");
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if( auth == null) {
+            String msg = "auth == null!";
+            LOG.warn(msg);
+            throw new UserNotFoundException(msg);
+        }
         String userName = auth.getName();
         if( userName == null) {
             String msg = "Current user == null!";

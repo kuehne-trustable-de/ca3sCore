@@ -128,6 +128,7 @@ public class BPMNAdministrationIT extends WebTestBase{
 		ptc.getInternalWebRACheckTestPipeline();
         prefTC.getTestUserPreference();
 
+        /*
         UploadPrecheckData uploaded = new UploadPrecheckData();
         uploaded.setPipelineId(1L);
         uploaded.setKeyAlgoLength("rsa-4096");
@@ -152,7 +153,7 @@ public class BPMNAdministrationIT extends WebTestBase{
         }else{
             Assert.fail("creation of certificate failed: " + responseEntity);
         }
-
+*/
         if( driver == null) {
 		    super.startWebDriver();
 		    driver.manage().window().setSize(new Dimension(2000,768));

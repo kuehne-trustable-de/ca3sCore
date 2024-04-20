@@ -19,6 +19,7 @@ public class KeyUtil {
     private static final Logger LOG = LoggerFactory.getLogger(KeyUtil.class);
 
     public KeyUtil(@Value("${ca3s.keyspec.default:RSA_4096}") String defaultKeySpec) {
+        // @ToDo check back with the list of valid algos
         this.defaultKeySpec = defaultKeySpec;
     }
 
