@@ -32,7 +32,7 @@ logging:
     de.trustable.ca3s.core.service.MailService: DEBUG
     de.trustable.ca3s.core.service.util.CaConnectorAdapter: WARN
     de.trustable.ca3s.core.service.adcs: INFO
-    de.trustable.ca3s.core.service.cmp: INFO
+    de.trustable.ca3s.core.service.cmp: DEBUG
     de.trustable.ca3s.core.service.dir: WARN
     de.trustable.ca3s.core.security.provider.Ca3sTrustManager: WARN
     de.trustable.ca3s.core.repository.CSRSpecifications: WARN
@@ -45,6 +45,7 @@ logging:
     org.springframework.security: INFO
     net.ttddyy.dsproxy.listener: INFO
     org.springframework.web.filter.CommonsRequestLoggingFilter: WARN
+
 
 # enable or disable the metrics support as required
 management:
