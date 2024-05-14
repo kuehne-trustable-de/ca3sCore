@@ -97,7 +97,7 @@
         <jhipster-dependencies.version>7.9.3</jhipster-dependencies.version>
         <!-- The spring-boot version should match the one managed by
         https://mvnrepository.com/artifact/tech.jhipster/jhipster-dependencies/${jhipster-dependencies.version} -->
-        <spring-boot.version>2.7.11</spring-boot.version>
+        <spring-boot.version>2.7.18</spring-boot.version>
 
         <jhipster-framework.version>7.9.3</jhipster-framework.version>
         <!--jhipster-framework.version>7.9.4-SNAPSHOT</jhipster-framework.version-->
