@@ -21,6 +21,30 @@
             <span v-text="$t('ca3SApp.cAConnectorConfig.home.notFound')">No cAConnectorConfigs found</span>
         </div>
         <div class="table-responsive" v-if="cAConnectorConfigs && cAConnectorConfigs.length > 0">
+
+            <span v-text="$t('ca3SApp.pipeline.filter.type')">Type:</span>
+            <select float="left" class="smallSelector fa-1x" v-model="typeFilter"
+                    name="typeFilter"
+                    v-on:change="filterCAConnectorConfigs">
+                <option value="all">{{$t('ca3SApp.pipeline.filter.type.all')}}</option>
+
+                <option value="INTERNAL" v-bind:label="$t('ca3SApp.CAConnectorType.INTERNAL')">INTERNAL</option>
+                <option value="CMP" v-bind:label="$t('ca3SApp.CAConnectorType.CMP')">CMP</option>
+                <option value="ADCS" v-bind:label="$t('ca3SApp.CAConnectorType.ADCS')">ADCS</option>
+                <option value="ADCS_CERTIFICATE_INVENTORY" v-bind:label="$t('ca3SApp.CAConnectorType.ADCS_CERTIFICATE_INVENTORY')">ADCS_CERTIFICATE_INVENTORY</option>
+                <!--option value="VAULT" v-bind:label="$t('ca3SApp.CAConnectorType.VAULT')">VAULT</option-->
+                <option value="DIRECTORY" v-bind:label="$t('ca3SApp.CAConnectorType.DIRECTORY')">DIRECTORY</option>
+                <option value="EJBCA_INVENTORY" v-bind:label="$t('ca3SApp.CAConnectorType.EJBCA_INVENTORY')">EJBCA_INVENTORY</option>
+            </select>
+            <span v-text="$t('ca3SApp.pipeline.filter.state')">State:</span>
+            <select float="left" class="smallSelector fa-1x" v-model="activeFilter"
+                    name="activeFilter"
+                    v-on:change="filterCAConnectorConfigs">
+                <option value="all">{{$t('ca3SApp.pipeline.filter.type.all')}}</option>
+                <option value="enabled">{{$t('ca3SApp.pipeline.filter.active.enabled')}}</option>
+                <option value="disabled">{{$t('ca3SApp.pipeline.filter.active.disabled')}}</option>
+            </select>
+
             <table class="table table-striped">
                 <thead>
                 <tr>
@@ -37,7 +61,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="cAConnectorConfig in cAConnectorConfigs"
+                <tr v-for="cAConnectorConfig in filteredCAConnectorConfigs"
                     :key="cAConnectorConfig.id">
                     <!--td>
                         <router-link :to="{name: 'CAConnectorConfigView', params: {cAConnectorConfigId: cAConnectorConfig.id}}">{{cAConnectorConfig.id}}</router-link>
@@ -52,7 +76,7 @@
 
                     <td>{{$t(getStatus(cAConnectorConfig.id))}}</td>
 
-                    <td v-if="cAConnectorConfig.caConnectorType !== 'INTERNAL' && cAConnectorConfig.caConnectorType !== 'ADCS_CERTIFICATE_INVENTORY'">{{cAConnectorConfig.selector}}</td>
+                    <td v-if="cAConnectorConfig.caConnectorType === 'ADCS' || cAConnectorConfig.caConnectorType === 'CMP'">{{cAConnectorConfig.selector}}</td>
                     <td v-else></td>
 
                     <td v-if="cAConnectorConfig.caConnectorType === 'DIRECTORY' || cAConnectorConfig.caConnectorType === 'ADCS_CERTIFICATE_INVENTORY'|| cAConnectorConfig.caConnectorType === 'VAULT_INVENTORY'"

@@ -345,13 +345,19 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
 
     @AfterAll
     public static void teardown() {
-        driver.quit();
+        System.err.println("--------------- teardown web driver !");
+        if( driver != null) {
+            driver.quit();
+        }
     }
 
-    /**
-     * Private method that acts as an arbiter of implicit timeouts of sorts.. sort of like a Wait For Ajax method.
-     */
     public WebElement waitForElement(By by) {
+        return waitForElement(by, MAX_ATTEMPTS);
+    }
+        /**
+         * Private method that acts as an arbiter of implicit timeouts of sorts.. sort of like a Wait For Ajax method.
+         */
+    public WebElement waitForElement(By by, int maxAttempts) {
         int attempts = 0;
 /*
         try {
@@ -365,9 +371,9 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
 
         while (size == 0) {
             size = driver.findElements(by).size();
-            if (attempts == MAX_ATTEMPTS) fail(String.format("Could not find %s after %d seconds",
+            if (attempts == maxAttempts) fail(String.format("Could not find %s after %d seconds",
                 by.toString(),
-                MAX_ATTEMPTS));
+                maxAttempts));
             attempts++;
             try {
                 Thread.sleep(1000); // sleep for 1 second.

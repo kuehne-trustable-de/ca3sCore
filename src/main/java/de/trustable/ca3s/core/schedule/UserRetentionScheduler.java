@@ -52,7 +52,6 @@ public class UserRetentionScheduler {
     }
 
     @Scheduled(cron="${ca3s.schedule.cron.dropUnrelatedUsersCron:0 20 02 * * ?}")
-//    @Scheduled(fixedDelay = 60000)
     public void retrieveUnrelatedUsers() {
 
         Instant oldestRelevantCertificateExpiry = Instant.now().minus(certificateOwnerRetentionPeriod, ChronoUnit.DAYS);

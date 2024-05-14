@@ -2,15 +2,18 @@ package de.trustable.ca3s.core.repository;
 
 import de.trustable.ca3s.core.domain.CRLExpirationNotification;
 import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.ProtectedContent;
 import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
+import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.service.dto.CertificateView;
 import de.trustable.ca3s.core.service.util.CertificateSelectionUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -38,7 +41,8 @@ public class CertificateViewRepository {
 
     final private UserRepository userRepository;
 
-    private final  AuditTraceRepository auditTraceRepository;
+    private final ProtectedContentUtil protectedContentUtil;
+    private final AuditTraceRepository auditTraceRepository;
 
     private final CertificateUtil certificateUtil;
     private final String certificateStoreIsolation;
@@ -48,6 +52,7 @@ public class CertificateViewRepository {
                                      CertificateRepository certificateRepository,
                                      CRLExpirationNotificationRepository crlExpirationNotificationRepository,
                                      UserRepository userRepository,
+                                     ProtectedContentUtil protectedContentUtil,
                                      AuditTraceRepository auditTraceRepository,
                                      CertificateUtil certificateUtil,
                                      @Value("${ca3s.ui.certificate-store.isolation:none}")String certificateStoreIsolation
@@ -57,6 +62,7 @@ public class CertificateViewRepository {
         this.certificateRepository = certificateRepository;
         this.crlExpirationNotificationRepository = crlExpirationNotificationRepository;
         this.userRepository = userRepository;
+        this.protectedContentUtil = protectedContentUtil;
         this.auditTraceRepository = auditTraceRepository;
         this.certificateUtil = certificateUtil;
         this.certificateStoreIsolation = certificateStoreIsolation;
@@ -95,7 +101,17 @@ public class CertificateViewRepository {
         Optional<Certificate> optCert = certificateRepository.findById(certificateId);
         if (optCert.isPresent()) {
             Certificate cert = optCert.get();
-            CertificateView certificateView = new CertificateView(cert);
+            ProtectedContent pt = null;
+            if( cert.getCsr() != null){
+                List<ProtectedContent> protectedContents = protectedContentUtil.retrieveProtectedContent(
+                    ProtectedContentType.KEY,
+                    ContentRelationType.CSR,
+                    cert.getCsr().getId());
+                if( !protectedContents.isEmpty() ){
+                    pt = protectedContents.get(0);
+                }
+            }
+            CertificateView certificateView = new CertificateView(cert, pt);
 
             if( !cert.isEndEntity()) {
                 certificateView.setIssuingActiveCertificates(certificateUtil.hasIssuedActiveCertificates(cert));

@@ -3,7 +3,10 @@ package de.trustable.ca3s.core.service.util;
 import de.trustable.ca3s.core.domain.AcmeAuthorization;
 import de.trustable.ca3s.core.domain.AcmeChallenge;
 import de.trustable.ca3s.core.domain.AcmeOrder;
-import de.trustable.ca3s.core.repository.AcmeOrderSpecifications;
+import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
+import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
+import de.trustable.ca3s.core.repository.AcmeOrderRepository;
+import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.AcmeOrderView;
 import de.trustable.ca3s.core.service.dto.AcmeChallengeView;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +22,17 @@ import java.util.List;
 @Service
 public class AcmeOrderUtil {
 
-    static Logger logger = LoggerFactory.getLogger(AcmeOrderUtil.class);
+    static Logger LOG = LoggerFactory.getLogger(AcmeOrderUtil.class);
+
+    private final AuditService auditService;
+
+    private final AcmeOrderRepository orderRepository;
+
+
+    public AcmeOrderUtil(AuditService auditService, AcmeOrderRepository orderRepository) {
+        this.auditService = auditService;
+        this.orderRepository = orderRepository;
+    }
 
     public AcmeOrderView from(AcmeOrder acmeOrder){
 
@@ -39,7 +52,7 @@ public class AcmeOrderUtil {
         }
         acmeOrderView.setCreatedOn(acmeOrder.getCreatedOn());
         acmeOrderView.setExpires(acmeOrder.getExpires());
-        logger.info("expires from AcmeOrder: " + acmeOrder.getExpires());
+        LOG.info("expires from AcmeOrder: " + acmeOrder.getExpires());
 
         acmeOrderView.setNotBefore(acmeOrder.getNotBefore());
         acmeOrderView.setNotAfter(acmeOrder.getNotAfter());
@@ -108,4 +121,51 @@ public class AcmeOrderUtil {
         acmeChallengeView.setValidated(acmeChallenge.getValidated());
         return acmeChallengeView;
     }
+
+    public void alignOrderState(AcmeOrder orderDao){
+
+        if( orderDao.getStatus().equals(AcmeOrderStatus.READY) ){
+            LOG.info("order status already '{}', no re-check after challenge state change required", orderDao.getStatus() );
+            return;
+        }
+
+        if( orderDao.getStatus() != AcmeOrderStatus.PENDING) {
+            LOG.warn("unexpected order status '{}' (!= Pending), no re-check after challenge state change required", orderDao.getStatus() );
+            return;
+        }
+
+        boolean orderReady = true;
+
+        /*
+         * check all authorizations having at least one successfully validated challenge
+         */
+        for (AcmeAuthorization authDao : orderDao.getAcmeAuthorizations()) {
+
+            boolean authReady = false;
+            for (AcmeChallenge challDao : authDao.getChallenges()) {
+                if (challDao.getStatus() == ChallengeStatus.VALID) {
+                    LOG.debug("challenge {} of type {} is valid ", challDao.getChallengeId(), challDao.getType());
+                    authReady = true;
+                    break;
+                }
+            }
+            if (authReady) {
+                LOG.debug("found valid challenge, authorization id {} is valid ", authDao.getAcmeAuthorizationId());
+            } else {
+                LOG.debug("no valid challenge, authorization id {} and order {} still pending",
+                    authDao.getAcmeAuthorizationId(), orderDao.getOrderId());
+                orderReady = false;
+                break;
+            }
+        }
+        if( orderReady ){
+            LOG.debug("order status set to READY" );
+            auditService.saveAuditTrace(
+                auditService.createAuditTraceAcmeOrderSucceeded(orderDao.getAccount(), orderDao));
+
+            orderDao.setStatus(AcmeOrderStatus.READY);
+            orderRepository.save(orderDao);
+        }
+    }
+
 }

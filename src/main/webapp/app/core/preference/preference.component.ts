@@ -16,6 +16,18 @@ const baseApiUrl = '/api/preference';
 
 const validations: any = {
   preferences: {
+    deleteKeyAfterDays: {
+      required,
+      integer,
+      minValue: minValue(1),
+      maxValue: maxValue(65535),
+    },
+    deleteKeyAfterUses: {
+      required,
+      integer,
+      minValue: minValue(1),
+      maxValue: maxValue(65535),
+    },
     acmeHTTP01TimeoutMilliSec: {
       required,
       integer,

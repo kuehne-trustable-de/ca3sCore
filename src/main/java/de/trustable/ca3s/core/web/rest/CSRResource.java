@@ -8,7 +8,7 @@ import de.trustable.ca3s.core.service.CSRService;
 import de.trustable.ca3s.core.service.dto.CSRView;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
-import de.trustable.ca3s.core.web.rest.util.CurrentUserUtil;
+import de.trustable.ca3s.core.web.rest.util.UserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,7 +42,7 @@ public class CSRResource {
     private final CSRUtil csrUtil;
     private final PipelineUtil pipelineUtil;
     private final UserRepository userRepository;
-    private final CurrentUserUtil currentUserUtil;
+    private final UserUtil userUtil;
     private final String certificateStoreIsolation;
 
     private final boolean doDNSLookup;
@@ -51,14 +51,14 @@ public class CSRResource {
                        CSRUtil csrUtil,
                        PipelineUtil pipelineUtil,
                        UserRepository userRepository,
-                       CurrentUserUtil currentUserUtil,
+                       UserUtil userUtil,
                        @Value("${ca3s.ui.certificate-store.isolation:none}")String certificateStoreIsolation,
                        @Value("${ca3s.ui.csr.dnslookup:false}") boolean doDNSLookup) {
         this.cSRService = cSRService;
         this.csrUtil = csrUtil;
         this.pipelineUtil = pipelineUtil;
         this.userRepository = userRepository;
-        this.currentUserUtil = currentUserUtil;
+        this.userUtil = userUtil;
         this.certificateStoreIsolation = certificateStoreIsolation;
         this.doDNSLookup = doDNSLookup;
     }
@@ -132,8 +132,9 @@ public class CSRResource {
             CSR csr = cSROptional.get();
             CSRView csrView = new CSRView(csrUtil, csr, doDNSLookup);
 
-            User currentUser = currentUserUtil.getCurrentUser();
+            User currentUser = userUtil.getCurrentUser();
             csrView.setAdministrable(pipelineUtil.isUserValidAsRA(csr.getPipeline(), currentUser));
+            userUtil.addUserDetails(csrView);
 
             if( csr.getRequestedBy().equals(currentUser.getLogin()) || csrView.getIsAdministrable()){
                 csrView.setCsrBase64(csr.getCsrBase64());
@@ -191,8 +192,8 @@ public class CSRResource {
             return;
         }
 
-        if( !currentUserUtil.isAdministrativeUser() ){
-            User currentUser = currentUserUtil.getCurrentUser();
+        if( !userUtil.isAdministrativeUser() ){
+            User currentUser = userUtil.getCurrentUser();
             Tenant tenant = currentUser.getTenant();
             if( tenant == null ) {
                 // null == default tenant

@@ -5,7 +5,10 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
+import org.jose4j.base64url.Base64Url;
 import org.junit.jupiter.api.Test;
+
+import java.util.Base64;
 
 class ArchTest {
 

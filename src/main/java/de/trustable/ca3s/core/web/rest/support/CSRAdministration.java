@@ -11,14 +11,12 @@ import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.NotificationService;
 import de.trustable.ca3s.core.exception.CAFailureException;
-import de.trustable.ca3s.core.service.util.CSRUtil;
-import de.trustable.ca3s.core.service.util.CertificateProcessingUtil;
-import de.trustable.ca3s.core.service.util.PipelineUtil;
+import de.trustable.ca3s.core.service.util.*;
 import de.trustable.ca3s.core.web.rest.data.AdministrationType;
 import de.trustable.ca3s.core.web.rest.data.CSRAdministrationData;
 import de.trustable.ca3s.core.service.dto.NamedValue;
 import de.trustable.ca3s.core.web.rest.data.CSRAdministrationResponse;
-import de.trustable.ca3s.core.web.rest.util.CurrentUserUtil;
+import de.trustable.ca3s.core.web.rest.util.UserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -63,11 +62,13 @@ public class CSRAdministration {
 
     private final UserRepository userRepository;
 
-    private final CurrentUserUtil currentUserUtil;
+    private final UserUtil userUtil;
 
     private final AuditService auditService;
 
     private final NotificationService notificationService;
+    private final ProtectedContentUtil protectedContentUtil;
+    private final PreferenceUtil preferenceUtil;
 
     private final boolean selfIssuanceAllowed;
 
@@ -79,9 +80,11 @@ public class CSRAdministration {
                              CertificateProcessingUtil cpUtil,
                              PipelineUtil pipelineUtil,
                              UserRepository userRepository,
-                             CurrentUserUtil currentUserUtil,
+                             UserUtil userUtil,
                              AuditService auditService,
                              NotificationService notificationService,
+                             ProtectedContentUtil protectedContentUtil,
+                             PreferenceUtil preferenceUtil,
                              @Value("${ca3s.issuance.ra.self-issuance-allowed:false}") boolean selfIssuanceAllowed
     ) {
         this.csrRepository = csrRepository;
@@ -90,9 +93,11 @@ public class CSRAdministration {
         this.cpUtil = cpUtil;
         this.pipelineUtil = pipelineUtil;
         this.userRepository = userRepository;
-        this.currentUserUtil = currentUserUtil;
+        this.userUtil = userUtil;
         this.auditService = auditService;
         this.notificationService = notificationService;
+        this.protectedContentUtil = protectedContentUtil;
+        this.preferenceUtil = preferenceUtil;
         this.selfIssuanceAllowed = selfIssuanceAllowed;
     }
 
@@ -108,7 +113,7 @@ public class CSRAdministration {
 
     	LOG.debug("REST request to reject / accept CSR : {}", adminData);
 
-        User currentUser = currentUserUtil.getCurrentUser();
+        User currentUser = userUtil.getCurrentUser();
         String userName = currentUser.getLogin();
 
         Optional<CSR> optCSR = csrRepository.findById(adminData.getCsrId());
@@ -157,6 +162,12 @@ public class CSRAdministration {
                     csrAdministrationResponse.setProblemOccured(caFailureException.getMessage());
                     return new ResponseEntity<>(csrAdministrationResponse, HttpStatus.ACCEPTED);
                 }
+
+                Instant validTo = Instant.now().plus(preferenceUtil.getServerSideKeyDeleteAfterDays(), ChronoUnit.DAYS);
+                int leftUsages = preferenceUtil.getServerSideKeyDeleteAfterUses();
+                protectedContentUtil.updateServersideKeyRetentionSettings(csr.getId(),
+                   validTo,
+                    leftUsages);
 
     			if(cert != null) {
 

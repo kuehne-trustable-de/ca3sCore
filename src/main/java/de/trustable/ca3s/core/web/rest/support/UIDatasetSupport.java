@@ -20,7 +20,7 @@ import de.trustable.ca3s.core.service.util.PipelineUtil;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import de.trustable.ca3s.core.web.rest.CAConnectorConfigResource;
 import de.trustable.ca3s.core.web.rest.data.CertificateFilterList;
-import de.trustable.ca3s.core.web.rest.util.CurrentUserUtil;
+import de.trustable.ca3s.core.web.rest.util.UserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,7 +61,7 @@ public class UIDatasetSupport {
 
     private final CryptoConfiguration cryptoConfiguration;
 
-    private final CurrentUserUtil currentUserUtil;
+    private final UserUtil userUtil;
 
     private final boolean autoSSOLogin;
 
@@ -78,7 +78,7 @@ public class UIDatasetSupport {
                             UserService userService,
                             CertificateSelectionUtil certificateSelectionAttributeList,
                             CryptoConfiguration cryptoConfiguration,
-                            CurrentUserUtil currentUserUtil,
+                            UserUtil userUtil,
                             @Value("${ca3s.ui.sso.autologin:false}") boolean autoSSOLogin,
                             @Value("${ca3s.ui.certificate-store.isolation:none}")String certificateStoreIsolation,
                             @Value("${ca3s.ui.sso.provider:}") String[] ssoProvider) {
@@ -91,7 +91,7 @@ public class UIDatasetSupport {
         this.userService = userService;
         this.certificateSelectionAttributeList = certificateSelectionAttributeList;
         this.cryptoConfiguration = cryptoConfiguration;
-        this.currentUserUtil = currentUserUtil;
+        this.userUtil = userUtil;
         this.autoSSOLogin = autoSSOLogin;
         this.certificateStoreIsolation = certificateStoreIsolation;
         this.ssoProvider = ssoProvider;
@@ -144,13 +144,13 @@ public class UIDatasetSupport {
     @Transactional
     public List<PipelineView> activeWeb() {
 
-        User currentUser = currentUserUtil.getCurrentUser();
+        User currentUser = userUtil.getCurrentUser();
 
         List<PipelineView> pvList = new ArrayList<>();
         if(SecurityUtils.isAuthenticated()){
             List<Pipeline> pipelineList = pipelineRepo.findActiveByType(PipelineType.WEB);
 
-            if( currentUserUtil.isAdministrativeUser(currentUser) ||
+            if( userUtil.isAdministrativeUser(currentUser) ||
                 "none".equalsIgnoreCase(certificateStoreIsolation)){
                 LOG.debug("returning all web pipelines");
                 pvList = pipelinesToPipelineViews(pipelineList);
@@ -165,7 +165,7 @@ public class UIDatasetSupport {
                     PipelineView pv1 = (PipelineView)o1;
                     PipelineView pv2 = (PipelineView)o2;
                     int result = Integer.compare(pv1.getListOrder(), pv2.getListOrder());
-                    LOG.debug("result {} comparing {}:{} and {}:{}", result, pv1.getName(), pv1.getListOrder(), pv2.getName(), pv2.getListOrder());
+//                    LOG.debug("result {} comparing {}:{} and {}:{}", result, pv1.getName(), pv1.getListOrder(), pv2.getName(), pv2.getListOrder());
                     return result;
                 }
             });

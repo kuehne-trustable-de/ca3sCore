@@ -5,7 +5,7 @@ import de.trustable.ca3s.core.service.dto.CertificateView;
 import de.trustable.ca3s.core.service.dto.NamedValue;
 import de.trustable.ca3s.core.service.dto.Selector;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
-import de.trustable.ca3s.core.web.rest.util.CurrentUserUtil;
+import de.trustable.ca3s.core.web.rest.util.UserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.*;
@@ -136,7 +136,7 @@ public final class CertificateSpecifications {
 		long startTime = System.currentTimeMillis();
 
         boolean useTenant = true;
-        if( CurrentUserUtil.isAdministrativeUser(user) ||
+        if( UserUtil.isAdministrativeUser(user) ||
             "none".equalsIgnoreCase(certificateStoreIsolation)){
             useTenant = false;
         }else if( user.getTenant() == null ){
@@ -732,8 +732,8 @@ public final class CertificateSpecifications {
                 buildPredicateString( attributeSelector, cb, attJoin.get(CertificateAttribute_.value), attributeValue.toLowerCase()));
 
         }else if( "pkiLevel".equals(attribute)){
-            Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
-            addNewColumn(selectionList,attJoin.get(CertificateAttribute_.value));
+            addNewColumn(selectionList,root.get(Certificate_.root));
+
             String attrName = CertificateAttribute.ATTRIBUTE_END_ENTITY;
             if( "root".equalsIgnoreCase(attributeValue)){
                 attrName = CertificateAttribute.ATTRIBUTE_SELFSIGNED;
@@ -741,9 +741,19 @@ public final class CertificateSpecifications {
                 attrName = CertificateAttribute.ATTRIBUTE_CA;
             }
 
-            pred = cb.and( cb.equal(attJoin.get(CertificateAttribute_.name), attrName),
-            buildPredicateString( attributeSelector, cb, attJoin.get(CertificateAttribute_.value), "true"));
+            //subquery
+            Subquery<CertificateAttribute> certAttSubquery = certQuery.subquery(CertificateAttribute.class);
+            Root<CertificateAttribute> certAttRoot = certAttSubquery.from(CertificateAttribute.class);
+            Predicate predExists =
+            cb.exists(certAttSubquery.select(certAttRoot)//subquery selection
+                .where(cb.and( cb.equal(certAttRoot.get(CertificateAttribute_.CERTIFICATE), root.get(Certificate_.ID)),
+                    cb.equal(certAttRoot.get(CertificateAttribute_.NAME), attrName),
+                    buildPredicateString( Selector.EQUAL.toString(), cb, certAttRoot.get(CertificateAttribute_.value), "true") )));
 
+            pred = predExists;
+            if(attributeSelector.equals(Selector.NOT_EQUAL.toString())){
+                pred = cb.not(predExists);
+            }
         }else if( "hashAlgorithm".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.hashingAlgorithm));
 			pred = buildPredicateString( attributeSelector, cb, root.get(Certificate_.hashingAlgorithm), attributeValue);
@@ -835,6 +845,13 @@ public final class CertificateSpecifications {
             addNewColumn(selectionList,attJoin.get(CertificateComment_.comment));
 
             pred = buildPredicateString( attributeSelector, cb, attJoin.get(CertificateComment_.comment), attributeValue.toLowerCase());
+/*
+        }else if( attribute.startsWith("ATTR_")){
+            String attName = attribute.substring(5);
+            Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
+            addNewColumn(selectionList,attJoin.get(CertificateAttribute_.value));
+            pred = cb.equal(attJoin.get(CertificateAttribute_.name), attName);
+*/
         }else{
 
             if( certificateSelectionAttributes.contains(attribute) ){

@@ -170,6 +170,11 @@
                             <span v-text="$t('ca3SApp.certificate.requestedBy')">Requested by</span>
                         </dt>
                         <dd v-if="certificateView.requestedBy">
+
+                            <span v-if="(certificateView.firstName || certificateView.lastName) && certificateView.email"><a :href="'mailto:' + certificateView.email">{{$t('ca3SApp.cSR.requestor.details', {login: certificateView.login, fistName: certificateView.firstName, lastName: certificateView.lastName})}}</a></span>
+                            <span v-if="(certificateView.firstName || certificateView.lastName) && !certificateView.email">{{$t('ca3SApp.cSR.requestor.details', {login: certificateView.login, fistName: certificateView.firstName, lastName: certificateView.lastName})}}</span>
+                            <span v-if="certificateView.tenantName">{{$t('ca3SApp.cSR.requestor.tenant', {tenant: certificateView.tenantName})}}</span>
+
                             <span>{{certificateView.requestedBy}}</span>
                             <span v-if="certificateView.tenantName"> / {{certificateView.tenantName}}</span>
                         </dd>
@@ -207,6 +212,17 @@
                                 <div class="col colContent" v-if="!showRegExpFieldWarning(p12Alias, '^[a-zA-Z0-9_.-]{5,100}$')">
                                     <a href="downloadUrl" id="pkcs12-download"
                                        @click.prevent="downloadKeystore('.p12', 'application/x-pkcs12')" >{{certificateView.downloadFilename}}.p12</a>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col">
+                                    <label class="form-control-label" v-text="$t('ca3SApp.certificate.key.availableUntil')" for="availableUntil">Key available until</label>
+                                    <span v-if="certificateView.validTo">{{$d(Date.parse(certificateView.serversideKeyValidTo), 'short') }}</span>
+                                </div>
+                                <div class="col">
+                                    <label class="form-control-label" v-text="$t('ca3SApp.certificate.key.leftUsages')" for="leftUsages">Key left usages</label>
+                                    <span>{{certificateView.serversideKeyLeftUsages}}</span>
                                 </div>
                             </div>
 

@@ -17,8 +17,38 @@
             {{alertMessage}}
         </b-alert>
         <br/>
+
         <div class="alert alert-warning" v-if="!isFetching && pipelines && pipelines.length === 0">
             <span v-text="$t('ca3SApp.pipeline.home.notFound')">No pipelines found</span>
+        </div>
+        <div v-if="pipelines && pipelines.length > 0">
+            <span v-text="$t('ca3SApp.pipeline.filter.type')">Type: </span>
+            <select float="left" class="smallSelector fa-1x" v-model="typeFilter"
+                    name="typeFilter"
+                    v-on:change="filterPipelines">
+                <option value="all">{{$t('ca3SApp.pipeline.filter.type.all')}}</option>
+                <option value="WEB">{{$t('ca3SApp.pipeline.filter.type.web')}}</option>
+                <option value="SCEP">{{$t('ca3SApp.pipeline.filter.type.scep')}}</option>
+                <option value="ACME">{{$t('ca3SApp.pipeline.filter.type.acme')}}</option>
+            </select>
+            <span v-text="$t('ca3SApp.pipeline.filter.state')"> State: </span>
+            <select float="left" class="smallSelector fa-1x" v-model="activeFilter"
+                    name="activeFilter"
+                    v-on:change="filterPipelines">
+                <option value="all">{{$t('ca3SApp.pipeline.filter.type.all')}}</option>
+                <option value="enabled">{{$t('ca3SApp.pipeline.filter.active.enabled')}}</option>
+                <option value="disabled">{{$t('ca3SApp.pipeline.filter.active.disabled')}}</option>
+            </select>
+            <span v-text="$t('ca3SApp.pipeline.filter.connector')"> Connector: </span>
+            <select float="left" class="smallSelector fa-1x" v-model="connectorFilter"
+                    name="connectorFilter"
+                    v-on:change="filterPipelines">
+                <option value="all">{{$t('ca3SApp.pipeline.filter.type.all')}}</option>
+                <option v-for="connector in distinctConnectors"
+                    :value="connector">{{connector}}</option>
+            </select>
+
+
         </div>
         <div class="table-responsive" v-if="pipelines && pipelines.length > 0">
             <table class="table table-striped">
@@ -36,7 +66,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="pipeline in pipelines" :key="pipeline.id">
+                <tr v-for="pipeline in filteredPipelines" :key="pipeline.id">
                     <td>{{pipeline.id}}</td>
                     <td>{{pipeline.name}}</td>
                     <td v-text="$t('ca3SApp.PipelineType.' + pipeline.type)">{{pipeline.type}}</td>

@@ -22,6 +22,8 @@ public class CaConnectorConfigView implements Serializable {
 
     private Integer pollingOffset;
 
+    private Instant lastUpdate;
+
     private Boolean defaultCA;
 
     private Boolean active;
@@ -102,6 +104,14 @@ public class CaConnectorConfigView implements Serializable {
 
     public void setPollingOffset(Integer pollingOffset) {
         this.pollingOffset = pollingOffset;
+    }
+
+    public Instant getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(Instant lastUpdate) {
+        this.lastUpdate = lastUpdate;
     }
 
     public String getSelector() {

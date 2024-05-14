@@ -31,6 +31,7 @@ public class CaConnectorConfigUtil {
     public static final String ATT_CMP_MESSAGE_CONTENT_TYPE = "CMP_MESSAGE_CONTENT_TYPE";
     public static final String ATT_SNI = "SNI";
     public static final String ATT_DISABLE_HOST_NAME_VERIFIER = "DISABLE_HOST_NAME_VERIFIER";
+    public static final String PLAIN_SECRET_PLACEHOLDER = "*****";
 
     Logger LOG = LoggerFactory.getLogger(CaConnectorConfigUtil.class);
 
@@ -63,9 +64,10 @@ public class CaConnectorConfigUtil {
         cv.setCaUrl(cfg.getCaUrl());
         cv.setInterval(cfg.getInterval());
         cv.setDefaultCA(cfg.getDefaultCA());
-        cv.setPlainSecret("*****");
+        cv.setPlainSecret(PLAIN_SECRET_PLACEHOLDER);
         cv.setActive(cfg.getActive());
         cv.setPollingOffset(cfg.getPollingOffset());
+        cv.setLastUpdate(cfg.getLastUpdate());
         cv.setSelector(cfg.getSelector());
         cv.setTrustSelfsignedCertificates(cfg.getTrustSelfsignedCertificates());
 
@@ -150,11 +152,12 @@ public class CaConnectorConfigUtil {
             caConnectorConfig.setDefaultCA(cv.getDefaultCA());
             caConnectorConfig.setActive(cv.getActive());
             caConnectorConfig.setPollingOffset(cv.getPollingOffset());
+            caConnectorConfig.setLastUpdate(cv.getLastUpdate());
             caConnectorConfig.setSelector(cv.getSelector());
             caConnectorConfig.setTrustSelfsignedCertificates(cv.getTrustSelfsignedCertificates());
 
 //            caConnectorConfig.setPlainSecret(cv.getPlainSecret());
-            caConnectorConfig.setPlainSecret("*****");
+            caConnectorConfig.setPlainSecret(PLAIN_SECRET_PLACEHOLDER);
 
             cAConnectorConfigRepository.save(caConnectorConfig);
             auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_COPIED, caConnectorConfig));
@@ -205,6 +208,11 @@ public class CaConnectorConfigUtil {
         if(!Objects.equals(cv.getPollingOffset(), caConnectorConfig.getPollingOffset())) {
             auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_POLLING_OFFSET_CHANGED, String.valueOf(caConnectorConfig.getPollingOffset()), String.valueOf(cv.getPollingOffset()), caConnectorConfig));
             caConnectorConfig.setPollingOffset(cv.getPollingOffset());
+        }
+
+        if(!Objects.equals(cv.getLastUpdate(), caConnectorConfig.getLastUpdate())) {
+            auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_POLLING_OFFSET_CHANGED, caConnectorConfig.getLastUpdate().toString(), cv.getLastUpdate().toString(), caConnectorConfig));
+            caConnectorConfig.setLastUpdate(cv.getLastUpdate());
         }
 
         if(!Objects.equals(cv.getSelector(), caConnectorConfig.getSelector())) {
@@ -264,59 +272,59 @@ public class CaConnectorConfigUtil {
         }
 
 
-        if((cv.getCaConnectorType().equals(CAConnectorType.CMP) && cv.isMessageProtectionPassphrase()) ||
-            !cv.getCaConnectorType().equals(CAConnectorType.CMP) ){
+        if( !PLAIN_SECRET_PLACEHOLDER.equals(cv.getPlainSecret())){
+            if ((cv.getCaConnectorType().equals(CAConnectorType.CMP) && cv.isMessageProtectionPassphrase()) ||
+                !cv.getCaConnectorType().equals(CAConnectorType.CMP)) {
 
-            ProtectedContent pc;
-            List<ProtectedContent> listPC = protectedContentRepository.findByTypeRelationId(ProtectedContentType.PASSWORD, ContentRelationType.CA_CONNECTOR_PW,caConnectorConfig.getId());
-            if(listPC.isEmpty()) {
+                ProtectedContent pc;
+                List<ProtectedContent> listPC = protectedContentRepository.findByTypeRelationId(ProtectedContentType.PASSWORD, ContentRelationType.CA_CONNECTOR_PW, caConnectorConfig.getId());
+                if (listPC.isEmpty()) {
 
-                pc = new ProtectedContent();
-                pc.setType(ProtectedContentType.PASSWORD);
-                pc.setRelationType(ContentRelationType.CA_CONNECTOR_PW);
-                pc.setRelatedId(caConnectorConfig.getId());
-                pc.setCreatedOn(Instant.now());
-                pc.setLeftUsages(-1);
-                pc.setValidTo(ProtectedContentUtil.MAX_INSTANT);
-                pc.setDeleteAfter(ProtectedContentUtil.MAX_INSTANT);
+                    pc = new ProtectedContent();
+                    pc.setType(ProtectedContentType.PASSWORD);
+                    pc.setRelationType(ContentRelationType.CA_CONNECTOR_PW);
+                    pc.setRelatedId(caConnectorConfig.getId());
+                    pc.setCreatedOn(Instant.now());
+                    pc.setLeftUsages(-1);
+                    pc.setValidTo(ProtectedContentUtil.MAX_INSTANT);
+                    pc.setDeleteAfter(ProtectedContentUtil.MAX_INSTANT);
 
-                LOG.debug("Protected Content created for ca connector password");
-            }else{
-                pc = listPC.get(0);
-                LOG.debug("Protected Content found for ca connector password");
-            }
-
-            String oldContent = protectedContentUtil.unprotectString(pc.getContentBase64());
-            if (oldContent == null ||
-                !oldContent.equals(cv.getPlainSecret()) ||
-                pc.getValidTo() == null ||
-                !pc.getValidTo().equals(cv.getSecretValidTo())) {
-
-                if(cv.getPlainSecret() == null  ){
-                    if( listPC.isEmpty() ){
-                        LOG.debug("No CA Connector password defined");
-                    }else {
-                        LOG.debug("CA Connector password removed");
-                        protectedContentRepository.delete(pc);
-                        caConnectorConfig.setSecret(pc);
-                        auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_CA_CONNECTOR_SECRET_CHANGED, "#######", "", caConnectorConfig));
-                    }
-                }else {
-
-                    pc.setContentBase64(protectedContentUtil.protectString(cv.getPlainSecret()));
-                    Instant secretValidTo = cv.getSecretValidTo();
-                    if (secretValidTo == null) {
-                        secretValidTo = Instant.now().plus(100 * 360, ChronoUnit.DAYS);
-                    }
-                    pc.setValidTo(secretValidTo);
-                    pc.setDeleteAfter(secretValidTo.plus(1, ChronoUnit.DAYS));
-                    protectedContentRepository.save(pc);
-                    caConnectorConfig.setSecret(pc);
-//                    LOG.debug("CA Connector password updated {} -> {}, {} -> {}", oldContent, cv.getPlainSecret(), secretValidTo, pc.getValidTo());
-                    auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_CA_CONNECTOR_SECRET_CHANGED, "#######", "******", caConnectorConfig));
+                    LOG.debug("Protected Content created for ca connector password");
+                } else {
+                    pc = listPC.get(0);
+                    LOG.debug("Protected Content found for ca connector password");
                 }
-            }else {
-                if (pc != null) {
+
+                String oldContent = protectedContentUtil.unprotectString(pc.getContentBase64());
+                if (oldContent == null ||
+                    !oldContent.equals(cv.getPlainSecret()) ||
+                    pc.getValidTo() == null ||
+                    !pc.getValidTo().equals(cv.getSecretValidTo())) {
+
+                    if (cv.getPlainSecret() == null) {
+                        if (listPC.isEmpty()) {
+                            LOG.debug("No CA Connector password defined");
+                        } else {
+                            LOG.debug("CA Connector password removed");
+                            protectedContentRepository.delete(pc);
+                            caConnectorConfig.setSecret(pc);
+                            auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_CA_CONNECTOR_SECRET_CHANGED, "#######", "", caConnectorConfig));
+                        }
+                    } else {
+
+                        pc.setContentBase64(protectedContentUtil.protectString(cv.getPlainSecret()));
+                        Instant secretValidTo = cv.getSecretValidTo();
+                        if (secretValidTo == null) {
+                            secretValidTo = Instant.now().plus(100 * 360, ChronoUnit.DAYS);
+                        }
+                        pc.setValidTo(secretValidTo);
+                        pc.setDeleteAfter(secretValidTo.plus(1, ChronoUnit.DAYS));
+                        protectedContentRepository.save(pc);
+                        caConnectorConfig.setSecret(pc);
+//                    LOG.debug("CA Connector password updated {} -> {}, {} -> {}", oldContent, cv.getPlainSecret(), secretValidTo, pc.getValidTo());
+                        auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_CA_CONNECTOR_SECRET_CHANGED, "#######", "******", caConnectorConfig));
+                    }
+                } else {
                     protectedContentRepository.delete(pc);
                     caConnectorConfig.setSecret(pc);
                     auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_CA_CONNECTOR_SECRET_DELETED, "#######", "******", caConnectorConfig));
@@ -399,7 +407,6 @@ public class CaConnectorConfigUtil {
             createAttribute(ATT_DISABLE_HOST_NAME_VERIFIER, Boolean.toString(cv.isDisableHostNameVerifier()), caConnectorConfig);
         }
 
-
         caConnectorConfigAttributeRepository.saveAll(caConnectorConfig.getCaConnectorAttributes());
         cAConnectorConfigRepository.save(caConnectorConfig);
 
@@ -411,11 +418,7 @@ public class CaConnectorConfigUtil {
     private void createAttribute(String name, String value, CAConnectorConfig caConnectorConfig) {
         CAConnectorConfigAttribute caConnectorConfigAttribute = new CAConnectorConfigAttribute();
         caConnectorConfigAttribute.setName(name);
-        if( value == null) {
-            caConnectorConfigAttribute.setValue("");
-        }else{
-            caConnectorConfigAttribute.setValue(value);
-        }
+        caConnectorConfigAttribute.setValue(Objects.requireNonNullElse(value, ""));
         caConnectorConfigAttribute.setCaConnector(caConnectorConfig);
         caConnectorConfigAttributeRepository.save(caConnectorConfigAttribute);
 

@@ -16,7 +16,7 @@ import de.trustable.ca3s.core.service.badkeys.BadKeysService;
 import de.trustable.ca3s.core.service.dto.*;
 import de.trustable.ca3s.core.service.util.*;
 import de.trustable.ca3s.core.web.rest.data.*;
-import de.trustable.ca3s.core.web.rest.util.CurrentUserUtil;
+import de.trustable.ca3s.core.web.rest.util.UserUtil;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.Pkcs10RequestHolder;
 import org.apache.commons.lang3.ArrayUtils;
@@ -86,7 +86,7 @@ public class ContentUploadProcessor {
 
     private final CertificateRepository certificateRepository;
 
-    private final CurrentUserUtil currentUserUtil;
+    private final UserUtil userUtil;
 
     private final PipelineRepository pipelineRepository;
 
@@ -131,7 +131,7 @@ public class ContentUploadProcessor {
                                   CertificateUtil certUtil,
                                   CSRRepository csrRepository,
                                   CertificateRepository certificateRepository,
-                                  CurrentUserUtil currentUserUtil,
+                                  UserUtil userUtil,
                                   PipelineRepository pipelineRepository,
                                   PipelineUtil pipelineUtil,
                                   PreferenceUtil preferenceUtil,
@@ -145,7 +145,7 @@ public class ContentUploadProcessor {
         this.certUtil = certUtil;
         this.csrRepository = csrRepository;
         this.certificateRepository = certificateRepository;
-        this.currentUserUtil = currentUserUtil;
+        this.userUtil = userUtil;
         this.pipelineRepository = pipelineRepository;
         this.pipelineUtil = pipelineUtil;
         this.preferenceUtil = preferenceUtil;
@@ -548,15 +548,17 @@ public class ContentUploadProcessor {
                 csr.setServersideKeyGeneration(true);
                 csrRepository.save(csr);
 
-                Instant validTo = Instant.now().plus(30, ChronoUnit.DAYS);
 
-                certUtil.storePrivateKey(csr, keypair, validTo);
+                Instant validTo = Instant.now().plus(preferenceUtil.getServerSideKeyDeleteAfterDays(), ChronoUnit.DAYS);
+                int leftUsages = preferenceUtil.getServerSideKeyDeleteAfterUses();
+
+                certUtil.storePrivateKey(csr, keypair, leftUsages, validTo);
 
                 protUtil.createProtectedContent(uploaded.getSecret(),
                     ProtectedContentType.PASSWORD,
                     ContentRelationType.CSR,
                     csr.getId(),
-                    -1,
+                    leftUsages,
                     validTo);
 
                 Certificate cert = csr.getCertificate();
@@ -632,7 +634,7 @@ public class ContentUploadProcessor {
 
                 if (csr != null) {
                     p10ReqData.setCreatedCSRId(csr.getId().toString());
-                    csr.setTenant(currentUserUtil.getCurrentUser().getTenant());
+                    csr.setTenant(userUtil.getCurrentUser().getTenant());
 
                     if (pipeline.isApprovalRequired()) {
                         LOG.debug("deferring certificate creation for csr #{}", csr.getId());

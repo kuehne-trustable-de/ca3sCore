@@ -26,6 +26,7 @@ import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.DecoderException;
+import org.jose4j.base64url.Base64Url;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -189,7 +190,12 @@ public class CSRContentProcessor {
                     pkcs10CertificationRequest = new PKCS10CertificationRequest(Base64.decode(content));
                     LOG.debug("reading binary CSR succeeded");
                 } catch (IOException | DecoderException e2) {
-                    pkcs10CertificationRequest = cryptoUtil.convertPemToPKCS10CertificationRequest(content);
+                    try {
+                        pkcs10CertificationRequest = new PKCS10CertificationRequest(Base64Url.decode(content));
+                        LOG.debug("reading base64Url-encoded CSR succeeded");
+                    } catch (IOException | DecoderException e3) {
+                        pkcs10CertificationRequest = cryptoUtil.convertPemToPKCS10CertificationRequest(content);
+                    }
                 }
 
 				Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(pkcs10CertificationRequest);

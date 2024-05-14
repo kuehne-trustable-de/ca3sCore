@@ -27,14 +27,13 @@
 package de.trustable.ca3s.core.web.rest.acme;
 
 import de.trustable.ca3s.core.domain.*;
-import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
 import de.trustable.ca3s.core.repository.AcmeChallengeRepository;
-import de.trustable.ca3s.core.repository.AcmeOrderRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.acme.ChallengeResponse;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
+import de.trustable.ca3s.core.service.util.AcmeOrderUtil;
 import de.trustable.ca3s.core.service.util.AcmeUtil;
 import de.trustable.ca3s.core.service.util.PreferenceUtil;
 import de.trustable.ca3s.core.web.rest.data.AcmeChallengeValidation;
@@ -105,32 +104,30 @@ public class ChallengeController extends AcmeController {
 
     private final AcmeChallengeRepository challengeRepository;
 
-    private final AcmeOrderRepository orderRepository;
-
 	private final PreferenceUtil preferenceUtil;
 
     private final SimpleResolver dnsResolver;
 
     private final AuditService auditService;
 
+    private final AcmeOrderUtil acmeOrderUtil;
     private final RateLimiter rateLimiter;
 
 
     public ChallengeController(AcmeChallengeRepository challengeRepository,
-                               AcmeOrderRepository orderRepository,
                                PreferenceUtil preferenceUtil,
                                AuditService auditService,
                                @Value("${ca3s.dns.server:}") String resolverHost,
                                @Value("${ca3s.dns.port:53}") int resolverPort,
-                               @Value("${ca3s.acme.ratelimit.second:0}") int rateSec,
+                               AcmeOrderUtil acmeOrderUtil, @Value("${ca3s.acme.ratelimit.second:0}") int rateSec,
                                @Value("${ca3s.acme.ratelimit.minute:20}") int rateMin,
                                @Value("${ca3s.acme.ratelimit.hour:0}") int rateHour)
         throws UnknownHostException {
 
         this.challengeRepository = challengeRepository;
-        this.orderRepository = orderRepository;
         this.preferenceUtil = preferenceUtil;
         this.auditService = auditService;
+        this.acmeOrderUtil = acmeOrderUtil;
 
         this.dnsResolver = new SimpleResolver(resolverHost);
         this.dnsResolver.setPort(resolverPort);
@@ -290,55 +287,9 @@ public class ChallengeController extends AcmeController {
             LOG.debug("challenge's  #{}' last error set to '{}'", challengeDao.getId(), challengeDao.getLastError() );
         }
 
-        alignOrderState(challengeDao.getAcmeAuthorization().getOrder());
+        acmeOrderUtil.alignOrderState(challengeDao.getAcmeAuthorization().getOrder());
 
         return solved;
-    }
-
-    void alignOrderState(AcmeOrder orderDao){
-
-        if( orderDao.getStatus().equals(AcmeOrderStatus.READY) ){
-          LOG.info("order status already '{}', no re-check after challenge state change required", orderDao.getStatus() );
-          return;
-        }
-
-        if( orderDao.getStatus() != AcmeOrderStatus.PENDING) {
-          LOG.warn("unexpected order status '{}' (!= Pending), no re-check after challenge state change required", orderDao.getStatus() );
-          return;
-        }
-
-        boolean orderReady = true;
-
-        /*
-        * check all authorizations having at least one successfully validated challenge
-        */
-        for (AcmeAuthorization authDao : orderDao.getAcmeAuthorizations()) {
-
-            boolean authReady = false;
-            for (AcmeChallenge challDao : authDao.getChallenges()) {
-                if (challDao.getStatus() == ChallengeStatus.VALID) {
-                    LOG.debug("challenge {} of type {} is valid ", challDao.getChallengeId(), challDao.getType());
-                    authReady = true;
-                    break;
-                }
-            }
-            if (authReady) {
-                LOG.debug("found valid challenge, authorization id {} is valid ", authDao.getAcmeAuthorizationId());
-            } else {
-                LOG.debug("no valid challenge, authorization id {} and order {} still pending",
-                    authDao.getAcmeAuthorizationId(), orderDao.getOrderId());
-                orderReady = false;
-                break;
-            }
-        }
-        if( orderReady ){
-          LOG.debug("order status set to READY" );
-            auditService.saveAuditTrace(
-                auditService.createAuditTraceAcmeOrderSucceeded(orderDao.getAccount(), orderDao));
-
-            orderDao.setStatus(AcmeOrderStatus.READY);
-          orderRepository.save(orderDao);
-        }
     }
 
     private boolean checkChallengeDNS(AcmeChallenge challengeDao) {
@@ -844,7 +795,7 @@ public class ChallengeController extends AcmeController {
         Long challengeId = acmeChallengeValidation.getChallengeId();
         Optional<AcmeChallenge> challengeOpt = challengeRepository.findByChallengeId(challengeId);
         if(!challengeOpt.isPresent()) {
-            LOG.info("challenge validaioon for unknown challenge id: {}", challengeId);
+            LOG.info("challenge validation for unknown challenge id: {}", challengeId);
             return ResponseEntity.notFound().build();
         }else {
             AcmeChallenge challengeDao = challengeOpt.get();
@@ -900,7 +851,7 @@ public class ChallengeController extends AcmeController {
                 }
 
                 challengeRepository.save(challengeDao);
-                alignOrderState(order);
+                acmeOrderUtil.alignOrderState(order);
             }
         }
         return ResponseEntity.ok().build();

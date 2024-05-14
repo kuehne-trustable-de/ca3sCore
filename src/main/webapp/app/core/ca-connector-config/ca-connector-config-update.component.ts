@@ -26,6 +26,7 @@ const validations: any = {
     },
     caUrl: {},
     pollingOffset: {},
+    lastUpdate: {},
     defaultCA: {},
     trustSelfsignedCertificates: {},
     active: {},

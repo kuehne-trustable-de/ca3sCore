@@ -10,7 +10,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateSelectionUtil;
-import de.trustable.ca3s.core.web.rest.util.CurrentUserUtil;
+import de.trustable.ca3s.core.web.rest.util.UserUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class CSRViewRepository {
     final private CertificateSelectionUtil certificateSelectionAttributeList;
     final private CSRRepository csrRepository;
     final private CSRUtil csrUtil;
-    final private CurrentUserUtil currentUserUtil;
+    final private UserUtil userUtil;
     private final String certificateStoreIsolation;
 
 
@@ -33,14 +33,14 @@ public class CSRViewRepository {
                              CertificateSelectionUtil certificateSelectionAttributeList,
                              CSRRepository csrRepository,
                              CSRUtil csrUtil,
-                             CurrentUserUtil currentUserUtil,
+                             UserUtil userUtil,
                              @Value("${ca3s.ui.certificate-store.isolation:none}")String certificateStoreIsolation){
 
         this.entityManager = entityManager;
         this.certificateSelectionAttributeList = certificateSelectionAttributeList;
         this.csrRepository = csrRepository;
         this.csrUtil = csrUtil;
-        this.currentUserUtil = currentUserUtil;
+        this.userUtil = userUtil;
         this.certificateStoreIsolation = certificateStoreIsolation;
     }
 
@@ -53,7 +53,7 @@ public class CSRViewRepository {
 				parameterMap,
             certificateSelectionAttributeList.getCertificateSelectionAttributes(),
             pipelineIds,
-            currentUserUtil.getCurrentUser(),
+            userUtil.getCurrentUser(),
             certificateStoreIsolation);
 	}
 

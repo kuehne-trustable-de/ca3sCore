@@ -9,6 +9,11 @@
         Added column to save the acceptor and acceptance date.
     -->
     <changeSet id="20221215170000-1" author="ak">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="csr" columnName="accepted_by"/>
+            </not>
+        </preConditions>
         <addColumn tableName="csr">
             <column name="accepted_by" type="varchar(255)">
                 <constraints nullable="true" />

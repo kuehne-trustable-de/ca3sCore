@@ -1,0 +1,836 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <logback>
+        <access>
+            <enabled>
+                <value>false</value>
+            </enabled>
+        </access>
+    </logback>
+
+    <comment mode="section">define the logging level</comment>
+    <logging>
+        <level>
+            <ROOT>
+                <value>INFO</value>
+            </ROOT>
+            <io.github.jhipster>
+                <value>INFO</value>
+            </io.github.jhipster>
+            <de.trustable.ca3s.core>
+                <value>INFO</value>
+            </de.trustable.ca3s.core>
+            <de.trustable.ca3s.core.PropertiesLogger>
+                <value>INFO</value>
+            </de.trustable.ca3s.core.PropertiesLogger>
+            <de.trustable.ca3s.core.schedule.RequestProxyScheduler>
+                <value>WARN</value>
+            </de.trustable.ca3s.core.schedule.RequestProxyScheduler>
+            <de.trustable.ca3s.core.service.NotificationService>
+                <value>DEBUG</value>
+            </de.trustable.ca3s.core.service.NotificationService>
+            <de.trustable.ca3s.core.service.MailService>
+                <value>DEBUG</value>
+            </de.trustable.ca3s.core.service.MailService>
+            <de.trustable.ca3s.core.service.util.CaConnectorAdapter>
+                <value>WARN</value>
+            </de.trustable.ca3s.core.service.util.CaConnectorAdapter>
+            <de.trustable.ca3s.core.service.adcs>
+                <value>INFO</value>
+            </de.trustable.ca3s.core.service.adcs>
+            <de.trustable.ca3s.core.service.cmp>
+                <value>INFO</value>
+            </de.trustable.ca3s.core.service.cmp>
+            <de.trustable.ca3s.core.service.dir>
+                <value>WARN</value>
+            </de.trustable.ca3s.core.service.dir>
+            <de.trustable.ca3s.core.security.provider.Ca3sTrustManager>
+                <value>WARN</value>
+            </de.trustable.ca3s.core.security.provider.Ca3sTrustManager>
+            <de.trustable.ca3s.core.repository.CSRSpecifications>
+                <value>WARN</value>
+            </de.trustable.ca3s.core.repository.CSRSpecifications>
+            <de.trustable.ca3s.core.repository.CertificateSpecifications>
+                <value>WARN</value>
+            </de.trustable.ca3s.core.repository.CertificateSpecifications>
+            <de.trustable.ca3s.core.web.rest.support.UIDatasetSupport>
+                <value>DEBUG</value>
+            </de.trustable.ca3s.core.web.rest.support.UIDatasetSupport>
+            <de.trustable.util.CryptoUtil>
+                <value>WARN</value>
+            </de.trustable.util.CryptoUtil>
+            <de.trustable.cmp.client.cmpClient.CMPClientImpl>
+                <value>DEBUG</value>
+            </de.trustable.cmp.client.cmpClient.CMPClientImpl>
+            <org.keycloak.adapters>
+                <value>WARN</value>
+            </org.keycloak.adapters>
+            <org.springframework.security.web.authentication>
+                <value>WARN</value>
+            </org.springframework.security.web.authentication>
+            <org.springframework.security>
+                <value>INFO</value>
+            </org.springframework.security>
+            <net.ttddyy.dsproxy.listener>
+                <value>INFO</value>
+            </net.ttddyy.dsproxy.listener>
+            <org.springframework.web.filter.CommonsRequestLoggingFilter>
+                <value>WARN</value>
+            </org.springframework.web.filter.CommonsRequestLoggingFilter>
+            <org.hibernate.SQL_SLOW>
+                <value>INFO</value>
+            </org.hibernate.SQL_SLOW>
+
+        </level>
+    </logging>
+
+    <management>
+        <metrics>
+            <export>
+                <prometheus>
+                    <enabled>
+                        <comment>enable or disable the metrics support as required</comment>
+                        <value>false</value>
+                    </enabled>
+                </prometheus>
+            </export>
+        </metrics>
+    </management>
+
+    <comment mode="section">properties defined by Spring</comment>
+    <spring>
+        <devtools>
+            <restart>
+                <enabled>
+                    <value>false</value>
+                </enabled>
+            </restart>
+            <livereload>
+                <enabled>
+                    <value>false</value>
+                </enabled>
+            </livereload>
+        </devtools>
+
+        <comment mode="section">database connection details</comment>
+        <datasource>
+            <type>
+                <value>com.zaxxer.hikari.HikariDataSource</value>
+            </type>
+            <url>
+                <value>jdbc:mysql://localhost:3306/test_schema?useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=false&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC&amp;allowPublicKeyRetrieval=true</value>
+            </url>
+            <username>
+                <value>ca3s_test</value>
+            </username>
+            <password>
+                <value>s3cr3t</value>
+            </password>
+            <hikari>
+                <poolName>
+                    <value>Hikari</value>
+                </poolName>
+                <auto-commit>
+                    <value>false</value>
+                </auto-commit>
+                <data-source-properties>
+                    <cachePrepStmts>
+                        <value>true</value>
+                    </cachePrepStmts>
+                    <prepStmtCacheSize>
+                        <value>250</value>
+                    </prepStmtCacheSize>
+                    <prepStmtCacheSqlLimit>
+                        <value>2048</value>
+                    </prepStmtCacheSqlLimit>
+                    <useServerPrepStmts>
+                        <value>true</value>
+                    </useServerPrepStmts>
+                </data-source-properties>
+            </hikari>
+        </datasource>
+        <jpa>
+            <database-platform>
+                <comment>align the JPA configuration to match the database used. The following section is intended for
+                    mariadb / mysql
+                </comment>
+                <value>org.hibernate.dialect.MySQL5InnoDBDialect</value>
+            </database-platform>
+            <database>
+                <value>MYSQL</value>
+            </database>
+            <show-sql>
+                <comment>enable this settings to have a dump of the SQL queries</comment>
+                <value>false</value>
+            </show-sql>
+            <properties>
+                <hibernate>
+                    <id>
+                        <new_generator_mappings>
+                            <value>true</value>
+                        </new_generator_mappings>
+                    </id>
+                    <connection>
+                        <provider_disables_autocommit>
+                            <value>true</value>
+                        </provider_disables_autocommit>
+                    </connection>
+                    <cache>
+                        <use_second_level_cache>
+                            <value>false</value>
+                        </use_second_level_cache>
+                        <use_query_cache>
+                            <value>false</value>
+                        </use_query_cache>
+                    </cache>
+                    <generate_statistics>
+                        <value>false</value>
+                    </generate_statistics>
+                    <session>
+                        <events>
+                            <log>
+                                <LOG_QUERIES_SLOWER_THAN_MS>
+                                    <comment>define a limit for SQL query execution time.
+                                    Make sure 'logger name="org.hibernate.SQL_SLOW" level="info"' is active
+                                    </comment>
+                                    <value>250</value>
+                                </LOG_QUERIES_SLOWER_THAN_MS>
+                            </log>
+                        </events>
+                    </session>
+                </hibernate>
+            </properties>
+        </jpa>
+        <liquibase>
+            <contexts>
+                <value>prod</value>
+            </contexts>
+        </liquibase>
+        <mvc>
+            <pathmatch>
+                <matching-strategy>
+                    <value>ant_path_matcher</value>
+                </matching-strategy>
+            </pathmatch>
+        </mvc>
+        <main>
+            <allow-bean-definition-overriding>
+                <comment>the spring SAML support requires these settings validate the need after a spring security update</comment>
+                <value>true</value>
+            </allow-bean-definition-overriding>
+            <allow-circular-references>
+                <comment>the spring SAML support requires these settings validate the need after a spring security update</comment>
+                <value>true</value>
+            </allow-circular-references>
+        </main>
+        <mail>
+            <host>
+                <comment>the basic settings for outbound email support additioanl email-related setting are located at
+                    'jhpster.mail'
+                </comment>
+                <value>localhost</value>
+            </host>
+            <port>
+                <value>25</value>
+            </port>
+            <username/>
+            <password/>
+        </mail>
+        <messages>
+            <basename>
+                <comment>define the location of the email templates</comment>
+                <value>i18n/messages</value>
+            </basename>
+        </messages>
+        <thymeleaf>
+            <cache>
+                <value>true</value>
+            </cache>
+        </thymeleaf>
+    </spring>
+    <server>
+        <port>
+            <value>8080</value>
+        </port>
+        <compression>
+            <enabled>
+                <value>true</value>
+            </enabled>
+            <mime-types>
+                <value>text/html,text/xml,text/plain,text/css, application/javascript, application/json</value>
+            </mime-types>
+            <min-response-size>
+                <value>1024</value>
+            </min-response-size>
+        </compression>
+        <max-http-header-size>
+            <value>8KB</value>
+        </max-http-header-size>
+    </server>
+
+    <comment mode="section">properties defined by jHipster
+        Full reference is available at: https://www.jhipster.tech/common-application-properties/</comment>
+    <jhipster>
+        <http>
+            <cache>
+                <timeToLiveInDays>
+                    <value>1461</value>
+                </timeToLiveInDays>
+            </cache>
+        </http>
+        <cache>
+            <ehcache>
+                <time-to-live-seconds>
+                    <comment>objects stay 1 hour in the cache</comment>
+                    <value>3600</value>
+                </time-to-live-seconds>
+                <max-entries>
+                    <comment>Number of objects in each cache entry</comment>
+                    <value>1000</value>
+                </max-entries>
+            </ehcache>
+        </cache>
+        <security>
+            <authentication>
+                <comment mode="section">The web session uses JSON Web Token for authentication. Define the protection parameter here</comment>
+                <jwt>
+                    <base64-secret>
+                        <comment>This token must be encoded using Base64 and be at least 512 bits long (you can type
+                            `openssl rand -base64 128` on your command line to generate one)
+                        </comment>
+                        <value>
+                            Mjk3NjM4OWI4NWU3ZjE3NjQ3OWRiZjI3OWYwYmZiNWY1NzA2YjAzZTY2ODJhNWM5MjFjYzZmZTZlMDE4YWRhNDg0MjJlNDYzNThhODBjNmU0ZGFjMGY3MTc5OTVlNmEyZWFiZmIwMDIxYTExYzkxNGM3YmM2YmVmMmNlZWE2YmQ=
+                        </value>
+                    </base64-secret>
+                    <token-validity-in-seconds>
+                        <comment>Token is valid 24 hours</comment>
+                        <value>86400</value>
+                    </token-validity-in-seconds>
+                    <token-validity-in-seconds-for-remember-me>
+                        <value>2592000</value>
+                    </token-validity-in-seconds-for-remember-me>
+                </jwt>
+            </authentication>
+        </security>
+        <mail>
+            <comment mode="section">Provide environment settings for email templates</comment>
+            <base-url>
+                <value>http://localhost:8080</value>
+            </base-url>
+            <from>
+                <value>ca3s@localhost</value>
+            </from>
+        </mail>
+        <logging>
+            <use-json-format>
+                <value>false</value>
+            </use-json-format>
+            <logstash>
+                <enabled>
+                    <value>false</value>
+                </enabled>
+                <host>
+                    <value>localhost</value>
+                </host>
+                <port>
+                    <value>5000</value>
+                </port>
+                <queue-size>
+                    <value>512</value>
+                </queue-size>
+            </logstash>
+        </logging>
+        <audit-events>
+            <retention-period>
+                <value>30</value>
+            </retention-period>
+        </audit-events>
+    </jhipster>
+
+    <comment mode="section">Configure the settings for OAS (aka Swagger)</comment>
+    <springdoc>
+        <packagesToScan>
+            <value>de.trustable.ca3s.core.web.rest</value>
+        </packagesToScan>
+        <pathsToMatch>
+            <value>/v1, /api/**</value>
+        </pathsToMatch>
+    </springdoc>
+
+    <comment mode="section">Configure the settings related to the Camunda process engine</comment>
+    <camunda>
+        <bpm>
+            <job-execution>
+                <enabled>
+                    <value>true</value>
+                </enabled>
+            </job-execution>
+        </bpm>
+    </camunda>
+
+    <comment mode="section">Configure the ca3s specific settings</comment>
+    <ca3s>
+        <bpmn>
+            <comment>Enable the default BPMN process. This has performance drawbacks but offers the services of the camunda engine, e.g. parameter tracking</comment>
+            <use-default-process>
+                <value>false</value>
+            </use-default-process>
+        </bpmn>
+        <historicProcess>
+            <retention>
+                <comment>Drop the BPMN data after a given period. Processes may have blob objects (e.g. CSRs and certificates) that may bloat the database. </comment>
+                <days>
+                    <value>180</value>
+                </days>
+            </retention>
+        </historicProcess>
+
+        <issuance>
+            <ra>
+                <self-issuance-allowed>
+                    <comment>If this settings is true, an RA officer may issue its own request. Not recommended for production environments</comment>
+                    <value>false</value>
+                </self-issuance-allowed>
+            </ra>
+        </issuance>
+        <batch>
+            <maxRecordsPerTransaction>
+                <comment>Limit the number of processed records within a transaction</comment>
+                <value>1000</value>
+            </maxRecordsPerTransaction>
+        </batch>
+        <schedule>
+            <rate>
+                <caConnectorStatus>
+                    <value>600000</value>
+                </caConnectorStatus>
+                <protectedContentCleanup>
+                    <value>3600000</value>
+                </protectedContentCleanup>
+                <acmeOrderExpiry>
+                    <value>3600000</value>
+                </acmeOrderExpiry>
+                <certBundleCheck>
+                    <value>600000</value>
+                </certBundleCheck>
+                <certRetrieval>
+                    <value>3600000</value>
+                </certRetrieval>
+                <revocationCheck>
+                    <value>3600000</value>
+                </revocationCheck>
+            </rate>
+            <cron>
+                <expiryNotificationCron>
+                    <value>0 15 2 * * ?</value>
+                </expiryNotificationCron>
+                <dropUnrelatedUsersCron>
+                    <value>0 20 02 * * ?</value>
+                </dropUnrelatedUsersCron>
+                <dropHistoricProcessesCron>
+                    <value>0 22 22 * * ?</value>
+                </dropHistoricProcessesCron>
+            </cron>
+            <ra-officer-notification>
+                <days-before-expiry>
+                    <ee>
+                        <value>30</value>
+                    </ee>
+                    <ca>
+                        <value>90</value>
+                    </ca>
+                </days-before-expiry>
+                <days-pending>
+                    <value>30</value>
+                </days-pending>
+            </ra-officer-notification>
+            <requestor>
+                <notification>
+                    <days>
+                        <value>30,14,7</value>
+                    </days>
+                    <attributes>
+                        <value>adcs manager</value>
+                    </attributes>
+                    <user-only>
+                        <value>false</value>
+                    </user-only>
+                </notification>
+            </requestor>
+        </schedule>
+        <pkcs12>
+            <secret>
+                <description>
+                    <value>min6NumberUpperLower</value>
+                </description>
+                <regexp>
+                    <value>^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,100}$</value>
+                </regexp>
+            </secret>
+            <pbe>
+                <algos>
+                    <value>PBEWithHmacSHA256AndAES_256, pbeWithSHAAnd3_KeyTripleDES_CBC</value>
+                </algos>
+            </pbe>
+        </pkcs12>
+        <ui>
+            <user/>
+            <certificate-store>
+                <isolation>
+                    <value>none</value>
+                </isolation>
+            </certificate-store>
+            <download>
+                <rows>
+                    <max>
+                        <value>65535</value>
+                    </max>
+                </rows>
+                <pkcs12>
+                    <log>
+                        <download>
+                            <value>true</value>
+                        </download>
+                    </log>
+                </pkcs12>
+            </download>
+            <password>
+                <check>
+                    <description>
+                        <value>min8NumberUpperLowerSpecial</value>
+                    </description>
+                    <regexp>
+                        <value>
+                            ^(?:(?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))(?!.*(.)\1{2,})[A-Za-z0-9!~&lt;&gt;,;:_=?*+#.”&amp;§%°()\|\[\]\-\$\^\@\/]{8,32}$
+                        </value>
+                    </regexp>
+                </check>
+            </password>
+            <csr>
+                <dnslookup>
+                    <value>true</value>
+                </dnslookup>
+            </csr>
+            <sso>
+                <autologin>
+                    <value>false</value>
+                </autologin>
+                <provider>
+                    <value>saml</value>
+                </provider>
+            </sso>
+        </ui>
+
+        <comment mode="section">Configure service to port / protocol binding.
+            The default port is 8442
+            The default binding host is 0.0.0.0
+            The use of https is default
+            Overwrite any of the settings if required </comment>
+        <scepAccess>
+            <comment mode="section">Define the SCEP access port and the protocol. Older clients may support HTTP, only</comment>
+            <port>
+                <value>8080</value>
+            </port>
+            <https>
+                <value>false</value>
+            </https>
+        </scepAccess>
+
+        <acmeAccess>
+            <comment mode="section">Define the ACME access port. HTTPS is mandatory by RFC 8555</comment>
+            <port>
+                <value>8442</value>
+            </port>
+        </acmeAccess>
+
+        <tlsAccess>
+            <comment mode="section">Define the access port for 'normal' user'. HTTPS is strongly recommended</comment>
+            <port>
+                <value>8442</value>
+            </port>
+        </tlsAccess>
+
+        <raAccess>
+            <comment mode="section">Define the access port for ra officer. HTTPS is strongly recommended</comment>
+            <port>
+                <value>8442</value>
+            </port>
+        </raAccess>
+
+        <adminAccess>
+            <comment mode="section">Define the access port for administrator. HTTPS is strongly recommended. Probably admin access will be limited to a specific subnet</comment>
+            <port>
+                <value>8442</value>
+            </port>
+            <bindingHost>
+                <value>192.168.32.0</value>
+            </bindingHost>
+        </adminAccess>
+
+        <acme>
+            <finalizelocationBackwardCompat>
+                <comment mode="section">An apache plugin for ACME support requires a specific header not mention in RFC 8555</comment>
+                <value>true</value>
+            </finalizelocationBackwardCompat>
+
+            <ratelimit>
+                <second>
+                    <value>0</value>
+                </second>
+                <minute>
+                    <value>20</value>
+                </minute>
+                <hour>
+                    <value>0</value>
+                </hour>
+            </ratelimit>
+
+            <order>
+                <comment mode="section">expiry period for orders</comment>
+                <validity>
+                    <seconds>
+                        <value>600</value>
+                    </seconds>
+                </validity>
+            </order>
+
+            <comment mode="section">determine the status of an Authentication or an Order by proving the status of the challenges. This may trigger a challenge validation call to the client</comment>
+            <iterate>
+                <authentications>
+                    <value>true</value>
+                </authentications>
+                <challenges>
+                    <value>true</value>
+                </challenges>
+            </iterate>
+        </acme>
+
+        <comment mode="section">define a specific DNS server to be used with ACME DNS challenges</comment>
+        <dns>
+            <server>
+                <value>213.133.106.251</value>
+            </server>
+            <port>
+                <value>53</value>
+            </port>
+        </dns>
+
+        <https>
+            <comment mode="section">ca3s requests its own certificate automatically. Define the details of the certificate</comment>
+            <certificate>
+                <dnSuffix>
+                    <value>O=Trustable Solutions,OU=CA3S Instance,C=DE</value>
+                </dnSuffix>
+                <sans>
+                    <value>ca3s.org, www.ca3s.org</value>
+                </sans>
+                <persist>
+                    <value>DB</value>
+                </persist>
+            </certificate>
+        </https>
+
+        <scep>
+            <comment mode="section">ca3s requests the SCEP recipeint certificate automatically. Define the details of the certificate</comment>
+            <recipient>
+                <certificate>
+                    <cnSuffix>
+                        <value>.trustable.de</value>
+                    </cnSuffix>
+                </certificate>
+            </recipient>
+        </scep>
+
+        <comment mode="section">provide a random password for the derivation of an encryption key to encrypt sensitive data in the database.
+            If this value is lost the content of the related database instance becomes useless. There is no way to recover this key.
+            !!! Make sure this configuration file is readable for the application / administrators ONLY !!!</comment>
+        <protectionSecret>
+            <value>bnJvbGwvV1MtMjAxOS1DQS5jcmyGK2h0dHA6Ly90cnVzdGFibGUuZXUvYWRjc1Rl</value>
+        </protectionSecret>
+
+        <comment mode="section">define some key derivation parameter wihich are applied to derive a key from the given protectionSecret</comment>
+        <connection>
+            <salt>
+                <value>ca3sSalt</value>
+            </salt>
+            <iterations>
+                <value>4567</value>
+            </iterations>
+            <pbeAlgo>
+                <value>PBKDF2WithHmacSHA256</value>
+            </pbeAlgo>
+        </connection>
+
+        <comment mode="section">SSO section</comment>
+        <auth>
+            <comment mode="section">Define a (default) API key to access the REST endpoints, especially during automatic setup</comment>
+            <api-key>
+                <enabled>
+                    <comment>enable / disable the API token authentication</comment>
+                    <value>true</value>
+                </enabled>
+                <auth-token-header-name>
+                    <comment>define the header containing the API token</comment>
+                    <value>X-API-KEY</value>
+                </auth-token-header-name>
+                <auth-token-admin>
+                    <comment>define the API token value for unrestricted access</comment>
+                    <value>
+                        gTYvGKIfzLpWQSSIMT1XBaRfzdSLZmvFMNlfo6zeddYyg3FYmq7BH6qqB4dy75uYbLb0KXOU7jV50a360R4CB4UXriX085usWJnto5CMpOu34rxx0b5v2Xd97hpzDQdJ
+                    </value>
+                </auth-token-admin>
+            </api-key>
+
+            <comment mode="section">Section for kerberos / AD authentication</comment>
+            <kerberos>
+                <service-principal>
+                    <value>HTTP/admin@ci-adcs</value>
+                </service-principal>
+                <keytab-location>
+                    <value>ca3s.keytab</value>
+                </keytab-location>
+            </kerberos>
+            <ad-domain>
+                <value>foo</value>
+            </ad-domain>
+
+            <comment mode="section">Section regarding LDAP / AD access</comment>
+            <ldap>
+                <url>
+                    <value>ldap://testLDAP.eu:123</value>
+                </url>
+                <baseDN>
+                    <value>dc=testLDAP,dc=eu</value>
+                </baseDN>
+                <search-base>
+                    <value>dc=testLDAP,dc=eu</value>
+                </search-base>
+                <search-filter>
+                    <value>dc=testLDAP,dc=eu</value>
+                </search-filter>
+                <group-search-base>
+                    <value>(| (userPrincipalName={0}) (sAMAccountName={0}))</value>
+                </group-search-base>
+                <principal>
+                    <value>cn=alice,ou=people,dc=testLDAP,dc=eu</value>
+                </principal>
+                <password>
+                    <value>s3cr3t</value>
+                </password>
+            </ldap>
+        </auth>
+
+        <comment mode="section">Section defining SAML server and token processing</comment>
+        <saml>
+            <activate>
+                <value>true</value>
+            </activate>
+            <idp>
+                <value>http://localhost:50080/realms/master</value>
+            </idp>
+            <sp>
+                <value>saml-client</value>
+            </sp>
+
+            <roles>
+                <user>
+                    <value>*</value>
+                </user>
+                <domainra/>
+                <ra/>
+                <admin/>
+            </roles>
+
+            <comment mode="section">Define attributes providing basic identification data</comment>
+            <attributes>
+                <firstname>
+                    <value>firstName</value>
+                </firstname>
+                <lastName>
+                    <value>lastName</value>
+                </lastName>
+                <email>
+                    <value>email</value>
+                </email>
+            </attributes>
+
+            <comment mode="section">Define SPEL expression building values from basic identification data</comment>
+            <expression>
+                <tenant>
+                    <value>get('user').get(0).substring(0,2).toUpperCase()</value>
+                </tenant>
+            </expression>
+
+            <metadata>
+                <location>
+                    <value>sample/saml/metadata/keycloak_saml.metadata.xml</value>
+                </location>
+                <requires>
+                    <signature>
+                        <value>false</value>
+                    </signature>
+                </requires>
+                <trust>
+                    <check>
+                        <value>false</value>
+                    </check>
+                    <key>
+                        <aliases>
+                            <value>trustedAlias1, trustedAlias2</value>
+                        </aliases>
+                    </key>
+                </trust>
+            </metadata>
+
+            <keystore>
+                <location>
+                    <value>sample/saml/samlKeystore.p12</value>
+                </location>
+                <password>
+                    <value>s3cr3t</value>
+                </password>
+                <alias>
+                    <value>saml-client</value>
+                </alias>
+            </keystore>
+        </saml>
+
+        <comment mode="section">Section defining OIDC server and JWT processing</comment>
+        <oidc>
+            <roles>
+                <user>
+                    <value>*</value>
+                </user>
+                <domainra/>
+                <ra>
+                    <value>ROLE_RA</value>
+                </ra>
+                <admin/>
+            </roles>
+            <client-id>
+                <value>oidc_client</value>
+            </client-id>
+            <client-secret>
+                <value>197bc3b4-64b0-452f-9bdb-fcaea0988e90</value>
+            </client-secret>
+            <scope>
+                <value>openid, profile</value>
+            </scope>
+            <authorization-grant-type>
+                <value>password</value>
+            </authorization-grant-type>
+            <auth-server-url>
+                <value>http://keycloak.trustable.eu:50080</value>
+            </auth-server-url>
+            <realm>
+                <value>ca3s</value>
+            </realm>
+            <authorization-uri>
+                <value>http://localhost:8080/auth/realms/ca3sRealm/protocol/openid-connect/auth</value>
+            </authorization-uri>
+            <use-post-logout-redirect-uri>
+                <value>true</value>
+            </use-post-logout-redirect-uri>
+        </oidc>
+    </ca3s>
+</config>

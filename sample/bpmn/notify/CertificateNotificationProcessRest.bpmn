@@ -50,6 +50,8 @@
       </bpmn2:multiInstanceLoopCharacteristics>
       <bpmn2:script>
 
+          println("scep port: " + '${ca3s.scepAccess.port}')
+
           println("authToken: " + authToken)
           println("certificateId: " + certificateId)
           Map&lt;String, String[]&gt; selection = new HashMap&lt;String,String[]&gt;(Map.ofEntries(
@@ -58,7 +60,7 @@
               Map.entry("attributeName_1", ["id"] as String[]),
               Map.entry("attributeValue_1", [certificateId] as String[]),
               Map.entry("attributeSelector_1", ["EQUAL"] as String[]),
-              Map.entry("filter", ["id,subject,issuer,type,keyLength,serialHex,validFrom,validTo,hashAlgorithm,paddingAlgorithm,revoked,revokedSince,revocationReason,sans,root,Manager, RDN_COMMONNAME"] as String[])
+              Map.entry("filter", ["id,subject,issuer,type,keyLength,serialHex,validFrom,validTo,hashAlgorithm,paddingAlgorithm,revoked,revokedSince,revocationReason,sans,root,manager"] as String[])
               ))
 
           var cvList = certificateListResource.getFullCVList(selection)
@@ -70,14 +72,19 @@
           execution.setVariable("status", "NotFound");
 
           cvList.each { it -&gt;
+
+            for( de.trustable.ca3s.core.service.dto.NamedValue nv: it.getArArr()){
+              println( "add Attribute: " + nv.getName() + " -> " + nv.getValue());
+            }
+
             Map&lt;String, String&gt; params = new HashMap&lt;&gt;();
             params.put("seriennummer", it.getSerial().toString());
             params.put("name", it.getRdn_cn());
             params.put("commonName", it.getRdn_cn());
 
-            params.put("subjectAlternativeName", it.getSans());
-            params.put("rootCAAnbieter", it.getRoot());
-            params.put("aussteller", it.getIssuer());
+            params.put("subjectAlternativeName", it.getTypedSansString());
+            params.put("rootCAAnbieter", it.getRoot_rdn_cn());
+            params.put("aussteller", it.getIssuer_rdn_cn());
 
             params.put("organisationseinheit", "organisationseinheit");
             params.put("ersteVerantwortlichePerson", "ersteVerantwortlichePerson");
