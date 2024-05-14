@@ -304,7 +304,7 @@
             <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
-                <version>3.25.2</version>
+                <version>3.25.3</version>
             </dependency>
 
             <!-- Newer version introduced by adcsProxyClient
