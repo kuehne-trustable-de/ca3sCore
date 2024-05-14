@@ -152,7 +152,12 @@
                         <input type="checkbox" class="form-check" name="disableHostNameVerifier" id="ca-connector-config-disableHostNameVerifier"
                                v-model="cAConnectorConfig.disableHostNameVerifier" />
 
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.ignoreResponseMessageVerification')" for="ca-connector-config-ignoreResponseMessageVerification">Ignore Response Message Verification</label>  <help-tag role="Admin" target="ca-connector.cmp.ignore-response-message-verification"/>
+                        <input type="checkbox" class="form-check" name="ca-connector-config-ignoreResponseMessageVerification" id="ca-connector-config-ignoreResponseMessageVerification"
+                               v-model="$v.cAConnectorConfig.ignoreResponseMessageVerification.$model" />
                     </div>
+
+
 
                     <div v-if="cAConnectorConfig.id">
                         <audit-tag :caConnectorId="cAConnectorConfig.id" showLinks="false" :title="$t('ca3SApp.certificate.audit')"></audit-tag>

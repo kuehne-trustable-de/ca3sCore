@@ -203,9 +203,9 @@ public class AcmeHappyPathIT {
 				Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
 
 				if( challenge != null) {
-                    Thread webThread = provideAuthEndpoint(challenge, order, prefTC);
+                    provideAuthEndpoint(challenge, order, prefTC);
                     challenge.trigger();
-                    if( webThread != null){webThread.stop();}
+
                 } else {
                     LOG.warn("http01 Challenge not found for order");
                 }
@@ -511,7 +511,6 @@ public class AcmeHappyPathIT {
         int MAX_TRIAL = 10;
 		for( int retry = 0; retry < MAX_TRIAL; retry++) {
 			try {
-//				provideAuthEndpoint(challenge, prefTC);
                 webThread = httpChallengeHelper.provideAuthEndpoint(challenge.getToken(), challenge.getAuthorization(), true);
 				break;
 			} catch( BindException be) {

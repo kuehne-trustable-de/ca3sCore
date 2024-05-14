@@ -296,6 +296,7 @@
   "ca3SApp.cAConnectorConfig.msgContentType": "Content Type der Nachricht",
   "ca3SApp.cAConnectorConfig.sni": "Server Name Indication",
   "ca3SApp.cAConnectorConfig.disableHostNameVerifier": "Keine Prüfung des Hostnamens",
+  "ca3SApp.cAConnectorConfig.ignoreResponseMessageVerification": "Ignorieren der Verifikation der Antwortanchricht",
 
   "ca3SApp.cSR.subtitle.request.list": "Antragsliste",
   "ca3SApp.cSR.administeredBy": "Verwaltet durch",

@@ -6,7 +6,7 @@ import de.trustable.ca3s.core.domain.Tenant;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.repository.AuditTraceRepository;
 import de.trustable.ca3s.core.repository.CertificateViewRepository;
-import de.trustable.ca3s.core.web.rest.util.UserUtil;
+import de.trustable.ca3s.core.service.util.UserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

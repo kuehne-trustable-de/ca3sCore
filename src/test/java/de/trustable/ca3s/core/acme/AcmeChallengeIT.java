@@ -205,15 +205,13 @@ public class AcmeChallengeIT {
 
                 LOG.debug("correct response would be {}, but it's prepended with 'xxx' ...", challenge.getAuthorization());
 
-                Boolean terminate = Boolean.FALSE;
-                Thread webThread = httpChallengeHelper.provideAuthEndpoint(challenge.getToken(), "xxx" + challenge.getAuthorization(), terminate);
+                httpChallengeHelper.provideAuthEndpoint(challenge.getToken(), "xxx" + challenge.getAuthorization(), true);
 
                 challenge.trigger();
 
                 LOG.debug("challenge status (post): {}", challenge.getStatus());
                 Assertions.assertEquals(Status.PENDING, challenge.getStatus());
 
-                webThread.stop();
             }
         }
 
@@ -236,10 +234,8 @@ public class AcmeChallengeIT {
                 Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
 
                 if( challenge != null) {
-                    Thread webThread = httpChallengeHelper.provideAuthEndpoint(challenge.getToken(), challenge.getAuthorization(), false);
+                    httpChallengeHelper.provideAuthEndpoint(challenge.getToken(), challenge.getAuthorization(), true);
                     challenge.trigger();
-                    webThread.stop();
-
                 } else {
                     LOG.warn("http01 Challenge not found for order");
                 }
@@ -321,9 +317,8 @@ public class AcmeChallengeIT {
                 Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
 
                 if( challenge != null) {
-                    Thread webThread = httpChallengeHelper.provideAuthEndpoint(challenge.getToken(), challenge.getAuthorization(), false);
+                    httpChallengeHelper.provideAuthEndpoint(challenge.getToken(), challenge.getAuthorization(), true);
                     challenge.trigger();
-                    webThread.stop();
                 } else {
                     LOG.warn("http01 challenge not found for order");
                 }

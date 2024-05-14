@@ -298,7 +298,8 @@
   "ca3SApp.cAConnectorConfig.issuerName": "Issuer name",
   "ca3SApp.cAConnectorConfig.msgContentType": "message content type",
   "ca3SApp.cAConnectorConfig.sni": "Server Name Indication",
-  "ca3SApp.cAConnectorConfig.disableHostNameVerifier": "Disable host name validation",
+  "ca3SApp.cAConnectorConfig.disableHostNameVerifier": "Disable host name verification",
+  "ca3SApp.cAConnectorConfig.ignoreResponseMessageVerification": "Ignore outcome of response verification",
 
   "ca3SApp.cSR.subtitle.request.list": "Request List",
   "ca3SApp.cSR.administeredBy": "Administered By",

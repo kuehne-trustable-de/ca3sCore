@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
+
+    <comment mode="section">Activate logback</comment>
     <logback>
         <access>
             <enabled>
@@ -11,6 +13,8 @@
     <comment mode="section">define the logging level</comment>
     <logging>
         <level>
+
+            <comment>set the default logging level</comment>
             <ROOT>
                 <value>INFO</value>
             </ROOT>
@@ -80,10 +84,10 @@
             <org.hibernate.SQL_SLOW>
                 <value>INFO</value>
             </org.hibernate.SQL_SLOW>
-
         </level>
     </logging>
 
+    <comment mode="section">Management / metrics settings</comment>
     <management>
         <metrics>
             <export>
@@ -97,8 +101,9 @@
         </metrics>
     </management>
 
-    <comment mode="section">properties defined by Spring</comment>
+    <comment mode="section">Properties defined by Spring</comment>
     <spring>
+        <comment>disable devtools for production or performance checks</comment>
         <devtools>
             <restart>
                 <enabled>
@@ -114,9 +119,7 @@
 
         <comment mode="section">database connection details</comment>
         <datasource>
-            <type>
-                <value>com.zaxxer.hikari.HikariDataSource</value>
-            </type>
+            <comment>provide the database specific connection url</comment>
             <url>
                 <value>jdbc:mysql://localhost:3306/test_schema?useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=false&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC&amp;allowPublicKeyRetrieval=true</value>
             </url>
@@ -126,6 +129,12 @@
             <password>
                 <value>s3cr3t</value>
             </password>
+
+            <comment>use the hikari connection pool</comment>
+            <type>
+                <value>com.zaxxer.hikari.HikariDataSource</value>
+            </type>
+            <comment>provide hikari connection pool settings</comment>
             <hikari>
                 <poolName>
                     <value>Hikari</value>
@@ -166,12 +175,14 @@
             <properties>
                 <hibernate>
                     <id>
+                        <comment>specify the way jpa creates ids</comment>
                         <new_generator_mappings>
                             <value>true</value>
                         </new_generator_mappings>
                     </id>
                     <connection>
                         <provider_disables_autocommit>
+                            <comment>ensure autocommit isn't by chance</comment>
                             <value>true</value>
                         </provider_disables_autocommit>
                     </connection>
@@ -208,6 +219,7 @@
         </liquibase>
         <mvc>
             <pathmatch>
+                <comment>set the Ant way to match patterns</comment>
                 <matching-strategy>
                     <value>ant_path_matcher</value>
                 </matching-strategy>
@@ -500,9 +512,7 @@
                         <value>min8NumberUpperLowerSpecial</value>
                     </description>
                     <regexp>
-                        <value>
-                            ^(?:(?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))(?!.*(.)\1{2,})[A-Za-z0-9!~&lt;&gt;,;:_=?*+#.”&amp;§%°()\|\[\]\-\$\^\@\/]{8,32}$
-                        </value>
+                        <value>^(?:(?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))(?!.*(.)\1{2,})[A-Za-z0-9!~&lt;&gt;,;:_=?*+#.”&amp;§%°()\|\[\]\-\$\^\@\/]{8,32}$</value>
                     </regexp>
                 </check>
             </password>
@@ -615,23 +625,28 @@
             </port>
         </dns>
 
+        <comment mode="section">ca3s certificate details</comment>
         <https>
-            <comment mode="section">ca3s requests its own certificate automatically. Define the details of the certificate</comment>
+            <comment>ca3s requests its own certificate automatically. Define the details of the certificate in the following section.</comment>
             <certificate>
                 <dnSuffix>
+                    <comment>The common name is derived from the hostname. Provide additional RDN for the certificate's distinguished name.</comment>
                     <value>O=Trustable Solutions,OU=CA3S Instance,C=DE</value>
                 </dnSuffix>
                 <sans>
+                    <comment>The common name is derived from the hostname. Add other relevant names here.</comment>
                     <value>ca3s.org, www.ca3s.org</value>
                 </sans>
                 <persist>
+                    <comment>Define the way ca3s stores its own key and certificate</comment>
                     <value>DB</value>
                 </persist>
             </certificate>
         </https>
 
+        <comment mode="section">SCEP protocol</comment>
         <scep>
-            <comment mode="section">ca3s requests the SCEP recipeint certificate automatically. Define the details of the certificate</comment>
+            <comment>ca3s requests the SCEP recipeint certificate automatically. Define the details of the certificate</comment>
             <recipient>
                 <certificate>
                     <cnSuffix>
@@ -641,29 +656,34 @@
             </recipient>
         </scep>
 
-        <comment mode="section">provide a random password for the derivation of an encryption key to encrypt sensitive data in the database.
-            If this value is lost the content of the related database instance becomes useless. There is no way to recover this key.
-            !!! Make sure this configuration file is readable for the application / administrators ONLY !!!</comment>
+        <comment mode="section">Database encryption</comment>
         <protectionSecret>
+            <comment>Provide a random password for the derivation of an encryption key to encrypt sensitive data in the database.
+                If this value is lost the content of the related database instance becomes useless. There is no way to recover this key.
+                !!! Make sure this configuration file is readable for the application / administrators ONLY !!!</comment>
             <value>bnJvbGwvV1MtMjAxOS1DQS5jcmyGK2h0dHA6Ly90cnVzdGFibGUuZXUvYWRjc1Rl</value>
         </protectionSecret>
 
-        <comment mode="section">define some key derivation parameter wihich are applied to derive a key from the given protectionSecret</comment>
+        <comment mode="section">Key derivation parameter</comment>
+        <comment>Define parameters which are applied to derive a key from the given protection secret.
+        Ensure that these settings match the values of connected systems, e.g. a ADCSProxy instance</comment>
         <connection>
+            <pbeAlgo>
+                <comment>set the algorithm for key derivation</comment>
+                <value>PBKDF2WithHmacSHA256</value>
+            </pbeAlgo>
             <salt>
                 <value>ca3sSalt</value>
             </salt>
             <iterations>
                 <value>4567</value>
             </iterations>
-            <pbeAlgo>
-                <value>PBKDF2WithHmacSHA256</value>
-            </pbeAlgo>
         </connection>
 
         <comment mode="section">SSO section</comment>
         <auth>
-            <comment mode="section">Define a (default) API key to access the REST endpoints, especially during automatic setup</comment>
+            <comment mode="subsection">Section for kerberos / AD authentication</comment>
+            <comment>Define a (default) API key to access the REST endpoints, especially during automatic setup</comment>
             <api-key>
                 <enabled>
                     <comment>enable / disable the API token authentication</comment>
@@ -674,14 +694,12 @@
                     <value>X-API-KEY</value>
                 </auth-token-header-name>
                 <auth-token-admin>
-                    <comment>define the API token value for unrestricted access</comment>
-                    <value>
-                        gTYvGKIfzLpWQSSIMT1XBaRfzdSLZmvFMNlfo6zeddYyg3FYmq7BH6qqB4dy75uYbLb0KXOU7jV50a360R4CB4UXriX085usWJnto5CMpOu34rxx0b5v2Xd97hpzDQdJ
-                    </value>
+                    <comment>define the API token value for administrative access</comment>
+                    <value>gTYvGKIfzLpWQSSIMT1XBaRfzdSLZmvFMNlfo6zeddYyg3FYmq7BH6qqB4dy75uYbLb0KXOU7jV50a360R4CB4UXriX085usWJnto5CMpOu34rxx0b5v2Xd97hpzDQdJ</value>
                 </auth-token-admin>
             </api-key>
 
-            <comment mode="section">Section for kerberos / AD authentication</comment>
+            <comment mode="subsection">Section for kerberos / AD authentication</comment>
             <kerberos>
                 <service-principal>
                     <value>HTTP/admin@ci-adcs</value>
@@ -694,7 +712,7 @@
                 <value>foo</value>
             </ad-domain>
 
-            <comment mode="section">Section regarding LDAP / AD access</comment>
+            <comment mode="subsection">Section regarding LDAP / AD access</comment>
             <ldap>
                 <url>
                     <value>ldap://testLDAP.eu:123</value>
@@ -720,7 +738,7 @@
             </ldap>
         </auth>
 
-        <comment mode="section">Section defining SAML server and token processing</comment>
+        <comment mode="subsection">Section defining SAML server and token processing</comment>
         <saml>
             <activate>
                 <value>true</value>
@@ -741,7 +759,7 @@
                 <admin/>
             </roles>
 
-            <comment mode="section">Define attributes providing basic identification data</comment>
+            <comment>Define attributes providing basic identification data</comment>
             <attributes>
                 <firstname>
                     <value>firstName</value>
@@ -754,7 +772,7 @@
                 </email>
             </attributes>
 
-            <comment mode="section">Define SPEL expression building values from basic identification data</comment>
+            <comment>Define SPEL expression building values from basic identification data</comment>
             <expression>
                 <tenant>
                     <value>get('user').get(0).substring(0,2).toUpperCase()</value>
@@ -795,7 +813,7 @@
             </keystore>
         </saml>
 
-        <comment mode="section">Section defining OIDC server and JWT processing</comment>
+        <comment mode="subsection">Section defining OIDC server and JWT processing</comment>
         <oidc>
             <roles>
                 <user>

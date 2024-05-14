@@ -9,7 +9,7 @@ import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
 import de.trustable.ca3s.core.web.rest.errors.ExceptionTranslator;
 
-import de.trustable.ca3s.core.web.rest.util.UserUtil;
+import de.trustable.ca3s.core.service.util.UserUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;

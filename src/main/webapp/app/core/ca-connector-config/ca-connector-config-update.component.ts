@@ -41,6 +41,7 @@ const validations: any = {
     implicitConfirm: {},
     msgContentType: {},
     sni: {},
+    ignoreResponseMessageVerification: {},
   },
 };
 

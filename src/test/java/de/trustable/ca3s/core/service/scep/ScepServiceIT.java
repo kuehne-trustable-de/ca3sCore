@@ -67,7 +67,9 @@ public class ScepServiceIT {
     public static void setUpBeforeClass() throws Exception {
         JCAManager.getInstance();
 
-        keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(4096);
+        keyPair = keyPairGenerator.generateKeyPair();
         enrollingPrincipal = new X500Principal("CN=SCEPRequested_" + System.currentTimeMillis() + ",O=trustable solutions,C=DE");
         ephemeralCert = X509Certificates.createEphemeral(enrollingPrincipal, keyPair);
 

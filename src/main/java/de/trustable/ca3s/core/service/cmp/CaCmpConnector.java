@@ -15,7 +15,6 @@ import de.trustable.cmp.client.ProtectedMessageHandler;
 import de.trustable.cmp.client.cmpClient.CMPClientConfig;
 import de.trustable.cmp.client.cmpClient.CMPClientImpl;
 import de.trustable.cmp.client.cmpClient.DigestSigner;
-import de.trustable.cmp.client.cmpClient.KeystoreSigner;
 import de.trustable.util.CryptoUtil;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.CRLReason;
@@ -50,6 +49,8 @@ public class CaCmpConnector {
 
 	private final CertificateRepository certificateRepository;
 
+    private final CertificateUtil certificateUtil;
+
     /**
      * @param remoteConnector
      * @param cryptoUtil
@@ -58,6 +59,7 @@ public class CaCmpConnector {
      * @param protUtil
      * @param certificateRepository
      * @param caConnectorConfigUtil
+     * @param certificateUtil
      */
 	public CaCmpConnector(RemoteConnector remoteConnector,
                           CryptoUtil cryptoUtil,
@@ -65,7 +67,8 @@ public class CaCmpConnector {
                           CSRUtil csrUtil,
                           ProtectedContentUtil protUtil,
                           CertificateRepository certificateRepository,
-                          CaConnectorConfigUtil caConnectorConfigUtil) {
+                          CaConnectorConfigUtil caConnectorConfigUtil,
+                          CertificateUtil certificateUtil) {
 
         this.remoteConnector = remoteConnector;
         this.cryptoUtil = cryptoUtil;
@@ -74,7 +77,8 @@ public class CaCmpConnector {
         this.protUtil = protUtil;
         this.certificateRepository = certificateRepository;
         this.caConnectorConfigUtil = caConnectorConfigUtil;
-	}
+        this.certificateUtil = certificateUtil;
+    }
 
     private CMPClientImpl getCMPClient(CAConnectorConfig caConnConfig) throws GeneralSecurityException {
 
@@ -82,10 +86,13 @@ public class CaCmpConnector {
 
         Certificate certificateMessageProtection = caConnConfig.getMessageProtection();
 
+        boolean ignoreFailedVerification = caConnectorConfigUtil.getCAConnectorConfigAttribute(caConnConfig, CaConnectorConfigUtil.ATT_IGNORE_RESPONSE_MESSAGE_VERIFICATION, false);
+
         ProtectedMessageHandler signer;
         if (certificateMessageProtection == null) {
             LOGGER.debug("CMPClientConfig: instantiating DigestSigner");
-            signer = new DigestSigner(protUtil.unprotectString(caConnConfig.getSecret().getContentBase64()));
+            signer = new DigestSigner(protUtil.unprotectString(caConnConfig.getSecret().getContentBase64()),
+                ignoreFailedVerification);
         } else {
             LOGGER.debug("CMPClientConfig: instantiating KeystoreSigner");
             try {
@@ -94,10 +101,20 @@ public class CaCmpConnector {
                         "entryAlias",
                         "passphraseChars".toCharArray(),
                         "PBEWithHmacSHA256AndAES_256");
-
+/*
                 signer = new KeystoreSigner(keyStoreAndPassphrase.getKeyStore(),
                     "entryAlias",
-                    new String(keyStoreAndPassphrase.getPassphraseChars()));
+                    new String(keyStoreAndPassphrase.getPassphraseChars()),
+                    ignoreFailedVerification);
+*/
+
+                signer = new VerifyingKeystoreSigner(keyStoreAndPassphrase.getKeyStore(),
+                    "entryAlias",
+                    new String(keyStoreAndPassphrase.getPassphraseChars()),
+                    ignoreFailedVerification,
+                    certificateUtil);
+
+
             } catch (IOException e) {
                 throw new GeneralSecurityException("Problem building P12 container", e);
             }

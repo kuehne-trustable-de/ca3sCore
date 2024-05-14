@@ -162,7 +162,7 @@ public class RemoteConnector implements RemoteTargetHandler {
 		if (con.getResponseCode() == 200) {
 			LOGGER.debug("Received certificate reply.");
 		} else {
-			throw new IOException("Error sending CMP request. Response code != 200 : " + con.getResponseCode());
+			throw new IOException("Error sending CMP request. Response codse != 200 : " + con.getResponseCode());
 		}
 
 		// We are done, disconnect

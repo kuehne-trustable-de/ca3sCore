@@ -44,6 +44,8 @@ public class CaConnectorConfigView implements Serializable {
 
     private Long messageProtectionId;
 
+    private boolean ignoreResponseMessageVerification = false;
+
     private String issuerName = null;
     private NamedValue[] aTaVArr = new NamedValue[0];
     private boolean multipleMessages = true;
@@ -234,4 +236,14 @@ public class CaConnectorConfigView implements Serializable {
     public void setImplicitConfirm(boolean implicitConfirm) {
         this.implicitConfirm = implicitConfirm;
     }
+
+    public boolean isIgnoreResponseMessageVerification() {
+        return ignoreResponseMessageVerification;
+    }
+
+    public void setIgnoreResponseMessageVerification(boolean ignoreResponseMessageVerification) {
+        this.ignoreResponseMessageVerification = ignoreResponseMessageVerification;
+    }
+
+
 }

@@ -1,4 +1,4 @@
-package de.trustable.ca3s.core.web.rest.util;
+package de.trustable.ca3s.core.service.util;
 
 import de.trustable.ca3s.core.domain.Authority;
 import de.trustable.ca3s.core.domain.User;

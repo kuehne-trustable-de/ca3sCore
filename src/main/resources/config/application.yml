@@ -168,7 +168,7 @@ jhipster:
 
 springdoc:
   packagesToScan: de.trustable.ca3s.core.web.rest
-  pathsToMatch: /v1, /api/**
+  pathsToMatch: /v1, /api/**, /publicapi/**
 
 camunda:
   bpm:

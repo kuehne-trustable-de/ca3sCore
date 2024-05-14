@@ -16,7 +16,7 @@ import de.trustable.ca3s.core.service.badkeys.BadKeysService;
 import de.trustable.ca3s.core.service.dto.*;
 import de.trustable.ca3s.core.service.util.*;
 import de.trustable.ca3s.core.web.rest.data.*;
-import de.trustable.ca3s.core.web.rest.util.UserUtil;
+import de.trustable.ca3s.core.service.util.UserUtil;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.Pkcs10RequestHolder;
 import org.apache.commons.lang3.ArrayUtils;

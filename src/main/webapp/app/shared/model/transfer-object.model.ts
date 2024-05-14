@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-02-23 17:24:23.
+// Generated using typescript-generator version 3.2.1263 on 2024-05-12 19:32:34.
 
 export interface ICAConnectorStatus extends ISerializable {
   connectorId?: number;
@@ -108,6 +108,7 @@ export interface ICaConnectorConfigView extends ISerializable {
   disableHostNameVerifier?: boolean;
   msgContentType?: string;
   pollingOffset?: number;
+  lastUpdate?: Date;
   defaultCA?: boolean;
   active?: boolean;
   trustSelfsignedCertificates?: boolean;
@@ -118,6 +119,7 @@ export interface ICaConnectorConfigView extends ISerializable {
   secretValidTo?: Date;
   tlsAuthenticationId?: number;
   messageProtectionId?: number;
+  ignoreResponseMessageVerification?: boolean;
   issuerName?: string;
   aTaVArr?: INamedValue[];
   multipleMessages?: boolean;
@@ -237,11 +239,10 @@ export interface ICertificateView extends ISerializable {
   serversideKeyLeftUsages?: number;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
+  serversideKeyGeneration?: boolean;
   fullChainAvailable?: boolean;
-  serversideKeyGeneration?: boolean;
-  issuingActiveCertificates?: boolean;
-  serversideKeyGeneration?: boolean;
   auditPresent?: boolean;
+  issuingActiveCertificates?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
@@ -305,8 +306,8 @@ export interface ICSRView extends ISerializable {
   csrBase64?: string;
   auditViewArr?: IAuditView[];
   isAdministrable?: boolean;
-  administrable?: boolean;
   csrvalid?: boolean;
+  administrable?: boolean;
 }
 
 export interface IPreferences extends ISerializable {

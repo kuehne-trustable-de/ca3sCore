@@ -5,7 +5,7 @@ import de.trustable.ca3s.core.service.dto.CertificateView;
 import de.trustable.ca3s.core.service.dto.NamedValue;
 import de.trustable.ca3s.core.service.dto.Selector;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
-import de.trustable.ca3s.core.web.rest.util.UserUtil;
+import de.trustable.ca3s.core.service.util.UserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.*;
@@ -658,10 +658,25 @@ public final class CertificateSpecifications {
                 //subquery
                 Subquery<CertificateAttribute> certAttSubquery = certQuery.subquery(CertificateAttribute.class);
                 Root<CertificateAttribute> certAttRoot = certAttSubquery.from(CertificateAttribute.class);
-                pred = cb.exists(certAttSubquery.select(certAttRoot)//subquery selection
-                    .where(cb.and( cb.equal(certAttRoot.get(CertificateAttribute_.CERTIFICATE), root.get(Certificate_.ID)),
-                        cb.equal(certAttRoot.get(CertificateAttribute_.NAME), CertificateAttribute.ATTRIBUTE_SUBJECT),
-                        buildPredicateString( attributeSelector, cb, certAttRoot.get(CertificateAttribute_.value), attributeValue.toLowerCase()) )));
+
+                if (Selector.NOT_EQUAL.toString().equals(attributeSelector)) {
+                    pred = cb.not(cb.exists(certAttSubquery.select(certAttRoot)//subquery selection
+                        .where(cb.and(cb.equal(certAttRoot.get(CertificateAttribute_.CERTIFICATE), root.get(Certificate_.ID)),
+                            cb.equal(certAttRoot.get(CertificateAttribute_.NAME), CertificateAttribute.ATTRIBUTE_SUBJECT),
+                            buildPredicateString(Selector.EQUAL.toString(), cb, certAttRoot.get(CertificateAttribute_.value), attributeValue.toLowerCase())))));
+
+                } else if (Selector.NOTLIKE.toString().equals(attributeSelector)) {
+                    pred = cb.not(cb.exists(certAttSubquery.select(certAttRoot)//subquery selection
+                        .where(cb.and(cb.equal(certAttRoot.get(CertificateAttribute_.CERTIFICATE), root.get(Certificate_.ID)),
+                            cb.equal(certAttRoot.get(CertificateAttribute_.NAME), CertificateAttribute.ATTRIBUTE_SUBJECT),
+                            buildPredicateString(Selector.LIKE.toString(), cb, certAttRoot.get(CertificateAttribute_.value), attributeValue.toLowerCase())))));
+
+                }else {
+                    pred = cb.exists(certAttSubquery.select(certAttRoot)//subquery selection
+                        .where(cb.and(cb.equal(certAttRoot.get(CertificateAttribute_.CERTIFICATE), root.get(Certificate_.ID)),
+                            cb.equal(certAttRoot.get(CertificateAttribute_.NAME), CertificateAttribute.ATTRIBUTE_SUBJECT),
+                            buildPredicateString(attributeSelector, cb, certAttRoot.get(CertificateAttribute_.value), attributeValue.toLowerCase()))));
+                }
             }
         }else if( "cn".equals(attribute)){
             Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
@@ -684,14 +699,29 @@ public final class CertificateSpecifications {
 		}else if( "issuer".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.issuer));
 
+
 			if( attributeValue.trim().length() > 0 ) {
 				//subquery
 			    Subquery<CertificateAttribute> certAttSubquery = certQuery.subquery(CertificateAttribute.class);
 			    Root<CertificateAttribute> certAttRoot = certAttSubquery.from(CertificateAttribute.class);
-			    pred = cb.exists(certAttSubquery.select(certAttRoot)//subquery selection
-	                     .where(cb.and( cb.equal(certAttRoot.get(CertificateAttribute_.CERTIFICATE), root.get(Certificate_.ID)),
-	                    		 cb.equal(certAttRoot.get(CertificateAttribute_.NAME), CertificateAttribute.ATTRIBUTE_ISSUER),
-                             buildPredicateString( attributeSelector, cb, certAttRoot.get(CertificateAttribute_.value), attributeValue.toLowerCase()) )));
+
+                if (Selector.NOT_EQUAL.toString().equals(attributeSelector)) {
+                    pred = cb.not(cb.exists(certAttSubquery.select(certAttRoot)//subquery selection
+                        .where(cb.and(cb.equal(certAttRoot.get(CertificateAttribute_.CERTIFICATE), root.get(Certificate_.ID)),
+                            cb.equal(certAttRoot.get(CertificateAttribute_.NAME), CertificateAttribute.ATTRIBUTE_ISSUER),
+                            buildPredicateString(Selector.EQUAL.toString(), cb, certAttRoot.get(CertificateAttribute_.value), attributeValue.toLowerCase())))));
+                } else if (Selector.NOTLIKE.toString().equals(attributeSelector)) {
+                        pred = cb.not( cb.exists(certAttSubquery.select(certAttRoot)//subquery selection
+                            .where(cb.and( cb.equal(certAttRoot.get(CertificateAttribute_.CERTIFICATE), root.get(Certificate_.ID)),
+                                cb.equal(certAttRoot.get(CertificateAttribute_.NAME), CertificateAttribute.ATTRIBUTE_ISSUER),
+                                buildPredicateString( Selector.LIKE.toString(), cb, certAttRoot.get(CertificateAttribute_.value), attributeValue.toLowerCase()) ))));
+                }else {
+                    pred = cb.exists(certAttSubquery.select(certAttRoot)//subquery selection
+                        .where(cb.and( cb.equal(certAttRoot.get(CertificateAttribute_.CERTIFICATE), root.get(Certificate_.ID)),
+                            cb.equal(certAttRoot.get(CertificateAttribute_.NAME), CertificateAttribute.ATTRIBUTE_ISSUER),
+                            buildPredicateString( attributeSelector, cb, certAttRoot.get(CertificateAttribute_.value), attributeValue.toLowerCase()) )));
+                }
+
 			}
 		}else if( "root".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.root));

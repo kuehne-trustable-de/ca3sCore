@@ -27,6 +27,7 @@ public class CaConnectorConfigUtil {
     public static final String ATT_ISSUER_NAME = "X500_NAME";
     public static final String ATT_MULTIPLE_MESSAGES = "MULTIPLE_MESSAGES";
     public static final String ATT_IMPLICIT_CONFIRM = "IMPLICIT_CONFIRM";
+    public static final String ATT_IGNORE_RESPONSE_MESSAGE_VERIFICATION = "IGNORE_RESPONSE_MESSAGE_VERIFICATION";
     public static final String ATT_ATTRIBUTE_TYPE_AND_VALUE = "ATTRIBUTE_TYPE_AND_VALUE";
     public static final String ATT_CMP_MESSAGE_CONTENT_TYPE = "CMP_MESSAGE_CONTENT_TYPE";
     public static final String ATT_SNI = "SNI";
@@ -106,6 +107,8 @@ public class CaConnectorConfigUtil {
                 cv.setSni(cfgAtt.getValue());
             }else if (ATT_DISABLE_HOST_NAME_VERIFIER.equals(cfgAtt.getName())) {
                 cv.setDisableHostNameVerifier( Boolean.parseBoolean(cfgAtt.getValue()));
+            }else if (ATT_IGNORE_RESPONSE_MESSAGE_VERIFICATION.equals(cfgAtt.getName())) {
+                cv.setIgnoreResponseMessageVerification( Boolean.parseBoolean(cfgAtt.getValue()));
             }else if (ATT_ATTRIBUTE_TYPE_AND_VALUE.equals(cfgAtt.getName())) {
                 aTaVList.add( new NamedValue(cfgAtt.getValue()));
             }
@@ -338,6 +341,8 @@ public class CaConnectorConfigUtil {
         boolean hasMsgContentType = false;
         boolean hasSniType = false;
         boolean hasDisableHostNameVerifier = false;
+        boolean hasIgnoreResponseMessageVerification = false;
+
         for( CAConnectorConfigAttribute configAttribute : caConnectorConfig.getCaConnectorAttributes()){
 
             if (ATT_ISSUER_NAME.equals(configAttribute.getName())) {
@@ -378,6 +383,14 @@ public class CaConnectorConfigUtil {
                 }
                 hasSniType = true;
 
+            }else if (ATT_IGNORE_RESPONSE_MESSAGE_VERIFICATION.equals(configAttribute.getName())) {
+                if(!Objects.equals( cv.isIgnoreResponseMessageVerification(), configAttribute.getValue())) {
+                    auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_IGNORE_RESPONSE_MESSAGE_VERIFICATION_CHANGED, configAttribute.getValue(), Boolean.toString(cv.isIgnoreResponseMessageVerification()), caConnectorConfig));
+                    configAttribute.setValue(Boolean.toString(cv.isIgnoreResponseMessageVerification()));
+                }
+                hasIgnoreResponseMessageVerification = true;
+
+
             }else if (ATT_ATTRIBUTE_TYPE_AND_VALUE.equals(configAttribute.getName())) {
                 LOG.warn("CA Connector ATaV attribute detected!");
             }
@@ -406,6 +419,11 @@ public class CaConnectorConfigUtil {
             auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_DISABLE_HOST_NAME_VERIFIER_CHANGED, null, Boolean.toString(cv.isDisableHostNameVerifier()), caConnectorConfig));
             createAttribute(ATT_DISABLE_HOST_NAME_VERIFIER, Boolean.toString(cv.isDisableHostNameVerifier()), caConnectorConfig);
         }
+        if( !hasIgnoreResponseMessageVerification){
+            auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_IGNORE_RESPONSE_MESSAGE_VERIFICATION_CHANGED, null, Boolean.toString(cv.isIgnoreResponseMessageVerification()), caConnectorConfig));
+            createAttribute(ATT_IGNORE_RESPONSE_MESSAGE_VERIFICATION, Boolean.toString(cv.isIgnoreResponseMessageVerification()), caConnectorConfig);
+        }
+
 
         caConnectorConfigAttributeRepository.saveAll(caConnectorConfig.getCaConnectorAttributes());
         cAConnectorConfigRepository.save(caConnectorConfig);
