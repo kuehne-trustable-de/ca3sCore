@@ -9,6 +9,7 @@ import HelpTag from '@/core/help/help-tag.vue';
 import AuditTag from '@/core/audit/audit-tag.vue';
 
 import { ICertificateView } from '@/shared/model/transfer-object.model';
+import { INamedValue } from '@/shared/model/transfer-object.model';
 import CertificateViewService from '../../entities/certificate/certificate-view.service';
 
 import axios, { AxiosError } from 'axios';
@@ -27,6 +28,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
 
   public certificateView: ICertificateView = {};
   public certificateAdminData: ICertificateAdministrationData = {};
+  public attributeArr: INamedValue[] = [];
   public p12Alias = 'alias';
   public p12Pbe = 'aes-sha256';
   public p12KeyEx = false;
@@ -215,6 +217,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
         self.comment = this.certificateView.comment;
         self.trusted = this.certificateView.trusted;
         self.certificateAdminData.trusted = this.certificateView.trusted;
+        self.attributeArr = JSON.parse(JSON.stringify(self.certificateAdminData.arAttributes));
         window.console.info('certificate loaded successfully : ' + self.certificateView.id);
       });
   }
@@ -284,6 +287,18 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
 
   public isOwnCertificate() {
     return this.getUsername() === this.certificateView.requestedBy;
+  }
+
+  public isValuesChanged() {
+    if (this.certificateAdminData.arAttributes && this.attributeArr) {
+      for (let i = 0; i < this.certificateAdminData.arAttributes.length; i++) {
+        if (this.certificateAdminData.arAttributes[i].value !== this.attributeArr[i].value) {
+          return true;
+        }
+      }
+    }
+
+    return this.comment !== this.certificateView.comment || this.trusted !== this.certificateView.trusted;
   }
 
   copyCertificateDataToAdminData() {

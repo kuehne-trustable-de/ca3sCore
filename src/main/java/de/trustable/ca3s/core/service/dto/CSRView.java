@@ -4,10 +4,8 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvIgnore;
@@ -19,10 +17,6 @@ import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.persistence.Column;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Size;
 
 /**
  * A certificate view from a given certificate and its attributes
@@ -213,9 +207,17 @@ public class CSRView implements Serializable {
 
         this.processingCA = csrUtil.getCSRAttribute(csr, CsrAttribute.ATTRIBUTE_PROCESSING_CA);
 
+
+        Map<String, Integer> orderAttributeMap = new HashMap<>();
+
         if( csr.getPipeline() != null) {
             this.pipelineName = csr.getPipeline().getName();
             this.pipelineType = csr.getPipeline().getType();
+            orderAttributeMap =
+                csr.getPipeline().getPipelineAttributes().stream()
+                    .filter(attr -> (attr.getName().startsWith("RESTR_ARA_") && attr.getName().endsWith("_NAME")))
+                    .collect(Collectors.toMap( attr -> (attr.getValue()),
+                        attr -> (Integer.parseInt(attr.getName().replace("RESTR_ARA_", "").replace("_NAME", "")))));
         }else{
             this.pipelineName = null;
             this.pipelineType = null;
@@ -238,11 +240,21 @@ public class CSRView implements Serializable {
             this.comment = csr.getComment().getComment();
         }
 
-        this.arArr = copyArAttributes(csr);
+        List<NamedValue> listArNamedAttributes = copyArAttributes(csr);
+
+        listArNamedAttributes.sort( new NVOrderComparator(orderAttributeMap));
+
+        for( String attName: orderAttributeMap.keySet()){
+            if( !listArNamedAttributes.stream().anyMatch(nv ->( nv.getName().equals(attName)))){
+                listArNamedAttributes.add(new NamedValue(attName));
+            }
+        }
+
+        this.arArr = listArNamedAttributes.toArray(new NamedValue[0]);
 
     }
 
-    private NamedValue[] copyArAttributes(final CSR csr) {
+    private List<NamedValue> copyArAttributes(final CSR csr) {
 
         List<NamedValue> nvList = new ArrayList<>();
         for(CsrAttribute csrAttribute: csr.getCsrAttributes()){
@@ -253,7 +265,7 @@ public class CSRView implements Serializable {
                 nvList.add(nv);
             }
         }
-        return nvList.toArray(new NamedValue[0]);
+        return nvList;
     }
 
     public Long getId() {
@@ -590,4 +602,5 @@ public class CSRView implements Serializable {
             ", isAdministrable=" + isAdministrable +
             '}';
     }
+
 }

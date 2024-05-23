@@ -87,6 +87,7 @@ public class PipelineUtil {
     public static final String RESTR_ARA_NAME = "NAME";
     //	public static final String RESTR_ARA_CARDINALITY = "CARDINALITY";
     public static final String RESTR_ARA_TEMPLATE = "TEMPLATE";
+    public static final String RESTR_ARA_REGEX = "REGEX";
     public static final String RESTR_ARA_REGEXMATCH = "REGEXMATCH";
     public static final String RESTR_ARA_REQUIRED = "REQUIRED";
     public static final String RESTR_ARA_COMMENT = "COMMENT";
@@ -535,6 +536,8 @@ public class PipelineUtil {
                         araRestriction.setComment(plAtt.getValue());
                     } else if (RESTR_ARA_REGEXMATCH.equals(namePart)) {
                         araRestriction.setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
+                    } else if (RESTR_ARA_REGEX.equals(namePart)) {
+                        araRestriction.setRegEx(plAtt.getValue());
                     }
 
 
@@ -906,6 +909,7 @@ public class PipelineUtil {
                     addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_REQUIRED, araRestriction.isRequired());
                     addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_TEMPLATE, araRestriction.getContentTemplate());
                     addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_COMMENT, araRestriction.getComment());
+                    addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_REGEX, araRestriction.getRegEx());
                     addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_REGEXMATCH, araRestriction.isRegExMatch());
                     j++;
                 }
@@ -1035,6 +1039,38 @@ public class PipelineUtil {
 
         boolean outcome = true;
 
+        for( ARARestriction restriction : araRestrictions) {
+
+            boolean valuePresent = false;
+            Optional<NamedValues> optionalNamedValues = findNVSByName(nvARArr, restriction.getName());
+            if(optionalNamedValues.isPresent()){
+                NamedValues nvs = optionalNamedValues.get();
+                if(restriction.isRegExMatch()) {
+                    Pattern pattern = Pattern.compile(restriction.getRegEx());
+                    for (TypedValue typedValue : nvs.getValues()) {
+                        if (!pattern.matcher(typedValue.getValue()).matches()) {
+                            String msg = " value '" + typedValue.getValue() + "'attribute '" + nvs.getName() + "' does not match expression";
+                            messageList.add(msg);
+                            LOG.debug(msg);
+                            outcome = false;
+                        }
+                    }
+                }
+                for (TypedValue typedValue : nvs.getValues()) {
+                    if( typedValue.getValue() != null && !typedValue.getValue().isEmpty()){
+                        valuePresent = true;
+                    }
+                }
+            }
+            if (restriction.isRequired() && valuePresent == false) {
+                String msg = "required attribute : '" + restriction.getName() + "' missing / has no value";
+                messageList.add(msg);
+                LOG.debug(msg);
+                outcome = false;
+            }
+        }
+
+
         if(nvARArr != null) {
             for (NamedValues nvAR : nvARArr) {
                 for (ARARestriction araRestriction : araRestrictions) {
@@ -1059,6 +1095,10 @@ public class PipelineUtil {
             }
         }
         return outcome;
+    }
+
+    private Optional<NamedValues> findNVSByName(NamedValues[] araArr, final String name) {
+        return Arrays.stream(araArr).filter(nvs -> name.equals(nvs.getName())).findFirst();
     }
 
     public boolean isPipelineRestrictionsResolved(PipelineView pv, Pkcs10RequestHolder p10ReqHolder, List<String> messageList) {

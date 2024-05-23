@@ -41,7 +41,8 @@ public class WebTestBase extends LocomotiveBase {
 
     public boolean playSound = false;
 
-        static{
+/*-
+    static{
 
         testPortHttp = SocketUtils.findAvailableTcpPort();
         testPortHttps = SocketUtils.findAvailableTcpPort();
@@ -54,10 +55,23 @@ public class WebTestBase extends LocomotiveBase {
         System.setProperty(Ca3SApp.SERVER_SCEP_PREFIX + "port", "" + testPortHttp);
 
     }
+*/
+
 
 	public WebTestBase() {
 
         super();
+
+        testPortHttp = super.port;
+        testPortHttps = super.port;
+
+        // assign the ports for this test to random values to avoid collisions to other instances
+        System.setProperty(Ca3SApp.SERVER_TLS_PREFIX + "port", "" + testPortHttps);
+        System.setProperty(Ca3SApp.SERVER_ADMIN_PREFIX + "port", "" + testPortHttps);
+        System.setProperty(Ca3SApp.SERVER_RA_PREFIX + "port", "" + testPortHttps);
+        System.setProperty(Ca3SApp.SERVER_ACME_PREFIX + "port", "" + testPortHttps);
+        System.setProperty(Ca3SApp.SERVER_SCEP_PREFIX + "port", "" + testPortHttp);
+
     }
 
     public static void waitForUrl() {

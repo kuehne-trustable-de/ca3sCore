@@ -1,9 +1,6 @@
 package de.trustable.ca3s.core.web.rest.support;
 
-import de.trustable.ca3s.core.domain.CSR;
-import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.CsrAttribute;
-import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CsrAttributeRepository;
@@ -17,6 +14,7 @@ import de.trustable.ca3s.core.web.rest.data.CSRAdministrationData;
 import de.trustable.ca3s.core.service.dto.NamedValue;
 import de.trustable.ca3s.core.web.rest.data.CSRAdministrationResponse;
 import de.trustable.ca3s.core.service.util.UserUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -352,10 +350,12 @@ public class CSRAdministration {
 
     private void updateARAttributes(CSRAdministrationData adminData, CSR csr) {
 
-        for(CsrAttribute csrAttr: csr.getCsrAttributes()){
+        Set<CsrAttribute> csrAttributeSet = csr.getCsrAttributes();
+        for(CsrAttribute csrAttr: csrAttributeSet){
             for(NamedValue nv: adminData.getArAttributeArr()){
-                if( csrAttr.getName().equals(CsrAttribute.ARA_PREFIX + nv.getName())){
-                    if( !csrAttr.getValue().equals(nv.getValue())) {
+                if( StringUtils.equals(csrAttr.getName(), CsrAttribute.ARA_PREFIX + nv.getName())){
+
+                    if( !StringUtils.equals(csrAttr.getValue(), nv.getValue())) {
                         auditService.saveAuditTrace(
                             auditService.createAuditTraceCsrAttribute(csrAttr.getName(), csrAttr.getValue(), nv.getValue(), csr));
 
@@ -365,7 +365,25 @@ public class CSRAdministration {
                 }
             }
         }
-        csrAttributeRepository.saveAll(csr.getCsrAttributes());
+
+        for(NamedValue nv: adminData.getArAttributeArr()){
+
+            if( !csrAttributeSet.stream().anyMatch(certAtt ->( StringUtils.equals(certAtt.getName(), CsrAttribute.ARA_PREFIX + nv.getName())))){
+
+                auditService.saveAuditTrace(
+                    auditService.createAuditTraceCsrAttribute(nv.getName(), "", nv.getValue(), csr));
+
+                CsrAttribute csrAttribute = new CsrAttribute();
+                csrAttribute.setCsr(csr);
+                csrAttribute.setName(CsrAttribute.ARA_PREFIX + nv.getName());
+                csrAttribute.setValue(nv.getValue());
+                csrAttributeSet.add(csrAttribute);
+            }
+        }
+
+        csrAttributeRepository.saveAll(csrAttributeSet);
+        csr.setCsrAttributes(csrAttributeSet);
+
     }
 
 

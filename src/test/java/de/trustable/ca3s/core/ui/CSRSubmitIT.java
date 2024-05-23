@@ -492,7 +492,7 @@ public class CSRSubmitIT extends WebTestBase {
         validatePresent(LOC_BTN_REQUEST_CERTIFICATE);
         click(LOC_BTN_REQUEST_CERTIFICATE);
 
-        waitForElement(LOC_TEXT_CERT_HEADER);
+        waitForElement(LOC_TEXT_CERT_HEADER, 10);
         validatePresent(LOC_TEXT_CERT_HEADER);
         validatePresent(LOC_TEXT_PKIX_LABEL);
 
@@ -752,6 +752,7 @@ public class CSRSubmitIT extends WebTestBase {
 
         signIn(USER_NAME_USER, USER_PASSWORD_USER);
 
+super.wait(5000);
         click(LOC_LNK_CERTIFICATES_MENUE);
 
         validatePresent(LOC_TEXT_CERTIFICATE_LIST);

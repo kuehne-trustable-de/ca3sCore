@@ -17,7 +17,7 @@ logging:
   level:
     ROOT: INFO
     de.trustable.ca3s: DEBUG
-    de.trustable.ca3s.core.config.SecurityConfiguration: INFO
+    de.trustable.ca3s.core.config.SecurityConfiguration: DEBUG
     org.springframework.security: DEBUG
     org.apache.http.wire: DEBUG
 

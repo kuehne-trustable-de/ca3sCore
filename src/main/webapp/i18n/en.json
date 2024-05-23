@@ -553,7 +553,7 @@
   "ca3SApp.pipeline.processInfoCreate": "Process Info 'Issuance'",
   "ca3SApp.pipeline.processInfoRevoke": "Process Info 'Revocation'",
   "ca3SApp.pipeline.processInfoNotify": "Process Info 'Notify'",
-  "ca3SApp.pipeline.regExMatch": "Match as Regular expression",
+  "ca3SApp.pipeline.regExMatch": "Match as Regex",
   "ca3SApp.pipeline.s.cardinality": "Cardinality 'ST'",
   "ca3SApp.pipeline.e.cardinality": "Cardinality 'E'",
   "ca3SApp.pipeline.san.cardinality": "SAN cardinality",

@@ -159,14 +159,14 @@
                         <span>{{cSR.processInstanceId}}</span>
                     </dd-->
 
-                    <Fragment v-for="attr in arAttributes" :key="attr.name" v-if="!isEditable()">
+                    <div v-for="attr in arAttributes" :key="attr.name" v-if="!isEditable()">
                         <dt>
                             <span >{{attr.name}}</span>
                         </dt>
                         <dd >
                             <span >{{attr.value}}</span>
                         </dd>
-                    </Fragment>
+                    </div>
 
 
                     <dt v-if="icsrView.csrBase64 && icsrView.csrBase64.trim().length > 0">

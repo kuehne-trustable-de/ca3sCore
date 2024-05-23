@@ -550,7 +550,7 @@
   "ca3SApp.pipeline.processInfoCreate": "Prozess Info 'Ausstellung'",
   "ca3SApp.pipeline.processInfoRevoke": "Prozess Info 'Rückruf'",
   "ca3SApp.pipeline.processInfoNotify": "Prozess Info 'Benachrichtigung'",
-  "ca3SApp.pipeline.regExMatch": "Übereinstimmung als regulärer Ausdruck",
+  "ca3SApp.pipeline.regExMatch": "Regulärer Ausdruck",
   "ca3SApp.pipeline.s.cardinality": "Kardinalität 'ST'",
   "ca3SApp.pipeline.e.cardinality": "Kardinalität 'E'",
   "ca3SApp.pipeline.san.cardinality": "SAN-Kardinalität",

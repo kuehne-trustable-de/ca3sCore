@@ -296,7 +296,7 @@
                                    v-model="trusted" />
                         </div>
 
-                        <div v-if="isEditable()" v-for="attr in certificateView.arArr" :key="attr.name" class="form-group">
+                        <div v-if="isEditable()" v-for="attr in certificateAdminData.arAttributes" :key="attr.name" class="form-group">
                             <label class="form-control-label"  :for="'cert-ar-'+attr.name">{{attr.name}}</label>
                             <input type="text" class="form-control" :name="'cert-ar-'+attr.name" :id="'cert-ar-'+attr.name" v-model="attr.value" />
                         </div>
@@ -346,7 +346,7 @@
                             <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.update')">Update</span>
                         </button>
 
-                        <button type="button" id="update" v-if="isRAOrAdmin() && ((comment !== certificateView.comment)||(trusted !== certificateView.trusted))"
+                        <button type="button" id="update" v-if="isRAOrAdmin() && isValuesChanged()"
                                 class="btn btn-secondary" v-on:click="updateCertificate()">
                             <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.update')">Update</span>
                         </button>

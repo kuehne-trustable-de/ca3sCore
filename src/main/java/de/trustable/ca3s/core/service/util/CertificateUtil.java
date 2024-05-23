@@ -222,7 +222,7 @@ public class CertificateUtil {
 
     public void setCertificateComment(Certificate cert, String comment) {
 
-        if( cert == null || comment == null || comment.trim().isEmpty()){
+        if( cert == null || comment == null ){
             return;
         }
 

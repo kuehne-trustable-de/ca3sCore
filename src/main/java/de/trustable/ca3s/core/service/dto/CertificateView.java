@@ -11,9 +11,8 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A certificate view from a given certificate and its attributes
@@ -290,6 +289,9 @@ public class CertificateView implements Serializable {
     	this.certB64 = cert.getContent();
 
         this.csrComment = "";
+
+        Map<String, Integer> orderAttributeMap = new HashMap<>();
+
         CSR csr = cert.getCsr();
     	if( csr != null) {
     		this.requestedBy = csr.getRequestedBy();
@@ -304,7 +306,15 @@ public class CertificateView implements Serializable {
     		if(csr.getComment() != null) {
                 this.csrComment = csr.getComment().getComment();
             }
-    	} else {
+
+            if( csr.getPipeline() != null) {
+                orderAttributeMap =
+                    csr.getPipeline().getPipelineAttributes().stream()
+                        .filter(attr -> (attr.getName().startsWith("RESTR_ARA_") && attr.getName().endsWith("_NAME")))
+                        .collect(Collectors.toMap(attr -> (attr.getValue()),
+                            attr -> (Integer.parseInt(attr.getName().replace("RESTR_ARA_", "").replace("_NAME", "")))));
+            }
+        } else {
     		this.requestedBy = "";
     	}
 
@@ -431,7 +441,16 @@ public class CertificateView implements Serializable {
 
         this.downloadFilename = CertificateUtil.getDownloadFilename(cert);
 
-    	this.arArr = copyArAttributes(cert);
+        List<NamedValue> listArNamedAttributes = copyArAttributes(cert);
+        listArNamedAttributes.sort( new NVOrderComparator(orderAttributeMap));
+
+        for( String attName: orderAttributeMap.keySet()){
+            if( !listArNamedAttributes.stream().anyMatch(nv ->( nv.getName().equals(attName)))){
+                listArNamedAttributes.add(new NamedValue(attName));
+            }
+        }
+
+        this.arArr = listArNamedAttributes.toArray(new NamedValue[0]);
 
         this.issuer_rdn_cn = getRdnCn(cert.getIssuingCertificate());
         this.root_rdn_cn = getRdnCn(cert.getRootCertificate());
@@ -452,6 +471,7 @@ public class CertificateView implements Serializable {
         }
         return "";
     }
+
 
 	public Long getId() {
 		return id;
@@ -991,7 +1011,7 @@ public class CertificateView implements Serializable {
         return "";
     }
 
-    private NamedValue[] copyArAttributes(final Certificate cert) {
+    private List<NamedValue> copyArAttributes(final Certificate cert) {
 
         List<NamedValue> nvList = new ArrayList<>();
         for(CertificateAttribute certAttr: cert.getCertificateAttributes()){
@@ -1002,7 +1022,7 @@ public class CertificateView implements Serializable {
                 nvList.add(nv);
             }
         }
-        return nvList.toArray(new NamedValue[0]);
+        return nvList;
     }
 
     public Boolean getAuditPresent() {

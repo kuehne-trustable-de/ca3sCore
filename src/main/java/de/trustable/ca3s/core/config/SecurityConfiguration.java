@@ -336,12 +336,14 @@ public class SecurityConfiguration{
             .antMatchers("/saml/**").permitAll()
             .antMatchers("/publicapi/**").permitAll()
 
-            .requestMatchers(forPortAndPath(raPort, "/api/ca-connector-configs")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/ca-connector-configs")).hasAuthority(AuthoritiesConstants.ADMIN)
 
             .requestMatchers(forPortAndPath(raPort, "/api/administerRequest")).hasAnyAuthority(AuthoritiesConstants.RA_OFFICER,AuthoritiesConstants.DOMAIN_RA_OFFICER)
+            .requestMatchers(forPortAndPath(adminPort, "/api/administerRequest")).hasAnyAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/api/administerRequest").denyAll()
 
-            .requestMatchers(forPortAndPath(raPort, "/api/administerCertificate")).hasAnyAuthority(AuthoritiesConstants.ADMIN,AuthoritiesConstants.RA_OFFICER,AuthoritiesConstants.DOMAIN_RA_OFFICER)
+            .requestMatchers(forPortAndPath(raPort, "/api/administerCertificate")).hasAnyAuthority(AuthoritiesConstants.RA_OFFICER,AuthoritiesConstants.DOMAIN_RA_OFFICER)
+            .requestMatchers(forPortAndPath(adminPort, "/api/administerCertificate")).hasAnyAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/api/administerCertificate").denyAll()
 
             // check on method level

@@ -9,6 +9,7 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import de.trustable.ca3s.core.repository.CertificateViewRepository;
 import de.trustable.ca3s.core.service.dto.CertificateView;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.transaction.annotation.Transactional;
 import tech.jhipster.web.util.PaginationUtil;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -60,6 +61,7 @@ public class CertificateListResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of certificates in body.
      */
     @GetMapping("/certificateList")
+    @Transactional
     public ResponseEntity<List<CertificateView>> getAllCertificates(Pageable pageable, HttpServletRequest request) {
         log.debug("REST request to get a page of CertificateViews");
 
@@ -79,6 +81,7 @@ public class CertificateListResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of certificates in body.
      */
     @GetMapping("/certificateListCSV")
+    @Transactional
     public ResponseEntity<String> getAllCertificatesAsCSV(Pageable pageable, HttpServletRequest request) {
         log.debug("REST request to get a page of CertificateViews");
 

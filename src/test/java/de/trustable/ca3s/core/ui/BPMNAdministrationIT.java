@@ -164,8 +164,8 @@ public class BPMNAdministrationIT extends WebTestBase{
 	public void testBPMNProcessInfoCreate() {
 
         String newBPNMName = "BPMN_" + Math.random();
-        String newPipelineDesription = "Description_" + Math.random() + " text, lengthy ... lengthy ... very lengthy ";
-        String newPipelineListOrder = "" + (int)(10 * Math.random());
+
+        waitForElement(LOC_LNK_ACCOUNT_MENUE);
 
 		signIn(USER_NAME_ADMIN, USER_PASSWORD_ADMIN);
 

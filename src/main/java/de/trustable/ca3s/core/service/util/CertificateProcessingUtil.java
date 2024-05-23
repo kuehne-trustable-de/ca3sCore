@@ -3,6 +3,7 @@ package de.trustable.ca3s.core.service.util;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
@@ -122,18 +123,19 @@ public class CertificateProcessingUtil {
 			csrRepository.save(csr);
 
             if( araArr != null) {
-                for (NamedValues nvs : araArr) {
-                    // insert expected elements, only
-                    if (Arrays.stream(restrictionArr).anyMatch(r -> (r.getName().equals(nvs.getName())))) {
+                for( ARARestriction restriction : restrictionArr) {
+                    Optional<NamedValues> optionalNamedValues = findNVSByName(araArr, restriction.getName());
+                    NamedValues nvs = optionalNamedValues.get();
+                    if(optionalNamedValues.isPresent()){
                         for (TypedValue typedValue : nvs.getValues()) {
-                            CsrAttribute csrAttr = new CsrAttribute();
-                            csrAttr.setCsr(csr);
-                            csrAttr.setName(CsrAttribute.ARA_PREFIX + nvs.getName());
-                            csrAttr.setValue(typedValue.getValue());
-                            csr.getCsrAttributes().add(csrAttr);
+                            if( typedValue.getValue() != null || !typedValue.getValue().isEmpty()) {
+                                CsrAttribute csrAttr = new CsrAttribute();
+                                csrAttr.setCsr(csr);
+                                csrAttr.setName(CsrAttribute.ARA_PREFIX + nvs.getName());
+                                csrAttr.setValue(typedValue.getValue());
+                                csr.getCsrAttributes().add(csrAttr);
+                            }
                         }
-                    } else {
-                        LOG.warn("unexpected attribute in ar array: '{}'", nvs.getName());
                     }
                 }
             }
@@ -172,6 +174,9 @@ public class CertificateProcessingUtil {
 		return null;
 	}
 
+    private Optional<NamedValues> findNVSByName(NamedValues[] araArr, final String name) {
+        return Arrays.stream(araArr).filter(nvs -> name.equals(nvs.getName())).findFirst();
+    }
     /**
      * @param csr					certificate signing request as CSR object
      * @param requestorName			requestorName
