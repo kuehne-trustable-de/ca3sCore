@@ -391,7 +391,7 @@
 
                     </div>
 
-                       <div v-if="$v.pipeline.type.$model === 'ACME'" class="form-inline">
+                       <div v-if="($v.pipeline.type.$model === 'ACME') && (requestProxyConfigs.length > 0 )" class="form-inline">
 
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.requestProxies')"
                                for="pipeline-requestProxyIds">Request Proxies</label>  <help-tag role="Admin" target="pipeline.acme.request-proxies"/>

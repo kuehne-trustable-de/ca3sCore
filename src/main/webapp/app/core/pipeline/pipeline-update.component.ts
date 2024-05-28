@@ -25,7 +25,7 @@ import {
 import CAConnectorConfigService from '../../entities/ca-connector-config/ca-connector-config.service';
 import { ICAConnectorConfig } from '@/shared/model/ca-connector-config.model';
 import { IUser } from '@/shared/model/user.model';
-import { ITenant } from '../../shared/model/tenant.model';
+import { ITenant } from '@/shared/model/tenant.model';
 
 import BPNMProcessInfoService from '../../entities/bpnm-process-info/bpnm-process-info.service';
 
