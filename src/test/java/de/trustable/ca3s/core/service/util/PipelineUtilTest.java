@@ -375,32 +375,170 @@ class PipelineUtilTest {
 		}
 
 
-		{
-			PipelineView pv_CN_O_OU1n_C_Only = new PipelineView();
-	    	pv_CN_O_OU1n_C_Only.setRestriction_C(new RDNRestriction());
-			pv_CN_O_OU1n_C_Only.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
-	    	pv_CN_O_OU1n_C_Only.setRestriction_CN(new RDNRestriction());
-			pv_CN_O_OU1n_C_Only.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
-	    	pv_CN_O_OU1n_C_Only.setRestriction_L(new RDNRestriction());
-			pv_CN_O_OU1n_C_Only.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
-	    	pv_CN_O_OU1n_C_Only.setRestriction_O(new RDNRestriction());
-			pv_CN_O_OU1n_C_Only.getRestriction_O().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
-	    	pv_CN_O_OU1n_C_Only.setRestriction_OU(new RDNRestriction());
-			pv_CN_O_OU1n_C_Only.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.ONE_OR_MANY);
-	    	pv_CN_O_OU1n_C_Only.setRestriction_S(new RDNRestriction());
-			pv_CN_O_OU1n_C_Only.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+        {
+            PipelineView pv_CN_O_OU1n_C_Only = new PipelineView();
+            pv_CN_O_OU1n_C_Only.setRestriction_C(new RDNRestriction());
+            pv_CN_O_OU1n_C_Only.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
+            pv_CN_O_OU1n_C_Only.setRestriction_CN(new RDNRestriction());
+            pv_CN_O_OU1n_C_Only.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
+            pv_CN_O_OU1n_C_Only.setRestriction_L(new RDNRestriction());
+            pv_CN_O_OU1n_C_Only.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+            pv_CN_O_OU1n_C_Only.setRestriction_O(new RDNRestriction());
+            pv_CN_O_OU1n_C_Only.getRestriction_O().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
+            pv_CN_O_OU1n_C_Only.setRestriction_OU(new RDNRestriction());
+            pv_CN_O_OU1n_C_Only.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.ONE_OR_MANY);
+            pv_CN_O_OU1n_C_Only.setRestriction_S(new RDNRestriction());
+            pv_CN_O_OU1n_C_Only.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
 
-			messageList.clear();
-			boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_O_OU1n_C_Only, p10ReqHolder, messageList);
+            messageList.clear();
+            boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_O_OU1n_C_Only, p10ReqHolder, messageList);
 
-			assertTrue("Expect to pass ", bResult);
-			assertEquals("Expecting given number of messages", 0, messageList.size());
+            assertTrue("Expect to pass ", bResult);
+            assertEquals("Expecting given number of messages", 0, messageList.size());
 
-		}
+        }
+        {
+            PipelineView pv_CN_Only = new PipelineView();
+            pv_CN_Only.setRestriction_C(new RDNRestriction());
+            pv_CN_Only.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
+            pv_CN_Only.setRestriction_CN(new RDNRestriction());
+            pv_CN_Only.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.ONE_OR_SAN);
+            pv_CN_Only.setRestriction_L(new RDNRestriction());
+            pv_CN_Only.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+            pv_CN_Only.setRestriction_O(new RDNRestriction());
+            pv_CN_Only.getRestriction_O().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
+            pv_CN_Only.setRestriction_OU(new RDNRestriction());
+            pv_CN_Only.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.ONE_OR_MANY);
+            pv_CN_Only.setRestriction_S(new RDNRestriction());
+            pv_CN_Only.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+
+            messageList.clear();
+            boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_Only, p10ReqHolder, messageList);
+
+            assertTrue("Expect to pass ", bResult);
+            assertEquals("Expecting given number of messages", 0, messageList.size());
+
+        }
 
 	}
 
-	@Test
+    @Test
+    void testCheckPipelineRestrictionsOneCnOrSAN() throws GeneralSecurityException, IOException {
+
+        PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+
+        List<String> messageList = new ArrayList<>();
+
+        PipelineView pv_CN_Only = new PipelineView();
+        pv_CN_Only.setRestriction_C(new RDNRestriction());
+        pv_CN_Only.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
+        pv_CN_Only.setRestriction_CN(new RDNRestriction());
+        pv_CN_Only.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.ONE_OR_SAN);
+        pv_CN_Only.setRestriction_L(new RDNRestriction());
+        pv_CN_Only.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+        pv_CN_Only.setRestriction_O(new RDNRestriction());
+        pv_CN_Only.getRestriction_O().setCardinalityRestriction(RDNCardinalityRestriction.ONE);
+        pv_CN_Only.setRestriction_OU(new RDNRestriction());
+        pv_CN_Only.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.ONE_OR_MANY);
+        pv_CN_Only.setRestriction_S(new RDNRestriction());
+        pv_CN_Only.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
+
+        {
+            X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
+            GeneralName[] sanArray = new GeneralName[2];
+            sanArray[0] = new GeneralName(GeneralName.dNSName, "foo.com");
+            sanArray[1] = new GeneralName(GeneralName.dNSName, "bar.org");
+            PKCS10CertificationRequest p10Req = CryptoUtil.getCsr(subject,
+                keyPair.getPublic(),
+                keyPair.getPrivate(),
+                password,
+                null,
+                sanArray);
+
+            messageList.clear();
+
+            Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(p10Req);
+
+            boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_Only, p10ReqHolder, messageList);
+
+            assertTrue("Expect to pass ", bResult);
+            assertEquals("Expecting given number of messages", 0, messageList.size());
+        }
+        {
+            X500Principal subject = new X500Principal("OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
+            GeneralName[] sanArray = new GeneralName[2];
+            sanArray[0] = new GeneralName(GeneralName.dNSName, "foo.com");
+            sanArray[1] = new GeneralName(GeneralName.dNSName, "bar.org");
+            PKCS10CertificationRequest p10Req = CryptoUtil.getCsr(subject,
+                keyPair.getPublic(),
+                keyPair.getPrivate(),
+                password,
+                null,
+                sanArray);
+
+            messageList.clear();
+
+            Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(p10Req);
+
+            boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_Only, p10ReqHolder, messageList);
+
+            assertTrue("Expect to pass ", bResult);
+            assertEquals("Expecting given number of messages", 0, messageList.size());
+        }
+        {
+            X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
+            PKCS10CertificationRequest p10Req = CryptoUtil.getCsr(subject,
+                keyPair.getPublic(),
+                keyPair.getPrivate(),
+                password,
+                null);
+
+            messageList.clear();
+
+            Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(p10Req);
+
+            boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_Only, p10ReqHolder, messageList);
+
+            assertTrue("Expect to pass ", bResult);
+            assertEquals("Expecting given number of messages", 0, messageList.size());
+        }
+        {
+            X500Principal subject = new X500Principal("CN=trustable.eu,CN=trustable.org, OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
+            PKCS10CertificationRequest p10Req = CryptoUtil.getCsr(subject,
+                keyPair.getPublic(),
+                keyPair.getPrivate(),
+                password,
+                null);
+
+            messageList.clear();
+
+            Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(p10Req);
+
+            boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_Only, p10ReqHolder, messageList);
+
+            assertFalse("Expect to fail ", bResult);
+            assertEquals("Expecting given number of messages", 1, messageList.size());
+        }
+        {
+            X500Principal subject = new X500Principal("OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
+            PKCS10CertificationRequest p10Req = CryptoUtil.getCsr(subject,
+                keyPair.getPublic(),
+                keyPair.getPrivate(),
+                password,
+                null);
+
+            messageList.clear();
+
+            Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(p10Req);
+
+            boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_Only, p10ReqHolder, messageList);
+
+            assertFalse("Expect to fail ", bResult);
+            assertEquals("Expecting given number of messages", 1, messageList.size());
+        }
+    }
+
+    @Test
 	void testCheckPipelineRestrictionsConstantValue() throws GeneralSecurityException, IOException {
 
 		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
