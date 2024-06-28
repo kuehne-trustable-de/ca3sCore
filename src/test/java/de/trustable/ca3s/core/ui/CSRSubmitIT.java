@@ -196,7 +196,7 @@ public class CSRSubmitIT extends WebTestBase {
 
 
     @Test
-    public void testCSRSubmitServersideDirect() throws Exception {
+    public void testSubmitServersideDirect() throws Exception {
 
         String c = "DE";
         String cn = "reqTest" + System.currentTimeMillis();
@@ -430,15 +430,21 @@ public class CSRSubmitIT extends WebTestBase {
     @Test
     public void testCSRDERSubmitDirect() throws GeneralSecurityException, IOException, InterruptedException {
 
-        signIn(USER_NAME_USER, USER_PASSWORD_USER);
+        explain("Beginning from the start page of the application, you must make sure that you are logged in to your account");
+        explain("Depending on your configuration you may be logged on, automatically.");
+        selectElementText(LOC_LNK_ACCOUNT_MENUE, "As this is not the case here, select 'Account' and then 'Sign In'.");
+
+        signIn(USER_NAME_USER, USER_PASSWORD_USER, "Once you have entered your credentials into the respective fields, you can proceed.", 500);
 
         validatePresent(LOC_LNK_REQ_CERT_MENUE);
+        selectElementText(LOC_LNK_REQ_CERT_MENUE, "Press Request certificate on the top right menu ");
         click(LOC_LNK_REQ_CERT_MENUE);
 
         validatePresent(LOC_SEL_PIPELINE);
 
         click(LOC_SEL_PIPELINE);
         selectOptionByText(LOC_SEL_PIPELINE, PipelineTestConfiguration.PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
+        explain("From the drop down menu, select a certificate processing pipeline matching your requirements. In this case we will use Direct Issuance.");
 
         validatePresent(LOC_TA_UPLOAD_CONTENT);
 
@@ -449,16 +455,19 @@ public class CSRSubmitIT extends WebTestBase {
         String csrFilePath = buildCSRAsDERFile(subjectPrincipal, null);
         validatePresent(LOC_SELECT_FILE);
         setText(LOC_SELECT_FILE, csrFilePath);
+        explain("Select the CSR File you want to use in the process.");
 
         validatePresent(LOC_TEXT_CONTENT_TYPE);
 
         validatePresent(LOC_BTN_REQUEST_CERTIFICATE);
+        selectElementText(LOC_BTN_REQUEST_CERTIFICATE, "Now you can press the Request Certificate button.");
         click(LOC_BTN_REQUEST_CERTIFICATE);
 
         waitForElement(LOC_TEXT_CERT_HEADER);
         validatePresent(LOC_TEXT_CERT_HEADER);
         validatePresent(LOC_TEXT_PKIX_LABEL);
 
+        selectElementText(LOC_SEL_CERT_FORMAT, "By pressing this button, you can download the your certificate as a pem file.");
         click(LOC_SEL_CERT_FORMAT);
 
         checkPEMDownload(cn, "pem");
@@ -468,15 +477,21 @@ public class CSRSubmitIT extends WebTestBase {
     @Test
     public void testCSRSubmitDirect() throws GeneralSecurityException, IOException, InterruptedException {
 
-        signIn(USER_NAME_USER, USER_PASSWORD_USER);
+        explain("Beginning from the start page of the application, you must make sure that you are logged in to your account");
+        explain("Depending on your configuration you may be logged on, automatically.");
+        selectElementText(LOC_LNK_ACCOUNT_MENUE, "As this is not the case here, select 'Account' and then 'Sign In'.");
+
+        signIn(USER_NAME_USER, USER_PASSWORD_USER, "Once you have entered your credentials into the respective fields, you can proceed.", 500);
 
         validatePresent(LOC_LNK_REQ_CERT_MENUE);
+        selectElementText(LOC_LNK_REQ_CERT_MENUE, "Press Request certificate on the top right menu ");
         click(LOC_LNK_REQ_CERT_MENUE);
 
         validatePresent(LOC_SEL_PIPELINE);
 
         click(LOC_SEL_PIPELINE);
         selectOptionByText(LOC_SEL_PIPELINE, PipelineTestConfiguration.PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
+        explain("From the drop down menu, select a certificate processing pipeline matching your requirements. In this case we will use Direct Issuance.");
 
         validatePresent(LOC_TA_UPLOAD_CONTENT);
 
@@ -490,12 +505,14 @@ public class CSRSubmitIT extends WebTestBase {
         validatePresent(LOC_TEXT_CONTENT_TYPE);
 
         validatePresent(LOC_BTN_REQUEST_CERTIFICATE);
+        selectElementText(LOC_BTN_REQUEST_CERTIFICATE, "Now you can press the Request Certificate button.");
         click(LOC_BTN_REQUEST_CERTIFICATE);
 
         waitForElement(LOC_TEXT_CERT_HEADER, 10);
         validatePresent(LOC_TEXT_CERT_HEADER);
         validatePresent(LOC_TEXT_PKIX_LABEL);
 
+        selectElementText(LOC_SEL_CERT_FORMAT, "By pressing this button, you can download the your certificate as a pem file.");
         click(LOC_SEL_CERT_FORMAT);
 
         checkPEMDownload(cn, "pem");
@@ -542,6 +559,71 @@ public class CSRSubmitIT extends WebTestBase {
 
         // already revoked
         validateNotPresent(LOC_TEXT_CERT_REVOCATION_REASON);
+    }
+
+    public void testCSRUploadDirect() throws GeneralSecurityException, IOException, InterruptedException {
+
+       /* explain("Beginning from the start page of the application, you must make sure that you are logged in to your account");
+        explain("Depending on your configuration you may be logged on, automatically.");
+
+        */
+        selectElementText(LOC_LNK_ACCOUNT_MENUE, "As this is not the case here, select 'Account' and then 'Sign In'.");
+
+        signIn(USER_NAME_USER, USER_PASSWORD_USER, "Once you have entered your credentials into the respective fields, you can proceed.", 500);
+
+        validatePresent(LOC_LNK_REQ_CERT_MENUE);
+        selectElementText(LOC_LNK_REQ_CERT_MENUE, "Press Request certificate on the top right menu ");
+        click(LOC_LNK_REQ_CERT_MENUE);
+
+        validatePresent(LOC_SEL_PIPELINE);
+
+        click(LOC_SEL_PIPELINE);
+        selectOptionByText(LOC_SEL_PIPELINE, PipelineTestConfiguration.PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
+        explain("From the drop down menu, select a certificate processing pipeline matching your requirements. In this case we will use Direct Issuance.");
+
+        validatePresent(LOC_TA_UPLOAD_CONTENT);
+
+        explain("Depending on your needs, you can use a string or a CSR file in the following process. First, we will use the string method.");
+
+        String cn = "reqtest" + System.currentTimeMillis();
+        String subject = "CN=" + cn + ", O=trustable solutions, C=DE";
+        X500Principal subjectPrincipal = new X500Principal(subject);
+
+        String csr = buildCSRAsPEM(subjectPrincipal);
+        setLongText(LOC_TA_UPLOAD_CONTENT, csr);
+        explain("As you can see, entering the string shows you some information and let's you request a certificate.");
+        By bySubject = By.xpath("//div//dl/dd/span [contains(text(), '" + cn + "')]");
+        selectElementText(bySubject, "Before you request the certificate, you can check the given information here.");
+
+        By byBits = By.xpath("//div//dl/dd/span [contains(text(), 'Bits')]");
+        selectElementText(byBits, "The key size is shown here. ");
+
+        setLongText(LOC_TA_UPLOAD_CONTENT, "");
+
+        explain("Alternatively, one can use a CSR file.");
+
+        String csrFilePath = buildCSRAsDERFile(subjectPrincipal, null);
+        validatePresent(LOC_SELECT_FILE);
+        setText(LOC_SELECT_FILE, csrFilePath);
+        explain("After selecting the CSR file you want to use");
+        selectElementText(bySubject, "the same information as before");
+        selectElementText(byBits, "are shown below.");
+
+        validatePresent(LOC_TEXT_CONTENT_TYPE);
+
+        validatePresent(LOC_BTN_REQUEST_CERTIFICATE);
+        selectElementText(LOC_BTN_REQUEST_CERTIFICATE, "Now you can press the Request Certificate button.");
+        click(LOC_BTN_REQUEST_CERTIFICATE);
+
+        waitForElement(LOC_TEXT_CERT_HEADER);
+        validatePresent(LOC_TEXT_CERT_HEADER);
+        validatePresent(LOC_TEXT_PKIX_LABEL);
+
+        selectElementText(LOC_SEL_CERT_FORMAT, "By pressing this button, you can download the your certificate as a pem file.");
+        click(LOC_SEL_CERT_FORMAT);
+
+        checkPEMDownload(cn, "pem");
+
     }
 
     private X509Certificate checkPEMDownload(String cn, String format) throws InterruptedException, GeneralSecurityException, IOException {
