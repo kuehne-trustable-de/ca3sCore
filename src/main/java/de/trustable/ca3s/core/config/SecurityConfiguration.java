@@ -301,7 +301,7 @@ public class SecurityConfiguration{
                 " style-src 'self' 'unsafe-inline';" +
                 " img-src 'self' data:;" +
                 " font-src 'self' data:;" +
-                " connect-src 'self' blob: data:")
+                " connect-src 'self' localhost:8442 blob: data:")
         .and()
             .referrerPolicy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
         .and()
@@ -345,6 +345,8 @@ public class SecurityConfiguration{
             .requestMatchers(forPortAndPath(raPort, "/api/administerCertificate")).hasAnyAuthority(AuthoritiesConstants.RA_OFFICER,AuthoritiesConstants.DOMAIN_RA_OFFICER)
             .requestMatchers(forPortAndPath(adminPort, "/api/administerCertificate")).hasAnyAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/api/administerCertificate").denyAll()
+
+            .requestMatchers(forPortAndPath(adminPort, "/api/**")).hasAuthority(AuthoritiesConstants.ADMIN)
 
             // check on method level
             .antMatchers("/api/request-proxy-configs/remote-config/*").permitAll()

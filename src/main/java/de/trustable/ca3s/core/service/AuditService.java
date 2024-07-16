@@ -124,6 +124,11 @@ public class AuditService {
     public static final String  AUDIT_CA_CONNECTOR_IGNORE_RESPONSE_MESSAGE_VERIFICATION_CHANGED = "AUDIT_CA_CONNECTOR_IGNORE_RESPONSE_MESSAGE_VERIFICATION_CHANGED";
     public static final String AUDIT_CERTIFICATE_ADMINISTRATION_FAILED = "AUDIT_CERTIFICATE_ADMINISTRATION_FAILED";
     private static final String AUDIT_BPMN_ATTRIBUTE_CHANGED = "AUDIT_BPMN_ATTRIBUTE_CHANGED";
+    private static final String AUDIT_USER_LOGIN_SUCEEDED = "AUDIT_USER_LOGIN_SUCEEDED";
+    private static final String AUDIT_USER_LOGIN_FAILED = "AUDIT_USER_LOGIN_FAILED";
+    private static final String AUDIT_USER_LOGIN_BLOCKED = "AUDIT_USER_LOGIN_BLOCKED";
+
+    private static final String AUDIT_USER_LOGIN_FOR_IP_BLOCKED = "AUDIT_USER_LOGIN_FOR_IP_BLOCKED";
 
 
     private final Logger log = LoggerFactory.getLogger(AuditService.class);
@@ -733,6 +738,65 @@ public class AuditService {
             null,
             null, null);
     }
+
+    public AuditTrace createAuditTraceLoginSucceeded(final String secondFactor, final String clientIP){
+
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_USER_LOGIN_SUCEEDED,
+            clientIP,
+            null, secondFactor,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null, null);
+    }
+    public AuditTrace createAuditTraceLoginFailed(final String loginName, final String clientIP){
+
+        return createAuditTrace(loginName, null,
+            AUDIT_USER_LOGIN_FAILED,
+            clientIP,
+            null, "",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null, null);
+    }
+    public AuditTrace createAuditTraceLoginBlocked(final String loginName, final String clientIP, int duration){
+
+        return createAuditTrace(loginName, null,
+            AUDIT_USER_LOGIN_BLOCKED,
+            clientIP,
+            null, "" +duration,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null, null);
+    }
+    public AuditTrace createAuditTraceLoginForIPBlocked(final String loginName, final String clientIP){
+
+        return createAuditTrace(loginName, null,
+            AUDIT_USER_LOGIN_FOR_IP_BLOCKED,
+            clientIP,
+            null, "",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null, null);
+    }
+
 
 
     public AuditTrace createAuditTrace(final String actor, final String actorRole, final String template,

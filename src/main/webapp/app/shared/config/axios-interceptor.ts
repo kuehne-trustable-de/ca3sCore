@@ -22,12 +22,13 @@ const setupAxiosInterceptors = (onUnauthenticated, onServerError) => {
     if (status >= 500) {
       return onServerError(err);
     }
+
     return Promise.reject(err);
   };
 
   if (axios.interceptors) {
     axios.interceptors.request.use(onRequestSuccess);
-    axios.interceptors.response.use(res => res, onResponseError);
+    //    axios.interceptors.response.use(res => res, onResponseError);
   }
 };
 

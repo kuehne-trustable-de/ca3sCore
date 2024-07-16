@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.web.rest.util;
 
+import de.trustable.ca3s.core.security.IPBlockedException;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.AcmeUtil;
@@ -52,8 +53,27 @@ public class RateLimiter {
         this.rateHour = rateHour;
     }
 
-    public void checkRateLimit(long id, String realm) {
+    public void checkSprayingRateLimit(final Long clientIP, String clientIPAsString) {
+        Bucket bucket = getBucket(clientIP);
+        long availableLoginTokens = bucket.getAvailableTokens();
+        if(availableLoginTokens > 0L){
+            LOG.debug("login per IP rate limitation bucket has {} tokens left", availableLoginTokens);
+        }else{
+            throw new IPBlockedException("no token left in login bucket for " + clientIPAsString);
+        }
+    }
+    public void consumeSprayingRateLimit(final Long clientIP, String clientIPAsString) {
+        Bucket bucket = getBucket(clientIP);
+        if(bucket.tryConsume(1)) {
+            LOG.debug("login per IP rate limitation bucket has {} tokens left", bucket.getAvailableTokens());
+        }else{
+            throw new IPBlockedException("no token left in login bucket for " + clientIPAsString);
+        }
+    }
+
+    public void checkACMERateLimit(long id, String realm) {
         Bucket bucket = getBucket(id);
+
         LOG.debug("Current bucket : {} ", bucket);
         if(bucket.tryConsume(1)) {
             LOG.debug("rate limitation bucket has {} tokens left", bucket.getAvailableTokens());

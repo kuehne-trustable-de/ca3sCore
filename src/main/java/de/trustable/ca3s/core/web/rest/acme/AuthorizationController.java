@@ -109,7 +109,7 @@ public class AuthorizationController extends AcmeController {
 
         LOG.info("Received Authorization request 'get' ");
 
-        rateLimiter.checkRateLimit(authorizationId, realm);
+        rateLimiter.checkACMERateLimit(authorizationId, realm);
 
         if( LOG.isDebugEnabled()) {
             Enumeration<String> headerNames = request.getHeaderNames();
@@ -149,7 +149,7 @@ public class AuthorizationController extends AcmeController {
 
         LOG.debug("Received Authorization request ");
 
-        rateLimiter.checkRateLimit(authorizationId, realm);
+        rateLimiter.checkACMERateLimit(authorizationId, realm);
 
         try {
             JwtContext context = jwtUtil.processFlattenedJWT(requestBody);

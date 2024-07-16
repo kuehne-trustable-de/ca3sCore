@@ -143,7 +143,7 @@ public class ChallengeController extends AcmeController {
 
 	  	LOG.debug("Received Challenge request ");
 
-        rateLimiter.checkRateLimit(challengeId, realm);
+        rateLimiter.checkACMERateLimit(challengeId, realm);
 
 	    final HttpHeaders additionalHeaders = buildNonceHeader();
 
@@ -176,7 +176,7 @@ public class ChallengeController extends AcmeController {
 
         LOG.debug("Received Challenge request ");
 
-        rateLimiter.checkRateLimit(challengeId, realm);
+        rateLimiter.checkACMERateLimit(challengeId, realm);
 
         try {
             JwtContext context = jwtUtil.processFlattenedJWT(requestBody);

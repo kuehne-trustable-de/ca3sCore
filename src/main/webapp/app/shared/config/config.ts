@@ -10,6 +10,7 @@ import { faClone } from '@fortawesome/free-solid-svg-icons/faClone';
 import { faSync } from '@fortawesome/free-solid-svg-icons/faSync';
 import { faBan } from '@fortawesome/free-solid-svg-icons/faBan';
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
+import { faRefresh } from '@fortawesome/free-solid-svg-icons/faRefresh';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft';
 import { faSave } from '@fortawesome/free-solid-svg-icons/faSave';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
@@ -160,6 +161,7 @@ export function initFortAwesome(vue) {
     faClone,
     faSync,
     faBan,
+    faRefresh,
     faTrash,
     faArrowLeft,
     faSave,

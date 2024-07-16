@@ -144,6 +144,68 @@ public class ADCSConnector {
         return new EmptyADCSWinNativeConnectorAdapter();
     }
 
+    ADCSWinNativeConnector getConnector(final String caUrl, final String secret ) throws ADCSProxyUnavailableException {
+
+        LOGGER.debug("connector direct call to '" + caUrl + "'");
+        if ("inProcess".equalsIgnoreCase(caUrl)) {
+            LOGGER.debug("ADCSConnector trying to load Windows connection classes...");
+            try {
+                return new ADCSNativeImpl();
+            } catch (UnsatisfiedLinkError ule) {
+                LOGGER.info("unable to load Windows connection classes, ADCS connection unavailable.");
+            } catch (ADCSException e) {
+                LOGGER.info("unable to load Windows connection classes, ADCS connection unavailable.", e);
+            }
+        } else {
+
+            if (secret == null || secret.isEmpty()) {
+                throw new ADCSProxyUnavailableException("passphrase missing in connector direct call to '" + caUrl + "' !");
+            }
+
+            try {
+                ADCSWinNativeConnector adcsConnector = new ADCSWinNativeConnectorAdapter(
+                    caUrl,
+                    secret,
+                    ca3sTrustManager,
+                    ca3sSalt,
+                    iterations,
+                    apiKeySalt,
+                    apiKeyIterations );
+                LOGGER.debug("ADCSConnector trying to connect to remote ADCS proxy ...");
+                String info = adcsConnector.getInfo();
+                LOGGER.debug("info call returns '{}'", info);
+
+                return adcsConnector;
+            } catch (ADCSProxyUnavailableException pue) {
+                LOGGER.info("info call for ADCS proxy did not succeeded! Trying later ...");
+                throw pue;
+            } catch (ADCSException | GeneralSecurityException e) {
+                LOGGER.warn("info call failed", e);
+            }
+        }
+
+        return new EmptyADCSWinNativeConnectorAdapter();
+    }
+
+
+    /**
+     * Retrieve the instance details of the related ADCSProxy
+     *
+     * @param caUrl
+     * @param secret
+     * @return
+     */
+    public ADCSInstanceDetails getInstanceDetails(final String caUrl, final String secret) {
+
+        try {
+            return getConnector(caUrl, secret).getCAInstanceDetails();
+        } catch (ADCSException adcsEx) {
+            LOGGER.debug("CAConnectorType ADCS at " + caUrl + " throws Exception: {} ", adcsEx.getLocalizedMessage());
+        }
+        return null;
+
+    }
+
     /**
      * Retrieve the current status of the ADCSProxy
      *
@@ -950,11 +1012,11 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
     }
 
     @Override
-    public ADCSInstanceDetails getCAInstanceDetails() {
+    public ADCSInstanceDetails getCAInstanceDetails() throws ADCSException {
         ADCSInstanceDetails details = new ADCSInstanceDetails();
-/*
+
 		try {
-			ADCSInstanceDetailsResponse detailsResp = remoteClient.getADCSInstanceDetails();
+			ADCSInstanceDetailsResponse detailsResp = remoteClient.getCAInstanceDetails();
 
 			details.setCaName(detailsResp.getCaName());
 			details.setCaType(detailsResp.getCaType());
@@ -985,7 +1047,6 @@ class ADCSWinNativeConnectorAdapter implements ADCSWinNativeConnector {
 			throw new ADCSException(e.getLocalizedMessage());
 		}
 
- */
         return details;
     }
 

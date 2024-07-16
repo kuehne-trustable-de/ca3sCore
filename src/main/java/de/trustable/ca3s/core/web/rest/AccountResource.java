@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.exception.PasswordRestrictionMismatch;
+import de.trustable.ca3s.core.exception.UserNotFoundException;
 import de.trustable.ca3s.core.repository.TenantRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.security.SecurityUtils;
@@ -184,10 +185,10 @@ public class AccountResource {
      * @param mail the mail of the user.
      */
     @PostMapping(path = "/account/reset-password/init")
-    public void requestPasswordReset(@RequestBody String mail) throws  MessagingException {
+    public void requestPasswordReset(@RequestBody String username) throws  MessagingException {
        mailService.sendPasswordResetMail(
-           userService.requestPasswordReset(mail)
-               .orElseThrow(EmailNotFoundException::new)
+           userService.requestPasswordReset(username)
+               .orElseThrow(UserNotFoundException::new)
        );
     }
 

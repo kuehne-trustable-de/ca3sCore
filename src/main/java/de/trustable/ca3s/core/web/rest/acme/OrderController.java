@@ -64,7 +64,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
-import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -140,7 +139,7 @@ public class OrderController extends AcmeController {
 
         LOG.info("Received read order request for orderId {}", orderId);
 
-        rateLimiter.checkRateLimit(orderId, realm);
+        rateLimiter.checkACMERateLimit(orderId, realm);
 
         try {
             JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
@@ -198,7 +197,7 @@ public class OrderController extends AcmeController {
 
         LOG.info("Received finalize order request ");
 
-        rateLimiter.checkRateLimit(orderId, realm);
+        rateLimiter.checkACMERateLimit(orderId, realm);
 
         // check for existence of a pipeline for the realm
         Pipeline pipeline = getPipelineForRealm(realm);

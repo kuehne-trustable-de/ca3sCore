@@ -7,7 +7,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.1.7</version>
+    <version>1.1.8</version>
     <packaging>jar</packaging>
 
 
@@ -1685,6 +1685,7 @@
                 <configuration>
                     <jsonLibrary>jackson2</jsonLibrary>
                     <classes>
+                        <class>de.trustable.ca3s.core.service.dto.adcs.ADCSInstanceDetailsView</class>
                         <class>de.trustable.ca3s.core.service.dto.CAStatus</class>
                         <class>de.trustable.ca3s.core.service.dto.CAConnectorStatus</class>
 
@@ -1703,6 +1704,7 @@
                         <class>de.trustable.ca3s.core.service.dto.CryptoConfigView</class>
                         <class>de.trustable.ca3s.core.service.dto.UIConfigView</class>
                         <class>de.trustable.ca3s.core.service.dto.RequestProxyConfigView</class>
+                        <class>de.trustable.ca3s.core.service.dto.UserLoginData</class>
 
                         <class>de.trustable.ca3s.core.service.dto.CSRView</class>
                         <class>de.trustable.ca3s.core.service.dto.Selector</class>
