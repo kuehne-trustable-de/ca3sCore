@@ -84,8 +84,8 @@ public class SecurityConfiguration{
 	@Value("${ca3s.acmeAccess.port:0}")
 	int acmePort;
 
-	@Value("${ca3s.scepAccess.port:0}")
-	int scepPort;
+    @Value("${ca3s.scepAccess.port:0}")
+    int scepPort;
 
     @Value("${ca3s.saml.activate:true}")
     private boolean samlActivate;
@@ -345,6 +345,8 @@ public class SecurityConfiguration{
             .requestMatchers(forPortAndPath(raPort, "/api/administerCertificate")).hasAnyAuthority(AuthoritiesConstants.RA_OFFICER,AuthoritiesConstants.DOMAIN_RA_OFFICER)
             .requestMatchers(forPortAndPath(adminPort, "/api/administerCertificate")).hasAnyAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/api/administerCertificate").denyAll()
+
+            .requestMatchers(forPortAndPath(adminPort, "/api/**")).hasAuthority(AuthoritiesConstants.ADMIN)
 
             // check on method level
             .antMatchers("/api/request-proxy-configs/remote-config/*").permitAll()
