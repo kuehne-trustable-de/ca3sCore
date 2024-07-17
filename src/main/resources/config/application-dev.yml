@@ -134,6 +134,12 @@ ca3s:
         description: min6NumberUpperLower
         regexp: ^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,100}$
 
+  auth:
+    api-key:
+      enabled: true
+      auth-token-header-name: X-API-KEY
+      auth-token-admin: gTYvGKIfzLpWQSSIMT1XBaRfzdSLZmvFMNlfo6zeddYyg3FYmq7BH6qqB4dy75uYbLb0KXOU7jV50a360R4CB4UXriX085usWJnto5CMpOu34rxx0b5v2Xd97hpzDQdJ
+
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class
@@ -145,8 +151,3 @@ ca3s:
 
 # application:
 protectionSecret: AxOS1DQS5jcnQwDQYJKoZIhvcNAQELBQADggEBA
-
-acmeClientPorts: 5544, 80, 8800
-
-keycloak:
-  enabled: false

@@ -9,6 +9,7 @@ import de.trustable.ca3s.core.service.dto.CSRView;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
 import de.trustable.ca3s.core.service.util.UserUtil;
+import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,8 +18,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
+import tech.jhipster.web.util.HeaderUtil;
 
 import javax.validation.Valid;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
@@ -73,8 +76,8 @@ public class CSRResource {
     @PostMapping("/csrs")
     public ResponseEntity<CSR> createCSR(@Valid @RequestBody CSR cSR) throws URISyntaxException {
 
-        return ResponseEntity.badRequest().build();
-/*
+//        return ResponseEntity.badRequest().build();
+
         log.debug("REST request to save CSR : {}", cSR);
         if (cSR.getId() != null) {
             throw new BadRequestAlertException("A new cSR cannot already have an ID", ENTITY_NAME, "idexists");
@@ -83,7 +86,7 @@ public class CSRResource {
         return ResponseEntity.created(new URI("/api/csrs/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
- */
+
     }
 
     /**
