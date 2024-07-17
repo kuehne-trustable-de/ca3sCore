@@ -33,6 +33,7 @@
         <h2 th:text="#{email.new.pending.request.header}">Pending requests</h2>
         <table>
             <tr>
+                <th>Id</th>
                 <th>Subject</th>
                 <th>SANs</th>
                 <th>requested by</th>
@@ -40,6 +41,7 @@
                 <!--th>details</th-->
             </tr>
             <tr th:each="csr : ${newCsrList}">
+                <td th:text="${csr.id}"></td>
                 <td th:text="${csr.subject}"></td>
                 <td th:text="${csr.sans}"></td>
                 <td th:text="${csr.requestedBy}"></td>
