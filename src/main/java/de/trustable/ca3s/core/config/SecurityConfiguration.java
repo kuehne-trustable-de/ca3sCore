@@ -346,6 +346,8 @@ public class SecurityConfiguration{
             .requestMatchers(forPortAndPath(adminPort, "/api/administerCertificate")).hasAnyAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/api/administerCertificate").denyAll()
 
+            .requestMatchers(forPortAndPath(adminPort, "/api/**")).hasAuthority(AuthoritiesConstants.ADMIN)
+
             // check on method level
             .antMatchers("/api/request-proxy-configs/remote-config/*").permitAll()
             .antMatchers("/api/acme-challenges/pending/request-proxy-configs/*").permitAll()
