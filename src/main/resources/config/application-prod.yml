@@ -56,7 +56,7 @@ management:
         enabled: false
 
 spring:
-  # devtools should be enabled for productive use
+  # devtools should NOT be enabled for productive use
   devtools:
     restart:
       enabled: false
