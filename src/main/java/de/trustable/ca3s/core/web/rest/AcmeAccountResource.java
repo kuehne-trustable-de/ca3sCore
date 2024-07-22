@@ -2,10 +2,12 @@ package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.AcmeAccount;
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.AcmeAccountService;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 
 import de.trustable.ca3s.core.web.rest.data.AcmeAccountStatusAdministration;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -50,6 +52,7 @@ public class AcmeAccountResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/acme-accounts")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<AcmeAccount> createAcmeAccount(@Valid @RequestBody AcmeAccount aCMEAccount) throws URISyntaxException {
         log.debug("REST request to save AcmeAccount : {}", aCMEAccount);
         if (aCMEAccount.getId() != null) {
@@ -71,6 +74,7 @@ public class AcmeAccountResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/acme-accounts")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<AcmeAccount> updateAcmeAccount(@Valid @RequestBody AcmeAccount aCMEAccount) throws URISyntaxException {
         log.debug("REST request to update AcmeAccount : {}", aCMEAccount);
         if (aCMEAccount.getId() == null) {
@@ -89,6 +93,7 @@ public class AcmeAccountResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of aCMEAccounts in body.
      */
     @GetMapping("/acme-accounts")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public List<AcmeAccount> getAllAcmeAccounts() {
         log.debug("REST request to get all AcmeAccounts");
         return aCMEAccountService.findAll();
@@ -101,6 +106,7 @@ public class AcmeAccountResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the aCMEAccount, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/acme-accounts/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<AcmeAccount> getAcmeAccount(@PathVariable Long id) {
         log.debug("REST request to get AcmeAccount : {}", id);
         Optional<AcmeAccount> aCMEAccount = aCMEAccountService.findOne(id);
@@ -114,6 +120,7 @@ public class AcmeAccountResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/acme-accounts/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteAcmeAccount(@PathVariable Long id) {
         log.debug("REST request to delete AcmeAccount : {}", id);
         aCMEAccountService.delete(id);
@@ -123,10 +130,11 @@ public class AcmeAccountResource {
     /**
      * {@code POST  /acme-accounts/:id/status} : update the status of the "id" aCMEAccount.
      *
-     * @param id the id of the aCMEAccount to delete.
+     * @param id the id of the aCMEAccount to be updated.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @PostMapping("/acme-accounts/{id}/status")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     @Transactional
     public ResponseEntity<Void> updateAcmeAccountStatus(@PathVariable Long id, @RequestBody AcmeAccountStatusAdministration statusAdministration) {
         log.debug("REST request to update the status of AcmeAccount : {} to {}", id, statusAdministration.getStatus());

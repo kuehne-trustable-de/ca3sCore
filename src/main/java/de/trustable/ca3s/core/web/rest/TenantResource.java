@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.Tenant;
 import de.trustable.ca3s.core.repository.TenantRepository;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.TenantService;
 import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -50,6 +52,7 @@ public class TenantResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/tenants")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Tenant> createTenant(@Valid @RequestBody Tenant tenant) throws URISyntaxException {
         log.debug("REST request to save Tenant : {}", tenant);
         if (tenant.getId() != null) {
@@ -73,6 +76,7 @@ public class TenantResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/tenants/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Tenant> updateTenant(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody Tenant tenant
@@ -108,6 +112,7 @@ public class TenantResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/tenants/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Tenant> partialUpdateTenant(
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody Tenant tenant
@@ -138,6 +143,7 @@ public class TenantResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of tenants in body.
      */
     @GetMapping("/tenants")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public List<Tenant> getAllTenants() {
         log.debug("REST request to get all Tenants");
         return tenantService.findAll();
@@ -150,6 +156,7 @@ public class TenantResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the tenant, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/tenants/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Tenant> getTenant(@PathVariable Long id) {
         log.debug("REST request to get Tenant : {}", id);
         Optional<Tenant> tenant = tenantService.findOne(id);
@@ -163,6 +170,7 @@ public class TenantResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/tenants/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteTenant(@PathVariable Long id) {
         log.debug("REST request to delete Tenant : {}", id);
         tenantService.delete(id);

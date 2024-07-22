@@ -1,9 +1,11 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.CsrAttribute;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.CsrAttributeService;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -47,6 +49,7 @@ public class CsrAttributeResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/csr-attributes")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<CsrAttribute> createCsrAttribute(@Valid @RequestBody CsrAttribute csrAttribute) throws URISyntaxException {
         log.debug("REST request to save CsrAttribute : {}", csrAttribute);
         if (csrAttribute.getId() != null) {
@@ -68,6 +71,7 @@ public class CsrAttributeResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/csr-attributes")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<CsrAttribute> updateCsrAttribute(@Valid @RequestBody CsrAttribute csrAttribute) throws URISyntaxException {
         log.debug("REST request to update CsrAttribute : {}", csrAttribute);
         if (csrAttribute.getId() == null) {
@@ -86,6 +90,7 @@ public class CsrAttributeResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of csrAttributes in body.
      */
     @GetMapping("/csr-attributes")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public List<CsrAttribute> getAllCsrAttributes() {
         log.debug("REST request to get all CsrAttributes");
         return csrAttributeService.findAll();
@@ -98,6 +103,7 @@ public class CsrAttributeResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the csrAttribute, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/csr-attributes/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<CsrAttribute> getCsrAttribute(@PathVariable Long id) {
         log.debug("REST request to get CsrAttribute : {}", id);
         Optional<CsrAttribute> csrAttribute = csrAttributeService.findOne(id);
@@ -111,6 +117,7 @@ public class CsrAttributeResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/csr-attributes/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteCsrAttribute(@PathVariable Long id) {
         log.debug("REST request to delete CsrAttribute : {}", id);
         csrAttributeService.delete(id);

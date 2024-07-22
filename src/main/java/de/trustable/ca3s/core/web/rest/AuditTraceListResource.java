@@ -43,7 +43,7 @@ public class AuditTraceListResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of audit traces in body.
      */
     @GetMapping("/auditTraceList")
-    public ResponseEntity<List<AuditTraceView>> getAllCertificates(Pageable pageable, HttpServletRequest request) {
+    public ResponseEntity<List<AuditTraceView>> getAllAuditTraces(Pageable pageable, HttpServletRequest request) {
         log.debug("REST request to get a page of AuditTraceView");
         Page<AuditTraceView> page = auditTraceViewRepository.findSelection(request.getParameterMap());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);

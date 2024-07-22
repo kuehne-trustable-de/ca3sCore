@@ -3,6 +3,7 @@ package de.trustable.ca3s.core.web.rest;
 import de.trustable.ca3s.core.domain.CRLExpirationNotification;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 import de.trustable.ca3s.core.repository.CRLExpirationNotificationRepository;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.CRLExpirationNotificationService;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -53,6 +55,7 @@ public class CRLExpirationNotificationResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/crl-expiration-notifications")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<CRLExpirationNotification> createCRLExpirationNotification(
         @Valid @RequestBody CRLExpirationNotification cRLExpirationNotification
     ) throws URISyntaxException {
@@ -73,6 +76,7 @@ public class CRLExpirationNotificationResource {
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new cRLExpirationNotification, or with status {@code 400 (Bad Request)} if the cRLExpirationNotification has already an ID.
      */
     @PostMapping("/crl-expiration-notifications/certificate")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<List<CRLExpirationNotification>> createCRLExpirationNotification(
         @Valid @RequestBody Long certificateId
     ) {
@@ -99,6 +103,7 @@ public class CRLExpirationNotificationResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/crl-expiration-notifications/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<CRLExpirationNotification> updateCRLExpirationNotification(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody CRLExpirationNotification cRLExpirationNotification
@@ -129,6 +134,7 @@ public class CRLExpirationNotificationResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of cRLExpirationNotifications in body.
      */
     @GetMapping("/crl-expiration-notifications")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public List<CRLExpirationNotification> getAllCRLExpirationNotifications() {
         log.debug("REST request to get all CRLExpirationNotifications");
         return cRLExpirationNotificationService.findAll();
@@ -141,6 +147,7 @@ public class CRLExpirationNotificationResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the cRLExpirationNotification, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/crl-expiration-notifications/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<CRLExpirationNotification> getCRLExpirationNotification(@PathVariable Long id) {
         log.debug("REST request to get CRLExpirationNotification : {}", id);
         Optional<CRLExpirationNotification> cRLExpirationNotification = cRLExpirationNotificationService.findOne(id);
@@ -154,6 +161,7 @@ public class CRLExpirationNotificationResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/crl-expiration-notifications/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteCRLExpirationNotification(@PathVariable Long id) {
         log.debug("REST request to delete CRLExpirationNotification : {}", id);
         cRLExpirationNotificationService.delete(id);

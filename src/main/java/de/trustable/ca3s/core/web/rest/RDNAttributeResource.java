@@ -1,9 +1,11 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.RDNAttribute;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.RDNAttributeService;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -47,6 +49,7 @@ public class RDNAttributeResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/rdn-attributes")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<RDNAttribute> createRDNAttribute(@Valid @RequestBody RDNAttribute rDNAttribute) throws URISyntaxException {
         log.debug("REST request to save RDNAttribute : {}", rDNAttribute);
         if (rDNAttribute.getId() != null) {
@@ -68,6 +71,7 @@ public class RDNAttributeResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/rdn-attributes")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<RDNAttribute> updateRDNAttribute(@Valid @RequestBody RDNAttribute rDNAttribute) throws URISyntaxException {
         log.debug("REST request to update RDNAttribute : {}", rDNAttribute);
         if (rDNAttribute.getId() == null) {
@@ -86,6 +90,7 @@ public class RDNAttributeResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of rDNAttributes in body.
      */
     @GetMapping("/rdn-attributes")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public List<RDNAttribute> getAllRDNAttributes() {
         log.debug("REST request to get all RDNAttributes");
         return rDNAttributeService.findAll();
@@ -98,6 +103,7 @@ public class RDNAttributeResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the rDNAttribute, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/rdn-attributes/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<RDNAttribute> getRDNAttribute(@PathVariable Long id) {
         log.debug("REST request to get RDNAttribute : {}", id);
         Optional<RDNAttribute> rDNAttribute = rDNAttributeService.findOne(id);
@@ -111,6 +117,7 @@ public class RDNAttributeResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/rdn-attributes/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteRDNAttribute(@PathVariable Long id) {
         log.debug("REST request to delete RDNAttribute : {}", id);
         rDNAttributeService.delete(id);

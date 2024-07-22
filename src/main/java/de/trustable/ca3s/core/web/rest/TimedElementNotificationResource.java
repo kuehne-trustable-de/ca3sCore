@@ -3,6 +3,7 @@ package de.trustable.ca3s.core.web.rest;
 import de.trustable.ca3s.core.domain.TimedElementNotification;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 import de.trustable.ca3s.core.repository.TimedElementNotificationRepository;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.TimedElementNotificationService;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -53,6 +55,7 @@ public class TimedElementNotificationResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/timed-element-notifications")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<TimedElementNotification> createTimedElementNotification(
         @Valid @RequestBody TimedElementNotification timedElementNotification
     ) throws URISyntaxException {
@@ -78,6 +81,7 @@ public class TimedElementNotificationResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/timed-element-notifications/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<TimedElementNotification> updateTimedElementNotification(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody TimedElementNotification timedElementNotification
@@ -107,6 +111,7 @@ public class TimedElementNotificationResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of timedElementNotifications in body.
      */
     @GetMapping("/timed-element-notifications")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public List<TimedElementNotification> getAllTimedElementNotifications() {
         log.debug("REST request to get all TimedElementNotifications");
         return timedElementNotificationService.findAll();
@@ -119,6 +124,7 @@ public class TimedElementNotificationResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the timedElementNotification, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/timed-element-notifications/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<TimedElementNotification> getTimedElementNotification(@PathVariable Long id) {
         log.debug("REST request to get TimedElementNotification : {}", id);
         Optional<TimedElementNotification> timedElementNotification = timedElementNotificationService.findOne(id);
@@ -132,6 +138,7 @@ public class TimedElementNotificationResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/timed-element-notifications/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteTimedElementNotification(@PathVariable Long id) {
         log.debug("REST request to delete TimedElementNotification : {}", id);
         timedElementNotificationService.delete(id);

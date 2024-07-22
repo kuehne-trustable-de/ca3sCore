@@ -1,8 +1,10 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.repository.AcmeOrderViewRepository;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.dto.AcmeOrderView;
 import de.trustable.ca3s.core.service.dto.CSRView;
+import org.springframework.security.access.prepost.PreAuthorize;
 import tech.jhipster.web.util.PaginationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +47,7 @@ public class AcmeOrderListResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of ACME orders in body.
      */
     @GetMapping("/acmeOrderList")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<List<AcmeOrderView>> getAllAcmeOrders(Pageable pageable, HttpServletRequest request) {
         log.debug("REST request to get a page of AcmeAccountViews");
         Page<AcmeOrderView> page = acmeOrderViewRepository.findSelection(request.getParameterMap());

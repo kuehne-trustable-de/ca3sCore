@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.AlgorithmRestriction;
 import de.trustable.ca3s.core.repository.AlgorithmRestrictionRepository;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.AlgorithmRestrictionService;
 import de.trustable.ca3s.core.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -53,6 +55,7 @@ public class AlgorithmRestrictionResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/algorithm-restrictions")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<AlgorithmRestriction> createAlgorithmRestriction(@Valid @RequestBody AlgorithmRestriction algorithmRestriction)
         throws URISyntaxException {
         log.debug("REST request to save AlgorithmRestriction : {}", algorithmRestriction);
@@ -77,6 +80,7 @@ public class AlgorithmRestrictionResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/algorithm-restrictions/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<AlgorithmRestriction> updateAlgorithmRestriction(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody AlgorithmRestriction algorithmRestriction
@@ -106,6 +110,7 @@ public class AlgorithmRestrictionResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of algorithmRestrictions in body.
      */
     @GetMapping("/algorithm-restrictions")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public List<AlgorithmRestriction> getAllAlgorithmRestrictions() {
         log.debug("REST request to get all AlgorithmRestrictions");
         return algorithmRestrictionService.findAll();
@@ -118,6 +123,7 @@ public class AlgorithmRestrictionResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the algorithmRestriction, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/algorithm-restrictions/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<AlgorithmRestriction> getAlgorithmRestriction(@PathVariable Long id) {
         log.debug("REST request to get AlgorithmRestriction : {}", id);
         Optional<AlgorithmRestriction> algorithmRestriction = algorithmRestrictionService.findOne(id);
@@ -131,6 +137,7 @@ public class AlgorithmRestrictionResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/algorithm-restrictions/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteAlgorithmRestriction(@PathVariable Long id) {
         log.debug("REST request to delete AlgorithmRestriction : {}", id);
         algorithmRestrictionService.delete(id);

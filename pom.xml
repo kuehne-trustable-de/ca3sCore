@@ -7,7 +7,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.1.7a</version>
+    <version>1.1.7b</version>
     <packaging>jar</packaging>
 
 
@@ -125,7 +125,7 @@
         <saml2-core.spring.version>1.0.10.RELEASE</saml2-core.spring.version>
         <open-saml.version>4.3.0</open-saml.version>
 
-        <undertow.core.version>2.3.12.Final</undertow.core.version>
+        <undertow.core.version>2.3.14.Final</undertow.core.version>
         <bucket4j.version>8.7.0</bucket4j.version>
 
         <h2.version>2.2.224</h2.version>

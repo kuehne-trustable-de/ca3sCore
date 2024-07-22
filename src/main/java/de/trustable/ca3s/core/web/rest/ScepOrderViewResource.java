@@ -1,12 +1,14 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.ScepOrder;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.ScepOrderService;
 import de.trustable.ca3s.core.service.dto.ScepOrderView;
 import de.trustable.ca3s.core.service.util.ScepOrderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,6 +46,7 @@ public class ScepOrderViewResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of ACME accounts in body.
      */
     @GetMapping("/scepOrderViews")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public List<ScepOrderView> getAllAcmeOrderViews() {
         log.debug("REST request to get all AcmeOrderViews");
         List<ScepOrderView> avList = new ArrayList<>();

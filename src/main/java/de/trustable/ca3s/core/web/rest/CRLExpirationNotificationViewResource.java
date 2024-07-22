@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.CRLExpirationNotification;
 import de.trustable.ca3s.core.repository.CRLExpirationNotificationRepository;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.CRLExpirationNotificationService;
 import de.trustable.ca3s.core.service.dto.CRLExpirationNotificationView;
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,6 +57,7 @@ public class CRLExpirationNotificationViewResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of certificates in body.
      */
     @GetMapping("/crl-expiration-notification-views")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<List<CRLExpirationNotificationView>> getAllCertificates(Pageable pageable, HttpServletRequest request) {
         log.debug("REST request to get a page of CRLExpirationNotificationView");
 
@@ -82,6 +85,7 @@ public class CRLExpirationNotificationViewResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the cRLExpirationNotification, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/crl-expiration-notification-views/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<CRLExpirationNotificationView> getCRLExpirationNotificationView(@PathVariable Long id) {
         log.debug("REST request to get CRLExpirationNotification : {}", id);
         Optional<CRLExpirationNotification> crlExpirationNotificationOptional = cRLExpirationNotificationService.findOne(id);

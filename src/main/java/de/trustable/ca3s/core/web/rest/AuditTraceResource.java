@@ -1,9 +1,11 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.AuditTrace;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.AuditTraceService;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -47,6 +49,7 @@ public class AuditTraceResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/audit-traces")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<AuditTrace> createAuditTrace(@Valid @RequestBody AuditTrace auditTrace) throws URISyntaxException {
         log.debug("REST request to save AuditTrace : {}", auditTrace);
         if (auditTrace.getId() != null) {
@@ -68,6 +71,7 @@ public class AuditTraceResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/audit-traces")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<AuditTrace> updateAuditTrace(@Valid @RequestBody AuditTrace auditTrace) throws URISyntaxException {
         log.debug("REST request to update AuditTrace : {}", auditTrace);
         if (auditTrace.getId() == null) {
@@ -85,6 +89,7 @@ public class AuditTraceResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of auditTraces in body.
      */
     @GetMapping(value = "/audit-traces")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public Page<AuditTrace> getAllAuditTraces(
         Pageable pageable,
         @RequestParam(value = "certificate", required = false) Long certificateId,
@@ -106,6 +111,7 @@ public class AuditTraceResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the auditTrace, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/audit-traces/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<AuditTrace> getAuditTrace(@PathVariable Long id) {
         log.debug("REST request to get AuditTrace : {}", id);
         Optional<AuditTrace> auditTrace = auditTraceService.findOne(id);
@@ -119,6 +125,7 @@ public class AuditTraceResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/audit-traces/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteAuditTrace(@PathVariable Long id) {
         log.debug("REST request to delete AuditTrace : {}", id);
         auditTraceService.delete(id);

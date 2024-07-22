@@ -1,9 +1,11 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.AcmeIdentifier;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.AcmeIdentifierService;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -47,6 +49,7 @@ public class AcmeIdentifierResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/acme-identifiers")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<AcmeIdentifier> createAcmeIdentifier(@Valid @RequestBody AcmeIdentifier acmeIdentifier) throws URISyntaxException {
         log.debug("REST request to save AcmeIdentifier : {}", acmeIdentifier);
         if (acmeIdentifier.getId() != null) {
@@ -68,6 +71,7 @@ public class AcmeIdentifierResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/acme-identifiers")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<AcmeIdentifier> updateAcmeIdentifier(@Valid @RequestBody AcmeIdentifier acmeIdentifier) throws URISyntaxException {
         log.debug("REST request to update AcmeIdentifier : {}", acmeIdentifier);
         if (acmeIdentifier.getId() == null) {
@@ -86,6 +90,7 @@ public class AcmeIdentifierResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of acmeIdentifiers in body.
      */
     @GetMapping("/acme-identifiers")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public List<AcmeIdentifier> getAllAcmeIdentifiers() {
         log.debug("REST request to get all AcmeIdentifiers");
         return acmeIdentifierService.findAll();
@@ -98,6 +103,7 @@ public class AcmeIdentifierResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the acmeIdentifier, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/acme-identifiers/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<AcmeIdentifier> getAcmeIdentifier(@PathVariable Long id) {
         log.debug("REST request to get AcmeIdentifier : {}", id);
         Optional<AcmeIdentifier> acmeIdentifier = acmeIdentifierService.findOne(id);
@@ -111,6 +117,7 @@ public class AcmeIdentifierResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/acme-identifiers/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteAcmeIdentifier(@PathVariable Long id) {
         log.debug("REST request to delete AcmeIdentifier : {}", id);
         acmeIdentifierService.delete(id);

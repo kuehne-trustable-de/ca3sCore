@@ -1,9 +1,11 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.AcmeAuthorization;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.AcmeAuthorizationService;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -47,6 +49,7 @@ public class AcmeAuthorizationResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/acme-authorizations")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<AcmeAuthorization> createAcmeAuthorization(@Valid @RequestBody AcmeAuthorization acmeAuthorization) throws URISyntaxException {
         log.debug("REST request to save AcmeAuthorization : {}", acmeAuthorization);
         if (acmeAuthorization.getId() != null) {
@@ -68,6 +71,7 @@ public class AcmeAuthorizationResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/acme-authorizations")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<AcmeAuthorization> updateAcmeAuthorization(@Valid @RequestBody AcmeAuthorization acmeAuthorization) throws URISyntaxException {
         log.debug("REST request to update AcmeAuthorization : {}", acmeAuthorization);
         if (acmeAuthorization.getId() == null) {
@@ -86,6 +90,7 @@ public class AcmeAuthorizationResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of acmeAuthorizations in body.
      */
     @GetMapping("/acme-authorizations")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public List<AcmeAuthorization> getAllAcmeAuthorizations() {
         log.debug("REST request to get all AcmeAuthorizations");
         return acmeAuthorizationService.findAll();
@@ -98,6 +103,7 @@ public class AcmeAuthorizationResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the acmeAuthorization, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/acme-authorizations/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<AcmeAuthorization> getAcmeAuthorization(@PathVariable Long id) {
         log.debug("REST request to get AcmeAuthorization : {}", id);
         Optional<AcmeAuthorization> acmeAuthorization = acmeAuthorizationService.findOne(id);
@@ -111,6 +117,7 @@ public class AcmeAuthorizationResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/acme-authorizations/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteAcmeAuthorization(@PathVariable Long id) {
         log.debug("REST request to delete AcmeAuthorization : {}", id);
         acmeAuthorizationService.delete(id);

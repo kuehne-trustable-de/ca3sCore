@@ -1,9 +1,11 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.AcmeOrder;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.AcmeOrderService;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -94,6 +96,7 @@ public class AcmeOrderResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of acmeOrders in body.
      */
     @GetMapping("/acme-orders")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public List<AcmeOrder> getAllAcmeOrders() {
         log.debug("REST request to get all AcmeOrders");
         return acmeOrderService.findAll();
@@ -106,6 +109,7 @@ public class AcmeOrderResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the acmeOrder, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/acme-orders/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<AcmeOrder> getAcmeOrder(@PathVariable Long id) {
         log.debug("REST request to get AcmeOrder : {}", id);
         Optional<AcmeOrder> acmeOrder = acmeOrderService.findOne(id);

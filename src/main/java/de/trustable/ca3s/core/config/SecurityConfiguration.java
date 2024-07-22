@@ -336,7 +336,6 @@ public class SecurityConfiguration{
             .antMatchers("/saml/**").permitAll()
             .antMatchers("/publicapi/**").permitAll()
 
-            .requestMatchers(forPortAndPath(adminPort, "/api/ca-connector-configs")).hasAuthority(AuthoritiesConstants.ADMIN)
 
             .requestMatchers(forPortAndPath(raPort, "/api/administerRequest")).hasAnyAuthority(AuthoritiesConstants.RA_OFFICER,AuthoritiesConstants.DOMAIN_RA_OFFICER)
             .requestMatchers(forPortAndPath(adminPort, "/api/administerRequest")).hasAnyAuthority(AuthoritiesConstants.ADMIN)
@@ -346,12 +345,50 @@ public class SecurityConfiguration{
             .requestMatchers(forPortAndPath(adminPort, "/api/administerCertificate")).hasAnyAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/api/administerCertificate").denyAll()
 
-            .requestMatchers(forPortAndPath(adminPort, "/api/**")).hasAuthority(AuthoritiesConstants.ADMIN)
 
-            // check on method level
+            // Check this block for usefulness of endpoints
+            .antMatchers("/api/cockpit/**").permitAll()
+            .antMatchers("/api/tasklist/**").permitAll()
+            .antMatchers("/api/engine/**").permitAll()
+            .antMatchers("/api/executeProcess/**").permitAll()
+
+            // check on method level ?
             .antMatchers("/api/request-proxy-configs/remote-config/*").permitAll()
             .antMatchers("/api/acme-challenges/pending/request-proxy-configs/*").permitAll()
             .antMatchers("/api/acme-challenges/validation").permitAll()
+
+            .requestMatchers(forPortAndPath(adminPort, "/api/acme-accounts")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/acme-authorizations")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/acme-challenges")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/acme-contacts")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/acme-nonces")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/acme-orders")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/certificate-attributes")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/certificates")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/crl-expiration-notifications")).hasAuthority(AuthoritiesConstants.ADMIN)
+
+            .requestMatchers(forPortAndPath(adminPort, "/api/csr-attributes")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/csrs")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/pipeline-attributes")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/pipelines")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/rdn-attributes")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/rdns")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/request-attributes")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/request-attribute-values")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/timed-element-notifications")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/tenants")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/tenants/*")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/timed-element-notifications")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/timed-element-notifications/*")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/request-proxy-configs")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/crl-expiration-notifications/*")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/bpmn-process-infos")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/audit-traces")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/algorithm-restrictions")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/algorithm-restrictions/*")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/ca-connector-configs")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/ca-connector-configs/*")).hasAuthority(AuthoritiesConstants.ADMIN)
+
 
             .antMatchers("/api/acme-accounts").denyAll()
             .antMatchers("/api/acme-authorizations").denyAll()
@@ -375,6 +412,7 @@ public class SecurityConfiguration{
             .antMatchers("/api/request-attribute-values").denyAll()
             .antMatchers("/api/timed-element-notifications").denyAll()
 
+
             .requestMatchers(forPortAndPath(acmePort, "/acme/**")).permitAll()
             .antMatchers("/acme/**").denyAll()
 
@@ -384,13 +422,6 @@ public class SecurityConfiguration{
             .requestMatchers(forPortAndPath(scepPort, "/ca3sScep/**")).permitAll()
             .antMatchers("/ca3sScep/**").denyAll()
 
-            .antMatchers("/api/preference/1").permitAll() // allow general properties
-            .antMatchers("/api/cockpit/**").permitAll()
-            .antMatchers("/api/tasklist/**").permitAll()
-            .antMatchers("/api/engine/**").permitAll()
-            .antMatchers("/api/executeProcess/**").permitAll()
-
-            .antMatchers("/api/**").authenticated()
             .antMatchers("/websocket/tracker").hasAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/websocket/**").permitAll()
             .antMatchers("/management/loggers").permitAll()
@@ -405,7 +436,13 @@ public class SecurityConfiguration{
 
             .requestMatchers(forPortAndPath(adminPort, "/management/**")).hasAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/management/**").denyAll()
-        .and()
+
+//            .antMatchers("/api/uploadContent").permitAll() // allow general properties
+//            .antMatchers("/api/preference/1").permitAll() // allow general properties
+
+            .antMatchers("/api/**").authenticated()
+
+            .and()
             .httpBasic()
         .and().authenticationManager(authenticationManager)
         .apply(securityConfigurerAdapter());

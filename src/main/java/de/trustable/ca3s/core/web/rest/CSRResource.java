@@ -4,6 +4,7 @@ import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Tenant;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.repository.UserRepository;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.CSRService;
 import de.trustable.ca3s.core.service.dto.CSRView;
 import de.trustable.ca3s.core.service.util.CSRUtil;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -74,6 +76,7 @@ public class CSRResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/csrs")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<CSR> createCSR(@Valid @RequestBody CSR cSR) throws URISyntaxException {
 
 //        return ResponseEntity.badRequest().build();
@@ -99,6 +102,7 @@ public class CSRResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/csrs")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<CSR> updateCSR(@Valid @RequestBody CSR cSR) throws URISyntaxException {
         log.debug("REST request to update CSR : {}", cSR);
         return ResponseEntity.badRequest().build();
@@ -184,6 +188,7 @@ public class CSRResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/csrs/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteCSR(@PathVariable Long id) {
         log.debug("REST request to delete CSR : {} rejected", id);
         return ResponseEntity.badRequest().build();

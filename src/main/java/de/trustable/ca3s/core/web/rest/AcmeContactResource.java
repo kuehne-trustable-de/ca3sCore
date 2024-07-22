@@ -1,9 +1,11 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.AcmeContact;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.AcmeContactService;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -47,6 +49,7 @@ public class AcmeContactResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/acme-contacts")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<AcmeContact> createAcmeContact(@Valid @RequestBody AcmeContact acmeContact) throws URISyntaxException {
         log.debug("REST request to save AcmeContact : {}", acmeContact);
         if (acmeContact.getId() != null) {
@@ -68,6 +71,7 @@ public class AcmeContactResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/acme-contacts")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<AcmeContact> updateAcmeContact(@Valid @RequestBody AcmeContact acmeContact) throws URISyntaxException {
         log.debug("REST request to update AcmeContact : {}", acmeContact);
         if (acmeContact.getId() == null) {
@@ -86,6 +90,7 @@ public class AcmeContactResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of acmeContacts in body.
      */
     @GetMapping("/acme-contacts")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public List<AcmeContact> getAllAcmeContacts() {
         log.debug("REST request to get all AcmeContacts");
         return acmeContactService.findAll();
@@ -98,6 +103,7 @@ public class AcmeContactResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the acmeContact, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/acme-contacts/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<AcmeContact> getAcmeContact(@PathVariable Long id) {
         log.debug("REST request to get AcmeContact : {}", id);
         Optional<AcmeContact> acmeContact = acmeContactService.findOne(id);
@@ -111,6 +117,7 @@ public class AcmeContactResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/acme-contacts/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteAcmeContact(@PathVariable Long id) {
         log.debug("REST request to delete AcmeContact : {}", id);
         acmeContactService.delete(id);

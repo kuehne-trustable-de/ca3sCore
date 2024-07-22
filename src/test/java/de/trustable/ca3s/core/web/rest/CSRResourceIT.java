@@ -243,7 +243,7 @@ public class CSRResourceIT {
         restCSRMockMvc.perform(post("/api/csrs")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(cSR)))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isOk());
 
     }
 

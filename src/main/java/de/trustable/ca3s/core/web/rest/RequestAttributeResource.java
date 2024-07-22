@@ -1,9 +1,11 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.RequestAttribute;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.RequestAttributeService;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -47,6 +49,7 @@ public class RequestAttributeResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/request-attributes")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<RequestAttribute> createRequestAttribute(@Valid @RequestBody RequestAttribute requestAttribute) throws URISyntaxException {
         log.debug("REST request to save RequestAttribute : {}", requestAttribute);
         if (requestAttribute.getId() != null) {
@@ -68,6 +71,7 @@ public class RequestAttributeResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/request-attributes")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<RequestAttribute> updateRequestAttribute(@Valid @RequestBody RequestAttribute requestAttribute) throws URISyntaxException {
         log.debug("REST request to update RequestAttribute : {}", requestAttribute);
         if (requestAttribute.getId() == null) {
@@ -86,6 +90,7 @@ public class RequestAttributeResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of requestAttributes in body.
      */
     @GetMapping("/request-attributes")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public List<RequestAttribute> getAllRequestAttributes() {
         log.debug("REST request to get all RequestAttributes");
         return requestAttributeService.findAll();
@@ -98,6 +103,7 @@ public class RequestAttributeResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the requestAttribute, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/request-attributes/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<RequestAttribute> getRequestAttribute(@PathVariable Long id) {
         log.debug("REST request to get RequestAttribute : {}", id);
         Optional<RequestAttribute> requestAttribute = requestAttributeService.findOne(id);
@@ -111,6 +117,7 @@ public class RequestAttributeResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/request-attributes/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteRequestAttribute(@PathVariable Long id) {
         log.debug("REST request to delete RequestAttribute : {}", id);
         requestAttributeService.delete(id);
