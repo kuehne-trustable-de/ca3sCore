@@ -101,6 +101,7 @@ public class SchemaUpdateScheduler {
                 PageRequest.of(0, maxRecordsPerTransaction),
                 CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION,
                 "" + CertificateUtil.CURRENT_ATTRIBUTES_VERSION);
+
         LOG.info("{} certificates selected for schema update", updateCertificateList.getNumberOfElements());
 
         int count = 0;
@@ -136,7 +137,11 @@ public class SchemaUpdateScheduler {
 
     public void updateCSRAttributes() {
 
-        List<CSR> updateCSRList = csrRepository.findWithoutAttribute(CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION);
+        Page<CSR> updateCSRList = csrRepository.findWithoutAttribute(
+            PageRequest.of(0, maxRecordsPerTransaction),
+            CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION);
+
+        LOG.info("{} CSRs without version attribute selected for schema update", updateCSRList.getNumberOfElements());
 
         int count = 0;
         for (CSR csr : updateCSRList) {
@@ -213,7 +218,9 @@ public class SchemaUpdateScheduler {
 
     public void updateAcmeOrder() {
 
-        List<AcmeOrder> acmeOrderList = acmeOrderRepository.findPipelineIsNull();
+        Page<AcmeOrder> acmeOrderList = acmeOrderRepository.findPipelineIsNull(PageRequest.of(0, maxRecordsPerTransaction));
+
+        LOG.info("{} ACME Order without pipeline reference selected for schema update", acmeOrderList.getNumberOfElements());
 
         int count = 0;
         for (AcmeOrder acmeOrder : acmeOrderList) {
@@ -245,7 +252,9 @@ public class SchemaUpdateScheduler {
     public void updateACMEAccount() {
 
         Instant now = Instant.now();
-        List<AcmeAccount> acmeAccountList = acmeAccountRepository.findByCreatedOnIsNull();
+        Page<AcmeAccount> acmeAccountList = acmeAccountRepository.findByCreatedOnIsNull(PageRequest.of(0, maxRecordsPerTransaction));
+
+        LOG.info("{} ACME account without 'createdOn'' selected for schema update", acmeAccountList.getNumberOfElements());
 
         int count = 0;
         for (AcmeAccount acmeAccount : acmeAccountList) {

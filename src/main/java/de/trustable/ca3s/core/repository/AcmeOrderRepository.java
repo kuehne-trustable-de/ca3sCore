@@ -5,6 +5,8 @@ import de.trustable.ca3s.core.domain.AcmeOrder;
 import java.time.Instant;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -24,7 +26,7 @@ public interface AcmeOrderRepository extends JpaRepository<AcmeOrder, Long> {
     List<AcmeOrder> findByOrderId(@Param("orderId") long orderId);
 
     @Query(name = "AcmeOrder.findPipelineIsNull")
-    List<AcmeOrder> findPipelineIsNull();
+    Page<AcmeOrder> findPipelineIsNull(Pageable pageable);
 
     @Query(name = "AcmeOrder.countByAccountId")
     long countByAccountId(@Param("accountId") long accountId);
