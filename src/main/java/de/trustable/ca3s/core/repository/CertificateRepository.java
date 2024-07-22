@@ -34,7 +34,8 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
                                              @Param("value") String value);
 
     @Query(name = "Certificate.findByAttributeValueLowerThan")
-    List<Certificate> findByAttributeValueLowerThan(@Param("name") String name,
+    Page<Certificate> findByAttributeValueLowerThan(Pageable pageable,
+                                                    @Param("name") String name,
                                              @Param("value") String value);
 
 
