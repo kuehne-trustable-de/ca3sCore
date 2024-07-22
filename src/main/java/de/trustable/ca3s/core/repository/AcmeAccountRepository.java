@@ -2,6 +2,8 @@ package de.trustable.ca3s.core.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -22,6 +24,6 @@ public interface AcmeAccountRepository extends JpaRepository<AcmeAccount, Long> 
 	List<AcmeAccount> findByPublicKeyHashBase64(@Param("publicKeyHashBase64") String publicKeyHashBase64);
 
   @Query(name = "Account.findByCreatedOnIsNull")
-  List<AcmeAccount> findByCreatedOnIsNull();
+  Page<AcmeAccount> findByCreatedOnIsNull(Pageable pageable);
 
 }
