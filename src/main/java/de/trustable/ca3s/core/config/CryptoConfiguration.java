@@ -51,7 +51,7 @@ public class CryptoConfiguration {
                 .forEach(algs::add);
 
             for( String algo:algs){
-                log.info("provider "+provider.getName()+" support algorithm : " + algo);
+                log.debug("provider "+provider.getName()+" support algorithm : " + algo);
             }
         }
     }
