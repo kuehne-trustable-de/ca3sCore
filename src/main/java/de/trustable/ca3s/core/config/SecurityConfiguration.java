@@ -58,6 +58,7 @@ import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -337,12 +338,12 @@ public class SecurityConfiguration{
             .antMatchers("/publicapi/**").permitAll()
 
 
-            .requestMatchers(forPortAndPath(raPort, "/api/administerRequest")).hasAnyAuthority(AuthoritiesConstants.RA_OFFICER,AuthoritiesConstants.DOMAIN_RA_OFFICER)
-            .requestMatchers(forPortAndPath(adminPort, "/api/administerRequest")).hasAnyAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers( forPortAndPath(new Integer[]{raPort, adminPort}, "/api/administerRequest"))
+              .hasAnyAuthority(AuthoritiesConstants.RA_OFFICER,AuthoritiesConstants.DOMAIN_RA_OFFICER, AuthoritiesConstants.ADMIN)
             .antMatchers("/api/administerRequest").denyAll()
 
-            .requestMatchers(forPortAndPath(raPort, "/api/administerCertificate")).hasAnyAuthority(AuthoritiesConstants.RA_OFFICER,AuthoritiesConstants.DOMAIN_RA_OFFICER)
-            .requestMatchers(forPortAndPath(adminPort, "/api/administerCertificate")).hasAnyAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers( forPortAndPath(new Integer[]{raPort, adminPort}, "/api/administerCertificate"))
+            .hasAnyAuthority(AuthoritiesConstants.RA_OFFICER,AuthoritiesConstants.DOMAIN_RA_OFFICER, AuthoritiesConstants.ADMIN)
             .antMatchers("/api/administerCertificate").denyAll()
 
 
@@ -484,6 +485,32 @@ public class SecurityConfiguration{
     }
 
     /**
+     * Creates a request matcher which only matches requests for a specific local port and path (using an
+     * {@link AntPathRequestMatcher} for the path part).
+     *
+     * @param   portList     the ports to match
+     * @param   pathPattern  the pattern for the path.
+     *
+     * @return  the new request matcher.
+     */
+    private RequestMatcher forPortAndPath(final List<Integer> portList, @Nonnull final String pathPattern) {
+        return new AndRequestMatcher(forPort(portList), new AntPathRequestMatcher(pathPattern));
+    }
+
+    /**
+     * Creates a request matcher which only matches requests for a specific local port and path (using an
+     * {@link AntPathRequestMatcher} for the path part).
+     *
+     * @param   portArr     the ports to match
+     * @param   pathPattern  the pattern for the path.
+     *
+     * @return  the new request matcher.
+     */
+    private RequestMatcher forPortAndPath(final Integer[] portArr, @Nonnull final String pathPattern) {
+        return new AndRequestMatcher(forPort(Arrays.asList(portArr)), new AntPathRequestMatcher(pathPattern));
+    }
+
+    /**
      * Creates a request matcher which only matches requests for a specific local port, path and request method (using
      * an {@link AntPathRequestMatcher} for the path part).
      *
@@ -507,9 +534,29 @@ public class SecurityConfiguration{
      */
     private RequestMatcher forPort(final int port) {
         return (HttpServletRequest request) -> {
-        	boolean result =  (port == 0) || (port == request.getLocalPort());
-        	LOG.debug("checking local port {} against target port {} evaluates to {}", request.getLocalPort(), port, result);
-        	return result;
+            boolean result =  (port == 0) || (port == request.getLocalPort());
+            LOG.debug("checking local port {} against target port {} evaluates to {}", request.getLocalPort(), port, result);
+            return result;
+        };
+    }
+
+    /**
+     * A request matcher which matches just a port list.
+     *
+     * @param   portList the ports to match.
+     *
+     * @return  the new matcher.
+     */
+    private RequestMatcher forPort(final List<Integer> portList) {
+        return (HttpServletRequest request) -> {
+            for( Integer port: portList) {
+                boolean result = (port == 0) || (port == request.getLocalPort());
+                LOG.debug("checking local port {} against target port {} evaluates to {}", request.getLocalPort(), port, result);
+                if(result){
+                    return true;
+                }
+            }
+            return false;
         };
     }
 
