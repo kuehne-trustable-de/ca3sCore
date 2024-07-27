@@ -1,9 +1,11 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.Pipeline;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.PipelineService;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -47,6 +49,7 @@ public class PipelineResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/pipelines")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Pipeline> createPipeline(@Valid @RequestBody Pipeline pipeline) throws URISyntaxException {
         log.debug("REST request to save Pipeline : {}", pipeline);
         if (pipeline.getId() != null) {
@@ -68,6 +71,7 @@ public class PipelineResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/pipelines")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Pipeline> updatePipeline(@Valid @RequestBody Pipeline pipeline) throws URISyntaxException {
         log.debug("REST request to update Pipeline : {}", pipeline);
         if (pipeline.getId() == null) {
@@ -86,6 +90,7 @@ public class PipelineResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of pipelines in body.
      */
     @GetMapping("/pipelines")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public List<Pipeline> getAllPipelines() {
         log.debug("REST request to get all Pipelines");
         return pipelineService.findAll();
@@ -98,6 +103,7 @@ public class PipelineResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the pipeline, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/pipelines/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Pipeline> getPipeline(@PathVariable Long id) {
         log.debug("REST request to get Pipeline : {}", id);
         Optional<Pipeline> pipeline = pipelineService.findOne(id);
@@ -111,6 +117,7 @@ public class PipelineResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/pipelines/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deletePipeline(@PathVariable Long id) {
         log.debug("REST request to delete Pipeline : {}", id);
         pipelineService.delete(id);

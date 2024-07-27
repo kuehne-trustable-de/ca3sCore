@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -59,6 +61,7 @@ public class CertificateResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/certificates")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Certificate> createCertificate(@Valid @RequestBody Certificate certificate) throws URISyntaxException {
         log.debug("REST request to save Certificate : {}", certificate);
         if (certificate.getId() != null) {
@@ -80,6 +83,7 @@ public class CertificateResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/certificates")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Certificate> updateCertificate(@Valid @RequestBody Certificate certificate) throws URISyntaxException {
         log.debug("REST request to update Certificate : {}", certificate);
         if (certificate.getId() == null) {
@@ -100,6 +104,7 @@ public class CertificateResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of certificates in body.
      */
     @GetMapping("/certificates")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<List<Certificate>> getAllCertificates(Pageable pageable) {
         log.debug("REST request to get a page of Certificates");
         Page<Certificate> page = certificateService.findAll(pageable);
@@ -114,6 +119,7 @@ public class CertificateResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the certificate, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/certificates/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Certificate> getCertificate(@PathVariable Long id) {
         log.debug("REST request to get Certificate : {}", id);
         Optional<Certificate> certificate = certificateService.findOne(id);
@@ -127,6 +133,7 @@ public class CertificateResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/certificates/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteCertificate(@PathVariable Long id) {
         log.debug("REST request to delete Certificate : {}", id);
         certificateService.delete(id);

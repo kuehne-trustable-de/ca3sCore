@@ -25,6 +25,8 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
@@ -149,7 +151,7 @@ public class CaCmpConnector {
         cmpClientConfig.setMsgContentType(contenType);
         LOGGER.debug("CMPClientConfig: MsgContentType '{}'", cmpClientConfig.getMsgContentType());
 
-        cmpClientConfig.setCmpAlias(caConnConfig.getSelector());
+        cmpClientConfig.setCmpAlias(URLEncoder.encode(caConnConfig.getSelector(), StandardCharsets.UTF_8).replaceAll("\\+", "%20"));
         LOGGER.debug("CMPClientConfig: CmpAlias '{}'", cmpClientConfig.getCmpAlias());
 
         String certIssuer = caConnectorConfigUtil.getCAConnectorConfigAttribute(caConnConfig, CaConnectorConfigUtil.ATT_ISSUER_NAME, null);

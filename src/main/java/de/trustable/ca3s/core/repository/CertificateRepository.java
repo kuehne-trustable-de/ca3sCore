@@ -37,31 +37,34 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
                                              @Param("value") String value);
 
     @Query(name = "Certificate.findByAttributeValueLowerThan")
-    List<Certificate> findByAttributeValueLowerThan(@Param("name") String name,
-                                                    @Param("value") String value);
+    Page<Certificate> findByAttributeValueLowerThan(Pageable pageable,
+                                                    @Param("name") String name,
+                                             @Param("value") String value);
 
 
-    @Query(name = "Certificate.findBySearchTermNamed2")
-    Page<Certificate> findBySearchTermNamed2(
-        Pageable pageable,
-        @Param("name1") String name1,
-        @Param("value1") String value1,
-        @Param("name2") String name2,
-        @Param("value2") String value2);
 
-    @Query(name = "Certificate.findBySearchTermNamed2")
-    List<Certificate> findBySearchTermNamed2(
-        @Param("name1") String name1,
-        @Param("value1") String value1,
-        @Param("name2") String name2,
-        @Param("value2") String value2);
+	  @Query(name = "Certificate.findBySearchTermNamed2")
+	  Page<Certificate> findBySearchTermNamed2(
+			  Pageable pageable,
+			  @Param("name1") String name1,
+		      @Param("value1") String value1,
+			  @Param("name2") String name2,
+			  @Param("value2") String value2);
 
-    @Query(name = "Certificate.findByTermNamed2")
-    List<Certificate> findByTermNamed2(
-        @Param("name1") String name1,
-        @Param("value1") String value1,
-        @Param("name2") String name2,
-        @Param("value2") String value2);
+	  @Query(name = "Certificate.findBySearchTermNamed2")
+	  List<Certificate> findBySearchTermNamed2(
+			  @Param("name1") String name1,
+		      @Param("value1") String value1,
+			  @Param("name2") String name2,
+			  @Param("value2") String value2);
+
+	  @Query(name = "Certificate.findByTermNamed2")
+	  List<Certificate> findByTermNamed2(
+			  @Param("name1") String name1,
+		      @Param("value1") String value1,
+			  @Param("name2") String name2,
+			  @Param("value2") String value2);
+
 
     @Query(name = "Certificate.findActiveByAttributeValue")
     List<Certificate> findActiveByAttributeValue(@Param("name") String name,

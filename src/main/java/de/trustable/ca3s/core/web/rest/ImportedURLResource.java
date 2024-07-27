@@ -1,9 +1,11 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.ImportedURL;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.ImportedURLService;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -47,6 +49,7 @@ public class ImportedURLResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/imported-urls")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<ImportedURL> createImportedURL(@Valid @RequestBody ImportedURL importedURL) throws URISyntaxException {
         log.debug("REST request to save ImportedURL : {}", importedURL);
         if (importedURL.getId() != null) {
@@ -68,6 +71,7 @@ public class ImportedURLResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/imported-urls")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<ImportedURL> updateImportedURL(@Valid @RequestBody ImportedURL importedURL) throws URISyntaxException {
         log.debug("REST request to update ImportedURL : {}", importedURL);
         if (importedURL.getId() == null) {
@@ -86,6 +90,7 @@ public class ImportedURLResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of importedURLS in body.
      */
     @GetMapping("/imported-urls")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public List<ImportedURL> getAllImportedURLS() {
         log.debug("REST request to get all ImportedURLS");
         return importedURLService.findAll();
@@ -98,6 +103,7 @@ public class ImportedURLResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the importedURL, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/imported-urls/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<ImportedURL> getImportedURL(@PathVariable Long id) {
         log.debug("REST request to get ImportedURL : {}", id);
         Optional<ImportedURL> importedURL = importedURLService.findOne(id);
@@ -111,6 +117,7 @@ public class ImportedURLResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/imported-urls/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteImportedURL(@PathVariable Long id) {
         log.debug("REST request to delete ImportedURL : {}", id);
         importedURLService.delete(id);

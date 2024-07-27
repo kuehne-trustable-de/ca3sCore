@@ -58,6 +58,7 @@ import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -336,22 +337,57 @@ public class SecurityConfiguration{
             .antMatchers("/saml/**").permitAll()
             .antMatchers("/publicapi/**").permitAll()
 
-            .requestMatchers(forPortAndPath(adminPort, "/api/ca-connector-configs")).hasAuthority(AuthoritiesConstants.ADMIN)
 
-            .requestMatchers(forPortAndPath(raPort, "/api/administerRequest")).hasAnyAuthority(AuthoritiesConstants.RA_OFFICER,AuthoritiesConstants.DOMAIN_RA_OFFICER)
-            .requestMatchers(forPortAndPath(adminPort, "/api/administerRequest")).hasAnyAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers( forPortAndPath(new Integer[]{raPort, adminPort}, "/api/administerRequest"))
+              .hasAnyAuthority(AuthoritiesConstants.RA_OFFICER,AuthoritiesConstants.DOMAIN_RA_OFFICER, AuthoritiesConstants.ADMIN)
             .antMatchers("/api/administerRequest").denyAll()
 
-            .requestMatchers(forPortAndPath(raPort, "/api/administerCertificate")).hasAnyAuthority(AuthoritiesConstants.RA_OFFICER,AuthoritiesConstants.DOMAIN_RA_OFFICER)
-            .requestMatchers(forPortAndPath(adminPort, "/api/administerCertificate")).hasAnyAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers( forPortAndPath(new Integer[]{raPort, adminPort}, "/api/administerCertificate"))
+            .hasAnyAuthority(AuthoritiesConstants.RA_OFFICER,AuthoritiesConstants.DOMAIN_RA_OFFICER, AuthoritiesConstants.ADMIN)
             .antMatchers("/api/administerCertificate").denyAll()
 
-            .requestMatchers(forPortAndPath(adminPort, "/api/**")).hasAuthority(AuthoritiesConstants.ADMIN)
+            // Check this block for usefulness of endpoints
+            .antMatchers("/api/cockpit/**").permitAll()
+            .antMatchers("/api/tasklist/**").permitAll()
+            .antMatchers("/api/engine/**").permitAll()
+            .antMatchers("/api/executeProcess/**").permitAll()
 
-            // check on method level
             .antMatchers("/api/request-proxy-configs/remote-config/*").permitAll()
             .antMatchers("/api/acme-challenges/pending/request-proxy-configs/*").permitAll()
             .antMatchers("/api/acme-challenges/validation").permitAll()
+
+            .requestMatchers(forPortAndPath(adminPort, "/api/acme-accounts")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/acme-authorizations")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/acme-challenges")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/acme-contacts")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/acme-nonces")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/acme-orders")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/certificate-attributes")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/certificates")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/crl-expiration-notifications")).hasAuthority(AuthoritiesConstants.ADMIN)
+
+            .requestMatchers(forPortAndPath(adminPort, "/api/csr-attributes")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/csrs")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/pipeline-attributes")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/pipelines")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/rdn-attributes")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/rdns")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/request-attributes")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/request-attribute-values")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/timed-element-notifications")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/tenants")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/tenants/*")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/timed-element-notifications")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/timed-element-notifications/*")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/request-proxy-configs")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/crl-expiration-notifications/*")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/bpmn-process-infos")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/audit-traces")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/algorithm-restrictions")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/algorithm-restrictions/*")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/ca-connector-configs")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .requestMatchers(forPortAndPath(adminPort, "/api/ca-connector-configs/*")).hasAuthority(AuthoritiesConstants.ADMIN)
+
 
             .antMatchers("/api/acme-accounts").denyAll()
             .antMatchers("/api/acme-authorizations").denyAll()
@@ -375,6 +411,7 @@ public class SecurityConfiguration{
             .antMatchers("/api/request-attribute-values").denyAll()
             .antMatchers("/api/timed-element-notifications").denyAll()
 
+
             .requestMatchers(forPortAndPath(acmePort, "/acme/**")).permitAll()
             .antMatchers("/acme/**").denyAll()
 
@@ -384,13 +421,6 @@ public class SecurityConfiguration{
             .requestMatchers(forPortAndPath(scepPort, "/ca3sScep/**")).permitAll()
             .antMatchers("/ca3sScep/**").denyAll()
 
-            .antMatchers("/api/preference/1").permitAll() // allow general properties
-            .antMatchers("/api/cockpit/**").permitAll()
-            .antMatchers("/api/tasklist/**").permitAll()
-            .antMatchers("/api/engine/**").permitAll()
-            .antMatchers("/api/executeProcess/**").permitAll()
-
-            .antMatchers("/api/**").authenticated()
             .antMatchers("/websocket/tracker").hasAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/websocket/**").permitAll()
             .antMatchers("/management/loggers").permitAll()
@@ -405,7 +435,13 @@ public class SecurityConfiguration{
 
             .requestMatchers(forPortAndPath(adminPort, "/management/**")).hasAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/management/**").denyAll()
-        .and()
+
+//            .antMatchers("/api/uploadContent").permitAll() // allow general properties
+//            .antMatchers("/api/preference/1").permitAll() // allow general properties
+
+            .antMatchers("/api/**").authenticated()
+
+            .and()
             .httpBasic()
         .and().authenticationManager(authenticationManager)
         .apply(securityConfigurerAdapter());
@@ -447,6 +483,32 @@ public class SecurityConfiguration{
     }
 
     /**
+     * Creates a request matcher which only matches requests for a specific local port and path (using an
+     * {@link AntPathRequestMatcher} for the path part).
+     *
+     * @param   portList     the ports to match
+     * @param   pathPattern  the pattern for the path.
+     *
+     * @return  the new request matcher.
+     */
+    private RequestMatcher forPortAndPath(final List<Integer> portList, @Nonnull final String pathPattern) {
+        return new AndRequestMatcher(forPort(portList), new AntPathRequestMatcher(pathPattern));
+    }
+
+    /**
+     * Creates a request matcher which only matches requests for a specific local port and path (using an
+     * {@link AntPathRequestMatcher} for the path part).
+     *
+     * @param   portArr     the ports to match
+     * @param   pathPattern  the pattern for the path.
+     *
+     * @return  the new request matcher.
+     */
+    private RequestMatcher forPortAndPath(final Integer[] portArr, @Nonnull final String pathPattern) {
+        return new AndRequestMatcher(forPort(Arrays.asList(portArr)), new AntPathRequestMatcher(pathPattern));
+    }
+
+    /**
      * Creates a request matcher which only matches requests for a specific local port, path and request method (using
      * an {@link AntPathRequestMatcher} for the path part).
      *
@@ -470,9 +532,29 @@ public class SecurityConfiguration{
      */
     private RequestMatcher forPort(final int port) {
         return (HttpServletRequest request) -> {
-        	boolean result =  (port == 0) || (port == request.getLocalPort());
-        	LOG.debug("checking local port {} against target port {} evaluates to {}", request.getLocalPort(), port, result);
-        	return result;
+            boolean result =  (port == 0) || (port == request.getLocalPort());
+            LOG.debug("checking local port {} against target port {} evaluates to {}", request.getLocalPort(), port, result);
+            return result;
+        };
+    }
+
+    /**
+     * A request matcher which matches just a port list.
+     *
+     * @param   portList the ports to match.
+     *
+     * @return  the new matcher.
+     */
+    private RequestMatcher forPort(final List<Integer> portList) {
+        return (HttpServletRequest request) -> {
+            for( Integer port: portList) {
+                boolean result = (port == 0) || (port == request.getLocalPort());
+                LOG.debug("checking local port {} against target port {} evaluates to {}", request.getLocalPort(), port, result);
+                if(result){
+                    return true;
+                }
+            }
+            return false;
         };
     }
 

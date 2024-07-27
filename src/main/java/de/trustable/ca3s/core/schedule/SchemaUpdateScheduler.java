@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core.schedule;
 
-import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.repository.*;
@@ -12,7 +11,9 @@ import org.bouncycastle.util.encoders.DecoderException;
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.repository.query.Param;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -22,10 +23,10 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
-import java.security.cert.*;
+import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.List;
 
 /**
  *
@@ -38,7 +39,7 @@ public class SchemaUpdateScheduler {
 
     transient Logger LOG = LoggerFactory.getLogger(SchemaUpdateScheduler.class);
 
-    final static int MAX_RECORDS_PER_TRANSACTION = 10000;
+    final private int maxRecordsPerTransaction;
 
     final private CertificateRepository certificateRepo;
     final private CertificateUtil certUtil;
@@ -53,9 +54,11 @@ public class SchemaUpdateScheduler {
     final private PipelineRepository pipelineRepository;
 
     final private AuditService auditService;
-    final private AuditTraceRepository auditServiceRository;
+    final private AuditTraceRepository auditServiceRepository;
 
-    public SchemaUpdateScheduler(CertificateRepository certificateRepo, CertificateUtil certUtil, CSRRepository csrRepository, CsrAttributeRepository csrAttributeRepository, CSRUtil csrUtil, AcmeOrderRepository acmeOrderRepository, AcmeAccountRepository acmeAccountRepository, PipelineRepository pipelineRepository, AuditService auditService, AuditTraceRepository auditServiceRository) {
+    public SchemaUpdateScheduler(@Value("${ca3s.batch.maxRecordsPerTransaction:1000}") int maxRecordsPerTransaction,
+                                 CertificateRepository certificateRepo, CertificateUtil certUtil, CSRRepository csrRepository, CsrAttributeRepository csrAttributeRepository, CSRUtil csrUtil, AcmeOrderRepository acmeOrderRepository, AcmeAccountRepository acmeAccountRepository, PipelineRepository pipelineRepository, AuditService auditService, AuditTraceRepository auditServiceRepository) {
+        this.maxRecordsPerTransaction = maxRecordsPerTransaction;
         this.certificateRepo = certificateRepo;
         this.certUtil = certUtil;
         this.csrRepository = csrRepository;
@@ -65,13 +68,13 @@ public class SchemaUpdateScheduler {
         this.acmeAccountRepository = acmeAccountRepository;
         this.pipelineRepository = pipelineRepository;
         this.auditService = auditService;
-        this.auditServiceRository = auditServiceRository;
+        this.auditServiceRepository = auditServiceRepository;
     }
 
 
     //    @Scheduled(fixedDelay = 3600000)
     @Scheduled(fixedDelay = 600000)
-    public void performSchemaApdates() {
+    public void performSchemaUpdates() {
 
         Instant now = Instant.now();
         updateCertificateAttributes();
@@ -93,8 +96,13 @@ public class SchemaUpdateScheduler {
 
     public void updateCertificateAttributes() {
 
-        List<Certificate> updateCertificateList = certificateRepo.findByAttributeValueLowerThan(CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION,
-            "" + CertificateUtil.CURRENT_ATTRIBUTES_VERSION);
+        Page<Certificate> updateCertificateList =
+            certificateRepo.findByAttributeValueLowerThan(
+                PageRequest.of(0, maxRecordsPerTransaction),
+                CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION,
+                "" + CertificateUtil.CURRENT_ATTRIBUTES_VERSION);
+
+        LOG.info("{} certificates selected for schema update", updateCertificateList.getNumberOfElements());
 
         int count = 0;
         for (Certificate cert : updateCertificateList) {
@@ -116,8 +124,8 @@ public class SchemaUpdateScheduler {
                 LOG.error("problem with attribute schema update for certificate id " + cert.getId(), e);
             }
 
-            if (count++ > MAX_RECORDS_PER_TRANSACTION) {
-                LOG.info("limited certificate validity processing to {} per call", MAX_RECORDS_PER_TRANSACTION);
+            if (count++ > maxRecordsPerTransaction) {
+                LOG.info("limited certificate validity processing to {} per call", maxRecordsPerTransaction);
                 break;
             }
         }
@@ -129,7 +137,11 @@ public class SchemaUpdateScheduler {
 
     public void updateCSRAttributes() {
 
-        List<CSR> updateCSRList = csrRepository.findWithoutAttribute(CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION);
+        Page<CSR> updateCSRList = csrRepository.findWithoutAttribute(
+            PageRequest.of(0, maxRecordsPerTransaction),
+            CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION);
+
+        LOG.info("{} CSRs without version attribute selected for schema update", updateCSRList.getNumberOfElements());
 
         int count = 0;
         for (CSR csr : updateCSRList) {
@@ -144,8 +156,8 @@ public class SchemaUpdateScheduler {
                 LOG.error("problem with attribute schema update for csr id " + csr.getId(), e);
             }
 
-            if (count++ > MAX_RECORDS_PER_TRANSACTION) {
-                LOG.info("limited CSR schema processing to {} per call", MAX_RECORDS_PER_TRANSACTION);
+            if (count++ > maxRecordsPerTransaction) {
+                LOG.info("limited CSR schema processing to {} per call", maxRecordsPerTransaction);
                 break;
             }
         }
@@ -153,21 +165,24 @@ public class SchemaUpdateScheduler {
             auditService.saveAuditTrace(auditService.createAuditTraceCertificateSchemaUpdated(count, CsrAttribute.CURRENT_ATTRIBUTES_VERSION));
         }
 
-        List<CSR> version1CSRList = csrRepository.findByAttributeValue(CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION, "1");
+        Page<CSR> version1CSRList = csrRepository.findByAttributeValue(
+            PageRequest.of(0, maxRecordsPerTransaction),
+            CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION, "1");
+
         count = 0;
         for (CSR csr : version1CSRList) {
             LOG.info("checking audit for csr id {}", csr.getId());
             csrUtil.setCSRAttributeVersion(csr, "" + CsrAttribute.CURRENT_ATTRIBUTES_VERSION);
 //            csrAttributeRepository.saveAll(csr.getCsrAttributes());
-            List<AuditTrace> auditTraceList =  auditServiceRository.findByCsrAndTemplate( csr, "CSR_ACCEPTED");
+            List<AuditTrace> auditTraceList =  auditServiceRepository.findByCsrAndTemplate( csr, "CSR_ACCEPTED");
             if( !auditTraceList.isEmpty()){
                 csr.setAcceptedBy( auditTraceList.get(0).getActorName());
                 LOG.info("csr id {} accepted by '{}'", csr.getId(), csr.getAcceptedBy());
             }
             csrRepository.save(csr);
 
-            if (count++ > MAX_RECORDS_PER_TRANSACTION) {
-                LOG.info("limited CSR 'accepted by' processing to {} per call", MAX_RECORDS_PER_TRANSACTION);
+            if (count++ > maxRecordsPerTransaction) {
+                LOG.info("limited CSR 'accepted by' processing to {} per call", maxRecordsPerTransaction);
                 break;
             }
 
@@ -206,8 +221,9 @@ public class SchemaUpdateScheduler {
 
     public void updateAcmeOrder() {
 
-        Instant now = Instant.now();
-        List<AcmeOrder> acmeOrderList = acmeOrderRepository.findPipelineIsNull();
+        Page<AcmeOrder> acmeOrderList = acmeOrderRepository.findPipelineIsNull(PageRequest.of(0, maxRecordsPerTransaction));
+
+        LOG.info("{} ACME Order without pipeline reference selected for schema update", acmeOrderList.getNumberOfElements());
 
         int count = 0;
         for (AcmeOrder acmeOrder : acmeOrderList) {
@@ -221,8 +237,8 @@ public class SchemaUpdateScheduler {
                     LOG.info("realm and pipeline updated for acme order {} ", acmeOrder);
                 }
 
-                if (count++ > MAX_RECORDS_PER_TRANSACTION) {
-                    LOG.info("limited AcmeOrder processing to {} per call", MAX_RECORDS_PER_TRANSACTION);
+                if (count++ > maxRecordsPerTransaction) {
+                    LOG.info("limited AcmeOrder processing to {} per call", maxRecordsPerTransaction);
                     break;
                 }
             }else{
@@ -239,7 +255,9 @@ public class SchemaUpdateScheduler {
     public void updateACMEAccount() {
 
         Instant now = Instant.now();
-        List<AcmeAccount> acmeAccountList = acmeAccountRepository.findByCreatedOnIsNull();
+        Page<AcmeAccount> acmeAccountList = acmeAccountRepository.findByCreatedOnIsNull(PageRequest.of(0, maxRecordsPerTransaction));
+
+        LOG.info("{} ACME account without 'createdOn'' selected for schema update", acmeAccountList.getNumberOfElements());
 
         int count = 0;
         for (AcmeAccount acmeAccount : acmeAccountList) {
@@ -256,8 +274,8 @@ public class SchemaUpdateScheduler {
             acmeAccountRepository.save(acmeAccount);
             LOG.info("CreatedOn date updated for acme account {} ", acmeAccount.getAccountId());
 
-            if (count++ > MAX_RECORDS_PER_TRANSACTION) {
-                LOG.info("limited AcmeAccount processing to {} per call", MAX_RECORDS_PER_TRANSACTION);
+            if (count++ > maxRecordsPerTransaction) {
+                LOG.info("limited AcmeAccount processing to {} per call", maxRecordsPerTransaction);
                 break;
             }
         }

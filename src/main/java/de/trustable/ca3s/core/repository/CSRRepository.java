@@ -6,6 +6,8 @@ import de.trustable.ca3s.core.domain.Certificate;
 import java.time.Instant;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -36,10 +38,10 @@ public interface CSRRepository extends JpaRepository<CSR, Long> {
     List<CSR> findPendingGroupedByDay(@Param("after") Instant after, @Param("before") Instant before);
 
     @Query(name = "CSR.findWithoutAttribute")
-    List<CSR> findWithoutAttribute(@Param("name") String name);
+    Page<CSR> findWithoutAttribute(Pageable pageable, @Param("name") String name);
 
     @Query(name = "CSR.findByAttributeValue")
-    List<CSR> findByAttributeValue(@Param("name") String name, @Param("value") String value);
+    Page<CSR> findByAttributeValue(Pageable pageable,@Param("name") String name, @Param("value") String value);
 
     @Query(name = "CSR.groupIssuedByIssuanceMonth")
     List<Object[]> groupIssuedByIssuanceMonth(@Param("after") Instant after);

@@ -40,6 +40,8 @@ public class AccessRestrictionsIT {
     int serverPort; // random port chosen by spring test
 
     static ArrayList<String> knownAnonymousResources = new ArrayList<>();
+    static ArrayList<String> knownUserResources = new ArrayList<>();
+    static ArrayList<String> knownRaResources = new ArrayList<>();
 
     @BeforeAll
     public static void setUpBeforeClass() {
@@ -67,19 +69,40 @@ public class AccessRestrictionsIT {
         knownAnonymousResources.add("get /acme/{realm}/cert/{certId}");
         knownAnonymousResources.add("get /acme/{realm}/authorization/{authorizationId}");
         knownAnonymousResources.add("get /api/activate");
+
+        knownUserResources.add("put /api/users");
+        knownUserResources.add("post /api/users");
+        knownUserResources.add("put /api/user-preferences");
+        knownUserResources.add("post /api/user-preferences");
+        knownUserResources.add("put /api/preference/{userId}");
+        knownUserResources.add("post /api/withdrawOwnRequest");
+        knownUserResources.add("post /api/withdrawOwnCertificate");
+        knownUserResources.add("post /api/uploadContent");
+        knownUserResources.add("post /api/selfAdministerRequest");
+        knownUserResources.add("post /api/selfAdministerCertificate");
+        knownUserResources.add("post /api/account/change-password");
+        knownUserResources.add("post /api/exception-translator-test/method-argument");
+
+        knownRaResources.add("post /api/administerRequest");
+        knownRaResources.add("post /api/administerCertificate");
+
+
     }
 
     @Test
-    public void checkAccessrestriction() throws IOException {
+    public void checkAccessRestriction() throws IOException {
 
-        List<String> acceptedList = new ArrayList<>();
+        List<String> acceptedAnonymousList = new ArrayList<>();
+        List<String> acceptedUserAuthenticatedList = new ArrayList<>();
+        List<String> acceptedRaAuthenticatedList = new ArrayList<>();
 
-        URL oasUrl = new URL("http", "localhost", serverPort, "/v3/api-docs");
+        String userToken = getLoginToken("user", "user");
+        String raToken = getLoginToken("ra", "s3cr3t");
+
+            URL oasUrl = new URL("http", "localhost", serverPort, "/v3/api-docs");
         LOG.debug("Opening connection to  : " + oasUrl);
 
         RestTemplate restTemplate = new RestTemplate();
-
-//        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 
         ResponseEntity<String> oasContent = restTemplate.getForEntity(oasUrl.toString(), String.class);
 
@@ -94,23 +117,45 @@ public class AccessRestrictionsIT {
                 for( Map.Entry<String, JsonElement> entryMethod: objectMethod.entrySet()){
 
                     LOG.info( "path element found: {} / {}", entryPath.getKey(), entryMethod.getKey());
-                    checkResourceAccessability(acceptedList, entryPath.getKey(), entryMethod.getKey());
+                    checkResourceAccessability(acceptedAnonymousList, entryPath.getKey(), entryMethod.getKey(), null);
+                    checkResourceAccessability(acceptedUserAuthenticatedList, entryPath.getKey(), entryMethod.getKey(), userToken);
+                    checkResourceAccessability(acceptedRaAuthenticatedList, entryPath.getKey(), entryMethod.getKey(), raToken);
                 }
             }
         }
 
-        acceptedList.removeAll(knownAnonymousResources);
+        acceptedAnonymousList.removeAll(knownAnonymousResources);
+        acceptedUserAuthenticatedList.removeAll(knownAnonymousResources);
+        acceptedUserAuthenticatedList.removeAll(knownUserResources);
 
-        for(String resource: acceptedList){
-            LOG.warn("### Resource accessible: " + resource);
+        acceptedRaAuthenticatedList.removeAll(knownAnonymousResources);
+        acceptedRaAuthenticatedList.removeAll(knownUserResources);
+        acceptedRaAuthenticatedList.removeAll(knownRaResources);
+
+        for(String resource: acceptedAnonymousList){
+            LOG.warn("### Resource accessible anonymously : " + resource);
         }
 
-        Assert.assertEquals("no anonymously accessable resources expected", 0, acceptedList.size());
+        for(String resource: acceptedUserAuthenticatedList){
+            LOG.warn("+++ Resource accessible as user : " + resource);
+        }
+
+        for(String resource: acceptedRaAuthenticatedList){
+            LOG.warn("+++ Resource accessible as ra : " + resource);
+        }
+
+        Assert.assertEquals("no anonymously accessible resources expected", 0, acceptedAnonymousList.size());
+        Assert.assertEquals("no user accessible resources expected", 0, acceptedUserAuthenticatedList.size());
+        Assert.assertEquals("no ra accessible resources expected", 0, acceptedRaAuthenticatedList.size());
     }
 
-    private void checkResourceAccessability(List<String> acceptedList, String path, String method) {
+    private void checkResourceAccessability(List<String> acceptedList,
+                                            String path,
+                                            String method,
+                                            String authenticationToken) {
 
         String effectivePath = path.replace("{requestProxyId}", "1")
+            .replace("{id}", "1")
             .replace("{", "").replace("}", "");
         try {
             URL oasUrl = new URL("http", "localhost", serverPort, effectivePath);
@@ -119,6 +164,10 @@ public class AccessRestrictionsIT {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
+            if( authenticationToken != null){
+                headers.setBearerAuth(authenticationToken);
+            }
+
             HttpEntity<String> request = new HttpEntity<>("{}",headers);
 
             if ("get".equalsIgnoreCase(method)) {
@@ -138,6 +187,9 @@ public class AccessRestrictionsIT {
             }
 
 
+        }catch( HttpClientErrorException.Forbidden forbidden ){
+            // as expected
+            LOG.info("resource {} / {} rejected", effectivePath, method );
         }catch( HttpClientErrorException.Unauthorized unauthorized ){
             // as expected
             LOG.info("resource {} / {} rejected", effectivePath, method );
@@ -151,6 +203,8 @@ public class AccessRestrictionsIT {
             LOG.warn("HTTP client problem", clientErrorException);
         }catch(MalformedURLException malformedURLException){
             LOG.warn("problem with URL", malformedURLException);
+        }catch(Throwable throwable){
+            LOG.warn("caught throwable: ", throwable);
         }
 
     }
@@ -158,5 +212,23 @@ public class AccessRestrictionsIT {
     private void checkResponse(ResponseEntity<String> responseContent, String effectivePath, String method) {
 
         LOG.info( "unauthenticated status {} for method: {} / path {}", responseContent.getStatusCodeValue(), method, effectivePath);
+    }
+
+    private String getLoginToken(String user, String password) throws MalformedURLException {
+
+        URL oasUrl = new URL("http", "localhost", serverPort, "/api/authenticate");
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> request = new HttpEntity<>("{\"username\":\"" + user + "\",\"password\":\""+password+"\",\"rememberMe\":null}\n",headers);
+        ResponseEntity<String> responseContent = restTemplate.postForEntity(oasUrl.toString(), request, String.class);
+
+        List<String> bearerTokenList = responseContent.getHeaders().get("Authorization");
+        if(bearerTokenList  != null && !bearerTokenList.isEmpty()){
+            return bearerTokenList.get(0).substring(7);
+        }
+        return null;
     }
 }

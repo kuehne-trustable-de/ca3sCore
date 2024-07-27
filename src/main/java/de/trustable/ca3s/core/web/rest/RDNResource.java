@@ -1,9 +1,11 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.RDN;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.RDNService;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -46,6 +48,7 @@ public class RDNResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/rdns")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<RDN> createRDN(@RequestBody RDN rDN) throws URISyntaxException {
         log.debug("REST request to save RDN : {}", rDN);
         if (rDN.getId() != null) {
@@ -67,6 +70,7 @@ public class RDNResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/rdns")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<RDN> updateRDN(@RequestBody RDN rDN) throws URISyntaxException {
         log.debug("REST request to update RDN : {}", rDN);
         if (rDN.getId() == null) {
@@ -85,6 +89,7 @@ public class RDNResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of rDNS in body.
      */
     @GetMapping("/rdns")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public List<RDN> getAllRDNS() {
         log.debug("REST request to get all RDNS");
         return rDNService.findAll();
@@ -97,6 +102,7 @@ public class RDNResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the rDN, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/rdns/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<RDN> getRDN(@PathVariable Long id) {
         log.debug("REST request to get RDN : {}", id);
         Optional<RDN> rDN = rDNService.findOne(id);
@@ -110,6 +116,7 @@ public class RDNResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/rdns/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteRDN(@PathVariable Long id) {
         log.debug("REST request to delete RDN : {}", id);
         rDNService.delete(id);

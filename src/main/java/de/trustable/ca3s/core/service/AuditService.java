@@ -848,14 +848,15 @@ public class AuditService {
         String msg = "";
         String content = "";
 
-        if(attributeName != null) {
+        if(oldVal != null || newVal != null) {
             msg = limitAndEscapeContent(attributeName, 30) ;
             content = limitAndEscapeContent(attributeName, 50) ;
-        }
 
-        if(oldVal != null || newVal != null) {
             msg += "," + limitAndEscapeContent(oldVal, 100) + "," + limitAndEscapeContent(newVal, 100);
             content += "," + limitAndEscapeContent(oldVal, 1000) + "," + limitAndEscapeContent(newVal, 1000);
+        }else if(attributeName != null) {
+            msg = limitAndEscapeContent(attributeName, 100) ;
+            content = limitAndEscapeContent(attributeName, 1000) ;
         }
 
         Map<String,Object> eventData = new HashMap<>();

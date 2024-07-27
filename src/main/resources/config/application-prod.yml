@@ -138,7 +138,7 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
 
-  # the spring SAML support requires these settings
+  # 2023: the spring SAML support requires these settings
   # validate the need after a spring security update
   main:
     allow-bean-definition-overriding: true

@@ -90,6 +90,7 @@ public class PipelineAttributeResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of pipelineAttributes in body.
      */
     @GetMapping("/pipeline-attributes")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public List<PipelineAttribute> getAllPipelineAttributes() {
         log.debug("REST request to get all PipelineAttributes");
         return pipelineAttributeService.findAll();
@@ -102,6 +103,7 @@ public class PipelineAttributeResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the pipelineAttribute, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/pipeline-attributes/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<PipelineAttribute> getPipelineAttribute(@PathVariable Long id) {
         log.debug("REST request to get PipelineAttribute : {}", id);
         Optional<PipelineAttribute> pipelineAttribute = pipelineAttributeService.findOne(id);

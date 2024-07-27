@@ -4,6 +4,8 @@ import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.repository.CertificateAttributeRepository;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
+import org.springframework.security.access.prepost.PreAuthorize;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -49,6 +51,7 @@ public class CertificateAttributeResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/certificate-attributes")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<CertificateAttribute> createCertificateAttribute(@Valid @RequestBody CertificateAttribute certificateAttribute) throws URISyntaxException {
         log.debug("REST request to save CertificateAttribute : {}", certificateAttribute);
         if (certificateAttribute.getId() != null) {
@@ -71,6 +74,7 @@ public class CertificateAttributeResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/certificate-attributes")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<CertificateAttribute> updateCertificateAttribute(@Valid @RequestBody CertificateAttribute certificateAttribute) throws URISyntaxException {
         log.debug("REST request to update CertificateAttribute : {}", certificateAttribute);
         if (certificateAttribute.getId() == null) {
@@ -89,6 +93,7 @@ public class CertificateAttributeResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of certificateAttributes in body.
      */
     @GetMapping("/certificate-attributes")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public List<CertificateAttribute> getAllCertificateAttributes() {
         log.debug("REST request to get all CertificateAttributes");
         return certificateAttributeRepository.findAll();
@@ -101,6 +106,7 @@ public class CertificateAttributeResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the certificateAttribute, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/certificate-attributes/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<CertificateAttribute> getCertificateAttribute(@PathVariable Long id) {
         log.debug("REST request to get CertificateAttribute : {}", id);
         Optional<CertificateAttribute> certificateAttribute = certificateAttributeRepository.findById(id);
@@ -114,6 +120,7 @@ public class CertificateAttributeResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/certificate-attributes/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteCertificateAttribute(@PathVariable Long id) {
         log.debug("REST request to delete CertificateAttribute : {}", id);
         certificateAttributeRepository.deleteById(id);

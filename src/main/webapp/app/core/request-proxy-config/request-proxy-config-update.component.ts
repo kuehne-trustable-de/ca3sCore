@@ -53,7 +53,7 @@ export default class RequestProxyConfigUpdate extends Vue {
         .update(this.requestProxyConfig)
         .then(param => {
           this.isSaving = false;
-          this.$router.go(-1);
+          this.$router.push('/request-proxy-config');
           const message = this.$t('ca3SApp.requestProxyConfig.updated', { param: param.id });
           this.alertService().showAlert(message, 'info');
         });
@@ -62,7 +62,7 @@ export default class RequestProxyConfigUpdate extends Vue {
         .create(this.requestProxyConfig)
         .then(param => {
           this.isSaving = false;
-          this.$router.go(-1);
+          this.$router.push('/request-proxy-config');
           const message = this.$t('ca3SApp.requestProxyConfig.created', { param: param.id });
           this.alertService().showAlert(message, 'success');
         });

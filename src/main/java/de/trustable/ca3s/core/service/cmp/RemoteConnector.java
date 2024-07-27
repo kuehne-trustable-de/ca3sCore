@@ -108,7 +108,6 @@ public class RemoteConnector implements RemoteTargetHandler {
                     conTLS.setHostnameVerifier(new HostnameVerifier() {
                         public boolean verify(String hostname, SSLSession session) {
                             LOGGER.debug("disabledHostNameVerifier '{}' ", hostname);
-
                             return true;
                         }
                     });
@@ -174,3 +173,4 @@ public class RemoteConnector implements RemoteTargetHandler {
 	}
 
 }
+

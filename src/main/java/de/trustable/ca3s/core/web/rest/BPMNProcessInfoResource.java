@@ -90,6 +90,7 @@ public class BPMNProcessInfoResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of bPMNProcessInfos in body.
      */
     @GetMapping("/bpmn-process-infos")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public List<BPMNProcessInfo> getAllBPMNProcessInfos() {
         log.debug("REST request to get all BPMNProcessInfos");
         return bPMNProcessInfoService.findAll();
