@@ -7,6 +7,7 @@ import de.trustable.ca3s.core.domain.Tenant;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.repository.TenantRepository;
 
+import javax.persistence.Column;
 import javax.validation.constraints.*;
 import java.time.Instant;
 import java.util.Optional;
@@ -59,6 +60,12 @@ public class UserDTO {
 
     private Long tenantId;
 
+    private Integer failedLogins;
+
+    private Instant blockedUntilDate = null;
+
+    private Instant credentialsValidToDate = null;
+
     public UserDTO() {
         // Empty constructor needed for Jackson.
     }
@@ -90,6 +97,11 @@ public class UserDTO {
         this.lastModifiedBy = user.getLastModifiedBy();
         this.lastModifiedDate = user.getLastModifiedDate();
         this.isManagedExternally = user.isManagedExternally();
+
+        this.failedLogins = user.getFailedLogins();
+        this.blockedUntilDate = user.getBlockedUntilDate();
+        this.credentialsValidToDate = user.getCredentialsValidToDate();
+
         this.authorities = user.getAuthorities().stream()
             .map(Authority::getName)
             .collect(Collectors.toSet());
@@ -223,23 +235,52 @@ public class UserDTO {
         this.tenantId = tenantId;
     }
 
+    public Integer getFailedLogins() {
+        return failedLogins;
+    }
+
+    public void setFailedLogins(Integer failedLogins) {
+        this.failedLogins = failedLogins;
+    }
+
+    public Instant getBlockedUntilDate() {
+        return blockedUntilDate;
+    }
+
+    public void setBlockedUntilDate(Instant blockedUntilDate) {
+        this.blockedUntilDate = blockedUntilDate;
+    }
+
+    public Instant getCredentialsValidToDate() {
+        return credentialsValidToDate;
+    }
+
+    public void setCredentialsValidToDate(Instant credentialsValidToDate) {
+        this.credentialsValidToDate = credentialsValidToDate;
+    }
+
     @Override
     public String toString() {
         return "UserDTO{" +
-            "login='" + login + '\'' +
+            "id=" + id +
+            ", login='" + login + '\'' +
             ", firstName='" + firstName + '\'' +
             ", lastName='" + lastName + '\'' +
             ", email='" + email + '\'' +
             ", imageUrl='" + imageUrl + '\'' +
             ", activated=" + activated +
             ", langKey='" + langKey + '\'' +
-            ", createdBy=" + createdBy +
+            ", createdBy='" + createdBy + '\'' +
             ", createdDate=" + createdDate +
             ", lastModifiedBy='" + lastModifiedBy + '\'' +
             ", lastModifiedDate=" + lastModifiedDate +
             ", isManagedExternally=" + isManagedExternally +
             ", authorities=" + authorities +
-            ", tenant=" + tenantName +
-            "}";
+            ", tenantName='" + tenantName + '\'' +
+            ", tenantId=" + tenantId +
+            ", failedLogins=" + failedLogins +
+            ", blockedUntilDate=" + blockedUntilDate +
+            ", credentialsValidToDate=" + credentialsValidToDate +
+            '}';
     }
 }

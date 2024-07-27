@@ -17,11 +17,15 @@ public class AcmeConfigItems implements Serializable {
 
     private boolean checkCAA;
 
+    private String contactEMailRegEx;
+
+
     private String caNameCAA;
 
     private String processInfoNameAccountValidation;
     private String processInfoNameOrderValidation;
     private String processInfoNameChallengeValidation;
+
 
     public AcmeConfigItems() {}
 
@@ -44,6 +48,7 @@ public class AcmeConfigItems implements Serializable {
 	public String getCaNameCAA() {
 		return caNameCAA;
 	}
+
 
 	public String getProcessInfoNameAccountValidation() {
 		return processInfoNameAccountValidation;
@@ -98,4 +103,11 @@ public class AcmeConfigItems implements Serializable {
 		this.processInfoNameChallengeValidation = processInfoNameChallengeValidation;
 	}
 
+    public String getContactEMailRegEx() {
+        return contactEMailRegEx;
+    }
+
+    public void setContactEMailRegEx(String contactEMailRegEx) {
+        this.contactEMailRegEx = contactEMailRegEx;
+    }
 }

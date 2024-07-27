@@ -108,6 +108,7 @@ public class PipelineUtil {
 
     public static final String ACME_CHECK_CAA = "ACME_CHECK_CAA";
     public static final String ACME_NAME_CAA = "ACME_NAME_CAA";
+    public static final String ACME_CONTACT_EMAIL_REGEX = "ACME_CONTACT_EMAIL_REGEX";
 
     public static final String CSR_USAGE = "CSR_USAGE";
 
@@ -260,6 +261,9 @@ public class PipelineUtil {
                 acmeConfigItems.setCheckCAA(Boolean.parseBoolean(plAtt.getValue()));
             } else if (ACME_NAME_CAA.equals(plAtt.getName())) {
                 acmeConfigItems.setCaNameCAA(plAtt.getValue());
+            } else if (ACME_CONTACT_EMAIL_REGEX.equals(plAtt.getName())) {
+                acmeConfigItems.setContactEMailRegEx(plAtt.getValue());
+
 //            }else if( REQUEST_PROXY_ID.equals(plAtt.getName())) {
 //                acmeConfigItems.setAcmeProxy(Boolean.parseBoolean(plAtt.getValue()));
             } else if (DOMAIN_RA_OFFICER.equals(plAtt.getName())) {
@@ -814,6 +818,8 @@ public class PipelineUtil {
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_WILDCARDS, pv.getAcmeConfigItems().isAllowWildcards());
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_CHECK_CAA, pv.getAcmeConfigItems().isCheckCAA());
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_NAME_CAA, pv.getAcmeConfigItems().getCaNameCAA());
+            addPipelineAttribute(pipelineAttributes, p, auditList, ACME_CONTACT_EMAIL_REGEX, pv.getAcmeConfigItems().getContactEMailRegEx());
+
         }
 
         addPipelineAttribute(pipelineAttributes, p, auditList, CSR_USAGE, pv.getCsrUsage().toString());
@@ -935,7 +941,7 @@ public class PipelineUtil {
             }
 
             if( !listOfAdditionalItems.isEmpty() || !listOfRemovedItems.isEmpty()) {
-                p.setTenants(new HashSet(tenantList));
+                p.setTenants(new HashSet<>(tenantList));
             }
         }
 
@@ -1059,6 +1065,7 @@ public class PipelineUtil {
                 for (TypedValue typedValue : nvs.getValues()) {
                     if( typedValue.getValue() != null && !typedValue.getValue().isEmpty()){
                         valuePresent = true;
+                        break;
                     }
                 }
             }
@@ -1464,8 +1471,8 @@ public class PipelineUtil {
                 LOG.debug(msg);
                 outcome = false;
             }
-            if (n != 1) {
-                String msg = "restricition mismatch: '" + restrictedName + "' MUST occur exactly once, found " + n + " times!";
+            if (n > 1) {
+                String msg = "restricition mismatch: '" + restrictedName + "' MUST not occur more than once, found " + n + " times!";
                 messageList.add(msg);
                 LOG.debug(msg);
                 outcome = false;

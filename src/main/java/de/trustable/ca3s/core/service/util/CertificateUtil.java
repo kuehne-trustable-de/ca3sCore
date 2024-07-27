@@ -2359,28 +2359,8 @@ public class CertificateUtil {
                         setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE, Long.toString(nextUpdate), false);
                     }
 
-                    X509CRLEntry crlItem = crl.getRevokedCertificate(new BigInteger(cert.getSerial()));
+                    serRevocationStatus(cert, x509Cert, crl);
 
-                    if( (crlItem != null) && (crl.isRevoked(x509Cert) ) ) {
-
-                        String revocationReason = "unspecified";
-                        if( crlItem.getRevocationReason() != null ) {
-                            if( cryptoUtil.crlReasonAsString(CRLReason.lookup(crlItem.getRevocationReason().ordinal())) != null ) {
-                                revocationReason = cryptoUtil.crlReasonAsString(CRLReason.lookup(crlItem.getRevocationReason().ordinal()));
-                            }
-                        }
-
-                        Date revocationDate = new Date();
-                        if( crlItem.getRevocationDate() != null) {
-                            revocationDate = crlItem.getRevocationDate();
-                        }else {
-                            LOG.debug("Checking certificate {}: no RevocationDate present for reason {}!", cert.getId(), revocationReason);
-                        }
-
-                        setRevocationStatus(cert, revocationReason, revocationDate);
-
-                        auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_CERTIFICATE_REVOKED_BY_CRL, cert));
-                    }
                     info.setSuccess();
                     break;
                 } catch (CertificateException | CRLException | IOException | NamingException e2) {
@@ -2392,6 +2372,34 @@ public class CertificateUtil {
         }
 
         return info;
+    }
+
+    public boolean serRevocationStatus(Certificate cert, X509Certificate x509Cert, X509CRL crl) {
+        X509CRLEntry crlItem = crl.getRevokedCertificate(new BigInteger(cert.getSerial()));
+
+        if( (crlItem != null) && (crl.isRevoked(x509Cert) ) ) {
+
+            String revocationReason = "unspecified";
+            if( crlItem.getRevocationReason() != null ) {
+                if( cryptoUtil.crlReasonAsString(CRLReason.lookup(crlItem.getRevocationReason().ordinal())) != null ) {
+                    revocationReason = cryptoUtil.crlReasonAsString(CRLReason.lookup(crlItem.getRevocationReason().ordinal()));
+                }
+            }
+
+            Date revocationDate = new Date();
+            if( crlItem.getRevocationDate() != null) {
+                revocationDate = crlItem.getRevocationDate();
+            }else {
+                LOG.debug("Checking certificate {}: no RevocationDate present for reason {}!", cert.getId(), revocationReason);
+            }
+
+            setRevocationStatus(cert, revocationReason, revocationDate);
+
+            auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_CERTIFICATE_REVOKED_BY_CRL, cert));
+
+            return true;
+        }
+        return false;
     }
 
     public byte[] getContainerBytes(Certificate certDao, String entryAlias, CSR csr, String passwordProtectionAlgo) throws IOException, GeneralSecurityException {

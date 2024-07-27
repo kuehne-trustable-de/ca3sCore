@@ -302,7 +302,7 @@ public class SecurityConfiguration{
                 " style-src 'self' 'unsafe-inline';" +
                 " img-src 'self' data:;" +
                 " font-src 'self' data:;" +
-                " connect-src 'self' blob: data:")
+                " connect-src 'self' localhost:8442 blob: data:")
         .and()
             .referrerPolicy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
         .and()
@@ -346,14 +346,12 @@ public class SecurityConfiguration{
             .hasAnyAuthority(AuthoritiesConstants.RA_OFFICER,AuthoritiesConstants.DOMAIN_RA_OFFICER, AuthoritiesConstants.ADMIN)
             .antMatchers("/api/administerCertificate").denyAll()
 
-
             // Check this block for usefulness of endpoints
             .antMatchers("/api/cockpit/**").permitAll()
             .antMatchers("/api/tasklist/**").permitAll()
             .antMatchers("/api/engine/**").permitAll()
             .antMatchers("/api/executeProcess/**").permitAll()
 
-            // check on method level ?
             .antMatchers("/api/request-proxy-configs/remote-config/*").permitAll()
             .antMatchers("/api/acme-challenges/pending/request-proxy-configs/*").permitAll()
             .antMatchers("/api/acme-challenges/validation").permitAll()

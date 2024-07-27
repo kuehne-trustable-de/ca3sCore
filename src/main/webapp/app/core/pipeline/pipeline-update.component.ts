@@ -70,6 +70,15 @@ const validations: any = {
       recepientCertId: {},
       scepRecipientDN: {},
     },
+    acmeConfigItems: {
+      allowChallengeHTTP01: {},
+      allowChallengeAlpn: {},
+      allowChallengeDNS: {},
+      allowWildcards: {},
+      checkCAA: {},
+      contactEMailRegEx: {},
+      caNameCAA: {},
+    },
   },
 };
 

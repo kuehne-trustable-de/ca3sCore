@@ -374,4 +374,5 @@ public class PipelineView implements Serializable {
     public void setSelectedTenantList(Tenant[] selectedTenantList) {
         this.selectedTenantList = selectedTenantList;
     }
+
 }

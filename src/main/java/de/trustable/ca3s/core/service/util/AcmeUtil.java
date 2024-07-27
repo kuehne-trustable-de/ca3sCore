@@ -4,7 +4,7 @@ import java.net.URI;
 
 public class AcmeUtil {
 
-	  public static final URI NO_INSTANCE = null;
+    public static final URI NO_INSTANCE = null;
 
 	public static final String ACME_ERROR_URI_NAMESPACE = "urn:ietf:params:acme:error";
 

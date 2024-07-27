@@ -20,6 +20,7 @@ import de.trustable.ca3s.core.exception.CAFailureException;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.acme.AccountRequest;
 import org.bouncycastle.asn1.x509.CRLReason;
+import org.camunda.bpm.engine.BadUserRequestException;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
@@ -164,17 +165,21 @@ public class BPMNUtil{
         HistoricProcessInstanceQuery query =
             historyService.createHistoricProcessInstanceQuery().finishedBefore(finishedBeforeLimit);
 
-        historyService.setRemovalTimeToHistoricProcessInstances()
-            .absoluteRemovalTime(new Date()) // sets an absolute removal time
-            // .clearedRemovalTime()        // resets the removal time to null
-            // .calculatedRemovalTime()     // calculation based on the engine's configuration
-            .byQuery(query)
-            .hierarchical()              // sets a removal time across the hierarchy
-            .executeAsync();
-        LOG.debug("Update removal time for historic instances scheduled ...");
+        try {
+            historyService.setRemovalTimeToHistoricProcessInstances()
+                .absoluteRemovalTime(new Date()) // sets an absolute removal time
+                // .clearedRemovalTime()        // resets the removal time to null
+                // .calculatedRemovalTime()     // calculation based on the engine's configuration
+                .byQuery(query)
+                .hierarchical()              // sets a removal time across the hierarchy
+                .executeAsync();
+            LOG.debug("Update removal time for historic instances scheduled ...");
 
-        historyService.deleteHistoricProcessInstancesAsync(query,HISTORIC_PROCESS_DELETION_REASON);
+        }catch(BadUserRequestException badUserRequestException){
+            LOG.info("Problem setting removal time: " + badUserRequestException.getMessage());
+        }
 
+        historyService.deleteHistoricProcessInstancesAsync(query, HISTORIC_PROCESS_DELETION_REASON);
         LOG.debug("starting to delete historic instances ...");
     }
 

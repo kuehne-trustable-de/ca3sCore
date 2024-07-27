@@ -9,7 +9,7 @@
                 </div>
 
                 <div class="alert alert-warning" v-if="!success">
-                    <p v-text="$t('reset.request.messages.info')">Enter the email address you used to register.</p>
+                    <p v-text="$t('reset.request.messages.info')">Enter your username.</p>
                 </div>
 
                 <div class="alert alert-success" v-if="success">
@@ -18,26 +18,26 @@
 
                 <form v-if="!success" name="form" role="form" v-on:submit.prevent="requestReset()">
                     <div class="form-group">
-                        <label class="form-control-label" for="email" v-text="$t('global.form.email.label')">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" v-bind:placeholder="$t('global.form.email.placeholder')"
-                               :class="{'valid': !$v.resetAccount.email.$invalid, 'invalid': $v.resetAccount.email.$invalid }"
-                               v-model="$v.resetAccount.email.$model" minlength=5 maxlength=254  email required>
-                        <div v-if="$v.resetAccount.email.$anyDirty && $v.resetAccount.email.$invalid">
-                            <small class="form-text text-danger" v-if="!$v.resetAccount.email.required"
-                                   v-text="$t('global.messages.validate.email.required')">
+                        <label class="form-control-label" for="username" v-text="$t('global.form.username.label')">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" v-bind:placeholder="$t('global.form.username.placeholder')"
+                               :class="{'valid': !$v.resetAccount.username.$invalid, 'invalid': $v.resetAccount.username.$invalid }"
+                               v-model="$v.resetAccount.username.$model" minlength=5 maxlength=254  required>
+                        <div v-if="$v.resetAccount.username.$anyDirty && $v.resetAccount.username.$invalid">
+                            <small class="form-text text-danger" v-if="!$v.resetAccount.username.required"
+                                   v-text="$t('global.messages.validate.username.required')">
                                 Your email is required.
                             </small>
-                            <small class="form-text text-danger" v-if="!$v.resetAccount.email.email"
-                                   v-text="$t('global.messages.validate.email.invalid')">
+                            <small class="form-text text-danger" v-if="!$v.resetAccount.username.email"
+                                   v-text="$t('global.messages.validate.username.invalid')">
                                 Your email is invalid.
                             </small>
-                            <small class="form-text text-danger" v-if="!$v.resetAccount.email.minLength"
-                                   v-text="$t('global.messages.validate.email.minlength')">
+                            <small class="form-text text-danger" v-if="!$v.resetAccount.username.minLength"
+                                   v-text="$t('global.messages.validate.username.minlength')">
                                 Your email is required to be at least 5 characters.
                             </small>
-                            <small class="form-text text-danger" v-if="!$v.resetAccount.email.maxLength"
-                                   v-text="$t('global.messages.validate.email.maxlength')">
-                                Your email cannot be longer than 100 characters.
+                            <small class="form-text text-danger" v-if="!$v.resetAccount.username.maxLength"
+                                   v-text="$t('global.messages.validate.username.maxlength')">
+                                Your username cannot be longer than 100 characters.
                             </small>
                         </div>
                     </div>

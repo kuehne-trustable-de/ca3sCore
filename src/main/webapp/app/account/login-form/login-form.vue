@@ -5,6 +5,12 @@
                 <b-alert show variant="danger" v-if="authenticationError" v-html="$t('login.messages.error.authentication')">
                     <strong>Failed to sign in!</strong> Please check your credentials and try again.
                 </b-alert>
+
+                <b-alert show variant="danger" v-if="isBlocked" v-html="$t('login.messages.error.blocked', { 'blockedUntil': blockedUntil })">
+                    <strong>Failed to sign in!</strong> Account blocked. Try again, later ...
+                </b-alert>
+
+
             </div>
             <div class="col-md-8">
                 <b-form role="form" v-on:submit.prevent="doLogin()">
@@ -16,9 +22,12 @@
                         <b-form-input id="password" type="password" name="password" v-model.trim="name" v-bind:placeholder="$t('login.form.password.placeholder')" v-model="password">
                         </b-form-input>
                     </b-form-group>
-                    <b-form-checkbox id="rememberMe" name="rememberMe" v-model="rememberMe" checked >
+                    <!--b-form-checkbox id="rememberMe" name="rememberMe" v-model="rememberMe" checked >
                         <span v-text="$t('login.form.rememberme')">Remember me</span>
-                    </b-form-checkbox>
+                    </b-form-checkbox-->
+                    <!--div>
+                        <a href="foo" @click.prevent="requestClientCert()">Validate Client Cert</a>
+                    </div-->
                     <div>
                         <b-button type="submit" variant="primary" v-text="$t('login.form.button')">Sign in</b-button>
                     </div>

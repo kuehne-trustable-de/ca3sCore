@@ -191,5 +191,6 @@ public class CertificateAttribute implements Serializable {
     public static final String ATTRIBUTE_TLS_CERTIFICATE = "TLS_CERTIFICATE";
     public static final String ATTRIBUTE_TLS_KEY = "TLS_KEY";
 
+    public static final String ATTRIBUTE_USER_CLIENT_CERT = "USER_CLIENT_CERT";
 
 }
