@@ -1,9 +1,8 @@
-package de.trustable.ca3s.core.web.rest.util;
+package de.trustable.ca3s.core.service.util;
 
 import de.trustable.ca3s.core.security.IPBlockedException;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
-import de.trustable.ca3s.core.service.util.AcmeUtil;
 import de.trustable.ca3s.core.web.rest.acme.AcmeController;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
@@ -17,9 +16,9 @@ import java.util.Map;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
-public class RateLimiter {
+public class RateLimiterService {
 
-    Logger LOG = LoggerFactory.getLogger(RateLimiter.class);
+    Logger LOG = LoggerFactory.getLogger(RateLimiterService.class);
 
     int maxEntries = 100;
     private int rateSec = 0;
@@ -28,9 +27,13 @@ public class RateLimiter {
 
     LinkedHashMap<Long, Bucket> lruMapOrder;
 
+    public String getEndpointName() {
+        return endpointName;
+    }
+
     private final String endpointName;
 
-    public RateLimiter(final String endpointName){
+    public RateLimiterService(final String endpointName){
         this.endpointName = endpointName;
 
         lruMapOrder = new LinkedHashMap<>(maxEntries * 10 / 7, 0.7f, true) {
@@ -41,10 +44,10 @@ public class RateLimiter {
         };
     }
 
-    public RateLimiter(final String endpointName,
-                   int rateSec,
-        int rateMin,
-        int rateHour){
+    public RateLimiterService(final String endpointName,
+                              int rateSec,
+                              int rateMin,
+                              int rateHour){
 
         this( endpointName);
 
@@ -71,21 +74,7 @@ public class RateLimiter {
         }
     }
 
-    public void checkACMERateLimit(long id, String realm) {
-        Bucket bucket = getBucket(id);
-
-        LOG.debug("Current bucket : {} ", bucket);
-        if(bucket.tryConsume(1)) {
-            LOG.debug("rate limitation bucket has {} tokens left", bucket.getAvailableTokens());
-        }else{
-            LOG.warn("rate limit applies to '{}/{}/{}'", realm, endpointName, id);
-            final ProblemDetail problem = new ProblemDetail(AcmeUtil.RATE_LIMITED, "Rate limit applies",
-                BAD_REQUEST, "Too many requests for ACME object", AcmeController.NO_INSTANCE);
-            throw new AcmeProblemException(problem);
-        }
-    }
-
-    private Bucket getBucket(final long id){
+    public Bucket getBucket(final long id){
 
         // no need for synchronisation, in the worst case surplus buckets were created.
         if( lruMapOrder.containsKey(id) ){

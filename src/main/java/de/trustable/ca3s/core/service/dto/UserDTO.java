@@ -60,7 +60,7 @@ public class UserDTO {
 
     private Long tenantId;
 
-    private Integer failedLogins;
+    private Long failedLogins;
 
     private Instant blockedUntilDate = null;
 
@@ -235,11 +235,11 @@ public class UserDTO {
         this.tenantId = tenantId;
     }
 
-    public Integer getFailedLogins() {
+    public Long getFailedLogins() {
         return failedLogins;
     }
 
-    public void setFailedLogins(Integer failedLogins) {
+    public void setFailedLogins(Long failedLogins) {
         this.failedLogins = failedLogins;
     }
 

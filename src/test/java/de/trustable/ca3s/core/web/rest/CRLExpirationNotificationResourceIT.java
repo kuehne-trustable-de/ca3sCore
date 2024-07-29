@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @IntegrationTest
 @AutoConfigureMockMvc
-@WithMockUser
+@WithMockUser(roles = { "ADMIN" })
 class CRLExpirationNotificationResourceIT {
 
     private static final String DEFAULT_CRL_URL = "AAAAAAAAAA";
@@ -99,8 +99,7 @@ class CRLExpirationNotificationResourceIT {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(cRLExpirationNotification))
             )
-//            .andExpect(status().isCreated());
-            .andExpect(status().isForbidden());
+            .andExpect(status().isCreated());
 /*
         // Validate the CRLExpirationNotification in the database
         List<CRLExpirationNotification> cRLExpirationNotificationList = cRLExpirationNotificationRepository.findAll();
@@ -129,8 +128,8 @@ class CRLExpirationNotificationResourceIT {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(cRLExpirationNotification))
             )
-//            .andExpect(status().isBadRequest());
-            .andExpect(status().isForbidden());
+            .andExpect(status().isBadRequest());
+
 
         // Validate the CRLExpirationNotification in the database
         List<CRLExpirationNotification> cRLExpirationNotificationList = cRLExpirationNotificationRepository.findAll();
@@ -152,8 +151,7 @@ class CRLExpirationNotificationResourceIT {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(cRLExpirationNotification))
             )
-//            .andExpect(status().isBadRequest());
-            .andExpect(status().isForbidden());
+            .andExpect(status().isBadRequest());
 
         List<CRLExpirationNotification> cRLExpirationNotificationList = cRLExpirationNotificationRepository.findAll();
         assertThat(cRLExpirationNotificationList).hasSize(databaseSizeBeforeTest);
@@ -168,8 +166,7 @@ class CRLExpirationNotificationResourceIT {
         // Get all the cRLExpirationNotificationList
         restCRLExpirationNotificationMockMvc
             .perform(get(ENTITY_API_URL + "?sort=id,desc"))
-//            .andExpect(status().isOk())
-            .andExpect(status().isForbidden());
+            .andExpect(status().isOk());
 
 /*
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -290,8 +287,7 @@ class CRLExpirationNotificationResourceIT {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(cRLExpirationNotification))
             )
-//            .andExpect(status().isMethodNotAllowed());
-            .andExpect(status().isForbidden());
+            .andExpect(status().isMethodNotAllowed());
 
         // Validate the CRLExpirationNotification in the database
         List<CRLExpirationNotification> cRLExpirationNotificationList = cRLExpirationNotificationRepository.findAll();
@@ -377,8 +373,7 @@ class CRLExpirationNotificationResourceIT {
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(cRLExpirationNotification))
             )
-//            .andExpect(status().isMethodNotAllowed());
-            .andExpect(status().isForbidden());
+            .andExpect(status().isMethodNotAllowed());
 
         // Validate the CRLExpirationNotification in the database
         List<CRLExpirationNotification> cRLExpirationNotificationList = cRLExpirationNotificationRepository.findAll();

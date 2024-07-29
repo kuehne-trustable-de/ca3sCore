@@ -41,7 +41,7 @@ import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.AcmeOrderUtil;
 import de.trustable.ca3s.core.service.util.AcmeUtil;
 import de.trustable.ca3s.core.service.util.DateUtil;
-import de.trustable.ca3s.core.web.rest.util.RateLimiter;
+import de.trustable.ca3s.core.service.util.RateLimiterService;
 import org.jose4j.jwt.consumer.JwtContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +80,7 @@ public class AuthorizationController extends AcmeController {
 
     private final AcmeOrderUtil acmeOrderUtil;
 
-    private final RateLimiter rateLimiter;
+    private final RateLimiterService rateLimiterService;
 
     final private HttpServletRequest request;
 
@@ -99,7 +99,7 @@ public class AuthorizationController extends AcmeController {
         this.acmeOrderUtil = acmeOrderUtil;
         this.request = request;
 
-        this.rateLimiter = new RateLimiter("Authorization", rateSec, rateMin, rateHour);
+        this.rateLimiterService = new RateLimiterService("Authorization", rateSec, rateMin, rateHour);
     }
 
     @RequestMapping(value = "/{authorizationId}", method = GET, produces = APPLICATION_JSON_VALUE)
@@ -109,7 +109,7 @@ public class AuthorizationController extends AcmeController {
 
         LOG.info("Received Authorization request 'get' ");
 
-        rateLimiter.checkACMERateLimit(authorizationId, realm);
+        checkACMERateLimit(rateLimiterService, authorizationId, realm);
 
         if( LOG.isDebugEnabled()) {
             Enumeration<String> headerNames = request.getHeaderNames();
@@ -149,7 +149,7 @@ public class AuthorizationController extends AcmeController {
 
         LOG.debug("Received Authorization request ");
 
-        rateLimiter.checkACMERateLimit(authorizationId, realm);
+        checkACMERateLimit(rateLimiterService, authorizationId, realm);
 
         try {
             JwtContext context = jwtUtil.processFlattenedJWT(requestBody);

@@ -2,7 +2,7 @@ import axios from 'axios';
 import Component from 'vue-class-component';
 import { Vue, Inject } from 'vue-property-decorator';
 import AccountService from '@/account/account.service';
-import { IUserLoginData } from '../../../../../../target/generated-sources/typescript/transfer-object.model';
+import { IUserLoginData } from '@/shared/model/transfer-object.model';
 
 @Component({
   watch: {
@@ -53,6 +53,8 @@ export default class LoginForm extends Vue {
             this.isBlocked = true;
             const dateObj = new Date(data.detail);
             this.blockedUntil = dateObj.toLocaleDateString() + ', ' + dateObj.toLocaleTimeString();
+          } else {
+            this.authenticationError = true;
           }
         }
       });
@@ -61,10 +63,16 @@ export default class LoginForm extends Vue {
   public requestClientCert(): void {
     const userLoginData: IUserLoginData = { login: this.login, password: this.password, rememberMe: this.rememberMe };
 
+    const clientAuthTarget = this.$store.state.uiConfigStore.config.cryptoConfigView.clientAuthTarget;
+
     axios
-      .post('https://localhost:8442/publicapi/clientAuth', userLoginData)
+      //      .post(clientAuthTarget + '/publicapi/clientAuth', userLoginData
+      .get(clientAuthTarget + '/publicapi/clientAuth')
       .then(result => {
         console.info('connected to client auth port');
+        if (result && result.headers) {
+          //          const clientAuthToken = result.headers;
+        }
       })
       .catch(error => {
         // Handle the error response

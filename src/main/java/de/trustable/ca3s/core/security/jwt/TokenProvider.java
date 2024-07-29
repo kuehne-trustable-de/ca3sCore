@@ -25,6 +25,10 @@ public class TokenProvider {
 
     private static final String AUTHORITIES_KEY = "auth";
 
+    private static final String SKI_KEY = "ski";
+
+    private final long tokenValiditySKIInMilliseconds = 60L * 1000L;
+
     private final Key key;
 
     private final JwtParser jwtParser;
@@ -69,6 +73,19 @@ public class TokenProvider {
             .builder()
             .setSubject(authentication.getName())
             .claim(AUTHORITIES_KEY, authorities)
+            .signWith(key, SignatureAlgorithm.HS512)
+            .setExpiration(validity)
+            .compact();
+    }
+    public String createToken(final String subject, final String b46Ski) {
+
+        long now = (new Date()).getTime();
+        Date validity = new Date(now + tokenValiditySKIInMilliseconds);
+
+        return Jwts
+            .builder()
+            .setSubject(subject)
+            .claim(SKI_KEY, b46Ski)
             .signWith(key, SignatureAlgorithm.HS512)
             .setExpiration(validity)
             .compact();

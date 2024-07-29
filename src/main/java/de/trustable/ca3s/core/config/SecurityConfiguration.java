@@ -24,6 +24,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -88,6 +89,7 @@ public class SecurityConfiguration{
 	@Value("${ca3s.scepAccess.port:0}")
 	int scepPort;
 
+
     @Value("${ca3s.saml.activate:true}")
     private boolean samlActivate;
 
@@ -129,22 +131,26 @@ public class SecurityConfiguration{
     private final CorsFilter corsFilter;
     private final SecurityProblemSupport problemSupport;
     private final DomainUserDetailsService userDetailsService;
+
+    private final ClientAuthConfig clientAuthConfig;
+
     private final boolean apiKeyEnabled;
     private final String apiKeyRequestHeader;
     private final String apiKeyAdminValue;
 
     public SecurityConfiguration(TokenProvider tokenProvider,
-    		CorsFilter corsFilter,
-    		SecurityProblemSupport problemSupport,
-    		DomainUserDetailsService userDetailsService,
-             @Value("${ca3s.auth.api-key.enabled:false}") boolean apiKeyEnabled,
-             @Value("${ca3s.auth.api-key.auth-token-header-name:X-API-KEY}")String apiKeyRequestHeader,
-             @Value("${ca3s.auth.api-key.auth-token-admin:}") String apiKeyAdminValue) {
+                                 CorsFilter corsFilter,
+                                 SecurityProblemSupport problemSupport,
+                                 DomainUserDetailsService userDetailsService,
+                                 ClientAuthConfig clientAuthConfig, @Value("${ca3s.auth.api-key.enabled:false}") boolean apiKeyEnabled,
+                                 @Value("${ca3s.auth.api-key.auth-token-header-name:X-API-KEY}")String apiKeyRequestHeader,
+                                 @Value("${ca3s.auth.api-key.auth-token-admin:}") String apiKeyAdminValue) {
 
         this.tokenProvider = tokenProvider;
         this.corsFilter = corsFilter;
         this.problemSupport = problemSupport;
         this.userDetailsService = userDetailsService;
+        this.clientAuthConfig = clientAuthConfig;
         this.apiKeyEnabled = apiKeyEnabled;
         this.apiKeyRequestHeader = apiKeyRequestHeader;
         this.apiKeyAdminValue = apiKeyAdminValue;
@@ -284,6 +290,7 @@ public class SecurityConfiguration{
 
         // @formatter:off
         http
+            .cors(Customizer.withDefaults())
             .csrf().disable()
             .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(apiKeyAuthFilter(), UsernamePasswordAuthenticationFilter.class)
@@ -302,7 +309,7 @@ public class SecurityConfiguration{
                 " style-src 'self' 'unsafe-inline';" +
                 " img-src 'self' data:;" +
                 " font-src 'self' data:;" +
-                " connect-src 'self' localhost:8442 blob: data:")
+                " connect-src 'self' blob: data: " + clientAuthConfig.getClientAuthTarget())
         .and()
             .referrerPolicy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
         .and()
@@ -451,6 +458,8 @@ public class SecurityConfiguration{
 
         return http.build();
     }
+
+
 
     private JWTConfigurer securityConfigurerAdapter() {
         return new JWTConfigurer(tokenProvider);

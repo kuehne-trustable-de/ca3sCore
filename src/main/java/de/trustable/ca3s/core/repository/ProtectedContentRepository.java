@@ -8,6 +8,8 @@ import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import java.time.Instant;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -32,8 +34,8 @@ public interface ProtectedContentRepository extends JpaRepository<ProtectedConte
     List<ProtectedContent> findByTypeRelationId(@Param("type") ProtectedContentType type, @Param("relationType") ContentRelationType relationType, @Param("id") Long id);
 
     @Query(name = "ProtectedContent.findByValidToPassed")
-    List<ProtectedContent> findByValidToPassed(@Param("validTo") Instant validTo);
+    Page<ProtectedContent> findByValidToPassed(Pageable pageable, @Param("validTo") Instant validTo);
 
     @Query(name = "ProtectedContent.findByDeleteAfterPassed")
-    List<ProtectedContent> findByDeleteAfterPassed(@Param("deleteAfter") Instant deleteAfter);
+    Page<ProtectedContent> findByDeleteAfterPassed(Pageable pageable,@Param("deleteAfter") Instant deleteAfter);
 }

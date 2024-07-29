@@ -13,6 +13,8 @@ import de.trustable.ca3s.core.service.util.PreferenceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -72,7 +74,7 @@ public class CertExpiryScheduler {
 
 		Instant now = Instant.now();
 
-		List<Certificate> becomingValidList = certificateRepo.findInactiveCertificatesByValidFrom(now);
+		Page<Certificate> becomingValidList = certificateRepo.findInactiveCertificatesByValidFrom( PageRequest.of(0, maxRecordsPerTransaction), now);
 
 		int count = 0;
 		for (Certificate cert : becomingValidList) {
@@ -86,7 +88,7 @@ public class CertExpiryScheduler {
 			}
 		}
 
-		List<Certificate> becomingInvalidList = certificateRepo.findActiveCertificatesByValidTo(now);
+        Page<Certificate> becomingInvalidList = certificateRepo.findActiveCertificatesByValidTo(PageRequest.of(0, maxRecordsPerTransaction), now);
 
 		count = 0;
 		for (Certificate cert : becomingInvalidList) {
@@ -114,6 +116,9 @@ public class CertExpiryScheduler {
 
 		HashSet<String> brokenCrlUrlList = new HashSet<>();
 
+        /*
+         @ToDo: check for pageable !!
+         */
 		List<Object[]> certWithURLList = certificateRepo.findActiveCertificateOrderedByCrlURL();
         LOG.debug("findActiveCertificateOrderedByCrlURL returns #{} certificates in {} ms", certWithURLList.size(), System.currentTimeMillis() - startTime);
 

@@ -253,7 +253,7 @@ ca3s:
       days: 180
 
   # if required separate protocols and ra & admin access to specific ports
-  # the default port is 8442
+  # the default port is 8443
   # the default binding host is 0.0.0.0
   # the use of https is default
   # overwrite any of the settings if required
@@ -261,15 +261,21 @@ ca3s:
     port: 9090
     https: false
 
-  # settings for ACME
-  #  acmeAccess:
-  #    port: 9091
-  #    https: true
+    # settings for ACME
+    #  acmeAccess:
+    #    port: 9091
+    #    https: true
 
-  # settings for users default access
-  #  tlsAccess:
-  #    port: 8443
-  #    https: true
+    # settings for users default access
+    #  tlsAccess:
+    #    port: 8443
+    #    https: true
+
+    # settings for client certificate authentication
+    tlsClientAuth:
+      external:
+        port: 8442
+        host: laptop-2iguatf5
 
   # settings for ra user access
   #  raAccess:

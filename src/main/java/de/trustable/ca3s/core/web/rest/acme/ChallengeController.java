@@ -37,7 +37,7 @@ import de.trustable.ca3s.core.service.util.AcmeOrderUtil;
 import de.trustable.ca3s.core.service.util.AcmeUtil;
 import de.trustable.ca3s.core.service.util.PreferenceUtil;
 import de.trustable.ca3s.core.web.rest.data.AcmeChallengeValidation;
-import de.trustable.ca3s.core.web.rest.util.RateLimiter;
+import de.trustable.ca3s.core.service.util.RateLimiterService;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
@@ -111,7 +111,7 @@ public class ChallengeController extends AcmeController {
     private final AuditService auditService;
 
     private final AcmeOrderUtil acmeOrderUtil;
-    private final RateLimiter rateLimiter;
+    private final RateLimiterService rateLimiterService;
 
 
     public ChallengeController(AcmeChallengeRepository challengeRepository,
@@ -133,7 +133,7 @@ public class ChallengeController extends AcmeController {
         this.dnsResolver.setPort(resolverPort);
         LOG.info("Applying default DNS resolver {}", this.dnsResolver.getAddress());
 
-        this.rateLimiter = new RateLimiter("Challenge", rateSec, rateMin, rateHour);
+        this.rateLimiterService = new RateLimiterService("Challenge", rateSec, rateMin, rateHour);
     }
 
     @RequestMapping(value = "/{challengeId}", method = GET, produces = APPLICATION_JSON_VALUE)
@@ -143,7 +143,7 @@ public class ChallengeController extends AcmeController {
 
 	  	LOG.debug("Received Challenge request ");
 
-        rateLimiter.checkACMERateLimit(challengeId, realm);
+        checkACMERateLimit(rateLimiterService,challengeId, realm);
 
 	    final HttpHeaders additionalHeaders = buildNonceHeader();
 
@@ -176,7 +176,7 @@ public class ChallengeController extends AcmeController {
 
         LOG.debug("Received Challenge request ");
 
-        rateLimiter.checkACMERateLimit(challengeId, realm);
+        checkACMERateLimit(rateLimiterService,challengeId, realm);
 
         try {
             JwtContext context = jwtUtil.processFlattenedJWT(requestBody);

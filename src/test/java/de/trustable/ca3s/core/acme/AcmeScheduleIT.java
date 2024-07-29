@@ -59,7 +59,7 @@ public class AcmeScheduleIT {
         acmeOrderRepository.save(acmeOrderValidExpired);
         acmeOrderRepository.save(acmeOrderValidValid);
 
-        acmeExpiryScheduler.runMinute();
+        acmeExpiryScheduler.runOrderCleanup();
 
         Optional<AcmeOrder> optOrder = acmeOrderRepository.findById(acmeOrderPendingExpired.getId());
         Assertions.assertEquals(AcmeOrderStatus.INVALID, optOrder.get().getStatus());

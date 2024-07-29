@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.web.rest.support;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.trustable.ca3s.core.config.ClientAuthConfig;
 import de.trustable.ca3s.core.config.CryptoConfiguration;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
@@ -63,6 +64,7 @@ public class UIDatasetSupport {
 
     private final UserUtil userUtil;
 
+
     private final boolean autoSSOLogin;
 
     private final String certificateStoreIsolation;
@@ -79,6 +81,7 @@ public class UIDatasetSupport {
                             CertificateSelectionUtil certificateSelectionAttributeList,
                             CryptoConfiguration cryptoConfiguration,
                             UserUtil userUtil,
+                            ClientAuthConfig clientAuthConfig,
                             @Value("${ca3s.ui.sso.autologin:false}") boolean autoSSOLogin,
                             @Value("${ca3s.ui.certificate-store.isolation:none}")String certificateStoreIsolation,
                             @Value("${ca3s.ui.sso.provider:}") String[] ssoProvider) {
@@ -252,6 +255,7 @@ public class UIDatasetSupport {
         return pv_LaxRestrictions;
     }
 
+
     /**
      * {@code GET  /ca-connector-configs/cert-generators} : get all elements able to create a certificate.
      *
@@ -262,7 +266,7 @@ public class UIDatasetSupport {
     public List<CAConnectorConfig> getAllCAConnectorConfigs() {
 
         return caConnConfRepo.findAllCertGenerators();
-	}
+    }
 
 
     /**

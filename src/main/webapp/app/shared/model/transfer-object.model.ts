@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-07-04 19:13:43.
+// Generated using typescript-generator version 3.2.1263 on 2024-07-28 12:27:44.
 
 export interface IADCSInstanceDetailsView extends ISerializable {
   caName?: string;
@@ -245,10 +245,10 @@ export interface ICertificateView extends ISerializable {
   serversideKeyLeftUsages?: number;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
-  auditPresent?: boolean;
   issuingActiveCertificates?: boolean;
   serversideKeyGeneration?: boolean;
   fullChainAvailable?: boolean;
+  auditPresent?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
@@ -260,6 +260,7 @@ export interface ICryptoConfigView extends ISerializable {
   regexpPkcs12SecretDescription?: string;
   regexpPasswordDescription?: string;
   passwordRegexp?: string;
+  clientAuthTarget?: string;
 }
 
 export interface IUIConfigView extends ISerializable {
@@ -318,8 +319,8 @@ export interface ICSRView extends ISerializable {
   csrBase64?: string;
   auditViewArr?: IAuditView[];
   isAdministrable?: boolean;
-  administrable?: boolean;
   csrvalid?: boolean;
+  administrable?: boolean;
 }
 
 export interface IPreferences extends ISerializable {

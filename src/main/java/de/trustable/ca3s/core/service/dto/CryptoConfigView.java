@@ -12,12 +12,14 @@ public class CryptoConfigView implements Serializable {
     private final String regexpPkcs12SecretDescription;
     private final String regexpPasswordDescription;
     private final String passwordRegexp;
+    private final String clientAuthTarget;
 
 
 
     public CryptoConfigView(String[] validPBEAlgoArr, String defaultPBEAlgo, String[] allHashAlgoArr, String[] allSignAlgoArr,
                             String regexpPkcs12SecretDescription, String pkcs12SecretRegexp,
-                            String regexpPasswordDescription, String passwordRegexp) {
+                            String regexpPasswordDescription, String passwordRegexp,
+                            String clientAuthTarget) {
         this.validPBEAlgoArr = validPBEAlgoArr;
         this.defaultPBEAlgo = defaultPBEAlgo;
         this.allHashAlgoArr = allHashAlgoArr;
@@ -26,6 +28,7 @@ public class CryptoConfigView implements Serializable {
         this.regexpPkcs12SecretDescription = regexpPkcs12SecretDescription;
         this.regexpPasswordDescription = regexpPasswordDescription;
         this.passwordRegexp = passwordRegexp;
+        this.clientAuthTarget = clientAuthTarget;
     }
 
     public String[] getAllHashAlgoArr() {
@@ -52,5 +55,9 @@ public class CryptoConfigView implements Serializable {
 
     public String getRegexpPkcs12SecretDescription() {
         return regexpPkcs12SecretDescription;
+    }
+
+    public String getClientAuthTarget() {
+        return clientAuthTarget;
     }
 }

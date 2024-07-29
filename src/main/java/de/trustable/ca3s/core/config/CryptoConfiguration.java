@@ -24,6 +24,8 @@ public class CryptoConfiguration {
     private final String pkcs12SecretRegexp;
     private final String regexpPasswordDescription;
     private final String passwordRegexp;
+    private final ClientAuthConfig clientAuthConfig;
+
 
     public CryptoConfiguration(@Value("${ca3s.pkcs12.pbe.algos:PBEWithHmacSHA256AndAES_256}") String[] validPBEAlgoArr,
                                @Value("${ca3s.catalog.hash.algos:sha-1,sha-256,sha-384,sha-512}") String[] allHashAlgoArr,
@@ -31,8 +33,8 @@ public class CryptoConfiguration {
                                @Value("${ca3s.pkcs12.secret.description:min6NumberUpperLower}") String regexpPkcs12Description,
                                @Value("${ca3s.pkcs12.secret.regexp:^(?=.*\\d)(?=.*[a-z]).{6,100}$}") String pkcs12SecretRegexp,
                                @Value("${ca3s.ui.password.check.description:min6NumberUpperLower}") String regexpPasswordDescription,
-                               @Value("${ca3s.ui.password.check.regexp:^(?=.*\\d)(?=.*[a-z]).{6,100}$}") String passwordRegexp
-        ) {
+                               @Value("${ca3s.ui.password.check.regexp:^(?=.*\\d)(?=.*[a-z]).{6,100}$}") String passwordRegexp,
+                               ClientAuthConfig clientAuthConfig) {
 
         this.validPBEAlgoArr = validPBEAlgoArr;
         this.allHashAlgoArr = allHashAlgoArr;
@@ -41,6 +43,7 @@ public class CryptoConfiguration {
         this.pkcs12SecretRegexp = pkcs12SecretRegexp;
         this.regexpPasswordDescription = regexpPasswordDescription;
         this.passwordRegexp = passwordRegexp;
+        this.clientAuthConfig = clientAuthConfig;
 
         for (Provider provider : Security.getProviders()) {
 
@@ -60,7 +63,8 @@ public class CryptoConfiguration {
         return new CryptoConfigView(validPBEAlgoArr, getDefaultPBEAlgo(),
             allHashAlgoArr, allSignAlgoArr,
             regexpPkcs12Description, pkcs12SecretRegexp,
-            regexpPasswordDescription, passwordRegexp);
+            regexpPasswordDescription, passwordRegexp,
+            clientAuthConfig.getClientAuthTarget());
     }
 
     public String getDefaultPBEAlgo(){

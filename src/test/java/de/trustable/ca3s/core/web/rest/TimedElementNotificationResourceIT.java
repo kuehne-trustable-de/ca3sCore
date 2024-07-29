@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @IntegrationTest
 @AutoConfigureMockMvc
-@WithMockUser
+@WithMockUser(roles = { "ADMIN" })
 class TimedElementNotificationResourceIT {
 
     private static final TimedElementNotificationType DEFAULT_TYPE = TimedElementNotificationType.ON_EXPIRY;
@@ -102,8 +102,8 @@ class TimedElementNotificationResourceIT {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(timedElementNotification))
             )
-//            .andExpect(status().isCreated());
-            .andExpect(status().isForbidden());
+            .andExpect(status().isCreated());
+
 /*
         // Validate the TimedElementNotification in the database
         List<TimedElementNotification> timedElementNotificationList = timedElementNotificationRepository.findAll();
@@ -131,8 +131,7 @@ class TimedElementNotificationResourceIT {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(timedElementNotification))
             )
-//            .andExpect(status().isBadRequest());
-            .andExpect(status().isForbidden());
+            .andExpect(status().isBadRequest());
 
         // Validate the TimedElementNotification in the database
         List<TimedElementNotification> timedElementNotificationList = timedElementNotificationRepository.findAll();
@@ -154,8 +153,7 @@ class TimedElementNotificationResourceIT {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(timedElementNotification))
             )
-//            .andExpect(status().isBadRequest());
-            .andExpect(status().isForbidden());
+            .andExpect(status().isBadRequest());
 
         List<TimedElementNotification> timedElementNotificationList = timedElementNotificationRepository.findAll();
         assertThat(timedElementNotificationList).hasSize(databaseSizeBeforeTest);
@@ -176,8 +174,7 @@ class TimedElementNotificationResourceIT {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(timedElementNotification))
             )
-//            .andExpect(status().isBadRequest());
-            .andExpect(status().isForbidden());
+            .andExpect(status().isBadRequest());
 
         List<TimedElementNotification> timedElementNotificationList = timedElementNotificationRepository.findAll();
         assertThat(timedElementNotificationList).hasSize(databaseSizeBeforeTest);
@@ -192,8 +189,7 @@ class TimedElementNotificationResourceIT {
         // Get all the timedElementNotificationList
         restTimedElementNotificationMockMvc
             .perform(get(ENTITY_API_URL + "?sort=id,desc"))
-//            .andExpect(status().isOk())
-            .andExpect(status().isForbidden());
+            .andExpect(status().isOk());
 
 /*
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -315,8 +311,7 @@ class TimedElementNotificationResourceIT {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(timedElementNotification))
             )
- //           .andExpect(status().isMethodNotAllowed());
-            .andExpect(status().isForbidden());
+            .andExpect(status().isMethodNotAllowed());
 
         // Validate the TimedElementNotification in the database
         List<TimedElementNotification> timedElementNotificationList = timedElementNotificationRepository.findAll();
@@ -369,27 +364,6 @@ class TimedElementNotificationResourceIT {
             )
             .andExpect(status().isMethodNotAllowed());
 
-    }
-
-    @Test
-    @Transactional
-    void patchWithMissingIdPathParamTimedElementNotification() throws Exception {
-        int databaseSizeBeforeUpdate = timedElementNotificationRepository.findAll().size();
-        timedElementNotification.setId(count.incrementAndGet());
-
-        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
-        restTimedElementNotificationMockMvc
-            .perform(
-                patch(ENTITY_API_URL)
-                    .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(timedElementNotification))
-            )
-//            .andExpect(status().isMethodNotAllowed());
-            .andExpect(status().isForbidden());
-
-        // Validate the TimedElementNotification in the database
-        List<TimedElementNotification> timedElementNotificationList = timedElementNotificationRepository.findAll();
-        assertThat(timedElementNotificationList).hasSize(databaseSizeBeforeUpdate);
     }
 
     @Test

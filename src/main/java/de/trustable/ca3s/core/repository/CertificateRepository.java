@@ -95,10 +95,10 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
     List<Object[]> findActiveCertificatesByKeyLength(@Param("now") Instant now);
 
     @Query(name = "Certificate.findInactiveCertificatesByValidFrom")
-    List<Certificate> findInactiveCertificatesByValidFrom(@Param("now") Instant now);
+    Page<Certificate> findInactiveCertificatesByValidFrom(Pageable pageable, @Param("now") Instant now);
 
     @Query(name = "Certificate.findActiveCertificatesByValidTo")
-    List<Certificate> findActiveCertificatesByValidTo(@Param("now") Instant now);
+    Page<Certificate> findActiveCertificatesByValidTo(Pageable pageable, @Param("now") Instant now);
 
     @Query(name = "Certificate.findActiveCertificatesBySANs")
     Page<Certificate> findActiveCertificatesBySANs(Pageable pageable, @Param("now") Instant now, @Param("sans") List<String> sans);

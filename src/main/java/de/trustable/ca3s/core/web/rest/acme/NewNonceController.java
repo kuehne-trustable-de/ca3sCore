@@ -26,16 +26,11 @@
 
 package de.trustable.ca3s.core.web.rest.acme;
 
-import de.trustable.ca3s.core.domain.AcmeNonce;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 import static org.springframework.http.CacheControl.noStore;
 import static org.springframework.http.ResponseEntity.ok;
@@ -66,24 +61,5 @@ public class NewNonceController extends AcmeController {
         return ResponseEntity.noContent().headers(buildNonceHeader())
             .cacheControl(noStore()).build();
     }
-
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void cleanupNonces() {
-		long startTime = System.currentTimeMillis();
-		List<AcmeNonce> expiredNonceList = nonceRepository.findByNonceExpiryDate(new java.util.Date());
-		if(expiredNonceList.isEmpty()) {
-			return;
-		}
-
-		LOG.debug("CleanupScheduler.cleanupNonce called ...");
-		for (AcmeNonce nonce : expiredNonceList) {
-			LOG.debug("cleanupNonce {} deleting", nonce.getNonceValue());
-
-			nonceRepository.delete(nonce);
-		}
-
-		LOG.debug("CleanupScheduler.cleanupNonce finishes in {} ms", System.currentTimeMillis() - startTime);
-	}
 
 }
