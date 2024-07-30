@@ -39,31 +39,30 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
     @Query(name = "Certificate.findByAttributeValueLowerThan")
     Page<Certificate> findByAttributeValueLowerThan(Pageable pageable,
                                                     @Param("name") String name,
-                                             @Param("value") String value);
+                                                    @Param("value") String value);
 
 
+    @Query(name = "Certificate.findBySearchTermNamed2")
+    Page<Certificate> findBySearchTermNamed2(
+        Pageable pageable,
+        @Param("name1") String name1,
+        @Param("value1") String value1,
+        @Param("name2") String name2,
+        @Param("value2") String value2);
 
-	  @Query(name = "Certificate.findBySearchTermNamed2")
-	  Page<Certificate> findBySearchTermNamed2(
-			  Pageable pageable,
-			  @Param("name1") String name1,
-		      @Param("value1") String value1,
-			  @Param("name2") String name2,
-			  @Param("value2") String value2);
+    @Query(name = "Certificate.findBySearchTermNamed2")
+    List<Certificate> findBySearchTermNamed2(
+        @Param("name1") String name1,
+        @Param("value1") String value1,
+        @Param("name2") String name2,
+        @Param("value2") String value2);
 
-	  @Query(name = "Certificate.findBySearchTermNamed2")
-	  List<Certificate> findBySearchTermNamed2(
-			  @Param("name1") String name1,
-		      @Param("value1") String value1,
-			  @Param("name2") String name2,
-			  @Param("value2") String value2);
-
-	  @Query(name = "Certificate.findByTermNamed2")
-	  List<Certificate> findByTermNamed2(
-			  @Param("name1") String name1,
-		      @Param("value1") String value1,
-			  @Param("name2") String name2,
-			  @Param("value2") String value2);
+    @Query(name = "Certificate.findByTermNamed2")
+    List<Certificate> findByTermNamed2(
+        @Param("name1") String name1,
+        @Param("value1") String value1,
+        @Param("name2") String name2,
+        @Param("value2") String value2);
 
 
     @Query(name = "Certificate.findActiveByAttributeValue")
@@ -102,7 +101,7 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
     List<Certificate> findActiveCertificatesByValidTo(@Param("now") Instant now);
 
     @Query(name = "Certificate.findActiveCertificatesBySANs")
-    List<Certificate> findActiveCertificatesBySANs(@Param("now") Instant now, @Param("sans") List<String> sans);
+    Page<Certificate> findActiveCertificatesBySANs(Pageable pageable, @Param("now") Instant now, @Param("sans") List<String> sans);
 
     @Query(name = "Certificate.findActiveCertificateOrderedByCrlURL")
     List<Object[]> findActiveCertificateOrderedByCrlURL();

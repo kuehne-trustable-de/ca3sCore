@@ -2,20 +2,13 @@ package de.trustable.ca3s.core.web.rest.acme;
 
 import de.trustable.ca3s.core.domain.AcmeOrder;
 import de.trustable.ca3s.core.repository.AcmeOrderRepository;
-import de.trustable.ca3s.core.repository.AuditTraceRepository;
 import de.trustable.ca3s.core.service.AuditService;
-import de.trustable.ca3s.core.service.dto.Preferences;
 import de.trustable.ca3s.core.service.dto.acme.OrderResponse;
-import de.trustable.ca3s.core.service.util.CertificateProcessingUtil;
-import de.trustable.ca3s.core.service.util.CertificateUtil;
-import de.trustable.ca3s.core.service.util.JwtUtil;
-import de.trustable.ca3s.core.service.util.PipelineUtil;
+import de.trustable.ca3s.core.service.util.*;
 import de.trustable.util.CryptoUtil;
-import org.bouncycastle.asn1.x509.GeneralName;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -24,16 +17,12 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.naming.InvalidNameException;
-import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class OrderControllerTest {
 
@@ -60,6 +49,11 @@ public class OrderControllerTest {
     @Mock
     AuditService auditService = mock(AuditService.class);
 
+    @Mock
+    CertificateAsyncUtil certificateAsyncUtil = mock(CertificateAsyncUtil.class);
+
+    @Mock
+    ReplacementCandidateUtil replacementCandidateUtil = mock(ReplacementCandidateUtil.class);
 
     AcmeOrder acmeOrder = new AcmeOrder();
 
@@ -90,7 +84,7 @@ public class OrderControllerTest {
         true, // iterateAuthenticationsOnGet
         0,
         0,
-        0);
+        0, replacementCandidateUtil, certificateAsyncUtil);
 
     }
 

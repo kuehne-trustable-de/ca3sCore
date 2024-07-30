@@ -4,11 +4,9 @@ import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
-import de.trustable.ca3s.core.repository.CertificateAttributeRepository;
-import de.trustable.ca3s.core.repository.CertificateCommentRepository;
-import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.repository.ProtectedContentRepository;
+import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.NotificationService;
 import de.trustable.ca3s.core.service.dto.CRLUpdateInfo;
 import de.trustable.ca3s.core.service.dto.KeyAlgoLengthOrSpec;
 import de.trustable.util.AlgorithmInfo;
@@ -59,6 +57,9 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.spec.PBEParameterSpec;
@@ -119,11 +120,26 @@ public class CertificateUtil {
     private final PreferenceUtil preferenceUtil;
 
     final private CryptoService cryptoUtil;
+    final private UserRepository userRepository;
+    final private AcmeAccountRepository acmeAccountRepository;
+
 
     final private AuditService auditService;
+    final private ReplacementCandidateUtil replacementCandidateUtil;
+
 
     @Autowired
-    public CertificateUtil(CertificateRepository certificateRepository, CertificateAttributeRepository certificateAttributeRepository, CertificateCommentRepository certificateCommentRepository, ProtectedContentRepository protContentRepository, ProtectedContentUtil protUtil, PreferenceUtil preferenceUtil, CryptoService cryptoUtil, AuditService auditService) {
+    public CertificateUtil(CertificateRepository certificateRepository,
+                           CertificateAttributeRepository certificateAttributeRepository,
+                           CertificateCommentRepository certificateCommentRepository,
+                           ProtectedContentRepository protContentRepository,
+                           ProtectedContentUtil protUtil,
+                           PreferenceUtil preferenceUtil,
+                           CryptoService cryptoUtil,
+                           UserRepository userRepository, AcmeAccountRepository acmeAccountRepository, AuditService auditService,
+                           ReplacementCandidateUtil replacementCandidateUtil) {
+
+
         this.certificateRepository = certificateRepository;
         this.certificateAttributeRepository = certificateAttributeRepository;
         this.certificateCommentRepository = certificateCommentRepository;
@@ -131,7 +147,10 @@ public class CertificateUtil {
         this.protUtil = protUtil;
         this.preferenceUtil = preferenceUtil;
         this.cryptoUtil = cryptoUtil;
+        this.userRepository = userRepository;
+        this.acmeAccountRepository = acmeAccountRepository;
         this.auditService = auditService;
+        this.replacementCandidateUtil = replacementCandidateUtil;
     }
 
     private static Map<ASN1ObjectIdentifier, Integer> createDnOrderMap() {
@@ -615,11 +634,7 @@ public class CertificateUtil {
 
         certificateRepository.save(cert);
 //		LOG.debug("certificate id '" + cert.getId() +"' post-save");
-        certificateAttributeRepository.saveAll(cert.getCertificateAttributes());
-        LOG.debug("certificate id '{}' saved containing #{} attributes", cert.getId(), cert.getCertificateAttributes().size());
-        for (CertificateAttribute cad : cert.getCertificateAttributes()) {
-            LOG.debug("Name '" + cad.getName() + "' got value '" + cad.getValue() + "'");
-        }
+
 
         final X509Principal principal = PrincipalUtil.getSubjectX509Principal(x509Cert);
         final Vector<?> values = principal.getValues(X509Name.CN);
@@ -630,11 +645,12 @@ public class CertificateUtil {
         sanList.addAll(getCertAttributes(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN));
         sanList.addAll(getCertAttributes(cert, CsrAttribute.ATTRIBUTE_TYPED_VSAN));
 
-        List<Certificate> replacedCerts = findReplaceCandidates(Instant.now(), cn, sanList);
+        List<Certificate> replacedCerts = replacementCandidateUtil.findReplaceCandidates(Instant.now(), cn, sanList, cert);
 
         if (replacedCerts.isEmpty()) {
             LOG.debug("certificate id {} does not replace any certificate", cert.getId());
         } else {
+            setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_REPLACES_NUMBER_OF_CERTS, replacedCerts.size());
             for (Certificate replacedCert : replacedCerts) {
                 if (!cert.equals(replacedCert)) {
                     LOG.debug("certificate id {} replaces certificate id {}", cert.getId(), replacedCert.getId());
@@ -642,6 +658,12 @@ public class CertificateUtil {
                     certificateAttributeRepository.saveAll(replacedCert.getCertificateAttributes());
                 }
             }
+        }
+
+        certificateAttributeRepository.saveAll(cert.getCertificateAttributes());
+        LOG.debug("certificate id '{}' saved containing #{} attributes", cert.getId(), cert.getCertificateAttributes().size());
+        for (CertificateAttribute cad : cert.getCertificateAttributes()) {
+            LOG.debug("Name '" + cad.getName() + "' got value '" + cad.getValue() + "'");
         }
 
         return cert;
@@ -2134,103 +2156,6 @@ public class CertificateUtil {
         }
 
         cert.setRevokedSince(revocationDate);
-    }
-
-
-    /**
-     * @param sanArr SAN array
-     * @return list of certificates
-     */
-    public List<Certificate> findReplaceCandidates(String[] sanArr) {
-
-        return findReplaceCandidates(null, sanArr);
-    }
-
-    public List<Certificate> findReplaceCandidates(String cn, String[] sanArr) {
-        return findReplaceCandidates(Instant.now(), cn, sanArr);
-    }
-
-    /**
-     * @param sanArr SAN array
-     * @return list of certificates
-     */
-    public List<Certificate> findReplaceCandidates(Instant validOn, String cn, String[] sanArr) {
-
-        List<String> sans = new ArrayList<>();
-        for (String san : sanArr) {
-            LOG.debug("SAN present: {} ", san);
-            sans.add(san.toLowerCase(Locale.ROOT));
-        }
-
-        return findReplaceCandidates(validOn, cn, sans);
-
-    }
-
-    /**
-     * @param sanList SAN list
-     * @return list of certificates
-     */
-    public List<Certificate> findReplaceCandidates(Instant validOn, String cn, List<String> sanList) {
-
-        List<String> sanListLowerCase = new ArrayList<>();
-        if(sanList != null){
-            for( String san: sanList){
-                sanListLowerCase.add(san.toLowerCase(Locale.ROOT));
-            }
-        }
-        if (cn != null) {
-            if (!sanListLowerCase.contains(cn.toLowerCase(Locale.ROOT))) {
-                if( isIPAddress(cn)) {
-                    sanListLowerCase.add("IP:" + cn.toLowerCase(Locale.ROOT));
-                }else{
-                    sanListLowerCase.add("DNS:" +cn.toLowerCase(Locale.ROOT));
-                }
-            }
-        }
-        return findReplaceCandidates(validOn, sanListLowerCase);
-
-    }
-
-    /**
-     * @param sans SANs as List
-     * @return list of certificates
-     */
-    public List<Certificate> findReplaceCandidates(Instant validOn, List<String> sans) {
-
-        LOG.debug("sans list contains {} elements", sans.size());
-
-        List<Certificate> candidateList = new ArrayList<>();
-
-        if (sans.size() == 0) {
-            return candidateList;
-        }
-
-        List<Certificate> matchingCertList = certificateRepository.findActiveCertificatesBySANs(validOn, sans);
-        LOG.debug("objArrList contains {} elements", matchingCertList.size());
-
-
-        for (Certificate cert : matchingCertList) {
-            LOG.debug("replacement candidate {}: {} ", cert.getId(), cert.getSubject());
-
-            boolean matches = true;
-            for (CertificateAttribute certAttr : cert.getCertificateAttributes()) {
-
-                if (certAttr.getName().equals(CsrAttribute.ATTRIBUTE_TYPED_SAN) || certAttr.getName().equals(CsrAttribute.ATTRIBUTE_TYPED_VSAN)) {
-                    String san = certAttr.getValue();
-                    if (!sans.contains(san)) {
-                        matches = false;
-                        LOG.debug("candidate san {} NOT in provided san list", san);
-                        break;
-                    }
-                }
-            }
-            if (matches) {
-                candidateList.add(cert);
-                LOG.debug("replacement candidate {}: contains all SANs", cert.getId());
-            }
-        }
-
-        return candidateList;
     }
 
     public static String getDownloadFilename(final Certificate cert) {

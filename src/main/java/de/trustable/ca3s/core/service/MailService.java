@@ -78,21 +78,26 @@ public class MailService {
     }
 
     @Transactional
-    public void sendEmailFromTemplate(Context context, User user, String[] cc, String templateName, String titleKey) throws MessagingException {
-
-        sendEmailFromTemplate(context, user, cc, templateName, titleKey, null);
-
+    public void sendEmailFromTemplate(Context context, User user, String email, String[] cc, String templateName, String titleKey) throws MessagingException {
+        sendEmailFromTemplate(context, user, email, cc, templateName, titleKey, null);
     }
 
     @Transactional
-    public void sendEmailFromTemplate(Context context, User user, String[] cc, String templateName, String titleKey, String[] args) throws MessagingException {
+    public void sendEmailFromTemplate(Context context, User user, String[] cc, String templateName, String titleKey) throws MessagingException {
+        sendEmailFromTemplate(context, user, user.getEmail(),  cc, templateName, titleKey, null);
+    }
 
-        if (user.getEmail() == null) {
-            log.debug("Email doesn't exist for user '{}'", user.getLogin());
-            return;
+    public void sendEmailFromTemplate(Context context, User user, String[] cc, String templateName, String titleKey, String[] args) throws MessagingException {
+        sendEmailFromTemplate(context, user, user.getEmail(), cc, templateName, titleKey, args);
+    }
+
+    @Transactional
+    public void sendEmailFromTemplate(Context context, User user, String email, String[] cc, String templateName, String titleKey, String[] args) throws MessagingException {
+
+        if (user != null) {
+            context.setVariable(USER, user);
         }
-        Locale locale = Locale.forLanguageTag(user.getLangKey());
-        context.setVariable(USER, user);
+
         if(jHipsterProperties.getMail() != null &&
             jHipsterProperties.getMail().getBaseUrl() != null &&
             !jHipsterProperties.getMail().getBaseUrl().isEmpty()) {
@@ -104,8 +109,8 @@ public class MailService {
 
         context.setVariable(BASE_URL, jHipsterProperties.getMail().getBaseUrl());
         String content = templateEngine.process(templateName, context);
-        String subject = messageSource.getMessage(titleKey, args, locale);
-        sendEmail(user.getEmail(), cc, subject, content, false, true);
+        String subject = messageSource.getMessage(titleKey, args, context.getLocale());
+        sendEmail(email, cc, subject, content, false, true);
     }
 
     @Transactional

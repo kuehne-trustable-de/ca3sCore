@@ -48,7 +48,8 @@ public class NotificationService {
     @Autowired
     public NotificationService(CertificateRepository certificateRepo, CSRRepository csrRepo,
                                UserRepository userRepository, PipelineUtil pipelineUtil,
-                               CertificateUtil certificateUtil, MailService mailService,
+                               CertificateUtil certificateUtil,
+                               MailService mailService,
                                AuditService auditService,
                                @Value("${ca3s.schedule.ra-officer-notification.days-before-expiry.ee:30}") int nDaysExpiryEE,
                                @Value("${ca3s.schedule.ra-officer-notification.days-before-expiry.ca:90}")int nDaysExpiryCA,
@@ -95,12 +96,11 @@ public class NotificationService {
     public int notifyRAOfficerHolderOnExpiry(List<User> raOfficerList, List<User> domainOfficerList, boolean logNotification) {
 
         Instant now = Instant.now();
-        Instant after = now;
         Instant beforeCA = now.plus(nDaysExpiryCA, ChronoUnit.DAYS);
-        List<Certificate> expiringCAList = certificateRepo.findNonRevokedByTypeAndValidTo(false, after, beforeCA);
+        List<Certificate> expiringCAList = certificateRepo.findNonRevokedByTypeAndValidTo(false, now, beforeCA);
 
         Instant beforeEE = now.plus(nDaysExpiryEE, ChronoUnit.DAYS);
-        List<Certificate> expiringEECertList = certificateRepo.findNonRevokedByTypeAndValidTo(true, after, beforeEE);
+        List<Certificate> expiringEECertList = certificateRepo.findNonRevokedByTypeAndValidTo(true, now, beforeEE);
 
         Instant relevantPendingStart = now.minus(nDaysPending, ChronoUnit.DAYS);
         List<CSR> pendingCsrList = csrRepo.findPendingByDay(relevantPendingStart, now);
@@ -169,11 +169,10 @@ public class NotificationService {
     public int notifyRequestorOnExpiry(User testUser, boolean logNotification) {
 
         Instant now = Instant.now();
-        Instant after = now;
 
         int maxExpiry = notificationDayList.stream().max(Integer::compareTo).get();
         Instant beforeEE = now.plus(maxExpiry, ChronoUnit.DAYS);
-        List<Certificate> expiringEECertList = certificateRepo.findNonRevokedByTypeAndValidTo(true, after, beforeEE);
+        List<Certificate> expiringEECertList = certificateRepo.findNonRevokedByTypeAndValidTo(true, now, beforeEE);
 
         if( expiringEECertList.isEmpty()) {
             LOG.info("No expiring certificates in the next {} days / no pending requests requested in the last {} days. No need to send a notification eMail to RA officers", nDaysExpiryEE, nDaysPending);
@@ -292,6 +291,21 @@ public class NotificationService {
             LOG.debug("#{} parts selected from additionalEmailRecipients '{}'.", parts.length, additionalEmailRecipients);
             ccList.addAll(Arrays.asList(parts));
         }
+    }
+
+
+    public void notifyRequestorOnExcessiveAvtiveCertificates(String requestorEmail, int numberActive, Certificate certificate) {
+
+        Locale locale = Locale.getDefault();
+        Context context = new Context(locale);
+        context.setVariable("numberActive", numberActive);
+        context.setVariable("certificate", certificate);
+        try {
+            mailService.sendEmailFromTemplate(context, null, requestorEmail, null, "mail/excessiveAvtiveCertificates", "email.excessive.active.title");
+        }catch (Throwable throwable){
+            LOG.warn("Problem occurred while sending a notification eMail to requestor address '" + requestorEmail + "'", throwable);
+        }
+
     }
 
 

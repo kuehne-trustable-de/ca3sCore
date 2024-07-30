@@ -170,6 +170,8 @@ public class CertificateAttribute implements Serializable {
     public static final String ATTRIBUTE_REQUESTED_BY = "REQUESTED_BY";
     public static final String ATTRIBUTE_REPLACED_BY = "REPLACED_BY";
 
+    public static final String ATTRIBUTE_REPLACES_NUMBER_OF_CERTS = "REPLACES_NUMBER_OF_CERTS";
+
     public static final String ATTRIBUTE_SOURCE = "SOURCE";
 
 	public static final String ATTRIBUTE_UPLOADED_BY = "UPLOADED_BY";

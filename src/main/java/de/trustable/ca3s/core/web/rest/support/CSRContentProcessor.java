@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.KeyStore;
@@ -22,6 +21,7 @@ import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.service.badkeys.BadKeysResult;
 import de.trustable.ca3s.core.service.badkeys.BadKeysService;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
+import de.trustable.ca3s.core.service.util.ReplacementCandidateUtil;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.encoders.Base64;
@@ -76,6 +76,8 @@ public class CSRContentProcessor {
 
     private final BadKeysService badKeysService;
 
+    final private ReplacementCandidateUtil replacementCandidateUtil;
+
     private final boolean findReplacementCandidates;
 
     public CSRContentProcessor(CryptoUtil cryptoUtil,
@@ -85,7 +87,7 @@ public class CSRContentProcessor {
                                PipelineRepository pipelineRepository,
                                PipelineUtil pvUtil,
                                BadKeysService badKeysService,
-                               @Value("${ca3s.issuance.findReplacements:false}") boolean findReplacementCandidates) {
+                               ReplacementCandidateUtil replacementCandidateUtil, @Value("${ca3s.issuance.findReplacements:false}") boolean findReplacementCandidates) {
         this.cryptoUtil = cryptoUtil;
         this.csrRepository = csrRepository;
         this.certificateRepository = certificateRepository;
@@ -93,6 +95,7 @@ public class CSRContentProcessor {
         this.pipelineRepository = pipelineRepository;
         this.pvUtil = pvUtil;
         this.badKeysService = badKeysService;
+        this.replacementCandidateUtil = replacementCandidateUtil;
         this.findReplacementCandidates = findReplacementCandidates;
     }
 
@@ -227,7 +230,7 @@ public class CSRContentProcessor {
                     }
 
                     if( findReplacementCandidates) {
-                        List<Certificate> candidates = certUtil.findReplaceCandidates(p10ReqData.getP10Holder().getSans());
+                        List<Certificate> candidates = replacementCandidateUtil.findReplaceCandidates(p10ReqData.getP10Holder().getSans());
                         p10ReqData.setReplacementCandidatesFromList(candidates);
                         LOG.debug("#{} replacement candidates found", candidates);
                     }else{

@@ -11,8 +11,6 @@ import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 import de.trustable.ca3s.core.repository.ScepOrderRepository;
 import de.trustable.ca3s.core.service.AuditService;
-import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
-import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.*;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.Pkcs10RequestHolder;
@@ -44,7 +42,6 @@ import java.time.Instant;
 import java.util.*;
 
 import static de.trustable.ca3s.core.domain.ScepOrderAttribute.ATTRIBUTE_CN;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 
 /**
@@ -96,11 +93,15 @@ public class ScepServletImpl extends ScepServlet {
 
     final private PipelineUtil pipelineUtil;
 
-	public ThreadLocal<Pipeline> threadLocalPipeline = new ThreadLocal<>();
+    final private ReplacementCandidateUtil replacementCandidateUtil;
 
-    public ScepServletImpl(AuditService auditService, PipelineUtil pipelineUtil) {
+
+    public ThreadLocal<Pipeline> threadLocalPipeline = new ThreadLocal<>();
+
+    public ScepServletImpl(AuditService auditService, PipelineUtil pipelineUtil, ReplacementCandidateUtil replacementCandidateUtil) {
         this.auditService = auditService;
         this.pipelineUtil = pipelineUtil;
+        this.replacementCandidateUtil = replacementCandidateUtil;
     }
 
     @Override
@@ -263,10 +264,13 @@ public class ScepServletImpl extends ScepServlet {
                 if( cnArr.length > 0 ){
                     cnString = cnArr[0].getFirst().getValue().toString();
                 }
+
+                // currently no email notification target available.
+                // Check again once requestors are bound to user accounts
                 List<Certificate> replacementCertificateList =
-                    certUtil.findReplaceCandidates(Instant.now(),
+                    replacementCandidateUtil.findReplaceCandidates(Instant.now(),
                         cnString,
-                        gnStringList);
+                        gnStringList, null);
 
                 if( replacementCertificateList.isEmpty()){
                     LOGGER.warn("SCEP request authentication by certificate failed, csr matches no existing certificate!");
