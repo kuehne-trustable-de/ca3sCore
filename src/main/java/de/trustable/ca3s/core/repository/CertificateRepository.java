@@ -11,6 +11,8 @@ import org.springframework.stereotype.Repository;
 
 import de.trustable.ca3s.core.domain.Certificate;
 
+import javax.persistence.NamedQuery;
+
 
 /**
  * Spring Data  repository for the Certificate entity.
@@ -62,6 +64,7 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
         @Param("name2") String name2,
         @Param("value2") String value2);
 
+
     @Query(name = "Certificate.findActiveByAttributeValue")
     List<Certificate> findActiveByAttributeValue(@Param("name") String name,
                                                  @Param("value") String value);
@@ -102,6 +105,12 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
 
     @Query(name = "Certificate.findActiveCertificateOrderedByCrlURL")
     List<Object[]> findActiveCertificateOrderedByCrlURL();
+
+    @Query(name = "Certificate.findDistinctCrlURLForActiveCertificates")
+    List<String> findDistinctCrlURLForActiveCertificates();
+
+    @Query(name = "Certificate.findActiveCertificatesByCRLUrlSerialInList")
+    List<Certificate> findActiveCertificatesBySerialInList(@Param("crlUrl") String crlUrl, @Param("serialList") List<String> serialList);
 
     @Query(name = "Certificate.findCrlURLForActiveCertificates")
     List<String> findCrlURLForActiveCertificates();

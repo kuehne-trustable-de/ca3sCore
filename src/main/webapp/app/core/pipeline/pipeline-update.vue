@@ -308,6 +308,11 @@
                         </div>
                     </div>
 
+                    <div v-if="$v.pipeline.type.$model === 'ACME'" class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.acme.contact.email.regex')" for="pipeline-contact-email-regex">Regex for account contact email</label>  <help-tag role="Admin" target="pipeline.acmeAccountEmailRegex"/>
+                        <input type="text" class="form-check-inline" name="pipeline-contact-email-regex" id="pipeline-contact-email-regex" v-model="pipeline.acmeConfigItems.contactEMailRegEx" />
+                    </div>
+
                     <!-- Additional Request Attributes -->
                     <div class="container">
 

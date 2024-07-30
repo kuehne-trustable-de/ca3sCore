@@ -156,4 +156,6 @@
 
     <include file="config/liquibase/changelog/20240122180000_added_entity_Tenant.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/20240606180000_added_column_failed_logins.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>

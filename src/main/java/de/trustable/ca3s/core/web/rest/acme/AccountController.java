@@ -34,6 +34,7 @@ import java.security.PublicKey;
 import java.util.List;
 import java.util.Optional;
 
+import de.trustable.ca3s.core.domain.Pipeline;
 import org.apache.commons.codec.binary.Base64;
 import org.jose4j.jwk.JsonWebKey;
 import org.jose4j.jwk.PublicJsonWebKey;
@@ -364,7 +365,9 @@ public class AccountController extends AcmeController {
 
             AcmeAccount acctDao = checkJWTSignatureForAccount(context, realm, accountId);
 
-            contactsFromRequest(acctDao, updateAccountReq);
+            Pipeline pipeline = getPipelineForRealm(realm);
+
+            contactsFromRequest(acctDao, updateAccountReq, pipeline);
 
             acctRepository.save(acctDao);
 

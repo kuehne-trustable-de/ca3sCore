@@ -11,6 +11,7 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import de.trustable.ca3s.core.service.util.PipelineUtil;
 import org.jose4j.jwt.consumer.InvalidJwtException;
@@ -257,11 +258,11 @@ public class AcmeController {
 
 	}
 	/**
-	 *
-	 * @param acctDao
-	 * @param updatedAcct
-	 */
-	public void contactsFromRequest(AcmeAccount acctDao, AccountRequest updatedAcct) {
+     * @param acctDao
+     * @param updatedAcct
+     * @param pipeline
+     */
+	public void contactsFromRequest(AcmeAccount acctDao, AccountRequest updatedAcct, Pipeline pipeline) {
 
 		Set<AcmeContact> contactSet = acctDao.getContacts();
 		if (contactSet == null) {
@@ -270,11 +271,15 @@ public class AcmeController {
 
 		contactSet.clear();
 
-		if (updatedAcct.getContacts().isEmpty()) {
-			// nothing to do
-			LOG.error("No contact info present");
+        String regexContactEMail = pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.ACME_CONTACT_EMAIL_REGEX, ".*").trim();
+        Pattern pattern = Pattern.compile(regexContactEMail);
+
+        if (updatedAcct.getContacts().isEmpty()) {
+            checkEmailRegEx(pipeline.getUrlPart(), regexContactEMail, pattern, "");
 		} else {
 			for (String contactUrl : updatedAcct.getContacts()) {
+
+                checkEmailRegEx(pipeline.getUrlPart(), regexContactEMail, pattern, contactUrl);
 
                 if( acctDao.getContacts().stream().anyMatch(c -> c.getContactUrl().trim().equals(contactUrl.trim()))){
                     LOG.info("contact utl '{}' already known fo account {}", contactUrl, acctDao.getId());
@@ -309,9 +314,15 @@ public class AcmeController {
 
 	}
 
-//	AcmeAccount checkJWTSignatureForAccount(JwtContext context) {
-//		return checkJWTSignatureForAccount(context, null, null);
-//	}
+    private static void checkEmailRegEx(String realm, String regexContactEMail, Pattern pattern, String contactUrl) {
+        if( !pattern.matcher(contactUrl).matches()) {
+            LOG.warn("non-conformant account request for realm '{}', contact email address MUST match '{}'", realm, regexContactEMail);
+
+            final ProblemDetail problem = new ProblemDetail(AcmeUtil.INVALID_CONTACT, "Contact email address does not match requirements",
+                BAD_REQUEST, "", AcmeController.NO_INSTANCE);
+            throw new AcmeProblemException(problem);
+        }
+    }
 
 	AcmeAccount checkJWTSignatureForAccount(JwtContext context, final String realm) {
 		return checkJWTSignatureForAccount(context, realm, null);

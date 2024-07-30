@@ -214,7 +214,6 @@ public class CAConnectorConfigResource {
         return caConnectorAdapter.getCAConnectorStatus();
     }
 
-
     /**
      * {@code GET  /ca-connector-configs} : get all the cAConnectorConfigs.
      *

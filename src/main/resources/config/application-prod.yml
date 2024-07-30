@@ -26,23 +26,25 @@ logging:
     ROOT: INFO
     io.github.jhipster: INFO
     de.trustable.ca3s.core: INFO
+    de.trustable.ca3s.core.Ca3SApp: DEBUG
     de.trustable.ca3s.core.PropertiesLogger: INFO
     de.trustable.ca3s.core.schedule.RequestProxyScheduler: WARN
+    de.trustable.ca3s.core.schedule.CertExpiryScheduler: INFO
     de.trustable.ca3s.core.service.NotificationService: DEBUG
     de.trustable.ca3s.core.service.MailService: DEBUG
     de.trustable.ca3s.core.service.util.CaConnectorAdapter: WARN
     de.trustable.ca3s.core.service.adcs: INFO
     de.trustable.ca3s.core.service.cmp: DEBUG
     de.trustable.ca3s.core.service.dir: WARN
-    de.trustable.ca3s.core.security.provider.Ca3sTrustManager: WARN
+    de.trustable.ca3s.core.security.provider.Ca3sTrustManager: DEBUG
     de.trustable.ca3s.core.repository.CSRSpecifications: WARN
     de.trustable.ca3s.core.repository.CertificateSpecifications: WARN
     de.trustable.ca3s.core.web.rest.support.UIDatasetSupport: DEBUG
     de.trustable.util.CryptoUtil: WARN
     de.trustable.cmp.client.cmpClient.CMPClientImpl: DEBUG
     org.keycloak.adapters: WARN
-    org.springframework.security.web.authentication: WARN
-    org.springframework.security: INFO
+    org.springframework.security.web.authentication: DEBUG
+    org.springframework.security: DEBUG
     net.ttddyy.dsproxy.listener: INFO
     org.springframework.web.filter.CommonsRequestLoggingFilter: WARN
 
@@ -54,7 +56,7 @@ management:
         enabled: false
 
 spring:
-  # devtools should be enabled for productive use
+  # devtools should NOT be enabled for productive use
   devtools:
     restart:
       enabled: false
@@ -370,13 +372,15 @@ ca3s:
     # provide a custom image for the upper left corner of the user interface
     # Remark: PNG format, only
     #    logo: custom_logo.
-
     password:
       check:
         #        description: min6NumberUpperLower
         #        regexp: ^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,100}$
         description: min8NumberUpperLowerSpecial
         regexp: ^(?:(?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))(?!.*(.)\1{2,})[A-Za-z0-9!~<>,;:_=?*+#.”&§%°()\|\[\]\-\$\^\@\/]{8,32}$
+
+    login:
+      allowEmailAddress: false
 
     csr:
       # enable the DNS lookup feature for the CSR view. It may provide relevant information to the ra officer

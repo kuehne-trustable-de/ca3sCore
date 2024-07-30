@@ -76,11 +76,32 @@
                             :class="{'valid': !$v.cAConnectorConfig.active.$invalid, 'invalid': $v.cAConnectorConfig.active.$invalid }" v-model="$v.cAConnectorConfig.active.$model" />
                     </div>
 
-                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'ADCS' || $v.cAConnectorConfig.caConnectorType.$model === 'VAULT' || $v.cAConnectorConfig.caConnectorType.$model === 'CMP'">
-                        <label v-if="$v.cAConnectorConfig.caConnectorType.$model === 'ADCS'" class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.template')" for="ca-connector-config-selector">Template</label>  <help-tag role="Admin" target="ca-connector.template"/>
-                        <label v-if="$v.cAConnectorConfig.caConnectorType.$model !== 'ADCS'" class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.selector')" for="ca-connector-config-selector">Selector</label>  <help-tag role="Admin" target="ca-connector.selector"/>
+
+                    <div class="form-group" v-if="($v.cAConnectorConfig.caConnectorType.$model === 'ADCS' || $v.cAConnectorConfig.caConnectorType.$model === 'ADCS_CERTIFICATE_INVENTORY' ) && hasADCSInstanceDetails() ">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.caname')" for="ca-connector-config-caname">CA Name</label>
+                        <input type="text" class="form-control" name="caname" id="ca-connector-config-caname" v-model="adcsInstanceDetails.caName" disabled />
+                    </div>
+
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'ADCS'">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.template')" for="ca-connector-config-selector">Template</label>  <help-tag role="Admin" target="ca-connector.template"/>
+
+                        <input type="text" v-if="!hasADCSInstanceDetails()" class="form-control" name="selector" id="ca-connector-config-selector"
+                               :class="{'valid': !$v.cAConnectorConfig.selector.$invalid, 'invalid': $v.cAConnectorConfig.selector.$invalid }" v-model="$v.cAConnectorConfig.selector.$model" />
+
+                        <select v-if="hasADCSInstanceDetails()" class="form-control" name="ca-connector-config-selector" v-model="$v.cAConnectorConfig.selector.$model" id="ca-connector-config-interval" >
+                            <option v-for="templateName in adcsInstanceDetails.templates" :key="templateName" :value="templateName">{{templateName}}</option>
+                        </select>
+
+                        <button type="button" id="update-templates" class="btn btn-secondary" v-on:click="initADCSTemplates()">
+                            <font-awesome-icon icon="refresh"></font-awesome-icon>
+                        </button>
+
+                    </div>
+
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'VAULT' || $v.cAConnectorConfig.caConnectorType.$model === 'CMP'">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.selector')" for="ca-connector-config-selector">Selector</label>  <help-tag role="Admin" target="ca-connector.selector"/>
                         <input type="text" class="form-control" name="selector" id="ca-connector-config-selector"
-                            :class="{'valid': !$v.cAConnectorConfig.selector.$invalid, 'invalid': $v.cAConnectorConfig.selector.$invalid }" v-model="$v.cAConnectorConfig.selector.$model" />
+                               :class="{'valid': !$v.cAConnectorConfig.selector.$invalid, 'invalid': $v.cAConnectorConfig.selector.$invalid }" v-model="$v.cAConnectorConfig.selector.$model" />
                     </div>
 
                     <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'DIRECTORY' || $v.cAConnectorConfig.caConnectorType.$model === 'ADCS_CERTIFICATE_INVENTORY'|| $v.cAConnectorConfig.caConnectorType.$model === 'EJBCA_INVENTORY' ">

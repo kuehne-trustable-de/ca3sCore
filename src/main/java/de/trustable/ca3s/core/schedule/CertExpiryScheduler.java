@@ -8,6 +8,7 @@ import de.trustable.ca3s.core.service.NotificationService;
 import de.trustable.ca3s.core.service.dto.CRLUpdateInfo;
 import de.trustable.ca3s.core.service.util.CRLUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.ca3s.core.service.util.CryptoService;
 import de.trustable.ca3s.core.service.util.PreferenceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,10 +19,12 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.MessagingException;
+import javax.naming.NamingException;
+import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.cert.*;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 /**
  *
@@ -42,10 +45,11 @@ public class CertExpiryScheduler {
 
     private final CRLUtil crlUtil;
 
-
     private final PreferenceUtil preferenceUtil;
 
     private final NotificationService notificationService;
+
+    private final HashMap<String, Long> crlNextCheck = new HashMap<>();
 
     public CertExpiryScheduler(@Value("${ca3s.batch.maxRecordsPerTransaction:1000}") int maxRecordsPerTransaction,
                                CertificateRepository certificateRepo,
@@ -97,7 +101,6 @@ public class CertExpiryScheduler {
 		}
 	}
 
-    @Scheduled(fixedRateString="${ca3s.schedule.rate.revocationCheck:3600000}")
 	public void updateRevocationStatus() {
 
 		if( !preferenceUtil.isCheckCrl()){
@@ -127,7 +130,7 @@ public class CertExpiryScheduler {
                     if( nextUpdateMilliSec > excessiveNextUpdate) {
                         LOG.info("Excessively long CRL validity period for certificate {} ({} sec left), enforcing check.", cert.getId(), (nextUpdateMilliSec - startTime) / 1000L);
                     } else if( startTime < nextUpdateMilliSec ) {
-                        LOG.debug("No CRL check for certificate {}, {} sec left ...", cert.getId(), (nextUpdateMilliSec - startTime) / 1000L);
+                        LOG.debug("No CRL check for certificate {}, {} sec left until nextUpdate ...", cert.getId(), (nextUpdateMilliSec - startTime) / 1000L);
                         continue;
                     }
                 } catch(NumberFormatException nfe) {
@@ -163,7 +166,73 @@ public class CertExpiryScheduler {
         LOG.info("#{} certificate revocation checks in {} mSec", count, System.currentTimeMillis() - startTime );
 	}
 
-	/**
+//    @Scheduled(cron="${ca3s.schedule.cron.expiryNotificationCron:0 15 2 * * ?}")
+    @Scheduled(fixedRateString="${ca3s.schedule.rate.revocationCheck:10000}")
+    public void updateRevocationStatus2() {
+
+        long now = System.currentTimeMillis();
+
+        List<String> crlURLList = certificateRepo.findDistinctCrlURLForActiveCertificates();
+        LOG.debug("findDistinctCrlURLForActiveCertificates returns #{} certificates in {} ms", crlURLList.size(), System.currentTimeMillis() - now);
+
+        for( String crlUrl: crlURLList){
+            if( crlNextCheck.containsKey(crlUrl) ){
+                Long nextCheck = crlNextCheck.get(crlUrl);
+                if( nextCheck > now){
+                    LOG.debug("next check for '{}' in {} sec.", crlUrl, (nextCheck - now)/1000L);
+                    continue;
+                }
+            }
+
+            try {
+                LOG.debug("downloading CRL '{}'", crlUrl);
+                X509CRL crl = crlUtil.downloadCRL(crlUrl);
+                if (crl == null) {
+                    LOG.debug("downloaded CRL == null ");
+                    continue;
+                }
+
+                if (crl.getNextUpdate() == null) {
+                    LOG.warn("nextUpdate missing in CRL '{}'", crlUrl);
+                } else {
+                    long nextUpdate = crl.getNextUpdate().getTime();
+
+                    Set<? extends X509CRLEntry> crlEntrySet = crl.getRevokedCertificates();
+                    if( crlEntrySet != null) {
+                        LOG.debug("CRL {} contains #{} items", crlUrl, crlEntrySet.size());
+                        List<String> revokedSerialsList = new ArrayList<>();
+                        for( X509CRLEntry entry: crlEntrySet){
+                            revokedSerialsList.add(entry.getSerialNumber().toString());
+                        }
+                        List<Certificate> certWithRevokedSerialList = certificateRepo.findActiveCertificatesBySerialInList(crlUrl,revokedSerialsList );
+                        LOG.debug("CRL {} has #{} probable revocation candidates", crlUrl, certWithRevokedSerialList.size());
+
+                        for(Certificate cert: certWithRevokedSerialList){
+                            X509Certificate x509Cert;
+                            try {
+                                x509Cert = CryptoService.convertPemToCertificate(cert.getContent());
+                                if( crl.getRevokedCertificate(x509Cert) != null ){
+                                    LOG.debug("Cert {} revoked by CRL {}", x509Cert, crlUrl);
+                                    certUtil.serRevocationStatus(cert, x509Cert, crl);
+                                }
+                            } catch (GeneralSecurityException e) {
+                                LOG.warn("Problem parsing cert #{} ", cert.getId());
+                            }
+                        }
+                    }
+                    crlNextCheck.put(crlUrl, nextUpdate);
+
+                }
+            } catch (CertificateException | CRLException | IOException | NamingException e2) {
+                LOG.debug("CRL retrieval for '" + crlUrl + "' failed", e2);
+            }
+        }
+
+//        LOG.info("#{} certificate revocation checks in {} mSec", count, System.currentTimeMillis() - startTime );
+
+    }
+
+    /**
 	 * @return number of expiring certificates
 	 */
 //	@Scheduled(cron = "0 15 2 * * ?")

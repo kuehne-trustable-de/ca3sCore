@@ -8,7 +8,14 @@ import AlertService from '@/shared/alert/alert.service';
 import { CAConnectorConfig } from '@/shared/model/ca-connector-config.model';
 import CAConnectorConfigViewService from '@/entities/ca-connector-config/ca-connector-config-view.service';
 
-import { ICAStatus, ICaConnectorConfigView, ICAConnectorType, IInterval, INamedValue } from '@/shared/model/transfer-object.model';
+import {
+  ICAStatus,
+  ICaConnectorConfigView,
+  ICAConnectorType,
+  IInterval,
+  INamedValue,
+  IADCSInstanceDetailsView,
+} from '@/shared/model/transfer-object.model';
 
 import { mixins } from 'vue-class-component';
 import JhiDataUtils from '@/shared/data/data-utils.service';
@@ -58,6 +65,8 @@ export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
   public cAConnectorConfig: ICaConnectorConfigView = new CAConnectorConfigView();
   public caStatus: ICAStatus = 'Unknown';
 
+  public adcsInstanceDetails: IADCSInstanceDetailsView = {};
+
   public isSaving = false;
 
   beforeRouteEnter(to, from, next) {
@@ -98,12 +107,39 @@ export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
       .find(cAConnectorConfigId)
       .then(res => {
         this.cAConnectorConfig = res;
+
         if (mode === 'copy') {
           this.cAConnectorConfig.name = 'Copy of ' + this.cAConnectorConfig.name;
           this.cAConnectorConfig.id = null;
           this.cAConnectorConfig.plainSecret = null;
         }
+
+        if (this.cAConnectorConfig.caConnectorType === 'ADCS') {
+          this.initADCSTemplates();
+        }
       });
+  }
+
+  public initADCSTemplates(): void {
+    window.console.info('calling ca-connector-configViews/adcs/templates ');
+    const self = this;
+
+    self.adcsInstanceDetails = {};
+
+    axios({
+      method: 'post',
+      url: 'api/ca-connector-configViews/adcs/templates',
+      data: this.cAConnectorConfig,
+      responseType: 'stream',
+    }).then(function (response) {
+      window.console.info('ca-connector-configViews/adcs/templates returns ' + response.data);
+
+      self.adcsInstanceDetails = response.data;
+    });
+  }
+
+  public hasADCSInstanceDetails(): boolean {
+    return this.adcsInstanceDetails && this.adcsInstanceDetails.templates && this.adcsInstanceDetails.templates.length > 0;
   }
 
   public previousState(): void {

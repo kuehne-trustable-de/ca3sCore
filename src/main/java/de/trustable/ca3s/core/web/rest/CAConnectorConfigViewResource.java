@@ -1,13 +1,15 @@
 package de.trustable.ca3s.core.web.rest;
 
+import de.trustable.ca3s.adcsCertUtil.ADCSInstanceDetails;
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.Pipeline;
-import de.trustable.ca3s.core.domain.enumeration.Interval;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 import de.trustable.ca3s.core.exception.IntegrityException;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.CAConnectorConfigService;
+import de.trustable.ca3s.core.service.adcs.ADCSConnector;
 import de.trustable.ca3s.core.service.dto.CaConnectorConfigView;
+import de.trustable.ca3s.core.service.dto.adcs.ADCSInstanceDetailsView;
 import de.trustable.ca3s.core.service.util.CaConnectorConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,9 +47,12 @@ public class CAConnectorConfigViewResource {
 
     private final CaConnectorConfigUtil caConnectorConfigUtil;
 
-    public CAConnectorConfigViewResource(CAConnectorConfigService cAConnectorConfigService, CaConnectorConfigUtil caConnectorConfigUtil) {
+    private final ADCSConnector adcsConnector;
+
+    public CAConnectorConfigViewResource(CAConnectorConfigService cAConnectorConfigService, CaConnectorConfigUtil caConnectorConfigUtil, ADCSConnector adcsConnector) {
         this.cAConnectorConfigService = cAConnectorConfigService;
         this.caConnectorConfigUtil = caConnectorConfigUtil;
+        this.adcsConnector = adcsConnector;
     }
 
 
@@ -150,5 +155,31 @@ public class CAConnectorConfigViewResource {
         }
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
+
+
+    /**
+     * {@code GET  /ca-connector-configViews/adcs/templates} : get all the cAConnectorConfigs.
+     *
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of cAConnectorConfigs in body.
+     */
+    @PostMapping("/ca-connector-configViews/adcs/templates")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public ResponseEntity<ADCSInstanceDetailsView> getADCSTemplates(@Valid @RequestBody CaConnectorConfigView caConnectorConfigView) {
+        log.debug("REST request to get getADCSTemplates");
+        if( caConnectorConfigView.getCaUrl() == null || caConnectorConfigView.getCaUrl().isEmpty()){
+            return ResponseEntity.badRequest().build();
+        }
+        if( caConnectorConfigView.getPlainSecret() == null || caConnectorConfigView.getPlainSecret().isEmpty()){
+            return ResponseEntity.badRequest().build();
+        }
+        ADCSInstanceDetails adcsInstanceDetails =  adcsConnector.getInstanceDetails(
+            caConnectorConfigView.getCaUrl(),
+            caConnectorConfigView.getPlainSecret());
+        if( adcsInstanceDetails == null){
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(new ADCSInstanceDetailsView(adcsInstanceDetails));
+    }
+
 
 }

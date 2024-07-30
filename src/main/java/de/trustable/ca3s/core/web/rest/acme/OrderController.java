@@ -149,7 +149,7 @@ public class OrderController extends AcmeController {
 
         LOG.info("Received read order request for orderId {}", orderId);
 
-        rateLimiter.checkRateLimit(orderId, realm);
+        rateLimiter.checkACMERateLimit(orderId, realm);
 
         try {
             JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
@@ -207,7 +207,7 @@ public class OrderController extends AcmeController {
 
         LOG.info("Received finalize order request ");
 
-        rateLimiter.checkRateLimit(orderId, realm);
+        rateLimiter.checkACMERateLimit(orderId, realm);
 
         // check for existence of a pipeline for the realm
         Pipeline pipeline = getPipelineForRealm(realm);

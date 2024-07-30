@@ -15,6 +15,11 @@ export interface IUser {
 
   tenantId?: any;
   tenantName?: string;
+
+  failedLogins?: number;
+  blockedUntilDate?: Date;
+  credentialsValidToDate?: Date;
+  managedExternally?: boolean;
 }
 
 export class User implements IUser {
@@ -33,6 +38,10 @@ export class User implements IUser {
     public lastModifiedDate?: Date,
     public password?: string,
     public tenantId?: any,
-    public tenantName?: string
+    public tenantName?: string,
+    public failedLogins?: number,
+    public blockedUntilDate?: Date,
+    public credentialsValidToDate?: Date,
+    public managedExternally?: boolean
   ) {}
 }

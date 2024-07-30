@@ -4,7 +4,7 @@ import { Vue, Component } from 'vue-property-decorator';
 
 const validations = {
   resetAccount: {
-    email: {
+    username: {
       required,
       minLength: minLength(5),
       maxLength: maxLength(254),
@@ -14,7 +14,7 @@ const validations = {
 };
 
 interface ResetAccount {
-  email: string;
+  username: string;
 }
 
 @Component({
@@ -24,13 +24,13 @@ export default class ResetPasswordInit extends Vue {
   public success: boolean = null;
   public error: string = null;
   public resetAccount: ResetAccount = {
-    email: null,
+    username: null,
   };
 
   public requestReset(): void {
     this.error = null;
     axios
-      .post('api/account/reset-password/init', this.resetAccount.email, {
+      .post('api/account/reset-password/init', this.resetAccount.username, {
         headers: {
           'content-type': 'text/plain',
         },

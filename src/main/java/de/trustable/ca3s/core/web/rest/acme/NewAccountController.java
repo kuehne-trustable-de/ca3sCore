@@ -180,7 +180,7 @@ public class NewAccountController extends AcmeController {
 				}
 
 			    acctRepository.save(newAcctDao);
-			    contactsFromRequest(newAcctDao, newAcct);
+			    contactsFromRequest(newAcctDao, newAcct, pipeline);
 
 			    newAcctDao.setStatus(AccountStatus.VALID);
 

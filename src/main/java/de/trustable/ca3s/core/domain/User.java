@@ -85,6 +85,18 @@ public class User extends AbstractAuditingEntity implements Serializable {
     @Column(name = "reset_date")
     private Instant resetDate = null;
 
+    @Column(name = "failed_logins")
+    private Integer failedLogins;
+
+    @Column(name = "last_login_date")
+    private Instant lastloginDate = null;
+
+    @Column(name = "blocked_until_date")
+    private Instant blockedUntilDate = null;
+
+    @Column(name = "credentials_valid_to_date")
+    private Instant credentialsValidToDate = null;
+
     @NotNull
     @Column(name = "managed_externally", nullable = false)
     private boolean managedExternally = false;
@@ -213,6 +225,38 @@ public class User extends AbstractAuditingEntity implements Serializable {
 
     public void setAuthorities(Set<Authority> authorities) {
         this.authorities = authorities;
+    }
+
+    public Integer getFailedLogins() {
+        return failedLogins;
+    }
+
+    public void setFailedLogins(Integer failedLogins) {
+        this.failedLogins = failedLogins;
+    }
+
+    public Instant getLastloginDate() {
+        return lastloginDate;
+    }
+
+    public void setLastloginDate(Instant lastloginDate) {
+        this.lastloginDate = lastloginDate;
+    }
+
+    public Instant getBlockedUntilDate() {
+        return blockedUntilDate;
+    }
+
+    public void setBlockedUntilDate(Instant blockedUntilDate) {
+        this.blockedUntilDate = blockedUntilDate;
+    }
+
+    public Instant getCredentialsValidToDate() {
+        return credentialsValidToDate;
+    }
+
+    public void setCredentialsValidToDate(Instant credentialsValidToDate) {
+        this.credentialsValidToDate = credentialsValidToDate;
     }
 
     public boolean isManagedExternally() {
