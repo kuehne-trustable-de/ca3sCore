@@ -285,6 +285,11 @@ ca3s:
   issuance:
     ra:
       self-issuance-allowed: false
+    limit:
+      notify:
+        active-parallel-certificates: 20
+      reject:
+        active-parallel-certificates: 100
 
   batch:
     maxRecordsPerTransaction: 1000

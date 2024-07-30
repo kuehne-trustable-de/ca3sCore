@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title th:text="#{email.excessive.active.title}">Too many active certificates in parallel</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="shortcut icon" th:href="@{|${baseUrl}/favicon.ico|}" />
+    </head>
+    <body>
+        <p th:text="#{email.excessive.active.greeting}">
+            Dear certificate requestor,
+        </p>
+
+        <p th:text="#{email.excessive.active.text1(${certificate.subject}, ${numberActive})}">
+            For the certificate '${certificate.subject}' there are more than ${numberActive} active certificate! Consider to revoke certificates not used / not required anymore!
+        </p>
+        <p>
+            <span th:text="#{email.activation.text2}">Regards, </span>
+            <br/>
+            <em th:text="#{email.request.signature}">your ca3s notification robot.</em>
+        </p>
+    </body>
+</html>

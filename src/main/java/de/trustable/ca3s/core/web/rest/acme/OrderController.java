@@ -41,6 +41,7 @@ import de.trustable.ca3s.core.web.rest.util.RateLimiter;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
@@ -58,19 +59,21 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
-import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -102,6 +105,10 @@ public class OrderController extends AcmeController {
 
     final private AuditService auditService;
 
+    final private ReplacementCandidateUtil replacementCandidateUtil;
+
+    final private CertificateAsyncUtil certificateAsyncUtil;
+
     final private boolean finalizeLocationBackwardCompat;
 
     final private boolean iterateAuthenticationsOnGet;
@@ -116,7 +123,7 @@ public class OrderController extends AcmeController {
                            @Value("${ca3s.acme.iterate.authentications:true}") boolean iterateAuthenticationsOnGet,
                            @Value("${ca3s.acme.ratelimit.second:0}") int rateSec,
                            @Value("${ca3s.acme.ratelimit.minute:20}") int rateMin,
-                           @Value("${ca3s.acme.ratelimit.hour:0}") int rateHour) {
+                           @Value("${ca3s.acme.ratelimit.hour:0}") int rateHour, ReplacementCandidateUtil replacementCandidateUtil, CertificateAsyncUtil certificateAsyncUtil) {
         this.orderRepository = orderRepository;
         this.jwtUtil = jwtUtil;
         this.cryptoUtil = cryptoUtil;
@@ -127,6 +134,8 @@ public class OrderController extends AcmeController {
         this.finalizeLocationBackwardCompat = finalizeLocationBackwardCompat;
 
         this.iterateAuthenticationsOnGet = iterateAuthenticationsOnGet;
+        this.replacementCandidateUtil = replacementCandidateUtil;
+        this.certificateAsyncUtil = certificateAsyncUtil;
 
         this.rateLimiter = new RateLimiter("Order", rateSec, rateMin, rateHour);
     }
@@ -337,6 +346,8 @@ public class OrderController extends AcmeController {
                         HttpStatus.FORBIDDEN, NO_DETAIL, NO_INSTANCE));
                 }
 
+                notifyOnCertificate(orderDao);
+
                 boolean valid = true;
                 UriComponentsBuilder baseUriBuilder = getEffectiveUriComponentsBuilder(realm, forwardedHost).path("/../../..");
                 LOG.debug("finalize: baseUriBuilder : " + baseUriBuilder.toUriString());
@@ -352,6 +363,27 @@ public class OrderController extends AcmeController {
             return buildProblemResponseEntity(new AcmeProblemException(problem));
         }
 
+    }
+
+
+    private void notifyOnCertificate( AcmeOrder orderDao) {
+
+        List<String> emailList = orderDao.getAccount().getContacts().stream()
+            .map(contact -> StringUtils.substringAfter(contact.getContactUrl(), "mailto:"))
+            .collect(Collectors.toList());
+
+        executeAfterTransactionCommits(() -> {
+            certificateAsyncUtil.onChange(orderDao.getCertificate(), emailList);
+        });
+    }
+
+    private void executeAfterTransactionCommits(Runnable task) {
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            public void afterCommit() {
+                LOG.info( "in afterCommit ");
+                task.run();
+            }
+        });
     }
 
     @NotNull

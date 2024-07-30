@@ -117,15 +117,17 @@ import javax.validation.constraints.*;
     ),
 
     @NamedQuery(name = "Certificate.findActiveCertificatesBySANs",
-    query = "SELECT c as total FROM Certificate c " +
-    	" JOIN c.certificateAttributes certAtt " +
-    	" WHERE " +
-        " c.validTo >= :now and " +
-        " c.validFrom <= :now and " +
-        " c.revoked = FALSE and " +
-        " ( certAtt.name = 'TYPED_SAN' or certAtt.name = 'TYPED_VSAN') and " +
-        " certAtt.value in :sans "
+        query = "SELECT c FROM Certificate c " +
+            " JOIN c.certificateAttributes certAtt " +
+            " WHERE " +
+            " c.validTo >= :now and " +
+            " c.validFrom <= :now and " +
+            " c.revoked = FALSE and " +
+            " ( certAtt.name = 'TYPED_SAN' or certAtt.name = 'TYPED_VSAN') and " +
+            " certAtt.value in :sans " +
+            " order by c.validTo desc"
     ),
+
 
     @NamedQuery(name = "Certificate.findInactiveCertificatesByValidFrom",
     query = "SELECT c FROM Certificate c WHERE " +
