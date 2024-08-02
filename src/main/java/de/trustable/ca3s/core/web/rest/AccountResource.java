@@ -44,7 +44,7 @@ public class AccountResource {
         }
     }
 
-    @Value("${ca3s.ui.languages:en,de,pl}")
+    @Value("${ca3s.ui.languages:en,de,ru,pl}")
     private String availableLanguages;
 
     private final Logger log = LoggerFactory.getLogger(AccountResource.class);

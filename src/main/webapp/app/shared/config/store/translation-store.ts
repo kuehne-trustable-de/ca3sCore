@@ -6,6 +6,7 @@ export const translationStore: Module<any, any> = {
     languages: {
       en: { name: 'English' },
       de: { name: 'Deutsch' },
+      ru: { name: 'Русский' },
       pl: { name: 'Polski' },
 
       multiLanguage: true

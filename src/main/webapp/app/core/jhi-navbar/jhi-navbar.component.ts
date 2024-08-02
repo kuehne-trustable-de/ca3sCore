@@ -84,6 +84,8 @@ export default class JhiNavbar extends Vue {
           this.languages['en'] = { name: 'English' };
         } else if (lang === 'de') {
           this.languages['de'] = { name: 'Deutsch' };
+        } else if (lang === 'ru') {
+          this.languages['ru'] = { name: 'Русский' };
         } else if (lang === 'pl') {
           this.languages['pl'] = { name: 'Polski' };
         } else {

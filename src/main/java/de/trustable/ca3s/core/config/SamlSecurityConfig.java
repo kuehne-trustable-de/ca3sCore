@@ -105,7 +105,7 @@ public class SamlSecurityConfig {
     @Autowired
     private TenantRepository tenantRepository;
 
-    @Value("${ca3s.ui.languages:en,de,pl}")
+    @Value("${ca3s.ui.languages:en,de,ru,pl}")
     String availableLanguages;
 
     @Bean(initMethod = "initialize")

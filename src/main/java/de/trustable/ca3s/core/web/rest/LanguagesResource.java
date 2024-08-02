@@ -19,7 +19,7 @@ public class LanguagesResource {
 
 	private final Logger log = LoggerFactory.getLogger(LanguagesResource.class);
 
-    @Value("${ca3s.ui.languages:en,de,pl}")
+    @Value("${ca3s.ui.languages:en,de,ru,pl}")
     private String availableLanguages;
 
 

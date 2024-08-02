@@ -14,6 +14,8 @@ export default class TranslationService {
   public async refreshLanguages() {
     this.store.commit('languages', {
       de: { name: 'Deutsch' }
+      ru: { name: 'Русский' }
+      pl: { name: 'Polski' }
     });
 
     return axios.get('api/languages');
@@ -29,6 +31,8 @@ export default class TranslationService {
             newLanguages['en'] = { name: 'English' };
           }else if( lang === 'de'){
             newLanguages['de'] = { name: 'Deutsch' };
+          }else if( lang === 'ru'){
+            newLanguages['ru'] = { name: 'Русский' };
           }else if( lang === 'pl'){
             newLanguages['pl'] = { name: 'Polski' };
           }else{

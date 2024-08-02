@@ -66,7 +66,7 @@ public class OIDCRestService {
                            @Value("${ca3s.oidc.roles.admin:ADMIN}") String[] rolesAdminArr,
                            @Value("${ca3s.oidc.client-id:#{null}}") String clientId,
                            @Value("${ca3s.oidc.client-secret:clientSecret}") String clientSecret,
-                           @Value("${ca3s.ui.languages:en,de,pl}") String availableLanguages,
+                           @Value("${ca3s.ui.languages:en,de,ru,pl}") String availableLanguages,
                            UserPreferenceRepository userPreferenceRepository,
                            UserRepository userRepository,
                            AuthorityRepository authorityRepository,
