@@ -127,14 +127,14 @@
         <open-saml.version>4.3.0</open-saml.version>
 
         <undertow.core.version>2.3.14.Final</undertow.core.version>
-        <bucket4j.version>8.7.0</bucket4j.version>
+        <bucket4j.version>8.10.1</bucket4j.version>
 
         <h2.version>2.2.224</h2.version>
 
         <json.version>2.9.0</json.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
         <!--archunit-junit5.version>0.23.1</archunit-junit5.version-->
-        <archunit-junit5.version>1.2.1</archunit-junit5.version>
+        <archunit-junit5.version>1.3.0</archunit-junit5.version>
 
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <!-- Plugin versions -->
@@ -142,23 +142,23 @@
         <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
         <maven-site-plugin.version>3.12.1</maven-site-plugin.version>
 
-        <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
-        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-        <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
+        <maven-clean-plugin.version>3.4.0</maven-clean-plugin.version>
+        <maven-javadoc-plugin.version>3.8.0</maven-javadoc-plugin.version>
+        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven-eclipse-plugin.version>2.10</maven-eclipse-plugin.version>
-        <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
-        <maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
+        <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
+        <maven-failsafe-plugin.version>3.3.1</maven-failsafe-plugin.version>
         <maven-idea-plugin.version>2.2.1</maven-idea-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.3.1</maven-surefire-plugin.version>
         <maven-war-plugin.version>3.4.0</maven-war-plugin.version>
-        <maven-checkstyle.version>3.3.1</maven-checkstyle.version>
-        <maven-source.version>3.3.0</maven-source.version>
+        <maven-checkstyle.version>3.4.0</maven-checkstyle.version>
+        <maven-source.version>3.3.1</maven-source.version>
         <checkstyle.version>10.15.0</checkstyle.version>
         <spring-nohttp-checkstyle.version>0.0.11</spring-nohttp-checkstyle.version>
         <frontend-maven-plugin.version>1.15.0</frontend-maven-plugin.version>
         <git-commit-id-plugin.version>4.9.9</git-commit-id-plugin.version>
-        <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
         <jib-maven-plugin.version>3.4.3</jib-maven-plugin.version>
         <jib.allowInsecureRegistries>true</jib.allowInsecureRegistries>
         <jib-maven-plugin.from.image>eclipse-temurin:17-jre-focal</jib-maven-plugin.from.image>
@@ -166,7 +166,7 @@
         <jib-maven-plugin.architecture>amd64</jib-maven-plugin.architecture>
         <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
         <properties-maven-plugin.version>1.2.1</properties-maven-plugin.version>
-        <sonar-maven-plugin.version>3.10.0.2594</sonar-maven-plugin.version>
+        <sonar-maven-plugin.version>3.11.0.3922</sonar-maven-plugin.version>
         <jacoco.utReportFolder>${project.build.directory}/jacoco/test</jacoco.utReportFolder>
         <jacoco.utReportFile>${jacoco.utReportFolder}/test.exec</jacoco.utReportFile>
         <jacoco.itReportFolder>${project.build.directory}/jacoco/integrationTest</jacoco.itReportFolder>
@@ -196,7 +196,7 @@
         <log4j.version>2.23.1</log4j.version>
         <commons-logging.version>1.2</commons-logging.version>
 
-        <dnsjava.version>3.6.0</dnsjava.version>
+        <dnsjava.version>3.6.1</dnsjava.version>
 
         <opencsvVersion>5.7.1</opencsvVersion>
 
@@ -218,7 +218,7 @@
 
         <crawler4jVersion>4.4.0</crawler4jVersion>
         <flexmarkVersion>0.64.8</flexmarkVersion>
-        <pdfbox.version>2.0.31</pdfbox.version>
+        <pdfbox.version>2.0.32</pdfbox.version>
         <jsoup.version>1.16.1</jsoup.version>
 
         <conductorVersion>3.0.1</conductorVersion>
@@ -227,10 +227,10 @@
         <embedded-ldap.version>0.9.0</embedded-ldap.version>
         <greenmail.version>1.6.15</greenmail.version>
 
-        <xml.maven.saxon.version>12.4</xml.maven.saxon.version>
+        <xml.maven.saxon.version>12.5</xml.maven.saxon.version>
         <xml.maven.plugin.version>1.1.0</xml.maven.plugin.version>
 
-        <dependencyCheck.version>9.0.9</dependencyCheck.version>
+        <dependencyCheck.version>9.2.0</dependencyCheck.version>
         <dependencyCheck.skip>true</dependencyCheck.skip>
 
     </properties>
@@ -266,7 +266,7 @@
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>5.10.2</version>
+                <version>5.10.3</version>
                 <type>pom</type>
             </dependency>
 
@@ -551,7 +551,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
-                <version>1.26.0</version>
+                <version>1.26.2</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.wildfly.common/wildfly-common -->
@@ -797,7 +797,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-access</artifactId>
-            <version>1.2.12</version>
+            <version>1.4.14</version>
         </dependency>
 
         <!--dependency>
@@ -1741,7 +1741,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.2.4</version>
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>
@@ -2268,7 +2268,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
-                    <version>2.3.0</version>
+                    <version>2.4.0</version>
                     <executions>
                         <execution>
                             <id>download-licenses</id>
