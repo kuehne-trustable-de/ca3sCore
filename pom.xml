@@ -127,7 +127,7 @@
         <open-saml.version>4.3.0</open-saml.version>
 
         <undertow.core.version>2.3.14.Final</undertow.core.version>
-        <bucket4j.version>8.7.0</bucket4j.version>
+        <bucket4j.version>8.10.1</bucket4j.version>
 
         <h2.version>2.2.224</h2.version>
 
