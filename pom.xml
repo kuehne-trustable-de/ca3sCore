@@ -153,7 +153,7 @@
         <maven-surefire-plugin.version>3.3.1</maven-surefire-plugin.version>
         <maven-war-plugin.version>3.4.0</maven-war-plugin.version>
         <maven-checkstyle.version>3.4.0</maven-checkstyle.version>
-        <maven-source.version>3.3.0</maven-source.version>
+        <maven-source.version>3.3.1</maven-source.version>
         <checkstyle.version>10.15.0</checkstyle.version>
         <spring-nohttp-checkstyle.version>0.0.11</spring-nohttp-checkstyle.version>
         <frontend-maven-plugin.version>1.15.0</frontend-maven-plugin.version>
