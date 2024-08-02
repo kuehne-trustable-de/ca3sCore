@@ -701,7 +701,7 @@
             <dependency>
                 <groupId>org.jboss.xnio</groupId>
                 <artifactId>xnio-api</artifactId>
-                <version>3.8.14.Final</version>
+                <version>3.8.16.Final</version>
             </dependency>
 
             <dependency>
