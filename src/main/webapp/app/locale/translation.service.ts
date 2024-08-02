@@ -13,8 +13,8 @@ export default class TranslationService {
 
   public async refreshLanguages() {
     this.store.commit('languages', {
-      de: { name: 'Deutsch' }
-      ru: { name: 'Русский' }
+      de: { name: 'Deutsch' },
+      ru: { name: 'Русский' },
       pl: { name: 'Polski' }
     });
 
