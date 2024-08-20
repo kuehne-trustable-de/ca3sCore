@@ -59,6 +59,9 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.spec.PBEParameterSpec;
@@ -106,6 +109,8 @@ public class CertificateUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(CertificateUtil.class);
 
+    final private int maxReplacementCandidates;
+
     final private CertificateRepository certificateRepository;
 
     final private CertificateAttributeRepository certificateAttributeRepository;
@@ -123,7 +128,11 @@ public class CertificateUtil {
     final private AuditService auditService;
 
     @Autowired
-    public CertificateUtil(CertificateRepository certificateRepository, CertificateAttributeRepository certificateAttributeRepository, CertificateCommentRepository certificateCommentRepository, ProtectedContentRepository protContentRepository, ProtectedContentUtil protUtil, PreferenceUtil preferenceUtil, CryptoService cryptoUtil, AuditService auditService) {
+    public CertificateUtil(CertificateRepository certificateRepository, CertificateAttributeRepository certificateAttributeRepository,
+                           CertificateCommentRepository certificateCommentRepository, ProtectedContentRepository protContentRepository,
+                           ProtectedContentUtil protUtil, PreferenceUtil preferenceUtil, CryptoService cryptoUtil,
+                           AuditService auditService,
+                           @Value("${ca3s.certificate.maxReplacementCandidates:20}") int maxReplacementCandidates) {
         this.certificateRepository = certificateRepository;
         this.certificateAttributeRepository = certificateAttributeRepository;
         this.certificateCommentRepository = certificateCommentRepository;
@@ -132,6 +141,7 @@ public class CertificateUtil {
         this.preferenceUtil = preferenceUtil;
         this.cryptoUtil = cryptoUtil;
         this.auditService = auditService;
+        this.maxReplacementCandidates = maxReplacementCandidates;
     }
 
     private static Map<ASN1ObjectIdentifier, Integer> createDnOrderMap() {
@@ -2205,8 +2215,8 @@ public class CertificateUtil {
             return candidateList;
         }
 
-        List<Certificate> matchingCertList = certificateRepository.findActiveCertificatesBySANs(validOn, sans);
-        LOG.debug("objArrList contains {} elements", matchingCertList.size());
+        Page<Certificate> matchingCertList = certificateRepository.findActiveCertificatesBySANs(PageRequest.of(0, maxReplacementCandidates),validOn, sans);
+        LOG.debug("replacement candidate list contains {} elements of max {}", matchingCertList.getNumberOfElements(), maxReplacementCandidates);
 
 
         for (Certificate cert : matchingCertList) {

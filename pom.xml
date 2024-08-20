@@ -7,8 +7,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-
-    <version>1.1.8</version>
+    <version>1.1.7h</version>
     <packaging>jar</packaging>
 
 
@@ -162,7 +161,7 @@
         <jib-maven-plugin.version>3.4.3</jib-maven-plugin.version>
         <jib.allowInsecureRegistries>true</jib.allowInsecureRegistries>
         <jib-maven-plugin.from.image>eclipse-temurin:17-jre-focal</jib-maven-plugin.from.image>
-        <jib-maven-plugin.to.image>docker.io/kuehnetrustablede/ca3s</jib-maven-plugin.to.image>
+        <jib-maven-plugin.to.image>docker.io/ca3s/ca3s</jib-maven-plugin.to.image>
         <jib-maven-plugin.architecture>amd64</jib-maven-plugin.architecture>
         <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
         <properties-maven-plugin.version>1.2.1</properties-maven-plugin.version>
@@ -1686,7 +1685,6 @@
                 <configuration>
                     <jsonLibrary>jackson2</jsonLibrary>
                     <classes>
-                        <class>de.trustable.ca3s.core.service.dto.adcs.ADCSInstanceDetailsView</class>
                         <class>de.trustable.ca3s.core.service.dto.CAStatus</class>
                         <class>de.trustable.ca3s.core.service.dto.CAConnectorStatus</class>
 
@@ -1705,7 +1703,6 @@
                         <class>de.trustable.ca3s.core.service.dto.CryptoConfigView</class>
                         <class>de.trustable.ca3s.core.service.dto.UIConfigView</class>
                         <class>de.trustable.ca3s.core.service.dto.RequestProxyConfigView</class>
-                        <class>de.trustable.ca3s.core.service.dto.UserLoginData</class>
 
                         <class>de.trustable.ca3s.core.service.dto.CSRView</class>
                         <class>de.trustable.ca3s.core.service.dto.Selector</class>
@@ -1981,13 +1978,17 @@
                                     <os>linux</os>
                                 </platform>
                             </platforms>
+                            <auth>
+                                <username>${dockerUser}</username>
+                                <password>${dockerAccessTokens}</password>
+                            </auth>
                         </from>
                         <to>
                             <image>${jib-maven-plugin.to.image}</image>
                             <tags>${version}</tags>
                             <auth>
                                 <username>${dockerUser}</username>
-                                <password>${dockerPassword}</password>
+                                <password>${dockerAccessTokens}</password>
                             </auth>
                         </to>
                         <container>
@@ -2004,6 +2005,7 @@
                             <environment>
                                 <SPRING_OUTPUT_ANSI_ENABLED>ALWAYS</SPRING_OUTPUT_ANSI_ENABLED>
                                 <JHIPSTER_SLEEP>0</JHIPSTER_SLEEP>
+                                <SPRING_PROFILES_ACTIVE>prod</SPRING_PROFILES_ACTIVE>
                             </environment>
                             <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
                             <user>1000</user>
