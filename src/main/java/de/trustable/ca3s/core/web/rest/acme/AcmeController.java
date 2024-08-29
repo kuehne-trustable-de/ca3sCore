@@ -13,7 +13,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import de.trustable.ca3s.core.service.util.PipelineUtil;
+import de.trustable.ca3s.core.service.util.*;
+import io.github.bucket4j.Bucket;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtContext;
 import org.jose4j.jwx.JsonWebStructure;
@@ -45,9 +46,6 @@ import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.service.dto.acme.AccountRequest;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
-import de.trustable.ca3s.core.service.util.AcmeUtil;
-import de.trustable.ca3s.core.service.util.DateUtil;
-import de.trustable.ca3s.core.service.util.JwtUtil;
 import de.trustable.util.CryptoUtil;
 
 import javax.transaction.Transactional;
@@ -435,7 +433,22 @@ public class AcmeController {
 		return additionalHeaders;
 	}
 
-	/**
+
+    public void checkACMERateLimit(RateLimiterService rateLimiterService, long id, String realm) {
+        Bucket bucket = rateLimiterService.getBucket(id);
+
+        LOG.debug("Current bucket : {} ", bucket);
+        if(bucket.tryConsume(1)) {
+            LOG.debug("rate limitation bucket has {} tokens left", bucket.getAvailableTokens());
+        }else{
+            LOG.warn("rate limit applies to '{}/{}/{}'", realm, rateLimiterService.getEndpointName(), id);
+            final ProblemDetail problem = new ProblemDetail(AcmeUtil.RATE_LIMITED, "Rate limit applies",
+                BAD_REQUEST, "Too many requests for ACME object", AcmeController.NO_INSTANCE);
+            throw new AcmeProblemException(problem);
+        }
+    }
+
+    /**
 	 * @param e
 	 * @return
 	 */

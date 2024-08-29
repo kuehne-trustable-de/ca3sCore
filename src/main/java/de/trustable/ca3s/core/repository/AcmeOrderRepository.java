@@ -32,6 +32,6 @@ public interface AcmeOrderRepository extends JpaRepository<AcmeOrder, Long> {
     long countByAccountId(@Param("accountId") long accountId);
 
     @Query(name = "AcmeOrder.findByPendingExpiryBefore")
-    List<AcmeOrder> findByPendingExpiryBefore(@Param("expiresBefore") Instant expiresBefore);
+    Page<AcmeOrder> findByPendingExpiryBefore(Pageable pageable, @Param("expiresBefore") Instant expiresBefore);
 
 }

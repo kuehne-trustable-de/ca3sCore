@@ -86,7 +86,7 @@ public class User extends AbstractAuditingEntity implements Serializable {
     private Instant resetDate = null;
 
     @Column(name = "failed_logins")
-    private Integer failedLogins;
+    private Long failedLogins;
 
     @Column(name = "last_login_date")
     private Instant lastloginDate = null;
@@ -227,11 +227,11 @@ public class User extends AbstractAuditingEntity implements Serializable {
         this.authorities = authorities;
     }
 
-    public Integer getFailedLogins() {
+    public Long getFailedLogins() {
         return failedLogins;
     }
 
-    public void setFailedLogins(Integer failedLogins) {
+    public void setFailedLogins(Long failedLogins) {
         this.failedLogins = failedLogins;
     }
 

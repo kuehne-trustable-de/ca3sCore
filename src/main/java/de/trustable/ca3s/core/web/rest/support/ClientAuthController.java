@@ -1,19 +1,23 @@
 package de.trustable.ca3s.core.web.rest.support;
 
-import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.CertificateAttribute;
-import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.security.jwt.JWTFilter;
+import de.trustable.ca3s.core.security.jwt.TokenProvider;
 import de.trustable.ca3s.core.service.dto.UserLoginData;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.UserUtil;
 import de.trustable.ca3s.core.web.rest.JWTToken;
+import org.apache.commons.codec.binary.Base64;
+import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
+import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -22,6 +26,8 @@ import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
 import java.util.Iterator;
 
+import static org.springframework.web.bind.annotation.RequestMethod.*;
+
 @RestController
 @RequestMapping("/publicapi")
 public class ClientAuthController {
@@ -29,33 +35,20 @@ public class ClientAuthController {
     private final Logger LOG = LoggerFactory.getLogger(ClientAuthController.class);
 
     final private CertificateUtil certificateUtil;
+
+    final private TokenProvider tokenProvider;
     final private UserUtil userUtil;
 
-    public ClientAuthController(CertificateUtil certificateUtil, UserUtil userUtil) {
+    public ClientAuthController(CertificateUtil certificateUtil, TokenProvider tokenProvider, UserUtil userUtil) {
         this.certificateUtil = certificateUtil;
+        this.tokenProvider = tokenProvider;
         this.userUtil = userUtil;
     }
-/*
-    @RequestMapping(value="/clientAuth", method = RequestMethod.OPTIONS)
-    public ResponseEntity<?> corsOptions() {
 
-        LOG.info("calling Options ...");
 
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Access-Control-Allow-Origin", "https://localhost:8443");
-        httpHeaders.add("Access-Control-Allow-Methods", "POST");
-
-        return ResponseEntity
-            .ok()
-            .headers(httpHeaders)
-            .build();
-    }
-
- */
-    @CrossOrigin()
-    @RequestMapping(value = "/clientAuth")
-    public ResponseEntity checkUserCertificate(@Valid @RequestBody UserLoginData userLoginData,
-                                               HttpServletRequest request,
+    @CrossOrigin(methods = {POST, GET})
+    @RequestMapping(value = "/clientAuth",   method = {POST, GET})
+    public ResponseEntity checkUserCertificate(HttpServletRequest request,
                                                HttpSession httpSession) {
 
         for (Iterator<String> it = httpSession.getAttributeNames().asIterator(); it.hasNext(); ) {
@@ -64,8 +57,6 @@ public class ClientAuthController {
         }
 
         HttpHeaders httpHeaders = new HttpHeaders();
-//        httpHeaders.add("Access-Control-Allow-Origin", "https://localhost:8443");
-//        httpHeaders.add("Access-Control-Allow-Methods", "POST");
 
         X509Certificate[] certs = (X509Certificate[])request.getAttribute("javax.servlet.request.X509Certificate");
 
@@ -73,31 +64,21 @@ public class ClientAuthController {
         //        request.getAttribute("jakarta.servlet.request.X509Certificate")
 
         if( certs.length == 0) {
-            LOG.warn("no client certificate at client auth endpoiint");
+            LOG.warn("no client certificate at client auth endpoint");
             return ResponseEntity.notFound().headers(httpHeaders).build();
         }
 
         try {
-            Certificate certificate = certificateUtil.getCertificateByX509(certs[0]);
-            if( !certificate.isActive() || certificate.isRevoked() ){
-                return ResponseEntity.badRequest().headers(httpHeaders).build();
-            }
+            JcaX509ExtensionUtils util = new JcaX509ExtensionUtils();
+            SubjectKeyIdentifier ski = util.createSubjectKeyIdentifier(certs[0].getPublicKey());
+            String b46Ski = Base64.encodeBase64String(ski.getKeyIdentifier());
 
-            String userId = certificateUtil.getCertAttribute(certificate, CertificateAttribute.ATTRIBUTE_USER_CLIENT_CERT);
-            User user = userUtil.getUserByLogin( userLoginData.getLogin());
-
-            if (userId != null && user != null &&
-                Long.parseLong(userId) == user.getId()) {
-
-                String jwt = userUtil.validateCredentials( userLoginData);
-                httpHeaders.add(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
-//                return new ResponseEntity<>(new JWTToken(jwt), httpHeaders, HttpStatus.OK);
-                return new ResponseEntity<>(new JWTToken(jwt), HttpStatus.OK);
-
-            }
+            String jwt = tokenProvider.createToken(certs[0].getSubjectX500Principal().getName(), b46Ski);
+            httpHeaders.add(JWTFilter.CLIENT_CERTIFICATE_TOKEN, jwt);
+            return new ResponseEntity<>(new JWTToken(jwt), HttpStatus.OK);
 
         } catch (GeneralSecurityException e) {
-            LOG.info("problem finding client certificate", e);
+            LOG.info("problem processing client certificate", e);
         }
         return ResponseEntity.notFound().headers(httpHeaders).build();
 

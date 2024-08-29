@@ -69,6 +69,8 @@ public class AccessRestrictionsIT {
         knownAnonymousResources.add("get /acme/{realm}/cert/{certId}");
         knownAnonymousResources.add("get /acme/{realm}/authorization/{authorizationId}");
         knownAnonymousResources.add("get /api/activate");
+        knownAnonymousResources.add("get /publicapi/clientAuth");
+        knownAnonymousResources.add("post /publicapi/clientAuth");
 
         knownUserResources.add("put /api/users");
         knownUserResources.add("post /api/users");

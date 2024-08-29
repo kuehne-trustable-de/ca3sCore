@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.web.rest.support;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.trustable.ca3s.core.config.ClientAuthConfig;
 import de.trustable.ca3s.core.config.CryptoConfiguration;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
@@ -69,6 +70,8 @@ public class UIDatasetSupport {
 
     private final String[] ssoProvider;
 
+    private final String[] scndFactorTypes;
+
     public UIDatasetSupport(CAConnectorConfigRepository caConnConfRepo,
                             CaConnectorAdapter caConnectorAdapter,
                             PipelineRepository pipelineRepo,
@@ -79,9 +82,11 @@ public class UIDatasetSupport {
                             CertificateSelectionUtil certificateSelectionAttributeList,
                             CryptoConfiguration cryptoConfiguration,
                             UserUtil userUtil,
+                            ClientAuthConfig clientAuthConfig,
                             @Value("${ca3s.ui.sso.autologin:false}") boolean autoSSOLogin,
                             @Value("${ca3s.ui.certificate-store.isolation:none}")String certificateStoreIsolation,
-                            @Value("${ca3s.ui.sso.provider:}") String[] ssoProvider) {
+                            @Value("${ca3s.ui.sso.provider:}") String[] ssoProvider,
+                            @Value("${ca3s.ui.login.scnd-factor:CLIENT_AUTH}") String[] scndFactorTypes) {
         this.caConnConfRepo = caConnConfRepo;
         this.caConnectorAdapter = caConnectorAdapter;
         this.pipelineRepo = pipelineRepo;
@@ -95,6 +100,7 @@ public class UIDatasetSupport {
         this.autoSSOLogin = autoSSOLogin;
         this.certificateStoreIsolation = certificateStoreIsolation;
         this.ssoProvider = ssoProvider;
+        this.scndFactorTypes = scndFactorTypes;
     }
 
     /**
@@ -108,7 +114,10 @@ public class UIDatasetSupport {
 
         CryptoConfigView cryptoConfigView = cryptoConfiguration.getCryptoConfigView();
 
-        UIConfigView uiConfigView = new UIConfigView(cryptoConfigView, autoSSOLogin, ssoProvider);
+        UIConfigView uiConfigView = new UIConfigView(cryptoConfigView,
+            autoSSOLogin,
+            ssoProvider,
+            scndFactorTypes);
         LOG.debug("returning uiConfigView: {}", uiConfigView);
 
         return uiConfigView;
@@ -252,6 +261,7 @@ public class UIDatasetSupport {
         return pv_LaxRestrictions;
     }
 
+
     /**
      * {@code GET  /ca-connector-configs/cert-generators} : get all elements able to create a certificate.
      *
@@ -262,7 +272,7 @@ public class UIDatasetSupport {
     public List<CAConnectorConfig> getAllCAConnectorConfigs() {
 
         return caConnConfRepo.findAllCertGenerators();
-	}
+    }
 
 
     /**

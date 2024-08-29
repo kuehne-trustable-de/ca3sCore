@@ -84,6 +84,9 @@ public class SamlSecurityConfig {
     @Value("${ca3s.saml.metadata.trust.key.aliases:}")
     private Set<String> metadataTrustedKeyAliases;
 
+    @Value("${ca3s.ui.sso.secureCookie:true}")
+    private boolean secureCookie;
+
     @Autowired
     private TokenProvider tokenProvider;
 
@@ -266,7 +269,7 @@ public class SamlSecurityConfig {
     @Bean
     @Qualifier("saml")
     public SavedRequestAwareAuthenticationSuccessHandler successRedirectHandler() {
-        SavedRequestAwareAuthenticationSuccessHandler successRedirectHandler = new CustomUrlAuthenticationSuccessHandler(tokenProvider);
+        SavedRequestAwareAuthenticationSuccessHandler successRedirectHandler = new CustomUrlAuthenticationSuccessHandler(tokenProvider, secureCookie);
         successRedirectHandler.setDefaultTargetUrl("/");
         return successRedirectHandler;
     }

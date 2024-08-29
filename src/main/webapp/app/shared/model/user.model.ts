@@ -20,6 +20,7 @@ export interface IUser {
   blockedUntilDate?: Date;
   credentialsValidToDate?: Date;
   managedExternally?: boolean;
+  blocked?: boolean;
 }
 
 export class User implements IUser {
@@ -42,6 +43,7 @@ export class User implements IUser {
     public failedLogins?: number,
     public blockedUntilDate?: Date,
     public credentialsValidToDate?: Date,
-    public managedExternally?: boolean
+    public managedExternally?: boolean,
+    public blocked?: boolean
   ) {}
 }

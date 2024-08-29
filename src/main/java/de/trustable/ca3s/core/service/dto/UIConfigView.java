@@ -8,10 +8,14 @@ public class UIConfigView implements Serializable {
     private final boolean autoSSOLogin;
     private final String[] ssoProvider;
 
-    public UIConfigView(CryptoConfigView cryptoConfigView, boolean autoSSOLogin, String[] ssoProvider) {
+    private final String[] scndFactorTypes;
+
+
+    public UIConfigView(CryptoConfigView cryptoConfigView, boolean autoSSOLogin, String[] ssoProvider, String[] scndFactorTypes) {
         this.cryptoConfigView = cryptoConfigView;
         this.autoSSOLogin = autoSSOLogin;
         this.ssoProvider = ssoProvider;
+        this.scndFactorTypes = scndFactorTypes;
     }
 
     public CryptoConfigView getCryptoConfigView() {
@@ -24,5 +28,9 @@ public class UIConfigView implements Serializable {
 
     public String[] getSsoProvider() {
         return ssoProvider;
+    }
+
+    public String[] getScndFactorTypes() {
+        return scndFactorTypes;
     }
 }

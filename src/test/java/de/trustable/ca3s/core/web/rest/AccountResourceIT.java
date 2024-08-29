@@ -664,7 +664,7 @@ class AccountResourceIT {
         userRepository.saveAndFlush(user);
 
         restAccountMockMvc
-            .perform(post("/api/account/reset-password/init").content("password-reset@example.com"))
+            .perform(post("/api/account/reset-password/init").content("password-reset"))
             .andExpect(status().isOk());
     }
 
@@ -679,15 +679,15 @@ class AccountResourceIT {
         userRepository.saveAndFlush(user);
 
         restAccountMockMvc
-            .perform(post("/api/account/reset-password/init").content("password-reset-upper-case@EXAMPLE.COM"))
+            .perform(post("/api/account/reset-password/init").content("password-reset-upper-case"))
             .andExpect(status().isOk());
     }
 
     @Test
     void testRequestPasswordResetWrongEmail() throws Exception {
         restAccountMockMvc
-            .perform(post("/api/account/reset-password/init").content("password-reset-wrong-email@example.com"))
-            .andExpect(status().isBadRequest());
+            .perform(post("/api/account/reset-password/init").content("password-reset-wrong-login"))
+            .andExpect(status().isNotFound());
     }
 
     @Test

@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 /**
  *
@@ -58,7 +59,11 @@ public class UserRetentionScheduler {
         Instant oldestRelevantCSR = Instant.now().minus(csrOwnerRetentionPeriod, ChronoUnit.DAYS);
         Instant oldestRelevantLogin = Instant.now().minus(defaultRetentionPeriod, ChronoUnit.DAYS);
 
-		for (User user : userRepository.findAll()) {
+        LOG.info("retrieving list of all users");
+        List<User> userList = userRepository.findAll();
+        LOG.info("processing #{} users", userList.size());
+
+		for (User user : userList) {
 
             // start with the easiest check ...
             if( hasRecentActivity(user, oldestRelevantLogin)){

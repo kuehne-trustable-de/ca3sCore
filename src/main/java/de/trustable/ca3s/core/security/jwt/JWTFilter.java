@@ -18,8 +18,8 @@ import org.springframework.web.filter.GenericFilterBean;
 public class JWTFilter extends GenericFilterBean {
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
-
     public static final String AUTHORIZATION_TOKEN = "access_token";
+    public static final String CLIENT_CERTIFICATE_TOKEN = "client_cert";
 
     private final TokenProvider tokenProvider;
 

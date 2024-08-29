@@ -37,11 +37,12 @@ import de.trustable.ca3s.core.service.dto.acme.OrderResponse;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.*;
-import de.trustable.ca3s.core.web.rest.util.RateLimiter;
+import de.trustable.ca3s.core.service.util.RateLimiterService;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
 import org.apache.commons.lang3.StringUtils;
+import io.github.bucket4j.Bucket;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
@@ -101,7 +102,7 @@ public class OrderController extends AcmeController {
 
     final private PipelineUtil pipelineUtil;
 
-    private final RateLimiter rateLimiter;
+    private final RateLimiterService rateLimiterService;
 
     final private AuditService auditService;
 
@@ -137,7 +138,7 @@ public class OrderController extends AcmeController {
         this.replacementCandidateUtil = replacementCandidateUtil;
         this.certificateAsyncUtil = certificateAsyncUtil;
 
-        this.rateLimiter = new RateLimiter("Order", rateSec, rateMin, rateHour);
+        this.rateLimiterService = new RateLimiterService("Order", rateSec, rateMin, rateHour);
     }
 
 
@@ -149,7 +150,7 @@ public class OrderController extends AcmeController {
 
         LOG.info("Received read order request for orderId {}", orderId);
 
-        rateLimiter.checkACMERateLimit(orderId, realm);
+        checkACMERateLimit(rateLimiterService, orderId, realm);
 
         try {
             JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
@@ -207,7 +208,7 @@ public class OrderController extends AcmeController {
 
         LOG.info("Received finalize order request ");
 
-        rateLimiter.checkACMERateLimit(orderId, realm);
+        checkACMERateLimit(rateLimiterService,orderId, realm);
 
         // check for existence of a pipeline for the realm
         Pipeline pipeline = getPipelineForRealm(realm);

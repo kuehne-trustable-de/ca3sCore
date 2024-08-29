@@ -39,6 +39,22 @@ export default class JhiUserManagementComponent extends Vue {
         user.activated = false;
       });
   }
+  public setUnblocked(user): void {
+    user.blockedUntilDate = null;
+    user.failedLogins = 0;
+    this.userManagementService()
+      .update(user)
+      .then(() => {
+        this.error = null;
+        this.success = 'OK';
+        this.loadAll();
+      })
+      .catch(() => {
+        this.success = null;
+        this.error = 'ERROR';
+        user.activated = false;
+      });
+  }
 
   public loadAll(): void {
     this.isLoading = true;

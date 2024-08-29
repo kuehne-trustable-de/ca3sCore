@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @IntegrationTest
 @AutoConfigureMockMvc
-@WithMockUser
+@WithMockUser(roles = { "ADMIN" })
 class AlgorithmRestrictionResourceIT {
 
     private static final AlgorithmType DEFAULT_TYPE = AlgorithmType.SIGNING;

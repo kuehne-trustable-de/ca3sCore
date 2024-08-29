@@ -128,6 +128,25 @@
                                     <!--/Fragment-->
                                 </div>
                             </div>
+
+                            <div class="row" v-if="creationMode === 'COMMANDLINE_TOOL'">
+                                <div class="col ">
+                                    <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.toolPassword')" for="pkcsxx-tool-password">Tool Password</label>   <help-tag target="pkcsxx.upload.creationTool.toolPassword"/>
+                                </div>
+                                <div class="col colContent ">
+                                    <input class="form-control form-check-inline w-50"
+                                           name="pkcsxx-tool-password" id="pkcsxx-tool-password"
+                                           type="text"
+                                           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                           v-on:input="updateCmdLine()"
+                                           v-model="toolPassword" />
+                                    <small class="form-text text-danger" v-if="showRegExpFieldWarningNonEmpty(toolPassword, regExpSecret())" v-text="$t('ca3SApp.messages.password.requirement.' + regExpSecretDescription())">
+                                        secret must match RegEx!
+                                    </small>
+                                </div>
+                            </div>
+
+
                         </div>
 
                         <!-- Additional Request Attributes -->
@@ -214,7 +233,6 @@
                                 </div>
                             </div>
                         </div>
-
 
                         <div class="row wrap" v-if="isPipelineChoosen() && creationMode === 'COMMANDLINE_TOOL' && cmdline0Required">
                             <div class="col ">
@@ -539,7 +557,6 @@
                     <input type="hidden" class="form-control" name="updateCounter"
                            v-model="updateCounter" />
                 </div>
-
             </div>
 		</div>
 	</div>

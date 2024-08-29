@@ -40,18 +40,19 @@ import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.cryptacular.util.CertUtil;
 import org.jose4j.jwt.consumer.JwtContext;
+import org.jose4j.jwx.JsonWebStructure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
@@ -108,7 +109,7 @@ public class AcmeCertificateController extends AcmeController {
 
 		Optional<Certificate> certOpt = certificateRepository.findById(certId);
 
-  		if(!certOpt.isPresent()) {
+  		if(certOpt.isEmpty()) {
   		  throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
   		}else {
   			Certificate certDao = certOpt.get();
@@ -139,7 +140,7 @@ public class AcmeCertificateController extends AcmeController {
 	}
 
 	/**
-	 * @param accept what mime type to beserved
+	 * @param accept what mime type to be served
 	 * @param certDao the certificate to serve
 	 * @param headers the list of response headers, completed with the certificate's mime type
 	 */
@@ -169,6 +170,17 @@ public class AcmeCertificateController extends AcmeController {
 
 		try {
 			JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
+            JsonWebStructure webStruct = jwtUtil.getJsonWebStructure(context);
+
+            // check for use of certificate's publik key for message signing
+            /*
+            try {
+                // retrieve public key from JWK header
+                PublicKey certificatePubKey = jwtUtil.getPublicKey(webStruct);
+            }catch( AcmeProblemException acmeProblemException){
+
+            }
+             */
 
             AcmeAccount acctDao = checkJWTSignatureForAccount(context, realm);
 
@@ -229,7 +241,6 @@ public class AcmeCertificateController extends AcmeController {
     /**
      * Retrieve a certificate as a PEM structure containing the complete chain
      * Bug in certbot: content type set to 'application/pkix-cert' despite containing a JWT in the request body, as usual.
-     *
      *
      */
 	@RequestMapping(value = "/{certId}", method = POST, consumes = {APPLICATION_JOSE_JSON_VALUE, APPLICATION_PKIX_CERT_VALUE})

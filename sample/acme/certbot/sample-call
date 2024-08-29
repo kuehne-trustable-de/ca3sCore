@@ -1,0 +1,4 @@
+
+sudo certbot certonly -n -v --debug --agree-tos --server http://192.168.56.1:9090/acme/acmeTest/directory --standalone --rsa-key-size 4096 --force-renewal --email foo@trustable.de --preferred-challenges http --webroot-path foo -d ejbca.trustable.eu
+
+sudo certbot revoke --server http://192.168.56.1:9090/acme/acmeTest/directory  --cert-name ejbca.trustable.eu

@@ -128,7 +128,6 @@ import javax.validation.constraints.*;
             " order by c.validTo desc"
     ),
 
-
     @NamedQuery(name = "Certificate.findInactiveCertificatesByValidFrom",
     query = "SELECT c FROM Certificate c WHERE " +
         "c.validFrom >= :now and " +

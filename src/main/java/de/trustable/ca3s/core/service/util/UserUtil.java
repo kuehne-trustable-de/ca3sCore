@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.service.util;
 
 import de.trustable.ca3s.core.domain.Authority;
 import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.exception.UserNotAuthenticatedException;
 import de.trustable.ca3s.core.exception.UserNotFoundException;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
@@ -12,7 +13,6 @@ import de.trustable.ca3s.core.service.dto.CSRView;
 import de.trustable.ca3s.core.service.dto.CertificateView;
 import de.trustable.ca3s.core.service.dto.UserLoginData;
 import de.trustable.ca3s.core.service.exception.BlockedCredentialsException;
-import de.trustable.ca3s.core.web.rest.util.RateLimiter;
 import org.hibernate.validator.internal.constraintvalidators.hv.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +46,7 @@ public class UserUtil {
 
     private final boolean loginByEmailAddress;
 
-    private final RateLimiter rateLimiter;
+    private final RateLimiterService rateLimiterService;
 
     private final HttpServletRequest request;
 
@@ -62,7 +62,7 @@ public class UserUtil {
         this.auditService = auditService;
         this.loginByEmailAddress = loginByEmailAddress;
 
-        this.rateLimiter = new RateLimiter("Login", rateSec, rateMin, rateHour);
+        this.rateLimiterService = new RateLimiterService("Login", rateSec, rateMin, rateHour);
 
         this.request = request;
     }
@@ -86,7 +86,7 @@ public class UserUtil {
 
         Optional<User> optCurrentUser = userRepository.findOneByLogin(userName);
         if (!optCurrentUser.isPresent()) {
-            String msg ="Name of ra officer '"+userName+ "' not found as user";
+            String msg ="Name '"+userName+ "' not found as user";
             LOG.warn(msg);
             throw new UserNotFoundException(msg);
         }
@@ -142,7 +142,7 @@ public class UserUtil {
         }
 
         if( optionalUser.isEmpty()){
-            throw new UsernameNotFoundException("User " + currentLogin + " not found in the database");
+            throw new UserNotAuthenticatedException("User " + currentLogin + " not authenticated");
         }else{
             return optionalUser.get();
         }
@@ -167,7 +167,7 @@ public class UserUtil {
     public void checkIPBlocked(String username) {
         String clientIP = getClientIP();
         try {
-            rateLimiter.checkSprayingRateLimit(getClientIPAsLong(clientIP), clientIP);
+            rateLimiterService.checkSprayingRateLimit(getClientIPAsLong(clientIP), clientIP);
         }catch(IPBlockedException ipBlockedException){
             auditService.saveAuditTrace( auditService.createAuditTraceLoginForIPBlocked(username, clientIP));
             throw ipBlockedException;
@@ -178,7 +178,7 @@ public class UserUtil {
         String clientIP = getClientIP();
 
         User user = getUserByLogin(username);
-        user.setFailedLogins(0);
+        user.setFailedLogins(0L);
         user.setLastloginDate(Instant.now());
         user.setBlockedUntilDate(null);
         userRepository.save(user);
@@ -190,14 +190,14 @@ public class UserUtil {
         String clientIP = getClientIP();
 
         try {
-            rateLimiter.consumeSprayingRateLimit(getClientIPAsLong(clientIP), clientIP);
+            rateLimiterService.consumeSprayingRateLimit(getClientIPAsLong(clientIP), clientIP);
         }catch(IPBlockedException ipBlockedException){
             auditService.saveAuditTrace( auditService.createAuditTraceLoginForIPBlocked(username, clientIP));
             throw ipBlockedException;
         }
 
         User user = getUserByLogin(username);
-        int failedLogins = user.getFailedLogins() + 1;
+        Long failedLogins = user.getFailedLogins() + 1;
         int blockedForSec = 600;
         LOG.warn("User {} failed login count incremented to {}.", user.getLogin(), failedLogins);
         user.setFailedLogins(failedLogins);
