@@ -242,6 +242,9 @@ public class UserService {
 
                 updateTenant(user, userDTO);
 
+                user.setBlockedUntilDate(userDTO.getBlockedUntilDate());
+                user.setFailedLogins(userDTO.getFailedLogins());
+
                 Set<Authority> managedAuthorities = user.getAuthorities();
                 managedAuthorities.clear();
                 userDTO.getAuthorities().stream()

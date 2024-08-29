@@ -60,6 +60,8 @@ public class UserDTO {
 
     private Long tenantId;
 
+    private boolean isBlocked;
+
     private Long failedLogins;
 
     private Instant blockedUntilDate = null;
@@ -100,6 +102,7 @@ public class UserDTO {
 
         this.failedLogins = user.getFailedLogins();
         this.blockedUntilDate = user.getBlockedUntilDate();
+        this.isBlocked = user.getBlockedUntilDate() == null ? false: Instant.now().isBefore(user.getBlockedUntilDate());
         this.credentialsValidToDate = user.getCredentialsValidToDate();
 
         this.authorities = user.getAuthorities().stream()
@@ -233,6 +236,14 @@ public class UserDTO {
 
     public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
+    }
+
+    public boolean isBlocked() {
+        return isBlocked;
+    }
+
+    public void setBlocked(boolean blocked) {
+        isBlocked = blocked;
     }
 
     public Long getFailedLogins() {

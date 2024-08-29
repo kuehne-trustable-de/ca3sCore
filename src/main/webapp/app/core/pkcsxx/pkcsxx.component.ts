@@ -92,6 +92,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   public creationMode: ICreationMode = 'CSR_AVAILABLE';
   public keyAlgoLength = 'rsa-4096';
   public machineKeySet = true;
+  public toolPassword = '';
 
   public cmdline = '';
   public cmdline0 = '';
@@ -247,6 +248,13 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     return '';
   }
 
+  public showRegExpFieldWarningNonEmpty(value: string, regEx: string): boolean {
+    if (value.trim().length > 0) {
+      return this.showRegExpFieldWarning(value, regEx);
+    }
+    return false;
+  }
+
   public showRegExpFieldWarning(value: string, regEx: string): boolean {
     const regexp = new RegExp(regEx);
     const valid = regexp.test(value);
@@ -313,7 +321,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
     //    window.console.info('pipelineView  id: ' + pipelineView.id + ', name: ' + pipelineView.name );
 
-    this.creationTool = '';
+    // this.creationTool = '';
 
     this.updatePipelineRestrictionsByPipelineInfo(pipelineView);
     this.precheckResponse.dataType = 'UNKNOWN';
@@ -487,10 +495,14 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     } else if (nvSAN && nvSAN.values && nvSAN.values.length > 0 && nvSAN.values[0].value.trim().length > 0) {
       fileName = nvSAN.values[0].value;
     }
+
+    fileName = fileName.replace('*', 'wcard');
+    fileName = fileName.replace(/([^a-z0-9]+)/gi, '_');
+
     fileName += '_' + soon.toISOString().substring(0, 10);
 
-    const re = new RegExp(/[ .]/, 'g');
-    fileName = fileName.replace(re, '_');
+    //    const re = new RegExp(/[ .]/, 'g');
+    //    fileName = fileName.replace(re, '_');
 
     let algo = 'undefined';
     let algoKeyTool = 'undefined';
@@ -542,8 +554,9 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     if (this.creationTool === 'keytool') {
       cmdline0 = 'keytool -genkeypair -keyalg ' + algoKeyTool;
       cmdline0 += ' -keysize ' + keyLen;
+      cmdline0 += this.getKeytoolPasses(this.toolPassword);
 
-      const aliasP12Type = ' -alias keyAlias -keystore ' + fileName + '.p12 -storetype pkcs12';
+      const aliasP12Type = ' -alias keyAlias -keystore ' + fileName + '.p12 -storetype pkcs12 ';
       cmdline0 += aliasP12Type;
 
       let dname = '';
@@ -572,10 +585,10 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       this.cmdline0 = cmdline0;
       this.cmdline0Required = true;
 
-      this.cmdline1 = 'keytool -importcert -file ' + fileName + '.cer' + aliasP12Type;
+      this.cmdline1 = 'keytool -importcert -file ' + fileName + '.cer' + aliasP12Type + this.getKeytoolPasses(this.toolPassword);
       this.cmdline1Required = true;
 
-      cmdline += 'keytool -certreq' + aliasP12Type;
+      cmdline += 'keytool -certreq' + aliasP12Type + this.getKeytoolPasses(this.toolPassword);
 
       if (nvSAN !== undefined && nvSAN.values.length > 0 && nvSAN.values[0].value.length > 0) {
         let sans = '';
@@ -596,7 +609,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       //
       // openssl >= 1.1.1
       //
-      cmdline = this.getOpensslCommon(cmdline, algo, hashAlgo, keyLen, true);
+      cmdline = this.getOpensslCommon(cmdline, algo, hashAlgo, keyLen, true, this.toolPassword);
 
       if (nvSAN !== undefined && nvSAN.values.length > 0 && nvSAN.values[0].value.length > 0) {
         cmdline += ' -addext "subjectAltName = ';
@@ -670,7 +683,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       //
       // openssl
       //
-      cmdline = this.getOpensslCommon(cmdline, algo, hashAlgo, keyLen, false);
+      cmdline = this.getOpensslCommon(cmdline, algo, hashAlgo, keyLen, false, this.toolPassword);
 
       cmdline += ' -config request.conf -keyout ' + fileName + '.private_key.pem -out ' + fileName + '.csr';
 
@@ -771,7 +784,15 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     return cmdline;
   }
 
-  private getOpensslCommon(cmdline: string, algo: string, hashAlgo: string, keyLen: string, addSubject: boolean) {
+  private getKeytoolPasses(password: string) {
+    if (password.length > 0) {
+      return ' -storepass ' + password + ' -keypass ' + password;
+    } else {
+      return '';
+    }
+  }
+
+  private getOpensslCommon(cmdline: string, algo: string, hashAlgo: string, keyLen: string, addSubject: boolean, toolPassword: string) {
     cmdline = 'openssl req -newkey ';
 
     if (algo.startsWith('RSA')) {
@@ -793,6 +814,9 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     }
 
     cmdline += ' -' + hashAlgo + ' -nodes';
+    if (toolPassword.length > 0) {
+      cmdline += " -passout pass:'" + toolPassword + "'";
+    }
 
     if (addSubject) {
       cmdline += ' -subj ';

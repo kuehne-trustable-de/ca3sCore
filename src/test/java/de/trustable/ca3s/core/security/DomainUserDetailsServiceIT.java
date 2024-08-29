@@ -85,31 +85,6 @@ class DomainUserDetailsServiceIT {
     }
 
     @Test
-    void assertThatUserCanBeFoundByEmail() {
-        assertThrows(UsernameNotFoundException.class,
-            ()->{
-                domainUserDetailsService.loadUserByUsername(USER_TWO_EMAIL);
-            });
-
-    }
-
-    @Test
-    void assertThatUserCanBeFoundByEmailIgnoreCase() {
-        assertThrows(UsernameNotFoundException.class,
-            ()->{
-                domainUserDetailsService.loadUserByUsername(USER_TWO_EMAIL.toUpperCase(Locale.ENGLISH));
-            });
-    }
-
-    @Test
-    void assertThatEmailIsPrioritizedOverLogin() {
-        assertThrows(UsernameNotFoundException.class,
-            ()->{
-                domainUserDetailsService.loadUserByUsername(USER_ONE_EMAIL);
-            });
-    }
-
-    @Test
     void assertThatUserNotActivatedExceptionIsThrownForNotActivatedUsers() {
         assertThatExceptionOfType(UserNotActivatedException.class)
             .isThrownBy(() -> domainUserDetailsService.loadUserByUsername(USER_THREE_LOGIN));

@@ -64,26 +64,36 @@
             </td>
             <td>{{ user.login }}</td>
             <td class="jhi-user-email">{{ user.email }}</td>
-            <td>
-              <button
-                class="btn btn-danger btn-sm deactivated"
-                v-on:click="setActive(user, true)"
-                v-if="!user.activated"
-                v-text="$t('userManagement.deactivated')"
-              >
-                Deactivated
-              </button>
-              <button
-                class="btn btn-success btn-sm"
-                v-on:click="setActive(user, false)"
-                v-if="user.activated"
-                :disabled="username === user.login"
-                v-text="$t('userManagement.activated')"
-              >
-                Activated
-              </button>
-            </td>
-            <td>{{ user.langKey }}</td>
+              <td>
+                  <button
+                      class="btn btn-danger btn-sm deactivated"
+                      v-on:click="setActive(user, true)"
+                      v-if="!user.activated"
+                      v-text="$t('userManagement.deactivated')"
+                  >
+                      Deactivated
+                  </button>
+                  <button
+                      class="btn btn-success btn-sm"
+                      v-on:click="setActive(user, false)"
+                      v-if="user.activated && !user.blocked"
+                      :disabled="username === user.login"
+                      v-text="$t('userManagement.activated')"
+                  >
+                      Activated
+                  </button>
+
+                  <button
+                      class="btn btn-danger btn-sm deactivated"
+                      v-on:click="setUnblocked(user)"
+                      v-if="user.activated && user.blocked"
+                      :disabled="username === user.login"
+                      v-text="$t('userManagement.bocked')"
+                  >
+                      Blocked
+                  </button>
+              </td>
+              <td>{{ user.langKey }}</td>
             <td>
               <div v-for="authority of user.authorities" :key="authority">
                 <span class="badge badge-info">{{ authority }}</span>

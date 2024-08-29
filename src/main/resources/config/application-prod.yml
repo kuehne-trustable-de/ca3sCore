@@ -506,7 +506,7 @@ ca3s:
 
     # provide the metadata of the SAML IDP
     metadata:
-      # provide the location of the metadata file or remote location
+      # provide the location of the metadata file or remote location of the identity provider
       location: sample/saml/metadata/keycloak_saml.metadata.xml
 
       # do we require a signature to be present in the metadata ?

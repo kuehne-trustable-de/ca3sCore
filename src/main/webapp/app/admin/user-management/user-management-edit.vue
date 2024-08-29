@@ -199,6 +199,17 @@
                             </option>
                         </select>
                     </div>
+
+                    <!--div class="form-group">
+                        <label v-text="$t('userManagement.scnd.factor')">2nd Factor Authentication</label>
+                        <select class="form-control" multiple name="scndFactors" v-model="userAccount.scnd-factors">
+                            <option v-for="scndFactor of scndFactors" :value="scndFactor" :key="scndFactor">{{
+                                    scndFactor
+                                }}
+                            </option>
+                        </select>
+                    </div-->
+
                     <div class="form-group">
                         <label v-text="$t('userManagement.profiles')">Profiles</label>
                         <select class="form-control" multiple name="authority" v-model="userAccount.authorities">

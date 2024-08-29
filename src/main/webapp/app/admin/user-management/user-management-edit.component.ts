@@ -46,6 +46,7 @@ export default class JhiUserManagementEdit extends Vue {
   public userAccount: IUser;
   public isSaving = false;
   public authorities: any[] = [];
+  public scndFactors: string[] = [];
   public languages: any = this.$store.getters.languages;
 
   beforeRouteEnter(to, from, next) {
@@ -59,6 +60,7 @@ export default class JhiUserManagementEdit extends Vue {
 
   public mounted(): void {
     this.retrieveAllTenants();
+    this.scndFactors = this.$store.state.uiConfigStore.config.scndFactorTypes;
   }
 
   public constructor() {

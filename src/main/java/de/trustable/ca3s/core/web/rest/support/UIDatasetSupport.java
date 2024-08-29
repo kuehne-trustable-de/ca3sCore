@@ -64,12 +64,13 @@ public class UIDatasetSupport {
 
     private final UserUtil userUtil;
 
-
     private final boolean autoSSOLogin;
 
     private final String certificateStoreIsolation;
 
     private final String[] ssoProvider;
+
+    private final String[] scndFactorTypes;
 
     public UIDatasetSupport(CAConnectorConfigRepository caConnConfRepo,
                             CaConnectorAdapter caConnectorAdapter,
@@ -84,7 +85,8 @@ public class UIDatasetSupport {
                             ClientAuthConfig clientAuthConfig,
                             @Value("${ca3s.ui.sso.autologin:false}") boolean autoSSOLogin,
                             @Value("${ca3s.ui.certificate-store.isolation:none}")String certificateStoreIsolation,
-                            @Value("${ca3s.ui.sso.provider:}") String[] ssoProvider) {
+                            @Value("${ca3s.ui.sso.provider:}") String[] ssoProvider,
+                            @Value("${ca3s.ui.login.scnd-factor:CLIENT_AUTH}") String[] scndFactorTypes) {
         this.caConnConfRepo = caConnConfRepo;
         this.caConnectorAdapter = caConnectorAdapter;
         this.pipelineRepo = pipelineRepo;
@@ -98,6 +100,7 @@ public class UIDatasetSupport {
         this.autoSSOLogin = autoSSOLogin;
         this.certificateStoreIsolation = certificateStoreIsolation;
         this.ssoProvider = ssoProvider;
+        this.scndFactorTypes = scndFactorTypes;
     }
 
     /**
@@ -111,7 +114,10 @@ public class UIDatasetSupport {
 
         CryptoConfigView cryptoConfigView = cryptoConfiguration.getCryptoConfigView();
 
-        UIConfigView uiConfigView = new UIConfigView(cryptoConfigView, autoSSOLogin, ssoProvider);
+        UIConfigView uiConfigView = new UIConfigView(cryptoConfigView,
+            autoSSOLogin,
+            ssoProvider,
+            scndFactorTypes);
         LOG.debug("returning uiConfigView: {}", uiConfigView);
 
         return uiConfigView;

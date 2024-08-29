@@ -3,6 +3,7 @@ package de.trustable.ca3s.core.security.saml;
 import de.trustable.ca3s.core.security.jwt.TokenProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
@@ -24,10 +25,14 @@ public class CustomUrlAuthenticationSuccessHandler extends SavedRequestAwareAuth
 
     private final TokenProvider tokenProvider;
 
-    private RequestCache requestCache = new HttpSessionRequestCache();
+    private final RequestCache requestCache = new HttpSessionRequestCache();
 
-    public CustomUrlAuthenticationSuccessHandler(TokenProvider tokenProvider) {
+    private final boolean secureCookie;
+
+    public CustomUrlAuthenticationSuccessHandler(TokenProvider tokenProvider,
+                                                 @Value("${ca3s.ui.sso.secureCookie:true}") boolean secureCookie) {
         this.tokenProvider = tokenProvider;
+        this.secureCookie = secureCookie;
     }
 
     @Override
@@ -36,7 +41,7 @@ public class CustomUrlAuthenticationSuccessHandler extends SavedRequestAwareAuth
 
         String jwt = tokenProvider.createToken(authentication, false);
 
-        String targetUrl = this.determineTargetUrl(request, response, authentication);
+        String targetUrl = determineTargetUrl(request, response, authentication);
 
         if (response.isCommitted()) {
             this.logger.debug(LogMessage.format("Did not redirect to %s since response already committed.", targetUrl));
@@ -44,7 +49,7 @@ public class CustomUrlAuthenticationSuccessHandler extends SavedRequestAwareAuth
             this.logger.debug(LogMessage.format("Redirect to %s .", targetUrl));
             Cookie authCookie = new Cookie(CA3S_JWT_COOKIE_NAME, jwt);
             authCookie.setMaxAge(60); // expires in a minute
-            authCookie.setSecure(false);
+            authCookie.setSecure(secureCookie);
             authCookie.setHttpOnly(false);
             authCookie.setPath("/"); // global cookie accessible everywhere
             response.addCookie(authCookie);
