@@ -96,6 +96,9 @@ public class SecurityConfiguration{
     @Value("${ca3s.saml.sp}")
     private String samlAudience;
 
+    @Value("${ca3s.saml.entity.base-url:#{null}}")
+    private String samlEntityBaseurl;
+
     @Autowired
     @Qualifier("saml")
     private SavedRequestAwareAuthenticationSuccessHandler samlAuthSuccessHandler;
@@ -176,6 +179,9 @@ public class SecurityConfiguration{
         metadataGenerator.setExtendedMetadata(extendedMetadata);
         metadataGenerator.setIncludeDiscoveryExtension(false);
         metadataGenerator.setKeyManager(keyManager);
+        if( samlEntityBaseurl != null ) {
+            metadataGenerator.setEntityBaseURL(samlEntityBaseurl);
+        }
         return metadataGenerator;
     }
 

@@ -207,8 +207,14 @@ export default class JhiNavbar extends Vue {
       });
   }
   public doSAMLLogin(): void {
-    window.console.info('forwarding to SAML authentication url.');
-    window.location.href = '/saml/login';
+    let target = '/saml/login';
+    const samlEntityBaseUrl: string = this.$store.getters.samlEntityBaseUrl;
+
+    if(samlEntityBaseUrl &&  samlEntityBaseUrl.trim().length > 0 ){
+      target = samlEntityBaseUrl.trim() + '/saml/login';
+    }
+    window.console.info('forwarding to SAML authentication url ' + target);
+    window.location.href = target;
   }
 
   public doOIDCLogout(): void {

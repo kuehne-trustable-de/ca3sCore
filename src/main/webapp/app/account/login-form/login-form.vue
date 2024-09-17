@@ -6,7 +6,7 @@
                     <strong>Failed to sign in!</strong> Please check your credentials and try again.
                 </b-alert>
 
-                <b-alert show variant="danger" v-if="isBlocked" v-html="$t('login.messages.error.blocked', { 'blockedUntil': blockedUntil })">
+                <b-alert show variant="danger" v-if="isBlocked" v-html="$t('login.messages.error.blocked', { 'blockedUntil': convertDateTimeFromServer(blockedUntil) })">
                     <strong>Failed to sign in!</strong> Account blocked. Try again, later ...
                 </b-alert>
 
@@ -25,11 +25,14 @@
                     <!--b-form-checkbox id="rememberMe" name="rememberMe" v-model="rememberMe" checked >
                         <span v-text="$t('login.form.rememberme')">Remember me</span>
                     </b-form-checkbox-->
-                    <div>
+                    <!--div>
                         <a href="foo" @click.prevent="requestClientCert()">Validate Client Cert</a>
-                    </div>
+                    </div-->
                     <div>
-                        <b-button type="submit" variant="primary" v-text="$t('login.form.button')">Sign in</b-button>
+                        <b-button type="submit"
+                                  :disabled="!password || password.trim().length === 0"
+                                  variant="primary"
+                                  v-text="$t('login.form.button')">Sign in</b-button>
                     </div>
                 </b-form>
                 <p></p>

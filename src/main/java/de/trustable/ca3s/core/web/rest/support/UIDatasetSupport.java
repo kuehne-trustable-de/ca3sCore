@@ -69,6 +69,7 @@ public class UIDatasetSupport {
     private final String certificateStoreIsolation;
 
     private final String[] ssoProvider;
+    private final String samlEntityBaseUrl;
 
     private final String[] scndFactorTypes;
 
@@ -86,6 +87,7 @@ public class UIDatasetSupport {
                             @Value("${ca3s.ui.sso.autologin:false}") boolean autoSSOLogin,
                             @Value("${ca3s.ui.certificate-store.isolation:none}")String certificateStoreIsolation,
                             @Value("${ca3s.ui.sso.provider:}") String[] ssoProvider,
+                            @Value("${ca3s.saml.entity.base-url:}") String samlEntityBaseUrl,
                             @Value("${ca3s.ui.login.scnd-factor:CLIENT_AUTH}") String[] scndFactorTypes) {
         this.caConnConfRepo = caConnConfRepo;
         this.caConnectorAdapter = caConnectorAdapter;
@@ -100,6 +102,7 @@ public class UIDatasetSupport {
         this.autoSSOLogin = autoSSOLogin;
         this.certificateStoreIsolation = certificateStoreIsolation;
         this.ssoProvider = ssoProvider;
+        this.samlEntityBaseUrl = samlEntityBaseUrl;
         this.scndFactorTypes = scndFactorTypes;
     }
 
@@ -117,6 +120,7 @@ public class UIDatasetSupport {
         UIConfigView uiConfigView = new UIConfigView(cryptoConfigView,
             autoSSOLogin,
             ssoProvider,
+            samlEntityBaseUrl,
             scndFactorTypes);
         LOG.debug("returning uiConfigView: {}", uiConfigView);
 

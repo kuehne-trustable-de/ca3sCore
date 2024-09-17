@@ -396,7 +396,7 @@
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.requestProxies')"
                                for="pipeline-requestProxyIds">Request Proxies</label>  <help-tag role="Admin" target="pipeline.acme.request-proxies"/>
                         <select class="form-control" id="pipeline-requestProxyIds" name="pipeline-requestProxyIds"
-                                multiple="true"
+                                multiple
                                 v-model="pipeline.requestProxyConfigIds">
                             <option v-for="item in requestProxyConfigs" :key="item.id" :value="item.id">{{item.name}}</option>
                         </select>
@@ -424,7 +424,7 @@
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.domainRAs')" for="pipeline-domainRAs">Domain RAs</label>  <help-tag role="Admin" target="pipeline.domain-ra"/>
                             </div>
                             <div class="col">
-                                <select class="form-control" multiple="true" id="pipeline-domainRAs" name="pipeline-domainRAs" v-model="pipeline.domainRaOfficerList">
+                                <select class="form-control" multiple id="pipeline-domainRAs" name="pipeline-domainRAs" v-model="pipeline.domainRaOfficerList">
                                     <option v-bind:value="domainRA.id" v-for="domainRA in domainRAs" :key="domainRA.id">{{readableUserName(domainRA)}}</option>
                                 </select>
                             </div>

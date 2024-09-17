@@ -2,8 +2,8 @@ package de.trustable.ca3s.core.security;
 
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.repository.UserRepository;
+import de.trustable.ca3s.core.service.exception.BlockedCredentialsException;
 import de.trustable.ca3s.core.service.util.UserUtil;
-import org.hibernate.validator.internal.constraintvalidators.hv.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
@@ -11,7 +11,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,7 +63,9 @@ public class DomainUserDetailsService implements UserDetailsService {
         Instant now = Instant.now();
         if(user.getBlockedUntilDate() != null &&
             user.getBlockedUntilDate().isAfter(now)) {
-            throw new UserBlockedException("User " + login + " blocked until " + user.getBlockedUntilDate());
+            userUtil.handleBadCredentials(login);
+
+            throw new BlockedCredentialsException("User '" + login + "' blocked until " + user.getBlockedUntilDate());
         }
 
         if(user.getCredentialsValidToDate() != null &&

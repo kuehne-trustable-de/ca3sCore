@@ -1,9 +1,7 @@
 package de.trustable.ca3s.core.ui;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -16,26 +14,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.ie.InternetExplorerOptions;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.phantomjs.PhantomJSDriver;
-import org.openqa.selenium.remote.DesiredCapabilities;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.safari.SafariOptions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
@@ -49,7 +41,6 @@ import io.ddavison.conductor.Conductor;
 import io.ddavison.conductor.Config;
 import org.springframework.util.ResourceUtils;
 
-import static javax.xml.datatype.DatatypeConstants.DURATION;
 import static org.junit.Assert.*;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
@@ -218,7 +209,7 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
                     if (isLocal) {
                         try {
 
-//                            WebDriverManager.chromedriver().setup();
+                            WebDriverManager.chromedriver().setup();
 
                             ChromeOptions options = new ChromeOptions();
                             options.addArguments("--no-sandbox");

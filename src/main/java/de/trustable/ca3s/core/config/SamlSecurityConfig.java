@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.config;
 
+import de.trustable.ca3s.core.config.saml.DefaultSAMLBootstrap;
 import de.trustable.ca3s.core.config.saml.SAMLMappingConfig;
 import de.trustable.ca3s.core.config.util.SPeLUtil;
 import de.trustable.ca3s.core.repository.AuthorityRepository;
@@ -15,6 +16,7 @@ import org.opensaml.saml2.metadata.provider.MetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProviderException;
 import org.opensaml.util.resource.ResourceException;
 import org.opensaml.xml.parse.StaticBasicParserPool;
+import org.opensaml.xml.signature.SignatureConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,17 +120,18 @@ public class SamlSecurityConfig {
 
     @Bean
     public SAMLAuthenticationProvider samlAuthenticationProvider() {
-        return new CustomSAMLAuthenticationProvider(userPreferenceRepository, userRepository, authorityRepository, tenantRepository, sPeLUtil, availableLanguages, samlMappingConfig);
+        return new CustomSAMLAuthenticationProvider(userPreferenceRepository,
+            userRepository,
+            authorityRepository,
+            tenantRepository,
+            sPeLUtil,
+            availableLanguages,
+            samlMappingConfig);
     }
 
     @Bean
     public SAMLContextProviderImpl contextProvider() {
         return new SAMLContextProviderImpl();
-    }
-
-    @Bean
-    public static SAMLBootstrap samlBootstrap() {
-        return new SAMLBootstrap();
     }
 
     @Bean
@@ -270,7 +273,7 @@ public class SamlSecurityConfig {
     @Qualifier("saml")
     public SavedRequestAwareAuthenticationSuccessHandler successRedirectHandler() {
         SavedRequestAwareAuthenticationSuccessHandler successRedirectHandler = new CustomUrlAuthenticationSuccessHandler(tokenProvider, secureCookie);
-        successRedirectHandler.setDefaultTargetUrl("/");
+        // successRedirectHandler.setDefaultTargetUrl("/");
         return successRedirectHandler;
     }
 
@@ -318,6 +321,13 @@ public class SamlSecurityConfig {
     @Bean
     public HTTPRedirectDeflateBinding httpRedirectDeflateBinding() {
         return new HTTPRedirectDeflateBinding(parserPool());
+    }
+
+    @Bean
+    public static SAMLBootstrap samlBootstrap() {
+        return new DefaultSAMLBootstrap("RSA",
+            SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256,
+            SignatureConstants.ALGO_ID_DIGEST_SHA256);
     }
 
     @Bean

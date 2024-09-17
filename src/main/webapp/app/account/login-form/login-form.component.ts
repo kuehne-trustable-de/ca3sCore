@@ -2,7 +2,6 @@ import axios from 'axios';
 import Component from 'vue-class-component';
 import { Vue, Inject } from 'vue-property-decorator';
 import AccountService from '@/account/account.service';
-import { IUserLoginData } from '@/shared/model/transfer-object.model';
 
 @Component({
   watch: {
@@ -47,6 +46,7 @@ export default class LoginForm extends Vue {
       .catch(error => {
         // Handle the error response
         console.error('----' + error);
+        this.password = '';
         if (error && error.response && error.response.data) {
           const data = error.response.data;
           if (data.type === 'urn:ietf:params:trustable:error:userBlocked') {
@@ -60,9 +60,15 @@ export default class LoginForm extends Vue {
       });
   }
 
-  public requestClientCert(): void {
-    const userLoginData: IUserLoginData = { login: this.login, password: this.password, rememberMe: this.rememberMe };
+  public convertDateTimeFromServer(value: Date): string {
+    if (value) {
+      const dateObj = new Date(value);
+      return dateObj.toLocaleDateString() + ', ' + dateObj.toLocaleTimeString()
+    }
+    return null;
+  }
 
+  public requestClientCert(): void {
     const clientAuthTarget = this.$store.state.uiConfigStore.config.cryptoConfigView.clientAuthTarget;
 
     axios

@@ -147,7 +147,7 @@ public class CertificateImportScheduler {
 					}
 
 				} catch (OODBConnectionsADCSException e) {
-					LOG.warn("defering ADCS querying for '{}'", caConfig.getName());
+					LOG.warn("deferring ADCS querying for '{}'", caConfig.getName());
 				} catch (ADCSProxyUnavailableException e) {
 //					LOG.debug("problem retrieving certificates", e);
 					LOG.warn("ADCS proxy '{}' unavailable, trying later ...", caConfig.getName());

@@ -1,0 +1,37 @@
+vault login
+
+vault secrets enable -path=rootca_store -description=”PKI backend for Root CA” -max-lease-ttl=87600h pki
+
+vault secrets list
+
+# create root
+vault write rootca_store/root/generate/internal \
+common_name='root trustable.de by vault' \
+ttl=87600h \
+key_bits=4096
+
+vault write rootca_store/config/urls issuing_certificates='http://127.0.0.1:8200/v1/rootca_store/ca' crl_distribution_points='http://vault-pki:8200/v1/rootca_store/crl'
+
+
+vault secrets enable -path=subca_store -description='PKI backend for Intermediate CA' -max-lease-ttl=87600h pki
+
+
+vault write subca_store/intermediate/generate/internal ttl=26280h key_bits=4096  > /tmp/signing_request.csr
+
+# drop additional stuff
+
+vault write rootca_store/root/sign-intermediate csr=@/tmp/signing_request.csr ttl=8760h format=pem_bundle
+
+#save chain to /tmp/mycertreq.crt
+
+vault write subca_store/intermediate/set-signed certificate=@/tmp/mycertreq.crt
+
+
+vault write subca_store/config/urls issuing_certificates='http://127.0.0.1:8200/v1/subca_store/ca' crl_distribution_points='http://vault-pki:8200/v1/subca_store/crl'
+
+
+vault write subca_store/roles/test_server key_bits=2048 max_ttl=4380h allow_any_name=true
+
+# create sample certificate
+
+vault write subca_store/issue/test_server common_name='test.server.vault.trustable.de' ttl=720h format=pem

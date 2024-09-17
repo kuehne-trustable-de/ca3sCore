@@ -7,7 +7,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.1.8</version>
+    <version>1.1.9</version>
 
     <packaging>jar</packaging>
 
@@ -222,6 +222,8 @@
         <jsoup.version>1.16.1</jsoup.version>
 
         <conductorVersion>3.0.1</conductorVersion>
+
+        <selenium.version>4.24.0</selenium.version>
 
         <kerby.version>2.0.3</kerby.version>
         <embedded-ldap.version>0.9.0</embedded-ldap.version>
@@ -759,7 +761,9 @@
                 <artifactId>xmlsec</artifactId>
                 <version>2.3.4</version>
             </dependency>
+
         </dependencies>
+
     </dependencyManagement>
 
     <dependencies>
@@ -952,7 +956,7 @@
         <dependency>
             <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>
-            <version>5.8.0</version>
+            <version>5.9.2</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -1216,6 +1220,13 @@
             <artifactId>spring-security-messaging</artifactId>
         </dependency>
         <!-- jhipster-needle-maven-add-dependency -->
+
+        <!-- https://mvnrepository.com/artifact/org.springframework.vault/spring-vault-core -->
+        <dependency>
+            <groupId>org.springframework.vault</groupId>
+            <artifactId>spring-vault-core</artifactId>
+            <version>3.1.2</version>
+        </dependency>
 
         <dependency>
             <groupId>org.camunda.bpm</groupId>

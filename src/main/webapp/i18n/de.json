@@ -906,7 +906,7 @@
   "login.form.password.placeholder": "Ihr Passwort",
   "login.form.rememberme": "Automatische Anmeldung",
   "login.messages.error.authentication": "<strong>Anmeldung fehlgeschlagen!</strong> Überprüfen Sie bitte Ihre Angaben und versuchen Sie es erneut.",
-  "login.messages.error.blocked": "<strong>Zu viele fehlgeschlagene Anmeldeversuche!</strong> Der Account ist vorübergehend gesperrt. Versuchen Sie es später erneut.",
+  "login.messages.error.blocked": "<strong>Zu viele fehlgeschlagene Anmeldeversuche!</strong> Der Account ist bis {{blockedUntil}} gesperrt.",
   "login.password.forgot": "Sie haben Ihr Passwort vergessen?",
   "login.title": "Anmeldung",
   "logs.filter": "Filter",
