@@ -73,8 +73,6 @@
         <node.version>v16.17.0</node.version>
         <npm.version>8.19.1</npm.version>
 
-
-
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.testresult.directory>${project.build.directory}/test-results</project.testresult.directory>
@@ -234,6 +232,8 @@
 
         <dependencyCheck.version>9.2.0</dependencyCheck.version>
         <dependencyCheck.skip>true</dependencyCheck.skip>
+
+        <selenium.version>4.2.2</selenium.version>
 
     </properties>
 
@@ -1222,11 +1222,11 @@
         <!-- jhipster-needle-maven-add-dependency -->
 
         <!-- https://mvnrepository.com/artifact/org.springframework.vault/spring-vault-core -->
-        <dependency>
+        <!--dependency>
             <groupId>org.springframework.vault</groupId>
             <artifactId>spring-vault-core</artifactId>
             <version>3.1.2</version>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>org.camunda.bpm</groupId>

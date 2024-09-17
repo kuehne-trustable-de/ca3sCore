@@ -11,6 +11,8 @@ import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+/*
 import org.springframework.vault.authentication.TokenAuthentication;
 import org.springframework.vault.client.VaultEndpoint;
 import org.springframework.vault.core.VaultPkiOperations;
@@ -19,7 +21,7 @@ import org.springframework.vault.support.VaultCertificateRequest;
 import org.springframework.vault.support.VaultSignCertificateRequestResponse;
 import org.springframework.vault.core.VaultTemplate;
 import org.springframework.vault.support.VaultUnsealStatus;
-
+*/
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
@@ -51,8 +53,8 @@ public class VaultPKIConnector {
     public de.trustable.ca3s.core.domain.Certificate signCertificateRequest(CSR csr, CAConnectorConfig caConnConfig)
         throws GeneralSecurityException {
 
-        LOGGER.debug("csr contains #{} CsrAttributes, #{} RequestAttributes and #{} RDN", csr.getCsrAttributes().size(), csr.getRas().size(), csr.getRdns().size());
-
+        LOGGER.debug("DISABLED csr contains #{} CsrAttributes, #{} RequestAttributes and #{} RDN", csr.getCsrAttributes().size(), csr.getRas().size(), csr.getRdns().size());
+/*
         VaultEndpoint endpoint = null;
         try {
             endpoint = VaultEndpoint.from(new URI(caConnConfig.getCaUrl()));
@@ -99,6 +101,8 @@ public class VaultPKIConnector {
         csr.setStatus(CsrStatus.ISSUED);
 
         return certDao;
+*/
+        return null;
     }
 
     private Certificate handleCertificate(final String certBase64, final boolean reimport) throws GeneralSecurityException {
