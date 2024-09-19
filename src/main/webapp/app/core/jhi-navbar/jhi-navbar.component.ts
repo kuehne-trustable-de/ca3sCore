@@ -208,7 +208,7 @@ export default class JhiNavbar extends Vue {
   }
   public doSAMLLogin(): void {
     let target = '/saml/login';
-    const samlEntityBaseUrl: string = this.$store.getters.samlEntityBaseUrl;
+    const samlEntityBaseUrl: string = this.$store.state.uiConfigStore.config.samlEntityBaseUrl;
 
     if(samlEntityBaseUrl &&  samlEntityBaseUrl.trim().length > 0 ){
       target = samlEntityBaseUrl.trim() + '/saml/login';

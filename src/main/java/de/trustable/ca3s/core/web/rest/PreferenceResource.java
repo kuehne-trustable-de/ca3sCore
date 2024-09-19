@@ -6,14 +6,12 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
-import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -113,7 +111,7 @@ public class PreferenceResource {
             	return ResponseEntity.badRequest().body(oldPrefs);
     		}
 
-    		if( portsCommaSeparatedList.trim().length() > 0){
+    		if(!portsCommaSeparatedList.trim().isEmpty()){
                 portsCommaSeparatedList += ",";
             }
             portsCommaSeparatedList += nPort;
@@ -130,6 +128,10 @@ public class PreferenceResource {
         updateValue(upMap, PreferenceUtil.NOTIFY_RA_ON_REQUEST, "" + preferences.isNotifyRAOnRequest(), userId);
         updateValue(upMap, PreferenceUtil.MAX_NEXT_UPDATE_PERIOD_CRL_SEC, "" + ( preferences.getMaxNextUpdatePeriodCRLHour() * 3600L), userId);
         updateValue(upMap, PreferenceUtil.SERVER_SIDE_KEY_CREATION_ALLOWED, "" + preferences.isServerSideKeyCreationAllowed(), userId);
+
+        updateValue(upMap, PreferenceUtil.SERVER_SIDE_KEY_DELETE_AFTER_DAYS, "" + preferences.getDeleteKeyAfterDays(), userId);
+        updateValue(upMap, PreferenceUtil.SERVER_SIDE_KEY_DELETE_AFTER_USES, "" + preferences.getDeleteKeyAfterUses(), userId);
+
         updateValue(upMap, PreferenceUtil.ACME_HTTP01_CALLBACK_PORTS, portsCommaSeparatedList, userId);
         updateValue(upMap, PreferenceUtil.ACME_HTTP01_TIMEOUT_MILLI_SEC, "" + preferences.getAcmeHTTP01TimeoutMilliSec(), userId);
 

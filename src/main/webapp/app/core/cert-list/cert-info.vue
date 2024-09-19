@@ -216,9 +216,9 @@
                             </div>
 
                             <div class="row">
-                                <div class="col">
+                                <div v-if="certificateView.serversideKeyValidTo && (certificateView.serversideKeyValidTo < 9999)" class="col">
                                     <label class="form-control-label" v-text="$t('ca3SApp.certificate.key.availableUntil')" for="availableUntil">Key available until</label>
-                                    <span v-if="certificateView.serversideKeyValidTo">{{$d(Date.parse(certificateView.serversideKeyValidTo), 'short') }}</span>
+                                    <span name="availableUntil">{{$d(Date.parse(certificateView.serversideKeyValidTo), 'short') }}</span>
                                 </div>
                                 <!--div class="col">
                                     <label class="form-control-label" v-text="$t('ca3SApp.certificate.key.leftUsages')" for="leftUsages">Key left usages</label>
