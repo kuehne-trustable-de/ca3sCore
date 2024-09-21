@@ -160,7 +160,7 @@
         <jib-maven-plugin.version>3.4.3</jib-maven-plugin.version>
         <jib.allowInsecureRegistries>true</jib.allowInsecureRegistries>
         <jib-maven-plugin.from.image>eclipse-temurin:17-jre-focal</jib-maven-plugin.from.image>
-        <jib-maven-plugin.to.image>docker.io/kuehnetrustablede/ca3s</jib-maven-plugin.to.image>
+        <jib-maven-plugin.to.image>docker.io/ca3s/ca3s</jib-maven-plugin.to.image>
         <jib-maven-plugin.architecture>amd64</jib-maven-plugin.architecture>
         <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
         <properties-maven-plugin.version>1.2.1</properties-maven-plugin.version>
@@ -899,12 +899,6 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <!--scope>test</scope-->
-        </dependency>
-        <dependency>
-            <groupId>com.jayway.jsonpath</groupId>
-            <artifactId>json-path</artifactId>
-            <scope>test</scope>
-            <!-- parent POM declares this dependency in default (compile) scope -->
         </dependency>
 
         <dependency>
@@ -2004,7 +1998,7 @@
                             <tags>${version}</tags>
                             <auth>
                                 <username>${dockerUser}</username>
-                                <password>${dockerPassword}</password>
+                                <password>${dockerAccessTokens}</password>
                             </auth>
                         </to>
                         <container>
