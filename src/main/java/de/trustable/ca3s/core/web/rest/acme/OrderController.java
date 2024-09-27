@@ -28,8 +28,10 @@ package de.trustable.ca3s.core.web.rest.acme;
 
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
+import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.exception.CAFailureException;
 import de.trustable.ca3s.core.repository.AcmeOrderRepository;
+import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.NamedValues;
 import de.trustable.ca3s.core.service.dto.acme.FinalizeRequest;
@@ -42,7 +44,6 @@ import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
 import org.apache.commons.lang3.StringUtils;
-import io.github.bucket4j.Bucket;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
@@ -92,6 +93,8 @@ public class OrderController extends AcmeController {
 
     final private AcmeOrderRepository orderRepository;
 
+    final private CSRRepository csrRepository;
+
     final private JwtUtil jwtUtil;
 
     final private CryptoUtil cryptoUtil;
@@ -115,7 +118,7 @@ public class OrderController extends AcmeController {
     final private boolean iterateAuthenticationsOnGet;
 
     public OrderController(AcmeOrderRepository orderRepository,
-                           JwtUtil jwtUtil,
+                           CSRRepository csrRepository, JwtUtil jwtUtil,
                            CryptoUtil cryptoUtil,
                            CertificateUtil certUtil,
                            CertificateProcessingUtil cpUtil,
@@ -126,6 +129,7 @@ public class OrderController extends AcmeController {
                            @Value("${ca3s.acme.ratelimit.minute:20}") int rateMin,
                            @Value("${ca3s.acme.ratelimit.hour:0}") int rateHour, ReplacementCandidateUtil replacementCandidateUtil, CertificateAsyncUtil certificateAsyncUtil) {
         this.orderRepository = orderRepository;
+        this.csrRepository = csrRepository;
         this.jwtUtil = jwtUtil;
         this.cryptoUtil = cryptoUtil;
         this.certUtil = certUtil;
@@ -516,6 +520,9 @@ public class OrderController extends AcmeController {
         if (cert == null) {
             auditService.saveAuditTrace(
                 auditService.createAuditTraceAcmeOrderInvalid(orderDao.getAccount(), orderDao, csr, "certificate creation failed"));
+            csr.setStatus(CsrStatus.REJECTED);
+            csrRepository.save(csr);
+            
             if( msg == null) {
                 msg = "creation of certificate by ACME order '" + orderDao.getOrderId() + "' failed ";
             }

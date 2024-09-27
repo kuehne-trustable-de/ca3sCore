@@ -5,12 +5,14 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 
+import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
+import org.jscep.transaction.OperationFailureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -20,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 
-@Transactional
+@Transactional(dontRollbackOn = OperationFailureException.class)
 @RestController
 public class Ca3sSCEPServiceResource {
 

@@ -1,24 +1,15 @@
 package de.trustable.ca3s.core.ui;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.PosixFilePermission;
-import java.time.Duration;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import com.google.common.base.Strings;
+import de.trustable.ca3s.core.ui.helper.Browser;
+import de.trustable.ca3s.core.ui.helper.Config;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.AfterAll;
-import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
@@ -33,18 +24,25 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-
-import com.google.common.base.Strings;
-
-import io.ddavison.conductor.Browser;
-import io.ddavison.conductor.Conductor;
-import io.ddavison.conductor.Config;
 import org.springframework.util.ResourceUtils;
 
-import static org.junit.Assert.*;
-import io.github.bonigarcia.wdm.WebDriverManager;
+import java.io.File;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.PosixFilePermission;
+import java.time.Duration;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class LocomotiveBase implements Conductor<LocomotiveBase>{
+import static org.junit.Assert.*;
+
+// public class LocomotiveBase implements Conductor<LocomotiveBase>{
+public class LocomotiveBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LocomotiveBase.class);
 
@@ -927,31 +925,26 @@ public class LocomotiveBase implements Conductor<LocomotiveBase>{
         return this;
     }
 
-    @Override
     public LocomotiveBase refresh() {
         logFatal("Not implemented: refresh ");
         return null;
     }
 
-    @Override
     public LocomotiveBase selectOptionByIndex(String arg0, Integer arg1) {
         logFatal("Not implemented: selectOptionByIndex ");
         return null;
     }
 
-    @Override
     public LocomotiveBase selectOptionByIndex(By arg0, Integer arg1) {
         logFatal("Not implemented: selectOptionByIndex ");
         return null;
     }
 
-    @Override
     public LocomotiveBase switchToFrame(WebElement arg0) {
         logFatal("Not implemented: switchToFrame ");
         return null;
     }
 
-    @Override
     public LocomotiveBase waitForCondition(ExpectedCondition<?> arg0, long arg1, long arg2) {
         logFatal("Not implemented: waitForCondition ");
         return null;

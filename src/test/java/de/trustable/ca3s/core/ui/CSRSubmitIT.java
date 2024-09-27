@@ -3,9 +3,10 @@ package de.trustable.ca3s.core.ui;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
+import de.trustable.ca3s.core.ui.helper.Browser;
+import de.trustable.ca3s.core.ui.helper.Config;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.JCAManager;
-import io.ddavison.conductor.Browser;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -44,7 +45,7 @@ import java.util.Random;
 import static org.junit.Assert.fail;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@io.ddavison.conductor.Config(
+@Config(
     browser = Browser.CHROME,
     url = "http://localhost:${local.server.port}/"
 )

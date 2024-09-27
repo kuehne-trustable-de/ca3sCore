@@ -49,6 +49,7 @@ const validations: any = {
     msgContentType: {},
     sni: {},
     ignoreResponseMessageVerification: {},
+    fillEmptySubjectWithSAN: {},
   },
 };
 

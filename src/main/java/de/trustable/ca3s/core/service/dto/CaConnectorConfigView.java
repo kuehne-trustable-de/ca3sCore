@@ -50,6 +50,9 @@ public class CaConnectorConfigView implements Serializable {
     private NamedValue[] aTaVArr = new NamedValue[0];
     private boolean multipleMessages = true;
     private boolean implicitConfirm = true;
+    private boolean fillEmptySubjectWithSAN = true;
+
+
 
     public Long getId() {
         return id;
@@ -245,5 +248,11 @@ public class CaConnectorConfigView implements Serializable {
         this.ignoreResponseMessageVerification = ignoreResponseMessageVerification;
     }
 
+    public boolean isFillEmptySubjectWithSAN() {
+        return fillEmptySubjectWithSAN;
+    }
 
+    public void setFillEmptySubjectWithSAN(boolean fillEmptySubjectWithSAN) {
+        this.fillEmptySubjectWithSAN = fillEmptySubjectWithSAN;
+    }
 }

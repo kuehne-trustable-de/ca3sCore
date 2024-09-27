@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
+import de.trustable.util.CryptoUtil;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -174,7 +175,8 @@ public class AcmeChallenge implements Serializable {
     }
 
     public void setLastError(String lastError) {
-        this.lastError = lastError;
+
+        this.lastError = CryptoUtil.limitLength(lastError, 250);
     }
 
     public void setStatus(ChallengeStatus status) {

@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.audit.listener.AuditApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
@@ -123,6 +122,7 @@ public class AuditService {
     public static final String AUDIT_CA_CONNECTOR_DISABLE_HOST_NAME_VERIFIER_CHANGED = "AUDIT_CA_CONNECTOR_DISABLE_HOST_NAME_VERIFIER_CHANGED";
     public static final String  AUDIT_CA_CONNECTOR_IGNORE_RESPONSE_MESSAGE_VERIFICATION_CHANGED = "AUDIT_CA_CONNECTOR_IGNORE_RESPONSE_MESSAGE_VERIFICATION_CHANGED";
     public static final String AUDIT_CERTIFICATE_ADMINISTRATION_FAILED = "AUDIT_CERTIFICATE_ADMINISTRATION_FAILED";
+    public static final String AUDIT_FILL_EMPTY_SUBJECT_WITH_SAN_CHANGED = "AUDIT_FILL_EMPTY_SUBJECT_WITH_SAN_CHANGED";
     private static final String AUDIT_BPMN_ATTRIBUTE_CHANGED = "AUDIT_BPMN_ATTRIBUTE_CHANGED";
     private static final String AUDIT_USER_LOGIN_SUCEEDED = "AUDIT_USER_LOGIN_SUCEEDED";
     private static final String AUDIT_USER_LOGIN_FAILED = "AUDIT_USER_LOGIN_FAILED";

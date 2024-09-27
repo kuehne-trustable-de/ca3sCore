@@ -3,16 +3,11 @@ package de.trustable.ca3s.core.ui;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
-import de.trustable.ca3s.core.service.dto.NamedValues;
-import de.trustable.ca3s.core.service.dto.TypedValue;
-import de.trustable.ca3s.core.web.rest.data.CreationMode;
-import de.trustable.ca3s.core.web.rest.data.PkcsXXData;
-import de.trustable.ca3s.core.web.rest.data.UploadPrecheckData;
+import de.trustable.ca3s.core.ui.helper.Browser;
+import de.trustable.ca3s.core.ui.helper.Config;
 import de.trustable.ca3s.core.web.rest.support.ContentUploadProcessor;
 import de.trustable.util.JCAManager;
-import io.ddavison.conductor.Browser;
 import org.apache.commons.io.FileUtils;
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.io.File;
@@ -33,7 +27,7 @@ import java.io.IOException;
 import java.util.Random;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@io.ddavison.conductor.Config(
+@Config(
         browser = Browser.CHROME,
         url     = "http://localhost:${local.server.port}/"
 )

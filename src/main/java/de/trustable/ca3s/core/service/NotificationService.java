@@ -45,6 +45,18 @@ public class NotificationService {
     private final List<String> notificationARAAttributes;
     private final boolean notifyUserOnly;
 
+    private final boolean notifyRAOfficerHolderOnExpiry;
+    private final boolean notifyRequestorOnExpiry;
+    private final boolean notifyCerificateRevoked;
+    private final boolean notifyUserCerificateRejected;
+    private final boolean notifyUserCerificateIssued;
+    private final boolean notifyRAOfficerOnRequest;
+    private final boolean notifyRAOfficerOnUserRevocation;
+    private final boolean notifyRequestorOnExcessiveAvtiveCertificates;
+
+
+
+
     @Autowired
     public NotificationService(CertificateRepository certificateRepo, CSRRepository csrRepo,
                                UserRepository userRepository, PipelineUtil pipelineUtil,
@@ -56,7 +68,15 @@ public class NotificationService {
                                @Value("${ca3s.schedule.ra-officer-notification.days-pending:30}") int nDaysPending,
                                @Value("${ca3s.schedule.requestor.notification.days:30,14,7,6,5,4,3,2,1}") String notificationDays,
                                @Value("${ca3s.schedule.requestor.notification.attributes:}") String notificationARAAttributesString,
-                               @Value("${ca3s.schedule.requestor.notification.user-only:false}") boolean notifyUserOnly) {
+                               @Value("${ca3s.schedule.requestor.notification.user-only:false}") boolean notifyUserOnly,
+                               @Value("${ca3s.notify.raOfficerHolderOnExpiry:true}") boolean notifyRAOfficerHolderOnExpiry,
+                               @Value("${ca3s.notify.requestorOnExpiry:true}") boolean notifyRequestorOnExpiry,
+                               @Value("${ca3s.notify.cerificateRevoked:true}") boolean notifyCerificateRevoked,
+                               @Value("${ca3s.notify.userCerificateRejected:true}") boolean notifyUserCerificateRejected,
+                               @Value("${ca3s.notify.userCerificateIssued:true}") boolean notifyUserCerificateIssued,
+                               @Value("${ca3s.notify.raOfficerOnRequest:true}") boolean notifyRAOfficerOnRequest,
+                               @Value("${ca3s.notify.raOfficerOnUserRevocation:true}") boolean notifyRAOfficerOnUserRevocation,
+                               @Value("${ca3s.notify.requestorOnExcessiveAvtiveCertificates:true}") boolean notifyRequestorOnExcessiveAvtiveCertificates) {
         this.certificateRepo = certificateRepo;
         this.csrRepo = csrRepo;
         this.userRepository = userRepository;
@@ -68,6 +88,14 @@ public class NotificationService {
         this.nDaysExpiryCA = nDaysExpiryCA;
         this.nDaysPending = nDaysPending;
         this.notifyUserOnly = notifyUserOnly;
+        this.notifyRAOfficerHolderOnExpiry = notifyRAOfficerHolderOnExpiry;
+        this.notifyRequestorOnExpiry = notifyRequestorOnExpiry;
+        this.notifyCerificateRevoked = notifyCerificateRevoked;
+        this.notifyUserCerificateRejected = notifyUserCerificateRejected;
+        this.notifyUserCerificateIssued = notifyUserCerificateIssued;
+        this.notifyRAOfficerOnRequest = notifyRAOfficerOnRequest;
+        this.notifyRAOfficerOnUserRevocation = notifyRAOfficerOnUserRevocation;
+        this.notifyRequestorOnExcessiveAvtiveCertificates = notifyRequestorOnExcessiveAvtiveCertificates;
 
         this.notificationDayList = new ArrayList<>();
         String[] parts = notificationDays.split(",");
@@ -94,6 +122,11 @@ public class NotificationService {
 
     @Transactional
     public int notifyRAOfficerHolderOnExpiry(List<User> raOfficerList, List<User> domainOfficerList, boolean logNotification) {
+
+        if( !notifyRAOfficerHolderOnExpiry){
+            LOG.info("notifyRAOfficerHolderOnExpiry deactivated");
+            return 0;
+        }
 
         Instant now = Instant.now();
         Instant beforeCA = now.plus(nDaysExpiryCA, ChronoUnit.DAYS);
@@ -167,6 +200,11 @@ public class NotificationService {
 
     @Transactional
     public int notifyRequestorOnExpiry(User testUser, boolean logNotification) {
+
+        if( !notifyRequestorOnExpiry){
+            LOG.info("notifyRequestorOnExpiry deactivated");
+            return 0;
+        }
 
         Instant now = Instant.now();
 
@@ -293,8 +331,12 @@ public class NotificationService {
         }
     }
 
-
     public void notifyRequestorOnExcessiveAvtiveCertificates(String requestorEmail, int numberActive, Certificate certificate) {
+
+        if( !notifyRequestorOnExcessiveAvtiveCertificates){
+            LOG.info("notifyRequestorOnExcessiveAvtiveCertificates deactivated");
+            return;
+        }
 
         Locale locale = Locale.getDefault();
         Context context = new Context(locale);
@@ -322,6 +364,11 @@ public class NotificationService {
                                          List<User> raOfficerList,
                                          List<User> domainOfficerList,
                                          boolean logNotification) {
+
+        if( !notifyRAOfficerOnUserRevocation){
+            LOG.info("notifyRAOfficerOnUserRevocation deactivated");
+            return;
+        }
 
         LOG.info("certificate revoked by user (certificate # {})", certificate.getId());
 
@@ -383,6 +430,11 @@ public class NotificationService {
     public void notifyRAOfficerOnRequest(CSR csr, List<User> raOfficerList, List<User> domainOfficerList,
                                          boolean logNotification) {
 
+        if( !notifyRAOfficerOnRequest){
+            LOG.info("notifyRAOfficerOnRequest deactivated");
+            return;
+        }
+
         LOG.info("certificate requested, causing a new pending requests (CSR # {})", csr.getId());
 
         List<CSR> newCsrList = new ArrayList<>();
@@ -437,6 +489,11 @@ public class NotificationService {
     @Transactional
     public void notifyUserCerificateIssued(User requestor, Certificate cert, Set<String> additionalEmailSet ) throws MessagingException {
 
+        if( !notifyUserCerificateIssued){
+            LOG.info("notifyUserCerificateIssued deactivated");
+            return;
+        }
+
         Locale locale = Locale.forLanguageTag(requestor.getLangKey());
         Context context = new Context(locale);
         context.setVariable("certId", cert.getId());
@@ -474,6 +531,11 @@ public class NotificationService {
     @Transactional
     public void notifyUserCerificateRejected(User requestor, CSR csr ) throws MessagingException {
 
+        if( !notifyUserCerificateRejected){
+            LOG.info("notifyUserCerificateRejected deactivated");
+            return;
+        }
+
         Locale locale = Locale.forLanguageTag(requestor.getLangKey());
         Context context = new Context(locale);
         context.setVariable("csr", csr);
@@ -493,6 +555,12 @@ public class NotificationService {
 
     @Transactional
     public void notifyCerificateRevoked(User requestor, Certificate cert, CSR csr ) throws MessagingException {
+
+        if( !notifyCerificateRevoked){
+            LOG.info("notifyCerificateRevoked deactivated");
+            return;
+        }
+
         Locale locale = Locale.forLanguageTag(requestor.getLangKey());
         Context context = new Context(locale);
         context.setVariable("csr", csr);

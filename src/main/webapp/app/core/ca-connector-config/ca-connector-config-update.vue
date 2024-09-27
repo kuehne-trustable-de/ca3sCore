@@ -176,6 +176,10 @@
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.ignoreResponseMessageVerification')" for="ca-connector-config-ignoreResponseMessageVerification">Ignore Response Message Verification</label>  <help-tag role="Admin" target="ca-connector.cmp.ignore-response-message-verification"/>
                         <input type="checkbox" class="form-check" name="ca-connector-config-ignoreResponseMessageVerification" id="ca-connector-config-ignoreResponseMessageVerification"
                                v-model="$v.cAConnectorConfig.ignoreResponseMessageVerification.$model" />
+
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.fillEmptySubjectWithSAN')" for="ca-connector-config-fillEmptySubjectWithSAN">Fill Empty Subject With SAN</label>  <help-tag role="Admin" target="ca-connector.cmp.fill-empty-eubject-with-san"/>
+                        <input type="checkbox" class="form-check" name="ca-connector-config-ignoreResponseMessageVerification" id="ca-connector-config-fillEmptySubjectWithSAN"
+                               v-model="$v.cAConnectorConfig.fillEmptySubjectWithSAN.$model" />
                     </div>
 
                     <div v-if="cAConnectorConfig.id">

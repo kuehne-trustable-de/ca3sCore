@@ -5,12 +5,13 @@ import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import de.trustable.ca3s.core.service.dto.NamedValues;
 import de.trustable.ca3s.core.service.dto.TypedValue;
+import de.trustable.ca3s.core.ui.helper.Browser;
+import de.trustable.ca3s.core.ui.helper.Config;
 import de.trustable.ca3s.core.web.rest.data.CreationMode;
 import de.trustable.ca3s.core.web.rest.data.PkcsXXData;
 import de.trustable.ca3s.core.web.rest.data.UploadPrecheckData;
 import de.trustable.ca3s.core.web.rest.support.ContentUploadProcessor;
 import de.trustable.util.JCAManager;
-import io.ddavison.conductor.Browser;
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -29,7 +30,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.Random;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@io.ddavison.conductor.Config(
+@Config(
         browser = Browser.CHROME,
         url     = "http://localhost:${local.server.port}/"
 )

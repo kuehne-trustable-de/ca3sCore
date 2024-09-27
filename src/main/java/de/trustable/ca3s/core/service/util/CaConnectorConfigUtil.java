@@ -32,6 +32,7 @@ public class CaConnectorConfigUtil {
     public static final String ATT_CMP_MESSAGE_CONTENT_TYPE = "CMP_MESSAGE_CONTENT_TYPE";
     public static final String ATT_SNI = "SNI";
     public static final String ATT_DISABLE_HOST_NAME_VERIFIER = "DISABLE_HOST_NAME_VERIFIER";
+    public static final String ATT_FILL_EMPTY_SUBJECT_WITH_SAN = "FILL_EMPTY_SUBJECT_WITH_SAN";
     public static final String PLAIN_SECRET_PLACEHOLDER = "*****";
 
     Logger LOG = LoggerFactory.getLogger(CaConnectorConfigUtil.class);
@@ -109,9 +110,12 @@ public class CaConnectorConfigUtil {
                 cv.setDisableHostNameVerifier( Boolean.parseBoolean(cfgAtt.getValue()));
             }else if (ATT_IGNORE_RESPONSE_MESSAGE_VERIFICATION.equals(cfgAtt.getName())) {
                 cv.setIgnoreResponseMessageVerification( Boolean.parseBoolean(cfgAtt.getValue()));
+            }else if (ATT_FILL_EMPTY_SUBJECT_WITH_SAN.equals(cfgAtt.getName())) {
+                cv.setFillEmptySubjectWithSAN( Boolean.parseBoolean(cfgAtt.getValue()));
             }else if (ATT_ATTRIBUTE_TYPE_AND_VALUE.equals(cfgAtt.getName())) {
                 aTaVList.add( new NamedValue(cfgAtt.getValue()));
             }
+
         }
 
 
@@ -342,6 +346,7 @@ public class CaConnectorConfigUtil {
         boolean hasSniType = false;
         boolean hasDisableHostNameVerifier = false;
         boolean hasIgnoreResponseMessageVerification = false;
+        boolean hasFillEmptySubjectWithSAN = false;
 
         for( CAConnectorConfigAttribute configAttribute : caConnectorConfig.getCaConnectorAttributes()){
 
@@ -390,6 +395,12 @@ public class CaConnectorConfigUtil {
                 }
                 hasIgnoreResponseMessageVerification = true;
 
+            }else if (ATT_FILL_EMPTY_SUBJECT_WITH_SAN.equals(configAttribute.getName())) {
+                if(!Objects.equals( cv.isFillEmptySubjectWithSAN(), configAttribute.getValue())) {
+                    auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_FILL_EMPTY_SUBJECT_WITH_SAN_CHANGED, configAttribute.getValue(), Boolean.toString(cv.isFillEmptySubjectWithSAN()), caConnectorConfig));
+                    configAttribute.setValue(Boolean.toString(cv.isFillEmptySubjectWithSAN()));
+                }
+                hasFillEmptySubjectWithSAN = true;
 
             }else if (ATT_ATTRIBUTE_TYPE_AND_VALUE.equals(configAttribute.getName())) {
                 LOG.warn("CA Connector ATaV attribute detected!");
@@ -423,7 +434,10 @@ public class CaConnectorConfigUtil {
             auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_IGNORE_RESPONSE_MESSAGE_VERIFICATION_CHANGED, null, Boolean.toString(cv.isIgnoreResponseMessageVerification()), caConnectorConfig));
             createAttribute(ATT_IGNORE_RESPONSE_MESSAGE_VERIFICATION, Boolean.toString(cv.isIgnoreResponseMessageVerification()), caConnectorConfig);
         }
-
+        if( !hasFillEmptySubjectWithSAN){
+            auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_FILL_EMPTY_SUBJECT_WITH_SAN_CHANGED, null, Boolean.toString(cv.isFillEmptySubjectWithSAN()), caConnectorConfig));
+            createAttribute(ATT_FILL_EMPTY_SUBJECT_WITH_SAN, Boolean.toString(cv.isIgnoreResponseMessageVerification()), caConnectorConfig);
+        }
 
         caConnectorConfigAttributeRepository.saveAll(caConnectorConfig.getCaConnectorAttributes());
         cAConnectorConfigRepository.save(caConnectorConfig);

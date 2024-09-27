@@ -297,6 +297,8 @@
   "ca3SApp.cAConnectorConfig.sni": "Server Name Indication",
   "ca3SApp.cAConnectorConfig.disableHostNameVerifier": "Keine Prüfung des Hostnamens",
   "ca3SApp.cAConnectorConfig.ignoreResponseMessageVerification": "Ignorieren der Verifikation der Antwortnachricht",
+  "ca3SApp.cAConnectorConfig.fillEmptySubjectWithSAN": "Leeres Subjekt mit SAN-Inhalt",
+
   "ca3SApp.cAConnectorConfig.caname": "CA Name",
 
   "ca3SApp.cSR.subtitle.request.list": "Antragsliste",

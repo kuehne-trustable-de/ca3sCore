@@ -6,8 +6,9 @@ import com.sun.mail.imap.IMAPStore;
 import com.sun.mail.imap.protocol.FLAGS;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
+import de.trustable.ca3s.core.ui.helper.Browser;
+import de.trustable.ca3s.core.ui.helper.Config;
 import de.trustable.util.JCAManager;
-import io.ddavison.conductor.Browser;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,7 @@ import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@io.ddavison.conductor.Config(
+@Config(
     browser = Browser.CHROME,
     url     = "http://localhost:${local.server.port}/"
 )

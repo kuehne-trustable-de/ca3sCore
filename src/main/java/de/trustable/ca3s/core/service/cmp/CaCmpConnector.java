@@ -176,6 +176,10 @@ public class CaCmpConnector {
         cmpClientConfig.setImplicitConfirm(implicitConfirm);
         LOGGER.debug("CMPClientConfig: ImplicitConfirm '{}'", cmpClientConfig.isImplicitConfirm());
 
+        boolean fillEmptySubjectWithSAN = caConnectorConfigUtil.getCAConnectorConfigAttribute(caConnConfig, CaConnectorConfigUtil.ATT_FILL_EMPTY_SUBJECT_WITH_SAN, true);
+        cmpClientConfig.setFillEmptySubjectWithSAN(fillEmptySubjectWithSAN);
+        LOGGER.debug("CMPClientConfig: ImplicitConfirm '{}'", cmpClientConfig.isImplicitConfirm());
+
         cmpClientConfig.setVerbose(LOGGER.isDebugEnabled());
 
         return new CMPClientImpl(cmpClientConfig);

@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.web.rest.acme;
 
 import de.trustable.ca3s.core.domain.AcmeOrder;
 import de.trustable.ca3s.core.repository.AcmeOrderRepository;
+import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.acme.OrderResponse;
 import de.trustable.ca3s.core.service.util.*;
@@ -30,6 +31,8 @@ public class OrderControllerTest {
 
     @Mock
     AcmeOrderRepository acmeOrderRepository = mock(AcmeOrderRepository.class);
+    @Mock
+    CSRRepository csrRepository = mock(CSRRepository.class);
 
     @Mock
     JwtUtil jwtUtil = mock(JwtUtil.class);
@@ -74,7 +77,7 @@ public class OrderControllerTest {
         RequestContextHolder.setRequestAttributes(servletRequestAttributes);
 
         orderController = new OrderController(acmeOrderRepository,
-            jwtUtil,
+                csrRepository, jwtUtil,
             cryptoUtil,
             certUtil,
             cpUtil,

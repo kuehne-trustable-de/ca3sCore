@@ -5,7 +5,8 @@ import de.trustable.ca3s.core.test.obs.OBSClient;
 import de.trustable.ca3s.core.test.obs.RunnableWithFilename;
 import de.trustable.ca3s.core.test.obs.StartRecordConsumer;
 import de.trustable.ca3s.core.test.obs.StopRecordConsumer;
-import io.ddavison.conductor.Browser;
+import de.trustable.ca3s.core.ui.helper.Browser;
+import de.trustable.ca3s.core.ui.helper.Config;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
@@ -23,7 +24,7 @@ import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@io.ddavison.conductor.Config(
+@Config(
     browser = Browser.CHROME,
     url = "http://localhost:${local.server.port}/core/info"
 )
