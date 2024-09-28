@@ -572,9 +572,9 @@
             <port>
                 <value>8442</value>
             </port>
-            <bindingHost>
+            <!--bindingHost>
                 <value>192.168.32.0</value>
-            </bindingHost>
+            </bindingHost-->
         </adminAccess>
 
         <acme>
