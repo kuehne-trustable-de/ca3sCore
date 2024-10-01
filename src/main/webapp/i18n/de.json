@@ -482,8 +482,8 @@
   "ca3SApp.info.table.properties": "Wert",
   "ca3SApp.notification.title": "Benachrichtigungen",
   "ca3SApp.notification.action.send": "Senden",
-  "ca3SApp.notification.certificate.id": "Sende 'Zertifikat ausgestellt' für Zertifikat Id:",
-  "ca3SApp.notification.csr.id": "Sende 'Zertifikat abgelehnt' für CSR Id:",
+  "ca3SApp.notification.certificate.id": "Sende Benachrichtigung für Zertifikat Id:",
+  "ca3SApp.notification.csr.id": "Sende Benachrichtigung für CSR Id:",
   "ca3SApp.notification.expiry.summary": "sende 'ablaufende & wartende Zertifikate'",
 
   "ca3SApp.messages.error": "<strong>Ihr Benutzer konnte nicht aktiviert werden.</strong> Bitte benutzen Sie das Registrierungsformular, um sich anzumelden.",

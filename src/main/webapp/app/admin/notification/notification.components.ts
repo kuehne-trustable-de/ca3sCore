@@ -157,17 +157,17 @@ export default class Notification extends Vue {
   }
 
   public sendRequestorExpirySummary(): void {
-    window.console.info('calling sendRequestorExpirySummary');
+    window.console.info('calling sendRequestorExpiry');
     this.problemDetail = {};
     const self = this;
 
     axios({
       method: 'post',
-      url: '/api/notification/sendRequestorExpirySummary',
+      url: '/api/notification/sendRequestorExpiry/' + this.certificateId,
       responseType: 'stream',
     })
       .then(function (response) {
-        window.console.info('api/notification/sendRequestorExpirySummary returns ' + response.data);
+        window.console.info('api/notification/sendRequestorExpiry returns ' + response.data);
         if (response.data.title !== undefined) {
           self.problemDetail = response.data;
         }

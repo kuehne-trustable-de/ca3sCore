@@ -83,14 +83,33 @@ public class NotificationSupport {
      * @return the number of expiring certificates .
      */
     @Transactional
-    @PostMapping("notification/sendRequestorExpirySummary")
+    @PostMapping("notification/sendRequestorExpiry")
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public int notifyRequestorOnExpiry() throws MessagingException {
+    public int notifyRequestorOnExpirySummary() throws MessagingException {
 
         Optional<User> optUser = userRepository.findOneByLogin(nameAndRoleUtil.getNameAndRole().getName());
         if (optUser.isPresent()) {
             User admin = optUser.get();
             return notificationService.notifyRequestorOnExpiry( admin, false);
+        }
+
+        return 0;
+    }
+
+    /**
+     * {@code POST  api/notification/sendExpiryPendingSummary} : send out certificate expiry and request pending summary.
+     *
+     * @return the number of expiring certificates .
+     */
+    @Transactional
+    @PostMapping("notification/sendRequestorExpiry/{certId}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public int notifyRequestorOnExpiry(@PathVariable String certId) throws MessagingException {
+
+        Optional<User> optUser = userRepository.findOneByLogin(nameAndRoleUtil.getNameAndRole().getName());
+        if (optUser.isPresent()) {
+            User admin = optUser.get();
+            return notificationService.notifyRequestorOnExpiry( admin, false, certId);
         }
 
         return 0;

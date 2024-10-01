@@ -9,7 +9,7 @@
             <select class="form-control" id="notification-select" name="notification-select" v-model="selectedNotification" v-on:change="updateNotification()">
 
                 <option value="sendRequestorExpirySummary" v-text="$t('ca3SApp.notification.sendRequestorExpirySummary')" selected="selected">sendRequestorExpirySummary</option>
-                <option value="sendExpiryPendingSummary" v-text="$t('ca3SApp.notification.sendExpiryPendingSummary')" selected="selected">sendExpiryPendingSummary</option>
+                <option value="sendExpiryPendingSummary" v-text="$t('ca3SApp.notification.sendExpiryPendingSummary')">sendExpiryPendingSummary</option>
                 <option value="sendRAOfficerOnRequest" v-text="$t('ca3SApp.notification.sendRAOfficerOnRequest')" >sendRAOfficerOnRequest</option>
                 <option value="sendUserCertificateIssued" v-text="$t('ca3SApp.notification.sendUserCertificateIssued')" >sendUserCertificateIssued</option>
                 <option value="sendUserCertificateRejected" v-text="$t('ca3SApp.notification.sendUserCertificateRejected')" >sendUserCertificateRejected</option>
@@ -20,10 +20,10 @@
 
         <form name="editForm" role="form" autocomplete="off" novalidate >
 
-            <div v-if="selectedNotification === 'sendUserCertificateIssued' || selectedNotification === 'sendCertificateRevoked' || selectedNotification === 'sendUserCertificateRevoked'">
+            <div v-if="selectedNotification === 'sendRequestorExpirySummary' || selectedNotification === 'sendUserCertificateIssued' || selectedNotification === 'sendCertificateRevoked' || selectedNotification === 'sendUserCertificateRevoked'">
                 <div class="row">
                     <div class="col">
-                        <label class="form-control-label" v-text="$t('ca3SApp.notification.certificate.id')" for="certificate-id">select certificate id'</label>
+                        <label class="form-control-label" v-text="$t('ca3SApp.notification.certificate.id')" for="certificate-id">select certificate id</label>
                     </div>
                     <div class="col colContent">
                         <input type="text" class="form-control" name="certificate-id" id="certificate-id" v-model="certificateId" />
@@ -36,7 +36,7 @@
 
                 <div class="row">
                     <div class="col">
-                        <label class="form-control-label" v-text="$t('ca3SApp.notification.csr.id')" for="csr-id">send 'user certificate issued'</label>
+                        <label class="form-control-label" v-text="$t('ca3SApp.notification.csr.id')" for="csr-id">select request id</label>
                     </div>
                     <div class="col colContent">
                         <input type="text" class="form-control" name="csr-id" id="csr-id" v-model="csrId" />

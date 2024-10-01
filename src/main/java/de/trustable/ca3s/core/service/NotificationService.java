@@ -201,7 +201,7 @@ public class NotificationService {
     @Transactional
     public int notifyRequestorOnExpiry(User testUser, boolean logNotification) {
 
-        if( !notifyRequestorOnExpiry){
+        if (!notifyRequestorOnExpiry) {
             LOG.info("notifyRequestorOnExpiry deactivated");
             return 0;
         }
@@ -212,6 +212,33 @@ public class NotificationService {
         Instant beforeEE = now.plus(maxExpiry, ChronoUnit.DAYS);
         List<Certificate> expiringEECertList = certificateRepo.findNonRevokedByTypeAndValidTo(true, now, beforeEE);
 
+        return notifyRequestorOnExpiry(testUser, logNotification,
+            expiringEECertList,
+            maxExpiry,
+            false);
+    }
+
+    @Transactional
+    public int notifyRequestorOnExpiry(User testUser, boolean logNotification, final String certId) {
+
+        Optional<Certificate> optionalCertificate = certificateRepo.findById(Long.parseLong(certId));
+        if( optionalCertificate.isPresent()) {
+
+            return notifyRequestorOnExpiry(testUser, logNotification,
+                Collections.singletonList(optionalCertificate.get()),
+                9999,
+                true);
+        }
+        return 0;
+    }
+
+    private int notifyRequestorOnExpiry(User testUser, boolean logNotification,
+                                       List<Certificate> expiringEECertList,
+                                       int maxExpiry,
+                                        boolean forceSendAnyday) {
+
+        Instant now = Instant.now();
+
         if( expiringEECertList.isEmpty()) {
             LOG.info("No expiring certificates in the next {} days / no pending requests requested in the last {} days. No need to send a notification eMail to RA officers", nDaysExpiryEE, nDaysPending);
         }else {
@@ -221,7 +248,7 @@ public class NotificationService {
             for( Certificate cert: expiringEECertList){
                 // check for relevant expiry time slots
                 int diffDays = (int)ChronoUnit.DAYS.between(now, cert.getValidTo());
-                if( notificationDayList.contains(diffDays)){
+                if( notificationDayList.contains(diffDays) || forceSendAnyday){
                     LOG.debug("#{} days until expiry are in the list of notification days.", diffDays);
                 }else{
                     LOG.debug("#{} days until expiry are NOT in the list of notification days.", diffDays);
@@ -305,10 +332,14 @@ public class NotificationService {
 
                 String additionalEmailRecipients = pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.ADDITIONAL_EMAIL_RECIPIENTS, "");
                 addSplittedString(ccList, additionalEmailRecipients);
+
+                ccList.addAll(findAdditionalRecipients(cert));
+/*
                 for( String araAttribute: notificationARAAttributes) {
                     String emailAttribute = certificateUtil.getCertAttribute(cert, CsrAttribute.ARA_PREFIX + araAttribute, "");
                     addSplittedString(ccList, emailAttribute);
                 }
+ */
             }
 
             context.setVariable("expiringCertList", Collections.singletonList(cert));
@@ -571,6 +602,15 @@ public class NotificationService {
         }
         String[] args = {subject, cert.getSerial(), cert.getIssuer()};
         mailService.sendEmailFromTemplate(context, requestor, null, "mail/revokedCertificateEmail", "email.revokedCertificate.title", args);
+    }
+
+    private List<String> findAdditionalRecipients(Certificate cert){
+        List<String> recipientList = new ArrayList<>();
+        for( String araAttribute: notificationARAAttributes) {
+            String emailAttribute = certificateUtil.getCertAttribute(cert, CsrAttribute.ARA_PREFIX + araAttribute, "");
+            addSplittedString(recipientList, emailAttribute);
+        }
+        return recipientList;
     }
 
     /**

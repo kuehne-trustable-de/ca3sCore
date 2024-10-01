@@ -484,8 +484,8 @@
   "ca3SApp.info.table.properties": "Value",
   "ca3SApp.notification.title": "Notifications",
   "ca3SApp.notification.action.send": "Send",
-  "ca3SApp.notification.certificate.id": "send 'user certificate issued' for certificate id:",
-  "ca3SApp.notification.csr.id": "send 'user certificate rejected' for csr id:",
+  "ca3SApp.notification.certificate.id": "send notification for certificate id:",
+  "ca3SApp.notification.csr.id": "send notification for csr id:",
   "ca3SApp.notification.expiry.summary": "send 'expiry pending summary'",
 
   "ca3SApp.messages.error": "<strong>Your user could not be activated.</strong> Please use the registration form to sign up.",
