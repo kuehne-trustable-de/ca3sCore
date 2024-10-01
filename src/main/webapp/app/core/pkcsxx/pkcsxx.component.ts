@@ -496,7 +496,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       fileName = nvSAN.values[0].value;
     }
 
-    fileName = fileName.replace('*', 'wcard');
+    fileName = fileName.replaceAll('*', 'wcard');
     fileName = fileName.replace(/([^a-z0-9]+)/gi, '_');
 
     fileName += '_' + soon.toISOString().substring(0, 10);

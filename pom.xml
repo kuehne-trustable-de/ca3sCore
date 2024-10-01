@@ -174,7 +174,7 @@
         <!-- jhipster-needle-maven-property -->
 
         <ds-proxy-spring-boot-starter.version>1.8.1</ds-proxy-spring-boot-starter.version>
-        <keycloak.version>23.0.7</keycloak.version>
+        <keycloak.version>25.0.3</keycloak.version>
 
         <bouncyCastleVersion>1.78.1</bouncyCastleVersion>
 
@@ -228,7 +228,7 @@
         <xml.maven.saxon.version>12.5</xml.maven.saxon.version>
         <xml.maven.plugin.version>1.1.0</xml.maven.plugin.version>
 
-        <dependencyCheck.version>9.2.0</dependencyCheck.version>
+        <dependencyCheck.version>10.0.4</dependencyCheck.version>
         <dependencyCheck.skip>true</dependencyCheck.skip>
 
     </properties>
@@ -303,7 +303,7 @@
             <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
-                <version>3.25.4</version>
+                <version>3.25.5</version>
             </dependency>
 
             <!-- Newer version introduced by adcsProxyClient
@@ -2261,6 +2261,7 @@
                         <nodeAnalyzerEnabled>false</nodeAnalyzerEnabled>
                         <nodeAuditSkipDevDependencies>true</nodeAuditSkipDevDependencies>
                         <skip>${dependencyCheck.skip}</skip>
+                        <nvdApiKey>${dependencyCheck.nvdApiKey}</nvdApiKey>
                         <suppressionFiles>
                             <suppressionFile>
                                 ${project.basedir}/src/main/resources/config/dependency-suppression/suppression.xml
