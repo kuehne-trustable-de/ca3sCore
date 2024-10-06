@@ -412,17 +412,28 @@ public class CSRUtil {
             if( asn1Enc instanceof DERSequence ) {
     		    DERSequence derSeq2 = (DERSequence) asn1Enc;
     		    LOG.debug( "ExtensionRequest / DERSequence2 has " + derSeq2.size() + " elements");
-    		    LOG.debug( "ExtensionRequest / DERSequence2[0] is a " + derSeq2.getObjectAt(0).getClass().getName());
+                LOG.debug( "ExtensionRequest / DERSequence2[0] is a " + derSeq2.getObjectAt(0).getClass().getName());
+                LOG.debug( "ExtensionRequest / DERSequence2[1] is a " + derSeq2.getObjectAt(1).getClass().getName());
 
     		    objId = (ASN1ObjectIdentifier) (derSeq2.getObjectAt(0));
     		    asn1EncValue = derSeq2.getObjectAt(1);
+                if( (derSeq2.size() > 2) && !(asn1EncValue instanceof DEROctetString)){
+                    LOG.debug( "ExtensionRequest / DERSequence2[2] is a " + derSeq2.getObjectAt(2).getClass().getName());
+                    asn1EncValue = derSeq2.getObjectAt(2);
+                }
 
             }else if( asn1Enc instanceof DLSequence ) {
             	DLSequence dlSeq = (DLSequence)asn1Enc;
 	            LOG.debug( "DLSequence has "+dlSeq.size()+" elements" );
+                LOG.debug( "ExtensionRequest / DLSequence[0] is a " + dlSeq.getObjectAt(0).getClass().getName());
+                LOG.debug( "ExtensionRequest / DLSequence[1] is a " + dlSeq.getObjectAt(1).getClass().getName());
 
     		    objId = (ASN1ObjectIdentifier) (dlSeq.getObjectAt(0));
     		    asn1EncValue = dlSeq.getObjectAt(1);
+                if( (dlSeq.size() > 2) && !(asn1EncValue instanceof DEROctetString)){
+                    LOG.debug( "ExtensionRequest / DLSequence[2] is a " + dlSeq.getObjectAt(2).getClass().getName());
+                    asn1EncValue = dlSeq.getObjectAt(2);
+                }
 
             } else {
                 LOG.info( "asn1Enc in asn1Array is of an unexpected type " + asn1Enc.getClass().getName());
