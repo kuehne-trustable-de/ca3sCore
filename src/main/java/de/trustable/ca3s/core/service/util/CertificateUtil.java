@@ -6,7 +6,6 @@ import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.service.AuditService;
-import de.trustable.ca3s.core.service.NotificationService;
 import de.trustable.ca3s.core.service.dto.CRLUpdateInfo;
 import de.trustable.ca3s.core.service.dto.KeyAlgoLengthOrSpec;
 import de.trustable.util.AlgorithmInfo;
@@ -57,9 +56,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.spec.PBEParameterSpec;
@@ -2284,7 +2280,7 @@ public class CertificateUtil {
                         setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE, Long.toString(nextUpdate), false);
                     }
 
-                    serRevocationStatus(cert, x509Cert, crl);
+                    setRevocationStatus(cert, x509Cert, crl);
 
                     info.setSuccess();
                     break;
@@ -2299,7 +2295,7 @@ public class CertificateUtil {
         return info;
     }
 
-    public boolean serRevocationStatus(Certificate cert, X509Certificate x509Cert, X509CRL crl) {
+    public boolean setRevocationStatus(Certificate cert, X509Certificate x509Cert, X509CRL crl) {
         X509CRLEntry crlItem = crl.getRevokedCertificate(new BigInteger(cert.getSerial()));
 
         if( (crlItem != null) && (crl.isRevoked(x509Cert) ) ) {
@@ -2421,5 +2417,3 @@ public class CertificateUtil {
         }
     }
 }
-
-

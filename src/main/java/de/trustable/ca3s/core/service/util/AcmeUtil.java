@@ -8,7 +8,8 @@ public class AcmeUtil {
 
 	public static final String ACME_ERROR_URI_NAMESPACE = "urn:ietf:params:acme:error";
 
-	public static final URI BAD_CSR = URI.create(ACME_ERROR_URI_NAMESPACE + ":badCSR");
+    public static final URI ALREADY_REVOKED = URI.create(ACME_ERROR_URI_NAMESPACE + ":alreadyRevoked");
+    public static final URI BAD_CSR = URI.create(ACME_ERROR_URI_NAMESPACE + ":badCSR");
 	public static final URI BAD_NONCE = URI.create(ACME_ERROR_URI_NAMESPACE + ":badNonce");
 	public static final URI BAD_SIGNATURE_ALGORITHM = URI.create(ACME_ERROR_URI_NAMESPACE + ":badSignatureAlgorithm");
 	public static final URI BAD_JWK = URI.create(ACME_ERROR_URI_NAMESPACE + ":badJWK");

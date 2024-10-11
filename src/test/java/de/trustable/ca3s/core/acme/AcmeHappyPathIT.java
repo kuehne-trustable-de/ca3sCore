@@ -1,8 +1,6 @@
 package de.trustable.ca3s.core.acme;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.shredzone.acme4j.Identifier.TYPE_IP;
 
@@ -25,17 +23,10 @@ import de.trustable.ca3s.core.service.util.KeyUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.shredzone.acme4j.Account;
-import org.shredzone.acme4j.AccountBuilder;
-import org.shredzone.acme4j.Authorization;
-import org.shredzone.acme4j.Certificate;
-import org.shredzone.acme4j.Identifier;
-import org.shredzone.acme4j.Metadata;
-import org.shredzone.acme4j.Order;
-import org.shredzone.acme4j.Session;
-import org.shredzone.acme4j.Status;
+import org.shredzone.acme4j.*;
 import org.shredzone.acme4j.challenge.Http01Challenge;
 import org.shredzone.acme4j.exception.AcmeException;
+import org.shredzone.acme4j.exception.AcmeServerException;
 import org.shredzone.acme4j.util.CSRBuilder;
 import org.shredzone.acme4j.util.KeyPairUtils;
 import org.slf4j.Logger;
@@ -119,13 +110,13 @@ public class AcmeHappyPathIT {
 //		KeyPair accountKeyPair = KeyPairUtils.createECKeyPair("secp256r1");
 
 
-		Account account = new AccountBuilder()
-		        .addContact("mailto:acmeTest@ca3s.org")
-		        .agreeToTermsOfService()
-		        .useKeyPair(accountKeyPair)
-		        .create(session);
+        Account account = new AccountBuilder()
+            .addContact("mailto:acmeTest@ca3s.org")
+            .agreeToTermsOfService()
+            .useKeyPair(accountKeyPair)
+            .create(session);
 
-		assertNotNull("created account MUST NOT be null", account);
+        assertNotNull("created account MUST NOT be null", account);
 		URL accountLocationUrl = account.getLocation();
 		LOG.debug("accountLocationUrl {}", accountLocationUrl);
 
@@ -256,7 +247,7 @@ public class AcmeHappyPathIT {
 	}
 
 	@Test
-	public void testHTTPValidation() throws AcmeException, IOException, InterruptedException {
+	public void testHTTPValidationAndRevocation() throws AcmeException, IOException, InterruptedException {
 
 		System.out.println("connecting to " + dirUrl );
 		Session session = new Session(dirUrl);
@@ -266,8 +257,16 @@ public class AcmeHappyPathIT {
 		URL website = meta.getWebsite();
 		LOG.debug("TermsOfService {}, website {}", tos, website);
 
-		KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
 
+        KeyPair dummyAccountKeyPair = KeyPairUtils.createKeyPair(2048);
+        Account dummyAccount = new AccountBuilder()
+            .addContact("mailto:acmeDummy@ca3s.org")
+            .agreeToTermsOfService()
+            .useKeyPair(dummyAccountKeyPair)
+            .create(session);
+
+
+        KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
 
 		Account account = new AccountBuilder()
 		        .addContact("mailto:acmeOrderTest@ca3s.org")
@@ -324,58 +323,87 @@ public class AcmeHappyPathIT {
 
 			Certificate acmeCert = order.getCertificate();
 			assertNotNull("Expected to receive no certificate", acmeCert);
-		}
+
+            // try to revoke a certificate not related to the given account
+            try {
+                Login login = session.login(dummyAccount.getLocation(), dummyAccountKeyPair);
+                Certificate.revoke(login, acmeCert.getCertificate(), RevocationReason.KEY_COMPROMISE);
+                fail("certificate already revoked, exception expected");
+            }catch (AcmeServerException acmeServerException){
+                assertEquals("problem authenticating account / order / certificate for RevokeRequest", acmeServerException.getMessage());
+            }
+
+            // try to revoke a certificate but signing the request with an unrelated key
+            KeyPair dummyKeyPair = KeyPairUtils.createKeyPair(2048);
+            try {
+                Certificate.revoke(session, dummyKeyPair, acmeCert.getCertificate(), RevocationReason.KEY_COMPROMISE);
+                fail("certificate revocation expected to fail, unrelated key used for request signing");
+            }catch (AcmeServerException acmeServerException){
+                assertEquals("Certificate revocation failed, neither KID nor JWK found in request", acmeServerException.getMessage());
+            }
+
+            // revoke without account authentication but with the certificate's private key
+            Certificate.revoke(session, domainKeyPair, acmeCert.getCertificate(), RevocationReason.KEY_COMPROMISE);
+
+            try {
+                acmeCert.revoke(RevocationReason.CESSATION_OF_OPERATION);
+                fail("certificate already revoked, exception expected");
+            }catch (AcmeServerException acmeServerException){
+                assertEquals("certificate already revoked", acmeServerException.getMessage());
+            }
+
+        }
 
 		/*
 		 * test with a domain name and an IP address
 		 * and an additional IP in the CSR
 		 */
 		{
-		Order order = account.newOrder()
-            .domains("localhost")
-            .identifier(new Identifier(TYPE_IP, "127.0.0.1"))
-            .domains("localhost")
-		        .notAfter(Instant.now().plus(Duration.ofDays(20L)))
-		        .create();
+            Order order = account.newOrder()
+                .domains("localhost")
+                .identifier(new Identifier(TYPE_IP, "127.0.0.1"))
+                .domains("localhost")
+                    .notAfter(Instant.now().plus(Duration.ofDays(20L)))
+                    .create();
 
 
-		for (Authorization auth : order.getAuthorizations()) {
-			LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
-			if (auth.getStatus() == Status.PENDING) {
+            for (Authorization auth : order.getAuthorizations()) {
+                LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
+                if (auth.getStatus() == Status.PENDING) {
 
-				Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
+                    Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
 
-				int MAX_TRIAL = 10;
-				for( int retry = 0; retry < MAX_TRIAL; retry++) {
-					try {
-                        provideAuthEndpoint(challenge, order, prefTC);
-						break;
-					} catch( BindException be) {
-						System.out.println("bind exception, waiting for port to become available");
-					}
-					if( retry == MAX_TRIAL -1) {
-						System.out.println("callback port not available");
-					}
-				}
-				challenge.trigger();
-			}
-		}
+                    int MAX_TRIAL = 10;
+                    for( int retry = 0; retry < MAX_TRIAL; retry++) {
+                        try {
+                            provideAuthEndpoint(challenge, order, prefTC);
+                            break;
+                        } catch( BindException be) {
+                            System.out.println("bind exception, waiting for port to become available");
+                        }
+                        if( retry == MAX_TRIAL -1) {
+                            System.out.println("callback port not available");
+                        }
+                    }
+                    challenge.trigger();
+                }
+            }
 
-		KeyPair domainKeyPair = KeyPairUtils.createKeyPair(2048);
+            KeyPair domainKeyPair = KeyPairUtils.createKeyPair(2048);
 
-		CSRBuilder csrb = new CSRBuilder();
-		csrb.addDomain("localhost");
-		csrb.addDomain("127.0.0.1");
-		csrb.setOrganization("The Example Organization");
-		csrb.sign(domainKeyPair);
-		byte[] csr = csrb.getEncoded();
+            CSRBuilder csrb = new CSRBuilder();
+            csrb.addDomain("localhost");
+            csrb.addDomain("127.0.0.1");
+            csrb.setOrganization("The Example Organization");
+            csrb.sign(domainKeyPair);
+            byte[] csr = csrb.getEncoded();
 
-		order.execute(csr);
+            order.execute(csr);
 
-		assertEquals("Expecting the finalize request to succeed", Status.VALID, order.getStatus());
+            assertEquals("Expecting the finalize request to succeed", Status.VALID, order.getStatus());
 
-		Certificate acmeCert = order.getCertificate();
-		assertNotNull("Expected to receive no certificate", acmeCert);
+            Certificate acmeCert = order.getCertificate();
+            assertNotNull("Expected to receive no certificate", acmeCert);
 		}
 
         /*
@@ -424,6 +452,16 @@ public class AcmeHappyPathIT {
 
             Certificate acmeCert = order.getCertificate();
             assertNotNull("Expected to receive no certificate", acmeCert);
+
+            acmeCert.revoke(RevocationReason.CESSATION_OF_OPERATION);
+
+            try {
+                acmeCert.revoke(RevocationReason.CESSATION_OF_OPERATION);
+                fail("certificate already revoked, exception expected");
+            }catch (AcmeServerException acmeServerException){
+                assertEquals("certificate already revoked", acmeServerException.getMessage());
+            }
+
         }
 
 

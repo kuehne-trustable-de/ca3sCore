@@ -23,6 +23,10 @@ import java.util.Set;
         query = "SELECT a FROM AcmeOrder a WHERE " +
             "a.orderId = :orderId"
     ),
+    @NamedQuery(name = "AcmeOrder.findByCertificate",
+        query = "SELECT a FROM AcmeOrder a WHERE " +
+            "a.certificate = :certificate"
+    ),
     @NamedQuery(name = "AcmeOrder.findPipelineIsNull",
         query = "SELECT a FROM AcmeOrder a WHERE " +
             "a.pipeline IS NULL"

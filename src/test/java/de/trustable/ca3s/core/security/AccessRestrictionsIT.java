@@ -146,6 +146,10 @@ public class AccessRestrictionsIT {
             LOG.warn("+++ Resource accessible as ra : " + resource);
         }
 
+        acceptedAnonymousList.stream().forEach( (String resourceName) -> {LOG.warn("unexpected anon item: {}", resourceName);});
+        acceptedUserAuthenticatedList.stream().forEach( (String resourceName) -> {LOG.warn("unexpected authed item: {}", resourceName);});
+        acceptedRaAuthenticatedList.stream().forEach( (String resourceName) -> {LOG.warn("unexpected ra item: {}", resourceName);});
+
         Assert.assertEquals("no anonymously accessible resources expected", 0, acceptedAnonymousList.size());
         Assert.assertEquals("no user accessible resources expected", 0, acceptedUserAuthenticatedList.size());
         Assert.assertEquals("no ra accessible resources expected", 0, acceptedRaAuthenticatedList.size());
@@ -189,10 +193,7 @@ public class AccessRestrictionsIT {
             }
 
 
-        }catch( HttpClientErrorException.Forbidden forbidden ){
-            // as expected
-            LOG.info("resource {} / {} rejected", effectivePath, method );
-        }catch( HttpClientErrorException.Unauthorized unauthorized ){
+        }catch( HttpClientErrorException.Forbidden | HttpClientErrorException.Unauthorized unauth ){
             // as expected
             LOG.info("resource {} / {} rejected", effectivePath, method );
         }catch(HttpServerErrorException serverError){

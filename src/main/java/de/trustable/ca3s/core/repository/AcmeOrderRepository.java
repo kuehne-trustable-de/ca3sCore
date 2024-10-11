@@ -4,14 +4,14 @@ import de.trustable.ca3s.core.domain.AcmeOrder;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
+import de.trustable.ca3s.core.domain.Certificate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import javax.persistence.NamedQuery;
 
 
 /**
@@ -24,6 +24,9 @@ public interface AcmeOrderRepository extends JpaRepository<AcmeOrder, Long> {
 
     @Query(name = "AcmeOrder.findByOrderId")
     List<AcmeOrder> findByOrderId(@Param("orderId") long orderId);
+
+    @Query(name = "AcmeOrder.findByCertificate")
+    Optional<AcmeOrder> findByCertificate(@Param("certificate") Certificate certificate);
 
     @Query(name = "AcmeOrder.findPipelineIsNull")
     Page<AcmeOrder> findPipelineIsNull(Pageable pageable);

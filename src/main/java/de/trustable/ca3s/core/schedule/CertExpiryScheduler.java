@@ -218,7 +218,7 @@ public class CertExpiryScheduler {
                                 x509Cert = CryptoService.convertPemToCertificate(cert.getContent());
                                 if( crl.getRevokedCertificate(x509Cert) != null ){
                                     LOG.debug("Cert {} revoked by CRL {}", x509Cert, crlUrl);
-                                    certUtil.serRevocationStatus(cert, x509Cert, crl);
+                                    certUtil.setRevocationStatus(cert, x509Cert, crl);
                                 }
                             } catch (GeneralSecurityException e) {
                                 LOG.warn("Problem parsing cert #{} ", cert.getId());
