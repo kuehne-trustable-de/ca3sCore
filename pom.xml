@@ -173,7 +173,7 @@
         <junit.itReportFolder>${project.testresult.directory}/integrationTest</junit.itReportFolder>
         <!-- jhipster-needle-maven-property -->
 
-        <ds-proxy-spring-boot-starter.version>1.8.1</ds-proxy-spring-boot-starter.version>
+        <ds-proxy-spring-boot-starter.version>1.9.2</ds-proxy-spring-boot-starter.version>
         <keycloak.version>25.0.3</keycloak.version>
 
         <bouncyCastleVersion>1.78.1</bouncyCastleVersion>
