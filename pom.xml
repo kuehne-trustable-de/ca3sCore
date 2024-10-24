@@ -7,7 +7,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.1.13</version>
+    <version>1.1.14</version>
 
     <packaging>jar</packaging>
 
@@ -174,7 +174,7 @@
         <!-- jhipster-needle-maven-property -->
 
         <ds-proxy-spring-boot-starter.version>1.9.2</ds-proxy-spring-boot-starter.version>
-        <keycloak.version>25.0.4</keycloak.version>
+        <keycloak.version>24.0.3</keycloak.version>
 
         <bouncyCastleVersion>1.78.1</bouncyCastleVersion>
 
@@ -787,18 +787,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
-
         <!--dependency>
             <groupId>net.rakugakibox.spring.boot</groupId>
             <artifactId>logback-access-spring-boot-starter</artifactId>
             <version>2.7.1</version>
         </dependency-->
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-access</artifactId>
-            <version>1.5.9</version>
-        </dependency>
 
         <dependency>
             <groupId>ch.qos.logback</groupId>

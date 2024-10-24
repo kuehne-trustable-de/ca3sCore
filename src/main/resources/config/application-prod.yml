@@ -353,6 +353,10 @@ ca3s:
   # what's the extension of the template files. See the thymeleaf docs for supported types
   #      filePostfix: .html
 
+  email:
+    template:
+      useTitleAsMailSubject: false
+
   ui:
     user:
 

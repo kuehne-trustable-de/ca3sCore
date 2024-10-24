@@ -374,7 +374,7 @@ public class NotificationService {
         context.setVariable("numberActive", numberActive);
         context.setVariable("certificate", certificate);
         try {
-            mailService.sendEmailFromTemplate(context, null, requestorEmail, null, "mail/excessiveAvtiveCertificates", "email.excessive.active.title");
+            mailService.sendEmailFromTemplate(context, null, requestorEmail, null, "mail/excessiveActiveCertificates", "email.excessive.active.title");
         }catch (Throwable throwable){
             LOG.warn("Problem occurred while sending a notification eMail to requestor address '" + requestorEmail + "'", throwable);
         }

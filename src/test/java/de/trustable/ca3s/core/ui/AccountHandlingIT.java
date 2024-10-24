@@ -9,6 +9,7 @@ import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import de.trustable.ca3s.core.ui.helper.Browser;
 import de.trustable.ca3s.core.ui.helper.Config;
 import de.trustable.util.JCAManager;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -72,6 +73,7 @@ public class AccountHandlingIT extends WebTestBase{
     public static void setUpBeforeClass() throws IOException {
 
         JCAManager.getInstance();
+        WebDriverManager.chromedriver().setup();
 
         ServerSocket ssSMTP = new ServerSocket(0);
         ServerSocket ssIMAP = new ServerSocket(0);

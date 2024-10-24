@@ -3,6 +3,7 @@ package de.trustable.ca3s.core.service;
 import de.trustable.ca3s.core.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -40,13 +41,17 @@ public class MailService {
 
     private final SpringTemplateEngine templateEngine;
 
+    private final boolean useTitleAsMailSubject;
+
     public MailService(JHipsterProperties jHipsterProperties, JavaMailSender javaMailSender,
-                       MessageSource messageSource, SpringTemplateEngine templateEngine) {
+                       MessageSource messageSource, SpringTemplateEngine templateEngine,
+                       @Value("${ca3s.email.template.useTitleAsMailSubject:false}") boolean useTitleAsMailSubject) {
 
         this.jHipsterProperties = jHipsterProperties;
         this.javaMailSender = javaMailSender;
         this.messageSource = messageSource;
         this.templateEngine = templateEngine;
+        this.useTitleAsMailSubject = useTitleAsMailSubject;
     }
 
     @Transactional
@@ -108,7 +113,7 @@ public class MailService {
         context.setVariable(BASE_URL, jHipsterProperties.getMail().getBaseUrl());
 
         String content = getContent(templateName, context);
-        String subject = messageSource.getMessage(titleKey, args, context.getLocale());
+        String subject = getSubject(content, titleKey, args, context.getLocale());
         sendEmail(email, cc, subject, content, false, true);
     }
 
@@ -123,8 +128,26 @@ public class MailService {
         context.setVariable(USER, user);
         context.setVariable(BASE_URL, jHipsterProperties.getMail().getBaseUrl());
         String content = getContent(templateName, context);
-        String subject = messageSource.getMessage(titleKey, null, locale);
+        String subject = getSubject(content, titleKey, null, locale);
         sendEmail(user.getEmail(), null, subject, content, false, true);
+    }
+
+    String getSubject(final String content, final String titleKey, final String[] args, final Locale locale){
+
+        if (useTitleAsMailSubject){
+            String contentLowerCase = content.toLowerCase(Locale.ROOT);
+            int startPosTitle = contentLowerCase.indexOf("<title>");
+            int endPosTitle = contentLowerCase.indexOf("</title>");
+            if( startPosTitle > 0 && endPosTitle > 0 &&
+                endPosTitle > startPosTitle + 8){
+                String templateTitle = content.substring(startPosTitle + 7, endPosTitle);
+                log.debug("Template title used as email subject '{}'", templateTitle);
+                return templateTitle;
+            }
+        }
+        String subject = messageSource.getMessage(titleKey, args, locale);
+        log.debug("Title key used to find the email subject '{}'", subject);
+        return subject;
     }
 
     private String getContent(String templateName, Context context){
