@@ -6,7 +6,6 @@ import de.trustable.ca3s.core.domain.Authority;
 import de.trustable.ca3s.core.domain.Tenant;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.domain.UserPreference;
-import de.trustable.ca3s.core.exception.TenantNotFoundException;
 import de.trustable.ca3s.core.repository.AuthorityRepository;
 import de.trustable.ca3s.core.repository.TenantRepository;
 import de.trustable.ca3s.core.repository.UserPreferenceRepository;
@@ -75,7 +74,7 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
     public Collection<? extends GrantedAuthority> getEntitlements(SAMLCredential credential, Object userDetail) {
 
         LOG.debug("SAML credential processing");
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        List<GrantedAuthority> authorities = new ArrayList<>();
         if (credential != null && credential.getNameID() != null) {
             LOG.debug("saml role '{}' added to granted roles", credential.getNameID().getValue());
             authorities.add(new SimpleGrantedAuthority(credential.getNameID().getValue()));
@@ -133,6 +132,7 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
         String lastNameOld = user.getLastName();
         String emailOld = user.getEmail();
         Tenant tenantOld = user.getTenant();
+        String languageOld = user.getLangKey();
 
         if(!StringUtils.equals(user.getLogin(), effLoginName)){
             LOG.info("oidc data updates user name from '{}' to '{}'", user.getLogin(), effLoginName);
@@ -145,12 +145,13 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
 
         }
 
-        List attributesFirstNameList = Arrays.asList( samlMappingConfig.getAttributesFirstName());
-        List attributesLastNameList = Arrays.asList( samlMappingConfig.getAttributesLastName());
-        List attributesEmailList = Arrays.asList( samlMappingConfig.getAttributesEmail());
-        List attributesTenantList = Arrays.asList( samlMappingConfig.getAttributesTenant());
+        List<String> attributesFirstNameList = Arrays.asList( samlMappingConfig.getAttributesFirstName());
+        List<String> attributesLastNameList = Arrays.asList( samlMappingConfig.getAttributesLastName());
+        List<String> attributesEmailList = Arrays.asList( samlMappingConfig.getAttributesEmail());
+        List<String> attributesTenantList = Arrays.asList( samlMappingConfig.getAttributesTenant());
+        List<String> attributesLanguageList = Arrays.asList( samlMappingConfig.getAttributesLanguage());
 
-        HashMap<String, List<String>> attributeMap = new HashMap();
+        HashMap<String, List<String>> attributeMap = new HashMap<>();
         for(Attribute attribute: credential.getAttributes()){
 
             attributeMap.put(attribute.getName(), fromXMLObjectList(attribute.getAttributeValues()));
@@ -176,6 +177,12 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
                     user.setTenant(findTenantByName(tenantName));
                 }
             }
+            if( attributesLanguageList.contains(attribute.getName())){
+                if( !attribute.getAttributeValues().isEmpty()) {
+                    String language = fromXMLObject(attribute.getAttributeValues().get(0));
+                    user.setLangKey(language.toLowerCase(Locale.ROOT));
+                }
+            }
 
         }
 
@@ -196,18 +203,23 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
             user.setTenant(findTenantByName(tenantName));
         }
 
-        if(firstNameOld != user.getFirstName()){
-            LOG.info("oidc first name '{}' updated to '{}'", firstNameOld, user.getFirstName());
+        if (samlMappingConfig.getExprLanguage() != null && !samlMappingConfig.getExprLanguage().isEmpty()) {
+            String language = sPeLUtil.evaluateExpression(attributeMap, samlMappingConfig.getExprLanguage());
+            user.setTenant(findTenantByName(language.toLowerCase(Locale.ROOT)));
+        }
+
+        if(!Objects.equals(firstNameOld, user.getFirstName())){
+            LOG.info("sso first name '{}' updated to '{}'", firstNameOld, user.getFirstName());
             update = true;
         }
 
-        if(lastNameOld != user.getLastName()){
-            LOG.info("oidc last name '{}' updated to '{}'", lastNameOld, user.getLastName());
+        if(!Objects.equals(lastNameOld, user.getLastName())){
+            LOG.info("sso last name '{}' updated to '{}'", lastNameOld, user.getLastName());
             update = true;
         }
 
-        if(emailOld != user.getEmail()){
-            LOG.info("oidc email '{}' updated to '{}'", emailOld, user.getEmail());
+        if(!Objects.equals(emailOld, user.getEmail())){
+            LOG.info("sso email '{}' updated to '{}'", emailOld, user.getEmail());
             update = true;
         }
 
@@ -216,6 +228,11 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
             String tenantNameOld = tenantOld == null ? "null": tenantOld.getName();
             String tenantNameNew = user.getTenant() == null ? "null": user.getTenant().getName();
             LOG.info("tenant '{}' updated to '{}'", tenantNameOld, tenantNameNew);
+            update = true;
+        }
+
+        if(!Objects.equals(languageOld, user.getLangKey())){
+            LOG.info("sso language '{}' updated to '{}'", languageOld, user.getLangKey());
             update = true;
         }
 
@@ -276,7 +293,7 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
     private List<String> fromXMLObjectList(List<XMLObject> xmlObjectList){
         return
             xmlObjectList.stream()
-            .map(x -> (fromXMLObject(x)))
+            .map(this::fromXMLObject)
             .collect(Collectors.toList());
     }
 
