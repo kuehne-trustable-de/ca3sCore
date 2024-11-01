@@ -41,8 +41,6 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Random;
 
-import static org.junit.Assert.fail;
-
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @io.ddavison.conductor.Config(
     browser = Browser.CHROME,
@@ -152,7 +150,7 @@ public class CSRSubmitIT extends WebTestBase {
     protected static final String USER_NAME_RA = "ra";
     protected static final String USER_PASSWORD_RA = "s3cr3t";
 
-    private static Random rand = new Random();
+    private static final Random rand = new Random();
 
     String randomComment;
 
@@ -561,29 +559,35 @@ public class CSRSubmitIT extends WebTestBase {
         validateNotPresent(LOC_TEXT_CERT_REVOCATION_REASON);
     }
 
+    @Test
     public void testCSRUploadDirect() throws GeneralSecurityException, IOException, InterruptedException {
 
        /* explain("Beginning from the start page of the application, you must make sure that you are logged in to your account");
         explain("Depending on your configuration you may be logged on, automatically.");
 
         */
-        selectElementText(LOC_LNK_ACCOUNT_MENUE, "As this is not the case here, select 'Account' and then 'Sign In'.");
+        //selectElementText(LOC_LNK_ACCOUNT_MENUE, "As this is not the case here, select 'Account' and then 'Sign In'.");
+        selectElementText(LOC_LNK_ACCOUNT_MENUE, "Da dies hier nicht der Fall ist, druecken Sie bitte auf 'Account' und darauf hin auf 'Anmelden' .");
 
-        signIn(USER_NAME_USER, USER_PASSWORD_USER, "Once you have entered your credentials into the respective fields, you can proceed.", 500);
+        //signIn(USER_NAME_USER, USER_PASSWORD_USER, "Once you have entered your credentials into the respective fields, you can proceed.", 500);
+        signIn(USER_NAME_USER, USER_PASSWORD_USER, "Sobald Sie Ihre Anmeldedaten in die entsprechenden Felder eingetragen haben, koennen Sie fortfahren", 500);
 
         validatePresent(LOC_LNK_REQ_CERT_MENUE);
-        selectElementText(LOC_LNK_REQ_CERT_MENUE, "Press Request certificate on the top right menu ");
+        //selectElementText(LOC_LNK_REQ_CERT_MENUE, "Press Request certificate on the top right menu ");
+        selectElementText(LOC_LNK_REQ_CERT_MENUE, "druecken Sie im oberen rechten Menue auf Zertifikat anfordern ");
         click(LOC_LNK_REQ_CERT_MENUE);
 
         validatePresent(LOC_SEL_PIPELINE);
 
         click(LOC_SEL_PIPELINE);
         selectOptionByText(LOC_SEL_PIPELINE, PipelineTestConfiguration.PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
-        explain("From the drop down menu, select a certificate processing pipeline matching your requirements. In this case we will use Direct Issuance.");
+        //explain("From the drop down menu, select a certificate processing pipeline matching your requirements. In this case we will use Direct Issuance.");
+        explain("Stellen Sie bitte im Auswahlmenue die Erzeugungsvariante ein, die zu Ihren Anforderungen passt. In diesem Fall nutzen wir Direkte Ausgabe");
 
         validatePresent(LOC_TA_UPLOAD_CONTENT);
 
-        explain("Depending on your needs, you can use a string or a CSR file in the following process. First, we will use the string method.");
+        //explain("Depending on your needs, you can use a string or a CSR file in the following process. First, we will use the string method.");
+        explain("Je nach Ihren Anforderungen können Sie im Folgenden einen String oder eine CSR Datei benutzen. Als Erstes benutzen wir hier die String Methode.");
 
         String cn = "reqtest" + System.currentTimeMillis();
         String subject = "CN=" + cn + ", O=trustable solutions, C=DE";
@@ -591,35 +595,44 @@ public class CSRSubmitIT extends WebTestBase {
 
         String csr = buildCSRAsPEM(subjectPrincipal);
         setLongText(LOC_TA_UPLOAD_CONTENT, csr);
-        explain("As you can see, entering the string shows you some information and let's you request a certificate.");
+        //explain("As you can see, entering the string shows you some information and let's you request a certificate.");
+        explain("Wie Sie sehen koennen fuehrt die Eingabe eines Strings zur Anzeige weiterer Informationen und laesst Sie ein Zertifikat anfordern.");
         By bySubject = By.xpath("//div//dl/dd/span [contains(text(), '" + cn + "')]");
-        selectElementText(bySubject, "Before you request the certificate, you can check the given information here.");
+        //selectElementText(bySubject, "Before you request the certificate, you can check the given information here.");
+        selectElementText(bySubject, "Bevor Sie das Zertifikat anfordern, koennen Sie hier die angegebenen Inforamtionen noch einmal ueberpruefen.");
 
         By byBits = By.xpath("//div//dl/dd/span [contains(text(), 'Bits')]");
-        selectElementText(byBits, "The key size is shown here. ");
+        //selectElementText(byBits, "The key size is shown here. ");
+        selectElementText(byBits, "Die Schluesselgroesse wird hier angezeigt. ");
 
         setLongText(LOC_TA_UPLOAD_CONTENT, "");
 
-        explain("Alternatively, one can use a CSR file.");
+        //explain("Alternatively, one can use a CSR file.");
+        explain("Alternativ kann auch eine CSR Datei verwendet werden.");
 
         String csrFilePath = buildCSRAsDERFile(subjectPrincipal, null);
         validatePresent(LOC_SELECT_FILE);
         setText(LOC_SELECT_FILE, csrFilePath);
-        explain("After selecting the CSR file you want to use");
-        selectElementText(bySubject, "the same information as before");
-        selectElementText(byBits, "are shown below.");
+        //explain("After selecting the CSR file you want to use");
+        explain("Nachdem sie die CSR Datei, die Sie verwenden moechten, ausgewaehlt haben");
+        //selectElementText(bySubject, "the same information as before");
+        selectElementText(bySubject, "werden die gleichen Informationen wie zuvor");
+        //selectElementText(byBits, "are shown below.");
+        selectElementText(byBits, "hier unten nochmals angezeigt.");
 
         validatePresent(LOC_TEXT_CONTENT_TYPE);
 
         validatePresent(LOC_BTN_REQUEST_CERTIFICATE);
-        selectElementText(LOC_BTN_REQUEST_CERTIFICATE, "Now you can press the Request Certificate button.");
+        //selectElementText(LOC_BTN_REQUEST_CERTIFICATE, "Now you can press the Request Certificate button.");
+        selectElementText(LOC_BTN_REQUEST_CERTIFICATE, "Nun koennen sie das Zertifikat anfordern.");
         click(LOC_BTN_REQUEST_CERTIFICATE);
 
         waitForElement(LOC_TEXT_CERT_HEADER);
         validatePresent(LOC_TEXT_CERT_HEADER);
         validatePresent(LOC_TEXT_PKIX_LABEL);
 
-        selectElementText(LOC_SEL_CERT_FORMAT, "By pressing this button, you can download the your certificate as a pem file.");
+        //selectElementText(LOC_SEL_CERT_FORMAT, "By pressing this button, you can download the your certificate as a pem file.");
+        selectElementText(LOC_SEL_CERT_FORMAT, "Durch das Druecken dieses Knopfes koennen Sie ihr Zertifikat als P E M Datei herunterladen.");
         click(LOC_SEL_CERT_FORMAT);
 
         checkPEMDownload(cn, "pem");
@@ -671,8 +684,7 @@ public class CSRSubmitIT extends WebTestBase {
             try {
                 Thread.sleep(500); // sleep for 1 second.
             } catch (Exception x) {
-                fail("Failed due to an exception during Thread.sleep!");
-                x.printStackTrace();
+                Assertions.fail("Failed due to an exception during Thread.sleep!");
             }
         }
         LOG.info("waiting for certFile: {}", certFile.getAbsolutePath());
@@ -680,7 +692,7 @@ public class CSRSubmitIT extends WebTestBase {
 
     }
 
-    private void checkPKCS12Download(String cn, String secret) throws InterruptedException, GeneralSecurityException, IOException {
+    private void checkPKCS12Download(String cn, String secret) {
 
         byte[] secretBytes = new byte[6];
         String alias = Base64.getEncoder().encodeToString(secretBytes).replaceAll("/", "X").replaceAll("\\+", "x");
@@ -953,10 +965,6 @@ super.wait(5000);
             Object parsedObj;
             while ((parsedObj = pemParser.readObject()) != null) {
 
-                if (parsedObj == null) {
-                    throw new GeneralSecurityException("Parsing of certificate failed! Not PEM encoded?");
-                }
-
                 LOG.debug("PemParser returned: " + parsedObj);
                 if (!(parsedObj instanceof X509CertificateHolder)) {
                     throw new GeneralSecurityException("Unexpected parsing result: " + parsedObj.getClass().getName());
@@ -965,15 +973,12 @@ super.wait(5000);
                 X509Certificate cert = (new JcaX509CertificateConverter()).setProvider("BC").getCertificate((X509CertificateHolder) parsedObj);
                 x509CertificateList.add(cert);
             }
-            ;
         } catch (IOException var13) {
             LOG.error("IOException, convertPemToCertificate", var13);
             throw new GeneralSecurityException("Parsing of certificate failed! Not PEM encoded?");
         } finally {
             try {
-                if (pemParser != null) {
-                    pemParser.close();
-                }
+                pemParser.close();
             } catch (IOException var12) {
                 LOG.debug("IOException on close()", var12);
             }

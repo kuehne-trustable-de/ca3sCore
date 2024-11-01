@@ -5,17 +5,12 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -23,7 +18,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 public class SpeechifyControl {
@@ -34,9 +28,14 @@ public class SpeechifyControl {
 
     String soundFormat = "mp3";
 //    String soundFormat = "wav";
-    String voiceName = "Matthew";
-    String voiceEngine = "neural";
-    String voicelanguageCode = "en-US";
+    //String voiceName = "Matthew";
+    //String voiceName = "daniel";
+    String voiceName = "louisa";
+    //daniel and Matthew = neural
+    //String voiceEngine = "neural";
+    String voiceEngine = "azure";
+    //String voicelanguageCode = "en-US";
+    String voicelanguageCode = "de-DE";
 
     String soundFilePath = "./src/test/resources/pr/sound";
 
@@ -83,9 +82,6 @@ public class SpeechifyControl {
         JSONObject jsonResponse = new JSONObject(content);
 
         String audioBytesBase64 = jsonResponse.getString("audioStream");
-        String format = jsonResponse.getString("format");
-
-        //LOG.debug("Format '" + format + "', content :" + audioBytesBase64);
 
         return Base64.getDecoder().decode(audioBytesBase64);
     }
@@ -132,7 +128,7 @@ public class SpeechifyControl {
                              audioBytesEncoded[0] = new String(response.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8);
 
                          } else {
-                             LOG.error("Status code:", statusCode);
+                             LOG.error("Status code: {}", statusCode);
                          }
 
                          return response;
@@ -144,7 +140,7 @@ public class SpeechifyControl {
                 LOG.debug("successful response");
                 return audioBytesEncoded[0];
             } else {
-                LOG.error("Status code:", statusCode);
+                LOG.error("Status code: {}", statusCode);
             }
         }
         throw new IOException("no content");
@@ -167,14 +163,11 @@ public class SpeechifyControl {
 
                     LOG.debug("Format '" + format + "', content :" + audio);
 
-                    ByteArrayInputStream bais = new ByteArrayInputStream(Base64.getDecoder().decode(audio));
-                    AudioInputStream audioStream = AudioSystem.getAudioInputStream(bais);
-
                 }catch( Exception ex){
                     LOG.error("problem reading content", ex);
                 }
             } else {
-                LOG.error("Status code:", statusCode);
+                LOG.error("Status code: {}", statusCode);
             }
 
             return response;
