@@ -71,10 +71,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -163,12 +160,12 @@ public class OrderController extends AcmeController {
 
             final HttpHeaders additionalHeaders = buildNonceHeader();
 
-            List<AcmeOrder> orderList = orderRepository.findByOrderId(orderId);
+            Optional<AcmeOrder> orderList = orderRepository.findByOrderId(orderId);
             if (orderList.isEmpty()) {
                 LOG.debug("reading attempt for non-existing orderId {}", orderId);
                 return ResponseEntity.notFound().headers(additionalHeaders).build();
             } else {
-                AcmeOrder orderDao = orderList.get(0);
+                AcmeOrder orderDao = orderList.get();
                 if (!orderDao.getAccount().equals(acctDao)) {
                     LOG.error("Account identified by key (account {}) does not match account {} of requested order", acctDao, orderDao.getAccount());
                     return ResponseEntity.badRequest().build();
@@ -232,11 +229,11 @@ public class OrderController extends AcmeController {
             /*
              * Order retrieval
              */
-            List<AcmeOrder> orderList = orderRepository.findByOrderId(orderId);
+            Optional<AcmeOrder> orderList = orderRepository.findByOrderId(orderId);
             if (orderList.isEmpty()) {
                 return ResponseEntity.notFound().headers(additionalHeaders).build();
             } else {
-                AcmeOrder orderDao = orderList.get(0);
+                AcmeOrder orderDao = orderList.get();
 
                 /*
                  * does the order correlate to the Account selected by the JWT
@@ -522,7 +519,7 @@ public class OrderController extends AcmeController {
                 auditService.createAuditTraceAcmeOrderInvalid(orderDao.getAccount(), orderDao, csr, "certificate creation failed"));
             csr.setStatus(CsrStatus.REJECTED);
             csrRepository.save(csr);
-            
+
             if( msg == null) {
                 msg = "creation of certificate by ACME order '" + orderDao.getOrderId() + "' failed ";
             }

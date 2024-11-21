@@ -354,7 +354,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
     if (status === 'valid') {
       return 'color:green; font-weight: bold;';
     } else if (status === 'ready' || status === 'processing' || status === 'ready') {
-      return 'color:yellow; font-weight: bold;';
+      return 'color:olive; font-weight: bold;';
     } else if (status === 'invalid') {
       return 'color:red;font-weight: bold;';
     } else if (status === 'pending') {

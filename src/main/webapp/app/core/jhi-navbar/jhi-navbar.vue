@@ -133,15 +133,22 @@
                     :class="{'router-link-active': subIsActive('/admin')}"
                     active-class="active"
                     class="pointer">
+
                     <span slot="button-content" class="navbar-dropdown-menu">
                         <font-awesome-icon icon="user-plus" />
                         <span v-text="$t('global.menu.admin.main')">Administration</span>
                     </span>
 
-                    <b-dropdown-item to="/admin/user-management">
+                    <b-dropdown-item to="/admin/user-list">
                         <font-awesome-icon icon="user" />
                         <span v-text="$t('global.menu.admin.userManagement')">User management</span>
                     </b-dropdown-item>
+
+                    <!-- replaced with implementation above -->
+                    <!--b-dropdown-item to="/admin/user-management">
+                        <font-awesome-icon icon="user" />
+                        <span v-text="$t('global.menu.admin.userManagement')">User management</span>
+                    </b-dropdown-item-->
                     <b-dropdown-item to="/admin/tenant">
                         <font-awesome-icon icon="sitemap" />
                         <span v-text="$t('global.menu.admin.tenantManagement')">Tenant</span>

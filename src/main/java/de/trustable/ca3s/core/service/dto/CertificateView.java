@@ -33,6 +33,9 @@ public class CertificateView implements Serializable {
     private Long issuerId;
 
     @CsvIgnore
+    private Long rootId;
+
+    @CsvIgnore
     private String tbsDigest;
 
     @CsvBindByName
@@ -177,10 +180,10 @@ public class CertificateView implements Serializable {
     private String processingCa;
 
     @CsvIgnore
-    private Long acmeAccountId;
+    private String acmeAccountId;
 
     @CsvIgnore
-    private Long acmeOrderId;
+    private String acmeOrderId;
 
     @CsvIgnore
     private String scepTransId;
@@ -336,6 +339,7 @@ public class CertificateView implements Serializable {
             for(int i = 0; i < 10 && issuerCheck != null; i++){
                 if( issuerCheck.isSelfsigned() ){
                     this.isFullChainAvailable = true;
+                    this.rootId = issuerCheck.getId();
                     break;
                 }
                 issuerCheck = issuerCheck.getIssuingCertificate();
@@ -390,9 +394,9 @@ public class CertificateView implements Serializable {
                 } else if (CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE.equalsIgnoreCase(certAttr.getName())) {
                     this.crlNextUpdate = Instant.ofEpochMilli(Long.parseLong(certAttr.getValue()));
                 } else if (CertificateAttribute.ATTRIBUTE_ACME_ACCOUNT_ID.equalsIgnoreCase(certAttr.getName())) {
-                    this.acmeAccountId = Long.parseLong(certAttr.getValue());
+                    this.acmeAccountId = certAttr.getValue();
                 } else if (CertificateAttribute.ATTRIBUTE_ACME_ORDER_ID.equalsIgnoreCase(certAttr.getName())) {
-                    this.acmeOrderId = Long.parseLong(certAttr.getValue());
+                    this.acmeOrderId = certAttr.getValue();
                 } else if (CertificateAttribute.ATTRIBUTE_SCEP_RECIPIENT.equalsIgnoreCase(certAttr.getName())) {
                     this.scepRecipient = certAttr.getValue();
                 } else if (CertificateAttribute.ATTRIBUTE_SCEP_TRANS_ID.equalsIgnoreCase(certAttr.getName())) {
@@ -759,11 +763,11 @@ public class CertificateView implements Serializable {
 		this.crlNextUpdate = crlNextUpdate;
 	}
 
-	public Long getAcmeAccountId() {
+	public String getAcmeAccountId() {
 		return acmeAccountId;
 	}
 
-	public Long getAcmeOrderId() {
+	public String getAcmeOrderId() {
 		return acmeOrderId;
 	}
 
@@ -775,11 +779,11 @@ public class CertificateView implements Serializable {
 		return scepRecipient;
 	}
 
-	public void setAcmeAccountId(Long acmeAccountId) {
+	public void setAcmeAccountId(String acmeAccountId) {
 		this.acmeAccountId = acmeAccountId;
 	}
 
-	public void setAcmeOrderId(Long acmeOrderId) {
+	public void setAcmeOrderId(String acmeOrderId) {
 		this.acmeOrderId = acmeOrderId;
 	}
 
@@ -858,18 +862,26 @@ public class CertificateView implements Serializable {
 	public Long getCsrId() {
 		return csrId;
 	}
+    public void setCsrId(Long csrId) {
+        this.csrId = csrId;
+    }
 
-	public Long getIssuerId() {
+
+    public Long getIssuerId() {
 		return issuerId;
-	}
-
-	public void setCsrId(Long csrId) {
-		this.csrId = csrId;
 	}
 
 	public void setIssuerId(Long issuerId) {
 		this.issuerId = issuerId;
 	}
+
+    public Long getRootId() {
+        return rootId;
+    }
+
+    public void setRootId(Long rootId) {
+        this.rootId = rootId;
+    }
 
     public String getFingerprintSha1() {
         return fingerprintSha1;
@@ -1143,6 +1155,7 @@ public class CertificateView implements Serializable {
             "id=" + id +
             ", csrId=" + csrId +
             ", issuerId=" + issuerId +
+            ", rootId=" + rootId +
             ", tbsDigest='" + tbsDigest + '\'' +
             ", subject='" + subject + '\'' +
             ", rdn_c='" + rdn_c + '\'' +

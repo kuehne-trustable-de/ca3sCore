@@ -20,8 +20,8 @@ import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.service.badkeys.BadKeysResult;
 import de.trustable.ca3s.core.service.badkeys.BadKeysService;
-import de.trustable.ca3s.core.service.util.PipelineUtil;
-import de.trustable.ca3s.core.service.util.ReplacementCandidateUtil;
+import de.trustable.ca3s.core.service.dto.NamedValues;
+import de.trustable.ca3s.core.service.util.*;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.encoders.Base64;
@@ -44,7 +44,6 @@ import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.web.rest.data.PKCSDataType;
 import de.trustable.ca3s.core.web.rest.data.Pkcs10RequestHolderShallow;
 import de.trustable.ca3s.core.web.rest.data.PkcsXXData;
@@ -70,6 +69,8 @@ public class CSRContentProcessor {
 
 	private final CertificateUtil certUtil;
 
+    private final AlgorithmRestrictionUtil algorithmRestrictionUtil;
+
     private final PipelineRepository pipelineRepository;
 
     private final PipelineUtil pvUtil;
@@ -84,6 +85,7 @@ public class CSRContentProcessor {
                                CSRRepository csrRepository,
                                CertificateRepository certificateRepository,
                                CertificateUtil certUtil,
+                               AlgorithmRestrictionUtil algorithmRestrictionUtil,
                                PipelineRepository pipelineRepository,
                                PipelineUtil pvUtil,
                                BadKeysService badKeysService,
@@ -92,6 +94,7 @@ public class CSRContentProcessor {
         this.csrRepository = csrRepository;
         this.certificateRepository = certificateRepository;
         this.certUtil = certUtil;
+        this.algorithmRestrictionUtil = algorithmRestrictionUtil;
         this.pipelineRepository = pipelineRepository;
         this.pvUtil = pvUtil;
         this.badKeysService = badKeysService;
@@ -157,7 +160,7 @@ public class CSRContentProcessor {
 				p10ReqData = new PkcsXXData(certHolder, content, false);
 			}
 
-            if( badKeysService.isInstalled()){
+                if( badKeysService.isInstalled()){
                 List<String> messageList = new ArrayList<>();
 
                 BadKeysResult badKeysResult = badKeysService.checkContent(content);
@@ -214,6 +217,8 @@ public class CSRContentProcessor {
 
                     List<String> messageList = new ArrayList<>();
                     handleBadKeys(p10ReqData, pkcs10CertificationRequest, messageList);
+
+                    algorithmRestrictionUtil.isAlgorithmRestrictionsResolved(p10ReqHolder, messageList);
 
                     if( uploaded.getPipelineId() != null) {
                         Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());

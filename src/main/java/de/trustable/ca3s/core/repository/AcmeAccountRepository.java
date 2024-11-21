@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +19,7 @@ import de.trustable.ca3s.core.domain.AcmeAccount;
 public interface AcmeAccountRepository extends JpaRepository<AcmeAccount, Long> {
 
 	@Query(name = "Account.findByAccountId")
-	List<AcmeAccount> findByAccountId(@Param("accountId") long accountId);
+    Optional<AcmeAccount> findByAccountId(@Param("accountId") long accountId);
 
 	@Query(name = "Account.findByPublicKeyHash")
 	List<AcmeAccount> findByPublicKeyHashBase64(@Param("publicKeyHashBase64") String publicKeyHashBase64);

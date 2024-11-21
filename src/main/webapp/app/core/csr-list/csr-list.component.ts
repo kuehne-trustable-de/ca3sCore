@@ -193,7 +193,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
       //      ' -> ' + (validTo > dateNow) + ' - ' + (validTo < dateWarn));
       return 'color:red;font-weight: bold;';
     } else if (validTo > this.now && validTo < this.dateWarn) {
-      return 'color:yellow; font-weight: bold;';
+      return 'color:olive; font-weight: bold;';
     } else if (validTo > this.now && validFrom <= this.now) {
       return 'color:green; font-weight: bold;';
     }

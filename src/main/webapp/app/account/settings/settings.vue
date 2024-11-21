@@ -85,6 +85,7 @@
                             </small>
                         </div>
                     </div>
+
                     <div class="form-group" v-if="languages && Object.keys(languages).length > 1">
                         <label for="langKey" v-text="$t('settings.form.language')">Language</label>
                         <select class="form-control" id="langKey" name="langKey" v-model="settingsAccount.langKey">
@@ -93,6 +94,31 @@
                     </div>
                     <button type="submit" :disabled="$v.settingsAccount.$invalid" class="btn btn-primary" v-text="$t('settings.form.button')">Save</button>
                 </form>
+
+                <div class="row wrap" >
+                    <div class="col">
+                        <label class="form-control-label" for="email" v-text="$t('global.form.client.cert')">Client Cert</label>
+                        <input type="password"
+                               class="form-control form-check-inline w-50"
+                               :class="(showRequiredWarning(true, secret) ? 'invalid' : ' valid')"
+                               name="client-auth-secret" id="client-auth-secret"
+                               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                               required="false"
+                               v-model="secret" />
+                        <small v-if="showRequiredWarning(true, secret)"
+                               class="form-text text-danger" v-text="$t('entity.validation.required')">
+                            This field is required.
+                        </small>
+                        <small class="form-text text-danger" v-if="showRegExpFieldWarning(secret, regExpSecret())" v-text="$t('ca3SApp.messages.password.requirement.' + regExpSecretDescription())">
+                            secret must match RegEx!
+                        </small>
+                    </div>
+
+                    <div class="col" v-if="!showRegExpFieldWarning(secret, regExpSecret())">
+                        <a href="downloadUrl" id="certificate-download" @click.prevent="downloadItem()">FooBarBaz.p12</a>
+                    </div>
+                </div>
+
             </div>
         </div>
 

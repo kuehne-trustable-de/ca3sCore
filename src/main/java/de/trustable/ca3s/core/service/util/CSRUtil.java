@@ -1,5 +1,27 @@
 package de.trustable.ca3s.core.service.util;
 
+import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
+import de.trustable.ca3s.core.domain.enumeration.PipelineType;
+import de.trustable.ca3s.core.repository.*;
+import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.badkeys.BadKeysService;
+import de.trustable.util.AlgorithmInfo;
+import de.trustable.util.CryptoUtil;
+import de.trustable.util.OidNameMapper;
+import de.trustable.util.Pkcs10RequestHolder;
+import org.bouncycastle.asn1.*;
+import org.bouncycastle.asn1.pkcs.Attribute;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
+import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
+import org.bouncycastle.asn1.x509.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -10,57 +32,83 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.InvalidNameException;
-import javax.naming.ldap.LdapName;
-import javax.naming.ldap.Rdn;
-
-import de.trustable.ca3s.core.domain.*;
-import de.trustable.ca3s.core.repository.*;
-import de.trustable.ca3s.core.service.AuditService;
-import de.trustable.util.AlgorithmInfo;
-import org.bouncycastle.asn1.*;
-import org.bouncycastle.asn1.pkcs.Attribute;
-import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
-import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
-import org.bouncycastle.asn1.x509.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
-import de.trustable.ca3s.core.domain.enumeration.PipelineType;
-import de.trustable.util.CryptoUtil;
-import de.trustable.util.OidNameMapper;
-import de.trustable.util.Pkcs10RequestHolder;
-
 @Service
 public class CSRUtil {
 
 	private static final Logger LOG = LoggerFactory.getLogger(CSRUtil.class);
 
-	@Autowired
-	private CSRRepository csrRepository;
+	private final CSRRepository csrRepository;
 
-    @Autowired
-    private RDNRepository rdnRepository;
+    private final RDNRepository rdnRepository;
 
-    @Autowired
-    private CSRCommentRepository csrCommentRepository;
+    private final CSRCommentRepository csrCommentRepository;
+    private final RDNAttributeRepository rdnAttRepository;
+	private final CsrAttributeRepository csrAttRepository;
+    private final BadKeysService badKeysService;
+	private final CryptoService cryptoUtil;
+    private final PipelineUtil pipelineUtil;
 
-	@Autowired
-	private RDNAttributeRepository rdnAttRepository;
+    private final AuditService auditService;
 
-	@Autowired
-	private CsrAttributeRepository csrAttRepository;
+    public CSRUtil(CSRRepository csrRepository, RDNRepository rdnRepository, CSRCommentRepository csrCommentRepository,
+                   RDNAttributeRepository rdnAttRepository, CsrAttributeRepository csrAttRepository,
+                   BadKeysService badKeysService,
+                   CryptoService cryptoUtil, PipelineUtil pipelineUtil, AuditService auditService) {
+        this.csrRepository = csrRepository;
+        this.rdnRepository = rdnRepository;
+        this.csrCommentRepository = csrCommentRepository;
+        this.rdnAttRepository = rdnAttRepository;
+        this.csrAttRepository = csrAttRepository;
+        this.badKeysService = badKeysService;
+        this.cryptoUtil = cryptoUtil;
+        this.pipelineUtil = pipelineUtil;
+        this.auditService = auditService;
+    }
+/*
+    public PkcsXXData validateCSR(Pkcs10RequestHolder p10ReqHolder, Pipeline pipeline,
+                            NamedValues[] arAttributes) {
 
-	@Autowired
-	private CryptoService cryptoUtil;
+        Pkcs10RequestHolderShallow p10ReqHolderShallow = new Pkcs10RequestHolderShallow(p10ReqHolder);
+        PkcsXXData p10ReqData = new PkcsXXData(p10ReqHolderShallow);
 
-    @Autowired
-    private AuditService auditService;
+        if (badKeysService.isInstalled()) {
+            BadKeysResult badKeysResult;
+            try {
+                badKeysResult = badKeysService.checkContent(CryptoUtil.pkcs10RequestToPem(p10ReqHolder.getP10Req()));
+                if (!badKeysResult.isValid()) {
+                    LOG.info("badKeysResult '{}'", badKeysResult.getResponse().getResults().getResultType());
+                } else {
+                    LOG.debug("BadKeys not installed");
+                }
+                p10ReqData.setBadKeysResult(badKeysResult);
+            } catch (IOException e) {
+                LOG.error("Converting pkcs10Request to PEM failed unexpectedly",e);
+            }
+        }
 
+        List<CSR> csrList = csrRepository.findNonRejectedByPublicKeyHash(p10ReqHolder.getPublicKeyHash());
+        if(!csrList.isEmpty()) {
+            LOG.info("public key with hash '{}' already used in #{} CSRs.", p10ReqHolder.getPublicKeyHash(), csrList.size());
+        }
 
+        p10ReqData.setCsrPublicKeyPresentInDB(!csrList.isEmpty());
+        if (csrList.isEmpty()) {
+
+            if (pipeline != null) {
+                List<String> messageList = new ArrayList<>();
+                if (pipelineUtil.isPipelineRestrictionsResolved(pipeline, p10ReqHolder, arAttributes, messageList)) {
+                    LOG.debug("pipeline restrictions for pipeline '{}' solved", pipeline.getName());
+                } else {
+                    p10ReqData.setWarnings(messageList.toArray(new String[0]));
+                }
+            } else {
+                LOG.info("no pipeline checks performed");
+            }
+
+        }
+        return p10ReqData;
+    }
+*/
     /**
 	 *
 	 * @param csrBase64
@@ -89,7 +137,8 @@ public class CSRUtil {
 	 * @return
 	 * @throws IOException
 	 */
-	public CSR buildCSR(final String csrBase64, String requestorName, final Pkcs10RequestHolder p10ReqHolder, PipelineType pipelineType, Pipeline pipeline) throws IOException {
+	public CSR buildCSR(final String csrBase64, String requestorName, final Pkcs10RequestHolder p10ReqHolder,
+                        PipelineType pipelineType, Pipeline pipeline) throws IOException {
 
 		CSR csr = new CSR();
 

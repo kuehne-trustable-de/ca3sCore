@@ -1,9 +1,12 @@
 import { email, maxLength, minLength, required } from 'vuelidate/lib/validators';
 import { Component, Inject, Vue } from 'vue-property-decorator';
 import UserManagementService from './user-management.service';
+import AlertService from '@/shared/alert/alert.service';
 import { IUser, User } from '@/shared/model/user.model';
 import { ITenant } from '../../shared/model/tenant.model';
-import TenantService from '../../user-management/tenant/tenant.service';
+import TenantService from '../tenant/tenant.service';
+import { mixins } from 'vue-class-component';
+import AlertMixin from '@/shared/alert/alert.mixin';
 
 const loginValidator = (value: string) => {
   if (!value) {
@@ -38,7 +41,8 @@ const validations: any = {
 @Component({
   validations,
 })
-export default class JhiUserManagementEdit extends Vue {
+export default class JhiUserManagementEdit extends mixins(AlertMixin) {
+  //  @Inject('alertService') private alertService: () => AlertService;
   @Inject('userService') private userManagementService: () => UserManagementService;
   @Inject('tenantService') private tenantService: () => TenantService;
 
@@ -85,7 +89,7 @@ export default class JhiUserManagementEdit extends Vue {
           this.tenants = res.data;
         },
         err => {
-          self.alertService().showAlert(err.response, 'warn');
+          this.alertService().showAlert(err.response, 'warn');
         }
       );
   }
@@ -99,7 +103,7 @@ export default class JhiUserManagementEdit extends Vue {
   }
 
   public previousState(): void {
-    (<any>this).$router.go(-1);
+    this.$router.go(-1);
   }
 
   public save(): void {
@@ -116,6 +120,11 @@ export default class JhiUserManagementEdit extends Vue {
             solid: true,
             autoHideDelay: 5000,
           });
+        })
+        .catch(function (error) {
+          console.log(error);
+          const message = self.$t('problem processing request: ' + error);
+          self.alertService().showAlert(message, 'info');
         });
     } else {
       this.userManagementService()
@@ -129,6 +138,11 @@ export default class JhiUserManagementEdit extends Vue {
             solid: true,
             autoHideDelay: 5000,
           });
+        })
+        .catch(function (error) {
+          console.log(error);
+          const message = self.$t('problem processing request: ' + error);
+          self.alertService().showAlert(message, 'info');
         });
     }
   }

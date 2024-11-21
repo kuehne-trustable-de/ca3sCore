@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<explanation>
+
+    <tutorial.1><en>C A 3 S is a CA support system with a flexible RA part using BPMN aiming to automate as much as possible. Therefore providing ACME and SCEP interfaces in addition to the usual web form. Aggregating certificate sets from different sources and using CMP-connected CAs or ADCS instances for certificate creation.</en></tutorial.1>
+    <tutorial.2><en>let's have a look at C A 3 S from the user's view</en></tutorial.2>
+    <tutorial.3><en>Now you are able to use C A 3 S</en></tutorial.3>
+
+    <csr.submit.1><en>Navigate your browser to the start page of the application.</en></csr.submit.1>
+    <csr.submit.2><en>Depending on your configuration you may be logged on, automatically.</en></csr.submit.2>
+    <csr.submit.3><en>select a certificate processing pipeline matching your requirements.</en></csr.submit.3>
+
+    <csr.submit.4><en>if you have certificate signing request available, select this option.</en></csr.submit.4>
+
+    <csr.submit.5><en>This text field is the where you can drop or paste your certificate signing request. We will return here, later.</en></csr.submit.5>
+
+    <csr.submit.6><en>The easiest option is to avoid the certificate signing request creation and just let the server do the handle the request and the private key. But keep in mind this option has security drawbacks.</en></csr.submit.6>
+
+    <csr.submit.7><en>Select a key length. For a test a 2048 bit key length will do.</en></csr.submit.7>
+
+    <csr.submit.8><en>Provide the details of the certificate's subject.</en></csr.submit.8>
+    <csr.submit.8.1><en>if required, provide one or more subject alternative names.</en></csr.submit.8.1>
+
+    <csr.submit.9><en>provide a secret passphrase that will protect the private key in the certificate container.</en></csr.submit.9>
+    <csr.submit.10><en>Some restrictions apply to the length and character set of the passphrase. If these requirements are not met, a hint is shown.</en></csr.submit.10>
+
+    <csr.submit.11><en>This passphrase matches the requirements. Store it in a save place.  It cannot be retrieved! It unlocks the certificate container which will be created later on in this process.</en></csr.submit.11>
+    <csr.submit.12><en>repeat the secret passphrase. A mismatch between the values will be reported</en></csr.submit.12>
+
+    <csr.submit.13><en>Once certificate details are provided and the passphrase was entered the request button will be enabled.</en></csr.submit.13>
+
+    <csr.submit.14><en>submit the certificate by clicking the request button.</en></csr.submit.14>
+
+    <csr.submit.15><en>depending on the configuration a certificate request may need an explicit approval by an registration officer.</en></csr.submit.15>
+    <csr.submit.16><en>For demonstration reasons we take the alternative path of immediate issuance.</en></csr.submit.16>
+    <csr.submit.17><en>This is the certificate page providing some details about the certificate.</en></csr.submit.17>
+
+    <csr.submit.18><en>Several other certificate aspects may be reviewed.</en></csr.submit.18>
+
+    <csr.submit.19><en>Depending on the key creation mode the may be the option to download a protected container containing certificates and private key.</en></csr.submit.19>
+    <csr.submit.20><en>In the previous form we selected server side key creation.</en></csr.submit.20>
+
+    <csr.submit.21><en>The PEM format is a well recognized format in the unix world. It's the default format for the openssl tool.</en></csr.submit.21>
+    <csr.submit.21.1><en>A click on the link starts the download.</en></csr.submit.21.1>
+    <csr.submit.22><en>The PEM format including issuing certificates is useful for example for the apache webserver</en></csr.submit.22>
+    <csr.submit.23><en>The PEM format including the complete certificate chain is another option.</en></csr.submit.23>
+    <csr.submit.24><en>That's all about certificate download. Another important topic of the certificate usage is revocation.</en></csr.submit.24>
+    <csr.submit.25><en>Even if there is just a minor doubt about a possible compromise of your private it is good security practise to revoke the certificate.</en></csr.submit.25>
+    <csr.submit.26><en>The owner of the certificate can always revoke a certificate by selecting a reason.</en></csr.submit.26>
+    <csr.submit.27><en>Let's assume the key was disclosed somehow. So select 'key compromise'</en></csr.submit.27>
+
+    <csr.submit.28><en>and click the 'revoke' button.</en></csr.submit.28>
+    <csr.submit.28.1><en>a revocation of a certificate cannot be undone. Therefore an additional approval is required.</en></csr.submit.28.1>
+    <csr.submit.29><en>search a certificate by its common name.</en></csr.submit.29>
+
+    <csr.submit.30><en>enter the common name we provided in the creation form.</en></csr.submit.30>
+
+    <csr.submit.31><en>the list of matching certificates is pretty short. It's easy to identify or freshly created certificate.</en></csr.submit.31>
+
+    <csr.submit.32><en>to provide some additional information there is a comment field.</en></csr.submit.32>
+
+    <csr.submit.33><en>search a certificate by its serial number.</en></csr.submit.33>
+    <csr.submit.34><en>select the 'number' representation.</en></csr.submit.34>
+
+    <csr.submit.35><en>Beginning from the start page of the application, you must make sure that you are logged in to your account.</en></csr.submit.35>
+    <csr.submit.36><en>Depending on your configuration you may be logged on, automatically.</en></csr.submit.36>
+    <csr.submit.37><en>From the drop down menu, select a certificate processing pipeline matching your requirements. In this case we will use Direct Issuance.</en></csr.submit.37>
+
+    <csr.submit.38><en>Select the CSR File you want to use in the process.</en></csr.submit.38>
+
+    <csr.submit.39><en>Beginning from the start page of the application, you must make sure that you are logged in to your account.</en></csr.submit.39>
+    <csr.submit.40><en>Depending on your configuration you may be logged on, automatically.</en></csr.submit.40>
+    <csr.submit.41><en>From the drop down menu, select a certificate processing pipeline matching your requirements. In this case we will use Direct Issuance.</en></csr.submit.41>
+
+    <csr.submit.42><en>Beginning from the start page of the application, you must make sure that you are logged in to your account.</en></csr.submit.42>
+    <csr.submit.43><en>Depending on your configuration you may be logged on, automatically.</en></csr.submit.43>
+
+    <csr.submit.44><en>From the drop down menu, select a certificate processing pipeline matching your requirements. In this case we will use Direct Issuance.</en></csr.submit.44>
+    <csr.submit.45><en>Depending on your needs, you can use a string or a CSR file in the following process. First, we will use the string method.</en></csr.submit.45>
+
+    <csr.submit.46><en>As you can see, entering the string shows you some information and let's you request a certificate.</en></csr.submit.46>
+
+    <csr.submit.47><en>Alternatively, one can use a CSR file.</en></csr.submit.47>
+
+    <csr.submit.48><en>After selecting the CSR file you want to use</en></csr.submit.48>+
+</explanation>

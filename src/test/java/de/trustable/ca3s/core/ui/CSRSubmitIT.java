@@ -214,8 +214,8 @@ public class CSRSubmitIT extends WebTestBase {
         rand.nextBytes(secretBytes);
         String secret = "1Aa" + Base64.getEncoder().encodeToString(secretBytes);
 
-        explain("Navigate your browser to the start page of the application");
-        explain("Depending on your configuration you may be logged on, automatically.");
+        explain("csr.submit.1");
+        explain("csr.submit.2");
         selectElementText(LOC_LNK_ACCOUNT_MENUE, "Not in this case, so select 'Account' and 'Sign In'");
 
         signIn(USER_NAME_USER, USER_PASSWORD_USER, "and login in as a simple user", 500);
@@ -230,25 +230,25 @@ public class CSRSubmitIT extends WebTestBase {
 
         click(LOC_SEL_PIPELINE);
         selectOptionByText(LOC_SEL_PIPELINE, PipelineTestConfiguration.PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
-        explain("select a certificate processing pipeline matching your requirements");
+        explain("csr.submit.3");
 
         validatePresent(LOC_TA_UPLOAD_CONTENT);
 
         validatePresent(LOC_SEL_KEY_CREATION_CHOICE);
 
         selectOptionByText(LOC_SEL_KEY_CREATION_CHOICE, "CSR available");
-        explain("if you have certificate signing request available, select this option");
+        explain("csr.submit.4");
 
         scrollToElement(LOC_TA_UPLOAD_CONTENT);
         click(LOC_TA_UPLOAD_CONTENT);
-        explain("This text field is the where you can drop or paste your certificate signing request. We will return here, later.");
+        explain("csr.submit.5");
 
         selectOptionByText(LOC_SEL_KEY_CREATION_CHOICE, "Serverside key creation");
-        explain("The easiest option is to avoid the certificate signing request creation and just let the server do the handle the request and the private key. But keep in mind this option has security drawbacks");
+        explain("csr.submit.6");
 
         validatePresent(LOC_SEL_KEY_LENGTH_CHOICE);
         selectOptionByText(LOC_SEL_KEY_LENGTH_CHOICE, "rsa-2048");
-        explain("Select a key length. For a test a 2048 bit key length will do.");
+        explain("csr.submit.7");
 
         setText(LOC_INP_C_VALUE, c);
         setText(LOC_INP_CN_VALUE, cn);
@@ -256,51 +256,51 @@ public class CSRSubmitIT extends WebTestBase {
         setText(LOC_INP_OU_VALUE, ou);
         setText(LOC_INP_L_VALUE, l);
         setText(LOC_INP_ST_VALUE, st);
-        explain("provide the details of the certificate's subject");
+        explain("csr.submit.8");
         setText(LOC_INP_SAN_VALUE, san);
-        explain("if required, provide one or more subject alternative names");
+        explain("csr.submit.8.1");
 
         scrollToElement(LOC_BTN_REQUEST_CERTIFICATE);
 
         setText(LOC_INP_SECRET_VALUE, "1234");
-        explain("provide a secret passphrase that will protect the private key in the certificate container");
-        explain("Some restrictions apply to the length and character set of the passphrase. If these requirements are not met, a hint is shown.");
+        explain("csr.submit.9");
+        explain("csr.submit.10");
 
         setText(LOC_INP_SECRET_VALUE, secret);
-        explain("This passphrase matches the requirements. Store it in a save place.  It cannot be retrieved! It unlocks the certificate container which will be created later on in this process.");
+        explain("csr.submit.11");
         setText(LOC_INP_SECRET_REPEAT_VALUE, secret);
 
         // mismatch of secret
         setText(LOC_INP_SECRET_REPEAT_VALUE, "aa" + secret + "zz");
         Assertions.assertFalse(isEnabled(LOC_BTN_REQUEST_CERTIFICATE), "Expecting request button disabled");
-        explain("repeat the secret passphrase. A mismatch between the values will be reported");
+        explain("csr.submit.12");
 
         setText(LOC_INP_SECRET_REPEAT_VALUE, secret);
         Assertions.assertTrue(isEnabled(LOC_BTN_REQUEST_CERTIFICATE), "Expecting request button enabled");
-        explain("Once certificate details are provided and the passphrase was entered the request button will be enabled.");
+        explain("csr.submit.13");
 
         validatePresent(LOC_BTN_REQUEST_CERTIFICATE);
         Assertions.assertTrue(isEnabled(LOC_BTN_REQUEST_CERTIFICATE), "Expecting request button enabled");
 
-        explain("submit the certificate by clicking the request button");
+        explain("csr.submit.14");
         click(LOC_BTN_REQUEST_CERTIFICATE);
 
         waitForElement(LOC_TEXT_CERT_HEADER, 20);
         validatePresent(LOC_TEXT_CERT_HEADER);
         validatePresent(LOC_TEXT_PKIX_LABEL);
 
-        explain("depending on the configuration a certificate request may need an explicit approval by an registration officer. ");
-        explain("For demonstration reasons we take the alternative path of immediate issuance.");
-        explain("This is the certificate page providing some details about the certificate.");
+        explain("csr.submit.15");
+        explain("csr.submit.16");
+        explain("csr.submit.17");
 
         selectElementText(LOC_LNK_CERTIFICATE_ISSUER, "a link enables navigation to the issuing certificate");
 
-        explain("Several other certificate aspects may be reviewed.");
+        explain("csr.submit.18");
 
         scrollToElement(LOC_SEL_CERTIFICATE_DOWNLOAD_FORMAT);
 
-        explain("Depending on the key creation mode the may be the option to download a protected container containing certificates and private key.");
-        explain("In the previous form we selected server side key creation ");
+        explain("csr.submit.19");
+        explain("csr.submit.20");
 
         selectElementText(LOC_INP_CERTIFICATE_PKCS12_ALIAS, "provide a name of the key entry in the container." );
         checkPKCS12Download(cn, secret);
@@ -315,28 +315,28 @@ public class CSRSubmitIT extends WebTestBase {
         //checkPEMDownload(cn, "pkix");
 
         selectOptionByValue(LOC_SEL_CERT_FORMAT, "pem");
-        explain("The PEM format is a well recognized format in the unix world. It's the default format for the openssl tool.");
-        explain("A click on the link starts the download.");
+        explain("csr.submit.21");
+        explain("csr.submit.21.1");
         X509Certificate newCert = checkPEMDownload(cn, "pem");
 
         selectOptionByValue(LOC_SEL_CERT_FORMAT, "pemPart");
-        explain("The PEM format including issuing certificates is useful for example for the apache webserver");
+        explain("csr.submit.22");
         checkPEMDownload(cn, "pemPart");
 
-        explain("The PEM format including the complete certificate chain is another option");
+        explain("csr.submit.23");
         checkPEMDownload(cn, "pemFull");
 
-        explain("That's all about certificate download. Another important topic of the certificate usage is revocation.");
-        explain("Even if there is just a minor doubt about a possible compromise of your private it is good security practise to revoke the certificate");
-        explain("The owner of the certificate can always revoke a certificate by selecting a reason");
+        explain("csr.submit.24");
+        explain("csr.submit.25");
+        explain("csr.submit.26");
         validatePresent(LOC_SEL_REVOCATION_REASON);
         selectOptionByValue(LOC_SEL_REVOCATION_REASON, "keyCompromise");
-        explain("Let's assume the key was disclosed somehow. So select 'key compromise'");
+        explain("csr.submit.27");
 
-        explain("and click the 'revoke' button");
+        explain("csr.submit.28");
         click(LOC_BTN_REVOKE);
 
-        explain("a revocation of a certificate cannot be undone. Therefore an additional approval is required.");
+        explain("csr.submit.28.1");
         validatePresent(LOC_BTN_CONFIRM_REVOKE);
         click(LOC_BTN_CONFIRM_REVOKE);
 
@@ -349,18 +349,18 @@ public class CSRSubmitIT extends WebTestBase {
         // select the certificate in the cert list
         validatePresent(LOC_SEL_CERT_ATTRIBUTE);
         selectOptionByText(LOC_SEL_CERT_ATTRIBUTE, "Subject");
-        explain("search a certificate by its common name.");
+        explain("csr.submit.29");
 
         validatePresent(LOC_SEL_CERT_CHOICE);
         selectOptionByText(LOC_SEL_CERT_CHOICE, "equals");
 
         validatePresent(LOC_INP_CERT_VALUE);
         setText(LOC_INP_CERT_VALUE, cn);
-        explain("enter the common name we provided in the creation form.");
+        explain("csr.submit.30");
 
         By byCertSubject = By.xpath("//table//td [contains(text(), '" + cn + "')]");
         validatePresent(byCertSubject);
-        explain("the list of matching certificates is pretty short. It's easy to identify or freshly created certificate.");
+        explain("csr.submit.31");
         click(byCertSubject);
 
         // already revoked
@@ -378,7 +378,7 @@ public class CSRSubmitIT extends WebTestBase {
 
         waitForElement(LOC_TA_COMMENT);
         validatePresent(LOC_TA_COMMENT);
-        explain("to provide some additional information there is a comment field.");
+        explain("csr.submit.32");
         setText(LOC_TA_COMMENT, randomComment);
 
         validatePresent(LOC_BTN_EDIT);
@@ -394,12 +394,12 @@ public class CSRSubmitIT extends WebTestBase {
         // select the certificate in the cert list
         validatePresent(LOC_SEL_CERT_ATTRIBUTE);
         selectOptionByText(LOC_SEL_CERT_ATTRIBUTE, "Serial");
-        explain("search a certificate by its serial number.");
+        explain("csr.submit.33");
 
         validatePresent(LOC_SEL_CERT_CHOICE);
 
         selectOptionByText(LOC_SEL_CERT_CHOICE, "decimal");
-        explain("select the number representation.");
+        explain("csr.submit.34");
 
         // set the serial number, decimal
         validatePresent(LOC_INP_CERT_SERIAL_VALUE);
@@ -431,8 +431,8 @@ public class CSRSubmitIT extends WebTestBase {
     @Test
     public void testCSRDERSubmitDirect() throws GeneralSecurityException, IOException, InterruptedException {
 
-        explain("Beginning from the start page of the application, you must make sure that you are logged in to your account");
-        explain("Depending on your configuration you may be logged on, automatically.");
+        explain("csr.submit.35");
+        explain("csr.submit.36");
         selectElementText(LOC_LNK_ACCOUNT_MENUE, "As this is not the case here, select 'Account' and then 'Sign In'.");
 
         signIn(USER_NAME_USER, USER_PASSWORD_USER, "Once you have entered your credentials into the respective fields, you can proceed.", 500);
@@ -445,7 +445,7 @@ public class CSRSubmitIT extends WebTestBase {
 
         click(LOC_SEL_PIPELINE);
         selectOptionByText(LOC_SEL_PIPELINE, PipelineTestConfiguration.PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
-        explain("From the drop down menu, select a certificate processing pipeline matching your requirements. In this case we will use Direct Issuance.");
+        explain("csr.submit.37");
 
         validatePresent(LOC_TA_UPLOAD_CONTENT);
 
@@ -456,7 +456,7 @@ public class CSRSubmitIT extends WebTestBase {
         String csrFilePath = buildCSRAsDERFile(subjectPrincipal, null);
         validatePresent(LOC_SELECT_FILE);
         setText(LOC_SELECT_FILE, csrFilePath);
-        explain("Select the CSR File you want to use in the process.");
+        explain("csr.submit.38");
 
         validatePresent(LOC_TEXT_CONTENT_TYPE);
 
@@ -478,8 +478,8 @@ public class CSRSubmitIT extends WebTestBase {
     @Test
     public void testCSRSubmitDirect() throws GeneralSecurityException, IOException, InterruptedException {
 
-        explain("Beginning from the start page of the application, you must make sure that you are logged in to your account");
-        explain("Depending on your configuration you may be logged on, automatically.");
+        explain("csr.submit.39");
+        explain("csr.submit.40");
         selectElementText(LOC_LNK_ACCOUNT_MENUE, "As this is not the case here, select 'Account' and then 'Sign In'.");
 
         signIn(USER_NAME_USER, USER_PASSWORD_USER, "Once you have entered your credentials into the respective fields, you can proceed.", 500);
@@ -492,7 +492,7 @@ public class CSRSubmitIT extends WebTestBase {
 
         click(LOC_SEL_PIPELINE);
         selectOptionByText(LOC_SEL_PIPELINE, PipelineTestConfiguration.PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
-        explain("From the drop down menu, select a certificate processing pipeline matching your requirements. In this case we will use Direct Issuance.");
+        explain("csr.submit.41");
 
         validatePresent(LOC_TA_UPLOAD_CONTENT);
 
@@ -564,8 +564,8 @@ public class CSRSubmitIT extends WebTestBase {
 
     public void testCSRUploadDirect() throws GeneralSecurityException, IOException, InterruptedException {
 
-       /* explain("Beginning from the start page of the application, you must make sure that you are logged in to your account");
-        explain("Depending on your configuration you may be logged on, automatically.");
+       /* explain("csr.submit.42");
+        explain("csr.submit.43");
 
         */
         selectElementText(LOC_LNK_ACCOUNT_MENUE, "As this is not the case here, select 'Account' and then 'Sign In'.");
@@ -580,11 +580,11 @@ public class CSRSubmitIT extends WebTestBase {
 
         click(LOC_SEL_PIPELINE);
         selectOptionByText(LOC_SEL_PIPELINE, PipelineTestConfiguration.PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
-        explain("From the drop down menu, select a certificate processing pipeline matching your requirements. In this case we will use Direct Issuance.");
+        explain("csr.submit.44");
 
         validatePresent(LOC_TA_UPLOAD_CONTENT);
 
-        explain("Depending on your needs, you can use a string or a CSR file in the following process. First, we will use the string method.");
+        explain("csr.submit.45");
 
         String cn = "reqtest" + System.currentTimeMillis();
         String subject = "CN=" + cn + ", O=trustable solutions, C=DE";
@@ -592,7 +592,7 @@ public class CSRSubmitIT extends WebTestBase {
 
         String csr = buildCSRAsPEM(subjectPrincipal);
         setLongText(LOC_TA_UPLOAD_CONTENT, csr);
-        explain("As you can see, entering the string shows you some information and let's you request a certificate.");
+        explain("csr.submit.46");
         By bySubject = By.xpath("//div//dl/dd/span [contains(text(), '" + cn + "')]");
         selectElementText(bySubject, "Before you request the certificate, you can check the given information here.");
 
@@ -601,12 +601,12 @@ public class CSRSubmitIT extends WebTestBase {
 
         setLongText(LOC_TA_UPLOAD_CONTENT, "");
 
-        explain("Alternatively, one can use a CSR file.");
+        explain("csr.submit.47");
 
         String csrFilePath = buildCSRAsDERFile(subjectPrincipal, null);
         validatePresent(LOC_SELECT_FILE);
         setText(LOC_SELECT_FILE, csrFilePath);
-        explain("After selecting the CSR file you want to use");
+        explain("csr.submit.48");
         selectElementText(bySubject, "the same information as before");
         selectElementText(byBits, "are shown below.");
 

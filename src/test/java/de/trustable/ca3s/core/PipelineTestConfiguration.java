@@ -8,6 +8,7 @@ import de.trustable.ca3s.core.domain.enumeration.*;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
+import de.trustable.ca3s.core.service.dto.AcmeConfigItems;
 import de.trustable.ca3s.core.service.dto.PipelineView;
 import de.trustable.ca3s.core.service.dto.RDNRestriction;
 import de.trustable.ca3s.core.service.dto.SCEPConfigItems;
@@ -210,7 +211,6 @@ public class PipelineTestConfiguration {
 
         LOGGER.info("------------ Creating pipeline '{}' ... ", PIPELINE_NAME_ACME1CNNOIP);
 
-
         PipelineView pv_1CN_NoIP_Restrictions = new PipelineView();
         pv_1CN_NoIP_Restrictions.setRestriction_C(new RDNRestriction());
         pv_1CN_NoIP_Restrictions.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
@@ -240,6 +240,12 @@ public class PipelineTestConfiguration {
         pv_1CN_NoIP_Restrictions.setActive(true);
         pv_1CN_NoIP_Restrictions.setType(PipelineType.ACME);
         pv_1CN_NoIP_Restrictions.setUrlPart(ACME1CNNOIP_REALM);
+
+        AcmeConfigItems acmeConfigItems = new AcmeConfigItems();
+        acmeConfigItems.setContactEMailRegEx("(mailto:.*@ca3s\\.org)");
+        acmeConfigItems.setContactEMailRejectRegEx("(mailto:root@ca3s\\.org|mailto:mail@ca3s\\.org|mailto:service.*@ca3s\\.org)");
+
+        pv_1CN_NoIP_Restrictions.setAcmeConfigItems(acmeConfigItems);
 
         Pipeline pipelineRestrictions = pipelineUtil.toPipeline(pv_1CN_NoIP_Restrictions);
         pipelineRepo.save(pipelineRestrictions);

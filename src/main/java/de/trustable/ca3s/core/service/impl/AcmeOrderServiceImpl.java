@@ -66,6 +66,18 @@ public class AcmeOrderServiceImpl implements AcmeOrderService {
     }
 
     /**
+     * Get the "orderId" acmeOrder.
+     *
+     * @param orderId the id of the order.
+     * @return the entity.
+     */
+    @Override
+    public Optional<AcmeOrder> findOneByAcmeOrderId(Long orderId) {
+        log.debug("Request to get AcmeOrder by orderId: {}", orderId);
+        return acmeOrderRepository.findByOrderId(orderId);
+    }
+
+    /**
      * Delete the acmeOrder by id.
      *
      * @param id the id of the entity.

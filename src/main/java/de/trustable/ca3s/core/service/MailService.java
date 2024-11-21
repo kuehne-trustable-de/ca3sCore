@@ -1,6 +1,8 @@
 package de.trustable.ca3s.core.service;
 
 import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +35,8 @@ public class MailService {
 
     private static final String BASE_URL = "baseUrl";
 
+    private static final String ACTIVATION_KEY = "activationKey";
+
     private final JHipsterProperties jHipsterProperties;
 
     private final JavaMailSender javaMailSender;
@@ -41,16 +45,21 @@ public class MailService {
 
     private final SpringTemplateEngine templateEngine;
 
+    private final ProtectedContentUtil protectedContentUtil;
     private final boolean useTitleAsMailSubject;
 
-    public MailService(JHipsterProperties jHipsterProperties, JavaMailSender javaMailSender,
-                       MessageSource messageSource, SpringTemplateEngine templateEngine,
+    public MailService(JHipsterProperties jHipsterProperties,
+                       JavaMailSender javaMailSender,
+                       MessageSource messageSource,
+                       SpringTemplateEngine templateEngine,
+                       ProtectedContentUtil protectedContentUtil,
                        @Value("${ca3s.email.template.useTitleAsMailSubject:false}") boolean useTitleAsMailSubject) {
 
         this.jHipsterProperties = jHipsterProperties;
         this.javaMailSender = javaMailSender;
         this.messageSource = messageSource;
         this.templateEngine = templateEngine;
+        this.protectedContentUtil = protectedContentUtil;
         this.useTitleAsMailSubject = useTitleAsMailSubject;
     }
 
@@ -104,7 +113,7 @@ public class MailService {
         if(jHipsterProperties.getMail() != null &&
             jHipsterProperties.getMail().getBaseUrl() != null &&
             !jHipsterProperties.getMail().getBaseUrl().isEmpty()) {
-            context.setVariable(BASE_URL, jHipsterProperties.getMail().getBaseUrl());
+            context.setVariable(BASE_URL, getBaseUrl());
         }else{
             log.warn(BASE_URL + " not set for email templates");
             context.setVariable(BASE_URL, "/");
@@ -117,8 +126,19 @@ public class MailService {
         sendEmail(email, cc, subject, content, false, true);
     }
 
+    @NotNull
+    private String getBaseUrl() {
+        String baseUrl = jHipsterProperties.getMail().getBaseUrl();
+        log.info("template placeholder '{}' set to: {}", BASE_URL);
+        return baseUrl;
+    }
+
+    public void sendEmailFromTemplate(User user, String templateName, String titleKey ) throws MessagingException {
+        sendEmailFromTemplate(user, templateName, titleKey, null);
+    }
     @Transactional
-    public void sendEmailFromTemplate(User user, String templateName, String titleKey) throws MessagingException {
+    public void sendEmailFromTemplate(User user, String templateName, String titleKey,
+                                      String activationKey) throws MessagingException {
         if (user.getEmail() == null) {
             log.debug("Email doesn't exist for user '{}'", user.getLogin());
             return;
@@ -126,7 +146,10 @@ public class MailService {
         Locale locale = Locale.forLanguageTag(user.getLangKey());
         Context context = new Context(locale);
         context.setVariable(USER, user);
-        context.setVariable(BASE_URL, jHipsterProperties.getMail().getBaseUrl());
+        context.setVariable(BASE_URL, getBaseUrl());
+        if( activationKey != null && !activationKey.isEmpty()) {
+            context.setVariable(ACTIVATION_KEY, activationKey);
+        }
         String content = getContent(templateName, context);
         String subject = getSubject(content, titleKey, null, locale);
         sendEmail(user.getEmail(), null, subject, content, false, true);
@@ -153,19 +176,23 @@ public class MailService {
     private String getContent(String templateName, Context context){
         return templateEngine.process(templateName, context);
     }
-    public void sendActivationEmail(User user) throws MessagingException {
+    public void sendActivationEmail(User user, String activationKey) throws MessagingException {
         log.debug("Sending activation email to '{}'", user.getEmail());
-        sendEmailFromTemplate(user, "mail/activationEmail", "email.activation.title");
+
+        sendEmailFromTemplate(user,
+            "mail/activationEmail",
+            "email.activation.title",
+            activationKey);
     }
 
     public void sendCreationEmail(User user) throws MessagingException {
         log.debug("Sending creation email to '{}'", user.getEmail());
-        sendEmailFromTemplate(user, "mail/creationEmail", "email.activation.title");
+        sendEmailFromTemplate(user, "mail/creationEmail", "email.activation.title", "");
     }
 
     public void sendPasswordResetMail(User user) throws MessagingException {
         log.debug("Sending password reset email to '{}'", user.getEmail());
-        sendEmailFromTemplate(user, "mail/passwordResetEmail", "email.reset.title");
+        sendEmailFromTemplate(user, "mail/passwordResetEmail", "email.reset.title", "");
     }
 
 }

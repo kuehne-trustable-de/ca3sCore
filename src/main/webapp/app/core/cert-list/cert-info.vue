@@ -48,7 +48,8 @@
                             <span v-text="$t('ca3SApp.certificate.root')">Root</span>
                         </dt>
                         <dd v-if="!certificateView.selfsigned && certificateView.root">
-                            <span >{{certificateView.root}}</span>
+                            <a v-if="certificateView.rootId" href="root" @click.prevent="retrieveCertificate(certificateView.rootId)">{{certificateView.root}}</a>
+                            <span v-else>{{certificateView.root}}</span>
                         </dd>
 
                         <dt>
@@ -157,12 +158,25 @@
                                 </li>
                             </ul>
                         </dd>
+
                         <dt v-if="certificateView.csrId">
                             <span v-text="$t('ca3SApp.certificate.csr')">Csr</span>
                         </dt>
                         <dd v-if="certificateView.csrId">
                             <div>
                                 <router-link :to="{name: 'CsrInfo', params: {csrId: certificateView.csrId}}">{{certificateView.csrId}}</router-link>
+                            </div>
+                        </dd>
+
+                        <dt v-if="isRAOrAdmin() && (certificateView.acmeAccountId || certificateView.acmeOrderId)">
+                            <span v-text="$t('ca3SApp.certificate.acme')">ACME</span>
+                        </dt>
+                        <dd v-if="isRAOrAdmin() && (certificateView.acmeAccountId || certificateView.acmeOrderId)">
+                            <div>
+                                <router-link v-if="certificateView.acmeAccountId"
+                                             :to="{name: 'AcmeAccountInfo', params: {accountId: certificateView.acmeAccountId}}">Account</router-link>
+                                <router-link v-if="certificateView.acmeOrderId"
+                                             :to="{name: 'AcmeOrderInfo', params: {orderId: certificateView.acmeOrderId}}">Order</router-link>
                             </div>
                         </dd>
 

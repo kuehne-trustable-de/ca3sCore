@@ -583,6 +583,13 @@
                 <value>true</value>
             </finalizelocationBackwardCompat>
 
+            <alpn>
+                <ports>
+                    <comment mode="section">The list of ports iterated when looking fpr ALPN challenge endpoints</comment>
+                    <value>true</value>
+                </ports>
+            </alpn>
+
             <ratelimit>
                 <second>
                     <value>0</value>

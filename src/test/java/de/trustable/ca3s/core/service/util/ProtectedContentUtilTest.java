@@ -22,8 +22,8 @@ class ProtectedContentUtilTest {
             "mJvR25yt4NHTIqe5Hz7nUHhQNUuM",
             "S3cr3t#s3cr3t$s3cr3t",
             "ca3sSalt",
-        4567,
-        "PBKDF2WithHmacSHA256");
+            4567,
+            "PBKDF2WithHmacSHA256");
 
         byte[] sharedSecretBytes = subject.deriveSecret("S3cr3t!S");
         String sharedSecretString = Base64.getEncoder().encodeToString(sharedSecretBytes);

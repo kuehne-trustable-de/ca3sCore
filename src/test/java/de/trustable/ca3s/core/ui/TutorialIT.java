@@ -95,8 +95,8 @@ public class TutorialIT extends CSRSubmitIT {
     @Test
     public void recordCSRSubmitServersideDirect() throws Exception {
 
-        explain("C A 3 S is a CA support system with a flexible RA part using BPMN aiming to automate as much as possible. Therefore providing ACME and SCEP interfaces in addition to the usual web form. Aggregating certificate sets from different sources and using CMP-connected CAs or ADCS instances for certificate creation.");
-        explain("let's have a look at C A 3 S from the user's view");
+        explain("tutorial.1");
+        explain("tutorial.2");
 
         /*
         explain("Depending on your configuration you may be logged on, automatically. Not in this case, so select 'Account' and 'Sign In'");
@@ -111,7 +111,7 @@ public class TutorialIT extends CSRSubmitIT {
 
         testCSRUploadDirect();
 
-        explain("Now you are able to use C A 3 S");
+        explain("tutorial.3");
     }
 
     static class RunnableWithFilenameAndContext implements RunnableWithFilename {

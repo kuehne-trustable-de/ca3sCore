@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 /**
  * A ProtectedContent.
  */
@@ -31,6 +31,12 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
             "pc.type = :type and " +
             "pc.relationType = :relationType and " +
             "pc.relatedId    = :id"
+    ),
+    @NamedQuery(name = "ProtectedContent.findByTypeRelationContentB64",
+        query = "SELECT pc FROM ProtectedContent pc WHERE " +
+            "pc.type = :type and " +
+            "pc.relationType  = :relationType and " +
+            "pc.contentBase64 = :contentB64"
     ),
     @NamedQuery(name = "ProtectedContent.findByValidToPassed",
         query = "SELECT pc FROM ProtectedContent pc WHERE " +

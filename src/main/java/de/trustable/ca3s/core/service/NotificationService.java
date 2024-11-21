@@ -235,7 +235,7 @@ public class NotificationService {
     private int notifyRequestorOnExpiry(User testUser, boolean logNotification,
                                        List<Certificate> expiringEECertList,
                                        int maxExpiry,
-                                        boolean forceSendAnyday) {
+                                       boolean forceSendAnyday) {
 
         Instant now = Instant.now();
 

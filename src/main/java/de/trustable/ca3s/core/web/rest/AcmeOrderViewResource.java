@@ -76,6 +76,27 @@ public class AcmeOrderViewResource {
     }
 
     /**
+     * {@code GET  /acmeOrderViews/:orderId} : get the "id" ACME order.
+     *
+     * @param orderId the id of the ACME account to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the ACME account, or with status {@code 404 (Not Found)}.
+     */
+    @GetMapping("/acmeOrderViews/acmeOrderId/{orderId}")
+    public ResponseEntity<AcmeOrderView> getacmeOrderByAcmeOrderId(@PathVariable Long orderId) {
+        log.debug("REST request to get acmeOrderView for AcmeOrderId : {}", orderId);
+        Optional<AcmeOrder> acmeOrderOptional = acmeOrderService.findOneByAcmeOrderId(orderId);
+        Optional<AcmeOrderView> avOpt = Optional.empty();
+        if( acmeOrderOptional.isPresent()){
+            AcmeOrder acmeOrder = acmeOrderOptional.get();
+            AcmeOrderView acmeOrderView = acmeOrderUtil.from(acmeOrder);
+            avOpt = Optional.of(acmeOrderView);
+        }else{
+            log.info("acme order not found, order id '{}' unknown!", orderId);
+        }
+        return ResponseUtil.wrapOrNotFound(avOpt);
+    }
+
+    /**
      * {@code GET  /acmeOrderViews/:id/challenges} : get all challenges for order "id" .
      *
      * @param id the id of the ACME order to retrieve.

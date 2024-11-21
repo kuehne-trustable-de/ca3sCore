@@ -35,9 +35,18 @@ public interface AcmeOrderService {
     Optional<AcmeOrder> findOne(Long id);
 
     /**
+     * Get the "orderId" acmeOrder.
+     *
+     * @param orderId the id of the order.
+     * @return the entity.
+     */
+    Optional<AcmeOrder> findOneByAcmeOrderId(Long orderId);
+
+    /**
      * Delete the "id" acmeOrder.
      *
      * @param id the id of the entity.
      */
     void delete(Long id);
+
 }

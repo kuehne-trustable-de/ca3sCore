@@ -18,6 +18,7 @@ public class AcmeConfigItems implements Serializable {
     private boolean checkCAA;
 
     private String contactEMailRegEx;
+    private String contactEMailRejectRegEx;
 
 
     private String caNameCAA;
@@ -109,5 +110,13 @@ public class AcmeConfigItems implements Serializable {
 
     public void setContactEMailRegEx(String contactEMailRegEx) {
         this.contactEMailRegEx = contactEMailRegEx;
+    }
+
+    public String getContactEMailRejectRegEx() {
+        return contactEMailRejectRegEx;
+    }
+
+    public void setContactEMailRejectRegEx(String contactEMailRejectRegEx) {
+        this.contactEMailRejectRegEx = contactEMailRejectRegEx;
     }
 }

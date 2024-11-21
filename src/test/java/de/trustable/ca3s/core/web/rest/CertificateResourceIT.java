@@ -62,8 +62,8 @@ public class CertificateResourceIT {
     private static final String DEFAULT_FINGERPRINT = "AAAAAAAAAA";
     private static final String UPDATED_FINGERPRINT = "BBBBBBBBBB";
 
-    private static final String DEFAULT_SERIAL = "AAAAAAAAAA";
-    private static final String UPDATED_SERIAL = "BBBBBBBBBB";
+    private static final String DEFAULT_SERIAL = "111111111111";
+    private static final String UPDATED_SERIAL = "2222222222222";
 
     private static final Instant DEFAULT_VALID_FROM = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_VALID_FROM = Instant.now().truncatedTo(ChronoUnit.MILLIS);

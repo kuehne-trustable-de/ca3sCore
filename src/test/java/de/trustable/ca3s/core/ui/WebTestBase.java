@@ -8,9 +8,19 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.SocketUtils;
+import org.springframework.core.io.ClassPathResource;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import javax.security.auth.x500.X500Principal;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -21,7 +31,9 @@ import static org.junit.Assert.fail;
 
 public class WebTestBase extends LocomotiveBase {
 
-	public static final String SESSION_COOKIE_NAME = "JSESSIONID";
+    private static final Logger LOG = LoggerFactory.getLogger(WebTestBase.class);
+
+    public static final String SESSION_COOKIE_NAME = "JSESSIONID";
 	public static final String SESSION_COOKIE_DEFAULT_VALUE = "DummyCookieValue";
 
     public static final By LOC_TXT_WEBPACK_ERROR = By.xpath("//div//h1 [text() = 'An error has occured :-(']");
@@ -34,12 +46,15 @@ public class WebTestBase extends LocomotiveBase {
     public static final By LOC_LNK_SIGNIN_PASSWORD = By.xpath("//form//input [@name = 'password']");
     public static final By LOC_BTN_SIGNIN_SUBMIT = By.xpath("//form//button [@type='submit'][text() = 'Sign in']");
 
-    private static final Logger LOG = LoggerFactory.getLogger(WebTestBase.class);
-
     public static int testPortHttp;
     public static int testPortHttps;
 
     public boolean playSound = false;
+    public String locale = "en";
+
+
+    Document tutorialDocument;
+    XPath xPath;
 
 /*-
     static{
@@ -72,6 +87,85 @@ public class WebTestBase extends LocomotiveBase {
         System.setProperty(Ca3SApp.SERVER_ACME_PREFIX + "port", "" + testPortHttps);
         System.setProperty(Ca3SApp.SERVER_SCEP_PREFIX + "port", "" + testPortHttp);
 
+
+        ClassPathResource explainationsResource =  new ClassPathResource("tutorial/explanations.xml");
+
+        DocumentBuilderFactory builderFactory = newSecureDocumentBuilderFactory();
+        DocumentBuilder builder = null;
+        try {
+            builder = builderFactory.newDocumentBuilder();
+            tutorialDocument = builder.parse(explainationsResource.getInputStream());
+            xPath = XPathFactory.newInstance().newXPath();
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private DocumentBuilderFactory newSecureDocumentBuilderFactory() {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+        String[] featuresToDisable = {
+            // Xerces 1 - http://xerces.apache.org/xerces-j/features.html#external-general-entities
+            // Xerces 2 - http://xerces.apache.org/xerces2-j/features.html#external-general-entities
+            // JDK7+ - http://xml.org/sax/features/external-general-entities
+            //This feature has to be used together with the following one, otherwise it will not protect you from XXE for sure
+            "http://xml.org/sax/features/external-general-entities",
+
+            // Xerces 1 - http://xerces.apache.org/xerces-j/features.html#external-parameter-entities
+            // Xerces 2 - http://xerces.apache.org/xerces2-j/features.html#external-parameter-entities
+            // JDK7+ - http://xml.org/sax/features/external-parameter-entities
+            //This feature has to be used together with the previous one, otherwise it will not protect you from XXE for sure
+            "http://xml.org/sax/features/external-parameter-entities",
+
+            // Disable external DTDs as well
+            "http://apache.org/xml/features/nonvalidating/load-external-dtd"
+        };
+
+        for (String feature : featuresToDisable) {
+            try {
+                dbf.setFeature(feature, false);
+            } catch (ParserConfigurationException e) {
+                // This should catch a failed setFeature feature
+                LOG.info("ParserConfigurationException was thrown. The feature '" + feature
+                    + "' is probably not supported by your XML processor.");
+            }
+        }
+
+        try {
+            // Add these as per Timothy Morgan's 2014 paper: "XML Schema, DTD, and Entity Attacks"
+            dbf.setXIncludeAware(false);
+            dbf.setExpandEntityReferences(false);
+
+            // As stated in the documentation, "Feature for Secure Processing (FSP)" is the central mechanism that will
+            // help you safeguard XML processing. It instructs XML processors, such as parsers, validators,
+            // and transformers, to try and process XML securely, and the FSP can be used as an alternative to
+            // dbf.setExpandEntityReferences(false); to allow some safe level of Entity Expansion
+            // Exists from JDK6.
+            dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+            // And, per Timothy Morgan: "If for some reason support for inline DOCTYPEs are a requirement, then
+            // ensure the entity settings are disabled (as shown above) and beware that SSRF attacks
+            // (http://cwe.mitre.org/data/definitions/918.html) and denial
+            // of service attacks (such as billion laughs or decompression bombs via "jar:") are a risk."
+
+            // remaining parser logic
+
+        } catch (ParserConfigurationException e) {
+            // This should catch a failed setFeature feature
+            LOG.info("ParserConfigurationException was thrown. The feature 'XMLConstants.FEATURE_SECURE_PROCESSING'"
+                + " is probably not supported by your XML processor.");
+/*
+        } catch (SAXException e) {
+            // On Apache, this should be thrown when disallowing DOCTYPE
+            LOG.warn("A DOCTYPE was passed into the XML document");
+
+        } catch (IOException e) {
+            // XXE that points to a file that doesn't exist
+            LOG.error("IOException occurred, XXE may still possible: " + e.getMessage());
+*/
+        }
+
+        return dbf;
     }
 
     public static void waitForUrl() {
@@ -94,7 +188,7 @@ public class WebTestBase extends LocomotiveBase {
 
 					int code = httpConnection.getResponseCode();
 					System.out.println("http response code: " + code);
-					if (code >= 200 && code < 299) {
+					if (code >= 200 && code < 300) {
 						break;
 					}
 
@@ -128,13 +222,49 @@ public class WebTestBase extends LocomotiveBase {
             return;
         }
 
+        String message = getMessage(s);
+
         SoundOutput soundOutput = null;
         try {
-            soundOutput = new SoundOutput(s);
+            soundOutput = new SoundOutput(message);
             soundOutput.play();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private String getMessage(String s) {
+
+        String message = s;
+
+        String expression = getExplanationPath(s, locale);
+
+        try {
+
+            LOG.warn("Selecting in explanation document by path '{}'", expression);
+            String text = (String) xPath.compile(expression).evaluate(tutorialDocument, XPathConstants.STRING);
+            if (text == null || text.isEmpty()) {
+                LOG.warn("No message in explanation document for path '{}'", expression);
+                if (!"en".equalsIgnoreCase(locale)) {
+                    text = (String) xPath.compile(getExplanationPath(s,"en")).evaluate(tutorialDocument, XPathConstants.STRING);
+                }
+            }
+            if (text == null || text.isEmpty()) {
+                LOG.warn("No message in bundle for '{}'", s);
+            }else{
+                message = text;
+            }
+        } catch (XPathExpressionException e) {
+            LOG.warn("problem processing xpath expression '{}' : {}", expression, e.getMessage());
+        }
+
+        LOG.warn("key '{}' retrieves message '{}'", s, message);
+        return message;
+    }
+
+    String getExplanationPath(String s, String locale){
+//        return "/explanation/*[local-name()='" + s.replaceAll("'", "\\'") + "']/"+locale+"/text()[1]";
+        return "/explanation/*[local-name()=\"" + s + "\"]/"+locale+"/text()[1]";
     }
 
     protected void scrollToElement(final By loc) {

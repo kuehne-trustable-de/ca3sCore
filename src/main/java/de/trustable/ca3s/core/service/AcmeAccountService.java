@@ -35,6 +35,14 @@ public interface AcmeAccountService {
     Optional<AcmeAccount> findOne(Long id);
 
     /**
+     * Get the "accountId" aCMEAccount.
+     *
+     * @param accountId the accountId of the account.
+     * @return the entity.
+     */
+    Optional<AcmeAccount> findOneByAccountId(Long accountId);
+
+    /**
      * Delete the "id" aCMEAccount.
      *
      * @param id the id of the entity.

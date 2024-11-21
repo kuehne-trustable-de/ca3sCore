@@ -21,6 +21,8 @@ import javax.mail.Multipart;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+
+import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -58,6 +60,9 @@ class MailServiceIT {
     @Autowired
     private SpringTemplateEngine templateEngine;
 
+    @Autowired
+    private ProtectedContentUtil protectedContentUtil;
+
     @Spy
     private JavaMailSenderImpl javaMailSender;
 
@@ -74,6 +79,7 @@ class MailServiceIT {
             javaMailSender,
             messageSource,
             templateEngine,
+            protectedContentUtil,
             false);
     }
 
@@ -159,7 +165,7 @@ class MailServiceIT {
         user.setLangKey(Constants.DEFAULT_LANGUAGE);
         user.setLogin("john");
         user.setEmail("john.doe@example.com");
-        mailService.sendActivationEmail(user);
+        mailService.sendActivationEmail(user, "activationKey");
         verify(javaMailSender).send(messageCaptor.capture());
         MimeMessage message = messageCaptor.getValue();
         assertThat(message.getAllRecipients()[0]).hasToString(user.getEmail());

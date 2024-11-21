@@ -11,6 +11,7 @@ import de.trustable.util.JCAManager;
 import de.trustable.util.Pkcs10RequestHolder;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 class PipelineUtilTest {
@@ -67,6 +67,8 @@ class PipelineUtilTest {
 
     @Mock
     CertificateUtil certUtil= mock(CertificateUtil.class);
+    @Mock
+    AlgorithmRestrictionUtil algorithmRestrictionUtil= mock(AlgorithmRestrictionUtil.class);
 
     @Mock
     ConfigUtil configUtil= mock(ConfigUtil.class);
@@ -99,7 +101,8 @@ class PipelineUtilTest {
         Preferences prefs = new Preferences();
         when(preferenceUtil.getPrefs(anyLong())).thenReturn(prefs);
 
-        pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+        when(algorithmRestrictionUtil.isAlgorithmRestrictionsResolved((Pkcs10RequestHolder) any(), anyList())).thenReturn(true);
+        pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
     }
 
 	@Test
@@ -133,15 +136,14 @@ class PipelineUtilTest {
 			pv_CN_Only.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
 
 
-			messageList.clear();
 			boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_Only, p10ReqHolder, messageList);
 
 			for(String msg:messageList) {
 				System.out.println(msg);
 			}
 
-			assertFalse("Expect to fail ", bResult);
-			assertEquals("Expecting given number of messages", 3, messageList.size());
+			Assertions.assertFalse(bResult, "Expect to fail ");
+			Assertions.assertEquals(3, messageList.size(), "Expecting given number of messages");
 	    }
 
 		{
@@ -162,8 +164,8 @@ class PipelineUtilTest {
 			messageList.clear();
 			boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_O_OU_C_Only, p10ReqHolder, messageList);
 
-			assertTrue("Expect to pass ", bResult);
-			assertEquals("Expecting given number of messages", 0, messageList.size());
+			Assertions.assertTrue(bResult, "Expect to pass ");
+			Assertions.assertEquals(0, messageList.size(), "Expecting given number of messages");
 
 		}
 
@@ -185,8 +187,8 @@ class PipelineUtilTest {
 			messageList.clear();
 			boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_O_OU_Cn_Only, p10ReqHolder, messageList);
 
-			assertTrue("Expect to pass ", bResult);
-			assertEquals("Expecting given number of messages", 0, messageList.size());
+			Assertions.assertTrue(bResult, "Expect to pass ");
+			Assertions.assertEquals(0, messageList.size(), "Expecting given number of messages");
 
 		}
 		{
@@ -207,8 +209,8 @@ class PipelineUtilTest {
 			messageList.clear();
 			boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_O_OU_C01_Only, p10ReqHolder, messageList);
 
-			assertTrue("Expect to pass ", bResult);
-			assertEquals("Expecting given number of messages", 0, messageList.size());
+			Assertions.assertTrue(bResult, "Expect to pass ");
+			Assertions.assertEquals(0, messageList.size(), "Expecting given number of messages");
 
 		}
 
@@ -230,8 +232,8 @@ class PipelineUtilTest {
 			messageList.clear();
 			boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_O_OU_C0n_Only, p10ReqHolder, messageList);
 
-			assertTrue("Expect to pass ", bResult);
-			assertEquals("Expecting given number of messages", 0, messageList.size());
+			Assertions.assertTrue(bResult, "Expect to pass ");
+			Assertions.assertEquals(0, messageList.size(), "Expecting given number of messages");
 
 		}
 
@@ -240,10 +242,9 @@ class PipelineUtilTest {
 	@Test
 	void testCheckPipelineRestrictionsCardinality() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
 
 		List<String> messageList = new ArrayList<>();
-//		Pkcs10RequestHolder p10ReqHolder;
 
 		X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
 
@@ -271,11 +272,10 @@ class PipelineUtilTest {
 			pv_CN_Only.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
 
 
-			messageList.clear();
 			boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_Only, p10ReqHolder, messageList);
 
-			assertFalse("Expect to fail ", bResult);
-			assertEquals("Expecting given number of messages", 1, messageList.size());
+			Assertions.assertFalse(bResult, "Expect to fail ");
+			Assertions.assertEquals(1, messageList.size(), "Expecting given number of messages");
 	    }
 
 		{
@@ -296,8 +296,8 @@ class PipelineUtilTest {
 			messageList.clear();
 			boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_O_OU1_C_Only, p10ReqHolder, messageList);
 
-			assertFalse("Expect to fail ", bResult);
-			assertEquals("Expecting given number of messages", 1, messageList.size());
+			Assertions.assertFalse(bResult, "Expect to fail ");
+			Assertions.assertEquals(1, messageList.size(), "Expecting given number of messages");
 
 		}
 
@@ -323,8 +323,8 @@ class PipelineUtilTest {
 				System.out.println(msg);
 			}
 
-			assertFalse("Expect to fail ", bResult);
-			assertEquals("Expecting given number of messages", 2, messageList.size());
+			Assertions.assertFalse(bResult, "Expect to fail ");
+			Assertions.assertEquals(2, messageList.size(), "Expecting given number of messages");
 
 		}
 
@@ -346,8 +346,8 @@ class PipelineUtilTest {
 			messageList.clear();
 			boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_O_OU01_C_Only, p10ReqHolder, messageList);
 
-			assertFalse("Expect to fail ", bResult);
-			assertEquals("Expecting given number of messages", 1, messageList.size());
+			Assertions.assertFalse(bResult, "Expect to fail ");
+			Assertions.assertEquals(1, messageList.size(), "Expecting given number of messages");
 
 		}
 
@@ -369,8 +369,8 @@ class PipelineUtilTest {
 			messageList.clear();
 			boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_O_OU0n_C_Only, p10ReqHolder, messageList);
 
-			assertTrue("Expect to pass ", bResult);
-			assertEquals("Expecting given number of messages", 0, messageList.size());
+			Assertions.assertTrue(bResult, "Expect to pass ");
+			Assertions.assertEquals(0, messageList.size(), "Expecting given number of messages");
 
 		}
 
@@ -393,8 +393,8 @@ class PipelineUtilTest {
             messageList.clear();
             boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_O_OU1n_C_Only, p10ReqHolder, messageList);
 
-            assertTrue("Expect to pass ", bResult);
-            assertEquals("Expecting given number of messages", 0, messageList.size());
+            Assertions.assertTrue(bResult, "Expect to pass ");
+            Assertions.assertEquals(0, messageList.size(), "Expecting given number of messages");
 
         }
         {
@@ -415,8 +415,8 @@ class PipelineUtilTest {
             messageList.clear();
             boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_Only, p10ReqHolder, messageList);
 
-            assertTrue("Expect to pass ", bResult);
-            assertEquals("Expecting given number of messages", 0, messageList.size());
+            Assertions.assertTrue(bResult, "Expect to pass ");
+            Assertions.assertEquals(0, messageList.size(), "Expecting given number of messages");
 
         }
 
@@ -425,7 +425,7 @@ class PipelineUtilTest {
     @Test
     void testCheckPipelineRestrictionsOneCnOrSAN() throws GeneralSecurityException, IOException {
 
-        PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+        PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
 
         List<String> messageList = new ArrayList<>();
 
@@ -455,14 +455,12 @@ class PipelineUtilTest {
                 null,
                 sanArray);
 
-            messageList.clear();
-
             Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(p10Req);
 
             boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_Only, p10ReqHolder, messageList);
 
-            assertTrue("Expect to pass ", bResult);
-            assertEquals("Expecting given number of messages", 0, messageList.size());
+            Assertions.assertTrue(bResult, "Expect to pass ");
+            Assertions.assertEquals(0, messageList.size(), "Expecting given number of messages");
         }
         {
             X500Principal subject = new X500Principal("OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
@@ -482,8 +480,8 @@ class PipelineUtilTest {
 
             boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_Only, p10ReqHolder, messageList);
 
-            assertTrue("Expect to pass ", bResult);
-            assertEquals("Expecting given number of messages", 0, messageList.size());
+            Assertions.assertTrue(bResult, "Expect to pass ");
+            Assertions.assertEquals(0, messageList.size(), "Expecting given number of messages");
         }
         {
             X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
@@ -499,8 +497,8 @@ class PipelineUtilTest {
 
             boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_Only, p10ReqHolder, messageList);
 
-            assertTrue("Expect to pass ", bResult);
-            assertEquals("Expecting given number of messages", 0, messageList.size());
+            Assertions.assertTrue(bResult, "Expect to pass ");
+            Assertions.assertEquals(0, messageList.size(), "Expecting given number of messages");
         }
         {
             X500Principal subject = new X500Principal("CN=trustable.eu,CN=trustable.org, OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
@@ -516,8 +514,8 @@ class PipelineUtilTest {
 
             boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_Only, p10ReqHolder, messageList);
 
-            assertFalse("Expect to fail ", bResult);
-            assertEquals("Expecting given number of messages", 1, messageList.size());
+            Assertions.assertFalse(bResult, "Expect to fail ");
+            Assertions.assertEquals(1, messageList.size(), "Expecting given number of messages");
         }
         {
             X500Principal subject = new X500Principal("OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
@@ -533,15 +531,15 @@ class PipelineUtilTest {
 
             boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_Only, p10ReqHolder, messageList);
 
-            assertFalse("Expect to fail ", bResult);
-            assertEquals("Expecting given number of messages", 1, messageList.size());
+            Assertions.assertFalse(bResult, "Expect to fail ");
+            Assertions.assertEquals(1, messageList.size(), "Expecting given number of messages");
         }
     }
 
     @Test
 	void testCheckPipelineRestrictionsConstantValue() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
 
 		List<String> messageList = new ArrayList<>();
 		X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
@@ -572,12 +570,10 @@ class PipelineUtilTest {
 	    	pv_CN_Only.setRestriction_S(new RDNRestriction());
 			pv_CN_Only.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
 
+            boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_Only, p10ReqHolder, messageList);
 
-			messageList.clear();
-			boolean bResult = pu.isPipelineRestrictionsResolved(pv_CN_Only, p10ReqHolder, messageList);
-
-			assertFalse("Expect to fail ", bResult);
-			assertEquals("Expecting given number of messages", 1, messageList.size());
+			Assertions.assertFalse(bResult, "Expect to fail ");
+			Assertions.assertEquals(1, messageList.size(), "Expecting given number of messages");
 	    }
 
 	    {
@@ -602,8 +598,8 @@ class PipelineUtilTest {
 			messageList.clear();
 			boolean bResult = pu.isPipelineRestrictionsResolved(pv_C_de, p10ReqHolder, messageList);
 
-			assertTrue("Expect to pass ", bResult);
-			assertEquals("Expecting given number of messages", 0, messageList.size());
+			Assertions.assertTrue(bResult, "Expect to pass ");
+			Assertions.assertEquals(0, messageList.size(), "Expecting given number of messages");
 	    }
 
 	    {
@@ -632,8 +628,8 @@ class PipelineUtilTest {
 				System.out.println(msg);
 			}
 
-			assertTrue("Expect to pass ", bResult);
-			assertEquals("Expecting given number of messages", 0, messageList.size());
+			Assertions.assertTrue(bResult, "Expect to pass ");
+			Assertions.assertEquals(0, messageList.size(), "Expecting given number of messages");
 	    }
 
 	    {
@@ -658,8 +654,8 @@ class PipelineUtilTest {
 			messageList.clear();
 			boolean bResult = pu.isPipelineRestrictionsResolved(pv_C_de, p10ReqHolder, messageList);
 
-			assertFalse("Expect to fail ", bResult);
-			assertEquals("Expecting given number of messages", 2, messageList.size());
+			Assertions.assertFalse(bResult, "Expect to fail ");
+			Assertions.assertEquals(2, messageList.size(), "Expecting given number of messages");
 	    }
 
 	}
@@ -667,7 +663,7 @@ class PipelineUtilTest {
 	@Test
 	void testCheckPipelineRestrictionsRegExp() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
 
 		List<String> messageList = new ArrayList<>();
 		X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
@@ -697,17 +693,15 @@ class PipelineUtilTest {
 	    	pv_CRegexBroken.setRestriction_S(new RDNRestriction());
 			pv_CRegexBroken.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.NOT_ALLOWED);
 
-
-			messageList.clear();
-			boolean bResult = pu.isPipelineRestrictionsResolved(pv_CRegexBroken, p10ReqHolder, messageList);
+            boolean bResult = pu.isPipelineRestrictionsResolved(pv_CRegexBroken, p10ReqHolder, messageList);
 
 			for(String msg:messageList) {
 				System.out.println(msg);
 			}
 
 
-			assertFalse("Expect to fail ", bResult);
-			assertEquals("Expecting given number of messages", 1, messageList.size());
+			Assertions.assertFalse(bResult, "Expect to fail ");
+			Assertions.assertEquals(1, messageList.size(), "Expecting given number of messages");
 	    }
 
 	    {
@@ -735,8 +729,8 @@ class PipelineUtilTest {
 				System.out.println(msg);
 			}
 
-			assertTrue("Expect to pass ", bResult);
-			assertEquals("Expecting given number of messages", 0, messageList.size());
+			Assertions.assertTrue(bResult, "Expect to pass ");
+			Assertions.assertEquals(0, messageList.size(), "Expecting given number of messages");
 	    }
 
 	    {
@@ -760,8 +754,8 @@ class PipelineUtilTest {
 			messageList.clear();
 			boolean bResult = pu.isPipelineRestrictionsResolved(pv_CRegexBroken, p10ReqHolder, messageList);
 
-			assertTrue("Expect to pass ", bResult);
-			assertEquals("Expecting given number of messages", 0, messageList.size());
+			Assertions.assertTrue(bResult, "Expect to pass ");
+			Assertions.assertEquals(0, messageList.size(), "Expecting given number of messages");
 	    }
 
 	    {
@@ -789,8 +783,8 @@ class PipelineUtilTest {
 				System.out.println(msg);
 			}
 
-			assertTrue("Expect to pass ", bResult);
-			assertEquals("Expecting given number of messages", 0, messageList.size());
+			Assertions.assertTrue(bResult, "Expect to pass ");
+			Assertions.assertEquals(0, messageList.size(), "Expecting given number of messages");
 	    }
 
         {
@@ -817,8 +811,8 @@ class PipelineUtilTest {
                 System.out.println(msg);
             }
 
-            assertTrue("Expect to pass ", bResult);
-            assertEquals("Expecting given number of messages", 0, messageList.size());
+            Assertions.assertTrue(bResult, "Expect to pass ");
+            Assertions.assertEquals(0, messageList.size(), "Expecting given number of messages");
         }
 
     }
@@ -826,7 +820,7 @@ class PipelineUtilTest {
 	@Test
 	void testCheckPipelineRestrictionsIPHasSubject() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
 
         List<String> messageList = new ArrayList<>();
 		X500Principal subject = new X500Principal("CN=trustable.eu");
@@ -846,11 +840,10 @@ class PipelineUtilTest {
 
 			pv_CIPNotAllowed.setIpAsSubjectAllowed(false);
 
-			messageList.clear();
 			boolean bResult = pu.isPipelineRestrictionsResolved(pv_CIPNotAllowed, p10ReqHolder, messageList);
 
-			assertTrue("Expect to pass ", bResult);
-			assertEquals("Expecting given number of messages", 0, messageList.size());
+			Assertions.assertTrue(bResult, "Expect to pass ");
+			Assertions.assertEquals(0, messageList.size(), "Expecting given number of messages");
 	    }
 
 	    {
@@ -863,8 +856,8 @@ class PipelineUtilTest {
 			messageList.clear();
 			boolean bResult = pu.isPipelineRestrictionsResolved(pv_CIPallowed, p10ReqHolder, messageList);
 
-			assertTrue("Expect to pass ", bResult);
-			assertEquals("Expecting given number of messages", 0, messageList.size());
+			Assertions.assertTrue(bResult, "Expect to pass ");
+			Assertions.assertEquals(0, messageList.size(), "Expecting given number of messages");
 	    }
 
 		subject = new X500Principal("CN=127.0.0.1");
@@ -886,8 +879,8 @@ class PipelineUtilTest {
 			messageList.clear();
 			boolean bResult = pu.isPipelineRestrictionsResolved(pv_CIPNotAllowed, p10ReqHolder, messageList);
 
-			assertFalse("Expect to fail ", bResult);
-			assertEquals("Expecting given number of messages", 2, messageList.size());
+			Assertions.assertFalse(bResult, "Expect to fail ");
+			Assertions.assertEquals(2, messageList.size(), "Expecting given number of messages");
 	    }
 
 	    {
@@ -900,8 +893,8 @@ class PipelineUtilTest {
 			messageList.clear();
 			boolean bResult = pu.isPipelineRestrictionsResolved(pv_CIPallowed, p10ReqHolder, messageList);
 
-			assertTrue("Expect to pass ", bResult);
-			assertEquals("Expecting given number of messages", 0, messageList.size());
+			Assertions.assertTrue(bResult, "Expect to pass ");
+			Assertions.assertEquals(0, messageList.size(), "Expecting given number of messages");
 	    }
 
 	}
@@ -910,7 +903,7 @@ class PipelineUtilTest {
 	@Test
 	void testCheckPipelineRestrictionsIPHasSAN() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, configUtil, auditService, auditTraceRepository, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
 
 		List<String> messageList = new ArrayList<>();
 		X500Principal subject = new X500Principal("CN=trustable.eu");
@@ -940,7 +933,6 @@ class PipelineUtilTest {
 
 			pv_CIPNotAllowed.setIpAsSANAllowed(false);
 
-			messageList.clear();
 			boolean bResult = pu.isPipelineRestrictionsResolved(pv_CIPNotAllowed, p10ReqHolder, messageList);
 
 			for(String msg:messageList) {
@@ -948,8 +940,8 @@ class PipelineUtilTest {
 			}
 
 
-			assertFalse("Expect to fail ", bResult);
-			assertEquals("Expecting given number of messages", 2, messageList.size());
+			Assertions.assertFalse(bResult, "Expect to fail ");
+			Assertions.assertEquals(2, messageList.size(), "Expecting given number of messages");
 	    }
 
 	    {
@@ -962,8 +954,8 @@ class PipelineUtilTest {
 			messageList.clear();
 			boolean bResult = pu.isPipelineRestrictionsResolved(pv_CIPallowed, p10ReqHolder, messageList);
 
-			assertTrue("Expect to pass ", bResult);
-			assertEquals("Expecting given number of messages", 0, messageList.size());
+			Assertions.assertTrue(bResult, "Expect to pass ");
+			Assertions.assertEquals(0, messageList.size(), "Expecting given number of messages");
 	    }
 
 

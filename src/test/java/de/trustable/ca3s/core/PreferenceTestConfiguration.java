@@ -44,10 +44,19 @@ public class PreferenceTestConfiguration {
         initTestUserPreference(PreferenceUtil.SERVER_SIDE_KEY_CREATION_ALLOWED, "true", SYSTEM_PREFERENCE_ID);
 
         initTestUserPreference(PreferenceUtil.SELECTED_HASHES, "sha-1,sha-256,sha-512", SYSTEM_PREFERENCE_ID);
-        initTestUserPreference(PreferenceUtil.SELECTED_SIGNING_ALGOS, "rsa-2048,rsa-3072,rsa-4096", SYSTEM_PREFERENCE_ID);
+        initTestUserPreference(PreferenceUtil.SELECTED_SIGNING_ALGOS, "rsa-2048,rsa-3072,rsa-4096,ec-256", SYSTEM_PREFERENCE_ID);
 
         return prefUtil.getPrefs(SYSTEM_PREFERENCE_ID);
 
+    }
+
+    public Preferences getTestUserPreferenceStrongAlgos(final int primaryPort) {
+        getTestUserPreference(primaryPort);
+
+        initTestUserPreference(PreferenceUtil.SELECTED_HASHES, "sha-256,sha-512", SYSTEM_PREFERENCE_ID);
+        initTestUserPreference(PreferenceUtil.SELECTED_SIGNING_ALGOS, "rsa-3072,rsa-4096", SYSTEM_PREFERENCE_ID);
+
+        return prefUtil.getPrefs(SYSTEM_PREFERENCE_ID);
     }
 
     public int getFreePort(){

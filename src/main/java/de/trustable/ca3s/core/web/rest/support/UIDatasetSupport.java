@@ -209,7 +209,7 @@ public class UIDatasetSupport {
             @Override
             public void accept(Pipeline p) {
                 if( p.getTenants().contains(tenant)) {
-                    LOG.debug("pipeline {} has #{} attributes", p.getName(), p.getPipelineAttributes().size());
+                    LOG.debug("pipeline {} matches tenant '{}'", p.getName(), tenant.getName());
                     pvList.add(pipelineUtil.from(p));
                 }
             }

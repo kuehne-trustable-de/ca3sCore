@@ -7,10 +7,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.SecureRandom;
 import java.sql.Date;
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import de.trustable.ca3s.core.service.util.*;
@@ -255,66 +252,89 @@ public class AcmeController {
 		return pipelineList.get(0);
 
 	}
-	/**
+    /**
      * @param acctDao
      * @param updatedAcct
      * @param pipeline
      */
-	public void contactsFromRequest(AcmeAccount acctDao, AccountRequest updatedAcct, Pipeline pipeline) {
+    public void updateAccountFromRequest(AcmeAccount acctDao, AccountRequest updatedAcct, Pipeline pipeline) {
 
-		Set<AcmeContact> contactSet = acctDao.getContacts();
-		if (contactSet == null) {
-			contactSet = new HashSet<>();
-		}
+        // don't allow to activate the account by a remote call
+        if (AccountStatus.DEACTIVATED.equals(updatedAcct.getStatus())
+            || AccountStatus.REVOKED.equals(updatedAcct.getStatus())) {
+            acctDao.setStatus(updatedAcct.getStatus());
+            return;
+        } else if (updatedAcct.getStatus() == null) {
+            LOG.debug("No status transition of AccountStatus requested by client");
+        } else {
+            LOG.info("Unexpected transition of AccountStatus to '{}' requested", updatedAcct.getStatus());
+        }
 
-		contactSet.clear();
+        if (updatedAcct.getExternalAccountBinding() != null) {
+            LOG.info("Unsupported ExternalAccountBinding info present");
+        }
+
+        updateAccountContactFromRequest(acctDao, updatedAcct, pipeline);
+
+    }
+
+    /**
+     * @param acctDao
+     * @param updatedAcct
+     * @param pipeline
+     */
+    public void updateAccountContactFromRequest(AcmeAccount acctDao, AccountRequest updatedAcct, Pipeline pipeline) {
+
+        Set<AcmeContact> contactSet = acctDao.getContacts();
+        if (contactSet == null) {
+            contactSet = new HashSet<>();
+        }
+
+        contactSet.clear();
 
         String regexContactEMail = pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.ACME_CONTACT_EMAIL_REGEX, ".*").trim();
         Pattern pattern = Pattern.compile(regexContactEMail);
+        String regexContactEMailReject = pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.ACME_CONTACT_EMAIL_REGEX_REJECT, "^$").trim();
+        Pattern patternReject = Pattern.compile(regexContactEMailReject);
 
         if (updatedAcct.getContacts().isEmpty()) {
-            checkEmailRegEx(pipeline.getUrlPart(), regexContactEMail, pattern, "");
-		} else {
-			for (String contactUrl : updatedAcct.getContacts()) {
+            checkEmailRegEx(pipeline.getUrlPart(), regexContactEMail, pattern, "", false);
+            checkEmailRegEx(pipeline.getUrlPart(), regexContactEMail, patternReject, "", true);
+        } else {
+            for (String contactUrl : updatedAcct.getContacts()) {
 
-                checkEmailRegEx(pipeline.getUrlPart(), regexContactEMail, pattern, contactUrl);
+                checkEmailRegEx(pipeline.getUrlPart(), regexContactEMail, pattern, contactUrl, false);
+                checkEmailRegEx(pipeline.getUrlPart(), regexContactEMail, patternReject, contactUrl, true);
 
                 if( acctDao.getContacts().stream().anyMatch(c -> c.getContactUrl().trim().equals(contactUrl.trim()))){
                     LOG.info("contact utl '{}' already known fo account {}", contactUrl, acctDao.getId());
                     continue;
                 }
 
-				AcmeContact contactDao = new AcmeContact();
-				contactDao.setContactId(generateId());
-				contactDao.setAccount(acctDao);
-				contactDao.setContactUrl(contactUrl);
-				contactSet.add(contactDao);
-				LOG.info("contact info {} stored for account {}", contactDao.getContactUrl(),
-						contactDao.getAccount().getAccountId());
-			}
-			contactRepo.saveAll(contactSet);
-		}
-		acctDao.setContacts(contactSet);
+                AcmeContact contactDao = new AcmeContact();
+                contactDao.setContactId(generateId());
+                contactDao.setAccount(acctDao);
+                contactDao.setContactUrl(contactUrl);
+                contactSet.add(contactDao);
+                LOG.info("contact info {} stored for account {}", contactDao.getContactUrl(),
+                    contactDao.getAccount().getAccountId());
+            }
+            contactRepo.saveAll(contactSet);
+        }
+        acctDao.setContacts(contactSet);
 
-		if (updatedAcct.getExternalAccountBinding() != null) {
-			LOG.info("Unsupported ExternalAccountBinding info present");
-		}
+    }
 
-		// don't allow to activate the account by a remote call
-		if (AccountStatus.DEACTIVATED.equals(updatedAcct.getStatus())
-				|| AccountStatus.REVOKED.equals(updatedAcct.getStatus())) {
-			acctDao.setStatus(updatedAcct.getStatus());
-		} else if (updatedAcct.getStatus() == null) {
-			LOG.debug("No status transition of AccountStatus requested externally");
-		} else {
-			LOG.info("Unexpected transition of AccountStatus to '{}' requested", updatedAcct.getStatus());
-		}
+    private static void checkEmailRegEx(String realm,
+                                        String regexContactEMail,
+                                        Pattern pattern,
+                                        String contactUrl,
+                                        boolean reject) {
+        if( reject == pattern.matcher(contactUrl).matches()) {
 
-	}
-
-    private static void checkEmailRegEx(String realm, String regexContactEMail, Pattern pattern, String contactUrl) {
-        if( !pattern.matcher(contactUrl).matches()) {
-            LOG.warn("non-conformant account request for realm '{}', contact email address MUST match '{}'", realm, regexContactEMail);
+            LOG.warn("non-conformant account request for realm '{}', contact email address '{}' MUST " +
+                (reject? "NOT ": "") +
+                "match '{}'", realm, contactUrl, regexContactEMail);
 
             final ProblemDetail problem = new ProblemDetail(AcmeUtil.INVALID_CONTACT, "Contact email address does not match requirements",
                 BAD_REQUEST, "", AcmeController.NO_INSTANCE);
@@ -353,13 +373,13 @@ public class AcmeController {
 				throw new AccountDoesNotExistException(accountId);
 			}
 
-			List<AcmeAccount> accListExisting = acctRepository.findByAccountId(accountId.longValue());
-			if (accListExisting.isEmpty()) {
+			Optional<AcmeAccount> optionalAcmeAccount = acctRepository.findByAccountId(accountId.longValue());
+			if (optionalAcmeAccount.isEmpty()) {
 				LOG.error("Missing required key ID");
 				throw new AccountDoesNotExistException(accountId);
 			}
 
-			AcmeAccount acctDao = accListExisting.get(0);
+			AcmeAccount acctDao = optionalAcmeAccount.get();
 			LOG.debug("request signature identifies account id {} ", acctDao.getAccountId());
 
 			if ((realm != null) && !realm.equals(acctDao.getRealm())) {

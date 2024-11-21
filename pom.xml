@@ -119,12 +119,12 @@
         <jaxb-runtime.version>2.3.9</jaxb-runtime.version>
 
         <spring.version>5.3.37</spring.version>
-        <spring.security.version>5.7.12</spring.security.version>
+        <spring.security.version>5.7.13</spring.security.version>
 
         <saml2-core.spring.version>1.0.10.RELEASE</saml2-core.spring.version>
         <open-saml.version>4.3.0</open-saml.version>
 
-        <undertow.core.version>2.3.15.Final</undertow.core.version>
+        <undertow.core.version>2.3.17.Final</undertow.core.version>
         <bucket4j.version>8.10.1</bucket4j.version>
 
         <h2.version>2.3.232</h2.version>
@@ -174,11 +174,12 @@
         <!-- jhipster-needle-maven-property -->
 
         <ds-proxy-spring-boot-starter.version>1.9.2</ds-proxy-spring-boot-starter.version>
-        <keycloak.version>24.0.3</keycloak.version>
+        <keycloak.version>25.0.4</keycloak.version>
+        <keycloak.adapter.version>25.0.3</keycloak.adapter.version>
 
         <bouncyCastleVersion>1.78.1</bouncyCastleVersion>
 
-        <cryptoUtilVersion>1.3.27</cryptoUtilVersion>
+        <cryptoUtilVersion>1.3.28</cryptoUtilVersion>
         <certBundleVersion>1.1.1</certBundleVersion>
         <cmpClientVersion>3.2.0</cmpClientVersion>
         <adcsUtilVersion>1.2.9</adcsUtilVersion>
@@ -329,7 +330,7 @@
             <dependency>
                 <groupId>com.mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
-                <version>8.0.33</version>
+                <version>8.2.0</version>
             </dependency>
             <dependency>
                 <groupId>org.mybatis</groupId>
@@ -826,7 +827,7 @@
         <dependency>
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-adapter-core</artifactId>
-            <version>${keycloak.version}</version>
+            <version>${keycloak.adapter.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.bouncycastle</groupId>

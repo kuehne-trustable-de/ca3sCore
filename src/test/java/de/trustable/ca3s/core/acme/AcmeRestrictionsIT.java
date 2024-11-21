@@ -42,8 +42,9 @@ import static org.junit.Assert.*;
 public class AcmeRestrictionsIT {
 
     private static final Logger LOG = LoggerFactory.getLogger(AcmeRestrictionsIT.class);
+    public static final String MAILTO_VALID_CA_3_S_ORG = "mailto:valid@ca3s.org";
 
-	@LocalServerPort
+    @LocalServerPort
 	int serverPort; // random port chosen by spring test
 
 	final String ACME_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME1CNNOIP_REALM + "/directory";
@@ -69,7 +70,51 @@ public class AcmeRestrictionsIT {
 	}
 
 
-	@Test
+    @Test
+    public void testAccountHandlingRejectedEMail() throws AcmeException {
+
+        String[] rejectedContacts = {"mailto:root@localhost", "mailto:root@ca3s.org", "mailto:mail@ca3s.org", "mailto:service@ca3s.org"};
+
+        Session session = new Session(dirUrl);
+        Metadata meta = session.getMetadata();
+
+        URI tos = meta.getTermsOfService();
+        URL website = meta.getWebsite();
+        LOG.debug("TermsOfService {}, website {}", tos, website);
+
+        for( String contact: rejectedContacts) {
+            try {
+                LOG.debug("contact to be rejected {}", contact);
+                KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
+
+                new AccountBuilder()
+                    .addContact(contact)
+                    .agreeToTermsOfService()
+                    .useKeyPair(accountKeyPair)
+                    .create(session);
+                fail("account with rejected email address MUST NOT be created");
+            } catch (AcmeServerException acmeServerException) {
+
+            }
+        }
+        for( String contact: rejectedContacts) {
+            try {
+                KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
+
+                new AccountBuilder()
+                    .addContact(MAILTO_VALID_CA_3_S_ORG)
+                    .addContact(contact)
+                    .agreeToTermsOfService()
+                    .useKeyPair(accountKeyPair)
+                    .create(session);
+                fail("account with a valid and a rejected email address MUST NOT be created");
+            } catch (AcmeServerException acmeServerException) {
+
+            }
+        }
+    }
+
+    @Test
 	public void testAccountHandling() throws AcmeException, IOException, InterruptedException {
 
 		Session session = new Session(dirUrl);
@@ -155,12 +200,11 @@ public class AcmeRestrictionsIT {
                 ase.printStackTrace();
 				// as expected
 			}
-
 		}
 
 		account.deactivate();
-
 		Assertions.assertEquals(Status.DEACTIVATED, account.getStatus(), "account status 'deactivated' expected");
+
 	}
 
 	void provideAuthEndpoint(final Http01Challenge challenge, Order order) throws IOException, InterruptedException {

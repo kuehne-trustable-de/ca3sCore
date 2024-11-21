@@ -34,16 +34,13 @@ public class CertificateViewRepository {
     final private EntityManager entityManager;
 
     final private CertificateSelectionUtil certificateSelectionAttributeList;
-
     final private CertificateRepository certificateRepository;
-
     final private CRLExpirationNotificationRepository crlExpirationNotificationRepository;
 
     final private UserRepository userRepository;
 
     private final ProtectedContentUtil protectedContentUtil;
     private final AuditTraceRepository auditTraceRepository;
-
     private final CertificateUtil certificateUtil;
     private final String certificateStoreIsolation;
 

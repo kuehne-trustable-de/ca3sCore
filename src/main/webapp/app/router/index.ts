@@ -33,6 +33,7 @@ const ChangePassword = () => import('../account/change-password/change-password.
 const Settings = () => import('../account/settings/settings.vue');
 const TenantComponent = () => import('../admin/tenant/tenant.vue');
 const TenantEditComponent = () => import('../admin/tenant/tenant-update.vue');
+const UserList = () => import('../admin/user-management/user-list.vue');
 const JhiUserManagementComponent = () => import('../admin/user-management/user-management.vue');
 const JhiUserManagementViewComponent = () => import('../admin/user-management/user-management-view.vue');
 const JhiUserManagementEditComponent = () => import('../admin/user-management/user-management-edit.vue');
@@ -454,6 +455,12 @@ export default new Router({
       path: '/admin/user-management',
       name: 'JhiUser',
       component: JhiUserManagementComponent,
+      meta: { authorities: ['ROLE_ADMIN'] }
+    },
+    {
+      path: '/admin/user-list',
+      name: 'UserList',
+      component: UserList,
       meta: { authorities: ['ROLE_ADMIN'] }
     },
     {

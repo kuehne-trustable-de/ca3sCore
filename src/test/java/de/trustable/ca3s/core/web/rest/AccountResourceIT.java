@@ -7,7 +7,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import de.trustable.ca3s.core.IntegrationTest;
 import de.trustable.ca3s.core.config.Constants;
+import de.trustable.ca3s.core.domain.ProtectedContent;
 import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
+import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.AuthorityRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
@@ -15,9 +18,11 @@ import de.trustable.ca3s.core.service.UserService;
 import de.trustable.ca3s.core.service.dto.AdminUserDTO;
 import de.trustable.ca3s.core.service.dto.PasswordChangeDTO;
 import de.trustable.ca3s.core.service.dto.UserDTO;
+import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import de.trustable.ca3s.core.web.rest.vm.KeyAndPasswordVM;
 import de.trustable.ca3s.core.web.rest.vm.ManagedUserVM;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
@@ -52,6 +57,9 @@ class AccountResourceIT {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private ProtectedContentUtil protectedContentUtil;
 
     @Autowired
     private MockMvc restAccountMockMvc;
@@ -390,10 +398,22 @@ class AccountResourceIT {
 
         userRepository.saveAndFlush(user);
 
+        protectedContentUtil.createDerivedProtectedContent(activationKey,
+            ProtectedContentType.DERIVED_SECRET,
+            ContentRelationType.ACTIVATION_KEY,
+            user.getId(),
+            -1,
+            Instant.now().plus(1, ChronoUnit.DAYS));
+
         restAccountMockMvc.perform(get("/api/activate?key={activationKey}", activationKey)).andExpect(status().isOk());
 
-        user = userRepository.findOneByLogin(user.getLogin()).orElse(null);
-        assertThat(user.isActivated()).isTrue();
+        List<ProtectedContent> protectedContentList = protectedContentUtil.findProtectedContentBySecret(activationKey,
+            ProtectedContentType.DERIVED_SECRET,
+            ContentRelationType.ACTIVATION_KEY);
+
+        assertThat( protectedContentList.size() == 1 );
+        assertThat( protectedContentList.get(0).getId() == user.getId() );
+
     }
 
     @Test

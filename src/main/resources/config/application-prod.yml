@@ -40,6 +40,7 @@ logging:
     de.trustable.ca3s.core.security.provider.Ca3sTrustManager: DEBUG
     de.trustable.ca3s.core.repository.CSRSpecifications: WARN
     de.trustable.ca3s.core.repository.CertificateSpecifications: WARN
+    de.trustable.ca3s.core.repository.UserSpecifications: DEBUG
     de.trustable.ca3s.core.web.rest.support.UIDatasetSupport: DEBUG
     de.trustable.util.CryptoUtil: WARN
     de.trustable.cmp.client.cmpClient.CMPClientImpl: DEBUG
@@ -146,7 +147,7 @@ spring:
     allow-circular-references: true
 
   # The basic settings for outbound email support
-  #additioanl email-related setting are located at 'jhpster.mail'
+  #additioanl email-related setting are located at 'jhipster.mail'
   mail:
     host: localhost
     port: 25
@@ -366,7 +367,7 @@ ca3s:
     #
     # CA certificates are visible in any isolation mode
     certificate-store:
-      isolation: none
+      isolation: tenant
 
     download:
       rows:
@@ -407,6 +408,9 @@ ca3s:
   acme:
     # an apache plugin for ACME support requires a specific header not mention in RFC 8555
     finalizelocationBackwardCompat: true
+
+    alpn:
+      ports: 443
 
     # define some rate limits for ACME access
     ratelimit:

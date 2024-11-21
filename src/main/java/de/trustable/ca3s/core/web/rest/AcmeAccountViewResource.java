@@ -71,4 +71,23 @@ public class AcmeAccountViewResource {
         return ResponseUtil.wrapOrNotFound(avOpt);
     }
 
+    /**
+     * {@code GET  /acmeAccountViews/:id} : get the "id" ACME account.
+     *
+     * @param acmeAccoundId the id of the ACME account to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the ACME account, or with status {@code 404 (Not Found)}.
+     */
+    @GetMapping("/acmeAccountViews/acmeAccoundId/{acmeAccoundId}")
+    public ResponseEntity<AcmeAccountView> getAcmeAccountByAccountId(@PathVariable Long acmeAccoundId) {
+        log.debug("REST request to get AcmeAccountView by acmeAccoundId : {}", acmeAccoundId);
+        Optional<AcmeAccount> acmeAccountOptional = acmeAccountService.findOneByAccountId(acmeAccoundId);
+        Optional<AcmeAccountView> avOpt = Optional.empty();
+        if( acmeAccountOptional.isPresent()){
+            AcmeAccount acmeAccount = acmeAccountOptional.get();
+            AcmeAccountView acmeAccountView = acmeAccountUtil.from(acmeAccount);
+            avOpt = Optional.of(acmeAccountView);
+        }
+        return ResponseUtil.wrapOrNotFound(avOpt);
+    }
+
 }

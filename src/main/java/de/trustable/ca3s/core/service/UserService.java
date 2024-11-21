@@ -2,17 +2,22 @@ package de.trustable.ca3s.core.service;
 
 import de.trustable.ca3s.core.config.Constants;
 import de.trustable.ca3s.core.domain.Authority;
+import de.trustable.ca3s.core.domain.ProtectedContent;
 import de.trustable.ca3s.core.domain.Tenant;
 import de.trustable.ca3s.core.domain.User;
-import de.trustable.ca3s.core.repository.AuthorityRepository;
-import de.trustable.ca3s.core.repository.TenantRepository;
-import de.trustable.ca3s.core.repository.UserRepository;
+import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
+import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
+import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.security.SecurityUtils;
 import de.trustable.ca3s.core.service.dto.UserDTO;
 
 import de.trustable.ca3s.core.service.util.PasswordUtil;
+import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import tech.jhipster.security.RandomUtil;
 
 import org.slf4j.Logger;
@@ -25,6 +30,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -40,42 +47,53 @@ public class UserService {
     private final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
-
+    private final ProtectedContentUtil protectedContentUtil;
     private final AuthorityRepository authorityRepository;
-
     private final TenantRepository tenantRepository;
-
     private final CacheManager cacheManager;
-
     private final PasswordUtil passwordUtil;
+    final private EntityManager entityManager;
+    private final int activationKeyValidity;
 
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
-                       AuthorityRepository authorityRepository,
+                       ProtectedContentUtil protectedContentUtil, AuthorityRepository authorityRepository,
                        TenantRepository tenantRepository, CacheManager cacheManager,
-                       @Value("${ca3s.ui.password.check.regexp:^(?=.*\\d)(?=.*[a-z]).{6,100}$}") String passwordCheckRegExp) {
+                       @Value("${ca3s.ui.password.check.regexp:^(?=.*\\d)(?=.*[a-z]).{6,100}$}") String passwordCheckRegExp,
+                       EntityManager entityManager, @Value("${ca3s.ui.password.activation.keyValidity:7}") int activationKeyValidity) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.protectedContentUtil = protectedContentUtil;
         this.authorityRepository = authorityRepository;
         this.tenantRepository = tenantRepository;
         this.cacheManager = cacheManager;
 
         this.passwordUtil = new PasswordUtil(passwordCheckRegExp);
+        this.entityManager = entityManager;
+        this.activationKeyValidity = activationKeyValidity;
     }
 
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
-        return userRepository.findOneByActivationKey(key)
-            .map(user -> {
-                // activate given user for the registration key.
-                user.setActivated(true);
-                user.setActivationKey(null);
-                this.clearUserCaches(user);
-                log.debug("Activated user: {}", user);
-                return user;
-            });
+
+        List<ProtectedContent> protectedContents = findActivationKeys(key);
+        if( protectedContents.isEmpty()){
+            log.info("No User found for activation key: {}", key);
+        }else{
+
+            for( ProtectedContent protectedContent: protectedContents){
+                Optional<User> optUser = userRepository.findById(protectedContent.getRelatedId());
+                if(optUser.isPresent()) {
+                    User user = optUser.get();
+                    user.setActivated(true);
+                    this.clearUserCaches(user);
+                    log.debug("Activated user: {}", user);
+                    return Optional.of(user);
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     public Optional<User> completePasswordReset(String newPassword, String key) {
@@ -102,7 +120,8 @@ public class UserService {
             });
     }
 
-    public User registerUser(UserDTO userDTO, String password) {
+    public User registerUser(UserDTO userDTO, String password,
+                             final String activationKey) {
         userRepository.findOneByLogin(userDTO.getLogin().toLowerCase()).ifPresent(existingUser -> {
             boolean removed = removeNonActivatedUser(existingUser);
             if (!removed) {
@@ -129,18 +148,32 @@ public class UserService {
         newUser.setLangKey(userDTO.getLangKey());
         // new user is not active
         newUser.setActivated(false);
-        // new user gets registration key
-        newUser.setActivationKey(RandomUtil.generateActivationKey());
+
         Set<Authority> authorities = new HashSet<>();
         authorityRepository.findById(AuthoritiesConstants.USER).ifPresent(authorities::add);
         newUser.setAuthorities(authorities);
 
         updateTenant(newUser, userDTO);
 
-        userRepository.save(newUser);
+        newUser = userRepository.save(newUser);
         this.clearUserCaches(newUser);
         log.debug("Created Information for User: {}", newUser);
+
+        protectedContentUtil.createDerivedProtectedContent(activationKey,
+            ProtectedContentType.DERIVED_SECRET,
+            ContentRelationType.ACTIVATION_KEY,
+            newUser.getId(),
+            -1,
+            Instant.now().plus(activationKeyValidity, ChronoUnit.DAYS));
+
         return newUser;
+    }
+
+    private List<ProtectedContent> findActivationKeys(final String plainText) {
+
+        return protectedContentUtil.findProtectedContentBySecret(plainText,
+            ProtectedContentType.DERIVED_SECRET,
+            ContentRelationType.ACTIVATION_KEY);
     }
 
     private boolean removeNonActivatedUser(User existingUser){
@@ -355,5 +388,31 @@ public class UserService {
 
     public void checkPassword(String password) {
         passwordUtil.checkPassword(password, "user password");
+    }
+
+    public Page<UserDTO> findSelection(Map<String, String[]> parameterMap) {
+
+        Page<UserDTO> userDTOPage = UserSpecifications.handleQueryParamsUser(entityManager,
+            entityManager.getCriteriaBuilder(),
+            parameterMap );
+
+        for( UserDTO userDTO: userDTOPage.getContent()){
+            userRepository.findById(userDTO.getId()).ifPresent(
+                user -> {
+                    userDTO.setAuthorities(user.getAuthorities().stream().map(
+                        authority -> {
+                            return authority.getName();
+                        }
+                    ).collect(Collectors.toSet()));
+                    Tenant tenant = user.getTenant();
+                    if( tenant != null) {
+                        userDTO.setTenantId(tenant.getId());
+                        userDTO.setTenantName(tenant.getLongname());
+                    }
+                }
+            );
+        }
+
+        return userDTOPage;
     }
 }

@@ -23,7 +23,7 @@ public interface AcmeOrderRepository extends JpaRepository<AcmeOrder, Long> {
 
 
     @Query(name = "AcmeOrder.findByOrderId")
-    List<AcmeOrder> findByOrderId(@Param("orderId") long orderId);
+    Optional<AcmeOrder> findByOrderId(@Param("orderId") long orderId);
 
     @Query(name = "AcmeOrder.findByCertificate")
     Optional<AcmeOrder> findByCertificate(@Param("certificate") Certificate certificate);

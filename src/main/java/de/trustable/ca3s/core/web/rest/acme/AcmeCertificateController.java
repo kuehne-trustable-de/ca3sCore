@@ -38,7 +38,6 @@ import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.x509.CRLReason;
-import org.cryptacular.util.CertUtil;
 import org.jose4j.jwt.consumer.JwtContext;
 import org.jose4j.jwx.JsonWebStructure;
 import org.slf4j.Logger;
@@ -179,7 +178,7 @@ public class AcmeCertificateController extends AcmeController {
             JsonWebStructure webStruct = jwtUtil.getJsonWebStructure(context);
 
             RevokeRequest revokeReq = jwtUtil.getRevokeReq(context.getJwtClaims());
-            X509Certificate x509CertPayload = CertUtil.decodeCertificate(Base64.decodeBase64(revokeReq.getCertificate()));
+            X509Certificate x509CertPayload = certificateUtil.getCertifcateFromBase64(revokeReq.getCertificate());
             LOG.info("Revoke request for certificate {} ", x509CertPayload.getSubjectX500Principal().toString());
 
             // retrieve certificate object matching the revocation payload

@@ -1,9 +1,11 @@
 package de.trustable.ca3s.core.service.util;
 
+import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Base64;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -35,7 +37,7 @@ public class ProtectedContentUtil {
 
     public static final Instant MAX_INSTANT = Instant.parse("9990-12-30T23:59:59Z");
 
-	private final ProtectedContentRepository protContentRepository;
+    private final ProtectedContentRepository protContentRepository;
     private final String salt;
     private final int iterations;
     private final String pbeAlgo;
@@ -112,15 +114,36 @@ public class ProtectedContentUtil {
     }
 
     /**
-     *
      * create a new ProtectedContent object and save the given content
      *
-     * @param plainText the plain text to be protected
-     * @param pct the content type of the plainText
-     * @param crt the related entity
+     * @param plainText    the plain text to be protected
+     * @param pct          the content type of the plainText
+     * @param crt          the related entity
      * @param connectionId the related entity
-     * @param leftUsages number of left usages for this element
-     * @param validTo element usable until 'validTo'
+     * @param validTo      element usable until 'validTo'
+     * @return the freshly created object
+     */
+    public ProtectedContent createProtectedContent(final String plainText, ProtectedContentType pct,
+                                                   ContentRelationType crt, long connectionId,
+                                                   Instant validTo) {
+
+        return createProtectedContent(plainText,
+            pct,
+            crt,
+            connectionId,
+            -1,
+            validTo);
+    }
+
+    /**
+     * create a new ProtectedContent object and save the given content
+     *
+     * @param plainText    the plain text to be protected
+     * @param pct          the content type of the plainText
+     * @param crt          the related entity
+     * @param connectionId the related entity
+     * @param leftUsages   number of left usages for this element
+     * @param validTo      element usable until 'validTo'
      * @return the freshly created object
      */
     public ProtectedContent createProtectedContent(final String plainText,
@@ -130,9 +153,40 @@ public class ProtectedContentUtil {
                                                    int leftUsages,
                                                    Instant validTo) {
 
-        ProtectedContent pc = new ProtectedContent();
-        pc.setContentBase64(protectString(plainText));
+        return createPlainProtectedContent(protectString(plainText),
+            pct,
+            crt,
+            connectionId,
+            leftUsages,
+            validTo);
+    }
 
+    public ProtectedContent createDerivedProtectedContent(final String plainText,
+                                                          ProtectedContentType pct,
+                                                          ContentRelationType crt,
+                                                          long connectionId,
+                                                          int leftUsages,
+                                                          Instant validTo) {
+
+        try {
+            return createPlainProtectedContent(Base64.getEncoder().encodeToString(deriveSecret(plainText)),
+                pct, crt, connectionId, leftUsages, validTo);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    private ProtectedContent createPlainProtectedContent(final String contentBase64,
+                                                         ProtectedContentType pct,
+                                                         ContentRelationType crt,
+                                                         long connectionId,
+                                                         int leftUsages,
+                                                         Instant validTo) {
+
+        ProtectedContent pc = new ProtectedContent();
+
+        pc.setContentBase64(contentBase64);
         pc.setType(pct);
         pc.setRelationType(crt);
         pc.setRelatedId(connectionId);
@@ -143,6 +197,21 @@ public class ProtectedContentUtil {
 
         protContentRepository.save(pc);
         return pc;
+    }
+
+    public List<ProtectedContent> findProtectedContentBySecret(final String plainText,
+                                                                  final ProtectedContentType type,
+                                                                  final ContentRelationType crt) {
+
+        String protectedString = null;
+        try {
+            protectedString = Base64.getEncoder().encodeToString( deriveSecret(plainText));
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new RuntimeException(e);
+        }
+        log.debug("searching for protectedString '{}'", protectedString );
+
+        return protContentRepository.findByTypeRelationContentB64(type, crt, protectedString);
     }
 
     /**

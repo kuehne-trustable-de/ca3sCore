@@ -253,11 +253,11 @@ public class CertificateUtil {
         }
     }
 
-    X509Certificate getCertifcateFromBase64(String base64Cert) throws CertificateException {
+    public X509Certificate getCertifcateFromBase64(String base64Cert) throws CertificateException {
         return getCertifcateFromBytes(Base64.decodeBase64(base64Cert));
     }
 
-    X509Certificate getCertifcateFromBytes(byte[] encodedCert) throws CertificateException {
+    public X509Certificate getCertifcateFromBytes(byte[] encodedCert) throws CertificateException {
         CertificateFactory factory = CertificateFactory.getInstance("X.509");
         return (X509Certificate) factory.generateCertificate(new ByteArrayInputStream(encodedCert));
     }

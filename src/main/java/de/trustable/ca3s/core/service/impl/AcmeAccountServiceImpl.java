@@ -65,6 +65,20 @@ public class AcmeAccountServiceImpl implements AcmeAccountService {
         return aCMEAccountRepository.findById(id);
     }
 
+
+    /**
+     * Get one aCMEAccount by id.
+     *
+     * @param accountId the id of the acme account.
+     * @return the entity.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<AcmeAccount> findOneByAccountId(Long accountId){
+        log.debug("Request to get AcmeAccount by accountId : {}", accountId);
+        return aCMEAccountRepository.findByAccountId(accountId);
+    }
+
     /**
      * Delete the aCMEAccount by id.
      *

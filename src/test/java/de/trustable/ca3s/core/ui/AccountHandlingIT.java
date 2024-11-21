@@ -33,7 +33,9 @@ import java.util.regex.Pattern;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = Ca3SApp.class,
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = { "mailservice.mock.enabled=false" })
 @Config(
     browser = Browser.CHROME,
     url     = "http://localhost:${local.server.port}/"
@@ -169,7 +171,6 @@ public class AccountHandlingIT extends WebTestBase{
         validatePresent(LOC_BTN_REGISTER);
         click(LOC_BTN_REGISTER);
 
-        waitForElement(LOC_TEXT_REGISTRATION_SUCCESSFUL);
 
         while( inbox.getMessageCount() == 0) {
             System.out.println( "waiting for message ...");
@@ -180,6 +181,7 @@ public class AccountHandlingIT extends WebTestBase{
                 x.printStackTrace();
             }
         }
+        waitForElement(LOC_TEXT_REGISTRATION_SUCCESSFUL);
 
         Message msgReceived = inbox.getMessage(1);
 
@@ -197,22 +199,24 @@ public class AccountHandlingIT extends WebTestBase{
 
         navigateTo(activateUrl);
 
-
         inbox.close();
         imapStore.close();
-
         validatePresent(LOC_LNK_NEW_ACCOUNT_SIGN_IN);
-        click(LOC_LNK_NEW_ACCOUNT_SIGN_IN);
 
-        signIn(loginName, loginPassword);
-
-
+        /*
         try {
             System.out.println("... waiting ...");
             System.in.read();
         } catch (IOException e) {
             e.printStackTrace();
         }
+*/
+
+        click(LOC_LNK_NEW_ACCOUNT_SIGN_IN);
+
+        signIn(loginName, loginPassword);
+
+
 
     }
 

@@ -1,0 +1,5 @@
+# create a certificate
+lego --server http://LAPTOP-2IGUATF5:9090/acme/acmeTest/directory --domains localhost --accept-tos --email foo@trustable.de --http --key-type rsa4096 run
+
+# revoke the
+lego --server http://LAPTOP-2IGUATF5:9090/acme/acmeTest/directory --domains localhost --email foo@trustable.de revoke

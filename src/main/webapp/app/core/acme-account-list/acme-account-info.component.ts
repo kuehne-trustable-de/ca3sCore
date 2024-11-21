@@ -20,8 +20,8 @@ import ArItem from '../csr-list/ar-item.component';
     Fragment,
     CopyClipboardButton,
     HelpTag,
-    AuditTag
-  }
+    AuditTag,
+  },
 })
 export default class AcmeAccountInfo extends mixins(JhiDataUtils, Vue) {
   @Inject('alertService') private alertService: () => AlertService;
@@ -31,8 +31,11 @@ export default class AcmeAccountInfo extends mixins(JhiDataUtils, Vue) {
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
+      if (to.params.id) {
+        vm.fillAcmeAccountData(to.params.id);
+      }
       if (to.params.accountId) {
-        vm.fillAcmeAccountData(to.params.accountId);
+        vm.fillAcmeAccountDataByAccountId(to.params.accountId);
       }
     });
   }
@@ -45,8 +48,11 @@ export default class AcmeAccountInfo extends mixins(JhiDataUtils, Vue) {
     window.console.info('in mounted()) ');
 
     window.console.info('++++++++++++++++++ route.query : ' + this.$route.query.accountId);
+    if (this.$route.query.id) {
+      this.fillAcmeAccountData(this.$route.query.id);
+    }
     if (this.$route.query.accountId) {
-      this.fillAcmeAccountData(this.$route.query.accountId);
+      this.fillAcmeAccountDataByAccountId(this.$route.query.accountId);
     }
   }
 
@@ -79,15 +85,29 @@ export default class AcmeAccountInfo extends mixins(JhiDataUtils, Vue) {
     return this.$store.getters.account ? this.$store.getters.account.login : '';
   }
 
-  public fillAcmeAccountData(accountId): void {
+  public fillAcmeAccountData(id): void {
     window.console.info('calling fillAcmeAccountData');
     const self = this;
 
     axios({
       method: 'get',
-      url: 'api/acmeAccountViews/' + encodeURIComponent(accountId),
-      responseType: 'stream'
-    }).then(function(response) {
+      url: 'api/acmeAccountViews/' + encodeURIComponent(id),
+      responseType: 'stream',
+    }).then(function (response) {
+      self.acmeAccountView = response.data;
+      window.console.info('acmeAccountView :' + self.acmeAccountView);
+    });
+  }
+
+  public fillAcmeAccountDataByAccountId(accountId): void {
+    window.console.info('calling fillAcmeAccountData');
+    const self = this;
+
+    axios({
+      method: 'get',
+      url: 'api/acmeAccountViews/acmeAccoundId/' + encodeURIComponent(accountId),
+      responseType: 'stream',
+    }).then(function (response) {
       self.acmeAccountView = response.data;
       window.console.info('acmeAccountView :' + self.acmeAccountView);
     });

@@ -133,11 +133,11 @@ entity CsrAttribute{
 }
 
 enum ProtectedContentType {
-    KEY, SECRET, PASSWORD
+    KEY, SECRET, PASSWORD, DERIVED_SECRET
 }
 
 enum ContentRelationType {
-    CERTIFICATE, CONNECTION, CSR
+    CERTIFICATE, CONNECTION, CSR, CA_CONNECTOR_PW, SCEP_PW, ACTIVATION_KEY
 }
 
 @skipClient

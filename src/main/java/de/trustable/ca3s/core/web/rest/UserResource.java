@@ -3,11 +3,13 @@ package de.trustable.ca3s.core.web.rest;
 import de.trustable.ca3s.core.config.Constants;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
+import de.trustable.ca3s.core.repository.CertificateSpecifications;
 import de.trustable.ca3s.core.repository.TenantRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.MailService;
 import de.trustable.ca3s.core.service.UserService;
+import de.trustable.ca3s.core.service.dto.CertificateView;
 import de.trustable.ca3s.core.service.dto.UserDTO;
 import de.trustable.ca3s.core.web.rest.errors.EmailAlreadyUsedException;
 import de.trustable.ca3s.core.web.rest.errors.LoginAlreadyUsedException;
@@ -20,6 +22,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -28,11 +33,14 @@ import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
 
 import javax.mail.MessagingException;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -220,5 +228,27 @@ public class UserResource {
         log.debug("REST request to delete User: {}", login);
         userService.deleteUser(login);
         return ResponseEntity.noContent().headers(HeaderUtil.createAlert(applicationName,  "userManagement.deleted", login)).build();
+    }
+
+
+    /**
+     * {@code GET  /certificates} : get all the certificates.
+     *
+
+     * @param pageable the pagination information.
+
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of certificates in body.
+     */
+    @GetMapping("/userList")
+    @Transactional
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public ResponseEntity<List<UserDTO>> getUsersBySelection(Pageable pageable, HttpServletRequest request) {
+        log.debug("REST request to get a page of users");
+
+        Page<UserDTO> page = userService.findSelection(request.getParameterMap());
+
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+
     }
 }

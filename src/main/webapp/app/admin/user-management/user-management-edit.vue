@@ -1,5 +1,15 @@
 <template>
     <div class="row justify-content-center">
+
+        <b-alert :show="dismissCountDown"
+                 dismissible
+                 :variant="alertType"
+                 @dismissed="dismissCountDown=0"
+                 @dismiss-count-down="countDownChanged">
+            {{alertMessage}}
+        </b-alert>
+        <br/>
+
         <div class="col-8">
             <form name="editForm" role="form" novalidate v-on:submit.prevent="save()" v-if="userAccount">
                 <h2 id="myUserLabel" v-text="$t('userManagement.home.createOrEditLabel')">Create or edit a User</h2>

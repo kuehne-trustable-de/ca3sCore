@@ -109,6 +109,7 @@ public class PipelineUtil {
     public static final String ACME_CHECK_CAA = "ACME_CHECK_CAA";
     public static final String ACME_NAME_CAA = "ACME_NAME_CAA";
     public static final String ACME_CONTACT_EMAIL_REGEX = "ACME_CONTACT_EMAIL_REGEX";
+    public static final String ACME_CONTACT_EMAIL_REGEX_REJECT = "ACME_CONTACT_EMAIL_REGEX_REJECT";
 
     public static final String CSR_USAGE = "CSR_USAGE";
 
@@ -152,6 +153,7 @@ public class PipelineUtil {
     final private PreferenceUtil preferenceUtil;
 
     final private CertificateUtil certUtil;
+    final private AlgorithmRestrictionUtil algorithmRestrictionUtil;
 
     final private ConfigUtil configUtil;
 
@@ -175,6 +177,7 @@ public class PipelineUtil {
                         ProtectedContentUtil protectedContentUtil,
                         PreferenceUtil preferenceUtil,
                         CertificateUtil certUtil,
+                        AlgorithmRestrictionUtil algorithmRestrictionUtil,
                         ConfigUtil configUtil,
                         AuditService auditService,
                         AuditTraceRepository auditTraceRepository,
@@ -192,6 +195,7 @@ public class PipelineUtil {
         this.protectedContentUtil = protectedContentUtil;
         this.preferenceUtil = preferenceUtil;
         this.certUtil = certUtil;
+        this.algorithmRestrictionUtil = algorithmRestrictionUtil;
         this.configUtil = configUtil;
         this.auditService = auditService;
         this.auditTraceRepository = auditTraceRepository;
@@ -263,9 +267,8 @@ public class PipelineUtil {
                 acmeConfigItems.setCaNameCAA(plAtt.getValue());
             } else if (ACME_CONTACT_EMAIL_REGEX.equals(plAtt.getName())) {
                 acmeConfigItems.setContactEMailRegEx(plAtt.getValue());
-
-//            }else if( REQUEST_PROXY_ID.equals(plAtt.getName())) {
-//                acmeConfigItems.setAcmeProxy(Boolean.parseBoolean(plAtt.getValue()));
+            } else if (ACME_CONTACT_EMAIL_REGEX_REJECT.equals(plAtt.getName())) {
+                acmeConfigItems.setContactEMailRejectRegEx(plAtt.getValue());
             } else if (DOMAIN_RA_OFFICER.equals(plAtt.getName())) {
                 domainRaOfficerList.add(plAtt.getValue());
 
@@ -819,7 +822,7 @@ public class PipelineUtil {
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_CHECK_CAA, pv.getAcmeConfigItems().isCheckCAA());
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_NAME_CAA, pv.getAcmeConfigItems().getCaNameCAA());
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_CONTACT_EMAIL_REGEX, pv.getAcmeConfigItems().getContactEMailRegEx());
-
+            addPipelineAttribute(pipelineAttributes, p, auditList, ACME_CONTACT_EMAIL_REGEX_REJECT, pv.getAcmeConfigItems().getContactEMailRejectRegEx());
         }
 
         addPipelineAttribute(pipelineAttributes, p, auditList, CSR_USAGE, pv.getCsrUsage().toString());
@@ -1110,7 +1113,7 @@ public class PipelineUtil {
 
     public boolean isPipelineRestrictionsResolved(PipelineView pv, Pkcs10RequestHolder p10ReqHolder, List<String> messageList) {
 
-        boolean outcome = isAlgorithmRestrictionsResolved(pv, p10ReqHolder, messageList);
+        boolean outcome = algorithmRestrictionUtil.isAlgorithmRestrictionsResolved(p10ReqHolder, messageList);
 
         Set<GeneralName> gNameSet = CSRUtil.getSANList(p10ReqHolder.getReqAttributes());
         LOG.debug("#" + gNameSet.size() + " SANs present");
@@ -1166,73 +1169,6 @@ public class PipelineUtil {
         return outcome;
     }
 
-    public boolean isAlgorithmRestrictionsResolved(PipelineView pv, Pkcs10RequestHolder p10ReqHolder, List<String> messageList) {
-        boolean outcome = true;
-
-        Preferences preferences = preferenceUtil.getPrefs(PreferenceUtil.SYSTEM_PREFERENCE_ID);
-
-        String signingAlgo = p10ReqHolder.getPublicKeyAlgorithmShortName();
-        int keyLength = CertificateUtil.getAlignedKeyLength(p10ReqHolder.getPublicSigningKey());
-
-        if (Arrays.stream(preferences.getSelectedSigningAlgos()).noneMatch(a -> matchesAlgo(a, signingAlgo, keyLength))) {
-            String msg = "restriction mismatch: signature algo / length '" + signingAlgo + "/" + keyLength + "' does not match expected set!";
-            messageList.add(msg);
-            LOG.info(msg);
-            outcome = false;
-        }
-
-        if(CertificateUtil.isHashRequired(signingAlgo)) {
-
-            String hashAlgName = p10ReqHolder.getAlgorithmInfo().getHashAlgName();
-            if (Arrays.stream(preferences.getSelectedHashes())
-                .noneMatch(a -> a.equalsIgnoreCase(hashAlgName))) {
-                String msg = "restriction mismatch: hash algo '" + hashAlgName + "' does not match expected set!";
-                messageList.add(msg);
-                LOG.debug(msg);
-                outcome = false;
-            }
-        }
-
-        return outcome;
-    }
-
-    private boolean matchesAlgo(String a, String signingAlgo, int keyLength) {
-
-        if( a.toLowerCase().startsWith("dilithium") ||
-            a.toLowerCase().startsWith("falcon")) {
-
-            if (a.toLowerCase().startsWith("dilithium2")) {
-                return signingAlgo.equalsIgnoreCase("dilithium2");
-            } else if (a.toLowerCase().startsWith("dilithium3")) {
-                return signingAlgo.equalsIgnoreCase( "dilithium3");
-            } else if (a.toLowerCase().startsWith("dilithium5")) {
-                return signingAlgo.equalsIgnoreCase("dilithium5");
-            } else if (a.toLowerCase().startsWith("falcon-512")) {
-                return signingAlgo.equalsIgnoreCase("falcon-512");
-            } else if (a.toLowerCase().startsWith("falcon-1024")) {
-                return signingAlgo.equalsIgnoreCase("falcon-1024");
-            }
-        }
-
-        String[] parts = a.split("-");
-        if (parts.length != 2) {
-            LOG.warn("unexpected keyLength / type descriptor: '{}'", a);
-            return false;
-        }
-
-        if (!parts[0].equalsIgnoreCase(signingAlgo)) {
-            LOG.debug("type check mismatch: '{}' / '{}'", parts[0], signingAlgo);
-            return false;
-        }
-
-        try {
-            int keyLengthRestriction = Integer.parseInt(parts[1]);
-            return keyLengthRestriction <= keyLength;
-        } catch (NumberFormatException nfe) {
-            LOG.warn("unexpected number in keyLengthdescriptor: '" + a + "'", nfe);
-        }
-        return false;
-    }
 
     private boolean hasIPinSANList(Set<GeneralName> gNameSet, List<String> messageList) {
 
@@ -1247,7 +1183,6 @@ public class PipelineUtil {
         }
         return outcome;
     }
-
 
     private boolean checkRestrictions(RDNRestriction restriction, Set<GeneralName> gNameSet, List<String> messageList) {
 

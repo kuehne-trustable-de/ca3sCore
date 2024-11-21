@@ -28,8 +28,11 @@ export default class AcmeOrderInfo extends mixins(JhiDataUtils, Vue) {
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
+      if (to.params.id) {
+        vm.fillAcmeOrderData(to.params.id);
+      }
       if (to.params.orderId) {
-        vm.fillAcmeOrderData(to.params.orderId);
+        vm.fillAcmeOrderDataByOrderId(to.params.orderId);
       }
     });
   }
@@ -42,8 +45,11 @@ export default class AcmeOrderInfo extends mixins(JhiDataUtils, Vue) {
     window.console.info('in mounted()) ');
 
     window.console.info('++++++++++++++++++ route.query : ' + this.$route.query.orderId);
+    if (this.$route.query.id) {
+      this.fillAcmeOrderData(this.$route.query.id);
+    }
     if (this.$route.query.orderId) {
-      this.fillAcmeOrderData(this.$route.query.orderId);
+      this.fillAcmeOrderDataByOrderId(this.$route.query.orderId);
     }
   }
 
@@ -76,13 +82,27 @@ export default class AcmeOrderInfo extends mixins(JhiDataUtils, Vue) {
     return this.$store.getters.account ? this.$store.getters.account.login : '';
   }
 
-  public fillAcmeOrderData(orderId): void {
+  public fillAcmeOrderData(id): void {
     window.console.info('calling fillAcmeAccountData');
     const self = this;
 
     axios({
       method: 'get',
-      url: 'api/acmeOrderViews/' + encodeURIComponent(orderId),
+      url: 'api/acmeOrderViews/' + encodeURIComponent(id),
+      responseType: 'stream',
+    }).then(function (response) {
+      self.acmeOrderView = response.data;
+      window.console.info('acmeOrderView :' + self.acmeOrderView);
+    });
+  }
+
+  public fillAcmeOrderDataByOrderId(orderId): void {
+    window.console.info('calling fillAcmeAccountData');
+    const self = this;
+
+    axios({
+      method: 'get',
+      url: 'api/acmeOrderViews/acmeOrderId/' + encodeURIComponent(orderId),
       responseType: 'stream',
     }).then(function (response) {
       self.acmeOrderView = response.data;

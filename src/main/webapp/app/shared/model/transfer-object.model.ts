@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-09-26 17:07:10.
+// Generated using typescript-generator version 3.2.1263 on 2024-11-19 17:38:11.
 
 export interface IADCSInstanceDetailsView extends ISerializable {
   caName?: string;
@@ -174,6 +174,7 @@ export interface ICertificateView extends ISerializable {
   id?: number;
   csrId?: number;
   issuerId?: number;
+  rootId?: number;
   tbsDigest?: string;
   subject?: string;
   rdn_c?: string;
@@ -223,8 +224,8 @@ export interface ICertificateView extends ISerializable {
   caConnectorId?: number;
   caProcessingId?: number;
   processingCa?: string;
-  acmeAccountId?: number;
-  acmeOrderId?: number;
+  acmeAccountId?: string;
+  acmeOrderId?: string;
   scepTransId?: string;
   scepRecipient?: string;
   fileSource?: string;
@@ -246,10 +247,10 @@ export interface ICertificateView extends ISerializable {
   serversideKeyLeftUsages?: number;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
-  issuingActiveCertificates?: boolean;
   auditPresent?: boolean;
-  fullChainAvailable?: boolean;
+  issuingActiveCertificates?: boolean;
   serversideKeyGeneration?: boolean;
+  fullChainAvailable?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
@@ -322,8 +323,8 @@ export interface ICSRView extends ISerializable {
   csrBase64?: string;
   auditViewArr?: IAuditView[];
   isAdministrable?: boolean;
-  administrable?: boolean;
   csrvalid?: boolean;
+  administrable?: boolean;
 }
 
 export interface IPreferences extends ISerializable {
@@ -522,6 +523,7 @@ export interface IAcmeConfigItems extends ISerializable {
   allowWildcards?: boolean;
   checkCAA?: boolean;
   contactEMailRegEx?: string;
+  contactEMailRejectRegEx?: string;
   caNameCAA?: string;
   processInfoNameAccountValidation?: string;
   processInfoNameOrderValidation?: string;
@@ -619,6 +621,7 @@ export interface ICertificate extends ISerializable {
   issuingCertificate?: ICertificate;
   rootCertificate?: ICertificate;
   revocationCA?: ICAConnectorConfig;
+  serialAsHex?: string;
 }
 
 export interface IPipeline extends ISerializable {

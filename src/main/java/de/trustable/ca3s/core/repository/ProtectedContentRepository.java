@@ -32,6 +32,10 @@ public interface ProtectedContentRepository extends JpaRepository<ProtectedConte
 
     @Query(name = "ProtectedContent.findByTypeRelationId")
     List<ProtectedContent> findByTypeRelationId(@Param("type") ProtectedContentType type, @Param("relationType") ContentRelationType relationType, @Param("id") Long id);
+    @Query(name = "ProtectedContent.findByTypeRelationContentB64")
+    List<ProtectedContent> findByTypeRelationContentB64(@Param("type") ProtectedContentType type,
+                                                @Param("relationType") ContentRelationType relationType,
+                                                @Param("contentB64") String contentB64);
 
     @Query(name = "ProtectedContent.findByValidToPassed")
     Page<ProtectedContent> findByValidToPassed(Pageable pageable, @Param("validTo") Instant validTo);

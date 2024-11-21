@@ -37,7 +37,7 @@ import HelpTag from '@/core/help/help-tag.vue';
 import AuditTag from '@/core/audit/audit-tag.vue';
 import { mixins } from 'vue-class-component';
 import UserManagementService from '@/admin/user-management/user-management.service';
-import TenantService from '../../user-management/tenant/tenant.service';
+import TenantService from '../../admin/tenant/tenant.service';
 
 const validations: any = {
   pipeline: {
@@ -277,7 +277,7 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
           this.tenants = res.data;
         },
         err => {
-          self.alertService().showAlert(err.response, 'warn');
+          this.alertService().showAlert(err.response, 'warn');
         }
       );
   }

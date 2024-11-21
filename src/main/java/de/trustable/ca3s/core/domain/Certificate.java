@@ -456,6 +456,13 @@ public class Certificate implements Serializable {
         return this.serial;
     }
 
+    public String getSerialAsHex() {
+        if(this.serial == null){
+            return "";
+        }
+        return new java.math.BigInteger(this.serial).toString(16);
+    }
+
     public Certificate serial(String serial) {
         this.setSerial(serial);
         return this;

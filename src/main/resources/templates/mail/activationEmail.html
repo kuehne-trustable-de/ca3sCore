@@ -13,7 +13,7 @@
             Your account has been created, please click on the below to activate it:
         </p>
         <p>
-            <a th:with="url=(@{|${baseUrl}/account/activate?key=${user.activationKey}&amp;instantLogin=false|})" th:href="${url}"
+            <a th:with="url=(@{|${baseUrl}/account/activate?key=${activationKey}&amp;instantLogin=false|})" th:href="${url}"
             th:text="#{email.activation.link}">Activation link</a>
         </p>
         <p>

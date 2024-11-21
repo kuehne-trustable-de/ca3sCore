@@ -164,16 +164,16 @@ public class ContentUploadProcessor {
      * @return the {@link ResponseEntity} .
      */
     @PostMapping("/uploadContent")
-	@Transactional(noRollbackFor = CAFailureException.class)
+    @Transactional(noRollbackFor = CAFailureException.class)
     public ResponseEntity<PkcsXXData> uploadContent(@Valid @RequestBody UploadPrecheckData uploaded) {
 
-    	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    	String requestorName = auth.getName();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String requestorName = auth.getName();
 
-    	CreationMode creationMode = uploaded.getCreationMode();
-    	if( CreationMode.COMMANDLINE_TOOL.equals(creationMode)) {
-			LOG.debug("not supported creation mode {}, requested by user '{}' ", creationMode, requestorName);
-    	}else if( CreationMode.SERVERSIDE_KEY_CREATION.equals(creationMode)) {
+        CreationMode creationMode = uploaded.getCreationMode();
+        if( CreationMode.COMMANDLINE_TOOL.equals(creationMode)) {
+            LOG.debug("not supported creation mode {}, requested by user '{}' ", creationMode, requestorName);
+        }else if( CreationMode.SERVERSIDE_KEY_CREATION.equals(creationMode)) {
 
             Preferences prefs = preferenceUtil.getSystemPrefs();
             if( prefs.isServerSideKeyCreationAllowed()){
@@ -185,11 +185,33 @@ public class ContentUploadProcessor {
 
         }else if( CreationMode.CSR_AVAILABLE.equals(creationMode)) {
             return buildCertificateFromCSR(uploaded, requestorName);
-    	}
+        }
 
-		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
-	}
+    }
+
+    /**
+     * {@code POST  /csrContent} : Process a PKCSXX-object encoded as PEM.
+     *
+     * @param uploaded a structure holding some crypto-related content, e.g. CSR, certificate, P12 container
+     * @return the {@link ResponseEntity} .
+     */
+    @PostMapping("/clientKeystore")
+    @Transactional(noRollbackFor = CAFailureException.class)
+    public ResponseEntity<PkcsXXData> buildClientKeystore(@Valid @RequestBody UploadPrecheckData uploaded) {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String requestorName = auth.getName();
+        ResponseEntity<PkcsXXData> pkcsXXDataResponseEntity = buildServerSideKeyAndRequest(uploaded, requestorName);
+        if( pkcsXXDataResponseEntity == null ||
+            pkcsXXDataResponseEntity.getBody() == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        String certId = pkcsXXDataResponseEntity.getBody().getCreatedCertificateId();
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
 
 	public ResponseEntity<PkcsXXData> buildCertificateFromCSR(UploadPrecheckData uploaded, String requestorName){
 

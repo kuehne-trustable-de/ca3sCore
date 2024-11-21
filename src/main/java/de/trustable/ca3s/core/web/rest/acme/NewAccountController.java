@@ -37,6 +37,7 @@ import de.trustable.ca3s.core.service.dto.acme.AccountResponse;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.AcmeUtil;
+import de.trustable.ca3s.core.service.util.AlgorithmRestrictionUtil;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.jose4j.jwt.consumer.JwtContext;
@@ -74,10 +75,13 @@ public class NewAccountController extends AcmeController {
 
   final private BPMNUtil bpmnUtil;
 
-    public NewAccountController(AcmeAccountRepository acctRepository, AcmeContactRepository contactRepo, BPMNUtil bpmnUtil) {
+  final private AlgorithmRestrictionUtil algorithmRestrictionUtil;
+
+  public NewAccountController(AcmeAccountRepository acctRepository, AcmeContactRepository contactRepo, BPMNUtil bpmnUtil, AlgorithmRestrictionUtil algorithmRestrictionUtil) {
         this.acctRepository = acctRepository;
         this.contactRepo = contactRepo;
         this.bpmnUtil = bpmnUtil;
+        this.algorithmRestrictionUtil = algorithmRestrictionUtil;
     }
 
     @Transactional
@@ -120,16 +124,19 @@ public class NewAccountController extends AcmeController {
 		if( pk == null) {
 			accListExisting = new ArrayList<>();
 			accListExisting.add(checkJWTSignatureForAccount(context, realm));
-			if( accListExisting.isEmpty()) {
-			    LOG.debug("NewAccountRequest does NOT provide key, no matching account found ");
-		        final ProblemDetail problem = new ProblemDetail(AcmeUtil.ACCOUNT_DOES_NOT_EXIST, "Account does not exist.",
-		                BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
-				throw new AcmeProblemException(problem);
-			}
-
 		}else {
             jwtUtil.verifyJWT(context, pk);
             LOG.debug("provided public key verifies given JWT: " + pk);
+
+            List<String> messageList = new ArrayList<>();
+            if( !algorithmRestrictionUtil.isAlgorithmRestrictionsResolved(pk, messageList)) {
+                final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED,
+                    "Public key of new account not accepted.",
+                    BAD_REQUEST,
+                    messageList.isEmpty()? NO_DETAIL: messageList.get(0),
+                    NO_INSTANCE);
+                throw new AcmeProblemException(problem);
+            }
 
             LOG.debug("JWK with public key found {}, checking with database", pk);
 			accListExisting = acctRepository.findByPublicKeyHashBase64(jwtUtil.getJWKThumbPrint(pk));
@@ -180,7 +187,7 @@ public class NewAccountController extends AcmeController {
 				}
 
 			    acctRepository.save(newAcctDao);
-			    contactsFromRequest(newAcctDao, newAcct, pipeline);
+			    updateAccountFromRequest(newAcctDao, newAcct, pipeline);
 
 			    newAcctDao.setStatus(AccountStatus.VALID);
 

@@ -99,6 +99,8 @@ public class ChallengeController extends AcmeController {
     public static final String ACME_TLS_1_PROTOCOL = "acme-tls/1";
 
 
+    private final int[] alpnPorts;
+
     @Value("${ca3s.acme.reject.get:true}")
     boolean rejectGet;
 
@@ -117,6 +119,7 @@ public class ChallengeController extends AcmeController {
     public ChallengeController(AcmeChallengeRepository challengeRepository,
                                PreferenceUtil preferenceUtil,
                                AuditService auditService,
+                               @Value("${ca3s.acme.alpn.ports:443}") int[] alpnPorts,
                                @Value("${ca3s.dns.server:}") String resolverHost,
                                @Value("${ca3s.dns.port:53}") int resolverPort,
                                AcmeOrderUtil acmeOrderUtil, @Value("${ca3s.acme.ratelimit.second:0}") int rateSec,
@@ -128,6 +131,8 @@ public class ChallengeController extends AcmeController {
         this.preferenceUtil = preferenceUtil;
         this.auditService = auditService;
         this.acmeOrderUtil = acmeOrderUtil;
+
+        this.alpnPorts = alpnPorts;
 
         this.dnsResolver = new SimpleResolver(resolverHost);
         this.dnsResolver.setPort(resolverPort);
@@ -535,8 +540,6 @@ public class ChallengeController extends AcmeController {
 
     private boolean checkChallengeALPN(AcmeChallenge challengeDao) {
 
-        int[] ports = {443, 8443};
-
         AcmeOrder acmeOrder = challengeDao.getAcmeAuthorization().getOrder();
         String expectedContent = buildKeyAuthorizationHashBase64(challengeDao);
 
@@ -556,7 +559,7 @@ public class ChallengeController extends AcmeController {
             }
         } };
 
-        for( int port: ports) {
+        for( int port: alpnPorts) {
 
             try {
                 if(validateALPNChallenge(challengeDao, expectedContent, host, trustAllCerts, port)){

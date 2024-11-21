@@ -55,8 +55,10 @@ public class AcmeHappyPathIT {
 	@LocalServerPort
 	int serverPort; // random port chosen by spring test
 
-	final String ACME_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM + "/directory";
-	String dirUrl;
+    final String ACME_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM + "/directory";
+    final String ACME_PATH_PART_OTHER_REALM = "/acme/" + PipelineTestConfiguration.ACME1CN_REALM + "/directory";
+    String dirUrl;
+    String dirUrlOtherRealm;
 
     HttpChallengeHelper httpChallengeHelper;
 
@@ -71,7 +73,9 @@ public class AcmeHappyPathIT {
 	@BeforeEach
 	void init() {
 		dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
+        dirUrlOtherRealm = "http://localhost:" + serverPort + ACME_PATH_PART_OTHER_REALM;
 		ptc.getInternalACMETestPipelineLaxRestrictions();
+        ptc.getInternalACMETestPipeline_1_CN_ONLY_Restrictions();
 
         prefTC.getTestUserPreference();
 
@@ -225,7 +229,6 @@ public class AcmeHappyPathIT {
         assertNotNull("Expected to receive a x509Cert", x509Cert);
         assertNotNull("Expected the certificate to have a x509Cert", x509Cert.getSubjectDN().getName());
 
-        account.update();
 		Iterator<Order> orderIt = account.getOrders();
 		assertTrue(orderIt.hasNext(), "Expected to find at least one order");
 
@@ -233,7 +236,6 @@ public class AcmeHappyPathIT {
 			buildOrder(account, i);
 		}
 
-        account.update();
         Iterator<Order> orderIt2 = account.getOrders();
         assertNotNull("Expected to find at least one order", orderIt2.hasNext());
         System.out.println("Account orders : " + orderIt2);
@@ -256,6 +258,16 @@ public class AcmeHappyPathIT {
 		URI tos = meta.getTermsOfService();
 		URL website = meta.getWebsite();
 		LOG.debug("TermsOfService {}, website {}", tos, website);
+
+        System.out.println("connecting to " + dirUrlOtherRealm );
+        Session sessionOtherRealm = new Session(dirUrlOtherRealm);
+
+        KeyPair otherRealmAccountKeyPair = KeyPairUtils.createKeyPair(2048);
+        Account otherRealmAccount = new AccountBuilder()
+            .addContact("mailto:otherRealmy@ca3s.org")
+            .agreeToTermsOfService()
+            .useKeyPair(otherRealmAccountKeyPair)
+            .create(sessionOtherRealm);
 
 
         KeyPair dummyAccountKeyPair = KeyPairUtils.createKeyPair(2048);
@@ -323,6 +335,16 @@ public class AcmeHappyPathIT {
 
 			Certificate acmeCert = order.getCertificate();
 			assertNotNull("Expected to receive no certificate", acmeCert);
+
+
+            // try to revoke a certificate with a session from another realm
+            try {
+                Login login = sessionOtherRealm.login(otherRealmAccount.getLocation(), otherRealmAccountKeyPair);
+                Certificate.revoke(login, acmeCert.getCertificate(), RevocationReason.KEY_COMPROMISE);
+                fail("certificate already revoked, exception expected");
+            }catch (AcmeServerException acmeServerException){
+                assertEquals("problem authenticating account / order / certificate for RevokeRequest", acmeServerException.getMessage());
+            }
 
             // try to revoke a certificate not related to the given account
             try {

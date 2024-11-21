@@ -31,10 +31,12 @@ import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 import java.security.PublicKey;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import de.trustable.ca3s.core.domain.Pipeline;
+import de.trustable.ca3s.core.service.util.AlgorithmRestrictionUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.jose4j.jwk.JsonWebKey;
 import org.jose4j.jwk.PublicJsonWebKey;
@@ -45,7 +47,6 @@ import org.jose4j.jwx.JsonWebStructure;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -111,8 +112,15 @@ public class AccountController extends AcmeController {
     private static final Logger LOG = LoggerFactory.getLogger(AccountController.class);
     private static final int CURSOR_CHUNK = 10;
 
-    @Autowired
-    JwtUtil jwtUtil;
+    final private  JwtUtil jwtUtil;
+
+    final private AlgorithmRestrictionUtil algorithmRestrictionUtil;
+
+    public AccountController(JwtUtil jwtUtil, AlgorithmRestrictionUtil algorithmRestrictionUtil) {
+        this.jwtUtil = jwtUtil;
+        this.algorithmRestrictionUtil = algorithmRestrictionUtil;
+    }
+
 
     public ResponseEntity<AccountResponse> getAccount(@PathVariable final long accountId,
                                                       @PathVariable final String realm,
@@ -184,11 +192,23 @@ public class AccountController extends AcmeController {
 
             PublicKey newPK = jwtUtil.getPublicKey(innerWebStruct);
 
+            List<String> messageList = new ArrayList<>();
+            if( !algorithmRestrictionUtil.isAlgorithmRestrictionsResolved(newPK, messageList)) {
+                String msg = "Public key of new account not accepted.";
+                LOG.warn(msg);
+                final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED,
+                    msg,
+                    BAD_REQUEST,
+                    messageList.isEmpty()? NO_DETAIL: messageList.get(0),
+                    NO_INSTANCE);
+                throw new AcmeProblemException(problem);
+            }
+
             JsonWebKey oldWebKey = changeKeyReq.getOldKey();
             if (!(oldWebKey instanceof PublicJsonWebKey)) {
                 String msg = "change Key request: old key is NOT a PublicJsonWebKey (but of class " + oldWebKey.getClass().getName();
                 LOG.warn(msg);
-                final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "msg",
+                final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, msg,
                     BAD_REQUEST, "", AcmeController.NO_INSTANCE);
                 throw new AcmeProblemException(problem);
             }
@@ -346,7 +366,6 @@ public class AccountController extends AcmeController {
         } catch (AcmeProblemException e) {
             return buildProblemResponseEntity(e);
         }
-
     }
 
 
@@ -367,7 +386,7 @@ public class AccountController extends AcmeController {
 
             Pipeline pipeline = getPipelineForRealm(realm);
 
-            contactsFromRequest(acctDao, updateAccountReq, pipeline);
+            updateAccountFromRequest(acctDao, updateAccountReq, pipeline);
 
             acctRepository.save(acctDao);
 
@@ -381,6 +400,4 @@ public class AccountController extends AcmeController {
         }
 
     }
-
-
 }
