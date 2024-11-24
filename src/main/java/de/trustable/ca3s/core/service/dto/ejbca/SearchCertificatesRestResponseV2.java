@@ -12,109 +12,209 @@
 
 package de.trustable.ca3s.core.service.dto.ejbca;
 
-import com.google.gson.annotations.SerializedName;
-import io.swagger.v3.oas.annotations.media.Schema;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import io.swagger.annotations.ApiModelProperty;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.io.IOException;
+import java.util.*;
+
 /**
  * SearchCertificatesRestResponseV2
  */
 
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2024-02-27T11:17:53.164838525Z[GMT]")
-
 public class SearchCertificatesRestResponseV2 {
-  @SerializedName("certificates")
-  private List<CertificateRestResponseV2> certificates = null;
+    public static final String SERIALIZED_NAME_CERTIFICATES = "certificates";
+    @JsonProperty(SERIALIZED_NAME_CERTIFICATES)
+    private List<CertificateRestResponseV2> certificates = null;
 
-  @SerializedName("pagination_summary")
-  private PaginationSummary paginationSummary = null;
+    public static final String SERIALIZED_NAME_PAGINATION_SUMMARY = "pagination_summary";
+    @JsonProperty(SERIALIZED_NAME_PAGINATION_SUMMARY)
+    private PaginationSummary paginationSummary;
 
-  public SearchCertificatesRestResponseV2 certificates(List<CertificateRestResponseV2> certificates) {
-    this.certificates = certificates;
-    return this;
-  }
-
-  public SearchCertificatesRestResponseV2 addCertificatesItem(CertificateRestResponseV2 certificatesItem) {
-    if (this.certificates == null) {
-      this.certificates = new ArrayList<CertificateRestResponseV2>();
+    public SearchCertificatesRestResponseV2() {
     }
-    this.certificates.add(certificatesItem);
-    return this;
-  }
 
-   /**
-   * Get certificates
-   * @return certificates
-  **/
-  @Schema(description = "")
-  public List<CertificateRestResponseV2> getCertificates() {
-    return certificates;
-  }
+    public SearchCertificatesRestResponseV2 certificates(List<CertificateRestResponseV2> certificates) {
 
-  public void setCertificates(List<CertificateRestResponseV2> certificates) {
-    this.certificates = certificates;
-  }
-
-  public SearchCertificatesRestResponseV2 paginationSummary(PaginationSummary paginationSummary) {
-    this.paginationSummary = paginationSummary;
-    return this;
-  }
-
-   /**
-   * Get paginationSummary
-   * @return paginationSummary
-  **/
-  @Schema(description = "")
-  public PaginationSummary getPaginationSummary() {
-    return paginationSummary;
-  }
-
-  public void setPaginationSummary(PaginationSummary paginationSummary) {
-    this.paginationSummary = paginationSummary;
-  }
-
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
+        this.certificates = certificates;
+        return this;
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    public SearchCertificatesRestResponseV2 addCertificatesItem(CertificateRestResponseV2 certificatesItem) {
+        if (this.certificates == null) {
+            this.certificates = new ArrayList<>();
+        }
+        this.certificates.add(certificatesItem);
+        return this;
     }
-    SearchCertificatesRestResponseV2 searchCertificatesRestResponseV2 = (SearchCertificatesRestResponseV2) o;
-    return Objects.equals(this.certificates, searchCertificatesRestResponseV2.certificates) &&
-        Objects.equals(this.paginationSummary, searchCertificatesRestResponseV2.paginationSummary);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(certificates, paginationSummary);
-  }
+    /**
+     * Get certificates
+     * @return certificates
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(value = "")
 
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class SearchCertificatesRestResponseV2 {\n");
-
-    sb.append("    certificates: ").append(toIndentedString(certificates)).append("\n");
-    sb.append("    paginationSummary: ").append(toIndentedString(paginationSummary)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
+    public List<CertificateRestResponseV2> getCertificates() {
+        return certificates;
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+
+    public void setCertificates(List<CertificateRestResponseV2> certificates) {
+        this.certificates = certificates;
+    }
+
+
+    public SearchCertificatesRestResponseV2 paginationSummary(PaginationSummary paginationSummary) {
+
+        this.paginationSummary = paginationSummary;
+        return this;
+    }
+
+    /**
+     * Get paginationSummary
+     * @return paginationSummary
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(value = "")
+
+    public PaginationSummary getPaginationSummary() {
+        return paginationSummary;
+    }
+
+
+    public void setPaginationSummary(PaginationSummary paginationSummary) {
+        this.paginationSummary = paginationSummary;
+    }
+
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        SearchCertificatesRestResponseV2 searchCertificatesRestResponseV2 = (SearchCertificatesRestResponseV2) o;
+        return Objects.equals(this.certificates, searchCertificatesRestResponseV2.certificates) &&
+            Objects.equals(this.paginationSummary, searchCertificatesRestResponseV2.paginationSummary);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(certificates, paginationSummary);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class SearchCertificatesRestResponseV2 {\n");
+        sb.append("    certificates: ").append(toIndentedString(certificates)).append("\n");
+        sb.append("    paginationSummary: ").append(toIndentedString(paginationSummary)).append("\n");
+        sb.append("}");
+        return sb.toString();
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private String toIndentedString(Object o) {
+        if (o == null) {
+            return "null";
+        }
+        return o.toString().replace("\n", "\n    ");
+    }
+
+
+    public static HashSet<String> openapiFields;
+    public static HashSet<String> openapiRequiredFields;
+
+    static {
+        // a set of all properties/fields (JSON key names)
+        openapiFields = new HashSet<String>();
+        openapiFields.add("certificates");
+        openapiFields.add("pagination_summary");
+
+        // a set of required properties/fields (JSON key names)
+        openapiRequiredFields = new HashSet<String>();
+    }
+
+    /**
+     * Validates the JSON Object and throws an exception if issues found
+     *
+     * @param jsonObj JSON Object
+     * @throws IOException if the JSON Object is invalid with respect to SearchCertificatesRestResponseV2
+     */
+    public static void validateJsonObject(JsonObject jsonObj) throws IOException {
+        if (jsonObj == null) {
+            if (SearchCertificatesRestResponseV2.openapiRequiredFields.isEmpty()) {
+                return;
+            } else { // has required fields
+                throw new IllegalArgumentException(String.format("The required field(s) %s in SearchCertificatesRestResponseV2 is not found in the empty JSON string", SearchCertificatesRestResponseV2.openapiRequiredFields.toString()));
+            }
+        }
+
+        Set<Map.Entry<String, JsonElement>> entries = jsonObj.entrySet();
+        // check to see if the JSON string contains additional fields
+        for (Map.Entry<String, JsonElement> entry : entries) {
+            if (!SearchCertificatesRestResponseV2.openapiFields.contains(entry.getKey())) {
+                throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `SearchCertificatesRestResponseV2` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
+            }
+        }
+        if (jsonObj.get("certificates") != null && !jsonObj.get("certificates").isJsonNull()) {
+            JsonArray jsonArraycertificates = jsonObj.getAsJsonArray("certificates");
+            if (jsonArraycertificates != null) {
+                // ensure the json data is an array
+                if (!jsonObj.get("certificates").isJsonArray()) {
+                    throw new IllegalArgumentException(String.format("Expected the field `certificates` to be an array in the JSON string but got `%s`", jsonObj.get("certificates").toString()));
+                }
+
+                // validate the optional field `certificates` (array)
+                for (int i = 0; i < jsonArraycertificates.size(); i++) {
+                    CertificateRestResponseV2.validateJsonObject(jsonArraycertificates.get(i).getAsJsonObject());
+                };
+            }
+        }
+        // validate the optional field `pagination_summary`
+        if (jsonObj.get("pagination_summary") != null && !jsonObj.get("pagination_summary").isJsonNull()) {
+            PaginationSummary.validateJsonObject(jsonObj.getAsJsonObject("pagination_summary"));
+        }
+    }
+
+    public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
+        @SuppressWarnings("unchecked")
+        @Override
+        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+            if (!SearchCertificatesRestResponseV2.class.isAssignableFrom(type.getRawType())) {
+                return null; // this class only serializes 'SearchCertificatesRestResponseV2' and its subtypes
+            }
+            final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
+            final TypeAdapter<SearchCertificatesRestResponseV2> thisAdapter
+                = gson.getDelegateAdapter(this, TypeToken.get(SearchCertificatesRestResponseV2.class));
+
+            return (TypeAdapter<T>) new TypeAdapter<SearchCertificatesRestResponseV2>() {
+                @Override
+                public void write(JsonWriter out, SearchCertificatesRestResponseV2 value) throws IOException {
+                    JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
+                    elementAdapter.write(out, obj);
+                }
+
+                @Override
+                public SearchCertificatesRestResponseV2 read(JsonReader in) throws IOException {
+                    JsonObject jsonObj = elementAdapter.read(in).getAsJsonObject();
+                    validateJsonObject(jsonObj);
+                    return thisAdapter.fromJsonTree(jsonObj);
+                }
+
+            }.nullSafe();
+        }
+    }
 
 }

@@ -12,6 +12,7 @@
 
 package de.trustable.ca3s.core.service.dto.ejbca;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.threeten.bp.OffsetDateTime;
@@ -24,19 +25,19 @@ import java.util.Objects;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2024-02-27T11:17:53.164838525Z[GMT]")
 
 public class CaInfoRestResponse {
-  @SerializedName("id")
+  @JsonProperty("id")
   private Integer id = null;
 
-  @SerializedName("name")
+  @JsonProperty("name")
   private String name = null;
 
-  @SerializedName("subject_dn")
+  @JsonProperty("subject_dn")
   private String subjectDn = null;
 
-  @SerializedName("issuer_dn")
+  @JsonProperty("issuer_dn")
   private String issuerDn = null;
 
-  @SerializedName("expiration_date")
+  @JsonProperty("expiration_date")
   private OffsetDateTime expirationDate = null;
 
   public CaInfoRestResponse id(Integer id) {

@@ -12,6 +12,7 @@
 
 package de.trustable.ca3s.core.service.dto.ejbca;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -25,22 +26,22 @@ import java.util.Objects;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2024-02-27T11:17:53.164838525Z[GMT]")
 
 public class CertificateRestResponse {
-  @SerializedName("certificate")
+  @JsonProperty("certificate")
   private List<byte[]> certificate = null;
 
-  @SerializedName("serial_number")
+  @JsonProperty("serial_number")
   private String serialNumber = null;
 
-  @SerializedName("response_format")
+  @JsonProperty("response_format")
   private String responseFormat = null;
 
-  @SerializedName("certificate_chain")
+  @JsonProperty("certificate_chain")
   private List<List<byte[]>> certificateChain = null;
 
-  @SerializedName("certificate_profile")
+  @JsonProperty("certificate_profile")
   private String certificateProfile = null;
 
-  @SerializedName("end_entity_profile")
+  @JsonProperty("end_entity_profile")
   private String endEntityProfile = null;
 
   public CertificateRestResponse certificate(List<byte[]> certificate) {

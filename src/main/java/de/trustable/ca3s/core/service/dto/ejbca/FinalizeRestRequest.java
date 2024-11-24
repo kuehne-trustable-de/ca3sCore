@@ -12,6 +12,7 @@
 
 package de.trustable.ca3s.core.service.dto.ejbca;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.TypeAdapter;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
@@ -33,13 +34,13 @@ public class FinalizeRestRequest {
    */
   @JsonAdapter(ResponseFormatEnum.Adapter.class)
   public enum ResponseFormatEnum {
-    @SerializedName("P12")
+    @JsonProperty("P12")
     P12("P12"),
-    @SerializedName("BCFKS")
+    @JsonProperty("BCFKS")
     BCFKS("BCFKS"),
-    @SerializedName("JKS")
+    @JsonProperty("JKS")
     JKS("JKS"),
-    @SerializedName("DER")
+    @JsonProperty("DER")
     DER("DER");
 
     private String value;
@@ -75,16 +76,16 @@ public class FinalizeRestRequest {
         return ResponseFormatEnum.fromValue((String)(value));
       }
     }
-  }  @SerializedName("response_format")
+  }  @JsonProperty("response_format")
   private ResponseFormatEnum responseFormat = null;
 
-  @SerializedName("password")
+  @JsonProperty("password")
   private String password = null;
 
-  @SerializedName("key_alg")
+  @JsonProperty("key_alg")
   private String keyAlg = null;
 
-  @SerializedName("key_spec")
+  @JsonProperty("key_spec")
   private String keySpec = null;
 
   public FinalizeRestRequest responseFormat(ResponseFormatEnum responseFormat) {

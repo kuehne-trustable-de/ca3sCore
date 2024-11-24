@@ -174,6 +174,7 @@ export class CAConnectorConfigView implements ICaConnectorConfigView {
     public msgContentType?: string,
     public sni?: string,
     public pollingOffset?: number,
+    public lastUpdate?: Date,
     public defaultCA?: boolean,
     public trustSelfsignedCertificates?: boolean,
     public active?: boolean,

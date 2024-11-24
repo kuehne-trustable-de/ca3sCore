@@ -12,6 +12,7 @@
 
 package de.trustable.ca3s.core.service.dto.ejbca;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -25,13 +26,13 @@ import java.util.Objects;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2024-02-27T11:17:53.164838525Z[GMT]")
 
 public class SearchCertificatesRestRequestV2 {
-  @SerializedName("pagination")
+  @JsonProperty("pagination")
   private Pagination pagination = null;
 
-  @SerializedName("sort")
+  @JsonProperty("sort")
   private SearchCertificateSortRestRequest sort = null;
 
-  @SerializedName("criteria")
+  @JsonProperty("criteria")
   private List<SearchCertificateCriteriaRestRequest> criteria = null;
 
   public SearchCertificatesRestRequestV2 pagination(Pagination pagination) {

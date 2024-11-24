@@ -12,6 +12,7 @@
 
 package de.trustable.ca3s.core.service.dto.ejbca;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.threeten.bp.OffsetDateTime;
@@ -24,25 +25,25 @@ import java.util.Objects;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2024-02-27T11:17:53.164838525Z[GMT]")
 
 public class RevokeStatusRestResponse {
-  @SerializedName("issuer_dn")
+  @JsonProperty("issuer_dn")
   private String issuerDn = null;
 
-  @SerializedName("serial_number")
+  @JsonProperty("serial_number")
   private String serialNumber = null;
 
-  @SerializedName("revocation_reason")
+  @JsonProperty("revocation_reason")
   private String revocationReason = null;
 
-  @SerializedName("revocation_date")
+  @JsonProperty("revocation_date")
   private OffsetDateTime revocationDate = null;
 
-  @SerializedName("invalidity_date")
+  @JsonProperty("invalidity_date")
   private OffsetDateTime invalidityDate = null;
 
-  @SerializedName("message")
+  @JsonProperty("message")
   private String message = null;
 
-  @SerializedName("revoked")
+  @JsonProperty("revoked")
   private Boolean revoked = null;
 
   public RevokeStatusRestResponse issuerDn(String issuerDn) {

@@ -12,6 +12,7 @@
 
 package de.trustable.ca3s.core.service.dto.ejbca;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -25,22 +26,22 @@ import java.util.Objects;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2024-02-27T11:17:53.164838525Z[GMT]")
 
 public class CreateCrlRestResponse {
-  @SerializedName("issuer_dn")
+  @JsonProperty("issuer_dn")
   private String issuerDn = null;
 
-  @SerializedName("latest_crl_version")
+  @JsonProperty("latest_crl_version")
   private Integer latestCrlVersion = null;
 
-  @SerializedName("latest_delta_crl_version")
+  @JsonProperty("latest_delta_crl_version")
   private Integer latestDeltaCrlVersion = null;
 
-  @SerializedName("latest_partition_crl_versions")
+  @JsonProperty("latest_partition_crl_versions")
   private Map<String, Integer> latestPartitionCrlVersions = null;
 
-  @SerializedName("latest_partition_delta_crl_versions")
+  @JsonProperty("latest_partition_delta_crl_versions")
   private Map<String, Integer> latestPartitionDeltaCrlVersions = null;
 
-  @SerializedName("all_success")
+  @JsonProperty("all_success")
   private Boolean allSuccess = null;
 
   public CreateCrlRestResponse issuerDn(String issuerDn) {

@@ -12,10 +12,19 @@
 
 package de.trustable.ca3s.core.service.dto.ejbca;
 
-import com.google.gson.annotations.SerializedName;
-import io.swagger.v3.oas.annotations.media.Schema;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import io.swagger.annotations.ApiModelProperty;
 
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+
 /**
  * PaginationSummary
  */
@@ -23,111 +32,198 @@ import java.util.Objects;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2024-02-27T11:17:53.164838525Z[GMT]")
 
 public class PaginationSummary {
-  @SerializedName("page_size")
-  private Integer pageSize = null;
+    public static final String SERIALIZED_NAME_PAGE_SIZE = "page_size";
+    @JsonProperty(SERIALIZED_NAME_PAGE_SIZE)
+    private Integer pageSize;
 
-  @SerializedName("current_page")
-  private Integer currentPage = null;
+    public static final String SERIALIZED_NAME_CURRENT_PAGE = "current_page";
+    @JsonProperty(SERIALIZED_NAME_CURRENT_PAGE)
+    private Integer currentPage;
 
-  @SerializedName("total_certs")
-  private Long totalCerts = null;
+    public static final String SERIALIZED_NAME_TOTAL_CERTS = "total_certs";
+    @JsonProperty(SERIALIZED_NAME_TOTAL_CERTS)
+    private Long totalCerts;
 
-  public PaginationSummary pageSize(Integer pageSize) {
-    this.pageSize = pageSize;
-    return this;
-  }
-
-   /**
-   * Get pageSize
-   * @return pageSize
-  **/
-  @Schema(description = "")
-  public Integer getPageSize() {
-    return pageSize;
-  }
-
-  public void setPageSize(Integer pageSize) {
-    this.pageSize = pageSize;
-  }
-
-  public PaginationSummary currentPage(Integer currentPage) {
-    this.currentPage = currentPage;
-    return this;
-  }
-
-   /**
-   * Get currentPage
-   * @return currentPage
-  **/
-  @Schema(description = "")
-  public Integer getCurrentPage() {
-    return currentPage;
-  }
-
-  public void setCurrentPage(Integer currentPage) {
-    this.currentPage = currentPage;
-  }
-
-  public PaginationSummary totalCerts(Long totalCerts) {
-    this.totalCerts = totalCerts;
-    return this;
-  }
-
-   /**
-   * Get totalCerts
-   * @return totalCerts
-  **/
-  @Schema(description = "")
-  public Long getTotalCerts() {
-    return totalCerts;
-  }
-
-  public void setTotalCerts(Long totalCerts) {
-    this.totalCerts = totalCerts;
-  }
-
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
+    public PaginationSummary() {
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    public PaginationSummary pageSize(Integer pageSize) {
+
+        this.pageSize = pageSize;
+        return this;
     }
-    PaginationSummary paginationSummary = (PaginationSummary) o;
-    return Objects.equals(this.pageSize, paginationSummary.pageSize) &&
-        Objects.equals(this.currentPage, paginationSummary.currentPage) &&
-        Objects.equals(this.totalCerts, paginationSummary.totalCerts);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(pageSize, currentPage, totalCerts);
-  }
+    /**
+     * Get pageSize
+     * @return pageSize
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(value = "")
 
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class PaginationSummary {\n");
-
-    sb.append("    pageSize: ").append(toIndentedString(pageSize)).append("\n");
-    sb.append("    currentPage: ").append(toIndentedString(currentPage)).append("\n");
-    sb.append("    totalCerts: ").append(toIndentedString(totalCerts)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
+    public Integer getPageSize() {
+        return pageSize;
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
+
+
+    public PaginationSummary currentPage(Integer currentPage) {
+
+        this.currentPage = currentPage;
+        return this;
+    }
+
+    /**
+     * Get currentPage
+     * @return currentPage
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(value = "")
+
+    public Integer getCurrentPage() {
+        return currentPage;
+    }
+
+
+    public void setCurrentPage(Integer currentPage) {
+        this.currentPage = currentPage;
+    }
+
+
+    public PaginationSummary totalCerts(Long totalCerts) {
+
+        this.totalCerts = totalCerts;
+        return this;
+    }
+
+    /**
+     * Get totalCerts
+     * @return totalCerts
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(value = "")
+
+    public Long getTotalCerts() {
+        return totalCerts;
+    }
+
+
+    public void setTotalCerts(Long totalCerts) {
+        this.totalCerts = totalCerts;
+    }
+
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        PaginationSummary paginationSummary = (PaginationSummary) o;
+        return Objects.equals(this.pageSize, paginationSummary.pageSize) &&
+            Objects.equals(this.currentPage, paginationSummary.currentPage) &&
+            Objects.equals(this.totalCerts, paginationSummary.totalCerts);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pageSize, currentPage, totalCerts);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class PaginationSummary {\n");
+        sb.append("    pageSize: ").append(toIndentedString(pageSize)).append("\n");
+        sb.append("    currentPage: ").append(toIndentedString(currentPage)).append("\n");
+        sb.append("    totalCerts: ").append(toIndentedString(totalCerts)).append("\n");
+        sb.append("}");
+        return sb.toString();
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private String toIndentedString(Object o) {
+        if (o == null) {
+            return "null";
+        }
+        return o.toString().replace("\n", "\n    ");
+    }
+
+
+    public static HashSet<String> openapiFields;
+    public static HashSet<String> openapiRequiredFields;
+
+    static {
+        // a set of all properties/fields (JSON key names)
+        openapiFields = new HashSet<String>();
+        openapiFields.add("page_size");
+        openapiFields.add("current_page");
+        openapiFields.add("total_certs");
+
+        // a set of required properties/fields (JSON key names)
+        openapiRequiredFields = new HashSet<String>();
+    }
+
+    /**
+     * Validates the JSON Object and throws an exception if issues found
+     *
+     * @param jsonObj JSON Object
+     * @throws IOException if the JSON Object is invalid with respect to PaginationSummary
+     */
+    public static void validateJsonObject(JsonObject jsonObj) throws IOException {
+        if (jsonObj == null) {
+            if (PaginationSummary.openapiRequiredFields.isEmpty()) {
+                return;
+            } else { // has required fields
+                throw new IllegalArgumentException(String.format("The required field(s) %s in PaginationSummary is not found in the empty JSON string", PaginationSummary.openapiRequiredFields.toString()));
+            }
+        }
+
+        Set<Map.Entry<String, JsonElement>> entries = jsonObj.entrySet();
+        // check to see if the JSON string contains additional fields
+        for (Map.Entry<String, JsonElement> entry : entries) {
+            if (!PaginationSummary.openapiFields.contains(entry.getKey())) {
+                throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `PaginationSummary` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
+            }
+        }
+    }
+
+    public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
+        @SuppressWarnings("unchecked")
+        @Override
+        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+            if (!PaginationSummary.class.isAssignableFrom(type.getRawType())) {
+                return null; // this class only serializes 'PaginationSummary' and its subtypes
+            }
+            final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
+            final TypeAdapter<PaginationSummary> thisAdapter
+                = gson.getDelegateAdapter(this, TypeToken.get(PaginationSummary.class));
+
+            return (TypeAdapter<T>) new TypeAdapter<PaginationSummary>() {
+                @Override
+                public void write(JsonWriter out, PaginationSummary value) throws IOException {
+                    JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
+                    elementAdapter.write(out, obj);
+                }
+
+                @Override
+                public PaginationSummary read(JsonReader in) throws IOException {
+                    JsonObject jsonObj = elementAdapter.read(in).getAsJsonObject();
+                    validateJsonObject(jsonObj);
+                    return thisAdapter.fromJsonTree(jsonObj);
+                }
+
+            }.nullSafe();
+        }
+    }
 
 }

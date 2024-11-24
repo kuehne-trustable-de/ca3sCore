@@ -12,16 +12,19 @@
 
 package de.trustable.ca3s.core.service.dto.ejbca;
 
-import com.google.gson.TypeAdapter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.*;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+
 /**
  * CertificateRestResponseV2
  */
@@ -29,448 +32,734 @@ import java.util.Objects;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2024-02-27T11:17:53.164838525Z[GMT]")
 
 public class CertificateRestResponseV2 {
-  @SerializedName("fingerprint")
-  private String fingerprint = null;
+    public static final String SERIALIZED_NAME_FINGERPRINT = "fingerprint";
+    @JsonProperty(SERIALIZED_NAME_FINGERPRINT)
+    private String fingerprint;
 
-  @SerializedName("c_afingerprint")
-  private String cAfingerprint = null;
+    public static final String SERIALIZED_NAME_C_A_FINGERPRINT = "cAFingerprint";
+    @JsonProperty(SERIALIZED_NAME_C_A_FINGERPRINT)
+    private String cAFingerprint;
 
-  @SerializedName("certificate_profile_id")
-  private Integer certificateProfileId = null;
+    public static final String SERIALIZED_NAME_CERTIFICATE_PROFILE_ID = "certificateProfileId";
+    @JsonProperty(SERIALIZED_NAME_CERTIFICATE_PROFILE_ID)
+    private Integer certificateProfileId;
 
-  @SerializedName("end_entity_profile_id")
-  private Integer endEntityProfileId = null;
+    public static final String SERIALIZED_NAME_END_ENTITY_PROFILE_ID = "endEntityProfileId";
+    @JsonProperty(SERIALIZED_NAME_END_ENTITY_PROFILE_ID)
+    private Integer endEntityProfileId;
 
-  @SerializedName("expire_date")
-  private Long expireDate = null;
+    public static final String SERIALIZED_NAME_CERTIFICATE_PROFILE = "certificateProfile";
+    @JsonProperty(SERIALIZED_NAME_CERTIFICATE_PROFILE)
+    private String certificateProfile;
 
-  @SerializedName("issuer_dn")
-  private String issuerDn = null;
+    public static final String SERIALIZED_NAME_END_ENTITY_PROFILE = "endEntityProfile";
+    @JsonProperty(SERIALIZED_NAME_END_ENTITY_PROFILE)
+    private String endEntityProfile;
 
-  @SerializedName("not_before")
-  private Long notBefore = null;
+    public static final String SERIALIZED_NAME_EXPIRE_DATE = "expireDate";
+    @JsonProperty(SERIALIZED_NAME_EXPIRE_DATE)
+    private Long expireDate;
 
-  @SerializedName("revocation_date")
-  private Long revocationDate = null;
+    public static final String SERIALIZED_NAME_INVALIDITY_DATE = "invalidity_date";
+    @JsonProperty(SERIALIZED_NAME_INVALIDITY_DATE)
+    private Long invalidityDate;
 
-  /**
-   * Revocation reason
-   */
-  @JsonAdapter(RevocationReasonEnum.Adapter.class)
-  public enum RevocationReasonEnum {
-    @SerializedName("-1")
-    NUMBER_MINUS_1(-1),
-    @SerializedName("0")
-    NUMBER_0(0),
-    @SerializedName("1")
-    NUMBER_1(1),
-    @SerializedName("2")
-    NUMBER_2(2),
-    @SerializedName("3")
-    NUMBER_3(3),
-    @SerializedName("4")
-    NUMBER_4(4),
-    @SerializedName("5")
-    NUMBER_5(5),
-    @SerializedName("6")
-    NUMBER_6(6),
-    @SerializedName("8")
-    NUMBER_8(8),
-    @SerializedName("9")
-    NUMBER_9(9),
-    @SerializedName("10")
-    NUMBER_10(10);
+    public static final String SERIALIZED_NAME_ISSUER_D_N = "issuerDN";
+    @JsonProperty(SERIALIZED_NAME_ISSUER_D_N)
+    private String issuerDN;
 
-    private Integer value;
+    public static final String SERIALIZED_NAME_NOT_BEFORE = "notBefore";
+    @JsonProperty(SERIALIZED_NAME_NOT_BEFORE)
+    private Long notBefore;
 
-    RevocationReasonEnum(Integer value) {
-      this.value = value;
+    public static final String SERIALIZED_NAME_REVOCATION_DATE = "revocationDate";
+    @JsonProperty(SERIALIZED_NAME_REVOCATION_DATE)
+    private Long revocationDate;
+
+    /**
+     * Revocation reson
+     */
+    @JsonAdapter(RevocationReasonEnum.Adapter.class)
+    public enum RevocationReasonEnum {
+        NUMBER_MINUS_1(-1),
+
+        NUMBER_0(0),
+
+        NUMBER_1(1),
+
+        NUMBER_2(2),
+
+        NUMBER_3(3),
+
+        NUMBER_4(4),
+
+        NUMBER_5(5),
+
+        NUMBER_6(6),
+
+        NUMBER_8(8),
+
+        NUMBER_9(9),
+
+        NUMBER_10(10);
+
+        private Integer value;
+
+        RevocationReasonEnum(Integer value) {
+            this.value = value;
+        }
+
+        public Integer getValue() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        public static RevocationReasonEnum fromValue(Integer value) {
+            for (RevocationReasonEnum b : RevocationReasonEnum.values()) {
+                if (b.value.equals(value)) {
+                    return b;
+                }
+            }
+            throw new IllegalArgumentException("Unexpected value '" + value + "'");
+        }
+
+        public static class Adapter extends TypeAdapter<RevocationReasonEnum> {
+            @Override
+            public void write(final JsonWriter jsonWriter, final RevocationReasonEnum enumeration) throws IOException {
+                jsonWriter.value(enumeration.getValue());
+            }
+
+            @Override
+            public RevocationReasonEnum read(final JsonReader jsonReader) throws IOException {
+                Integer value = jsonReader.nextInt();
+                return RevocationReasonEnum.fromValue(value);
+            }
+        }
     }
-    public Integer getValue() {
-      return value;
+
+    public static final String SERIALIZED_NAME_REVOCATION_REASON = "revocationReason";
+    @JsonProperty(SERIALIZED_NAME_REVOCATION_REASON)
+//    private RevocationReasonEnum revocationReason;
+    private Integer revocationReason;
+
+    public static final String SERIALIZED_NAME_SERIAL_NUMBER = "serialNumber";
+    @JsonProperty(SERIALIZED_NAME_SERIAL_NUMBER)
+    private String serialNumber;
+
+    public static final String SERIALIZED_NAME_STATUS = "status";
+    @JsonProperty(SERIALIZED_NAME_STATUS)
+    private Integer status;
+
+    public static final String SERIALIZED_NAME_SUBJECT_ALT_NAME = "subjectAltName";
+    @JsonProperty(SERIALIZED_NAME_SUBJECT_ALT_NAME)
+    private String subjectAltName;
+
+    public static final String SERIALIZED_NAME_SUBJECT_D_N = "subjectDN";
+    @JsonProperty(SERIALIZED_NAME_SUBJECT_D_N)
+    private String subjectDN;
+
+    public static final String SERIALIZED_NAME_SUBJECT_KEY_ID = "subjectKeyId";
+    @JsonProperty(SERIALIZED_NAME_SUBJECT_KEY_ID)
+    private String subjectKeyId;
+
+    public static final String SERIALIZED_NAME_TAG = "tag";
+    @JsonProperty(SERIALIZED_NAME_TAG)
+    private String tag;
+
+    public static final String SERIALIZED_NAME_TYPE = "type";
+    @JsonProperty(SERIALIZED_NAME_TYPE)
+    private Integer type;
+
+    public static final String SERIALIZED_NAME_UDPATE_TIME = "udpateTime";
+    @JsonProperty(SERIALIZED_NAME_UDPATE_TIME)
+    private Long udpateTime;
+
+    public static final String SERIALIZED_NAME_USERNAME = "username";
+    @JsonProperty(SERIALIZED_NAME_USERNAME)
+    private String username;
+
+    public static final String SERIALIZED_NAME_BASE64_CERT = "base64Cert";
+    @JsonProperty(SERIALIZED_NAME_BASE64_CERT)
+    private String base64Cert;
+
+    public static final String SERIALIZED_NAME_CERTIFICATE_REQUEST = "certificateRequest";
+    @JsonProperty(SERIALIZED_NAME_CERTIFICATE_REQUEST)
+    private String certificateRequest;
+
+    public static final String SERIALIZED_NAME_CRL_PARTITION_INDEX = "crlPartitionIndex";
+    @JsonProperty(SERIALIZED_NAME_CRL_PARTITION_INDEX)
+    private Integer crlPartitionIndex;
+
+    public CertificateRestResponseV2() {
+    }
+
+
+    public CertificateRestResponseV2(
+        String fingerprint,
+        String cAFingerprint,
+        Integer certificateProfileId,
+        Integer endEntityProfileId,
+        String certificateProfile,
+        String endEntityProfile,
+        Long expireDate,
+        Long invalidityDate,
+        String issuerDN,
+        Long notBefore,
+        Long revocationDate,
+//        RevocationReasonEnum revocationReason,
+        Integer revocationReason,
+        String serialNumber,
+        Integer status,
+        String subjectAltName,
+        String subjectDN,
+        String subjectKeyId,
+        String tag,
+        Integer type,
+        Long udpateTime,
+        String username,
+        String base64Cert,
+        String certificateRequest,
+        Integer crlPartitionIndex
+    ) {
+        this();
+        this.fingerprint = fingerprint;
+        this.cAFingerprint = cAFingerprint;
+        this.certificateProfileId = certificateProfileId;
+        this.endEntityProfileId = endEntityProfileId;
+        this.certificateProfile = certificateProfile;
+        this.endEntityProfile = endEntityProfile;
+        this.expireDate = expireDate;
+        this.invalidityDate = invalidityDate;
+        this.issuerDN = issuerDN;
+        this.notBefore = notBefore;
+        this.revocationDate = revocationDate;
+        this.revocationReason = revocationReason;
+        this.serialNumber = serialNumber;
+        this.status = status;
+        this.subjectAltName = subjectAltName;
+        this.subjectDN = subjectDN;
+        this.subjectKeyId = subjectKeyId;
+        this.tag = tag;
+        this.type = type;
+        this.udpateTime = udpateTime;
+        this.username = username;
+        this.base64Cert = base64Cert;
+        this.certificateRequest = certificateRequest;
+        this.crlPartitionIndex = crlPartitionIndex;
+    }
+
+    /**
+     * Certificate fingerprint
+     *
+     * @return fingerprint
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(example = "123abc456def789ghi123klm456nop789qrs123t", value = "Certificate fingerprint")
+
+    public String getFingerprint() {
+        return fingerprint;
+    }
+
+
+    /**
+     * Certificate Authority fingerprint
+     *
+     * @return cAFingerprint
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(example = "abc123def456ghi789klm123nop456qrs789tvx1", value = "Certificate Authority fingerprint")
+
+    public String getcAFingerprint() {
+        return cAFingerprint;
+    }
+
+
+    /**
+     * Certificate Profile Identifier
+     *
+     * @return certificateProfileId
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(example = "1", value = "Certificate Profile Identifier")
+
+    public Integer getCertificateProfileId() {
+        return certificateProfileId;
+    }
+
+
+    /**
+     * End Entity Profile Identifier
+     *
+     * @return endEntityProfileId
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(example = "1", value = "End Entity Profile Identifier")
+
+    public Integer getEndEntityProfileId() {
+        return endEntityProfileId;
+    }
+
+    /**
+     * Certificate Profile Name
+     *
+     * @return certificateProfile
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(example = "cert profile", value = "Certificate Profile Name")
+
+    public String getCertificateProfile() {
+        return certificateProfile;
+    }
+
+
+    /**
+     * End Entity Profile Name
+     *
+     * @return endEntityProfile
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(example = "End Entity Profile", value = "End Entity Profile Name")
+
+    public String getEndEntityProfile() {
+        return endEntityProfile;
+    }
+
+
+    /**
+     * Date after which certificate should be considered expired
+     *
+     * @return expireDate
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(example = "2147483647000", value = "Date after which certificate should be considered expired")
+
+    public Long getExpireDate() {
+        return expireDate;
+    }
+
+    @javax.annotation.Nullable
+    @ApiModelProperty(example = "2147483647000", value = "Date after which certificate should be considered invalid")
+
+    public Long getInvalidityDate() {
+        return invalidityDate;
+    }
+
+
+    /**
+     * Issuer Distinguished Name
+     *
+     * @return issuerDN
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(example = "CN=ExampleCA", value = "Issuer Distinguished Name")
+
+    public String getIssuerDN() {
+        return issuerDN;
+    }
+
+
+    /**
+     * Date at which certificate became valid
+     *
+     * @return notBefore
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(example = "1659952800011", value = "Date at which certificate became valid")
+
+    public Long getNotBefore() {
+        return notBefore;
+    }
+
+
+    /**
+     * Revocation date
+     *
+     * @return revocationDate
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(example = "-1", value = "Revocation date")
+
+    public Long getRevocationDate() {
+        return revocationDate;
+    }
+
+
+    /**
+     * Revocation reson
+     *
+     * @return revocationReason
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(example = "-1", value = "Revocation reson")
+
+//    public RevocationReasonEnum getRevocationReason() {
+    public Integer getRevocationReason() {
+        return revocationReason;
+    }
+
+
+    /**
+     * Hex Serial Number
+     *
+     * @return serialNumber
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(example = "1234567890ABCDEF", value = "Hex Serial Number")
+
+    public String getSerialNumber() {
+        return serialNumber;
+    }
+
+
+    /**
+     * Certificate status
+     *
+     * @return status
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(example = "20", value = "Certificate status")
+
+    public Integer getStatus() {
+        return status;
+    }
+
+
+    /**
+     * Subject Alternative Name (SAN)
+     *
+     * @return subjectAltName
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(example = "rfc822Name=john.doe@example.com", value = "Subject Alternative Name (SAN)")
+
+    public String getSubjectAltName() {
+        return subjectAltName;
+    }
+
+
+    /**
+     * Subject Distinguished Name
+     *
+     * @return subjectDN
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(example = "CN=John Doe,SURNAME=Doe,GIVENNAME=John,C=SE", value = "Subject Distinguished Name")
+
+    public String getSubjectDN() {
+        return subjectDN;
+    }
+
+
+    /**
+     * Subject Key Identifier
+     *
+     * @return subjectKeyId
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(example = "z123abc456def789ghi123klm456nop789qrs123", value = "Subject Key Identifier")
+
+    public String getSubjectKeyId() {
+        return subjectKeyId;
+    }
+
+
+    /**
+     * Get tag
+     *
+     * @return tag
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(value = "")
+
+    public String getTag() {
+        return tag;
+    }
+
+
+    /**
+     * Get type
+     *
+     * @return type
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(value = "")
+
+    public Integer getType() {
+        return type;
+    }
+
+
+    /**
+     * Update time
+     *
+     * @return udpateTime
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(example = "1659967133000", value = "Update time")
+
+    public Long getUdpateTime() {
+        return udpateTime;
+    }
+
+
+    /**
+     * Username
+     *
+     * @return username
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(example = "JohnDoe", value = "Username")
+
+    public String getUsername() {
+        return username;
+    }
+
+
+    /**
+     * Base64 encoded certificate
+     *
+     * @return base64Cert
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(example = "TUlJR...t2A==", value = "Base64 encoded certificate")
+
+    public String getBase64Cert() {
+        return base64Cert;
+    }
+
+
+    /**
+     * Certificate request
+     *
+     * @return certificateRequest
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(example = "-----BEGIN CERTIFICATE REQUEST----- MIICh...V8shQ== -----END CERTIFICATE REQUEST-----", value = "Certificate request")
+
+    public String getCertificateRequest() {
+        return certificateRequest;
+    }
+
+
+    /**
+     * CRL partition index
+     *
+     * @return crlPartitionIndex
+     **/
+    @javax.annotation.Nullable
+    @ApiModelProperty(example = "1", value = "CRL partition index")
+
+    public Integer getCrlPartitionIndex() {
+        return crlPartitionIndex;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        CertificateRestResponseV2 certificateRestResponseV2 = (CertificateRestResponseV2) o;
+        return Objects.equals(this.fingerprint, certificateRestResponseV2.fingerprint) &&
+            Objects.equals(this.cAFingerprint, certificateRestResponseV2.cAFingerprint) &&
+            Objects.equals(this.certificateProfileId, certificateRestResponseV2.certificateProfileId) &&
+            Objects.equals(this.endEntityProfileId, certificateRestResponseV2.endEntityProfileId) &&
+            Objects.equals(this.expireDate, certificateRestResponseV2.expireDate) &&
+            Objects.equals(this.invalidityDate, certificateRestResponseV2.invalidityDate) &&
+
+            Objects.equals(this.issuerDN, certificateRestResponseV2.issuerDN) &&
+            Objects.equals(this.notBefore, certificateRestResponseV2.notBefore) &&
+            Objects.equals(this.revocationDate, certificateRestResponseV2.revocationDate) &&
+            Objects.equals(this.revocationReason, certificateRestResponseV2.revocationReason) &&
+            Objects.equals(this.serialNumber, certificateRestResponseV2.serialNumber) &&
+            Objects.equals(this.status, certificateRestResponseV2.status) &&
+            Objects.equals(this.subjectAltName, certificateRestResponseV2.subjectAltName) &&
+            Objects.equals(this.subjectDN, certificateRestResponseV2.subjectDN) &&
+            Objects.equals(this.subjectKeyId, certificateRestResponseV2.subjectKeyId) &&
+            Objects.equals(this.tag, certificateRestResponseV2.tag) &&
+            Objects.equals(this.type, certificateRestResponseV2.type) &&
+            Objects.equals(this.udpateTime, certificateRestResponseV2.udpateTime) &&
+            Objects.equals(this.username, certificateRestResponseV2.username) &&
+            Objects.equals(this.base64Cert, certificateRestResponseV2.base64Cert) &&
+            Objects.equals(this.certificateRequest, certificateRestResponseV2.certificateRequest) &&
+            Objects.equals(this.crlPartitionIndex, certificateRestResponseV2.crlPartitionIndex);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(fingerprint, cAFingerprint, certificateProfileId, endEntityProfileId, expireDate, invalidityDate, issuerDN, notBefore, revocationDate, revocationReason, serialNumber, status, subjectAltName, subjectDN, subjectKeyId, tag, type, udpateTime, username, base64Cert, certificateRequest, crlPartitionIndex);
     }
 
     @Override
     public String toString() {
-      return String.valueOf(value);
+        StringBuilder sb = new StringBuilder();
+        sb.append("class CertificateRestResponseV2 {\n");
+        sb.append("    fingerprint: ").append(toIndentedString(fingerprint)).append("\n");
+        sb.append("    cAFingerprint: ").append(toIndentedString(cAFingerprint)).append("\n");
+        sb.append("    certificateProfileId: ").append(toIndentedString(certificateProfileId)).append("\n");
+        sb.append("    certificateProfile: ").append(toIndentedString(certificateProfile)).append("\n");
+        sb.append("    endEntityProfileId: ").append(toIndentedString(endEntityProfileId)).append("\n");
+        sb.append("    endEntityProfile: ").append(toIndentedString(endEntityProfile)).append("\n");
+        sb.append("    expireDate: ").append(toIndentedString(expireDate)).append("\n");
+        sb.append("    invalidityDate: ").append(toIndentedString(invalidityDate)).append("\n");
+
+        sb.append("    issuerDN: ").append(toIndentedString(issuerDN)).append("\n");
+        sb.append("    notBefore: ").append(toIndentedString(notBefore)).append("\n");
+        sb.append("    revocationDate: ").append(toIndentedString(revocationDate)).append("\n");
+        sb.append("    revocationReason: ").append(toIndentedString(revocationReason)).append("\n");
+        sb.append("    serialNumber: ").append(toIndentedString(serialNumber)).append("\n");
+        sb.append("    status: ").append(toIndentedString(status)).append("\n");
+        sb.append("    subjectAltName: ").append(toIndentedString(subjectAltName)).append("\n");
+        sb.append("    subjectDN: ").append(toIndentedString(subjectDN)).append("\n");
+        sb.append("    subjectKeyId: ").append(toIndentedString(subjectKeyId)).append("\n");
+        sb.append("    tag: ").append(toIndentedString(tag)).append("\n");
+        sb.append("    type: ").append(toIndentedString(type)).append("\n");
+        sb.append("    udpateTime: ").append(toIndentedString(udpateTime)).append("\n");
+        sb.append("    username: ").append(toIndentedString(username)).append("\n");
+        sb.append("    base64Cert: ").append(toIndentedString(base64Cert)).append("\n");
+        sb.append("    certificateRequest: ").append(toIndentedString(certificateRequest)).append("\n");
+        sb.append("    crlPartitionIndex: ").append(toIndentedString(crlPartitionIndex)).append("\n");
+        sb.append("}");
+        return sb.toString();
     }
-    public static RevocationReasonEnum fromValue(Integer input) {
-      for (RevocationReasonEnum b : RevocationReasonEnum.values()) {
-        if (b.value.equals(input)) {
-          return b;
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private String toIndentedString(Object o) {
+        if (o == null) {
+            return "null";
         }
-      }
-      return null;
+        return o.toString().replace("\n", "\n    ");
     }
-    public static class Adapter extends TypeAdapter<RevocationReasonEnum> {
-      @Override
-      public void write(final JsonWriter jsonWriter, final RevocationReasonEnum enumeration) throws IOException {
-        jsonWriter.value(String.valueOf(enumeration.getValue()));
-      }
 
-      @Override
-      public RevocationReasonEnum read(final JsonReader jsonReader) throws IOException {
-        Object value = jsonReader.nextInt();
-        return RevocationReasonEnum.fromValue((Integer)(value));
-      }
+
+    public static HashSet<String> openapiFields;
+    public static HashSet<String> openapiRequiredFields;
+
+    static {
+        // a set of all properties/fields (JSON key names)
+        openapiFields = new HashSet<String>();
+        openapiFields.add("fingerprint");
+        openapiFields.add("cAFingerprint");
+        openapiFields.add("certificateProfileId");
+        openapiFields.add("endEntityProfileId");
+        openapiFields.add("expireDate");
+        openapiFields.add("invalidityDate");
+
+        openapiFields.add("issuerDN");
+        openapiFields.add("notBefore");
+        openapiFields.add("revocationDate");
+        openapiFields.add("revocationReason");
+        openapiFields.add("serialNumber");
+        openapiFields.add("status");
+        openapiFields.add("subjectAltName");
+        openapiFields.add("subjectDN");
+        openapiFields.add("subjectKeyId");
+        openapiFields.add("tag");
+        openapiFields.add("type");
+        openapiFields.add("udpateTime");
+        openapiFields.add("username");
+        openapiFields.add("base64Cert");
+        openapiFields.add("certificateRequest");
+        openapiFields.add("crlPartitionIndex");
+
+        // a set of required properties/fields (JSON key names)
+        openapiRequiredFields = new HashSet<String>();
     }
-  }  @SerializedName("revocation_reason")
-  private RevocationReasonEnum revocationReason = null;
 
-  @SerializedName("serial_number")
-  private String serialNumber = null;
+    /**
+     * Validates the JSON Object and throws an exception if issues found
+     *
+     * @param jsonObj JSON Object
+     * @throws IOException if the JSON Object is invalid with respect to CertificateRestResponseV2
+     */
+    public static void validateJsonObject(JsonObject jsonObj) throws IOException {
+        if (jsonObj == null) {
+            if (CertificateRestResponseV2.openapiRequiredFields.isEmpty()) {
+                return;
+            } else { // has required fields
+                throw new IllegalArgumentException(String.format("The required field(s) %s in CertificateRestResponseV2 is not found in the empty JSON string", CertificateRestResponseV2.openapiRequiredFields.toString()));
+            }
+        }
 
-  @SerializedName("status")
-  private Integer status = null;
-
-  @SerializedName("subject_alt_name")
-  private String subjectAltName = null;
-
-  @SerializedName("subject_dn")
-  private String subjectDn = null;
-
-  @SerializedName("subject_key_id")
-  private String subjectKeyId = null;
-
-  @SerializedName("tag")
-  private String tag = null;
-
-  @SerializedName("type")
-  private Integer type = null;
-
-  @SerializedName("udpate_time")
-  private Long udpateTime = null;
-
-  @SerializedName("username")
-  private String username = null;
-
-  @SerializedName("base64_cert")
-  private List<byte[]> base64Cert = null;
-
-  @SerializedName("certificate_request")
-  private String certificateRequest = null;
-
-  @SerializedName("crl_partition_index")
-  private Integer crlPartitionIndex = null;
-
-  @SerializedName("invalidity_date")
-  private Long invalidityDate = null;
-
-  @SerializedName("certificate_profile")
-  private String certificateProfile = null;
-
-  @SerializedName("end_entity_profile")
-  private String endEntityProfile = null;
-
-   /**
-   * Certificate fingerprint
-   * @return fingerprint
-  **/
-  @Schema(example = "123abc456def789ghi123klm456nop789qrs123t", description = "Certificate fingerprint")
-  public String getFingerprint() {
-    return fingerprint;
-  }
-
-   /**
-   * Certificate Authority fingerprint
-   * @return cAfingerprint
-  **/
-  @Schema(example = "abc123def456ghi789klm123nop456qrs789tvx1", description = "Certificate Authority fingerprint")
-  public String getCAfingerprint() {
-    return cAfingerprint;
-  }
-
-   /**
-   * Certificate Profile Identifier
-   * @return certificateProfileId
-  **/
-  @Schema(example = "1", description = "Certificate Profile Identifier")
-  public Integer getCertificateProfileId() {
-    return certificateProfileId;
-  }
-
-   /**
-   * End Entity Profile Identifier
-   * @return endEntityProfileId
-  **/
-  @Schema(example = "1", description = "End Entity Profile Identifier")
-  public Integer getEndEntityProfileId() {
-    return endEntityProfileId;
-  }
-
-   /**
-   * Date after which certificate should be considered expired
-   * @return expireDate
-  **/
-  @Schema(example = "2147483647000", description = "Date after which certificate should be considered expired")
-  public Long getExpireDate() {
-    return expireDate;
-  }
-
-   /**
-   * Issuer Distinguished Name
-   * @return issuerDn
-  **/
-  @Schema(example = "CN=ExampleCA", description = "Issuer Distinguished Name")
-  public String getIssuerDn() {
-    return issuerDn;
-  }
-
-   /**
-   * Date at which certificate became valid
-   * @return notBefore
-  **/
-  @Schema(example = "1659952800011", description = "Date at which certificate became valid")
-  public Long getNotBefore() {
-    return notBefore;
-  }
-
-   /**
-   * Revocation date
-   * @return revocationDate
-  **/
-  @Schema(example = "-1", description = "Revocation date")
-  public Long getRevocationDate() {
-    return revocationDate;
-  }
-
-   /**
-   * Revocation reason
-   * @return revocationReason
-  **/
-  @Schema(example = "-1", description = "Revocation reason")
-  public RevocationReasonEnum getRevocationReason() {
-    return revocationReason;
-  }
-
-   /**
-   * Hex Serial Number
-   * @return serialNumber
-  **/
-  @Schema(example = "1234567890ABCDEF", description = "Hex Serial Number")
-  public String getSerialNumber() {
-    return serialNumber;
-  }
-
-   /**
-   * Certificate status
-   * @return status
-  **/
-  @Schema(example = "20", description = "Certificate status")
-  public Integer getStatus() {
-    return status;
-  }
-
-   /**
-   * Subject Alternative Name (SAN)
-   * @return subjectAltName
-  **/
-  @Schema(example = "rfc822Name=john.doe@example.com", description = "Subject Alternative Name (SAN)")
-  public String getSubjectAltName() {
-    return subjectAltName;
-  }
-
-   /**
-   * Subject Distinguished Name
-   * @return subjectDn
-  **/
-  @Schema(example = "CN=John Doe,SURNAME=Doe,GIVENNAME=John,C=SE", description = "Subject Distinguished Name")
-  public String getSubjectDn() {
-    return subjectDn;
-  }
-
-   /**
-   * Subject Key Identifier
-   * @return subjectKeyId
-  **/
-  @Schema(example = "z123abc456def789ghi123klm456nop789qrs123", description = "Subject Key Identifier")
-  public String getSubjectKeyId() {
-    return subjectKeyId;
-  }
-
-   /**
-   * Get tag
-   * @return tag
-  **/
-  @Schema(description = "")
-  public String getTag() {
-    return tag;
-  }
-
-   /**
-   * Get type
-   * @return type
-  **/
-  @Schema(description = "")
-  public Integer getType() {
-    return type;
-  }
-
-   /**
-   * Update time
-   * @return udpateTime
-  **/
-  @Schema(example = "1659967133000", description = "Update time")
-  public Long getUdpateTime() {
-    return udpateTime;
-  }
-
-   /**
-   * Username
-   * @return username
-  **/
-  @Schema(example = "JohnDoe", description = "Username")
-  public String getUsername() {
-    return username;
-  }
-
-   /**
-   * Base64 encoded certificate
-   * @return base64Cert
-  **/
-  @Schema(example = "TUlJR...t2A==", description = "Base64 encoded certificate")
-  public List<byte[]> getBase64Cert() {
-    return base64Cert;
-  }
-
-   /**
-   * Certificate request
-   * @return certificateRequest
-  **/
-  @Schema(example = "-----BEGIN CERTIFICATE REQUEST----- MIICh...V8shQ== -----END CERTIFICATE REQUEST-----", description = "Certificate request")
-  public String getCertificateRequest() {
-    return certificateRequest;
-  }
-
-   /**
-   * CRL partition index
-   * @return crlPartitionIndex
-  **/
-  @Schema(example = "1", description = "CRL partition index")
-  public Integer getCrlPartitionIndex() {
-    return crlPartitionIndex;
-  }
-
-  public CertificateRestResponseV2 invalidityDate(Long invalidityDate) {
-    this.invalidityDate = invalidityDate;
-    return this;
-  }
-
-   /**
-   * Invalidity date
-   * @return invalidityDate
-  **/
-  @Schema(example = "-1", description = "Invalidity date")
-  public Long getInvalidityDate() {
-    return invalidityDate;
-  }
-
-  public void setInvalidityDate(Long invalidityDate) {
-    this.invalidityDate = invalidityDate;
-  }
-
-   /**
-   * Certificate Profile Name
-   * @return certificateProfile
-  **/
-  @Schema(example = "ENDUSER", description = "Certificate Profile Name")
-  public String getCertificateProfile() {
-    return certificateProfile;
-  }
-
-   /**
-   * End Entity Profile Name
-   * @return endEntityProfile
-  **/
-  @Schema(example = "EMPTY", description = "End Entity Profile Name")
-  public String getEndEntityProfile() {
-    return endEntityProfile;
-  }
-
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
+        Set<Map.Entry<String, JsonElement>> entries = jsonObj.entrySet();
+        // check to see if the JSON string contains additional fields
+        for (Map.Entry<String, JsonElement> entry : entries) {
+            if (!CertificateRestResponseV2.openapiFields.contains(entry.getKey())) {
+                throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `CertificateRestResponseV2` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
+            }
+        }
+        if ((jsonObj.get("fingerprint") != null && !jsonObj.get("fingerprint").isJsonNull()) && !jsonObj.get("fingerprint").isJsonPrimitive()) {
+            throw new IllegalArgumentException(String.format("Expected the field `fingerprint` to be a primitive type in the JSON string but got `%s`", jsonObj.get("fingerprint").toString()));
+        }
+        if ((jsonObj.get("cAFingerprint") != null && !jsonObj.get("cAFingerprint").isJsonNull()) && !jsonObj.get("cAFingerprint").isJsonPrimitive()) {
+            throw new IllegalArgumentException(String.format("Expected the field `cAFingerprint` to be a primitive type in the JSON string but got `%s`", jsonObj.get("cAFingerprint").toString()));
+        }
+        if ((jsonObj.get("issuerDN") != null && !jsonObj.get("issuerDN").isJsonNull()) && !jsonObj.get("issuerDN").isJsonPrimitive()) {
+            throw new IllegalArgumentException(String.format("Expected the field `issuerDN` to be a primitive type in the JSON string but got `%s`", jsonObj.get("issuerDN").toString()));
+        }
+        if ((jsonObj.get("serialNumber") != null && !jsonObj.get("serialNumber").isJsonNull()) && !jsonObj.get("serialNumber").isJsonPrimitive()) {
+            throw new IllegalArgumentException(String.format("Expected the field `serialNumber` to be a primitive type in the JSON string but got `%s`", jsonObj.get("serialNumber").toString()));
+        }
+        if ((jsonObj.get("subjectAltName") != null && !jsonObj.get("subjectAltName").isJsonNull()) && !jsonObj.get("subjectAltName").isJsonPrimitive()) {
+            throw new IllegalArgumentException(String.format("Expected the field `subjectAltName` to be a primitive type in the JSON string but got `%s`", jsonObj.get("subjectAltName").toString()));
+        }
+        if ((jsonObj.get("subjectDN") != null && !jsonObj.get("subjectDN").isJsonNull()) && !jsonObj.get("subjectDN").isJsonPrimitive()) {
+            throw new IllegalArgumentException(String.format("Expected the field `subjectDN` to be a primitive type in the JSON string but got `%s`", jsonObj.get("subjectDN").toString()));
+        }
+        if ((jsonObj.get("subjectKeyId") != null && !jsonObj.get("subjectKeyId").isJsonNull()) && !jsonObj.get("subjectKeyId").isJsonPrimitive()) {
+            throw new IllegalArgumentException(String.format("Expected the field `subjectKeyId` to be a primitive type in the JSON string but got `%s`", jsonObj.get("subjectKeyId").toString()));
+        }
+        if ((jsonObj.get("tag") != null && !jsonObj.get("tag").isJsonNull()) && !jsonObj.get("tag").isJsonPrimitive()) {
+            throw new IllegalArgumentException(String.format("Expected the field `tag` to be a primitive type in the JSON string but got `%s`", jsonObj.get("tag").toString()));
+        }
+        if ((jsonObj.get("username") != null && !jsonObj.get("username").isJsonNull()) && !jsonObj.get("username").isJsonPrimitive()) {
+            throw new IllegalArgumentException(String.format("Expected the field `username` to be a primitive type in the JSON string but got `%s`", jsonObj.get("username").toString()));
+        }
+        if ((jsonObj.get("base64Cert") != null && !jsonObj.get("base64Cert").isJsonNull()) && !jsonObj.get("base64Cert").isJsonPrimitive()) {
+            throw new IllegalArgumentException(String.format("Expected the field `base64Cert` to be a primitive type in the JSON string but got `%s`", jsonObj.get("base64Cert").toString()));
+        }
+        if ((jsonObj.get("certificateRequest") != null && !jsonObj.get("certificateRequest").isJsonNull()) && !jsonObj.get("certificateRequest").isJsonPrimitive()) {
+            throw new IllegalArgumentException(String.format("Expected the field `certificateRequest` to be a primitive type in the JSON string but got `%s`", jsonObj.get("certificateRequest").toString()));
+        }
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
+        @SuppressWarnings("unchecked")
+        @Override
+        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+            if (!CertificateRestResponseV2.class.isAssignableFrom(type.getRawType())) {
+                return null; // this class only serializes 'CertificateRestResponseV2' and its subtypes
+            }
+            final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
+            final TypeAdapter<CertificateRestResponseV2> thisAdapter
+                = gson.getDelegateAdapter(this, TypeToken.get(CertificateRestResponseV2.class));
+
+            return (TypeAdapter<T>) new TypeAdapter<CertificateRestResponseV2>() {
+                @Override
+                public void write(JsonWriter out, CertificateRestResponseV2 value) throws IOException {
+                    JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
+                    elementAdapter.write(out, obj);
+                }
+
+                @Override
+                public CertificateRestResponseV2 read(JsonReader in) throws IOException {
+                    JsonObject jsonObj = elementAdapter.read(in).getAsJsonObject();
+                    validateJsonObject(jsonObj);
+                    return thisAdapter.fromJsonTree(jsonObj);
+                }
+
+            }.nullSafe();
+        }
     }
-    CertificateRestResponseV2 certificateRestResponseV2 = (CertificateRestResponseV2) o;
-    return Objects.equals(this.fingerprint, certificateRestResponseV2.fingerprint) &&
-        Objects.equals(this.cAfingerprint, certificateRestResponseV2.cAfingerprint) &&
-        Objects.equals(this.certificateProfileId, certificateRestResponseV2.certificateProfileId) &&
-        Objects.equals(this.endEntityProfileId, certificateRestResponseV2.endEntityProfileId) &&
-        Objects.equals(this.expireDate, certificateRestResponseV2.expireDate) &&
-        Objects.equals(this.issuerDn, certificateRestResponseV2.issuerDn) &&
-        Objects.equals(this.notBefore, certificateRestResponseV2.notBefore) &&
-        Objects.equals(this.revocationDate, certificateRestResponseV2.revocationDate) &&
-        Objects.equals(this.revocationReason, certificateRestResponseV2.revocationReason) &&
-        Objects.equals(this.serialNumber, certificateRestResponseV2.serialNumber) &&
-        Objects.equals(this.status, certificateRestResponseV2.status) &&
-        Objects.equals(this.subjectAltName, certificateRestResponseV2.subjectAltName) &&
-        Objects.equals(this.subjectDn, certificateRestResponseV2.subjectDn) &&
-        Objects.equals(this.subjectKeyId, certificateRestResponseV2.subjectKeyId) &&
-        Objects.equals(this.tag, certificateRestResponseV2.tag) &&
-        Objects.equals(this.type, certificateRestResponseV2.type) &&
-        Objects.equals(this.udpateTime, certificateRestResponseV2.udpateTime) &&
-        Objects.equals(this.username, certificateRestResponseV2.username) &&
-        Objects.equals(this.base64Cert, certificateRestResponseV2.base64Cert) &&
-        Objects.equals(this.certificateRequest, certificateRestResponseV2.certificateRequest) &&
-        Objects.equals(this.crlPartitionIndex, certificateRestResponseV2.crlPartitionIndex) &&
-        Objects.equals(this.invalidityDate, certificateRestResponseV2.invalidityDate) &&
-        Objects.equals(this.certificateProfile, certificateRestResponseV2.certificateProfile) &&
-        Objects.equals(this.endEntityProfile, certificateRestResponseV2.endEntityProfile);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(fingerprint, cAfingerprint, certificateProfileId, endEntityProfileId, expireDate, issuerDn, notBefore, revocationDate, revocationReason, serialNumber, status, subjectAltName, subjectDn, subjectKeyId, tag, type, udpateTime, username, base64Cert, certificateRequest, crlPartitionIndex, invalidityDate, certificateProfile, endEntityProfile);
-  }
-
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class CertificateRestResponseV2 {\n");
-
-    sb.append("    fingerprint: ").append(toIndentedString(fingerprint)).append("\n");
-    sb.append("    cAfingerprint: ").append(toIndentedString(cAfingerprint)).append("\n");
-    sb.append("    certificateProfileId: ").append(toIndentedString(certificateProfileId)).append("\n");
-    sb.append("    endEntityProfileId: ").append(toIndentedString(endEntityProfileId)).append("\n");
-    sb.append("    expireDate: ").append(toIndentedString(expireDate)).append("\n");
-    sb.append("    issuerDn: ").append(toIndentedString(issuerDn)).append("\n");
-    sb.append("    notBefore: ").append(toIndentedString(notBefore)).append("\n");
-    sb.append("    revocationDate: ").append(toIndentedString(revocationDate)).append("\n");
-    sb.append("    revocationReason: ").append(toIndentedString(revocationReason)).append("\n");
-    sb.append("    serialNumber: ").append(toIndentedString(serialNumber)).append("\n");
-    sb.append("    status: ").append(toIndentedString(status)).append("\n");
-    sb.append("    subjectAltName: ").append(toIndentedString(subjectAltName)).append("\n");
-    sb.append("    subjectDn: ").append(toIndentedString(subjectDn)).append("\n");
-    sb.append("    subjectKeyId: ").append(toIndentedString(subjectKeyId)).append("\n");
-    sb.append("    tag: ").append(toIndentedString(tag)).append("\n");
-    sb.append("    type: ").append(toIndentedString(type)).append("\n");
-    sb.append("    udpateTime: ").append(toIndentedString(udpateTime)).append("\n");
-    sb.append("    username: ").append(toIndentedString(username)).append("\n");
-    sb.append("    base64Cert: ").append(toIndentedString(base64Cert)).append("\n");
-    sb.append("    certificateRequest: ").append(toIndentedString(certificateRequest)).append("\n");
-    sb.append("    crlPartitionIndex: ").append(toIndentedString(crlPartitionIndex)).append("\n");
-    sb.append("    invalidityDate: ").append(toIndentedString(invalidityDate)).append("\n");
-    sb.append("    certificateProfile: ").append(toIndentedString(certificateProfile)).append("\n");
-    sb.append("    endEntityProfile: ").append(toIndentedString(endEntityProfile)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
-    }
-    return o.toString().replace("\n", "\n    ");
-  }
 
 }

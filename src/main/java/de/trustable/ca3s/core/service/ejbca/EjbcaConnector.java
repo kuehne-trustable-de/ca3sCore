@@ -6,20 +6,18 @@ import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.schedule.ImportInfo;
 import de.trustable.ca3s.core.service.cmp.SSLSocketFactoryWrapper;
-import de.trustable.ca3s.core.service.dto.ejbca.CertificateRestResponseV2;
-import de.trustable.ca3s.core.service.dto.ejbca.SearchCertificatesRestResponseV2;
+import de.trustable.ca3s.core.service.dto.ejbca.*;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.net.ssl.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.*;
@@ -32,7 +30,7 @@ public class EjbcaConnector {
 
     Logger LOGGER = LoggerFactory.getLogger(EjbcaConnector.class);
 
-    final long PAGE_SIZE = 10L;
+    final int PAGE_SIZE = 10;
     private final X509TrustManager ca3sTrustManager;
 
     private final CertificateUtil certUtil;
@@ -42,7 +40,7 @@ public class EjbcaConnector {
         this.certUtil = certUtil;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public int retrieveCertificates(CAConnectorConfig caConfig) throws IOException {
 
         ImportInfo importInfo = new ImportInfo();
@@ -51,32 +49,31 @@ public class EjbcaConnector {
             LOGGER.warn("in retrieveCertificates: url missing");
             return 0;
         }
-
+/*
         if (caConfig.getSelector() == null  || caConfig.getSelector().isEmpty()) {
             LOGGER.warn("in retrieveCertificates: selector missing");
             return 0;
         }
+*/
+        SearchCertificatesRestRequestV2 searchCertificatesRestRequestV2 = new SearchCertificatesRestRequestV2(); // SearchCertificatesRestRequestV2 | Collection of search criterias and pagination information.
 
-        String certificateRequestQuery = "{\n" +
-            "  \"pagination\": {\n" +
-            "    \"page_size\": 1000,\n" +
-            "    \"current_page\": 1\n" +
-            "  }," +
-            "  \"criteria\": [\n" +
-            "    {\n" +
-            "      \"property\": \"UPDATE_TIME\",\n" +
-            "      \"value\": \"" + caConfig.getLastUpdate() + "\",\n" +
-            "      \"operation\": \"AFTER\"\n" +
-            "    }\n" +
-            "  ],\n" +
-            "  \"sort_operation\": {\n" +
-            "    \"property\": \"UPDATE_TIME\",\n" +
-            "    \"operation\": \"ASC\"\n" +
-            "  }\n" +
-            "}";
+        SearchCertificateCriteriaRestRequest certificateCriteriaRestRequest = new SearchCertificateCriteriaRestRequest();
+        certificateCriteriaRestRequest.setProperty(SearchCertificateCriteriaRestRequest.PropertyEnum.ISSUED_DATE);
+        String lastUpdate = caConfig.getLastUpdate() == null ? "2018-06-27T08:07:52Z": caConfig.getLastUpdate().toString();
+        certificateCriteriaRestRequest.setValue(lastUpdate);
+        certificateCriteriaRestRequest.setOperation(SearchCertificateCriteriaRestRequest.OperationEnum.AFTER);
 
+        searchCertificatesRestRequestV2.addCriteriaItem(certificateCriteriaRestRequest);
 
-        LOGGER.debug("in retrieveCertificates: query: " + certificateRequestQuery);
+        Pagination pagination = new Pagination();
+        pagination.setCurrentPage(1);
+        pagination.setPageSize(PAGE_SIZE);
+        searchCertificatesRestRequestV2.setPagination(pagination);
+
+        SearchCertificateSortRestRequest searchCertificateSortRestRequest = new SearchCertificateSortRestRequest();
+        searchCertificateSortRestRequest.setProperty(SearchCertificateSortRestRequest.PropertyEnum.ISSUED_DATE);
+        searchCertificateSortRestRequest.setOperation(SearchCertificateSortRestRequest.OperationEnum.ASC);
+        searchCertificatesRestRequestV2.setSort(searchCertificateSortRestRequest);
 
         try {
             Certificate certificateTlsAuthentication = caConfig.getTlsAuthentication();
@@ -86,7 +83,7 @@ public class EjbcaConnector {
                 importInfo = invokeRestEndpoint(caConfig,
                     importInfo,
                     url,
-                    certificateRequestQuery.getBytes(),
+                    marshallRequest(searchCertificatesRestRequestV2 ),
                     null, // SNI
                     true, // disableHostNameVerifier
                     null,
@@ -102,7 +99,7 @@ public class EjbcaConnector {
                 importInfo = invokeRestEndpoint(caConfig,
                     importInfo,
                     url,
-                    certificateRequestQuery.getBytes(),
+                    marshallRequest(searchCertificatesRestRequestV2 ),
                     null, // SNI
                     true, // disableHostNameVerifier
                     keyStoreAndPassphrase.getKeyStore(),
@@ -197,8 +194,10 @@ public class EjbcaConnector {
         os.write(requestBytes);
         os.close();
 
+        byte[] responseArr = IOUtils.toByteArray(con.getInputStream());
+        LOGGER.debug("Received response bytes: {}", new String(responseArr));
         // Read the response
-        parseResponse( con.getInputStream(), importInfo, caConfig );
+        parseResponse( responseArr, importInfo, caConfig );
 
         if (con.getResponseCode() == 200) {
             LOGGER.debug("Received certificate reply.");
@@ -214,32 +213,57 @@ public class EjbcaConnector {
         return importInfo;
     }
 
-    void parseResponse( InputStream in, ImportInfo importInfo,final CAConnectorConfig caConfig ){
+    byte[] marshallRequest(final SearchCertificatesRestRequestV2 searchCertificatesRestRequestV2 ) throws IOException {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        ByteArrayOutputStream boas = new ByteArrayOutputStream();
+        objectMapper.writeValue(boas, searchCertificatesRestRequestV2);
+
+        LOGGER.debug("in retrieveCertificates: query: {}", boas.toString());
+
+        return boas.toByteArray();
+    }
+
+    void parseResponse( byte[] responseArr, ImportInfo importInfo,final CAConnectorConfig caConfig ){
 
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            SearchCertificatesRestResponseV2 certificateSearchResponse = objectMapper.readValue(in, SearchCertificatesRestResponseV2.class);
+            SearchCertificatesRestResponseV2 certificateSearchResponse =
+                objectMapper.readValue(responseArr, SearchCertificatesRestResponseV2.class);
 
             for(CertificateRestResponseV2 certificateRestResponse : certificateSearchResponse.getCertificates()){
 
-                String desc = ( certificateRestResponse.getSubjectDn() == null ? "" : certificateRestResponse.getSubjectDn() ) + ", #" + certificateRestResponse.getSerialNumber();
-                if( !certificateRestResponse.getBase64Cert().isEmpty() ){
+                String desc = ( certificateRestResponse.getSubjectDN() == null ? "" : certificateRestResponse.getSubjectDN() ) + ", #" + certificateRestResponse.getSerialNumber();
+                if( certificateRestResponse.getBase64Cert() != null){
 
                     CSR csr = null;
-                    if( !certificateRestResponse.getCertificateRequest().isEmpty() ) {
+                    if( certificateRestResponse.getCertificateRequest() != null ) {
                         LOGGER.info("CertificateRestResponseV2 contains csr!");
                     }
 
-                    byte[] certBytes = Base64.decodeBase64(certificateRestResponse.getBase64Cert().get(0));
+                    byte[] certBytes = Base64.decodeBase64(
+                        Base64.decodeBase64(certificateRestResponse.getBase64Cert()));
                     try {
-                        Certificate certificate = certUtil.createCertificate(certBytes, csr, "", true, caConfig.getCaUrl());
-                        Instant lastUpdateInstant = Instant.ofEpochMilli( certificateRestResponse.getUdpateTime() );
-                        if( lastUpdateInstant.isAfter(caConfig.getLastUpdate())){
-                            caConfig.setLastUpdate(lastUpdateInstant);
+                        try {
+                            Certificate certificate = certUtil.createCertificate(certBytes, csr, "", true, caConfig.getCaUrl());
+                            LOGGER.debug("imported certificate: {}", certificate);
+                            importInfo.incImported();
+                        } catch (Exception e) {
+                            LOGGER.info("CertificateRestResponseV2: processing certificate for '{}' failed: {} ", desc, e.getMessage());
+                            importInfo.incRejected();
                         }
-                        importInfo.incImported();
-                    } catch (GeneralSecurityException e) {
-                        LOGGER.info("CertificateRestResponseV2: parsing certificate for '{}' failed: {} ", desc, e.getMessage());
+
+                        if(certificateRestResponse.getNotBefore() != null) {
+                            LOGGER.info("CertificateRestResponseV2 contains UpdateTime: {}", certificateRestResponse.getUdpateTime());
+                            Instant notBeforeInstant = Instant.ofEpochMilli(certificateRestResponse.getNotBefore());
+                            Instant notBeforeConfig = caConfig.getLastUpdate() == null ? Instant.MIN: caConfig.getLastUpdate();
+                            if (notBeforeInstant.isAfter(notBeforeConfig)) {
+                                LOGGER.info("caConfig.setLastUpdate( {} )", certificateRestResponse.getUdpateTime());
+                                caConfig.setLastUpdate(notBeforeInstant);
+                            }
+                        }
+                    } catch (Exception e) {
+                        LOGGER.info("CertificateRestResponseV2: processing last update failed: {} ", e.getMessage());
                     }
 
                 }else{

@@ -12,6 +12,7 @@
 
 package de.trustable.ca3s.core.service.dto.ejbca;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -23,31 +24,31 @@ import java.util.Objects;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2024-02-27T11:17:53.164838525Z[GMT]")
 
 public class EnrollCertificateRestRequest {
-  @SerializedName("certificate_request")
+  @JsonProperty("certificate_request")
   private String certificateRequest = null;
 
-  @SerializedName("certificate_profile_name")
+  @JsonProperty("certificate_profile_name")
   private String certificateProfileName = null;
 
-  @SerializedName("end_entity_profile_name")
+  @JsonProperty("end_entity_profile_name")
   private String endEntityProfileName = null;
 
-  @SerializedName("certificate_authority_name")
+  @JsonProperty("certificate_authority_name")
   private String certificateAuthorityName = null;
 
-  @SerializedName("username")
+  @JsonProperty("username")
   private String username = null;
 
-  @SerializedName("password")
+  @JsonProperty("password")
   private String password = null;
 
-  @SerializedName("account_binding_id")
+  @JsonProperty("account_binding_id")
   private String accountBindingId = null;
 
-  @SerializedName("include_chain")
+  @JsonProperty("include_chain")
   private Boolean includeChain = null;
 
-  @SerializedName("email")
+  @JsonProperty("email")
   private String email = null;
 
   public EnrollCertificateRestRequest certificateRequest(String certificateRequest) {

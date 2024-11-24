@@ -12,6 +12,7 @@
 
 package de.trustable.ca3s.core.service.dto.ejbca;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -23,16 +24,16 @@ import java.util.Objects;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2024-02-27T11:17:53.164838525Z[GMT]")
 
 public class KeyStoreRestRequest {
-  @SerializedName("username")
+  @JsonProperty("username")
   private String username = null;
 
-  @SerializedName("password")
+  @JsonProperty("password")
   private String password = null;
 
-  @SerializedName("key_alg")
+  @JsonProperty("key_alg")
   private String keyAlg = null;
 
-  @SerializedName("key_spec")
+  @JsonProperty("key_spec")
   private String keySpec = null;
 
   public KeyStoreRestRequest username(String username) {

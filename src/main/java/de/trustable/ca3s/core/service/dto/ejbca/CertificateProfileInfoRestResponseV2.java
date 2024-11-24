@@ -12,6 +12,7 @@
 
 package de.trustable.ca3s.core.service.dto.ejbca;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -25,22 +26,22 @@ import java.util.Objects;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2024-02-27T11:17:53.164838525Z[GMT]")
 
 public class CertificateProfileInfoRestResponseV2 {
-  @SerializedName("certificate_profile_id")
+  @JsonProperty("certificate_profile_id")
   private Integer certificateProfileId = null;
 
-  @SerializedName("available_key_algs")
+  @JsonProperty("available_key_algs")
   private List<String> availableKeyAlgs = null;
 
-  @SerializedName("available_bit_lenghts")
+  @JsonProperty("available_bit_lenghts")
   private List<Integer> availableBitLenghts = null;
 
-  @SerializedName("available_security_levels")
+  @JsonProperty("available_security_levels")
   private List<Integer> availableSecurityLevels = null;
 
-  @SerializedName("available_ecdsa_curves")
+  @JsonProperty("available_ecdsa_curves")
   private List<String> availableEcdsaCurves = null;
 
-  @SerializedName("available_cas")
+  @JsonProperty("available_cas")
   private List<String> availableCas = null;
 
   public CertificateProfileInfoRestResponseV2 certificateProfileId(Integer certificateProfileId) {

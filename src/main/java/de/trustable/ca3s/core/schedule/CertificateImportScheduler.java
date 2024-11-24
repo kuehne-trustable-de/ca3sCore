@@ -106,7 +106,7 @@ public class CertificateImportScheduler {
 					runImporter(caConfig);
 				}
 			}
-			LOG.debug("retrieveCertificates 'Month' finished");
+			LOG.debug("retrieveCertificates 'Week' finished");
 		} else {
 			LOG.debug("retrieveCertificates disabled");
 		}
@@ -186,20 +186,20 @@ public class CertificateImportScheduler {
 
             try {
 
-                int nNewCerts = dirConnector.retrieveCertificates(caConfig);
+                int nNewCerts = ejbcaConnector.retrieveCertificates(caConfig);
 
                 if (nNewCerts > 0) {
-                    LOG.info("Directory certificate retrieval for '{}' (url '{}') processed {} certificates",
+                    LOG.info("EJBCA inventory retrieval for '{}' (url '{}') processed {} certificates",
                         caConfig.getName(), caConfig.getCaUrl(), nNewCerts);
                     caConfigRepo.save(caConfig);
                 } else {
-                    LOG.debug("Directory certificate retrieval for '{}' (url '{}') found no new certificates",
+                    LOG.debug("EJBCA inventory retrieval for '{}' (url '{}') found no new certificates",
                         caConfig.getName(), caConfig.getCaUrl());
                 }
             } catch (Throwable th) {
-                LOG.info("Directory certificate retrieval for '{}' (url '{}') failed with msg '{}'",
+                LOG.info("EJBCA inventory retrieval for '{}' (url '{}') failed with msg '{}'",
                     caConfig.getName(), caConfig.getCaUrl(), th.getMessage());
-                LOG.debug("Directory certificate retrieval", th);
+                LOG.debug("EJBCA inventory retrieval", th);
             }
 
         } else {

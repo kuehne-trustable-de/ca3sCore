@@ -12,6 +12,7 @@
 
 package de.trustable.ca3s.core.service.dto.ejbca;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.TypeAdapter;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
@@ -33,31 +34,31 @@ public class SearchCertificateSortRestRequest {
    */
   @JsonAdapter(PropertyEnum.Adapter.class)
   public enum PropertyEnum {
-    @SerializedName("USERNAME")
+    @JsonProperty("USERNAME")
     USERNAME("USERNAME"),
-    @SerializedName("ISSUER_DN")
+    @JsonProperty("ISSUER_DN")
     ISSUER_DN("ISSUER_DN"),
-    @SerializedName("SUBJECT_DN")
+    @JsonProperty("SUBJECT_DN")
     SUBJECT_DN("SUBJECT_DN"),
-    @SerializedName("EXTERNAL_ACCOUNT_BINDING_ID")
+    @JsonProperty("EXTERNAL_ACCOUNT_BINDING_ID")
     EXTERNAL_ACCOUNT_BINDING_ID("EXTERNAL_ACCOUNT_BINDING_ID"),
-    @SerializedName("END_ENTITY_PROFILE")
+    @JsonProperty("END_ENTITY_PROFILE")
     END_ENTITY_PROFILE("END_ENTITY_PROFILE"),
-    @SerializedName("CERTIFICATE_PROFILE")
+    @JsonProperty("CERTIFICATE_PROFILE")
     CERTIFICATE_PROFILE("CERTIFICATE_PROFILE"),
-    @SerializedName("STATUS")
+    @JsonProperty("STATUS")
     STATUS("STATUS"),
-    @SerializedName("TAG")
+    @JsonProperty("TAG")
     TAG("TAG"),
-    @SerializedName("TYPE")
+    @JsonProperty("TYPE")
     TYPE("TYPE"),
-    @SerializedName("UPDATE_TIME")
+    @JsonProperty("UPDATE_TIME")
     UPDATE_TIME("UPDATE_TIME"),
-    @SerializedName("ISSUED_DATE")
+    @JsonProperty("ISSUED_DATE")
     ISSUED_DATE("ISSUED_DATE"),
-    @SerializedName("EXPIRE_DATE")
+    @JsonProperty("EXPIRE_DATE")
     EXPIRE_DATE("EXPIRE_DATE"),
-    @SerializedName("REVOCATION_DATE")
+    @JsonProperty("REVOCATION_DATE")
     REVOCATION_DATE("REVOCATION_DATE");
 
     private String value;
@@ -93,7 +94,7 @@ public class SearchCertificateSortRestRequest {
         return PropertyEnum.fromValue((String)(value));
       }
     }
-  }  @SerializedName("property")
+  }  @JsonProperty("property")
   private PropertyEnum property = null;
 
   /**
@@ -101,9 +102,9 @@ public class SearchCertificateSortRestRequest {
    */
   @JsonAdapter(OperationEnum.Adapter.class)
   public enum OperationEnum {
-    @SerializedName("ASC")
+    @JsonProperty("ASC")
     ASC("ASC"),
-    @SerializedName("DESC")
+    @JsonProperty("DESC")
     DESC("DESC");
 
     private String value;
@@ -139,7 +140,7 @@ public class SearchCertificateSortRestRequest {
         return OperationEnum.fromValue((String)(value));
       }
     }
-  }  @SerializedName("operation")
+  }  @JsonProperty("operation")
   private OperationEnum operation = null;
 
   public SearchCertificateSortRestRequest property(PropertyEnum property) {

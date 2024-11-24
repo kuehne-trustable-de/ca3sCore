@@ -12,6 +12,7 @@
 
 package de.trustable.ca3s.core.service.dto.ejbca;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -25,10 +26,10 @@ import java.util.Objects;
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2024-02-27T11:17:53.164838525Z[GMT]")
 
 public class CrlRestResponse {
-  @SerializedName("crl")
+  @JsonProperty("crl")
   private List<byte[]> crl = null;
 
-  @SerializedName("response_format")
+  @JsonProperty("response_format")
   private String responseFormat = null;
 
   public CrlRestResponse crl(List<byte[]> crl) {
