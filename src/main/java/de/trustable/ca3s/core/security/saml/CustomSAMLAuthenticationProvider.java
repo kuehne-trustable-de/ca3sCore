@@ -205,7 +205,7 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
 
         if (samlMappingConfig.getExprLanguage() != null && !samlMappingConfig.getExprLanguage().isEmpty()) {
             String language = sPeLUtil.evaluateExpression(attributeMap, samlMappingConfig.getExprLanguage());
-            user.setTenant(findTenantByName(language.toLowerCase(Locale.ROOT)));
+            user.setLangKey(language.toLowerCase(Locale.ROOT));
         }
 
         if(!Objects.equals(firstNameOld, user.getFirstName())){

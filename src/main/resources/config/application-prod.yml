@@ -368,7 +368,7 @@ ca3s:
     #
     # CA certificates are visible in any isolation mode
     certificate-store:
-      isolation: tenant
+      isolation: none
 
     download:
       rows:

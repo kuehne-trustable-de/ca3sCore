@@ -81,6 +81,7 @@ public class ContentUploadProcessor {
     private final ProtectedContentUtil protUtil;
 
     private final CertificateUtil certUtil;
+    private final CSRUtil csrUtil;
 
     private final CSRRepository csrRepository;
 
@@ -128,7 +129,7 @@ public class ContentUploadProcessor {
 
     public ContentUploadProcessor(CryptoUtil cryptoUtil,
                                   ProtectedContentUtil protUtil,
-                                  CertificateUtil certUtil,
+                                  CertificateUtil certUtil, CSRUtil csrUtil,
                                   CSRRepository csrRepository,
                                   CertificateRepository certificateRepository,
                                   UserUtil userUtil,
@@ -143,6 +144,7 @@ public class ContentUploadProcessor {
         this.cryptoUtil = cryptoUtil;
         this.protUtil = protUtil;
         this.certUtil = certUtil;
+        this.csrUtil = csrUtil;
         this.csrRepository = csrRepository;
         this.certificateRepository = certificateRepository;
         this.userUtil = userUtil;
@@ -323,7 +325,9 @@ public class ContentUploadProcessor {
                             p10ReqData,
                             requestorName,
                             uploaded.getRequestorcomment(),
-                            uploaded.getArAttributes(), optPipeline );
+                            uploaded.getArAttributes(),
+                            optPipeline,
+                            uploaded);
                     }catch (CAFailureException caFailureException) {
                         LOG.info("problem creating certificate", caFailureException);
                         String [] messages = ArrayUtils.add( p10ReqData.getWarnings(), caFailureException.getMessage() );
@@ -558,7 +562,13 @@ public class ContentUploadProcessor {
 
             CSR csr;
             try{
-                csr = startCertificateCreationProcess(csrAsPem, p10ReqData, requestorName, uploaded.getRequestorcomment(), uploaded.getArAttributes(), optPipeline );
+                csr = startCertificateCreationProcess(csrAsPem,
+                    p10ReqData,
+                    requestorName,
+                    uploaded.getRequestorcomment(),
+                    uploaded.getArAttributes(),
+                    optPipeline,
+                    uploaded);
             }catch (CAFailureException caFailureException) {
                 LOG.info("problem creating certificate", caFailureException);
                 String [] messages = ArrayUtils.add( p10ReqData.getWarnings(), caFailureException.getMessage() );
@@ -642,7 +652,13 @@ public class ContentUploadProcessor {
 
 
 
-	private CSR startCertificateCreationProcess(final String csrAsPem, PkcsXXData p10ReqData, final String requestorName, String requestorComment, NamedValues[] nvArr, Optional<Pipeline> optPipeline )  {
+	private CSR startCertificateCreationProcess(final String csrAsPem,
+                                                PkcsXXData p10ReqData,
+                                                final String requestorName,
+                                                String requestorComment,
+                                                NamedValues[] nvArr,
+                                                Optional<Pipeline> optPipeline,
+                                                UploadPrecheckData uploaded)  {
 
 		if( optPipeline.isPresent()) {
 
@@ -658,12 +674,26 @@ public class ContentUploadProcessor {
                     p10ReqData.setCreatedCSRId(csr.getId().toString());
                     csr.setTenant(userUtil.getCurrentUser().getTenant());
 
+                    if(uploaded.isTosAgreed()) {
+                        csrUtil.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_TOS_AGREED, "true",
+                            false);
+                        csrUtil.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_TOS_AGREEMENT_LINK,
+                            pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.TOS_AGREEMENT_LINK, ""),
+                            false);
+                    }else{
+                        if(pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.TOS_AGREEMENT_REQUIRED, false)){
+                            LOG.warn("startCertificateCreationProcess: ToS agreement required, but not set!");
+                            return null;
+                        }
+
+                    }
+
                     if (pipeline.isApprovalRequired()) {
                         LOG.debug("deferring certificate creation for csr #{}", csr.getId());
                         p10ReqData.setCsrPending(true);
 
                         if( "TRUE".equalsIgnoreCase(pipelineUtil.getPipelineAttribute(pipeline,NOTIFY_RA_OFFICER_ON_PENDING, "" + preferenceUtil.isNotifyRAOnRequest()))) {
-                            notificationService.notifyRAOfficerOnRequest(csr);
+                            notificationService.notifyRAOfficerOnRequestAsync(csr);
                         }
 
                     } else {

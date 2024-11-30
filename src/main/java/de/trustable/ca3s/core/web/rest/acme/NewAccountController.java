@@ -31,7 +31,6 @@ import de.trustable.ca3s.core.domain.AcmeAccount;
 import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 import de.trustable.ca3s.core.repository.AcmeAccountRepository;
-import de.trustable.ca3s.core.repository.AcmeContactRepository;
 import de.trustable.ca3s.core.service.dto.acme.AccountRequest;
 import de.trustable.ca3s.core.service.dto.acme.AccountResponse;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
@@ -39,12 +38,14 @@ import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.AcmeUtil;
 import de.trustable.ca3s.core.service.util.AlgorithmRestrictionUtil;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
+import de.trustable.ca3s.core.service.util.PipelineUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.jose4j.jwt.consumer.JwtContext;
 import org.jose4j.jwx.JsonWebStructure;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -52,6 +53,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.transaction.Transactional;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 import java.time.Instant;
@@ -67,96 +69,103 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @RequestMapping("/acme/{realm}/newAccount")
 public class NewAccountController extends AcmeController {
 
-  private static final Logger LOG = LoggerFactory.getLogger(NewAccountController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NewAccountController.class);
 
-  final private  AcmeAccountRepository acctRepository;
+    final private AcmeAccountRepository acctRepository;
 
-  final private AcmeContactRepository contactRepo;
+    final private BPMNUtil bpmnUtil;
 
-  final private BPMNUtil bpmnUtil;
+    final private PipelineUtil pipelineUtil;
 
-  final private AlgorithmRestrictionUtil algorithmRestrictionUtil;
+    final private AlgorithmRestrictionUtil algorithmRestrictionUtil;
 
-  public NewAccountController(AcmeAccountRepository acctRepository, AcmeContactRepository contactRepo, BPMNUtil bpmnUtil, AlgorithmRestrictionUtil algorithmRestrictionUtil) {
+    final boolean checkKeyRestrictions;
+
+    public NewAccountController(AcmeAccountRepository acctRepository,
+                                BPMNUtil bpmnUtil,
+                                PipelineUtil pipelineUtil,
+                                AlgorithmRestrictionUtil algorithmRestrictionUtil,
+                                @Value("${ca3s.acme.account.checkKeyRestrictions:false}") boolean checkKeyRestrictions ) {
         this.acctRepository = acctRepository;
-        this.contactRepo = contactRepo;
         this.bpmnUtil = bpmnUtil;
+        this.pipelineUtil = pipelineUtil;
         this.algorithmRestrictionUtil = algorithmRestrictionUtil;
+        this.checkKeyRestrictions = checkKeyRestrictions;
     }
 
     @Transactional
-  @RequestMapping(method = POST, consumes = APPLICATION_JOSE_JSON_VALUE)
-  public ResponseEntity<?> consumingPostedJoseJson(@RequestBody final String requestBody, @PathVariable final String realm,
-                                                   @RequestHeader(value=HEADER_X_CA3S_FORWARDED_HOST, required=false) String forwardedHost) {
+    @RequestMapping(method = POST, consumes = APPLICATION_JOSE_JSON_VALUE)
+    public ResponseEntity<?> consumingPostedJoseJson(@RequestBody final String requestBody, @PathVariable final String realm,
+                                                     @RequestHeader(value = HEADER_X_CA3S_FORWARDED_HOST, required = false) String forwardedHost) {
 
-    return consumeWithConverter(requestBody, realm, forwardedHost);
+        return consumeWithConverter(requestBody, realm, forwardedHost);
 
-  }
-
-
-  @Transactional
-  @RequestMapping(method = POST, consumes = APPLICATION_JWS_VALUE)
-  public ResponseEntity<?> consumingPostedJws(@RequestBody final String requestBody, @PathVariable final String realm,
-                                              @RequestHeader(value=HEADER_X_CA3S_FORWARDED_HOST, required=false) String forwardedHost) {
-    return consumeWithConverter(requestBody, realm, forwardedHost);
-  }
+    }
 
 
-  ResponseEntity<?> consumeWithConverter(final String requestBody, final String realm, final String forwardedHost) {
+    @Transactional
+    @RequestMapping(method = POST, consumes = APPLICATION_JWS_VALUE)
+    public ResponseEntity<?> consumingPostedJws(@RequestBody final String requestBody, @PathVariable final String realm,
+                                                @RequestHeader(value = HEADER_X_CA3S_FORWARDED_HOST, required = false) String forwardedHost) {
+        return consumeWithConverter(requestBody, realm, forwardedHost);
+    }
 
-    LOG.info("New ACCOUNT requested for realm {} using requestbody \n {}", realm, requestBody);
 
-	AcmeAccount acctDaoReturn;
+    ResponseEntity<?> consumeWithConverter(final String requestBody, final String realm, final String forwardedHost) {
 
-    final HttpHeaders additionalHeaders = buildNonceHeader();
+        LOG.info("New ACCOUNT requested for realm {} using requestbody \n {}", realm, requestBody);
+
+        AcmeAccount acctDaoReturn;
+
+        final HttpHeaders additionalHeaders = buildNonceHeader();
 //    additionalHeaders.set("Link", "<" + directoryResourceUriBuilderFrom(fromCurrentRequestUri()).build().normalize() + ">;rel=\"index\"");
 
-	try {
-		JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
-	    AccountRequest newAcct = jwtUtil.getAccountRequest(context.getJwtClaims());
-	    LOG.debug("New ACCOUNT reads NewAccountRequest: " + newAcct);
+        try {
+            JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
+            AccountRequest newAcct = jwtUtil.getAccountRequest(context.getJwtClaims());
+            LOG.debug("New ACCOUNT reads NewAccountRequest: " + newAcct);
 
-	    List<AcmeAccount> accListExisting;
-		PublicKey pk;
-		JsonWebStructure webStruct = jwtUtil.getJsonWebStructure(context);
-		pk = jwtUtil.getPublicKey(webStruct);
+            List<AcmeAccount> accListExisting;
+            PublicKey pk;
+            JsonWebStructure webStruct = jwtUtil.getJsonWebStructure(context);
+            pk = jwtUtil.getPublicKey(webStruct);
 
-		if( pk == null) {
-			accListExisting = new ArrayList<>();
-			accListExisting.add(checkJWTSignatureForAccount(context, realm));
-		}else {
-            jwtUtil.verifyJWT(context, pk);
-            LOG.debug("provided public key verifies given JWT: " + pk);
+            if (pk == null) {
+                accListExisting = new ArrayList<>();
+                accListExisting.add(checkJWTSignatureForAccount(context, realm));
+            } else {
+                jwtUtil.verifyJWT(context, pk);
+                LOG.debug("provided public key verifies given JWT: " + pk);
 
-            List<String> messageList = new ArrayList<>();
-            if( !algorithmRestrictionUtil.isAlgorithmRestrictionsResolved(pk, messageList)) {
-                final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED,
-                    "Public key of new account not accepted.",
-                    BAD_REQUEST,
-                    messageList.isEmpty()? NO_DETAIL: messageList.get(0),
-                    NO_INSTANCE);
-                throw new AcmeProblemException(problem);
+                List<String> messageList = new ArrayList<>();
+                if (checkKeyRestrictions &&
+                    (!algorithmRestrictionUtil.isAlgorithmRestrictionsResolved(pk, messageList))) {
+                    final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED,
+                        "Public key of new account not accepted.",
+                        BAD_REQUEST,
+                        messageList.isEmpty() ? NO_DETAIL : messageList.get(0),
+                        NO_INSTANCE);
+                    throw new AcmeProblemException(problem);
+                }
+
+                LOG.debug("JWK with public key found {}, checking with database", pk);
+                accListExisting = acctRepository.findByPublicKeyHashBase64(jwtUtil.getJWKThumbPrint(pk));
             }
 
-            LOG.debug("JWK with public key found {}, checking with database", pk);
-			accListExisting = acctRepository.findByPublicKeyHashBase64(jwtUtil.getJWKThumbPrint(pk));
-		}
+            if (Boolean.TRUE.equals(newAcct.isOnlyReturnExisting())) {
+                if (accListExisting.isEmpty()) {
+                    final ProblemDetail problem = new ProblemDetail(AcmeUtil.ACCOUNT_DOES_NOT_EXIST, "Account does not exist.",
+                        BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
+                    throw new AcmeProblemException(problem);
+                } else {
+                    acctDaoReturn = accListExisting.get(0);
+                }
+            } else {
 
-		if(Boolean.TRUE.equals( newAcct.isOnlyReturnExisting())) {
-			if( accListExisting.isEmpty()) {
-		        final ProblemDetail problem = new ProblemDetail(AcmeUtil.ACCOUNT_DOES_NOT_EXIST, "Account does not exist.",
-		                BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
-				throw new AcmeProblemException(problem);
-			}else {
-				acctDaoReturn = accListExisting.get(0);
-			}
-		} else {
+                if (accListExisting.isEmpty()) {
 
-			if( accListExisting.isEmpty()) {
-
-                Pipeline pipeline = getPipelineForRealm(realm);
-
-                bpmnUtil.startACMEAccountCreationProcess(newAcct, pipeline);
+                    Pipeline pipeline = getPipelineForRealm(realm);
+                    bpmnUtil.startACMEAccountCreationProcess(newAcct, pipeline);
 
 				/*
 			    JwtClaims claims = context.getJwtClaims();
@@ -165,79 +174,93 @@ public class NewAccountController extends AcmeController {
 				    LOG.info("Claim '{}' of type {}", claimName, claimsMap.get(claimName).getClass().getName());
 			    }
 			    */
-		//	    LOG.info("New ACCOUNT key: " + webStruct.getKey());
-		//	    LOG.info("New ACCOUNT jwk: " + webStruct.getHeader("jwk"));
-		//	    LOG.info("New ACCOUNT kid: " + webStruct.getKeyIdHeaderValue());
+                    //	    LOG.info("New ACCOUNT key: " + webStruct.getKey());
+                    //	    LOG.info("New ACCOUNT jwk: " + webStruct.getHeader("jwk"));
+                    //	    LOG.info("New ACCOUNT kid: " + webStruct.getKeyIdHeaderValue());
 
-			    AcmeAccount newAcctDao = new AcmeAccount();
-			    newAcctDao.setAccountId(generateId());
-			    newAcctDao.setRealm(realm);
-                newAcctDao.setCreatedOn(Instant.now());
+                    AcmeAccount newAcctDao = new AcmeAccount();
+                    newAcctDao.setAccountId(generateId());
+                    newAcctDao.setRealm(realm);
+                    newAcctDao.setCreatedOn(Instant.now());
 
-				String pkAsString = Base64.encodeBase64String(pk.getEncoded()).trim();
-				newAcctDao.setPublicKey(pkAsString);
+                    String pkAsString = Base64.encodeBase64String(pk.getEncoded()).trim();
+                    newAcctDao.setPublicKey(pkAsString);
 
-				String thumbPrint = jwtUtil.getJWKThumbPrint(pk);
-				newAcctDao.setPublicKeyHash(thumbPrint);
+                    String thumbPrint = jwtUtil.getJWKThumbPrint(pk);
+                    newAcctDao.setPublicKeyHash(thumbPrint);
 
-				if( newAcct.isTermsAgreed() != null) {
-					newAcctDao.setTermsOfServiceAgreed(newAcct.isTermsAgreed());
-				}else {
-					newAcctDao.setTermsOfServiceAgreed(false);
-				}
+                    if (Boolean.TRUE.equals(newAcct.isTermsAgreed())) {
+                        newAcctDao.setTermsOfServiceAgreed(newAcct.isTermsAgreed());
+                    } else {
+                        newAcctDao.setTermsOfServiceAgreed(false);
+                        if( Boolean.TRUE.equals(pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.TOS_AGREEMENT_REQUIRED, false))) {
 
-			    acctRepository.save(newAcctDao);
-			    updateAccountFromRequest(newAcctDao, newAcct, pipeline);
+                            URI tosUri = null;
+                            try {
+                                tosUri = new URI(pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.TOS_AGREEMENT_LINK, ""));
+                            }catch( URISyntaxException uriSyntaxException){
+                                LOG.warn("ToS agreement link is not a valid URI", uriSyntaxException);
+                            }
 
-			    newAcctDao.setStatus(AccountStatus.VALID);
+                            final ProblemDetail problem = new ProblemDetail(AcmeUtil.USER_ACTION_REQUIRED, "Agreement to terms of service required",
+                                BAD_REQUEST, NO_DETAIL,
+                                tosUri);
+                            throw new AcmeProblemException(problem);
+                        }
+                    }
 
-			    acctRepository.save(newAcctDao);
-			    LOG.debug("New Account {} created", newAcctDao.getAccountId());
-			    acctDaoReturn = newAcctDao;
-			}else {
-				acctDaoReturn = accListExisting.get(0);
-			}
-		}
+                    acctRepository.save(newAcctDao);
+                    updateAccountFromRequest(newAcctDao, newAcct, pipeline);
 
+                    newAcctDao.setStatus(AccountStatus.VALID);
 
-	    URI locationUri = locationUriOf(acctDaoReturn.getAccountId(), getEffectiveUriComponentsBuilder(realm, forwardedHost));
-	    String locationHeader = locationUri.toASCIIString();
-	    LOG.debug("location header set to " + locationHeader);
-	    additionalHeaders.set("Location", locationHeader);
-
-        AccountResponse accResp = new AccountResponse(acctDaoReturn, getEffectiveUriComponentsBuilder(realm, forwardedHost));
-	    accResp.setOrders(locationUriOfOrders(acctDaoReturn.getAccountId(), getEffectiveUriComponentsBuilder(realm, forwardedHost)).toString());
-		if( accListExisting.isEmpty()) {
-		    LOG.debug("returning new account response " + jwtUtil.getAccountResponseAsJSON(accResp));
-		    LOG.debug("created for locationUri '{}' ", locationUri);
-		    return ResponseEntity.created(locationUri).headers(additionalHeaders).body(accResp);
-		}else {
-		    LOG.debug("returning existing account response " + jwtUtil.getAccountResponseAsJSON(accResp));
-		    return ok().headers(additionalHeaders).body(accResp);
-		}
+                    acctRepository.save(newAcctDao);
+                    LOG.debug("New Account {} created", newAcctDao.getAccountId());
+                    acctDaoReturn = newAcctDao;
+                } else {
+                    acctDaoReturn = accListExisting.get(0);
+                }
+            }
 
 
-    } catch (GeneralSecurityException e) {
-        final ProblemDetail problem = new ProblemDetail(AcmeUtil.UNAUTHORIZED, "Account creation problem.",
-            BAD_REQUEST, e.getMessage(), NO_INSTANCE);
-        return buildProblemResponseEntity(new AcmeProblemException(problem));
-    } catch (JoseException  e) {
-        final ProblemDetail problem = new ProblemDetail(AcmeUtil.SERVER_INTERNAL, "Algorithm mismatch.",
-            BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
-        return buildProblemResponseEntity(new AcmeProblemException(problem));
-	} catch (AcmeProblemException e) {
-	    return buildProblemResponseEntity(e);
-	}
+            URI locationUri = locationUriOf(acctDaoReturn.getAccountId(), getEffectiveUriComponentsBuilder(realm, forwardedHost));
+            String locationHeader = locationUri.toASCIIString();
+            LOG.debug("location header set to " + locationHeader);
+            additionalHeaders.set("Location", locationHeader);
 
-  }
+            AccountResponse accResp = new AccountResponse(acctDaoReturn, getEffectiveUriComponentsBuilder(realm, forwardedHost));
+            accResp.setOrders(locationUriOfOrders(acctDaoReturn.getAccountId(), getEffectiveUriComponentsBuilder(realm, forwardedHost)).toString());
+            if (accListExisting.isEmpty()) {
+                LOG.debug("returning new account response " + jwtUtil.getAccountResponseAsJSON(accResp));
+                LOG.debug("created for locationUri '{}' ", locationUri);
+                return ResponseEntity.created(locationUri).headers(additionalHeaders).body(accResp);
+            } else {
+                LOG.debug("returning existing account response " + jwtUtil.getAccountResponseAsJSON(accResp));
+                return ok().headers(additionalHeaders).body(accResp);
+            }
 
 
-  private URI locationUriOf(final long accountId, final UriComponentsBuilder uriBuilder) {
-    return accountResourceUriBuilderFrom(uriBuilder.path("..")).path("/").path(Long.toString(accountId)).build().normalize().toUri();
-  }
+        } catch (GeneralSecurityException e) {
+            final ProblemDetail problem = new ProblemDetail(AcmeUtil.UNAUTHORIZED, "Account creation problem.",
+                BAD_REQUEST, e.getMessage(), NO_INSTANCE);
+            return buildProblemResponseEntity(new AcmeProblemException(problem));
+        } catch (JoseException e) {
+            final ProblemDetail problem = new ProblemDetail(AcmeUtil.SERVER_INTERNAL, "Algorithm mismatch.",
+                BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
+            return buildProblemResponseEntity(new AcmeProblemException(problem));
+        } catch (AcmeProblemException e) {
+            return buildProblemResponseEntity(e);
+        }
 
-  private URI locationUriOfOrders(final long accountId, final UriComponentsBuilder uriBuilder) {
-	    return accountResourceUriBuilderFrom(uriBuilder.path("..")).path("/").path(Long.toString(accountId)).path("/orders").build().normalize().toUri();
-	  }
+    }
+
+
+    private URI locationUriOf(final long accountId, final UriComponentsBuilder uriBuilder) {
+        return accountResourceUriBuilderFrom(uriBuilder.path("..")).path("/").path(Long.toString(accountId)).build().normalize().toUri();
+    }
+
+    private URI locationUriOfOrders(final long accountId, final UriComponentsBuilder uriBuilder) {
+        return accountResourceUriBuilderFrom(uriBuilder.path("..")).path("/").path(Long.toString(accountId)).path("/orders").build().normalize().toUri();
+    }
 
 }

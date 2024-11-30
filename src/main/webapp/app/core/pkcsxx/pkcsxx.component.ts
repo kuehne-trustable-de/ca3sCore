@@ -1043,6 +1043,11 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   public disableCertificateRequest(): boolean {
     window.console.info('in disableCertificateRequest()');
 
+    // check tos agreement, if required
+    if( this.selectPipelineView.tosAgreementRequired && !this.upload.tosAgreed ){
+      return true;
+    }
+
     if (this.creationMode === 'CSR_AVAILABLE') {
       // if the key is present in the DB, reject a CSR upload
       if (this.precheckResponse.csrPublicKeyPresentInDB) {

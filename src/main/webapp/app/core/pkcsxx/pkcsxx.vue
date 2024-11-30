@@ -534,9 +534,20 @@
                     </div>
 
 					<div v-if="authenticated">
-						<!--div class="row jh-entity-details" v-if="isChecked === true && precheckResponse.dataType === 'X509_CERTIFICATE' && precheckResponse.csrPublicKeyPresentInDB === false">
-							<span v-text="$t('pkcsxx.upload.result.certificate.present')">Certificate.already.present</span>
-						</div-->
+
+                        <div class="form-group" v-if="isPipelineChoosen() &&
+                          selectPipelineView.tosAgreementRequired &&
+                          ( creationMode === 'CSR_AVAILABLE' || creationMode === 'SERVERSIDE_KEY_CREATION')">
+                            <input type="checkbox" class="form-check-inline" name="tosAgreed" id="tosAgreed" v-model="upload.tosAgreed" />
+                            <label class="form-control-label" v-text="$t('pkcsxx.upload.tosAgreed', {'tosAgreementLink': selectPipelineView.tosAgreementLink})" >tos agreed</label> <a href="{selectPipelineView.tosAgreementLink}" target="_blank">{{selectPipelineView.tosAgreementLink}}</a>
+                            <small class="form-text text-danger" v-if="!upload.tosAgreed" v-text="$t('pkcsxx.upload.tosAgreement.required')">
+                                Repeated secret must match!
+                            </small>
+                        </div>
+
+                        <!--div class="row jh-entity-details" v-if="isChecked === true && precheckResponse.dataType === 'X509_CERTIFICATE' && precheckResponse.csrPublicKeyPresentInDB === false">
+                            <span v-text="$t('pkcsxx.upload.result.certificate.present')">Certificate.already.present</span>
+                        </div-->
 	<!--
 							:disabled="precheckResponse.csrPublicKeyPresentInDB || precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE' || precheckResponse.certificatePresentInDB || precheckResponse.publicKeyPresentInDB"
 	-->

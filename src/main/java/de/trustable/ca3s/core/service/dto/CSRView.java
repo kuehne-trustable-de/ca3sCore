@@ -135,6 +135,12 @@ public class CSRView implements Serializable {
     @CsvIgnore
     private boolean isAdministrable;
 
+    @CsvBindByName
+    private boolean tosAgreed;
+
+    @CsvBindByName
+    private String tosAgreementLink;
+
     public CSRView() {
     }
 
@@ -204,9 +210,10 @@ public class CSRView implements Serializable {
         this.sanArr = sanList.toArray(new String[0]);
 
         this.hashAlgorithm = csrUtil.getCSRAttribute(csr, CsrAttribute.ATTRIBUTE_HASH_ALGO);
-
         this.processingCA = csrUtil.getCSRAttribute(csr, CsrAttribute.ATTRIBUTE_PROCESSING_CA);
 
+        this.tosAgreed = "true".equalsIgnoreCase(csrUtil.getCSRAttribute(csr,CsrAttribute.ATTRIBUTE_TOS_AGREED));
+        this.tosAgreementLink = csrUtil.getCSRAttribute(csr, CsrAttribute.ATTRIBUTE_TOS_AGREEMENT_LINK);
 
         Map<String, Integer> orderAttributeMap = new HashMap<>();
 
@@ -531,6 +538,22 @@ public class CSRView implements Serializable {
 
     public void setAdministrable(boolean administrable) {
         isAdministrable = administrable;
+    }
+
+    public boolean isTosAgreed() {
+        return tosAgreed;
+    }
+
+    public void setTosAgreed(boolean tosAgreed) {
+        this.tosAgreed = tosAgreed;
+    }
+
+    public String getTosAgreementLink() {
+        return tosAgreementLink;
+    }
+
+    public void setTosAgreementLink(String tosAgreementLink) {
+        this.tosAgreementLink = tosAgreementLink;
     }
 
     public Long getPipelineId() {

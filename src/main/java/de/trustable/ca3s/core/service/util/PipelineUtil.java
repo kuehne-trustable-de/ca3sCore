@@ -92,6 +92,13 @@ public class PipelineUtil {
     public static final String RESTR_ARA_REQUIRED = "REQUIRED";
     public static final String RESTR_ARA_COMMENT = "COMMENT";
 
+    public static final String TOS_AGREEMENT_REQUIRED = "TOS_AGREEMENT_REQUIRED";
+    public static final String TOS_AGREEMENT_LINK = "TOS_AGREEMENT_LINK";
+    public static final String WEBSITE_LINK = "WEBSITE_LINK";
+    public static final String CAA_IDENTITIES = "CAA_IDENTITIES";
+    public static final String EAB_MODE = "EAB_MODE";
+    public static final String EAB_MODE_NONE = "EAB_MODE_NONE";
+
     public static final String ALLOW_IP_AS_SUBJECT = "ALLOW_IP_AS_SUBJECT";
     public static final String ALLOW_IP_AS_SAN = "ALLOW_IP_AS_SAN";
     public static final String TO_PENDIND_ON_FAILED_RESTRICTIONS = "TO_PENDIND_ON_FAILED_RESTRICTIONS";
@@ -479,6 +486,14 @@ public class PipelineUtil {
             } else if (RESTR_SAN_REGEX.equals(plAtt.getName())) {
                 pv.getRestriction_SAN().setRegEx(plAtt.getValue());
 
+            } else if (TOS_AGREEMENT_REQUIRED.equals(plAtt.getName())) {
+                pv.setTosAgreementRequired(Boolean.parseBoolean(plAtt.getValue()));
+            } else if (TOS_AGREEMENT_LINK.equals(plAtt.getName())) {
+                pv.setTosAgreementLink(plAtt.getValue());
+
+            } else if (WEBSITE_LINK.equals(plAtt.getName())) {
+                pv.setWebsite(plAtt.getValue());
+
             } else if (CSR_USAGE.equals(plAtt.getName())) {
                 pv.setCsrUsage(CsrUsage.valueOf(plAtt.getValue()));
 
@@ -824,6 +839,10 @@ public class PipelineUtil {
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_CONTACT_EMAIL_REGEX, pv.getAcmeConfigItems().getContactEMailRegEx());
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_CONTACT_EMAIL_REGEX_REJECT, pv.getAcmeConfigItems().getContactEMailRejectRegEx());
         }
+
+        addPipelineAttribute(pipelineAttributes, p, auditList, TOS_AGREEMENT_REQUIRED, pv.isTosAgreementRequired());
+        addPipelineAttribute(pipelineAttributes, p, auditList, TOS_AGREEMENT_LINK, pv.getTosAgreementLink());
+        addPipelineAttribute(pipelineAttributes, p, auditList, WEBSITE_LINK, pv.getWebsite());
 
         addPipelineAttribute(pipelineAttributes, p, auditList, CSR_USAGE, pv.getCsrUsage().toString());
         if (PipelineType.WEB.equals(pv.getType())) {

@@ -20,6 +20,7 @@ import java.util.Iterator;
 
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import de.trustable.ca3s.core.service.util.KeyUtil;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,7 @@ import org.shredzone.acme4j.*;
 import org.shredzone.acme4j.challenge.Http01Challenge;
 import org.shredzone.acme4j.exception.AcmeException;
 import org.shredzone.acme4j.exception.AcmeServerException;
+import org.shredzone.acme4j.exception.AcmeUserActionRequiredException;
 import org.shredzone.acme4j.util.CSRBuilder;
 import org.shredzone.acme4j.util.KeyPairUtils;
 import org.slf4j.Logger;
@@ -82,7 +84,6 @@ public class AcmeHappyPathIT {
         int port = prefTC.getFreePort();
         LOG.info("http challenge on port {}", port);
         httpChallengeHelper = new HttpChallengeHelper(port);
-
 	}
 
 
@@ -98,7 +99,37 @@ public class AcmeHappyPathIT {
 	}
 
 
-	@Test
+    @Test
+    public void testToSHandling() throws AcmeException {
+
+        System.out.println("connecting to " + dirUrlOtherRealm);
+        Session session = new Session(dirUrlOtherRealm);
+        Metadata meta = session.getMetadata();
+        Assertions.assertNotNull(meta.getTermsOfService(), "Expecting a ToS URI to be present");
+        Assertions.assertEquals("http://to.agreement.link/index.html", meta.getTermsOfService().toString());
+
+        KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
+
+        try {
+            new AccountBuilder()
+                .addContact("mailto:acmeTest@ca3s.org")
+                .useKeyPair(accountKeyPair)
+                .create(session);
+            fail("ToS agreement is required, exception expected");
+        }catch(AcmeUserActionRequiredException acmeUserActionRequiredException){
+            // as expected
+        }
+
+        Account account = new AccountBuilder()
+            .addContact("mailto:acmeTest@ca3s.org")
+            .useKeyPair(accountKeyPair)
+            .agreeToTermsOfService()
+            .create(session);
+
+        Assertions.assertNotNull(account, "Expecting an account to be returned");
+    }
+
+    @Test
 	public void testAccountHandling() throws AcmeException {
 
 		System.out.println("connecting to " + dirUrl );
@@ -116,7 +147,6 @@ public class AcmeHappyPathIT {
 
         Account account = new AccountBuilder()
             .addContact("mailto:acmeTest@ca3s.org")
-            .agreeToTermsOfService()
             .useKeyPair(accountKeyPair)
             .create(session);
 

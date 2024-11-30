@@ -26,7 +26,10 @@
 
 package de.trustable.ca3s.core.web.rest.acme;
 
+import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.service.dto.acme.DirectoryResponse;
+import de.trustable.ca3s.core.service.dto.acme.MetaInformation;
+import de.trustable.ca3s.core.service.util.PipelineUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -128,12 +131,18 @@ public class DirectoryController extends AcmeController {
 
 	private static final Logger LOG = LoggerFactory.getLogger(DirectoryController.class);
 
-	@RequestMapping(method = { GET, POST }, produces = APPLICATION_JSON_VALUE)
+    final private PipelineUtil pipelineUtil;
+
+    public DirectoryController(PipelineUtil pipelineUtil) {
+        this.pipelineUtil = pipelineUtil;
+    }
+
+    @RequestMapping(method = { GET, POST }, produces = APPLICATION_JSON_VALUE)
 	public @ResponseBody DirectoryResponse getDirectory(@PathVariable final String realm,
                                                         @RequestHeader(value=HEADER_X_CA3S_FORWARDED_HOST, required=false) String forwardedHost) {
 
 		// check for existence of a pipeline for the realm
-		getPipelineForRealm(realm);
+		Pipeline pipeline = getPipelineForRealm(realm);
 
 		DirectoryResponse resp = new DirectoryResponse();
 
@@ -144,6 +153,24 @@ public class DirectoryController extends AcmeController {
 
         resp.setRevokeUri(revokeResourceUriBuilderFrom(getEffectiveUriComponentsBuilder(realm, forwardedHost)).build().normalize().toUri());
         resp.setKeyChangeUri(keyChangeResourceUriBuilderFrom(getEffectiveUriComponentsBuilder(realm, forwardedHost)).build().normalize().toUri());
+
+        MetaInformation metaInformation = new MetaInformation();
+        String caaListString = pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.CAA_IDENTITIES, "");
+        if( !caaListString.isEmpty() ) {
+            metaInformation.setCaaIdentities(caaListString.split(","));
+        }
+        String webSiteLink = pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.WEBSITE_LINK, "");
+        if( !webSiteLink.isEmpty() ) {
+            metaInformation.setWebsite(webSiteLink);
+        }
+        if( Boolean.TRUE.equals(pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.TOS_AGREEMENT_REQUIRED, false))) {
+            metaInformation.setTermsOfService(pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.TOS_AGREEMENT_LINK, ""));
+        }
+
+        String eabMode = pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.EAB_MODE, PipelineUtil.EAB_MODE_NONE);
+        metaInformation.setExternalAccountRequired(!PipelineUtil.EAB_MODE_NONE.equals(eabMode));
+
+        resp.setMetaInformation(metaInformation);
 
 		LOG.info("directory request, returning {}", resp);
 		return resp;

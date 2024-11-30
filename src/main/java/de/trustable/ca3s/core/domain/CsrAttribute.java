@@ -127,7 +127,10 @@ public class CsrAttribute implements Serializable {
 	public static final String ATTRIBUTE_CA_PROCESSING_STARTED_TIMESTAMP = "CA_PROCESSING_STARTED_TIMESTAMP";
 	public static final String ATTRIBUTE_CA_PROCESSING_FINISHED_TIMESTAMP = "CA_PROCESSING_FINISHED_TIMESTAMP";
 
-	public static final String ATTRIBUTE_SUBJECT = CertificateAttribute.ATTRIBUTE_SUBJECT;
+    public static final String ATTRIBUTE_TOS_AGREEMENT_LINK = "ATTRIBUTE_TOS_AGREEMENT_LINK";
+    public static final String ATTRIBUTE_TOS_AGREED = "ATTRIBUTE_TOS_AGREED";
+
+    public static final String ATTRIBUTE_SUBJECT = CertificateAttribute.ATTRIBUTE_SUBJECT;
 
 	public static final String REQUESTOR_SYSTEM = "SYSTEM";
 

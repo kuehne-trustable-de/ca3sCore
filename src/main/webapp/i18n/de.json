@@ -578,6 +578,8 @@
   "ca3SApp.pipeline.listOrder": "Ordnungszahl für Anforderungs-Übersicht",
   "ca3SApp.pipeline.requestProxies": "Request-Proxies",
   "ca3SApp.pipeline.tenants": "Mandanten",
+  "ca3SApp.pipeline.tosAgreed": "Zustimmung zu Geschäftsbedingungen notwendig",
+
   "ca3SApp.pipelineAttribute.created": "Pipeline Attribut erstellt mit ID {{ param }}",
   "ca3SApp.pipelineAttribute.delete.question": "Soll Pipeline Attribut {{ id }} wirklich dauerhaft gelöscht werden?",
   "ca3SApp.pipelineAttribute.deleted": "Pipeline Attribut gelöscht mit ID {{ param }}",
@@ -1073,6 +1075,9 @@
   "pkcsxx.upload.upload": "Hochladen",
   "pkcsxx.upload.warning.label": "Warnung",
   "pkcsxx.upload.warning.publicKeyPresent": "Öffentlicher Schlüssel bereits in Verwendung",
+  "pkcsxx.upload.tosAgreed": "Zustimmung zu den Bedingungen ",
+  "pkcsxx.upload.tosAgreement.required": "Zustimmung notwendig",
+
   "register.form.button": "Registrieren",
   "register.messages.error.emailexists": "<strong>E-Mail wird bereits verwendet!</strong> Bitte wähle einen anderen.",
   "register.messages.error.fail": "<strong>Registrierung fehlgeschlagen!</strong> Bitte versuchen Sie es später erneut.",

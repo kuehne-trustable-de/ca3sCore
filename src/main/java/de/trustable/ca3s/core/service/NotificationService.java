@@ -9,6 +9,7 @@ import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
 
+import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ import java.util.*;
 @Service
 public class NotificationService {
 
-	private final Logger LOG = LoggerFactory.getLogger(NotificationService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(NotificationService.class);
 
     private final CertificateRepository certificateRepo;
     private final CSRRepository csrRepo;
@@ -52,7 +53,7 @@ public class NotificationService {
     private final boolean notifyUserCerificateIssued;
     private final boolean notifyRAOfficerOnRequest;
     private final boolean notifyRAOfficerOnUserRevocation;
-    private final boolean notifyRequestorOnExcessiveAvtiveCertificates;
+    private final boolean notifyRequestorOnExcessiveActiveCertificates;
 
 
 
@@ -76,7 +77,7 @@ public class NotificationService {
                                @Value("${ca3s.notify.userCerificateIssued:true}") boolean notifyUserCerificateIssued,
                                @Value("${ca3s.notify.raOfficerOnRequest:true}") boolean notifyRAOfficerOnRequest,
                                @Value("${ca3s.notify.raOfficerOnUserRevocation:true}") boolean notifyRAOfficerOnUserRevocation,
-                               @Value("${ca3s.notify.requestorOnExcessiveAvtiveCertificates:true}") boolean notifyRequestorOnExcessiveAvtiveCertificates) {
+                               @Value("${ca3s.notify.requestorOnExcessiveActiveCertificates:true}") boolean notifyRequestorOnExcessiveActiveCertificates) {
         this.certificateRepo = certificateRepo;
         this.csrRepo = csrRepo;
         this.userRepository = userRepository;
@@ -95,7 +96,7 @@ public class NotificationService {
         this.notifyUserCerificateIssued = notifyUserCerificateIssued;
         this.notifyRAOfficerOnRequest = notifyRAOfficerOnRequest;
         this.notifyRAOfficerOnUserRevocation = notifyRAOfficerOnUserRevocation;
-        this.notifyRequestorOnExcessiveAvtiveCertificates = notifyRequestorOnExcessiveAvtiveCertificates;
+        this.notifyRequestorOnExcessiveActiveCertificates = notifyRequestorOnExcessiveActiveCertificates;
 
         this.notificationDayList = new ArrayList<>();
         String[] parts = notificationDays.split(",");
@@ -331,7 +332,7 @@ public class NotificationService {
                 Pipeline pipeline = cert.getCsr().getPipeline();
 
                 String additionalEmailRecipients = pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.ADDITIONAL_EMAIL_RECIPIENTS, "");
-                addSplittedString(ccList, additionalEmailRecipients);
+                addSplittedEMailAddress(ccList, additionalEmailRecipients);
 
                 ccList.addAll(findAdditionalRecipients(cert));
 /*
@@ -354,18 +355,27 @@ public class NotificationService {
         }
     }
 
-    private void addSplittedString(List<String> ccList, String additionalEmailRecipients) {
+    public static void addSplittedEMailAddress(List<String> emailList, String additionalEmailRecipients) {
+        int added = 0;
         if( !additionalEmailRecipients.isEmpty()) {
-            String[] parts = additionalEmailRecipients.split(", ");
-            LOG.debug("#{} parts selected from additionalEmailRecipients '{}'.", parts.length, additionalEmailRecipients);
-            ccList.addAll(Arrays.asList(parts));
+            String[] parts = additionalEmailRecipients.split("[;, ]");
+            for(String part:parts){
+                String normalizedPart = part.trim().toLowerCase(Locale.ROOT);
+                if( !normalizedPart.isBlank() && !emailList.contains(normalizedPart)){
+                    if( EmailValidator.getInstance().isValid(normalizedPart)) {
+                        emailList.add(part.trim());
+                        added++;
+                    }
+                }
+            }
         }
+        LOG.debug("#{} parts added from additionalEmailRecipients '{}'.", added, additionalEmailRecipients);
     }
 
-    public void notifyRequestorOnExcessiveAvtiveCertificates(String requestorEmail, int numberActive, Certificate certificate) {
+    public void notifyRequestorOnExcessiveActiveCertificates(String requestorEmail, int numberActive, Certificate certificate) {
 
-        if( !notifyRequestorOnExcessiveAvtiveCertificates){
-            LOG.info("notifyRequestorOnExcessiveAvtiveCertificates deactivated");
+        if( !notifyRequestorOnExcessiveActiveCertificates){
+            LOG.info("notifyRequestorOnExcessiveActiveCertificates deactivated");
             return;
         }
 
@@ -446,6 +456,16 @@ public class NotificationService {
                     }
                 }
             }
+        }
+    }
+
+    @Async
+    public void notifyRAOfficerOnRequestAsync(CSR csr ){
+
+        try {
+            notifyRAOfficerOnRequest(csr);
+        } catch (Exception e) {
+            LOG.error("problem sending ra officer notification", e);
         }
     }
 
@@ -608,7 +628,7 @@ public class NotificationService {
         List<String> recipientList = new ArrayList<>();
         for( String araAttribute: notificationARAAttributes) {
             String emailAttribute = certificateUtil.getCertAttribute(cert, CsrAttribute.ARA_PREFIX + araAttribute, "");
-            addSplittedString(recipientList, emailAttribute);
+            addSplittedEMailAddress(recipientList, emailAttribute);
         }
         return recipientList;
     }

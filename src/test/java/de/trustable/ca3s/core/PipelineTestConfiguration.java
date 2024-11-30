@@ -190,6 +190,9 @@ public class PipelineTestConfiguration {
         pv_1CNRestrictions.setType(PipelineType.ACME);
         pv_1CNRestrictions.setUrlPart(ACME1CN_REALM);
 
+        pv_1CNRestrictions.setTosAgreementRequired(true);
+        pv_1CNRestrictions.setTosAgreementLink("http://to.agreement.link/index.html");
+
         Pipeline pipelineRestrictions = pipelineUtil.toPipeline(pv_1CNRestrictions);
         pipelineRepo.save(pipelineRestrictions);
         return pipelineRestrictions;

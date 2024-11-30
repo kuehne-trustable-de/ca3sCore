@@ -175,7 +175,7 @@ public class ReplacementCandidateUtil {
                 try {
                     int nReplacedCerts = Integer.parseInt(certAttr.getValue());
                     if (nReplacedCerts > notifyActiveParallelCertificates) {
-                        notificationService.notifyRequestorOnExcessiveAvtiveCertificates(emailAddressList.get(0), nReplacedCerts, cert);
+                        notificationService.notifyRequestorOnExcessiveActiveCertificates(emailAddressList.get(0), nReplacedCerts, cert);
                     }
                 } catch (NumberFormatException nfe) {
                     LOG.warn("number of replaced certificates '{}' for certificate id {} is not a number", certAttr.getValue(), cert.getId());

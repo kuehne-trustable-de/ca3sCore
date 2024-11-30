@@ -57,6 +57,9 @@ const validations: any = {
     toPendingOnFailedRestrictions: {},
     ipAsSubjectAllowed: {},
     ipAsSANAllowed: {},
+
+    tosAgreementLink: {},
+
     webConfigItems: {
       notifyRAOfficerOnPendingRequest: {},
       additionalEMailRecipients: {},

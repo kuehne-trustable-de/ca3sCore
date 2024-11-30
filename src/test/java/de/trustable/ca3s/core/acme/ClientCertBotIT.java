@@ -60,7 +60,7 @@ public class ClientCertBotIT {
 
 
 	@Test
-	public void testAccountHandling() throws IOException {
+	public void testAccountHandling() {
 
 		boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
 

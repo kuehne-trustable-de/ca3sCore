@@ -27,9 +27,6 @@
 package de.trustable.ca3s.core.service.dto.acme;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.net.URI;
 
 /*
  * 7.1.1.  Directory
@@ -45,6 +42,8 @@ import java.net.URI;
      "newAuthz": "https://example.com/acme/new-authz",
      "revokeCert": "https://example.com/acme/revoke-cert",
      "keyChange": "https://example.com/acme/key-change",
+
+     this inner object
      "meta": {
        "termsOfService": "https://example.com/acme/terms/2017-5-30",
        "website": "https://www.example.com/",
@@ -55,108 +54,42 @@ import java.net.URI;
  */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class DirectoryResponse {
+public class MetaInformation {
 
-	private URI newNonceUri, newAccountUri, newOrderUri, newAuthzUri, revokeUri, keyChangeUri;
-    private MetaInformation metaInformation;
+    private String termsOfService;
+    private String website;
+    private String[] caaIdentities;
+    private boolean externalAccountRequired;
 
-	/**
-	 * @return Never <code>null</code>
-	 */
-	@JsonProperty("newNonce")
-	public URI getNewNonceUri() {
-		return newNonceUri;
-	}
-
-	/**
-	 * @return Never <code>null</code>
-	 */
-	@JsonProperty("newAccount")
-	public URI getNewAccountUri() {
-		return newAccountUri;
-	}
-
-	/**
-	 * @return Never <code>null</code>
-	 */
-	@JsonProperty("newOrder")
-	public URI getNewOrderUri() {
-		return newOrderUri;
-	}
-
-	/**
-	 * @return Never <code>null</code>
-	 */
-	@JsonProperty("newAuthz")
-	public URI getNewAuthzUri() {
-		return newAuthzUri;
-	}
-
-	/**
-	 * @return Never <code>null</code>
-	 */
-	@JsonProperty("revokeCert")
-	public URI getRevokeCertUri() {
-		return revokeUri;
-	}
-
-	/**
-	 * @return Never <code>null</code>
-	 */
-	@JsonProperty("keyChange")
-	public URI getkeyChangeUri() {
-		return keyChangeUri;
-	}
-
-	/**
-	 * @param newNonceUri the newNonceUri to set
-	 */
-	public void setNewNonceUri(URI newNonceUri) {
-		this.newNonceUri = newNonceUri;
-	}
-
-	/**
-	 * @param newAccountUri the newAccountUri to set
-	 */
-	public void setNewAccountUri(URI newAccountUri) {
-		this.newAccountUri = newAccountUri;
-	}
-
-	/**
-	 * @param newOrderUri the newOrderUri to set
-	 */
-	public void setNewOrderUri(URI newOrderUri) {
-		this.newOrderUri = newOrderUri;
-	}
-
-	/**
-	 * @param newAuthzUri the newAuthzUri to set
-	 */
-	public void setNewAuthzUri(URI newAuthzUri) {
-		this.newAuthzUri = newAuthzUri;
-	}
-
-	/**
-	 * @param revokeUri the revokeUri to set
-	 */
-	public void setRevokeUri(URI revokeUri) {
-		this.revokeUri = revokeUri;
-	}
-
-	/**
-	 * @param keyChangeUri the keyChangeUri to set
-	 */
-	public void setKeyChangeUri(URI keyChangeUri) {
-		this.keyChangeUri = keyChangeUri;
-	}
-
-
-    @JsonProperty("meta")
-    public MetaInformation getMetaInformation() {
-        return metaInformation;
+    public String getTermsOfService() {
+        return termsOfService;
     }
 
-    public void setMetaInformation(MetaInformation metaInformation) {
-        this.metaInformation = metaInformation;
+    public void setTermsOfService(String termsOfService) {
+        this.termsOfService = termsOfService;
+    }
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
+    }
+
+    public String[] getCaaIdentities() {
+        return caaIdentities;
+    }
+
+    public void setCaaIdentities(String[] caaIdentities) {
+        this.caaIdentities = caaIdentities;
+    }
+
+    public boolean isExternalAccountRequired() {
+        return externalAccountRequired;
+    }
+
+    public void setExternalAccountRequired(boolean externalAccountRequired) {
+        this.externalAccountRequired = externalAccountRequired;
     }
 }

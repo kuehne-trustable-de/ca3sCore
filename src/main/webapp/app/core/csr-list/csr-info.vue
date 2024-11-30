@@ -152,6 +152,13 @@
                         <span v-text="$t('ca3SApp.PipelineType.' + icsrView.pipelineType)">{{ icsrView.pipelineType }}</span>
                     </dd>
 
+                    <dt v-if="icsrView.tosAgreed">
+                        <span v-text="$t('ca3SApp.cSR.tosAgreed')">ToS Agreed</span>
+                    </dt>
+                    <dd v-if="icsrView.tosAgreed">
+                        <a href="{icsrView.tosAgreementLink}">{{icsrView.tosAgreementLink}}</a>
+                    </dd>
+
                     <!--dt>
                         <span v-text="$t('ca3SApp.cSR.processInstanceId')">Process Instance Id</span>
                     </dt>

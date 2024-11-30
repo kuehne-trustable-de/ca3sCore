@@ -56,7 +56,9 @@ public class AcmeAlgoRestrictionsIT {
 
 	@BeforeAll
 	public static void setUpBeforeClass() {
-		JCAManager.getInstance();
+        System.setProperty("ca3s.acme.account.checkKeyRestrictions", "true");
+
+        JCAManager.getInstance();
 	}
 
 

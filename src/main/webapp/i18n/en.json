@@ -603,6 +603,7 @@
   "ca3SApp.pipeline.filter.type": "Type: ",
   "ca3SApp.pipeline.filter.state": " State: ",
   "ca3SApp.pipeline.filter.connector": " Connector: ",
+  "ca3SApp.pipeline.tosAgreed": "Terms of Service agreement required",
 
   "ca3SApp.preference.home.editLabel": "Edit Preferences",
   "ca3SApp.preference.home.title": "Preferences",
@@ -1090,6 +1091,9 @@
   "pkcsxx.upload.upload": "Upload",
   "pkcsxx.upload.warning.label": "Warning",
   "pkcsxx.upload.warning.publicKeyPresent": "Public key already in use",
+  "pkcsxx.upload.tosAgreed": "Agreed to ",
+  "pkcsxx.upload.tosAgreement.required": "Agreement required",
+
   "register.form.button": "Register",
   "register.messages.error.emailexists": "<strong>Email is already in use!</strong> Please choose another one.",
   "register.messages.error.fail": "<strong>Registration failed!</strong> Please try again later.",

@@ -50,6 +50,14 @@ public class PipelineView implements Serializable {
 
     private ARARestriction[] araRestrictions;
 
+    private boolean tosAgreementRequired;
+    private String tosAgreementLink;
+
+    private String website;
+    private String[] caaIdentitiyList;
+    private String[] selectedCaaIdentitiyList;
+    private String eabMode;
+
     private String[] domainRaOfficerList;
 
     private Tenant[] allTenantList;
@@ -325,6 +333,54 @@ public class PipelineView implements Serializable {
 
     public void setDomainRaOfficerList(String[] domainRaOfficerList) {
         this.domainRaOfficerList = domainRaOfficerList;
+    }
+
+    public boolean isTosAgreementRequired() {
+        return tosAgreementRequired;
+    }
+
+    public void setTosAgreementRequired(boolean tosAgreementRequired) {
+        this.tosAgreementRequired = tosAgreementRequired;
+    }
+
+    public String getTosAgreementLink() {
+        return tosAgreementLink;
+    }
+
+    public void setTosAgreementLink(String tosAgreementLink) {
+        this.tosAgreementLink = tosAgreementLink;
+    }
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
+    }
+
+    public String[] getCaaIdentitiyList() {
+        return caaIdentitiyList;
+    }
+
+    public void setCaaIdentitiyList(String[] caaIdentitiyList) {
+        this.caaIdentitiyList = caaIdentitiyList;
+    }
+
+    public String[] getSelectedCaaIdentitiyList() {
+        return selectedCaaIdentitiyList;
+    }
+
+    public void setSelectedCaaIdentitiyList(String[] selectedCaaIdentitiyList) {
+        this.selectedCaaIdentitiyList = selectedCaaIdentitiyList;
+    }
+
+    public String getEabMode() {
+        return eabMode;
+    }
+
+    public void setEabMode(String eabMode) {
+        this.eabMode = eabMode;
     }
 
     public long[] getRequestProxyConfigIds() {

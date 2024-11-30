@@ -45,10 +45,13 @@ public class UploadPrecheckData {
 	@JsonProperty("certificateAttributes")
 	private NamedValues[] certificateAttributes;
 
-	@JsonProperty("arAttributes")
-	private NamedValues[] arAttributes;
+    @JsonProperty("arAttributes")
+    private NamedValues[] arAttributes;
 
-	public String getPassphrase() {
+    @JsonProperty("tosAgreed")
+    private boolean tosAgreed;
+
+    public String getPassphrase() {
 		return passphrase;
 	}
 
@@ -112,7 +115,15 @@ public class UploadPrecheckData {
 		return arAttributes;
 	}
 
-	public void setCreationMode(CreationMode creationMode) {
+    public boolean isTosAgreed() {
+        return tosAgreed;
+    }
+
+    public void setTosAgreed(boolean tosAgreed) {
+        this.tosAgreed = tosAgreed;
+    }
+
+    public void setCreationMode(CreationMode creationMode) {
 		this.creationMode = creationMode;
 	}
 
