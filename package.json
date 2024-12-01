@@ -92,7 +92,7 @@
     "parse-duration": "^1.0.0",
     "semver": "^6.3.1",
     "swagger-ui-dist": "3.52.2",
-    "vue": "2.7.5",
+    "vue": "3.0.0",
     "vue-axios": "^2.1.5",
     "vue-bpmn": "^0.3.0",
     "vue-chartjs": "^3.5.1",
