@@ -171,14 +171,8 @@ public class CSRAdministration {
 
                     Set<String> additionalEmailSet = new HashSet<>();
                     if( (cert.getCsr() != null) && (cert.getCsr().getPipeline() != null)) {
-
                         String emails = pipelineUtil.getPipelineAttribute(cert.getCsr().getPipeline(), ADDITIONAL_EMAIL_RECIPIENTS, "");
-                        for( String email: emails.split(",;")){
-                            if( !email.trim().isEmpty()){
-                                additionalEmailSet.add(email);
-                                LOG.warn("added additional email address {} to notifier list", email);
-                            }
-                        }
+                        NotificationService.addSplittedEMailAddress(additionalEmailSet, emails);
                     }
 
         			Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());

@@ -45,22 +45,23 @@ public class MailService {
 
     private final SpringTemplateEngine templateEngine;
 
-    private final ProtectedContentUtil protectedContentUtil;
     private final boolean useTitleAsMailSubject;
+
+    private final String[] defaultBCC;
 
     public MailService(JHipsterProperties jHipsterProperties,
                        JavaMailSender javaMailSender,
                        MessageSource messageSource,
                        SpringTemplateEngine templateEngine,
-                       ProtectedContentUtil protectedContentUtil,
-                       @Value("${ca3s.email.template.useTitleAsMailSubject:false}") boolean useTitleAsMailSubject) {
+                       @Value("${ca3s.email.template.useTitleAsMailSubject:false}") boolean useTitleAsMailSubject,
+                       @Value("${ca3s.email.all.bcc:#{null}}") String[] defaultBCC) {
 
         this.jHipsterProperties = jHipsterProperties;
         this.javaMailSender = javaMailSender;
         this.messageSource = messageSource;
         this.templateEngine = templateEngine;
-        this.protectedContentUtil = protectedContentUtil;
         this.useTitleAsMailSubject = useTitleAsMailSubject;
+        this.defaultBCC = defaultBCC;
     }
 
     @Transactional
@@ -75,6 +76,12 @@ public class MailService {
         if( cc != null) {
             message.setCc(cc);
         }
+
+        if( defaultBCC != null ) {
+            log.info( "Added general BCC email '{}'.", (Object) defaultBCC);
+            message.setBcc(defaultBCC);
+        }
+
         if(jHipsterProperties.getMail() != null &&
             jHipsterProperties.getMail().getFrom() != null &&
             !jHipsterProperties.getMail().getFrom().isEmpty()) {
@@ -128,9 +135,7 @@ public class MailService {
 
     @NotNull
     private String getBaseUrl() {
-        String baseUrl = jHipsterProperties.getMail().getBaseUrl();
-        log.info("template placeholder '{}' set to: {}", BASE_URL);
-        return baseUrl;
+        return jHipsterProperties.getMail().getBaseUrl();
     }
 
     public void sendEmailFromTemplate(User user, String templateName, String titleKey ) throws MessagingException {

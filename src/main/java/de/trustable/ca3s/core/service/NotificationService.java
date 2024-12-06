@@ -313,6 +313,10 @@ public class NotificationService {
         context.setVariable("expiringCertList", certListGroupedByUser.get(requestor));
         try {
             mailService.sendEmailFromTemplate(context, requestor, null, "mail/expiringUserCertificateEmail", "email.allExpiringCertificate.subject");
+            if (logNotification) {
+                auditService.saveAuditTrace(auditService.createAuditTraceNotificationSent(requestor.getEmail(), "email.allExpiringCertificate.subject"));
+            }
+
         } catch (Throwable throwable) {
             LOG.warn("Problem occurred while sending a notification eMail to requestor address '" + requestor.getEmail() + "'", throwable);
             if (logNotification) {
@@ -346,6 +350,10 @@ public class NotificationService {
             context.setVariable("expiringCertList", Collections.singletonList(cert));
             try {
                 mailService.sendEmailFromTemplate(context, requestor, ccList.toArray(new String[0]), "mail/expiringUserCertificateEmail", "email.allExpiringCertificate.subject");
+                if (logNotification) {
+                    String email = requestor.getEmail() + ", cc: " + String.join(", ",ccList);
+                    auditService.saveAuditTrace(auditService.createAuditTraceNotificationSent(email, "email.allExpiringCertificate.subject"));
+                }
             } catch (Throwable throwable) {
                 LOG.warn("Problem occurred while sending a notification eMail to requestor address '" + requestor.getEmail() + "'", throwable);
                 if (logNotification) {
@@ -355,7 +363,7 @@ public class NotificationService {
         }
     }
 
-    public static void addSplittedEMailAddress(List<String> emailList, String additionalEmailRecipients) {
+    public static void addSplittedEMailAddress(Collection<String> emailList, String additionalEmailRecipients) {
         int added = 0;
         if( !additionalEmailRecipients.isEmpty()) {
             String[] parts = additionalEmailRecipients.split("[;, ]");

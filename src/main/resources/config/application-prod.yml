@@ -150,8 +150,8 @@ spring:
   # The basic settings for outbound email support
   #additioanl email-related setting are located at 'jhipster.mail'
   mail:
-    host: localhost
-    port: 25
+    host: 10.152.183.83
+    port: 1025
     username:
     password:
 
@@ -358,6 +358,8 @@ ca3s:
   email:
     template:
       useTitleAsMailSubject: false
+  #  all:
+  #    bcc: foo@ca3s.org, bar@ca3s.org
 
   ui:
     user:

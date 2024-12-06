@@ -1,10 +1,10 @@
 package de.trustable.ca3s.core.web.rest;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import de.trustable.ca3s.core.domain.Tenant;
 import de.trustable.ca3s.core.domain.User;
-import de.trustable.ca3s.core.repository.AuditTraceRepository;
 import de.trustable.ca3s.core.repository.CertificateViewRepository;
 import de.trustable.ca3s.core.service.util.UserUtil;
 import org.slf4j.Logger;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import de.trustable.ca3s.core.service.CertificateService;
 import de.trustable.ca3s.core.service.dto.CertificateView;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -33,22 +32,13 @@ public class CertificateViewResource {
 
     private final Logger LOG = LoggerFactory.getLogger(CertificateViewResource.class);
 
-    @Value("${jhipster.clientApp.name}")
-    private String applicationName;
-
-    private final CertificateService certificateService;
-
     private final CertificateViewRepository certificateViewRepository;
 
     private final UserUtil userUtil;
 
-    private final  AuditTraceRepository auditTraceRepository;
-
-    public CertificateViewResource(CertificateService certificateService, CertificateViewRepository certificateViewRepository, UserUtil userUtil, AuditTraceRepository auditTraceRepository) {
-        this.certificateService = certificateService;
+    public CertificateViewResource(CertificateViewRepository certificateViewRepository, UserUtil userUtil) {
         this.certificateViewRepository = certificateViewRepository;
         this.userUtil = userUtil;
-        this.auditTraceRepository = auditTraceRepository;
     }
 
     /**
@@ -80,7 +70,7 @@ public class CertificateViewResource {
             Tenant tenant = currentUser.getTenant();
             if( tenant == null ) {
                 // null == default tenant
-            } else if( tenant.getId() != certView.getTenantÎd() ){
+            } else if(!Objects.equals(tenant.getId(), certView.getTenantId())){
                 if( certView.getEndEntity()) {
                     LOG.info("user [{}] tried to download EE certificate [{}] of tenant [{}]",
                         currentUser.getLogin(), certView.getId(), tenant.getLongname());

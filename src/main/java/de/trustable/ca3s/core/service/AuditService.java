@@ -72,6 +72,7 @@ public class AuditService {
     public static final String AUDIT_CERTIFICATE_IMPORTED = "CERTIFICATE_IMPORTED";
     public static final String AUDIT_CERTIFICATE_ATTRIBUTE_CHANGED = "CERTIFICATE_ATTRIBUTE_CHANGED";
 
+    public static final String AUDIT_EMAIL_SEND_NOTIFICATION_SENT = "EMAIL_SEND_NOTIFICATION_SENT";
     public static final String AUDIT_EMAIL_SEND_NOTIFICATION_FAILED = "EMAIL_SEND_NOTIFICATION_FAILED";
 
     public static final String AUDIT_PIPELINE_CREATED = "PIPELINE_CREATED";
@@ -499,6 +500,22 @@ public class AuditService {
             null,
             null,
             requestProxyConfig);
+    }
+
+    public AuditTrace createAuditTraceNotificationSent(String email, String notificationType) {
+
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_EMAIL_SEND_NOTIFICATION_SENT,
+            email,
+            null, notificationType,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null, null);
     }
 
     public AuditTrace createAuditTraceNotificationFailed(String email) {

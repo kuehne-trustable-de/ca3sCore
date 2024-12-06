@@ -203,6 +203,9 @@ public class ContentUploadProcessor {
     @Transactional(noRollbackFor = CAFailureException.class)
     public ResponseEntity<PkcsXXData> buildClientKeystore(@Valid @RequestBody UploadPrecheckData uploaded) {
 
+        /*
+        @todo : not ready, yet
+         */
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String requestorName = auth.getName();
         ResponseEntity<PkcsXXData> pkcsXXDataResponseEntity = buildServerSideKeyAndRequest(uploaded, requestorName);
@@ -358,7 +361,7 @@ public class ContentUploadProcessor {
                     ByteArrayInputStream bais = new ByteArrayInputStream( Base64.decode(content));
 
                     char[] passphrase = new char[0];
-                    if( ( uploaded.getPassphrase() != null ) && (uploaded.getPassphrase().trim().length() > 0)) {
+                    if( ( uploaded.getPassphrase() != null ) && (!uploaded.getPassphrase().trim().isEmpty())) {
                         passphrase = uploaded.getPassphrase().toCharArray();
                     }
 

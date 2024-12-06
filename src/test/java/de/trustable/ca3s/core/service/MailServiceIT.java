@@ -79,8 +79,8 @@ class MailServiceIT {
             javaMailSender,
             messageSource,
             templateEngine,
-            protectedContentUtil,
-            false);
+            false,
+            null);
     }
 
     @Test
