@@ -181,7 +181,7 @@ public class CSRAdministration {
 	    		        if (requestor.getEmail() == null) {
 	    		        	LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
 	    		        }else {
-                            notificationService.notifyUserCerificateIssuedAsync(requestor, cert, additionalEmailSet);
+                            notificationService.notifyUserCertificateIssuedAsync(requestor, cert, additionalEmailSet);
 	    		        }
         			} else {
         				LOG.warn("certificate requestor '{}' unknown!", csr.getRequestedBy());
@@ -210,7 +210,7 @@ public class CSRAdministration {
     		        if (requestor.getEmail() == null) {
     		        	LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
     		        }else {
-                        notificationService.notifyUserCerificateRejectedAsync(requestor, csr );
+                        notificationService.notifyUserCertificateRejectedAsync(requestor, csr );
     		        }
     			} else {
     				LOG.warn("certificate requestor '{}' unknown!", csr.getRequestedBy());

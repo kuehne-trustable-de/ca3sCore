@@ -118,7 +118,7 @@ public class CertificateAdministration {
                             if (requestor.getEmail() == null) {
                                 LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
                             } else {
-                                notificationService.notifyUserCerificateRevokedAsync(requestor, cert, csr );
+                                notificationService.notifyUserCertificateRevokedAsync(requestor, cert, csr );
                             }
                         } else {
                             LOG.info("certificate requestor '{}' unknown!", csr.getRequestedBy());

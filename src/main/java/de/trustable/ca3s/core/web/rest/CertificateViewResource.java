@@ -36,9 +36,15 @@ public class CertificateViewResource {
 
     private final UserUtil userUtil;
 
-    public CertificateViewResource(CertificateViewRepository certificateViewRepository, UserUtil userUtil) {
+    private final String certificateStoreIsolation;
+
+    public CertificateViewResource(CertificateViewRepository certificateViewRepository,
+                                   UserUtil userUtil,
+                                   @Value("${ca3s.ui.certificate-store.isolation:none}")String certificateStoreIsolation
+                                   ) {
         this.certificateViewRepository = certificateViewRepository;
         this.userUtil = userUtil;
+        this.certificateStoreIsolation = certificateStoreIsolation;
     }
 
     /**
@@ -65,13 +71,17 @@ public class CertificateViewResource {
     }
 
     private void checkTenant(CertificateView certView) {
+        if( "none".equalsIgnoreCase(this.certificateStoreIsolation)){
+            return;
+        }
+
         if( !userUtil.isAdministrativeUser() ){
             User currentUser = userUtil.getCurrentUser();
             Tenant tenant = currentUser.getTenant();
             if( tenant == null ) {
                 // null == default tenant
             } else if(!Objects.equals(tenant.getId(), certView.getTenantId())){
-                if( certView.getEndEntity()) {
+                if( Boolean.TRUE.equals(certView.getEndEntity())) {
                     LOG.info("user [{}] tried to download EE certificate [{}] of tenant [{}]",
                         currentUser.getLogin(), certView.getId(), tenant.getLongname());
                     throw new HttpClientErrorException(HttpStatus.NOT_FOUND);

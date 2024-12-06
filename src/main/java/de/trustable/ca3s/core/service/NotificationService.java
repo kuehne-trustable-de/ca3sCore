@@ -46,14 +46,14 @@ public class NotificationService {
     private final List<String> notificationARAAttributes;
     private final boolean notifyUserOnly;
 
-    private final boolean notifyRAOfficerHolderOnExpiry;
-    private final boolean notifyRequestorOnExpiry;
-    private final boolean notifyCerificateRevoked;
-    private final boolean notifyUserCerificateRejected;
-    private final boolean notifyUserCerificateIssued;
-    private final boolean notifyRAOfficerOnRequest;
-    private final boolean notifyRAOfficerOnUserRevocation;
-    private final boolean notifyRequestorOnExcessiveActiveCertificates;
+    private final boolean doNotifyRAOfficerHolderOnExpiry;
+    private final boolean doNotifyRequestorOnExpiry;
+    private final boolean doNotifyCertificateRevoked;
+    private final boolean doNotifyUserCertificateRejected;
+    private final boolean doNotifyUserCertificateIssued;
+    private final boolean doNotifyRAOfficerOnRequest;
+    private final boolean doNotifyRAOfficerOnUserRevocation;
+    private final boolean doNotifyRequestorOnExcessiveActiveCertificates;
 
 
 
@@ -70,14 +70,14 @@ public class NotificationService {
                                @Value("${ca3s.schedule.requestor.notification.days:30,14,7,6,5,4,3,2,1}") String notificationDays,
                                @Value("${ca3s.schedule.requestor.notification.attributes:}") String notificationARAAttributesString,
                                @Value("${ca3s.schedule.requestor.notification.user-only:false}") boolean notifyUserOnly,
-                               @Value("${ca3s.notify.raOfficerHolderOnExpiry:true}") boolean notifyRAOfficerHolderOnExpiry,
-                               @Value("${ca3s.notify.requestorOnExpiry:true}") boolean notifyRequestorOnExpiry,
-                               @Value("${ca3s.notify.cerificateRevoked:true}") boolean notifyCerificateRevoked,
-                               @Value("${ca3s.notify.userCerificateRejected:true}") boolean notifyUserCerificateRejected,
-                               @Value("${ca3s.notify.userCerificateIssued:true}") boolean notifyUserCerificateIssued,
-                               @Value("${ca3s.notify.raOfficerOnRequest:true}") boolean notifyRAOfficerOnRequest,
-                               @Value("${ca3s.notify.raOfficerOnUserRevocation:true}") boolean notifyRAOfficerOnUserRevocation,
-                               @Value("${ca3s.notify.requestorOnExcessiveActiveCertificates:true}") boolean notifyRequestorOnExcessiveActiveCertificates) {
+                               @Value("${ca3s.notify.raOfficerHolderOnExpiry:true}") boolean doNotifyRAOfficerHolderOnExpiry,
+                               @Value("${ca3s.notify.requestorOnExpiry:true}") boolean doNotifyRequestorOnExpiry,
+                               @Value("${ca3s.notify.CertificateRevoked:true}") boolean doNotifyCertificateRevoked,
+                               @Value("${ca3s.notify.userCertificateRejected:true}") boolean doNotifyUserCertificateRejected,
+                               @Value("${ca3s.notify.userCertificateIssued:true}") boolean doNotifyUserCertificateIssued,
+                               @Value("${ca3s.notify.raOfficerOnRequest:true}") boolean doNotifyRAOfficerOnRequest,
+                               @Value("${ca3s.notify.raOfficerOnUserRevocation:true}") boolean doNotifyRAOfficerOnUserRevocation,
+                               @Value("${ca3s.notify.requestorOnExcessiveActiveCertificates:true}") boolean doNotifyRequestorOnExcessiveActiveCertificates) {
         this.certificateRepo = certificateRepo;
         this.csrRepo = csrRepo;
         this.userRepository = userRepository;
@@ -89,14 +89,14 @@ public class NotificationService {
         this.nDaysExpiryCA = nDaysExpiryCA;
         this.nDaysPending = nDaysPending;
         this.notifyUserOnly = notifyUserOnly;
-        this.notifyRAOfficerHolderOnExpiry = notifyRAOfficerHolderOnExpiry;
-        this.notifyRequestorOnExpiry = notifyRequestorOnExpiry;
-        this.notifyCerificateRevoked = notifyCerificateRevoked;
-        this.notifyUserCerificateRejected = notifyUserCerificateRejected;
-        this.notifyUserCerificateIssued = notifyUserCerificateIssued;
-        this.notifyRAOfficerOnRequest = notifyRAOfficerOnRequest;
-        this.notifyRAOfficerOnUserRevocation = notifyRAOfficerOnUserRevocation;
-        this.notifyRequestorOnExcessiveActiveCertificates = notifyRequestorOnExcessiveActiveCertificates;
+        this.doNotifyRAOfficerHolderOnExpiry = doNotifyRAOfficerHolderOnExpiry;
+        this.doNotifyRequestorOnExpiry = doNotifyRequestorOnExpiry;
+        this.doNotifyCertificateRevoked = doNotifyCertificateRevoked;
+        this.doNotifyUserCertificateRejected = doNotifyUserCertificateRejected;
+        this.doNotifyUserCertificateIssued = doNotifyUserCertificateIssued;
+        this.doNotifyRAOfficerOnRequest = doNotifyRAOfficerOnRequest;
+        this.doNotifyRAOfficerOnUserRevocation = doNotifyRAOfficerOnUserRevocation;
+        this.doNotifyRequestorOnExcessiveActiveCertificates = doNotifyRequestorOnExcessiveActiveCertificates;
 
         this.notificationDayList = new ArrayList<>();
         String[] parts = notificationDays.split(",");
@@ -124,7 +124,7 @@ public class NotificationService {
     @Transactional
     public int notifyRAOfficerHolderOnExpiry(List<User> raOfficerList, List<User> domainOfficerList, boolean logNotification) {
 
-        if( !notifyRAOfficerHolderOnExpiry){
+        if( !doNotifyRAOfficerHolderOnExpiry){
             LOG.info("notifyRAOfficerHolderOnExpiry deactivated");
             return 0;
         }
@@ -202,7 +202,7 @@ public class NotificationService {
     @Transactional
     public int notifyRequestorOnExpiry(User testUser, boolean logNotification) {
 
-        if (!notifyRequestorOnExpiry) {
+        if (!doNotifyRequestorOnExpiry) {
             LOG.info("notifyRequestorOnExpiry deactivated");
             return 0;
         }
@@ -382,7 +382,7 @@ public class NotificationService {
 
     public void notifyRequestorOnExcessiveActiveCertificates(String requestorEmail, int numberActive, Certificate certificate) {
 
-        if( !notifyRequestorOnExcessiveActiveCertificates){
+        if( !doNotifyRequestorOnExcessiveActiveCertificates){
             LOG.info("notifyRequestorOnExcessiveActiveCertificates deactivated");
             return;
         }
@@ -414,7 +414,7 @@ public class NotificationService {
                                          List<User> domainOfficerList,
                                          boolean logNotification) {
 
-        if( !notifyRAOfficerOnUserRevocation){
+        if( !doNotifyRAOfficerOnUserRevocation){
             LOG.info("notifyRAOfficerOnUserRevocation deactivated");
             return;
         }
@@ -489,7 +489,7 @@ public class NotificationService {
     public void notifyRAOfficerOnRequest(CSR csr, List<User> raOfficerList, List<User> domainOfficerList,
                                          boolean logNotification) {
 
-        if( !notifyRAOfficerOnRequest){
+        if( !doNotifyRAOfficerOnRequest){
             LOG.info("notifyRAOfficerOnRequest deactivated");
             return;
         }
@@ -536,20 +536,20 @@ public class NotificationService {
     }
 
     @Async
-    public void notifyUserCerificateIssuedAsync(User requestor, Certificate cert, Set<String> additionalEmailSet ){
+    public void notifyUserCertificateIssuedAsync(User requestor, Certificate cert, Set<String> additionalEmailSet ){
 
         try {
-            notifyUserCerificateIssued(requestor, cert, additionalEmailSet );
+            notifyUserCertificateIssued(requestor, cert, additionalEmailSet );
         } catch (MessagingException e) {
             LOG.error("problem sending user notification for issued cert", e);
         }
     }
 
     @Transactional
-    public void notifyUserCerificateIssued(User requestor, Certificate cert, Set<String> additionalEmailSet ) throws MessagingException {
+    public void notifyUserCertificateIssued(User requestor, Certificate cert, Set<String> additionalEmailSet ) throws MessagingException {
 
-        if( !notifyUserCerificateIssued){
-            LOG.info("notifyUserCerificateIssued deactivated");
+        if( !doNotifyUserCertificateIssued){
+            LOG.info("notifyUserCertificateIssued deactivated");
             return;
         }
 
@@ -578,20 +578,20 @@ public class NotificationService {
     }
 
     @Async
-    public void notifyUserCerificateRejectedAsync(User requestor, CSR csr ){
+    public void notifyUserCertificateRejectedAsync(User requestor, CSR csr ){
 
         try {
-            notifyUserCerificateRejected(requestor, csr );
+            notifyUserCertificateRejected(requestor, csr );
         } catch (MessagingException e) {
             LOG.error("problem sending user notification for rejected request", e);
         }
     }
 
     @Transactional
-    public void notifyUserCerificateRejected(User requestor, CSR csr ) throws MessagingException {
+    public void notifyUserCertificateRejected(User requestor, CSR csr ) throws MessagingException {
 
-        if( !notifyUserCerificateRejected){
-            LOG.info("notifyUserCerificateRejected deactivated");
+        if( !doNotifyUserCertificateRejected){
+            LOG.info("notifyUserCertificateRejected deactivated");
             return;
         }
 
@@ -603,20 +603,20 @@ public class NotificationService {
 
 
     @Async
-    public void notifyUserCerificateRevokedAsync(User requestor, Certificate cert , CSR csr ){
+    public void notifyUserCertificateRevokedAsync(User requestor, Certificate cert , CSR csr ){
 
         try {
-            notifyCerificateRevoked(requestor, cert, csr );
+            notifyCertificateRevoked(requestor, cert, csr );
         } catch (MessagingException e) {
             LOG.error("problem sending user notification for revoked certificate", e);
         }
     }
 
     @Transactional
-    public void notifyCerificateRevoked(User requestor, Certificate cert, CSR csr ) throws MessagingException {
+    public void notifyCertificateRevoked(User requestor, Certificate cert, CSR csr ) throws MessagingException {
 
-        if( !notifyCerificateRevoked){
-            LOG.info("notifyCerificateRevoked deactivated");
+        if( !doNotifyCertificateRevoked){
+            LOG.info("notifyCertificateRevoked deactivated");
             return;
         }
 
