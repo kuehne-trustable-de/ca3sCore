@@ -190,6 +190,20 @@ public class AcmeCertificateController extends AcmeController {
                 throw new AcmeProblemException(problem);
             }
 
+            // check revocation status
+            if (certDaoRevoke.isRevoked()) {
+                final ProblemDetail problem = new ProblemDetail(AcmeUtil.ALREADY_REVOKED, "certificate already revoked",
+                    BAD_REQUEST, "", AcmeController.NO_INSTANCE);
+                throw new AcmeProblemException(problem);
+            }
+
+            // check revocation status
+            if (!certDaoRevoke.isActive()) {
+                final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "certificate not active / already expired",
+                    BAD_REQUEST, "", AcmeController.NO_INSTANCE);
+                throw new AcmeProblemException(problem);
+            }
+
             String kid = jwtUtil.getKid(webStruct);
             if (kid == null) {
                 LOG.info("Revocation authentication by JWK");
@@ -206,6 +220,13 @@ public class AcmeCertificateController extends AcmeController {
                     }
                     if (certRequestSignature == null) {
                         final ProblemDetail problem = new ProblemDetail(AcmeUtil.UNAUTHORIZED, "Certificate used for request signature not found",
+                            BAD_REQUEST, "", AcmeController.NO_INSTANCE);
+                        throw new AcmeProblemException(problem);
+                    }
+
+                    // check revocation status
+                    if (!certRequestSignature.isActive()) {
+                        final ProblemDetail problem = new ProblemDetail(AcmeUtil.UNAUTHORIZED, "Certificate used for request signature revoked / already expired",
                             BAD_REQUEST, "", AcmeController.NO_INSTANCE);
                         throw new AcmeProblemException(problem);
                     }
@@ -257,13 +278,6 @@ public class AcmeCertificateController extends AcmeController {
                     final HttpHeaders headers = buildNonceHeader();
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).headers(headers).build();
                 }
-            }
-
-            // check revocation status
-            if (certDaoRevoke.isRevoked()) {
-                final ProblemDetail problem = new ProblemDetail(AcmeUtil.ALREADY_REVOKED, "certificate already revoked",
-                    BAD_REQUEST, "", AcmeController.NO_INSTANCE);
-                throw new AcmeProblemException(problem);
             }
 
             // perform revocation
