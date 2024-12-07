@@ -8,7 +8,6 @@ const validations = {
       required,
       minLength: minLength(5),
       maxLength: maxLength(254),
-      email,
     },
   },
 };

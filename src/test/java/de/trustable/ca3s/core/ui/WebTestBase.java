@@ -1,5 +1,8 @@
 package de.trustable.ca3s.core.ui;
 
+import com.icegreen.greenmail.util.GreenMail;
+import com.icegreen.greenmail.util.ServerSetup;
+import com.sun.mail.imap.protocol.FLAGS;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.test.speech.SoundOutput;
 import org.openqa.selenium.By;
@@ -12,6 +15,8 @@ import org.springframework.core.io.ClassPathResource;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import javax.mail.Folder;
+import javax.mail.MessagingException;
 import javax.security.auth.x500.X500Principal;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -22,10 +27,10 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.*;
+import java.security.SecureRandom;
+import java.util.Base64;
+import java.util.Random;
 
 import static org.junit.Assert.fail;
 
@@ -49,9 +54,15 @@ public class WebTestBase extends LocomotiveBase {
     public static int testPortHttp;
     public static int testPortHttps;
 
+    static GreenMail greenMailSMTPIMAP;
+    static String emailAddress;
+    static String emailPassword;
+
+
     public boolean playSound = false;
     public String locale = "en";
 
+    protected static Random rand = new SecureRandom();
 
     Document tutorialDocument;
     XPath xPath;
@@ -98,6 +109,72 @@ public class WebTestBase extends LocomotiveBase {
             xPath = XPathFactory.newInstance().newXPath();
         } catch (ParserConfigurationException | IOException | SAXException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    protected static void startEmailMock() throws IOException, MessagingException {
+        ServerSocket ssSMTP = new ServerSocket(0);
+        ServerSocket ssIMAP = new ServerSocket(0);
+        int randomPortSMTP = ssSMTP.getLocalPort();
+        int randomPortIMAP = ssIMAP.getLocalPort();
+        ssSMTP.close();
+        ssIMAP.close();
+
+        ServerSetup smtpSetup = new ServerSetup(randomPortSMTP, null, ServerSetup.PROTOCOL_SMTP);
+        ServerSetup imapSetup = new ServerSetup(randomPortIMAP, null, ServerSetup.PROTOCOL_IMAP);
+        greenMailSMTPIMAP = new GreenMail(new ServerSetup[]{smtpSetup,imapSetup});
+
+        greenMailSMTPIMAP.start();
+
+        System.setProperty("spring.mail.host", "localhost");
+        System.setProperty("spring.mail.port", "" + randomPortSMTP);
+
+        System.setProperty("jhipster.mail.from", "ca3s@localhost");
+
+        System.out.println("randomPortSMTP : " + randomPortSMTP);
+        System.out.println("randomPortIMAP : " + randomPortIMAP);
+
+        byte[] emailBytes = new byte[6];
+        rand.nextBytes(emailBytes);
+        emailAddress = "User_" + encodeBytesToText(emailBytes) + "@localhost.com";
+
+        byte[] passwordBytes = new byte[6];
+        rand.nextBytes(passwordBytes);
+        emailPassword = "PasswordEMail_" + encodeBytesToText(passwordBytes);
+
+        // Create user, as connect verifies pwd
+        greenMailSMTPIMAP.setUser(emailAddress, emailAddress, emailPassword);
+        System.out.println("create eMail account '" + emailAddress + "', identified by '" + emailPassword + "'");
+
+        greenMailSMTPIMAP.setUser("admin@localhost", "admin@localhost", emailPassword);
+        System.out.println("create eMail account 'admin@localhost', identified by '" + emailPassword + "'");
+
+
+    }
+
+    static String encodeBytesToText(byte[] bytes){
+        return Base64.getEncoder().encodeToString(bytes).replace("+", "A").replace("=", "B").replace("/", "C");
+    }
+
+    protected static void dropMessagesFromInbox(Folder inbox) throws MessagingException {
+        int msgCount = inbox.getMessageCount();
+        System.out.println("inbox contains " + msgCount + " messages.");
+        for( int i = 1 ; i <= msgCount; i++) {
+            System.out.println("deleting message ...");
+            inbox.getMessage(i).setFlag(FLAGS.Flag.DELETED, true);
+        }
+        System.out.println("inbox contains " + inbox.getMessageCount() + " messages after delete.");
+    }
+
+    protected static void waitForNewMessage(Folder inbox, int nMsgCurrent) throws MessagingException {
+        while( inbox.getMessageCount() == nMsgCurrent) {
+            System.out.println( "waiting for message ...");
+            try {
+                Thread.sleep(1000); // sleep for 1 second.
+            } catch (Exception x) {
+                fail("Failed due to an exception during Thread.sleep!");
+                x.printStackTrace();
+            }
         }
     }
 

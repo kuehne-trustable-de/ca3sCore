@@ -28,6 +28,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 
+import javax.mail.MessagingException;
 import javax.security.auth.x500.X500Principal;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -167,9 +168,10 @@ public class CSRSubmitIT extends WebTestBase {
     PreferenceTestConfiguration prefTC;
 
     @BeforeAll
-    public static void setUpBeforeAll() throws IOException {
+    public static void setUpBeforeAll() throws IOException, MessagingException {
         JCAManager.getInstance();
         WebDriverManager.chromedriver().setup();
+        startEmailMock();
     }
 
     @BeforeEach

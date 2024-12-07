@@ -10,6 +10,7 @@ import de.trustable.ca3s.core.ui.helper.Browser;
 import de.trustable.ca3s.core.ui.helper.Config;
 import de.trustable.util.JCAManager;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,17 +53,19 @@ public class AccountHandlingIT extends WebTestBase{
     public static final By LOC_INP_1_PASSWORD_VALUE = By.xpath("//div/input [@name = 'password']");
     public static final By LOC_INP_2_PASSWORD_VALUE = By.xpath("//div/input [@name = 'confirmPasswordInput']");
 
+    public static final By LOC_INP_NEW_PASSWORD_VALUE = By.xpath("//div/input [@name = 'newPassword']");
+    public static final By LOC_INP_CONFIRM_PASSWORD_VALUE = By.xpath("//div/input [@name = 'confirmPassword']");
+
     public static final By LOC_BTN_REGISTER = By.xpath("//form/button [@type='submit'][text() = 'Register']");
 
     public static final By LOC_TEXT_REGISTRATION_SUCCESSFUL = By.xpath("//div/strong [text() = 'Registration saved!']");
 
     public static final By LOC_LNK_NEW_ACCOUNT_SIGN_IN = By.xpath("//div/a [text() = 'sign in']");
 
-    private static Random rand = new Random();
+    public static final By LOC_LNK_SIGNIN_RESET = By.xpath("//div/a [@href='/reset/request']");
+    public static final By LOC_BTN_RESET = By.xpath("//form/button [@type='submit'][text() = 'Reset password']");
+    public static final By LOC_BTN_SAVE = By.xpath("//form/button [@type='submit'][text() = 'Save']");
 
-    static GreenMail greenMailSMTPIMAP;
-    static String emailAddress;
-    static String emailPassword;
 
     @LocalServerPort
     int serverPort; // random port chosen by spring test
@@ -72,45 +75,12 @@ public class AccountHandlingIT extends WebTestBase{
 
 
     @BeforeAll
-    public static void setUpBeforeClass() throws IOException {
+    public static void setUpBeforeClass() throws IOException, MessagingException {
 
         JCAManager.getInstance();
         WebDriverManager.chromedriver().setup();
 
-        ServerSocket ssSMTP = new ServerSocket(0);
-        ServerSocket ssIMAP = new ServerSocket(0);
-        int randomPortSMTP = ssSMTP.getLocalPort();
-        int randomPortIMAP = ssIMAP.getLocalPort();
-        ssSMTP.close();
-        ssIMAP.close();
-
-        ServerSetup smtpSetup = new ServerSetup(randomPortSMTP, null, ServerSetup.PROTOCOL_SMTP);
-        ServerSetup imapSetup = new ServerSetup(randomPortIMAP, null, ServerSetup.PROTOCOL_IMAP);
-        greenMailSMTPIMAP = new GreenMail(new ServerSetup[]{smtpSetup,imapSetup});
-
-        greenMailSMTPIMAP.start();
-
-        System.setProperty("spring.mail.host", "localhost");
-        System.setProperty("spring.mail.port", "" + randomPortSMTP);
-
-        System.setProperty("jhipster.mail.from", "ca3s@localhost");
-
-        System.out.println("randomPortSMTP : " + randomPortSMTP);
-        System.out.println("randomPortIMAP : " + randomPortIMAP);
-
-        byte[] emailBytes = new byte[6];
-        rand.nextBytes(emailBytes);
-        emailAddress = "User_" + encodeBytesToText(emailBytes) + "@localhost.com";
-
-        byte[] passwordBytes = new byte[6];
-        rand.nextBytes(passwordBytes);
-        emailPassword = "PasswordEMail_" + encodeBytesToText(passwordBytes);
-
-        // Create user, as connect verifies pwd
-        greenMailSMTPIMAP.setUser(emailAddress, emailAddress, emailPassword);
-
-        System.out.println("create eMail account '" + emailAddress + "', identified by '" + emailPassword + "'");
-
+        startEmailMock();
     }
 
     @BeforeEach
@@ -136,17 +106,17 @@ public class AccountHandlingIT extends WebTestBase{
         byte[] passwordBytes = new byte[6];
         rand.nextBytes(passwordBytes);
         String loginPassword = "S3cr3t!S_" + encodeBytesToText(passwordBytes);
+        String newPassword = "New!S_" + encodeBytesToText(passwordBytes);
 
-        IMAPStore imapStore = greenMailSMTPIMAP.getImap().createStore();
+        IMAPStore imapStore;
+        Folder inbox;
+
+        imapStore = greenMailSMTPIMAP.getImap().createStore();
         imapStore.connect(emailAddress, emailPassword);
-        Folder inbox = imapStore.getFolder("INBOX");
+        inbox = imapStore.getFolder("INBOX");
         inbox.open(Folder.READ_WRITE);
 
-        System.out.println("inbox contains " + inbox.getMessageCount() + " messages.");
-        while( inbox.getMessageCount() > 0) {
-            System.out.println("deleting message ...");
-            inbox.getMessage(1).setFlag(FLAGS.Flag.DELETED, true);
-        }
+        dropMessagesFromInbox(inbox);
 
         waitForElement(LOC_LNK_ACCOUNT_MENUE);
         validatePresent(LOC_LNK_ACCOUNT_MENUE);
@@ -171,16 +141,7 @@ public class AccountHandlingIT extends WebTestBase{
         validatePresent(LOC_BTN_REGISTER);
         click(LOC_BTN_REGISTER);
 
-
-        while( inbox.getMessageCount() == 0) {
-            System.out.println( "waiting for message ...");
-            try {
-                Thread.sleep(1000); // sleep for 1 second.
-            } catch (Exception x) {
-                fail("Failed due to an exception during Thread.sleep!");
-                x.printStackTrace();
-            }
-        }
+        waitForNewMessage(inbox, 0);
         waitForElement(LOC_TEXT_REGISTRATION_SUCCESSFUL);
 
         Message msgReceived = inbox.getMessage(1);
@@ -190,8 +151,31 @@ public class AccountHandlingIT extends WebTestBase{
 
         String emailContent = msgReceived.getContent().toString();
 
-        Pattern p = Pattern.compile("<a href=\"http:\\/\\/.*:.*(\\/account\\/activate\\?key=.*)\">");
-        Matcher m = p.matcher(emailContent);
+/*
+        <!DOCTYPE html>
+<html>
+    <head>
+        <title>ca3s account activation</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="shortcut icon" href="http://127.0.0.1:8080/favicon.ico" />
+    </head>
+    <body>
+        <patternActivateKey>Dear user_zi31rjdo</patternActivateKey>
+        <patternActivateKey>Your ca3s account has been created, please click on the URL below to activate it:</patternActivateKey>
+        <patternActivateKey>
+            <a href="http://127.0.0.1:8080/account/activate?key=J1k3Q1DCw5xFStOVa9k7&amp;instantLogin=false">activation link</a>
+        </patternActivateKey>
+        <patternActivateKey>
+            <span>Regards,</span>
+            <br/>
+            <em>ca3s Team.</em>
+        </patternActivateKey>
+    </body>
+</html>
+
+ */
+        Pattern patternActivateKey = Pattern.compile("<a href=\"http:\\/\\/.*:.*(\\/account\\/activate\\?key=.*)\">");
+        Matcher m = patternActivateKey.matcher(emailContent);
         assertTrue(m.find());
 
         String activateUrl = m.group(1);
@@ -199,9 +183,91 @@ public class AccountHandlingIT extends WebTestBase{
 
         navigateTo(activateUrl);
 
+        click(LOC_LNK_NEW_ACCOUNT_SIGN_IN);
+
+        signIn(loginName, loginPassword);
+
+        logOut();
+
+
+        imapStore = greenMailSMTPIMAP.getImap().createStore();
+        imapStore.connect("admin@localhost", emailPassword);
+        inbox = imapStore.getFolder("INBOX");
+        inbox.open(Folder.READ_WRITE);
+
+        // reset password
+        dropMessagesFromInbox(inbox);
+
+        validatePresent(LOC_LNK_ACCOUNT_SIGN_IN_MENUE);
+        click(LOC_LNK_ACCOUNT_SIGN_IN_MENUE);
+
+        validatePresent(LOC_LNK_SIGNIN_USERNAME);
+        validatePresent(LOC_LNK_NEW_ACCOUNT_SIGN_IN);
+
+        validatePresent(LOC_LNK_SIGNIN_RESET);
+        click(LOC_LNK_SIGNIN_RESET);
+
+        validatePresent(LOC_LNK_SIGNIN_USERNAME);
+        setText(LOC_LNK_SIGNIN_USERNAME, "admin");
+
+        int nMsgCurrent = inbox.getMessageCount();
+        Assertions.assertTrue(isEnabled(LOC_BTN_RESET), "Expecting reset button enabled");
+        validatePresent(LOC_BTN_RESET);
+        click(LOC_BTN_RESET);
+
+        waitForNewMessage(inbox, nMsgCurrent);
+
+        // waitForElement(LOC_TEXT_REGISTRATION_SUCCESSFUL);
+
+        Message msgResetReceived = inbox.getMessage(nMsgCurrent + 1);
+        System.out.println( "msgReceived.getContentType() : " + msgResetReceived.getContentType() );
+        System.out.println( "msgReceived.getContent() : " + msgResetReceived.getContent() );
+
+        /*
+        <!DOCTYPE html>
+<html>
+    <head>
+        <title>ca3s password reset</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="shortcut icon" href="http://localhost:8080/favicon.ico" />
+    </head>
+    <body>
+        <p>Dear andreas_kuehne</p>
+        <p>For your ca3s account a password reset was requested, please click on the URL below to reset it:</p>
+        <p>
+            <a href="http://localhost:8080/account/reset/finish?key=bSNPNpQEVuxiOHtTOpUH&amp;instantLogin=false">activation link</a>
+        </p>
+        <p>
+            <span>Regards,</span>
+            <br/>
+            <em>ca3s Team.</em>
+        </p>
+    </body>
+</html>
+         */
+        String emailReset = msgResetReceived.getContent().toString();
+        Pattern patternResetKey = Pattern.compile("<a href=\"http:\\/\\/.*:.*(\\/account\\/reset\\/finish\\?key=.*)\">");
+        Matcher matchReset = patternResetKey.matcher(emailReset);
+        assertTrue(matchReset.find());
+
+        activateUrl = matchReset.group(1);
+        System.out.println( "Confirming account at " + activateUrl);
+
+        navigateTo(activateUrl);
+
+        validatePresent(LOC_INP_NEW_PASSWORD_VALUE);
+        setText(LOC_INP_NEW_PASSWORD_VALUE, newPassword);
+        validatePresent(LOC_INP_CONFIRM_PASSWORD_VALUE);
+        setText(LOC_INP_CONFIRM_PASSWORD_VALUE, newPassword);
+
+        Assertions.assertTrue(isEnabled(LOC_BTN_SAVE), "Expecting reset button enabled");
+        click(LOC_BTN_SAVE);
+
+        signIn("admin", newPassword);
+
+
         inbox.close();
         imapStore.close();
-        validatePresent(LOC_LNK_NEW_ACCOUNT_SIGN_IN);
 
         /*
         try {
@@ -212,16 +278,7 @@ public class AccountHandlingIT extends WebTestBase{
         }
 */
 
-        click(LOC_LNK_NEW_ACCOUNT_SIGN_IN);
 
-        signIn(loginName, loginPassword);
-
-
-
-    }
-
-    static String encodeBytesToText(byte[] bytes){
-        return Base64.getEncoder().encodeToString(bytes).replace("+", "A").replace("=", "B").replace("/", "C");
     }
 
 }
