@@ -399,7 +399,6 @@ public class NotificationService {
 
     }
 
-
     @Transactional
     public void notifyRAOfficerOnUserRevocation(Certificate certificate) {
 

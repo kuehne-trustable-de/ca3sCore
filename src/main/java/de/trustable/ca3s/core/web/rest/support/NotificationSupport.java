@@ -195,7 +195,7 @@ public class NotificationSupport {
     @Transactional
     @PostMapping("notification/sendUserCertificateRevoked/{certId}")
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public void notifyUserCerificateRevoked(@PathVariable String certId) throws MessagingException {
+    public void notifyRAOfficerOnUserCerificateRevoked(@PathVariable String certId) throws MessagingException {
 
         Optional<User> optUser = userRepository.findOneByLogin(nameAndRoleUtil.getNameAndRole().getName());
         if (optUser.isPresent()) {

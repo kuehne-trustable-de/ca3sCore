@@ -30,12 +30,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * REST controller for processing PKCS10 requests and Certificates.
@@ -229,8 +227,7 @@ public class CertificateAdministration {
             try {
 	    		revokeCertificate(certificate, adminData, userName);
 
-                // @ToDo
-                // send a notification to the RA officer
+                notificationService.notifyRAOfficerOnUserRevocation(certificate);
 
 	    		return new ResponseEntity<>(adminData.getCertificateId(), HttpStatus.OK);
 

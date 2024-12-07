@@ -4,14 +4,13 @@ import com.unboundid.util.ssl.TrustAllTrustManager;
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.service.cmp.CMPTestEndpoint;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.SocketFactory;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
 import java.net.Socket;
@@ -22,6 +21,7 @@ import java.time.Instant;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 
+@Disabled("Disabled, not sure to have an ejbca at hand")
 class EjbcaConnectorTest {
 
     static final String EJBCA_HOST = "192.168.3.31";
