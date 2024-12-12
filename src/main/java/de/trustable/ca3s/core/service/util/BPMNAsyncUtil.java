@@ -5,6 +5,9 @@ import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,29 +27,41 @@ public class BPMNAsyncUtil {
 
     @Async
     @Transactional
-    public void onChange(String processName, Long certificateId) {
+    public void onChange(String processName, Long certificateId, Authentication auth) {
 
-        LOG.info("Async call to onChange( '{}', {})", processName, certificateId);
+        LOG.info("******************  Async call to onChange( '{}', {})", processName, certificateId);
 
         if( certificateId == null){
             return;
         }
 
         Map<String, Object> variables = new HashMap<>();
-
         variables.put("certificateId", certificateId.toString());
 
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Authentication currentAuth = securityContext.getAuthentication();
+
         try {
+            if( auth != null){
+                LOG.info("Setting authentication to : {}", auth.getName());
+                securityContext.setAuthentication(auth);
+            }
+
             ProcessInstanceWithVariables processInstance = runtimeService.createProcessInstanceById(processName).setVariables(variables).executeWithVariablesInReturn();
             String processInstanceId = processInstance.getId();
-            LOG.info("ProcessInstance: {}", processInstanceId);
 
             String status = processInstance.getVariables().get("status").toString();
+            LOG.info("ProcessInstance '{}' terminates with status {}", processInstanceId, status);
 
         }catch(RuntimeException processException){
             if(LOG.isDebugEnabled()){
-                LOG.debug("Exception while calling bpmn process '"+processName+"'", processException);
+                String msg = "Exception while calling bpmn process '"+processName+"'";
+                LOG.debug( msg, processException);
             }
+        }finally{
+            String currentAuthName = currentAuth == null ? null : currentAuth.getName();
+            LOG.info("Restoring authentication to : {}", currentAuthName);
+            securityContext.setAuthentication(currentAuth);
         }
     }
 }
