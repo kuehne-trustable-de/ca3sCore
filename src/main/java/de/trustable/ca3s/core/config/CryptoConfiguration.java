@@ -52,10 +52,11 @@ public class CryptoConfiguration {
 //                .filter(s -> "Cipher".equals(s.getType()))
                 .map(Provider.Service::getAlgorithm)
                 .forEach(algs::add);
-
+/*
             for( String algo:algs){
                 log.debug("provider "+provider.getName()+" support algorithm : " + algo);
             }
+ */
         }
     }
 

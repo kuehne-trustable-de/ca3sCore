@@ -5,6 +5,8 @@ import de.trustable.ca3s.cert.bundle.KeyCertBundle;
 import de.trustable.ca3s.core.service.util.KeyUtil;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.PKILevel;
+import de.trustable.ca3s.core.service.dto.KeyAlgoLengthOrSpec;
+
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.*;
 import org.slf4j.Logger;
@@ -17,7 +19,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.cert.X509Certificate;
 import java.util.*;
 
@@ -51,7 +52,7 @@ public class Ca3sFallbackBundleFactory implements BundleFactory {
 	private synchronized KeyPair getRootKeyPair() throws GeneralSecurityException{
 
 		if( rootKeyPair == null) {
-            rootKeyPair = keyUtil.createKeyPair();;
+            rootKeyPair = keyUtil.createKeyPair();
 			LOG.debug("created new root keypair : {}", rootKeyPair.toString());
 		}
 	    return rootKeyPair;
@@ -78,8 +79,8 @@ public class Ca3sFallbackBundleFactory implements BundleFactory {
 	public KeyCertBundle newKeyBundle(final String bundleName, long minValiditySeconds) throws GeneralSecurityException {
 
 
-		KeyPair localKeyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
-
+        KeyAlgoLengthOrSpec keyAlgoLengthOrSpec = new KeyAlgoLengthOrSpec("RSA", 4096);
+        KeyPair localKeyPair = keyAlgoLengthOrSpec.generateKeyPair();
 		try {
 			InetAddress ip = InetAddress.getLocalHost();
 			String hostname = ip.getHostName();

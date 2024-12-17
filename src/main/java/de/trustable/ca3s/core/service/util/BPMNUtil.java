@@ -625,13 +625,15 @@ public class BPMNUtil{
 
     private void notifyOnCertificate(BPMNProcessInfo processInfo, long certificateId) {
         if (processInfo != null && processInfo.getProcessId() != null) {
-            LOG.info("notifyOnCertificate: '{}', {}", processInfo.getProcessId(), certificateId);
+            if( !TransactionSynchronizationManager.isActualTransactionActive()){
+                LOG.warn("notifyOnCertificate: no transaction active !");
+            }
 
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            LOG.info("notifyOnCertificate: '{}', {}for auth {}", processInfo.getProcessId(), certificateId, auth);
+            LOG.info("notifyOnCertificate: '{}', {} for auth {}", processInfo.getProcessId(), certificateId, auth);
 
             executeAfterTransactionCommits(() -> {
-                bpmnAsyncUtil.onChange(processInfo.getProcessId(),certificateId, auth);
+                bpmnAsyncUtil.onChange(processInfo.getProcessId(), certificateId, auth);
             });
         }else{
             LOG.info("notifyOnCertificate: no notify process defined ");

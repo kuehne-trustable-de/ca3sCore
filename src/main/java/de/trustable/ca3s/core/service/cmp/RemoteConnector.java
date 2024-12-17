@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.trustable.ca3s.core.security.provider.Ca3sTrustManager;
+import de.trustable.ca3s.core.service.util.RandomUtil;
 import de.trustable.cmp.client.RemoteTargetHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +92,7 @@ public class RemoteConnector implements RemoteTargetHandler {
                 SSLContext sc = SSLContext.getInstance("SSL");
                 sc.init(keyManagers,
                     new TrustManager[]{ca3sTrustManager},
-                    new java.security.SecureRandom());
+                    RandomUtil.getSecureRandom());
 
                 SSLSocketFactory socketFactory = sc.getSocketFactory();
                 if (sni != null && !sni.trim().isEmpty()) {

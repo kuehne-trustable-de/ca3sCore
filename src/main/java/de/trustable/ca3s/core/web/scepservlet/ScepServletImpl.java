@@ -281,7 +281,7 @@ public class ScepServletImpl extends ScepServlet {
                 for( Certificate replacementCert : replacementCertificateList){
                     if( replacementCert.getCsr() != null &&
                         replacementCert.getCsr().getPipeline() != null &&
-                        PipelineType.SCEP.equals(replacementCert.getCsr().getPipeline())){
+                        PipelineType.SCEP.equals(replacementCert.getCsr().getPipeline().getType())){
                         issuedBySCEP = true;
                         break;
                     }
@@ -311,11 +311,17 @@ public class ScepServletImpl extends ScepServlet {
 
                 if( chainCert != null) {
                     certList.add(CryptoUtil.convertPemToCertificate(chainCert.getContent()));
+                    LOGGER.debug("added cert {} to scep chain", chainCert.getDescription());
+                    if( chainCert.getIssuingCertificate() == null ||
+                        chainCert.isSelfsigned() ){
+                        LOGGER.debug("scep cert chains ends with {}", chainCert.getDescription());
+                        break;
+                    }
                     chainCert = chainCert.getIssuingCertificate();
                 }
             }
             for(X509Certificate x509: certList){
-                LOGGER.debug("--- chain element: " + x509.getSubjectX500Principal().toString());
+                LOGGER.debug("--- chain element: {}", x509.getSubjectX500Principal().toString());
             }
 
             scepOrder.setStatus(ScepOrderStatus.READY);
@@ -372,6 +378,10 @@ public class ScepServletImpl extends ScepServlet {
         try {
 			Certificate recepCert = getCurrentRecepientCert();
 			caList = certUtil.getX509CertificateChainAsList(recepCert);
+
+            for(X509Certificate x509: caList){
+                LOGGER.debug("--- recipient chain element: {}", x509.getSubjectX500Principal().toString());
+            }
 		} catch (GeneralSecurityException | ServletException e) {
 			LOGGER.warn("Failed to retrieve CA certificates", e);
 		}

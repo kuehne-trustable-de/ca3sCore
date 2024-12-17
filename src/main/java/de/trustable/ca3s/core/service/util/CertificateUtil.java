@@ -1347,6 +1347,11 @@ public class CertificateUtil {
 
         for (int i = 0; i <= MAX_CHAIN_LENGTH; i++) {
 
+            if( certDao.isSelfsigned()){
+                LOG.debug("certificate chain ended with selfsigned cert: {}", certDao.getDescription());
+                break;
+            }
+
             if (i == MAX_CHAIN_LENGTH) {
                 String msg = "maximum chain length ecxeeded for  cert id : " + startCertDao.getId();
                 LOG.info(msg);
@@ -1372,15 +1377,15 @@ public class CertificateUtil {
                 throw new GeneralSecurityException(msg);
             }
 
-            if (issuingCertDao.getIssuingCertificate() == null) {
-                String msg = "no issuing certificate available / retrievable for cert id : " + issuingCertDao.getId();
+            if ( issuingCertDao.getIssuingCertificate() == null) {
+                String msg = "no issuing certificate available / retrievable for issuing cert id : " + issuingCertDao.getId();
                 LOG.info(msg);
                 break;
 //				throw new GeneralSecurityException(msg);
             } else {
 
                 // root reached? No need to move further ..
-                if (issuingCertDao.getId().equals(issuingCertDao.getIssuingCertificate().getId())) {
+                if (certDao.isSelfsigned() || issuingCertDao.getId().equals(issuingCertDao.getIssuingCertificate().getId())) {
                     LOG.debug("certificate chain complete, cert id '{}' is selfsigned", issuingCertDao.getId());
                     break;
                 }
@@ -2386,7 +2391,7 @@ public class CertificateUtil {
     public KeyStoreAndPassphrase getContainer(Certificate certDao, String entryAlias, char[] passphraseChars, PrivateKey key, String passwordProtectionAlgo) throws IOException, GeneralSecurityException {
 
         byte[] salt = new byte[20];
-        new SecureRandom().nextBytes(salt);
+        RandomUtil.getSecureRandom().nextBytes(salt);
 
         KeyStore p12 = KeyStore.getInstance("pkcs12");
         p12.load(null, passphraseChars);

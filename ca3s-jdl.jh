@@ -260,16 +260,27 @@ enum BPMNProcessType {
 @skipClient
 entity BPMNProcessInfo{
 
-  	name String required
-  	version String required
-  	type BPMNProcessType required
-  	author String required
-  	lastChange Instant required
-  	signatureBase64 TextBlob required
-  	bpmnHashBase64 String required
-  	processId String required
+    name String required
+    version String required
+    type BPMNProcessType required
+    author String required
+    lastChange Instant required
+    signatureBase64 TextBlob required
+    bpmnHashBase64 String required
+    processId String required
 }
 
+@skipClient
+entity BPMNProcessAttribute{
+    name String required
+    value String required
+    type BPMNProcessAttributeType required
+}
+
+enum BPMNProcessAttributeType {
+    STRING,
+    PASSWORD
+}
 enum ScepOrderStatus {
     PENDING, READY, INVALID
 }
@@ -502,6 +513,8 @@ relationship OneToMany {
     ScepOrder{attributes} to ScepOrderAttribute{order}
 
 	AcmeAuthorization{challenges} to AcmeChallenge{AcmeAuthorization}
+
+    BPMNProcessInfo{attribute} to BPMNProcessAttribute{bpmnProcess}
 }
 
 relationship ManyToOne {

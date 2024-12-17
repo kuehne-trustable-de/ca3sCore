@@ -8,6 +8,7 @@ import de.trustable.ca3s.core.schedule.ImportInfo;
 import de.trustable.ca3s.core.service.cmp.SSLSocketFactoryWrapper;
 import de.trustable.ca3s.core.service.dto.ejbca.*;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.ca3s.core.service.util.RandomUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -147,7 +148,7 @@ public class EjbcaConnector {
                 SSLContext sc = SSLContext.getInstance("SSL");
                 sc.init(keyManagers,
                     new TrustManager[]{ca3sTrustManager},
-                    new java.security.SecureRandom());
+                    RandomUtil.getSecureRandom());
 
                 SSLSocketFactory socketFactory = sc.getSocketFactory();
                 if (sni != null && !sni.trim().isEmpty()) {

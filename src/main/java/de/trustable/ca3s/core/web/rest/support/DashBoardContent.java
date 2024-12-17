@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,13 +13,9 @@ import java.util.Map;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.repository.CertificateRepository;
@@ -49,90 +46,124 @@ public class DashBoardContent {
     }
 
     /**
-     * {@code GET  /issuedCertificatesByMonth} : .
-     *
+     * {@code GET  /requestsByMonth} : .
+     *                             years: this.requestsYears,
+     *                             requestsAcme: this.requestsAcme,
+     *                             requestsScep: this.requestsScep,
+     *                             requestsWeb: this.requestsWeb
      * @return the {@link ResponseEntity} .
      */
-    @GetMapping("/issuedCertificatesByMonth")
-    public ResponseEntity<DataCollection> getIssuedCertificatesByMonth() {
+    @GetMapping("/requestsByMonth")
+    public ResponseEntity<DataCollection> getRequestsByMonth(@RequestParam(name="years") int years,
+                                                             @RequestParam(name="requestsAcme") boolean requestsAcme,
+                                                             @RequestParam(name="requestsScep") boolean requestsScep,
+                                                             @RequestParam(name="requestsWeb") boolean requestsWeb
+                                                             ) {
 
-        int nMonth = 12;
+        int nMonth = 12 * years;
+        String[] labels = new String[nMonth];
         Instant now = Instant.now();
-        LocalDateTime ldtNow = LocalDateTime.ofInstant(now, ZoneId.systemDefault());
 
-        int year = ldtNow.getYear();
-        int month = ldtNow.getMonthValue();
+        List<RequestType> requestTypeList = new ArrayList<>();
+        if( requestsWeb) {
+            requestTypeList.add(new RequestType("WEB", "requested Web CSRs", GRAY));
+        }
+        if( requestsScep) {
+            requestTypeList.add(new RequestType("SCEP", "requested SCEP CSRs", RED));
+        }
+        if( requestsAcme) {
+            requestTypeList.add(new RequestType("ACME", "requested ACME CSRs", ORANGE));
+        }
+
+        LocalDateTime ldtNow = LocalDateTime.ofInstant(now, ZoneId.systemDefault());
+        LocalDateTime ldtYearAgo = ldtNow.minusDays(365L * years);
+
+        int year = ldtYearAgo.getYear();
+        int month = ldtYearAgo.getMonthValue();
         HashMap<String, Map<String, Long>> monthDataMap = new HashMap<>();
         for(int i = 0; i < nMonth; i++){
             Map<String, Long> countByType = new HashMap<>();
+
             countByType.put("INTERNAL", 0L);
-            countByType.put("WEB", 0L);
-            countByType.put("SCEP", 0L);
-            countByType.put("ACME", 0L);
-            monthDataMap.put(month + "." + year, countByType);
-            LOG.info("counter setup for month {}", month + "." + year);
-            month--;
-            if(month == 0){
-                month = 12;
-                year--;
+            for( RequestType requestType: requestTypeList){
+                countByType.put(requestType.getName(), 0L);
+            }
+
+            String monthLabel = month + "." + year;
+            monthDataMap.put(monthLabel, countByType);
+            labels[i] = monthLabel;
+            LOG.info("counter setup for month {}", monthLabel);
+
+            month++;
+            if(month == 13){
+                month = 1;
+                year++;
             }
         }
 
-        Instant after = now.minus(365 , ChronoUnit.DAYS);
+        Instant after = now.minus(years*365 , ChronoUnit.DAYS);
 
-        List<Object[]> objects = csrRepository.groupIssuedByIssuanceMonth(after);
-        LOG.info("objects has #{} elements after {}",objects.size(), after);
+        List<Object[]> objects = csrRepository.groupByTypeRequestedMonth(after);
+        LOG.debug("objects has #{} elements after {}",objects.size(), after);
 
         for( Object[] resArr: objects) {
             String summaryMonth = resArr[0].toString();
             String summaryType = resArr[1].toString();
             Long count = (Long) resArr[2];
 
-            LOG.info("resArr: {} / {} / {} of type {}", summaryMonth, summaryType, count, resArr[2].getClass().getName());
+            LOG.debug("resArr: {} / {} / {} of type {}", summaryMonth, summaryType, count, resArr[2].getClass().getName());
             if(monthDataMap.containsKey(summaryMonth)) {
                 Map<String, Long> countByTypeMap = monthDataMap.get(summaryMonth);
-                LOG.info("month entry for '{}' contains {} pipeline types", summaryMonth, countByTypeMap.size());
+                LOG.debug("month entry for '{}' contains {} pipeline types", summaryMonth, countByTypeMap.size());
  //               for( String type: countByTypeMap.keySet() ){
  //                   LOG.info("type '{}' available, matches '{}' : {}", type, summaryType, type.equals(summaryType));
  //               }
                 if(countByTypeMap.containsKey(summaryType)) {
                     Long c = countByTypeMap.get(summaryType);
-                    LOG.info("updated: {} / {} to {}", summaryMonth, summaryType, c + count);
+                    LOG.debug("updated: {} / {} to {}", summaryMonth, summaryType, c + count);
                     countByTypeMap.put(summaryType, c + count);
                 }else{
-                    LOG.info("no counter found for month {} / type {}", summaryMonth, summaryType);
+                    LOG.debug("no counter found for month {} / type {}", summaryMonth, summaryType);
                 }
             }else{
-                LOG.info("no month entry found for '{}'", resArr[0]);
+                LOG.debug("no month entry found for '{}'", resArr[0]);
             }
         }
 
         DataCollection dc = new DataCollection();
-        String[] labels = new String[nMonth];
         dc.setLabels(labels);
 
-        DataSet[] dataSets = new DataSet[1];
-        DataSet ds = new DataSet( "issued certificates by month", nMonth );
-        dataSets[0] = ds;
+        DataSet[] dataSets = new DataSet[requestTypeList.size()];
+        int j = 0;
+        for( RequestType requestType: requestTypeList){
+            dataSets[j] = new DataSet( requestType.getLabel(), nMonth );
+            dataSets[j].setBackgroundColor(requestType.getColor());
+            j++;
+        }
 
+        String[][] backgroundColorArr = new String[3][monthDataMap.size()];
         dc.setDatasets(dataSets);
 
         int i = 0;
         for( String label: monthDataMap.keySet()){
-            LOG.info("label: {}", label);
-            labels[i] = label;
-
+            LOG.debug("label: {}", label);
             Map<String, Long> countByTypeMap = monthDataMap.get(label);
-            ds.getData()[i] = 0;
-            for( String type: countByTypeMap.keySet() ) {
-                ds.getData()[i] += countByTypeMap.get(type).intValue();
+
+            int k = 0;
+            for( RequestType requestType: requestTypeList) {
+                dataSets[k].getData()[i] = countByTypeMap.get(requestType.getName()).intValue();
+                backgroundColorArr[k][i] = requestType.getColor();
+                k++;
             }
             i++;
         }
 
-        return new ResponseEntity<DataCollection>(dc, HttpStatus.OK);
-    }
+        for( int ndx = 0; ndx < dataSets.length; ndx++) {
+            dataSets[ndx].setBackgroundColor(backgroundColorArr[ndx]);
+        }
 
+        return new ResponseEntity<>(dc, HttpStatus.OK);
+    }
 
     /**
      * {@code GET  /expiringCertificatesByDate} : .
@@ -197,7 +228,7 @@ public class DashBoardContent {
             }
         }
 
-        return new ResponseEntity<DataCollection>(dc, HttpStatus.OK);
+        return new ResponseEntity<>(dc, HttpStatus.OK);
     }
 
     /**
@@ -211,7 +242,7 @@ public class DashBoardContent {
         List<Object[]> algos = certificateRepository.findActiveCertificatesByHashAlgo(Instant.now());
 
         DataCollection dc = fillDataCollection(algos, "Hash algorithm");
-		return new ResponseEntity<DataCollection>(dc, HttpStatus.OK);
+		return new ResponseEntity<>(dc, HttpStatus.OK);
     }
 
     /**
@@ -225,7 +256,7 @@ public class DashBoardContent {
         List<Object[]> algos = certificateRepository.findActiveCertificatesByKeyAlgo(Instant.now());
 
         DataCollection dc = fillDataCollection(algos, "Key algorithm");
-		return new ResponseEntity<DataCollection>(dc, HttpStatus.OK);
+		return new ResponseEntity<>(dc, HttpStatus.OK);
     }
 
     /**
@@ -239,7 +270,7 @@ public class DashBoardContent {
         List<Object[]> algos = certificateRepository.findActiveCertificatesByKeyLength(Instant.now());
 
         DataCollection dc = fillDataCollection(algos, "Key length");
-		return new ResponseEntity<DataCollection>(dc, HttpStatus.OK);
+		return new ResponseEntity<>(dc, HttpStatus.OK);
     }
 
 	private DataCollection fillDataCollection(List<Object[]> valuesArr, String headingText) {
@@ -273,5 +304,30 @@ public class DashBoardContent {
 
     	BigInteger bi = BigInteger.valueOf((long)(Math.random() * MAX_COLOR));
     	return "#"+ bi.toString(16);
+    }
+}
+
+class RequestType {
+    final private String name;
+    final private String label;
+    final private String color;
+
+
+    RequestType(String name, String label, String color) {
+        this.name = name;
+        this.label = label;
+        this.color = color;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public String getColor() {
+        return color;
     }
 }

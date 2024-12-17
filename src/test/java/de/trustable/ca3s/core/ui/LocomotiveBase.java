@@ -10,6 +10,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
@@ -212,6 +213,7 @@ public class LocomotiveBase {
                             ChromeOptions options = new ChromeOptions();
                             options.addArguments("--no-sandbox");
                             options.addArguments("--disable-dev-shm-usage");
+                            options.addArguments("--crash-dumps-dir=/tmp");
 
                             options.addArguments("safebrowsing.enabled=false");
                             options.addArguments("safebrowsing_for_trusted_sources_enabled=false");
@@ -236,8 +238,8 @@ public class LocomotiveBase {
                             options.addArguments("--no-sandbox");
                             options.addArguments("--disable-dev-shm-usage");
 
-                            driver = WebDriverManager.chromedriver().capabilities(options).create();
-//                            driver = new ChromeDriver(options);
+//                            driver = WebDriverManager.chromedriver().capabilities(options).create();
+                            driver = new ChromeDriver(options);
 
                         } catch (Exception x) {
                             x.printStackTrace();
@@ -246,7 +248,7 @@ public class LocomotiveBase {
                             System.exit(1);
                         }
                     }
-                }catch(IOException ioe){
+                }catch(Exception ioe){
                     ioe.printStackTrace();
                     System.err.println("problem installing chrome driver, exiting ...");
                     System.exit(1);

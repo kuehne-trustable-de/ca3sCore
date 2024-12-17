@@ -912,6 +912,9 @@
   "home.dashboard.activeCertificatesByKeyAlgo": "certs by key algo",
   "home.dashboard.activeCertificatesByKeyLength": "certs by key length",
   "home.dashboard.expiringCertificatesByDate": "expiring certs (by date)",
+  "home.dashboard.requestsByMonth": "requests by month",
+  "home.dashboard.years": "{{years}} years",
+
   "home.github": "GitHub",
   "home.like": "",
   "home.link.bugtracker": "JHipster bug tracker",

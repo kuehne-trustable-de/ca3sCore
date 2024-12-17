@@ -694,7 +694,7 @@ public class PipelineUtil {
             }
         } else {
             p.setProcessInfoCreate(null);
-            if (!oldProcessNameCreate.equals("")) {
+            if (!oldProcessNameCreate.isEmpty()) {
                 auditList.add(auditService.createAuditTracePipelineAttribute("ISSUANCE_PROCESS", oldProcessNameCreate, "", p));
             }
         }
@@ -714,7 +714,7 @@ public class PipelineUtil {
             }
         } else {
             p.setProcessInfoRevoke(null);
-            if (!oldProcessNameRevoke.equals("")) {
+            if (!oldProcessNameRevoke.isEmpty()) {
                 auditList.add(auditService.createAuditTracePipelineAttribute("REVOCATION_PROCESS", oldProcessNameRevoke, "", p));
             }
         }
@@ -734,7 +734,7 @@ public class PipelineUtil {
             }
         } else {
             p.setProcessInfoNotify(null);
-            if (!oldProcessNameNotify.equals("")) {
+            if (!oldProcessNameNotify.isEmpty()) {
                 auditList.add(auditService.createAuditTracePipelineAttribute("NOTIFICATION_PROCESS", oldProcessNameNotify, "", p));
             }
         }
@@ -1091,7 +1091,7 @@ public class PipelineUtil {
                     }
                 }
             }
-            if (restriction.isRequired() && valuePresent == false) {
+            if (restriction.isRequired() && !valuePresent) {
                 String msg = "required attribute : '" + restriction.getName() + "' missing / has no value";
                 messageList.add(msg);
                 LOG.debug(msg);
@@ -1111,15 +1111,13 @@ public class PipelineUtil {
                 }
             }
         }
-        if(araRestrictions != null) {
-            for (ARARestriction araRestriction : araRestrictions) {
-                if (araRestriction.isRequired()) {
-                    if (Arrays.stream(nvARArr).noneMatch(nv -> (araRestriction.getName().equals(nv.getName())))) {
-                        String msg = "additional restriction mismatch: An value for '" + araRestriction.getName() + "' MUST be present!";
-                        messageList.add(msg);
-                        LOG.debug(msg);
-                        outcome = false;
-                    }
+        for (ARARestriction araRestriction : araRestrictions) {
+            if (araRestriction.isRequired()) {
+                if (Arrays.stream(nvARArr).noneMatch(nv -> (araRestriction.getName().equals(nv.getName())))) {
+                    String msg = "additional restriction mismatch: An value for '" + araRestriction.getName() + "' MUST be present!";
+                    messageList.add(msg);
+                    LOG.debug(msg);
+                    outcome = false;
                 }
             }
         }
@@ -1604,7 +1602,7 @@ public class PipelineUtil {
         String scepRecipientKeyLength = getPipelineAttribute(pipeline, SCEP_RECIPIENT_KEY_TYPE_LEN, defaultKeySpec);
         KeyAlgoLengthOrSpec kal = KeyAlgoLengthOrSpec.from(scepRecipientKeyLength);
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(kal.getAlgoName());
-        keyPairGenerator.initialize(kal.getKeyLength());
+        keyPairGenerator.initialize(kal.getKeyLength(), RandomUtil.getSecureRandom());
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
         String p10ReqPem = CryptoUtil.getCsrAsPEM(subject,

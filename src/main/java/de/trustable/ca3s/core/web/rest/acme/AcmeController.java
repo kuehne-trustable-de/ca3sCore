@@ -5,7 +5,6 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.SecureRandom;
 import java.sql.Date;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -111,8 +110,6 @@ public class AcmeController {
 		}
 		return url;
 	}
-
-	SecureRandom secRandom = new SecureRandom();
 
 	@Autowired
 	JwtUtil jwtUtil;
@@ -505,7 +502,7 @@ public class AcmeController {
 
 	public String getBase64UrlEncodedRandom(int len) {
 		final byte[] randomBytes = new byte[len];
-		secRandom.nextBytes(randomBytes);
+        RandomUtil.getSecureRandom().nextBytes(randomBytes);
 		return Base64Utils.encodeToUrlSafeString(randomBytes);
 	}
 
@@ -516,7 +513,7 @@ public class AcmeController {
 	 */
 	public long generateId() {
 
-		long val = secRandom.nextLong();
+		long val = RandomUtil.getSecureRandom().nextLong();
 		if (val < 0L) {
 			return val * -1L;
 		}

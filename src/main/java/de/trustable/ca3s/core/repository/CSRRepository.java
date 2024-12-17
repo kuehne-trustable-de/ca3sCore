@@ -1,7 +1,6 @@
 package de.trustable.ca3s.core.repository;
 
 import de.trustable.ca3s.core.domain.CSR;
-import de.trustable.ca3s.core.domain.Certificate;
 
 import java.time.Instant;
 import java.util.List;
@@ -11,8 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import javax.persistence.NamedQuery;
 
 
 /**
@@ -43,7 +40,7 @@ public interface CSRRepository extends JpaRepository<CSR, Long> {
     @Query(name = "CSR.findByAttributeValue")
     Page<CSR> findByAttributeValue(Pageable pageable,@Param("name") String name, @Param("value") String value);
 
-    @Query(name = "CSR.groupIssuedByIssuanceMonth")
-    List<Object[]> groupIssuedByIssuanceMonth(@Param("after") Instant after);
+    @Query(name = "CSR.groupByRequestedMonth")
+    List<Object[]> groupByTypeRequestedMonth(@Param("after") Instant after);
 
 }

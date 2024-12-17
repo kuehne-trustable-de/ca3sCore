@@ -58,7 +58,7 @@ import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
         " group by YEAR(c.requestedOn), MONTH(c.requestedOn), DAY(c.requestedOn)"
     ),
 
-    @NamedQuery(name = "CSR.groupIssuedByIssuanceMonth",
+    @NamedQuery(name = "CSR.groupByRequestedMonth",
         query = "SELECT concat(MONTH(requested_on), '.',YEAR(requested_on)), pipelineType, count(c) FROM CSR c WHERE " +
             " c.status = 'ISSUED' and" +
             " c.requestedOn > :after" +

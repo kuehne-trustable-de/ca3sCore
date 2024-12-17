@@ -897,6 +897,9 @@
   "home.dashboard.activeCertificatesByKeyAlgo": "Zerts nach Schlüssel-Algo",
   "home.dashboard.activeCertificatesByKeyLength": "Zerts nach Schlüssellänge",
   "home.dashboard.expiringCertificatesByDate": "Ablaufende Zerts (nach Datum)",
+  "home.dashboard.requestsByMonth": "Anfragen pro Monat",
+  "home.dashboard.years": "{{years}} Jahre",
+
   "home.github": "GitHub",
   "home.like": "Wenn Sie JHipster mögen, vergessen Sie nicht uns einen Stern zu geben auf",
   "home.link.bugtracker": "JHipster Fehlereinträge",

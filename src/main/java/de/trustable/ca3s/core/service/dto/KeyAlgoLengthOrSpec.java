@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.service.dto;
 
+import de.trustable.ca3s.core.service.util.RandomUtil;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.pqc.jcajce.provider.dilithium.BCDilithiumPublicKey;
 import org.bouncycastle.pqc.jcajce.provider.falcon.BCFalconPublicKey;
@@ -138,9 +139,9 @@ public class KeyAlgoLengthOrSpec {
         }
 
         if( getAlgorithmParameterSpec() != null){
-            kpg.initialize(getAlgorithmParameterSpec());
+            kpg.initialize(getAlgorithmParameterSpec(), RandomUtil.getSecureRandom());
         }else {
-            kpg.initialize(getKeyLength());
+            kpg.initialize(getKeyLength(), RandomUtil.getSecureRandom());
         }
         return kpg.generateKeyPair();
     }

@@ -21,6 +21,10 @@ public final class RandomUtil {
     private RandomUtil() {
     }
 
+    public static SecureRandom getSecureRandom() {
+        return SECURE_RANDOM;
+    }
+
     private static String generateRandomAlphanumericString() {
         return RandomStringUtils.random(DEF_COUNT, 0, 0, true, true, null, SECURE_RANDOM);
     }

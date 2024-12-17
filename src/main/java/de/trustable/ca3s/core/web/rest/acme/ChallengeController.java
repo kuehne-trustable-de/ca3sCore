@@ -33,11 +33,8 @@ import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.acme.ChallengeResponse;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
-import de.trustable.ca3s.core.service.util.AcmeOrderUtil;
-import de.trustable.ca3s.core.service.util.AcmeUtil;
-import de.trustable.ca3s.core.service.util.PreferenceUtil;
+import de.trustable.ca3s.core.service.util.*;
 import de.trustable.ca3s.core.web.rest.data.AcmeChallengeValidation;
-import de.trustable.ca3s.core.service.util.RateLimiterService;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
@@ -66,7 +63,6 @@ import java.io.*;
 import java.net.*;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.*;
 import java.time.Duration;
@@ -157,7 +153,7 @@ public class ChallengeController extends AcmeController {
         }
 
         Optional<AcmeChallenge> challengeOpt = challengeRepository.findById(challengeId);
-		if(!challengeOpt.isPresent()) {
+		if(challengeOpt.isEmpty()) {
 		    return ResponseEntity.notFound().headers(additionalHeaders).build();
 		}else {
 			AcmeChallenge challengeDao = challengeOpt.get();
@@ -191,7 +187,7 @@ public class ChallengeController extends AcmeController {
             final HttpHeaders additionalHeaders = buildNonceHeader();
 
             Optional<AcmeChallenge> challengeOpt = challengeRepository.findById(challengeId);
-            if(!challengeOpt.isPresent()) {
+            if(challengeOpt.isEmpty()) {
                 return ResponseEntity.notFound().headers(additionalHeaders).build();
             }else {
                 AcmeChallenge challengeDao = challengeOpt.get();
@@ -602,7 +598,9 @@ public class ChallengeController extends AcmeController {
             // Code for creating a client side SSLSocket
             SSLContext sslContext = SSLContext.getInstance("TLS");
 
-            sslContext.init(null, trustAllCerts, new SecureRandom());
+            sslContext.init(null,
+                trustAllCerts,
+                RandomUtil.getSecureRandom());
             SSLSocketFactory sslsf = sslContext.getSocketFactory();
 
             sslSocket = (SSLSocket) sslsf.createSocket(host, port);
@@ -797,7 +795,7 @@ public class ChallengeController extends AcmeController {
 
         Long challengeId = acmeChallengeValidation.getChallengeId();
         Optional<AcmeChallenge> challengeOpt = challengeRepository.findByChallengeId(challengeId);
-        if(!challengeOpt.isPresent()) {
+        if(challengeOpt.isEmpty()) {
             LOG.info("challenge validation for unknown challenge id: {}", challengeId);
             return ResponseEntity.notFound().build();
         }else {
@@ -826,7 +824,7 @@ public class ChallengeController extends AcmeController {
                 if( AcmeChallenge.CHALLENGE_TYPE_HTTP_01.equals(challengeDao.getType())) {
 
                     String expectedContent = buildKeyAuthorization(challengeDao);
-                    if( Arrays.stream(acmeChallengeValidation.getResponses()).anyMatch(expectedContent::equals)) {
+                    if(Arrays.asList(acmeChallengeValidation.getResponses()).contains(expectedContent)) {
                         LOG.info("proxy validated http-01 challenge id '{}' successfully", challengeDao.getId());
                         challengeDao.setStatus(ChallengeStatus.VALID);
                     }else{
@@ -834,7 +832,7 @@ public class ChallengeController extends AcmeController {
                     }
                 }else if( AcmeChallenge.CHALLENGE_TYPE_DNS_01.equals(challengeDao.getType())){
                     String expectedContent = buildKeyAuthorizationHashBase64(challengeDao);
-                    if( Arrays.stream(acmeChallengeValidation.getResponses()).anyMatch(expectedContent::equals)) {
+                    if(Arrays.asList(acmeChallengeValidation.getResponses()).contains(expectedContent)) {
                         LOG.info("proxy validated dns-01 challenge id '{}' successfully", challengeDao.getId());
                         challengeDao.setStatus(ChallengeStatus.VALID);
                     }else{
@@ -842,7 +840,7 @@ public class ChallengeController extends AcmeController {
                     }
                 }else if( AcmeChallenge.CHALLENGE_TYPE_ALPN_01.equals(challengeDao.getType())){
                     String expectedContent = buildKeyAuthorizationHashBase64(challengeDao);
-                    if( Arrays.stream(acmeChallengeValidation.getResponses()).anyMatch(expectedContent::equals)) {
+                    if(Arrays.asList(acmeChallengeValidation.getResponses()).contains(expectedContent)) {
                         LOG.info("proxy validated alpn-01 challenge id '{}' successfully", challengeDao.getId());
                         challengeDao.setStatus(ChallengeStatus.VALID);
                     }else{
