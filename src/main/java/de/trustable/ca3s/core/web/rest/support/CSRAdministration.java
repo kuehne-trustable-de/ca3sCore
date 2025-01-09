@@ -1,19 +1,22 @@
 package de.trustable.ca3s.core.web.rest.support;
 
-import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.domain.CSR;
+import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.CsrAttribute;
+import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
+import de.trustable.ca3s.core.exception.CAFailureException;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CsrAttributeRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
+import de.trustable.ca3s.core.service.AsyncNotificationService;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.NotificationService;
-import de.trustable.ca3s.core.exception.CAFailureException;
+import de.trustable.ca3s.core.service.dto.NamedValue;
 import de.trustable.ca3s.core.service.util.*;
 import de.trustable.ca3s.core.web.rest.data.AdministrationType;
 import de.trustable.ca3s.core.web.rest.data.CSRAdministrationData;
-import de.trustable.ca3s.core.service.dto.NamedValue;
 import de.trustable.ca3s.core.web.rest.data.CSRAdministrationResponse;
-import de.trustable.ca3s.core.service.util.UserUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -64,7 +66,7 @@ public class CSRAdministration {
 
     private final AuditService auditService;
 
-    private final NotificationService notificationService;
+    private final AsyncNotificationService asyncNotificationService;
     private final ProtectedContentUtil protectedContentUtil;
     private final PreferenceUtil preferenceUtil;
 
@@ -80,7 +82,7 @@ public class CSRAdministration {
                              UserRepository userRepository,
                              UserUtil userUtil,
                              AuditService auditService,
-                             NotificationService notificationService,
+                             AsyncNotificationService asyncNotificationService,
                              ProtectedContentUtil protectedContentUtil,
                              PreferenceUtil preferenceUtil,
                              @Value("${ca3s.issuance.ra.self-issuance-allowed:false}") boolean selfIssuanceAllowed
@@ -93,7 +95,7 @@ public class CSRAdministration {
         this.userRepository = userRepository;
         this.userUtil = userUtil;
         this.auditService = auditService;
-        this.notificationService = notificationService;
+        this.asyncNotificationService = asyncNotificationService;
         this.protectedContentUtil = protectedContentUtil;
         this.preferenceUtil = preferenceUtil;
         this.selfIssuanceAllowed = selfIssuanceAllowed;
@@ -107,7 +109,7 @@ public class CSRAdministration {
      */
     @PostMapping("/administerRequest")
 	@Transactional
-    public ResponseEntity<CSRAdministrationResponse> administerRequest(@Valid @RequestBody CSRAdministrationData adminData) throws MessagingException {
+    public ResponseEntity<CSRAdministrationResponse> administerRequest(@Valid @RequestBody CSRAdministrationData adminData)  {
 
     	LOG.debug("REST request to reject / accept CSR : {}", adminData);
 
@@ -181,7 +183,7 @@ public class CSRAdministration {
 	    		        if (requestor.getEmail() == null) {
 	    		        	LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
 	    		        }else {
-                            notificationService.notifyUserCertificateIssuedAsync(requestor, cert, additionalEmailSet);
+                            asyncNotificationService.notifyUserCertificateIssuedAsync(requestor, cert, additionalEmailSet);
 	    		        }
         			} else {
         				LOG.warn("certificate requestor '{}' unknown!", csr.getRequestedBy());
@@ -210,7 +212,7 @@ public class CSRAdministration {
     		        if (requestor.getEmail() == null) {
     		        	LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
     		        }else {
-                        notificationService.notifyUserCertificateRejectedAsync(requestor, csr );
+                        asyncNotificationService.notifyUserCertificateRejectedAsync(requestor, csr );
     		        }
     			} else {
     				LOG.warn("certificate requestor '{}' unknown!", csr.getRequestedBy());

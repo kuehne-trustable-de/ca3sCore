@@ -237,6 +237,25 @@ public class AcmeHappyPathIT {
 			}
 		}
 
+        {
+            // This is not allowed !
+            KeyPair domainKeyPair = accountKeyPair;
+
+            CSRBuilder csrb = new CSRBuilder();
+            csrb.addDomain("localhost");
+            csrb.setOrganization("The Example Organization");
+            csrb.sign(domainKeyPair);
+            byte[] csr = csrb.getEncoded();
+
+            try {
+                order.execute(csr);
+                Assertions.fail("AcmeException due to restriction violation expected");
+            }catch(AcmeServerException ase) {
+                ase.printStackTrace();
+                // as expected
+            }
+        }
+
 		KeyPair domainKeyPair = KeyPairUtils.createKeyPair(2048);
 
 		CSRBuilder csrb = new CSRBuilder();

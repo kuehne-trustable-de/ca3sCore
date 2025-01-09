@@ -270,17 +270,6 @@ entity BPMNProcessInfo{
     processId String required
 }
 
-@skipClient
-entity BPMNProcessAttribute{
-    name String required
-    value String required
-    type BPMNProcessAttributeType required
-}
-
-enum BPMNProcessAttributeType {
-    STRING,
-    PASSWORD
-}
 enum ScepOrderStatus {
     PENDING, READY, INVALID
 }
@@ -513,8 +502,6 @@ relationship OneToMany {
     ScepOrder{attributes} to ScepOrderAttribute{order}
 
 	AcmeAuthorization{challenges} to AcmeChallenge{AcmeAuthorization}
-
-    BPMNProcessInfo{attribute} to BPMNProcessAttribute{bpmnProcess}
 }
 
 relationship ManyToOne {

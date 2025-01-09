@@ -1,5 +1,7 @@
 package de.trustable.ca3s.core.service.dto;
 
+import com.opencsv.bean.CsvBindByName;
+import com.opencsv.bean.CsvIgnore;
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 
 import java.io.Serializable;
@@ -15,6 +17,11 @@ public class AcmeAccountView implements Serializable {
     private Boolean termsOfServiceAgreed;
     private String publicKeyHash;
     private String publicKey;
+
+    private String keyLength;
+    private String keyAlgorithm;
+    private String altKeyAlgorithm;
+
     private String[] contactUrls;
     private Long orderCount;
 
@@ -82,6 +89,30 @@ public class AcmeAccountView implements Serializable {
 
     public void setPublicKeyHash(String publicKeyHash) {
         this.publicKeyHash = publicKeyHash;
+    }
+
+    public String getKeyLength() {
+        return keyLength;
+    }
+
+    public void setKeyLength(String keyLength) {
+        this.keyLength = keyLength;
+    }
+
+    public String getKeyAlgorithm() {
+        return keyAlgorithm;
+    }
+
+    public void setKeyAlgorithm(String keyAlgorithm) {
+        this.keyAlgorithm = keyAlgorithm;
+    }
+
+    public String getAltKeyAlgorithm() {
+        return altKeyAlgorithm;
+    }
+
+    public void setAltKeyAlgorithm(String altKeyAlgorithm) {
+        this.altKeyAlgorithm = altKeyAlgorithm;
     }
 
     public String[] getContactUrls() {

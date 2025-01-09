@@ -3,7 +3,7 @@
         <div class="row justify-content-center">
             <div class="col-8">
                 <div v-if="certificateView">
-                    <h2 class="jh-entity-heading"><span v-text="$t('ca3SApp.certificate.detail.title')">Certificate</span> {{certificateView.id}}</h2>
+                    <h2 class="jh-entity-heading" id="certificateHeader"><span v-text="$t('ca3SApp.certificate.detail.title')"></span> {{certificateView.id}}</h2>
                     <dl class="row jh-entity-details">
                         <dt>
                             <span v-text="$t('ca3SApp.certificate.subject')">Subject</span>
@@ -386,6 +386,7 @@
                         <b-button v-if="(isRAOfficer() || isOwnCertificate()) && isRevocable()"
                                   variant="danger"
                                   class="btn"
+                                  id="revoke"
                                   v-b-modal.revokeCertificate>
                             <font-awesome-icon icon="times"></font-awesome-icon>
                             <span class="d-none d-md-inline" v-text="$t('entity.action.revoke')">Revoke</span>

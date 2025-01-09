@@ -7,6 +7,7 @@ import AlertMixin from '@/shared/alert/alert.mixin';
 
 import PipelineViewService from './pipelineview.service';
 import axios from 'axios';
+import { DateUtils } from '@/shared/date-utils';
 
 @Component
 export default class Pipeline extends mixins(Vue2Filters.mixin, AlertMixin) {
@@ -26,7 +27,7 @@ export default class Pipeline extends mixins(Vue2Filters.mixin, AlertMixin) {
     { attributeName: 'connector', attributeValue: 'all', selector: 'EQUAL' },
   ];
   public filters: ICertificateFilterList = { filterList: this.defaultFilters };
-  public lastFilters: string = JSON.stringify({ filterList: [this.defaultFilter] });
+  public lastFilters: string = JSON.stringify({ filterList: this.defaultFilters });
 
   public isFetching = false;
 
@@ -120,6 +121,14 @@ export default class Pipeline extends mixins(Vue2Filters.mixin, AlertMixin) {
       });
   }
 
+  public toLocalDate(dateAsString: string): string {
+    return DateUtils.toLocalDate(dateAsString);
+  }
+
+  public getValidToStyle(validToString: string): string {
+    return DateUtils.getValidToStyle(validToString);
+  }
+
   public closeDialog(): void {
     (<any>this.$refs.removeEntity).hide();
   }
@@ -168,18 +177,22 @@ export default class Pipeline extends mixins(Vue2Filters.mixin, AlertMixin) {
     if (self.lastFilters === lastFiltersValue) {
       //      window.console.debug('putUsersFilterList: no change ...');
     } else {
-      window.console.debug('putUsersFilterList: change detected ...');
-      axios({
-        method: 'put',
-        url: 'api/userProperties/filterList/PipelineList',
-        data: self.filters,
-        responseType: 'stream',
-      }).then(function (response) {
-        //        window.console.debug('putUsersFilterList returns ' + response.status);
-        if (response.status === 204) {
-          self.lastFilters = lastFiltersValue;
-        }
-      });
+      if (self.$store.getters.authenticated) {
+        window.console.debug('putUsersFilterList: change detected ...');
+        axios({
+          method: 'put',
+          url: 'api/userProperties/filterList/PipelineList',
+          data: self.filters,
+          responseType: 'stream',
+        }).then(function (response) {
+          //        window.console.debug('putUsersFilterList returns ' + response.status);
+          if (response.status === 204) {
+            self.lastFilters = lastFiltersValue;
+          }
+        });
+      } else {
+        window.console.debug('putUsersFilterList skipped, not autehticated anymore');
+      }
     }
   }
 }

@@ -16,6 +16,7 @@ import { VuejsDatatableFactory, TColumnsDefinition, ITableContentParam } from 'v
 
 import axios from 'axios';
 import AlertMixin from '@/shared/alert/alert.mixin';
+import { DateUtils } from '@/shared/date-utils';
 
 Vue.use(VuejsDatatableFactory);
 
@@ -97,7 +98,7 @@ interface ISelectionChoices {
   choices?: ISelector[];
 }
 
-@Component()
+@Component
 export default class CertList extends mixins(AlertMixin, Vue) {
   public now: Date = new Date();
   public soon: Date = new Date();
@@ -282,6 +283,8 @@ export default class CertList extends mixins(AlertMixin, Vue) {
   }
 
   public toLocalDate(dateAsString: string): string {
+    return DateUtils.toLocalDate(dateAsString);
+    /*
     if (dateAsString && dateAsString.length > 8) {
       const dateObj = new Date(dateAsString);
 
@@ -291,6 +294,8 @@ export default class CertList extends mixins(AlertMixin, Vue) {
         return dateObj.toLocaleDateString();
       }
     }
+
+ */
   }
 
   public getValueChoices(itemName: string): string[] {
@@ -487,18 +492,22 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     if (self.lastFilters === lastFiltersValue) {
       //      window.console.debug('putUsersFilterList: no change ...');
     } else {
-      window.console.debug('putUsersFilterList: change detected ...');
-      axios({
-        method: 'put',
-        url: 'api/userProperties/filterList/CertList',
-        data: self.filters,
-        responseType: 'stream',
-      }).then(function (response) {
-        //        window.console.debug('putUsersFilterList returns ' + response.status);
-        if (response.status === 204) {
-          self.lastFilters = lastFiltersValue;
-        }
-      });
+      if (self.$store.getters.authenticated) {
+        window.console.debug('putUsersFilterList: change detected ...');
+        axios({
+          method: 'put',
+          url: 'api/userProperties/filterList/CertList',
+          data: self.filters,
+          responseType: 'stream',
+        }).then(function (response) {
+          //        window.console.debug('putUsersFilterList returns ' + response.status);
+          if (response.status === 204) {
+            self.lastFilters = lastFiltersValue;
+          }
+        });
+      } else {
+        window.console.debug('putUsersFilterList skipped, not autehticated anymore');
+      }
     }
   }
 

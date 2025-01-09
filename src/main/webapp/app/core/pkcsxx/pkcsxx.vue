@@ -325,7 +325,7 @@
 
 						<dl class="row jh-entity-details" v-if="isChecked === true && precheckResponse.dataType === 'CSR'">
 							<dt>
-								<span v-text="$t('pkcsxx.upload.type')"></span>
+								<span value="content-type" v-text="$t('pkcsxx.upload.type')"></span>
 							</dt>
 							<dd>
 								<span><b v-if="precheckResponse.p10Holder.csrvalid === false">invalid </b>{{precheckResponse.dataType}}</span>

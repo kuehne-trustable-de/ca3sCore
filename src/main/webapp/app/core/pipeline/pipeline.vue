@@ -58,6 +58,7 @@
                     <th><span v-text="$t('ca3SApp.pipeline.name')">Name</span></th>
                     <th><span v-text="$t('ca3SApp.pipeline.type')">Type</span></th>
                     <th><span v-text="$t('ca3SApp.pipeline.active')">Active</span></th>
+                    <th><span v-text="$t('ca3SApp.pipeline.expiresOn')">Active</span></th>
                     <th><span v-text="$t('ca3SApp.pipeline.urlPart')">Url Part</span></th>
                     <th><span v-text="$t('ca3SApp.pipeline.description')">Description</span></th>
                     <th><span v-text="$t('ca3SApp.pipeline.approvalRequired')">Approval Required</span></th>
@@ -71,6 +72,7 @@
                     <td>{{pipeline.name}}</td>
                     <td v-text="$t('ca3SApp.PipelineType.' + pipeline.type)">{{pipeline.type}}</td>
                     <td>{{pipeline.active}}</td>
+                    <td :style="getValidToStyle(pipeline.expiryDate)">{{ toLocalDate(pipeline.expiryDate)}}</td>
                     <td>{{pipeline.urlPart}}</td>
                     <td>{{pipeline.description}}</td>
                     <td>{{pipeline.approvalRequired}}</td>

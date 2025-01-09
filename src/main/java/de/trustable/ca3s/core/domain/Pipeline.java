@@ -2,10 +2,13 @@ package de.trustable.ca3s.core.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
+import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.ca3s.core.service.util.NameMessages;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cache;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
@@ -403,6 +406,29 @@ public class Pipeline implements Serializable {
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
+    public Instant getExpiryDate(CertificateUtil certificateUtil) {
+        Instant expiryDate = Instant.MAX;
+
+        Certificate recipientCert = certificateUtil.getCurrentSCEPRecipient(this);
+
+        if (recipientCert != null) {
+            if (!recipientCert.isActive()) {
+                expiryDate = Instant.now();
+            } else {
+                if (expiryDate.isAfter(recipientCert.getValidTo())) {
+                    expiryDate = recipientCert.getValidTo();
+                }
+            }
+        }
+        Instant connectorExpiry = getCaConnector().getExpiryDate();
+        if (expiryDate.isAfter(connectorExpiry)) {
+            expiryDate = connectorExpiry;
+        }
+
+        return expiryDate;
+    }
+
+
 
     @Override
     public boolean equals(Object o) {

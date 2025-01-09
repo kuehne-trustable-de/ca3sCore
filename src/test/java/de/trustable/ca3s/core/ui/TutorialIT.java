@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -39,6 +40,13 @@ public class TutorialIT extends CSRSubmitIT {
     static String targetDirectoryPrefix = "/tmp/tutorial/";
     static File targetDirectory;
 
+
+
+    public TutorialIT(@Value("${ca3s.test.speechify.apiTokens:}") String[] speechifyApiTokenArr) {
+        super(speechifyApiTokenArr);
+    }
+
+
     @BeforeAll
     public static void setUpBeforeAll() throws IOException, MessagingException {
         obsClient = new OBSClient("localhost", 4455, "S3cr3t!S");
@@ -60,6 +68,12 @@ public class TutorialIT extends CSRSubmitIT {
     public void init() throws InterruptedException {
         super.recordSession = true;
         super.playSound = true;
+        super.speechifyApiTokenArr = speechifyApiTokenArr;
+
+        super.setLocale("de");
+        super.setAllUserLocale("de");
+
+
 
         obsClient.connect();
 
@@ -96,23 +110,22 @@ public class TutorialIT extends CSRSubmitIT {
     @Test
     public void recordCSRSubmitServersideDirect() throws Exception {
 
+//        selectLanguage(getLocale());
+
+        explain("tutorial.0");
         explain("tutorial.1");
+        explain("tutorial.1.0");
+        explain("tutorial.1.1");
         explain("tutorial.2");
 
-        /*
-        explain("Depending on your configuration you may be logged on, automatically. Not in this case, so select 'Account' and 'Sign In'");
-        signIn(USER_NAME_USER, USER_PASSWORD_USER, "and login in as a simple user", 500);
 
-        validatePresent(LOC_LNK_REQ_CERT_MENUE);
-        click(LOC_LNK_REQ_CERT_MENUE);
-*/
-        //testSubmitServersideDirect();
-
-
-
-        testCSRUploadDirect();
+        testSubmitServersideDirect();
 
         explain("tutorial.3");
+        testCSRSubmitDirect();
+//        testCSRUploadDirect();
+
+        explain("tutorial.9");
     }
 
     static class RunnableWithFilenameAndContext implements RunnableWithFilename {
@@ -130,7 +143,7 @@ public class TutorialIT extends CSRSubmitIT {
 
             String testName = context.getDisplayName().replace("(", "").replace(")", "");
             Optional<Throwable> exception = context.getExecutionException();
-            File videoFile = null;
+            File videoFile;
 
             try {
                 Thread.sleep(1000);

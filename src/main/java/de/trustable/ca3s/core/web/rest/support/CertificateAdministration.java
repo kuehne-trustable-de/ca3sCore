@@ -6,8 +6,8 @@ import de.trustable.ca3s.core.repository.CertificateAttributeRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.schedule.CertExpiryScheduler;
+import de.trustable.ca3s.core.service.AsyncNotificationService;
 import de.trustable.ca3s.core.service.AuditService;
-import de.trustable.ca3s.core.service.NotificationService;
 import de.trustable.ca3s.core.service.dto.CRLUpdateInfo;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CRLUtil;
@@ -60,7 +60,7 @@ public class CertificateAdministration {
 
     final private CertExpiryScheduler certExpiryScheduler;
 
-    final private NotificationService notificationService;
+    final private AsyncNotificationService asyncNotificationService;
 
     final private AuditService auditService;
 
@@ -70,7 +70,7 @@ public class CertificateAdministration {
                                      CertificateUtil certUtil,
                                      CRLUtil crlUtil, UserRepository userRepository,
                                      CertExpiryScheduler certExpiryScheduler,
-                                     NotificationService notificationService,
+                                     AsyncNotificationService asyncNotificationService,
                                      AuditService auditService) {
         this.certificateRepository = certificateRepository;
         this.certificateAttributeRepository = certificateAttributeRepository;
@@ -80,7 +80,7 @@ public class CertificateAdministration {
         this.crlUtil = crlUtil;
         this.userRepository = userRepository;
         this.certExpiryScheduler = certExpiryScheduler;
-        this.notificationService = notificationService;
+        this.asyncNotificationService = asyncNotificationService;
         this.auditService = auditService;
     }
 
@@ -116,7 +116,7 @@ public class CertificateAdministration {
                             if (requestor.getEmail() == null) {
                                 LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
                             } else {
-                                notificationService.notifyUserCertificateRevokedAsync(requestor, cert, csr );
+                                asyncNotificationService.notifyUserCertificateRevokedAsync(requestor, cert, csr );
                             }
                         } else {
                             LOG.info("certificate requestor '{}' unknown!", csr.getRequestedBy());
@@ -227,7 +227,7 @@ public class CertificateAdministration {
             try {
 	    		revokeCertificate(certificate, adminData, userName);
 
-                notificationService.notifyRAOfficerOnUserRevocation(certificate);
+                asyncNotificationService.notifyRAOfficerOnUserRevocation(certificate);
 
 	    		return new ResponseEntity<>(adminData.getCertificateId(), HttpStatus.OK);
 

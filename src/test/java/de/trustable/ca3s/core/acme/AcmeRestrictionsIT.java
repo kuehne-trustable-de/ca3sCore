@@ -69,7 +69,6 @@ public class AcmeRestrictionsIT {
 		JCAManager.getInstance();
 	}
 
-
     @Test
     public void testAccountHandlingRejectedEMail() throws AcmeException {
 
@@ -168,7 +167,7 @@ public class AcmeRestrictionsIT {
                         int MAX_TRIAL = 10;
                         for (int retry = 0; retry < MAX_TRIAL; retry++) {
                             try {
-                                provideAuthEndpoint(challenge, order);
+                                provideAuthEndpoint(challenge);
                                 break;
                             } catch (BindException be) {
                                 LOG.warn("bind exception, waiting for port to become available");
@@ -207,7 +206,8 @@ public class AcmeRestrictionsIT {
 
 	}
 
-	void provideAuthEndpoint(final Http01Challenge challenge, Order order) throws IOException, InterruptedException {
+	void provideAuthEndpoint(final Http01Challenge challenge, Order order, PreferenceTestConfiguration prefTC)
+        throws IOException, InterruptedException {
 		int MAX_TRIAL = 10;
 		for( int retry = 0; retry < MAX_TRIAL; retry++) {
 			try {

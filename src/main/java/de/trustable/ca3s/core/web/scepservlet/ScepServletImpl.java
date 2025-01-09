@@ -129,15 +129,6 @@ public class ScepServletImpl extends ScepServlet {
         }
 
     }
-/*
-    private Certificate createCertificate(final String csrAsPem) {
-
-        CSR csr = csrUtil.buildCSR(csrAsPem, CsrAttribute.REQUESTOR_SYSTEM, csrUtil.parseBase64CSR(csrAsPem), PipelineType.INTERNAL, null);
-        CAConnectorConfig caConfig = configUtil.getDefaultConfig();
-        return signCertificateRequest(csr, caConfig );
-
-    }
-*/
 
 	private Certificate startCertificateCreationProcess(final String csrAsPem, TransactionId transId, Pipeline pipeline, ScepOrder scepOrder) throws OperationFailureException, IOException, GeneralSecurityException {
 

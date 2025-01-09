@@ -43,6 +43,7 @@ import de.trustable.ca3s.core.service.util.RateLimiterService;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.pkcs.Attribute;
@@ -265,10 +266,12 @@ public class OrderController extends AcmeController {
 
                     List<AcmeAccount> accListExisting = acctRepository.findByPublicKeyHashBase64(jwtUtil.getJWKThumbPrint(p10Holder.getPublicSigningKey()));
                     if (!accListExisting.isEmpty()) {
-                        LOG.debug("public key in csr already used for account #" + accListExisting.get(0).getAccountId());
+                        LOG.warn("public key in csr already used for account #" + accListExisting.get(0).getAccountId());
 
                         final ProblemDetail problem = new ProblemDetail(AcmeUtil.BAD_CSR, "CSR rejected.",
-                            BAD_REQUEST, "Public key of CSR already in use ", NO_INSTANCE);
+                            BAD_REQUEST,
+                            "Public key of CSR already in use by account",
+                            NO_INSTANCE);
                         throw new AcmeProblemException(problem);
                     }
 
@@ -486,7 +489,7 @@ public class OrderController extends AcmeController {
     }
 
 
-    private Certificate startCertificateCreationProcess(AcmeOrder orderDao, Pipeline pipeline, final String requestorName, final String csrAsPem) {
+    private Certificate startCertificateCreationProcess(AcmeOrder orderDao, Pipeline pipeline, final String requestorName, final String csrAsPem) throws GeneralSecurityException, IOException {
 
         List<String> messageList = new ArrayList<>();
         NamedValues[] nvArr = new NamedValues[0];

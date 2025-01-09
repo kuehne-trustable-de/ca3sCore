@@ -41,15 +41,17 @@ public class WebTestBase extends LocomotiveBase {
     public static final String SESSION_COOKIE_NAME = "JSESSIONID";
 	public static final String SESSION_COOKIE_DEFAULT_VALUE = "DummyCookieValue";
 
-    public static final By LOC_TXT_WEBPACK_ERROR = By.xpath("//div//h1 [text() = 'An error has occured :-(']");
-    public static final By LOC_LNK_ACCOUNT_MENUE =          By.xpath("//nav//a [.//span [text() = 'Account']]");
-
-    public static final By LOC_LNK_ACCOUNT_SIGN_IN_MENUE =  By.xpath("//nav//a [span [text() = 'Sign in']]");
-    public static final By LOC_LNK_ACCOUNT_SIGN_OUT_MENUE = By.xpath("//nav//a [span [text() = 'Sign out']]");
+    public static final By LOC_TXT_WEBPACK_ERROR = By.xpath("//div//h1 [text() = 'An error has occurred :-(']");
+    public static final By LOC_LNK_ACCOUNT_MENUE = By.xpath("//nav//a [.//span [(text() = 'Account') or (text() = 'Zugang')]]");
+    public static final By LOC_LNK_ACCOUNT_SIGN_IN_MENUE =  By.xpath("//nav//a [span [(text() = 'Sign in')or(text() = 'Anmelden')]]");
+    public static final String STRING_LNK_ACCOUNT_LANGUAGE_MENUE =  "//nav//a [contains(text(), '%s')]";
+    public static final By LOC_LNK_ACCOUNT_SIGN_OUT_MENUE = By.xpath("//nav//a [span [(text() = 'Sign out') or (text() = 'Abmelden')]]");
+    public static final By LOC_LNK_USER_SIGNED_IN = By.xpath("//nav//a [@logged_in = 'true']");
 
     public static final By LOC_LNK_SIGNIN_USERNAME = By.xpath("//form//input [@name = 'username']");
     public static final By LOC_LNK_SIGNIN_PASSWORD = By.xpath("//form//input [@name = 'password']");
-    public static final By LOC_BTN_SIGNIN_SUBMIT = By.xpath("//form//button [@type='submit'][text() = 'Sign in']");
+    public static final By LOC_BTN_SIGNIN_SUBMIT = By.xpath("//form//button [(@type='submit') and (@id = 'login.form.submit')]");
+    public static final By LOC_TXT_SPOKEN_TEXT = By.xpath("//div[@name='spokenTextBox']");
 
     public static int testPortHttp;
     public static int testPortHttps;
@@ -58,33 +60,33 @@ public class WebTestBase extends LocomotiveBase {
     static String emailAddress;
     static String emailPassword;
 
-
     public boolean playSound = false;
-    public String locale = "en";
+
+    protected String[] speechifyApiTokenArr = {};
+
+    protected SoundOutput soundOutput = null;
+
+    public String getLocale() {
+        return locale;
+    }
+
+    public void setLocale(String locale) {
+        if( "de".equalsIgnoreCase(locale)){
+            this.locale = "de";
+        }else{
+            this.locale = "en";
+        }
+    }
+
+    private String locale = "en";
 
     protected static Random rand = new SecureRandom();
 
     Document tutorialDocument;
     XPath xPath;
 
-/*-
-    static{
 
-        testPortHttp = SocketUtils.findAvailableTcpPort();
-        testPortHttps = SocketUtils.findAvailableTcpPort();
-
-        // assign the ports for this test to random values to avoid collisions to other instances
-        System.setProperty(Ca3SApp.SERVER_TLS_PREFIX + "port", "" + testPortHttps);
-        System.setProperty(Ca3SApp.SERVER_ADMIN_PREFIX + "port", "" + testPortHttps);
-        System.setProperty(Ca3SApp.SERVER_RA_PREFIX + "port", "" + testPortHttps);
-        System.setProperty(Ca3SApp.SERVER_ACME_PREFIX + "port", "" + testPortHttps);
-        System.setProperty(Ca3SApp.SERVER_SCEP_PREFIX + "port", "" + testPortHttp);
-
-    }
-*/
-
-
-	public WebTestBase() {
+    public WebTestBase() {
 
         super();
 
@@ -111,6 +113,12 @@ public class WebTestBase extends LocomotiveBase {
             throw new RuntimeException(e);
         }
     }
+
+    public WebTestBase(String[] speechifyApiTokenArr) {
+        this();
+        soundOutput = new SoundOutput(speechifyApiTokenArr);
+    }
+
 
     protected static void startEmailMock() throws IOException, MessagingException {
         ServerSocket ssSMTP = new ServerSocket(0);
@@ -151,6 +159,7 @@ public class WebTestBase extends LocomotiveBase {
 
 
     }
+
 
     static String encodeBytesToText(byte[] bytes){
         return Base64.getEncoder().encodeToString(bytes).replace("+", "A").replace("=", "B").replace("/", "C");
@@ -245,6 +254,7 @@ public class WebTestBase extends LocomotiveBase {
         return dbf;
     }
 
+
     public static void waitForUrl() {
         waitForUrl(configuration.url());
     }
@@ -301,20 +311,24 @@ public class WebTestBase extends LocomotiveBase {
 
         String message = getMessage(s);
 
-        SoundOutput soundOutput = null;
+        WebElement element = driver.findElement(LOC_TXT_SPOKEN_TEXT);
+        ((org.openqa.selenium.JavascriptExecutor) driver).executeScript(
+            "arguments[0].style.display='inline';arguments[0].innerText = '"+
+                message.replace("'","\\'")+"'",
+            element);
+
         try {
-            soundOutput = new SoundOutput(message);
-            soundOutput.play();
+            soundOutput.play(message, getLocale());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private String getMessage(String s) {
+    String getMessage(String s) {
 
         String message = s;
 
-        String expression = getExplanationPath(s, locale);
+        String expression = getExplanationPath(s, getLocale());
 
         try {
 
@@ -322,7 +336,7 @@ public class WebTestBase extends LocomotiveBase {
             String text = (String) xPath.compile(expression).evaluate(tutorialDocument, XPathConstants.STRING);
             if (text == null || text.isEmpty()) {
                 LOG.warn("No message in explanation document for path '{}'", expression);
-                if (!"en".equalsIgnoreCase(locale)) {
+                if (!"en".equalsIgnoreCase(getLocale())) {
                     text = (String) xPath.compile(getExplanationPath(s,"en")).evaluate(tutorialDocument, XPathConstants.STRING);
                 }
             }
@@ -476,6 +490,26 @@ public class WebTestBase extends LocomotiveBase {
             Thread.currentThread().interrupt();
         }
     }
+
+    void selectLanguage(String locale){
+
+        String langDescriptor = "English";
+        if("de".equalsIgnoreCase(locale)){
+            langDescriptor = "Deutsch";
+        }else if("pl".equalsIgnoreCase(locale)) {
+            langDescriptor = "Polski";
+        }
+
+        String langSelector = String.format(STRING_LNK_ACCOUNT_LANGUAGE_MENUE, langDescriptor);
+        System.out.println("langSelector: " + langSelector);
+        By byLang = By.xpath(langSelector);
+        validatePresent(LOC_LNK_ACCOUNT_MENUE);
+        click(LOC_LNK_ACCOUNT_SIGN_IN_MENUE);
+
+        validatePresent(byLang);
+        click(byLang);
+    }
+
     void signIn(final String user, final String password) {
          signIn ( user, password, null, 0);
     }

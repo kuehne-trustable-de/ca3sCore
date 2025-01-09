@@ -44,7 +44,7 @@
 
             </b-navbar-nav>
 
-            <b-navbar-brand class="logo float-left" b-link to="/" v-if="authenticated">
+            <b-navbar-brand logged_in="true" class="logo float-left" b-link to="/" v-if="authenticated">
                 <span v-if="username && hasTenant()" v-text="$t('home.logged.tenant.message', { 'username': username, 'roles': roles, 'tenant':tenant})" class="navbar-version">"{{username}}", You are logged in as "{{roles}}"</span>
                 <span v-if="username && !hasTenant()" v-text="$t('home.logged.message', { 'username': username, 'roles': roles})" class="navbar-version">"{{username}}", You are logged in as "{{roles}}"</span>
             </b-navbar-brand>

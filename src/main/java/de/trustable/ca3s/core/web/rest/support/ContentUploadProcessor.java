@@ -9,14 +9,13 @@ import de.trustable.ca3s.core.exception.CAFailureException;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
+import de.trustable.ca3s.core.service.AsyncNotificationService;
 import de.trustable.ca3s.core.service.AuditService;
-import de.trustable.ca3s.core.service.NotificationService;
 import de.trustable.ca3s.core.service.badkeys.BadKeysResult;
 import de.trustable.ca3s.core.service.badkeys.BadKeysService;
 import de.trustable.ca3s.core.service.dto.*;
 import de.trustable.ca3s.core.service.util.*;
 import de.trustable.ca3s.core.web.rest.data.*;
-import de.trustable.ca3s.core.service.util.UserUtil;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.Pkcs10RequestHolder;
 import org.apache.commons.lang3.ArrayUtils;
@@ -97,7 +96,7 @@ public class ContentUploadProcessor {
 
     private final CertificateProcessingUtil cpUtil;
 
-    private final NotificationService notificationService;
+    private final AsyncNotificationService asyncNotificationService;
 
     private final BadKeysService badKeysService;
 
@@ -137,7 +136,7 @@ public class ContentUploadProcessor {
                                   PipelineUtil pipelineUtil,
                                   PreferenceUtil preferenceUtil,
                                   CertificateProcessingUtil cpUtil,
-                                  NotificationService notificationService,
+                                  AsyncNotificationService asyncNotificationService,
                                   BadKeysService badKeysService,
                                   AuditService auditService,
                                   @Value("${ca3s.pkcs12.secret.regexp:^(?=.*\\d)(?=.*[a-z]).{6,100}$}") String pkcs12SecretRegexp ) {
@@ -152,7 +151,7 @@ public class ContentUploadProcessor {
         this.pipelineUtil = pipelineUtil;
         this.preferenceUtil = preferenceUtil;
         this.cpUtil = cpUtil;
-        this.notificationService = notificationService;
+        this.asyncNotificationService = asyncNotificationService;
         this.badKeysService = badKeysService;
         this.auditService = auditService;
         this.pkcs12SecretRegexp = pkcs12SecretRegexp;
@@ -696,7 +695,7 @@ public class ContentUploadProcessor {
                         p10ReqData.setCsrPending(true);
 
                         if( "TRUE".equalsIgnoreCase(pipelineUtil.getPipelineAttribute(pipeline,NOTIFY_RA_OFFICER_ON_PENDING, "" + preferenceUtil.isNotifyRAOnRequest()))) {
-                            notificationService.notifyRAOfficerOnRequestAsync(csr);
+                            asyncNotificationService.notifyRAOfficerOnRequestAsync(csr);
                         }
 
                     } else {

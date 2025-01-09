@@ -19,10 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.mail.MessagingException;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * REST controller for test sending of notification.
@@ -51,6 +48,25 @@ public class NotificationSupport {
         this.csrRepository = csrRepository;
     }
 
+
+    /**
+     * {@code POST  api/notification/sendAdminOnConnectorExpiry} : send out certificate and passphrase expiry summary.
+     *
+     * @return the number of expiring credentials.
+     */
+    @Transactional
+    @PostMapping("notification/sendAdminOnConnectorExpiry")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public int notifyAdminOnConnectorExpiry() throws MessagingException {
+
+        Optional<User> optUser = userRepository.findOneByLogin(nameAndRoleUtil.getNameAndRole().getName());
+        if (optUser.isPresent()) {
+            User admin = optUser.get();
+            return notificationService.notifyAdminOnConnectorExpiry(Collections.singletonList(admin),false);
+        }
+
+        return 0;
+    }
 
     /**
      * {@code POST  api/notification/sendExpiryPendingSummary} : send out certificate expiry and request pending summary.

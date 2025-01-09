@@ -2,19 +2,17 @@ package de.trustable.ca3s.core.service;
 
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
-import de.trustable.ca3s.core.repository.CSRRepository;
-import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.repository.UserRepository;
+import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.ca3s.core.service.util.NameMessages;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
-
+import de.trustable.ca3s.core.service.util.StateOverview;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 
@@ -35,6 +33,8 @@ public class NotificationService {
     private final CertificateRepository certificateRepo;
     private final CSRRepository csrRepo;
     private final UserRepository userRepository;
+    private final CAConnectorConfigRepository caConnectorConfigRepository;
+    private final PipelineRepository pipelineRepository;
     private final PipelineUtil pipelineUtil;
     private final CertificateUtil certificateUtil;
     private final MailService mailService;
@@ -46,6 +46,7 @@ public class NotificationService {
     private final List<String> notificationARAAttributes;
     private final boolean notifyUserOnly;
 
+    private final boolean doNotifyAdminOnConnectorExpiry;
     private final boolean doNotifyRAOfficerHolderOnExpiry;
     private final boolean doNotifyRequestorOnExpiry;
     private final boolean doNotifyCertificateRevoked;
@@ -61,6 +62,7 @@ public class NotificationService {
     @Autowired
     public NotificationService(CertificateRepository certificateRepo, CSRRepository csrRepo,
                                UserRepository userRepository, PipelineUtil pipelineUtil,
+                               CAConnectorConfigRepository caConnectorConfigRepository,
                                CertificateUtil certificateUtil,
                                MailService mailService,
                                AuditService auditService,
@@ -69,7 +71,8 @@ public class NotificationService {
                                @Value("${ca3s.schedule.ra-officer-notification.days-pending:30}") int nDaysPending,
                                @Value("${ca3s.schedule.requestor.notification.days:30,14,7,6,5,4,3,2,1}") String notificationDays,
                                @Value("${ca3s.schedule.requestor.notification.attributes:}") String notificationARAAttributesString,
-                               @Value("${ca3s.schedule.requestor.notification.user-only:false}") boolean notifyUserOnly,
+                               PipelineRepository pipelineRepository, @Value("${ca3s.schedule.requestor.notification.user-only:false}") boolean notifyUserOnly,
+                               @Value("${ca3s.notify.adminOnConnectorExpiry:true}") boolean doNotifyAdminOnConnectorExpiry,
                                @Value("${ca3s.notify.raOfficerHolderOnExpiry:true}") boolean doNotifyRAOfficerHolderOnExpiry,
                                @Value("${ca3s.notify.requestorOnExpiry:true}") boolean doNotifyRequestorOnExpiry,
                                @Value("${ca3s.notify.CertificateRevoked:true}") boolean doNotifyCertificateRevoked,
@@ -88,7 +91,10 @@ public class NotificationService {
         this.nDaysExpiryEE = nDaysExpiryEE;
         this.nDaysExpiryCA = nDaysExpiryCA;
         this.nDaysPending = nDaysPending;
+        this.caConnectorConfigRepository = caConnectorConfigRepository;
+        this.pipelineRepository = pipelineRepository;
         this.notifyUserOnly = notifyUserOnly;
+        this.doNotifyAdminOnConnectorExpiry = doNotifyAdminOnConnectorExpiry;
         this.doNotifyRAOfficerHolderOnExpiry = doNotifyRAOfficerHolderOnExpiry;
         this.doNotifyRequestorOnExpiry = doNotifyRequestorOnExpiry;
         this.doNotifyCertificateRevoked = doNotifyCertificateRevoked;
@@ -111,6 +117,166 @@ public class NotificationService {
         String[] araParts = notificationARAAttributesString.split(",");
         notificationARAAttributes = Arrays.asList(araParts);
 
+    }
+
+
+    @Transactional
+    public int notifyAdminOnConnectorExpiry() {
+        return notifyAdminOnConnectorExpiry(findAllAdmin(AuthoritiesConstants.ADMIN), true);
+    }
+
+    @Transactional
+    public int notifyAdminOnConnectorExpiry(List<User> adminList, boolean logNotification) {
+
+        if( !doNotifyAdminOnConnectorExpiry){
+            LOG.info("notifyAdminOnConnectorExpiry deactivated");
+            return 0;
+        }
+
+        Instant now = Instant.now();
+        Instant beforeEE = now.plus(nDaysExpiryEE, ChronoUnit.DAYS);
+
+        StateOverview stateOverviewConnector = new StateOverview();
+        List<NameMessages> connectorMsgList = new ArrayList<>();
+        for (CAConnectorConfig caConnectorConfig : caConnectorConfigRepository.findAll()) {
+            stateOverviewConnector.incAll();
+
+            if (!caConnectorConfig.isActive()) {
+                stateOverviewConnector.incInactive();
+                LOG.info("no notification for deactivated connector '{}'", caConnectorConfig.getName());
+                continue;
+            }
+
+            stateOverviewConnector.incActive();
+            boolean expiringSoon = false;
+            Certificate tlsAuth = caConnectorConfig.getTlsAuthentication();
+            if (tlsAuth != null) {
+                if (!tlsAuth.isActive()) {
+                    connectorMsgList.add(new NameMessages(caConnectorConfig.getName(),
+                        "email.connector.inactiveTLSAuthenticationCertificate",
+                        now));
+                    expiringSoon = true;
+                } else {
+                    if (beforeEE.isAfter(tlsAuth.getValidTo())) {
+                        connectorMsgList.add(new NameMessages(caConnectorConfig.getName(),
+                            "email.connector.expiringTLSAuthenticationCertificate",
+                            tlsAuth.getValidTo()));
+                        expiringSoon = true;
+                    }
+                }
+            }
+
+            Certificate msgProt = caConnectorConfig.getMessageProtection();
+            if (msgProt != null) {
+                if (!msgProt.isActive()) {
+                    connectorMsgList.add(new NameMessages(caConnectorConfig.getName(),
+                        "email.connector.inactiveMessageProtectionCertificate",
+                        now));
+                    expiringSoon = true;
+                } else {
+                    if (beforeEE.isAfter(msgProt.getValidTo())) {
+                        connectorMsgList.add(new NameMessages(caConnectorConfig.getName(),
+                            "email.connector.expiringMessageProtectionCertificate",
+                            msgProt.getValidTo()));
+                        expiringSoon = true;
+                    }
+                }
+            }
+
+            ProtectedContent protectedContent = caConnectorConfig.getSecret();
+            if (protectedContent != null) {
+                if (protectedContent.getLeftUsages() < 10) {
+                    LOG.warn("unexpected problem with left usages of secret of connector '{}'", caConnectorConfig.getName());
+                    connectorMsgList.add(new NameMessages(caConnectorConfig.getName(),
+                        "email.connector.protectedContentUsagesExpires",
+                        now));
+                    expiringSoon = true;
+                }
+                if (beforeEE.isAfter(protectedContent.getValidTo())) {
+                    connectorMsgList.add(new NameMessages(caConnectorConfig.getName(),
+                        "email.connector.protectedContentExpires",
+                        protectedContent.getValidTo()));
+                    expiringSoon = true;
+                }
+            }
+            if( expiringSoon) {
+                stateOverviewConnector.incExpiringSoon();
+            }
+        }
+
+
+        StateOverview stateOverviewPipeline = new StateOverview();
+        List<NameMessages> pipelineMsgList = new ArrayList<>();
+        for (Pipeline pipeline : pipelineRepository.findAll()) {
+            stateOverviewPipeline.incAll();
+
+            if (!pipeline.isActive()) {
+                stateOverviewPipeline.incInactive();
+                LOG.info("no notification for deactivated connector '{}'", pipeline.getName());
+                continue;
+            }
+            stateOverviewPipeline.incActive();
+            boolean expiringSoon = false;
+
+            Certificate recipientCert = certificateUtil.getCurrentSCEPRecipient(pipeline);
+            if (recipientCert != null) {
+                if (!recipientCert.isActive()) {
+                    pipelineMsgList.add(new NameMessages(pipeline.getName(),
+                        "email.pipeline.inactiveRecipientCertificate",
+                        now));
+                    expiringSoon = true;
+                } else {
+                    if (beforeEE.isAfter(recipientCert.getValidTo())) {
+                        pipelineMsgList.add(new NameMessages(pipeline.getName(),
+                            "email.pipeline.expiringRecipientCertificate",
+                            recipientCert.getValidTo()));
+                        expiringSoon = true;
+                    }
+                }
+            }
+
+            Instant connectorExpiry = pipeline.getCaConnector().getExpiryDate();
+            if(Instant.MAX.isAfter(connectorExpiry)){
+                pipelineMsgList.add(new NameMessages(pipeline.getName(),
+                    "email.pipeline.connector.expires",
+                    connectorExpiry));
+                expiringSoon = true;
+            }
+
+            if( expiringSoon) {
+                stateOverviewPipeline.incExpiringSoon();
+            }
+        }
+
+
+        if( connectorMsgList.isEmpty() && pipelineMsgList.isEmpty()) {
+            LOG.info("No expiring certificates / passphrases in the next {} days in pipelines or CA connectors", nDaysExpiryEE);
+        }else {
+            LOG.info("#{} expiring certificate  / passphrases in the next {} days in pipelines or CA connectors.", connectorMsgList.size() + pipelineMsgList.size(), nDaysExpiryEE);
+
+            // Process all admins
+            for( User admin: adminList) {
+                Locale locale = Locale.forLanguageTag(admin.getLangKey());
+                Context context = new Context(locale);
+                context.setVariable("connectorMsgList", connectorMsgList);
+                context.setVariable("stateOverviewConnector", stateOverviewConnector);
+
+                context.setVariable("pipelineMsgList", pipelineMsgList);
+                context.setVariable("stateOverviewPipeline", stateOverviewPipeline);
+
+                context.setVariable("nDaysExpiryEE", nDaysExpiryEE);
+                try {
+                    mailService.sendEmailFromTemplate(context, admin, null, "mail/connectorPipelineExpiringCredentials", "email.connectorPipelineExpiringCredentials.subject");
+                }catch (Throwable throwable){
+                    LOG.warn("Problem occurred while sending a notification eMail to admin address '" + admin.getEmail() + "'", throwable);
+                    if(logNotification) {
+                        auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(admin.getEmail()));
+                    }
+                }
+            }
+        }
+
+        return connectorMsgList.size() + pipelineMsgList.size();
     }
 
 
@@ -223,14 +389,11 @@ public class NotificationService {
     public int notifyRequestorOnExpiry(User testUser, boolean logNotification, final String certId) {
 
         Optional<Certificate> optionalCertificate = certificateRepo.findById(Long.parseLong(certId));
-        if( optionalCertificate.isPresent()) {
-
-            return notifyRequestorOnExpiry(testUser, logNotification,
-                Collections.singletonList(optionalCertificate.get()),
-                9999,
-                true);
-        }
-        return 0;
+        return optionalCertificate.map(certificate ->
+            notifyRequestorOnExpiry(testUser, logNotification,
+            Collections.singletonList(certificate),
+            9999,
+            true)).orElse(0);
     }
 
     private int notifyRequestorOnExpiry(User testUser, boolean logNotification,
@@ -339,12 +502,6 @@ public class NotificationService {
                 addSplittedEMailAddress(ccList, additionalEmailRecipients);
 
                 ccList.addAll(findAdditionalRecipients(cert));
-/*
-                for( String araAttribute: notificationARAAttributes) {
-                    String emailAttribute = certificateUtil.getCertAttribute(cert, CsrAttribute.ARA_PREFIX + araAttribute, "");
-                    addSplittedString(ccList, emailAttribute);
-                }
- */
             }
 
             context.setVariable("expiringCertList", Collections.singletonList(cert));
@@ -466,16 +623,6 @@ public class NotificationService {
         }
     }
 
-    @Async
-    public void notifyRAOfficerOnRequestAsync(CSR csr ){
-
-        try {
-            notifyRAOfficerOnRequest(csr);
-        } catch (Exception e) {
-            LOG.error("problem sending ra officer notification", e);
-        }
-    }
-
     @Transactional
     public void notifyRAOfficerOnRequest(CSR csr) {
 
@@ -534,16 +681,6 @@ public class NotificationService {
         }
     }
 
-    @Async
-    public void notifyUserCertificateIssuedAsync(User requestor, Certificate cert, Set<String> additionalEmailSet ){
-
-        try {
-            notifyUserCertificateIssued(requestor, cert, additionalEmailSet );
-        } catch (MessagingException e) {
-            LOG.error("problem sending user notification for issued cert", e);
-        }
-    }
-
     @Transactional
     public void notifyUserCertificateIssued(User requestor, Certificate cert, Set<String> additionalEmailSet ) throws MessagingException {
 
@@ -576,15 +713,6 @@ public class NotificationService {
         mailService.sendEmailFromTemplate(context, requestor, additionalEmailSet.toArray(new String[0]), "mail/acceptedRequestEmail", "email.acceptedRequest.title");
     }
 
-    @Async
-    public void notifyUserCertificateRejectedAsync(User requestor, CSR csr ){
-
-        try {
-            notifyUserCertificateRejected(requestor, csr );
-        } catch (MessagingException e) {
-            LOG.error("problem sending user notification for rejected request", e);
-        }
-    }
 
     @Transactional
     public void notifyUserCertificateRejected(User requestor, CSR csr ) throws MessagingException {
@@ -601,15 +729,6 @@ public class NotificationService {
     }
 
 
-    @Async
-    public void notifyUserCertificateRevokedAsync(User requestor, Certificate cert , CSR csr ){
-
-        try {
-            notifyCertificateRevoked(requestor, cert, csr );
-        } catch (MessagingException e) {
-            LOG.error("problem sending user notification for revoked certificate", e);
-        }
-    }
 
     @Transactional
     public void notifyCertificateRevoked(User requestor, Certificate cert, CSR csr ) throws MessagingException {
@@ -641,8 +760,9 @@ public class NotificationService {
     }
 
     /**
+     * find all ra officers
      *
-     * @return
+     * @return list of all ra officers
      */
     private List<User> findAllRAOfficer(String authority){
 
@@ -658,6 +778,27 @@ public class NotificationService {
             }
         }
         return raOfficerList;
+    }
+
+    /**
+     * find all admins
+     *
+     * @return list of all admins
+     */
+    private List<User> findAllAdmin(String authority){
+
+        List<User> adminList = new ArrayList<>();
+        for( User user: userRepository.findAll()) {
+            for( Authority auth: user.getAuthorities()) {
+                LOG.debug("user {} {} has role {}", user.getFirstName(), user.getLastName(), auth.getName());
+                if( authority.equalsIgnoreCase(auth.getName())) {
+                    adminList.add(user);
+                    LOG.debug("found user {} {} having the role of admin", user.getFirstName(), user.getLastName());
+                    break;
+                }
+            }
+        }
+        return adminList;
     }
 
 }

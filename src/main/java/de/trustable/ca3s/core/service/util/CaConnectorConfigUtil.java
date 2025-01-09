@@ -68,6 +68,7 @@ public class CaConnectorConfigUtil {
         cv.setDefaultCA(cfg.getDefaultCA());
         cv.setPlainSecret(PLAIN_SECRET_PLACEHOLDER);
         cv.setActive(cfg.getActive());
+        cv.setExpiryDate(cfg.getExpiryDate());
         cv.setPollingOffset(cfg.getPollingOffset());
         cv.setLastUpdate(cfg.getLastUpdate());
         cv.setSelector(cfg.getSelector());

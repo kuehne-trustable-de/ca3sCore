@@ -7,7 +7,7 @@ import {
   ICertificateFilterList,
   ISelector,
   ICertificateSelectionData,
-  IAcmeAccountView
+  IAcmeAccountView,
 } from '@/shared/model/transfer-object.model';
 
 import { colFieldToStr, makeQueryStringFromObj } from '@/shared/utils';
@@ -29,7 +29,7 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('account', tabl
   tableType
     .setFilterHandler((source, filter, columns) => ({
       // See https://documenter.getpostman.com/view/2025350/RWaEzAiG#json-field-masking
-      filter: columns.map(col => colFieldToStr(col.field!).replace(/\./g, '/')).join(',')
+      filter: columns.map(col => colFieldToStr(col.field!).replace(/\./g, '/')).join(','),
     }))
 
     .setSortHandler((endpointDesc, sortColumn, sortDir) => ({
@@ -38,9 +38,9 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('account', tabl
       ...(sortColumn && sortDir
         ? {
             order: sortDir,
-            sort: colFieldToStr(sortColumn.field!).replace(/\./g, '/')
+            sort: colFieldToStr(sortColumn.field!).replace(/\./g, '/'),
           }
-        : {})
+        : {}),
     }))
 
     .setPaginateHandler((endpointDesc, perPage, pageIndex) => ({
@@ -49,9 +49,9 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('account', tabl
       ...(perPage !== null
         ? {
             limit: perPage || 20,
-            offset: (pageIndex - 1) * perPage || 0
+            offset: (pageIndex - 1) * perPage || 0,
           }
-        : {})
+        : {}),
     }))
 
     // Alias our process steps, because the source, here, is our API url, and paged is the complete query string
@@ -63,12 +63,12 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('account', tabl
         // Data to display
         data,
         // Get the total number of matched items
-        headers: { 'x-total-count': totalCount }
+        headers: { 'x-total-count': totalCount },
       } = await axios.get(url);
 
       return {
         rows: data,
-        totalRowCount: parseInt(totalCount, 10)
+        totalRowCount: parseInt(totalCount, 10),
       } as ITableContentParam<IAcmeAccountView>;
     })
     .mergeSettings({
@@ -77,19 +77,19 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('account', tabl
         sorting: {
           sortAsc: '<img src="../../../content/images/caret-up-solid.png" alt="asc">',
           sortDesc: '<img src="../../../content/images/caret-down-solid.png" alt="desc">',
-          sortNone: ''
-        }
+          sortNone: '',
+        },
       },
       pager: {
         classes: {
           pager: 'pagination text-center',
-          selected: 'active'
+          selected: 'active',
         },
         icons: {
           next: '<img src="../../../content/images/chevron-right-solid.png" alt=">">',
-          previous: '<img src="../../../content/images/chevron-left-solid.png" alt="<">'
-        }
-      }
+          previous: '<img src="../../../content/images/chevron-left-solid.png" alt="<">',
+        },
+      },
     })
 );
 
@@ -113,14 +113,14 @@ export default class AcmeAccountList extends mixins(AlertMixin, Vue) {
       itemType: 'set',
       itemDefaultSelector: 'EQUAL',
       itemDefaultValue: 'VALID',
-      values: ['VALID', 'DEACTIVATED', 'REVOKED']
+      values: ['VALID', 'DEACTIVATED', 'REVOKED'],
     },
     { itemName: 'id', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: '1' },
     { itemName: 'accountId', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: '' },
     { itemName: 'realm', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: '' },
     { itemName: 'termsOfServiceAgreed', itemType: 'boolean', itemDefaultSelector: 'ISTRUE', itemDefaultValue: '' },
     { itemName: 'createdOn', itemType: 'date', itemDefaultSelector: 'ON', itemDefaultValue: '{now}' },
-    { itemName: 'publicKeyHash', itemType: 'string', itemDefaultSelector: 'EQUAL', itemDefaultValue: '' }
+    { itemName: 'publicKeyHash', itemType: 'string', itemDefaultSelector: 'EQUAL', itemDefaultValue: '' },
   ];
 
   public selectionChoices: ISelectionChoices[] = [
@@ -128,7 +128,7 @@ export default class AcmeAccountList extends mixins(AlertMixin, Vue) {
     { itemType: 'number', hasValue: true, choices: ['EQUAL', 'NOT_EQUAL', 'LESSTHAN', 'GREATERTHAN'] },
     { itemType: 'date', hasValue: true, choices: ['ON', 'BEFORE', 'AFTER'] },
     { itemType: 'boolean', hasValue: false, choices: ['ISTRUE', 'ISFALSE'] },
-    { itemType: 'set', hasValue: false, choices: ['EQUAL', 'NOT_EQUAL'] }
+    { itemType: 'set', hasValue: false, choices: ['EQUAL', 'NOT_EQUAL'] },
   ];
 
   public contentAccessUrl: string;
@@ -226,7 +226,7 @@ export default class AcmeAccountList extends mixins(AlertMixin, Vue) {
         { label: this.$t('termsOfServiceAgreed'), field: 'termsOfServiceAgreed' },
         { label: this.$t('publicKeyHash'), field: 'publicKeyHash' },
         { label: this.$t('orderCount'), field: 'orderCount' },
-        { label: this.$t('contactUrls'), field: 'contactUrls' }
+        { label: this.$t('contactUrls'), field: 'contactUrls' },
       ] as TColumnsDefinition<IAcmeAccountView>,
       page: 1,
       filter: '',
@@ -235,7 +235,7 @@ export default class AcmeAccountList extends mixins(AlertMixin, Vue) {
       get acmeAccountApiUrl() {
         window.console.info('acmeAccountApiUrl returns : ' + self.contentAccessUrl);
         return self.contentAccessUrl;
-      }
+      },
     };
   }
 
@@ -291,8 +291,8 @@ export default class AcmeAccountList extends mixins(AlertMixin, Vue) {
     axios({
       method: 'get',
       url: 'api/userProperties/filterList/acmeAccountList',
-      responseType: 'stream'
-    }).then(function(response) {
+      responseType: 'stream',
+    }).then(function (response) {
       //      window.console.debug('getUsersFilterList returns ' + response.data );
       if (response.status === 200) {
         self.filters.filterList = response.data.filterList;
@@ -308,19 +308,23 @@ export default class AcmeAccountList extends mixins(AlertMixin, Vue) {
     if (self.lastFilters === lastFiltersValue) {
       //      window.console.debug('putUsersFilterList: no change ...');
     } else {
-      window.console.debug('putUsersFilterList: change detected ...');
-      axios({
-        method: 'put',
-        url: 'api/userProperties/filterList/acmeAccountList',
-        data: self.filters
-        //        ,
-        //        responseType: 'stream'
-      }).then(function(response) {
-        window.console.debug('putUsersFilterList returns ' + response.status);
-        if (response.status === 204) {
-          self.lastFilters = lastFiltersValue;
-        }
-      });
+      if (self.$store.getters.authenticated) {
+        window.console.debug('putUsersFilterList: change detected ...');
+        axios({
+          method: 'put',
+          url: 'api/userProperties/filterList/acmeAccountList',
+          data: self.filters,
+          //        ,
+          //        responseType: 'stream'
+        }).then(function (response) {
+          window.console.debug('putUsersFilterList returns ' + response.status);
+          if (response.status === 204) {
+            self.lastFilters = lastFiltersValue;
+          }
+        });
+      } else {
+        window.console.debug('putUsersFilterList skipped, not autehticated anymore');
+      }
     }
   }
 

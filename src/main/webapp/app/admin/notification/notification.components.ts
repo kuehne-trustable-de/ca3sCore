@@ -34,6 +34,8 @@ export default class Notification extends Vue {
       this.sendUserCertificateRevoked();
     } else if (this.selectedNotification === 'sendCertificateRevoked') {
       this.sendCertificateRevoked();
+    } else if (this.selectedNotification === 'sendAdminOnConnectorExpiry') {
+      this.sendAdminOnConnectorExpiry();
     }
   }
 
@@ -191,6 +193,29 @@ export default class Notification extends Vue {
     })
       .then(function (response) {
         window.console.info('api/notification/sendExpiryPendingSummary returns ' + response.data);
+        if (response.data.title !== undefined) {
+          self.problemDetail = response.data;
+        }
+      })
+      .catch(function (error) {
+        if (error.response.data.title !== undefined) {
+          self.problemDetail = error.response.data;
+        }
+      });
+  }
+
+  public sendAdminOnConnectorExpiry(): void {
+    window.console.info('calling sendAdminOnConnectorExpiry');
+    this.problemDetail = {};
+    const self = this;
+
+    axios({
+      method: 'post',
+      url: '/api/notification/sendAdminOnConnectorExpiry',
+      responseType: 'stream',
+    })
+      .then(function (response) {
+        window.console.info('api/notification/sendAdminOnConnectorExpiry returns ' + response.data);
         if (response.data.title !== undefined) {
           self.problemDetail = response.data;
         }

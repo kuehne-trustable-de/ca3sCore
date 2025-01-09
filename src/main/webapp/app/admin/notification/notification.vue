@@ -8,13 +8,14 @@
             <label class="form-control-label" v-text="$t('ca3SApp.notification.select')" for="notification-select">Notification Selection</label>
             <select class="form-control" id="notification-select" name="notification-select" v-model="selectedNotification" v-on:change="updateNotification()">
 
-                <option value="sendRequestorExpirySummary" v-text="$t('ca3SApp.notification.sendRequestorExpirySummary')" selected="selected">sendRequestorExpirySummary</option>
-                <option value="sendExpiryPendingSummary" v-text="$t('ca3SApp.notification.sendExpiryPendingSummary')">sendExpiryPendingSummary</option>
-                <option value="sendRAOfficerOnRequest" v-text="$t('ca3SApp.notification.sendRAOfficerOnRequest')" >sendRAOfficerOnRequest</option>
-                <option value="sendUserCertificateIssued" v-text="$t('ca3SApp.notification.sendUserCertificateIssued')" >sendUserCertificateIssued</option>
-                <option value="sendUserCertificateRejected" v-text="$t('ca3SApp.notification.sendUserCertificateRejected')" >sendUserCertificateRejected</option>
-                <option value="sendCertificateRevoked" v-text="$t('ca3SApp.notification.sendCertificateRevoked')" >sendCertificateRevoked</option>
-                <option value="sendUserCertificateRevoked" v-text="$t('ca3SApp.notification.sendUserCertificateRevoked')" >sendUserCertificateRevoked</option>
+                <option value="sendRequestorExpirySummary" v-text="$t('ca3SApp.notification.sendRequestorExpirySummary')" selected="selected"></option>
+                <option value="sendExpiryPendingSummary" v-text="$t('ca3SApp.notification.sendExpiryPendingSummary')"></option>
+                <option value="sendRAOfficerOnRequest" v-text="$t('ca3SApp.notification.sendRAOfficerOnRequest')" ></option>
+                <option value="sendUserCertificateIssued" v-text="$t('ca3SApp.notification.sendUserCertificateIssued')" ></option>
+                <option value="sendUserCertificateRejected" v-text="$t('ca3SApp.notification.sendUserCertificateRejected')" ></option>
+                <option value="sendCertificateRevoked" v-text="$t('ca3SApp.notification.sendCertificateRevoked')" ></option>
+                <option value="sendUserCertificateRevoked" v-text="$t('ca3SApp.notification.sendUserCertificateRevoked')" ></option>
+                <option value="sendAdminOnConnectorExpiry" v-text="$t('ca3SApp.notification.sendAdminOnConnectorExpiry')" ></option>
             </select>
         </div>
 

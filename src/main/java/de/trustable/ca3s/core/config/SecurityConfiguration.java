@@ -350,6 +350,7 @@ public class SecurityConfiguration{
             .antMatchers("/saml/**").permitAll()
             .antMatchers("/publicapi/**").permitAll()
 
+            .antMatchers("/api/userProperties/filterList/CertList").authenticated()
 
             .requestMatchers( forPortAndPath(new Integer[]{raPort, adminPort}, "/api/administerRequest"))
               .hasAnyAuthority(AuthoritiesConstants.RA_OFFICER,AuthoritiesConstants.DOMAIN_RA_OFFICER, AuthoritiesConstants.ADMIN)

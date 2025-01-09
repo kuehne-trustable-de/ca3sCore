@@ -24,6 +24,12 @@ public class AcmeAccountUtil {
         acmeAccountView.setCreatedOn(acmeAccount.getCreatedOn());
         acmeAccountView.setPublicKeyHash(acmeAccount.getPublicKeyHash());
         acmeAccountView.setPublicKey(acmeAccount.getPublicKey());
+/*
+        acmeAccountView.setKeyAlgorithm();
+        int keyLength = CertificateUtil.getAlignedKeyLength(acmeAccount.getPublicKey());
+        acmeAccountView.setKeyLength();
+        acmeAccountView.setAltKeyAlgorithm();
+*/
 
         List<String> contactList = new ArrayList<>();
         for(AcmeContact acmeContact: acmeAccount.getContacts()){

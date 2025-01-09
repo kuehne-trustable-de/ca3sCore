@@ -3,6 +3,7 @@ package de.trustable.ca3s.core;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.*;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
+import de.trustable.ca3s.core.repository.PipelineAttributeRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 import de.trustable.ca3s.core.service.dto.AcmeConfigItems;
@@ -32,8 +33,8 @@ public class PipelineTestConfiguration {
 
     public static final Logger LOGGER = LogManager.getLogger(PipelineTestConfiguration.class);
 
-    public static final String PIPELINE_NAME_WEB_DIRECT_ISSUANCE = "direct issuance";
-    public static final String PIPELINE_NAME_WEB_RA_ISSUANCE = "ra issuance";
+    public static final String PIPELINE_NAME_WEB_DIRECT_ISSUANCE = "TLS Server direct issuance";
+    public static final String PIPELINE_NAME_WEB_RA_ISSUANCE = "TLS Server officer issuance";
 
     private static final String PIPELINE_NAME_ACME = "acme";
     private static final String PIPELINE_NAME_ACME1CN = "acme1CN";
@@ -54,6 +55,9 @@ public class PipelineTestConfiguration {
 
     @Autowired
     PipelineRepository pipelineRepo;
+
+    @Autowired
+    PipelineAttributeRepository pipelineAttributeRepository;
 
     @Autowired
     PipelineUtil pipelineUtil;
@@ -413,7 +417,6 @@ public class PipelineTestConfiguration {
 
         LOGGER.info("------------ Creating pipeline '{}' ... ", PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
 
-
         Pipeline pipelineWeb = new Pipeline();
         pipelineWeb.setActive(true);
         pipelineWeb.setApprovalRequired(false);
@@ -424,9 +427,12 @@ public class PipelineTestConfiguration {
         pipelineWeb.setUrlPart("test");
 
         addPipelineAttribute(pipelineWeb, PipelineUtil.ALLOW_IP_AS_SAN, "false");
+        addPipelineAttribute(pipelineWeb, PipelineUtil.TOS_AGREEMENT_REQUIRED, "true");
+        addPipelineAttribute(pipelineWeb, PipelineUtil.TOS_AGREEMENT_LINK, "http://trustable.eu/tos.html");
 
         pipelineWeb.setProcessInfoNotify(getSimpleBPMNProcessInfo());
 
+        pipelineAttributeRepository.saveAll(pipelineWeb.getPipelineAttributes());
         pipelineRepo.save(pipelineWeb);
 
         return pipelineWeb;

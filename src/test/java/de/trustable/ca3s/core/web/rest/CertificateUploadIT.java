@@ -9,8 +9,8 @@ import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
+import de.trustable.ca3s.core.service.AsyncNotificationService;
 import de.trustable.ca3s.core.service.AuditService;
-import de.trustable.ca3s.core.service.NotificationService;
 import de.trustable.ca3s.core.service.badkeys.BadKeysService;
 import de.trustable.ca3s.core.service.dto.NamedValues;
 import de.trustable.ca3s.core.service.dto.TypedValue;
@@ -70,7 +70,7 @@ public class CertificateUploadIT {
     @Autowired
     private CertificateProcessingUtil cpUtil;
     @Autowired
-    private NotificationService notificationService;
+    private AsyncNotificationService notificationService;
     @Autowired
     private BadKeysService badKeysService;
     @Autowired

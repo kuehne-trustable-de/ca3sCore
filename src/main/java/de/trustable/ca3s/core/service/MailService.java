@@ -1,7 +1,6 @@
 package de.trustable.ca3s.core.service;
 
 import de.trustable.ca3s.core.domain.User;
-import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

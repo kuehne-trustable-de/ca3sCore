@@ -20,7 +20,7 @@
                     <tr>
                         <td>{{ row.actorName }}</td>
                         <td>{{ row.actorRole }}</td>
-                        <td>{{ localizedContent(row.contentTemplate, row.plainContent) }}</td>
+                        <td :value="row.contentTemplate">{{ localizedContent(row.contentTemplate, row.plainContent) }}</td>
                         <td>{{ toLocalDate(row.createdOn) }}</td>
                         <td v-if="showLinks">{{ row.links }}</td>
                     </tr>

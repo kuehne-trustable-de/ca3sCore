@@ -116,7 +116,6 @@ public class CertificateUtil {
     private final PreferenceUtil preferenceUtil;
 
     final private CryptoService cryptoUtil;
-    final private UserRepository userRepository;
     final private AcmeAccountRepository acmeAccountRepository;
 
 
@@ -132,7 +131,8 @@ public class CertificateUtil {
                            ProtectedContentUtil protUtil,
                            PreferenceUtil preferenceUtil,
                            CryptoService cryptoUtil,
-                           UserRepository userRepository, AcmeAccountRepository acmeAccountRepository, AuditService auditService,
+                           AcmeAccountRepository acmeAccountRepository,
+                           AuditService auditService,
                            ReplacementCandidateUtil replacementCandidateUtil) {
 
 
@@ -143,7 +143,6 @@ public class CertificateUtil {
         this.protUtil = protUtil;
         this.preferenceUtil = preferenceUtil;
         this.cryptoUtil = cryptoUtil;
-        this.userRepository = userRepository;
         this.acmeAccountRepository = acmeAccountRepository;
         this.auditService = auditService;
         this.replacementCandidateUtil = replacementCandidateUtil;

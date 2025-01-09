@@ -16,7 +16,7 @@
                     </dt>
                     <dd>
                         <div>
-                            <router-link :to="{name: 'AcmeAccountInfo', params: {accountId: acmeOrderView.accountId}}">{{acmeOrderView.accountId}}</router-link>
+                            <router-link :to="{name: 'AcmeAccountInfo', params: {id: acmeOrderView.accountId}}">{{acmeOrderView.accountId}}</router-link>
                         </div>
                     </dd>
 

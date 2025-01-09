@@ -7,7 +7,7 @@ import {
   ICertificateFilterList,
   ISelector,
   ICertificateSelectionData,
-  IAuditTraceView
+  IAuditTraceView,
 } from '@/shared/model/transfer-object.model';
 
 import { colFieldToStr, makeQueryStringFromObj } from '@/shared/utils';
@@ -29,7 +29,7 @@ VuejsDatatableFactory.useDefaultType(false).registerTableType<any, any, any, any
   tableType
     .setFilterHandler((source, filter, columns) => ({
       // See https://documenter.getpostman.com/view/2025350/RWaEzAiG#json-field-masking
-      filter: columns.map(col => colFieldToStr(col.field!).replace(/\./g, '/')).join(',')
+      filter: columns.map(col => colFieldToStr(col.field!).replace(/\./g, '/')).join(','),
     }))
 
     .setSortHandler((endpointDesc, sortColumn, sortDir) => ({
@@ -38,9 +38,9 @@ VuejsDatatableFactory.useDefaultType(false).registerTableType<any, any, any, any
       ...(sortColumn && sortDir
         ? {
             order: sortDir,
-            sort: colFieldToStr(sortColumn.field!).replace(/\./g, '/')
+            sort: colFieldToStr(sortColumn.field!).replace(/\./g, '/'),
           }
-        : {})
+        : {}),
     }))
 
     .setPaginateHandler((endpointDesc, perPage, pageIndex) => ({
@@ -49,9 +49,9 @@ VuejsDatatableFactory.useDefaultType(false).registerTableType<any, any, any, any
       ...(perPage !== null
         ? {
             limit: perPage || 20,
-            offset: (pageIndex - 1) * perPage || 0
+            offset: (pageIndex - 1) * perPage || 0,
           }
-        : {})
+        : {}),
     }))
 
     // Alias our process steps, because the source, here, is our API url, and paged is the complete query string
@@ -65,12 +65,12 @@ VuejsDatatableFactory.useDefaultType(false).registerTableType<any, any, any, any
         // Data to display
         data,
         // Get the total number of matched items
-        headers: { 'x-total-count': totalCount }
+        headers: { 'x-total-count': totalCount },
       } = await axios.get(url);
 
       return {
         rows: data,
-        totalRowCount: parseInt(totalCount, 10)
+        totalRowCount: parseInt(totalCount, 10),
       } as ITableContentParam<IAuditTraceView>;
     })
     .mergeSettings({
@@ -79,19 +79,19 @@ VuejsDatatableFactory.useDefaultType(false).registerTableType<any, any, any, any
         sorting: {
           sortAsc: '<img src="../../../content/images/caret-up-solid.png" alt="asc">',
           sortDesc: '<img src="../../../content/images/caret-down-solid.png" alt="desc">',
-          sortNone: ''
-        }
+          sortNone: '',
+        },
       },
       pager: {
         classes: {
           pager: 'pagination text-center',
-          selected: 'active'
+          selected: 'active',
         },
         icons: {
           next: '<img src="../../../content/images/chevron-right-solid.png" alt=">">',
-          previous: '<img src="../../../content/images/chevron-left-solid.png" alt="<">'
-        }
-      }
+          previous: '<img src="../../../content/images/chevron-left-solid.png" alt="<">',
+        },
+      },
     })
 );
 
@@ -112,10 +112,10 @@ export default class CertList extends mixins(AlertMixin, Vue) {
       itemType: 'set',
       itemDefaultSelector: 'EQUAL',
       itemDefaultValue: 'USER',
-      values: ['USER', 'RA', 'ADMIN', 'SYSTEM']
+      values: ['USER', 'RA', 'ADMIN', 'SYSTEM'],
     },
     { itemName: 'contentTemplate', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable' },
-    { itemName: 'createdOn', itemType: 'date', itemDefaultSelector: 'BEFORE', itemDefaultValue: '{now}' }
+    { itemName: 'createdOn', itemType: 'date', itemDefaultSelector: 'BEFORE', itemDefaultValue: '{now}' },
   ];
 
   public selectionChoices: ISelectionChoices[] = [
@@ -123,7 +123,7 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     { itemType: 'number', hasValue: true, choices: ['EQUAL', 'NOT_EQUAL', 'LESSTHAN', 'GREATERTHAN'] },
     { itemType: 'date', hasValue: true, choices: ['ON', 'BEFORE', 'AFTER'] },
     { itemType: 'boolean', hasValue: false, choices: ['ISTRUE', 'ISFALSE'] },
-    { itemType: 'set', hasValue: false, choices: ['EQUAL', 'NOT_EQUAL'] }
+    { itemType: 'set', hasValue: false, choices: ['EQUAL', 'NOT_EQUAL'] },
   ];
 
   public defaultFilter: ICertificateFilter = { attributeName: 'subject', attributeValue: 'trust', selector: 'LIKE' };
@@ -217,7 +217,7 @@ export default class CertList extends mixins(AlertMixin, Vue) {
         { label: 'certificateId', field: 'certificateId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
         { label: 'pipelineId', field: 'pipelineId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
         { label: 'caConnectorId', field: 'caConnectorId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
-        { label: 'processInfoId', field: 'processInfoId', headerClass: 'hiddenColumn', class: 'hiddenColumn' }
+        { label: 'processInfoId', field: 'processInfoId', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
       ] as TColumnsDefinition<IAuditTraceView>,
       page: 1,
       filter: '',
@@ -226,7 +226,7 @@ export default class CertList extends mixins(AlertMixin, Vue) {
       get auditListUrl() {
         window.console.info('auditListUrl returns : ' + self.contentAccessUrl);
         return self.contentAccessUrl;
-      }
+      },
     };
   }
 
@@ -246,7 +246,7 @@ export default class CertList extends mixins(AlertMixin, Vue) {
       return this.$t(template, {
         attribute: this.unescapeComma(contentParts[0]),
         oldVal: this.unescapeComma(contentParts[1]),
-        newVal: this.unescapeComma(contentParts[2])
+        newVal: this.unescapeComma(contentParts[2]),
       });
     }
   }
@@ -305,8 +305,8 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     axios({
       method: 'get',
       url: 'api/userProperties/filterList/AuditList',
-      responseType: 'stream'
-    }).then(function(response) {
+      responseType: 'stream',
+    }).then(function (response) {
       //      window.console.debug('getUsersFilterList returns ' + response.data );
       if (response.status === 200) {
         self.filters.filterList = response.data.filterList;
@@ -322,18 +322,22 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     if (self.lastFilters === lastFiltersValue) {
       //      window.console.debug('putUsersFilterList: no change ...');
     } else {
-      window.console.debug('putUsersFilterList: change detected ...');
-      axios({
-        method: 'put',
-        url: 'api/userProperties/filterList/AuditList',
-        data: self.filters,
-        responseType: 'stream'
-      }).then(function(response) {
-        //        window.console.debug('putUsersFilterList returns ' + response.status);
-        if (response.status === 204) {
-          self.lastFilters = lastFiltersValue;
-        }
-      });
+      if (self.$store.getters.authenticated) {
+        window.console.debug('putUsersFilterList: change detected ...');
+        axios({
+          method: 'put',
+          url: 'api/userProperties/filterList/AuditList',
+          data: self.filters,
+          responseType: 'stream',
+        }).then(function (response) {
+          //        window.console.debug('putUsersFilterList returns ' + response.status);
+          if (response.status === 204) {
+            self.lastFilters = lastFiltersValue;
+          }
+        });
+      } else {
+        window.console.debug('putUsersFilterList skipped, not autehticated anymore');
+      }
     }
   }
 }

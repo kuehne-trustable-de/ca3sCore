@@ -51,8 +51,7 @@ public class CaConnectorConfigView implements Serializable {
     private boolean multipleMessages = true;
     private boolean implicitConfirm = true;
     private boolean fillEmptySubjectWithSAN = true;
-
-
+    private Instant expiryDate;
 
     public Long getId() {
         return id;
@@ -254,5 +253,12 @@ public class CaConnectorConfigView implements Serializable {
 
     public void setFillEmptySubjectWithSAN(boolean fillEmptySubjectWithSAN) {
         this.fillEmptySubjectWithSAN = fillEmptySubjectWithSAN;
+    }
+
+    public Instant getExpiryDate() {
+        return expiryDate;
+    }
+    public void setExpiryDate(Instant expiryDate) {
+        this.expiryDate = expiryDate;
     }
 }

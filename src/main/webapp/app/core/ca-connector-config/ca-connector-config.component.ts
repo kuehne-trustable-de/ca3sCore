@@ -4,6 +4,7 @@ import { Component, Inject } from 'vue-property-decorator';
 import Vue2Filters from 'vue2-filters';
 import { ICAConnectorConfig } from '@/shared/model/ca-connector-config.model';
 import { ICAConnectorStatus, ICAStatus, ICertificateFilter, ICertificateFilterList } from '@/shared/model/transfer-object.model';
+import { DateUtils } from '@/shared/date-utils';
 
 import AlertMixin from '@/shared/alert/alert.mixin';
 
@@ -27,7 +28,7 @@ export default class CAConnectorConfig extends mixins(Vue2Filters.mixin, AlertMi
     { attributeName: 'active', attributeValue: 'all', selector: 'EQUAL' },
   ];
   public filters: ICertificateFilterList = { filterList: this.defaultFilters };
-  public lastFilters: string = JSON.stringify({ filterList: [this.defaultFilter] });
+  public lastFilters: string = JSON.stringify({ filterList: this.defaultFilters });
 
   public typeFilter = 'all';
   public activeFilter = 'all';
@@ -93,6 +94,14 @@ export default class CAConnectorConfig extends mixins(Vue2Filters.mixin, AlertMi
       }
     }
     return 'Unknown';
+  }
+
+  public toLocalDate(dateAsString: string): string {
+    return DateUtils.toLocalDate(dateAsString);
+  }
+
+  public getValidToStyle(validToString: string): string {
+    return DateUtils.getValidToStyle(validToString);
   }
 
   public prepareRemove(instance: ICAConnectorConfig): void {
@@ -187,18 +196,22 @@ export default class CAConnectorConfig extends mixins(Vue2Filters.mixin, AlertMi
     if (self.lastFilters === lastFiltersValue) {
       //      window.console.debug('putUsersFilterList: no change ...');
     } else {
-      window.console.debug('putUsersFilterList: change detected ...');
-      axios({
-        method: 'put',
-        url: 'api/userProperties/filterList/CaConnectorConfigList',
-        data: self.filters,
-        responseType: 'stream',
-      }).then(function (response) {
-        //        window.console.debug('putUsersFilterList returns ' + response.status);
-        if (response.status === 204) {
-          self.lastFilters = lastFiltersValue;
-        }
-      });
+      if (self.$store.getters.authenticated) {
+        window.console.debug('putUsersFilterList: change detected ...');
+        axios({
+          method: 'put',
+          url: 'api/userProperties/filterList/CaConnectorConfigList',
+          data: self.filters,
+          responseType: 'stream',
+        }).then(function (response) {
+          //        window.console.debug('putUsersFilterList returns ' + response.status);
+          if (response.status === 204) {
+            self.lastFilters = lastFiltersValue;
+          }
+        });
+      } else {
+        window.console.debug('putUsersFilterList skipped, not autehticated anymore');
+      }
     }
   }
 }

@@ -303,6 +303,7 @@
   "ca3SApp.cAConnectorConfig.ignoreResponseMessageVerification": "Ignore outcome of response verification",
   "ca3SApp.cAConnectorConfig.fillEmptySubjectWithSAN": "Fill empty subject with SAN",
   "ca3SApp.cAConnectorConfig.caname": "CA Name",
+  "ca3SApp.cAConnectorConfig.expiresOn": "expires on",
 
   "ca3SApp.cSR.subtitle.request.list": "Request List",
   "ca3SApp.cSR.administeredBy": "Administered By",
@@ -581,6 +582,7 @@
   "ca3SApp.pipeline.useAcmeProxy": "Use Proxy",
   "ca3SApp.pipeline.requestProxies": "Request Proxies",
   "ca3SApp.pipeline.tenants": "Tenants",
+  "ca3SApp.pipeline.expiresOn": "Expires on",
 
   "ca3SApp.pipelineAttribute.created": "A new Pipeline Attribute is created with identifier {{ param }}",
   "ca3SApp.pipelineAttribute.delete.question": "Are you sure you want to delete Pipeline Attribute {{ id }}?",

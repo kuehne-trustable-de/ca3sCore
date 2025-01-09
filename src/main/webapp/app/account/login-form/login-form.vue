@@ -26,6 +26,7 @@
                         <b-button type="submit"
                                   :disabled="!password || password.trim().length === 0"
                                   variant="primary"
+                                  id="login.form.submit"
                                   v-text="$t('login.form.button')"></b-button>
                     </div>
                 </b-form>

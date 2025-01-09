@@ -1,85 +1,305 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <explanation>
 
-    <tutorial.1><en>C A 3 S is a CA support system with a flexible RA part using BPMN aiming to automate as much as possible. Therefore providing ACME and SCEP interfaces in addition to the usual web form. Aggregating certificate sets from different sources and using CMP-connected CAs or ADCS instances for certificate creation.</en></tutorial.1>
-    <tutorial.2><en>let's have a look at C A 3 S from the user's view</en></tutorial.2>
-    <tutorial.3><en>Now you are able to use C A 3 S</en></tutorial.3>
+    <tutorial.0>
+        <en>Welcome to this tutorial of the user's view of ca3s</en>
+        <de>Willkommen zum Erklärvideo zur Nutzersicht von ca3s</de>
+    </tutorial.0>
 
-    <csr.submit.1><en>Navigate your browser to the start page of the application.</en></csr.submit.1>
-    <csr.submit.2><en>Depending on your configuration you may be logged on, automatically.</en></csr.submit.2>
-    <csr.submit.3><en>select a certificate processing pipeline matching your requirements.</en></csr.submit.3>
+    <tutorial.1>
+        <en>ca3s is a certificate authority support system with a flexible RA part using BPMN aiming to automate as much as possible.</en>
+        <de>ca3s ist ein Zertifikatsmanagementprogramm mit einem flexiblen Registrar-Anteil mit einem BPMN-Prozessor zur Automatisierung.</de>
+    </tutorial.1>
 
-    <csr.submit.4><en>if you have certificate signing request available, select this option.</en></csr.submit.4>
+    <tutorial.1.0>
+        <en>Therefore providing ACME and SCEP interfaces in addition to the usual web form.</en>
+        <de>Als Schnittstellen werden ACME, SCEP und ein Webformular unterstützt.</de>
+    </tutorial.1.0>
 
-    <csr.submit.5><en>This text field is the where you can drop or paste your certificate signing request. We will return here, later.</en></csr.submit.5>
+    <tutorial.1.1>
+        <en>Aggregating certificate sets from different sources and using CMP-connected CAs or ADCS instances for certificate creation.</en>
+        <de>Es werden Zertifikatsbestände aus verschiedenen Quellen zusammengeführt und es können Zertifikate mittels der CMP-Schnittstelle einer CA oder einer ADCS Instanz erstellt werden.</de>
+    </tutorial.1.1>
+    <tutorial.2>
+        <en>let's have a look at ca3s from the user's view</en>
+        <de>Schauen wir uns nun die Nutzer-Webseite an.</de>
+    </tutorial.2>
 
-    <csr.submit.6><en>The easiest option is to avoid the certificate signing request creation and just let the server do the handle the request and the private key. But keep in mind this option has security drawbacks.</en></csr.submit.6>
+    <tutorial.3>
+        <en>Now let's go back to request a certificate having a CSR.</en>
+        <de>Nun gehen wir zurück zur Zertifikatsbeantragung, diesmal aber mit einem CSR.</de>
+    </tutorial.3>
 
-    <csr.submit.7><en>Select a key length. For a test a 2048 bit key length will do.</en></csr.submit.7>
+    <tutorial.9>
+        <en>Now you know how to use ca3s !</en>
+        <de>Nun wissen Sie, woe man ca3s nutzt!</de>
+    </tutorial.9>
 
-    <csr.submit.8><en>Provide the details of the certificate's subject.</en></csr.submit.8>
-    <csr.submit.8.1><en>if required, provide one or more subject alternative names.</en></csr.submit.8.1>
+    <csr.submit.1>
+        <en>Navigate your browser to the start page of the application.</en>
+        <de>Laden Sie in Ihrem Browser die Startseite der Anwendung.</de>
+    </csr.submit.1>
 
-    <csr.submit.9><en>provide a secret passphrase that will protect the private key in the certificate container.</en></csr.submit.9>
-    <csr.submit.10><en>Some restrictions apply to the length and character set of the passphrase. If these requirements are not met, a hint is shown.</en></csr.submit.10>
+    <csr.submit.2><en>Depending on your configuration you may be logged on, automatically.</en>
+        <de>Abhängig von Ihrer Umgebung sind Sie bereits automatisch eingeloggt.</de>
+    </csr.submit.2>
 
-    <csr.submit.11><en>This passphrase matches the requirements. Store it in a save place.  It cannot be retrieved! It unlocks the certificate container which will be created later on in this process.</en></csr.submit.11>
-    <csr.submit.12><en>repeat the secret passphrase. A mismatch between the values will be reported</en></csr.submit.12>
+    <csr.submit.3><en>Select a certificate processing pipeline matching your requirements.</en>
+        <de>Wählen Sie eine Pipeline aus, die zu Ihren Zertifikatsanforderungen passt.</de>
+    </csr.submit.3>
 
-    <csr.submit.13><en>Once certificate details are provided and the passphrase was entered the request button will be enabled.</en></csr.submit.13>
+    <csr.submit.3.1><en>Choose the key mode.</en>
+        <de>Selektieren Sie nun den für Sie passenden Erzeugungsmodus.</de>
+    </csr.submit.3.1>
 
-    <csr.submit.14><en>submit the certificate by clicking the request button.</en></csr.submit.14>
+    <csr.submit.4><en>If you have certificate signing request available, select this option.</en>
+        <de>Haben Sie bereits einen CSR, dann wählen Sie diese Option.</de>
+    </csr.submit.4>
 
-    <csr.submit.15><en>depending on the configuration a certificate request may need an explicit approval by an registration officer.</en></csr.submit.15>
-    <csr.submit.16><en>For demonstration reasons we take the alternative path of immediate issuance.</en></csr.submit.16>
-    <csr.submit.17><en>This is the certificate page providing some details about the certificate.</en></csr.submit.17>
+    <csr.submit.5><en>This text field is the where you can drop or paste your certificate signing request. We will return here, later.</en>
+        <de>In dieses Textfeld können Sie einen CSR-Inhalt einfügen oder eine CSR-Datei hineinziehen. Wir kommen später hierher zurück.</de>
+    </csr.submit.5>
 
-    <csr.submit.18><en>Several other certificate aspects may be reviewed.</en></csr.submit.18>
+    <csr.submit.6><en>The easiest option is to avoid the certificate signing request creation and just let the server do the handle the request and the private key. But keep in mind this option has security drawbacks.</en>
+        <de>Die einfachste Option ist es, die Schlüsselerzeugung vom Server erledigen zu lassen. Aber beachten Sie bitte, dass diese Variante ein geringeres Sicherheitsniveau bietet.</de>
+    </csr.submit.6>
 
-    <csr.submit.19><en>Depending on the key creation mode the may be the option to download a protected container containing certificates and private key.</en></csr.submit.19>
-    <csr.submit.20><en>In the previous form we selected server side key creation.</en></csr.submit.20>
+    <csr.submit.7><en>Select a key length. For a test a 2048 bit key length will do.</en>
+        <de>Wählen Sie ine Schlüssellänge. Für einen ersten Test sind 2048 Bit RSA ausreichend.</de>
+    </csr.submit.7>
 
-    <csr.submit.21><en>The PEM format is a well recognized format in the unix world. It's the default format for the openssl tool.</en></csr.submit.21>
-    <csr.submit.21.1><en>A click on the link starts the download.</en></csr.submit.21.1>
-    <csr.submit.22><en>The PEM format including issuing certificates is useful for example for the apache webserver</en></csr.submit.22>
-    <csr.submit.23><en>The PEM format including the complete certificate chain is another option.</en></csr.submit.23>
-    <csr.submit.24><en>That's all about certificate download. Another important topic of the certificate usage is revocation.</en></csr.submit.24>
-    <csr.submit.25><en>Even if there is just a minor doubt about a possible compromise of your private it is good security practise to revoke the certificate.</en></csr.submit.25>
-    <csr.submit.26><en>The owner of the certificate can always revoke a certificate by selecting a reason.</en></csr.submit.26>
-    <csr.submit.27><en>Let's assume the key was disclosed somehow. So select 'key compromise'</en></csr.submit.27>
+    <csr.submit.8><en>Provide the details of the certificate's subject.</en>
+        <de>Geben Sie die Einzelheiten des Zertifikats ein.</de>
+    </csr.submit.8>
 
-    <csr.submit.28><en>and click the 'revoke' button.</en></csr.submit.28>
-    <csr.submit.28.1><en>a revocation of a certificate cannot be undone. Therefore an additional approval is required.</en></csr.submit.28.1>
-    <csr.submit.29><en>search a certificate by its common name.</en></csr.submit.29>
+    <csr.submit.8.1><en>If required, provide one or more subject alternative names.</en>
+        <de>Sofern benötigt, geben Sie auch noch weitere Namen an.</de>
+    </csr.submit.8.1>
 
-    <csr.submit.30><en>enter the common name we provided in the creation form.</en></csr.submit.30>
+    <csr.submit.9><en>Provide a secret passphrase that will protect the private key in the certificate container.</en>
+        <de>Geben Sie ein geheimes Passwort an, welches zum Schutz des privaten Schlüssels dient.</de>
+    </csr.submit.9>
+    <csr.submit.10><en>Some restrictions apply to the length and character set of the passphrase. If these requirements are not met, a hint is shown.</en>
+        <de>Es existieren Anforderungen an die Länge und die Bestandteile des Passworts. Sind die Anforderungen nicht erfüllt, wird ein Hinweis angezeigt.</de>
+    </csr.submit.10>
 
-    <csr.submit.31><en>the list of matching certificates is pretty short. It's easy to identify or freshly created certificate.</en></csr.submit.31>
+    <csr.submit.11><en>This passphrase matches the requirements. Store it in a save place. It cannot be retrieved! It unlocks the certificate container which will be created later on in this process.</en>
+        <de>Das Passwort erfüllt nun alle Anforderungen. Speichern Sie es an einem sicheren Ort. Es kann nicht wiederhergestellt werden! Es entsperrt den Schlüssel-Container, der im späteren Ablauf erzeugt wird.</de>
+    </csr.submit.11>
 
-    <csr.submit.32><en>to provide some additional information there is a comment field.</en></csr.submit.32>
+    <csr.submit.12><en>Repeat the secret passphrase. A mismatch between the values will be reported.</en>
+        <de>Wiederholen Sie das Passwort. Bei einer Differenz zwischen den Werten erscheint eine entsprechende Warnung.</de>
+    </csr.submit.12>
 
-    <csr.submit.33><en>search a certificate by its serial number.</en></csr.submit.33>
-    <csr.submit.34><en>select the 'number' representation.</en></csr.submit.34>
+    <csr.submit.12.0><en>Matching passphrases solve the messages.</en>
+        <de>Korrektes Wiederholen des Passworts löscht die Warnung.</de>
+    </csr.submit.12.0>
 
-    <csr.submit.35><en>Beginning from the start page of the application, you must make sure that you are logged in to your account.</en></csr.submit.35>
-    <csr.submit.36><en>Depending on your configuration you may be logged on, automatically.</en></csr.submit.36>
-    <csr.submit.37><en>From the drop down menu, select a certificate processing pipeline matching your requirements. In this case we will use Direct Issuance.</en></csr.submit.37>
+    <csr.submit.12.1><en>The issuer may require the agreement to some terms of service. Read the linked document.</en>
+        <de>Es kann notwendig sein, für die Zertifikatsanforderung den angegebenen Nutzungsbedingungen zuzustimmen. Prüfen Sie dazu das verlinkte Dokument.</de>
+    </csr.submit.12.1>
 
-    <csr.submit.38><en>Select the CSR File you want to use in the process.</en></csr.submit.38>
+    <csr.submit.12.2><en>Check this checkbox to confirm your consent to the given terms of service.</en>
+        <de>Wählen Sie diese Checkbox aus, um den Nutzungsbedingungen zuzustimmen.</de>
+    </csr.submit.12.2>
 
-    <csr.submit.39><en>Beginning from the start page of the application, you must make sure that you are logged in to your account.</en></csr.submit.39>
-    <csr.submit.40><en>Depending on your configuration you may be logged on, automatically.</en></csr.submit.40>
-    <csr.submit.41><en>From the drop down menu, select a certificate processing pipeline matching your requirements. In this case we will use Direct Issuance.</en></csr.submit.41>
+    <csr.submit.13><en>Once certificate details are provided and the passphrase was entered the request button will be enabled.</en>
+        <de>Sobald alle notwendigen Zertifikatsdetails and sonstige Informationen angegeben sind, wird der Beantragungs-Button aktiviert.</de>
+    </csr.submit.13>
 
-    <csr.submit.42><en>Beginning from the start page of the application, you must make sure that you are logged in to your account.</en></csr.submit.42>
-    <csr.submit.43><en>Depending on your configuration you may be logged on, automatically.</en></csr.submit.43>
+    <csr.submit.14><en>submit the certificate by clicking the request button.</en>
+        <de>Starten Sie den Erstellungsprozess durch Drücken des Beantragungs-Buttons.</de>
+    </csr.submit.14>
 
-    <csr.submit.44><en>From the drop down menu, select a certificate processing pipeline matching your requirements. In this case we will use Direct Issuance.</en></csr.submit.44>
-    <csr.submit.45><en>Depending on your needs, you can use a string or a CSR file in the following process. First, we will use the string method.</en></csr.submit.45>
+    <csr.submit.15><en>depending on the configuration a certificate request may need an explicit approval by an registration officer.</en>
+        <de>Abhängig von der Vorgaben der CA kann ein expliziter Freigabeschritt durch einen Registrar erforderlich sein.</de>
+    </csr.submit.15>
 
-    <csr.submit.46><en>As you can see, entering the string shows you some information and let's you request a certificate.</en></csr.submit.46>
+    <csr.submit.16><en>For demonstration reasons we take the alternative path of immediate issuance.</en>
+        <de>In diesem Fall jedoch wurde das Zertifikat sofort ausgestellt.</de>
+    </csr.submit.16>z
 
-    <csr.submit.47><en>Alternatively, one can use a CSR file.</en></csr.submit.47>
+    <csr.submit.17><en>This is the certificate page providing some details about the certificate.</en>
+        <de>Nun befinden wir uns auf der Zertifikats-Info-Seite.</de>
+    </csr.submit.17>
 
-    <csr.submit.48><en>After selecting the CSR file you want to use</en></csr.submit.48>+
+    <csr.submit.17.1><en>This a link enables navigation to the issuing certificate.</en>
+        <de>Dieser Link ermöglicht die Navigation zum ausstellenden Zertifikat.</de>
+    </csr.submit.17.1>
+
+    <csr.submit.18><en>Several other certificate aspects may be reviewed.</en>
+        <de>Viele verschiedene Zertifikatsaspekte können hier überprüft werden.</de>
+    </csr.submit.18>
+
+    <csr.submit.19><en>Depending on the key creation mode the may be the option to download a protected container containing certificates and private key.</en>
+        <de>Abhängig von der Art der Schlüssel-Erzeugung gibt es die Möglichkeit zum Download eines Schlüssel-Containers, der sowohl Zertifikate als auch den privaten Schlüssel enthält.</de>
+    </csr.submit.19>
+
+    <csr.submit.20><en>In the previous form we selected server side key creation.</en>
+        <de>Auf der Anforderungsseite hatten wir die serverseitige Schlüsselerzeugung ausgewählt.</de>
+    </csr.submit.20>
+
+    <csr.submit.20.1><en>Provide an alias of the key entry in the container.</en>
+        <de>Geben Sie einen Alias für den Schlüssel im Container an.</de>
+    </csr.submit.20.1>
+
+    <csr.submit.20.2><en>Choose a certificate download format.</en>
+        <de>Wählen Sie ein Format für den Zertifikatsdownload aus.</de>
+    </csr.submit.20.2>
+
+    <csr.submit.21><en>The PEM format is a well recognized format in the unix world. It's the default format for the openssl tool.</en>
+        <de>Das PEM Format wird gern in der Unix-Welt genutzt. Es ist das Standardformat des openssl Werkzeugs.</de>
+    </csr.submit.21>
+
+    <csr.submit.21.1><en>A click on the link starts the download.</en>
+        <de>Ein Click auf diesen link startet den Download.</de>
+    </csr.submit.21.1>
+
+    <csr.submit.22><en>The PEM format including issuing certificates is useful for example for the apache webserver</en>
+        <de>Das PEM Format inklusive der ausstellenden Zertifikate ist zum Beispiel nützlich beim Apache Webserver</de>
+    </csr.submit.22>
+
+    <csr.submit.23><en>The PEM format including the complete certificate chain is another option.</en>
+        <de>Das PEM Format mit der gesamten Zertifikatskette ist eine andere Option.</de>
+    </csr.submit.23>
+
+    <csr.submit.24><en>That's all about certificate download. Another important topic of the certificate usage is revocation.</en>
+        <de>Soviel zum Zertifikatsdownload. Ein anderer wichtiger Anwendungsfall ist der Rückruf eines Zertifikats.</de>
+    </csr.submit.24>
+
+    <csr.submit.25><en>Even if there is just a minor doubt about a possible compromise of your private it is good security practise to revoke the certificate immediately.</en>
+        <de>Auch beim geringsten Verdacht auf eine Kompromittierung des privaten Schlüssels ist es gute Sicherheitspraxis, das Zertifikat sofort zurückzurufen.</de>
+    </csr.submit.25>
+
+    <csr.submit.26><en>The owner of the certificate can always revoke a certificate by selecting a reason.</en>
+        <de>Der Eigentümer eines Zertifikats kann es jederzeit zurückrufen. Dazu sollte ein Rückrufgrund ausgewählt werden.</de>
+    </csr.submit.26>
+
+    <csr.submit.27><en>Let's assume the key was disclosed somehow. So select 'key compromise'</en>
+        <de>Nehmen wir an, der private Schlüssel könnte in falsche Hände geraten sein. Wählen wir also 'key compromise' aus.</de>
+    </csr.submit.27>
+
+    <csr.submit.28><en>and click the 'revoke' button.</en>
+        <de>Und nun Klicken wir den 'Rückruf' Button.</de>
+    </csr.submit.28>
+
+    <csr.submit.28.1><en>a revocation of a certificate cannot be undone. Therefore, an additional approval is required.</en>
+        <de>Ein Rückruf kann nicht rückgängig gemacht werden. Deshalb ist eine ausdrückliche Bestätigung nötig.</de>
+    </csr.submit.28.1>
+
+    <csr.submit.28.2><en>To find certificates, select the certificate menue.</en>
+        <de>Um Zertifikate aufzufinden, nutzen Sie die Zertifikatsauswahl.</de>
+    </csr.submit.28.2>
+
+    <csr.submit.29><en>search a certificate by its common name.</en>
+        <de>Zertifikatssuche mittels des Subjekts.</de>
+    </csr.submit.29>
+
+    <csr.submit.30><en>enter the common name we provided in the creation form.</en>
+        <de>Geben Sie den Common Name ein, der in der Anforderungsseite angegeben wurde.</de>
+    </csr.submit.30>
+
+    <csr.submit.31><en>the list of matching certificates is pretty short. It's easy to identify or freshly created certificate.</en>
+        <de>Die Liste der bisher erzeugten Zertifikate ist kurz. Es ist einfach, das erzeugte Zertifikat zu identifizieren.</de>
+    </csr.submit.31>
+
+    <csr.submit.31.1><en>The certificate is revoked as expected.</en>
+        <de>Das Zertifikat ist wie erwartet zurückgerufen worden.</de>
+    </csr.submit.31.1>
+
+    <csr.submit.31.2><en>The application tracks all relevant actions related to the certificate.</en>
+        <de>Die Anwendung verfolgt alle relevanten, zertifikatsbezogene Änderungen.</de>
+    </csr.submit.31.2>
+
+    <csr.submit.31.3><en>The revocation is logged, too.</en>
+        <de>Der Rückruf ist natürlich auch vermerkt.</de>
+    </csr.submit.31.3>
+
+    <csr.submit.32><en>to provide some additional information there is a comment field.</en>
+        <de>Für Zusatzinformation gibt es noch ein Kommentarfeld.</de>
+    </csr.submit.32>
+
+    <csr.submit.32.1><en>Clicking the 'edit' button persists the new comment.</en>
+        <de>Durch Klicken auf den Speichern-Button wird der Kommentar gespeichert.</de>
+    </csr.submit.32.1>
+
+    <csr.submit.32.2><en>Select the certificate menu to retrieve the certificate list.</en>
+        <de>Kehren wir nun zur Zertifikatsliste zurück.</de>
+    </csr.submit.32.2>
+
+    <csr.submit.33><en>search a certificate by its serial number.</en>
+        <de>Zertifikatssuche mittels der Seriennummer.</de>
+    </csr.submit.33>
+
+    <csr.submit.34><en>select the 'number' representation.</en>
+        <de>Wählen Sie eine Zahlendarstellung aus.</de>
+    </csr.submit.34>
+
+    <csr.submit.35><en>Beginning from the start page of the application, you must make sure that you are logged in to your account.</en>
+        <de>Stellen Sie sicher, dass Sie mit Ihrem Account angemeldet sind.</de>
+    </csr.submit.35>
+
+    <csr.submit.37><en>From the drop down menu, select a certificate processing pipeline matching your requirements. In this case we will use 'TLS Server direct issuance'.</en>
+        <de>Wählen Sie aus der Auswahlliste eine Pipeline aus. Wir wählen 'TLS Server direct issuance' aus.</de>
+    </csr.submit.37>
+
+    <csr.submit.38><en>Select the CSR File you want to use in the process.</en>
+        <de>Wählen Sie eine CSR-Datei aus, die Sie verarbeiten möchten.</de></csr.submit.38>
+
+    <csr.submit.45><en>Depending on your needs, you can use a string or a CSR file in the following process. First, we will use the string method.</en>
+        <de>Abhängig von der erzeugenden Anwendung können Sie den CSR als Text oder als Datei verarbeiten. Zunächst nutzen wir die Text-Variante.</de></csr.submit.45>
+
+    <csr.submit.46><en>As you can see, entering the string shows you some information and let's you request a certificate.</en>
+        <de>Sobald der CSR-Inhalt in das Eingabefeld eingefügt ist, werden einige Details der zur Anforderung angezeigt.</de>
+    </csr.submit.46>
+
+    <csr.submit.47><en>Alternatively, one can use a CSR file.</en>
+        <de>Alternativ kann eine CSR Datei ausgewählt werden.</de>
+    </csr.submit.47>
+
+    <csr.submit.48><en>After selecting the CSR file you may request a certificate</en>
+        <de>Nach der Auswahl einer Datei kann die Zertifikatsanforderung gestartet werden.</de>
+    </csr.submit.48>
+
+    <csr.submit.login.1><en>As this is not the case here, select 'Account' and then 'Sign In'.</en>
+        <de>Sie sind nicht angemeldet, wählen Sie deshalb 'Zugang' und 'Anmelden'.</de>
+    </csr.submit.login.1>
+
+    <csr.submit.login.2><en>Once you have entered your credentials into the respective fields, you can proceed.</en>
+        <de>Nach Eingabe der Zugangsdaten sind Sie angemeldet und Sie können fortfahren.</de>
+    </csr.submit.login.2>
+
+    <csr.submit.login.3><en>Not in this case, select 'Account' and then 'Sign In'.</en>
+        <de>Sie sind aktuell nicht angemeldet, wählen Sie deshalb 'Zugang' und 'Anmelden'.</de>
+    </csr.submit.login.3>
+
+    <csr.submit.login.4><en>and login in as a simple user.</en>
+        <de>und melden Sie sich als Nutzer an.</de>
+    </csr.submit.login.4>
+
+    <csr.submit.navigate.1><en>Press Request certificate on the top right menu</en>
+        <de>Wählen Sie 'Zertifikat anfordern' aus der Menüleiste.</de>
+    </csr.submit.navigate.1>
+
+    <csr.submit.49><en>Now you can press the Request Certificate button.</en>
+        <de>Nun wählen Sie den 'Zertifikat beantragen' Button.</de>
+    </csr.submit.49>
+
+    <csr.submit.50><en>By pressing this button, you can download your certificate as a pem file.</en>
+        <de>Mit diesem Link können Sie den Download des Zertifikats im PEM-Format starten.</de>
+    </csr.submit.50>
+
+    <csr.submit.60><en>We paste the content of a CSR into the text area.</en>
+        <de>Wir fügen nun den Text eines CSR in das Textfeld ein.</de>
+    </csr.submit.60>
+
+    <csr.submit.61><en>The CSR get's analyzed and details of the request are displayed.</en>
+        <de>Der CSR wird analysiert und Details werden angezeigt.</de>
+    </csr.submit.61>
+
+    <csr.submit.62><en>Again, we agree to the terms of service.</en>
+        <de>Wir stimmen wieder den Nutzungsbedingungen zu.</de>
+    </csr.submit.62>
+
+
 </explanation>

@@ -55,6 +55,7 @@
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.pollingOffset')">Polling Offset</span></th>
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.defaultCA')">Default CA</span></th>
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.active')">Status</span></th>
+                    <th><span v-text="$t('ca3SApp.cAConnectorConfig.expiresOn')">Expires On</span></th>
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.selector')">Selector</span></th>
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.interval')">Interval</span></th>
                     <th></th>
@@ -75,6 +76,7 @@
                     <td v-else></td>
 
                     <td>{{$t(getStatus(cAConnectorConfig.id))}}</td>
+                    <td :style="getValidToStyle(cAConnectorConfig.expiryDate)">{{ toLocalDate(cAConnectorConfig.expiryDate)}}</td>
 
                     <td v-if="cAConnectorConfig.caConnectorType === 'ADCS' || cAConnectorConfig.caConnectorType === 'CMP'">{{cAConnectorConfig.selector}}</td>
                     <td v-else></td>

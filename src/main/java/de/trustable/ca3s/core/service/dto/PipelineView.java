@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.service.dto;
 
 import java.io.Serializable;
+import java.time.Instant;
 
 import de.trustable.ca3s.core.domain.Tenant;
 import de.trustable.ca3s.core.domain.enumeration.CsrUsage;
@@ -30,6 +31,7 @@ public class PipelineView implements Serializable {
 
     private Boolean active;
 
+    private Instant expiryDate;
     private String caConnectorName;
 
     private String processInfoNameCreate;
@@ -431,4 +433,11 @@ public class PipelineView implements Serializable {
         this.selectedTenantList = selectedTenantList;
     }
 
+    public Instant getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(Instant expiryDate) {
+        this.expiryDate = expiryDate;
+    }
 }

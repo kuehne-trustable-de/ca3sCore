@@ -256,7 +256,7 @@ public class AcmeChallengeIT {
             order.execute(csr);
             Assertions.fail("AcmeServerException  expected");
         }catch( AcmeServerException acmeServerException){
-            Assertions.assertEquals("Public key of CSR already in use ", acmeServerException.getMessage());
+            Assertions.assertEquals("Public key of CSR already in use by account", acmeServerException.getMessage());
         }
 
         account.deactivate();

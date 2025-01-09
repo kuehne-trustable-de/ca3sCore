@@ -2,13 +2,7 @@ import Component from 'vue-class-component';
 import { Vue } from 'vue-property-decorator';
 import { mixins } from 'vue-class-component';
 
-import {
-  ICertificateFilter,
-  ICertificateFilterList,
-  ISelector,
-  ICertificateSelectionData,
-  IUserDTO,
-} from '@/shared/model/transfer-object.model';
+import { ICertificateFilter, ICertificateFilterList, ISelector, ICertificateSelectionData } from '@/shared/model/transfer-object.model';
 
 import { colFieldToStr, makeQueryStringFromObj } from '@/shared/utils';
 
@@ -356,18 +350,22 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     if (self.lastFilters === lastFiltersValue) {
       //      window.console.debug('putUsersFilterList: no change ...');
     } else {
-      window.console.debug('putUsersFilterList: change detected ...');
-      axios({
-        method: 'put',
-        url: 'api/userProperties/filterList/UserList',
-        data: self.filters,
-        responseType: 'stream',
-      }).then(function (response) {
-        //        window.console.debug('putUsersFilterList returns ' + response.status);
-        if (response.status === 204) {
-          self.lastFilters = lastFiltersValue;
-        }
-      });
+      if (self.$store.getters.authenticated) {
+        window.console.debug('putUsersFilterList: change detected ...');
+        axios({
+          method: 'put',
+          url: 'api/userProperties/filterList/UserList',
+          data: self.filters,
+          responseType: 'stream',
+        }).then(function (response) {
+          //        window.console.debug('putUsersFilterList returns ' + response.status);
+          if (response.status === 204) {
+            self.lastFilters = lastFiltersValue;
+          }
+        });
+      } else {
+        window.console.debug('putUsersFilterList skipped, not autehticated anymore');
+      }
     }
   }
   /*

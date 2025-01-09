@@ -1,8 +1,11 @@
 package de.trustable.ca3s.core.test.obs;
 
+import com.google.gson.JsonObject;
 import io.obswebsocket.community.client.OBSRemoteController;
+import io.obswebsocket.community.client.message.request.inputs.CreateInputRequest;
 import io.obswebsocket.community.client.message.request.record.StartRecordRequest;
 import io.obswebsocket.community.client.message.request.record.StopRecordRequest;
+import io.obswebsocket.community.client.message.response.inputs.*;
 import io.obswebsocket.community.client.message.response.record.StartRecordResponse;
 import io.obswebsocket.community.client.message.response.record.StopRecordResponse;
 import io.obswebsocket.community.client.message.response.scenes.GetSceneListResponse;
@@ -15,6 +18,9 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 public class OBSClient {
+
+    public static final String SPOKEN_TEXT_INPUT = "spokenTextInput";
+    public static final String TEXT_INPUT_KIND = "text_gdiplus_v3";
 
     Logger LOG = LoggerFactory.getLogger(OBSClient.class);
 
@@ -42,29 +48,26 @@ public class OBSClient {
     }
 
     public OBSClient(String host, int port, String password) throws IOException {
+
         this.host = host;
         this.port = port;
         this.password = password;
 
+        OBSRemoteController testController = connectToRemoteOBS();
 
-        OBSRemoteController testController = OBSRemoteController.builder()
-            .host(host)
-            .port(port)
-            .password(password)
-            .connectionTimeout(30)
-            .build();
-
-        testController.connect();
         GetSceneListResponse getSceneListResponse = testController.getSceneList(1000);
-        LOG.info( "getSceneListResponse: " + getSceneListResponse);
+        if(getSceneListResponse != null) {
+            LOG.info("getSceneListResponse: {}", getSceneListResponse);
+        }
+
+        testController.disconnect();
 
         if( getSceneListResponse != null) {
-            testController.disconnect();
+            LOG.info("OBS instance available");
         }else{
             File obsFile = new File("C:\\Program Files\\obs-studio\\bin\\64bit\\obs64.exe");
 
             if (!obsFile.exists()) {
-
                 System.err.println("OBS not present at path '" + obsFile.getPath() + "', download it from https://obsproject.com/de/download and install it");
                 System.err.println("Configure OBS:\nSet sources to 'audio output' and 'screen recording'");
                 System.err.println("Lower the mixer level of 'audio output' and 'desktop audio' to -15 dB to avoid distortions");
@@ -85,23 +88,100 @@ public class OBSClient {
                 .start();
 
             LOG.info("obs process: " + process.info());
+
+            getController().getInputKindList(true, 2000L);
         }
 
+/*
+        GetInputKindListResponse getInputKindListResponse = getController().getInputKindList(true, 10000L);
+        LOG.info( "getInputKindListResponse: {} ", getInputKindListResponse);
+
+        GetInputListResponse inputListResponse = getController().getInputList(supportedKind, 1000);
+
+        GetInputSettingsResponse inputSettingsResponse = getController().getInputSettings(SPOKEN_TEXT_INPUT,1000);
+
+        if( inputSettingsResponse.getMessageData().getRequestStatus().getResult()){
+            LOG.debug( "Text input already present.");
+        }else {
+            controller = null;
+
+            CreateInputRequest createInputRequest = CreateInputRequest.builder()
+                .inputName(SPOKEN_TEXT_INPUT)
+                .inputKind(TEXT_INPUT_KIND)
+                .sceneName(sceneName)
+                .inputSettings(buildTextSettings("dummy Text"))
+                .sceneItemEnabled(true)
+                .build();
+
+            Consumer<CreateInputResponse> callback = new Consumer<>() {
+                @Override
+                public void accept(CreateInputResponse createInputResponse) {
+                    LOG.info("createInputResponse.isSuccessful() : {}", createInputResponse.isSuccessful());
+                    if (!createInputResponse.isSuccessful()) {
+                        LOG.info("create text input failed : {}", createInputResponse.getMessageData().getRequestStatus());
+                    }
+                }
+            };
+            getController().sendRequest(createInputRequest, callback);
+        }
+
+ */
+    }
+
+    public void setSpokenText(String textContent) {
+        SetInputSettingsResponse setInputSettingsResponse = getController().setInputSettings(
+            SPOKEN_TEXT_INPUT,
+            buildTextSettings(textContent ),
+            false,
+            1000);
+        LOG.info("setInputSettingsResponse.isSuccessful() : {}", setInputSettingsResponse.isSuccessful());
+    }
+
+    JsonObject buildTextSettings(final String textValue){
+        /*
+
+        {"align":"center","font":{"face":"Arial","flags":0,"size":14,"style":"Standard"},"text":"Test Text","valign":"bottom"}
+
+         */
+        JsonObject inputSettings = new JsonObject();
+        inputSettings.addProperty("text", textValue);
+        inputSettings.addProperty("align", "center");
+        inputSettings.addProperty("valign", "bottom");
+        inputSettings.addProperty("outline", "true");
+        inputSettings.addProperty("color", "4278190080");
+        inputSettings.addProperty("bk_color", "4294967295");
+        inputSettings.addProperty("extents", "true");
+        inputSettings.addProperty("extents_cx", 700);
+        inputSettings.addProperty("extents_cy", 50);
+
+        JsonObject fontElement = new JsonObject();
+        fontElement.addProperty("face", "Calibri");
+        fontElement.addProperty("flags",0);
+        fontElement.addProperty("size",16);
+        fontElement.addProperty("style","Regular");
+        inputSettings.add("font", fontElement);
+        return inputSettings;
     }
 
     private synchronized OBSRemoteController getController(){
 
         if( controller == null){
-            controller = OBSRemoteController.builder()
-                .host(host)
-                .port(port)
-                .password(password)
-                .connectionTimeout(30)
-                .build();
-
-            controller.connect();
+            controller = connectToRemoteOBS();
         }
         return controller;
+    }
+
+    private OBSRemoteController connectToRemoteOBS() {
+
+        OBSRemoteController con = OBSRemoteController.builder()
+            .host(host)
+            .port(port)
+            .password(password)
+            .connectionTimeout(30)
+            .build();
+
+        con.connect();
+        return con;
     }
 
     public void await() throws InterruptedException {

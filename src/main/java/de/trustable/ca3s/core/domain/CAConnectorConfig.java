@@ -347,6 +347,34 @@ public class CAConnectorConfig implements Serializable {
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
+
+    public Instant getExpiryDate() {
+        Instant expiryDate = Instant.MAX;
+
+        Certificate tlsAuth = getTlsAuthentication();
+        if (tlsAuth != null) {
+            if (!tlsAuth.isActive()) {
+                expiryDate = Instant.now();
+            } else {
+                if (expiryDate.isAfter(tlsAuth.getValidTo())) {
+                    expiryDate = tlsAuth.getValidTo();
+                }
+            }
+        }
+        Certificate msgProt = getMessageProtection();
+        if (msgProt != null) {
+            if (!msgProt.isActive()) {
+                expiryDate = Instant.now();
+            } else {
+                if (expiryDate.isAfter(msgProt.getValidTo())) {
+                    expiryDate = msgProt.getValidTo();
+                }
+            }
+        }
+        return expiryDate;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

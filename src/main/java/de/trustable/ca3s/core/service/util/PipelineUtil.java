@@ -221,6 +221,8 @@ public class PipelineUtil {
         pv.setName(pipeline.getName());
         pv.setType(pipeline.getType());
         pv.setActive(pipeline.isActive());
+        pv.setExpiryDate(pipeline.getExpiryDate(certUtil));
+
         pv.setDescription(pipeline.getDescription());
         pv.setApprovalRequired(pipeline.isApprovalRequired());
         pv.setUrlPart(pipeline.getUrlPart());
