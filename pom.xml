@@ -118,7 +118,7 @@
         <validation-api.version>2.0.1.Final</validation-api.version>
         <jaxb-runtime.version>2.3.9</jaxb-runtime.version>
 
-        <spring.version>5.3.37</spring.version>
+        <spring.version>6.0.0</spring.version>
         <spring.security.version>5.7.14</spring.security.version>
 
         <saml2-core.spring.version>1.0.10.RELEASE</saml2-core.spring.version>
