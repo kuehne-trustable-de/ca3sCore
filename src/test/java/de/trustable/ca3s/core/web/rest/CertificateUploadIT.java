@@ -3,7 +3,6 @@ package de.trustable.ca3s.core.web.rest;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
-import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
@@ -17,6 +16,7 @@ import de.trustable.ca3s.core.service.dto.TypedValue;
 import de.trustable.ca3s.core.service.util.*;
 import de.trustable.ca3s.core.web.rest.data.PkcsXXData;
 import de.trustable.ca3s.core.web.rest.data.UploadPrecheckData;
+import de.trustable.ca3s.core.web.rest.data.X509CertificateHolderShallow;
 import de.trustable.ca3s.core.web.rest.support.ContentUploadProcessor;
 import de.trustable.util.CryptoUtil;
 import org.junit.jupiter.api.Assertions;
@@ -32,12 +32,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Integration tests for the {@link CertificateResource} REST controller.
@@ -82,10 +80,6 @@ public class CertificateUploadIT {
     @Autowired
     PreferenceTestConfiguration prefTC;
 
-    private MockMvc restCertificateMockMvc;
-
-    private Certificate certificate;
-
     Pipeline webDirectPipeline;
 
     ContentUploadProcessor target;
@@ -121,7 +115,7 @@ public class CertificateUploadIT {
 
     @Test
     @Transactional
-    public void requestServersideCertificate() throws InterruptedException {
+    public void requestServersideCertificate() {
 
         Authentication authentication = createAuthentication();
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -136,6 +130,8 @@ public class CertificateUploadIT {
         uploaded.setSecret("Abcef12");
         uploaded.setPipelineId( webDirectPipeline.getId());
         uploaded.setKeyAlgoLength("RSA-4096");
+
+        uploaded.setTosAgreed(true);
 
         NamedValues nvs = new NamedValues();
         nvs.setName("CN");
@@ -157,18 +153,10 @@ public class CertificateUploadIT {
         Assertions.assertNotNull( response.getBody().getCertsHolder());
         Assertions.assertTrue( response.getBody().getCertsHolder().length > 0);
 
+        X509CertificateHolderShallow x509CertificateHolderShallow = response.getBody().getCertsHolder()[0];
 
-        try {
-            TimeUnit.SECONDS.sleep(10);
-        } catch (InterruptedException ie) {
-            Thread.currentThread().interrupt();
-        }
-/*
-        // Validate the database contains one less item
-        List<Certificate> certificateList = certificateRepository.findAll();
-        assertThat(certificateList).hasSize(databaseSizeBeforeDelete - 1);
+        Assertions.assertEquals("V3", x509CertificateHolderShallow.getType());
 
- */
     }
 
     private Authentication createAuthentication() {
