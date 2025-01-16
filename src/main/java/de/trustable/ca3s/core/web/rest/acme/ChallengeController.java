@@ -836,7 +836,7 @@ public class ChallengeController extends AcmeController {
                         LOG.info("proxy validated dns-01 challenge id '{}' successfully", challengeDao.getId());
                         challengeDao.setStatus(ChallengeStatus.VALID);
                     }else{
-                        LOG.info("proxy failed validation of http-01 challenge id '{}'", challengeDao.getId());
+                        LOG.info("proxy failed validation of dns-01 challenge id '{}'", challengeDao.getId());
                     }
                 }else if( AcmeChallenge.CHALLENGE_TYPE_ALPN_01.equals(challengeDao.getType())){
                     String expectedContent = buildKeyAuthorizationHashBase64(challengeDao);
@@ -844,7 +844,7 @@ public class ChallengeController extends AcmeController {
                         LOG.info("proxy validated alpn-01 challenge id '{}' successfully", challengeDao.getId());
                         challengeDao.setStatus(ChallengeStatus.VALID);
                     }else{
-                        LOG.info("proxy failed validation of http-01 challenge id '{}'", challengeDao.getId());
+                        LOG.info("proxy failed validation of alpn-01 challenge id '{}'", challengeDao.getId());
                     }
 
                 }else{
