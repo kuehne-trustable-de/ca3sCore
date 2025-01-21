@@ -143,6 +143,14 @@ public class ScepServletImpl extends ScepServlet {
 
 		CSR csr = cpUtil.buildCSR(csrAsPem, requestorName, AuditService.AUDIT_SCEP_CERTIFICATE_REQUESTED, "", pipeline );
 
+        if( csr == null) {
+            String msg = "creation of certificate by SCEP transaction id '"+transId+"' failed ";
+            auditService.saveAuditTrace(auditService.createAuditTraceCsrRejected(csr, msg));
+            LOGGER.info(msg);
+            scepOrder.setStatus(ScepOrderStatus.INVALID);
+            return null;
+        }
+
 		CsrAttribute csrAttributeTransId = new CsrAttribute();
 		csrAttributeTransId.setName(CertificateAttribute.ATTRIBUTE_SCEP_TRANS_ID);
 		csrAttributeTransId.setValue(transId.toString());

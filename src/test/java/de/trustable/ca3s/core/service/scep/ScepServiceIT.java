@@ -1,17 +1,13 @@
 package de.trustable.ca3s.core.service.scep;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.cert.*;
-import java.util.Collection;
-import java.util.Iterator;
-
-import javax.security.auth.x500.X500Principal;
-
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.PipelineTestConfiguration;
+import de.trustable.ca3s.core.service.util.KeyUtil;
+import de.trustable.ca3s.core.test.util.AcceptAllCertSelector;
+import de.trustable.ca3s.core.test.util.AcceptAllVerifier;
+import de.trustable.ca3s.core.test.util.X509Certificates;
+import de.trustable.util.CryptoUtil;
+import de.trustable.util.JCAManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
@@ -23,20 +19,25 @@ import org.jscep.transaction.FailInfo;
 import org.jscep.transaction.TransactionException;
 import org.jscep.transport.response.Capabilities;
 import org.jscep.transport.response.Capability;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-
-import de.trustable.ca3s.core.Ca3SApp;
-import de.trustable.ca3s.core.PipelineTestConfiguration;
-import de.trustable.ca3s.core.test.util.AcceptAllCertSelector;
-import de.trustable.ca3s.core.test.util.AcceptAllVerifier;
-import de.trustable.ca3s.core.test.util.X509Certificates;
-import de.trustable.util.CryptoUtil;
-import de.trustable.util.JCAManager;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+
+import javax.security.auth.x500.X500Principal;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.cert.*;
+import java.util.Collection;
+import java.util.Iterator;
 
 //@Disabled("Integration test fails for unknown reason, running it as a separate client succeeds. Maybe a classloader issue? ")
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -50,12 +51,16 @@ public class ScepServiceIT {
     int serverPort; // random port chosen by spring test
 
     static KeyPair keyPair;
+    static KeyPair ephemeralKeyPair;
     static X509Certificate ephemeralCert;
     static X500Principal enrollingPrincipal;
     static char[] password = PipelineTestConfiguration.SCEP_PASSWORD.toCharArray();
 
     @Autowired
     PipelineTestConfiguration ptc;
+
+    @Autowired
+    KeyUtil keyUtil;
 
     CertificateVerifier acceptAllVerifier = new AcceptAllVerifier();
 
@@ -66,18 +71,17 @@ public class ScepServiceIT {
     @BeforeAll
     public static void setUpBeforeClass() throws Exception {
         JCAManager.getInstance();
-
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-        keyPairGenerator.initialize(4096);
-        keyPair = keyPairGenerator.generateKeyPair();
-        enrollingPrincipal = new X500Principal("CN=SCEPRequested_" + System.currentTimeMillis() + ",O=trustable solutions,C=DE");
-        ephemeralCert = X509Certificates.createEphemeral(enrollingPrincipal, keyPair);
-
     }
 
 
     @BeforeEach
-    public void setUp() throws MalformedURLException {
+    public void setUp() throws MalformedURLException, GeneralSecurityException {
+
+        keyPair = keyUtil.createKeyPair();
+        ephemeralKeyPair = keyUtil.createKeyPair();
+
+        enrollingPrincipal = new X500Principal("CN=SCEPRequested_" + System.currentTimeMillis() + ",O=trustable solutions,C=DE");
+        ephemeralCert = X509Certificates.createEphemeral(enrollingPrincipal, ephemeralKeyPair);
 
         try {
             ptc.getInternalSCEPTestPipelineLaxRestrictions();
@@ -111,7 +115,7 @@ public class ScepServiceIT {
             keyPair.getPrivate(),
             password);
 
-        EnrollmentResponse resp = client.enrol(ephemeralCert, keyPair.getPrivate(), csr);
+        EnrollmentResponse resp = client.enrol(ephemeralCert, ephemeralKeyPair.getPrivate(), csr);
         Assertions.assertNotNull(resp);
 //        LOG.info("FailInfo : " + resp.getFailInfo() );
         Assertions.assertFalse(resp.isFailure());
@@ -129,7 +133,7 @@ public class ScepServiceIT {
             Collection<? extends Certificate> collEECerts = certStore.getCertificates(eeSelector);
             X509Certificate issuedCert = (X509Certificate) collEECerts.iterator().next();
 
-            KeyPair keyPairRenew = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+            KeyPair keyPairRenew = keyUtil.createKeyPair();
             PKCS10CertificationRequest csrRenew = CryptoUtil.getCsr(enrollingPrincipal,
                 keyPairRenew.getPublic(),
                 keyPairRenew.getPrivate(),
@@ -165,7 +169,7 @@ public class ScepServiceIT {
             keyPair.getPrivate(),
             password);
 
-        EnrollmentResponse resp = client1CN.enrol(ephemeralCert, keyPair.getPrivate(), csr);
+        EnrollmentResponse resp = client1CN.enrol(ephemeralCert, ephemeralKeyPair.getPrivate(), csr);
         Assertions.assertNotNull(resp);
         Assertions.assertTrue(resp.isFailure());
 
@@ -185,7 +189,7 @@ public class ScepServiceIT {
             keyPair.getPrivate(),
             password);
 
-        EnrollmentResponse resp = client1CN.enrol(ephemeralCert, keyPair.getPrivate(), csr);
+        EnrollmentResponse resp = client1CN.enrol(ephemeralCert, ephemeralKeyPair.getPrivate(), csr);
         Assertions.assertNotNull(resp);
         Assertions.assertTrue(resp.isFailure());
 
@@ -203,7 +207,7 @@ public class ScepServiceIT {
             keyPair.getPrivate(),
             "wrong_password".toCharArray());
 
-        EnrollmentResponse resp = client.enrol(ephemeralCert, keyPair.getPrivate(), csr);
+        EnrollmentResponse resp = client.enrol(ephemeralCert, ephemeralKeyPair.getPrivate(), csr);
         Assertions.assertNotNull(resp);
         Assertions.assertTrue(resp.isFailure());
 
@@ -220,7 +224,7 @@ public class ScepServiceIT {
             keyPair.getPrivate(),
             password);
 
-        EnrollmentResponse resp = client1CN.enrol(ephemeralCert, keyPair.getPrivate(), csr);
+        EnrollmentResponse resp = client1CN.enrol(ephemeralCert, ephemeralKeyPair.getPrivate(), csr);
         Assertions.assertNotNull(resp);
         Assertions.assertTrue(resp.isFailure());
 
@@ -263,7 +267,7 @@ public class ScepServiceIT {
 
         EnrollmentResponse response = client.enrol(
             ephemeralCert,
-            keyPair.getPrivate(),
+            ephemeralKeyPair.getPrivate(),
             csr);
 
         Assertions.assertTrue(response.isSuccess());
@@ -275,8 +279,8 @@ public class ScepServiceIT {
         LOG.debug("issued Cert has serial {} and issuer {}", issued.getSerialNumber(),
             issuer.getSubjectX500Principal().getName());
 
-        Certificate retrieved = client.getCertificate(issuer,
-            keyPair.getPrivate(),
+        Certificate retrieved = client.getCertificate(ephemeralCert,
+            ephemeralKeyPair.getPrivate(),
             issued.getSerialNumber()
         ).getCertificates(null).iterator().next();
 
