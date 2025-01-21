@@ -18,13 +18,13 @@ import de.trustable.ca3s.core.domain.AcmeAccount;
 @Repository
 public interface AcmeAccountRepository extends JpaRepository<AcmeAccount, Long> {
 
-	@Query(name = "Account.findByAccountId")
+    @Query(name = "Account.findByAccountId")
     Optional<AcmeAccount> findByAccountId(@Param("accountId") long accountId);
 
-	@Query(name = "Account.findByPublicKeyHash")
-	List<AcmeAccount> findByPublicKeyHashBase64(@Param("publicKeyHashBase64") String publicKeyHashBase64);
+    @Query(name = "Account.findByPublicKeyHash")
+    List<AcmeAccount> findByPublicKeyHashBase64(@Param("publicKeyHashBase64") String publicKeyHashBase64);
 
-  @Query(name = "Account.findByCreatedOnIsNull")
-  Page<AcmeAccount> findByCreatedOnIsNull(Pageable pageable);
+    @Query(name = "Account.findByCreatedOnIsNull")
+    Page<AcmeAccount> findByCreatedOnIsNull(Pageable pageable);
 
 }

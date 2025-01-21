@@ -1,25 +1,20 @@
 package de.trustable.ca3s.core.acme;
 
-import static org.junit.Assert.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.shredzone.acme4j.Identifier.TYPE_IP;
-
-import java.io.IOException;
-import java.net.BindException;
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.URL;
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.KeyStore;
-import java.security.Security;
-import java.security.cert.X509Certificate;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Iterator;
-
+import de.trustable.ca3s.cert.bundle.TimedRenewalCertMap;
+import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
+import de.trustable.ca3s.core.domain.AcmeAccount;
+import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
+import de.trustable.ca3s.core.repository.AcmeAccountRepository;
+import de.trustable.ca3s.core.security.provider.Ca3sFallbackBundleFactory;
+import de.trustable.ca3s.core.security.provider.Ca3sKeyManagerProvider;
+import de.trustable.ca3s.core.security.provider.Ca3sKeyStoreProvider;
+import de.trustable.ca3s.core.security.provider.TimedRenewalCertMapHolder;
+import de.trustable.ca3s.core.service.util.JwtUtil;
 import de.trustable.ca3s.core.service.util.KeyUtil;
+import de.trustable.util.JCAManager;
+import org.jose4j.lang.JoseException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,15 +33,24 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 
-import de.trustable.ca3s.cert.bundle.TimedRenewalCertMap;
-import de.trustable.ca3s.core.Ca3SApp;
-import de.trustable.ca3s.core.PipelineTestConfiguration;
-import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
-import de.trustable.ca3s.core.security.provider.Ca3sFallbackBundleFactory;
-import de.trustable.ca3s.core.security.provider.Ca3sKeyManagerProvider;
-import de.trustable.ca3s.core.security.provider.Ca3sKeyStoreProvider;
-import de.trustable.ca3s.core.security.provider.TimedRenewalCertMapHolder;
-import de.trustable.util.JCAManager;
+import java.io.IOException;
+import java.net.BindException;
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.URL;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.KeyStore;
+import java.security.Security;
+import java.security.cert.X509Certificate;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Iterator;
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.shredzone.acme4j.Identifier.TYPE_IP;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("dev")
@@ -58,8 +62,14 @@ public class AcmeHappyPathIT {
 	int serverPort; // random port chosen by spring test
 
     final String ACME_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM + "/directory";
+    final String ACME_DOMAIN_REUSE_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM_DOMAIN_REUSE + "/directory";
+    final String ACME_DOMAIN_REUSE_WARN_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM_DOMAIN_REUSE_WARN + "/directory";
+    final String ACME_KEY_UNIQUE_WARN_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM_KEY_UNIQUE_WARN + "/directory";
     final String ACME_PATH_PART_OTHER_REALM = "/acme/" + PipelineTestConfiguration.ACME1CN_REALM + "/directory";
     String dirUrl;
+    String dirUrlDomainReuse;
+    String dirUrlDomainReuseWarn;
+    String dirUrlKeyUniqueWarn;
     String dirUrlOtherRealm;
 
     HttpChallengeHelper httpChallengeHelper;
@@ -70,14 +80,27 @@ public class AcmeHappyPathIT {
     @Autowired
     PreferenceTestConfiguration prefTC;
 
+    @Autowired
+    AcmeAccountRepository acctRepository;
+
+    @Autowired
+    JwtUtil jwtUtil;
+
     static KeyUtil keyUtil = new KeyUtil("RSA-4096");
 
 	@BeforeEach
 	void init() {
 		dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
+        dirUrlDomainReuse  = "http://localhost:" + serverPort + ACME_DOMAIN_REUSE_PATH_PART;
+        dirUrlDomainReuseWarn  = "http://localhost:" + serverPort + ACME_DOMAIN_REUSE_WARN_PATH_PART;
+        dirUrlKeyUniqueWarn  = "http://localhost:" + serverPort + ACME_KEY_UNIQUE_WARN_PATH_PART;
+
         dirUrlOtherRealm = "http://localhost:" + serverPort + ACME_PATH_PART_OTHER_REALM;
 		ptc.getInternalACMETestPipelineLaxRestrictions();
         ptc.getInternalACMETestPipeline_1_CN_ONLY_Restrictions();
+        ptc.getInternalACMETestPipelineLaxDomainReuseRestrictions();
+        ptc.getInternalACMETestPipelineLaxDomainReuseWarnRestrictions();
+        ptc.getInternalACMETestPipelineLaxWarnRestrictions();
 
         prefTC.getTestUserPreference();
 
@@ -127,6 +150,78 @@ public class AcmeHappyPathIT {
             .create(session);
 
         Assertions.assertNotNull(account, "Expecting an account to be returned");
+    }
+
+    @Test
+    public void testAccountContactHandling() throws AcmeException, JoseException {
+
+        System.out.println("connecting to " + dirUrl);
+        Session session = new Session(dirUrl);
+        Metadata meta = session.getMetadata();
+
+        URI tos = meta.getTermsOfService();
+        URL website = meta.getWebsite();
+        LOG.debug("TermsOfService {}, website {}", tos, website);
+
+        KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
+
+        try {
+            new AccountBuilder()
+                .useKeyPair(accountKeyPair)
+                .create(session);
+            fail("empty contact, exception expected");
+        } catch( AcmeServerException ase) {
+            assertEquals("Contact email address does not match requirements", ase.getMessage());
+        }
+
+        // ensure account wasn't created
+        List<AcmeAccount> accListExisting = acctRepository.findByPublicKeyHashBase64(jwtUtil.getJWKThumbPrint(accountKeyPair.getPublic()));
+        Assertions.assertTrue(accListExisting.isEmpty(), "empty contact, account MUST NOT be created");
+
+        Account account = new AccountBuilder()
+                .addContact("mailto:acmeTest@ca3s.org")
+                .useKeyPair(accountKeyPair)
+                .create(session);
+
+        assertNotNull("created account MUST NOT be null", account);
+
+        accListExisting = acctRepository.findByPublicKeyHashBase64(jwtUtil.getJWKThumbPrint(accountKeyPair.getPublic()));
+        Assertions.assertFalse(accListExisting.isEmpty(), "contact provided, account MUST be created");
+
+        AcmeAccount acmeAccount = accListExisting.get(0);
+        Assertions.assertEquals(1, acmeAccount.getContacts().size());
+
+        account.modify().addEmail("additionalContact@ca3s.org").commit();
+        Assertions.assertEquals(2, account.getContacts().size());
+
+        account.modify().addEmail("additionalContact@ca3s.org").commit();
+        Assertions.assertEquals(2, account.getContacts().size());
+
+        // check contact restriction RegEx
+        Session sessionContectRegEx = new Session(dirUrlOtherRealm);
+
+        accountKeyPair = KeyPairUtils.createKeyPair(2048);
+
+        String[] rejectedContactArr = new String[]{
+            "mailto:root@localhost",
+            "mailto:joe@servicedesk.com",
+            "mailto:joe@servicedesk.org",
+            "mailto:jim@127.0.0.1"
+        };
+
+        for(String contact: rejectedContactArr) {
+            try {
+                new AccountBuilder()
+                    .useKeyPair(accountKeyPair)
+                    .addContact(contact)
+                    .agreeToTermsOfService()
+                    .create(sessionContectRegEx);
+                fail("empty contact, exception expected");
+            } catch (AcmeServerException ase) {
+                assertEquals("Contact email address does not match requirements", ase.getMessage());
+            }
+        }
+
     }
 
     @Test
@@ -308,8 +403,34 @@ public class AcmeHappyPathIT {
 		URL website = meta.getWebsite();
 		LOG.debug("TermsOfService {}, website {}", tos, website);
 
+        Session sessionDomainReuseRealm = new Session(dirUrlDomainReuse);
+        KeyPair domainReuseRealmAccountKeyPair = KeyPairUtils.createKeyPair(2048);
+        Account domainReuseRealmAccount = new AccountBuilder()
+            .addContact("mailto:sessionDomainReuseRealm@ca3s.org")
+            .agreeToTermsOfService()
+            .useKeyPair(domainReuseRealmAccountKeyPair)
+            .create(sessionDomainReuseRealm);
+
+        Session sessionDomainReuseWarnRealm = new Session(dirUrlDomainReuseWarn);
+        KeyPair domainReuseWarnRealmAccountKeyPair = KeyPairUtils.createKeyPair(2048);
+        Account domainReuseWarnRealmAccount = new AccountBuilder()
+            .addContact("mailto:sessionDomainReuseWarnRealm@ca3s.org")
+            .agreeToTermsOfService()
+            .useKeyPair(domainReuseWarnRealmAccountKeyPair)
+            .create(sessionDomainReuseWarnRealm);
+
+        Session sessionKeyUniqueWarnRealm = new Session(dirUrlKeyUniqueWarn);
+        KeyPair keyUniqueWarnRealmAccountKeyPair = KeyPairUtils.createKeyPair(2048);
+        Account keyUniqueWarnRealmAccount = new AccountBuilder()
+            .addContact("mailto:sessionKeyUniqueWarnRealm@ca3s.org")
+            .agreeToTermsOfService()
+            .useKeyPair(keyUniqueWarnRealmAccountKeyPair)
+            .create(sessionKeyUniqueWarnRealm);
+
+
         System.out.println("connecting to " + dirUrlOtherRealm );
         Session sessionOtherRealm = new Session(dirUrlOtherRealm);
+
 
         KeyPair otherRealmAccountKeyPair = KeyPairUtils.createKeyPair(2048);
         Account otherRealmAccount = new AccountBuilder()
@@ -328,7 +449,6 @@ public class AcmeHappyPathIT {
 
 
         KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
-
 		Account account = new AccountBuilder()
 		        .addContact("mailto:acmeOrderTest@ca3s.org")
 		        .agreeToTermsOfService()
@@ -347,29 +467,9 @@ public class AcmeHappyPathIT {
 			        .create();
 
 
-			for (Authorization auth : order.getAuthorizations()) {
-				LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
-				if (auth.getStatus() == Status.PENDING) {
+            resolveAuthorizations(order);
 
-					Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
-
-					int MAX_TRIAL = 10;
-					for( int retry = 0; retry < MAX_TRIAL; retry++) {
-						try {
-                            provideAuthEndpoint(challenge, order, prefTC);
-							break;
-						} catch( BindException be) {
-							System.out.println("bind exception, waiting for port to become available");
-						}
-						if( retry == MAX_TRIAL -1) {
-							System.out.println("callback port not available");
-						}
-					}
-					challenge.trigger();
-				}
-			}
-
-			KeyPair domainKeyPair = KeyPairUtils.createKeyPair(2048);
+            KeyPair domainKeyPair = KeyPairUtils.createKeyPair(2048);
 
 			CSRBuilder csrb = new CSRBuilder();
 			csrb.addDomain("localhost");
@@ -438,27 +538,7 @@ public class AcmeHappyPathIT {
                     .create();
 
 
-            for (Authorization auth : order.getAuthorizations()) {
-                LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
-                if (auth.getStatus() == Status.PENDING) {
-
-                    Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
-
-                    int MAX_TRIAL = 10;
-                    for( int retry = 0; retry < MAX_TRIAL; retry++) {
-                        try {
-                            provideAuthEndpoint(challenge, order, prefTC);
-                            break;
-                        } catch( BindException be) {
-                            System.out.println("bind exception, waiting for port to become available");
-                        }
-                        if( retry == MAX_TRIAL -1) {
-                            System.out.println("callback port not available");
-                        }
-                    }
-                    challenge.trigger();
-                }
-            }
+            resolveAuthorizations(order);
 
             KeyPair domainKeyPair = KeyPairUtils.createKeyPair(2048);
 
@@ -477,6 +557,9 @@ public class AcmeHappyPathIT {
             assertNotNull("Expected to receive no certificate", acmeCert);
 		}
 
+
+        KeyPair domainKeyPairForMultiUse = KeyPairUtils.createKeyPair(2048);
+
         /*
          * test with an IP address only
          */
@@ -486,35 +569,12 @@ public class AcmeHappyPathIT {
                 .notAfter(Instant.now().plus(Duration.ofDays(20L)))
                 .create();
 
-
-            for (Authorization auth : order.getAuthorizations()) {
-                LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
-                if (auth.getStatus() == Status.PENDING) {
-
-                    Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
-
-                    int MAX_TRIAL = 10;
-                    for( int retry = 0; retry < MAX_TRIAL; retry++) {
-                        try {
-                            provideAuthEndpoint(challenge, order, prefTC);
-                            break;
-                        } catch( BindException be) {
-                            System.out.println("bind exception, waiting for port to become available");
-                        }
-                        if( retry == MAX_TRIAL -1) {
-                            System.out.println("callback port not available");
-                        }
-                    }
-                    challenge.trigger();
-                }
-            }
-
-            KeyPair domainKeyPair = KeyPairUtils.createKeyPair(2048);
+            resolveAuthorizations(order);
 
             CSRBuilder csrb = new CSRBuilder();
             csrb.addDomain("127.0.0.1");
             csrb.setOrganization("The Example Organization");
-            csrb.sign(domainKeyPair);
+            csrb.sign(domainKeyPairForMultiUse);
             byte[] csr = csrb.getEncoded();
 
             order.execute(csr);
@@ -532,14 +592,145 @@ public class AcmeHappyPathIT {
             }catch (AcmeServerException acmeServerException){
                 assertEquals("certificate already revoked", acmeServerException.getMessage());
             }
+        }
+
+        /*
+         * test with an already used key pair for different domain and lax policy
+         */
+        {
+            Order order = account.newOrder()
+                .domains("127.0.0.1")
+                .notAfter(Instant.now().plus(Duration.ofDays(20L)))
+                .create();
+
+            resolveAuthorizations(order);
+
+            CSRBuilder csrb = new CSRBuilder();
+            csrb.addDomain("127.0.0.1");
+            csrb.setOrganization("The Example Organization");
+            csrb.sign(domainKeyPairForMultiUse);
+            byte[] csr = csrb.getEncoded();
+
+            order.execute(csr);
+            assertEquals("Expecting the finalize request to succeed, policy allows key reuse", Status.VALID, order.getStatus());
 
         }
 
+        // use a different account with a different realm, rejecting key reuse
+        {
+            Order order = otherRealmAccount.newOrder()
+                .domains("localhost")
+                .create();
+
+            resolveAuthorizations(order);
+
+            CSRBuilder csrb = new CSRBuilder();
+            csrb.addDomain("localhost");
+            csrb.sign(domainKeyPairForMultiUse);
+            byte[] csr = csrb.getEncoded();
+
+            try {
+                order.execute(csr);
+                fail("certificate reuses key pair, not allowed by pipeline");
+            }catch (AcmeServerException acmeServerException){
+                assertEquals("Key usage scope not applicable. Hint: create a new keypair for each request", acmeServerException.getMessage());
+            }
+        }
+
+        // use a different account with a different realm, allowing domain key reuse
+        {
+            KeyPair domainKeyPairForSuccessfulMultiUse = KeyPairUtils.createKeyPair(2048);
+
+            Order order = domainReuseRealmAccount.newOrder()
+                .domains("localhost")
+                .create();
+
+            resolveAuthorizations(order);
+
+            CSRBuilder csrb = new CSRBuilder();
+            csrb.addDomain("localhost");
+            csrb.sign(domainKeyPairForSuccessfulMultiUse);
+
+            order.execute(csrb.getEncoded());
+            assertEquals("Expecting the finalize request to succeed, policy allows key reuse", Status.VALID, order.getStatus());
+
+            Order order2 = domainReuseRealmAccount.newOrder()
+                .domains("localhost")
+                .create();
+
+            resolveAuthorizations(order2);
+
+            CSRBuilder csrb2 = new CSRBuilder();
+            csrb2.addDomain("localhost");
+            csrb2.sign(domainKeyPairForSuccessfulMultiUse);
+
+            order2.execute(csrb2.getEncoded());
+            assertEquals("Expecting the finalize request to succeed, policy allows key reuse", Status.VALID, order2.getStatus());
+
+            Order order127 = domainReuseRealmAccount.newOrder()
+                .domains("127.0.0.1")
+                .create();
+
+            resolveAuthorizations(order127);
+
+            CSRBuilder csrb127 = new CSRBuilder();
+            csrb127.addDomain("127.0.0.1");
+            csrb127.sign(domainKeyPairForSuccessfulMultiUse);
+
+            try {
+                order127.execute(csrb127.getEncoded());
+                fail("certificate reuses key pair, not allowed by pipeline");
+            }catch (AcmeServerException acmeServerException){
+                assertEquals("Key usage scope not applicable. Hint: create a new keypair for each request", acmeServerException.getMessage());
+            }
+
+        }
+
+        // use a different account with a different realm, just warning on key reuse
+        {
+            Order order = keyUniqueWarnRealmAccount.newOrder()
+                .domains("127.0.0.2")
+                .create();
+
+            resolveAuthorizations(order);
+
+            CSRBuilder csrb = new CSRBuilder();
+            csrb.addDomain("127.0.0.2");
+            csrb.sign(domainKeyPairForMultiUse);
+
+            order.execute(csrb.getEncoded());
+            assertEquals("Expecting the finalize request to succeed, policy allows key reuse", Status.VALID, order.getStatus());
+
+        }
 
     }
 
+    private void resolveAuthorizations(Order order) throws IOException, InterruptedException, AcmeException {
+        for (Authorization auth : order.getAuthorizations()) {
+            LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
+            if (auth.getStatus() == Status.PENDING) {
 
-	@Test
+                Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
+
+                int MAX_TRIAL = 10;
+                for( int retry = 0; retry < MAX_TRIAL; retry++) {
+                    try {
+                        provideAuthEndpoint(challenge, order, prefTC);
+                        break;
+                    } catch( BindException be) {
+                        System.out.println("bind exception, waiting for port to become available");
+                    }
+                    if( retry == MAX_TRIAL -1) {
+                        System.out.println("callback port not available");
+                    }
+                }
+                challenge.trigger();
+            }
+        }
+    }
+
+
+    @Test
 	public void testWinStore() throws AcmeException, IOException, GeneralSecurityException, InterruptedException {
 
 		boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
@@ -548,6 +739,7 @@ public class AcmeHappyPathIT {
 			System.out.println("connecting to " + dirUrl );
 			Session session = new Session(dirUrl);
 			Metadata meta = session.getMetadata();
+
 
 			URI tos = meta.getTermsOfService();
 			URL website = meta.getWebsite();
