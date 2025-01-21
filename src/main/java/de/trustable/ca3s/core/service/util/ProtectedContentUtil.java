@@ -1,19 +1,25 @@
 package de.trustable.ca3s.core.service.util;
 
-import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import de.trustable.ca3s.core.domain.CSR;
+import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
+import de.trustable.ca3s.core.repository.CSRRepository;
+import de.trustable.ca3s.core.service.AuditService;
 import org.jasypt.util.text.BasicTextEncryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import de.trustable.ca3s.core.domain.ProtectedContent;
@@ -23,6 +29,7 @@ import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import javax.transaction.Transactional;
 
 @Service
 public class ProtectedContentUtil {
@@ -38,6 +45,7 @@ public class ProtectedContentUtil {
     public static final Instant MAX_INSTANT = Instant.parse("9990-12-30T23:59:59Z");
 
     private final ProtectedContentRepository protContentRepository;
+
     private final String salt;
     private final int iterations;
     private final String pbeAlgo;

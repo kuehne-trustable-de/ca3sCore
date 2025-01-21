@@ -1,6 +1,8 @@
 package de.trustable.ca3s.core.service.util;
 
+import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
+import de.trustable.ca3s.core.service.AuditService;
 import org.junit.jupiter.api.Test;
 
 import java.security.NoSuchAlgorithmException;
@@ -28,6 +30,6 @@ class ProtectedContentUtilTest {
         byte[] sharedSecretBytes = subject.deriveSecret("S3cr3t!S");
         String sharedSecretString = Base64.getEncoder().encodeToString(sharedSecretBytes);
 
-        assertEquals( "Bm9rujt6U/jym7/lSb1RF1j1FyRXCDeh4WHHczmPSK0=", sharedSecretString);
+        assertEquals("Bm9rujt6U/jym7/lSb1RF1j1FyRXCDeh4WHHczmPSK0=", sharedSecretString);
     }
 }

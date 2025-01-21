@@ -289,6 +289,10 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
     return this.getUsername() === this.certificateView.requestedBy;
   }
 
+  public isPrivateKeyAvailable() {
+    return this.certificateView.serversideKeyValidTo && this.certificateView.serversideKeyLeftUsages != 0;
+  }
+
   public isValuesChanged() {
     if (this.certificateAdminData.arAttributes && this.attributeArr) {
       for (let i = 0; i < this.certificateAdminData.arAttributes.length; i++) {

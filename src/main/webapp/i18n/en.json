@@ -369,6 +369,7 @@
   "ca3SApp.certificate.detail.title": "Certificate",
   "ca3SApp.certificate.download.link": "Certificate download (with format selection)",
   "ca3SApp.certificate.download.PKCS12": "PKCS12 Container",
+  "ca3SApp.certificate.download.PKCS12.key.expired": "Storage period of private key expired",
   "ca3SApp.certificate.download.p12Alias": "Key Alias",
   "ca3SApp.certificate.download.pem": "PEM encoded",
   "ca3SApp.certificate.download.pemPartChain": "PEM encoded (with certificate chain, without root)",
@@ -551,6 +552,7 @@
   "ca3SApp.pipeline.ipAsSubjectAllowed": "IP as Subject Allowed",
   "ca3SApp.pipeline.l.cardinality": "Cardinality 'L'",
   "ca3SApp.pipeline.name": "Name",
+  "ca3SApp.pipeline.key.unique": "Key requirements",
   "ca3SApp.pipeline.o.cardinality": "Cardinality 'O'",
   "ca3SApp.pipeline.ou.cardinality": "Cardinality 'OU'",
   "ca3SApp.pipeline.pipelineAttributes": "Pipeline Attributes",
@@ -583,6 +585,12 @@
   "ca3SApp.pipeline.requestProxies": "Request Proxies",
   "ca3SApp.pipeline.tenants": "Tenants",
   "ca3SApp.pipeline.expiresOn": "Expires on",
+
+  "ca3SApp.pipeline.key.reuse.unique": "Key must be unique",
+  "ca3SApp.pipeline.key.reuse.domainReuse": "Domain reuse",
+  "ca3SApp.pipeline.key.reuse.reuse": "Reuse key",
+  "ca3SApp.pipeline.key.reuse.domainReuseWithWarn": "Domain reuse with warning",
+  "ca3SApp.pipeline.key.reuse.reuseWithWarn": "Key reuse with warning",
 
   "ca3SApp.pipelineAttribute.created": "A new Pipeline Attribute is created with identifier {{ param }}",
   "ca3SApp.pipelineAttribute.delete.question": "Are you sure you want to delete Pipeline Attribute {{ id }}?",
