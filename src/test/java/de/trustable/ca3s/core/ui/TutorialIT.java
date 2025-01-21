@@ -43,7 +43,8 @@ public class TutorialIT extends CSRSubmitIT {
 
 
     public TutorialIT(@Value("${ca3s.test.speechify.apiTokens:}") String[] speechifyApiTokenArr) {
-        super(speechifyApiTokenArr);
+        super();
+        setSpeechifyApiTokenArr( speechifyApiTokenArr);
     }
 
 
@@ -68,7 +69,6 @@ public class TutorialIT extends CSRSubmitIT {
     public void init() throws InterruptedException {
         super.recordSession = true;
         super.playSound = true;
-        super.speechifyApiTokenArr = speechifyApiTokenArr;
 
         super.setLocale("de");
         super.setAllUserLocale("de");

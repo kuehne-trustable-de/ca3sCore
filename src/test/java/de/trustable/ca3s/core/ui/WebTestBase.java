@@ -62,7 +62,7 @@ public class WebTestBase extends LocomotiveBase {
 
     public boolean playSound = false;
 
-    protected String[] speechifyApiTokenArr = {};
+    private String[] speechifyApiTokenArr = {};
 
     protected SoundOutput soundOutput = null;
 
@@ -114,11 +114,16 @@ public class WebTestBase extends LocomotiveBase {
         }
     }
 
+/*
     public WebTestBase(String[] speechifyApiTokenArr) {
         this();
         soundOutput = new SoundOutput(speechifyApiTokenArr);
     }
+  */
 
+    void setSpeechifyApiTokenArr(String[] speechifyApiTokenArr){
+        soundOutput = new SoundOutput(speechifyApiTokenArr);
+    }
 
     protected static void startEmailMock() throws IOException, MessagingException {
         ServerSocket ssSMTP = new ServerSocket(0);
@@ -355,7 +360,7 @@ public class WebTestBase extends LocomotiveBase {
 
     String getExplanationPath(String s, String locale){
 //        return "/explanation/*[local-name()='" + s.replaceAll("'", "\\'") + "']/"+locale+"/text()[1]";
-        return "/explanation/*[local-name()=\"" + s + "\"]/"+locale+"/text()[1]";
+        return "/explanation/*[local-name()=\"" + s + "\"]/"+locale+"/text()";
     }
 
     protected void scrollToElement(final By loc) {

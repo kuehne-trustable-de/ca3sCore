@@ -99,7 +99,7 @@ public class SpeechifyControl {
             .uri(targetUri)
             .header("accept", "*/*")
             .header("content-type", "application/json")
-            .header("Authorization", "Bearer P6mt1FQ-BTh7GgI6ttepSGJsxeNa9M8E8HrntEdwHtU=")
+            .header("Authorization", authorization)
             .method("POST", HttpRequest.BodyPublishers.ofString(body))
             .build();
 
