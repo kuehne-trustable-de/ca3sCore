@@ -229,7 +229,11 @@ public class CertExpiryScheduler {
 
                 }
             } catch (CertificateException | CRLException | IOException | NamingException e2) {
-                LOG.debug("CRL retrieval for '" + crlUrl + "' failed", e2);
+
+                if( LOG.isDebugEnabled()) {
+                    LOG.debug("CRL retrieval for '" + crlUrl + "' failed", e2);
+                }
+                LOG.warn("CRL retrieval for '" + crlUrl + "' failed with reason {}", e2.getMessage());
             }
         }
 

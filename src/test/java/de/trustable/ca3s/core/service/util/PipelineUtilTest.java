@@ -1,31 +1,48 @@
 package de.trustable.ca3s.core.service.util;
 
+import de.trustable.ca3s.core.domain.CSR;
+import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.domain.enumeration.RDNCardinalityRestriction;
 import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.NotificationService;
 import de.trustable.ca3s.core.service.dto.PipelineView;
 import de.trustable.ca3s.core.service.dto.Preferences;
 import de.trustable.ca3s.core.service.dto.RDNRestriction;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.JCAManager;
 import de.trustable.util.Pkcs10RequestHolder;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.DERSet;
+import org.bouncycastle.asn1.pkcs.Attribute;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
+import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
+import org.bouncycastle.asn1.x500.RDN;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.X500NameBuilder;
+import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.GeneralNames;
+import org.bouncycastle.asn1.x509.X509Extension;
+import org.bouncycastle.asn1.x509.X509Extensions;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.springframework.data.domain.Page;
 
 import javax.security.auth.x500.X500Principal;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
+import static de.trustable.ca3s.core.domain.CsrAttribute.ATTRIBUTE_TYPED_SAN;
 import static org.mockito.Mockito.*;
 
 class PipelineUtilTest {
@@ -79,6 +96,9 @@ class PipelineUtilTest {
     AuditService auditService= mock(AuditService.class);
 
     @Mock
+    NotificationService notificationService = mock(NotificationService.class);
+
+    @Mock
     RequestProxyConfigRepository requestProxyConfigRepository= mock(RequestProxyConfigRepository.class);
 
     @Mock
@@ -102,7 +122,7 @@ class PipelineUtilTest {
         when(preferenceUtil.getPrefs(anyLong())).thenReturn(prefs);
 
         when(algorithmRestrictionUtil.isAlgorithmRestrictionsResolved((Pkcs10RequestHolder) any(), anyList())).thenReturn(true);
-        pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+        pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, notificationService, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
     }
 
 	@Test
@@ -242,7 +262,7 @@ class PipelineUtilTest {
 	@Test
 	void testCheckPipelineRestrictionsCardinality() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, notificationService, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
 
 		List<String> messageList = new ArrayList<>();
 
@@ -425,7 +445,7 @@ class PipelineUtilTest {
     @Test
     void testCheckPipelineRestrictionsOneCnOrSAN() throws GeneralSecurityException, IOException {
 
-        PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+        PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, notificationService, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
 
         List<String> messageList = new ArrayList<>();
 
@@ -539,7 +559,7 @@ class PipelineUtilTest {
     @Test
 	void testCheckPipelineRestrictionsConstantValue() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, notificationService, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
 
 		List<String> messageList = new ArrayList<>();
 		X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
@@ -663,7 +683,7 @@ class PipelineUtilTest {
 	@Test
 	void testCheckPipelineRestrictionsRegExp() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, notificationService, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
 
 		List<String> messageList = new ArrayList<>();
 		X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
@@ -820,7 +840,7 @@ class PipelineUtilTest {
 	@Test
 	void testCheckPipelineRestrictionsIPHasSubject() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, notificationService, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
 
         List<String> messageList = new ArrayList<>();
 		X500Principal subject = new X500Principal("CN=trustable.eu");
@@ -903,7 +923,7 @@ class PipelineUtilTest {
 	@Test
 	void testCheckPipelineRestrictionsIPHasSAN() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, notificationService, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
 
 		List<String> messageList = new ArrayList<>();
 		X500Principal subject = new X500Principal("CN=trustable.eu");
@@ -958,8 +978,106 @@ class PipelineUtilTest {
 			Assertions.assertEquals(0, messageList.size(), "Expecting given number of messages");
 	    }
 
-
 	}
 
+
+    @Test
+    void testUsedInDomainOnly() throws IOException {
+        PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, notificationService, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+
+        Assertions.assertTrue(pu.usedInDomainOnly(buildCSRPage(new String[]{"DNS:localhost"}),
+                buildPkcs10RequestHolder("localhost", new String[0]),
+                new ArrayList<>()),
+            "domain expected to match");
+
+        Assertions.assertTrue(pu.usedInDomainOnly(buildCSRPage(new String[]{"DNS:localhost"}),
+                buildPkcs10RequestHolder("localhost", new String[]{"localhost"}),
+                new ArrayList<>()),
+            "domain expected to match");
+
+        Assertions.assertTrue(pu.usedInDomainOnly(buildCSRPage(new String[]{"DNS:localhost", "DNS:ca3s.org"}),
+                buildPkcs10RequestHolder("localhost", new String[]{"localhost", "ca3s.org"}),
+                new ArrayList<>()),
+            "domain expected to match");
+
+        Assertions.assertTrue(pu.usedInDomainOnly(buildCSRPage(new String[]{"DNS:localhost", "DNS:ca3s.org"}),
+                buildPkcs10RequestHolder("localhost", new String[]{"ca3s.org"}),
+                new ArrayList<>()),
+            "domain expected to match");
+
+        Assertions.assertTrue(pu.usedInDomainOnly(buildCSRPage(new String[]{"IP:127.0.0.1", "DNS:ca3s.org"}),
+                buildPkcs10RequestHolder("127.0.0.1", new String[]{"ca3s.org"}),
+                new ArrayList<>()),
+            "domain expected to match");
+
+        Assertions.assertFalse(pu.usedInDomainOnly(buildCSRPage(new String[]{"DNS:ca3s.org"}),
+                buildPkcs10RequestHolder("localhost", new String[]{"ca3s.org"}),
+                new ArrayList<>()),
+            "domain expected to fail");
+
+        Assertions.assertFalse(pu.usedInDomainOnly(buildCSRPage(new String[]{"DNS:foo.org", "DNS:ca3s.org"}),
+                buildPkcs10RequestHolder("localhost", new String[]{"ca3s.org"}),
+                new ArrayList<>()),
+            "domain expected to fail");
+
+        Assertions.assertFalse(pu.usedInDomainOnly(buildCSRPage(new String[]{"DNS:foo.org", "DNS:ca3s.org"}),
+                buildPkcs10RequestHolder("foo.org", new String[]{}),
+                new ArrayList<>()),
+            "domain expected to fail");
+    }
+
+    Pkcs10RequestHolder buildPkcs10RequestHolder(String cn, String[] sanArr) throws IOException {
+        Pkcs10RequestHolder p10ReqHolder = mock(Pkcs10RequestHolder.class);
+
+        List<org.bouncycastle.asn1.pkcs.Attribute> attributeList = new ArrayList<>();
+
+        for(String san: sanArr) {
+            Attribute attribute = buildAttribute(san);
+            attributeList.add(attribute);
+        }
+        when(p10ReqHolder.getReqAttributes()).thenReturn(attributeList.toArray(new org.bouncycastle.asn1.pkcs.Attribute[0]));
+
+        X500NameBuilder x500NameBuilder = new X500NameBuilder(X500Name.getDefaultStyle());
+        x500NameBuilder.addRDN(BCStyle.CN, cn);
+        when(p10ReqHolder.getSubjectRDNs()).thenReturn(x500NameBuilder.build().getRDNs());
+
+        return p10ReqHolder;
+    }
+
+    @NotNull
+    private static Attribute buildAttribute(String host) throws IOException {
+        // Create the extensions object and add it as an attribute
+        Vector oids = new Vector();
+        Vector values = new Vector();
+
+        oids.add(X509Extensions.SubjectAlternativeName);
+        GeneralNames subjectAltName = new GeneralNames(new GeneralName(GeneralName.dNSName, host));
+        values.add(new X509Extension(false, new DEROctetString(subjectAltName)));
+        X509Extensions extensions = new X509Extensions(oids, values);
+        Attribute attribute =
+            new Attribute(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest,
+                new DERSet(extensions));
+        return attribute;
+    }
+
+    Page<CSR> buildCSRPage(String[] typedSANArr) {
+        Page<CSR> csrPage = mock(Page.class);
+        List<CSR> csrList = new ArrayList<>();
+        CSR existingCSR = mock(CSR.class);
+        Set<CsrAttribute> csrAttributeList = new HashSet<>();
+
+        for( String typedSAN: typedSANArr) {
+            CsrAttribute csrAttribute = new CsrAttribute();
+            csrAttribute.setName(ATTRIBUTE_TYPED_SAN);
+            csrAttribute.setValue(typedSAN);
+            csrAttributeList.add(csrAttribute);
+        }
+        when(existingCSR.getCsrAttributes()).thenReturn(csrAttributeList);
+
+        csrList.add(existingCSR);
+        when(csrPage.getContent()).thenReturn(csrList);
+
+        return csrPage;
+    }
 
 }

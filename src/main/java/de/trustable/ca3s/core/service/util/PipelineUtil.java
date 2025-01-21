@@ -6,6 +6,7 @@ import de.trustable.ca3s.core.domain.enumeration.*;
 import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.NotificationService;
 import de.trustable.ca3s.core.service.dto.*;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 import de.trustable.util.CryptoUtil;
@@ -22,6 +23,9 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.security.auth.x500.X500Principal;
@@ -36,6 +40,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
+
+import static de.trustable.ca3s.core.domain.CsrAttribute.ATTRIBUTE_TYPED_SAN;
 
 
 @Service
@@ -92,6 +98,7 @@ public class PipelineUtil {
     public static final String RESTR_ARA_REQUIRED = "REQUIRED";
     public static final String RESTR_ARA_COMMENT = "COMMENT";
 
+    public static final String KEY_UNIQUENESS = "KEY_UNIQUENESS";
     public static final String TOS_AGREEMENT_REQUIRED = "TOS_AGREEMENT_REQUIRED";
     public static final String TOS_AGREEMENT_LINK = "TOS_AGREEMENT_LINK";
     public static final String WEBSITE_LINK = "WEBSITE_LINK";
@@ -167,6 +174,7 @@ public class PipelineUtil {
     final private AuditService auditService;
 
     final private AuditTraceRepository auditTraceRepository;
+    final private NotificationService notificationService;
 
     final private TenantRepository tenantRepository;
 
@@ -188,6 +196,7 @@ public class PipelineUtil {
                         ConfigUtil configUtil,
                         AuditService auditService,
                         AuditTraceRepository auditTraceRepository,
+                        @Lazy NotificationService notificationService,
                         TenantRepository tenantRepository,
                         RequestProxyConfigRepository requestProxyConfigRepository,
                         @Value("${ca3s.keyspec.default:RSA_4096}") String defaultKeySpec) {
@@ -206,6 +215,7 @@ public class PipelineUtil {
         this.configUtil = configUtil;
         this.auditService = auditService;
         this.auditTraceRepository = auditTraceRepository;
+        this.notificationService = notificationService;
         this.tenantRepository = tenantRepository;
         this.requestProxyConfigRepository = requestProxyConfigRepository;
         // @ToDo check back with the list of valid algos
@@ -358,6 +368,9 @@ public class PipelineUtil {
     @NotNull
     private RDNRestriction[] initRdnRestrictions(PipelineView pv, Pipeline pipeline) {
 
+        // set default value for ke uniqueness
+        pv.setKeyUniqueness(KeyUniqueness.KEY_UNIQUE);
+
         RDNRestriction[] rdnRestrictArr = new RDNRestriction[8];
 
         RDNRestriction rdnRestrict = new RDNRestriction();
@@ -487,6 +500,13 @@ public class PipelineUtil {
                 pv.getRestriction_SAN().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
             } else if (RESTR_SAN_REGEX.equals(plAtt.getName())) {
                 pv.getRestriction_SAN().setRegEx(plAtt.getValue());
+
+            } else if (KEY_UNIQUENESS.equals(plAtt.getName())) {
+                if(plAtt.getValue() == null || plAtt.getValue().isEmpty()){
+                    pv.setKeyUniqueness(KeyUniqueness.KEY_UNIQUE);
+                }else {
+                    pv.setKeyUniqueness(KeyUniqueness.valueOf(plAtt.getValue()));
+                }
 
             } else if (TOS_AGREEMENT_REQUIRED.equals(plAtt.getName())) {
                 pv.setTosAgreementRequired(Boolean.parseBoolean(plAtt.getValue()));
@@ -842,6 +862,12 @@ public class PipelineUtil {
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_CONTACT_EMAIL_REGEX_REJECT, pv.getAcmeConfigItems().getContactEMailRejectRegEx());
         }
 
+        if( pv.getKeyUniqueness() == null){
+            addPipelineAttribute(pipelineAttributes, p, auditList, KEY_UNIQUENESS, KeyUniqueness.KEY_UNIQUE.toString());
+        }else {
+            addPipelineAttribute(pipelineAttributes, p, auditList, KEY_UNIQUENESS, pv.getKeyUniqueness().toString());
+        }
+
         addPipelineAttribute(pipelineAttributes, p, auditList, TOS_AGREEMENT_REQUIRED, pv.isTosAgreementRequired());
         addPipelineAttribute(pipelineAttributes, p, auditList, TOS_AGREEMENT_LINK, pv.getTosAgreementLink());
         addPipelineAttribute(pipelineAttributes, p, auditList, WEBSITE_LINK, pv.getWebsite());
@@ -1040,7 +1066,10 @@ public class PipelineUtil {
 
     }
 
-    public boolean isPipelineRestrictionsResolved(Pipeline p, Pkcs10RequestHolder p10ReqHolder, NamedValues[] nvARArr, List<String> messageList) {
+    public boolean isPipelineRestrictionsResolved(Pipeline p,
+                                                  Pkcs10RequestHolder p10ReqHolder,
+                                                  NamedValues[] nvARArr,
+                                                  List<String> messageList) {
 
         // null pipeline means internal requests without an associated pipeline and no restrictions
         if (p == null) {
@@ -1614,7 +1643,7 @@ public class PipelineUtil {
         );
 
         String requestorName = Constants.SYSTEM_ACCOUNT;
-        CSR csr = cpUtil.buildCSR(p10ReqPem, requestorName, AuditService.AUDIT_SCEP_CERTIFICATE_REQUESTED, "", null);
+        CSR csr = cpUtil.buildCSR(p10ReqPem, requestorName, AuditService.AUDIT_SCEP_CERTIFICATE_REQUESTED, "", pipeline);
         csrRepository.save(csr);
 
 
@@ -1664,6 +1693,134 @@ public class PipelineUtil {
         }
 
         return false;
+    }
+
+    public boolean isPublicKeyApplicable(Pipeline pipeline, Pkcs10RequestHolder p10ReqHolder,
+                                         List<String> messageList) {
+        KeyUniqueness keyUniqueness = KeyUniqueness.valueOf(
+            getPipelineAttribute(pipeline, KEY_UNIQUENESS, KeyUniqueness.KEY_UNIQUE.toString()));
+        return isPublicKeyApplicable(keyUniqueness, p10ReqHolder, null, messageList);
+    }
+
+    public boolean isPublicKeyApplicable(Pipeline pipeline,
+                                         Pkcs10RequestHolder p10ReqHolder,
+                                         AcmeOrder acmeOrder,
+                                         List<String> messageList) {
+        KeyUniqueness keyUniqueness = KeyUniqueness.valueOf(
+            getPipelineAttribute(pipeline, KEY_UNIQUENESS, KeyUniqueness.KEY_UNIQUE.toString()));
+        return isPublicKeyApplicable(keyUniqueness, p10ReqHolder, acmeOrder, messageList);
+    }
+
+    public boolean isPublicKeyApplicable(KeyUniqueness keyUniqueness,
+                                         Pkcs10RequestHolder p10ReqHolder,
+                                         List<String> messageList) {
+        return isPublicKeyApplicable( keyUniqueness, p10ReqHolder,null, messageList);
+    }
+
+    public boolean isPublicKeyApplicable(KeyUniqueness keyUniqueness,
+                                         Pkcs10RequestHolder p10ReqHolder,
+                                         AcmeOrder acmeOrder,
+                                         List<String> messageList) {
+
+        Page<CSR> csrPage = csrRepository.findNonRejectedByPublicKeyHash(
+            PageRequest.of(0, 10),
+            p10ReqHolder.getPublicKeyHash());
+
+        if( csrPage.isEmpty()){
+            LOG.debug("public key with hash '{}' has not been used.", p10ReqHolder.getPublicKeyHash());
+            return true;
+        }
+
+        LOG.debug("public key with hash '{}' present in DB.", p10ReqHolder.getPublicKeyHash());
+        switch (keyUniqueness) {
+            case KEY_REUSE:
+                LOG.info("public key with hash '{}' was already used, reusable by policy.", p10ReqHolder.getPublicKeyHash());
+                return true;
+            case KEY_UNIQUE_WARN_ONLY:
+                if( acmeOrder == null){
+                    LOG.warn("mode 'KEY_REUSE_WARN_ONLY' only applicable for ACME requests.");
+                    return false;
+                }
+                LOG.info("public key with hash '{}' was already used, sending warning to account holder.", p10ReqHolder.getPublicKeyHash());
+                notificationService.notifyAccountHolderOnKeyReuse(acmeOrder);
+                return true;
+            case KEY_UNIQUE:
+                messageList.add("Public key already used. Create am n new key pair.");
+                return false;
+            case DOMAIN_REUSE_WARN_ONLY:
+                if( acmeOrder == null){
+                    LOG.warn("mode 'DOMAIN_REUSE_WARN_ONLY' only applicable for ACME requests.");
+                    return false;
+                }
+                if( usedInDomainOnly(csrPage, p10ReqHolder, messageList)){
+                    LOG.info("public key with hash '{}' matches domain-only scope.", p10ReqHolder.getPublicKeyHash());
+                }else {
+                    LOG.info("public key with hash '{}' does not match domain-only scope, sending warning to account holder.", p10ReqHolder.getPublicKeyHash());
+                    notificationService.notifyAccountHolderOnKeyReuse(acmeOrder);
+                }
+                return true;
+            default:
+                if( usedInDomainOnly(csrPage, p10ReqHolder, messageList)){
+                    LOG.info("public key with hash '{}' matches domain-only scope.", p10ReqHolder.getPublicKeyHash());
+                    return true;
+                }
+                LOG.info("public key with hash '{}' does not match domain-only scope.", p10ReqHolder.getPublicKeyHash());
+                return false;
+        }
+    }
+
+    boolean usedInDomainOnly(Page<CSR> csrPage,
+                             Pkcs10RequestHolder p10ReqHolder,
+                             List<String> messageList) {
+
+        Set<GeneralName> gNameSet = CSRUtil.getSANList(p10ReqHolder.getReqAttributes());
+
+        RDN[] rdnArr = p10ReqHolder.getSubjectRDNs();
+        for( RDN rdn: rdnArr){
+            if( rdn.getFirst() != null && BCStyle.CN.equals( rdn.getFirst().getType())){
+                String cn = rdn.getFirst().getValue().toString();
+                if( CertificateUtil.isIPAddress(cn)) {
+                    gNameSet.add( new GeneralName(GeneralName.iPAddress, cn.toLowerCase(Locale.ROOT)));
+                }else{
+                    gNameSet.add( new GeneralName(GeneralName.dNSName, cn.toLowerCase(Locale.ROOT)));
+                }
+            }
+        }
+
+        CSR csrToCheck = csrPage.getContent().get(0);
+        Set<GeneralName> csrTypedSANSet =
+            csrToCheck.getCsrAttributes().stream()
+            .filter(csrAtt -> isTypedSAN(csrAtt))
+            .map(csrAtt -> buildGeneralName(csrAtt))
+            .collect(Collectors.toSet());
+
+        if(LOG.isDebugEnabled()) {
+            for (GeneralName gname : gNameSet) {
+                LOG.debug("gNameSet from request contains {}", gname);
+            }
+            for (GeneralName gname : csrTypedSANSet) {
+                LOG.debug("gNameSet from last CSR contains {}", gname);
+            }
+        }
+
+        boolean isIdentical = gNameSet.containsAll(csrTypedSANSet) && csrTypedSANSet.containsAll(gNameSet);
+        if(!isIdentical){
+            if( !gNameSet.containsAll(csrTypedSANSet)) {
+                messageList.add("The CSR requests more names than previous certificate while reusing its key.");
+            }
+            if( !csrTypedSANSet.containsAll(gNameSet)) {
+                messageList.add("The CSR requests less names than previous certificate while reusing its key.");
+            }
+        }
+        return isIdentical;
+    }
+
+    boolean isTypedSAN(CsrAttribute csrAttribute){
+        return ATTRIBUTE_TYPED_SAN.equals(csrAttribute.getName());
+    }
+
+    GeneralName buildGeneralName(CsrAttribute csrAttribute){
+        return CertificateUtil.getGeneralNameFromTypedSAN(csrAttribute.getValue());
     }
 }
 

@@ -30,6 +30,7 @@ import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.exception.CAFailureException;
+import de.trustable.ca3s.core.exception.KeyApplicableException;
 import de.trustable.ca3s.core.repository.AcmeOrderRepository;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.service.AuditService;
@@ -493,7 +494,20 @@ public class OrderController extends AcmeController {
 
         List<String> messageList = new ArrayList<>();
         NamedValues[] nvArr = new NamedValues[0];
-        CSR csr = cpUtil.buildCSR(csrAsPem, requestorName, AuditService.AUDIT_ACME_CERTIFICATE_REQUESTED, "", pipeline, nvArr, messageList);
+
+        CSR csr = null;
+        try {
+            csr = cpUtil.buildCSR(csrAsPem, requestorName,
+                AuditService.AUDIT_ACME_CERTIFICATE_REQUESTED, "",
+                pipeline,
+                orderDao,
+                nvArr, messageList);
+        } catch (KeyApplicableException e) {
+            final ProblemDetail problem = new ProblemDetail(AcmeUtil.BAD_CSR,
+                "Key usage scope not applicable. Hint: create a new keypair for each request",
+                BAD_REQUEST, "", AcmeController.NO_INSTANCE);
+            throw new AcmeProblemException(problem);
+        }
 
         if (csr == null) {
             LOG.info("building CSR failed");

@@ -332,7 +332,7 @@
 							</dd>
 
 							<dt v-if="precheckResponse.csrPublicKeyPresentInDB === true">
-								<span v-text="$t('pkcsxx.upload.warning.label')"></span>
+								<span value="warning-label" v-text="$t('pkcsxx.upload.warning.label')"></span>
 							</dt>
 							<dd v-if="precheckResponse.csrPublicKeyPresentInDB === true">
 								<span class="text-danger" v-text="$t('pkcsxx.upload.warning.publicKeyPresent')"></span>

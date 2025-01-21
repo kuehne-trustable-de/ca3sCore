@@ -34,15 +34,23 @@ public class PipelineTestConfiguration {
     public static final Logger LOGGER = LogManager.getLogger(PipelineTestConfiguration.class);
 
     public static final String PIPELINE_NAME_WEB_DIRECT_ISSUANCE = "TLS Server direct issuance";
+    public static final String PIPELINE_NAME_WEB_DIRECT_ISSUANCE_KEY_REUSE = "TLS Server direct issuance key reuse";
     public static final String PIPELINE_NAME_WEB_RA_ISSUANCE = "TLS Server officer issuance";
 
     private static final String PIPELINE_NAME_ACME = "acme";
+
+    private static final String PIPELINE_NAME_ACME_DOMAIN_REUSE = "acmeDomainReuse";
+    private static final String PIPELINE_NAME_ACME_DOMAIN_REUSE_WARN= "acmeDomainReuseWarn";
+    private static final String PIPELINE_NAME_ACME_KEY_UNIQUE_WARN= "acmeKeyUniqueWarn";
     private static final String PIPELINE_NAME_ACME1CN = "acme1CN";
     private static final String PIPELINE_NAME_ACME1CNNOIP = "acme1CNNoIP";
     private static final String PIPELINE_NAME_SCEP = "scep";
     private static final String PIPELINE_NAME_SCEP1CN = "scep1CN";
-
     public static final String ACME_REALM = "acmeTest";
+    public static final String ACME_REALM_DOMAIN_REUSE  = "acmeTestDomainReuse";
+    public static final String ACME_REALM_DOMAIN_REUSE_WARN  = "acmeTestDomainReuseWarn";
+    public static final String ACME_REALM_KEY_UNIQUE_WARN  = "acmeTestKeyUniqueWarn";
+
     public static final String ACME1CN_REALM = "acmeTest1CN";
     public static final String ACME1CNNOIP_REALM = "acmeTest1CNNoIP";
     public static final String SCEP_REALM = "scepTest";
@@ -285,9 +293,91 @@ public class PipelineTestConfiguration {
         pv_LaxRestrictions.setType(PipelineType.ACME);
         pv_LaxRestrictions.setUrlPart(ACME_REALM);
 
+        pv_LaxRestrictions.setKeyUniqueness(KeyUniqueness.KEY_REUSE);
+
         Pipeline pipelineLaxRestrictions = pipelineUtil.toPipeline(pv_LaxRestrictions);
         pipelineRepo.save(pipelineLaxRestrictions);
         return pipelineLaxRestrictions;
+    }
+
+    @Transactional
+    public Pipeline getInternalACMETestPipelineLaxDomainReuseRestrictions() {
+
+        Pipeline examplePipeline = new Pipeline();
+        examplePipeline.setName(PIPELINE_NAME_ACME_DOMAIN_REUSE);
+        examplePipeline.setActive(true);
+        Example<Pipeline> example = Example.of(examplePipeline);
+        List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+
+        if (!existingPLList.isEmpty()) {
+            LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_ACME_DOMAIN_REUSE);
+            return existingPLList.get(0);
+        }
+
+        PipelineView pv_LaxDomainReuseRestrictions =
+            pipelineUtil.from(getInternalACMETestPipelineLaxRestrictions());
+
+        pv_LaxDomainReuseRestrictions.setId(null);
+        pv_LaxDomainReuseRestrictions.setName(PIPELINE_NAME_ACME_DOMAIN_REUSE);
+        pv_LaxDomainReuseRestrictions.setUrlPart(ACME_REALM_DOMAIN_REUSE);
+        pv_LaxDomainReuseRestrictions.setKeyUniqueness(KeyUniqueness.DOMAIN_REUSE);
+
+        Pipeline pipelineLaxDomainReuseRestrictions = pipelineUtil.toPipeline(pv_LaxDomainReuseRestrictions);
+        pipelineRepo.save(pipelineLaxDomainReuseRestrictions);
+        return pipelineLaxDomainReuseRestrictions;
+    }
+
+    @Transactional
+    public Pipeline getInternalACMETestPipelineLaxDomainReuseWarnRestrictions() {
+
+        Pipeline examplePipeline = new Pipeline();
+        examplePipeline.setName(PIPELINE_NAME_ACME_DOMAIN_REUSE_WARN);
+        examplePipeline.setActive(true);
+        Example<Pipeline> example = Example.of(examplePipeline);
+        List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+
+        if (!existingPLList.isEmpty()) {
+            LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_ACME_DOMAIN_REUSE_WARN);
+            return existingPLList.get(0);
+        }
+
+        PipelineView pv_LaxDomainReuseWarn =
+            pipelineUtil.from(getInternalACMETestPipelineLaxRestrictions());
+
+        pv_LaxDomainReuseWarn.setId(null);
+        pv_LaxDomainReuseWarn.setName(PIPELINE_NAME_ACME_DOMAIN_REUSE_WARN);
+        pv_LaxDomainReuseWarn.setUrlPart(ACME_REALM_DOMAIN_REUSE_WARN);
+        pv_LaxDomainReuseWarn.setKeyUniqueness(KeyUniqueness.DOMAIN_REUSE_WARN_ONLY);
+
+        Pipeline pipelineLaxDomainReuseWarn = pipelineUtil.toPipeline(pv_LaxDomainReuseWarn);
+        pipelineRepo.save(pipelineLaxDomainReuseWarn);
+        return pipelineLaxDomainReuseWarn;
+    }
+
+    @Transactional
+    public Pipeline getInternalACMETestPipelineLaxWarnRestrictions() {
+        Pipeline examplePipeline = new Pipeline();
+        examplePipeline.setName(PIPELINE_NAME_ACME_KEY_UNIQUE_WARN);
+        examplePipeline.setActive(true);
+        Example<Pipeline> example = Example.of(examplePipeline);
+        List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+
+        if (!existingPLList.isEmpty()) {
+            LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_ACME_KEY_UNIQUE_WARN);
+            return existingPLList.get(0);
+        }
+
+        PipelineView pv_LaxDomainReuseWarn =
+            pipelineUtil.from(getInternalACMETestPipelineLaxRestrictions());
+
+        pv_LaxDomainReuseWarn.setId(null);
+        pv_LaxDomainReuseWarn.setName(PIPELINE_NAME_ACME_KEY_UNIQUE_WARN);
+        pv_LaxDomainReuseWarn.setUrlPart(ACME_REALM_KEY_UNIQUE_WARN);
+        pv_LaxDomainReuseWarn.setKeyUniqueness(KeyUniqueness.KEY_UNIQUE_WARN_ONLY);
+
+        Pipeline pipelineLaxDomainReuseWarn = pipelineUtil.toPipeline(pv_LaxDomainReuseWarn);
+        pipelineRepo.save(pipelineLaxDomainReuseWarn);
+        return pipelineLaxDomainReuseWarn;
     }
 
     @Transactional
@@ -336,6 +426,10 @@ public class PipelineTestConfiguration {
 
         pv_1CNRestrictions.setTosAgreementRequired(true);
         pv_1CNRestrictions.setTosAgreementLink("http://to.agreement.link/index.html");
+
+        AcmeConfigItems acmeConfigItems = new AcmeConfigItems();
+        acmeConfigItems.setContactEMailRejectRegEx(".*@localhost|.*@127.0.0.1|.*@servicedesk.*");
+        pv_1CNRestrictions.setAcmeConfigItems(acmeConfigItems);
 
         Pipeline pipelineRestrictions = pipelineUtil.toPipeline(pv_1CNRestrictions);
         pipelineRepo.save(pipelineRestrictions);
@@ -427,6 +521,47 @@ public class PipelineTestConfiguration {
         pipelineWeb.setUrlPart("test");
 
         addPipelineAttribute(pipelineWeb, PipelineUtil.ALLOW_IP_AS_SAN, "false");
+        addPipelineAttribute(pipelineWeb, PipelineUtil.TOS_AGREEMENT_REQUIRED, "true");
+        addPipelineAttribute(pipelineWeb, PipelineUtil.TOS_AGREEMENT_LINK, "http://trustable.eu/tos.html");
+
+        pipelineWeb.setProcessInfoNotify(getSimpleBPMNProcessInfo());
+
+        pipelineAttributeRepository.saveAll(pipelineWeb.getPipelineAttributes());
+        pipelineRepo.save(pipelineWeb);
+
+        return pipelineWeb;
+    }
+
+    @Transactional
+    public Pipeline getInternalWebDirectKeyReuseTestPipeline() {
+
+        Pipeline examplePipeline = new Pipeline();
+        examplePipeline.setName(PIPELINE_NAME_WEB_DIRECT_ISSUANCE_KEY_REUSE);
+        examplePipeline.setActive(true);
+        Example<Pipeline> example = Example.of(examplePipeline);
+        List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+
+        if (!existingPLList.isEmpty()) {
+            LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_WEB_DIRECT_ISSUANCE_KEY_REUSE);
+
+            return existingPLList.get(0);
+        }
+
+        LOGGER.info("------------ Creating pipeline '{}' ... ", PIPELINE_NAME_WEB_DIRECT_ISSUANCE_KEY_REUSE);
+
+        Pipeline pipelineWeb = new Pipeline();
+        pipelineWeb.setActive(true);
+        pipelineWeb.setApprovalRequired(false);
+
+        pipelineWeb.setCaConnector(internalTestCAC());
+        pipelineWeb.setName(PIPELINE_NAME_WEB_DIRECT_ISSUANCE_KEY_REUSE);
+        pipelineWeb.setType(PipelineType.WEB);
+        pipelineWeb.setUrlPart("test");
+
+        addPipelineAttribute(pipelineWeb, PipelineUtil.KEY_UNIQUENESS, KeyUniqueness.KEY_REUSE.toString());
+
+        addPipelineAttribute(pipelineWeb, PipelineUtil.ALLOW_IP_AS_SAN, "false");
+
         addPipelineAttribute(pipelineWeb, PipelineUtil.TOS_AGREEMENT_REQUIRED, "true");
         addPipelineAttribute(pipelineWeb, PipelineUtil.TOS_AGREEMENT_LINK, "http://trustable.eu/tos.html");
 

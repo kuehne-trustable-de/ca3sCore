@@ -66,6 +66,7 @@ public class CSRSubmitIT extends WebTestBase {
 
     public static final By LOC_TEXT_ACCOUNT_NAME = By.xpath("//nav//span [contains(text(), '\"user\"')]");
     public static final By LOC_TEXT_CONTENT_TYPE = By.xpath("//form//dl [dt[span [@value = 'content-type']]]/dd/span");
+    public static final By LOC_TEXT_WARNING_LABEL = By.xpath("//form//dl [dt[span [@value = 'warning-label']]]/dd/span");
 
     public static final By LOC_TA_UPLOAD_CONTENT = By.xpath("//form//textarea [@name = 'content']");
     public static final By LOC_TA_COMMENT = By.xpath("//form//textarea [@id = 'comment']");
@@ -174,9 +175,15 @@ public class CSRSubmitIT extends WebTestBase {
     @Autowired
     UserRepository userRepository;
 
+    public CSRSubmitIT() {
+        super();
+    }
+
+    /*
     public CSRSubmitIT(String[] speechifyApiTokenArr) {
         super(speechifyApiTokenArr);
     }
+*/
 
     @BeforeAll
     public static void setUpBeforeAll() throws IOException, MessagingException {
@@ -191,6 +198,7 @@ public class CSRSubmitIT extends WebTestBase {
         waitForUrl();
 
         ptc.getInternalWebDirectTestPipeline();
+        ptc.getInternalWebDirectKeyReuseTestPipeline();
         ptc.getInternalWebRACheckTestPipeline();
         prefTC.getTestUserPreference();
 
@@ -234,6 +242,7 @@ public class CSRSubmitIT extends WebTestBase {
         String secret = "1Aa" + Base64.getEncoder().encodeToString(secretBytes)
             .replace("/", "_")
             .replace("-", "_")
+            .replace("+", "_")
             .replace("#", "_");
 
         explain("csr.submit.1");
@@ -475,6 +484,7 @@ public class CSRSubmitIT extends WebTestBase {
 
         validatePresent(LOC_LNK_REQ_CERT_MENUE);
         selectElementText(LOC_LNK_REQ_CERT_MENUE, "csr.submit.navigate.1");
+        wait(1000);
         click(LOC_LNK_REQ_CERT_MENUE);
 
         waitForElement(LOC_SEL_PIPELINE, 20);
@@ -505,7 +515,7 @@ public class CSRSubmitIT extends WebTestBase {
         selectElementText(LOC_BTN_REQUEST_CERTIFICATE, "csr.submit.49");
         click(LOC_BTN_REQUEST_CERTIFICATE);
 
-        waitForElement(LOC_TEXT_CERT_HEADER);
+        waitForElement(LOC_TEXT_CERT_HEADER, 20);
         validatePresent(LOC_TEXT_CERT_HEADER);
 //        validatePresent(LOC_TEXT_PKIX_LABEL);
 
@@ -513,6 +523,29 @@ public class CSRSubmitIT extends WebTestBase {
         click(LOC_SEL_CERT_FORMAT);
 
         checkPEMDownload(cn, "pem");
+
+        // retry to submit same csr
+        click(LOC_LNK_REQ_CERT_MENUE);
+
+        waitForElement(LOC_SEL_PIPELINE, 20);
+        validatePresent(LOC_SEL_PIPELINE);
+
+        click(LOC_SEL_PIPELINE);
+        selectOptionByText(LOC_SEL_PIPELINE, PipelineTestConfiguration.PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
+        // explain("csr.submit.37");
+
+        setText(LOC_SELECT_FILE, csrFilePath);
+        // explain("csr.submit.38");
+
+        waitForElement(LOC_TEXT_WARNING_LABEL);
+        // explain("csr.submit.38");
+
+        try {
+            System.out.println("... waiting ...");
+            System.in.read();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 

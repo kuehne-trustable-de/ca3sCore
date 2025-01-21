@@ -4,8 +4,10 @@ import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.CsrUsage;
+import de.trustable.ca3s.core.domain.enumeration.KeyUniqueness;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.exception.CAFailureException;
+import de.trustable.ca3s.core.exception.KeyApplicableException;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
@@ -288,9 +290,6 @@ public class ContentUploadProcessor {
 
                 Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(pkcs10CertificationRequest);
 
-                List<CSR> csrList = csrRepository.findNonRejectedByPublicKeyHash(p10ReqHolder.getPublicKeyHash());
-                LOG.debug("public key with hash '{}' already used in #{} CSRs.", p10ReqHolder.getPublicKeyHash(), csrList.size());
-
                 Pkcs10RequestHolderShallow p10ReqHolderShallow = new Pkcs10RequestHolderShallow( p10ReqHolder);
                 p10ReqData = new PkcsXXData(p10ReqHolderShallow);
 
@@ -304,22 +303,28 @@ public class ContentUploadProcessor {
                     p10ReqData.setBadKeysResult(badKeysResult);
                 }
 
-                p10ReqData.setCsrPublicKeyPresentInDB(!csrList.isEmpty());
-                if(csrList.isEmpty()) {
+                boolean isPublicKeyApplicable;
 
-                    Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
-                    if( optPipeline.isPresent()) {
-                        List<String> messageList = new ArrayList<>();
-                        if (pipelineUtil.isPipelineRestrictionsResolved(optPipeline.get(), p10ReqHolder, uploaded.getArAttributes(), messageList)) {
-                            LOG.debug("pipeline restrictions for pipeline '{}' solved", optPipeline.get().getName());
-                        }else {
-                            p10ReqData.setWarnings(messageList.toArray(new String[0]));
-                            return new ResponseEntity<>(p10ReqData, HttpStatus.BAD_REQUEST);
-                        }
-                    }else{
-                        LOG.info("pipeline id '{}' not found", uploaded.getPipelineId());
+                List<String> messageList = new ArrayList<>();
+                Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
+                if( optPipeline.isPresent()) {
+                    isPublicKeyApplicable =
+                        pipelineUtil.isPublicKeyApplicable(optPipeline.get(), p10ReqHolder, messageList);
+                    p10ReqData.setCsrPublicKeyPresentInDB(!isPublicKeyApplicable);
+
+                    if (pipelineUtil.isPipelineRestrictionsResolved(optPipeline.get(), p10ReqHolder, uploaded.getArAttributes(), messageList)) {
+                        LOG.debug("pipeline restrictions for pipeline '{}' solved", optPipeline.get().getName());
+                    }else {
+                        p10ReqData.setWarnings(messageList.toArray(new String[0]));
+                        return new ResponseEntity<>(p10ReqData, HttpStatus.BAD_REQUEST);
                     }
+                }else{
+                    LOG.info("pipeline id '{}' not found", uploaded.getPipelineId());
+                    isPublicKeyApplicable =
+                        pipelineUtil.isPublicKeyApplicable(KeyUniqueness.KEY_UNIQUE, p10ReqHolder, messageList);
+                }
 
+                if(isPublicKeyApplicable) {
                     CSR csr;
                     try{
                         csr = startCertificateCreationProcess(
@@ -653,7 +658,6 @@ public class ContentUploadProcessor {
 	}
 
 
-
 	private CSR startCertificateCreationProcess(final String csrAsPem,
                                                 PkcsXXData p10ReqData,
                                                 final String requestorName,
@@ -668,7 +672,18 @@ public class ContentUploadProcessor {
             if( pipeline.isActive()) {
                 List<String> messageList = new ArrayList<>();
 
-                CSR csr = cpUtil.buildCSR(csrAsPem, requestorName, AuditService.AUDIT_WEB_CERTIFICATE_REQUESTED, requestorComment, pipeline, nvArr, messageList);
+                CSR csr = null;
+                try {
+                    csr = cpUtil.buildCSR(csrAsPem,
+                        requestorName,
+                        AuditService.AUDIT_WEB_CERTIFICATE_REQUESTED,
+                        requestorComment,
+                        pipeline,
+                        null, // no ACMEOrder available
+                        nvArr, messageList);
+                } catch (KeyApplicableException e) {
+                    // no extra handling, just go on ...
+                }
 
                 p10ReqData.setWarnings(messageList.toArray(new String[0]));
 

@@ -58,6 +58,7 @@ const validations: any = {
     ipAsSubjectAllowed: {},
     ipAsSANAllowed: {},
 
+    keyUniqueness: { required },
     tosAgreementLink: {},
 
     webConfigItems: {

@@ -93,8 +93,7 @@ public class CRLUtil {
 
         if(crl == null) {
             throw new IOException(
-                    "Can not download CRL from certificate "
-                            + "distribution point: " + crlURL);
+                    "Can not download CRL from certificate distribution point: " + crlURL);
         }
 
         int nRevCerts = 0;

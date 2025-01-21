@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-12-21 22:15:09.
+// Generated using typescript-generator version 3.2.1263 on 2025-01-14 16:42:29.
 
 export interface IADCSInstanceDetailsView extends ISerializable {
   caName?: string;
@@ -151,6 +151,7 @@ export interface IPipelineView extends ISerializable {
   processInfoNameCreate?: string;
   processInfoNameRevoke?: string;
   processInfoNameNotify?: string;
+  keyUniqueness?: IKeyUniqueness;
   restriction_C?: IRDNRestriction;
   restriction_CN?: IRDNRestriction;
   restriction_L?: IRDNRestriction;
@@ -258,10 +259,10 @@ export interface ICertificateView extends ISerializable {
   serversideKeyLeftUsages?: number;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
+  issuingActiveCertificates?: boolean;
+  auditPresent?: boolean;
   fullChainAvailable?: boolean;
   serversideKeyGeneration?: boolean;
-  auditPresent?: boolean;
-  issuingActiveCertificates?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
@@ -336,8 +337,8 @@ export interface ICSRView extends ISerializable {
   isAdministrable?: boolean;
   tosAgreed?: boolean;
   tosAgreementLink?: string;
-  administrable?: boolean;
   csrvalid?: boolean;
+  administrable?: boolean;
 }
 
 export interface IPreferences extends ISerializable {
@@ -912,6 +913,8 @@ export type ICAConnectorType =
 export type IInterval = 'MINUTE' | 'HOUR' | 'DAY' | 'WEEK' | 'MONTH';
 
 export type IPipelineType = 'ACME' | 'SCEP' | 'WEB' | 'INTERNAL' | 'MANUAL_REQUEST';
+
+export type IKeyUniqueness = 'KEY_UNIQUE' | 'DOMAIN_REUSE' | 'KEY_REUSE' | 'KEY_REUSE_WARN_ONLY' | 'DOMAIN_REUSE_WARN_ONLY';
 
 export type ICsrUsage = 'TLS_SERVER' | 'TLS_CLIENT' | 'DOC_SIGNING' | 'CODE_SIGNING';
 

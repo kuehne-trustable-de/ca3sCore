@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title th:text="#{email.request.rejection.title}">ACME request re-uses key pair in CSR</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="shortcut icon" th:href="@{|${baseUrl}/favicon.ico|}" />
+    </head>
+    <body>
+        <p>
+            Dear ACME user,
+        </p>
+        <p>
+            you requested a certificate using a key pair that's already in use. That's policy violation and requests may be rejected in future.
+            So please configure your ACME client to create a fresh key pair on each request.
+        </p>
+
+        <p>
+            This notification relates to your ACME request from <span th:text="${#dates.format(csr.requestedOn, 'dd.MM.yyyy, HH:mm')}"></span> with subject <span th:text="${csr.subject}"></span> and SANs  <span th:text="${csr.sans}"></span>.
+        </p>
+
+        <p>
+            <span th:text="#{email.activation.text2}">Regards, </span>
+            <br/>
+            <em th:text="#{email.signature}">ca3s.</em>
+        </p>
+    </body>
+</html>

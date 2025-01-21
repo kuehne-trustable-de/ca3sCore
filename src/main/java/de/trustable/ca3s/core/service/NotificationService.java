@@ -21,6 +21,7 @@ import javax.transaction.Transactional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Handling notification
@@ -749,6 +750,32 @@ public class NotificationService {
         String[] args = {subject, cert.getSerial(), cert.getIssuer()};
         mailService.sendEmailFromTemplate(context, requestor, null, "mail/revokedCertificateEmail", "email.revokedCertificate.title", args);
     }
+
+
+    @Transactional
+    public void notifyAccountHolderOnKeyReuse(AcmeOrder acmeOrder ) {
+
+        Locale locale = Locale.ENGLISH;
+        Context context = new Context(locale);
+        AcmeAccount acmeAccount = acmeOrder.getAccount();
+        CSR csr = acmeOrder.getCsr();
+        context.setVariable("acmeAccount", acmeAccount);
+        context.setVariable("acmeOrder", acmeOrder);
+        context.setVariable("csr", csr);
+
+        Set<String> emailSet = acmeAccount.getContacts().stream()
+            .map(contact -> contact.getContactUrl().replace("mailto:", ""))
+            .filter(email -> !email.isEmpty())
+            .collect(Collectors.toSet());
+        for( String email: emailSet) {
+            try {
+                mailService.sendEmailFromTemplate(context, null, email, null, "mail/notifyOnKeyReuseEmail", "email.request.rejection.title");
+            } catch (MessagingException e) {
+                LOG.info("Problem occurred while sending a notification eMail to acme account contact address '" + email + "'",e);
+            }
+        }
+    }
+
 
     private List<String> findAdditionalRecipients(Certificate cert){
         List<String> recipientList = new ArrayList<>();

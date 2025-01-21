@@ -104,7 +104,17 @@
                                          id="pipeline-scepRecipientCertificate"
                                          :to="{name: 'CertInfo', params: {certificateId: $v.pipeline.scepConfigItems.recepientCertId.$model}}">{{$v.pipeline.scepConfigItems.recepientCertSubject.$model}}</router-link>
                         </div>
+                    </div>
 
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.key.unique')" for="pipeline-key-unique"></label>  <help-tag role="Admin" target="pipeline.key.unique"/>
+                        <select class="form-control" id="pipeline-key-unique" name="pipeline-key-unique" v-model="pipeline.keyUniqueness">
+                            <option v-text="$t('ca3SApp.pipeline.key.reuse.unique')" value="KEY_UNIQUE">UNIQUE</option>
+                            <option v-text="$t('ca3SApp.pipeline.key.reuse.domainReuse')" value="DOMAIN_REUSE">DOMAIN REUSE</option>
+                            <option v-text="$t('ca3SApp.pipeline.key.reuse.reuse')" value="KEY_REUSE">REUSE</option>
+                            <option v-if="$v.pipeline.type.$model === 'ACME'" v-text="$t('ca3SApp.pipeline.key.reuse.domainReuseWithWarn')" value="DOMAIN_REUSE_WARN_ONLY">DOMAIN REUSE WITH WARNING</option>
+                            <option v-if="$v.pipeline.type.$model === 'ACME'" v-text="$t('ca3SApp.pipeline.key.reuse.reuseWithWarn')" value="KEY_REUSE_WARN_ONLY">REUSE WITH WARNING</option>
+                        </select>
                     </div>
 
                     <div class="container" v-if="pipeline && pipeline.restriction_CN">
@@ -309,6 +319,16 @@
 
                     </div>
 
+                    <div class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ipAsSubjectAllowed')" for="pipeline-ipAsSubjectAllowed"></label>  <help-tag role="Admin" target="pipeline.ip-as-subject"/>
+                        <input type="checkbox" class="form-check-inline" name="ipAsSubjectAllowed" id="pipeline-ipAsSubjectAllowed"
+                               :class="{'valid': !$v.pipeline.ipAsSubjectAllowed.$invalid, 'invalid': $v.pipeline.ipAsSubjectAllowed.$invalid }" v-model="$v.pipeline.ipAsSubjectAllowed.$model" />
+
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ipAsSanAllowed')" for="pipeline-ipAsSanAllowed"></label>  <help-tag role="Admin" target="pipeline.ip-as-san"/>
+                        <input type="checkbox" class="form-check-inline" name="ipAsSanAllowed" id="pipeline-ipAsSanAllowed"
+                               :class="{'valid': !$v.pipeline.ipAsSANAllowed.$invalid, 'invalid': $v.pipeline.ipAsSANAllowed.$invalid }" v-model="$v.pipeline.ipAsSANAllowed.$model" />
+                    </div>
+
                     <!-- Additional Request Attributes -->
                     <div class="container">
 
@@ -337,6 +357,7 @@
 
                         </div>
                     </div>
+
                     <div class="form-group" v-if="$v.pipeline.type.$model === 'WEB' || $v.pipeline.type.$model === 'ACME'">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.tosAgreed')" for="pipeline-tosAgreed"></label>  <help-tag role="Admin" target="pipeline.tosAgreed"/>
                         <input type="checkbox" class="form-check-inline" name="pipeline-tosAgreementRequired" id="pipeline-tosAgreementRequired" v-model="pipeline.tosAgreementRequired" />
@@ -350,16 +371,6 @@
                         <input type="checkbox" class="form-check-inline" name="toPendingOnFailedRestrictions" id="pipeline-toPendingOnFailedRestrictions" v-model="pipeline.toPendingOnFailedRestrictions" />
                     </div>
 
-
-                    <div class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ipAsSubjectAllowed')" for="pipeline-ipAsSubjectAllowed"></label>  <help-tag role="Admin" target="pipeline.ip-as-subject"/>
-                        <input type="checkbox" class="form-check-inline" name="ipAsSubjectAllowed" id="pipeline-ipAsSubjectAllowed"
-                            :class="{'valid': !$v.pipeline.ipAsSubjectAllowed.$invalid, 'invalid': $v.pipeline.ipAsSubjectAllowed.$invalid }" v-model="$v.pipeline.ipAsSubjectAllowed.$model" />
-
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ipAsSanAllowed')" for="pipeline-ipAsSanAllowed"></label>  <help-tag role="Admin" target="pipeline.ip-as-san"/>
-                        <input type="checkbox" class="form-check-inline" name="ipAsSanAllowed" id="pipeline-ipAsSanAllowed"
-                            :class="{'valid': !$v.pipeline.ipAsSANAllowed.$invalid, 'invalid': $v.pipeline.ipAsSANAllowed.$invalid }" v-model="$v.pipeline.ipAsSANAllowed.$model" />
-                    </div>
 
 <!--
                     <div class="form-group" v-if="$v.pipeline.approvalRequired.$model">

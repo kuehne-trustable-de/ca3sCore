@@ -1036,6 +1036,38 @@ public class CertificateUtil {
             return "Unknown:" + sanValue;
         }
     }
+    public static GeneralName getGeneralNameFromTypedSAN(String typedSAN) {
+
+        int type = GeneralName.dNSName;
+        if(typedSAN.startsWith("DNS:")) {
+            type = GeneralName.dNSName;
+        }else if(typedSAN.startsWith("IP:")){
+            type = GeneralName.iPAddress;
+        }else if(typedSAN.startsWith("EDI:")){
+            type = GeneralName.ediPartyName;
+        }else if(typedSAN.startsWith("other:")){
+            type = GeneralName.otherName;
+        }else if(typedSAN.startsWith("regID:")){
+            type = GeneralName.registeredID;
+        }else if(typedSAN.startsWith("rfc822:")){
+            type = GeneralName.rfc822Name;
+        }else if(typedSAN.startsWith("URI:")){
+            type = GeneralName.uniformResourceIdentifier;
+        }else if(typedSAN.startsWith("X400:")){
+            type = GeneralName.x400Address;
+        }else if(typedSAN.startsWith("DirName:")) {
+            type = GeneralName.directoryName;
+        }else{
+            LOG.warn("unexpected type in TypedSANs for san {}", typedSAN);
+        }
+        String[] valueArr = typedSAN.split(":");
+        if( valueArr != null && valueArr.length == 2){
+            return new GeneralName(type, valueArr[1].toLowerCase(Locale.ROOT));
+        }
+
+        LOG.warn("unexpected value in TypedSANs for san {}", typedSAN);
+        return null;
+    }
 
     /**
      * @param p10ReqHolder

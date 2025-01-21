@@ -114,3 +114,7 @@ jhipster:
 # ===================================================================
 
 # application:
+ca3s:
+  test:
+    speechify:
+      apiTokens: P6mt1FQ-BTh7GgI6ttepSGJsxeNa9M8E8HrntEdwHtU=

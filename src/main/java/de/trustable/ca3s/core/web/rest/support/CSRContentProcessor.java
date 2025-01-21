@@ -1,27 +1,21 @@
 package de.trustable.ca3s.core.web.rest.support;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.StringReader;
-import java.security.GeneralSecurityException;
-import java.security.Key;
-import java.security.KeyStore;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Optional;
-
-import javax.validation.Valid;
-
+import de.trustable.ca3s.core.domain.CSR;
+import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.Pipeline;
+import de.trustable.ca3s.core.domain.enumeration.KeyUniqueness;
+import de.trustable.ca3s.core.repository.CSRRepository;
+import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.service.badkeys.BadKeysResult;
 import de.trustable.ca3s.core.service.badkeys.BadKeysService;
-import de.trustable.ca3s.core.service.dto.NamedValues;
-import de.trustable.ca3s.core.service.util.*;
+import de.trustable.ca3s.core.service.util.AlgorithmRestrictionUtil;
+import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.ca3s.core.service.util.PipelineUtil;
+import de.trustable.ca3s.core.service.util.ReplacementCandidateUtil;
+import de.trustable.ca3s.core.web.rest.data.*;
+import de.trustable.util.CryptoUtil;
+import de.trustable.util.Pkcs10RequestHolder;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.encoders.Base64;
@@ -40,17 +34,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import de.trustable.ca3s.core.domain.CSR;
-import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.repository.CSRRepository;
-import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.web.rest.data.PKCSDataType;
-import de.trustable.ca3s.core.web.rest.data.Pkcs10RequestHolderShallow;
-import de.trustable.ca3s.core.web.rest.data.PkcsXXData;
-import de.trustable.ca3s.core.web.rest.data.UploadPrecheckData;
-import de.trustable.ca3s.core.web.rest.data.X509CertificateHolderShallow;
-import de.trustable.util.CryptoUtil;
-import de.trustable.util.Pkcs10RequestHolder;
+import javax.validation.Valid;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import java.security.GeneralSecurityException;
+import java.security.Key;
+import java.security.KeyStore;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * REST controller for processing PKCS10 requests and Certificates.
@@ -211,9 +208,6 @@ public class CSRContentProcessor {
 				p10ReqData = new PkcsXXData(p10ReqHolderShallow);
 				// no information leakage to the outside: check authentication
 				if( auth.isAuthenticated()) {
-					List<CSR> csrList = csrRepository.findByPublicKeyHash(p10ReqHolder.getPublicKeyHash());
-					LOG.debug("public key with hash '{}' used in #{} csrs, yet", p10ReqHolder.getPublicKeyHash(), csrList.size());
-					p10ReqData.setCsrPublicKeyPresentInDB(!csrList.isEmpty());
 
                     List<String> messageList = new ArrayList<>();
                     handleBadKeys(p10ReqData, pkcs10CertificationRequest, messageList);
@@ -223,13 +217,18 @@ public class CSRContentProcessor {
                     if( uploaded.getPipelineId() != null) {
                         Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
                         if (optPipeline.isPresent()) {
-                            if (pvUtil.isPipelineRestrictionsResolved(optPipeline.get(), p10ReqHolder, uploaded.getArAttributes(), messageList)) {
+                            p10ReqData.setCsrPublicKeyPresentInDB(!pvUtil.isPublicKeyApplicable(optPipeline.get(), p10ReqHolder, messageList));
+                            if (pvUtil.isPipelineRestrictionsResolved(optPipeline.get(),
+                                p10ReqHolder,
+                                uploaded.getArAttributes(),
+                                messageList)) {
                                 LOG.debug("pipeline restrictions for pipeline '{}' solved", optPipeline.get().getName());
                             } else {
                                 p10ReqData.setWarnings(messageList.toArray(new String[0]));
 //                            return new ResponseEntity<>(p10ReqData, HttpStatus.BAD_REQUEST);
                             }
                         } else {
+                            pvUtil.isPublicKeyApplicable(KeyUniqueness.KEY_UNIQUE, p10ReqHolder, messageList);
                             LOG.info("pipeline id '{}' not found", uploaded.getPipelineId());
                         }
                     }

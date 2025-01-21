@@ -209,11 +209,8 @@ public class NewAccountController extends AcmeController {
                         }
                     }
 
-                    acctRepository.save(newAcctDao);
                     updateAccountFromRequest(newAcctDao, newAcct, pipeline);
-
                     newAcctDao.setStatus(AccountStatus.VALID);
-
                     acctRepository.save(newAcctDao);
                     LOG.debug("New Account {} created", newAcctDao.getAccountId());
                     acctDaoReturn = newAcctDao;
@@ -221,7 +218,6 @@ public class NewAccountController extends AcmeController {
                     acctDaoReturn = accListExisting.get(0);
                 }
             }
-
 
             URI locationUri = locationUriOf(acctDaoReturn.getAccountId(), getEffectiveUriComponentsBuilder(realm, forwardedHost));
             String locationHeader = locationUri.toASCIIString();

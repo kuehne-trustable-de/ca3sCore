@@ -25,6 +25,9 @@ public interface CSRRepository extends JpaRepository<CSR, Long> {
     @Query(name = "CSR.findNonRejectedByPublicKeyHash")
     List<CSR> findNonRejectedByPublicKeyHash(@Param("hash") String hashB64);
 
+    @Query(name = "CSR.findNonRejectedByPublicKeyHash")
+    Page<CSR> findNonRejectedByPublicKeyHash(Pageable pageable, @Param("hash") String hashB64);
+
     @Query(name = "CSR.findPendingByDay")
     List<CSR> findPendingByDay(@Param("after") Instant after, @Param("before") Instant before);
 

@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
+import de.trustable.ca3s.core.exception.KeyApplicableException;
 import de.trustable.ca3s.core.repository.CsrAttributeRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.ARARestriction;
@@ -84,12 +85,20 @@ public class CertificateProcessingUtil {
 	 * @param pipeline				pipeline
 	 * @return csr
 	 */
-	public CSR buildCSR(final String csrAsPem, final String requestorName, final String requestAuditType, String requestorComment, Pipeline pipeline )  {
+	public CSR buildCSR(final String csrAsPem, final String requestorName, final String requestAuditType,
+                        String requestorComment, Pipeline pipeline )  {
 
-	    List<String> messageList = new ArrayList<>();
+        List<String> messageList = new ArrayList<>();
         NamedValues[] nvArr = new NamedValues[0];
-	    return buildCSR(csrAsPem, requestorName, requestAuditType, requestorComment, pipeline, nvArr, messageList );
-	}
+
+        try {
+            return buildCSR(csrAsPem, requestorName, requestAuditType, requestorComment, pipeline,
+                null,
+                nvArr, messageList);
+        } catch (KeyApplicableException e) {
+            return null;
+        }
+    }
 
 	/**
 	 *
@@ -101,13 +110,20 @@ public class CertificateProcessingUtil {
 	 * @param messageList			messageList
 	 * @return csr
 	 */
-	public CSR buildCSR(final String csrAsPem, final String requestorName, final String requestAuditType, String requestorComment, Pipeline pipeline, NamedValues[] araArr, List<String> messageList )  {
+	public CSR buildCSR(final String csrAsPem, final String requestorName, final String requestAuditType,
+                        String requestorComment, Pipeline pipeline,
+                        AcmeOrder acmeOrder,
+                        NamedValues[] araArr,
+                        List<String> messageList ) throws KeyApplicableException {
 
 		CSR csr;
 		Pkcs10RequestHolder p10ReqHolder;
-
 		try {
 			p10ReqHolder = cryptoUtil.parseCertificateRequest(csrAsPem);
+
+            if( !pvUtil.isPublicKeyApplicable(pipeline, p10ReqHolder, acmeOrder, messageList) ){
+                throw new KeyApplicableException();
+            }
 
             ARARestriction[] restrictionArr = new ARARestriction[0];
 			if( pipeline == null) {

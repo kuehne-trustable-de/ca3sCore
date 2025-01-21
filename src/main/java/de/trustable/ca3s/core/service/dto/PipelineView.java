@@ -5,6 +5,7 @@ import java.time.Instant;
 
 import de.trustable.ca3s.core.domain.Tenant;
 import de.trustable.ca3s.core.domain.enumeration.CsrUsage;
+import de.trustable.ca3s.core.domain.enumeration.KeyUniqueness;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 
 public class PipelineView implements Serializable {
@@ -37,6 +38,8 @@ public class PipelineView implements Serializable {
     private String processInfoNameCreate;
     private String processInfoNameRevoke;
     private String processInfoNameNotify;
+
+    private KeyUniqueness keyUniqueness;
 
     private RDNRestriction restriction_C;
     private RDNRestriction restriction_CN;
@@ -120,8 +123,15 @@ public class PipelineView implements Serializable {
 		return caConnectorName;
 	}
 
+    public KeyUniqueness getKeyUniqueness() {
+        return keyUniqueness;
+    }
 
-	public RDNRestriction getRestriction_C() {
+    public void setKeyUniqueness(KeyUniqueness keyUniqueness) {
+        this.keyUniqueness = keyUniqueness;
+    }
+
+    public RDNRestriction getRestriction_C() {
 		return restriction_C;
 	}
 

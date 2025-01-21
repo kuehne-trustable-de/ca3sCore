@@ -29,7 +29,8 @@ import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
     @NamedQuery(name = "CSR.findNonRejectedByPublicKeyHash",
         query = "SELECT c FROM CSR c WHERE " +
             " c.publicKeyHash = :hash  and " +
-            " c.status <> 'REJECTED' "
+            " c.status <> 'REJECTED' "+
+            " order by c.requestedOn desc"
     ),
     @NamedQuery(name = "CSR.countAll",
         query = "SELECT count(c) FROM CSR c "
