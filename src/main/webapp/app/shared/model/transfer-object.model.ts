@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-01-14 16:42:29.
+// Generated using typescript-generator version 3.2.1263 on 2025-03-28 17:27:59.
 
 export interface IADCSInstanceDetailsView extends ISerializable {
   caName?: string;
@@ -106,6 +106,7 @@ export interface IBPMNUpload {
   type?: IBPMNProcessType;
   version?: string;
   contentXML?: string;
+  bpmnProcessAttributes?: IBPMNProcessAttribute[];
 }
 
 export interface ICaConnectorConfigView extends ISerializable {
@@ -259,10 +260,10 @@ export interface ICertificateView extends ISerializable {
   serversideKeyLeftUsages?: number;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
-  issuingActiveCertificates?: boolean;
-  auditPresent?: boolean;
-  fullChainAvailable?: boolean;
   serversideKeyGeneration?: boolean;
+  fullChainAvailable?: boolean;
+  auditPresent?: boolean;
+  issuingActiveCertificates?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
@@ -278,11 +279,12 @@ export interface ICryptoConfigView extends ISerializable {
 }
 
 export interface IUIConfigView extends ISerializable {
+  appName?: string;
   cryptoConfigView?: ICryptoConfigView;
   autoSSOLogin?: boolean;
   ssoProvider?: string[];
   samlEntityBaseUrl?: string;
-  scndFactorTypes?: string[];
+  scndFactorTypes?: IAuthSecondFactor[];
 }
 
 export interface IRequestProxyConfigView extends ISerializable {
@@ -354,6 +356,53 @@ export interface IPreferences extends ISerializable {
   availableSigningAlgos?: string[];
   selectedHashes?: string[];
   selectedSigningAlgos?: string[];
+  authClientCert?: boolean;
+  authTotp?: boolean;
+  authEmail?: boolean;
+  sms?: boolean;
+  authClientCertEnabled?: boolean;
+  smsEnabled?: boolean;
+}
+
+export interface IX509CertificateHolderShallow {
+  certificateId?: number;
+  subject?: string;
+  issuer?: string;
+  type?: string;
+  fingerprint?: string;
+  serial?: string;
+  validFrom?: Date;
+  validTo?: Date;
+  subjectParts?: INamedValues[];
+  extensions?: string[];
+  keyPresent?: boolean;
+  certificatePresentInDB?: boolean;
+  publicKeyPresentInDB?: boolean;
+  pemCertrificate?: string;
+  sans?: string[];
+  pemCertificate?: string;
+}
+
+export interface IPkcsXXData {
+  csrPublicKeyPresentInDB?: boolean;
+  dataType?: IPKCSDataType;
+  p10Holder?: IPkcs10RequestHolderShallow;
+  certificates?: IX509CertificateHolderShallow[];
+  createdCertificateId?: string;
+  passphraseRequired?: boolean;
+  csrPending?: boolean;
+  createdCSRId?: string;
+  messages?: string[];
+  warnings?: string[];
+  badKeysResult?: IBadKeysResult;
+  replacementCandidates?: ICertificateNameId[];
+  replacementCandidatesFromList?: ICertificate[];
+}
+
+export interface ICsrReqAttribute extends ISerializable {
+  oid?: string;
+  oidName?: string;
+  value?: string;
 }
 
 export interface ICSRAdministrationData extends ISerializable {
@@ -396,25 +445,6 @@ export interface IUploadPrecheckData {
   tosAgreed?: boolean;
 }
 
-export interface IX509CertificateHolderShallow {
-  certificateId?: number;
-  subject?: string;
-  issuer?: string;
-  type?: string;
-  fingerprint?: string;
-  serial?: string;
-  validFrom?: Date;
-  validTo?: Date;
-  subjectParts?: INamedValues[];
-  extensions?: string[];
-  keyPresent?: boolean;
-  certificatePresentInDB?: boolean;
-  publicKeyPresentInDB?: boolean;
-  pemCertrificate?: string;
-  sans?: string[];
-  pemCertificate?: string;
-}
-
 export interface ICertificateFilter extends ISerializable {
   attributeName?: string;
   attributeValue?: string;
@@ -438,22 +468,6 @@ export interface ICertificateSelectionData extends ISerializable {
   itemDefaultSelector?: ISelector;
   itemDefaultValue?: string;
   values?: string[];
-}
-
-export interface IPkcsXXData {
-  csrPublicKeyPresentInDB?: boolean;
-  dataType?: IPKCSDataType;
-  p10Holder?: IPkcs10RequestHolderShallow;
-  certificates?: IX509CertificateHolderShallow[];
-  createdCertificateId?: string;
-  passphraseRequired?: boolean;
-  csrPending?: boolean;
-  createdCSRId?: string;
-  messages?: string[];
-  warnings?: string[];
-  badKeysResult?: IBadKeysResult;
-  replacementCandidates?: ICertificateNameId[];
-  replacementCandidatesFromList?: ICertificate[];
 }
 
 export interface IDataCollection {
@@ -481,12 +495,6 @@ export interface IAcmeAccountStatusAdministration extends ISerializable {
   comment?: string;
 }
 
-export interface ICsrReqAttribute extends ISerializable {
-  oid?: string;
-  oidName?: string;
-  value?: string;
-}
-
 export interface ISerializable {}
 
 export interface IURI extends IComparable<IURI>, ISerializable {}
@@ -499,6 +507,15 @@ export interface IAcmeChallengeView extends ISerializable {
   value?: string;
   validated?: Date;
   status?: IChallengeStatus;
+  lastError?: string;
+}
+
+export interface IBPMNProcessAttribute extends ISerializable {
+  id?: number;
+  name?: string;
+  protectedContent?: boolean;
+  bpmnProcessInfo?: IBPMNProcessInfo;
+  value?: string;
 }
 
 export interface INamedValue {
@@ -519,6 +536,7 @@ export interface IARARestriction {
   contentTemplate?: string;
   regEx?: string;
   comment?: string;
+  contentType?: IARAContentType;
   regExMatch?: boolean;
   required?: boolean;
 }
@@ -639,6 +657,19 @@ export interface ICertificate extends ISerializable {
   serialAsHex?: string;
 }
 
+export interface IBPMNProcessInfo extends ISerializable {
+  id?: number;
+  name?: string;
+  version?: string;
+  type?: IBPMNProcessType;
+  author?: string;
+  lastChange?: Date;
+  signatureBase64?: string;
+  bpmnHashBase64?: string;
+  processId?: string;
+  bpmnProcessAttributes?: IBPMNProcessAttribute[];
+}
+
 export interface IPipeline extends ISerializable {
   id?: number;
   name?: string;
@@ -755,18 +786,6 @@ export interface IPipelineAttribute extends ISerializable {
   name?: string;
   value?: string;
   pipeline?: IPipeline;
-}
-
-export interface IBPMNProcessInfo extends ISerializable {
-  id?: number;
-  name?: string;
-  version?: string;
-  type?: IBPMNProcessType;
-  author?: string;
-  lastChange?: Date;
-  signatureBase64?: string;
-  bpmnHashBase64?: string;
-  processId?: string;
 }
 
 export interface IAlgorithmRestriction extends ISerializable {
@@ -898,6 +917,7 @@ export type IBPMNProcessType =
   | 'CERTIFICATE_NOTIFY'
   | 'REQUEST_AUTHORIZATION'
   | 'ACME_ACCOUNT_AUTHORIZATION'
+  | 'SEND_SMS'
   | 'TIMED';
 
 export type ICAConnectorType =
@@ -914,17 +934,13 @@ export type IInterval = 'MINUTE' | 'HOUR' | 'DAY' | 'WEEK' | 'MONTH';
 
 export type IPipelineType = 'ACME' | 'SCEP' | 'WEB' | 'INTERNAL' | 'MANUAL_REQUEST';
 
-export type IKeyUniqueness = 'KEY_UNIQUE' | 'DOMAIN_REUSE' | 'KEY_REUSE' | 'KEY_REUSE_WARN_ONLY' | 'DOMAIN_REUSE_WARN_ONLY';
+export type IKeyUniqueness = 'KEY_UNIQUE' | 'DOMAIN_REUSE' | 'KEY_REUSE' | 'KEY_UNIQUE_WARN_ONLY' | 'DOMAIN_REUSE_WARN_ONLY';
 
 export type ICsrUsage = 'TLS_SERVER' | 'TLS_CLIENT' | 'DOC_SIGNING' | 'CODE_SIGNING';
 
+export type IAuthSecondFactor = 'NONE' | 'CLIENT_CERT' | 'TOTP' | 'EMAIL' | 'SMS';
+
 export type ICsrStatus = 'PROCESSING' | 'ISSUED' | 'REJECTED' | 'PENDING';
-
-export type IAdministrationType = 'ACCEPT' | 'REJECT' | 'REVOKE' | 'UPDATE' | 'UPDATE_CRL';
-
-export type ICreationMode = 'CSR_AVAILABLE' | 'COMMANDLINE_TOOL' | 'SERVERSIDE_KEY_CREATION';
-
-export type IContainerType = 'PKCS_12' | 'JKS';
 
 export type IPKCSDataType =
   | 'CSR'
@@ -935,8 +951,16 @@ export type IPKCSDataType =
   | 'CONTAINER_WITH_KEY'
   | 'CONTAINER_REQUIRING_PASSPHRASE';
 
+export type IAdministrationType = 'ACCEPT' | 'REJECT' | 'REVOKE' | 'UPDATE' | 'UPDATE_CRL';
+
+export type ICreationMode = 'CSR_AVAILABLE' | 'COMMANDLINE_TOOL' | 'SERVERSIDE_KEY_CREATION';
+
+export type IContainerType = 'PKCS_12' | 'JKS';
+
 export type IChallengeStatus = 'pending' | 'valid' | 'invalid' | 'deactivated' | 'expired' | 'revoked';
 
 export type IRDNCardinalityRestriction = 'NOT_ALLOWED' | 'ZERO_OR_ONE' | 'ONE' | 'ONE_OR_SAN' | 'ZERO_OR_MANY' | 'ONE_OR_MANY';
+
+export type IARAContentType = 'NO_TYPE' | 'EMAIL_ADDRESS';
 
 export type IAlgorithmType = 'SIGNING' | 'PADDING' | 'HASH' | 'CURVE';
